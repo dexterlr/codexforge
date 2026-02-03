@@ -32,7 +32,7 @@ function isLikelyInside(parentAbs: string, childAbs: string) {
   return !!rel && !rel.startsWith("..") && !path.isAbsolute(rel);
 }
 
-function json(status: number, payload: any, extraHeaders?: Record<string, string>) {
+function json(status: number, payload: unknown, extraHeaders?: Record<string, string>) {
   return NextResponse.json(payload, {
     status,
     headers: { ...(extraHeaders ?? {}) },
@@ -207,7 +207,7 @@ export async function POST(req: Request) {
         ? "Dry run only: no files were written. Set dryRun=false to apply."
         : "Applied: files were written to disk.",
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json({ ok: false, error: e?.message ?? "Unknown error" }, { status: 500 });
   }
 }

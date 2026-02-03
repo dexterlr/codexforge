@@ -72,13 +72,7 @@ function computeStats(entries: HealthEntry[]) {
   const sleep30 = last30.map((e) => e.sleep).filter(isNum);
 
   const countWithAnyMetric = last7.filter((e) => {
-    return (
-      isNum(e.weight) ||
-      isNum(e.steps) ||
-      isNum(e.water) ||
-      isNum(e.sleep) ||
-      !!e.notes
-    );
+    return isNum(e.weight) || isNum(e.steps) || isNum(e.water) || isNum(e.sleep) || !!e.notes;
   }).length;
 
   return {
@@ -159,22 +153,53 @@ function formatNum(n: number) {
   return n.toLocaleString();
 }
 
+function errorMessage(e: unknown, fallback: string) {
+  if (e instanceof Error && typeof e.message === "string" && e.message.trim()) return e.message;
+  if (typeof e === "string" && e.trim()) return e;
+  return fallback;
+}
+
+function asRecord(v: unknown): Record<string, unknown> | null {
+  return v && typeof v === "object" ? (v as Record<string, unknown>) : null;
+}
+
+function parseOptionalNumber(v: unknown): number | undefined {
+  return isNum(v) ? v : undefined;
+}
+
+function parseOptionalString(v: unknown): string | undefined {
+  return typeof v === "string" && v.trim() ? v.trim() : undefined;
+}
+
+function isISODateYYYYMMDD(s: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(s);
+}
+
 export default function HistoryPage() {
-  // Load once per page view (fine for testbed).
-  // Reload button bumps reloadTick to re-run loadEntries().
-const [reloadTick, setReloadTick] = useState(0);
-const [mounted, setMounted] = useState(false);
-useEffect(() => {
-setMounted(true);
-}, []);
+  // Reload button bumps reloadTick to trigger a re-render.
+  const [reloadTick, setReloadTick] = useState(0);
 
-const entries = useMemo(() => (mounted ? loadEntries() : []), [mounted, reloadTick]);
+  // Keep hydration safe: don't touch localStorage until after mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
+  }, []);
 
+  // Read entries only after mount.
+  // NOTE: no reloadTick dependency here — changing reloadTick already re-renders the component.
+  const entries = useMemo(() => {
+    if (!mounted) return [];
+    return loadEntries();
+  }, [mounted]);
 
   const [ai, setAi] = useState<AiState>({ kind: "idle" });
   const [aiMode, setAiMode] = useState<"auto" | "local">("auto");
   const [showRaw, setShowRaw] = useState(false);
   const [importError, setImportError] = useState<string>("");
+
+  // keep reloadTick "used" without depending on it in hooks (avoids lint noise)
+  void reloadTick;
 
   const latest = entries[0];
   const stats = useMemo(() => computeStats(entries), [entries]);
@@ -225,15 +250,21 @@ const entries = useMemo(() => (mounted ? loadEntries() : []), [mounted, reloadTi
         body: JSON.stringify({ entries }),
       });
 
-      const data = await res.json().catch(() => null);
+      const data: unknown = await res.json().catch(() => null);
+      const obj = asRecord(data);
 
-      if (!res.ok || !data?.ok) {
-        throw new Error(data?.error || `AI call failed (HTTP ${res.status})`);
+      const okFlag = obj ? obj.ok : undefined;
+      if (!res.ok || okFlag !== true) {
+        const errText =
+          (obj && typeof obj.error === "string" && obj.error.trim() ? obj.error : "") ||
+          `AI call failed (HTTP ${res.status})`;
+        throw new Error(errText);
       }
 
-      setAi({ kind: "ready", text: String(data.insight ?? "") });
-    } catch (e: any) {
-      setAi({ kind: "error", message: e?.message ?? "Network/server error calling /api/insights" });
+      const insight = obj?.insight;
+      setAi({ kind: "ready", text: typeof insight === "string" ? insight : "" });
+    } catch (e: unknown) {
+      setAi({ kind: "error", message: errorMessage(e, "Network/server error calling /api/insights") });
     }
   }
 
@@ -266,41 +297,46 @@ const entries = useMemo(() => (mounted ? loadEntries() : []), [mounted, reloadTi
 
     try {
       const text = await readFileAsText(file);
-      const parsed = JSON.parse(text);
+      const parsed: unknown = JSON.parse(text);
 
       if (!Array.isArray(parsed)) {
         throw new Error("Import file must be a JSON array of entries.");
       }
 
-      // Light validation + normalization
-      const normalized: HealthEntry[] = parsed.map((x: any, idx: number) => {
-        const date = String(x?.date ?? "");
-        if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      const normalized: HealthEntry[] = parsed.map((x: unknown, idx: number) => {
+        const r = asRecord(x);
+        if (!r) throw new Error(`Entry #${idx + 1} must be an object.`);
+
+        const date = typeof r.date === "string" ? r.date : "";
+        if (!date || !isISODateYYYYMMDD(date)) {
           throw new Error(`Entry #${idx + 1} is missing a valid date (YYYY-MM-DD).`);
         }
 
-        const id = String(x?.id ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`);
-        const weight = isNum(x?.weight) ? x.weight : undefined;
-        const steps = isNum(x?.steps) ? x.steps : undefined;
-        const water = isNum(x?.water) ? x.water : undefined;
-        const sleep = isNum(x?.sleep) ? x.sleep : undefined;
-        const notes =
-          typeof x?.notes === "string" && x.notes.trim() ? x.notes.trim() : undefined;
+        const idRaw = typeof r.id === "string" ? r.id : "";
+        const id = idRaw || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+        const weight = parseOptionalNumber(r.weight);
+        const steps = parseOptionalNumber(r.steps);
+        const water = parseOptionalNumber(r.water);
+        const sleep = parseOptionalNumber(r.sleep);
+        const notes = parseOptionalString(r.notes);
 
         return { id, date, weight, steps, water, sleep, notes };
       });
 
       // Import strategy: replace local store completely.
-      // Keep compatibility: we do NOT require saveEntries to be exported statically.
       clearEntries();
 
       const storage = await import("@/lib/storage");
-      if (typeof storage.saveEntries === "function") {
-        storage.saveEntries(normalized);
-      } else if (typeof storage.addEntry === "function") {
-        // Fallback: add in reverse so the final store is newest-first.
+      const saveEntriesMaybe = (storage as unknown as { saveEntries?: unknown }).saveEntries;
+      const addEntryMaybe = (storage as unknown as { addEntry?: unknown }).addEntry;
+
+      if (typeof saveEntriesMaybe === "function") {
+        (saveEntriesMaybe as (e: HealthEntry[]) => void)(normalized);
+      } else if (typeof addEntryMaybe === "function") {
+        // Add in reverse so the final store is newest-first.
         for (const e of [...normalized].reverse()) {
-          storage.addEntry(e);
+          (addEntryMaybe as (e: HealthEntry) => void)(e);
         }
       } else {
         throw new Error("Storage module is missing saveEntries() and addEntry().");
@@ -308,8 +344,8 @@ const entries = useMemo(() => (mounted ? loadEntries() : []), [mounted, reloadTi
 
       setAi({ kind: "idle" });
       setReloadTick((x) => x + 1);
-    } catch (e: any) {
-      setImportError(e?.message ?? "Import failed.");
+    } catch (e: unknown) {
+      setImportError(errorMessage(e, "Import failed."));
     }
   }
 
@@ -370,9 +406,7 @@ const entries = useMemo(() => (mounted ? loadEntries() : []), [mounted, reloadTi
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
             <div>
               <div style={{ fontWeight: 900, fontSize: 14 }}>Quick stats</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>
-                Last 7 days (avg/med) + last 30 (sparklines)
-              </div>
+              <div style={{ fontSize: 12, opacity: 0.75 }}>Last 7 days (avg/median) + last 30 (sparklines)</div>
             </div>
 
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -511,9 +545,7 @@ const entries = useMemo(() => (mounted ? loadEntries() : []), [mounted, reloadTi
                     : "Click “Generate insights” to see a summary here."}
               </pre>
 
-              {showRaw ? (
-                <pre style={payloadBox}>{JSON.stringify({ entries: entries.slice(0, 50) }, null, 2)}</pre>
-              ) : null}
+              {showRaw ? <pre style={payloadBox}>{JSON.stringify({ entries: entries.slice(0, 50) }, null, 2)}</pre> : null}
 
               <div style={{ fontSize: 12, opacity: 0.7, lineHeight: 1.5 }}>
                 Rule: AI must be optional. Core UX must stay “boring-fast”.

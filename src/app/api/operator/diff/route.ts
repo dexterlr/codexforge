@@ -7,7 +7,7 @@ type Plan = { steps: string[] };
 
 type Diff = {
   filePath: string; // repo-relative, POSIX style
-  patch: string; // unified diff text
+  patch: string; // unified diff text (simple full-replace diff)
 };
 
 type ReqBody = {
@@ -15,10 +15,15 @@ type ReqBody = {
   goal?: string;
   plan?: Plan;
 
-  // Optional: allow specifying a target file for demos; defaults to history page.
-  // Still guarded by allowlist below.
+  // Back-compat: single target file (defaults to history page)
   targetFile?: string;
+
+  // Multi-file support. If provided and non-empty, this overrides targetFile.
+  // Each entry must still be allowlisted below.
+  targetFiles?: string[];
 };
+
+type JsonPayload = Record<string, unknown>;
 
 const MAX_FILE_BYTES = 500_000; // safety cap (~500KB)
 
@@ -61,7 +66,7 @@ function makeUnifiedDiff(filePath: string, oldText: string, newText: string): st
   return [...header, ...body].join("\n");
 }
 
-function json(status: number, payload: any, extraHeaders?: Record<string, string>) {
+function json(status: number, payload: JsonPayload, extraHeaders?: Record<string, string>) {
   return NextResponse.json(payload, {
     status,
     headers: { ...(extraHeaders ?? {}) },
@@ -102,7 +107,7 @@ function normalizeOperatorFile(original: string, stampIso: string) {
   const stampLine = `// Operator demo change (${stampIso})`;
 
   // Split into lines (no trailing newline dependency)
-  let lines = original.split(/\r?\n/);
+  const lines = original.split(/\r?\n/);
 
   // 1) Remove any leading stamp lines (stacked)
   while (lines.length > 0 && STAMP_RE.test(lines[0])) {
@@ -126,8 +131,7 @@ function normalizeOperatorFile(original: string, stampIso: string) {
 
   // 5) Rebuild with exactly one stamp line at top, and ensure file ends with newline
   const rest = lines.join("\n");
-  const rebuilt = rest.length > 0 ? `${stampLine}\n${rest}\n` : `${stampLine}\n`;
-  return rebuilt;
+  return rest.length > 0 ? `${stampLine}\n${rest}\n` : `${stampLine}\n`;
 }
 
 /**
@@ -163,12 +167,43 @@ function applyGoalDrivenEdit(original: string, goal: string, stampIso: string) {
   if (lower.includes("append:")) {
     const msg = extractAfter("append:");
     const line = msg ? `// operator-append: ${msg}` : `// operator-append: (empty)`;
-
     // normalized already ends with "\n"
     return { mode: "append" as const, updated: normalized + line + "\n" };
   }
 
   return { mode: "stamp" as const, updated: normalized };
+}
+
+function goalMode(goal: string) {
+  const g = goal.toLowerCase();
+  if (g.includes("append:")) return "append";
+  if (g.includes("prepend:")) return "prepend";
+  return "stamp";
+}
+
+function normalizeTargets(body: ReqBody) {
+  const targetFileRaw = String(body?.targetFile ?? "src/app/history/page.tsx").trim();
+
+  const targetFilesRaw = Array.isArray(body?.targetFiles) ? body.targetFiles : null;
+
+  const requested =
+    targetFilesRaw && targetFilesRaw.length > 0
+      ? targetFilesRaw.map((x) => String(x ?? "").trim()).filter(Boolean)
+      : [targetFileRaw];
+
+  const posix = requested.map(toPosix);
+
+  // De-dupe while preserving order
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const t of posix) {
+    if (!t) continue;
+    if (seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+
+  return out;
 }
 
 export async function OPTIONS() {
@@ -185,7 +220,7 @@ export async function OPTIONS() {
 
 export async function GET() {
   return json405(
-    `Use POST with JSON body: { repoPath, goal, plan, (optional) targetFile }. Allowed targetFile: ${allowedTargetsList()}`
+    `Use POST with JSON body: { repoPath, goal, plan, (optional) targetFile | targetFiles }. Allowed targets: ${allowedTargetsList()}`
   );
 }
 
@@ -197,21 +232,26 @@ export async function POST(req: Request) {
     const goal = String(body?.goal ?? "").trim();
     const plan = body?.plan;
 
-    const targetFileRaw = String(body?.targetFile ?? "src/app/history/page.tsx").trim();
-
     if (!repoPath) return json400("repoPath is required");
     if (!goal) return json400("goal is required");
     if (!plan || !Array.isArray(plan.steps)) return json400("plan is required");
 
-    const targetPosix = toPosix(targetFileRaw);
+    const targetPosixList = normalizeTargets(body ?? {});
+    if (targetPosixList.length === 0) {
+      return json400("No targets provided (targetFile or targetFiles[])");
+    }
 
-    if (!ALLOWED_TARGETS.has(targetPosix)) {
-      return json400(`targetFile is not allowed. Allowed: ${allowedTargetsList()}`);
+    // Allowlist enforcement (demo safety)
+    for (const t of targetPosixList) {
+      if (!ALLOWED_TARGETS.has(t)) {
+        return json400(`targetFile is not allowed. Allowed: ${allowedTargetsList()}`);
+      }
     }
 
     const rootAbs = path.resolve(repoPath);
 
-    let st;
+    // Validate repoPath exists and is a folder
+    let st: { isDirectory(): boolean };
     try {
       st = await fs.stat(rootAbs);
     } catch {
@@ -219,54 +259,57 @@ export async function POST(req: Request) {
     }
     if (!st.isDirectory()) return json400("repoPath must be a folder");
 
-    const absPath = path.resolve(path.join(rootAbs, targetPosix));
-
-    if (!isLikelyInside(rootAbs, absPath)) {
-      return json400("Resolved path escapes repoPath");
-    }
-
-    let original: string;
-    try {
-      const buf = await fs.readFile(absPath);
-      if (buf.byteLength > MAX_FILE_BYTES) {
-        return json400(`Target file too large (> ${MAX_FILE_BYTES} bytes)`);
-      }
-      original = buf.toString("utf8");
-    } catch (e: any) {
-      return json400(`Unable to read ${targetPosix}: ${e?.message ?? "read error"}`);
-    }
-
-    // History page special-case: if export already exists, return no diffs (idempotent).
-    if (targetPosix === "src/app/history/page.tsx" && hasExportToolsAlready(original)) {
-      return NextResponse.json({
-        ok: true,
-        diffs: [] as Diff[],
-        note: "No changes needed: history page already contains export handlers.",
-        meta: { targetFile: targetPosix, goal, planSteps: plan.steps.length, mode: "noop" },
-      });
-    }
-
     const stamp = new Date().toISOString();
-    const { mode, updated } = applyGoalDrivenEdit(original, goal, stamp);
+    const diffs: Diff[] = [];
 
-    if (updated === original) {
-      return NextResponse.json({
-        ok: true,
-        diffs: [] as Diff[],
-        note: "No changes produced (no-op).",
-        meta: { targetFile: targetPosix, goal, planSteps: plan.steps.length, mode: "noop" },
+    for (const targetPosix of targetPosixList) {
+      const absPath = path.resolve(path.join(rootAbs, targetPosix));
+
+      if (!isLikelyInside(rootAbs, absPath)) {
+        return json400(`Resolved path escapes repoPath: ${targetPosix}`);
+      }
+
+      let original: string;
+      try {
+        const buf = await fs.readFile(absPath);
+        if (buf.byteLength > MAX_FILE_BYTES) {
+          return json400(`Target file too large (> ${MAX_FILE_BYTES} bytes): ${targetPosix}`);
+        }
+        original = buf.toString("utf8");
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : "read error";
+        return json400(`Unable to read ${targetPosix}: ${msg}`);
+      }
+
+      // History page special-case: if export already exists, produce no diff for that file.
+      if (targetPosix === "src/app/history/page.tsx" && hasExportToolsAlready(original)) {
+        continue;
+      }
+
+      const { updated } = applyGoalDrivenEdit(original, goal, stamp);
+      if (updated === original) continue;
+
+      diffs.push({
+        filePath: targetPosix,
+        patch: makeUnifiedDiff(targetPosix, original, updated),
       });
     }
-
-    const patch = makeUnifiedDiff(targetPosix, original, updated);
-    const diffs: Diff[] = [{ filePath: targetPosix, patch }];
 
     return NextResponse.json({
       ok: true,
       diffs,
-      meta: { targetFile: targetPosix, goal, planSteps: plan.steps.length, stamp, mode },
+      meta: {
+        targetFiles: targetPosixList,
+        goal,
+        planSteps: plan.steps.length,
+        stamp,
+        mode: goalMode(goal),
+        count: diffs.length,
+      },
+      ...(diffs.length === 0 ? { note: "No changes produced (no-op for all targets)." } : {}),
     });
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message ?? "Unknown error" }, { status: 500 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }
