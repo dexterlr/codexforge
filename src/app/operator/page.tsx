@@ -7,23 +7,29 @@ import { useEffect, useMemo, useRef, useState } from "react";
  * CodexForge Operator — UI Harness (Client-only)
  *
  * Purpose:
- * - Real operator loop UI:
+ * - Operator loop UI:
  *   snapshot → plan → approve → diff → approve → apply → test → done
- * - Adds repo browser + file viewer (read-only) to inspect any file after snapshot.
- * - Calls API routes (when present) but stays usable if they’re missing/offline.
+ * - Repo browser + file viewer (read-only) after snapshot.
+ * - Persistent Run backing store via:
+ *   /api/operator/run/start, /api/operator/run/get, /api/operator/run/update
  *
  * Non-negotiables:
  * - Human approvals at Plan and Diff gates
- * - Core UX stays fast even if AI/offline/slow/broken
- * - Hydration-safe: anything time/random/localStorage happens AFTER mount
+ * - UX stays usable if AI/offline/slow/broken
+ * - Hydration-safe: time/random/localStorage AFTER mount
  *
- * Routes (expected, but optional during bring-up):
+ * Routes (expected, optional during bring-up):
  * - POST /api/operator/snapshot { repoPath } -> { ok, root, fileCount, capped, files }
  * - POST /api/operator/read     { repoPath, filePath } -> { ok, root, filePath, bytes, text }
  * - POST /api/operator/plan     { repoPath, goal, snapshot? } -> { ok, plan }
  * - POST /api/operator/diff     { repoPath, goal, plan, snapshot? } -> { ok, diffs }
  * - POST /api/operator/apply    { repoPath, diffs } -> { ok, appliedFiles? }
  * - POST /api/operator/test     { repoPath } -> { ok, testOutput? }
+ *
+ * Run persistence (backed by .operator/runs/*.json):
+ * - POST /api/operator/run/start  { repoPath, goal } -> { ok, runId, runFile }
+ * - POST /api/operator/run/get    { repoPath, runId } -> { ok, run, runFile }
+ * - POST /api/operator/run/update { repoPath, runId, phase?, log?, logs?, patch? } -> { ok, run, runFile }
  */
 
 type Phase =
@@ -102,6 +108,22 @@ type RunState = {
 type PostOk<T> = { ok: true; data: T };
 type PostErr = { ok: false; status?: number; error: string; data?: unknown };
 type PostResult<T> = PostOk<T> | PostErr;
+
+type RunFile = {
+  version: number;
+  runId: string;
+  createdAt: string;
+  updatedAt: string;
+  repoPath: string;
+  goal: string;
+  phase: string;
+  logs: string[];
+  [k: string]: unknown;
+};
+
+type RunStartResp = { ok: true; runId: string; runFile: string } | { ok: false; error: string };
+type RunGetResp = { ok: true; run: RunFile; runFile: string } | { ok: false; error: string };
+type RunUpdateResp = { ok: true; run: RunFile; runFile: string } | { ok: false; error: string };
 
 function defaultPlan(goal: string): Plan {
   return {
@@ -187,6 +209,10 @@ function formatBytes(n: number) {
   return `${mb.toFixed(1)} MB`;
 }
 
+function safeTrim(s: unknown) {
+  return typeof s === "string" ? s.trim() : "";
+}
+
 export default function OperatorPage() {
   // Hydration safety gate
   const [mounted, setMounted] = useState(false);
@@ -218,6 +244,13 @@ export default function OperatorPage() {
     diffs: [],
     logs: [],
   }));
+
+  // Persistent Run state (backed by server file)
+  const [runId, setRunId] = useState<string>("");
+  const [runFile, setRunFile] = useState<string>("");
+  const [runBusy, setRunBusy] = useState<boolean>(false);
+  const [runErr, setRunErr] = useState<string>("");
+  const [runServer, setRunServer] = useState<RunFile | null>(null);
 
   // Repo browser state
   const [fileQuery, setFileQuery] = useState<string>("");
@@ -284,6 +317,8 @@ export default function OperatorPage() {
     setFileError("");
     setFileLoading(false);
 
+    // Do NOT auto-clear runId here — you might want to keep the server-run.
+    // If you want a fresh server-run, click "New run".
     setRun({
       phase: "idle",
       repoPath,
@@ -298,6 +333,183 @@ export default function OperatorPage() {
       lastResponse: undefined,
       lastError: undefined,
     });
+  }
+
+  // ---- Run persistence helpers ----
+
+  async function getRun() {
+    if (!mounted) return;
+    if (mode !== "api") return;
+    if (!runId) return;
+
+    setRunBusy(true);
+    setRunErr("");
+
+    abortRef.current?.abort();
+    const ac = new AbortController();
+    abortRef.current = ac;
+
+    const body = { repoPath, runId };
+    setRun((r) => ({ ...r, lastRequest: { url: "/api/operator/run/get", body } }));
+
+    const resp = await postJSON<RunGetResp>("/api/operator/run/get", body, ac.signal);
+
+    abortRef.current = null;
+    setRunBusy(false);
+
+    if (!resp.ok) {
+      setRunErr(resp.error);
+      appendLog(`Run get failed: ${resp.error}`);
+      return;
+    }
+
+    setRun((r) => ({ ...r, lastResponse: resp.data }));
+
+    if (!resp.data.ok) {
+      setRunErr(resp.data.error);
+      appendLog(`Run get failed: ${resp.data.error}`);
+      return;
+    }
+
+    setRunServer(resp.data.run);
+    setRunFile(resp.data.runFile);
+    appendLog(`Run loaded: ${resp.data.run.runId}`);
+  }
+
+  async function updateRun(payload: { phase?: Phase; log?: string; logs?: string[]; patch?: Record<string, unknown> }) {
+    if (!mounted) return;
+    if (mode !== "api") return;
+    if (!runId) return;
+
+    const phase = payload.phase;
+    const log = safeTrim(payload.log);
+    const logs = Array.isArray(payload.logs) ? payload.logs.map((x) => safeTrim(x)).filter(Boolean) : undefined;
+
+    setRunBusy(true);
+    setRunErr("");
+
+    // NOTE: we do NOT abort the main operator call chain to update the run,
+    // so we use a separate controller here.
+    const ac = new AbortController();
+
+    const body = {
+      repoPath,
+      runId,
+      ...(phase ? { phase } : {}),
+      ...(log ? { log } : {}),
+      ...(logs && logs.length ? { logs } : {}),
+      ...(payload.patch ? { patch: payload.patch } : {}),
+    };
+
+    setRun((r) => ({ ...r, lastRequest: { url: "/api/operator/run/update", body } }));
+
+    const resp = await postJSON<RunUpdateResp>("/api/operator/run/update", body, ac.signal);
+
+    setRunBusy(false);
+
+    if (!resp.ok) {
+      setRunErr(resp.error);
+      appendLog(`Run update failed: ${resp.error}`);
+      return;
+    }
+
+    setRun((r) => ({ ...r, lastResponse: resp.data }));
+
+    if (!resp.data.ok) {
+      setRunErr(resp.data.error);
+      appendLog(`Run update failed: ${resp.data.error}`);
+      return;
+    }
+
+    setRunServer(resp.data.run);
+    setRunFile(resp.data.runFile);
+  }
+
+  // Auto-start a run once after mount in API mode (scheduled; lint-safe, no startRun dep)
+  useEffect(() => {
+    if (!mounted) return;
+    if (mode !== "api") return;
+    if (runId) return;
+
+    const id = setTimeout(() => {
+      void (async () => {
+        setRunBusy(true);
+        setRunErr("");
+
+        // Abort any prior in-flight request that uses abortRef
+        abortRef.current?.abort();
+        const ac = new AbortController();
+        abortRef.current = ac;
+
+        const body = { repoPath, goal };
+        setRun((r) => ({ ...r, lastRequest: { url: "/api/operator/run/start", body } }));
+
+        const resp = await postJSON<RunStartResp>("/api/operator/run/start", body, ac.signal);
+
+        abortRef.current = null;
+        setRunBusy(false);
+
+        if (!resp.ok) {
+          setRunErr(resp.error);
+          appendLog(`Run start failed: ${resp.error}`);
+          return;
+        }
+
+        setRun((r) => ({ ...r, lastResponse: resp.data }));
+
+        if (!resp.data.ok) {
+          setRunErr(resp.data.error);
+          appendLog(`Run start failed: ${resp.data.error}`);
+          return;
+        }
+
+        setRunId(resp.data.runId);
+        setRunFile(resp.data.runFile);
+        setRunServer(null);
+        appendLog(`Run started: ${resp.data.runId}`);
+      })();
+    }, 0);
+
+    return () => clearTimeout(id);
+  }, [mounted, mode, runId, repoPath, goal]);
+
+  async function startRunManual() {
+    if (!mounted) return;
+    if (mode !== "api") return;
+
+    setRunBusy(true);
+    setRunErr("");
+
+    abortRef.current?.abort();
+    const ac = new AbortController();
+    abortRef.current = ac;
+
+    const body = { repoPath, goal };
+    setRun((r) => ({ ...r, lastRequest: { url: "/api/operator/run/start", body } }));
+
+    const resp = await postJSON<RunStartResp>("/api/operator/run/start", body, ac.signal);
+
+    abortRef.current = null;
+    setRunBusy(false);
+
+    if (!resp.ok) {
+      setRunErr(resp.error);
+      appendLog(`Run start failed: ${resp.error}`);
+      return;
+    }
+
+    setRun((r) => ({ ...r, lastResponse: resp.data }));
+
+    if (!resp.data.ok) {
+      setRunErr(resp.data.error);
+      appendLog(`Run start failed: ${resp.data.error}`);
+      return;
+    }
+
+    setRunId(resp.data.runId);
+    setRunFile(resp.data.runFile);
+    setRunServer(null);
+    appendLog(`Run started: ${resp.data.runId}`);
   }
 
   async function loadFile(filePath: string) {
@@ -366,6 +578,7 @@ export default function OperatorPage() {
       lastError: undefined,
     }));
     appendLog("Reading repository snapshot…");
+    void updateRun({ phase: "snapshotting", log: "snapshotting" });
 
     // reset browser view when snapshotting
     setSelectedFile("");
@@ -384,6 +597,7 @@ export default function OperatorPage() {
       setRun((r) => ({ ...r, phase: "idle", snapshot: fake }));
       setUi({ kind: "ready" });
       appendLog("Snapshot ready (local stub).");
+      void updateRun({ phase: "idle", log: "snapshot ready (local)" });
       return;
     }
 
@@ -399,19 +613,23 @@ export default function OperatorPage() {
 
     if (!resp.ok) {
       setError(resp.error);
+      void updateRun({ phase: "error", log: `snapshot error: ${resp.error}` });
       return;
     }
 
     setRun((r) => ({ ...r, lastResponse: resp.data }));
 
     if (!resp.data?.ok) {
-      setError(resp.data?.error || "Snapshot API returned invalid response.");
+      const msg = resp.data?.error || "Snapshot API returned invalid response.";
+      setError(msg);
+      void updateRun({ phase: "error", log: `snapshot error: ${msg}` });
       return;
     }
 
     setRun((r) => ({ ...r, phase: "idle", snapshot: resp.data }));
     setUi({ kind: "ready" });
     appendLog(`Snapshot ready (${resp.data.fileCount ?? "?"} files).`);
+    void updateRun({ phase: "idle", log: `snapshot ready (${resp.data.fileCount ?? "?"} files)` });
   }
 
   // ---------- Phase actions ----------
@@ -434,12 +652,14 @@ export default function OperatorPage() {
       lastError: undefined,
     }));
     appendLog("Starting planning phase…");
+    void updateRun({ phase: "planning", log: "starting planning" });
 
     if (mode === "local") {
       const plan = defaultPlan(goal);
       setRun((r) => ({ ...r, phase: "awaiting_plan_approval", plan }));
       setUi({ kind: "ready" });
       appendLog("Plan ready (local). Awaiting approval.");
+      void updateRun({ phase: "awaiting_plan_approval", log: "plan ready (local)" });
       return;
     }
 
@@ -456,19 +676,27 @@ export default function OperatorPage() {
 
     if (!resp.ok) {
       setError(resp.error);
+      void updateRun({ phase: "error", log: `plan error: ${resp.error}` });
       return;
     }
 
     setRun((r) => ({ ...r, lastResponse: resp.data }));
 
     if (!resp.data?.ok || !resp.data?.plan?.steps) {
-      setError(resp.data?.error || "Plan API returned invalid response.");
+      const msg = resp.data?.error || "Plan API returned invalid response.";
+      setError(msg);
+      void updateRun({ phase: "error", log: `plan error: ${msg}` });
       return;
     }
 
     setRun((r) => ({ ...r, phase: "awaiting_plan_approval", plan: resp.data.plan }));
     setUi({ kind: "ready" });
     appendLog("Plan ready (API). Awaiting approval.");
+    void updateRun({
+      phase: "awaiting_plan_approval",
+      log: "plan ready (api)",
+      patch: { plan: resp.data.plan },
+    });
   }
 
   async function approvePlan() {
@@ -479,12 +707,14 @@ export default function OperatorPage() {
     setUi({ kind: "loading", label: "Generating diffs…" });
     setRun((r) => ({ ...r, phase: "diffing", diffs: [] }));
     appendLog("Plan approved. Generating diffs…");
+    void updateRun({ phase: "diffing", log: "plan approved; diffing" });
 
     if (mode === "local") {
       const diffs = sampleDiffs();
       setRun((r) => ({ ...r, phase: "awaiting_diff_approval", diffs }));
       setUi({ kind: "ready" });
       appendLog(`Diffs ready (local) (${diffs.length}). Awaiting approval.`);
+      void updateRun({ phase: "awaiting_diff_approval", log: `diffs ready (local) (${diffs.length})`, patch: { diffs } });
       return;
     }
 
@@ -506,19 +736,24 @@ export default function OperatorPage() {
 
     if (!resp.ok) {
       setError(resp.error);
+      void updateRun({ phase: "error", log: `diff error: ${resp.error}` });
       return;
     }
 
     setRun((r) => ({ ...r, lastResponse: resp.data }));
 
     if (!resp.data?.ok || !Array.isArray(resp.data?.diffs)) {
-      setError(resp.data?.error || "Diff API returned invalid response.");
+      const msg = resp.data?.error || "Diff API returned invalid response.";
+      setError(msg);
+      void updateRun({ phase: "error", log: `diff error: ${msg}` });
       return;
     }
 
-    setRun((r) => ({ ...r, phase: "awaiting_diff_approval", diffs: resp.data.diffs ?? [] }));
+    const diffs = resp.data.diffs ?? [];
+    setRun((r) => ({ ...r, phase: "awaiting_diff_approval", diffs }));
     setUi({ kind: "ready" });
-    appendLog(`Diffs ready (API) (${(resp.data.diffs ?? []).length}). Awaiting approval.`);
+    appendLog(`Diffs ready (API) (${diffs.length}). Awaiting approval.`);
+    void updateRun({ phase: "awaiting_diff_approval", log: `diffs ready (api) (${diffs.length})`, patch: { diffs } });
   }
 
   function rejectPlan() {
@@ -526,6 +761,7 @@ export default function OperatorPage() {
     setUi({ kind: "idle" });
     setRun((r) => ({ ...r, phase: "idle", plan: null, diffs: [] }));
     appendLog("Plan rejected. Back to idle.");
+    void updateRun({ phase: "idle", log: "plan rejected; back to idle", patch: { plan: null, diffs: [] } });
   }
 
   async function approveDiffs() {
@@ -541,6 +777,7 @@ export default function OperatorPage() {
       testOutput: undefined,
     }));
     appendLog("Diffs approved. Applying changes…");
+    void updateRun({ phase: "applying", log: "diffs approved; applying" });
 
     if (mode === "local") {
       appendLog("(Local) Pretending to apply diffs to disk…");
@@ -550,6 +787,7 @@ export default function OperatorPage() {
       setRun((r) => ({ ...r, phase: "done", testOutput: "All tests passed (stub)." }));
       setUi({ kind: "ready" });
       appendLog("Run complete (local stub).");
+      void updateRun({ phase: "done", log: "done (local stub)", patch: { testOutput: "All tests passed (stub)." } });
       return;
     }
 
@@ -571,6 +809,7 @@ export default function OperatorPage() {
       if (!resp.ok) {
         abortRef.current = null;
         setError(resp.error);
+        void updateRun({ phase: "error", log: `apply error: ${resp.error}` });
         return;
       }
 
@@ -578,21 +817,27 @@ export default function OperatorPage() {
 
       if (!resp.data?.ok) {
         abortRef.current = null;
-        setError(resp.data?.error || "Apply API returned invalid response.");
+        const msg = resp.data?.error || "Apply API returned invalid response.";
+        setError(msg);
+        void updateRun({ phase: "error", log: `apply error: ${msg}` });
         return;
       }
 
+      const appliedFiles = Array.isArray(resp.data.appliedFiles) ? resp.data.appliedFiles : undefined;
+
       setRun((r) => ({
         ...r,
-        appliedFiles: Array.isArray(resp.data.appliedFiles) ? resp.data.appliedFiles : undefined,
+        appliedFiles,
       }));
       appendLog("Apply complete.");
+      void updateRun({ log: "apply complete", patch: { appliedFiles } });
     }
 
     // TEST
     setRun((r) => ({ ...r, phase: "testing" }));
     setUi({ kind: "loading", label: "Testing…" });
     appendLog("Running tests…");
+    void updateRun({ phase: "testing", log: "testing" });
 
     {
       const body = { repoPath: run.repoPath };
@@ -608,23 +853,29 @@ export default function OperatorPage() {
 
       if (!resp.ok) {
         setError(resp.error);
+        void updateRun({ phase: "error", log: `test error: ${resp.error}` });
         return;
       }
 
       setRun((r) => ({ ...r, lastResponse: resp.data }));
 
       if (!resp.data?.ok) {
-        setError(resp.data?.error || "Test API returned invalid response.");
+        const msg = resp.data?.error || "Test API returned invalid response.";
+        setError(msg);
+        void updateRun({ phase: "error", log: `test error: ${msg}` });
         return;
       }
+
+      const testOutput = typeof resp.data.testOutput === "string" ? resp.data.testOutput : undefined;
 
       setRun((r) => ({
         ...r,
         phase: "done",
-        testOutput: typeof resp.data.testOutput === "string" ? resp.data.testOutput : undefined,
+        testOutput,
       }));
       setUi({ kind: "ready" });
       appendLog("Run complete (API).");
+      void updateRun({ phase: "done", log: "done (api)", patch: { testOutput } });
     }
   }
 
@@ -633,6 +884,7 @@ export default function OperatorPage() {
     setUi({ kind: "idle" });
     setRun((r) => ({ ...r, phase: "awaiting_plan_approval", diffs: [] }));
     appendLog("Diffs rejected. Back to plan approval.");
+    void updateRun({ phase: "awaiting_plan_approval", log: "diffs rejected; back to plan approval", patch: { diffs: [] } });
   }
 
   // ---------- Derived UI state ----------
@@ -685,6 +937,15 @@ export default function OperatorPage() {
     return { bytes: match?.bytes };
   }, [snapshotFiles, selectedFile]);
 
+  const runStatusText = useMemo(() => {
+    if (mode !== "api") return "Local mode (no server run).";
+    if (!runId && runBusy) return "Starting run…";
+    if (!runId) return "No run yet.";
+    if (runBusy) return "Syncing run…";
+    if (runErr) return `Run error: ${runErr}`;
+    return "Run ready.";
+  }, [mode, runId, runBusy, runErr]);
+
   return (
     <main style={page}>
       <div style={shell}>
@@ -703,6 +964,11 @@ export default function OperatorPage() {
           <div style={phasePill}>
             <div style={{ fontSize: 11, opacity: 0.7 }}>Phase</div>
             <div style={{ fontWeight: 950 }}>{run.phase}</div>
+            <div style={{ marginTop: 6, fontSize: 11, opacity: 0.75, lineHeight: 1.3 }}>
+              Run: <b>{runId ? runId : "—"}</b>
+              {runFile ? <div style={{ marginTop: 3, opacity: 0.7 }}>File: {runFile}</div> : null}
+              <div style={{ marginTop: 3 }}>{runStatusText}</div>
+            </div>
           </div>
         </div>
 
@@ -766,12 +1032,25 @@ export default function OperatorPage() {
               Mode: {mode === "api" ? "API" : "Local"}
             </button>
 
+            {/* Run buttons */}
+            <button onClick={() => void startRunManual()} style={ghostBtn} disabled={!mounted || mode !== "api" || runBusy} title="Create a fresh server-backed run (new runId).">
+              New run
+            </button>
+
+            <button onClick={() => void getRun()} style={ghostBtn} disabled={!mounted || mode !== "api" || runBusy || !runId} title="Load the run file from disk via /api/operator/run/get.">
+              Load run
+            </button>
+
             <button
-              onClick={() => setShowPayload((v) => !v)}
+              onClick={() => void updateRun({ log: "manual ping from UI", patch: { uiPingAt: new Date().toISOString() } })}
               style={ghostBtn}
-              disabled={!mounted}
-              title="Show the last request/response payload for audit/debug"
+              disabled={!mounted || mode !== "api" || runBusy || !runId}
+              title="Writes a log line to the run file (useful to verify persistence)."
             >
+              Ping run
+            </button>
+
+            <button onClick={() => setShowPayload((v) => !v)} style={ghostBtn} disabled={!mounted} title="Show the last request/response payload for audit/debug">
               {showPayload ? "Hide" : "Show"} payload
             </button>
 
@@ -787,6 +1066,12 @@ export default function OperatorPage() {
           <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>
             Status: <b>{statusText}</b> {ui.kind === "error" ? <span style={{ opacity: 1 }}>— {ui.message}</span> : null}
           </div>
+
+          {mode === "api" && runServer ? (
+            <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8, lineHeight: 1.5 }}>
+              <b>Server run snapshot:</b> phase=<b>{String(runServer.phase)}</b>, updatedAt=<b>{runServer.updatedAt}</b>
+            </div>
+          ) : null}
         </section>
 
         {/* Snapshot */}
@@ -822,13 +1107,7 @@ export default function OperatorPage() {
             <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
               <label style={{ display: "grid", gap: 6, flex: 1, minWidth: 260 }}>
                 <div style={{ fontSize: 12, opacity: 0.8 }}>Search files</div>
-                <input
-                  value={fileQuery}
-                  onChange={(e) => setFileQuery(e.target.value)}
-                  style={input}
-                  placeholder="e.g. src/app/api/operator"
-                  disabled={!mounted}
-                />
+                <input value={fileQuery} onChange={(e) => setFileQuery(e.target.value)} style={input} placeholder="e.g. src/app/api/operator" disabled={!mounted} />
               </label>
 
               <button
@@ -851,8 +1130,7 @@ export default function OperatorPage() {
               {/* File list */}
               <div style={{ ...miniCard, maxHeight: 420, overflow: "auto" }}>
                 <div style={{ fontWeight: 900, marginBottom: 8 }}>
-                  Files{" "}
-                  <span style={{ fontWeight: 700, opacity: 0.7, fontSize: 12 }}>({filteredFiles.length.toLocaleString()})</span>
+                  Files <span style={{ fontWeight: 700, opacity: 0.7, fontSize: 12 }}>({filteredFiles.length.toLocaleString()})</span>
                 </div>
 
                 {filteredFiles.length === 0 ? (
@@ -883,9 +1161,7 @@ export default function OperatorPage() {
                   </div>
                 )}
 
-                {showCapNote ? (
-                  <div style={{ marginTop: 8, fontSize: 11, opacity: 0.7 }}>Showing first 300 results (cap). We can add paging in v2.</div>
-                ) : null}
+                {showCapNote ? <div style={{ marginTop: 8, fontSize: 11, opacity: 0.7 }}>Showing first 300 results (cap). We can add paging in v2.</div> : null}
               </div>
 
               {/* File viewer */}
@@ -903,12 +1179,7 @@ export default function OperatorPage() {
                     Copy
                   </button>
 
-                  <button
-                    style={ghostBtn}
-                    onClick={() => void (selectedFile ? loadFile(selectedFile) : Promise.resolve())}
-                    disabled={!mounted || !selectedFile || fileLoading}
-                    title="Re-read the selected file"
-                  >
+                  <button style={ghostBtn} onClick={() => void (selectedFile ? loadFile(selectedFile) : Promise.resolve())} disabled={!mounted || !selectedFile || fileLoading} title="Re-read the selected file">
                     Refresh
                   </button>
 
@@ -925,9 +1196,7 @@ export default function OperatorPage() {
                     <b>Error:</b> {fileError}
                   </div>
                 ) : (
-                  <pre style={{ ...codeBox, marginTop: 10, maxHeight: 320, overflow: "auto", whiteSpace: "pre" }}>
-                    {fileText || "Click a file to load it."}
-                  </pre>
+                  <pre style={{ ...codeBox, marginTop: 10, maxHeight: 320, overflow: "auto", whiteSpace: "pre" }}>{fileText || "Click a file to load it."}</pre>
                 )}
               </div>
             </div>
@@ -1032,9 +1301,7 @@ export default function OperatorPage() {
           ) : null}
         </div>
 
-        <div style={footnote}>
-          Non-negotiable: AI must be optional. Operator must never block browsing/editing even if AI is slow/offline/broken.
-        </div>
+        <div style={footnote}>Non-negotiable: AI must be optional. Operator must never block browsing/editing even if AI is slow/offline/broken.</div>
       </div>
     </main>
   );
@@ -1083,7 +1350,7 @@ const phasePill: React.CSSProperties = {
   background: "rgba(255,255,255,0.05)",
   display: "grid",
   gap: 2,
-  minWidth: 160,
+  minWidth: 260,
 };
 
 const title: React.CSSProperties = {
