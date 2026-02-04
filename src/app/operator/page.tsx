@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
  * Purpose:
  * - Real operator loop UI:
  *   snapshot → plan → approve → diff → approve → apply → test → done
+ * - Adds repo browser + file viewer (read-only) to inspect any file after snapshot.
  * - Calls API routes (when present) but stays usable if they’re missing/offline.
  *
  * Non-negotiables:
@@ -18,8 +19,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
  *
  * Routes (expected, but optional during bring-up):
  * - POST /api/operator/snapshot { repoPath } -> { ok, root, fileCount, capped, files }
- * - POST /api/operator/plan     { repoPath, goal } -> { ok, plan }
- * - POST /api/operator/diff     { repoPath, goal, plan } -> { ok, diffs }
+ * - POST /api/operator/read     { repoPath, filePath } -> { ok, root, filePath, bytes, text }
+ * - POST /api/operator/plan     { repoPath, goal, snapshot? } -> { ok, plan }
+ * - POST /api/operator/diff     { repoPath, goal, plan, snapshot? } -> { ok, diffs }
  * - POST /api/operator/apply    { repoPath, diffs } -> { ok, appliedFiles? }
  * - POST /api/operator/test     { repoPath } -> { ok, testOutput? }
  */
@@ -45,7 +47,7 @@ type Diff = {
 };
 
 type SnapshotFile = {
-  path: string;
+  path: string; // repo-relative, POSIX-ish
   bytes: number;
   mtimeMs: number;
 };
@@ -58,6 +60,16 @@ type Snapshot = {
   files?: SnapshotFile[];
   error?: string;
 };
+
+type ReadFileOk = {
+  ok: true;
+  root: string;
+  filePath: string;
+  bytes: number;
+  text: string;
+};
+type ReadFileErr = { ok: false; error: string };
+type ReadFileResp = ReadFileOk | ReadFileErr;
 
 type AiState =
   | { kind: "idle" }
@@ -110,13 +122,11 @@ function sampleDiffs(): Diff[] {
   return [
     {
       filePath: "README.md",
-      patch:
-        "+++ README.md\n+ Added note: This is a test diff. (Later: real unified diff output.)",
+      patch: "+++ README.md\n+ Added note: This is a test diff. (Later: real unified diff output.)",
     },
     {
       filePath: "src/lib/codexforge/engine.ts",
-      patch:
-        "+++ src/lib/codexforge/engine.ts\n+ Placeholder engine file. (Later: real engine implementation.)",
+      patch: "+++ src/lib/codexforge/engine.ts\n+ Placeholder engine file. (Later: real engine implementation.)",
     },
   ];
 }
@@ -139,11 +149,7 @@ function asErrorMessage(data: unknown, fallback: string) {
   return fallback;
 }
 
-async function postJSON<TResp>(
-  url: string,
-  body: unknown,
-  signal?: AbortSignal
-): Promise<PostResult<TResp>> {
+async function postJSON<TResp>(url: string, body: unknown, signal?: AbortSignal): Promise<PostResult<TResp>> {
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -172,6 +178,15 @@ async function postJSON<TResp>(
   }
 }
 
+function formatBytes(n: number) {
+  if (!Number.isFinite(n) || n < 0) return "—";
+  if (n < 1024) return `${n} B`;
+  const kb = n / 1024;
+  if (kb < 1024) return `${kb.toFixed(1)} KB`;
+  const mb = kb / 1024;
+  return `${mb.toFixed(1)} MB`;
+}
+
 export default function OperatorPage() {
   // Hydration safety gate
   const [mounted, setMounted] = useState(false);
@@ -184,9 +199,7 @@ export default function OperatorPage() {
 
   // Inputs (editable only while idle)
   const [repoPath, setRepoPath] = useState<string>("C:\\tools\\health-tracker");
-  const [goal, setGoal] = useState<string>(
-    "Add a simple export button to the history page"
-  );
+  const [goal, setGoal] = useState<string>("Add a simple export button to the history page");
 
   // Operator settings
   const [mode, setMode] = useState<"api" | "local">("api");
@@ -205,6 +218,13 @@ export default function OperatorPage() {
     diffs: [],
     logs: [],
   }));
+
+  // Repo browser state
+  const [fileQuery, setFileQuery] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<string>("");
+  const [fileText, setFileText] = useState<string>("");
+  const [fileError, setFileError] = useState<string>("");
+  const [fileLoading, setFileLoading] = useState<boolean>(false);
 
   // Initialize logs once after mount (scheduled; avoids lint rule)
   useEffect(() => {
@@ -259,6 +279,11 @@ export default function OperatorPage() {
     abortRef.current = null;
 
     clearError();
+    setSelectedFile("");
+    setFileText("");
+    setFileError("");
+    setFileLoading(false);
+
     setRun({
       phase: "idle",
       repoPath,
@@ -273,6 +298,57 @@ export default function OperatorPage() {
       lastResponse: undefined,
       lastError: undefined,
     });
+  }
+
+  async function loadFile(filePath: string) {
+    if (!mounted) return;
+
+    setSelectedFile(filePath);
+    setFileError("");
+    setFileLoading(true);
+    setFileText("");
+
+    if (mode === "local") {
+      setFileText(`(Local mode)\nWould load: ${filePath}`);
+      setFileLoading(false);
+      return;
+    }
+
+    abortRef.current?.abort();
+    const ac = new AbortController();
+    abortRef.current = ac;
+
+    const body = { repoPath: run.repoPath, filePath };
+    setRun((r) => ({ ...r, lastRequest: { url: "/api/operator/read", body } }));
+
+    const resp = await postJSON<ReadFileResp>("/api/operator/read", body, ac.signal);
+    abortRef.current = null;
+
+    setFileLoading(false);
+
+    if (!resp.ok) {
+      setFileError(resp.error);
+      return;
+    }
+
+    setRun((r) => ({ ...r, lastResponse: resp.data }));
+
+    if (!resp.data.ok) {
+      setFileError(resp.data.error);
+      return;
+    }
+
+    setFileText(resp.data.text);
+    appendLog(`Read file: ${filePath} (${formatBytes(resp.data.bytes)})`);
+  }
+
+  function copyViewerToClipboard() {
+    if (!mounted) return;
+    if (!fileText) return;
+    void navigator.clipboard.writeText(fileText).then(
+      () => appendLog("Copied viewer text to clipboard."),
+      () => appendLog("Copy failed (clipboard permissions).")
+    );
   }
 
   // ---------- Snapshot ----------
@@ -290,6 +366,12 @@ export default function OperatorPage() {
       lastError: undefined,
     }));
     appendLog("Reading repository snapshot…");
+
+    // reset browser view when snapshotting
+    setSelectedFile("");
+    setFileText("");
+    setFileError("");
+    setFileLoading(false);
 
     if (mode === "local") {
       const fake: Snapshot = {
@@ -368,11 +450,7 @@ export default function OperatorPage() {
     const body = { repoPath, goal, snapshot: run.snapshot ?? null };
     setRun((r) => ({ ...r, lastRequest: { url: "/api/operator/plan", body } }));
 
-    const resp = await postJSON<{ ok: boolean; plan?: Plan; error?: string }>(
-      "/api/operator/plan",
-      body,
-      ac.signal
-    );
+    const resp = await postJSON<{ ok: boolean; plan?: Plan; error?: string }>("/api/operator/plan", body, ac.signal);
 
     abortRef.current = null;
 
@@ -422,11 +500,7 @@ export default function OperatorPage() {
     };
     setRun((r) => ({ ...r, lastRequest: { url: "/api/operator/diff", body } }));
 
-    const resp = await postJSON<{ ok: boolean; diffs?: Diff[]; error?: string }>(
-      "/api/operator/diff",
-      body,
-      ac.signal
-    );
+    const resp = await postJSON<{ ok: boolean; diffs?: Diff[]; error?: string }>("/api/operator/diff", body, ac.signal);
 
     abortRef.current = null;
 
@@ -589,6 +663,28 @@ export default function OperatorPage() {
     return "Ready.";
   }, [mounted, ui.kind, uiLabel, run.phase]);
 
+  // IMPORTANT: stabilize this for hooks deps (lint)
+  const snapshotFiles = useMemo<SnapshotFile[]>(() => {
+    return run.snapshot?.ok && Array.isArray(run.snapshot.files) ? run.snapshot.files : [];
+  }, [run.snapshot]);
+
+  const filteredFiles = useMemo(() => {
+    const q = fileQuery.trim().toLowerCase();
+    if (!q) return snapshotFiles;
+    return snapshotFiles.filter((f) => f.path.toLowerCase().includes(q));
+  }, [snapshotFiles, fileQuery]);
+
+  // (Optional) quick “cap” for list performance
+  const shownFiles = filteredFiles.slice(0, 300);
+  const showCapNote = filteredFiles.length > 300;
+
+  // Viewer meta
+  const viewerMeta = useMemo(() => {
+    if (!selectedFile) return { bytes: undefined as number | undefined };
+    const match = snapshotFiles.find((f) => f.path === selectedFile);
+    return { bytes: match?.bytes };
+  }, [snapshotFiles, selectedFile]);
+
   return (
     <main style={page}>
       <div style={shell}>
@@ -612,8 +708,8 @@ export default function OperatorPage() {
 
         <h1 style={title}>CodexForge Operator (UI harness)</h1>
         <p style={subtitle}>
-          Proves the loop: <b>snapshot → plan → approve → diff → approve → apply → test</b>. Mode
-          can be <b>API</b> (real endpoints) or <b>Local</b> (stubs).
+          Proves the loop: <b>snapshot → plan → approve → diff → approve → apply → test</b>. Mode can be <b>API</b>{" "}
+          (real endpoints) or <b>Local</b> (stubs).
         </p>
 
         {/* Controls */}
@@ -624,12 +720,7 @@ export default function OperatorPage() {
                 <div style={labelText}>repoPath</div>
                 <div style={hint}>Folder on disk the operator will act on</div>
               </div>
-              <input
-                value={repoPath}
-                onChange={(e) => setRepoPath(e.target.value)}
-                style={input}
-                disabled={!mounted || run.phase !== "idle"}
-              />
+              <input value={repoPath} onChange={(e) => setRepoPath(e.target.value)} style={input} disabled={!mounted || run.phase !== "idle"} />
             </label>
 
             <label style={field}>
@@ -637,12 +728,7 @@ export default function OperatorPage() {
                 <div style={labelText}>goal</div>
                 <div style={hint}>What you want the operator to do</div>
               </div>
-              <input
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-                style={input}
-                disabled={!mounted || run.phase !== "idle"}
-              />
+              <input value={goal} onChange={(e) => setGoal(e.target.value)} style={input} disabled={!mounted || run.phase !== "idle"} />
             </label>
           </div>
 
@@ -699,8 +785,7 @@ export default function OperatorPage() {
           </div>
 
           <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>
-            Status: <b>{statusText}</b>{" "}
-            {ui.kind === "error" ? <span style={{ opacity: 1 }}>— {ui.message}</span> : null}
+            Status: <b>{statusText}</b> {ui.kind === "error" ? <span style={{ opacity: 1 }}>— {ui.message}</span> : null}
           </div>
         </section>
 
@@ -710,36 +795,146 @@ export default function OperatorPage() {
             <div style={sectionHead}>
               <div style={{ fontWeight: 950 }}>Snapshot</div>
               <div style={{ fontSize: 12, opacity: 0.75 }}>
-                Repo: <b>{run.snapshot.root}</b> • Files:{" "}
-                <b>{run.snapshot.fileCount ?? "?"}</b> {run.snapshot.capped ? "• (capped)" : null}
+                Repo: <b>{run.snapshot.root}</b> • Files: <b>{run.snapshot.fileCount ?? "?"}</b> {run.snapshot.capped ? "• (capped)" : null}
               </div>
             </div>
 
-            <div
-              style={{
-                marginTop: 10,
-                display: "flex",
-                gap: 10,
-                flexWrap: "wrap",
-                alignItems: "center",
-              }}
-            >
-              <button
-                style={ghostBtn}
-                onClick={() => setShowSnapshotFiles((v) => !v)}
-                disabled={!mounted}
-              >
-                {showSnapshotFiles ? "Hide" : "Show"} files
+            <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <button style={ghostBtn} onClick={() => setShowSnapshotFiles((v) => !v)} disabled={!mounted}>
+                {showSnapshotFiles ? "Hide" : "Show"} files (raw)
               </button>
 
-              <div style={{ fontSize: 12, opacity: 0.75 }}>
-                Snapshot is used by Plan/Diff endpoints if you include it.
+              <div style={{ fontSize: 12, opacity: 0.75 }}>Snapshot is used by Plan/Diff endpoints if you include it.</div>
+            </div>
+
+            {showSnapshotFiles ? <pre style={payloadBox}>{JSON.stringify(run.snapshot.files ?? [], null, 2)}</pre> : null}
+          </section>
+        ) : null}
+
+        {/* Repo Browser (read-only) */}
+        {run.snapshot?.ok ? (
+          <section style={card}>
+            <div style={sectionHead}>
+              <div style={{ fontWeight: 950 }}>Repo Browser</div>
+              <div style={{ fontSize: 12, opacity: 0.75 }}>Click any file to read full contents (read-only).</div>
+            </div>
+
+            <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <label style={{ display: "grid", gap: 6, flex: 1, minWidth: 260 }}>
+                <div style={{ fontSize: 12, opacity: 0.8 }}>Search files</div>
+                <input
+                  value={fileQuery}
+                  onChange={(e) => setFileQuery(e.target.value)}
+                  style={input}
+                  placeholder="e.g. src/app/api/operator"
+                  disabled={!mounted}
+                />
+              </label>
+
+              <button
+                onClick={() => {
+                  setFileQuery("");
+                  setSelectedFile("");
+                  setFileText("");
+                  setFileError("");
+                  setFileLoading(false);
+                }}
+                style={ghostBtn}
+                disabled={!mounted}
+                title="Clear search + selection"
+              >
+                Clear
+              </button>
+            </div>
+
+            <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1.25fr", gap: 12 }}>
+              {/* File list */}
+              <div style={{ ...miniCard, maxHeight: 420, overflow: "auto" }}>
+                <div style={{ fontWeight: 900, marginBottom: 8 }}>
+                  Files{" "}
+                  <span style={{ fontWeight: 700, opacity: 0.7, fontSize: 12 }}>({filteredFiles.length.toLocaleString()})</span>
+                </div>
+
+                {filteredFiles.length === 0 ? (
+                  <div style={{ fontSize: 12, opacity: 0.8 }}>No files match your search.</div>
+                ) : (
+                  <div style={{ display: "grid", gap: 6 }}>
+                    {shownFiles.map((f) => {
+                      const active = f.path === selectedFile;
+                      return (
+                        <button
+                          key={f.path}
+                          onClick={() => void loadFile(f.path)}
+                          style={{
+                            ...ghostBtn,
+                            textAlign: "left",
+                            padding: "8px 10px",
+                            borderRadius: 10,
+                            opacity: active ? 1 : 0.92,
+                            background: active ? "rgba(99,102,241,0.22)" : ghostBtn.background,
+                          }}
+                          title={`${f.path} (${formatBytes(f.bytes)})`}
+                        >
+                          <div style={{ fontWeight: 850, fontSize: 12 }}>{f.path}</div>
+                          <div style={{ fontSize: 11, opacity: 0.7 }}>{formatBytes(f.bytes)}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {showCapNote ? (
+                  <div style={{ marginTop: 8, fontSize: 11, opacity: 0.7 }}>Showing first 300 results (cap). We can add paging in v2.</div>
+                ) : null}
+              </div>
+
+              {/* File viewer */}
+              <div style={miniCard}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                  <div style={{ fontWeight: 900 }}>Viewer</div>
+                  <div style={{ fontSize: 12, opacity: 0.75 }}>
+                    {selectedFile ? selectedFile : "No file selected"}
+                    {selectedFile && typeof viewerMeta.bytes === "number" ? <span style={{ opacity: 0.75 }}> • {formatBytes(viewerMeta.bytes)}</span> : null}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <button style={ghostBtn} onClick={copyViewerToClipboard} disabled={!mounted || !fileText} title="Copy the viewer text to clipboard">
+                    Copy
+                  </button>
+
+                  <button
+                    style={ghostBtn}
+                    onClick={() => void (selectedFile ? loadFile(selectedFile) : Promise.resolve())}
+                    disabled={!mounted || !selectedFile || fileLoading}
+                    title="Re-read the selected file"
+                  >
+                    Refresh
+                  </button>
+
+                  <div style={{ flex: 1 }} />
+                  <div style={{ fontSize: 12, opacity: 0.75 }}>
+                    Route: <b>/api/operator/read</b>
+                  </div>
+                </div>
+
+                {fileLoading ? (
+                  <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>Loading…</div>
+                ) : fileError ? (
+                  <div style={{ marginTop: 10, fontSize: 12, opacity: 0.9 }}>
+                    <b>Error:</b> {fileError}
+                  </div>
+                ) : (
+                  <pre style={{ ...codeBox, marginTop: 10, maxHeight: 320, overflow: "auto", whiteSpace: "pre" }}>
+                    {fileText || "Click a file to load it."}
+                  </pre>
+                )}
               </div>
             </div>
 
-            {showSnapshotFiles ? (
-              <pre style={payloadBox}>{JSON.stringify(run.snapshot.files ?? [], null, 2)}</pre>
-            ) : null}
+            <div style={{ marginTop: 10, fontSize: 12, opacity: 0.75 }}>
+              Tip: Click <b>Snapshot</b> first to refresh the file list.
+            </div>
           </section>
         ) : null}
 
@@ -775,7 +970,7 @@ export default function OperatorPage() {
             {run.diffs.length ? (
               <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
                 {run.diffs.map((d, idx) => (
-                  <div key={idx} style={miniCard}>
+                  <div key={`${d.filePath}-${idx}`} style={miniCard}>
                     <div style={{ fontWeight: 900 }}>{d.filePath}</div>
                     <pre style={codeBox}>{d.patch}</pre>
                   </div>
@@ -838,8 +1033,7 @@ export default function OperatorPage() {
         </div>
 
         <div style={footnote}>
-          Non-negotiable: AI must be optional. Operator must never block browsing/editing even if AI is
-          slow/offline/broken.
+          Non-negotiable: AI must be optional. Operator must never block browsing/editing even if AI is slow/offline/broken.
         </div>
       </div>
     </main>
