@@ -1,50 +1,70 @@
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
+import crypto from "crypto";
 
 type Diff = {
   filePath: string; // repo-relative, POSIX style
-  patch: string; // unified diff text (our simple full-replace diff)
+  patch: string; // unified diff text (full-replace format our diff endpoint emits)
 };
 
-type ReqBody = {
+type ApplyBody = {
   repoPath?: string;
   diffs?: Diff[];
-  // Safety gate: default true means "show what would happen"
-  dryRun?: boolean;
+  dryRun?: boolean; // default true
 };
 
-const MAX_FILE_BYTES = 500_000; // safety cap (~500KB)
+type ApplyResult = {
+  ok: true;
+  dryRun: boolean;
+  appliedFiles: string[];
+  checkpoint?: {
+    id: string;
+    dirAbs: string;
+    files: string[];
+  };
+};
 
-// Must match what /diff can output (otherwise apply will reject it)
+type ErrResult = { ok: false; error: string };
+
+const MAX_FILE_BYTES = 500_000; // safety cap per file
+const MAX_DIFFS = 25; // safety cap per request
+
 const ALLOWED_TARGETS = new Set<string>([
   "src/app/history/page.tsx",
+  "src/app/operator/page.tsx",
+  "src/app/api/operator/snapshot/route.ts",
+  "src/app/api/operator/plan/route.ts",
   "src/app/api/operator/diff/route.ts",
+  "src/app/api/operator/apply/route.ts",
+  "src/app/api/operator/test/route.ts",
 ]);
 
 function toPosix(p: string) {
   return p.replace(/\\/g, "/");
 }
 
-// Only allow writes inside repoPath (prevents "../" escaping)
 function isLikelyInside(parentAbs: string, childAbs: string) {
   const rel = path.relative(parentAbs, childAbs);
   return !!rel && !rel.startsWith("..") && !path.isAbsolute(rel);
 }
 
-function json(status: number, payload: unknown, extraHeaders?: Record<string, string>) {
-  return NextResponse.json(payload, {
-    status,
-    headers: { ...(extraHeaders ?? {}) },
-  });
+function asRecord(v: unknown): Record<string, unknown> | null {
+  return v && typeof v === "object" ? (v as Record<string, unknown>) : null;
+}
+
+function errorMessage(e: unknown, fallback: string) {
+  if (e instanceof Error && typeof e.message === "string" && e.message.trim()) return e.message;
+  if (typeof e === "string" && e.trim()) return e;
+  return fallback;
+}
+
+function json(status: number, payload: ErrResult | ApplyResult) {
+  return NextResponse.json(payload, { status });
 }
 
 function json400(msg: string) {
   return json(400, { ok: false, error: msg });
-}
-
-function json405(msg: string) {
-  return json(405, { ok: false, error: msg });
 }
 
 function allowedTargetsList() {
@@ -52,79 +72,102 @@ function allowedTargetsList() {
 }
 
 /**
- * Extract the file path declared by the patch header.
- * We expect:
- * --- <path>
- * +++ <path>
- */
-function getPatchTargetFilePosix(patch: string) {
-  const lines = patch.split("\n");
-  const plus = lines.find((l) => l.startsWith("+++ "));
-  if (!plus) return "";
-  return toPosix(plus.slice(4).trim());
-}
-
-/**
- * Our diff format is intentionally simple:
- * - We generate diffs by "delete all old lines" then "add all new lines".
- * - So to apply, we reconstruct the new file from the '+' lines in the patch.
+ * Our diff format is "simple full replace":
+ * - header lines: --- file, +++ file, @@ -1,x +1,y @@
+ * - then all old lines prefixed with "-"
+ * - then all new lines prefixed with "+"
+ *
+ * Apply reconstructs NEW content by joining "+" lines (stripping the '+').
+ * (We ignore "---/+++/@@/old '-' lines".)
  */
 function reconstructNewTextFromPatch(patch: string) {
-  const lines = patch.split("\n");
+  const lines = patch.split(/\r?\n/);
+  const plusLines = lines.filter((l) => l.startsWith("+") && !l.startsWith("+++ "));
+  const rebuilt = plusLines.map((l) => l.slice(1)).join("\n");
+  return rebuilt;
+}
 
-  // Skip header-ish lines: --- , +++ , @@ ...
-  // Then collect only lines that begin with '+' (but NOT '+++ ' header).
-  const out: string[] = [];
+function safeCheckpointId() {
+  // Short, filesystem-safe id
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const rand = crypto.randomBytes(4).toString("hex");
+  return `${stamp}-${rand}`;
+}
 
-  for (const line of lines) {
-    if (line.startsWith("+++ ")) continue;
-    if (line.startsWith("--- ")) continue;
-    if (line.startsWith("@@")) continue;
+async function ensureDir(dirAbs: string) {
+  await fs.mkdir(dirAbs, { recursive: true });
+}
 
-    if (line.startsWith("+")) out.push(line.slice(1));
+async function writeTextAtomic(absPath: string, content: string) {
+  const dir = path.dirname(absPath);
+  const base = path.basename(absPath);
+  const tmp = path.join(dir, `${base}.tmp-${crypto.randomBytes(4).toString("hex")}`);
+  await fs.writeFile(tmp, content, "utf8");
+  await fs.rename(tmp, absPath);
+}
+
+async function fileExists(absPath: string) {
+  try {
+    const st = await fs.stat(absPath);
+    return st.isFile();
+  } catch {
+    return false;
   }
+}
 
-  return out.join("\n");
+function sanitizeRelForCheckpoint(relPosix: string) {
+  // turn "src/app/x.ts" into "src__app__x.ts"
+  return relPosix.replaceAll("/", "__");
+}
+
+async function readUtf8WithCap(absPath: string) {
+  const buf = await fs.readFile(absPath);
+  if (buf.byteLength > MAX_FILE_BYTES) {
+    throw new Error(`File too large (> ${MAX_FILE_BYTES} bytes).`);
+  }
+  return buf.toString("utf8");
 }
 
 export async function OPTIONS() {
-  return json(
-    200,
+  return NextResponse.json(
     { ok: true },
     {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      status: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
     }
-  );
-}
-
-export async function GET() {
-  return json405(
-    `Use POST with JSON body: { repoPath, diffs: [{ filePath, patch }], (optional) dryRun }. Allowed filePath: ${allowedTargetsList()}`
   );
 }
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json().catch(() => null)) as ReqBody | null;
+    const raw = (await req.json().catch(() => null)) as unknown;
+    const bodyRec = asRecord(raw);
+    const body = bodyRec as ApplyBody | null;
 
     const repoPath = String(body?.repoPath ?? "").trim();
-    const diffs = body?.diffs;
+    const diffsRaw = body?.diffs;
     const dryRun = body?.dryRun !== false; // default true
 
     if (!repoPath) return json400("repoPath is required");
+    if (!Array.isArray(diffsRaw)) return json400("diffs[] is required");
+    if (diffsRaw.length === 0) return json400("diffs[] must not be empty");
+    if (diffsRaw.length > MAX_DIFFS) return json400(`Too many diffs (max ${MAX_DIFFS}).`);
 
-    // diffs must exist and be an array; BUT empty array is a valid no-op.
-    if (!Array.isArray(diffs)) return json400("diffs[] is required");
-    if (diffs.length === 0) {
-      return NextResponse.json({
-        ok: true,
-        dryRun,
-        applied: 0,
-        actions: [],
-        note: "No diffs to apply (no-op).",
-      });
+    const diffs: Diff[] = diffsRaw.map((d) => ({
+      filePath: toPosix(String((d as Diff).filePath ?? "").trim()),
+      patch: String((d as Diff).patch ?? ""),
+    }));
+
+    for (const d of diffs) {
+      if (!d.filePath) return json400("diff.filePath is required");
+      if (!d.patch) return json400("diff.patch is required");
+      if (!ALLOWED_TARGETS.has(d.filePath)) {
+        return json400(`Target not allowed: ${d.filePath}. Allowed: ${allowedTargetsList()}`);
+      }
     }
 
     const rootAbs = path.resolve(repoPath);
@@ -138,76 +181,85 @@ export async function POST(req: Request) {
     }
     if (!st.isDirectory()) return json400("repoPath must be a folder");
 
-    const actions: Array<{
-      filePath: string;
-      absPath: string;
-      bytesNew: number;
-      wouldWrite: boolean;
-    }> = [];
-
-    for (const d of diffs) {
-      const filePathPosix = toPosix(String(d?.filePath ?? "").trim());
-      const patch = String(d?.patch ?? "");
-
-      if (!filePathPosix) return json400("Each diff must include filePath");
-      if (!patch) return json400(`Missing patch for ${filePathPosix}`);
-
-      // Patch header must match declared filePath (prevents mismatched writes)
-      const patchTarget = getPatchTargetFilePosix(patch);
-      if (!patchTarget) return json400(`Patch header missing '+++ ' line for ${filePathPosix}`);
-      if (patchTarget !== filePathPosix) {
-        return json400(
-          `Patch target mismatch. diff.filePath=${filePathPosix} but patch targets ${patchTarget}`
-        );
+    // Resolve targets + validate they are inside repoPath
+    const targetsAbs = diffs.map((d) => {
+      const abs = path.resolve(path.join(rootAbs, d.filePath));
+      if (!isLikelyInside(rootAbs, abs)) {
+        throw new Error(`Resolved path escapes repoPath: ${d.filePath}`);
       }
+      return abs;
+    });
 
-      // Allowlist enforcement (demo safety)
-      if (!ALLOWED_TARGETS.has(filePathPosix)) {
-        return json400(`filePath is not allowed. Allowed: ${allowedTargetsList()}`);
-      }
-
-      const absPath = path.resolve(path.join(rootAbs, filePathPosix));
-
-      if (!isLikelyInside(rootAbs, absPath)) {
-        return json400(`Resolved path escapes repoPath: ${filePathPosix}`);
-      }
-
-      const newText = reconstructNewTextFromPatch(patch);
-      const bytesNew = Buffer.byteLength(newText, "utf8");
-
-      if (bytesNew > MAX_FILE_BYTES) {
-        return json400(`Refusing to write ${filePathPosix}: new content > ${MAX_FILE_BYTES} bytes`);
-      }
-
-      actions.push({
-        filePath: filePathPosix,
-        absPath,
-        bytesNew,
-        wouldWrite: !dryRun,
-      });
-
-      if (!dryRun) {
-        // Write atomically: write temp then rename
-        const dir = path.dirname(absPath);
-        const base = path.basename(absPath);
-        const tmp = path.join(dir, `.${base}.tmp`);
-
-        await fs.mkdir(dir, { recursive: true });
-        await fs.writeFile(tmp, newText, "utf8");
-        await fs.rename(tmp, absPath);
-      }
+    // For dryRun, just report what would happen.
+    if (dryRun) {
+      const appliedFiles = diffs.map((d) => d.filePath);
+      const out: ApplyResult = { ok: true, dryRun: true, appliedFiles };
+      return NextResponse.json(out);
     }
 
-    return NextResponse.json({
+    // ---- CHECKPOINT BEFORE WRITES ----
+    const checkpointId = safeCheckpointId();
+    const checkpointDirAbs = path.join(rootAbs, ".operator", "checkpoints", checkpointId);
+    await ensureDir(checkpointDirAbs);
+
+    // Save originals for every target (or empty marker if missing)
+    const checkpointFiles: string[] = [];
+
+    for (let i = 0; i < diffs.length; i++) {
+      const relPosix = diffs[i].filePath;
+      const abs = targetsAbs[i];
+
+      const name = sanitizeRelForCheckpoint(relPosix);
+      const savePath = path.join(checkpointDirAbs, `${name}.before`);
+
+      if (await fileExists(abs)) {
+        const original = await readUtf8WithCap(abs);
+        await fs.writeFile(savePath, original, "utf8");
+      } else {
+        await fs.writeFile(savePath, "", "utf8");
+      }
+      checkpointFiles.push(`${name}.before`);
+    }
+
+    // Write metadata (helps future restore tooling)
+    const meta = {
+      id: checkpointId,
+      createdAt: new Date().toISOString(),
+      repoRoot: rootAbs,
+      files: diffs.map((d) => d.filePath),
+    };
+    await fs.writeFile(path.join(checkpointDirAbs, "meta.json"), JSON.stringify(meta, null, 2), "utf8");
+
+    // ---- APPLY WRITES (atomic per file) ----
+    const appliedFiles: string[] = [];
+
+    for (let i = 0; i < diffs.length; i++) {
+      const relPosix = diffs[i].filePath;
+      const abs = targetsAbs[i];
+
+      const newText = reconstructNewTextFromPatch(diffs[i].patch);
+
+      // Always end file with newline for consistency
+      const finalText = newText.endsWith("\n") ? newText : `${newText}\n`;
+
+      await ensureDir(path.dirname(abs));
+      await writeTextAtomic(abs, finalText);
+      appliedFiles.push(relPosix);
+    }
+
+    const out: ApplyResult = {
       ok: true,
-      dryRun,
-      applied: dryRun ? 0 : actions.length,
-      actions,
-      note: dryRun
-        ? "Dry run only: no files were written. Set dryRun=false to apply."
-        : "Applied: files were written to disk.",
-    });
+      dryRun: false,
+      appliedFiles,
+      checkpoint: {
+        id: checkpointId,
+        dirAbs: checkpointDirAbs,
+        files: checkpointFiles,
+      },
+    };
+
+    return NextResponse.json(out);
   } catch (e: unknown) {
-    return NextResponse.json({ ok: false, error: e?.message ?? "Unknown error" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: errorMessage(e, "Unknown error") }, { status: 500 });
   }
 }
