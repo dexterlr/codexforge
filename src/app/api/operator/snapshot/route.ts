@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import path from "path";
-import fs from "fs/promises";
+import fs from "node:fs/promises";
+import type { Dirent, Stats } from "node:fs";
 
 type SnapshotFile = {
   path: string; // repo-relative, POSIX style
@@ -10,6 +11,7 @@ type SnapshotFile = {
 
 type ReqBody = { repoPath?: string };
 
+// Keep this conservative: snapshot is a read-only safety primitive.
 const SKIP_DIRS = new Set<string>([
   ".git",
   "node_modules",
@@ -20,10 +22,13 @@ const SKIP_DIRS = new Set<string>([
   ".turbo",
   ".cache",
   "coverage",
+  ".operator", // IMPORTANT: never snapshot operator internals
 ]);
 
 const MAX_FILES = 2000; // hard cap for safety
 const MAX_DEPTH = 20; // avoid runaway recursion
+const MAX_FILE_BYTES = 500_000; // don't stat/track huge files (keeps snapshot cheap)
+const FOLLOW_SYMLINKS = false; // avoid escaping repo root
 
 function toPosix(p: string) {
   return p.split(path.sep).join("/");
@@ -37,6 +42,11 @@ function errorMessage(e: unknown): string {
   return "Unknown error";
 }
 
+function isInsideRoot(rootAbs: string, candidateAbs: string) {
+  const rel = path.relative(rootAbs, candidateAbs);
+  return rel !== "" && !rel.startsWith("..") && !path.isAbsolute(rel);
+}
+
 async function walkDir(
   rootAbs: string,
   currentAbs: string,
@@ -46,7 +56,7 @@ async function walkDir(
   if (out.length >= MAX_FILES) return;
   if (depth > MAX_DEPTH) return;
 
-  let entries: fs.Dirent[];
+  let entries: Dirent[];
   try {
     entries = await fs.readdir(currentAbs, { withFileTypes: true });
   } catch {
@@ -61,6 +71,9 @@ async function walkDir(
 
     const abs = path.join(currentAbs, ent.name);
 
+    // Never follow symlinks unless explicitly allowed
+    if (!FOLLOW_SYMLINKS && ent.isSymbolicLink()) continue;
+
     if (ent.isDirectory()) {
       await walkDir(rootAbs, abs, depth + 1, out);
       continue;
@@ -69,11 +82,17 @@ async function walkDir(
     if (!ent.isFile()) continue;
 
     try {
-      const st = await fs.stat(abs);
-      const rel = path.relative(rootAbs, abs);
+      // Safety: ensure file is inside the repo root
+      const relNative = path.relative(rootAbs, abs);
+      if (!relNative || relNative.startsWith("..") || path.isAbsolute(relNative)) continue;
+
+      const st: Stats = await fs.stat(abs);
+
+      // Skip huge files (still deterministic and safe)
+      if (st.size > MAX_FILE_BYTES) continue;
 
       out.push({
-        path: toPosix(rel),
+        path: toPosix(relNative),
         bytes: st.size,
         mtimeMs: st.mtimeMs,
       });
@@ -95,7 +114,7 @@ export async function POST(req: Request) {
     const rootAbs = path.resolve(repoPath);
 
     // Validate repoPath exists and is a folder
-    let st: Awaited<ReturnType<typeof fs.stat>>;
+    let st: Stats;
     try {
       st = await fs.stat(rootAbs);
     } catch {
@@ -118,6 +137,9 @@ export async function POST(req: Request) {
       root: rootAbs,
       fileCount: files.length,
       capped: files.length >= MAX_FILES,
+      maxFiles: MAX_FILES,
+      maxDepth: MAX_DEPTH,
+      maxFileBytes: MAX_FILE_BYTES,
       files,
     });
   } catch (e: unknown) {

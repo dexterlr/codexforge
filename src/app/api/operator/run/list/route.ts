@@ -105,7 +105,7 @@ export async function POST(req: Request) {
     }
 
     // If runs dir doesn't exist, return empty list (not an error)
-    let dirEntries: Awaited<ReturnType<typeof fs.readdir>>;
+    let dirEntries: import("node:fs").Dirent[];
     try {
       dirEntries = await fs.readdir(runsAbs, { withFileTypes: true });
     } catch {

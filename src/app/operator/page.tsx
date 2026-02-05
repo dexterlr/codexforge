@@ -12,6 +12,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
  * - Repo browser + file viewer (read-only) after snapshot.
  * - Persistent Run backing store via:
  *   /api/operator/run/start, /api/operator/run/get, /api/operator/run/update
+ * - Checkpoints:
+ *   list + restore (dryRun + apply) via:
+ *   /api/operator/checkpoint/list, /api/operator/checkpoint/restore
  *
  * Non-negotiables:
  * - Human approvals at Plan and Diff gates
@@ -23,13 +26,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
  * - POST /api/operator/read     { repoPath, filePath } -> { ok, root, filePath, bytes, text }
  * - POST /api/operator/plan     { repoPath, goal, snapshot? } -> { ok, plan }
  * - POST /api/operator/diff     { repoPath, goal, plan, snapshot? } -> { ok, diffs }
- * - POST /api/operator/apply    { repoPath, diffs } -> { ok, appliedFiles? }
+ * - POST /api/operator/apply    { repoPath, diffs, dryRun? } -> { ok, dryRun, appliedFiles, checkpoint? }
  * - POST /api/operator/test     { repoPath } -> { ok, testOutput? }
  *
  * Run persistence (backed by .operator/runs/*.json):
  * - POST /api/operator/run/start  { repoPath, goal } -> { ok, runId, runFile }
  * - POST /api/operator/run/get    { repoPath, runId } -> { ok, run, runFile }
  * - POST /api/operator/run/update { repoPath, runId, phase?, log?, logs?, patch? } -> { ok, run, runFile }
+ *
+ * Checkpoints (backed by .operator/checkpoints/<id>/):
+ * - POST /api/operator/checkpoint/list    { repoPath } -> { ok, checkpointsDir, count, checkpoints:[{id,dirAbs,meta?}] }
+ * - POST /api/operator/checkpoint/restore { repoPath, checkpointId, dryRun? } -> { ok, dryRun, checkpointId, checkpointDir, restored?, skipped?, meta? }
  */
 
 type Phase =
@@ -49,7 +56,7 @@ type Plan = { steps: string[] };
 
 type Diff = {
   filePath: string;
-  patch: string; // unified diff text (or placeholder)
+  patch: string; // unified diff text (full replace diff text expected)
 };
 
 type SnapshotFile = {
@@ -124,6 +131,51 @@ type RunFile = {
 type RunStartResp = { ok: true; runId: string; runFile: string } | { ok: false; error: string };
 type RunGetResp = { ok: true; run: RunFile; runFile: string } | { ok: false; error: string };
 type RunUpdateResp = { ok: true; run: RunFile; runFile: string } | { ok: false; error: string };
+
+// ---- Checkpoints ----
+type CheckpointMeta = {
+  id: string;
+  createdAt?: string;
+  repoRoot?: string;
+  files?: string[];
+  [k: string]: unknown;
+};
+
+type CheckpointListItem = {
+  id: string;
+  dirAbs: string;
+  meta?: CheckpointMeta;
+};
+
+type CheckpointListResp =
+  | {
+      ok: true;
+      checkpointsDir: string;
+      count: number;
+      checkpoints: CheckpointListItem[];
+    }
+  | { ok: false; error: string };
+
+type RestoreItem = {
+  beforeFile: string;
+  targetRel: string;
+  targetAbs: string;
+  bytes: number;
+  wrote: boolean;
+};
+
+type CheckpointRestoreResp =
+  | {
+      ok: true;
+      dryRun: boolean;
+      checkpointId: string;
+      checkpointDir: string;
+      files?: string[];
+      restored?: RestoreItem[];
+      skipped?: string[];
+      meta?: CheckpointMeta;
+    }
+  | { ok: false; error: string };
 
 function defaultPlan(goal: string): Plan {
   return {
@@ -224,7 +276,7 @@ export default function OperatorPage() {
   }, []);
 
   // Inputs (editable only while idle)
-  const [repoPath, setRepoPath] = useState<string>("C:\\tools\\health-tracker");
+  const [repoPath, setRepoPath] = useState<string>("C:\\tools\\health-tracker\\frontend");
   const [goal, setGoal] = useState<string>("Add a simple export button to the history page");
 
   // Operator settings
@@ -238,7 +290,7 @@ export default function OperatorPage() {
 
   const [run, setRun] = useState<RunState>(() => ({
     phase: "idle",
-    repoPath: "C:\\tools\\health-tracker",
+    repoPath: "C:\\tools\\health-tracker\\frontend",
     goal: "Add a simple export button to the history page",
     plan: null,
     diffs: [],
@@ -258,6 +310,14 @@ export default function OperatorPage() {
   const [fileText, setFileText] = useState<string>("");
   const [fileError, setFileError] = useState<string>("");
   const [fileLoading, setFileLoading] = useState<boolean>(false);
+
+  // Checkpoint UI state
+  const [checkpointBusy, setCheckpointBusy] = useState(false);
+  const [checkpointErr, setCheckpointErr] = useState("");
+  const [checkpointsDir, setCheckpointsDir] = useState("");
+  const [checkpoints, setCheckpoints] = useState<CheckpointListItem[]>([]);
+  const [selectedCheckpointId, setSelectedCheckpointId] = useState<string>("");
+  const [lastCheckpointResp, setLastCheckpointResp] = useState<unknown>(null);
 
   // Initialize logs once after mount (scheduled; avoids lint rule)
   useEffect(() => {
@@ -316,6 +376,12 @@ export default function OperatorPage() {
     setFileText("");
     setFileError("");
     setFileLoading(false);
+
+    setCheckpointErr("");
+    setCheckpointsDir("");
+    setCheckpoints([]);
+    setSelectedCheckpointId("");
+    setLastCheckpointResp(null);
 
     // Do NOT auto-clear runId here — you might want to keep the server-run.
     // If you want a fresh server-run, click "New run".
@@ -512,6 +578,90 @@ export default function OperatorPage() {
     appendLog(`Run started: ${resp.data.runId}`);
   }
 
+  // ---- Checkpoint helpers ----
+
+  async function listCheckpoints() {
+    if (!mounted) return;
+    if (mode !== "api") return;
+
+    setCheckpointBusy(true);
+    setCheckpointErr("");
+
+    const body = { repoPath };
+    setRun((r) => ({ ...r, lastRequest: { url: "/api/operator/checkpoint/list", body } }));
+
+    const resp = await postJSON<CheckpointListResp>("/api/operator/checkpoint/list", body);
+
+    setCheckpointBusy(false);
+
+    if (!resp.ok) {
+      setCheckpointErr(resp.error);
+      appendLog(`Checkpoint list failed: ${resp.error}`);
+      setLastCheckpointResp(resp);
+      return;
+    }
+
+    setRun((r) => ({ ...r, lastResponse: resp.data }));
+    setLastCheckpointResp(resp.data);
+
+    if (!resp.data.ok) {
+      setCheckpointErr(resp.data.error);
+      appendLog(`Checkpoint list failed: ${resp.data.error}`);
+      return;
+    }
+
+    setCheckpointsDir(resp.data.checkpointsDir);
+    setCheckpoints(resp.data.checkpoints);
+
+    // Select newest-ish by default if none selected
+    if (!selectedCheckpointId && resp.data.checkpoints.length) {
+      setSelectedCheckpointId(resp.data.checkpoints[0].id);
+    }
+
+    appendLog(`Loaded checkpoints: ${resp.data.count}`);
+  }
+
+  async function restoreCheckpoint(dryRun: boolean) {
+    if (!mounted) return;
+    if (mode !== "api") return;
+    if (!selectedCheckpointId) return;
+
+    setCheckpointBusy(true);
+    setCheckpointErr("");
+
+    const body = { repoPath, checkpointId: selectedCheckpointId, dryRun };
+    setRun((r) => ({ ...r, lastRequest: { url: "/api/operator/checkpoint/restore", body } }));
+
+    const resp = await postJSON<CheckpointRestoreResp>("/api/operator/checkpoint/restore", body);
+
+    setCheckpointBusy(false);
+
+    if (!resp.ok) {
+      setCheckpointErr(resp.error);
+      appendLog(`Checkpoint restore failed: ${resp.error}`);
+      setLastCheckpointResp(resp);
+      return;
+    }
+
+    setRun((r) => ({ ...r, lastResponse: resp.data }));
+    setLastCheckpointResp(resp.data);
+
+    if (!resp.data.ok) {
+      setCheckpointErr(resp.data.error);
+      appendLog(`Checkpoint restore failed: ${resp.data.error}`);
+      return;
+    }
+
+    if (resp.data.dryRun) {
+      const fCount = Array.isArray(resp.data.files) ? resp.data.files.length : 0;
+      appendLog(`Checkpoint dry-run OK (${fCount} before files).`);
+      return;
+    }
+
+    const restoredCount = Array.isArray(resp.data.restored) ? resp.data.restored.length : 0;
+    appendLog(`Checkpoint restored (${restoredCount} file(s) written).`);
+  }
+
   async function loadFile(filePath: string) {
     if (!mounted) return;
 
@@ -689,7 +839,11 @@ export default function OperatorPage() {
       return;
     }
 
-    setRun((r) => ({ ...r, phase: "awaiting_plan_approval", plan: resp.data.plan }));
+    setRun((r) => ({
+  ...r,
+  phase: "awaiting_plan_approval",
+  plan: resp.data.plan ?? null,
+}));
     setUi({ kind: "ready" });
     appendLog("Plan ready (API). Awaiting approval.");
     void updateRun({
@@ -797,10 +951,10 @@ export default function OperatorPage() {
 
     // APPLY
     {
-      const body = { repoPath: run.repoPath, diffs: run.diffs };
+      const body = { repoPath: run.repoPath, diffs: run.diffs, dryRun: false };
       setRun((r) => ({ ...r, lastRequest: { url: "/api/operator/apply", body } }));
 
-      const resp = await postJSON<{ ok: boolean; appliedFiles?: string[]; error?: string }>(
+      const resp = await postJSON<{ ok: boolean; dryRun?: boolean; appliedFiles?: string[]; error?: string }>(
         "/api/operator/apply",
         body,
         ac.signal
@@ -946,6 +1100,14 @@ export default function OperatorPage() {
     return "Run ready.";
   }, [mode, runId, runBusy, runErr]);
 
+  const checkpointStatusText = useMemo(() => {
+    if (mode !== "api") return "Local mode (no checkpoints).";
+    if (checkpointBusy) return "Working…";
+    if (checkpointErr) return `Checkpoint error: ${checkpointErr}`;
+    if (!checkpoints.length) return "No checkpoints loaded.";
+    return `Loaded ${checkpoints.length} checkpoint(s).`;
+  }, [mode, checkpointBusy, checkpointErr, checkpoints.length]);
+
   return (
     <main style={page}>
       <div style={shell}>
@@ -1061,6 +1223,73 @@ export default function OperatorPage() {
             <button onClick={cancelInFlight} disabled={!canCancel} style={dangerBtn}>
               Cancel
             </button>
+          </div>
+
+          {/* Checkpoints controls */}
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.10)" }}>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <div style={{ fontWeight: 950 }}>Checkpoints</div>
+              <div style={{ fontSize: 12, opacity: 0.75 }}>List + restore (dry-run or apply)</div>
+              <div style={{ flex: 1 }} />
+              <div style={{ fontSize: 12, opacity: 0.8 }}>{checkpointStatusText}</div>
+            </div>
+
+            <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <button onClick={() => void listCheckpoints()} style={ghostBtn} disabled={!mounted || mode !== "api" || checkpointBusy} title="Load checkpoints from .operator/checkpoints">
+                List checkpoints
+              </button>
+
+              <label style={{ display: "grid", gap: 6, minWidth: 360, flex: 1 }}>
+                <div style={{ fontSize: 12, opacity: 0.8 }}>Selected checkpoint</div>
+                <select
+                  value={selectedCheckpointId}
+                  onChange={(e) => setSelectedCheckpointId(e.target.value)}
+                  style={{ ...input, padding: "10px 12px" }}
+                  disabled={!mounted || mode !== "api" || checkpointBusy || checkpoints.length === 0}
+                >
+                  <option value="">{checkpoints.length ? "Select…" : "No checkpoints loaded"}</option>
+                  {checkpoints.map((c) => {
+                    const createdAt = typeof c.meta?.createdAt === "string" ? c.meta?.createdAt : "";
+                    const label = createdAt ? `${c.id} (${createdAt})` : c.id;
+                    return (
+                      <option key={c.id} value={c.id}>
+                        {label}
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+
+              <button
+                onClick={() => void restoreCheckpoint(true)}
+                style={ghostBtn}
+                disabled={!mounted || mode !== "api" || checkpointBusy || !selectedCheckpointId}
+                title="Dry-run: show what would be restored"
+              >
+                Dry-run restore
+              </button>
+
+              <button
+                onClick={() => void restoreCheckpoint(false)}
+                style={dangerBtn}
+                disabled={!mounted || mode !== "api" || checkpointBusy || !selectedCheckpointId}
+                title="Restore files from checkpoint to repo (writes to disk)"
+              >
+                Restore
+              </button>
+            </div>
+
+            {mode === "api" && checkpointsDir ? (
+              <div style={{ marginTop: 8, fontSize: 12, opacity: 0.75 }}>
+                Dir: <b>{checkpointsDir}</b>
+              </div>
+            ) : null}
+
+            {checkpointErr ? (
+              <div style={{ marginTop: 8, fontSize: 12, opacity: 0.95 }}>
+                <b>Error:</b> {checkpointErr}
+              </div>
+            ) : null}
           </div>
 
           <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>
@@ -1295,6 +1524,11 @@ export default function OperatorPage() {
                 <div style={miniCard}>
                   <div style={{ fontWeight: 900, marginBottom: 8 }}>Response</div>
                   <pre style={payloadBox}>{JSON.stringify(run.lastResponse ?? null, null, 2)}</pre>
+                </div>
+
+                <div style={miniCard}>
+                  <div style={{ fontWeight: 900, marginBottom: 8 }}>Checkpoint response (last)</div>
+                  <pre style={payloadBox}>{JSON.stringify(lastCheckpointResp ?? null, null, 2)}</pre>
                 </div>
               </div>
             </section>

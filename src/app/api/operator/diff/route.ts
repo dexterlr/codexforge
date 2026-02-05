@@ -1,7 +1,27 @@
-// Operator demo change (2026-02-03T13:12:40.608Z)
+// Operator demo change (2026-02-05T16:10:00.000Z)
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
+
+/**
+ * /api/operator/diff
+ *
+ * Produces SAFE, deterministic, full-replace “unified diffs” for allowlisted files only.
+ * This route MUST NOT write to disk — it only reads files and emits diffs.
+ *
+ * Notes:
+ * - Supports single targetFile (back-compat) OR targetFiles[] (multi-file).
+ * - Enforces allowlist.
+ * - Enforces repoPath containment (no ../ escapes).
+ * - Size caps reads.
+ * - Supports three deterministic goal modes:
+ *   - "append: X"  -> append a single operator line at end
+ *   - "prepend: X" -> insert a single operator line right after the stamp
+ *   - otherwise    -> stamp-only normalization (refresh stamp + remove old operator prepend/append noise)
+ *
+ * IMPORTANT: We DO NOT skip history page if export already exists anymore.
+ * If the goal implies changes, we emit them regardless, and the user approves.
+ */
 
 type Plan = { steps: string[] };
 
@@ -18,17 +38,23 @@ type ReqBody = {
   // Back-compat: single target file (defaults to history page)
   targetFile?: string;
 
-  // Multi-file support. If provided and non-empty, this overrides targetFile.
+  // Multi-file support. If provided and non-empty, overrides targetFile.
   // Each entry must still be allowlisted below.
   targetFiles?: string[];
+
+  // Optional: override default safety caps (still bounded)
+  maxFileBytes?: number;
+
+  // Optional: include extra meta/debug info in response
+  debug?: boolean;
 };
 
 type JsonPayload = Record<string, unknown>;
 
-const MAX_FILE_BYTES = 500_000; // safety cap (~500KB)
+const DEFAULT_MAX_FILE_BYTES = 500_000; // safety cap (~500KB)
+const ABSOLUTE_MAX_FILE_BYTES = 2_000_000; // hard cap even if overridden
 
 // Demo safety: only allow these exact files to be read/modified via diff generation.
-// Add more paths here as needed (must be repo-relative, POSIX style).
 const ALLOWED_TARGETS = new Set<string>([
   "src/app/history/page.tsx",
   "src/app/api/operator/diff/route.ts",
@@ -36,6 +62,10 @@ const ALLOWED_TARGETS = new Set<string>([
 
 function toPosix(p: string) {
   return p.replace(/\\/g, "/");
+}
+
+function safeTrim(x: unknown) {
+  return typeof x === "string" ? x.trim() : "";
 }
 
 // Only allow resolved paths inside repoPath (prevents "../" escaping)
@@ -47,7 +77,7 @@ function isLikelyInside(parentAbs: string, childAbs: string) {
 /**
  * Minimal "unified diff" generator.
  * Not a real diff algorithm; it emits "delete old lines + add new lines".
- * Good enough for an Operator demo and very predictable.
+ * Predictable and safe for our apply endpoint.
  */
 function makeUnifiedDiff(filePath: string, oldText: string, newText: string): string {
   const oldLines = oldText.split("\n");
@@ -73,8 +103,8 @@ function json(status: number, payload: JsonPayload, extraHeaders?: Record<string
   });
 }
 
-function json400(msg: string) {
-  return json(400, { ok: false, error: msg });
+function json400(msg: string, extra?: JsonPayload) {
+  return json(400, { ok: false, error: msg, ...(extra ?? {}) });
 }
 
 function json405(msg: string) {
@@ -85,10 +115,7 @@ function allowedTargetsList() {
   return Array.from(ALLOWED_TARGETS).sort().join(", ");
 }
 
-// Very simple detection: if these handlers exist, export is already implemented.
-function hasExportToolsAlready(text: string) {
-  return text.includes("function onExportJSON") || text.includes("function onExportCSV");
-}
+// ---- operator “noise” normalization ----
 
 const STAMP_RE = /^\/\/ Operator demo change \(.*?\)$/;
 const PREPEND_RE =
@@ -98,10 +125,10 @@ const APPEND_RE =
 
 /**
  * Normalize file so "stamp only" truly cleans up operator noise:
- * - Always ensure EXACTLY ONE stamp line at the top (fresh timestamp)
- * - Remove any stacked stamp lines
- * - ALSO remove operator prepend line immediately after the stamp (legacy or tagged)
- * - ALSO remove operator append line at end of file (legacy or tagged)
+ * - EXACTLY ONE stamp line at the top (fresh timestamp)
+ * - Remove stacked stamp lines
+ * - Remove one operator prepend line immediately after stamp (legacy/tagged)
+ * - Remove one operator append line at end (legacy/tagged)
  */
 function normalizeOperatorFile(original: string, stampIso: string) {
   const stampLine = `// Operator demo change (${stampIso})`;
@@ -129,7 +156,7 @@ function normalizeOperatorFile(original: string, stampIso: string) {
     lines.pop();
   }
 
-  // 5) Rebuild with exactly one stamp line at top, and ensure file ends with newline
+  // 5) Rebuild with exactly one stamp line at top, ensure file ends with newline
   const rest = lines.join("\n");
   return rest.length > 0 ? `${stampLine}\n${rest}\n` : `${stampLine}\n`;
 }
@@ -137,8 +164,8 @@ function normalizeOperatorFile(original: string, stampIso: string) {
 /**
  * Goal-driven deterministic edits (no AI):
  * - "append: X"  -> append "// operator-append: X" at end
- * - "prepend: X" -> insert "// operator-prepend: X" right AFTER the operator stamp line
- * Otherwise: only refresh stamp (and remove old operator prepend/append lines).
+ * - "prepend: X" -> insert "// operator-prepend: X" right AFTER the stamp
+ * Otherwise: stamp-only normalize (refresh stamp + clean noise).
  */
 function applyGoalDrivenEdit(original: string, goal: string, stampIso: string) {
   const normalized = normalizeOperatorFile(original, stampIso);
@@ -182,13 +209,12 @@ function goalMode(goal: string) {
 }
 
 function normalizeTargets(body: ReqBody) {
-  const targetFileRaw = String(body?.targetFile ?? "src/app/history/page.tsx").trim();
-
+  const targetFileRaw = safeTrim(body?.targetFile) || "src/app/history/page.tsx";
   const targetFilesRaw = Array.isArray(body?.targetFiles) ? body.targetFiles : null;
 
   const requested =
     targetFilesRaw && targetFilesRaw.length > 0
-      ? targetFilesRaw.map((x) => String(x ?? "").trim()).filter(Boolean)
+      ? targetFilesRaw.map((x) => safeTrim(x)).filter(Boolean)
       : [targetFileRaw];
 
   const posix = requested.map(toPosix);
@@ -204,6 +230,11 @@ function normalizeTargets(body: ReqBody) {
   }
 
   return out;
+}
+
+function clampMaxBytes(n: number) {
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_MAX_FILE_BYTES;
+  return Math.min(Math.max(1_000, Math.floor(n)), ABSOLUTE_MAX_FILE_BYTES);
 }
 
 export async function OPTIONS() {
@@ -228,8 +259,8 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json().catch(() => null)) as ReqBody | null;
 
-    const repoPath = String(body?.repoPath ?? "").trim();
-    const goal = String(body?.goal ?? "").trim();
+    const repoPath = safeTrim(body?.repoPath);
+    const goal = safeTrim(body?.goal);
     const plan = body?.plan;
 
     if (!repoPath) return json400("repoPath is required");
@@ -244,7 +275,10 @@ export async function POST(req: Request) {
     // Allowlist enforcement (demo safety)
     for (const t of targetPosixList) {
       if (!ALLOWED_TARGETS.has(t)) {
-        return json400(`targetFile is not allowed. Allowed: ${allowedTargetsList()}`);
+        return json400(`targetFile is not allowed. Allowed: ${allowedTargetsList()}`, {
+          allowed: Array.from(ALLOWED_TARGETS).sort(),
+          requested: targetPosixList,
+        });
       }
     }
 
@@ -259,8 +293,17 @@ export async function POST(req: Request) {
     }
     if (!st.isDirectory()) return json400("repoPath must be a folder");
 
+    const maxBytes = clampMaxBytes(Number(body?.maxFileBytes ?? DEFAULT_MAX_FILE_BYTES));
     const stamp = new Date().toISOString();
+
     const diffs: Diff[] = [];
+    const perFile: Array<{
+      filePath: string;
+      absPath: string;
+      bytes: number;
+      changed: boolean;
+      reason?: string;
+    }> = [];
 
     for (const targetPosix of targetPosixList) {
       const absPath = path.resolve(path.join(rootAbs, targetPosix));
@@ -270,29 +313,41 @@ export async function POST(req: Request) {
       }
 
       let original: string;
+      let bytes = 0;
+
       try {
         const buf = await fs.readFile(absPath);
-        if (buf.byteLength > MAX_FILE_BYTES) {
-          return json400(`Target file too large (> ${MAX_FILE_BYTES} bytes): ${targetPosix}`);
+        bytes = buf.byteLength;
+
+        if (buf.byteLength > maxBytes) {
+          return json400(`Target file too large (> ${maxBytes} bytes): ${targetPosix}`);
         }
+
         original = buf.toString("utf8");
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : "read error";
         return json400(`Unable to read ${targetPosix}: ${msg}`);
       }
 
-      // History page special-case: if export already exists, produce no diff for that file.
-      if (targetPosix === "src/app/history/page.tsx" && hasExportToolsAlready(original)) {
-        continue;
+      const { updated } = applyGoalDrivenEdit(original, goal, stamp);
+      const changed = updated !== original;
+
+      if (changed) {
+        diffs.push({
+          filePath: targetPosix,
+          patch: makeUnifiedDiff(targetPosix, original, updated),
+        });
       }
 
-      const { updated } = applyGoalDrivenEdit(original, goal, stamp);
-      if (updated === original) continue;
-
-      diffs.push({
-        filePath: targetPosix,
-        patch: makeUnifiedDiff(targetPosix, original, updated),
-      });
+      if (body?.debug) {
+        perFile.push({
+          filePath: targetPosix,
+          absPath,
+          bytes,
+          changed,
+          reason: changed ? "updated !== original" : "no-op (updated === original)",
+        });
+      }
     }
 
     return NextResponse.json({
@@ -305,7 +360,9 @@ export async function POST(req: Request) {
         stamp,
         mode: goalMode(goal),
         count: diffs.length,
+        maxFileBytes: maxBytes,
       },
+      ...(body?.debug ? { debug: { perFile } } : {}),
       ...(diffs.length === 0 ? { note: "No changes produced (no-op for all targets)." } : {}),
     });
   } catch (e: unknown) {
