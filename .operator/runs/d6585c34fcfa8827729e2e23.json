@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "runId": "d6585c34fcfa8827729e2e23",
+  "createdAt": "2026-02-04T13:49:30.477Z",
+  "updatedAt": "2026-02-04T14:59:33.417Z",
+  "repoPath": "C:\\tools\\health-tracker",
+  "goal": "smoke test: create run",
+  "phase": "planning",
+  "logs": [
+    "[2026-02-04T13:49:30.477Z] Run created.",
+    "[2026-02-04T14:59:33.416Z] transitioned to planning phase"
+  ]
+}

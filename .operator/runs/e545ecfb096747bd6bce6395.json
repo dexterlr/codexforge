@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "runId": "e545ecfb096747bd6bce6395",
+  "createdAt": "2026-02-04T15:16:19.554Z",
+  "updatedAt": "2026-02-04T15:29:38.277Z",
+  "repoPath": "C:\\tools\\health-tracker",
+  "goal": "smoke test: lifecycle",
+  "phase": "planning",
+  "logs": [
+    "[2026-02-04T15:16:19.554Z] Run created.",
+    "[2026-02-04T15:22:58.650Z] entered planning",
+    "[2026-02-04T15:26:30.355Z] patched progress + notes + metrics",
+    "[2026-02-04T15:29:38.277Z] attempted patch of protected fields + goal"
+  ],
+  "metrics": {
+    "filesSeen": 123,
+    "tokens": 4567
+  },
+  "progress": 0.25,
+  "notes": "plan drafted; awaiting approval"
+}
