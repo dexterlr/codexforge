@@ -6,15 +6,11 @@ type ReqBody = {
   repoPath?: string;
   runId?: string;
 
-  // Optional updates
   phase?: string;
 
-  // Optional log append (either string or array)
   log?: string;
   logs?: string[];
 
-  // Optional merge payload (advanced): shallow-merge extra fields into run
-  // (kept for flexibility, but still validated/safe)
   patch?: Record<string, unknown>;
 };
 
@@ -47,11 +43,10 @@ function nowIso() {
 
 function isLikelyInside(parentAbs: string, childAbs: string) {
   const rel = path.relative(parentAbs, childAbs);
-  return !rel.startsWith("..") && !path.isAbsolute(rel);
+  return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
 }
 
 function sanitizeRunId(s: string) {
-  // strict hex-ish id (your runIds are hex)
   return /^[a-f0-9]{8,64}$/i.test(s) ? s : "";
 }
 
@@ -60,7 +55,6 @@ function asRecord(v: unknown): Record<string, unknown> | null {
 }
 
 function isIsoLikeString(v: unknown) {
-  // Keep it permissive (we only need “string exists” here, not strict parsing)
   return typeof v === "string" && v.trim().length >= 10;
 }
 
@@ -87,10 +81,8 @@ function validateRunFile(parsed: unknown, expectedRunId: string): RunFile | null
 }
 
 function capLogs(logs: string[]) {
-  // Keep newest last (append-style). Trim to max lines + max char budget.
   const out = logs.slice(-MAX_LOG_LINES);
 
-  // Char budget: if too big, drop oldest until within budget
   let total = out.reduce((sum, s) => sum + s.length, 0);
   while (out.length > 0 && total > MAX_LOG_CHARS) {
     const removed = out.shift();
@@ -100,14 +92,26 @@ function capLogs(logs: string[]) {
   return out;
 }
 
-async function atomicWrite(fileAbs: string, content: string) {
-  const dir = path.dirname(fileAbs);
-  const tmp = path.join(
-    dir,
-    `${path.basename(fileAbs)}.tmp-${Date.now()}-${Math.random().toString(16).slice(2)}`
-  );
-  await fs.writeFile(tmp, content, "utf8");
-  await fs.rename(tmp, fileAbs);
+/**
+ * Windows-safe write:
+ * - No rename (fixes EPERM)
+ * - Retry if file is temporarily locked
+ */
+async function safeWrite(fileAbs: string, content: string) {
+  const MAX_RETRIES = 3;
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      await fs.writeFile(fileAbs, content, "utf8");
+      return;
+    } catch (err: any) {
+      if (err?.code === "EPERM" && attempt < MAX_RETRIES - 1) {
+        await new Promise((r) => setTimeout(r, 50 * (attempt + 1)));
+        continue;
+      }
+      throw err;
+    }
+  }
 }
 
 export async function POST(req: Request) {
@@ -123,18 +127,17 @@ export async function POST(req: Request) {
 
     const rootAbs = path.resolve(repoPath);
 
-    // Validate repoPath exists and is a folder
-    let stRoot: Awaited<ReturnType<typeof fs.stat>>;
+    let stRoot;
     try {
       stRoot = await fs.stat(rootAbs);
     } catch {
       return json(400, { ok: false, error: "repoPath does not exist" });
     }
+
     if (!stRoot.isDirectory()) {
       return json(400, { ok: false, error: "repoPath must be a folder" });
     }
 
-    // <repo>/.operator/runs/<runId>.json
     const runRel = path.join(".operator", "runs", `${runId}.json`);
     const runAbs = path.resolve(path.join(rootAbs, runRel));
 
@@ -142,7 +145,6 @@ export async function POST(req: Request) {
       return json(400, { ok: false, error: "Resolved path escapes repoPath" });
     }
 
-    // Read existing
     let raw: string;
     try {
       raw = await fs.readFile(runAbs, "utf8");
@@ -162,22 +164,25 @@ export async function POST(req: Request) {
       return json(500, { ok: false, error: "run file missing required fields" });
     }
 
-    // ----- Apply updates (strict-ish + safe) -----
+    // ---- APPLY UPDATES ----
 
-    // Phase (optional)
     const nextPhase =
       typeof body?.phase === "string" && body.phase.trim() ? body.phase.trim() : undefined;
 
-    // Logs (optional)
     const toAppend: string[] = [];
-    if (typeof body?.log === "string" && body.log.trim()) toAppend.push(body.log.trim());
+
+    if (typeof body?.log === "string" && body.log.trim()) {
+      toAppend.push(body.log.trim());
+    }
+
     if (Array.isArray(body?.logs)) {
       for (const x of body.logs) {
-        if (typeof x === "string" && x.trim()) toAppend.push(x.trim());
+        if (typeof x === "string" && x.trim()) {
+          toAppend.push(x.trim());
+        }
       }
     }
 
-    // Optional shallow patch (protect critical keys)
     const patchObj = asRecord(body?.patch);
     if (patchObj) {
       const blocked = new Set([
@@ -196,9 +201,10 @@ export async function POST(req: Request) {
       }
     }
 
-    if (nextPhase) run.phase = nextPhase;
+    if (nextPhase) {
+      run.phase = nextPhase;
+    }
 
-    // Always enforce log caps (even if no new logs)
     if (toAppend.length) {
       const stamped = toAppend.map((line) => `[${nowIso()}] ${line}`);
       run.logs = capLogs([...run.logs, ...stamped]);
@@ -208,8 +214,8 @@ export async function POST(req: Request) {
 
     run.updatedAt = nowIso();
 
-    // Write back (atomic)
-    await atomicWrite(runAbs, JSON.stringify(run, null, 2) + "\n");
+    // ✅ SAFE WRITE (FIXED)
+    await safeWrite(runAbs, JSON.stringify(run, null, 2) + "\n");
 
     return json(200, { ok: true, run, runFile: runAbs });
   } catch (e: unknown) {

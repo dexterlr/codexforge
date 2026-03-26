@@ -16,14 +16,53 @@ const DEFAULT_SKIP_DIRS = [
   ".cache",
   "coverage",
   ".operator",
-];
+] as const;
 
-// These are v3 “shadow mode” defaults (safe + deterministic).
 const DEFAULT_MAX_FILES = 2000;
 const DEFAULT_MAX_DEPTH = 20;
+const MAX_PLANNED_FILES = 8;
+
+type GoalIntent = {
+  raw: string;
+  normalized: string;
+  tokens: string[];
+
+  appendMode: boolean;
+  prependMode: boolean;
+
+  wantsHistory: boolean;
+  wantsEntry: boolean;
+  wantsOperatorUi: boolean;
+  wantsClawdUi: boolean;
+
+  wantsPlanApi: boolean;
+  wantsDiffApi: boolean;
+  wantsApplyApi: boolean;
+  wantsSnapshotApi: boolean;
+  wantsTestApi: boolean;
+  wantsRunApi: boolean;
+  wantsCheckpointApi: boolean;
+
+  wantsV3: boolean;
+  wantsTypes: boolean;
+  wantsBuild: boolean;
+  wantsDev: boolean;
+  wantsPackageJson: boolean;
+  wantsTests: boolean;
+  wantsScripts: boolean;
+  wantsUi: boolean;
+  wantsApi: boolean;
+};
+
+type CandidateTarget = {
+  path: string;
+  baseReason: string;
+  score: number;
+  reasons: string[];
+};
 
 function normalizeGoal(goal: string) {
-  return goal.trim();
+  return goal.trim().replace(/\s+/g, " ");
 }
 
 function normalizeRepoPath(repoPath: string) {
@@ -31,155 +70,324 @@ function normalizeRepoPath(repoPath: string) {
 }
 
 function toPosix(p: string) {
-  return p.replaceAll("\\", "/");
+  return p.replaceAll("\\", "/").trim();
 }
 
-function uniqPlannedFiles(files: OperatorV3PlannedFile[]) {
-  const seen = new Set<string>();
-  const out: OperatorV3PlannedFile[] = [];
-  for (const f of files) {
-    const k = toPosix(f.path.trim());
-    if (!k) continue;
-    if (seen.has(k)) continue;
-    seen.add(k);
-    out.push({ path: k, reason: f.reason });
-  }
-  return out;
+function tokenize(text: string) {
+  return text
+    .toLowerCase()
+    .split(/[^a-z0-9/._-]+/g)
+    .map((x) => x.trim())
+    .filter(Boolean);
 }
 
-function goalHints(goal: string) {
-  const g = goal.toLowerCase();
+function uniqStrings(values: string[]) {
+  return Array.from(new Set(values));
+}
 
-  const has = (s: string) => g.includes(s);
+function includesAny(haystack: string, needles: string[]) {
+  return needles.some((needle) => haystack.includes(needle));
+}
 
+function pushReason(candidate: CandidateTarget, score: number, reason: string) {
+  candidate.score += score;
+  candidate.reasons.push(reason);
+}
+
+function createCandidate(path: string, baseReason: string): CandidateTarget {
   return {
-    raw: g,
-
-    // app areas
-    history: has("history"),
-    operatorUi: has("operator") || has("operator ui") || has("/operator"),
-    entry: has("entry") || has("/entry"),
-
-    // api areas
-    planApi: has("plan") || has("/api/operator/plan"),
-    diffApi: has("diff") || has("/api/operator/diff"),
-    applyApi: has("apply") || has("/api/operator/apply"),
-    snapshotApi: has("snapshot") || has("/api/operator/snapshot"),
-    runApi: has("run") || has("/api/operator/run"),
-    checkpointApi: has("checkpoint") || has("/api/operator/checkpoint") || has("restore"),
-
-    // qualities
-    types: has("type") || has("typing") || has("typescript"),
-    build: has("build") || has("npm run build"),
-    dev: has("dev") || has("npm run dev"),
-    test: has("test") || has("tests"),
+    path: toPosix(path),
+    baseReason: baseReason.trim(),
+    score: 0,
+    reasons: [],
   };
 }
 
-function inferPlannedFiles(goal: string): OperatorV3PlannedFile[] {
-  const h = goalHints(goal);
-  const files: OperatorV3PlannedFile[] = [];
+function parseGoalIntent(goal: string): GoalIntent {
+  const normalized = normalizeGoal(goal);
+  const raw = normalized.toLowerCase();
+  const tokens = uniqStrings(tokenize(raw));
 
-  // UI targets
-  if (h.history) {
-    files.push({
-      path: "src/app/history/page.tsx",
-      reason: "Goal references History UX; likely changes on the History page.",
-    });
-  }
+  const has = (...phrases: string[]) => includesAny(raw, phrases);
 
-  if (h.operatorUi) {
-    files.push({
-      path: "src/app/operator/page.tsx",
-      reason: "Goal references Operator UI; likely changes on the Operator page.",
-    });
-  }
+  return {
+    raw,
+    normalized,
+    tokens,
 
-  if (h.entry) {
-    files.push({
-      path: "src/app/entry/page.tsx",
-      reason: "Goal references entry workflow; likely changes on the Entry page.",
-    });
-  }
+    appendMode: raw.startsWith("append:"),
+    prependMode: raw.startsWith("prepend:"),
 
-  // API targets (Operator endpoints)
-  if (h.planApi) {
-    files.push({
-      path: "src/app/api/operator/plan/route.ts",
-      reason: "Goal references planning; likely changes to /api/operator/plan.",
-    });
-  }
+    wantsHistory: has("history", "history page", "/history"),
+    wantsEntry: has("entry", "entry page", "/entry"),
+    wantsOperatorUi: has("operator ui", "operator page", "/operator", "operator screen"),
+    wantsClawdUi: has("clawd", "clawd ui", "clawd page", "/clawd"),
 
-  if (h.diffApi) {
-    files.push({
-      path: "src/app/api/operator/diff/route.ts",
-      reason: "Goal references diffing; likely changes to /api/operator/diff.",
-    });
-  }
+    wantsPlanApi: has("plan api", "/api/operator/plan", "planner", "planning", "plan route"),
+    wantsDiffApi: has("diff api", "/api/operator/diff", "diff route", "diffing"),
+    wantsApplyApi: has("apply api", "/api/operator/apply", "apply route"),
+    wantsSnapshotApi: has("snapshot api", "/api/operator/snapshot", "snapshot route"),
+    wantsTestApi: has("test api", "/api/operator/test", "test route", "test runner"),
+    wantsRunApi: has("/api/operator/run", "run route", "run log", "run logs", "runs"),
+    wantsCheckpointApi: has(
+      "/api/operator/checkpoint",
+      "checkpoint route",
+      "checkpoints",
+      "checkpoint",
+      "restore"
+    ),
 
-  if (h.applyApi) {
-    files.push({
-      path: "src/app/api/operator/apply/route.ts",
-      reason: "Goal references apply; likely changes to /api/operator/apply.",
-    });
-  }
-
-  if (h.snapshotApi) {
-    files.push({
-      path: "src/app/api/operator/snapshot/route.ts",
-      reason: "Goal references snapshot; likely changes to /api/operator/snapshot.",
-    });
-  }
-
-  if (h.runApi) {
-    // run routes are nested; include directory “targets” as specific known routes
-    files.push({
-      path: "src/app/api/operator/run/list/route.ts",
-      reason: "Goal references runs; run/list is commonly involved.",
-    });
-    files.push({
-      path: "src/app/api/operator/run/get/route.ts",
-      reason: "Goal references runs; run/get is commonly involved.",
-    });
-    files.push({
-      path: "src/app/api/operator/run/start/route.ts",
-      reason: "Goal references runs; run/start is commonly involved.",
-    });
-    files.push({
-      path: "src/app/api/operator/run/update/route.ts",
-      reason: "Goal references runs; run/update is commonly involved.",
-    });
-  }
-
-  if (h.checkpointApi) {
-    files.push({
-      path: "src/app/api/operator/checkpoint/list/route.ts",
-      reason: "Goal references checkpoints; checkpoint/list is likely involved.",
-    });
-    files.push({
-      path: "src/app/api/operator/checkpoint/restore/route.ts",
-      reason: "Goal references restore/checkpoints; checkpoint/restore is likely involved.",
-    });
-  }
-
-  // v3 library itself
-  if (h.planApi || h.types || h.build) {
-    files.push({
-      path: "src/lib/operator/v3/plan.ts",
-      reason: "Goal references planning/types/build; v3 plan types may need updates.",
-    });
-    files.push({
-      path: "src/lib/operator/v3/generatePlan.ts",
-      reason: "Goal references planning/types/build; v3 generator may need updates.",
-    });
-  }
-
-  return uniqPlannedFiles(files);
+    wantsV3: has("v3", "shadow mode", "shadow plan", "planner v3"),
+    wantsTypes: has("type", "types", "typing", "typescript"),
+    wantsBuild: has("build", "npm run build"),
+    wantsDev: has("dev", "npm run dev"),
+    wantsPackageJson: has("package.json"),
+    wantsTests: has("test", "tests"),
+    wantsScripts: has("script", "scripts"),
+    wantsUi: has("ui", "page", "screen", "button", "form", "layout"),
+    wantsApi: has("api", "route", "endpoint"),
+  };
 }
 
-function buildRisks(goal: string): string[] {
-  const h = goalHints(goal);
+function buildCandidates(): CandidateTarget[] {
+  return [
+    createCandidate(
+      "src/app/history/page.tsx",
+      "History page target for history-related UI work and safe demo append/prepend flows."
+    ),
+    createCandidate(
+      "src/app/entry/page.tsx",
+      "Entry page target for entry workflow and form-related changes."
+    ),
+    createCandidate(
+      "src/app/clawd/page.tsx",
+      "Clawd page target for the current operator UI surface."
+    ),
+    createCandidate(
+      "src/app/api/operator/plan/route.ts",
+      "Planning route target for operator planning behavior."
+    ),
+    createCandidate(
+      "src/app/api/operator/diff/route.ts",
+      "Diff route target for operator diff generation behavior."
+    ),
+    createCandidate(
+      "src/app/api/operator/apply/route.ts",
+      "Apply route target for operator apply behavior."
+    ),
+    createCandidate(
+      "src/app/api/operator/snapshot/route.ts",
+      "Snapshot route target for snapshot behavior."
+    ),
+    createCandidate(
+      "src/app/api/operator/test/route.ts",
+      "Test route target for operator test execution behavior."
+    ),
+    createCandidate(
+      "src/app/api/operator/run/list/route.ts",
+      "Run list route target for run listing behavior."
+    ),
+    createCandidate(
+      "src/app/api/operator/run/get/route.ts",
+      "Run get route target for reading run state."
+    ),
+    createCandidate(
+      "src/app/api/operator/run/start/route.ts",
+      "Run start route target for starting operator runs."
+    ),
+    createCandidate(
+      "src/app/api/operator/run/update/route.ts",
+      "Run update route target for updating run state."
+    ),
+    createCandidate(
+      "src/app/api/operator/checkpoint/list/route.ts",
+      "Checkpoint list route target for checkpoint discovery."
+    ),
+    createCandidate(
+      "src/app/api/operator/checkpoint/restore/route.ts",
+      "Checkpoint restore route target for restore behavior."
+    ),
+    createCandidate(
+      "src/lib/operator/v3/plan.ts",
+      "v3 plan types target for planner structure and typing."
+    ),
+    createCandidate(
+      "src/lib/operator/v3/generatePlan.ts",
+      "v3 generator target for shadow planning logic."
+    ),
+    createCandidate(
+      "package.json",
+      "Package manifest target for scripts, test commands, build commands, and tooling behavior."
+    ),
+  ];
+}
 
+function scoreCandidates(intent: GoalIntent): CandidateTarget[] {
+  const candidates = buildCandidates();
+
+  const byPath = new Map<string, CandidateTarget>();
+  for (const candidate of candidates) {
+    byPath.set(candidate.path, candidate);
+  }
+
+  const hit = (path: string, score: number, reason: string) => {
+    const candidate = byPath.get(path);
+    if (!candidate) return;
+    pushReason(candidate, score, reason);
+  };
+
+  const hasSpecificUiTarget =
+    intent.wantsHistory || intent.wantsEntry || intent.wantsOperatorUi || intent.wantsClawdUi;
+
+  const hasSpecificApiTarget =
+    intent.wantsPlanApi ||
+    intent.wantsDiffApi ||
+    intent.wantsApplyApi ||
+    intent.wantsSnapshotApi ||
+    intent.wantsTestApi ||
+    intent.wantsRunApi ||
+    intent.wantsCheckpointApi;
+
+  if (intent.appendMode || intent.prependMode) {
+    hit(
+      "src/app/history/page.tsx",
+      10_000,
+      "Append/prepend command mode is deliberately pinned to the safest current allowlisted target."
+    );
+    return candidates;
+  }
+
+  if (intent.wantsHistory) {
+    hit("src/app/history/page.tsx", 500, "Goal explicitly references history.");
+  }
+
+  if (intent.wantsEntry) {
+    hit("src/app/entry/page.tsx", 500, "Goal explicitly references entry.");
+  }
+
+  if (intent.wantsOperatorUi || intent.wantsClawdUi) {
+    hit("src/app/clawd/page.tsx", 520, "Goal explicitly references the current operator/clawd UI.");
+  }
+
+  if (intent.wantsPlanApi) {
+    hit("src/app/api/operator/plan/route.ts", 550, "Goal explicitly references operator planning.");
+    hit("src/lib/operator/v3/generatePlan.ts", 180, "Planner logic often pairs with v3 generation.");
+    hit("src/lib/operator/v3/plan.ts", 110, "Planner work may require plan typing updates.");
+  }
+
+  if (intent.wantsDiffApi) {
+    hit("src/app/api/operator/diff/route.ts", 550, "Goal explicitly references diff generation.");
+  }
+
+  if (intent.wantsApplyApi) {
+    hit("src/app/api/operator/apply/route.ts", 550, "Goal explicitly references apply behavior.");
+  }
+
+  if (intent.wantsSnapshotApi) {
+    hit("src/app/api/operator/snapshot/route.ts", 550, "Goal explicitly references snapshot behavior.");
+  }
+
+  if (intent.wantsTestApi) {
+    hit("src/app/api/operator/test/route.ts", 560, "Goal explicitly references test route behavior.");
+    hit("package.json", 220, "Test behavior may depend on package scripts.");
+  }
+
+  if (intent.wantsRunApi) {
+    hit("src/app/api/operator/run/list/route.ts", 220, "Goal explicitly references run listing/logging.");
+    hit("src/app/api/operator/run/get/route.ts", 200, "Goal explicitly references reading run state.");
+    hit("src/app/api/operator/run/start/route.ts", 220, "Goal explicitly references starting runs.");
+    hit("src/app/api/operator/run/update/route.ts", 210, "Goal explicitly references updating runs.");
+  }
+
+  if (intent.wantsCheckpointApi) {
+    hit("src/app/api/operator/checkpoint/list/route.ts", 220, "Goal explicitly references checkpoint listing.");
+    hit("src/app/api/operator/checkpoint/restore/route.ts", 240, "Goal explicitly references restore/checkpoint behavior.");
+  }
+
+  if (intent.wantsV3) {
+    hit("src/lib/operator/v3/generatePlan.ts", 300, "Goal explicitly references v3/shadow planning.");
+    hit("src/lib/operator/v3/plan.ts", 220, "v3 work commonly touches plan types.");
+    hit("src/app/api/operator/plan/route.ts", 120, "v3 planner changes often surface through the plan route.");
+  }
+
+  if (intent.wantsTypes) {
+    hit("src/lib/operator/v3/plan.ts", 180, "Goal references types/typing.");
+    hit("src/lib/operator/v3/generatePlan.ts", 80, "Typing improvements often pair with generator updates.");
+  }
+
+  if (intent.wantsBuild) {
+    hit("package.json", 260, "Build goals frequently involve scripts/tooling.");
+    hit("src/lib/operator/v3/plan.ts", 70, "Build issues can come from type structure.");
+    hit("src/lib/operator/v3/generatePlan.ts", 70, "Build issues can come from generator typing.");
+  }
+
+  if (intent.wantsDev) {
+    hit("package.json", 220, "Dev workflow goals frequently involve scripts/tooling.");
+  }
+
+  if (intent.wantsPackageJson || intent.wantsScripts) {
+    hit("package.json", 360, "Goal explicitly references package.json/scripts.");
+  }
+
+  if (intent.wantsTests && !intent.wantsTestApi) {
+    hit("package.json", 180, "Tests may require script definitions.");
+    hit("src/app/api/operator/test/route.ts", 140, "Tests may involve the operator test route.");
+  }
+
+  if (intent.wantsUi && !hasSpecificUiTarget) {
+    hit("src/app/history/page.tsx", 40, "Generic UI wording slightly favors page targets.");
+    hit("src/app/entry/page.tsx", 30, "Generic UI wording slightly favors page targets.");
+    hit("src/app/clawd/page.tsx", 35, "Generic UI wording slightly favors page targets.");
+  }
+
+  if (intent.wantsApi && !hasSpecificApiTarget) {
+    hit("src/app/api/operator/plan/route.ts", 20, "Generic API wording slightly favors route targets.");
+    hit("src/app/api/operator/diff/route.ts", 20, "Generic API wording slightly favors route targets.");
+    hit("src/app/api/operator/apply/route.ts", 20, "Generic API wording slightly favors route targets.");
+    hit("src/app/api/operator/snapshot/route.ts", 20, "Generic API wording slightly favors route targets.");
+    hit("src/app/api/operator/test/route.ts", 20, "Generic API wording slightly favors route targets.");
+  }
+
+  return candidates;
+}
+
+function toPlannedFiles(intent: GoalIntent): OperatorV3PlannedFile[] {
+  const scored = scoreCandidates(intent)
+    .filter((candidate) => candidate.score > 0)
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.path.localeCompare(b.path);
+    });
+
+  if (scored.length === 0) {
+    if (intent.wantsBuild || intent.wantsDev || intent.wantsTests || intent.wantsPackageJson || intent.wantsScripts) {
+      return [
+        {
+          path: "package.json",
+          reason: "Fallback target for script/build/dev/test goals when no stronger target is detected.",
+        },
+      ];
+    }
+
+    return [
+      {
+        path: "src/app/history/page.tsx",
+        reason: "Fallback target for vague UI/demo goals; history page remains the safest default target.",
+      },
+    ];
+  }
+
+  return scored.slice(0, MAX_PLANNED_FILES).map((candidate) => {
+    const topReasons = candidate.reasons.slice(0, 3).join(" ");
+    const reason = `${candidate.baseReason}${topReasons ? ` ${topReasons}` : ""}`.trim();
+    return {
+      path: candidate.path,
+      reason,
+    };
+  });
+}
+
+function buildRisks(intent: GoalIntent): string[] {
   const risks: string[] = [
     "Never write outside allowlist",
     "Never touch node_modules/.next/.git and other generated dirs",
@@ -188,15 +396,23 @@ function buildRisks(goal: string): string[] {
     "Human approval required before apply",
   ];
 
-  if (h.types || h.build) {
-    risks.push("TypeScript build can fail from small type mismatches; keep types strict and explicit");
+  if (intent.wantsTypes || intent.wantsBuild || intent.wantsV3) {
+    risks.push("TypeScript changes can fail from small structural mismatches; keep types explicit and stable.");
   }
 
-  if (h.runApi || h.snapshotApi) {
-    risks.push("Node/Next build typing can be sensitive around fs.Dirent typing; avoid fragile Node typings");
+  if (intent.wantsRunApi || intent.wantsSnapshotApi || intent.wantsTestApi || intent.wantsApi) {
+    risks.push("Route changes can fail from path handling or process execution details; keep server-side behavior conservative.");
   }
 
-  return risks;
+  if (intent.wantsPackageJson || intent.wantsScripts || intent.wantsBuild || intent.wantsDev || intent.wantsTests) {
+    risks.push("Script changes can break local workflows; prefer additive script updates over destructive changes.");
+  }
+
+  if (intent.wantsUi) {
+    risks.push("UI goals should not degrade local-first behavior or make AI a hard dependency.");
+  }
+
+  return uniqStrings(risks);
 }
 
 function buildConstraints(): OperatorV3Constraints {
@@ -211,22 +427,25 @@ function buildConstraints(): OperatorV3Constraints {
 }
 
 /**
- * Operator v3 "shadow mode" planner
- * - Deterministic
- * - Fast
- * - No filesystem reads
- * - No network
- * - Pure data output
+ * Operator v3 shadow-mode planner
+ * - deterministic
+ * - fast
+ * - no filesystem reads
+ * - no network
+ * - pure data output
  */
 export function makeOperatorV3Plan(input: OperatorV3PlanInput): OperatorV3Plan {
   const goal = normalizeGoal(input.goal);
   const repoPath = normalizeRepoPath(input.repoPath);
+  const intent = parseGoalIntent(goal);
 
   const steps: string[] = [
     "Validate inputs (repoPath, goal) and keep plan generation deterministic",
-    "Define constraints (allowlist-only, skip dirs, safety caps, offline requirement)",
-    "Create a snapshot (read-only) of allowlisted files and metadata",
-    "Propose file targets and risks before generating diffs",
+    "Parse goal into structured intent signals",
+    "Apply safety constraints (allowlist-only, skip dirs, safety caps, offline requirement)",
+    "Score candidate files by intent instead of relying on a single keyword match",
+    "Prioritize explicit target matches over generic UI/API language",
+    "Select the highest-confidence planned files before diff generation",
     "Generate diffs for allowlisted files only (no writes)",
     "Require explicit human approval before apply",
     "Apply diffs atomically with checkpoint creation",
@@ -234,8 +453,8 @@ export function makeOperatorV3Plan(input: OperatorV3PlanInput): OperatorV3Plan {
     "Persist audit trail artifacts for plan/diff/apply/test",
   ];
 
-  const files = inferPlannedFiles(goal);
-  const risks = buildRisks(goal);
+  const files = toPlannedFiles(intent);
+  const risks = buildRisks(intent);
   const constraints = buildConstraints();
 
   return {
@@ -250,8 +469,7 @@ export function makeOperatorV3Plan(input: OperatorV3PlanInput): OperatorV3Plan {
 }
 
 /**
- * Back-compat name for the API route import.
- * Keep both exports so we never break the app route import again.
+ * Back-compat export name for existing imports.
  */
 export function generatePlanV3Shadow(input: OperatorV3PlanInput): OperatorV3Plan {
   return makeOperatorV3Plan(input);

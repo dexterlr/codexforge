@@ -1,4 +1,4 @@
-// Operator demo change (2026-02-05T16:10:00.000Z)
+// Operator demo change (2026-03-26T12:10:00.000Z)
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
@@ -6,80 +6,292 @@ import path from "path";
 /**
  * /api/operator/diff
  *
- * Produces SAFE, deterministic, full-replace “unified diffs” for allowlisted files only.
- * This route MUST NOT write to disk — it only reads files and emits diffs.
+ * Safe, deterministic diff generator for allowlisted files only.
+ * This route never writes to disk.
  *
- * Notes:
- * - Supports single targetFile (back-compat) OR targetFiles[] (multi-file).
- * - Enforces allowlist.
- * - Enforces repoPath containment (no ../ escapes).
- * - Size caps reads.
- * - Supports three deterministic goal modes:
- *   - "append: X"  -> append a single operator line at end
- *   - "prepend: X" -> insert a single operator line right after the stamp
- *   - otherwise    -> stamp-only normalization (refresh stamp + remove old operator prepend/append noise)
+ * Design goals:
+ * - Accept older and newer planner payload shapes
+ * - Respect explicit targetFile / targetFiles when provided
+ * - Fall back to v3Plan.files when present
+ * - Fall back to a safe default target otherwise
+ * - Enforce exact allowlist membership + repo containment
+ * - Emit predictable full-replace unified diffs for the apply route
+ * - Stay deterministic, offline-safe, and conservative
  *
- * IMPORTANT: We DO NOT skip history page if export already exists anymore.
- * If the goal implies changes, we emit them regardless, and the user approves.
+ * Important:
+ * - This route does NOT invent real feature edits from natural-language goals.
+ * - Real deterministic edits supported here are only:
+ *   - append: X
+ *   - prepend: X
+ * - Any other goal becomes a no-op unless another layer supplies concrete diffs.
  */
 
-type Plan = { steps: string[] };
+type PlanStepObject = {
+  id: string;
+  title: string;
+  detail: string;
+};
+
+type PlanStep = string | PlanStepObject;
+
+type Plan = {
+  steps: PlanStep[];
+};
+
+type V3PlannedFile = {
+  path: string;
+  reason?: string;
+};
+
+type V3Plan = {
+  files?: V3PlannedFile[];
+};
 
 type Diff = {
-  filePath: string; // repo-relative, POSIX style
-  patch: string; // unified diff text (simple full-replace diff)
+  filePath: string;
+  patch: string;
 };
 
 type ReqBody = {
-  repoPath?: string;
-  goal?: string;
-  plan?: Plan;
-
-  // Back-compat: single target file (defaults to history page)
-  targetFile?: string;
-
-  // Multi-file support. If provided and non-empty, overrides targetFile.
-  // Each entry must still be allowlisted below.
-  targetFiles?: string[];
-
-  // Optional: override default safety caps (still bounded)
-  maxFileBytes?: number;
-
-  // Optional: include extra meta/debug info in response
-  debug?: boolean;
+  repoPath?: unknown;
+  goal?: unknown;
+  plan?: unknown;
+  v3Plan?: unknown;
+  targetFile?: unknown;
+  targetFiles?: unknown;
+  maxFileBytes?: unknown;
+  debug?: unknown;
 };
 
 type JsonPayload = Record<string, unknown>;
 
-const DEFAULT_MAX_FILE_BYTES = 500_000; // safety cap (~500KB)
-const ABSOLUTE_MAX_FILE_BYTES = 2_000_000; // hard cap even if overridden
+type GoalEditMode = "append" | "prepend" | "unsupported";
 
-// Demo safety: only allow these exact files to be read/modified via diff generation.
+type GoalEditResult = {
+  mode: GoalEditMode;
+  updated: string;
+};
+
+type ResolveTargetsResult = {
+  targets: string[];
+  source: "targetFiles" | "targetFile" | "v3Plan.files" | "default";
+};
+
+const DEFAULT_TARGET_FILE = "src/app/history/page.tsx";
+const DEFAULT_MAX_FILE_BYTES = 500_000;
+const ABSOLUTE_MAX_FILE_BYTES = 2_000_000;
+
 const ALLOWED_TARGETS = new Set<string>([
+  "package.json",
+
   "src/app/history/page.tsx",
+  "src/app/clawd/page.tsx",
+  "src/app/entry/page.tsx",
+
+  "src/app/api/operator/plan/route.ts",
   "src/app/api/operator/diff/route.ts",
+  "src/app/api/operator/apply/route.ts",
+  "src/app/api/operator/snapshot/route.ts",
+  "src/app/api/operator/test/route.ts",
+
+  "src/app/api/operator/run/list/route.ts",
+  "src/app/api/operator/run/get/route.ts",
+  "src/app/api/operator/run/start/route.ts",
+  "src/app/api/operator/run/update/route.ts",
+
+  "src/app/api/operator/checkpoint/list/route.ts",
+  "src/app/api/operator/checkpoint/restore/route.ts",
+
+  "src/lib/operator/v3/plan.ts",
+  "src/lib/operator/v3/generatePlan.ts",
 ]);
 
+const STAMP_RE = /^\/\/ Operator demo change \(.*?\)$/;
+const PREPEND_RE =
+  /^\/\/\s*(prepended via operator demo|prepended by operator|operator-prepend:.*)$/i;
+const APPEND_RE =
+  /^\/\/\s*(appended via operator demo|appended by operator|operator-append:.*)$/i;
+
 function toPosix(p: string) {
-  return p.replace(/\\/g, "/");
+  return p.replaceAll("\\", "/").trim();
 }
 
-function safeTrim(x: unknown) {
-  return typeof x === "string" ? x.trim() : "";
+function safeTrim(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
 }
 
-// Only allow resolved paths inside repoPath (prevents "../" escaping)
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function isPlanStepObject(value: unknown): value is PlanStepObject {
+  if (!isRecord(value)) return false;
+
+  return (
+    typeof value.id === "string" &&
+    typeof value.title === "string" &&
+    typeof value.detail === "string"
+  );
+}
+
+function isPlanStep(value: unknown): value is PlanStep {
+  return (typeof value === "string" && value.trim().length > 0) || isPlanStepObject(value);
+}
+
+function isPlan(value: unknown): value is Plan {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.steps) &&
+    value.steps.length > 0 &&
+    value.steps.every(isPlanStep)
+  );
+}
+
+function isV3PlannedFile(value: unknown): value is V3PlannedFile {
+  return isRecord(value) && typeof value.path === "string" && value.path.trim().length > 0;
+}
+
+function isV3Plan(value: unknown): value is V3Plan {
+  if (!isRecord(value)) return false;
+  if (value.files === undefined) return true;
+  return Array.isArray(value.files) && value.files.every(isV3PlannedFile);
+}
+
+function asBoolean(value: unknown) {
+  return value === true;
+}
+
+function safeErrorMessage(error: unknown, fallback = "Unknown error") {
+  if (error instanceof Error && error.message.trim()) return error.message;
+  if (typeof error === "string" && error.trim()) return error;
+  if (isRecord(error) && typeof error.message === "string" && error.message.trim()) {
+    return error.message;
+  }
+  return fallback;
+}
+
+function json(status: number, payload: JsonPayload, extraHeaders?: Record<string, string>) {
+  return NextResponse.json(payload, {
+    status,
+    headers: { ...(extraHeaders ?? {}) },
+  });
+}
+
+function json400(error: string, extra?: JsonPayload) {
+  return json(400, { ok: false, error, ...(extra ?? {}) });
+}
+
+function json405(error: string) {
+  return json(405, { ok: false, error });
+}
+
+function allowedTargetsArray() {
+  return Array.from(ALLOWED_TARGETS).sort();
+}
+
+function allowedTargetsList() {
+  return allowedTargetsArray().join(", ");
+}
+
 function isLikelyInside(parentAbs: string, childAbs: string) {
   const rel = path.relative(parentAbs, childAbs);
-  return !!rel && !rel.startsWith("..") && !path.isAbsolute(rel);
+  return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
+}
+
+function clampMaxBytes(value: unknown) {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_MAX_FILE_BYTES;
+  return Math.min(Math.max(1_000, Math.floor(n)), ABSOLUTE_MAX_FILE_BYTES);
+}
+
+function uniqStrings(values: string[]) {
+  const seen = new Set<string>();
+  const out: string[] = [];
+
+  for (const value of values) {
+    if (!value) continue;
+    if (seen.has(value)) continue;
+    seen.add(value);
+    out.push(value);
+  }
+
+  return out;
+}
+
+function normalizeTargetsFromExplicitBody(body: ReqBody) {
+  const explicitTargetFiles = Array.isArray(body.targetFiles)
+    ? body.targetFiles.map((x) => safeTrim(x)).filter(Boolean)
+    : [];
+
+  const explicitTargetFile = safeTrim(body.targetFile);
+
+  if (explicitTargetFiles.length > 0) {
+    return uniqStrings(explicitTargetFiles.map(toPosix));
+  }
+
+  if (explicitTargetFile) {
+    return uniqStrings([toPosix(explicitTargetFile)]);
+  }
+
+  return [];
+}
+
+function normalizeTargetsFromV3Plan(v3Plan: unknown) {
+  if (!isV3Plan(v3Plan) || !Array.isArray(v3Plan.files) || v3Plan.files.length === 0) {
+    return [];
+  }
+
+  const v3Targets = v3Plan.files
+    .map((file) => safeTrim(file.path))
+    .filter(Boolean)
+    .map(toPosix);
+
+  return uniqStrings(v3Targets);
+}
+
+function resolveTargets(body: ReqBody): ResolveTargetsResult {
+  const explicit = normalizeTargetsFromExplicitBody(body);
+  if (explicit.length > 0) {
+    return {
+      targets: explicit,
+      source: Array.isArray(body.targetFiles) && body.targetFiles.length > 0 ? "targetFiles" : "targetFile",
+    };
+  }
+
+  const fromV3 = normalizeTargetsFromV3Plan(body.v3Plan);
+  if (fromV3.length > 0) {
+    return {
+      targets: fromV3,
+      source: "v3Plan.files",
+    };
+  }
+
+  return {
+    targets: [DEFAULT_TARGET_FILE],
+    source: "default",
+  };
+}
+
+function validateTargets(targets: readonly string[]) {
+  const disallowed = targets.filter((t) => !ALLOWED_TARGETS.has(t));
+
+  if (disallowed.length > 0) {
+    return {
+      ok: false as const,
+      error: "One or more target files are not allowed.",
+      disallowed,
+      allowed: allowedTargetsArray(),
+    };
+  }
+
+  return { ok: true as const };
 }
 
 /**
- * Minimal "unified diff" generator.
- * Not a real diff algorithm; it emits "delete old lines + add new lines".
- * Predictable and safe for our apply endpoint.
+ * Predictable full-replace unified diff.
+ * Intentionally simple so the apply route can reconstruct output safely.
  */
-function makeUnifiedDiff(filePath: string, oldText: string, newText: string): string {
+function makeUnifiedDiff(filePath: string, oldText: string, newText: string) {
   const oldLines = oldText.split("\n");
   const newLines = newText.split("\n");
 
@@ -90,151 +302,92 @@ function makeUnifiedDiff(filePath: string, oldText: string, newText: string): st
   ];
 
   const body: string[] = [];
+
   for (const line of oldLines) body.push(`-${line}`);
   for (const line of newLines) body.push(`+${line}`);
 
   return [...header, ...body].join("\n");
 }
 
-function json(status: number, payload: JsonPayload, extraHeaders?: Record<string, string>) {
-  return NextResponse.json(payload, {
-    status,
-    headers: { ...(extraHeaders ?? {}) },
-  });
-}
-
-function json400(msg: string, extra?: JsonPayload) {
-  return json(400, { ok: false, error: msg, ...(extra ?? {}) });
-}
-
-function json405(msg: string) {
-  return json(405, { ok: false, error: msg });
-}
-
-function allowedTargetsList() {
-  return Array.from(ALLOWED_TARGETS).sort().join(", ");
-}
-
-// ---- operator “noise” normalization ----
-
-const STAMP_RE = /^\/\/ Operator demo change \(.*?\)$/;
-const PREPEND_RE =
-  /^\/\/\s*(prepended via operator demo|prepended by operator|operator-prepend:.*)$/i;
-const APPEND_RE =
-  /^\/\/\s*(appended via operator demo|appended by operator|operator-append:.*)$/i;
-
-/**
- * Normalize file so "stamp only" truly cleans up operator noise:
- * - EXACTLY ONE stamp line at the top (fresh timestamp)
- * - Remove stacked stamp lines
- * - Remove one operator prepend line immediately after stamp (legacy/tagged)
- * - Remove one operator append line at end (legacy/tagged)
- */
-function normalizeOperatorFile(original: string, stampIso: string) {
+function normalizeOperatorFileForDemoCommands(original: string, stampIso: string) {
   const stampLine = `// Operator demo change (${stampIso})`;
-
-  // Split into lines (no trailing newline dependency)
   const lines = original.split(/\r?\n/);
 
-  // 1) Remove any leading stamp lines (stacked)
   while (lines.length > 0 && STAMP_RE.test(lines[0])) {
     lines.shift();
   }
 
-  // 2) Remove one "prepend" line if it exists at new top
   if (lines.length > 0 && PREPEND_RE.test(lines[0])) {
     lines.shift();
   }
 
-  // 3) Remove trailing empty lines
   while (lines.length > 0 && lines[lines.length - 1].trim() === "") {
     lines.pop();
   }
 
-  // 4) Remove one "append" line if it exists at end
   if (lines.length > 0 && APPEND_RE.test(lines[lines.length - 1])) {
     lines.pop();
   }
 
-  // 5) Rebuild with exactly one stamp line at top, ensure file ends with newline
   const rest = lines.join("\n");
-  return rest.length > 0 ? `${stampLine}\n${rest}\n` : `${stampLine}\n`;
+  return rest ? `${stampLine}\n${rest}\n` : `${stampLine}\n`;
 }
 
-/**
- * Goal-driven deterministic edits (no AI):
- * - "append: X"  -> append "// operator-append: X" at end
- * - "prepend: X" -> insert "// operator-prepend: X" right AFTER the stamp
- * Otherwise: stamp-only normalize (refresh stamp + clean noise).
- */
-function applyGoalDrivenEdit(original: string, goal: string, stampIso: string) {
-  const normalized = normalizeOperatorFile(original, stampIso);
+function extractGoalPayload(goal: string, prefix: "append:" | "prepend:") {
+  const lower = goal.toLowerCase();
+  const idx = lower.indexOf(prefix);
+  if (idx === -1) return "";
+  return goal.slice(idx + prefix.length).trim();
+}
+
+function applyGoalDrivenEdit(original: string, goal: string, stampIso: string): GoalEditResult {
+  const normalized = normalizeOperatorFileForDemoCommands(original, stampIso);
   const lower = goal.toLowerCase();
 
-  const extractAfter = (prefix: "append:" | "prepend:") => {
-    const idx = lower.indexOf(prefix);
-    if (idx === -1) return "";
-    return goal.slice(idx + prefix.length).trim();
-  };
-
   if (lower.includes("prepend:")) {
-    const msg = extractAfter("prepend:");
+    const msg = extractGoalPayload(goal, "prepend:");
     const line = msg ? `// operator-prepend: ${msg}\n` : `// operator-prepend: (empty)\n`;
 
-    // normalized always starts with stamp line + newline
-    const m = normalized.match(/^\/\/ Operator demo change \(.*?\)\r?\n/);
-    if (m) {
-      const head = m[0];
+    const match = normalized.match(/^\/\/ Operator demo change \(.*?\)\r?\n/);
+    if (match) {
+      const head = match[0];
       const rest = normalized.slice(head.length);
-      return { mode: "prepend" as const, updated: head + line + rest };
+      return {
+        mode: "prepend",
+        updated: head + line + rest,
+      };
     }
-    return { mode: "prepend" as const, updated: line + normalized };
+
+    return {
+      mode: "prepend",
+      updated: line + normalized,
+    };
   }
 
   if (lower.includes("append:")) {
-    const msg = extractAfter("append:");
+    const msg = extractGoalPayload(goal, "append:");
     const line = msg ? `// operator-append: ${msg}` : `// operator-append: (empty)`;
-    // normalized already ends with "\n"
-    return { mode: "append" as const, updated: normalized + line + "\n" };
+    return {
+      mode: "append",
+      updated: normalized + line + "\n",
+    };
   }
 
-  return { mode: "stamp" as const, updated: normalized };
+  return {
+    mode: "unsupported",
+    updated: original,
+  };
 }
 
-function goalMode(goal: string) {
+function goalMode(goal: string): GoalEditMode {
   const g = goal.toLowerCase();
   if (g.includes("append:")) return "append";
   if (g.includes("prepend:")) return "prepend";
-  return "stamp";
+  return "unsupported";
 }
 
-function normalizeTargets(body: ReqBody) {
-  const targetFileRaw = safeTrim(body?.targetFile) || "src/app/history/page.tsx";
-  const targetFilesRaw = Array.isArray(body?.targetFiles) ? body.targetFiles : null;
-
-  const requested =
-    targetFilesRaw && targetFilesRaw.length > 0
-      ? targetFilesRaw.map((x) => safeTrim(x)).filter(Boolean)
-      : [targetFileRaw];
-
-  const posix = requested.map(toPosix);
-
-  // De-dupe while preserving order
-  const out: string[] = [];
-  const seen = new Set<string>();
-  for (const t of posix) {
-    if (!t) continue;
-    if (seen.has(t)) continue;
-    seen.add(t);
-    out.push(t);
-  }
-
-  return out;
-}
-
-function clampMaxBytes(n: number) {
-  if (!Number.isFinite(n) || n <= 0) return DEFAULT_MAX_FILE_BYTES;
-  return Math.min(Math.max(1_000, Math.floor(n)), ABSOLUTE_MAX_FILE_BYTES);
+function countPlanSteps(plan: Plan) {
+  return plan.steps.length;
 }
 
 export async function OPTIONS() {
@@ -251,13 +404,13 @@ export async function OPTIONS() {
 
 export async function GET() {
   return json405(
-    `Use POST with JSON body: { repoPath, goal, plan, (optional) targetFile | targetFiles }. Allowed targets: ${allowedTargetsList()}`
+    `Use POST with JSON body: { repoPath, goal, plan, v3Plan?, targetFile? | targetFiles? }. Allowed targets: ${allowedTargetsList()}`
   );
 }
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json().catch(() => null)) as ReqBody | null;
+    const body = ((await req.json().catch(() => null)) ?? null) as ReqBody | null;
 
     const repoPath = safeTrim(body?.repoPath);
     const goal = safeTrim(body?.goal);
@@ -265,36 +418,44 @@ export async function POST(req: Request) {
 
     if (!repoPath) return json400("repoPath is required");
     if (!goal) return json400("goal is required");
-    if (!plan || !Array.isArray(plan.steps)) return json400("plan is required");
+    if (!isPlan(plan)) return json400("plan is required and must include steps[]");
 
-    const targetPosixList = normalizeTargets(body ?? {});
-    if (targetPosixList.length === 0) {
-      return json400("No targets provided (targetFile or targetFiles[])");
+    if (body?.v3Plan !== undefined && !isV3Plan(body.v3Plan)) {
+      return json400("v3Plan is malformed");
     }
 
-    // Allowlist enforcement (demo safety)
-    for (const t of targetPosixList) {
-      if (!ALLOWED_TARGETS.has(t)) {
-        return json400(`targetFile is not allowed. Allowed: ${allowedTargetsList()}`, {
-          allowed: Array.from(ALLOWED_TARGETS).sort(),
-          requested: targetPosixList,
-        });
-      }
+    const resolvedTargets = resolveTargets(body ?? {});
+    const targetPosixList = [...resolvedTargets.targets];
+
+    if (targetPosixList.length === 0) {
+      return json400("No targets provided (targetFile or targetFiles[] or v3Plan.files)");
+    }
+
+    const allowlistCheck = validateTargets(targetPosixList);
+    if (!allowlistCheck.ok) {
+      return json400(allowlistCheck.error, {
+        requested: targetPosixList,
+        disallowed: allowlistCheck.disallowed,
+        allowed: allowlistCheck.allowed,
+      });
     }
 
     const rootAbs = path.resolve(repoPath);
 
-    // Validate repoPath exists and is a folder
-    let st: { isDirectory(): boolean };
+    let rootStat: Awaited<ReturnType<typeof fs.stat>>;
     try {
-      st = await fs.stat(rootAbs);
+      rootStat = await fs.stat(rootAbs);
     } catch {
       return json400("repoPath does not exist");
     }
-    if (!st.isDirectory()) return json400("repoPath must be a folder");
 
-    const maxBytes = clampMaxBytes(Number(body?.maxFileBytes ?? DEFAULT_MAX_FILE_BYTES));
+    if (!rootStat.isDirectory()) {
+      return json400("repoPath must be a folder");
+    }
+
+    const maxBytes = clampMaxBytes(body?.maxFileBytes);
     const stamp = new Date().toISOString();
+    const debug = asBoolean(body?.debug);
 
     const diffs: Diff[] = [];
     const perFile: Array<{
@@ -302,7 +463,8 @@ export async function POST(req: Request) {
       absPath: string;
       bytes: number;
       changed: boolean;
-      reason?: string;
+      mode: GoalEditMode;
+      reason: string;
     }> = [];
 
     for (const targetPosix of targetPosixList) {
@@ -312,61 +474,63 @@ export async function POST(req: Request) {
         return json400(`Resolved path escapes repoPath: ${targetPosix}`);
       }
 
-      let original: string;
-      let bytes = 0;
-
+      let buf: Buffer;
       try {
-        const buf = await fs.readFile(absPath);
-        bytes = buf.byteLength;
-
-        if (buf.byteLength > maxBytes) {
-          return json400(`Target file too large (> ${maxBytes} bytes): ${targetPosix}`);
-        }
-
-        original = buf.toString("utf8");
-      } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : "read error";
-        return json400(`Unable to read ${targetPosix}: ${msg}`);
+        buf = await fs.readFile(absPath);
+      } catch (error: unknown) {
+        return json400(`Unable to read ${targetPosix}: ${safeErrorMessage(error, "read error")}`);
       }
 
-      const { updated } = applyGoalDrivenEdit(original, goal, stamp);
-      const changed = updated !== original;
+      if (buf.byteLength > maxBytes) {
+        return json400(`Target file too large (> ${maxBytes} bytes): ${targetPosix}`);
+      }
+
+      const original = buf.toString("utf8");
+      const result = applyGoalDrivenEdit(original, goal, stamp);
+      const changed = result.updated !== original;
 
       if (changed) {
         diffs.push({
           filePath: targetPosix,
-          patch: makeUnifiedDiff(targetPosix, original, updated),
+          patch: makeUnifiedDiff(targetPosix, original, result.updated),
         });
       }
 
-      if (body?.debug) {
+      if (debug) {
         perFile.push({
           filePath: targetPosix,
           absPath,
-          bytes,
+          bytes: buf.byteLength,
           changed,
+          mode: result.mode,
           reason: changed ? "updated !== original" : "no-op (updated === original)",
         });
       }
     }
 
-    return NextResponse.json({
+    return json(200, {
       ok: true,
       diffs,
       meta: {
         targetFiles: targetPosixList,
         goal,
-        planSteps: plan.steps.length,
+        planSteps: countPlanSteps(plan),
         stamp,
         mode: goalMode(goal),
         count: diffs.length,
         maxFileBytes: maxBytes,
+        allowedTargetCount: ALLOWED_TARGETS.size,
+        targetsSource: resolvedTargets.source,
       },
-      ...(body?.debug ? { debug: { perFile } } : {}),
-      ...(diffs.length === 0 ? { note: "No changes produced (no-op for all targets)." } : {}),
+      ...(debug ? { debug: { perFile } } : {}),
+      ...(diffs.length === 0
+        ? {
+            note:
+              "No changes produced. This diff route only performs deterministic append:/prepend: demo edits unless another layer supplies concrete edit logic.",
+          }
+        : {}),
     });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : "Unknown error";
-    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
+  } catch (error: unknown) {
+    return json(500, { ok: false, error: safeErrorMessage(error) });
   }
 }
