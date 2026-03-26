@@ -1,4 +1,4 @@
-// Operator demo change (2026-03-26T12:42:39.911Z)
+// Operator demo change (2026-02-16T16:56:38.284Z)
 "use client";
 
 import Link from "next/link";
@@ -144,7 +144,7 @@ async function readFileAsText(file: File) {
  */
 function spark(values: number[], width = 26) {
   if (values.length < 2) return "—";
-  const blocks = "▁▂▃▄�▆▇█";
+  const blocks = "▁▂▃▄▅▆▇█";
 
   const minV = Math.min(...values);
   const maxV = Math.max(...values);
@@ -1074,4 +1074,3 @@ const select: React.CSSProperties = {
   background: "rgba(255,255,255,0.06)",
   color: "white",
 };
-// operator-append: test operator diff route
