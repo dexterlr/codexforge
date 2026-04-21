@@ -16,6 +16,11 @@ import {
  * - explicit action dispatch only
  * - no direct engine mutation from the route
  * - process-memory persistence only
+ *
+ * Notes:
+ * - this route intentionally stays small and stable
+ * - validation happens here so the engine receives clean input
+ * - responses are marked no-store because engine state is process-local and mutable
  */
 
 type RequestBody = {
@@ -49,10 +54,22 @@ const VALID_ACTIONS = [
 
 type ValidActionName = (typeof VALID_ACTIONS)[number];
 
+const VALID_ACTION_SET = new Set<string>(VALID_ACTIONS);
+const ACTIONS_TEXT = VALID_ACTIONS.join(", ");
+
+const LIMITS = {
+  maxGoalText: 4000,
+  maxRepoPathText: 1200,
+  maxNowLabelText: 120,
+} as const;
+
 declare global {
   // eslint-disable-next-line no-var
   var __codexforgeEngine__: CodexForgeEngine | undefined;
 }
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function getEngine(): CodexForgeEngine {
   if (!globalThis.__codexforgeEngine__) {
@@ -68,13 +85,24 @@ function getRouteContext(): RouteContext {
   };
 }
 
+function buildJsonHeaders(): HeadersInit {
+  return {
+    "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+    Pragma: "no-cache",
+    Expires: "0",
+  };
+}
+
 function jsonSuccess(state: RunState, status = 200) {
   return NextResponse.json<ApiSuccess>(
     {
       ok: true,
       state,
     },
-    { status }
+    {
+      status,
+      headers: buildJsonHeaders(),
+    }
   );
 }
 
@@ -84,7 +112,10 @@ function jsonError(error: string, status = 400) {
       ok: false,
       error,
     },
-    { status }
+    {
+      status,
+      headers: buildJsonHeaders(),
+    }
   );
 }
 
@@ -101,13 +132,25 @@ function asTrimmedString(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
+function clampText(text: string, max: number): string {
+  return text.length <= max ? text : text.slice(0, max);
+}
+
+function asBoundedTrimmedString(
+  value: unknown,
+  max: number
+): string | undefined {
+  const trimmed = asTrimmedString(value);
+  return trimmed ? clampText(trimmed, max) : undefined;
+}
+
 function isValidActionName(value: string): value is ValidActionName {
-  return (VALID_ACTIONS as readonly string[]).includes(value);
+  return VALID_ACTION_SET.has(value);
 }
 
 function parseJsonBody(value: unknown): RequestBody {
   if (!isRecord(value)) {
-    throw new Error("Bad request: expected JSON object.");
+    throw new Error("Bad request: expected a JSON object body.");
   }
 
   return {
@@ -122,8 +165,8 @@ function normalizeGoal(value: unknown): CodexGoal {
     throw new Error("Goal must be an object.");
   }
 
-  const goal = asTrimmedString(value.goal);
-  const repoPath = asTrimmedString(value.repoPath);
+  const goal = asBoundedTrimmedString(value.goal, LIMITS.maxGoalText);
+  const repoPath = asBoundedTrimmedString(value.repoPath, LIMITS.maxRepoPathText);
 
   if (!goal) {
     throw new Error("Goal text is required.");
@@ -143,15 +186,11 @@ function normalizeActionName(value: unknown): ValidActionName {
   const actionName = asTrimmedString(value);
 
   if (!actionName) {
-    throw new Error(
-      "Action is required. Expected one of: start, approvePlan, rejectPlan, approveDiffs, rejectDiffs, reset."
-    );
+    throw new Error(`Action is required. Expected one of: ${ACTIONS_TEXT}.`);
   }
 
   if (!isValidActionName(actionName)) {
-    throw new Error(
-      "Unknown action. Expected one of: start, approvePlan, rejectPlan, approveDiffs, rejectDiffs, reset."
-    );
+    throw new Error(`Unknown action. Expected one of: ${ACTIONS_TEXT}.`);
   }
 
   return actionName;
@@ -184,13 +223,13 @@ function normalizeAction(action: unknown, goal: unknown): EngineAction {
   }
 }
 
-function getNowLabel(value: unknown): string {
-  const explicit = asTrimmedString(value);
-  if (explicit) {
-    return explicit;
-  }
-
+function buildDefaultNowLabel(): string {
   return `[${new Date().toLocaleTimeString()}]`;
+}
+
+function getNowLabel(value: unknown): string {
+  const explicit = asBoundedTrimmedString(value, LIMITS.maxNowLabelText);
+  return explicit ?? buildDefaultNowLabel();
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -204,6 +243,14 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
+async function safeReadJson(req: Request): Promise<unknown> {
+  try {
+    return (await req.json()) as unknown;
+  } catch {
+    throw new Error("Bad request: request body must be valid JSON.");
+  }
+}
+
 export async function GET() {
   try {
     const { engine } = getRouteContext();
@@ -215,7 +262,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const raw = (await req.json()) as unknown;
+    const raw = await safeReadJson(req);
     const body = parseJsonBody(raw);
 
     const { engine } = getRouteContext();

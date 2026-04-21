@@ -37,6 +37,19 @@ import {
   getDomainConfig,
 } from "./engine-domain-config";
 
+/* ================= CONSTANTS ================= */
+
+const CLUSTER_BONUS = {
+  routeWithEngine: 20,
+  engineWithRender: 16,
+  hookWithComponent: 16,
+  contractWithCaller: 15,
+  apiWithTypes: 14,
+  repoInspectionCandidate: 50,
+} as const;
+
+const CLUSTER_FILE_LIMIT = 8;
+
 /* ================= MESSAGE / INTENT ================= */
 
 function lastUser(messages: CodexForgeMessage[]): CodexForgeMessage | null {
@@ -122,6 +135,13 @@ function contextTagStringsFromText(text: string): string[] {
   if (query.includes("folder")) tags.add("folders");
   if (query.includes("repo")) tags.add("repo");
   if (query.includes("codebase")) tags.add("codebase");
+  if (query.includes("route")) tags.add("route");
+  if (query.includes("engine")) tags.add("engine");
+  if (query.includes("render")) tags.add("render");
+  if (query.includes("hook")) tags.add("hook");
+  if (query.includes("component")) tags.add("component");
+  if (query.includes("contract")) tags.add("contract");
+  if (query.includes("types")) tags.add("types");
 
   return Array.from(tags);
 }
@@ -161,6 +181,13 @@ export function buildDomainTags(
   if (query.includes("folder")) tags.add("folders");
   if (query.includes("repo")) tags.add("repo");
   if (query.includes("codebase")) tags.add("codebase");
+  if (query.includes("route")) tags.add("route");
+  if (query.includes("engine")) tags.add("engine");
+  if (query.includes("render")) tags.add("render");
+  if (query.includes("hook")) tags.add("hook");
+  if (query.includes("component")) tags.add("component");
+  if (query.includes("contract")) tags.add("contract");
+  if (query.includes("types")) tags.add("types");
 
   for (const tag of contextTagStringsFromText(text)) {
     tags.add(tag);
@@ -399,7 +426,181 @@ function inferAutoInspectionCandidate(
     return "search-project";
   }
 
-  return hasList ? "list-files" : hasRead ? "read-file" : hasSearch ? "search-project" : null;
+  return hasList
+    ? "list-files"
+    : hasRead
+      ? "read-file"
+      : hasSearch
+        ? "search-project"
+        : null;
+}
+
+/* ================= FILE CLUSTER HELPERS ================= */
+
+function normalizePath(value: string): string {
+  return value.replace(/\\/g, "/").trim().toLowerCase();
+}
+
+function splitPathSegments(value: string): string[] {
+  return normalizePath(value)
+    .split("/")
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+}
+
+function getFileName(path: string): string {
+  const segments = splitPathSegments(path);
+  return segments[segments.length - 1] ?? path;
+}
+
+function getParentDirectory(path: string): string | undefined {
+  const segments = splitPathSegments(path);
+  if (segments.length <= 1) return undefined;
+  return segments.slice(0, -1).join("/");
+}
+
+function looksLikeRoutePath(path: string): boolean {
+  const normalized = normalizePath(path);
+  const fileName = getFileName(path);
+  return (
+    normalized.includes("/api/") ||
+    fileName === "route.ts" ||
+    fileName === "route.tsx"
+  );
+}
+
+function looksLikeEnginePath(path: string): boolean {
+  const normalized = normalizePath(path);
+  const fileName = getFileName(path);
+  return normalized.includes("/engine") || fileName.includes("engine");
+}
+
+function looksLikeRenderPath(path: string): boolean {
+  const normalized = normalizePath(path);
+  const fileName = getFileName(path);
+  return normalized.includes("/render") || fileName.includes("render");
+}
+
+function looksLikeHookPath(path: string): boolean {
+  const normalized = normalizePath(path);
+  const fileName = getFileName(path);
+  return (
+    normalized.includes("/hooks/") ||
+    fileName.startsWith("use-") ||
+    fileName.startsWith("use")
+  );
+}
+
+function looksLikeComponentPath(path: string): boolean {
+  const normalized = normalizePath(path);
+  return normalized.includes("/components/") || normalized.endsWith(".tsx");
+}
+
+function looksLikeContractPath(path: string): boolean {
+  const fileName = getFileName(path);
+  return fileName.includes("contract");
+}
+
+function looksLikeTypesPath(path: string): boolean {
+  const fileName = getFileName(path);
+  return fileName.includes("types") || fileName.endsWith(".d.ts");
+}
+
+function scoreFilePathForPlan(path: string): number {
+  const normalized = normalizePath(path);
+  const fileName = getFileName(path);
+  let score = 0;
+
+  if (looksLikeRoutePath(path)) score += 10;
+  if (looksLikeEnginePath(path)) score += 10;
+  if (looksLikeRenderPath(path)) score += 8;
+  if (looksLikeHookPath(path)) score += 8;
+  if (looksLikeComponentPath(path)) score += 6;
+  if (looksLikeContractPath(path)) score += 7;
+  if (looksLikeTypesPath(path)) score += 7;
+
+  if (normalized.includes("/src/")) score += 3;
+  if (normalized.includes("/lib/")) score += 3;
+  if (normalized.includes("/app/")) score += 3;
+  if (normalized.includes("/chat/")) score += 3;
+  if (normalized.includes("/brain/")) score += 3;
+  if (normalized.includes("/tools/")) score += 3;
+
+  if (fileName === "index.ts" || fileName === "index.tsx") {
+    score -= 2;
+  }
+
+  return score;
+}
+
+function sortPlannedFiles(files: string[]): string[] {
+  return [...files].sort((a, b) => {
+    const scoreDelta = scoreFilePathForPlan(b) - scoreFilePathForPlan(a);
+    if (scoreDelta !== 0) return scoreDelta;
+    return a.localeCompare(b);
+  });
+}
+
+function hasClusterPair(
+  files: string[],
+  predicateA: (path: string) => boolean,
+  predicateB: (path: string) => boolean
+): boolean {
+  const aMatches = files.filter(predicateA);
+  const bMatches = files.filter(predicateB);
+
+  if (aMatches.length === 0 || bMatches.length === 0) {
+    return false;
+  }
+
+  for (const aPath of aMatches) {
+    const aParent = getParentDirectory(aPath);
+    for (const bPath of bMatches) {
+      if (aPath === bPath) continue;
+
+      const bParent = getParentDirectory(bPath);
+      if (aParent && bParent && aParent === bParent) {
+        return true;
+      }
+    }
+  }
+
+  return true;
+}
+
+function buildFileClusterNotes(files: string[]): string[] {
+  const normalized = clampList(files, CLUSTER_FILE_LIMIT);
+  if (normalized.length === 0) return [];
+
+  const notes: string[] = [];
+
+  if (hasClusterPair(normalized, looksLikeRoutePath, looksLikeEnginePath)) {
+    notes.push("Cluster detected: route + engine");
+  }
+
+  if (hasClusterPair(normalized, looksLikeEnginePath, looksLikeRenderPath)) {
+    notes.push("Cluster detected: engine + render");
+  }
+
+  if (hasClusterPair(normalized, looksLikeHookPath, looksLikeComponentPath)) {
+    notes.push("Cluster detected: hook + component");
+  }
+
+  if (
+    hasClusterPair(
+      normalized,
+      looksLikeContractPath,
+      (path) => !looksLikeContractPath(path)
+    )
+  ) {
+    notes.push("Cluster detected: contract + caller");
+  }
+
+  if (hasClusterPair(normalized, looksLikeTypesPath, looksLikeRoutePath)) {
+    notes.push("Cluster detected: api + types");
+  }
+
+  return clampList(notes, LIMITS.maxSectionItems);
 }
 
 /* ================= PLAN HELPERS ================= */
@@ -520,6 +721,11 @@ export function buildUnderstandingItems(
     );
   }
 
+  const clusterNotes = buildFileClusterNotes(plan.files);
+  if (clusterNotes.length > 0) {
+    items.push(...clusterNotes.map((note) => `Planning signal: ${note}.`));
+  }
+
   return clampList(items, LIMITS.maxUnderstandingItems);
 }
 
@@ -529,41 +735,49 @@ function buildFiles(
   domain: CodexForgePlanDomain
 ): string[] {
   if (isExecutionMode(context)) {
-    return clampList(
-      [
-        "Primary implementation file",
-        "Related API route or helper",
-        "Shared types used by the step",
-        "Any execution state surface that reflects the step result",
-      ],
-      LIMITS.maxFiles
+    return sortPlannedFiles(
+      clampList(
+        [
+          "Primary implementation file",
+          "Related API route or helper",
+          "Shared types used by the step",
+          "Any execution state surface that reflects the step result",
+        ],
+        LIMITS.maxFiles
+      )
     );
   }
 
   if (intent === "architecture") {
-    return clampList(
-      [
-        "State orchestration layer",
-        "API contract or route wrapper",
-        "Shared types and execution model",
-        "Brain or memory sync surface",
-      ],
-      LIMITS.maxFiles
+    return sortPlannedFiles(
+      clampList(
+        [
+          "State orchestration layer",
+          "API contract or route wrapper",
+          "Shared types and execution model",
+          "Brain or memory sync surface",
+        ],
+        LIMITS.maxFiles
+      )
     );
   }
 
   if (intent === "product-design") {
-    return clampList(
-      [
-        "Primary user-facing surface",
-        "Supporting UI component",
-        "State or memory touchpoint",
-      ],
-      LIMITS.maxFiles
+    return sortPlannedFiles(
+      clampList(
+        [
+          "Primary user-facing surface",
+          "Supporting UI component",
+          "State or memory touchpoint",
+        ],
+        LIMITS.maxFiles
+      )
     );
   }
 
-  return clampList(getDomainConfig(domain).files, LIMITS.maxFiles);
+  return sortPlannedFiles(
+    clampList(getDomainConfig(domain).files, LIMITS.maxFiles)
+  );
 }
 
 function buildCommands(
@@ -647,7 +861,8 @@ function buildRisks(
 function buildNextSteps(
   intent: CodexForgeEngineIntent,
   context: CodexForgeChatContext,
-  domain: CodexForgePlanDomain
+  domain: CodexForgePlanDomain,
+  files: string[]
 ): string[] {
   const executionRequest = getExecutionRequest(context);
 
@@ -662,12 +877,20 @@ function buildNextSteps(
     );
   }
 
+  const clusterNotes = buildFileClusterNotes(files);
+
   if (intent === "architecture") {
     return clampList(
       [
         "Choose the single source of truth.",
         "Align route, hook, and UI around one state shape.",
         "Remove duplicate flow logic.",
+        ...(clusterNotes.includes("Cluster detected: route + engine")
+          ? ["Verify the route and engine boundaries together."]
+          : []),
+        ...(clusterNotes.includes("Cluster detected: contract + caller")
+          ? ["Confirm the contract and caller stay aligned."]
+          : []),
       ],
       LIMITS.maxNextSteps
     );
@@ -679,18 +902,33 @@ function buildNextSteps(
         "Clarify the user outcome.",
         "Choose the highest-value surface improvement.",
         "Preserve state clarity while improving UX.",
+        ...(clusterNotes.includes("Cluster detected: hook + component")
+          ? ["Review the hook and component together before changing behavior."]
+          : []),
       ],
       LIMITS.maxNextSteps
     );
   }
 
-  return clampList(getDomainConfig(domain).nextSteps, LIMITS.maxNextSteps);
+  return clampList(
+    [
+      ...getDomainConfig(domain).nextSteps,
+      ...(clusterNotes.includes("Cluster detected: engine + render")
+        ? ["Inspect the engine and rendering layers together before editing."]
+        : []),
+      ...(clusterNotes.includes("Cluster detected: api + types")
+        ? ["Check API and type surfaces together before changing the contract."]
+        : []),
+    ],
+    LIMITS.maxNextSteps
+  );
 }
 
 function buildStatusNotes(
   intent: CodexForgeEngineIntent,
   context: CodexForgeChatContext,
-  domain: CodexForgePlanDomain
+  domain: CodexForgePlanDomain,
+  files: string[]
 ): string[] {
   const base = [
     "Local engine",
@@ -698,6 +936,8 @@ function buildStatusNotes(
     "Stable contract",
     `Domain: ${domain}`,
   ];
+
+  const clusterNotes = buildFileClusterNotes(files);
 
   if (isExecutionMode(context)) {
     return clampList(
@@ -711,7 +951,15 @@ function buildStatusNotes(
     );
   }
 
-  return clampList(base, LIMITS.maxStatusItems);
+  return clampList(
+    [
+      ...base,
+      ...(intent === "architecture" ? ["Architecture-oriented guidance"] : []),
+      ...(intent === "product-design" ? ["Product-oriented guidance"] : []),
+      ...clusterNotes,
+    ],
+    LIMITS.maxStatusItems
+  );
 }
 
 function scoreToolForAnalysis(
@@ -825,7 +1073,27 @@ function scoreToolForAnalysis(
   );
 
   if (autoInspectionCandidate && tool.name === autoInspectionCandidate) {
-    score += 50;
+    score += CLUSTER_BONUS.repoInspectionCandidate;
+  }
+
+  if (tool.name === "manage-api-route" && analysis.tags.includes("route")) {
+    score += CLUSTER_BONUS.routeWithEngine;
+  }
+
+  if (tool.name === "build-web-app" && analysis.tags.includes("engine")) {
+    score += CLUSTER_BONUS.engineWithRender;
+  }
+
+  if (tool.name === "track-memory" && analysis.tags.includes("contract")) {
+    score += CLUSTER_BONUS.contractWithCaller;
+  }
+
+  if (tool.name === "scaffold-website" && analysis.tags.includes("component")) {
+    score += CLUSTER_BONUS.hookWithComponent;
+  }
+
+  if (tool.name === "manage-api-route" && analysis.tags.includes("types")) {
+    score += CLUSTER_BONUS.apiWithTypes;
   }
 
   return score;
@@ -942,6 +1210,14 @@ function buildSections(
         ],
         LIMITS.maxSectionItems
       ),
+    });
+  }
+
+  const clusterNotes = buildFileClusterNotes(plan.files);
+  if (clusterNotes.length > 0) {
+    sections.push({
+      title: "File clusters",
+      items: clampList(clusterNotes, LIMITS.maxSectionItems),
     });
   }
 
@@ -1112,8 +1388,8 @@ export function buildPlan(
   const files = buildFiles(analysis.intent, context, domain);
   const commands = buildCommands(analysis.intent, context, domain);
   const risks = buildRisks(analysis.intent, context, domain);
-  const nextSteps = buildNextSteps(analysis.intent, context, domain);
-  const status = buildStatusNotes(analysis.intent, context, domain);
+  const nextSteps = buildNextSteps(analysis.intent, context, domain, files);
+  const status = buildStatusNotes(analysis.intent, context, domain, files);
   const recommendedTools = buildRecommendedTools(analysis, deps, context);
 
   const basePlan: CodexForgeEnginePlan = {

@@ -89,7 +89,7 @@ function getExecutionDiffs(
 
   if (!Array.isArray(diffs) || diffs.length === 0) return undefined;
 
-  return diffs
+  const normalized = diffs
     .filter(
       (diff): diff is CodexForgeDiff =>
         !!diff &&
@@ -97,7 +97,14 @@ function getExecutionDiffs(
         diff.filePath.trim().length > 0 &&
         typeof diff.patch === "string"
     )
+    .map((diff) => ({
+      ...diff,
+      filePath: diff.filePath.trim(),
+      patch: diff.patch,
+    }))
     .slice(0, LIMITS.maxGraphDiffs);
+
+  return normalized.length > 0 ? normalized : undefined;
 }
 
 /* ================= GROUNDED FILE HELPERS ================= */
@@ -257,17 +264,11 @@ function inferSupportingRelationship(
     return "Likely nearby supporting file";
   }
 
-  if (
-    normalized.includes("/api/") &&
-    !primaryNormalized.includes("/api/")
-  ) {
+  if (normalized.includes("/api/") && !primaryNormalized.includes("/api/")) {
     return "Likely related backend surface";
   }
 
-  if (
-    normalized.endsWith(".tsx") &&
-    !primaryNormalized.endsWith(".tsx")
-  ) {
+  if (normalized.endsWith(".tsx") && !primaryNormalized.endsWith(".tsx")) {
     return "Likely related UI surface";
   }
 
@@ -441,10 +442,7 @@ export function buildStructured(
       LIMITS.maxUnderstandingItems
     ),
 
-    sections: [
-      ...groundedSections,
-      ...(plan.sections ?? []),
-    ],
+    sections: [...groundedSections, ...(plan.sections ?? [])],
 
     files: clampOptionalList(plan.files, LIMITS.maxFiles),
     commands: clampOptionalList(plan.commands, LIMITS.maxCommands),
@@ -469,6 +467,14 @@ export function buildStructured(
             ...(typeof snapshotFileCount === "number"
               ? { snapshotFileCount }
               : {}),
+          }
+        : undefined,
+
+    snapshot:
+      typeof snapshotFileCount === "number"
+        ? {
+            fileCount: snapshotFileCount,
+            sampledPaths: [],
           }
         : undefined,
 
