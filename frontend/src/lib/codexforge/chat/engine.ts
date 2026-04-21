@@ -114,14 +114,6 @@ function asString(value: unknown): string | undefined {
     : undefined;
 }
 
-function asStringArray(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value
-    .filter((item): item is string => typeof item === "string")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
 function clampText(text: string, max = MAX_TOOL_RESULT_PREVIEW): string {
   return text.length <= max ? text : `${text.slice(0, max - 1)}…`;
 }
@@ -300,7 +292,9 @@ function stripLeadingIntentWords(text: string): string {
 }
 
 function extractSearchQuery(text: string): string {
-  const quoted = extractQuotedSegments(text).find((segment) => !looksLikePath(segment));
+  const quoted = extractQuotedSegments(text).find(
+    (segment) => !looksLikePath(segment)
+  );
   if (quoted) return quoted;
 
   const stripped = stripLeadingIntentWords(text);
@@ -1056,10 +1050,7 @@ async function maybeRunFollowUpReadFile(
     "follow-up"
   );
 
-  if (
-    followUp.outcome.status === "executed" &&
-    primaryJson
-  ) {
+  if (followUp.outcome.status === "executed" && primaryJson) {
     const primaryGrounding = extractSearchProjectGrounding(primaryJson);
     followUp.outcome.grounding = mergeGroundings(
       primaryGrounding,
@@ -1262,7 +1253,9 @@ function enrichStructuredWithToolOutcomes(
       outcome.grounding?.likelyEditPoint ? [outcome.grounding.likelyEditPoint] : []
     ),
     ...(mergedCandidates.length > 1
-      ? ["Check the primary file first, then validate the related supporting files before editing."]
+      ? [
+          "Check the primary file first, then validate the related supporting files before editing.",
+        ]
       : []),
     ...(files.length > 0
       ? ["Review the surfaced repository matches and continue from the strongest lead."]

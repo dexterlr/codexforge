@@ -20,12 +20,12 @@ import type {
 
 /* ================= CONFIG ================= */
 
-const MODEL_NAME = "codexforge-brain-router-v3";
+const MODEL_NAME = "codexforge-brain-router-v4";
 
 const LIMITS = {
   maxMessages: 80,
   maxText: 8000,
-  maxSystemGuide: 4000,
+  maxSystemGuide: 5000,
   maxMemoryItems: 24,
   maxMemoryItemText: 400,
   maxActivePlanSteps: 50,
@@ -38,6 +38,8 @@ const LIMITS = {
   maxGraphFocusNodeIds: 24,
   maxGraphKinds: 24,
   maxGraphBriefingItems: 8,
+  maxGroundedFiles: 6,
+  maxGroundedSignals: 6,
 } as const;
 
 const VALID_PLAN_DOMAINS: readonly CodexForgePlanDomain[] = [
@@ -77,6 +79,13 @@ const VALID_EXECUTION_PHASES: readonly CodexForgeExecutionPhase[] = [
 
 const VALID_MEMORY_TYPES = ["fact", "decision", "task", "note"] as const;
 
+const COMMAND_MAP: Record<string, BrainRouteMode> = {
+  "/plan": "plan",
+  "/debug": "debug",
+  "/research": "research",
+  "/next": "next_step",
+} as const;
+
 type CodexForgeMemoryType = (typeof VALID_MEMORY_TYPES)[number];
 
 /* ================= TYPES ================= */
@@ -114,6 +123,13 @@ type GraphDiagnostics = {
   hasRepoNode: boolean;
   repoPaths: string[];
   graphBriefing: string[];
+  warnings: string[];
+};
+
+type GroundedDiagnostics = {
+  primaryFile?: string;
+  supportingFiles: string[];
+  fileSignals: string[];
   warnings: string[];
 };
 
@@ -221,21 +237,49 @@ function normalizeWindowsPath(value: string | undefined): string | undefined {
     .toLowerCase();
 }
 
+function normalizePathForCompare(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+
+  return trimmed
+    .replaceAll("\\", "/")
+    .replace(/\/+/g, "/")
+    .replace(/\/$/, "")
+    .toLowerCase();
+}
+
+function getPathFileName(value: string): string {
+  const normalized = value.replaceAll("\\", "/");
+  const parts = normalized.split("/").filter(Boolean);
+  return parts[parts.length - 1] ?? value;
+}
+
+function getPathParent(value: string): string | undefined {
+  const normalized = value.replaceAll("\\", "/");
+  const parts = normalized.split("/").filter(Boolean);
+  if (parts.length <= 1) return undefined;
+  return parts.slice(0, -1).join("/");
+}
+
+function buildJsonHeaders(extra?: HeadersInit): HeadersInit {
+  return {
+    "Cache-Control": "no-store",
+    ...extra,
+  };
+}
+
 function badRequest(error: string, status = 400) {
   return NextResponse.json<CodexForgeChatErrorResponse>(
     { ok: false, error },
-    { status }
+    {
+      status,
+      headers: buildJsonHeaders(),
+    }
   );
 }
 
 /* ================= COMMANDS ================= */
-
-const COMMAND_MAP: Record<string, BrainRouteMode> = {
-  "/plan": "plan",
-  "/debug": "debug",
-  "/research": "research",
-  "/next": "next_step",
-};
 
 function detectCommand(text: string): BrainRouteMode | null {
   const trimmed = text.trim();
@@ -782,12 +826,205 @@ function buildGraphBriefingLines(diagnostics: GraphDiagnostics): string[] {
   return lines;
 }
 
+/* ================= GROUNDED DIAGNOSTICS ================= */
+
+function looksLikePath(value: string): boolean {
+  const normalized = normalizePathForCompare(value) ?? value.toLowerCase();
+  return (
+    normalized.includes("/") ||
+    normalized.includes(".") ||
+    normalized.startsWith("src") ||
+    normalized.startsWith("app") ||
+    normalized.startsWith("lib") ||
+    normalized.startsWith("components") ||
+    normalized.startsWith("pages") ||
+    normalized.startsWith("api")
+  );
+}
+
+function extractPathLikeSegments(text: string): string[] {
+  const quoted = text.match(/`([^`]+)`|"([^"]+)"|'([^']+)'/g) ?? [];
+  const quotedValues = quoted
+    .map((match) => match.replace(/^["'`]|["'`]$/g, "").trim())
+    .filter(Boolean);
+
+  const tokenMatches = text.match(
+    /(?:[A-Za-z0-9_.-]+[\\/])+[A-Za-z0-9_.-]+|[A-Za-z0-9_.-]+\.[A-Za-z0-9_.-]+/g
+  ) ?? [];
+
+  return uniqueStrings([...quotedValues, ...tokenMatches].filter(looksLikePath));
+}
+
+function inferFileRoleFromPath(filePath: string): string {
+  const normalized = normalizePathForCompare(filePath) ?? filePath.toLowerCase();
+  const fileName = getPathFileName(normalized);
+
+  if (normalized.includes("/api/") || fileName === "route.ts" || fileName === "route.tsx") {
+    return "API route";
+  }
+
+  if (normalized.includes("/hooks/") || fileName.startsWith("use-") || fileName.startsWith("use")) {
+    return "state hook";
+  }
+
+  if (normalized.includes("/components/") || normalized.endsWith(".tsx") || fileName.includes("page")) {
+    return "UI component";
+  }
+
+  if (fileName.includes("contract") || fileName.includes("types")) {
+    return "shared contract";
+  }
+
+  if (fileName.includes("engine")) {
+    return "core engine logic";
+  }
+
+  if (fileName.includes("analysis")) {
+    return "analysis layer";
+  }
+
+  if (fileName.includes("render")) {
+    return "rendering layer";
+  }
+
+  if (fileName.includes("brain")) {
+    return "brain orchestration";
+  }
+
+  if (fileName.includes("tool")) {
+    return "tool execution surface";
+  }
+
+  return "implementation file";
+}
+
+function inferFileEditSuggestion(filePath: string): string {
+  const normalized = normalizePathForCompare(filePath) ?? filePath.toLowerCase();
+
+  if (normalized.includes("engine")) {
+    return "Likely edit point: engine logic flow or decision branches.";
+  }
+
+  if (normalized.includes("route")) {
+    return "Likely edit point: request/response contract or handler flow.";
+  }
+
+  if (normalized.includes("render")) {
+    return "Likely edit point: structured output rendering path.";
+  }
+
+  if (normalized.includes("analysis")) {
+    return "Likely edit point: inference, scoring, or planning logic.";
+  }
+
+  if (normalized.includes("hook") || normalized.includes("/use-")) {
+    return "Likely edit point: client state handling or hook behavior.";
+  }
+
+  if (normalized.includes("types") || normalized.includes("contract")) {
+    return "Likely edit point: shared contract surface; update callers carefully.";
+  }
+
+  if (normalized.includes("component") || normalized.endsWith(".tsx")) {
+    return "Likely edit point: UI behavior or props/state handling.";
+  }
+
+  return "Likely edit point: relevant implementation logic in this file.";
+}
+
+function buildGroundedDiagnostics(
+  messages: CodexForgeMessage[],
+  context: CodexForgeChatContext,
+  graphDiagnostics: GraphDiagnostics
+): GroundedDiagnostics {
+  const repoCandidates = uniqueStrings([
+    ...(graphDiagnostics.repoPaths ?? []),
+    ...(context.activePlan?.files ?? []),
+  ]);
+
+  const recentUserText = messages
+    .filter((message) => message.role === "user")
+    .slice(-4)
+    .map((message) => message.text)
+    .join("\n");
+
+  const pathCandidates = extractPathLikeSegments(recentUserText);
+
+  const normalizedCandidates = pathCandidates
+    .map((candidate) => normalizePathForCompare(candidate))
+    .filter((candidate): candidate is string => !!candidate);
+
+  const normalizedRepoCandidates = repoCandidates
+    .map((candidate) => normalizePathForCompare(candidate))
+    .filter((candidate): candidate is string => !!candidate);
+
+  const matchingRepoFiles = repoCandidates.filter((candidate) => {
+    const normalizedCandidate = normalizePathForCompare(candidate);
+    if (!normalizedCandidate) return false;
+
+    return normalizedCandidates.some((requested) => {
+      return (
+        normalizedCandidate === requested ||
+        normalizedCandidate.endsWith(`/${requested}`) ||
+        requested.endsWith(`/${normalizedCandidate}`) ||
+        getPathFileName(normalizedCandidate) === getPathFileName(requested)
+      );
+    });
+  });
+
+  const preferredFiles = uniqueStrings([
+    ...matchingRepoFiles,
+    ...repoCandidates,
+    ...pathCandidates,
+  ]).slice(0, LIMITS.maxGroundedFiles);
+
+  const primaryFile = preferredFiles[0];
+  const supportingFiles = preferredFiles.slice(1, LIMITS.maxGroundedFiles);
+
+  const fileSignals = primaryFile
+    ? uniqueStrings([
+        `Primary grounded file: ${primaryFile}`,
+        `Primary role: ${inferFileRoleFromPath(primaryFile)}`,
+        inferFileEditSuggestion(primaryFile),
+        ...supportingFiles.slice(0, 2).map(
+          (filePath, index) => `Supporting file ${index + 1}: ${filePath}`
+        ),
+      ]).slice(0, LIMITS.maxGroundedSignals)
+    : [];
+
+  const warnings: string[] = [];
+
+  if (!primaryFile && pathCandidates.length > 0) {
+    warnings.push("User referenced files, but no grounded repo file match was confirmed.");
+  }
+
+  if (!primaryFile && repoCandidates.length === 0) {
+    warnings.push("No grounded repo file context available.");
+  }
+
+  if (
+    primaryFile &&
+    normalizedRepoCandidates.length > 0 &&
+    !normalizedRepoCandidates.includes(normalizePathForCompare(primaryFile) ?? "")
+  ) {
+    warnings.push("Primary grounded file came from the request rather than confirmed repo graph context.");
+  }
+
+  return {
+    ...(primaryFile ? { primaryFile } : {}),
+    supportingFiles,
+    fileSignals,
+    warnings,
+  };
+}
+
 /* ================= WARNINGS ================= */
 
 function buildWarnings(
   messages: CodexForgeMessage[],
   context: CodexForgeChatContext,
-  graphDiagnostics: GraphDiagnostics
+  graphDiagnostics: GraphDiagnostics,
+  groundedDiagnostics: GroundedDiagnostics
 ): string[] {
   const warnings: string[] = [];
 
@@ -812,6 +1049,7 @@ function buildWarnings(
   }
 
   warnings.push(...graphDiagnostics.warnings);
+  warnings.push(...groundedDiagnostics.warnings);
 
   return uniqueStrings(warnings);
 }
@@ -904,13 +1142,35 @@ function resolveRouteMode(args: {
 function buildEnrichedContext(
   context: CodexForgeChatContext,
   graphDiagnostics: GraphDiagnostics,
+  groundedDiagnostics: GroundedDiagnostics,
   resolvedMode: BrainRouteMode
 ): CodexForgeChatContext {
   const briefingLines = buildGraphBriefingLines(graphDiagnostics);
+
+  const groundedLines = groundedDiagnostics.fileSignals.length > 0
+    ? [
+        "Grounded repo hints:",
+        ...groundedDiagnostics.fileSignals.map((line) => `- ${line}`),
+      ]
+    : [];
+
+  const mergedFiles = uniqueStrings([
+    ...(groundedDiagnostics.primaryFile ? [groundedDiagnostics.primaryFile] : []),
+    ...groundedDiagnostics.supportingFiles,
+    ...(context.activePlan?.files ?? []),
+  ]);
+
+  const mergedNotes = uniqueStrings([
+    ...(context.activePlan?.notes ?? []),
+    ...groundedDiagnostics.fileSignals,
+  ]);
+
   const systemGuideParts = [
     context.systemGuide,
     briefingLines.length > 0 ? "" : undefined,
     ...briefingLines,
+    groundedLines.length > 0 ? "" : undefined,
+    ...groundedLines,
   ].filter(
     (value): value is string =>
       typeof value === "string" && value.trim().length > 0
@@ -923,6 +1183,13 @@ function buildEnrichedContext(
       systemGuideParts.length > 0
         ? clampText(systemGuideParts.join("\n"), LIMITS.maxSystemGuide)
         : context.systemGuide,
+    activePlan: context.activePlan
+      ? {
+          ...context.activePlan,
+          ...(mergedFiles.length > 0 ? { files: mergedFiles } : {}),
+          ...(mergedNotes.length > 0 ? { notes: mergedNotes } : {}),
+        }
+      : context.activePlan,
   };
 }
 
@@ -955,18 +1222,32 @@ export async function POST(req: Request) {
 
     const commandIntent = detectCommand(lastUser.text);
     const graphDiagnostics = buildGraphDiagnostics(context, graphContext);
+    const groundedDiagnostics = buildGroundedDiagnostics(
+      messages,
+      context,
+      graphDiagnostics
+    );
+
     const resolvedMode = resolveRouteMode({
       commandIntent,
       context,
       graphDiagnostics,
     });
+
     const enrichedContext = buildEnrichedContext(
       context,
       graphDiagnostics,
+      groundedDiagnostics,
       resolvedMode
     );
 
-    const warnings = buildWarnings(messages, enrichedContext, graphDiagnostics);
+    const warnings = buildWarnings(
+      messages,
+      enrichedContext,
+      graphDiagnostics,
+      groundedDiagnostics
+    );
+
     const { brain, selectionInfo, executableToolNames } = createRouteBrain();
 
     console.log("[codexforge/chat] request", {
@@ -979,12 +1260,18 @@ export async function POST(req: Request) {
       hasRepoPath: !!enrichedContext.repoPath,
       hasSystemGuide: !!enrichedContext.systemGuide,
       activePlanSteps: enrichedContext.activePlan?.steps.length ?? 0,
+      activePlanFiles: enrichedContext.activePlan?.files?.length ?? 0,
+      activePlanNotes: enrichedContext.activePlan?.notes?.length ?? 0,
       memoryCount: enrichedContext.memory?.length ?? 0,
       graphNodeCount: graphDiagnostics.nodeCount,
       graphEdgeCount: graphDiagnostics.edgeCount,
       graphFocusNodeCount: graphDiagnostics.focusNodeCount,
       graphFocusKinds: graphDiagnostics.focusKinds,
       graphWarnings: graphDiagnostics.warnings,
+      groundedPrimaryFile: groundedDiagnostics.primaryFile ?? null,
+      groundedSupportingFiles: groundedDiagnostics.supportingFiles,
+      groundedSignals: groundedDiagnostics.fileSignals,
+      groundedWarnings: groundedDiagnostics.warnings,
       executableToolCount: executableToolNames.length,
       executableToolNames,
     });
@@ -1015,6 +1302,7 @@ export async function POST(req: Request) {
         selectedProvider: selectionInfo.selectedProvider,
         resolvedProvider: selectionInfo.resolvedProvider,
         resolvedMode,
+        groundedPrimaryFile: groundedDiagnostics.primaryFile ?? null,
         executableToolCount: executableToolNames.length,
       });
 
@@ -1070,11 +1358,13 @@ export async function POST(req: Request) {
       durationMs: response.meta.durationMs ?? 0,
       graphUsed: graphDiagnostics.hasGraph && graphDiagnostics.nodeCount > 0,
       graphBriefingCount: graphDiagnostics.graphBriefing.length,
+      groundedPrimaryFile: groundedDiagnostics.primaryFile ?? null,
+      groundedSupportingFileCount: groundedDiagnostics.supportingFiles.length,
       executableToolCount: executableToolNames.length,
     });
 
     return NextResponse.json<CodexForgeChatResponse>(successResponse, {
-      headers: {
+      headers: buildJsonHeaders({
         "x-codexforge-model": successResponse.meta?.model ?? MODEL_NAME,
         "x-codexforge-intent": successResponse.meta?.intent ?? "unknown",
         "x-codexforge-command": commandIntent ?? "none",
@@ -1107,9 +1397,14 @@ export async function POST(req: Request) {
         "x-codexforge-graph-has-task": graphDiagnostics.hasTaskNode ? "true" : "false",
         "x-codexforge-graph-has-plan": graphDiagnostics.hasPlanNode ? "true" : "false",
         "x-codexforge-graph-has-run": graphDiagnostics.hasRunNode ? "true" : "false",
+        "x-codexforge-grounded-primary-file":
+          groundedDiagnostics.primaryFile ?? "none",
+        "x-codexforge-grounded-supporting-files": String(
+          groundedDiagnostics.supportingFiles.length
+        ),
         "x-codexforge-tools-executable-count": String(executableToolNames.length),
         "x-codexforge-tools-execute-route": "/api/codexforge/tools/execute",
-      },
+      }),
     });
   } catch (error: unknown) {
     const message =
