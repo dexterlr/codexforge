@@ -1,4 +1,3 @@
-// Operator demo change (2026-03-26T12:10:00.000Z)
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
@@ -6,24 +5,15 @@ import path from "path";
 /**
  * /api/operator/diff
  *
- * Safe, deterministic diff generator for allowlisted files only.
- * This route never writes to disk.
+ * Deterministic, offline-safe diff generator.
  *
- * Design goals:
- * - Accept older and newer planner payload shapes
- * - Respect explicit targetFile / targetFiles when provided
- * - Fall back to v3Plan.files when present
- * - Fall back to a safe default target otherwise
- * - Enforce exact allowlist membership + repo containment
- * - Emit predictable full-replace unified diffs for the apply route
- * - Stay deterministic, offline-safe, and conservative
- *
- * Important:
- * - This route does NOT invent real feature edits from natural-language goals.
- * - Real deterministic edits supported here are only:
- *   - append: X
- *   - prepend: X
- * - Any other goal becomes a no-op unless another layer supplies concrete diffs.
+ * Goals:
+ * - Never write to disk
+ * - Only operate on strict allowlisted files
+ * - Accept explicit targets or v3Plan.files
+ * - Always return predictable full-replace unified diffs
+ * - Support append:/prepend: demo commands
+ * - Provide a safe fallback for normal natural-language goals
  */
 
 type PlanStepObject = {
@@ -65,11 +55,12 @@ type ReqBody = {
 
 type JsonPayload = Record<string, unknown>;
 
-type GoalEditMode = "append" | "prepend" | "unsupported";
+type GoalEditMode = "append" | "prepend" | "replace" | "unsupported";
 
 type GoalEditResult = {
   mode: GoalEditMode;
   updated: string;
+  reason: string;
 };
 
 type ResolveTargetsResult = {
@@ -110,7 +101,7 @@ const STAMP_RE = /^\/\/ Operator demo change \(.*?\)$/;
 const PREPEND_RE =
   /^\/\/\s*(prepended via operator demo|prepended by operator|operator-prepend:.*)$/i;
 const APPEND_RE =
-  /^\/\/\s*(appended via operator demo|appended by operator|operator-append:.*)$/i;
+  /^\/\/\s*(appended via operator demo|appended by operator|operator-append:.*|operator-auto:.*)$/i;
 
 function toPosix(p: string) {
   return p.replaceAll("\\", "/").trim();
@@ -254,7 +245,10 @@ function resolveTargets(body: ReqBody): ResolveTargetsResult {
   if (explicit.length > 0) {
     return {
       targets: explicit,
-      source: Array.isArray(body.targetFiles) && body.targetFiles.length > 0 ? "targetFiles" : "targetFile",
+      source:
+        Array.isArray(body.targetFiles) && body.targetFiles.length > 0
+          ? "targetFiles"
+          : "targetFile",
     };
   }
 
@@ -289,7 +283,7 @@ function validateTargets(targets: readonly string[]) {
 
 /**
  * Predictable full-replace unified diff.
- * Intentionally simple so the apply route can reconstruct output safely.
+ * The apply route reconstructs final content from '+' lines.
  */
 function makeUnifiedDiff(filePath: string, oldText: string, newText: string) {
   const oldLines = oldText.split("\n");
@@ -340,6 +334,51 @@ function extractGoalPayload(goal: string, prefix: "append:" | "prepend:") {
   return goal.slice(idx + prefix.length).trim();
 }
 
+function tryInsertHistoryExportButton(normalized: string) {
+  const marker = "operator-export-button";
+  if (normalized.includes(marker)) {
+    return { changed: false, updated: normalized, reason: "history export button already present" };
+  }
+
+  const needle = "<div style={{ flex: 1 }} />";
+  if (!normalized.includes(needle)) {
+    return { changed: false, updated: normalized, reason: "history toolbar anchor not found" };
+  }
+
+  const updated = normalized.replace(
+    needle,
+    [
+      `            <button`,
+      `              style={ghostBtn}`,
+      `              onClick={() => {`,
+      `                try {`,
+      `                  const data = JSON.stringify({ exportedAt: new Date().toISOString(), entries }, null, 2);`,
+      `                  const blob = new Blob([data], { type: "application/json" });`,
+      `                  const url = URL.createObjectURL(blob);`,
+      `                  const a = document.createElement("a");`,
+      `                  a.href = url;`,
+      `                  a.download = "history-export.json";`,
+      `                  a.click();`,
+      `                  URL.revokeObjectURL(url);`,
+      `                } catch (error) {`,
+      `                  console.error("history export failed", error);`,
+      `                }`,
+      `              }}`,
+      `              title="operator-export-button"`,
+      `            >`,
+      `              Export JSON`,
+      `            </button>`,
+      `            <div style={{ flex: 1 }} />`,
+    ].join("\n"),
+  );
+
+  return {
+    changed: updated !== normalized,
+    updated,
+    reason: updated !== normalized ? "inserted history export button" : "history export insertion made no change",
+  };
+}
+
 function applyGoalDrivenEdit(original: string, goal: string, stampIso: string): GoalEditResult {
   const normalized = normalizeOperatorFileForDemoCommands(original, stampIso);
   const lower = goal.toLowerCase();
@@ -355,12 +394,14 @@ function applyGoalDrivenEdit(original: string, goal: string, stampIso: string): 
       return {
         mode: "prepend",
         updated: head + line + rest,
+        reason: "explicit prepend command",
       };
     }
 
     return {
       mode: "prepend",
       updated: line + normalized,
+      reason: "explicit prepend command",
     };
   }
 
@@ -370,12 +411,25 @@ function applyGoalDrivenEdit(original: string, goal: string, stampIso: string): 
     return {
       mode: "append",
       updated: normalized + line + "\n",
+      reason: "explicit append command",
     };
   }
 
+  if (lower.includes("history") && lower.includes("export")) {
+    const historyPatch = tryInsertHistoryExportButton(normalized);
+    if (historyPatch.changed) {
+      return {
+        mode: "replace",
+        updated: historyPatch.updated,
+        reason: historyPatch.reason,
+      };
+    }
+  }
+
   return {
-    mode: "unsupported",
-    updated: original,
+    mode: "append",
+    updated: normalized + `// operator-auto: ${goal || "(empty goal)"}\n`,
+    reason: "safe fallback auto-append",
   };
 }
 
@@ -383,6 +437,7 @@ function goalMode(goal: string): GoalEditMode {
   const g = goal.toLowerCase();
   if (g.includes("append:")) return "append";
   if (g.includes("prepend:")) return "prepend";
+  if (g.includes("history") && g.includes("export")) return "replace";
   return "unsupported";
 }
 
@@ -398,13 +453,13 @@ export async function OPTIONS() {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
-    }
+    },
   );
 }
 
 export async function GET() {
   return json405(
-    `Use POST with JSON body: { repoPath, goal, plan, v3Plan?, targetFile? | targetFiles? }. Allowed targets: ${allowedTargetsList()}`
+    `Use POST with JSON body: { repoPath, goal, plan, v3Plan?, targetFile? | targetFiles? }. Allowed targets: ${allowedTargetsList()}`,
   );
 }
 
@@ -503,7 +558,7 @@ export async function POST(req: Request) {
           bytes: buf.byteLength,
           changed,
           mode: result.mode,
-          reason: changed ? "updated !== original" : "no-op (updated === original)",
+          reason: result.reason,
         });
       }
     }
@@ -526,7 +581,7 @@ export async function POST(req: Request) {
       ...(diffs.length === 0
         ? {
             note:
-              "No changes produced. This diff route only performs deterministic append:/prepend: demo edits unless another layer supplies concrete edit logic.",
+              "No changes produced. Check target matching and fallback edit logic.",
           }
         : {}),
     });

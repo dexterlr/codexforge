@@ -1,22 +1,15 @@
-// Operator demo change (2026-02-16T16:56:38.284Z)
 "use client";
 
 import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { clearEntries, loadEntries, type HealthEntry } from "@/lib/storage";
+import {
+  clearEntries,
+  loadEntries,
+  saveEntries,
+  type CodexForgeActivityEntry,
+} from "@/lib/storage";
 
-/**
- * HISTORY PAGE (TESTBED)
- * ------------------------------------------------------------
- * Goals:
- * - Local-first: app works with no network.
- * - AI is optional: UI must stay usable if AI is slow/offline/broken.
- * - Demo-friendly: export/import tools, quick stats, predictable UI.
- *
- * Notes:
- * - This page intentionally avoids heavy dependencies.
- * - Where persistence APIs are unknown, we do best-effort persistence with safe fallbacks.
- */
+type ActivityEntry = CodexForgeActivityEntry;
 
 type AiState =
   | { kind: "idle" }
@@ -26,6 +19,41 @@ type AiState =
 
 type SortMode = "newest" | "oldest";
 type RangeMode = "all" | "7d" | "30d" | "90d";
+type ExportMode = "json" | "csv" | "summary";
+type ActivityCategory = "all" | ActivityEntry["category"];
+
+type PersistResult = {
+  ok: boolean;
+  how: string;
+};
+
+type TrendDirection = "up" | "down" | "flat" | "unknown";
+
+type LegacySignals = {
+  avgWeight?: number;
+  avgSteps?: number;
+  avgWater?: number;
+  avgSleep?: number;
+  weightDelta?: number;
+  stepDelta?: number;
+  sleepDelta?: number;
+  waterDelta?: number;
+  weightTrend: TrendDirection;
+};
+
+type LegacyStats = {
+  last7: ActivityEntry[];
+  last30: ActivityEntry[];
+  weights7: number[];
+  steps7: number[];
+  water7: number[];
+  sleep7: number[];
+  weights30: number[];
+  steps30: number[];
+  water30: number[];
+  sleep30: number[];
+  countWithAnyMetric: number;
+};
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
@@ -42,9 +70,9 @@ function avg(nums: number[]) {
 
 function median(nums: number[]) {
   if (nums.length === 0) return 0;
-  const s = [...nums].sort((a, b) => a - b);
-  const mid = Math.floor(s.length / 2);
-  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+  const sorted = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
 function isNum(v: unknown): v is number {
@@ -52,7 +80,9 @@ function isNum(v: unknown): v is number {
 }
 
 function asRecord(v: unknown): Record<string, unknown> | null {
-  return v && typeof v === "object" ? (v as Record<string, unknown>) : null;
+  return v && typeof v === "object" && !Array.isArray(v)
+    ? (v as Record<string, unknown>)
+    : null;
 }
 
 function parseOptionalNumber(v: unknown): number | undefined {
@@ -61,6 +91,21 @@ function parseOptionalNumber(v: unknown): number | undefined {
 
 function parseOptionalString(v: unknown): string | undefined {
   return typeof v === "string" && v.trim() ? v.trim() : undefined;
+}
+
+function parseOptionalStringArray(v: unknown): string[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+
+  const values = Array.from(
+    new Set(
+      v
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim())
+        .filter(Boolean)
+    )
+  );
+
+  return values.length > 0 ? values : undefined;
 }
 
 function isISODateYYYYMMDD(s: string) {
@@ -72,48 +117,140 @@ function formatNum(n: number) {
 }
 
 function errorMessage(e: unknown, fallback: string) {
-  if (e instanceof Error && typeof e.message === "string" && e.message.trim()) return e.message;
+  if (e instanceof Error && e.message.trim()) return e.message;
   if (typeof e === "string" && e.trim()) return e;
   return fallback;
 }
 
 function safeId() {
-  // stable-enough unique id for demo use
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function normalizeEntry(x: unknown, idx: number): HealthEntry {
-  const r = asRecord(x);
-  if (!r) throw new Error(`Entry #${idx + 1} must be an object.`);
+function parseDateToMs(dateYYYYMMDD: string) {
+  const [y, m, d] = dateYYYYMMDD.split("-").map((x) => Number(x));
+  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return 0;
+  return new Date(y, m - 1, d).getTime();
+}
 
-  const date = typeof r.date === "string" ? r.date : "";
+function compareByDateDesc(a: ActivityEntry, b: ActivityEntry) {
+  return (b.date ? parseDateToMs(b.date) : 0) - (a.date ? parseDateToMs(a.date) : 0);
+}
+
+function withinRange(dateYYYYMMDD: string, range: RangeMode) {
+  if (range === "all") return true;
+
+  const ms = parseDateToMs(dateYYYYMMDD);
+  if (!ms) return true;
+
+  const days = range === "7d" ? 7 : range === "30d" ? 30 : 90;
+  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  return ms >= cutoff;
+}
+
+function safeTrim(s: string, max: number) {
+  if (s.length <= max) return s;
+  return `${s.slice(0, max - 1)}…`;
+}
+
+function makeToastMessage(prefix: string, msg: string) {
+  const clean = msg.replace(/\s+/g, " ").trim();
+  return `${prefix}${prefix ? ": " : ""}${safeTrim(clean, 180)}`;
+}
+
+function normalizeCategory(
+  value: unknown
+): ActivityEntry["category"] {
+  return value === "note" ||
+    value === "plan" ||
+    value === "task" ||
+    value === "research" ||
+    value === "decision" ||
+    value === "execution" ||
+    value === "memory" ||
+    value === "legacy-health"
+    ? value
+    : "note";
+}
+
+function normalizeStatus(
+  value: unknown
+): ActivityEntry["status"] {
+  return value === "idea" ||
+    value === "active" ||
+    value === "done" ||
+    value === "blocked"
+    ? value
+    : undefined;
+}
+
+function normalizeEntry(x: unknown, idx: number): ActivityEntry {
+  const record = asRecord(x);
+  if (!record) throw new Error(`Entry #${idx + 1} must be an object.`);
+
+  const date = typeof record.date === "string" ? record.date : "";
   if (!date || !isISODateYYYYMMDD(date)) {
     throw new Error(`Entry #${idx + 1} is missing a valid date (YYYY-MM-DD).`);
   }
 
-  const idRaw = typeof r.id === "string" ? r.id : "";
+  const idRaw = typeof record.id === "string" ? record.id : "";
   const id = idRaw || safeId();
 
-  const weight = parseOptionalNumber(r.weight);
-  const steps = parseOptionalNumber(r.steps);
-  const water = parseOptionalNumber(r.water);
-  const sleep = parseOptionalNumber(r.sleep);
-  const notes = parseOptionalString(r.notes);
+  const weight = parseOptionalNumber(record.weight);
+  const steps = parseOptionalNumber(record.steps);
+  const water = parseOptionalNumber(record.water);
+  const sleep = parseOptionalNumber(record.sleep);
+  const notes = parseOptionalString(record.notes);
+  const title =
+    parseOptionalString(record.title) ??
+    ((weight ?? steps ?? water ?? sleep) !== undefined
+      ? "Legacy health entry"
+      : "Workspace entry");
 
-  return { id, date, weight, steps, water, sleep, notes };
+  return {
+    id,
+    date,
+    title,
+    summary: parseOptionalString(record.summary),
+    category: normalizeCategory(record.category),
+    status: normalizeStatus(record.status),
+    tags: parseOptionalStringArray(record.tags),
+    notes,
+    weight,
+    steps,
+    water,
+    sleep,
+  };
 }
 
-function toCSV(entries: HealthEntry[]) {
-  const header = ["date", "weight", "steps", "water", "sleep", "notes"].join(",");
-  const rows = entries.map((e) => {
+function toCSV(entries: ActivityEntry[]) {
+  const header = [
+    "date",
+    "title",
+    "category",
+    "status",
+    "summary",
+    "tags",
+    "notes",
+    "weight",
+    "steps",
+    "water",
+    "sleep",
+  ].join(",");
+
+  const rows = entries.map((entry) => {
     const esc = (s: string) => `"${s.replaceAll('"', '""')}"`;
     return [
-      e.date ?? "",
-      isNum(e.weight) ? String(e.weight) : "",
-      isNum(e.steps) ? String(e.steps) : "",
-      isNum(e.water) ? String(e.water) : "",
-      isNum(e.sleep) ? String(e.sleep) : "",
-      e.notes ? esc(e.notes) : "",
+      entry.date ?? "",
+      entry.title ? esc(entry.title) : "",
+      entry.category ?? "",
+      entry.status ?? "",
+      entry.summary ? esc(entry.summary) : "",
+      entry.tags?.length ? esc(entry.tags.join(", ")) : "",
+      entry.notes ? esc(entry.notes) : "",
+      isNum(entry.weight) ? String(entry.weight) : "",
+      isNum(entry.steps) ? String(entry.steps) : "",
+      isNum(entry.water) ? String(entry.water) : "",
+      isNum(entry.sleep) ? String(entry.sleep) : "",
     ].join(",");
   });
 
@@ -138,14 +275,10 @@ async function readFileAsText(file: File) {
   return await file.text();
 }
 
-/**
- * Sparkline using a safe set of Unicode blocks.
- * No spaces inside the block string (spaces break indexing).
- */
-function spark(values: number[], width = 26) {
+function spark(values: number[], width = 24) {
   if (values.length < 2) return "—";
-  const blocks = "▁▂▃▄▅▆▇█";
 
+  const blocks = "▁▂▃▄▅▆▇█";
   const minV = Math.min(...values);
   const maxV = Math.max(...values);
   const span = maxV - minV || 1;
@@ -159,16 +292,24 @@ function spark(values: number[], width = 26) {
   return sampled
     .map((v) => {
       const t = (v - minV) / span;
-      const b = Math.floor(t * (blocks.length - 1));
-      return blocks[clamp(b, 0, blocks.length - 1)];
+      const blockIndex = Math.floor(t * (blocks.length - 1));
+      return blocks[clamp(blockIndex, 0, blocks.length - 1)];
     })
     .join("");
 }
 
-function computeStats(entries: HealthEntry[]) {
-  // Expect entries to be newest-first, but computeStats itself doesn't depend on sort.
-  const last7 = entries.slice(0, 7);
-  const last30 = entries.slice(0, 30);
+function computeLegacyStats(entriesNewestFirst: ActivityEntry[]): LegacyStats {
+  const legacyEntries = entriesNewestFirst.filter(
+    (entry) =>
+      entry.category === "legacy-health" ||
+      isNum(entry.weight) ||
+      isNum(entry.steps) ||
+      isNum(entry.water) ||
+      isNum(entry.sleep)
+  );
+
+  const last7 = legacyEntries.slice(0, 7);
+  const last30 = legacyEntries.slice(0, 30);
 
   const weights7 = last7.map((e) => e.weight).filter(isNum);
   const steps7 = last7.map((e) => e.steps).filter(isNum);
@@ -199,134 +340,236 @@ function computeStats(entries: HealthEntry[]) {
   };
 }
 
-function parseDateToMs(dateYYYYMMDD: string) {
-  // Date-only parse in local time; stable enough for demo filtering.
-  const [y, m, d] = dateYYYYMMDD.split("-").map((x) => Number(x));
-  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return 0;
-  return new Date(y, m - 1, d).getTime();
+function trendFromDelta(delta: number | undefined, flatThreshold: number) {
+  if (!isNum(delta)) return "unknown" as TrendDirection;
+  if (Math.abs(delta) < flatThreshold) return "flat" as TrendDirection;
+  return delta > 0 ? ("up" as TrendDirection) : ("down" as TrendDirection);
 }
 
-function withinRange(dateYYYYMMDD: string, range: RangeMode) {
-  if (range === "all") return true;
-  const ms = parseDateToMs(dateYYYYMMDD);
-  if (!ms) return true;
+function getLegacySignals(entriesNewestFirst: ActivityEntry[]): LegacySignals {
+  const stats = computeLegacyStats(entriesNewestFirst);
 
-  const days = range === "7d" ? 7 : range === "30d" ? 30 : range === "90d" ? 90 : 99999;
+  const avgWeight = stats.weights7.length ? round1(avg(stats.weights7)) : undefined;
+  const avgSteps = stats.steps7.length ? Math.round(avg(stats.steps7)) : undefined;
+  const avgWater = stats.water7.length ? round1(avg(stats.water7)) : undefined;
+  const avgSleep = stats.sleep7.length ? round1(avg(stats.sleep7)) : undefined;
 
-  const now = Date.now();
-  const cutoff = now - days * 24 * 60 * 60 * 1000;
-  return ms >= cutoff;
+  const weightDelta =
+    stats.weights7.length >= 2
+      ? round1(stats.weights7[0] - stats.weights7[stats.weights7.length - 1])
+      : undefined;
+
+  const stepDelta =
+    stats.steps7.length >= 2
+      ? Math.round(stats.steps7[0] - stats.steps7[stats.steps7.length - 1])
+      : undefined;
+
+  const sleepDelta =
+    stats.sleep7.length >= 2
+      ? round1(stats.sleep7[0] - stats.sleep7[stats.sleep7.length - 1])
+      : undefined;
+
+  const waterDelta =
+    stats.water7.length >= 2
+      ? round1(stats.water7[0] - stats.water7[stats.water7.length - 1])
+      : undefined;
+
+  return {
+    avgWeight,
+    avgSteps,
+    avgWater,
+    avgSleep,
+    weightDelta,
+    stepDelta,
+    sleepDelta,
+    waterDelta,
+    weightTrend: trendFromDelta(weightDelta, 0.3),
+  };
 }
 
-function safeTrim(s: string, max: number) {
-  if (s.length <= max) return s;
-  return s.slice(0, max - 1) + "…";
-}
-
-function makeToastMessage(prefix: string, msg: string) {
-  const clean = msg.replace(/\s+/g, " ").trim();
-  return `${prefix}${prefix ? ": " : ""}${safeTrim(clean, 180)}`;
-}
-
-/**
- * Best-effort persistence for edits (delete, replace):
- * - Prefer storage.saveEntries(entries) if present
- * - Else localStorage fallback to a small set of likely keys
- *
- * This is intentionally conservative: if we cannot confidently persist, we don't guess wildly.
- */
-async function persistEntriesBestEffort(next: HealthEntry[]) {
-  const storage = await import("@/lib/storage");
-
-  const saveEntriesMaybe = (storage as unknown as { saveEntries?: unknown }).saveEntries;
-  if (typeof saveEntriesMaybe === "function") {
-    (saveEntriesMaybe as (e: HealthEntry[]) => void)(next);
-    return { ok: true, how: "saveEntries()" as const };
+function buildLocalSummary(entriesNewestFirst: ActivityEntry[]) {
+  if (entriesNewestFirst.length === 0) {
+    return [
+      "CodexForge Activity Summary",
+      "===========================",
+      "",
+      "Status",
+      "------",
+      "No activity entries yet.",
+      "",
+      "Suggested next actions",
+      "----------------------",
+      "• Use /entry to launch a real CodexForge task into the AI workspace.",
+      "• Let /history evolve into plans, runs, decisions, and memory events.",
+      "• Keep AI optional so local summaries always work instantly.",
+      "",
+      "Mode: LOCAL (no AI, instant, offline-safe)",
+    ].join("\n");
   }
 
-  // Fallback: try common keys only if they exist and look like arrays.
-  const candidateKeys = ["health-tracker-entries", "entries", "healthEntries"];
-  for (const k of candidateKeys) {
-    try {
-      const existing = localStorage.getItem(k);
-      if (!existing) continue;
-      const parsed: unknown = JSON.parse(existing);
-      if (!Array.isArray(parsed)) continue;
+  const legacyStats = computeLegacyStats(entriesNewestFirst);
+  const signals = getLegacySignals(entriesNewestFirst);
 
-      localStorage.setItem(k, JSON.stringify(next));
-      return { ok: true, how: `localStorage("${k}")` as const };
-    } catch {
-      // ignore and try next key
-    }
-  }
+  const categoryCounts = entriesNewestFirst.reduce<Record<string, number>>((acc, entry) => {
+    acc[entry.category] = (acc[entry.category] ?? 0) + 1;
+    return acc;
+  }, {});
 
-  return { ok: false, how: "unknown" as const };
-}
-
-function buildLocalSummary(entries: HealthEntry[]) {
-  if (entries.length === 0) return "No entries yet. Add one first, then summarize patterns.";
-
-  const stats = computeStats(entries);
-  const { last7, weights7, steps7, water7, sleep7 } = stats;
+  const latest = entriesNewestFirst[0];
 
   const lines: string[] = [];
-  lines.push(`Based on your latest ${last7.length} entries:`);
-
-  if (weights7.length) lines.push(`• Avg weight (7d): ${round1(avg(weights7)).toFixed(1)} kg`);
-  if (steps7.length) lines.push(`• Avg steps (7d): ${formatNum(Math.round(avg(steps7)))}`);
-  if (water7.length) lines.push(`• Avg water (7d): ${round1(avg(water7)).toFixed(1)} L`);
-  if (sleep7.length) lines.push(`• Avg sleep (7d): ${round1(avg(sleep7)).toFixed(1)} hrs`);
-
-  if (!weights7.length && !steps7.length && !water7.length && !sleep7.length) {
-    lines.push("• You have only entered notes/dates so far — add numbers to get trends.");
-  }
-
+  lines.push("CodexForge Activity Summary");
+  lines.push("===========================");
+  lines.push("Scope: Workspace activity history");
   lines.push("");
-  lines.push("This is LOCAL summary mode (fast/offline).");
-  lines.push("Rule: AI stays optional so the app stays fast.");
+
+  lines.push("Activity overview");
+  lines.push("-----------------");
+  lines.push(`Total entries: ${entriesNewestFirst.length}`);
+  lines.push(`Plans: ${categoryCounts.plan ?? 0}`);
+  lines.push(`Tasks: ${categoryCounts.task ?? 0}`);
+  lines.push(`Research: ${categoryCounts.research ?? 0}`);
+  lines.push(`Execution: ${categoryCounts.execution ?? 0}`);
+  lines.push(`Decisions: ${categoryCounts.decision ?? 0}`);
+  lines.push(`Memory: ${categoryCounts.memory ?? 0}`);
+  lines.push(`Notes: ${categoryCounts.note ?? 0}`);
+  lines.push(`Legacy health: ${categoryCounts["legacy-health"] ?? 0}`);
+  lines.push("");
+
+  lines.push("Latest entry");
+  lines.push("------------");
+  lines.push(`Title: ${latest.title}`);
+  lines.push(`Category: ${latest.category}`);
+  lines.push(`Date: ${latest.date}`);
+  if (latest.status) lines.push(`Status: ${latest.status}`);
+  if (latest.summary) lines.push(`Summary: ${latest.summary}`);
+  lines.push("");
+
+  lines.push("Legacy metric snapshot");
+  lines.push("----------------------");
+  if (legacyStats.last7.length === 0) {
+    lines.push("• No legacy health metrics found in recent entries.");
+  } else {
+    if (legacyStats.weights7.length) {
+      lines.push(`• Avg weight (7): ${round1(avg(legacyStats.weights7)).toFixed(1)} kg`);
+    }
+    if (legacyStats.steps7.length) {
+      lines.push(`• Avg steps (7): ${formatNum(Math.round(avg(legacyStats.steps7)))}`);
+    }
+    if (legacyStats.water7.length) {
+      lines.push(`• Avg water (7): ${round1(avg(legacyStats.water7)).toFixed(1)} L`);
+    }
+    if (legacyStats.sleep7.length) {
+      lines.push(`• Avg sleep (7): ${round1(avg(legacyStats.sleep7)).toFixed(1)} hrs`);
+    }
+
+    if (signals.weightTrend === "flat") {
+      lines.push("• Weight is broadly stable across recent legacy entries.");
+    } else if (signals.weightTrend === "up" && isNum(signals.weightDelta)) {
+      lines.push(`• Weight is trending upward by about ${round1(signals.weightDelta).toFixed(1)} kg.`);
+    } else if (signals.weightTrend === "down" && isNum(signals.weightDelta)) {
+      lines.push(
+        `• Weight is trending downward by about ${round1(Math.abs(signals.weightDelta)).toFixed(1)} kg.`
+      );
+    }
+  }
+  lines.push("");
+
+  lines.push("Suggested next actions");
+  lines.push("----------------------");
+  lines.push("• Keep using /entry as a CodexForge launchpad, not a health form.");
+  lines.push("• Move future history items toward plans, runs, approvals, and memory events.");
+  lines.push("• Preserve legacy data only as historical compatibility content.");
+  lines.push("");
+  lines.push("Mode: LOCAL (no AI, instant, offline-safe)");
+
   return lines.join("\n");
 }
 
+function buildExportSummary(entriesNewestFirst: ActivityEntry[]) {
+  const legacyStats = computeLegacyStats(entriesNewestFirst);
+  const latest = entriesNewestFirst[0];
+
+  return [
+    "CodexForge Activity Export Summary",
+    "=================================",
+    `Generated: ${new Date().toISOString()}`,
+    `Total entries: ${entriesNewestFirst.length}`,
+    `Latest entry: ${latest?.date ?? "—"}`,
+    `Latest title: ${latest?.title ?? "—"}`,
+    `Legacy metric entries (7d): ${legacyStats.countWithAnyMetric}/${legacyStats.last7.length || 0}`,
+    "",
+    buildLocalSummary(entriesNewestFirst),
+  ].join("\n");
+}
+
+function buildPayload(entries: ActivityEntry[]) {
+  return JSON.stringify({ entries: entries.slice(0, 50) }, null, 2);
+}
+
+function formatCategoryLabel(category: ActivityEntry["category"]) {
+  switch (category) {
+    case "plan":
+      return "Plan";
+    case "task":
+      return "Task";
+    case "research":
+      return "Research";
+    case "decision":
+      return "Decision";
+    case "execution":
+      return "Execution";
+    case "memory":
+      return "Memory";
+    case "legacy-health":
+      return "Legacy health";
+    case "note":
+    default:
+      return "Note";
+  }
+}
+
+function formatStatusLabel(status?: ActivityEntry["status"]) {
+  if (!status) return "—";
+  if (status === "idea") return "Idea";
+  if (status === "active") return "Active";
+  if (status === "done") return "Done";
+  if (status === "blocked") return "Blocked";
+  return status;
+}
+
+async function persistEntriesBestEffort(next: ActivityEntry[]): Promise<PersistResult> {
+  try {
+    saveEntries(next);
+    return { ok: true, how: "saveEntries()" };
+  } catch {
+    return { ok: false, how: "unknown" };
+  }
+}
+
 export default function HistoryPage() {
-  // Reload button bumps reloadTick to trigger a re-render.
-  const [reloadTick, setReloadTick] = useState(0);
-
-  // Keep hydration safe: don't touch localStorage until after mount.
   const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(t);
-  }, []);
-
-  // Read entries only after mount.
-  // NOTE: no reloadTick dependency here — changing reloadTick already re-renders the component.
-  const entries = useMemo(() => {
-    if (!mounted) return [];
-    return loadEntries();
-  }, [mounted]);
-
-  // keep reloadTick "used" without depending on it in hooks (avoids lint noise)
-  void reloadTick;
+  const [reloadTick, setReloadTick] = useState(0);
 
   const [ai, setAi] = useState<AiState>({ kind: "idle" });
   const [aiMode, setAiMode] = useState<"auto" | "local">("auto");
   const [showRaw, setShowRaw] = useState(false);
-  const [importError, setImportError] = useState<string>("");
-
+  const [importError, setImportError] = useState("");
   const [query, setQuery] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [rangeMode, setRangeMode] = useState<RangeMode>("all");
+  const [exportMode, setExportMode] = useState<ExportMode>("json");
+  const [categoryMode, setCategoryMode] = useState<ActivityCategory>("all");
 
   const abortRef = useRef<AbortController | null>(null);
-
-  // small “toast” UX (no libs)
-  const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   const toastTimerRef = useRef<number | null>(null);
-  function showToast(kind: "ok" | "err", text: string) {
-    setToast({ kind, text });
-    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
-    toastTimerRef.current = window.setTimeout(() => setToast(null), 2400);
-  }
+  const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(t);
+  }, []);
+
   useEffect(() => {
     return () => {
       if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
@@ -334,72 +577,132 @@ export default function HistoryPage() {
     };
   }, []);
 
-  const stats = useMemo(() => computeStats(entries), [entries]);
+  function showToast(kind: "ok" | "err", text: string) {
+    setToast({ kind, text });
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = window.setTimeout(() => setToast(null), 2400);
+  }
 
-  const viewEntries = useMemo(() => {
+  const entries = useMemo(() => {
+    if (!mounted) return [];
+    return loadEntries();
+  }, [mounted, reloadTick]);
+
+  const sortedEntries = useMemo(() => {
+    return entries.slice().sort(compareByDateDesc);
+  }, [entries]);
+
+  const legacyStats = useMemo(() => computeLegacyStats(sortedEntries), [sortedEntries]);
+  const latest = useMemo(() => sortedEntries[0], [sortedEntries]);
+
+  const filteredEntries = useMemo(() => {
     const q = query.trim().toLowerCase();
 
     let list = entries.slice();
 
-    // Sort by date (fallback to 0 if missing)
     list.sort((a, b) => {
       const ams = a.date ? parseDateToMs(a.date) : 0;
       const bms = b.date ? parseDateToMs(b.date) : 0;
       return sortMode === "newest" ? bms - ams : ams - bms;
     });
 
-    // Range filter
-    list = list.filter((e) => (e.date ? withinRange(e.date, rangeMode) : true));
+    list = list.filter((entry) => (entry.date ? withinRange(entry.date, rangeMode) : true));
 
-    // Text search (date + notes + id)
+    if (categoryMode !== "all") {
+      list = list.filter((entry) => entry.category === categoryMode);
+    }
+
     if (q) {
-      list = list.filter((e) => {
-        const hay = `${e.date ?? ""} ${e.id ?? ""} ${e.notes ?? ""}`.toLowerCase();
-        return hay.includes(q);
+      list = list.filter((entry) => {
+        const haystack = [
+          entry.date ?? "",
+          entry.id ?? "",
+          entry.title ?? "",
+          entry.summary ?? "",
+          entry.notes ?? "",
+          entry.category ?? "",
+          entry.status ?? "",
+          ...(entry.tags ?? []),
+          isNum(entry.weight) ? String(entry.weight) : "",
+          isNum(entry.steps) ? String(entry.steps) : "",
+          isNum(entry.water) ? String(entry.water) : "",
+          isNum(entry.sleep) ? String(entry.sleep) : "",
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        return haystack.includes(q);
       });
     }
 
     return list;
-  }, [entries, query, sortMode, rangeMode]);
+  }, [entries, query, sortMode, rangeMode, categoryMode]);
 
-  const latest = useMemo(() => {
-    if (entries.length === 0) return undefined;
-    const list = entries
-      .slice()
-      .sort((a, b) => (b.date ? parseDateToMs(b.date) : 0) - (a.date ? parseDateToMs(a.date) : 0));
-    return list[0];
+  const categoryCounts = useMemo(() => {
+    return entries.reduce<Record<string, number>>((acc, entry) => {
+      acc[entry.category] = (acc[entry.category] ?? 0) + 1;
+      return acc;
+    }, {});
   }, [entries]);
 
-  const weightsForSpark = stats.last30.slice().reverse().map((e) => e.weight).filter(isNum);
-  const stepsForSpark = stats.last30.slice().reverse().map((e) => e.steps).filter(isNum);
-  const waterForSpark = stats.last30.slice().reverse().map((e) => e.water).filter(isNum);
-  const sleepForSpark = stats.last30.slice().reverse().map((e) => e.sleep).filter(isNum);
+  const notesCount = useMemo(
+    () => entries.filter((e) => !!e.notes?.trim()).length,
+    [entries]
+  );
+
+  const quickFacts = useMemo(() => getLegacySignals(sortedEntries), [sortedEntries]);
+
+  const weightsForSpark = legacyStats.last30.slice().reverse().map((e) => e.weight).filter(isNum);
+  const stepsForSpark = legacyStats.last30.slice().reverse().map((e) => e.steps).filter(isNum);
+  const waterForSpark = legacyStats.last30.slice().reverse().map((e) => e.water).filter(isNum);
+  const sleepForSpark = legacyStats.last30.slice().reverse().map((e) => e.sleep).filter(isNum);
 
   function onReload() {
     setReloadTick((x) => x + 1);
-    showToast("ok", "Reloaded from local storage.");
+    showToast("ok", "Reloaded workspace activity from local storage.");
+  }
+
+  function onResetFilters() {
+    setQuery("");
+    setSortMode("newest");
+    setRangeMode("all");
+    setCategoryMode("all");
+    showToast("ok", "Filters reset.");
   }
 
   function onClearAll() {
-    if (!confirm("Clear ALL entries from local storage?")) return;
+    if (!confirm("Clear ALL local CodexForge activity entries?")) return;
     clearEntries();
     setAi({ kind: "idle" });
     setReloadTick((x) => x + 1);
-    showToast("ok", "All entries cleared.");
+    showToast("ok", "All local activity cleared.");
   }
 
-  function onExportJSON() {
-    const json = JSON.stringify(entries, null, 2);
+  function onExport() {
     const stamp = new Date().toISOString().slice(0, 10);
-    downloadText(`health-tracker-entries-${stamp}.json`, json, "application/json");
-    showToast("ok", "Exported JSON.");
-  }
 
-  function onExportCSV() {
-    const csv = toCSV(entries);
-    const stamp = new Date().toISOString().slice(0, 10);
-    downloadText(`health-tracker-entries-${stamp}.csv`, csv, "text/csv");
-    showToast("ok", "Exported CSV.");
+    if (exportMode === "json") {
+      downloadText(
+        `codexforge-activity-${stamp}.json`,
+        JSON.stringify(entries, null, 2),
+        "application/json"
+      );
+      showToast("ok", "Exported JSON.");
+      return;
+    }
+
+    if (exportMode === "csv") {
+      downloadText(`codexforge-activity-${stamp}.csv`, toCSV(entries), "text/csv");
+      showToast("ok", "Exported CSV.");
+      return;
+    }
+
+    downloadText(
+      `codexforge-activity-summary-${stamp}.txt`,
+      buildExportSummary(sortedEntries),
+      "text/plain"
+    );
+    showToast("ok", "Exported summary.");
   }
 
   async function onImportJSON(file: File | null) {
@@ -414,25 +717,9 @@ export default function HistoryPage() {
         throw new Error("Import file must be a JSON array of entries.");
       }
 
-      const normalized: HealthEntry[] = parsed.map((x: unknown, idx: number) => normalizeEntry(x, idx));
+      const normalized = parsed.map((x: unknown, idx: number) => normalizeEntry(x, idx));
 
-      // Replace local store completely.
-      clearEntries();
-
-      const storage = await import("@/lib/storage");
-      const saveEntriesMaybe = (storage as unknown as { saveEntries?: unknown }).saveEntries;
-      const addEntryMaybe = (storage as unknown as { addEntry?: unknown }).addEntry;
-
-      if (typeof saveEntriesMaybe === "function") {
-        (saveEntriesMaybe as (e: HealthEntry[]) => void)(normalized);
-      } else if (typeof addEntryMaybe === "function") {
-        // Add in reverse so the final store is newest-first.
-        for (const e of [...normalized].reverse()) {
-          (addEntryMaybe as (e: HealthEntry) => void)(e);
-        }
-      } else {
-        throw new Error("Storage module is missing saveEntries() and addEntry().");
-      }
+      saveEntries(normalized);
 
       setAi({ kind: "idle" });
       setReloadTick((x) => x + 1);
@@ -445,18 +732,18 @@ export default function HistoryPage() {
   }
 
   async function onDeleteEntry(id: string) {
-    if (!confirm("Delete this entry?")) return;
+    if (!confirm("Delete this activity entry?")) return;
 
-    const next = entries.filter((e) => e.id !== id);
+    const next = entries.filter((entry) => entry.id !== id);
 
     try {
-      const res = await persistEntriesBestEffort(next);
+      const result = await persistEntriesBestEffort(next);
       setReloadTick((x) => x + 1);
 
-      if (res.ok) {
-        showToast("ok", `Deleted entry. Saved via ${res.how}.`);
+      if (result.ok) {
+        showToast("ok", `Deleted entry. Saved via ${result.how}.`);
       } else {
-        showToast("err", "Deleted in view, but could not persist (storage key unknown).");
+        showToast("err", "Deleted in view, but could not persist.");
       }
     } catch (e: unknown) {
       setReloadTick((x) => x + 1);
@@ -466,37 +753,40 @@ export default function HistoryPage() {
 
   async function onCopyPayload() {
     try {
-      const payload = JSON.stringify({ entries: entries.slice(0, 50) }, null, 2);
-      await navigator.clipboard.writeText(payload);
-      showToast("ok", "Copied payload to clipboard.");
+      await navigator.clipboard.writeText(buildPayload(entries));
+      showToast("ok", "Copied payload.");
     } catch {
       showToast("err", "Copy failed (clipboard permissions?).");
     }
   }
 
-  function localSummary() {
-    return buildLocalSummary(entries);
+  async function onCopySummary() {
+    try {
+      await navigator.clipboard.writeText(buildLocalSummary(sortedEntries));
+      showToast("ok", "Copied summary.");
+    } catch {
+      showToast("err", "Copy failed (clipboard permissions?).");
+    }
   }
 
   async function onGenerate() {
     if (entries.length === 0) {
-      setAi({ kind: "ready", text: "No entries yet. Add one first, then try again." });
+      setAi({
+        kind: "ready",
+        text: "No activity entries yet. Launch something from /entry first, then try again.",
+      });
       return;
     }
 
-    // Cancel any in-flight request.
     abortRef.current?.abort();
     abortRef.current = null;
-
     setAi({ kind: "loading" });
 
-    // Local mode is instant and zero network.
     if (aiMode === "local") {
-      setAi({ kind: "ready", text: localSummary() });
+      setAi({ kind: "ready", text: buildLocalSummary(sortedEntries) });
       return;
     }
 
-    // API mode: call /api/insights
     try {
       const controller = new AbortController();
       abortRef.current = controller;
@@ -510,8 +800,8 @@ export default function HistoryPage() {
 
       const data: unknown = await res.json().catch(() => null);
       const obj = asRecord(data);
-
       const okFlag = obj ? obj.ok : undefined;
+
       if (!res.ok || okFlag !== true) {
         const errText =
           (obj && typeof obj.error === "string" && obj.error.trim() ? obj.error : "") ||
@@ -541,28 +831,39 @@ export default function HistoryPage() {
   return (
     <main style={page}>
       <div style={shell}>
-        {/* Nav */}
         <div style={topBar}>
-          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={navGroup}>
             <Link href="/" style={navLink}>
               ← Home
             </Link>
-            <div style={{ opacity: 0.55 }}>•</div>
-            <Link href="/entry" style={navLink}>
-              Add entry
+            <div style={dot}>•</div>
+            <Link href="/ai" style={navLink}>
+              AI workspace
             </Link>
-            <div style={{ opacity: 0.55 }}>•</div>
-            <button onClick={onReload} style={ghostBtn} title="Reload entries from local storage">
+            <div style={dot}>•</div>
+            <Link href="/entry" style={navLink}>
+              Launch task
+            </Link>
+            <div style={dot}>•</div>
+            <button onClick={onReload} style={ghostBtn} title="Reload local activity">
               Reload
             </button>
           </div>
 
-          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-            <button onClick={onExportJSON} style={ghostBtn}>
-              Export JSON
-            </button>
-            <button onClick={onExportCSV} style={ghostBtn}>
-              Export CSV
+          <div style={actionGroup}>
+            <select
+              value={exportMode}
+              onChange={(e) => setExportMode(e.target.value as ExportMode)}
+              style={select}
+              title="Choose export format"
+            >
+              <option value="json">Export as JSON</option>
+              <option value="csv">Export as CSV</option>
+              <option value="summary">Export as summary</option>
+            </select>
+
+            <button onClick={onExport} style={ghostBtn}>
+              Export
             </button>
 
             <label style={fileLabel} title="Import JSON (replaces local store)">
@@ -589,175 +890,272 @@ export default function HistoryPage() {
 
         {importError ? <div style={toastErr}>Import error: {importError}</div> : null}
 
-        <h1 style={title}>History</h1>
+        <div style={heroCard}>
+          <div style={heroText}>
+            <div style={eyebrow}>CodexForge activity</div>
+            <h1 style={title}>Workspace History</h1>
+            <div style={subtitle}>
+              This page is now the local activity surface for CodexForge. It tracks plans, tasks,
+              decisions, research, execution events, memory-oriented notes, and migration-safe
+              legacy data while the rest of the workspace catches up.
+            </div>
+          </div>
 
-        {/* Controls */}
+          <div style={heroPills}>
+            <StatPill label="Entries" value={formatNum(entries.length)} />
+            <StatPill label="Visible" value={formatNum(filteredEntries.length)} />
+            <StatPill label="Latest" value={latest?.date ?? "—"} />
+            <StatPill label="Notes" value={formatNum(notesCount)} />
+          </div>
+
+          <div style={heroMetaRow}>
+            <div style={heroMetaCard}>
+              <div style={heroMetaLabel}>Primary role</div>
+              <div style={heroMetaValue}>Workspace activity log</div>
+            </div>
+            <div style={heroMetaCard}>
+              <div style={heroMetaLabel}>AI policy</div>
+              <div style={heroMetaValue}>Optional, never blocking</div>
+            </div>
+            <div style={heroMetaCard}>
+              <div style={heroMetaLabel}>Latest metric trend</div>
+              <div style={heroMetaValue}>
+                {quickFacts.weightTrend === "flat"
+                  ? "Stable"
+                  : quickFacts.weightTrend === "up"
+                    ? "Rising"
+                    : quickFacts.weightTrend === "down"
+                      ? "Falling"
+                      : "Insufficient data"}
+              </div>
+            </div>
+            <div style={heroMetaCard}>
+              <div style={heroMetaLabel}>Migration state</div>
+              <div style={heroMetaValue}>
+                {categoryCounts["legacy-health"] ? "Legacy data present" : "CodexForge-first"}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <section style={card}>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <div style={toolbarGrid}>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search (date, notes, id)…"
+              placeholder="Search by title, summary, notes, tags, date, id, or metric"
               style={textInput}
             />
 
-            <select value={sortMode} onChange={(e) => setSortMode(e.target.value as SortMode)} style={select}>
-              <option value="newest">Sort: newest</option>
-              <option value="oldest">Sort: oldest</option>
+            <select
+              value={sortMode}
+              onChange={(e) => setSortMode(e.target.value as SortMode)}
+              style={select}
+            >
+              <option value="newest">Sort: newest first</option>
+              <option value="oldest">Sort: oldest first</option>
             </select>
 
-            <select value={rangeMode} onChange={(e) => setRangeMode(e.target.value as RangeMode)} style={select}>
-              <option value="all">Range: all</option>
+            <select
+              value={rangeMode}
+              onChange={(e) => setRangeMode(e.target.value as RangeMode)}
+              style={select}
+            >
+              <option value="all">Range: all time</option>
               <option value="7d">Range: last 7 days</option>
               <option value="30d">Range: last 30 days</option>
               <option value="90d">Range: last 90 days</option>
             </select>
 
-            <div style={{ marginLeft: "auto", display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <StatPill label="Entries" value={formatNum(entries.length)} />
-              <StatPill label="Visible" value={formatNum(viewEntries.length)} />
-              <StatPill label="Latest" value={latest?.date ?? "—"} />
-              <StatPill label="7d filled" value={`${stats.countWithAnyMetric}/${stats.last7.length || 0}`} />
-            </div>
+            <select
+              value={categoryMode}
+              onChange={(e) => setCategoryMode(e.target.value as ActivityCategory)}
+              style={select}
+            >
+              <option value="all">Category: all</option>
+              <option value="plan">Plan</option>
+              <option value="task">Task</option>
+              <option value="research">Research</option>
+              <option value="decision">Decision</option>
+              <option value="execution">Execution</option>
+              <option value="memory">Memory</option>
+              <option value="note">Note</option>
+              <option value="legacy-health">Legacy health</option>
+            </select>
+
+            <button onClick={onResetFilters} style={ghostBtn}>
+              Reset filters
+            </button>
           </div>
         </section>
 
-        {/* Quick Stats */}
         <section style={card}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <div style={sectionHead}>
             <div>
-              <div style={{ fontWeight: 900, fontSize: 14 }}>Quick stats</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>Last 7 days (avg/median) + last 30 (sparklines)</div>
+              <div style={sectionTitle}>Legacy metric snapshot</div>
+              <div style={sectionSub}>
+                These cards remain only to support migrated health data while the page becomes true CodexForge history.
+              </div>
             </div>
           </div>
 
           <div style={statsGrid}>
             <StatCard
               label="Weight"
-              avg7={stats.weights7.length ? `${round1(avg(stats.weights7)).toFixed(1)} kg` : "—"}
-              med7={stats.weights7.length ? `${round1(median(stats.weights7)).toFixed(1)} kg` : "—"}
+              avg7={legacyStats.weights7.length ? `${round1(avg(legacyStats.weights7)).toFixed(1)} kg` : "—"}
+              med7={legacyStats.weights7.length ? `${round1(median(legacyStats.weights7)).toFixed(1)} kg` : "—"}
               spark30={weightsForSpark.length ? spark(weightsForSpark) : "—"}
-              hint="Goal: stable trends, not perfect data."
+              hint="Legacy metric support only."
             />
             <StatCard
               label="Steps"
-              avg7={stats.steps7.length ? `${formatNum(Math.round(avg(stats.steps7)))}` : "—"}
-              med7={stats.steps7.length ? `${formatNum(Math.round(median(stats.steps7)))}` : "—"}
+              avg7={legacyStats.steps7.length ? formatNum(Math.round(avg(legacyStats.steps7))) : "—"}
+              med7={legacyStats.steps7.length ? formatNum(Math.round(median(legacyStats.steps7))) : "—"}
               spark30={stepsForSpark.length ? spark(stepsForSpark) : "—"}
-              hint="Good test signal for AI patterns."
+              hint="Legacy metric support only."
             />
             <StatCard
               label="Water"
-              avg7={stats.water7.length ? `${round1(avg(stats.water7)).toFixed(1)} L` : "—"}
-              med7={stats.water7.length ? `${round1(median(stats.water7)).toFixed(1)} L` : "—"}
+              avg7={legacyStats.water7.length ? `${round1(avg(legacyStats.water7)).toFixed(1)} L` : "—"}
+              med7={legacyStats.water7.length ? `${round1(median(legacyStats.water7)).toFixed(1)} L` : "—"}
               spark30={waterForSpark.length ? spark(waterForSpark) : "—"}
-              hint="Units are liters (testbed)."
+              hint="Legacy metric support only."
             />
             <StatCard
               label="Sleep"
-              avg7={stats.sleep7.length ? `${round1(avg(stats.sleep7)).toFixed(1)} h` : "—"}
-              med7={stats.sleep7.length ? `${round1(median(stats.sleep7)).toFixed(1)} h` : "—"}
+              avg7={legacyStats.sleep7.length ? `${round1(avg(legacyStats.sleep7)).toFixed(1)} h` : "—"}
+              med7={legacyStats.sleep7.length ? `${round1(median(legacyStats.sleep7)).toFixed(1)} h` : "—"}
               spark30={sleepForSpark.length ? spark(sleepForSpark) : "—"}
-              hint="AI can flag inconsistent sleep."
+              hint="Legacy metric support only."
             />
           </div>
         </section>
 
-        {/* Main split */}
         <div style={split}>
-          {/* Entries */}
           <section style={card}>
             <div style={sectionHead}>
-              <div style={{ fontWeight: 900 }}>Entries</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>Showing up to 100 (filters apply)</div>
+              <div>
+                <div style={sectionTitle}>Activity entries</div>
+                <div style={sectionSub}>Showing up to 100 entries after filtering.</div>
+              </div>
             </div>
 
-            {viewEntries.length === 0 ? (
-              <div style={{ marginTop: 10, opacity: 0.85 }}>
-                No entries match your filters. Go to{" "}
-                <Link href="/entry" style={{ color: "white", fontWeight: 900 }}>
-                  Add entry
+            {filteredEntries.length === 0 ? (
+              <div style={emptyState}>
+                <div style={emptyTitle}>No activity entries found</div>
+                <div style={emptyText}>
+                  Try changing filters, or use the launch page to create a new CodexForge task entry.
+                </div>
+                <Link href="/entry" style={primaryLink}>
+                  Open launch page
                 </Link>
-                .
               </div>
             ) : (
-              <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
-                {viewEntries.slice(0, 100).map((e) => (
-                  <div key={e.id} style={row}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                      <div style={{ fontWeight: 950 }}>{e.date}</div>
-                      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-                        <div style={{ fontSize: 12, opacity: 0.75 }}>{e.id}</div>
-                        <button onClick={() => onDeleteEntry(e.id)} style={smallDangerBtn} title="Delete entry">
-                          Delete
-                        </button>
+              <div style={entriesList}>
+                {filteredEntries.slice(0, 100).map((entry) => (
+                  <div key={entry.id} style={row}>
+                    <div style={rowTop}>
+                      <div style={{ display: "grid", gap: 6 }}>
+                        <div style={rowDate}>{entry.title}</div>
+                        <div style={metaRow}>
+                          <span style={metaChip}>{entry.date}</span>
+                          <span style={metaChip}>{formatCategoryLabel(entry.category)}</span>
+                          <span style={metaChip}>{formatStatusLabel(entry.status)}</span>
+                        </div>
+                        <div style={rowId}>{entry.id}</div>
                       </div>
+
+                      <button
+                        onClick={() => onDeleteEntry(entry.id)}
+                        style={smallDangerBtn}
+                        title="Delete entry"
+                      >
+                        Delete
+                      </button>
                     </div>
 
-                    <div style={metricLine}>
-                      <Metric label="Weight" value={isNum(e.weight) ? `${e.weight} kg` : "—"} />
-                      <Metric label="Steps" value={isNum(e.steps) ? formatNum(e.steps) : "—"} />
-                      <Metric label="Water" value={isNum(e.water) ? `${e.water} L` : "—"} />
-                      <Metric label="Sleep" value={isNum(e.sleep) ? `${e.sleep} h` : "—"} />
-                      <Metric label="Notes" value={e.notes ? "Yes" : "—"} title={e.notes || ""} />
+                    {entry.summary ? <div style={summaryBox}>{entry.summary}</div> : null}
+
+                    {entry.tags?.length ? (
+                      <div style={tagRow}>
+                        {entry.tags.map((tag) => (
+                          <span key={tag} style={tagPill}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    <div style={metricGrid}>
+                      <Metric label="Category" value={formatCategoryLabel(entry.category)} />
+                      <Metric label="Status" value={formatStatusLabel(entry.status)} />
+                      <Metric label="Weight" value={isNum(entry.weight) ? `${entry.weight} kg` : "—"} />
+                      <Metric label="Steps" value={isNum(entry.steps) ? formatNum(entry.steps) : "—"} />
                     </div>
 
-                    {e.notes ? <div style={notesBox}>{e.notes}</div> : null}
+                    {(isNum(entry.water) || isNum(entry.sleep)) ? (
+                      <div style={metricGridSecondary}>
+                        <Metric label="Water" value={isNum(entry.water) ? `${entry.water} L` : "—"} />
+                        <Metric label="Sleep" value={isNum(entry.sleep) ? `${entry.sleep} h` : "—"} />
+                      </div>
+                    ) : null}
+
+                    {entry.notes ? <div style={notesBox}>{entry.notes}</div> : null}
                   </div>
                 ))}
               </div>
             )}
-
-            <div style={{ marginTop: 12, fontSize: 12, opacity: 0.7 }}>
-              Performance: intentionally simple (no chart libs). If we add real charts, we will lazy-load them.
-            </div>
           </section>
 
-          {/* AI Insights */}
           <aside style={card}>
-            <div style={{ display: "grid", gap: 10 }}>
+            <div style={asideGrid}>
               <div style={sectionHead}>
-                <div style={{ fontWeight: 900 }}>AI Insights</div>
-                <div style={{ fontSize: 12, opacity: 0.75 }}>
-                  {aiMode === "auto" ? "API (/api/insights)" : "local summary"}
+                <div>
+                  <div style={sectionTitle}>AI insights</div>
+                  <div style={sectionSub}>
+                    {aiMode === "auto" ? "API mode using /api/insights" : "Local summary mode"}
+                  </div>
                 </div>
               </div>
 
-              <div style={{ fontSize: 12, opacity: 0.82, lineHeight: 1.55 }}>
-                This is the AI test harness. The app stays usable even if AI is slow, offline, or broken.
+              <div style={asideCopy}>
+                The page stays useful even if AI is slow, offline, or unavailable.
               </div>
 
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <div style={actionGroup}>
                 <button onClick={onGenerate} disabled={ai.kind === "loading"} style={primaryBtn}>
                   {ai.kind === "loading" ? "Thinking…" : "Generate insights"}
                 </button>
 
                 {ai.kind === "loading" ? (
-                  <button onClick={onCancelAI} style={ghostBtn} title="Cancel in-flight request">
+                  <button onClick={onCancelAI} style={ghostBtn}>
                     Cancel
                   </button>
                 ) : null}
 
                 <button
-                  onClick={() => setAiMode((m) => (m === "auto" ? "local" : "auto"))}
+                  onClick={() => setAiMode((mode) => (mode === "auto" ? "local" : "auto"))}
                   style={ghostBtn}
-                  title="Toggle between API mode and local summary mode"
                 >
                   Mode: {aiMode === "auto" ? "API" : "Local"}
                 </button>
 
-                <button onClick={() => setShowRaw((v) => !v)} style={ghostBtn} title="Show raw JSON payload used for AI">
+                <button onClick={onCopySummary} style={ghostBtn}>
+                  Copy summary
+                </button>
+
+                <button onClick={() => setShowRaw((v) => !v)} style={ghostBtn}>
                   {showRaw ? "Hide" : "Show"} payload
                 </button>
 
-                <button onClick={onCopyPayload} style={ghostBtn} title="Copy JSON payload to clipboard">
+                <button onClick={onCopyPayload} style={ghostBtn}>
                   Copy payload
                 </button>
               </div>
 
               {latest ? (
-                <div style={{ fontSize: 12, opacity: 0.75 }}>
-                  Latest entry: <b>{latest.date}</b>
+                <div style={latestText}>
+                  Latest entry: <b>{latest.title}</b> on <b>{latest.date}</b>
                 </div>
               ) : null}
 
@@ -771,10 +1169,10 @@ export default function HistoryPage() {
                     : "Click “Generate insights” to see a summary here."}
               </pre>
 
-              {showRaw ? <pre style={payloadBox}>{JSON.stringify({ entries: entries.slice(0, 50) }, null, 2)}</pre> : null}
+              {showRaw ? <pre style={payloadBox}>{buildPayload(entries)}</pre> : null}
 
-              <div style={{ fontSize: 12, opacity: 0.7, lineHeight: 1.5 }}>
-                Rule: AI must be optional. Core UX must stay “boring-fast”.
+              <div style={footnote}>
+                Rule: AI must be optional. Core UX must stay fast, readable, and local-first.
               </div>
             </div>
           </aside>
@@ -784,26 +1182,30 @@ export default function HistoryPage() {
   );
 }
 
-/* ===== tiny UI bits ===== */
-
 function StatPill(props: { label: string; value: string }) {
   return (
     <div style={pill}>
-      <div style={{ fontSize: 11, opacity: 0.75 }}>{props.label}</div>
-      <div style={{ fontWeight: 950 }}>{props.value}</div>
+      <div style={pillLabel}>{props.label}</div>
+      <div style={pillValue}>{props.value}</div>
     </div>
   );
 }
 
-function StatCard(props: { label: string; avg7: string; med7: string; spark30: string; hint: string }) {
+function StatCard(props: {
+  label: string;
+  avg7: string;
+  med7: string;
+  spark30: string;
+  hint: string;
+}) {
   return (
     <div style={miniCard}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-        <div style={{ fontWeight: 950 }}>{props.label}</div>
-        <div style={{ fontSize: 11, opacity: 0.7 }}>7d avg / med</div>
+      <div style={miniCardTop}>
+        <div style={miniCardTitle}>{props.label}</div>
+        <div style={miniCardMeta}>7d avg / med</div>
       </div>
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 8 }}>
+      <div style={miniCardChipRow}>
         <div style={statChip}>
           <div style={chipLabel}>Avg</div>
           <div style={chipValue}>{props.avg7}</div>
@@ -814,12 +1216,12 @@ function StatCard(props: { label: string; avg7: string; med7: string; spark30: s
         </div>
       </div>
 
-      <div style={{ marginTop: 10, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
-        <div style={{ fontSize: 11, opacity: 0.7 }}>30d spark</div>
-        <div style={{ fontSize: 16, letterSpacing: 0.5 }}>{props.spark30}</div>
+      <div style={sparkBox}>
+        <div style={sparkLabel}>30d trend</div>
+        <div style={sparkValue}>{props.spark30}</div>
       </div>
 
-      <div style={{ marginTop: 8, fontSize: 12, opacity: 0.78, lineHeight: 1.5 }}>{props.hint}</div>
+      <div style={cardHint}>{props.hint}</div>
     </div>
   );
 }
@@ -827,13 +1229,11 @@ function StatCard(props: { label: string; avg7: string; med7: string; spark30: s
 function Metric(props: { label: string; value: string; title?: string }) {
   return (
     <div style={metricPill} title={props.title}>
-      <div style={{ fontSize: 11, opacity: 0.7 }}>{props.label}</div>
-      <div style={{ fontWeight: 900 }}>{props.value}</div>
+      <div style={metricLabel}>{props.label}</div>
+      <div style={metricValue}>{props.value}</div>
     </div>
   );
 }
-
-/* ===== styles ===== */
 
 const page: React.CSSProperties = {
   minHeight: "100vh",
@@ -849,10 +1249,80 @@ const page: React.CSSProperties = {
 
 const shell: React.CSSProperties = {
   width: "100%",
-  maxWidth: 1100,
+  maxWidth: 1180,
   margin: "0 auto",
   display: "grid",
   gap: 16,
+};
+
+const heroCard: React.CSSProperties = {
+  borderRadius: 22,
+  border: "1px solid rgba(255,255,255,0.12)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
+  boxShadow: "0 30px 100px rgba(0,0,0,0.45)",
+  padding: 20,
+  display: "grid",
+  gap: 16,
+};
+
+const heroText: React.CSSProperties = {
+  display: "grid",
+  gap: 8,
+};
+
+const eyebrow: React.CSSProperties = {
+  fontSize: 12,
+  letterSpacing: 1.2,
+  textTransform: "uppercase",
+  opacity: 0.72,
+  fontWeight: 900,
+};
+
+const title: React.CSSProperties = {
+  margin: 0,
+  fontSize: "clamp(30px, 4vw, 46px)",
+  letterSpacing: -0.8,
+};
+
+const subtitle: React.CSSProperties = {
+  fontSize: 14,
+  lineHeight: 1.6,
+  opacity: 0.84,
+  maxWidth: 760,
+};
+
+const heroPills: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+};
+
+const heroMetaRow: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gap: 10,
+};
+
+const heroMetaCard: React.CSSProperties = {
+  padding: 12,
+  borderRadius: 14,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(255,255,255,0.04)",
+  display: "grid",
+  gap: 4,
+};
+
+const heroMetaLabel: React.CSSProperties = {
+  fontSize: 11,
+  opacity: 0.68,
+  textTransform: "uppercase",
+  letterSpacing: 0.8,
+  fontWeight: 900,
+};
+
+const heroMetaValue: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: 900,
 };
 
 const topBar: React.CSSProperties = {
@@ -863,21 +1333,43 @@ const topBar: React.CSSProperties = {
   flexWrap: "wrap",
 };
 
+const navGroup: React.CSSProperties = {
+  display: "flex",
+  gap: 12,
+  alignItems: "center",
+  flexWrap: "wrap",
+};
+
+const actionGroup: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+  alignItems: "center",
+  flexWrap: "wrap",
+};
+
+const dot: React.CSSProperties = {
+  opacity: 0.55,
+};
+
 const navLink: React.CSSProperties = {
   color: "rgba(255,255,255,0.9)",
   textDecoration: "none",
   fontWeight: 950,
 };
 
-const title: React.CSSProperties = {
-  margin: 0,
-  fontSize: "clamp(28px, 4vw, 42px)",
-  letterSpacing: -0.6,
+const primaryLink: React.CSSProperties = {
+  color: "white",
+  textDecoration: "none",
+  fontWeight: 900,
+  background: "linear-gradient(135deg, rgba(99,102,241,1), rgba(16,185,129,1))",
+  padding: "10px 14px",
+  borderRadius: 14,
+  display: "inline-flex",
 };
 
 const split: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "1.2fr 0.8fr",
+  gridTemplateColumns: "1.25fr 0.85fr",
   gap: 14,
 };
 
@@ -897,6 +1389,24 @@ const sectionHead: React.CSSProperties = {
   gap: 10,
 };
 
+const sectionTitle: React.CSSProperties = {
+  fontWeight: 900,
+  fontSize: 16,
+};
+
+const sectionSub: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.75,
+  marginTop: 4,
+};
+
+const toolbarGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "minmax(240px, 1fr) auto auto auto auto",
+  gap: 10,
+  alignItems: "center",
+};
+
 const statsGrid: React.CSSProperties = {
   marginTop: 14,
   display: "grid",
@@ -904,18 +1414,89 @@ const statsGrid: React.CSSProperties = {
   gap: 12,
 };
 
+const entriesList: React.CSSProperties = {
+  marginTop: 12,
+  display: "grid",
+  gap: 12,
+};
+
 const row: React.CSSProperties = {
-  padding: 12,
-  borderRadius: 14,
+  padding: 14,
+  borderRadius: 16,
   border: "1px solid rgba(255,255,255,0.10)",
   background: "rgba(255,255,255,0.04)",
   display: "grid",
+  gap: 10,
+};
+
+const rowTop: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 10,
+  alignItems: "flex-start",
+  flexWrap: "wrap",
+};
+
+const rowDate: React.CSSProperties = {
+  fontWeight: 950,
+  fontSize: 18,
+};
+
+const rowId: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.68,
+  wordBreak: "break-all",
+};
+
+const metaRow: React.CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const metaChip: React.CSSProperties = {
+  padding: "4px 8px",
+  borderRadius: 999,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(0,0,0,0.18)",
+  fontSize: 11,
+  opacity: 0.86,
+};
+
+const summaryBox: React.CSSProperties = {
+  padding: 12,
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(255,255,255,0.03)",
+  opacity: 0.94,
+  lineHeight: 1.6,
+  fontSize: 13,
+};
+
+const tagRow: React.CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const tagPill: React.CSSProperties = {
+  padding: "5px 8px",
+  borderRadius: 999,
+  border: "1px solid rgba(99,102,241,0.20)",
+  background: "rgba(99,102,241,0.12)",
+  fontSize: 11,
+  fontWeight: 800,
+};
+
+const metricGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
   gap: 8,
 };
 
-const metricLine: React.CSSProperties = {
+const metricGridSecondary: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
   gap: 8,
 };
 
@@ -926,14 +1507,65 @@ const metricPill: React.CSSProperties = {
   background: "rgba(0,0,0,0.18)",
 };
 
+const metricLabel: React.CSSProperties = {
+  fontSize: 11,
+  opacity: 0.7,
+};
+
+const metricValue: React.CSSProperties = {
+  fontWeight: 900,
+};
+
 const notesBox: React.CSSProperties = {
-  padding: 10,
+  padding: 12,
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.10)",
   background: "rgba(0,0,0,0.22)",
   opacity: 0.95,
-  lineHeight: 1.5,
+  lineHeight: 1.6,
   fontSize: 13,
+};
+
+const emptyState: React.CSSProperties = {
+  display: "grid",
+  gap: 12,
+  padding: 20,
+  marginTop: 12,
+  borderRadius: 16,
+  border: "1px dashed rgba(255,255,255,0.2)",
+  background: "rgba(255,255,255,0.03)",
+};
+
+const emptyTitle: React.CSSProperties = {
+  fontWeight: 900,
+  fontSize: 18,
+};
+
+const emptyText: React.CSSProperties = {
+  opacity: 0.8,
+  lineHeight: 1.6,
+};
+
+const asideGrid: React.CSSProperties = {
+  display: "grid",
+  gap: 12,
+};
+
+const asideCopy: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.82,
+  lineHeight: 1.6,
+};
+
+const latestText: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.78,
+};
+
+const footnote: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.7,
+  lineHeight: 1.5,
 };
 
 const btnBase: React.CSSProperties = {
@@ -983,11 +1615,42 @@ const pill: React.CSSProperties = {
   gap: 2,
 };
 
+const pillLabel: React.CSSProperties = {
+  fontSize: 11,
+  opacity: 0.75,
+};
+
+const pillValue: React.CSSProperties = {
+  fontWeight: 950,
+};
+
 const miniCard: React.CSSProperties = {
   padding: 14,
   borderRadius: 16,
   border: "1px solid rgba(255,255,255,0.10)",
   background: "rgba(255,255,255,0.04)",
+};
+
+const miniCardTop: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 10,
+};
+
+const miniCardTitle: React.CSSProperties = {
+  fontWeight: 950,
+};
+
+const miniCardMeta: React.CSSProperties = {
+  fontSize: 11,
+  opacity: 0.7,
+};
+
+const miniCardChipRow: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  marginTop: 8,
 };
 
 const statChip: React.CSSProperties = {
@@ -1007,6 +1670,28 @@ const chipValue: React.CSSProperties = {
   fontWeight: 950,
 };
 
+const sparkBox: React.CSSProperties = {
+  marginTop: 10,
+  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+};
+
+const sparkLabel: React.CSSProperties = {
+  fontSize: 11,
+  opacity: 0.7,
+};
+
+const sparkValue: React.CSSProperties = {
+  fontSize: 16,
+  letterSpacing: 0.5,
+};
+
+const cardHint: React.CSSProperties = {
+  marginTop: 8,
+  fontSize: 12,
+  opacity: 0.78,
+  lineHeight: 1.5,
+};
+
 const insightBox: React.CSSProperties = {
   margin: 0,
   padding: 12,
@@ -1014,10 +1699,10 @@ const insightBox: React.CSSProperties = {
   border: "1px solid rgba(255,255,255,0.10)",
   background: "rgba(0,0,0,0.25)",
   color: "rgba(255,255,255,0.92)",
-  minHeight: 180,
+  minHeight: 200,
   whiteSpace: "pre-wrap",
   fontSize: 13,
-  lineHeight: 1.5,
+  lineHeight: 1.55,
 };
 
 const payloadBox: React.CSSProperties = {

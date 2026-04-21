@@ -5,12 +5,9 @@ import path from "path";
 type ReqBody = {
   repoPath?: string;
   runId?: string;
-
   phase?: string;
-
   log?: string;
   logs?: string[];
-
   patch?: Record<string, unknown>;
 };
 
@@ -32,6 +29,9 @@ type UpdateResp =
 
 const MAX_LOG_LINES = 2000;
 const MAX_LOG_CHARS = 50_000;
+
+// simple in-process per-file write queue
+const writeQueues = new Map<string, Promise<void>>();
 
 function json(status: number, payload: UpdateResp) {
   return NextResponse.json(payload, { status });
@@ -92,24 +92,58 @@ function capLogs(logs: string[]) {
   return out;
 }
 
-/**
- * Windows-safe write:
- * - No rename (fixes EPERM)
- * - Retry if file is temporarily locked
- */
-async function safeWrite(fileAbs: string, content: string) {
-  const MAX_RETRIES = 3;
+async function readValidRunFile(runAbs: string, runId: string) {
+  let raw: string;
+  try {
+    raw = await fs.readFile(runAbs, "utf8");
+  } catch {
+    throw new Error("run file not found");
+  }
 
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    try {
-      await fs.writeFile(fileAbs, content, "utf8");
-      return;
-    } catch (err: any) {
-      if (err?.code === "EPERM" && attempt < MAX_RETRIES - 1) {
-        await new Promise((r) => setTimeout(r, 50 * (attempt + 1)));
-        continue;
-      }
-      throw err;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("run file is not valid JSON");
+  }
+
+  const run = validateRunFile(parsed, runId);
+  if (!run) {
+    throw new Error("run file missing required fields");
+  }
+
+  return run;
+}
+
+async function writeRunFileAtomic(runAbs: string, run: RunFile) {
+  const dir = path.dirname(runAbs);
+  const base = path.basename(runAbs);
+  const tempAbs = path.join(dir, `${base}.tmp`);
+
+  const content = JSON.stringify(run, null, 2) + "\n";
+
+  await fs.writeFile(tempAbs, content, "utf8");
+  await fs.rename(tempAbs, runAbs);
+}
+
+async function withFileQueue<T>(fileAbs: string, work: () => Promise<T>): Promise<T> {
+  const prev = writeQueues.get(fileAbs) ?? Promise.resolve();
+
+  let release!: () => void;
+  const next = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+
+  writeQueues.set(fileAbs, prev.then(() => next));
+
+  await prev;
+
+  try {
+    return await work();
+  } finally {
+    release();
+    if (writeQueues.get(fileAbs) === next) {
+      writeQueues.delete(fileAbs);
     }
   }
 }
@@ -145,81 +179,79 @@ export async function POST(req: Request) {
       return json(400, { ok: false, error: "Resolved path escapes repoPath" });
     }
 
-    let raw: string;
-    try {
-      raw = await fs.readFile(runAbs, "utf8");
-    } catch {
-      return json(404, { ok: false, error: "run file not found" });
-    }
+    const result = await withFileQueue(runAbs, async () => {
+      const run = await readValidRunFile(runAbs, runId);
 
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      return json(500, { ok: false, error: "run file is not valid JSON" });
-    }
+      const nextPhase =
+        typeof body?.phase === "string" && body.phase.trim()
+          ? body.phase.trim()
+          : undefined;
 
-    const run = validateRunFile(parsed, runId);
-    if (!run) {
-      return json(500, { ok: false, error: "run file missing required fields" });
-    }
+      const toAppend: string[] = [];
 
-    // ---- APPLY UPDATES ----
+      if (typeof body?.log === "string" && body.log.trim()) {
+        toAppend.push(body.log.trim());
+      }
 
-    const nextPhase =
-      typeof body?.phase === "string" && body.phase.trim() ? body.phase.trim() : undefined;
-
-    const toAppend: string[] = [];
-
-    if (typeof body?.log === "string" && body.log.trim()) {
-      toAppend.push(body.log.trim());
-    }
-
-    if (Array.isArray(body?.logs)) {
-      for (const x of body.logs) {
-        if (typeof x === "string" && x.trim()) {
-          toAppend.push(x.trim());
+      if (Array.isArray(body?.logs)) {
+        for (const x of body.logs) {
+          if (typeof x === "string" && x.trim()) {
+            toAppend.push(x.trim());
+          }
         }
       }
-    }
 
-    const patchObj = asRecord(body?.patch);
-    if (patchObj) {
-      const blocked = new Set([
-        "version",
-        "runId",
-        "createdAt",
-        "updatedAt",
-        "repoPath",
-        "logs",
-        "goal",
-      ]);
+      const patchObj = asRecord(body?.patch);
+      if (patchObj) {
+        const blocked = new Set([
+          "version",
+          "runId",
+          "createdAt",
+          "updatedAt",
+          "repoPath",
+          "logs",
+          "goal",
+        ]);
 
-      for (const [k, v] of Object.entries(patchObj)) {
-        if (blocked.has(k)) continue;
-        run[k] = v;
+        for (const [k, v] of Object.entries(patchObj)) {
+          if (blocked.has(k)) continue;
+          run[k] = v;
+        }
       }
-    }
 
-    if (nextPhase) {
-      run.phase = nextPhase;
-    }
+      if (nextPhase) {
+        run.phase = nextPhase;
+      }
 
-    if (toAppend.length) {
-      const stamped = toAppend.map((line) => `[${nowIso()}] ${line}`);
-      run.logs = capLogs([...run.logs, ...stamped]);
-    } else {
-      run.logs = capLogs(run.logs);
-    }
+      if (toAppend.length) {
+        const stamped = toAppend.map((line) => `[${nowIso()}] ${line}`);
+        run.logs = capLogs([...run.logs, ...stamped]);
+      } else {
+        run.logs = capLogs(run.logs);
+      }
 
-    run.updatedAt = nowIso();
+      run.updatedAt = nowIso();
 
-    // ✅ SAFE WRITE (FIXED)
-    await safeWrite(runAbs, JSON.stringify(run, null, 2) + "\n");
+      await writeRunFileAtomic(runAbs, run);
 
-    return json(200, { ok: true, run, runFile: runAbs });
+      return run;
+    });
+
+    return json(200, { ok: true, run: result, runFile: runAbs });
   } catch (e: unknown) {
     const msg = e instanceof Error && e.message.trim() ? e.message : "Unknown error";
+
+    if (msg === "run file not found") {
+      return json(404, { ok: false, error: msg });
+    }
+
+    if (
+      msg === "run file is not valid JSON" ||
+      msg === "run file missing required fields"
+    ) {
+      return json(500, { ok: false, error: msg });
+    }
+
     return json(500, { ok: false, error: msg });
   }
 }

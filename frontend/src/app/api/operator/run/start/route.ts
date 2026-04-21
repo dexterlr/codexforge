@@ -8,25 +8,27 @@ type ReqBody = {
   goal?: string;
 };
 
+type RunPhase =
+  | "idle"
+  | "snapshotting"
+  | "planning"
+  | "awaiting_plan_approval"
+  | "diffing"
+  | "awaiting_diff_approval"
+  | "applying"
+  | "testing"
+  | "done"
+  | "error"
+  | "canceled";
+
 type RunFile = {
   version: 1;
   runId: string;
-  createdAt: string; // ISO
-  updatedAt: string; // ISO
-  repoPath: string; // absolute resolved
+  createdAt: string;
+  updatedAt: string;
+  repoPath: string;
   goal: string;
-  phase:
-    | "idle"
-    | "snapshotting"
-    | "planning"
-    | "awaiting_plan_approval"
-    | "diffing"
-    | "awaiting_diff_approval"
-    | "applying"
-    | "testing"
-    | "done"
-    | "error"
-    | "canceled";
+  phase: RunPhase;
   logs: string[];
   snapshot?: unknown;
   plan?: unknown;
@@ -40,6 +42,9 @@ type Resp =
   | { ok: true; runId: string; runFile: string }
   | { ok: false; error: string };
 
+const RUN_ID_BYTES = 12;
+const MAX_GOAL_LENGTH = 2000;
+
 function json(status: number, payload: Resp) {
   return NextResponse.json(payload, { status });
 }
@@ -49,58 +54,88 @@ function nowIso() {
 }
 
 function makeRunId() {
-  // short + filesystem-safe
-  return crypto.randomBytes(12).toString("hex");
+  return crypto.randomBytes(RUN_ID_BYTES).toString("hex");
 }
 
 function isLikelyInside(parentAbs: string, childAbs: string) {
   const rel = path.relative(parentAbs, childAbs);
-  return !rel.startsWith("..") && !path.isAbsolute(rel);
+  return rel !== "" && !rel.startsWith("..") && !path.isAbsolute(rel);
+}
+
+function logLine(msg: string) {
+  return `[${nowIso()}] ${msg}`;
+}
+
+function normalizeRepoPath(input: string) {
+  return path.resolve(input.trim());
+}
+
+function normalizeGoal(input: string) {
+  return input.replace(/\s+/g, " ").trim();
+}
+
+async function ensureDirectory(dirAbs: string) {
+  await fs.mkdir(dirAbs, { recursive: true });
+}
+
+async function writeJsonFile(fileAbs: string, value: unknown) {
+  await fs.writeFile(fileAbs, JSON.stringify(value, null, 2) + "\n", "utf8");
 }
 
 export async function POST(req: Request) {
   try {
     const body = (await req.json().catch(() => null)) as ReqBody | null;
 
-    const repoPathRaw = String(body?.repoPath ?? "").trim();
-    const goal = String(body?.goal ?? "").trim();
+    const repoPathRaw = String(body?.repoPath ?? "");
+    const goalRaw = String(body?.goal ?? "");
 
-    if (!repoPathRaw) return json(400, { ok: false, error: "repoPath is required" });
-    if (!goal) return json(400, { ok: false, error: "goal is required" });
+    const repoAbs = normalizeRepoPath(repoPathRaw);
+    const goal = normalizeGoal(goalRaw);
 
-    const repoAbs = path.resolve(repoPathRaw);
+    if (!repoPathRaw.trim()) {
+      return json(400, { ok: false, error: "repoPath is required" });
+    }
 
-    // Validate repoPath exists and is a folder
-    let stRoot: Awaited<ReturnType<typeof fs.stat>>;
+    if (!goal) {
+      return json(400, { ok: false, error: "goal is required" });
+    }
+
+    if (goal.length > MAX_GOAL_LENGTH) {
+      return json(400, { ok: false, error: `goal is too long (max ${MAX_GOAL_LENGTH} characters)` });
+    }
+
+    let repoStat: Awaited<ReturnType<typeof fs.stat>>;
     try {
-      stRoot = await fs.stat(repoAbs);
+      repoStat = await fs.stat(repoAbs);
     } catch {
       return json(400, { ok: false, error: "repoPath does not exist" });
     }
-    if (!stRoot.isDirectory()) {
+
+    if (!repoStat.isDirectory()) {
       return json(400, { ok: false, error: "repoPath must be a folder" });
     }
 
-    // Build safe run directory inside repo
-    const opDirAbs = path.resolve(path.join(repoAbs, ".operator"));
-    if (!isLikelyInside(repoAbs, opDirAbs)) {
-      return json(400, { ok: false, error: "Internal error: opDir escapes repoPath" });
+    const operatorDirAbs = path.resolve(path.join(repoAbs, ".operator"));
+    if (!isLikelyInside(repoAbs, operatorDirAbs)) {
+      return json(400, { ok: false, error: "Invalid operator path" });
     }
 
-    const runsDirAbs = path.resolve(path.join(opDirAbs, "runs"));
+    const runsDirAbs = path.resolve(path.join(operatorDirAbs, "runs"));
     if (!isLikelyInside(repoAbs, runsDirAbs)) {
-      return json(400, { ok: false, error: "Internal error: runsDir escapes repoPath" });
+      return json(400, { ok: false, error: "Invalid runs directory" });
     }
 
-    await fs.mkdir(runsDirAbs, { recursive: true });
+    await ensureDirectory(runsDirAbs);
 
     const runId = makeRunId();
     const runFileAbs = path.resolve(path.join(runsDirAbs, `${runId}.json`));
+
     if (!isLikelyInside(runsDirAbs, runFileAbs)) {
-      return json(400, { ok: false, error: "Internal error: run file escapes runsDir" });
+      return json(400, { ok: false, error: "Invalid run file path" });
     }
 
     const createdAt = nowIso();
+
     const run: RunFile = {
       version: 1,
       runId,
@@ -109,14 +144,22 @@ export async function POST(req: Request) {
       repoPath: repoAbs,
       goal,
       phase: "idle",
-      logs: [`[${createdAt}] Run created.`],
+      logs: [logLine("Run created.")],
     };
 
-    await fs.writeFile(runFileAbs, JSON.stringify(run, null, 2), "utf8");
+    await writeJsonFile(runFileAbs, run);
 
-    return json(200, { ok: true, runId, runFile: runFileAbs });
+    return json(200, {
+      ok: true,
+      runId,
+      runFile: runFileAbs,
+    });
   } catch (e: unknown) {
-    const msg = e instanceof Error && e.message.trim() ? e.message : "Unknown error";
+    const msg =
+      e instanceof Error && e.message.trim()
+        ? e.message
+        : "Unknown error";
+
     return json(500, { ok: false, error: msg });
   }
 }
