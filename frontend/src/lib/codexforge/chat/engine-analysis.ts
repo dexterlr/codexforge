@@ -50,6 +50,160 @@ const CLUSTER_BONUS = {
 
 const CLUSTER_FILE_LIMIT = 8;
 
+const CODEXFORGE_CORE_FILES = {
+  chatRoute: "src/app/api/codexforge/chat/route.ts",
+  runRoute: "src/app/api/codexforge/run/route.ts",
+  engine: "src/lib/codexforge/chat/engine.ts",
+  analysis: "src/lib/codexforge/chat/engine-analysis.ts",
+  render: "src/lib/codexforge/chat/engine-render.ts",
+  shared: "src/lib/codexforge/chat/engine-shared.ts",
+  hook: "src/lib/codexforge/chat/use-codexforge-chat.ts",
+  clientContext: "src/lib/codexforge/chat/client-context.ts",
+  clientNormalize: "src/lib/codexforge/chat/client-normalize.ts",
+  clientRenderers: "src/lib/codexforge/chat/client-renderers.tsx",
+  chatMessage: "src/lib/codexforge/chat/components/chat-message.tsx",
+  structuredReplyBlock:
+    "src/lib/codexforge/chat/components/structured-reply-block.tsx",
+  workspaceSidebar:
+    "src/lib/codexforge/chat/components/workspace-sidebar.tsx",
+  toolsContracts: "src/lib/codexforge/tools/contracts.ts",
+  toolsServer: "src/lib/codexforge/tools/server.ts",
+  toolsIndex: "src/lib/codexforge/tools/index.ts",
+  toolsShared: "src/lib/codexforge/tools/shared.ts",
+  types: "src/lib/codexforge/types.ts",
+  brainIndex: "src/lib/codexforge/brain/index.ts",
+  brainGraphTypes: "src/lib/codexforge/brain/graph/types.ts",
+  localBrain: "src/lib/codexforge/brain/local-engine-brain.ts",
+} as const;
+
+const FEATURE_LIBRARY: Array<{
+  key: string;
+  terms: string[];
+  goal: string;
+  files: string[];
+  steps: string[];
+  risks: string[];
+  commands: string[];
+  tags: string[];
+}> = [
+  {
+    key: "approval-driven-diff-previews",
+    terms: [
+      "approval-driven diff",
+      "approval driven diff",
+      "diff preview",
+      "diff previews",
+      "approval",
+      "approve diff",
+      "chat diff",
+      "safe apply",
+      "apply-diff",
+      "generate-diff",
+    ],
+    goal:
+      "Add approval-driven diff previews from chat so CodexForge can propose changes, show a reviewable patch, wait for explicit approval, and only then apply or run verification.",
+    files: [
+      CODEXFORGE_CORE_FILES.engine,
+      CODEXFORGE_CORE_FILES.analysis,
+      CODEXFORGE_CORE_FILES.render,
+      CODEXFORGE_CORE_FILES.hook,
+      CODEXFORGE_CORE_FILES.structuredReplyBlock,
+      CODEXFORGE_CORE_FILES.chatMessage,
+      CODEXFORGE_CORE_FILES.toolsContracts,
+      CODEXFORGE_CORE_FILES.toolsServer,
+      CODEXFORGE_CORE_FILES.toolsIndex,
+      CODEXFORGE_CORE_FILES.types,
+    ],
+    steps: [
+      "Define the chat-to-diff contract: proposed target file, generated patch, approval state, apply result, and verification command.",
+      "Wire the engine/tool path so chat can request a dry-run diff preview through generate-diff without mutating files.",
+      "Render the pending diff preview in the chat UI with explicit Approve, Reject, Copy patch, and Run build/check actions.",
+    ],
+    risks: [
+      "Never apply a patch directly from chat without an explicit approval state.",
+      "Keep generated diff previews dry-run by default.",
+      "Make rejected or stale diffs impossible to apply accidentally.",
+      "Preserve the existing structured reply contract while adding approval metadata.",
+      "Keep local-first behavior working when no remote model is connected.",
+    ],
+    commands: ["npm run build", "npm run dev"],
+    tags: ["diff", "approval", "chat", "operator", "safe-apply"],
+  },
+  {
+    key: "repo-grounded-chat",
+    terms: [
+      "repo-aware",
+      "repo aware",
+      "grounded",
+      "read-file",
+      "search-project",
+      "tools 0",
+      "thin answers",
+      "structured engine",
+      "local structured engine",
+    ],
+    goal:
+      "Make CodexForge answers repo-grounded by routing file, debug, architecture, and implementation prompts through safe inspection tools before generating visible conclusions.",
+    files: [
+      CODEXFORGE_CORE_FILES.chatRoute,
+      CODEXFORGE_CORE_FILES.engine,
+      CODEXFORGE_CORE_FILES.analysis,
+      CODEXFORGE_CORE_FILES.render,
+      CODEXFORGE_CORE_FILES.toolsServer,
+      CODEXFORGE_CORE_FILES.toolsContracts,
+      CODEXFORGE_CORE_FILES.types,
+    ],
+    steps: [
+      "Detect repo/file/tooling intent before generic planning and force the local structured engine when grounded inspection is needed.",
+      "Execute one safe inspection pass with read-file, search-project, or list-files and merge the result into structured sections.",
+      "Render the grounded outcome first while suppressing duplicate diagnostic sections from the visible text.",
+    ],
+    risks: [
+      "Do not claim a file was inspected unless a safe tool executed successfully.",
+      "Avoid routing normal planning prompts into execution mode unless file/tool evidence is required.",
+      "Keep tool failures visible without crashing the chat route.",
+    ],
+    commands: ["npm run build", "npm run dev"],
+    tags: ["repo", "grounding", "tools", "chat", "debug"],
+  },
+  {
+    key: "offline-brain",
+    terms: [
+      "offline brain",
+      "offline-first brain",
+      "graph memory",
+      "provider routing",
+      "local model",
+      "cache",
+      "caching",
+      "memory graph",
+    ],
+    goal:
+      "Design and strengthen the offline-first CodexForge brain so memory, provider routing, cached context, graph state, and safe execution remain useful without a remote model.",
+    files: [
+      CODEXFORGE_CORE_FILES.brainIndex,
+      CODEXFORGE_CORE_FILES.localBrain,
+      CODEXFORGE_CORE_FILES.brainGraphTypes,
+      CODEXFORGE_CORE_FILES.chatRoute,
+      CODEXFORGE_CORE_FILES.engine,
+      CODEXFORGE_CORE_FILES.clientContext,
+      CODEXFORGE_CORE_FILES.types,
+    ],
+    steps: [
+      "Define provider routing rules for local-engine, Ollama, fallback, and unavailable-provider states.",
+      "Persist graph memory and cached summaries with clear freshness, source, and confidence metadata.",
+      "Feed compact graph context into chat planning while keeping execution tools approval-gated.",
+    ],
+    risks: [
+      "Avoid stale memory silently overriding current user intent.",
+      "Do not let provider fallback erase structured output metadata.",
+      "Keep graph persistence failures non-fatal and visible as warnings.",
+    ],
+    commands: ["npm run build", "npm run dev"],
+    tags: ["brain", "offline", "memory", "provider", "graph"],
+  },
+];
+
 /* ================= MESSAGE / INTENT ================= */
 
 function lastUser(messages: CodexForgeMessage[]): CodexForgeMessage | null {
@@ -104,6 +258,21 @@ export function inferDomain(
     if (query.includes(term)) return "automation";
   }
 
+  if (
+    query.includes("feature") ||
+    query.includes("implementation") ||
+    query.includes("approval") ||
+    query.includes("diff") ||
+    query.includes("chat") ||
+    query.includes("tool") ||
+    query.includes("route") ||
+    query.includes("api") ||
+    query.includes("frontend") ||
+    query.includes("component")
+  ) {
+    return "web";
+  }
+
   const activePlanDomain = normalizeDomain(context.activePlan?.domain);
   if (activePlanDomain) {
     return activePlanDomain;
@@ -125,6 +294,8 @@ function contextTagStringsFromText(text: string): string[] {
   if (query.includes("memory")) tags.add("memory");
   if (query.includes("execution")) tags.add("execution");
   if (query.includes("diff")) tags.add("diff");
+  if (query.includes("approval")) tags.add("approval");
+  if (query.includes("preview")) tags.add("preview");
   if (query.includes("plan")) tags.add("plan");
   if (query.includes("brain")) tags.add("brain");
   if (query.includes("provider")) tags.add("provider");
@@ -137,12 +308,16 @@ function contextTagStringsFromText(text: string): string[] {
   if (query.includes("repo")) tags.add("repo");
   if (query.includes("codebase")) tags.add("codebase");
   if (query.includes("route")) tags.add("route");
+  if (query.includes("api")) tags.add("api");
   if (query.includes("engine")) tags.add("engine");
   if (query.includes("render")) tags.add("render");
   if (query.includes("hook")) tags.add("hook");
   if (query.includes("component")) tags.add("component");
   if (query.includes("contract")) tags.add("contract");
   if (query.includes("types")) tags.add("types");
+  if (query.includes("tool")) tags.add("tools");
+  if (query.includes("structured")) tags.add("structured");
+  if (query.includes("fallback")) tags.add("fallback");
 
   return Array.from(tags);
 }
@@ -172,9 +347,18 @@ export function buildDomainTags(
   if (query.includes("notes")) tags.add("notes");
   if (query.includes("api")) tags.add("api");
   if (query.includes("frontend")) tags.add("frontend");
+  if (query.includes("feature")) tags.add("feature");
+  if (query.includes("implementation")) tags.add("implementation");
 
   for (const tag of contextTagStringsFromText(text)) {
     tags.add(tag);
+  }
+
+  const featureProfile = detectFeatureProfile(text);
+  if (featureProfile) {
+    for (const tag of featureProfile.tags) {
+      tags.add(tag);
+    }
   }
 
   if (context?.activePlan?.tags?.length) {
@@ -206,6 +390,10 @@ export function inferIntent(
   if (query.startsWith("/research")) return "research";
   if (query.startsWith("/plan")) return "planning";
   if (query.startsWith("/next")) return "planning";
+
+  if (isFeaturePlanningPrompt(query)) {
+    return "planning";
+  }
 
   if (includesAny(query, ARCHITECTURE_TERMS)) {
     return "architecture";
@@ -244,9 +432,52 @@ function stripCommandPrefix(text: string): string {
   return clean(withoutPrefix);
 }
 
+function removeTrailingDeliverableAsk(value: string): string {
+  return clean(
+    value
+      .replace(
+        /\b(give me|return|include)\b.*\b(goal|files?|risks?|steps?|implementation steps?|first three)\b.*$/i,
+        ""
+      )
+      .replace(/\bwith goal, files?.*$/i, "")
+      .replace(/\binclude goal, files?.*$/i, "")
+      .replace(/\bgive me the goal.*$/i, "")
+      .replace(/\s+/g, " ")
+  );
+}
+
+function uniqueStrings(values: string[]): string[] {
+  const seen = new Set<string>();
+  const output: string[] = [];
+
+  for (const value of values) {
+    const trimmed = clean(value);
+    if (!trimmed) continue;
+
+    const key = trimmed.toLowerCase();
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    output.push(trimmed);
+  }
+
+  return output;
+}
+
 function extractExplicitGoal(text: string): string | undefined {
   const stripped = stripCommandPrefix(text);
   if (!stripped) return undefined;
+
+  const featureMatch = stripped.match(
+    /\b(?:plan|design|build|implement|create)\s+(?:a\s+)?feature\s+(?:for\s+[A-Za-z0-9_-]+:\s*)?(.+?)(?:\.|$)/i
+  );
+
+  if (featureMatch?.[1]) {
+    const goal = removeTrailingDeliverableAsk(featureMatch[1]);
+    if (goal.length > 0) {
+      return clampText(goal, LIMITS.maxGoalText);
+    }
+  }
 
   const patterns = [
     /help me (?:plan|design|build|debug|research)\s+(.+)/i,
@@ -261,7 +492,7 @@ function extractExplicitGoal(text: string): string | undefined {
 
   for (const pattern of patterns) {
     const match = stripped.match(pattern);
-    const captured = match?.[1] ? clean(match[1]) : "";
+    const captured = match?.[1] ? removeTrailingDeliverableAsk(match[1]) : "";
     if (captured.length > 0) {
       return clampText(captured, LIMITS.maxGoalText);
     }
@@ -271,6 +502,11 @@ function extractExplicitGoal(text: string): string | undefined {
 }
 
 function buildGoal(text: string, projectName: string): string {
+  const featureProfile = detectFeatureProfile(text);
+  if (featureProfile) {
+    return featureProfile.goal;
+  }
+
   const explicit = extractExplicitGoal(text);
 
   if (explicit && explicit.length >= 5) {
@@ -293,6 +529,217 @@ function buildExecutionGoal(
   }
 
   return `Execute the current task step for ${projectName}.`;
+}
+
+/* ================= FEATURE PLANNING ================= */
+
+function isFeaturePlanningPrompt(text: string): boolean {
+  const query = lower(text);
+
+  return (
+    /\b(plan|design|build|implement|create)\b/.test(query) &&
+    /\b(feature|capability|workflow|system|surface|tooling|pipeline)\b/.test(query)
+  );
+}
+
+function asksForConcretePlanShape(text: string): boolean {
+  const query = lower(text);
+
+  return (
+    query.includes("goal") ||
+    query.includes("files to change") ||
+    query.includes("files to check") ||
+    query.includes("files") ||
+    query.includes("risks") ||
+    query.includes("first three") ||
+    query.includes("implementation steps") ||
+    query.includes("next steps") ||
+    query.includes("steps")
+  );
+}
+
+function detectFeatureProfile(text: string) {
+  const query = lower(text);
+
+  return FEATURE_LIBRARY.find((profile) =>
+    profile.terms.some((term) => query.includes(term))
+  );
+}
+
+function buildConcreteFeatureFiles(
+  analysis: CodexForgeEngineAnalysis,
+  context: CodexForgeChatContext
+): string[] {
+  const profile = detectFeatureProfile(analysis.userText);
+  const explicitPath = extractPathCandidate(analysis.userText);
+
+  const files = [
+    ...(profile?.files ?? []),
+    ...(explicitPath ? [explicitPath] : []),
+    ...(context.activePlan?.files ?? []),
+  ];
+
+  if (files.length > 0) {
+    return sortPlannedFiles(clampList(uniqueStrings(files), LIMITS.maxFiles));
+  }
+
+  if (
+    analysis.tags.includes("diff") ||
+    analysis.tags.includes("approval") ||
+    analysis.tags.includes("operator")
+  ) {
+    return sortPlannedFiles(
+      clampList(
+        [
+          CODEXFORGE_CORE_FILES.engine,
+          CODEXFORGE_CORE_FILES.render,
+          CODEXFORGE_CORE_FILES.hook,
+          CODEXFORGE_CORE_FILES.structuredReplyBlock,
+          CODEXFORGE_CORE_FILES.toolsContracts,
+          CODEXFORGE_CORE_FILES.toolsServer,
+          CODEXFORGE_CORE_FILES.types,
+        ],
+        LIMITS.maxFiles
+      )
+    );
+  }
+
+  if (
+    analysis.tags.includes("route") ||
+    analysis.tags.includes("api") ||
+    analysis.tags.includes("provider") ||
+    analysis.tags.includes("fallback")
+  ) {
+    return sortPlannedFiles(
+      clampList(
+        [
+          CODEXFORGE_CORE_FILES.chatRoute,
+          CODEXFORGE_CORE_FILES.engine,
+          CODEXFORGE_CORE_FILES.analysis,
+          CODEXFORGE_CORE_FILES.types,
+          CODEXFORGE_CORE_FILES.localBrain,
+        ],
+        LIMITS.maxFiles
+      )
+    );
+  }
+
+  return sortPlannedFiles(
+    clampList(
+      [
+        CODEXFORGE_CORE_FILES.analysis,
+        CODEXFORGE_CORE_FILES.engine,
+        CODEXFORGE_CORE_FILES.render,
+        CODEXFORGE_CORE_FILES.hook,
+        CODEXFORGE_CORE_FILES.types,
+      ],
+      LIMITS.maxFiles
+    )
+  );
+}
+
+function buildConcreteFeatureSteps(
+  analysis: CodexForgeEngineAnalysis,
+  context: CodexForgeChatContext,
+  files: string[]
+): string[] {
+  const profile = detectFeatureProfile(analysis.userText);
+  if (profile) {
+    return clampList(profile.steps, LIMITS.maxNextSteps);
+  }
+
+  const clusterNotes = buildFileClusterNotes(files);
+
+  if (analysis.tags.includes("api") || analysis.tags.includes("route")) {
+    return clampList(
+      [
+        "Define the API request and response contract first, including mode, domain, tools, warnings, and structured reply metadata.",
+        "Wire the route to enrich context and choose the local structured engine when the prompt needs CodexForge-specific planning.",
+        "Verify the UI caller reads the same structured fields the route returns and does not fall back to thin generic metadata.",
+      ],
+      LIMITS.maxNextSteps
+    );
+  }
+
+  if (analysis.tags.includes("diff") || analysis.tags.includes("approval")) {
+    return clampList(
+      [
+        "Define a pending-diff state shape with target file, patch, approval status, apply result, and validation command.",
+        "Generate diff previews through a dry-run tool path and attach them to the structured reply without applying changes.",
+        "Render explicit approve/reject controls and only call apply-diff after approval is recorded.",
+      ],
+      LIMITS.maxNextSteps
+    );
+  }
+
+  return clampList(
+    [
+      "Define the user journey and the exact structured state the feature needs.",
+      "Wire the smallest route/engine/hook path that can produce and preserve that state.",
+      "Render the result visibly, then validate with npm run build and one manual prompt.",
+      ...(clusterNotes.includes("Cluster detected: engine + render")
+        ? ["Inspect the engine and rendering layers together before editing."]
+        : []),
+      ...(clusterNotes.includes("Cluster detected: contract + caller")
+        ? ["Confirm the contract and caller stay aligned."]
+        : []),
+    ],
+    LIMITS.maxNextSteps
+  );
+}
+
+function buildConcreteFeatureRisks(
+  analysis: CodexForgeEngineAnalysis,
+  context: CodexForgeChatContext
+): string[] {
+  const profile = detectFeatureProfile(analysis.userText);
+
+  const common = [
+    "Do not change too many moving parts at once.",
+    "Keep local-first behavior working.",
+    "Preserve the response contract while evolving the system.",
+  ];
+
+  if (profile) {
+    return clampList([...common, ...profile.risks], LIMITS.maxRisks);
+  }
+
+  return clampList(
+    [
+      ...common,
+      "Frontend and backend drift can break the structured reply contract.",
+      "UI polish can hide broken state underneath.",
+      "Planning output must not claim tool execution unless the tool actually ran.",
+      ...(context.repoPath
+        ? []
+        : ["Repo path is missing, so file-level recommendations may be approximate."]),
+    ],
+    LIMITS.maxRisks
+  );
+}
+
+function buildConcreteFeatureCommands(
+  analysis: CodexForgeEngineAnalysis
+): string[] {
+  const profile = detectFeatureProfile(analysis.userText);
+  if (profile) {
+    return clampList(profile.commands, LIMITS.maxCommands);
+  }
+
+  return clampList(["npm run build", "npm run dev"], LIMITS.maxCommands);
+}
+
+function shouldUseConcreteFeaturePlan(
+  analysis: CodexForgeEngineAnalysis,
+  context: CodexForgeChatContext
+): boolean {
+  if (isExecutionMode(context)) return false;
+
+  return (
+    isFeaturePlanningPrompt(analysis.userText) ||
+    asksForConcretePlanShape(analysis.userText) ||
+    !!detectFeatureProfile(analysis.userText)
+  );
 }
 
 /* ================= AUTO INSPECTION SIGNALS ================= */
@@ -408,7 +855,11 @@ function inferAutoInspectionCandidate(
     return "read-file";
   }
 
-  if (hasSearch && analysis.intent !== "product-design") {
+  if (
+    hasSearch &&
+    analysis.intent !== "product-design" &&
+    analysis.intent !== "planning"
+  ) {
     return "search-project";
   }
 
@@ -506,9 +957,9 @@ function scoreFilePathForPlan(path: string): number {
   if (looksLikeContractPath(path)) score += 7;
   if (looksLikeTypesPath(path)) score += 7;
 
-  if (normalized.includes("/src/")) score += 3;
-  if (normalized.includes("/lib/")) score += 3;
-  if (normalized.includes("/app/")) score += 3;
+  if (normalized.includes("/src/") || normalized.startsWith("src/")) score += 3;
+  if (normalized.includes("/lib/") || normalized.startsWith("lib/")) score += 3;
+  if (normalized.includes("/app/") || normalized.startsWith("app/")) score += 3;
   if (normalized.includes("/chat/")) score += 3;
   if (normalized.includes("/brain/")) score += 3;
   if (normalized.includes("/tools/")) score += 3;
@@ -691,6 +1142,12 @@ export function buildUnderstandingItems(
     items.push("The repo path is missing, so file-level guidance is approximate.");
   }
 
+  if (shouldUseConcreteFeaturePlan(analysis, context)) {
+    items.push(
+      "This is a feature-planning request, so the answer should include a concrete goal, files, risks, and implementation steps."
+    );
+  }
+
   if (isExecutionMode(context)) {
     items.push(
       "This is an execution-style request, so the response should focus on the current step and immediate outcome."
@@ -718,7 +1175,7 @@ export function buildUnderstandingItems(
 }
 
 function buildFiles(
-  intent: CodexForgeEngineIntent,
+  analysis: CodexForgeEngineAnalysis,
   context: CodexForgeChatContext,
   domain: CodexForgePlanDomain
 ): string[] {
@@ -736,7 +1193,11 @@ function buildFiles(
     );
   }
 
-  if (intent === "architecture") {
+  if (shouldUseConcreteFeaturePlan(analysis, context)) {
+    return buildConcreteFeatureFiles(analysis, context);
+  }
+
+  if (analysis.intent === "architecture") {
     return sortPlannedFiles(
       clampList(
         [
@@ -750,7 +1211,7 @@ function buildFiles(
     );
   }
 
-  if (intent === "product-design") {
+  if (analysis.intent === "product-design") {
     return sortPlannedFiles(
       clampList(
         [
@@ -767,7 +1228,7 @@ function buildFiles(
 }
 
 function buildCommands(
-  intent: CodexForgeEngineIntent,
+  analysis: CodexForgeEngineAnalysis,
   context: CodexForgeChatContext,
   domain: CodexForgePlanDomain
 ): string[] {
@@ -782,11 +1243,15 @@ function buildCommands(
     );
   }
 
-  if (intent === "architecture") {
+  if (shouldUseConcreteFeaturePlan(analysis, context)) {
+    return buildConcreteFeatureCommands(analysis);
+  }
+
+  if (analysis.intent === "architecture") {
     return clampList(["npm run build"], LIMITS.maxCommands);
   }
 
-  if (intent === "product-design") {
+  if (analysis.intent === "product-design") {
     return clampList(
       ["Review current UX and map the smallest safe UI change"],
       LIMITS.maxCommands
@@ -797,7 +1262,7 @@ function buildCommands(
 }
 
 function buildRisks(
-  intent: CodexForgeEngineIntent,
+  analysis: CodexForgeEngineAnalysis,
   context: CodexForgeChatContext,
   domain: CodexForgePlanDomain
 ): string[] {
@@ -818,7 +1283,11 @@ function buildRisks(
     );
   }
 
-  if (intent === "architecture") {
+  if (shouldUseConcreteFeaturePlan(analysis, context)) {
+    return buildConcreteFeatureRisks(analysis, context);
+  }
+
+  if (analysis.intent === "architecture") {
     return clampList(
       [
         ...common,
@@ -828,7 +1297,7 @@ function buildRisks(
     );
   }
 
-  if (intent === "product-design") {
+  if (analysis.intent === "product-design") {
     return clampList(
       [
         ...common,
@@ -842,7 +1311,7 @@ function buildRisks(
 }
 
 function buildNextSteps(
-  intent: CodexForgeEngineIntent,
+  analysis: CodexForgeEngineAnalysis,
   context: CodexForgeChatContext,
   domain: CodexForgePlanDomain,
   files: string[]
@@ -860,9 +1329,13 @@ function buildNextSteps(
     );
   }
 
+  if (shouldUseConcreteFeaturePlan(analysis, context)) {
+    return buildConcreteFeatureSteps(analysis, context, files);
+  }
+
   const clusterNotes = buildFileClusterNotes(files);
 
-  if (intent === "architecture") {
+  if (analysis.intent === "architecture") {
     return clampList(
       [
         "Choose the single source of truth.",
@@ -879,7 +1352,7 @@ function buildNextSteps(
     );
   }
 
-  if (intent === "product-design") {
+  if (analysis.intent === "product-design") {
     return clampList(
       [
         "Clarify the user outcome.",
@@ -908,7 +1381,7 @@ function buildNextSteps(
 }
 
 function buildStatusNotes(
-  intent: CodexForgeEngineIntent,
+  analysis: CodexForgeEngineAnalysis,
   context: CodexForgeChatContext,
   domain: CodexForgePlanDomain,
   files: string[]
@@ -937,13 +1410,18 @@ function buildStatusNotes(
   return clampList(
     [
       ...base,
-      ...(intent === "architecture" ? ["Architecture-oriented guidance"] : []),
-      ...(intent === "product-design" ? ["Product-oriented guidance"] : []),
+      ...(shouldUseConcreteFeaturePlan(analysis, context)
+        ? ["Concrete feature plan"]
+        : []),
+      ...(analysis.intent === "architecture" ? ["Architecture-oriented guidance"] : []),
+      ...(analysis.intent === "product-design" ? ["Product-oriented guidance"] : []),
       ...clusterNotes,
     ],
     LIMITS.maxStatusItems
   );
 }
+
+/* ================= TOOLS ================= */
 
 function scoreToolForAnalysis(
   tool: ToolCandidate,
@@ -1021,6 +1499,13 @@ function scoreToolForAnalysis(
   }
 
   if (
+    analysis.intent === "planning" &&
+    includesAny(combinedText, ["build", "plan", "diff", "generate", "manage"])
+  ) {
+    score += 5;
+  }
+
+  if (
     analysis.intent === "architecture" &&
     includesAny(combinedText, ["orchestrate", "manage", "track", "workflow"])
   ) {
@@ -1032,6 +1517,24 @@ function scoreToolForAnalysis(
     includesAny(combinedText, ["web", "website", "memory", "workspace", "build"])
   ) {
     score += 4;
+  }
+
+  if (
+    shouldUseConcreteFeaturePlan(analysis, context) &&
+    includesAny(combinedText, [
+      "build",
+      "web",
+      "diff",
+      "apply",
+      "generate",
+      "route",
+      "write",
+      "inspect",
+      "read",
+      "search",
+    ])
+  ) {
+    score += 6;
   }
 
   const executionRequest = getExecutionRequest(context);
@@ -1079,6 +1582,20 @@ function scoreToolForAnalysis(
     score += CLUSTER_BONUS.apiWithTypes;
   }
 
+  if (
+    tool.name === "generate-diff" &&
+    (analysis.tags.includes("diff") || analysis.tags.includes("approval"))
+  ) {
+    score += 30;
+  }
+
+  if (
+    tool.name === "apply-diff" &&
+    (analysis.tags.includes("diff") || analysis.tags.includes("approval"))
+  ) {
+    score += 24;
+  }
+
   return score;
 }
 
@@ -1115,6 +1632,8 @@ function buildRecommendedTools(
     }));
 }
 
+/* ================= SECTIONS ================= */
+
 function buildDomainSection(
   domain: CodexForgePlanDomain
 ): CodexForgeStructuredSection | null {
@@ -1129,6 +1648,32 @@ function buildDomainSection(
   };
 }
 
+function buildConcretePlanSections(
+  analysis: CodexForgeEngineAnalysis,
+  plan: CodexForgeEnginePlan
+): CodexForgeStructuredSection[] {
+  if (!shouldUseConcreteFeaturePlan(analysis, {})) return [];
+
+  return [
+    {
+      title: "Goal",
+      items: clampList([plan.goal], LIMITS.maxSectionItems),
+    },
+    {
+      title: "Files to change",
+      items: clampList(plan.files, LIMITS.maxSectionItems),
+    },
+    {
+      title: "First three implementation steps",
+      items: clampList(plan.nextSteps.slice(0, 3), 3),
+    },
+    {
+      title: "Risks",
+      items: clampList(plan.risks, LIMITS.maxSectionItems),
+    },
+  ];
+}
+
 function buildSections(
   analysis: CodexForgeEngineAnalysis,
   plan: CodexForgeEnginePlan,
@@ -1136,6 +1681,8 @@ function buildSections(
   deps: CodexForgeEngineDependencies
 ): CodexForgeStructuredSection[] {
   const sections: CodexForgeStructuredSection[] = [];
+
+  sections.push(...buildConcretePlanSections(analysis, plan));
 
   sections.push({
     title: "What I understood",
@@ -1255,7 +1802,7 @@ function buildSections(
   }
 
   const domainSection = buildDomainSection(analysis.domain);
-  if (domainSection) {
+  if (domainSection && !shouldUseConcreteFeaturePlan(analysis, context)) {
     sections.push({
       title: domainSection.title,
       items: clampList(domainSection.items, LIMITS.maxSectionItems),
@@ -1329,6 +1876,13 @@ export function buildWarnings(
     warnings.push("No recommended tools matched the request.");
   }
 
+  if (
+    shouldUseConcreteFeaturePlan(analysis, context) &&
+    plan.nextSteps.length < 3
+  ) {
+    warnings.push("Feature plan produced fewer than three implementation steps.");
+  }
+
   return clampList(warnings, LIMITS.maxWarnings);
 }
 
@@ -1368,11 +1922,11 @@ export function buildPlan(
   const domain = analysis.domain;
   const tags = analysis.tags;
   const contextNotes = buildContextNotes(context, domain);
-  const files = buildFiles(analysis.intent, context, domain);
-  const commands = buildCommands(analysis.intent, context, domain);
-  const risks = buildRisks(analysis.intent, context, domain);
-  const nextSteps = buildNextSteps(analysis.intent, context, domain, files);
-  const status = buildStatusNotes(analysis.intent, context, domain, files);
+  const files = buildFiles(analysis, context, domain);
+  const commands = buildCommands(analysis, context, domain);
+  const risks = buildRisks(analysis, context, domain);
+  const nextSteps = buildNextSteps(analysis, context, domain, files);
+  const status = buildStatusNotes(analysis, context, domain, files);
   const recommendedTools = buildRecommendedTools(analysis, deps, context);
 
   const basePlan: CodexForgeEnginePlan = {
