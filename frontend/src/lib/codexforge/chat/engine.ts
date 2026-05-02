@@ -62,14 +62,14 @@ const KNOWN_CORE_EDIT_TARGETS: Record<
     fallbacks: ["structuredToText"],
     role: "This is the structured reply rendering layer.",
     reason:
-      "It assembles the structured response that the workspace renders, then converts it into visible chat text.",
+      "It assembles structured response fields and converts them into the final visible chat answer.",
   },
   "src/lib/codexforge/chat/engine-analysis.ts": {
     primaryFunction: "analyze",
     fallbacks: ["buildPlan", "buildWarnings"],
     role: "This is the intent, domain, and plan analysis layer.",
     reason:
-      "It classifies the user request and builds the plan primitives that the rest of the engine consumes.",
+      "It classifies the user request and builds the plan primitives consumed by the engine.",
   },
   "src/lib/codexforge/brain/local-engine-brain.ts": {
     primaryFunction: "run",
@@ -175,6 +175,8 @@ type IntentFlags = {
   wantsDebug: boolean;
   wantsArchitecture: boolean;
   wantsTopLevelOrchestration: boolean;
+  wantsVisibleTextRenderer: boolean;
+  wantsStructuredReplyAssembly: boolean;
 };
 
 /* ================= GENERIC HELPERS ================= */
@@ -200,7 +202,21 @@ function clampText(text: string, max = MAX_TOOL_RESULT_PREVIEW): string {
 }
 
 function dedupeStrings(values: string[]): string[] {
-  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+  const seen = new Set<string>();
+  const output: string[] = [];
+
+  for (const value of values) {
+    const trimmed = value.trim();
+    if (!trimmed) continue;
+
+    const key = trimmed.toLowerCase();
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    output.push(trimmed);
+  }
+
+  return output;
 }
 
 function lower(value: string): string {
@@ -366,6 +382,45 @@ function textSuggestsTopLevelOrchestration(text: string): boolean {
   );
 }
 
+function textSuggestsVisibleRenderer(text: string): boolean {
+  const normalized = lower(text);
+
+  return (
+    normalized.includes("visible chat answer") ||
+    normalized.includes("visible answer") ||
+    normalized.includes("final text") ||
+    normalized.includes("final answer") ||
+    normalized.includes("text renderer") ||
+    normalized.includes("visible text") ||
+    normalized.includes("structuredtotext") ||
+    normalized.includes("structured to text") ||
+    normalized.includes("render grounded") ||
+    normalized.includes("rendered answer") ||
+    normalized.includes("repetitive") ||
+    normalized.includes("repetition") ||
+    normalized.includes("duplicate") ||
+    normalized.includes("deduplicat") ||
+    normalized.includes("suppress duplicate") ||
+    normalized.includes("low-value section") ||
+    normalized.includes("boilerplate")
+  );
+}
+
+function textSuggestsStructuredAssembly(text: string): boolean {
+  const normalized = lower(text);
+
+  return (
+    normalized.includes("structured reply") ||
+    normalized.includes("structured output") ||
+    normalized.includes("sections") ||
+    normalized.includes("context") ||
+    normalized.includes("status") ||
+    normalized.includes("files") ||
+    normalized.includes("next steps") ||
+    normalized.includes("contract")
+  );
+}
+
 function extractIntentFlags(text: string): IntentFlags {
   const query = lower(text);
 
@@ -440,6 +495,8 @@ function extractIntentFlags(text: string): IntentFlags {
     query.includes("pipeline");
 
   const wantsTopLevelOrchestration = textSuggestsTopLevelOrchestration(query);
+  const wantsVisibleTextRenderer = textSuggestsVisibleRenderer(query);
+  const wantsStructuredReplyAssembly = textSuggestsStructuredAssembly(query);
 
   return {
     wantsRead,
@@ -451,8 +508,10 @@ function extractIntentFlags(text: string): IntentFlags {
     wantsDebug,
     wantsArchitecture,
     wantsTopLevelOrchestration,
+    wantsVisibleTextRenderer,
+    wantsStructuredReplyAssembly,
   };
-}
+} 
 
 /* ================= LINE / FUNCTION INFERENCE ================= */
 
@@ -493,8 +552,9 @@ function scoreFunctionName(name: string): number {
   if (name === "executeSafeToolPass") score += 70;
   if (name === "enrichStructuredWithToolOutcomes") score += 65;
   if (name === "buildGroundedSummary") score += 55;
+  if (name === "buildSafeToolPlan") score += 54;
   if (name === "buildStructured") score += 70;
-  if (name === "structuredToText") score += 55;
+  if (name === "structuredToText") score += 72;
   if (name === "chooseBestFunctionCandidate") score -= 30;
   if (name === "inferLikelyEditPoint") score -= 20;
 
@@ -561,7 +621,42 @@ function chooseKnownTargetCandidate(
   const byName = (name: string): FunctionCandidate | undefined =>
     candidates.find((candidate) => candidate.name === name);
 
+  const userTextLower = lower(userText);
   const wantsTopLevel = textSuggestsTopLevelOrchestration(userText);
+  const wantsVisibleRenderer = textSuggestsVisibleRenderer(userText);
+  const isRenderFile = pathMatches(path, "src/lib/codexforge/chat/engine-render.ts");
+
+  if (isRenderFile && wantsVisibleRenderer) {
+    const renderer = byName("structuredToText");
+    return (
+      renderer
+        ? {
+            ...renderer,
+            score: renderer.score + 100_000,
+            reason:
+              "The request is about the final visible chat answer, repetition, or low-value rendered sections, so structuredToText is the correct edit point.",
+          }
+        : createVirtualFunctionCandidate({
+            name: "structuredToText",
+            score: 100_000,
+            reason:
+              "The request is about the final visible chat answer. The safe read may be truncated, so CodexForge selected the known visible text renderer.",
+          })
+    );
+  }
+
+  if (isRenderFile && userTextLower.includes("buildstructured")) {
+    const structured = byName("buildStructured");
+    return (
+      structured ??
+      createVirtualFunctionCandidate({
+        name: "buildStructured",
+        score: 50_000,
+        reason:
+          "The request explicitly mentions buildStructured, the structured reply assembly seam.",
+      })
+    );
+  }
 
   if (wantsTopLevel) {
     const primary = byName(knownTarget.primaryFunction);
@@ -611,6 +706,7 @@ function chooseBestFunctionCandidate(
 ): FunctionCandidate | undefined {
   const normalizedPath = normalizePathKey(path);
   const contentLower = lower(content);
+  const userTextLower = lower(userText);
   const candidates = findFunctionCandidates(content);
 
   const byName = (name: string): FunctionCandidate | undefined =>
@@ -630,6 +726,7 @@ function chooseBestFunctionCandidate(
       : undefined;
 
   const knownTarget = chooseKnownTargetCandidate(path, candidates, userText);
+
   const isChatEngineFile = pathMatches(
     normalizedPath,
     "src/lib/codexforge/chat/engine.ts"
@@ -681,6 +778,25 @@ function chooseBestFunctionCandidate(
   }
 
   if (isEngineRenderFile) {
+    const wantsVisibleTextRenderer = textSuggestsVisibleRenderer(userTextLower);
+
+    if (wantsVisibleTextRenderer) {
+      return (
+        knownTarget ??
+        boost(
+          byName("structuredToText"),
+          100_000,
+          "The user asked about the final visible chat answer, repetition, or duplicate rendered sections, so structuredToText is the correct edit point."
+        ) ??
+        createVirtualFunctionCandidate({
+          name: "structuredToText",
+          score: 100_000,
+          reason:
+            "The user asked about the final visible chat answer. The read output may be truncated before structuredToText.",
+        })
+      );
+    }
+
     return (
       knownTarget ??
       boost(byName("buildStructured"), 10_000, "Structured reply assembly seam.") ??
@@ -726,6 +842,7 @@ function confidenceForEditPoint(
 ): Confidence {
   if (!candidate) return "low";
   if (candidate.name === "runCodexForgeEngine") return "high";
+  if (candidate.name === "structuredToText") return "high";
   if (candidate.virtual && candidate.score >= 900) return "high";
   if (candidate.score >= 80) return "high";
   if (candidate.score >= 34) return "medium";
@@ -758,7 +875,7 @@ function describeFunctionReason(candidate: FunctionCandidate): string {
   }
 
   if (candidate.name === "structuredToText") {
-    return "It converts structured output into the visible chat text.";
+    return "It controls the final visible chat text, including repetition, section ordering, and low-value rendered details.";
   }
 
   return candidate.reason;
@@ -885,7 +1002,9 @@ function shouldAutoInspectRepo(
     flags.wantsReview ||
     flags.wantsDebug ||
     flags.wantsArchitecture ||
-    flags.wantsTopLevelOrchestration
+    flags.wantsTopLevelOrchestration ||
+    flags.wantsVisibleTextRenderer ||
+    flags.wantsStructuredReplyAssembly
   );
 }
 
@@ -916,7 +1035,9 @@ function buildSafeToolPlan(
     (flags.wantsRead ||
       flags.wantsGroundedEditPoint ||
       flags.wantsArchitecture ||
-      flags.wantsTopLevelOrchestration) &&
+      flags.wantsTopLevelOrchestration ||
+      flags.wantsVisibleTextRenderer ||
+      flags.wantsStructuredReplyAssembly) &&
     explicitPath &&
     safeTools.has("read-file")
   ) {
@@ -1392,6 +1513,7 @@ function createGroundedFileCandidate(args: {
   if (bestFunction?.line !== undefined && bestFunction.line > 0) priority += 16;
   if (bestFunction?.virtual) priority += 20;
   if (bestFunction?.name === "runCodexForgeEngine") priority += 100;
+  if (bestFunction?.name === "structuredToText") priority += 100;
   if (role) priority += 8;
   if (editPoint) priority += 12;
   if (confidence === "high") priority += 25;
@@ -1794,7 +1916,7 @@ function buildGroundingWhyLine(
   }
 
   if (grounding.editFunction === "structuredToText") {
-    return "Why this edit point: it controls the final text answer users see in chat.";
+    return "Why this edit point: it controls the final visible chat answer, including section ordering, repetition, and low-value rendered details.";
   }
 
   if (grounding.fileRoleSummary) {
@@ -1981,15 +2103,38 @@ function buildNextActionSection(
     grounding.editLine !== undefined
       ? `Open around line ${grounding.editLine}.`
       : "",
-    "Make the smallest focused change first.",
+    "Make one focused change there.",
     "Run npm run build after the edit.",
-    "If output remains generic, inspect engine-render.ts next because it controls what becomes visible in the UI.",
   ]);
 
   return {
     title: "Recommended next action",
     items,
   };
+}
+
+function shouldKeepExistingSection(section: { title: string; items: string[] }): boolean {
+  const title = lower(section.title);
+
+  return (
+    title !== "grounded recommendation" &&
+    title !== "recommended next action" &&
+    title !== "tool audit" &&
+    !title.startsWith("auto inspection:") &&
+    !title.startsWith("follow-up inspection:")
+  );
+}
+
+function shouldKeepNextStep(step: string): boolean {
+  const lowerStep = lower(step);
+
+  return (
+    !lowerStep.includes("capture the exact error") &&
+    !lowerStep.includes("locate the failing file") &&
+    !lowerStep.includes("reproduce before fixing") &&
+    !lowerStep.includes("review the surfaced repository matches") &&
+    !lowerStep.includes("inspect engine-render.ts next because it controls what becomes visible")
+  );
 }
 
 function enrichStructuredWithToolOutcomes(
@@ -2056,28 +2201,15 @@ function enrichStructuredWithToolOutcomes(
 
   const nextSteps = dedupeStrings([
     ...executedOutcomes.flatMap((outcome) =>
-      outcome.grounding?.likelyEditPoint
-        ? [outcome.grounding.likelyEditPoint]
-        : []
-    ),
-    ...executedOutcomes.flatMap((outcome) =>
       outcome.grounding?.editFunction
         ? [
             `Open ${outcome.grounding.matchedFile ?? "the matched file"} at ${
               outcome.grounding.editFunction
-            }(...) and make the smallest focused change there.`,
+            }(...) and make one focused change there.`,
           ]
         : []
     ),
-    ...(structured.nextSteps ?? []),
-    ...(mergedCandidates.length > 1
-      ? [
-          "Check the primary file first, then validate the related supporting files before editing.",
-        ]
-      : []),
-    ...(files.length > 0
-      ? ["Review the surfaced repository matches and continue from the strongest lead."]
-      : []),
+    ...(structured.nextSteps ?? []).filter(shouldKeepNextStep),
   ]);
 
   const groundingSections = executedOutcomes
@@ -2107,13 +2239,16 @@ function enrichStructuredWithToolOutcomes(
       } => section !== null
     );
 
-  const sections = [
-    ...(topSection ? [topSection] : []),
-    ...(nextActionSection ? [nextActionSection] : []),
-    ...(structured.sections ?? []),
-    ...groundingSections,
-    ...(toolAuditSection ? [toolAuditSection] : []),
-  ];
+  const sections = dedupeByKey(
+    [
+      ...(topSection ? [topSection] : []),
+      ...(nextActionSection ? [nextActionSection] : []),
+      ...(structured.sections ?? []).filter(shouldKeepExistingSection),
+      ...groundingSections,
+      ...(toolAuditSection ? [toolAuditSection] : []),
+    ],
+    (section) => `${lower(section.title)}::${section.items.map(lower).join("|")}`
+  );
 
   return {
     ...structured,
@@ -2217,48 +2352,6 @@ function buildGroundedExecutionNotes(outcomes: SafeToolOutcome[]): string[] {
   );
 }
 
-function buildFinalText(
-  structured: CodexForgeStructuredReply,
-  outcomes: SafeToolOutcome[]
-): string {
-  const baseText = structuredToText(structured);
-
-  const executedOutcomes = outcomes.filter(
-    (outcome): outcome is Extract<SafeToolOutcome, { status: "executed" }> =>
-      outcome.status === "executed"
-  );
-
-  const grounded = executedOutcomes.find(
-    (outcome) => outcome.grounding?.matchedFile
-  );
-
-  if (!grounded?.grounding) {
-    return baseText;
-  }
-
-  const headline = buildGroundingHeadline(grounded.grounding);
-  const why = buildGroundingWhyLine(grounded.grounding);
-  const confidence = grounded.grounding.confidence;
-
-  const leadLines = dedupeStrings([
-    headline ? `Best grounded edit target: ${headline}` : "",
-    grounded.grounding.likelyEditPoint ?? "",
-    why ?? "",
-    confidence ? `Confidence: ${confidence}` : "",
-  ]);
-
-  if (leadLines.length === 0) {
-    return baseText;
-  }
-
-  const leadText = leadLines.join("\n");
-  if (baseText.includes(leadText)) {
-    return baseText;
-  }
-
-  return `${leadText}\n\n${baseText}`;
-}
-
 /* ================= MAIN ================= */
 
 export async function runCodexForgeEngine(
@@ -2291,7 +2384,7 @@ export async function runCodexForgeEngine(
     };
   }
 
-  const text = buildFinalText(structured, safeToolOutcomes);
+  const text = structuredToText(structured);
 
   const graphWarnings: string[] = [];
   try {
@@ -2325,3 +2418,7 @@ export async function runCodexForgeEngine(
     ...(warnings.length > 0 ? { warnings } : {}),
   };
 }
+
+
+
+
