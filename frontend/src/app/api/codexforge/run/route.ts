@@ -9,34 +9,57 @@ import {
 /**
  * /api/codexforge/run
  *
- * Thin API wrapper around the in-memory CodexForge execution engine.
+ * Stable API wrapper around the CodexForge execution engine.
  *
- * Current model:
- * - one engine instance per server process
- * - explicit action dispatch only
- * - no direct engine mutation from the route
- * - process-memory persistence only
+ * Current guarantees:
+ * - keeps existing action-based behavior intact
+ * - validates all inbound JSON before touching the engine
+ * - returns no-store responses because state is mutable and process-local
+ * - leaves direct mutation inside the engine only
+ *
+ * Forward-compatible additions:
+ * - optional mode field for future expansion
+ * - explicit route metadata in responses
+ * - safer normalization and clearer error handling
+ *
+ * Supported action flow today:
+ * - start
+ * - approvePlan
+ * - rejectPlan
+ * - approveDiffs
+ * - rejectDiffs
+ * - reset
  *
  * Notes:
- * - this route intentionally stays small and stable
- * - validation happens here so the engine receives clean input
- * - responses are marked no-store because engine state is process-local and mutable
+ * - engine persistence is still server-process memory only
+ * - this route intentionally remains thin, predictable, and easy to evolve
  */
 
 type RequestBody = {
   action?: unknown;
   goal?: unknown;
   nowLabel?: unknown;
+  mode?: unknown;
+  context?: unknown;
+};
+
+type ApiMeta = {
+  route: "/api/codexforge/run";
+  enginePersistence: "process-memory";
+  actionMode: "explicit-dispatch";
+  version: 2;
 };
 
 type ApiSuccess = {
   ok: true;
   state: RunState;
+  meta: ApiMeta;
 };
 
 type ApiError = {
   ok: false;
   error: string;
+  meta: ApiMeta;
 };
 
 type RouteContext = {
@@ -57,6 +80,11 @@ type ValidActionName = (typeof VALID_ACTIONS)[number];
 const VALID_ACTION_SET = new Set<string>(VALID_ACTIONS);
 const ACTIONS_TEXT = VALID_ACTIONS.join(", ");
 
+const VALID_MODES = ["action"] as const;
+type ValidMode = (typeof VALID_MODES)[number];
+const VALID_MODE_SET = new Set<string>(VALID_MODES);
+const MODES_TEXT = VALID_MODES.join(", ");
+
 const LIMITS = {
   maxGoalText: 4000,
   maxRepoPathText: 1200,
@@ -70,6 +98,15 @@ declare global {
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+function buildMeta(): ApiMeta {
+  return {
+    route: "/api/codexforge/run",
+    enginePersistence: "process-memory",
+    actionMode: "explicit-dispatch",
+    version: 2,
+  };
+}
 
 function getEngine(): CodexForgeEngine {
   if (!globalThis.__codexforgeEngine__) {
@@ -98,6 +135,7 @@ function jsonSuccess(state: RunState, status = 200) {
     {
       ok: true,
       state,
+      meta: buildMeta(),
     },
     {
       status,
@@ -111,6 +149,7 @@ function jsonError(error: string, status = 400) {
     {
       ok: false,
       error,
+      meta: buildMeta(),
     },
     {
       status,
@@ -148,6 +187,10 @@ function isValidActionName(value: string): value is ValidActionName {
   return VALID_ACTION_SET.has(value);
 }
 
+function isValidMode(value: string): value is ValidMode {
+  return VALID_MODE_SET.has(value);
+}
+
 function parseJsonBody(value: unknown): RequestBody {
   if (!isRecord(value)) {
     throw new Error("Bad request: expected a JSON object body.");
@@ -157,6 +200,8 @@ function parseJsonBody(value: unknown): RequestBody {
     action: value.action,
     goal: value.goal,
     nowLabel: value.nowLabel,
+    mode: value.mode,
+    context: value.context,
   };
 }
 
@@ -196,6 +241,16 @@ function normalizeActionName(value: unknown): ValidActionName {
   return actionName;
 }
 
+function normalizeMode(value: unknown): ValidMode {
+  const mode = asTrimmedString(value) ?? "action";
+
+  if (!isValidMode(mode)) {
+    throw new Error(`Unknown mode. Expected one of: ${MODES_TEXT}.`);
+  }
+
+  return mode;
+}
+
 function normalizeAction(action: unknown, goal: unknown): EngineAction {
   const actionName = normalizeActionName(action);
 
@@ -220,6 +275,16 @@ function normalizeAction(action: unknown, goal: unknown): EngineAction {
 
     case "reset":
       return { type: "reset" };
+  }
+}
+
+function validateUnusedContext(value: unknown): void {
+  if (value === undefined) {
+    return;
+  }
+
+  if (!isRecord(value) && !Array.isArray(value)) {
+    throw new Error("context must be an object or array when provided.");
   }
 }
 
@@ -264,6 +329,13 @@ export async function POST(req: Request) {
   try {
     const raw = await safeReadJson(req);
     const body = parseJsonBody(raw);
+
+    const mode = normalizeMode(body.mode);
+    validateUnusedContext(body.context);
+
+    if (mode !== "action") {
+      return jsonError(`Unsupported mode. Expected one of: ${MODES_TEXT}.`, 400);
+    }
 
     const { engine } = getRouteContext();
     const action = normalizeAction(body.action, body.goal);
