@@ -83,6 +83,137 @@ export type CodexForgeGraphAware = {
   graph?: CodexForgeGraphRef;
 };
 
+/* ================= APPROVAL / DIFF PREVIEW CONTRACT ================= */
+
+export type CodexForgeApprovalState =
+  | "not-required"
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "expired"
+  | "applied"
+  | "failed";
+
+export type CodexForgeApprovalKind =
+  | "plan"
+  | "diff"
+  | "command"
+  | "file-write"
+  | "install"
+  | "deploy"
+  | "render"
+  | "desktop"
+  | "external-action"
+  | "other";
+
+export type CodexForgeApprovalDecision = {
+  state: CodexForgeApprovalState;
+  decidedAt?: number;
+  decidedBy?: "user" | "system";
+  reason?: string;
+};
+
+export type CodexForgeApprovalGate = CodexForgeGraphAware & {
+  kind: CodexForgeApprovalKind;
+  state: CodexForgeApprovalState;
+
+  label: string;
+  reason?: string;
+
+  createdAt: number;
+  updatedAt: number;
+  expiresAt?: number;
+
+  requiresExplicitUserAction: boolean;
+  decision?: CodexForgeApprovalDecision;
+};
+
+export type CodexForgeDiffPreviewStatus =
+  | "draft"
+  | "ready"
+  | "awaiting-approval"
+  | "approved"
+  | "rejected"
+  | "stale"
+  | "applying"
+  | "applied"
+  | "failed";
+
+export type CodexForgeDiffPreviewSource =
+  | "chat"
+  | "operator"
+  | "tool"
+  | "local-engine"
+  | "manual";
+
+export type CodexForgeDiffPreviewValidation = {
+  command?: string;
+  status?: "not-run" | "running" | "passed" | "failed" | "skipped";
+  output?: string;
+  completedAt?: number;
+};
+
+export type CodexForgeDiffPreviewApplyResult = {
+  ok: boolean;
+  appliedAt: number;
+  filePath: string;
+  backupPath?: string;
+  summary?: string;
+  error?: string;
+};
+
+export type CodexForgeDiffPreview = CodexForgeGraphAware & {
+  previewId: string;
+
+  source: CodexForgeDiffPreviewSource;
+  status: CodexForgeDiffPreviewStatus;
+
+  filePath: string;
+  patch: string;
+
+  title?: string;
+  summary?: string;
+  rationale?: string;
+
+  createdAt: number;
+  updatedAt: number;
+
+  baseHash?: string;
+  patchHash?: string;
+  staleReason?: string;
+
+  dryRun: boolean;
+  approvalRequired: boolean;
+  approval?: CodexForgeApprovalGate;
+
+  validation?: CodexForgeDiffPreviewValidation;
+  applyResult?: CodexForgeDiffPreviewApplyResult;
+
+  relatedMessageId?: string;
+  relatedPlanId?: string;
+  relatedToolName?: string;
+
+  metadata?: Record<string, unknown>;
+};
+
+export type CodexForgeDiffPreviewBatch = CodexForgeGraphAware & {
+  batchId: string;
+  status: CodexForgeDiffPreviewStatus;
+
+  title?: string;
+  summary?: string;
+
+  previews: CodexForgeDiffPreview[];
+
+  createdAt: number;
+  updatedAt: number;
+
+  approvalRequired: boolean;
+  approval?: CodexForgeApprovalGate;
+
+  metadata?: Record<string, unknown>;
+};
+
 /* ================= CORE PLAN ================= */
 
 export type CodexForgePlan = CodexForgeGraphAware & {
@@ -101,6 +232,9 @@ export type CodexForgePlan = CodexForgeGraphAware & {
   domain?: CodexForgePlanDomain;
   tags?: string[];
   notes?: string[];
+
+  approvals?: CodexForgeApprovalGate[];
+  diffPreviews?: CodexForgeDiffPreview[];
 };
 
 /* ================= TOOLING ================= */
@@ -121,6 +255,10 @@ export type CodexForgeStructuredSection = {
 export type CodexForgeDiff = CodexForgeGraphAware & {
   filePath: string;
   patch: string;
+
+  previewId?: string;
+  approvalState?: CodexForgeApprovalState;
+  dryRun?: boolean;
 };
 
 export type CodexForgeSnapshotMeta = CodexForgeGraphAware & {
@@ -137,6 +275,10 @@ export type CodexForgeStructuredExecution = CodexForgeGraphAware & {
 
   diffCount?: number;
   snapshotFileCount?: number;
+
+  approvalCount?: number;
+  pendingApprovalCount?: number;
+  diffPreviewCount?: number;
 
   logs?: string[];
 };
@@ -166,6 +308,11 @@ export type CodexForgeStructuredReply = CodexForgeGraphAware & {
   execution?: CodexForgeStructuredExecution;
 
   diffs?: CodexForgeDiff[];
+  diffPreviews?: CodexForgeDiffPreview[];
+  diffPreviewBatch?: CodexForgeDiffPreviewBatch;
+
+  approvals?: CodexForgeApprovalGate[];
+
   snapshot?: CodexForgeSnapshotMeta;
 
   domain?: CodexForgePlanDomain;
@@ -222,7 +369,13 @@ export type CodexForgeContextExecution = {
   diffCount?: number;
   snapshotFileCount?: number;
 
+  approvalCount?: number;
+  pendingApprovalCount?: number;
+  diffPreviewCount?: number;
+
   diffs?: CodexForgeDiff[];
+  diffPreviews?: CodexForgeDiffPreview[];
+  approvals?: CodexForgeApprovalGate[];
 };
 
 export type CodexForgeContextExecutionRequest = {
@@ -237,14 +390,21 @@ export type CodexForgeContextExecutionRequest = {
 
 export type CodexForgeCapabilities = {
   domains?: CodexForgePlanDomain[];
+
   structuredReplies?: boolean;
   memory?: boolean;
   repoAwarePlanning?: boolean;
   localExecution?: boolean;
+
   diffPreviews?: boolean;
   snapshots?: boolean;
   approvals?: boolean;
   brainGraph?: boolean;
+
+  dryRunDiffs?: boolean;
+  applyDiffs?: boolean;
+  commandExecution?: boolean;
+  checkpointing?: boolean;
 };
 
 export type CodexForgeChatContext = {
@@ -262,6 +422,9 @@ export type CodexForgeChatContext = {
 
   execution?: CodexForgeContextExecution;
   executionRequest?: CodexForgeContextExecutionRequest;
+
+  pendingApprovals?: CodexForgeApprovalGate[];
+  pendingDiffPreviews?: CodexForgeDiffPreview[];
 
   codexforgeCapabilities?: CodexForgeCapabilities;
 };
@@ -290,6 +453,13 @@ export type CodexForgeChatSuccessMeta = {
   executionMode?: boolean;
 
   domain?: CodexForgePlanDomain;
+
+  approvalRequired?: boolean;
+  pendingApprovalCount?: number;
+  diffPreviewCount?: number;
+  provider?: string;
+  durationMs?: number;
+  warnings?: string[];
 };
 
 export type CodexForgeChatSuccessResponse = {
@@ -322,6 +492,10 @@ export type CodexForgeExecutionMeta = {
   logs: string[];
   logCount: number;
   hasCounts: boolean;
+
+  approvalCount?: number | null;
+  pendingApprovalCount?: number | null;
+  diffPreviewCount?: number | null;
 };
 
 export type CodexForgeSnapshotMetaSummary = {
@@ -334,6 +508,30 @@ export type CodexForgeSnapshotMetaSummary = {
 export type CodexForgeDiffMetaSummary = {
   hasDiffs: boolean;
   count: number;
+  filePaths: string[];
+
+  hasPreviews?: boolean;
+  previewCount?: number;
+  pendingApprovalCount?: number;
+};
+
+export type CodexForgeApprovalMetaSummary = {
+  hasApprovals: boolean;
+  count: number;
+  pendingCount: number;
+  approvedCount: number;
+  rejectedCount: number;
+  failedCount: number;
+  labels: string[];
+};
+
+export type CodexForgeDiffPreviewMetaSummary = {
+  hasDiffPreviews: boolean;
+  count: number;
+  pendingCount: number;
+  approvedCount: number;
+  appliedCount: number;
+  staleCount: number;
   filePaths: string[];
 };
 
@@ -349,6 +547,8 @@ export type CodexForgeStructuredSummaryMeta = {
   hasExecutionMeta: boolean;
   hasSnapshotMeta: boolean;
   hasDiffMeta: boolean;
+  hasApprovalMeta?: boolean;
+  hasDiffPreviewMeta?: boolean;
 
   stepCount: number;
   toolCount: number;
@@ -360,6 +560,10 @@ export type CodexForgeStructuredSummaryMeta = {
   diffCount: number;
   snapshotFileCount: number | null;
   logCount: number;
+
+  approvalCount?: number;
+  pendingApprovalCount?: number;
+  diffPreviewCount?: number;
 
   hasStructuredContent: boolean;
 };
