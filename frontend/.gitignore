@@ -46,3 +46,7 @@ next-env.d.ts
 .operator/
 
 
+
+all-files.txt
+repo-index.txt
+src-tree.txt
