@@ -1,7 +1,7 @@
 import type {
   CodexForgeChatContext,
-  CodexForgeStructuredReply,
   CodexForgeMessage,
+  CodexForgeStructuredReply,
 } from "../types";
 import { getCodexForgeEngineDependencies } from "./dependencies";
 import type {
@@ -9,11 +9,7 @@ import type {
   CodexForgeEngineDependencies,
   CodexForgeEngineReply,
 } from "./contracts";
-import {
-  analyze,
-  buildPlan,
-  buildWarnings,
-} from "./engine-analysis";
+import { analyze, buildPlan, buildWarnings } from "./engine-analysis";
 import { persistBrainGraph } from "./engine-graph";
 import { buildStructured, structuredToText } from "./engine-render";
 import { mergeWarnings } from "./engine-shared";
@@ -26,20 +22,83 @@ const SAFE_EXECUTION_CANDIDATE_TOOLS = [
   "search-project",
 ] as const;
 
-const MAX_TOOL_RESULT_PATHS = 6;
-const MAX_TOOL_RESULT_LINES = 4;
-const MAX_TOOL_RESULT_PREVIEW = 160;
-const MAX_GROUNDED_NOTES = 4;
-const MAX_MULTI_FILE_MATCHES = 3;
+const MAX_TOOL_RESULT_PATHS = 10;
+const MAX_TOOL_RESULT_LINES = 10;
+const MAX_TOOL_RESULT_PREVIEW = 320;
+const MAX_GROUNDED_NOTES = 10;
+const MAX_MULTI_FILE_MATCHES = 8;
+const MAX_FUNCTION_CANDIDATES = 96;
+const MAX_GROUNDING_SECTION_ITEMS =
+  MAX_TOOL_RESULT_LINES + MAX_GROUNDED_NOTES + 24;
+
+const FALLBACK_GROUNDED_SUMMARY =
+  "CodexForge produced a grounded repository response.";
+
+const KNOWN_CORE_EDIT_TARGETS: Record<
+  string,
+  {
+    primaryFunction: string;
+    fallbacks: string[];
+    role: string;
+    reason: string;
+  }
+> = {
+  "src/lib/codexforge/chat/engine.ts": {
+    primaryFunction: "runCodexForgeEngine",
+    fallbacks: [
+      "executeSafeToolPass",
+      "enrichStructuredWithToolOutcomes",
+      "buildGroundedSummary",
+      "buildSafeToolPlan",
+      "chooseBestFunctionCandidate",
+      "inferLikelyEditPoint",
+    ],
+    role: "This is the core chat engine orchestration layer.",
+    reason:
+      "It is the top-level orchestration seam where analysis, planning, safe repo inspection, structured rendering, and graph persistence converge.",
+  },
+  "src/lib/codexforge/chat/engine-render.ts": {
+    primaryFunction: "buildStructured",
+    fallbacks: ["structuredToText"],
+    role: "This is the structured reply rendering layer.",
+    reason:
+      "It assembles the structured response that the workspace renders, then converts it into visible chat text.",
+  },
+  "src/lib/codexforge/chat/engine-analysis.ts": {
+    primaryFunction: "analyze",
+    fallbacks: ["buildPlan", "buildWarnings"],
+    role: "This is the intent, domain, and plan analysis layer.",
+    reason:
+      "It classifies the user request and builds the plan primitives that the rest of the engine consumes.",
+  },
+  "src/lib/codexforge/brain/local-engine-brain.ts": {
+    primaryFunction: "run",
+    fallbacks: ["sanitizeContext"],
+    role: "This is the local engine brain provider adapter.",
+    reason:
+      "It is the local provider execution entry point that turns chat requests into engine responses.",
+  },
+};
 
 /* ================= TYPES ================= */
 
 type SafeToolName = (typeof SAFE_EXECUTION_CANDIDATE_TOOLS)[number];
 
+type Confidence = "low" | "medium" | "high";
+
 type SafeToolPlan = {
   toolName: SafeToolName;
   reason: string;
   input: Record<string, unknown>;
+};
+
+type FunctionCandidate = {
+  name: string;
+  line: number;
+  signature: string;
+  score: number;
+  reason: string;
+  virtual?: boolean;
 };
 
 type GroundedFileCandidate = {
@@ -48,6 +107,9 @@ type GroundedFileCandidate = {
   preview?: string;
   role?: string;
   editPoint?: string;
+  editFunction?: string;
+  editLine?: number;
+  confidence?: Confidence;
   signals: string[];
   relatedPaths: string[];
   source: "search-match" | "read-file";
@@ -59,6 +121,9 @@ type SafeToolGrounding = {
   matchedLine?: number;
   fileRoleSummary?: string;
   likelyEditPoint?: string;
+  editFunction?: string;
+  editLine?: number;
+  confidence?: Confidence;
   relatedPaths: string[];
   contentSignals: string[];
   candidateFiles: GroundedFileCandidate[];
@@ -100,6 +165,18 @@ type SearchProjectMatch = {
   preview?: string;
 };
 
+type IntentFlags = {
+  wantsRead: boolean;
+  wantsList: boolean;
+  wantsSearch: boolean;
+  wantsGroundedEditPoint: boolean;
+  wantsReview: boolean;
+  wantsBuild: boolean;
+  wantsDebug: boolean;
+  wantsArchitecture: boolean;
+  wantsTopLevelOrchestration: boolean;
+};
+
 /* ================= GENERIC HELPERS ================= */
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -114,8 +191,12 @@ function asString(value: unknown): string | undefined {
     : undefined;
 }
 
+function asFiniteNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
 function clampText(text: string, max = MAX_TOOL_RESULT_PREVIEW): string {
-  return text.length <= max ? text : `${text.slice(0, max - 1)}…`;
+  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1))}…`;
 }
 
 function dedupeStrings(values: string[]): string[] {
@@ -127,7 +208,14 @@ function lower(value: string): string {
 }
 
 function normalizeSlashes(value: string): string {
-  return value.replace(/\\/g, "/");
+  return value.replace(/\\/g, "/").replace(/\/+/g, "/");
+}
+
+function normalizePathKey(value: string): string {
+  return normalizeSlashes(value)
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "")
+    .toLowerCase();
 }
 
 function splitPathSegments(path: string): string[] {
@@ -160,32 +248,65 @@ function getFileExtension(path: string): string | undefined {
   return lastDot > 0 ? fileName.slice(lastDot + 1).toLowerCase() : undefined;
 }
 
+function formatPathForDisplay(path: string): string {
+  return normalizeSlashes(path).replace(/\//g, "\\");
+}
+
+function pathMatches(path: string, suffix: string): boolean {
+  const cleanPath = normalizePathKey(path);
+  const cleanSuffix = normalizePathKey(suffix);
+
+  return cleanPath === cleanSuffix || cleanPath.endsWith(`/${cleanSuffix}`);
+}
+
+function findKnownTargetForPath(
+  path: string
+): (typeof KNOWN_CORE_EDIT_TARGETS)[string] | undefined {
+  const normalizedPath = normalizePathKey(path);
+
+  for (const [suffix, target] of Object.entries(KNOWN_CORE_EDIT_TARGETS)) {
+    if (pathMatches(normalizedPath, suffix)) {
+      return target;
+    }
+  }
+
+  return undefined;
+}
+
 function scorePathSpecificity(path: string): number {
-  const normalized = normalizeSlashes(path);
+  const normalized = normalizePathKey(path);
   const depth = splitPathSegments(normalized).length;
   let score = depth * 10;
 
   if (normalized.includes("/src/")) score += 25;
+  if (normalized.startsWith("src/")) score += 25;
   if (normalized.includes("/lib/")) score += 20;
   if (normalized.includes("/app/")) score += 20;
   if (normalized.includes("/api/")) score += 18;
+  if (normalized.includes("/chat/")) score += 16;
+  if (normalized.includes("/brain/")) score += 14;
+  if (normalized.includes("/tools/")) score += 12;
+  if (normalized.includes("engine")) score += 14;
   if (normalized.endsWith(".ts")) score += 8;
   if (normalized.endsWith(".tsx")) score += 10;
+  if (normalized.endsWith(".md")) score += 3;
   if (normalized.endsWith("/index.ts")) score -= 6;
+  if (normalized.includes("/node_modules/")) score -= 100;
+  if (normalized.includes("/.next/")) score -= 100;
+  if (normalized.includes("/dist/")) score -= 70;
+  if (normalized.includes("/build/")) score -= 70;
 
   return score;
 }
 
-function dedupeByKey<T>(
-  values: T[],
-  getKey: (value: T) => string
-): T[] {
+function dedupeByKey<T>(values: T[], getKey: (value: T) => string): T[] {
   const seen = new Set<string>();
   const deduped: T[] = [];
 
   for (const value of values) {
     const key = getKey(value);
     if (!key || seen.has(key)) continue;
+
     seen.add(key);
     deduped.push(value);
   }
@@ -193,9 +314,7 @@ function dedupeByKey<T>(
   return deduped;
 }
 
-function getExecutableToolNames(
-  deps: CodexForgeEngineDependencies
-): string[] {
+function getExecutableToolNames(deps: CodexForgeEngineDependencies): string[] {
   return deps.toolExecution?.getExecutableToolNames() ?? [];
 }
 
@@ -227,10 +346,445 @@ function buildToolContext(context: CodexForgeChatContext) {
   };
 }
 
+/* ================= INTENT HELPERS ================= */
+
+function textSuggestsTopLevelOrchestration(text: string): boolean {
+  const normalized = lower(text);
+
+  return (
+    normalized.includes("top-level orchestration") ||
+    normalized.includes("top level orchestration") ||
+    normalized.includes("orchestration edit point") ||
+    normalized.includes("coordinates analysis") ||
+    normalized.includes("coordinate analysis") ||
+    normalized.includes("tool execution, structured output") ||
+    normalized.includes("structured output, and graph persistence") ||
+    normalized.includes("analysis, tool execution") ||
+    normalized.includes("graph persistence") ||
+    normalized.includes("top-level") ||
+    normalized.includes("top level")
+  );
+}
+
+function extractIntentFlags(text: string): IntentFlags {
+  const query = lower(text);
+
+  const wantsGroundedEditPoint =
+    query.includes("edit point") ||
+    query.includes("next edit") ||
+    query.includes("best next edit") ||
+    query.includes("best place to change") ||
+    query.includes("best place to edit") ||
+    query.includes("where should i edit") ||
+    query.includes("where to edit");
+
+  const wantsRead =
+    query.includes("read ") ||
+    query.includes("open ") ||
+    query.includes("show ") ||
+    query.includes("show file") ||
+    query.includes("inspect ") ||
+    query.includes("inspect file") ||
+    query.includes("view file") ||
+    query.includes("review file") ||
+    query.includes("check file") ||
+    query.includes("analyze file") ||
+    query.includes("analyse file") ||
+    wantsGroundedEditPoint;
+
+  const wantsList =
+    query.includes("list ") ||
+    query.includes("tree ") ||
+    query.includes("files") ||
+    query.includes("folders") ||
+    query.includes("directory");
+
+  const wantsSearch =
+    query.includes("search ") ||
+    query.includes("find ") ||
+    query.includes("where is") ||
+    query.includes("where are") ||
+    query.includes("grep") ||
+    query.includes("contains") ||
+    query.includes("symbol") ||
+    query.includes("reference");
+
+  const wantsReview =
+    query.includes("review ") ||
+    query.includes("check ") ||
+    query.includes("analyze ") ||
+    query.includes("analyse ") ||
+    query.includes("look at ");
+
+  const wantsBuild =
+    query.includes("build ") ||
+    query.includes("create ") ||
+    query.includes("make ") ||
+    query.includes("implement ") ||
+    query.includes("generate ");
+
+  const wantsDebug =
+    query.includes("debug") ||
+    query.includes("bug") ||
+    query.includes("error") ||
+    query.includes("broken") ||
+    query.includes("failing") ||
+    query.includes("fix ");
+
+  const wantsArchitecture =
+    query.includes("architecture") ||
+    query.includes("contract") ||
+    query.includes("orchestration") ||
+    query.includes("source of truth") ||
+    query.includes("state ownership") ||
+    query.includes("pipeline");
+
+  const wantsTopLevelOrchestration = textSuggestsTopLevelOrchestration(query);
+
+  return {
+    wantsRead,
+    wantsList,
+    wantsSearch,
+    wantsGroundedEditPoint,
+    wantsReview,
+    wantsBuild,
+    wantsDebug,
+    wantsArchitecture,
+    wantsTopLevelOrchestration,
+  };
+}
+
+/* ================= LINE / FUNCTION INFERENCE ================= */
+
+function extractFunctionNameFromLine(line: string): string | undefined {
+  const functionMatch =
+    line.match(/\bexport\s+async\s+function\s+([A-Za-z0-9_]+)\s*\(/) ??
+    line.match(/\bexport\s+function\s+([A-Za-z0-9_]+)\s*\(/) ??
+    line.match(/\basync\s+function\s+([A-Za-z0-9_]+)\s*\(/) ??
+    line.match(/\bfunction\s+([A-Za-z0-9_]+)\s*\(/) ??
+    line.match(
+      /\bconst\s+([A-Za-z0-9_]+)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>/
+    ) ??
+    line.match(
+      /\bconst\s+([A-Za-z0-9_]+)\s*=\s*(?:async\s*)?[A-Za-z0-9_]+\s*=>/
+    );
+
+  return functionMatch?.[1]?.trim();
+}
+
+function scoreFunctionName(name: string): number {
+  let score = 0;
+
+  if (name.startsWith("run")) score += 24;
+  if (name.includes("CodexForge")) score += 20;
+  if (name.includes("Engine")) score += 18;
+  if (name.includes("Structured")) score += 14;
+  if (name.includes("Tool")) score += 14;
+  if (name.includes("Ground")) score += 14;
+  if (name.includes("Plan")) score += 10;
+  if (name.includes("Analysis")) score += 10;
+  if (name.includes("Render")) score += 10;
+  if (name.includes("Persist")) score += 8;
+  if (name.includes("Build")) score += 6;
+  if (name.includes("Infer")) score += 4;
+  if (name.includes("Choose")) score += 3;
+
+  if (name === "runCodexForgeEngine") score += 100;
+  if (name === "executeSafeToolPass") score += 70;
+  if (name === "enrichStructuredWithToolOutcomes") score += 65;
+  if (name === "buildGroundedSummary") score += 55;
+  if (name === "buildStructured") score += 70;
+  if (name === "structuredToText") score += 55;
+  if (name === "chooseBestFunctionCandidate") score -= 30;
+  if (name === "inferLikelyEditPoint") score -= 20;
+
+  return score;
+}
+
+function findFunctionCandidates(content: string): FunctionCandidate[] {
+  const lines = content.split(/\r?\n/);
+  const candidates: FunctionCandidate[] = [];
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    const name = extractFunctionNameFromLine(trimmed);
+    if (!name) return;
+
+    let score = scoreFunctionName(name);
+    const lowered = lower(trimmed);
+
+    if (lowered.startsWith("export async function")) score += 36;
+    else if (lowered.startsWith("export function")) score += 30;
+    else if (lowered.startsWith("async function")) score += 24;
+    else if (lowered.startsWith("function")) score += 20;
+    else if (lowered.startsWith("const")) score += 12;
+
+    candidates.push({
+      name,
+      line: index + 1,
+      signature: clampText(trimmed, 220),
+      score,
+      reason: "Function signature found in inspected file.",
+    });
+  });
+
+  return candidates
+    .sort((a, b) => b.score - a.score)
+    .slice(0, MAX_FUNCTION_CANDIDATES);
+}
+
+function createVirtualFunctionCandidate(args: {
+  name: string;
+  reason: string;
+  score?: number;
+}): FunctionCandidate {
+  return {
+    name: args.name,
+    line: 0,
+    signature: `${args.name}(...)`,
+    score: args.score ?? 999,
+    reason: args.reason,
+    virtual: true,
+  };
+}
+
+function chooseKnownTargetCandidate(
+  path: string,
+  candidates: FunctionCandidate[],
+  userText: string
+): FunctionCandidate | undefined {
+  const knownTarget = findKnownTargetForPath(path);
+  if (!knownTarget) return undefined;
+
+  const byName = (name: string): FunctionCandidate | undefined =>
+    candidates.find((candidate) => candidate.name === name);
+
+  const wantsTopLevel = textSuggestsTopLevelOrchestration(userText);
+
+  if (wantsTopLevel) {
+    const primary = byName(knownTarget.primaryFunction);
+    return (
+      primary ??
+      createVirtualFunctionCandidate({
+        name: knownTarget.primaryFunction,
+        score: 100_000,
+        reason:
+          "The request asks for the top-level orchestration seam. The safe read may be truncated, so CodexForge selected the known canonical entry point for this file.",
+      })
+    );
+  }
+
+  const primary = byName(knownTarget.primaryFunction);
+  if (primary) {
+    return {
+      ...primary,
+      score: primary.score + 50_000,
+      reason: knownTarget.reason,
+    };
+  }
+
+  for (const fallback of knownTarget.fallbacks) {
+    const candidate = byName(fallback);
+    if (candidate) {
+      return {
+        ...candidate,
+        score: candidate.score + 2_000,
+        reason: `Known fallback target for ${path}.`,
+      };
+    }
+  }
+
+  return createVirtualFunctionCandidate({
+    name: knownTarget.primaryFunction,
+    score: 50_000,
+    reason:
+      "Known canonical target for this file. The safe read output was probably truncated before the function definition.",
+  });
+}
+
+function chooseBestFunctionCandidate(
+  path: string,
+  content: string,
+  userText = ""
+): FunctionCandidate | undefined {
+  const normalizedPath = normalizePathKey(path);
+  const contentLower = lower(content);
+  const candidates = findFunctionCandidates(content);
+
+  const byName = (name: string): FunctionCandidate | undefined =>
+    candidates.find((candidate) => candidate.name === name);
+
+  const boost = (
+    candidate: FunctionCandidate | undefined,
+    amount: number,
+    reason?: string
+  ): FunctionCandidate | undefined =>
+    candidate
+      ? {
+          ...candidate,
+          score: candidate.score + amount,
+          ...(reason ? { reason } : {}),
+        }
+      : undefined;
+
+  const knownTarget = chooseKnownTargetCandidate(path, candidates, userText);
+  const isChatEngineFile = pathMatches(
+    normalizedPath,
+    "src/lib/codexforge/chat/engine.ts"
+  );
+  const isEngineRenderFile = pathMatches(
+    normalizedPath,
+    "src/lib/codexforge/chat/engine-render.ts"
+  );
+  const isLocalBrainFile = pathMatches(
+    normalizedPath,
+    "src/lib/codexforge/brain/local-engine-brain.ts"
+  );
+
+  if (isChatEngineFile) {
+    const priority = [
+      knownTarget,
+      boost(
+        byName("runCodexForgeEngine"),
+        50_000,
+        "Primary chat engine orchestration entry point."
+      ) ??
+        createVirtualFunctionCandidate({
+          name: "runCodexForgeEngine",
+          score: 50_000,
+          reason:
+            "Primary chat engine orchestration entry point. The read output may be truncated before the function definition.",
+        }),
+      boost(
+        byName("executeSafeToolPass"),
+        2_000,
+        "Safe repo inspection execution coordinator."
+      ),
+      boost(
+        byName("enrichStructuredWithToolOutcomes"),
+        1_800,
+        "Tool result to structured response enrichment seam."
+      ),
+      boost(
+        byName("buildGroundedSummary"),
+        1_600,
+        "Grounded summary rendering seam."
+      ),
+      boost(byName("buildSafeToolPlan"), 1_200, "Safe tool selection planner."),
+      boost(byName("chooseBestFunctionCandidate"), 400, "Function ranking helper."),
+      boost(byName("inferLikelyEditPoint"), 350, "Edit-point inference helper."),
+    ].filter((candidate): candidate is FunctionCandidate => !!candidate);
+
+    return [...priority, ...candidates].sort((a, b) => b.score - a.score)[0];
+  }
+
+  if (isEngineRenderFile) {
+    return (
+      knownTarget ??
+      boost(byName("buildStructured"), 10_000, "Structured reply assembly seam.") ??
+      boost(byName("structuredToText"), 9_000, "Visible text rendering seam.") ??
+      [...candidates].sort((a, b) => b.score - a.score)[0]
+    );
+  }
+
+  if (isLocalBrainFile) {
+    return (
+      knownTarget ??
+      boost(byName("run"), 10_000, "Local brain execution entry point.") ??
+      boost(byName("sanitizeContext"), 8_000, "Context sanitation seam.") ??
+      [...candidates].sort((a, b) => b.score - a.score)[0]
+    );
+  }
+
+  if (knownTarget) {
+    return knownTarget;
+  }
+
+  if (contentLower.includes("runcodexforgeengine(")) {
+    return (
+      boost(
+        byName("runCodexForgeEngine"),
+        10_000,
+        "Referenced engine orchestration function."
+      ) ??
+      boost(
+        byName("executeSafeToolPass"),
+        5_000,
+        "Referenced safe tool execution function."
+      ) ??
+      [...candidates].sort((a, b) => b.score - a.score)[0]
+    );
+  }
+
+  return [...candidates].sort((a, b) => b.score - a.score)[0];
+}
+
+function confidenceForEditPoint(
+  candidate: FunctionCandidate | undefined
+): Confidence {
+  if (!candidate) return "low";
+  if (candidate.name === "runCodexForgeEngine") return "high";
+  if (candidate.virtual && candidate.score >= 900) return "high";
+  if (candidate.score >= 80) return "high";
+  if (candidate.score >= 34) return "medium";
+  return "low";
+}
+
+function describeFunctionReason(candidate: FunctionCandidate): string {
+  if (candidate.name === "runCodexForgeEngine") {
+    return "It is the top-level orchestration seam where analysis, planning, safe repo inspection, structured rendering, and graph persistence converge.";
+  }
+
+  if (candidate.name === "executeSafeToolPass") {
+    return "It decides whether CodexForge actually performs safe repo inspection instead of only describing the action.";
+  }
+
+  if (candidate.name === "enrichStructuredWithToolOutcomes") {
+    return "It merges tool outcomes into the structured reply that the UI renders.";
+  }
+
+  if (candidate.name === "buildGroundedSummary") {
+    return "It controls the first visible grounded summary shown after tool execution.";
+  }
+
+  if (candidate.name === "buildSafeToolPlan") {
+    return "It controls which safe repo inspection tool CodexForge chooses for the request.";
+  }
+
+  if (candidate.name === "buildStructured") {
+    return "It assembles the structured reply fields that the workspace renders.";
+  }
+
+  if (candidate.name === "structuredToText") {
+    return "It converts structured output into the visible chat text.";
+  }
+
+  return candidate.reason;
+}
+
+function buildSpecificEditPoint(
+  path: string,
+  content: string,
+  userText = ""
+): string | undefined {
+  const candidate = chooseBestFunctionCandidate(path, content, userText);
+  if (!candidate) return undefined;
+
+  const displayPath = formatPathForDisplay(path);
+  const confidence = confidenceForEditPoint(candidate);
+  const reason = describeFunctionReason(candidate);
+  const linePart = candidate.line > 0 ? `:${candidate.line}` : "";
+
+  return `Best next edit point: ${candidate.name}(...) at ${displayPath}${linePart}. ${reason} Confidence: ${confidence}.`;
+}
+
 /* ================= QUERY / PATH EXTRACTION ================= */
 
 function extractQuotedSegments(text: string): string[] {
   const matches = text.match(/`([^`]+)`|"([^"]+)"|'([^']+)'/g) ?? [];
+
   return matches
     .map((match) => match.replace(/^["'`]|["'`]$/g, "").trim())
     .filter(Boolean);
@@ -238,15 +792,19 @@ function extractQuotedSegments(text: string): string[] {
 
 function looksLikePath(value: string): boolean {
   const normalized = normalizeSlashes(value);
+
   return (
     normalized.includes("/") ||
+    normalized.includes("\\") ||
     normalized.includes(".") ||
     normalized.startsWith("src") ||
     normalized.startsWith("app") ||
     normalized.startsWith("lib") ||
     normalized.startsWith("components") ||
     normalized.startsWith("pages") ||
-    normalized.startsWith("api")
+    normalized.startsWith("api") ||
+    normalized.startsWith("docs") ||
+    normalized.startsWith("public")
   );
 }
 
@@ -255,7 +813,7 @@ function extractPathCandidate(text: string): string | undefined {
   if (quoted) return quoted;
 
   const tokenMatch = text.match(
-    /(?:[A-Za-z0-9_.-]+[\\/])+[A-Za-z0-9_.-]+|[A-Za-z0-9_.-]+\.[A-Za-z0-9_.-]+/
+    /(?:[A-Za-z]:)?(?:[A-Za-z0-9_.-]+[\\/])+[A-Za-z0-9_.-]+|[A-Za-z0-9_.-]+\.[A-Za-z0-9_.-]+/
   );
 
   const token = tokenMatch?.[0]?.trim();
@@ -273,6 +831,7 @@ function extractDirectoryCandidate(text: string): string | undefined {
 
   const parts = normalized.split("/");
   const last = parts[parts.length - 1];
+
   if (last.includes(".")) {
     parts.pop();
   }
@@ -284,7 +843,7 @@ function stripLeadingIntentWords(text: string): string {
   return text
     .replace(/^\/[a-zA-Z_-]+\s*/, "")
     .replace(
-      /^(find|search|look\s+for|grep|where\s+is|where\s+are|show|read|open|inspect|list)\s+/i,
+      /^(find|search|look\s+for|grep|where\s+is|where\s+are|show|read|open|inspect|list|review|check|analy[sz]e)\s+/i,
       ""
     )
     .replace(/\s+/g, " ")
@@ -295,6 +854,7 @@ function extractSearchQuery(text: string): string {
   const quoted = extractQuotedSegments(text).find(
     (segment) => !looksLikePath(segment)
   );
+
   if (quoted) return quoted;
 
   const stripped = stripLeadingIntentWords(text);
@@ -315,25 +875,17 @@ function shouldAutoInspectRepo(
     return false;
   }
 
-  const query = lower(analysis.userText);
+  const flags = extractIntentFlags(analysis.userText);
 
   return (
-    query.includes("read ") ||
-    query.includes("open ") ||
-    query.includes("show ") ||
-    query.includes("inspect ") ||
-    query.includes("list ") ||
-    query.includes("tree ") ||
-    query.includes("files") ||
-    query.includes("folders") ||
-    query.includes("search ") ||
-    query.includes("find ") ||
-    query.includes("where is") ||
-    query.includes("where are") ||
-    query.includes("grep") ||
-    query.includes("contains") ||
-    query.includes("symbol") ||
-    query.includes("reference")
+    flags.wantsRead ||
+    flags.wantsList ||
+    flags.wantsSearch ||
+    flags.wantsGroundedEditPoint ||
+    flags.wantsReview ||
+    flags.wantsDebug ||
+    flags.wantsArchitecture ||
+    flags.wantsTopLevelOrchestration
   );
 }
 
@@ -355,46 +907,27 @@ function buildSafeToolPlan(
     return null;
   }
 
-  const query = lower(analysis.userText);
+  const flags = extractIntentFlags(analysis.userText);
   const explicitPath = extractPathCandidate(analysis.userText);
   const explicitDirectory = extractDirectoryCandidate(analysis.userText);
   const searchQuery = extractSearchQuery(analysis.userText);
 
-  const wantsRead =
-    query.includes("read ") ||
-    query.includes("open ") ||
-    query.includes("show file") ||
-    query.includes("inspect file") ||
-    query.includes("view file");
-
-  const wantsList =
-    query.includes("list ") ||
-    query.includes("tree ") ||
-    query.includes("files") ||
-    query.includes("folders") ||
-    query.includes("directory");
-
-  const wantsSearch =
-    query.includes("search ") ||
-    query.includes("find ") ||
-    query.includes("where is") ||
-    query.includes("where are") ||
-    query.includes("grep") ||
-    query.includes("contains") ||
-    query.includes("symbol") ||
-    query.includes("reference");
-
-  if (wantsRead && explicitPath && safeTools.has("read-file")) {
+  if (
+    (flags.wantsRead ||
+      flags.wantsGroundedEditPoint ||
+      flags.wantsArchitecture ||
+      flags.wantsTopLevelOrchestration) &&
+    explicitPath &&
+    safeTools.has("read-file")
+  ) {
     return {
       toolName: "read-file",
       reason: `User asked to inspect a specific file (${explicitPath}).`,
-      input: {
-        path: explicitPath,
-      },
+      input: { path: explicitPath },
     };
   }
 
-  if (wantsList && safeTools.has("list-files")) {
+  if (flags.wantsList && safeTools.has("list-files")) {
     return {
       toolName: "list-files",
       reason: explicitDirectory
@@ -407,13 +940,11 @@ function buildSafeToolPlan(
     };
   }
 
-  if (wantsSearch && searchQuery && safeTools.has("search-project")) {
+  if (flags.wantsSearch && searchQuery && safeTools.has("search-project")) {
     return {
       toolName: "search-project",
       reason: `User asked to search the repository for "${searchQuery}".`,
-      input: {
-        query: searchQuery,
-      },
+      input: { query: searchQuery },
     };
   }
 
@@ -421,9 +952,7 @@ function buildSafeToolPlan(
     return {
       toolName: "read-file",
       reason: `A specific path was detected (${explicitPath}).`,
-      input: {
-        path: explicitPath,
-      },
+      input: { path: explicitPath },
     };
   }
 
@@ -431,9 +960,7 @@ function buildSafeToolPlan(
     return {
       toolName: "search-project",
       reason: `A repository search query was inferred ("${searchQuery}").`,
-      input: {
-        query: searchQuery,
-      },
+      input: { query: searchQuery },
     };
   }
 
@@ -444,6 +971,7 @@ function buildSafeToolPlan(
 
 function extractResultSummary(result: unknown): string | undefined {
   const record = asRecord(result);
+
   return (
     asString(record?.summary) ??
     asString(record?.message) ??
@@ -454,8 +982,32 @@ function extractResultSummary(result: unknown): string | undefined {
 function extractJsonPayload(result: unknown): Record<string, unknown> | null {
   const record = asRecord(result);
   const content = asRecord(record?.content);
+
+  if (content?.type === "json") {
+    const json = asRecord(content.json);
+    if (json) return json;
+  }
+
   const json = asRecord(content?.json);
-  return json;
+  if (json) return json;
+
+  return null;
+}
+
+function extractReadFileText(
+  json: Record<string, unknown> | null
+): string | undefined {
+  if (!json) return undefined;
+
+  const raw = asRecord(json.raw);
+
+  return (
+    asString(json.content) ??
+    asString(json.text) ??
+    asString(json.preview) ??
+    asString(raw?.content) ??
+    asString(raw?.text)
+  );
 }
 
 function extractFileHintsFromJson(json: Record<string, unknown> | null): string[] {
@@ -463,25 +1015,32 @@ function extractFileHintsFromJson(json: Record<string, unknown> | null): string[
 
   const hints: string[] = [];
 
+  const relativePath = asString(json.relativePath);
+  const absolutePath = asString(json.absolutePath);
+  const requestedPath = asString(json.requestedPath);
+
+  if (relativePath) hints.push(relativePath);
+  else if (requestedPath) hints.push(requestedPath);
+  else if (absolutePath) hints.push(absolutePath);
+
   const results = Array.isArray(json.results) ? json.results : [];
   for (const item of results) {
     const record = asRecord(item);
-    const relativePath = asString(record?.relativePath);
+    const hitRelativePath = asString(record?.relativePath);
     const filePath = asString(record?.filePath);
-    const path = relativePath ?? filePath;
-    if (path) {
-      hints.push(path);
-    }
+    const path = hitRelativePath ?? filePath;
+
+    if (path) hints.push(path);
   }
 
   const entries = Array.isArray(json.entries) ? json.entries : [];
   for (const item of entries) {
     const record = asRecord(item);
-    const relativePath = asString(record?.relativePath);
-    const path = relativePath ?? asString(record?.path) ?? asString(record?.name);
-    if (path) {
-      hints.push(path);
-    }
+    const entryRelativePath = asString(record?.relativePath);
+    const path =
+      entryRelativePath ?? asString(record?.path) ?? asString(record?.name);
+
+    if (path) hints.push(path);
   }
 
   return dedupeStrings(hints).slice(0, MAX_TOOL_RESULT_PATHS);
@@ -495,19 +1054,19 @@ function extractDetailLinesFromJson(
 
   if (toolName === "search-project") {
     const results = Array.isArray(json.results) ? json.results : [];
+
     return results
       .map((item) => {
         const record = asRecord(item);
         if (!record) return null;
 
         const relativePath = asString(record.relativePath);
-        const line = record.line;
+        const line = asFiniteNumber(record.line);
         const preview = asString(record.preview);
 
         if (!relativePath) return null;
 
-        const linePart =
-          typeof line === "number" && Number.isFinite(line) ? `:${line}` : "";
+        const linePart = line !== undefined ? `:${line}` : "";
         const previewPart = preview ? ` — ${clampText(preview)}` : "";
 
         return `${relativePath}${linePart}${previewPart}`;
@@ -518,6 +1077,7 @@ function extractDetailLinesFromJson(
 
   if (toolName === "list-files") {
     const entries = Array.isArray(json.entries) ? json.entries : [];
+
     return entries
       .map((item) => {
         const record = asRecord(item);
@@ -538,14 +1098,29 @@ function extractDetailLinesFromJson(
   }
 
   if (toolName === "read-file") {
-    const raw = asRecord(json.raw);
-    const preview =
-      asString(json.preview) ??
-      asString(json.text) ??
-      asString(raw?.text) ??
-      asString(raw?.content);
+    const relativePath = asString(json.relativePath);
+    const totalBytes =
+      asFiniteNumber(json.sizeBytes) ??
+      asFiniteNumber(json.bytes) ??
+      asFiniteNumber(json.byteLength);
 
-    return preview ? [clampText(preview)] : [];
+    const totalLines =
+      asFiniteNumber(json.lineCount) ??
+      asFiniteNumber(json.lines) ??
+      asFiniteNumber(json.totalLines);
+
+    const truncated = json.truncated === true;
+    const text = extractReadFileText(json);
+
+    return dedupeStrings([
+      relativePath ? `Read file: ${relativePath}` : "",
+      relativePath && totalBytes !== undefined
+        ? `File size: ${totalBytes} bytes`
+        : "",
+      relativePath && totalLines !== undefined ? `Line count: ${totalLines}` : "",
+      truncated ? "Read output was truncated." : "",
+      text ? clampText(text) : "",
+    ]).slice(0, MAX_TOOL_RESULT_LINES);
   }
 
   return [];
@@ -553,8 +1128,7 @@ function extractDetailLinesFromJson(
 
 function resultLooksSuccessful(result: unknown): boolean {
   const record = asRecord(result);
-  const error = asRecord(record?.error);
-  return !error;
+  return record?.ok === true && !asRecord(record?.error);
 }
 
 function extractBestSearchProjectMatch(
@@ -563,6 +1137,7 @@ function extractBestSearchProjectMatch(
   if (!json) return null;
 
   const results = Array.isArray(json.results) ? json.results : [];
+
   for (const item of results) {
     const record = asRecord(item);
     if (!record) continue;
@@ -570,11 +1145,7 @@ function extractBestSearchProjectMatch(
     const relativePath = asString(record.relativePath);
     if (!relativePath) continue;
 
-    const line =
-      typeof record.line === "number" && Number.isFinite(record.line)
-        ? record.line
-        : undefined;
-
+    const line = asFiniteNumber(record.line);
     const preview = asString(record.preview);
 
     return {
@@ -602,11 +1173,7 @@ function extractSearchProjectMatches(
       const relativePath = asString(record.relativePath);
       if (!relativePath) return null;
 
-      const line =
-        typeof record.line === "number" && Number.isFinite(record.line)
-          ? record.line
-          : undefined;
-
+      const line = asFiniteNumber(record.line);
       const preview = asString(record.preview);
 
       return {
@@ -622,45 +1189,48 @@ function extractSearchProjectMatches(
 /* ================= GROUNDED READ SUMMARIES ================= */
 
 function inferFileRoleSummary(path: string, content: string): string | undefined {
-  const normalizedPath = lower(normalizeSlashes(path));
+  const normalizedPath = normalizePathKey(path);
   const contentLower = lower(content);
   const extension = getFileExtension(path);
+  const knownTarget = findKnownTargetForPath(normalizedPath);
+
+  if (knownTarget) {
+    return knownTarget.role;
+  }
+
+  if (
+    contentLower.includes("runcodexforgeengine") ||
+    contentLower.includes("executesafetoolpass") ||
+    contentLower.includes("enrichstructuredwithtooloutcomes")
+  ) {
+    return "This looks like the core chat engine orchestration layer.";
+  }
+
+  if (
+    contentLower.includes("structuredtotext") ||
+    contentLower.includes("buildstructured")
+  ) {
+    return "This looks like the structured reply rendering layer.";
+  }
 
   if (
     normalizedPath.includes("/api/") ||
-    contentLower.includes("nextr") ||
+    normalizedPath.endsWith("/route.ts") ||
     contentLower.includes("nextresponse")
   ) {
     return "This looks like an API or route surface.";
   }
 
-  if (
-    normalizedPath.includes("/components/") ||
-    normalizedPath.endsWith(".tsx")
-  ) {
+  if (normalizedPath.includes("/components/") || normalizedPath.endsWith(".tsx")) {
     return "This looks like a UI/component surface.";
   }
 
-  if (
-    normalizedPath.includes("/hooks/") ||
-    normalizedPath.includes("use-")
-  ) {
+  if (normalizedPath.includes("/hooks/") || normalizedPath.includes("use-")) {
     return "This looks like a hook or reusable state surface.";
   }
 
-  if (
-    normalizedPath.includes("/types") ||
-    normalizedPath.endsWith(".d.ts")
-  ) {
+  if (normalizedPath.includes("/types") || normalizedPath.endsWith(".d.ts")) {
     return "This looks like a shared typing or contract surface.";
-  }
-
-  if (
-    normalizedPath.includes("/chat/engine") ||
-    contentLower.includes("buildstructured") ||
-    contentLower.includes("structuredtotext")
-  ) {
-    return "This looks like a core engine orchestration surface.";
   }
 
   if (normalizedPath.includes("/brain/")) {
@@ -678,7 +1248,14 @@ function inferFileRoleSummary(path: string, content: string): string | undefined
   return undefined;
 }
 
-function inferLikelyEditPoint(path: string, content: string): string | undefined {
+function inferLikelyEditPoint(
+  path: string,
+  content: string,
+  userText = ""
+): string | undefined {
+  const specific = buildSpecificEditPoint(path, content, userText);
+  if (specific) return specific;
+
   const contentLower = lower(content);
 
   if (contentLower.includes("export async function")) {
@@ -700,17 +1277,11 @@ function inferLikelyEditPoint(path: string, content: string): string | undefined
     return "The next likely edit point is the structured rendering path.";
   }
 
-  if (
-    contentLower.includes("analyze(") ||
-    contentLower.includes("buildplan(")
-  ) {
+  if (contentLower.includes("analyze(") || contentLower.includes("buildplan(")) {
     return "The next likely edit point is the analysis or planning path.";
   }
 
-  if (
-    contentLower.includes("execute") ||
-    contentLower.includes("toolexecution")
-  ) {
+  if (contentLower.includes("execute") || contentLower.includes("toolexecution")) {
     return "The next likely edit point is the tool execution path.";
   }
 
@@ -726,25 +1297,38 @@ function inferRelatedPaths(path: string): string[] {
   const normalizedPath = normalizeSlashes(path);
   const parent = getParentPath(normalizedPath);
   const stem = getFileStem(normalizedPath);
+  const knownTarget = findKnownTargetForPath(normalizedPath);
 
   return dedupeStrings([
     parent ? `${parent}` : "",
     parent ? `${parent}/index.ts` : "",
     parent ? `${parent}/${stem}.ts` : "",
     parent ? `${parent}/${stem}.tsx` : "",
+    parent ? `${parent}/${stem}-render.ts` : "",
+    parent ? `${parent}/${stem}-analysis.ts` : "",
+    parent ? `${parent}/${stem}-graph.ts` : "",
+    parent ? `${parent}/${stem}-shared.ts` : "",
+    knownTarget && parent ? `${parent}/engine-render.ts` : "",
+    knownTarget && parent ? `${parent}/engine-analysis.ts` : "",
+    knownTarget && parent ? `${parent}/engine-graph.ts` : "",
+    knownTarget && parent ? `${parent}/engine-shared.ts` : "",
   ])
-    .filter((candidate) => candidate !== normalizedPath)
+    .filter((candidate) => normalizePathKey(candidate) !== normalizePathKey(path))
     .slice(0, MAX_TOOL_RESULT_PATHS);
 }
 
 function extractContentSignals(content: string): string[] {
   const lines = content
     .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
+    .map((line, index) => ({
+      line: index + 1,
+      text: line.trim(),
+    }))
+    .filter((entry) => entry.text.length > 0);
 
-  const candidates = lines.filter((line) => {
-    const lowered = lower(line);
+  const candidates = lines.filter((entry) => {
+    const lowered = lower(entry.text);
+
     return (
       lowered.startsWith("export ") ||
       lowered.startsWith("async function ") ||
@@ -758,7 +1342,23 @@ function extractContentSignals(content: string): string[] {
 
   return candidates
     .slice(0, MAX_GROUNDED_NOTES)
-    .map((line) => clampText(line));
+    .map((entry) => `${entry.line}| ${clampText(entry.text)}`);
+}
+
+function extractFocusedSnippet(
+  content: string,
+  line: number | undefined
+): string[] {
+  if (!line || line <= 0) return [];
+
+  const lines = content.split(/\r?\n/);
+  const start = Math.max(0, line - 3);
+  const end = Math.min(lines.length, line + 2);
+
+  return lines
+    .slice(start, end)
+    .map((text, index) => `${start + index + 1}| ${clampText(text.trim(), 180)}`)
+    .filter((item) => !item.endsWith("|"));
 }
 
 function createGroundedFileCandidate(args: {
@@ -767,21 +1367,35 @@ function createGroundedFileCandidate(args: {
   line?: number;
   preview?: string;
   content?: string;
+  userText?: string;
 }): GroundedFileCandidate {
   const content = args.content ?? "";
+  const userText = args.userText ?? "";
   const role = inferFileRoleSummary(args.path, content);
-  const editPoint = inferLikelyEditPoint(args.path, content);
+  const bestFunction = chooseBestFunctionCandidate(args.path, content, userText);
+  const editPoint = inferLikelyEditPoint(args.path, content, userText);
+  const confidence = confidenceForEditPoint(bestFunction);
 
   const signals = dedupeStrings([
     ...(args.preview ? [clampText(args.preview)] : []),
+    ...extractFocusedSnippet(content, bestFunction?.line || args.line),
     ...extractContentSignals(content),
+    bestFunction?.virtual
+      ? `Known target: ${bestFunction.name}(...) is the canonical entry point for ${args.path}.`
+      : "",
   ]).slice(0, MAX_GROUNDED_NOTES);
 
   let priority = scorePathSpecificity(args.path);
-  if (args.source === "read-file") priority += 100;
+
+  if (args.source === "read-file") priority += 120;
   if (args.line !== undefined) priority += 10;
+  if (bestFunction?.line !== undefined && bestFunction.line > 0) priority += 16;
+  if (bestFunction?.virtual) priority += 20;
+  if (bestFunction?.name === "runCodexForgeEngine") priority += 100;
   if (role) priority += 8;
-  if (editPoint) priority += 8;
+  if (editPoint) priority += 12;
+  if (confidence === "high") priority += 25;
+  if (confidence === "medium") priority += 10;
   priority += signals.length * 3;
 
   return {
@@ -791,6 +1405,9 @@ function createGroundedFileCandidate(args: {
     ...(args.preview ? { preview: clampText(args.preview) } : {}),
     ...(role ? { role } : {}),
     ...(editPoint ? { editPoint } : {}),
+    ...(bestFunction ? { editFunction: bestFunction.name } : {}),
+    ...(bestFunction && bestFunction.line > 0 ? { editLine: bestFunction.line } : {}),
+    confidence,
     signals,
     relatedPaths: inferRelatedPaths(args.path),
     priority,
@@ -802,31 +1419,29 @@ function normalizeGroundedCandidates(
 ): GroundedFileCandidate[] {
   return dedupeByKey(
     [...candidates].sort((a, b) => b.priority - a.priority),
-    (candidate) => normalizeSlashes(candidate.path).toLowerCase()
+    (candidate) => normalizePathKey(candidate.path)
   ).slice(0, MAX_MULTI_FILE_MATCHES);
 }
 
 function extractReadFileGrounding(
   path: string,
-  json: Record<string, unknown> | null
+  json: Record<string, unknown> | null,
+  userText = ""
 ): SafeToolGrounding | undefined {
   if (!json) return undefined;
 
-  const raw = asRecord(json.raw);
-  const text =
-    asString(json.text) ??
-    asString(json.preview) ??
-    asString(raw?.text) ??
-    asString(raw?.content);
+  const text = extractReadFileText(json);
+  const matchedFile =
+    asString(json.relativePath) ?? asString(json.requestedPath) ?? path.trim();
 
-  const matchedFile = path.trim();
   const content = text ?? "";
 
   const primaryCandidate = createGroundedFileCandidate({
     path: matchedFile,
     source: "read-file",
     content,
-    preview: asString(json.preview),
+    preview: asString(json.preview) ?? text,
+    userText,
   });
 
   const grounding: SafeToolGrounding = {
@@ -836,19 +1451,24 @@ function extractReadFileGrounding(
     contentSignals: primaryCandidate.signals,
   };
 
-  if (primaryCandidate.role) {
-    grounding.fileRoleSummary = primaryCandidate.role;
+  if (primaryCandidate.editLine !== undefined) {
+    grounding.matchedLine = primaryCandidate.editLine;
+    grounding.editLine = primaryCandidate.editLine;
+  } else if (primaryCandidate.line !== undefined) {
+    grounding.matchedLine = primaryCandidate.line;
   }
 
-  if (primaryCandidate.editPoint) {
-    grounding.likelyEditPoint = primaryCandidate.editPoint;
-  }
+  if (primaryCandidate.role) grounding.fileRoleSummary = primaryCandidate.role;
+  if (primaryCandidate.editPoint) grounding.likelyEditPoint = primaryCandidate.editPoint;
+  if (primaryCandidate.editFunction) grounding.editFunction = primaryCandidate.editFunction;
+  if (primaryCandidate.confidence) grounding.confidence = primaryCandidate.confidence;
 
   return grounding;
 }
 
 function extractSearchProjectGrounding(
-  json: Record<string, unknown> | null
+  json: Record<string, unknown> | null,
+  userText = ""
 ): SafeToolGrounding | undefined {
   const matches = extractSearchProjectMatches(json);
   if (matches.length === 0) return undefined;
@@ -860,6 +1480,7 @@ function extractSearchProjectGrounding(
         source: "search-match",
         line: match.line,
         preview: match.preview,
+        userText,
       })
     )
   );
@@ -872,6 +1493,9 @@ function extractSearchProjectGrounding(
     ...(primary.line !== undefined ? { matchedLine: primary.line } : {}),
     ...(primary.role ? { fileRoleSummary: primary.role } : {}),
     ...(primary.editPoint ? { likelyEditPoint: primary.editPoint } : {}),
+    ...(primary.editFunction ? { editFunction: primary.editFunction } : {}),
+    ...(primary.editLine !== undefined ? { editLine: primary.editLine } : {}),
+    ...(primary.confidence ? { confidence: primary.confidence } : {}),
     relatedPaths: dedupeStrings(
       candidates.flatMap((candidate) => candidate.relatedPaths)
     ).slice(0, MAX_TOOL_RESULT_PATHS),
@@ -899,17 +1523,20 @@ function mergeGroundings(
   return {
     matchedFile: primary?.path ?? existing.matchedFile ?? incoming.matchedFile,
     matchedLine:
+      primary?.editLine ??
       primary?.line ??
       existing.matchedLine ??
       incoming.matchedLine,
     fileRoleSummary:
-      primary?.role ??
-      existing.fileRoleSummary ??
-      incoming.fileRoleSummary,
+      primary?.role ?? existing.fileRoleSummary ?? incoming.fileRoleSummary,
     likelyEditPoint:
       primary?.editPoint ??
       existing.likelyEditPoint ??
       incoming.likelyEditPoint,
+    editFunction:
+      primary?.editFunction ?? existing.editFunction ?? incoming.editFunction,
+    editLine: primary?.editLine ?? existing.editLine ?? incoming.editLine,
+    confidence: primary?.confidence ?? existing.confidence ?? incoming.confidence,
     relatedPaths: dedupeStrings([
       ...(existing.relatedPaths ?? []),
       ...(incoming.relatedPaths ?? []),
@@ -932,9 +1559,9 @@ async function executeToolWithAdapter(
   input: Record<string, unknown>,
   context: CodexForgeChatContext,
   reason: string,
-  source: "primary" | "follow-up"
+  source: "primary" | "follow-up",
+  userText = ""
 ): Promise<{
-  result: unknown;
   outcome: SafeToolOutcome;
   json: Record<string, unknown> | null;
 }> {
@@ -946,8 +1573,7 @@ async function executeToolWithAdapter(
     });
 
     const summary =
-      extractResultSummary(result) ??
-      `${toolName} executed successfully.`;
+      extractResultSummary(result) ?? `${toolName} executed successfully.`;
 
     const json = extractJsonPayload(result);
     const fileHints = extractFileHintsFromJson(json);
@@ -955,7 +1581,6 @@ async function executeToolWithAdapter(
 
     if (!resultLooksSuccessful(result)) {
       return {
-        result,
         json,
         outcome: {
           status: "failed",
@@ -976,13 +1601,12 @@ async function executeToolWithAdapter(
 
     const grounding =
       toolName === "read-file" && matchedFile
-        ? extractReadFileGrounding(matchedFile, json)
+        ? extractReadFileGrounding(matchedFile, json, userText)
         : toolName === "search-project"
-          ? extractSearchProjectGrounding(json)
+          ? extractSearchProjectGrounding(json, userText)
           : undefined;
 
     return {
-      result,
       json,
       outcome: {
         status: "executed",
@@ -1003,7 +1627,6 @@ async function executeToolWithAdapter(
         : "Unexpected tool execution failure.";
 
     return {
-      result: null,
       json: null,
       outcome: {
         status: "failed",
@@ -1020,38 +1643,28 @@ async function maybeRunFollowUpReadFile(
   deps: CodexForgeEngineDependencies,
   context: CodexForgeChatContext,
   primaryPlan: SafeToolPlan,
-  primaryJson: Record<string, unknown> | null
+  primaryJson: Record<string, unknown> | null,
+  userText = ""
 ): Promise<SafeToolOutcome | null> {
-  if (primaryPlan.toolName !== "search-project") {
-    return null;
-  }
-
-  if (hasExecutionRequest(context) || hasActiveExecutionPhase(context)) {
-    return null;
-  }
-
-  if (!deps.toolExecution?.canExecute("read-file")) {
-    return null;
-  }
+  if (primaryPlan.toolName !== "search-project") return null;
+  if (hasExecutionRequest(context) || hasActiveExecutionPhase(context)) return null;
+  if (!deps.toolExecution?.canExecute("read-file")) return null;
 
   const bestMatch = extractBestSearchProjectMatch(primaryJson);
-  if (!bestMatch?.relativePath) {
-    return null;
-  }
-
-  const followUpReason = `Follow-up read of strongest search match (${bestMatch.relativePath}).`;
+  if (!bestMatch?.relativePath) return null;
 
   const followUp = await executeToolWithAdapter(
     deps,
     "read-file",
     { path: bestMatch.relativePath },
     context,
-    followUpReason,
-    "follow-up"
+    `Follow-up read of strongest search match (${bestMatch.relativePath}).`,
+    "follow-up",
+    userText
   );
 
   if (followUp.outcome.status === "executed" && primaryJson) {
-    const primaryGrounding = extractSearchProjectGrounding(primaryJson);
+    const primaryGrounding = extractSearchProjectGrounding(primaryJson, userText);
     followUp.outcome.grounding = mergeGroundings(
       primaryGrounding,
       followUp.outcome.grounding
@@ -1095,7 +1708,7 @@ async function executeSafeToolPass(
       {
         status: "skipped",
         warnings: [
-          "Executable tools are available, but no safe read/search tools are currently exposed.",
+          "Executable tools are available, but no safe read/search/list tools are currently exposed.",
         ],
       },
     ];
@@ -1103,12 +1716,7 @@ async function executeSafeToolPass(
 
   const plan = buildSafeToolPlan(analysis, context, deps);
   if (!plan) {
-    return [
-      {
-        status: "skipped",
-        warnings: [],
-      },
-    ];
+    return [{ status: "skipped", warnings: [] }];
   }
 
   const primary = await executeToolWithAdapter(
@@ -1117,7 +1725,8 @@ async function executeSafeToolPass(
     plan.input,
     context,
     plan.reason,
-    "primary"
+    "primary",
+    analysis.userText
   );
 
   const outcomes: SafeToolOutcome[] = [primary.outcome];
@@ -1127,7 +1736,8 @@ async function executeSafeToolPass(
       deps,
       context,
       plan,
-      primary.json
+      primary.json,
+      analysis.userText
     );
 
     if (followUpOutcome) {
@@ -1139,6 +1749,60 @@ async function executeSafeToolPass(
 }
 
 /* ================= STRUCTURED ENRICHMENT ================= */
+
+function buildGroundingHeadline(
+  grounding: SafeToolGrounding | undefined
+): string | undefined {
+  if (!grounding?.matchedFile) return undefined;
+
+  const displayPath = formatPathForDisplay(grounding.matchedFile);
+  const functionPart = grounding.editFunction
+    ? ` → ${grounding.editFunction}(...)`
+    : "";
+  const linePart = grounding.editLine ? `:${grounding.editLine}` : "";
+
+  return `${displayPath}${linePart}${functionPart}`;
+}
+
+function buildGroundingWhyLine(
+  grounding: SafeToolGrounding | undefined
+): string | undefined {
+  if (!grounding) return undefined;
+
+  if (grounding.editFunction === "runCodexForgeEngine") {
+    return "Why this edit point: it is the top-level orchestration seam connecting analysis, planning, safe repo inspection, structured rendering, and graph persistence.";
+  }
+
+  if (grounding.editFunction === "executeSafeToolPass") {
+    return "Why this edit point: it controls whether CodexForge actually runs safe repo tools instead of only describing the action.";
+  }
+
+  if (grounding.editFunction === "enrichStructuredWithToolOutcomes") {
+    return "Why this edit point: it controls how tool results become visible in the final structured workspace response.";
+  }
+
+  if (grounding.editFunction === "buildGroundedSummary") {
+    return "Why this edit point: it controls the first grounded summary line users see after inspection.";
+  }
+
+  if (grounding.editFunction === "buildSafeToolPlan") {
+    return "Why this edit point: it controls which safe repo inspection tool CodexForge chooses for the request.";
+  }
+
+  if (grounding.editFunction === "buildStructured") {
+    return "Why this edit point: it assembles the structured reply fields the CodexForge UI renders.";
+  }
+
+  if (grounding.editFunction === "structuredToText") {
+    return "Why this edit point: it controls the final text answer users see in chat.";
+  }
+
+  if (grounding.fileRoleSummary) {
+    return `Why this file: ${grounding.fileRoleSummary}`;
+  }
+
+  return undefined;
+}
 
 function buildGroundingContextLines(
   outcome: Extract<SafeToolOutcome, { status: "executed" }>
@@ -1155,9 +1819,17 @@ function buildGroundingContextLines(
     grounding.matchedLine !== undefined
       ? `Best grounded line: ${grounding.matchedLine}`
       : "",
+    grounding.editFunction
+      ? `Best grounded function: ${grounding.editFunction}`
+      : "",
+    grounding.editLine !== undefined ? `Best edit line: ${grounding.editLine}` : "",
+    grounding.confidence ? `Grounding confidence: ${grounding.confidence}` : "",
     grounding.fileRoleSummary ?? "",
     grounding.likelyEditPoint ?? "",
-    ...supportingFiles.map((path, index) => `Supporting file ${index + 1}: ${path}`),
+    buildGroundingWhyLine(grounding) ?? "",
+    ...supportingFiles.map(
+      (path, index) => `Supporting file ${index + 1}: ${path}`
+    ),
   ]);
 }
 
@@ -1167,16 +1839,24 @@ function buildGroundingSectionItems(
   const grounding = outcome.grounding;
   if (!grounding) return [];
 
+  const headline = buildGroundingHeadline(grounding);
+
   const candidateItems = (grounding.candidateFiles ?? []).flatMap(
     (candidate, index) => {
-      const prefix =
-        index === 0
-          ? "Primary file"
-          : `Related file ${index}`;
+      const prefix = index === 0 ? "Primary file" : `Related file ${index}`;
 
       return dedupeStrings([
         `${prefix}: ${candidate.path}`,
-        candidate.line !== undefined ? `${prefix} line: ${candidate.line}` : "",
+        candidate.line !== undefined
+          ? `${prefix} matched line: ${candidate.line}`
+          : "",
+        candidate.editFunction
+          ? `${prefix} function: ${candidate.editFunction}`
+          : "",
+        candidate.editLine !== undefined
+          ? `${prefix} edit line: ${candidate.editLine}`
+          : "",
+        candidate.confidence ? `${prefix} confidence: ${candidate.confidence}` : "",
         candidate.role ? `${prefix} role: ${candidate.role}` : "",
         candidate.editPoint ? `${prefix} edit point: ${candidate.editPoint}` : "",
         ...candidate.signals.map((signal) => `${prefix} signal: ${signal}`),
@@ -1185,15 +1865,131 @@ function buildGroundingSectionItems(
   );
 
   return dedupeStrings([
+    headline ? `Best edit target: ${headline}` : "",
     grounding.matchedFile ? `Matched file: ${grounding.matchedFile}` : "",
     grounding.matchedLine !== undefined
       ? `Matched line: ${grounding.matchedLine}`
       : "",
+    grounding.editFunction ? `Matched function: ${grounding.editFunction}` : "",
+    grounding.editLine !== undefined ? `Edit line: ${grounding.editLine}` : "",
+    grounding.confidence ? `Confidence: ${grounding.confidence}` : "",
     grounding.fileRoleSummary ?? "",
     grounding.likelyEditPoint ?? "",
+    buildGroundingWhyLine(grounding) ?? "",
     ...candidateItems,
     ...grounding.relatedPaths.map((path) => `Related path: ${path}`),
-  ]).slice(0, MAX_TOOL_RESULT_LINES + MAX_GROUNDED_NOTES + 6);
+  ]).slice(0, MAX_GROUNDING_SECTION_ITEMS);
+}
+
+function buildGroundedSummary(
+  structured: CodexForgeStructuredReply,
+  outcomes: Extract<SafeToolOutcome, { status: "executed" }>[]
+): string {
+  const fallbackSummary = structured.summary ?? FALLBACK_GROUNDED_SUMMARY;
+
+  const grounded = outcomes.find((outcome) => outcome.grounding?.matchedFile);
+  if (!grounded?.grounding) return fallbackSummary;
+
+  const headline = buildGroundingHeadline(grounded.grounding);
+  const likelyEditPoint = grounded.grounding.likelyEditPoint;
+
+  if (headline && likelyEditPoint) {
+    return `${headline} — ${likelyEditPoint}`;
+  }
+
+  if (headline) {
+    return `Best grounded edit target: ${headline}.`;
+  }
+
+  return fallbackSummary;
+}
+
+function buildGroundedTopSection(
+  outcomes: Extract<SafeToolOutcome, { status: "executed" }>[]
+): { title: string; items: string[] } | null {
+  const grounded = outcomes.find((outcome) => outcome.grounding?.matchedFile);
+  const grounding = grounded?.grounding;
+
+  if (!grounding) return null;
+
+  const headline = buildGroundingHeadline(grounding);
+
+  const items = dedupeStrings([
+    headline ? `Best next edit point: ${headline}` : "",
+    grounding.fileRoleSummary ? `File role: ${grounding.fileRoleSummary}` : "",
+    grounding.likelyEditPoint ?? "",
+    buildGroundingWhyLine(grounding) ?? "",
+    grounding.confidence ? `Confidence: ${grounding.confidence}` : "",
+    grounded ? `Tool used: ${grounded.toolName}` : "",
+  ]);
+
+  if (items.length === 0) return null;
+
+  return {
+    title: "Grounded recommendation",
+    items,
+  };
+}
+
+function buildToolAuditSection(
+  outcomes: Extract<SafeToolOutcome, { status: "executed" }>[]
+): { title: string; items: string[] } | null {
+  if (outcomes.length === 0) return null;
+
+  const items = outcomes.flatMap((outcome) => {
+    const grounding = outcome.grounding;
+
+    return dedupeStrings([
+      `${outcome.source === "primary" ? "Primary" : "Follow-up"} tool: ${
+        outcome.toolName
+      }`,
+      `Reason: ${outcome.reason}`,
+      `Result: ${outcome.summary}`,
+      grounding?.matchedFile ? `Matched file: ${grounding.matchedFile}` : "",
+      grounding?.editFunction
+        ? `Matched function: ${grounding.editFunction}`
+        : "",
+      grounding?.confidence ? `Confidence: ${grounding.confidence}` : "",
+    ]);
+  });
+
+  if (items.length === 0) return null;
+
+  return {
+    title: "Tool audit",
+    items: items.slice(0, MAX_GROUNDING_SECTION_ITEMS),
+  };
+}
+
+function buildNextActionSection(
+  outcomes: Extract<SafeToolOutcome, { status: "executed" }>[]
+): { title: string; items: string[] } | null {
+  const grounded = outcomes.find((outcome) => outcome.grounding?.matchedFile);
+  const grounding = grounded?.grounding;
+
+  if (!grounding?.matchedFile) return null;
+
+  const headline = buildGroundingHeadline(grounding);
+
+  const items = dedupeStrings([
+    headline
+      ? `Start here: ${headline}`
+      : `Start here: ${grounding.matchedFile}`,
+    grounding.editFunction
+      ? `Change target: ${grounding.editFunction}(...)`
+      : "",
+    grounding.editLine !== undefined
+      ? `Open around line ${grounding.editLine}.`
+      : "",
+    "Make the smallest focused change first.",
+    "Run npm run build after the edit.",
+    "If output remains generic, inspect engine-render.ts next because it controls what becomes visible in the UI.",
+  ]);
+
+  return {
+    title: "Recommended next action",
+    items,
+  };
 }
 
 function enrichStructuredWithToolOutcomes(
@@ -1212,6 +2008,10 @@ function enrichStructuredWithToolOutcomes(
   const mergedCandidates = normalizeGroundedCandidates(
     executedOutcomes.flatMap((outcome) => outcome.grounding?.candidateFiles ?? [])
   );
+
+  const topSection = buildGroundedTopSection(executedOutcomes);
+  const nextActionSection = buildNextActionSection(executedOutcomes);
+  const toolAuditSection = buildToolAuditSection(executedOutcomes);
 
   const context = dedupeStrings([
     ...(structured.context ?? []),
@@ -1233,7 +2033,14 @@ function enrichStructuredWithToolOutcomes(
         : `Follow-up tool executed: ${outcome.toolName}`
     ),
     ...executedOutcomes.flatMap((outcome) =>
-      outcome.grounding?.fileRoleSummary ? [outcome.grounding.fileRoleSummary] : []
+      outcome.grounding?.fileRoleSummary
+        ? [outcome.grounding.fileRoleSummary]
+        : []
+    ),
+    ...executedOutcomes.flatMap((outcome) =>
+      outcome.grounding?.editFunction
+        ? [`Best function: ${outcome.grounding.editFunction}`]
+        : []
     ),
     ...(mergedCandidates.length > 1
       ? [`Multi-file grounding identified ${mergedCandidates.length} relevant files.`]
@@ -1241,17 +2048,28 @@ function enrichStructuredWithToolOutcomes(
   ]);
 
   const files = dedupeStrings([
+    ...mergedCandidates.map((candidate) => candidate.path),
     ...(structured.files ?? []),
     ...executedOutcomes.flatMap((outcome) => outcome.fileHints),
     ...executedOutcomes.flatMap((outcome) => outcome.grounding?.relatedPaths ?? []),
-    ...mergedCandidates.map((candidate) => candidate.path),
   ]).slice(0, MAX_TOOL_RESULT_PATHS);
 
   const nextSteps = dedupeStrings([
-    ...(structured.nextSteps ?? []),
     ...executedOutcomes.flatMap((outcome) =>
-      outcome.grounding?.likelyEditPoint ? [outcome.grounding.likelyEditPoint] : []
+      outcome.grounding?.likelyEditPoint
+        ? [outcome.grounding.likelyEditPoint]
+        : []
     ),
+    ...executedOutcomes.flatMap((outcome) =>
+      outcome.grounding?.editFunction
+        ? [
+            `Open ${outcome.grounding.matchedFile ?? "the matched file"} at ${
+              outcome.grounding.editFunction
+            }(...) and make the smallest focused change there.`,
+          ]
+        : []
+    ),
+    ...(structured.nextSteps ?? []),
     ...(mergedCandidates.length > 1
       ? [
           "Check the primary file first, then validate the related supporting files before editing.",
@@ -1262,40 +2080,44 @@ function enrichStructuredWithToolOutcomes(
       : []),
   ]);
 
+  const groundingSections = executedOutcomes
+    .map((outcome) => {
+      const sectionItems = dedupeStrings([
+        outcome.summary,
+        ...outcome.detailLines,
+        ...buildGroundingSectionItems(outcome),
+      ]).slice(0, MAX_GROUNDING_SECTION_ITEMS);
+
+      if (sectionItems.length === 0) return null;
+
+      return {
+        title:
+          outcome.source === "primary"
+            ? `Auto inspection: ${outcome.toolName}`
+            : `Follow-up inspection: ${outcome.toolName}`,
+        items: sectionItems,
+      };
+    })
+    .filter(
+      (
+        section
+      ): section is {
+        title: string;
+        items: string[];
+      } => section !== null
+    );
+
   const sections = [
+    ...(topSection ? [topSection] : []),
+    ...(nextActionSection ? [nextActionSection] : []),
     ...(structured.sections ?? []),
-    ...executedOutcomes
-      .map((outcome) => {
-        const sectionItems = dedupeStrings([
-          outcome.summary,
-          ...outcome.detailLines,
-          ...buildGroundingSectionItems(outcome),
-        ]).slice(0, MAX_TOOL_RESULT_LINES + MAX_GROUNDED_NOTES + 6);
-
-        if (sectionItems.length === 0) {
-          return null;
-        }
-
-        return {
-          title:
-            outcome.source === "primary"
-              ? `Auto inspection: ${outcome.toolName}`
-              : `Follow-up inspection: ${outcome.toolName}`,
-          items: sectionItems,
-        };
-      })
-      .filter(
-        (
-          section
-        ): section is {
-          title: string;
-          items: string[];
-        } => section !== null
-      ),
+    ...groundingSections,
+    ...(toolAuditSection ? [toolAuditSection] : []),
   ];
 
   return {
     ...structured,
+    summary: buildGroundedSummary(structured, executedOutcomes),
     context,
     status,
     files,
@@ -1335,6 +2157,108 @@ function buildToolExecutionWarnings(
   return warnings;
 }
 
+function buildEngineStatusWarnings(
+  analysis: CodexForgeEngineAnalysis,
+  context: CodexForgeChatContext,
+  outcomes: SafeToolOutcome[]
+): string[] {
+  const warnings: string[] = [];
+
+  const executed = outcomes.filter((outcome) => outcome.status === "executed");
+  const failed = outcomes.filter((outcome) => outcome.status === "failed");
+  const skipped = outcomes.filter((outcome) => outcome.status === "skipped");
+
+  if (executed.length === 0 && shouldAutoInspectRepo(analysis, context)) {
+    warnings.push(
+      "CodexForge detected a repo-inspection style request, but no safe repo tool produced an executed outcome."
+    );
+  }
+
+  if (failed.length > 0) {
+    warnings.push(
+      `${failed.length} safe repo tool action${
+        failed.length === 1 ? "" : "s"
+      } failed during automatic inspection.`
+    );
+  }
+
+  const skippedWithWarnings = skipped.flatMap((outcome) => outcome.warnings);
+  if (skippedWithWarnings.length > 0) {
+    warnings.push(...skippedWithWarnings);
+  }
+
+  return warnings;
+}
+
+function buildGroundedExecutionNotes(outcomes: SafeToolOutcome[]): string[] {
+  const executedOutcomes = outcomes.filter(
+    (outcome): outcome is Extract<SafeToolOutcome, { status: "executed" }> =>
+      outcome.status === "executed"
+  );
+
+  if (executedOutcomes.length === 0) return [];
+
+  return dedupeStrings(
+    executedOutcomes.flatMap((outcome) => {
+      const grounding = outcome.grounding;
+
+      return [
+        `Safe tool executed: ${outcome.toolName}`,
+        grounding?.matchedFile ? `Grounded file: ${grounding.matchedFile}` : "",
+        grounding?.editFunction
+          ? `Grounded function: ${grounding.editFunction}`
+          : "",
+        grounding?.editLine !== undefined
+          ? `Grounded line: ${grounding.editLine}`
+          : "",
+        grounding?.confidence ? `Grounding confidence: ${grounding.confidence}` : "",
+      ];
+    })
+  );
+}
+
+function buildFinalText(
+  structured: CodexForgeStructuredReply,
+  outcomes: SafeToolOutcome[]
+): string {
+  const baseText = structuredToText(structured);
+
+  const executedOutcomes = outcomes.filter(
+    (outcome): outcome is Extract<SafeToolOutcome, { status: "executed" }> =>
+      outcome.status === "executed"
+  );
+
+  const grounded = executedOutcomes.find(
+    (outcome) => outcome.grounding?.matchedFile
+  );
+
+  if (!grounded?.grounding) {
+    return baseText;
+  }
+
+  const headline = buildGroundingHeadline(grounded.grounding);
+  const why = buildGroundingWhyLine(grounded.grounding);
+  const confidence = grounded.grounding.confidence;
+
+  const leadLines = dedupeStrings([
+    headline ? `Best grounded edit target: ${headline}` : "",
+    grounded.grounding.likelyEditPoint ?? "",
+    why ?? "",
+    confidence ? `Confidence: ${confidence}` : "",
+  ]);
+
+  if (leadLines.length === 0) {
+    return baseText;
+  }
+
+  const leadText = leadLines.join("\n");
+  if (baseText.includes(leadText)) {
+    return baseText;
+  }
+
+  return `${leadText}\n\n${baseText}`;
+}
+
 /* ================= MAIN ================= */
 
 export async function runCodexForgeEngine(
@@ -1352,7 +2276,22 @@ export async function runCodexForgeEngine(
   let structured = buildStructured(analysis, plan, context);
   structured = enrichStructuredWithToolOutcomes(structured, safeToolOutcomes);
 
-  const text = structuredToText(structured);
+  const groundedExecutionNotes = buildGroundedExecutionNotes(safeToolOutcomes);
+  if (groundedExecutionNotes.length > 0) {
+    structured = {
+      ...structured,
+      context: dedupeStrings([
+        ...(structured.context ?? []),
+        ...groundedExecutionNotes,
+      ]),
+      status: dedupeStrings([
+        ...(structured.status ?? []),
+        "Grounded repo inspection completed.",
+      ]),
+    };
+  }
+
+  const text = buildFinalText(structured, safeToolOutcomes);
 
   const graphWarnings: string[] = [];
   try {
@@ -1375,7 +2314,8 @@ export async function runCodexForgeEngine(
   const warnings = mergeWarnings(
     buildWarnings(analysis, context, plan),
     graphWarnings,
-    buildToolExecutionWarnings(context, deps, safeToolOutcomes)
+    buildToolExecutionWarnings(context, deps, safeToolOutcomes),
+    buildEngineStatusWarnings(analysis, context, safeToolOutcomes)
   );
 
   return {
