@@ -45,10 +45,37 @@ export type CodexForgeMessageSource = "api" | "local-fallback" | "system";
 
 export type CodexForgeMemoryType = "fact" | "decision" | "task" | "note";
 
+export type CodexForgeChatMode =
+  | "local"
+  | "local-fallback"
+  | "local-execution"
+  | "local-execution-fallback"
+  | "remote";
+
+export type CodexForgeStructuredReplyMode =
+  | "local"
+  | "local-fallback"
+  | "local-execution"
+  | "local-execution-fallback";
+
+export type CodexForgeStructuredStatusSignal =
+  | "Grounded repository evidence is available."
+  | "Execution handled by UI-side engine fallback."
+  | "Backend route was unavailable or returned an error."
+  | "Task step was processed locally for continuity."
+  | "Using UI-side engine fallback."
+  | "Auto tool executed: read-file"
+  | "Auto tool executed: list-files"
+  | "Auto tool executed: search-project"
+  | "Follow-up tool executed: read-file"
+  | "Follow-up tool executed: list-files"
+  | "Follow-up tool executed: search-project";
+
 /* ================= GRAPH REFERENCES ================= */
 
 export type CodexForgeGraphRef = {
   nodeId: string;
+  graphVersion?: number;
 };
 
 export type CodexForgeGraphAware = {
@@ -115,7 +142,7 @@ export type CodexForgeStructuredExecution = CodexForgeGraphAware & {
 };
 
 export type CodexForgeStructuredReply = CodexForgeGraphAware & {
-  mode?: string;
+  mode?: CodexForgeStructuredReplyMode;
 
   title?: string;
   summary?: string;
@@ -199,17 +226,25 @@ export type CodexForgeContextExecution = {
 };
 
 export type CodexForgeContextExecutionRequest = {
-  taskId?: string;
-  taskGoal?: string;
+  taskId: string;
+  taskGoal: string;
 
-  stepIndex?: number;
-  stepText?: string;
+  stepIndex: number;
+  stepText: string;
 
-  mode?: CodexForgeExecutionRequestMode;
+  mode: CodexForgeExecutionRequestMode;
 };
 
 export type CodexForgeCapabilities = {
   domains?: CodexForgePlanDomain[];
+  structuredReplies?: boolean;
+  memory?: boolean;
+  repoAwarePlanning?: boolean;
+  localExecution?: boolean;
+  diffPreviews?: boolean;
+  snapshots?: boolean;
+  approvals?: boolean;
+  brainGraph?: boolean;
 };
 
 export type CodexForgeChatContext = {
@@ -218,13 +253,10 @@ export type CodexForgeChatContext = {
   workspaceRoot?: string;
   repoPath?: string;
 
-  mode?: string;
+  mode?: CodexForgeChatMode;
   systemGuide?: string;
 
-  activePlan?: (CodexForgePlan & {
-    domain?: CodexForgePlanDomain;
-    tags?: string[];
-  }) | null;
+  activePlan?: CodexForgePlan | null;
 
   memory?: CodexForgeContextMemoryItem[];
 
@@ -246,7 +278,7 @@ export type CodexForgeAssistantReply = {
 };
 
 export type CodexForgeChatSuccessMeta = {
-  mode?: string;
+  mode?: CodexForgeChatMode;
 
   usedFallback?: boolean;
   intent?: string;

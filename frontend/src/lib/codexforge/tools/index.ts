@@ -491,6 +491,97 @@ const READY_TOOL_REGISTRY: CodexForgeToolDefinition[] = [
       tags: ["validation", "command-wrapper", "server-only"],
     },
   }),
+
+  defineReadyDescriptor({
+    name: "build-web-app",
+    label: "Build Web App",
+    domain: "web",
+    safety: "guarded",
+    capabilities: ["workflow", "read", "write"],
+    tags: ["web", "app", "implementation", "frontend", "planning", "routes", "state"],
+    description:
+      "Plan and structure implementation of websites, dashboards, and local-first web apps.",
+    parameters: [
+      {
+        name: "goal",
+        type: "string",
+        description: "High-level outcome for the web app or website.",
+        required: true,
+      },
+      {
+        name: "appType",
+        type: "string",
+        description: "Optional app classification such as dashboard or landing page.",
+        required: false,
+      },
+      {
+        name: "routes",
+        type: "string[]",
+        description: "Optional explicit route list.",
+        required: false,
+      },
+      {
+        name: "features",
+        type: "string[]",
+        description: "Optional explicit core feature list.",
+        required: false,
+      },
+      {
+        name: "constraints",
+        type: "string[]",
+        description: "Optional delivery or architecture constraints.",
+        required: false,
+      },
+      {
+        name: "designStyle",
+        type: "string",
+        description: "Optional style direction for the experience.",
+        required: false,
+      },
+      {
+        name: "targetPath",
+        type: "string",
+        description: "Optional primary app path such as src/app.",
+        required: false,
+        defaultValue: "src/app",
+      },
+      {
+        name: "includeApi",
+        type: "boolean",
+        description: "Whether API surfaces should be proposed.",
+        required: false,
+        defaultValue: true,
+      },
+      {
+        name: "includeStateModel",
+        type: "boolean",
+        description: "Whether state ownership should be explicitly planned.",
+        required: false,
+        defaultValue: true,
+      },
+      {
+        name: "includeTestingPlan",
+        type: "boolean",
+        description: "Whether validation steps should be included.",
+        required: false,
+        defaultValue: true,
+      },
+      {
+        name: "includeRolloutPlan",
+        type: "boolean",
+        description: "Whether rollout steps should be included.",
+        required: false,
+        defaultValue: true,
+      },
+    ],
+    metadata: {
+      provider: "local",
+      version: "codexforge-build-web-app-v1",
+      requiresRuntime: "server",
+      supportedPlatforms: ["windows", "linux", "darwin"],
+      tags: ["planning", "web", "server-only"],
+    },
+  }),
 ];
 
 /* ================= STUB TOOLS ================= */
@@ -530,17 +621,6 @@ const STUB_TOOL_REGISTRY: CodexForgeToolDefinition[] = [
     tags: ["logs", "debug", "runtime", "trace", "errors"],
     description:
       "Inspect runtime output, build logs, or execution traces to support debugging workflows.",
-  }),
-
-  defineStubTool({
-    name: "build-web-app",
-    label: "Build Web App",
-    domain: "web",
-    safety: "guarded",
-    capabilities: ["workflow", "read", "write"],
-    tags: ["web", "app", "implementation", "frontend"],
-    description:
-      "Plan and guide implementation of websites, dashboards, and local-first web apps.",
   }),
 
   defineStubTool({

@@ -1,6 +1,10 @@
 import type {
+  CodexForgeToolArtifact,
+  CodexForgeToolArtifactKind,
   CodexForgeToolDefinition,
   CodexForgeToolExecutionContext,
+  CodexForgeToolJob,
+  CodexForgeToolJobStatus,
   CodexForgeToolResult,
 } from "./contracts";
 import {
@@ -66,6 +70,112 @@ export function buildStartedAt(): number {
   return Date.now();
 }
 
+export function clampProgress(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  if (value <= 0) return 0;
+  if (value >= 1) return 1;
+  return value;
+}
+
+export function createToolArtifact(args: {
+  id: string;
+  kind: CodexForgeToolArtifactKind;
+  label: string;
+  path?: string;
+  url?: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  metadata?: Record<string, unknown>;
+}): CodexForgeToolArtifact {
+  return {
+    id: args.id.trim(),
+    kind: args.kind,
+    label: args.label.trim(),
+    ...(args.path?.trim() ? { path: args.path.trim() } : {}),
+    ...(args.url?.trim() ? { url: args.url.trim() } : {}),
+    ...(args.mimeType?.trim() ? { mimeType: args.mimeType.trim() } : {}),
+    ...(typeof args.sizeBytes === "number" && Number.isFinite(args.sizeBytes)
+      ? { sizeBytes: args.sizeBytes }
+      : {}),
+    ...(args.metadata ? { metadata: args.metadata } : {}),
+  };
+}
+
+export function createToolJob(args: {
+  id: string;
+  status: CodexForgeToolJobStatus;
+  progress?: number;
+  stage?: string;
+  message?: string;
+  startedAt?: number;
+  updatedAt?: number;
+  completedAt?: number;
+  metadata?: Record<string, unknown>;
+}): CodexForgeToolJob {
+  return {
+    id: args.id.trim(),
+    status: args.status,
+    ...(typeof args.progress === "number"
+      ? { progress: clampProgress(args.progress) }
+      : {}),
+    ...(args.stage?.trim() ? { stage: args.stage.trim() } : {}),
+    ...(args.message?.trim() ? { message: args.message.trim() } : {}),
+    ...(typeof args.startedAt === "number" && Number.isFinite(args.startedAt)
+      ? { startedAt: args.startedAt }
+      : {}),
+    ...(typeof args.updatedAt === "number" && Number.isFinite(args.updatedAt)
+      ? { updatedAt: args.updatedAt }
+      : {}),
+    ...(typeof args.completedAt === "number" && Number.isFinite(args.completedAt)
+      ? { completedAt: args.completedAt }
+      : {}),
+    ...(args.metadata ? { metadata: args.metadata } : {}),
+  };
+}
+
+export function buildCompletedToolJob(args: {
+  id: string;
+  stage?: string;
+  message?: string;
+  startedAt?: number;
+  metadata?: Record<string, unknown>;
+}): CodexForgeToolJob {
+  const completedAt = Date.now();
+
+  return createToolJob({
+    id: args.id,
+    status: "completed",
+    progress: 1,
+    stage: args.stage ?? "completed",
+    message: args.message,
+    startedAt: args.startedAt,
+    updatedAt: completedAt,
+    completedAt,
+    metadata: args.metadata,
+  });
+}
+
+export function buildFailedToolJob(args: {
+  id: string;
+  stage?: string;
+  message?: string;
+  startedAt?: number;
+  metadata?: Record<string, unknown>;
+}): CodexForgeToolJob {
+  const completedAt = Date.now();
+
+  return createToolJob({
+    id: args.id,
+    status: "failed",
+    stage: args.stage ?? "failed",
+    message: args.message,
+    startedAt: args.startedAt,
+    updatedAt: completedAt,
+    completedAt,
+    metadata: args.metadata,
+  });
+}
+
 export function finishToolSuccess(args: {
   toolName: string;
   summary: string;
@@ -73,6 +183,9 @@ export function finishToolSuccess(args: {
   content?: CodexForgeToolResult["content"];
   warnings?: CodexForgeToolResult["warnings"];
   raw?: unknown;
+  job?: CodexForgeToolResult["job"];
+  artifacts?: CodexForgeToolResult["artifacts"];
+  metadata?: CodexForgeToolResult["metadata"];
 }): CodexForgeToolResult {
   return createCodexForgeToolResult({
     toolName: args.toolName,
@@ -82,6 +195,9 @@ export function finishToolSuccess(args: {
     raw: args.raw,
     startedAt: args.startedAt,
     completedAt: Date.now(),
+    job: args.job,
+    artifacts: args.artifacts,
+    metadata: args.metadata,
   });
 }
 
@@ -95,6 +211,9 @@ export function finishToolError(args: {
   details?: Record<string, unknown>;
   warnings?: CodexForgeToolResult["warnings"];
   raw?: unknown;
+  job?: CodexForgeToolResult["job"];
+  artifacts?: CodexForgeToolResult["artifacts"];
+  metadata?: CodexForgeToolResult["metadata"];
 }): CodexForgeToolResult {
   return createCodexForgeToolErrorResult({
     toolName: args.toolName,
@@ -107,6 +226,9 @@ export function finishToolError(args: {
     raw: args.raw,
     startedAt: args.startedAt,
     completedAt: Date.now(),
+    job: args.job,
+    artifacts: args.artifacts,
+    metadata: args.metadata,
   });
 }
 
@@ -134,7 +256,10 @@ export function createStubTool(args: {
     parameters: args.parameters ?? [],
     examples: args.examples,
     metadata: args.metadata,
-    handler: (input: Record<string, unknown>, context: CodexForgeToolExecutionContext) => {
+    handler: (
+      input: Record<string, unknown>,
+      context: CodexForgeToolExecutionContext
+    ) => {
       const startedAt = buildStartedAt();
 
       return finishToolError({
@@ -152,6 +277,11 @@ export function createStubTool(args: {
             repoPath: context.repoPath,
           },
         },
+        job: buildFailedToolJob({
+          id: `${args.name}-stub`,
+          startedAt,
+          message: `${args.label} is not implemented yet.`,
+        }),
       });
     },
   };

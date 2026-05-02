@@ -121,6 +121,47 @@ export type CodexForgeToolError = {
   details?: Record<string, unknown>;
 };
 
+export type CodexForgeToolArtifactKind =
+  | "image"
+  | "video"
+  | "audio"
+  | "document"
+  | "json"
+  | "workflow"
+  | "archive"
+  | "text"
+  | "other";
+
+export type CodexForgeToolArtifact = {
+  id: string;
+  kind: CodexForgeToolArtifactKind;
+  label: string;
+  path?: string;
+  url?: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  metadata?: Record<string, unknown>;
+};
+
+export type CodexForgeToolJobStatus =
+  | "queued"
+  | "running"
+  | "completed"
+  | "failed"
+  | "cancelled";
+
+export type CodexForgeToolJob = {
+  id: string;
+  status: CodexForgeToolJobStatus;
+  progress?: number;
+  stage?: string;
+  message?: string;
+  startedAt?: number;
+  updatedAt?: number;
+  completedAt?: number;
+  metadata?: Record<string, unknown>;
+};
+
 export type CodexForgeToolResult = {
   ok: boolean;
   toolName: string;
@@ -132,6 +173,44 @@ export type CodexForgeToolResult = {
   completedAt: number;
   durationMs: number;
   raw?: unknown;
+
+  /**
+   * Optional job metadata for tools that are:
+   * - long-running
+   * - staged
+   * - queue-backed
+   * - partially complete
+   *
+   * Existing synchronous tools can ignore this.
+   */
+  job?: CodexForgeToolJob;
+
+  /**
+   * Optional structured artifacts produced by a tool.
+   *
+   * Existing tools can continue to return only `content`.
+   * Media, workflow, export, and document-oriented tools can attach
+   * file-like outputs here without overloading `content`.
+   */
+  artifacts?: CodexForgeToolArtifact[];
+
+  /**
+   * Optional workflow linkage / orchestration metadata.
+   *
+   * Useful later for:
+   * - parent/child tool calls
+   * - run lineage
+   * - multi-step creative pipelines
+   * - cross-tool traceability
+   */
+  metadata?: {
+    runId?: string;
+    parentRunId?: string;
+    traceId?: string;
+    stepId?: string;
+    sourceToolName?: string;
+    [key: string]: unknown;
+  };
 };
 
 export type CodexForgeToolHandler = (
@@ -168,6 +247,76 @@ export type CodexForgeToolExecutionRequest = {
 
 export type CodexForgeToolExecutionResponse = CodexForgeToolResult;
 
+function clampProgress(value: number | undefined): number | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return undefined;
+  }
+
+  if (value <= 0) return 0;
+  if (value >= 1) return 1;
+  return value;
+}
+
+function normalizeArtifacts(
+  artifacts: CodexForgeToolArtifact[] | undefined
+): CodexForgeToolArtifact[] | undefined {
+  if (!Array.isArray(artifacts) || artifacts.length === 0) {
+    return undefined;
+  }
+
+  return artifacts.map((artifact) => ({
+    id: String(artifact.id ?? "").trim(),
+    kind: artifact.kind,
+    label: String(artifact.label ?? "").trim(),
+    ...(typeof artifact.path === "string" && artifact.path.trim().length > 0
+      ? { path: artifact.path.trim() }
+      : {}),
+    ...(typeof artifact.url === "string" && artifact.url.trim().length > 0
+      ? { url: artifact.url.trim() }
+      : {}),
+    ...(typeof artifact.mimeType === "string" &&
+    artifact.mimeType.trim().length > 0
+      ? { mimeType: artifact.mimeType.trim() }
+      : {}),
+    ...(typeof artifact.sizeBytes === "number" &&
+    Number.isFinite(artifact.sizeBytes) &&
+    artifact.sizeBytes >= 0
+      ? { sizeBytes: artifact.sizeBytes }
+      : {}),
+    ...(artifact.metadata ? { metadata: artifact.metadata } : {}),
+  }));
+}
+
+function normalizeJob(job: CodexForgeToolJob | undefined): CodexForgeToolJob | undefined {
+  if (!job) {
+    return undefined;
+  }
+
+  return {
+    id: String(job.id ?? "").trim(),
+    status: job.status,
+    ...(clampProgress(job.progress) !== undefined
+      ? { progress: clampProgress(job.progress) }
+      : {}),
+    ...(typeof job.stage === "string" && job.stage.trim().length > 0
+      ? { stage: job.stage.trim() }
+      : {}),
+    ...(typeof job.message === "string" && job.message.trim().length > 0
+      ? { message: job.message.trim() }
+      : {}),
+    ...(typeof job.startedAt === "number" && Number.isFinite(job.startedAt)
+      ? { startedAt: job.startedAt }
+      : {}),
+    ...(typeof job.updatedAt === "number" && Number.isFinite(job.updatedAt)
+      ? { updatedAt: job.updatedAt }
+      : {}),
+    ...(typeof job.completedAt === "number" && Number.isFinite(job.completedAt)
+      ? { completedAt: job.completedAt }
+      : {}),
+    ...(job.metadata ? { metadata: job.metadata } : {}),
+  };
+}
+
 export function createCodexForgeToolResult(args: {
   toolName: string;
   summary: string;
@@ -176,9 +325,14 @@ export function createCodexForgeToolResult(args: {
   raw?: unknown;
   startedAt?: number;
   completedAt?: number;
+  job?: CodexForgeToolJob;
+  artifacts?: CodexForgeToolArtifact[];
+  metadata?: CodexForgeToolResult["metadata"];
 }): CodexForgeToolResult {
   const startedAt = args.startedAt ?? Date.now();
   const completedAt = args.completedAt ?? Date.now();
+  const job = normalizeJob(args.job);
+  const artifacts = normalizeArtifacts(args.artifacts);
 
   return {
     ok: true,
@@ -190,6 +344,9 @@ export function createCodexForgeToolResult(args: {
     startedAt,
     completedAt,
     durationMs: Math.max(0, completedAt - startedAt),
+    ...(job ? { job } : {}),
+    ...(artifacts ? { artifacts } : {}),
+    ...(args.metadata ? { metadata: args.metadata } : {}),
   };
 }
 
@@ -204,9 +361,14 @@ export function createCodexForgeToolErrorResult(args: {
   raw?: unknown;
   startedAt?: number;
   completedAt?: number;
+  job?: CodexForgeToolJob;
+  artifacts?: CodexForgeToolArtifact[];
+  metadata?: CodexForgeToolResult["metadata"];
 }): CodexForgeToolResult {
   const startedAt = args.startedAt ?? Date.now();
   const completedAt = args.completedAt ?? Date.now();
+  const job = normalizeJob(args.job);
+  const artifacts = normalizeArtifacts(args.artifacts);
 
   return {
     ok: false,
@@ -223,6 +385,9 @@ export function createCodexForgeToolErrorResult(args: {
     startedAt,
     completedAt,
     durationMs: Math.max(0, completedAt - startedAt),
+    ...(job ? { job } : {}),
+    ...(artifacts ? { artifacts } : {}),
+    ...(args.metadata ? { metadata: args.metadata } : {}),
   };
 }
 
