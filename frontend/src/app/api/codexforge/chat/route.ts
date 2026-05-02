@@ -21,7 +21,7 @@ import type {
 
 /* ================= CONFIG ================= */
 
-const MODEL_NAME = "codexforge-brain-router-v5";
+const MODEL_NAME = "codexforge-brain-router-v6";
 
 const LIMITS = {
   maxMessages: 80,
@@ -43,6 +43,7 @@ const LIMITS = {
   maxGroundedSignals: 10,
   maxDoctrineLines: 18,
   maxCapabilityBriefingLines: 12,
+  maxDebugHeaderText: 500,
 } as const;
 
 const VALID_PLAN_DOMAINS: readonly CodexForgePlanDomain[] = [
@@ -104,6 +105,8 @@ const CODEXFORGE_DOCTRINE_LINES: readonly string[] = [
   "For Blender/DaVinci/Photoshop/canvas-style work, treat them as creative-production tools requiring asset plans, review checkpoints, and explicit user approval before file or render mutation.",
   "For camera, voice, desktop, or browser control, require explicit opt-in, visible state, local-first behavior where possible, and no silent background surveillance.",
   "Always separate: what is known, what was inspected, the best next action, risks, and what requires approval.",
+  "For recognized CodexForge domains, prefer the local structured engine so Tools, Domain, Steps, and repo-aware sections stay populated.",
+  "Thin fallback answers are acceptable only when the request is truly generic or when the local engine/provider path fails visibly.",
 ] as const;
 
 const CAPABILITY_BRIEFINGS: Record<CodexForgePlanDomain, readonly string[]> = {
@@ -112,7 +115,8 @@ const CAPABILITY_BRIEFINGS: Record<CodexForgePlanDomain, readonly string[]> = {
   ],
   web: [
     "Web mode: plan and build production sites with routes, components, design system, data flow, API boundaries, SEO, accessibility, testing, deployment, and iteration.",
-    "For website requests, return deliverables, page map, component map, implementation phases, risk list, and first file/action.",
+    "For website and product-feature requests, return deliverables, page map or route map, component map, implementation phases, risk list, and first file/action.",
+    "For CodexForge app work, keep chat route, client hook, structured reply contract, local tools, and UI metadata aligned.",
   ],
   research: [
     "Research mode: identify unknowns, evidence sources, evaluation criteria, assumptions, contradictions, and output format.",
@@ -142,6 +146,7 @@ const CAPABILITY_BRIEFINGS: Record<CodexForgePlanDomain, readonly string[]> = {
   automation: [
     "Automation mode: classify safe read-only actions versus approval-required mutations, then produce explicit tool sequence and rollback/checkpoint plan.",
     "For desktop/browser/camera/voice style automation, require explicit consent and visible state.",
+    "For approval-driven diff preview work, keep plan -> generate diff -> preview -> approve -> apply -> test -> checkpoint as the canonical flow.",
   ],
 } as const;
 
@@ -213,12 +218,18 @@ type CapabilityRouting = {
   tags: string[];
   briefing: string[];
   matched: boolean;
+  reasons: string[];
 };
 
 type FileIntentDiagnostics = {
   explicitFileRequest: boolean;
   requestedPaths: string[];
   requestedVerbs: string[];
+};
+
+type LocalEngineRoutingDecision = {
+  forceLocalEngine: boolean;
+  reason: string;
 };
 
 /* ================= BASICS ================= */
@@ -241,7 +252,7 @@ function asFiniteNumber(value: unknown): number | undefined {
 }
 
 function clampText(text: string, max: number): string {
-  return text.length <= max ? text : `${text.slice(0, max - 1)}…`;
+  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1))}…`;
 }
 
 function asClampedString(value: unknown, max: number): string | undefined {
@@ -250,7 +261,21 @@ function asClampedString(value: unknown, max: number): string | undefined {
 }
 
 function uniqueStrings(values: string[]): string[] {
-  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+  const seen = new Set<string>();
+  const output: string[] = [];
+
+  for (const value of values) {
+    const trimmed = value.trim();
+    if (!trimmed) continue;
+
+    const key = trimmed.toLowerCase();
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    output.push(trimmed);
+  }
+
+  return output;
 }
 
 function asStringArray(
@@ -284,6 +309,10 @@ function badRequest(error: string, status = 400) {
       headers: buildJsonHeaders(),
     }
   );
+}
+
+function boolHeader(value: boolean): "true" | "false" {
+  return value ? "true" : "false";
 }
 
 /* ================= ENUM NORMALIZERS ================= */
@@ -1239,21 +1268,25 @@ function scoreGroundedFileCandidate(
   return score;
 }
 
+/* ================= CAPABILITY ROUTING ================= */
+
 function detectCapabilityRouting(
   text: string,
   context: CodexForgeChatContext
 ): CapabilityRouting {
   const normalized = text.toLowerCase();
   const tags: string[] = [];
+  const reasons: string[] = [];
 
   let domain: CodexForgePlanDomain =
     context.activePlan?.domain ??
     context.codexforgeCapabilities?.domains?.[0] ??
     "general";
 
-  function match(nextDomain: CodexForgePlanDomain, tag: string): void {
+  function match(nextDomain: CodexForgePlanDomain, tag: string, reason: string): void {
     domain = nextDomain;
     tags.push(tag);
+    reasons.push(reason);
   }
 
   if (
@@ -1261,7 +1294,15 @@ function detectCapabilityRouting(
       normalized
     )
   ) {
-    match("web", "web-production");
+    match("web", "web-production", "Web/product keywords detected.");
+  }
+
+  if (
+    /\b(codexforge|workspace|chat route|api route|route handler|response builder|structured reply|structured output|client hook|ui metadata|feature|product feature|app feature|diff preview|diff previews|approval-driven|approval flow|approval safe|plan a feature|build a feature)\b/.test(
+      normalized
+    )
+  ) {
+    match("web", "codexforge-product", "CodexForge product/application work detected.");
   }
 
   if (
@@ -1269,7 +1310,7 @@ function detectCapabilityRouting(
       normalized
     )
   ) {
-    match("debug", "debugging");
+    match("debug", "debugging", "Debugging or edit-point language detected.");
   }
 
   if (
@@ -1277,7 +1318,7 @@ function detectCapabilityRouting(
       normalized
     )
   ) {
-    match("research", "research");
+    match("research", "research", "Research keywords detected.");
   }
 
   if (
@@ -1285,7 +1326,7 @@ function detectCapabilityRouting(
       normalized
     )
   ) {
-    match("game-server", "game-server");
+    match("game-server", "game-server", "Game-server keywords detected.");
   }
 
   if (
@@ -1293,7 +1334,7 @@ function detectCapabilityRouting(
       normalized
     )
   ) {
-    match("movie", "movie-pipeline");
+    match("movie", "movie-pipeline", "Movie pipeline keywords detected.");
   }
 
   if (
@@ -1301,7 +1342,7 @@ function detectCapabilityRouting(
       normalized
     )
   ) {
-    match("video", "video-production");
+    match("video", "video-production", "Video production keywords detected.");
   }
 
   if (
@@ -1309,7 +1350,7 @@ function detectCapabilityRouting(
       normalized
     )
   ) {
-    match("comfyui", "comfyui");
+    match("comfyui", "comfyui", "ComfyUI workflow keywords detected.");
   }
 
   if (
@@ -1317,15 +1358,23 @@ function detectCapabilityRouting(
       normalized
     )
   ) {
-    match("unreal", "unreal");
+    match("unreal", "unreal", "Unreal production keywords detected.");
   }
 
   if (
-    /\b(automation|agent|jarvis|desktop|browser|camera|webcam|voice|photoshop|blender|canvas|operator|multi-agent|multi agent)\b/.test(
+    /\b(automation|agent|jarvis|desktop|browser|camera|webcam|voice|photoshop|blender|canvas|operator|multi-agent|multi agent|apply-diff|generate-diff|write-file|run-command|snapshot|checkpoint)\b/.test(
       normalized
     )
   ) {
-    match("automation", "automation");
+    match("automation", "automation", "Automation/operator keywords detected.");
+  }
+
+  if (
+    /\b(local models?|provider routing|providers?|caching|graph memory|brain architecture|offline-first|offline first|safe execution|local-first|local first)\b/.test(
+      normalized
+    )
+  ) {
+    match("automation", "brain-architecture", "Brain architecture/local runtime keywords detected.");
   }
 
   const briefing = uniqueStrings([
@@ -1337,6 +1386,7 @@ function detectCapabilityRouting(
     tags: uniqueStrings(tags).slice(0, LIMITS.maxPlanListItems),
     briefing,
     matched: tags.length > 0,
+    reasons: uniqueStrings(reasons).slice(0, LIMITS.maxPlanListItems),
   };
 }
 
@@ -1347,6 +1397,10 @@ function buildCapabilityBriefingLines(routing: CapabilityRouting): string[] {
 
   if (routing.tags.length > 0) {
     lines.push(`Capability tags: ${routing.tags.join(", ")}.`);
+  }
+
+  for (const reason of routing.reasons) {
+    lines.push(`Capability match: ${reason}`);
   }
 
   for (const item of routing.briefing) {
@@ -1361,6 +1415,8 @@ function buildDoctrineLines(): string[] {
     (line) => `CodexForge doctrine: ${line}`
   );
 }
+
+/* ================= GROUNDED DIAGNOSTICS ================= */
 
 function buildGroundedDiagnostics(
   messages: CodexForgeMessage[],
@@ -1603,15 +1659,7 @@ function resolveRouteMode(args: {
     return "planning";
   }
 
-  if (
-    args.capabilityRouting.domain === "web" ||
-    args.capabilityRouting.domain === "game-server" ||
-    args.capabilityRouting.domain === "movie" ||
-    args.capabilityRouting.domain === "video" ||
-    args.capabilityRouting.domain === "comfyui" ||
-    args.capabilityRouting.domain === "unreal" ||
-    args.capabilityRouting.domain === "automation"
-  ) {
+  if (args.capabilityRouting.matched && args.capabilityRouting.domain !== "general") {
     return "planning";
   }
 
@@ -1634,6 +1682,7 @@ function mapRouteModeToChatMode(
 }
 
 function buildImplicitActivePlan(args: {
+  latestUserText: string;
   context: CodexForgeChatContext;
   groundedDiagnostics: GroundedDiagnostics;
   fileIntent: FileIntentDiagnostics;
@@ -1673,15 +1722,20 @@ function buildImplicitActivePlan(args: {
     args.capabilityRouting.matched &&
     args.capabilityRouting.domain !== "general"
   ) {
+    const goal = clampText(args.latestUserText, LIMITS.maxText);
+
     return {
-      goal: `Plan ${args.capabilityRouting.domain} work`,
+      goal,
       steps: [
-        "Clarify deliverables and constraints.",
-        "Map required tools, files, assets, and approvals.",
-        "Return phased execution plan with first concrete action.",
+        "Clarify the concrete deliverable and success criteria.",
+        "Map files, contracts, tools, approvals, and state boundaries.",
+        "Return a phased implementation plan with the first concrete edit point.",
       ],
-      notes: args.capabilityRouting.briefing,
-      tags: args.capabilityRouting.tags,
+      notes: uniqueStrings([
+        ...args.capabilityRouting.briefing,
+        ...args.capabilityRouting.reasons,
+      ]),
+      tags: uniqueStrings(["codexforge", "structured-plan", ...args.capabilityRouting.tags]),
       status: "draft",
       intent: "capability-plan",
       domain: args.capabilityRouting.domain,
@@ -1692,6 +1746,7 @@ function buildImplicitActivePlan(args: {
 }
 
 function buildEnrichedContext(
+  latestUserText: string,
   context: CodexForgeChatContext,
   graphDiagnostics: GraphDiagnostics,
   groundedDiagnostics: GroundedDiagnostics,
@@ -1722,12 +1777,16 @@ function buildEnrichedContext(
     fileIntent.explicitFileRequest
       ? "Execution instruction: this is an explicit file inspection request; use read-file/search-project/list-files before answering and do not merely suggest shell commands."
       : undefined,
+    capabilityRouting.matched
+      ? "Routing instruction: this is recognized CodexForge work; use structured local-engine behavior with tools/domain/steps populated instead of thin generic provider output."
+      : undefined,
     groundedDiagnostics.primaryFile
       ? `Visible-answer instruction: lead with the grounded file ${groundedDiagnostics.primaryFile} and the strongest concrete edit point when answering inspection/debug prompts.`
       : undefined,
   ].filter((value): value is string => typeof value === "string" && value.length > 0);
 
   const implicitActivePlan = buildImplicitActivePlan({
+    latestUserText,
     context,
     groundedDiagnostics,
     fileIntent,
@@ -1749,6 +1808,7 @@ function buildEnrichedContext(
     ...(implicitActivePlan?.notes ?? []),
     ...groundedDiagnostics.fileSignals,
     ...capabilityRouting.briefing,
+    ...capabilityRouting.reasons,
   ]);
 
   const mergedTags = uniqueStrings([
@@ -1821,6 +1881,92 @@ function buildEnrichedContext(
   };
 }
 
+/* ================= PROVIDER ROUTING ================= */
+
+function shouldForceLocalEngine(args: {
+  resolvedMode: BrainRouteMode;
+  fileIntent: FileIntentDiagnostics;
+  capabilityRouting: CapabilityRouting;
+  enrichedContext: CodexForgeChatContext;
+}): LocalEngineRoutingDecision {
+  if (args.resolvedMode === "execution") {
+    return {
+      forceLocalEngine: true,
+      reason: "execution-route-mode",
+    };
+  }
+
+  if (args.fileIntent.explicitFileRequest) {
+    return {
+      forceLocalEngine: true,
+      reason: "explicit-file-inspection",
+    };
+  }
+
+  if (args.enrichedContext.executionRequest?.mode === "execute-task-step") {
+    return {
+      forceLocalEngine: true,
+      reason: "execute-task-step",
+    };
+  }
+
+  if (args.resolvedMode === "planning") {
+    return {
+      forceLocalEngine: true,
+      reason: "structured-planning-mode",
+    };
+  }
+
+  if (args.capabilityRouting.matched) {
+    return {
+      forceLocalEngine: true,
+      reason: "recognized-codexforge-capability",
+    };
+  }
+
+  if (args.capabilityRouting.domain !== "general") {
+    return {
+      forceLocalEngine: true,
+      reason: "non-general-domain",
+    };
+  }
+
+  return {
+    forceLocalEngine: false,
+    reason: "generic-chat-provider-allowed",
+  };
+}
+
+function preferNonGeneralDomain(
+  ...domains: Array<CodexForgePlanDomain | undefined>
+): CodexForgePlanDomain {
+  for (const domain of domains) {
+    if (domain && domain !== "general") return domain;
+  }
+
+  return domains.find((domain): domain is CodexForgePlanDomain => !!domain) ?? "general";
+}
+
+function resolveResponseDomain(args: {
+  fileIntent: FileIntentDiagnostics;
+  responseDomain?: CodexForgePlanDomain;
+  structuredDomain?: CodexForgePlanDomain;
+  structuredPlanDomain?: CodexForgePlanDomain;
+  activePlanDomain?: CodexForgePlanDomain;
+  capabilityDomain: CodexForgePlanDomain;
+}): CodexForgePlanDomain {
+  if (args.fileIntent.explicitFileRequest) return "debug";
+
+  return preferNonGeneralDomain(
+    args.responseDomain,
+    args.structuredDomain,
+    args.structuredPlanDomain,
+    args.activePlanDomain,
+    args.capabilityDomain,
+    "general"
+  );
+}
+
 /* ================= ROUTE ================= */
 
 export async function POST(req: Request) {
@@ -1868,6 +2014,7 @@ export async function POST(req: Request) {
     });
 
     const enrichedContext = buildEnrichedContext(
+      lastUser.text,
       context,
       graphDiagnostics,
       groundedDiagnostics,
@@ -1884,10 +2031,14 @@ export async function POST(req: Request) {
       fileIntent
     );
 
-    const forceLocalEngine =
-      resolvedMode === "execution" ||
-      fileIntent.explicitFileRequest ||
-      enrichedContext.executionRequest?.mode === "execute-task-step";
+    const localEngineDecision = shouldForceLocalEngine({
+      resolvedMode,
+      fileIntent,
+      capabilityRouting,
+      enrichedContext,
+    });
+
+    const forceLocalEngine = localEngineDecision.forceLocalEngine;
 
     const { brain, selectionInfo, executableToolNames } = createRouteBrain({
       forceLocalEngine,
@@ -1898,6 +2049,7 @@ export async function POST(req: Request) {
       commandIntent,
       resolvedMode,
       forceLocalEngine,
+      forceLocalReason: localEngineDecision.reason,
       preferredProvider: selectionInfo.selectedProvider,
       resolvedProvider: selectionInfo.resolvedProvider,
       usedFallback: selectionInfo.usedFallback,
@@ -1922,6 +2074,7 @@ export async function POST(req: Request) {
       capabilityDomain: capabilityRouting.domain,
       capabilityTags: capabilityRouting.tags,
       capabilityMatched: capabilityRouting.matched,
+      capabilityReasons: capabilityRouting.reasons,
       groundedPrimaryFile: groundedDiagnostics.primaryFile ?? null,
       groundedSupportingFiles: groundedDiagnostics.supportingFiles,
       groundedSignals: groundedDiagnostics.fileSignals,
@@ -1957,6 +2110,7 @@ export async function POST(req: Request) {
         resolvedProvider: selectionInfo.resolvedProvider,
         resolvedMode,
         forceLocalEngine,
+        forceLocalReason: localEngineDecision.reason,
         fileExplicitRequest: fileIntent.explicitFileRequest,
         fileRequestedPaths: fileIntent.requestedPaths,
         capabilityDomain: capabilityRouting.domain,
@@ -1977,15 +2131,14 @@ export async function POST(req: Request) {
           enrichedContext.mode ??
           mapRouteModeToChatMode(resolvedMode);
 
-    const resolvedDomain =
-      fileIntent.explicitFileRequest
-        ? "debug"
-        : response.meta.domain ??
-          response.structured?.domain ??
-          response.structured?.plan?.domain ??
-          enrichedContext.activePlan?.domain ??
-          capabilityRouting.domain ??
-          "general";
+    const resolvedDomain = resolveResponseDomain({
+      fileIntent,
+      responseDomain: response.meta.domain,
+      structuredDomain: response.structured?.domain,
+      structuredPlanDomain: response.structured?.plan?.domain,
+      activePlanDomain: enrichedContext.activePlan?.domain,
+      capabilityDomain: capabilityRouting.domain,
+    });
 
     const resolvedIntent =
       commandIntent ??
@@ -1994,7 +2147,10 @@ export async function POST(req: Request) {
 
     const meta = toCodexForgeChatMeta(response, {
       projectName: enrichedContext.projectName || "CodexForge",
-      generatedPlan: !!response.structured?.plan,
+      generatedPlan:
+        !!response.structured?.plan ||
+        !!enrichedContext.activePlan ||
+        resolvedMode === "planning",
       executionMode:
         enrichedContext.executionRequest?.mode === "execute-task-step" ||
         resolvedMode === "execution" ||
@@ -2002,8 +2158,7 @@ export async function POST(req: Request) {
       domain: resolvedDomain,
       mode: resolvedChatMode,
       intent: resolvedIntent,
-      usedFallback:
-        response.meta.usedFallback || selectionInfo.usedFallback,
+      usedFallback: response.meta.usedFallback || selectionInfo.usedFallback,
       model: response.meta.model || MODEL_NAME,
     });
 
@@ -2032,6 +2187,7 @@ export async function POST(req: Request) {
       resolvedChatMode,
       resolvedMode,
       forceLocalEngine,
+      forceLocalReason: localEngineDecision.reason,
       intent: response.intent,
       resolvedIntent,
       domain: meta.domain,
@@ -2044,11 +2200,12 @@ export async function POST(req: Request) {
       fileRequestedPathCount: fileIntent.requestedPaths.length,
       capabilityDomain: capabilityRouting.domain,
       capabilityTags: capabilityRouting.tags,
+      capabilityMatched: capabilityRouting.matched,
       groundedPrimaryFile: groundedDiagnostics.primaryFile ?? null,
       groundedSupportingFileCount: groundedDiagnostics.supportingFiles.length,
       groundedSignalCount: groundedDiagnostics.fileSignals.length,
       executableToolCount: executableToolNames.length,
-      generatedPlan: !!response.structured?.plan,
+      generatedPlan: !!response.structured?.plan || !!enrichedContext.activePlan,
       hasStructured: !!response.structured,
       replyLength: response.text.length,
     });
@@ -2059,54 +2216,43 @@ export async function POST(req: Request) {
         "x-codexforge-intent": successResponse.meta?.intent ?? "unknown",
         "x-codexforge-command": commandIntent ?? "none",
         "x-codexforge-mode": resolvedMode,
-        "x-codexforge-force-local-engine": forceLocalEngine ? "true" : "false",
+        "x-codexforge-force-local-engine": boolHeader(forceLocalEngine),
+        "x-codexforge-force-local-reason": clampText(
+          localEngineDecision.reason,
+          LIMITS.maxDebugHeaderText
+        ),
         "x-codexforge-chat-mode": resolvedChatMode,
         "x-codexforge-warning-count": String(mergedWarnings.length),
         "x-codexforge-domain": successResponse.meta?.domain ?? "general",
         "x-codexforge-capability-domain": capabilityRouting.domain,
-        "x-codexforge-capability-matched": capabilityRouting.matched
-          ? "true"
-          : "false",
+        "x-codexforge-capability-matched": boolHeader(capabilityRouting.matched),
         "x-codexforge-capability-tags": capabilityRouting.tags.join(","),
-        "x-codexforge-generated-plan": successResponse.meta?.generatedPlan
-          ? "true"
-          : "false",
-        "x-codexforge-execution-mode": successResponse.meta?.executionMode
-          ? "true"
-          : "false",
+        "x-codexforge-generated-plan": boolHeader(
+          successResponse.meta?.generatedPlan === true
+        ),
+        "x-codexforge-execution-mode": boolHeader(
+          successResponse.meta?.executionMode === true
+        ),
         "x-codexforge-provider": response.meta.provider,
         "x-codexforge-provider-selected": selectionInfo.selectedProvider,
         "x-codexforge-provider-resolved": selectionInfo.resolvedProvider,
-        "x-codexforge-provider-fallback": selectionInfo.usedFallback
-          ? "true"
-          : "false",
+        "x-codexforge-provider-fallback": boolHeader(selectionInfo.usedFallback),
         "x-codexforge-duration-ms":
           typeof response.meta.durationMs === "number"
             ? String(response.meta.durationMs)
             : "0",
         "x-codexforge-repo-path": enrichedContext.repoPath ?? "none",
-        "x-codexforge-has-repo-path": enrichedContext.repoPath
-          ? "true"
-          : "false",
-        "x-codexforge-graph-used":
+        "x-codexforge-has-repo-path": boolHeader(!!enrichedContext.repoPath),
+        "x-codexforge-graph-used": boolHeader(
           graphDiagnostics.hasGraph && graphDiagnostics.nodeCount > 0
-            ? "true"
-            : "false",
+        ),
         "x-codexforge-graph-nodes": String(graphDiagnostics.nodeCount),
         "x-codexforge-graph-edges": String(graphDiagnostics.edgeCount),
         "x-codexforge-graph-focus-count": String(graphDiagnostics.focusNodeCount),
-        "x-codexforge-graph-has-task": graphDiagnostics.hasTaskNode
-          ? "true"
-          : "false",
-        "x-codexforge-graph-has-plan": graphDiagnostics.hasPlanNode
-          ? "true"
-          : "false",
-        "x-codexforge-graph-has-run": graphDiagnostics.hasRunNode
-          ? "true"
-          : "false",
-        "x-codexforge-file-explicit-request": fileIntent.explicitFileRequest
-          ? "true"
-          : "false",
+        "x-codexforge-graph-has-task": boolHeader(graphDiagnostics.hasTaskNode),
+        "x-codexforge-graph-has-plan": boolHeader(graphDiagnostics.hasPlanNode),
+        "x-codexforge-graph-has-run": boolHeader(graphDiagnostics.hasRunNode),
+        "x-codexforge-file-explicit-request": boolHeader(fileIntent.explicitFileRequest),
         "x-codexforge-file-requested-paths": String(fileIntent.requestedPaths.length),
         "x-codexforge-file-requested-verbs": fileIntent.requestedVerbs.join(","),
         "x-codexforge-grounded-primary-file":
