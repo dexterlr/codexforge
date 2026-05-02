@@ -28,24 +28,6 @@ type BackendError = CodexForgeChatErrorResponse;
 type BackendMode = "api" | "local-fallback";
 type TaskStepStatus = "pending" | "running" | "done" | "error";
 
-const STATUS = {
-  READY: "Ready",
-  THINKING: "Thinking",
-  API: "Ready • API connected",
-  FALLBACK: "Ready • local fallback",
-  ENGINE: "Ready • local engine fallback",
-  EXECUTING: "Executing task step",
-  EXECUTED_API: "Ready • step executed via API",
-  EXECUTED_FALLBACK: "Ready • step executed locally",
-  APPROVED_PLAN: "Ready • plan approved",
-  REJECTED_PLAN: "Ready • plan rejected",
-  APPROVED_DIFFS: "Ready • diffs approved",
-  REJECTED_DIFFS: "Ready • diffs rejected",
-  RESET_ENGINE: "Ready • engine reset",
-} as const;
-
-type StatusText = (typeof STATUS)[keyof typeof STATUS];
-
 type RequestAssistantResult = {
   message: Msg;
   mode: BackendMode;
@@ -162,10 +144,30 @@ type UseCodexForgeChatArgs = {
 const PRODUCT_NAME = "CodexForge";
 
 const PRODUCT_DIRECTION_LINES = [
-  `${PRODUCT_NAME} is the real product and primary frontend.`,
-  "This workspace should grow into the main AI developer environment.",
-  "The target surface includes coding help, planning, execution, memory, research, websites, themed servers, movie workflows, Unreal Engine, and ComfyUI systems.",
+  `${PRODUCT_NAME} is the only product identity in this workspace.`,
+  "This workspace is the main CodexForge environment for planning, execution, research, memory, and repo-aware work.",
+  "Prefer grounded implementation context, structured replies, safe execution checkpoints, and local-first continuity.",
 ] as const;
+
+/* ================= STATUS ================= */
+
+const STATUS = {
+  READY: "Ready",
+  THINKING: "Thinking",
+  API: "Ready • API connected",
+  FALLBACK: "Ready • local fallback",
+  ENGINE: "Ready • local engine fallback",
+  EXECUTING: "Executing task step",
+  EXECUTED_API: "Ready • step executed via API",
+  EXECUTED_FALLBACK: "Ready • step executed locally",
+  APPROVED_PLAN: "Ready • plan approved",
+  REJECTED_PLAN: "Ready • plan rejected",
+  APPROVED_DIFFS: "Ready • diffs approved",
+  REJECTED_DIFFS: "Ready • diffs rejected",
+  RESET_ENGINE: "Ready • engine reset",
+} as const;
+
+type StatusText = (typeof STATUS)[keyof typeof STATUS];
 
 /* ================= STORAGE ================= */
 
@@ -225,7 +227,7 @@ const uid = () =>
 
 const now = () => Date.now();
 
-function clamp(index: number, length: number) {
+function clamp(index: number, length: number): number {
   return Math.min(Math.max(index, 0), Math.max(length - 1, 0));
 }
 
@@ -242,12 +244,13 @@ function safeRead<T>(key: string): T | null {
   }
 }
 
-function safeWrite(key: string, value: unknown) {
+function safeWrite(key: string, value: unknown): void {
   try {
     if (value == null) {
       localStorage.removeItem(key);
       return;
     }
+
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
     // ignore storage errors
@@ -260,7 +263,7 @@ function normalizeText(value: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function normalizeImportance(value: unknown) {
+function normalizeImportance(value: unknown): number {
   if (typeof value !== "number" || !Number.isFinite(value)) return 0.5;
   return Math.min(Math.max(value, 0), 1);
 }
@@ -273,11 +276,13 @@ function normalizeStringArray(value: unknown): string[] {
     .filter(Boolean);
 }
 
-function dedupeStrings(values: string[]) {
-  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+function dedupeStrings(values: string[]): string[] {
+  return Array.from(
+    new Set(values.map((value) => value.trim()).filter(Boolean))
+  );
 }
 
-function toLowerJoined(values: Array<string | null | undefined>) {
+function toLowerJoined(values: Array<string | null | undefined>): string {
   return values
     .filter(
       (value): value is string =>
@@ -301,12 +306,13 @@ function normalizeEnginePhase(value: unknown): CodexForgeExecutionPhase {
     : "idle";
 }
 
-function getLastAssistant(messages: Msg[]) {
+function getLastAssistant(messages: Msg[]): Msg | null {
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     if (messages[index].role === "assistant") {
       return messages[index];
     }
   }
+
   return null;
 }
 
@@ -323,7 +329,7 @@ function getEnginePhaseLabel(engineState: CodexForgeEngineState | null) {
   return engineState?.phase ?? "idle";
 }
 
-function summarizeEngineState(engineState: CodexForgeEngineState | null) {
+function summarizeEngineState(engineState: CodexForgeEngineState | null): string {
   if (!engineState) {
     return "No engine result recorded.";
   }
@@ -345,7 +351,7 @@ function summarizeEngineState(engineState: CodexForgeEngineState | null) {
   return parts.join(" • ");
 }
 
-function summarizeDiffTargets(diffs: CodexForgeEngineDiff[]) {
+function summarizeDiffTargets(diffs: CodexForgeEngineDiff[]): string[] {
   if (diffs.length === 0) return [];
   return diffs
     .slice(0, MAX_ENGINE_DIFF_PREVIEW)
@@ -374,6 +380,17 @@ function buildFallbackSuffix(
 
   return parts.length > 0 ? parts.join("\n\n") : null;
 }
+
+function resolveExecutionRepoPath(defaultContext: CodexForgeChatContext): string {
+  const repoPath =
+    typeof defaultContext.repoPath === "string"
+      ? defaultContext.repoPath.trim()
+      : "";
+
+  return repoPath;
+}
+
+/* ================= DOMAIN DETECTION ================= */
 
 function detectTaskDomainFromText(text: string): CodexForgeTaskDomain {
   const query = text.toLowerCase();
@@ -514,8 +531,7 @@ function normalizeEngineState(raw: unknown): CodexForgeEngineState | null {
   const goal = isRecord(raw.goal)
     ? {
         goal: typeof raw.goal.goal === "string" ? raw.goal.goal : "",
-        repoPath:
-          typeof raw.goal.repoPath === "string" ? raw.goal.repoPath : "",
+        repoPath: typeof raw.goal.repoPath === "string" ? raw.goal.repoPath : "",
       }
     : null;
 
@@ -563,8 +579,7 @@ function normalizeEngineState(raw: unknown): CodexForgeEngineState | null {
     diffs,
     logs: normalizeStringArray(raw.logs),
     snapshot,
-    testOutput:
-      typeof raw.testOutput === "string" ? raw.testOutput : undefined,
+    testOutput: typeof raw.testOutput === "string" ? raw.testOutput : undefined,
     error: typeof raw.error === "string" ? raw.error : undefined,
   };
 }
@@ -598,8 +613,7 @@ function normalizeExecutionState(
       raw.lastResultMessageId.trim()
         ? raw.lastResultMessageId.trim()
         : null,
-    lastRunLabel:
-      typeof raw.lastRunLabel === "string" ? raw.lastRunLabel : "",
+    lastRunLabel: typeof raw.lastRunLabel === "string" ? raw.lastRunLabel : "",
     engineState: normalizeEngineState(raw.engineState),
   };
 }
@@ -927,6 +941,7 @@ function detectTaskDomainFromStructured(
   const directDomain = normalizeDomain(
     structured?.plan?.domain ?? structured?.domain
   );
+
   if (directDomain) {
     return directDomain;
   }
@@ -1106,7 +1121,7 @@ function updateAllPendingStepsToState(
   };
 }
 
-/* ================= MESSAGE ================= */
+/* ================= MESSAGE BUILDERS ================= */
 
 function buildUserMessage(text: string): Msg {
   return {
@@ -1140,11 +1155,9 @@ function buildSystemMessage(): Msg {
   return {
     id: uid(),
     role: "system",
-    text: [
-      `${PRODUCT_NAME} workspace note`,
-      "",
-      ...PRODUCT_DIRECTION_LINES,
-    ].join("\n"),
+    text: [`${PRODUCT_NAME} workspace note`, "", ...PRODUCT_DIRECTION_LINES].join(
+      "\n"
+    ),
     ts: now(),
     source: "system",
     structured: {
@@ -1157,7 +1170,7 @@ function buildSystemMessage(): Msg {
   };
 }
 
-function buildExecutionPrompt(task: CodexForgeActiveTask, stepIndex: number) {
+function buildExecutionPrompt(task: CodexForgeActiveTask, stepIndex: number): string {
   const totalSteps = task.steps.length;
   const stepNumber = stepIndex + 1;
   const currentStep = task.steps[stepIndex]?.text ?? "";
@@ -1277,7 +1290,7 @@ function buildExecutionResultSummary(
   task: CodexForgeActiveTask,
   stepText: string,
   engineState: CodexForgeEngineState | null
-) {
+): string {
   return [
     `Task: ${task.goal}`,
     `Domain: ${task.domain}`,
@@ -1285,6 +1298,8 @@ function buildExecutionResultSummary(
     summarizeEngineState(engineState),
   ].join("\n");
 }
+
+/* ================= ENGINE ROUTE ================= */
 
 async function runEngineAction(
   action: EngineRouteAction,
@@ -1499,7 +1514,7 @@ export function useCodexForgeChat({
     } satisfies CodexForgeChatContext;
   }, [memory, activeTask, defaultContext, executionState]);
 
-  /* ================= INTERNAL HELPERS ================= */
+  /* ================= MESSAGE + ARTIFACT HELPERS ================= */
 
   const appendMessage = useCallback((message: Msg) => {
     setMessages((prev) => [...prev, message].slice(-MAX_MESSAGES));
@@ -1513,15 +1528,24 @@ export function useCodexForgeChat({
     setMemory((prev) => mergeMemory(prev, extractedMemory));
   }, []);
 
-  const handleAssistantMessage = useCallback(
-    (message: Msg, mode: BackendMode, status: StatusText) => {
+  const appendAssistantArtifacts = useCallback(
+    (message: Msg) => {
       appendMessage(message);
       absorbStructuredArtifacts(message);
-      setBackendMode(mode);
-      setStatusText(status);
     },
     [appendMessage, absorbStructuredArtifacts]
   );
+
+  const handleAssistantMessage = useCallback(
+    (message: Msg, mode: BackendMode, status: StatusText) => {
+      appendAssistantArtifacts(message);
+      setBackendMode(mode);
+      setStatusText(status);
+    },
+    [appendAssistantArtifacts]
+  );
+
+  /* ================= EXECUTION STATE HELPERS ================= */
 
   const startExecution = useCallback(
     (
@@ -1575,6 +1599,8 @@ export function useCodexForgeChat({
   const resetExecution = useCallback(() => {
     setExecutionState(createIdleExecutionState());
   }, []);
+
+  /* ================= REQUEST ASSISTANT ================= */
 
   const requestAssistant = useCallback(
     async (
@@ -1657,6 +1683,8 @@ export function useCodexForgeChat({
     []
   );
 
+  /* ================= ENGINE UI ACTION ================= */
+
   const runEngineUiAction = useCallback(
     async (
       action: Exclude<EngineRouteAction, "start">,
@@ -1682,13 +1710,7 @@ export function useCodexForgeChat({
           activeTask
         );
 
-        appendMessage(engineMessage);
-        setMemory((prev) =>
-          mergeMemory(
-            prev,
-            extractMemory(engineMessage.structured ?? null, engineMessage.id)
-          )
-        );
+        appendAssistantArtifacts(engineMessage);
 
         if (updateTask) {
           setActiveTask((current) => {
@@ -1707,7 +1729,7 @@ export function useCodexForgeChat({
     },
     [
       activeTask,
-      appendMessage,
+      appendAssistantArtifacts,
       busy,
       completeExecution,
       focusInput,
@@ -1825,7 +1847,7 @@ export function useCodexForgeChat({
     ]
   );
 
-  /* ================= EXECUTION ================= */
+  /* ================= RUN TASK STEP ================= */
 
   const runTaskStep = useCallback(
     async (stepIndex?: number) => {
@@ -1858,7 +1880,7 @@ export function useCodexForgeChat({
           nowLabel,
           goal: {
             goal: activeTask.goal,
-            repoPath: defaultContext.repoPath ?? "",
+            repoPath: resolveExecutionRepoPath(defaultContext),
           },
         });
 
@@ -1907,13 +1929,7 @@ export function useCodexForgeChat({
           "api"
         );
 
-        appendMessage(assistantMessage);
-        setMemory((prev) =>
-          mergeMemory(
-            prev,
-            extractMemory(assistantMessage.structured ?? null, assistantMessage.id)
-          )
-        );
+        appendAssistantArtifacts(assistantMessage);
         setBackendMode("api");
         setStatusText(STATUS.EXECUTED_API);
 
@@ -1945,11 +1961,7 @@ export function useCodexForgeChat({
               current,
               targetIndex,
               "done",
-              buildExecutionResultSummary(
-                activeTask,
-                stepText,
-                nextEngineState
-              )
+              buildExecutionResultSummary(activeTask, stepText, nextEngineState)
             );
 
             return moveTaskToNextPendingStep(updated);
@@ -1985,7 +1997,16 @@ export function useCodexForgeChat({
           },
         };
 
-        const fallback = await buildClientFallbackFromEngine(messages, executionContext);
+        const fallbackMessages = [
+          ...messages,
+          buildUserMessage(executionPrompt),
+        ].slice(-MAX_MESSAGES);
+
+        const fallback = await buildClientFallbackFromEngine(
+          fallbackMessages,
+          executionContext
+        );
+
         const fallbackMessage = buildAssistantMessage(
           uid(),
           `${fallback.text}\n\nExecuted step:\n${stepText}\n\nEngine request failed. Used local fallback.`,
@@ -2021,11 +2042,11 @@ export function useCodexForgeChat({
     },
     [
       activeTask,
-      appendMessage,
+      appendAssistantArtifacts,
       busy,
       completeExecution,
       contextWithMemory,
-      defaultContext.repoPath,
+      defaultContext,
       executionState,
       focusInput,
       handleAssistantMessage,
@@ -2039,6 +2060,8 @@ export function useCodexForgeChat({
   const runCurrentTaskStep = useCallback(async () => {
     await runTaskStep();
   }, [runTaskStep]);
+
+  /* ================= ENGINE STATE REFRESH ================= */
 
   const refreshEngineState = useCallback(async () => {
     try {
@@ -2058,6 +2081,8 @@ export function useCodexForgeChat({
       // ignore refresh errors
     }
   }, [setEngineState]);
+
+  /* ================= ENGINE APPROVAL ACTIONS ================= */
 
   const approvePlan = useCallback(async () => {
     await runEngineUiAction("approvePlan", STATUS.APPROVED_PLAN, (task) =>
@@ -2106,7 +2131,7 @@ export function useCodexForgeChat({
     );
   }, [runEngineUiAction]);
 
-  /* ================= ACTIONS ================= */
+  /* ================= CHAT ACTIONS ================= */
 
   const clearChat = useCallback(() => {
     if (
@@ -2154,11 +2179,8 @@ export function useCodexForgeChat({
 
   const addSystemMessage = useCallback(() => {
     const message = buildSystemMessage();
-    appendMessage(message);
-    setMemory((prev) =>
-      mergeMemory(prev, extractMemory(message.structured ?? null, message.id))
-    );
-  }, [appendMessage]);
+    appendAssistantArtifacts(message);
+  }, [appendAssistantArtifacts]);
 
   /* ================= TASK ACTIONS ================= */
 
@@ -2193,6 +2215,7 @@ export function useCodexForgeChat({
       running: false,
       taskId: null,
       stepIndex: null,
+      startedAt: null,
     }));
   }, []);
 

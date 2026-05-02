@@ -13,6 +13,81 @@ import type {
   CodexForgeStructuredSummaryMeta,
 } from "@/lib/codexforge/types";
 
+/* ================= CONSTANTS ================= */
+
+const VALID_DOMAINS = [
+  "general",
+  "web",
+  "research",
+  "debug",
+  "game-server",
+  "movie",
+  "video",
+  "comfyui",
+  "unreal",
+  "automation",
+] as const satisfies readonly CodexForgePlanDomain[];
+
+const VALID_PLAN_STATUSES = [
+  "draft",
+  "active",
+  "completed",
+  "executed",
+  "blocked",
+  "needs-approval",
+] as const;
+
+const VALID_EXECUTION_PHASES = [
+  "idle",
+  "planning",
+  "awaiting_plan_approval",
+  "diffing",
+  "awaiting_diff_approval",
+  "applying",
+  "testing",
+  "done",
+  "error",
+  "fallback",
+] as const satisfies readonly CodexForgeExecutionPhase[];
+
+const DOMAIN_LABELS: Record<CodexForgePlanDomain, string> = {
+  general: "General",
+  web: "Web",
+  research: "Research",
+  debug: "Debug",
+  "game-server": "Game Server",
+  movie: "Movie",
+  video: "Video",
+  comfyui: "ComfyUI",
+  unreal: "Unreal",
+  automation: "Automation",
+};
+
+const PLAN_STATUS_LABELS: Record<
+  NonNullable<CodexForgePlan["status"]>,
+  string
+> = {
+  draft: "Draft",
+  active: "Active",
+  completed: "Completed",
+  executed: "Executed",
+  blocked: "Blocked",
+  "needs-approval": "Needs approval",
+};
+
+const EXECUTION_PHASE_LABELS: Record<CodexForgeExecutionPhase, string> = {
+  idle: "Idle",
+  planning: "Planning",
+  awaiting_plan_approval: "Awaiting plan approval",
+  diffing: "Diffing",
+  awaiting_diff_approval: "Awaiting diff approval",
+  applying: "Applying",
+  testing: "Testing",
+  done: "Done",
+  error: "Error",
+  fallback: "Fallback",
+};
+
 /* ================= SOURCE ================= */
 
 export function getSourceLabel(message: CodexForgeMessage): string {
@@ -21,7 +96,11 @@ export function getSourceLabel(message: CodexForgeMessage): string {
   return "API";
 }
 
-/* ================= NORMALIZERS ================= */
+/* ================= GENERIC HELPERS ================= */
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
 
 function normalizeString(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -31,35 +110,44 @@ function normalizeString(value: unknown): string | null {
 
 function normalizeStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((item) => (typeof item === "string" ? item.trim() : ""))
-    .filter(Boolean);
+  return Array.from(
+    new Set(
+      value
+        .map((item) => (typeof item === "string" ? item.trim() : ""))
+        .filter(Boolean)
+    )
+  );
 }
 
 function normalizeNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
+function normalizeBoolean(value: unknown): boolean | null {
+  return typeof value === "boolean" ? value : null;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return isRecord(value) ? value : null;
+}
+
+function pickFirstString(...values: unknown[]): string | null {
+  for (const value of values) {
+    const normalized = normalizeString(value);
+    if (normalized) return normalized;
+  }
+  return null;
+}
+
+/* ================= TYPE NORMALIZERS ================= */
+
 function normalizeDomain(value: unknown): CodexForgePlanDomain | undefined {
   const domain = normalizeString(value);
   if (!domain) return undefined;
 
-  if (
-    domain === "general" ||
-    domain === "web" ||
-    domain === "research" ||
-    domain === "debug" ||
-    domain === "game-server" ||
-    domain === "movie" ||
-    domain === "video" ||
-    domain === "comfyui" ||
-    domain === "unreal" ||
-    domain === "automation"
-  ) {
-    return domain;
-  }
-
-  return undefined;
+  return VALID_DOMAINS.includes(domain as CodexForgePlanDomain)
+    ? (domain as CodexForgePlanDomain)
+    : undefined;
 }
 
 function normalizePlanStatus(
@@ -68,18 +156,11 @@ function normalizePlanStatus(
   const status = normalizeString(value);
   if (!status) return undefined;
 
-  if (
-    status === "draft" ||
-    status === "active" ||
-    status === "completed" ||
-    status === "executed" ||
-    status === "blocked" ||
-    status === "needs-approval"
-  ) {
-    return status;
-  }
-
-  return undefined;
+  return VALID_PLAN_STATUSES.includes(
+    status as NonNullable<CodexForgePlan["status"]>
+  )
+    ? (status as NonNullable<CodexForgePlan["status"]>)
+    : undefined;
 }
 
 function normalizeExecutionPhase(
@@ -88,22 +169,9 @@ function normalizeExecutionPhase(
   const phase = normalizeString(value);
   if (!phase) return undefined;
 
-  if (
-    phase === "idle" ||
-    phase === "planning" ||
-    phase === "awaiting_plan_approval" ||
-    phase === "diffing" ||
-    phase === "awaiting_diff_approval" ||
-    phase === "applying" ||
-    phase === "testing" ||
-    phase === "done" ||
-    phase === "error" ||
-    phase === "fallback"
-  ) {
-    return phase;
-  }
-
-  return undefined;
+  return VALID_EXECUTION_PHASES.includes(phase as CodexForgeExecutionPhase)
+    ? (phase as CodexForgeExecutionPhase)
+    : undefined;
 }
 
 function normalizeDiffs(value: unknown): CodexForgeDiff[] {
@@ -111,17 +179,13 @@ function normalizeDiffs(value: unknown): CodexForgeDiff[] {
 
   return value
     .map((item): CodexForgeDiff | null => {
-      if (!item || typeof item !== "object" || Array.isArray(item)) {
-        return null;
-      }
+      const record = asRecord(item);
+      if (!record) return null;
 
-      const record = item as Record<string, unknown>;
       const filePath = normalizeString(record.filePath);
       const patch = normalizeString(record.patch);
 
-      if (!filePath || !patch) {
-        return null;
-      }
+      if (!filePath || !patch) return null;
 
       return {
         filePath,
@@ -133,106 +197,69 @@ function normalizeDiffs(value: unknown): CodexForgeDiff[] {
 
 /* ================= LABEL HELPERS ================= */
 
-export function getDomainLabel(domain?: CodexForgePlanDomain | null) {
+export function getDomainLabel(domain?: CodexForgePlanDomain | null): string | null {
   if (!domain) return null;
-
-  switch (domain) {
-    case "game-server":
-      return "Game Server";
-    case "movie":
-      return "Movie";
-    case "video":
-      return "Video";
-    case "comfyui":
-      return "ComfyUI";
-    case "unreal":
-      return "Unreal";
-    case "web":
-      return "Web";
-    case "research":
-      return "Research";
-    case "debug":
-      return "Debug";
-    case "automation":
-      return "Automation";
-    default:
-      return "General";
-  }
+  return DOMAIN_LABELS[domain] ?? "General";
 }
 
-export function getPlanStatusLabel(status?: CodexForgePlan["status"] | null) {
+export function getPlanStatusLabel(
+  status?: CodexForgePlan["status"] | null
+): string | null {
   if (!status) return null;
-
-  switch (status) {
-    case "draft":
-      return "Draft";
-    case "active":
-      return "Active";
-    case "completed":
-      return "Completed";
-    case "executed":
-      return "Executed";
-    case "blocked":
-      return "Blocked";
-    case "needs-approval":
-      return "Needs approval";
-    default:
-      return status;
-  }
+  return PLAN_STATUS_LABELS[status] ?? status;
 }
 
 export function getExecutionPhaseLabel(
   phase?: CodexForgeExecutionPhase | null
-) {
+): string | null {
   if (!phase) return null;
-
-  switch (phase) {
-    case "idle":
-      return "Idle";
-    case "planning":
-      return "Planning";
-    case "awaiting_plan_approval":
-      return "Awaiting plan approval";
-    case "diffing":
-      return "Diffing";
-    case "awaiting_diff_approval":
-      return "Awaiting diff approval";
-    case "applying":
-      return "Applying";
-    case "testing":
-      return "Testing";
-    case "done":
-      return "Done";
-    case "error":
-      return "Error";
-    case "fallback":
-      return "Fallback";
-    default:
-      return phase;
-  }
+  return EXECUTION_PHASE_LABELS[phase] ?? phase;
 }
 
 /* ================= PLAN HELPERS ================= */
+
+function getPlanRecord(
+  structured?: CodexForgeStructuredReply | null
+): Record<string, unknown> | null {
+  return asRecord(structured?.plan);
+}
+
+function getExecutionRecord(
+  structured?: CodexForgeStructuredReply | null
+): Record<string, unknown> | null {
+  return asRecord(structured?.execution);
+}
+
+function getSnapshotRecord(
+  structured?: CodexForgeStructuredReply | null
+): Record<string, unknown> | null {
+  return asRecord(structured?.snapshot);
+}
 
 export function getStructuredPlan(
   structured?: CodexForgeStructuredReply | null
 ): CodexForgePlan | null {
   if (!structured) return null;
 
-  if (structured.plan) {
-    const goal = normalizeString(structured.plan.goal);
-    const steps = normalizeStringArray(structured.plan.steps);
-    const risks = normalizeStringArray(structured.plan.risks);
-    const files = normalizeStringArray(structured.plan.files);
-    const commands = normalizeStringArray(structured.plan.commands);
-    const notes = normalizeStringArray(structured.plan.notes);
-    const tags = normalizeStringArray(structured.plan.tags);
+  const planRecord = getPlanRecord(structured);
+
+  if (planRecord) {
+    const goal = normalizeString(planRecord.goal);
+    const steps = normalizeStringArray(planRecord.steps);
+    const risks = normalizeStringArray(planRecord.risks);
+    const files = normalizeStringArray(planRecord.files);
+    const commands = normalizeStringArray(planRecord.commands);
+    const notes = normalizeStringArray(planRecord.notes);
+    const tags = normalizeStringArray(planRecord.tags);
+
     const nextAction =
-      normalizeString(structured.plan.nextAction) ?? steps[0] ?? undefined;
-    const status = normalizePlanStatus(structured.plan.status) ?? "active";
-    const intent = normalizeString(structured.plan.intent) ?? undefined;
+      pickFirstString(planRecord.nextAction, steps[0]) ?? undefined;
+
+    const status = normalizePlanStatus(planRecord.status) ?? "active";
+    const intent = normalizeString(planRecord.intent) ?? undefined;
+
     const domain =
-      normalizeDomain(structured.plan.domain) ??
+      normalizeDomain(planRecord.domain) ??
       normalizeDomain(structured.domain) ??
       undefined;
 
@@ -257,38 +284,43 @@ export function getStructuredPlan(
 
   const legacyGoal = normalizeString(structured.goal);
   const legacySteps = normalizeStringArray(structured.nextSteps);
+  const legacyRisks = normalizeStringArray(structured.risks);
+  const legacyFiles = normalizeStringArray(structured.files);
+  const legacyCommands = normalizeStringArray(structured.commands);
+  const legacyTags = normalizeStringArray(structured.tags);
+  const legacyNotes = normalizeStringArray(structured.context);
 
-  if (legacyGoal && legacySteps.length > 0) {
-    const domain = normalizeDomain(structured.domain) ?? undefined;
-    const tags = normalizeStringArray(structured.tags);
-
-    return {
-      goal: legacyGoal,
-      steps: legacySteps,
-      risks: normalizeStringArray(structured.risks),
-      files: normalizeStringArray(structured.files),
-      commands: normalizeStringArray(structured.commands),
-      nextAction: legacySteps[0],
-      ...(domain ? { domain } : {}),
-      ...(tags.length > 0 ? { tags } : {}),
-      status: "active",
-    };
+  if (!legacyGoal || legacySteps.length === 0) {
+    return null;
   }
 
-  return null;
+  const legacyDomain = normalizeDomain(structured.domain) ?? undefined;
+
+  return {
+    goal: legacyGoal,
+    steps: legacySteps,
+    ...(legacyRisks.length > 0 ? { risks: legacyRisks } : {}),
+    ...(legacyFiles.length > 0 ? { files: legacyFiles } : {}),
+    ...(legacyCommands.length > 0 ? { commands: legacyCommands } : {}),
+    ...(legacyTags.length > 0 ? { tags: legacyTags } : {}),
+    ...(legacyNotes.length > 0 ? { notes: legacyNotes } : {}),
+    nextAction: legacySteps[0],
+    ...(legacyDomain ? { domain: legacyDomain } : {}),
+    status: "active",
+  };
 }
 
-export function getNextAction(plan: CodexForgePlan | null) {
+export function getNextAction(plan: CodexForgePlan | null): string | null {
   if (!plan) return null;
   return normalizeString(plan.nextAction) ?? plan.steps[0] ?? null;
 }
 
-export function getPlanProgress(plan: CodexForgePlan | null, index: number) {
+export function getPlanProgress(plan: CodexForgePlan | null, index: number): number {
   if (!plan || plan.steps.length === 0) return 0;
   return Math.min(((index + 1) / plan.steps.length) * 100, 100);
 }
 
-export function hasPlanContent(plan: CodexForgePlan | null) {
+export function hasPlanContent(plan: CodexForgePlan | null): boolean {
   if (!plan) return false;
 
   return (
@@ -296,7 +328,8 @@ export function hasPlanContent(plan: CodexForgePlan | null) {
     plan.steps.length > 0 ||
     (plan.files?.length ?? 0) > 0 ||
     (plan.commands?.length ?? 0) > 0 ||
-    (plan.risks?.length ?? 0) > 0
+    (plan.risks?.length ?? 0) > 0 ||
+    (plan.notes?.length ?? 0) > 0
   );
 }
 
@@ -304,7 +337,7 @@ export function hasPlanContent(plan: CodexForgePlan | null) {
 
 export function getStructuredModeLabel(
   structured?: CodexForgeStructuredReply | null
-) {
+): string | null {
   const mode = normalizeString(structured?.mode);
   if (!mode) return null;
 
@@ -312,19 +345,20 @@ export function getStructuredModeLabel(
   if (mode === "local-execution-fallback") return "Execution fallback";
   if (mode === "local-fallback") return "Fallback";
   if (mode === "local") return "Local";
+
   return mode;
 }
 
 export function getStructuredStatusLabel(
   structured?: CodexForgeStructuredReply | null
-) {
+): string | null {
   const plan = getStructuredPlan(structured);
   return getPlanStatusLabel(plan?.status);
 }
 
 export function isStructuredExecutionReply(
   structured?: CodexForgeStructuredReply | null
-) {
+): boolean {
   return (
     structured?.mode === "local-execution" ||
     structured?.mode === "local-execution-fallback"
@@ -333,7 +367,7 @@ export function isStructuredExecutionReply(
 
 export function isStructuredFallbackReply(
   structured?: CodexForgeStructuredReply | null
-) {
+): boolean {
   return (
     structured?.mode === "local-fallback" ||
     structured?.mode === "local-execution-fallback"
@@ -345,11 +379,23 @@ export function isStructuredFallbackReply(
 export function getExecutionMeta(
   structured?: CodexForgeStructuredReply | null
 ): CodexForgeExecutionMeta {
-  const execution = structured?.execution;
-  const stepText = normalizeString(execution?.stepText);
-  const resultSummary = normalizeString(execution?.resultSummary);
+  const execution = getExecutionRecord(structured);
+
+  const stepText = pickFirstString(
+    execution?.stepText,
+    execution?.step,
+    execution?.currentStep
+  );
+
+  const resultSummary = pickFirstString(
+    execution?.resultSummary,
+    execution?.summary,
+    structured?.summary
+  );
+
   const phase = normalizeExecutionPhase(execution?.phase) ?? null;
   const phaseLabel = getExecutionPhaseLabel(phase);
+
   const stepIndex = normalizeNumber(execution?.stepIndex);
   const diffCount = normalizeNumber(execution?.diffCount);
   const snapshotFileCount = normalizeNumber(execution?.snapshotFileCount);
@@ -375,7 +421,8 @@ export function getExecutionMeta(
 export function getSnapshotMeta(
   structured?: CodexForgeStructuredReply | null
 ): CodexForgeSnapshotMetaSummary {
-  const snapshot = structured?.snapshot;
+  const snapshot = getSnapshotRecord(structured);
+
   const fileCount = normalizeNumber(snapshot?.fileCount);
   const sampledPaths = normalizeStringArray(snapshot?.sampledPaths);
 
@@ -413,10 +460,29 @@ export function getStructuredSummaryMeta(
   const context = normalizeStringArray(structured?.context);
   const statusItems = normalizeStringArray(structured?.status);
   const tags = normalizeStringArray(structured?.tags);
-  const domain = plan?.domain ?? normalizeDomain(structured?.domain) ?? null;
+
+  const domain =
+    plan?.domain ?? normalizeDomain(structured?.domain) ?? null;
+
   const executionMeta = getExecutionMeta(structured);
   const snapshotMeta = getSnapshotMeta(structured);
   const diffMeta = getDiffMeta(structured);
+
+  const hasStructuredContent =
+    !!plan ||
+    context.length > 0 ||
+    nextSteps.length > 0 ||
+    tools.length > 0 ||
+    sections.length > 0 ||
+    statusItems.length > 0 ||
+    tags.length > 0 ||
+    !!normalizeString(structured?.title) ||
+    !!normalizeString(structured?.summary) ||
+    !!normalizeString(structured?.goal) ||
+    !!domain ||
+    executionMeta.hasExecution ||
+    snapshotMeta.hasSnapshot ||
+    diffMeta.hasDiffs;
 
   return {
     modeLabel: getStructuredModeLabel(structured),
@@ -437,28 +503,14 @@ export function getStructuredSummaryMeta(
     diffCount: diffMeta.count,
     snapshotFileCount: snapshotMeta.fileCount,
     logCount: executionMeta.logCount,
-    hasStructuredContent:
-      !!plan ||
-      context.length > 0 ||
-      nextSteps.length > 0 ||
-      tools.length > 0 ||
-      sections.length > 0 ||
-      statusItems.length > 0 ||
-      tags.length > 0 ||
-      !!normalizeString(structured?.title) ||
-      !!normalizeString(structured?.summary) ||
-      !!normalizeString(structured?.goal) ||
-      !!domain ||
-      executionMeta.hasExecution ||
-      snapshotMeta.hasSnapshot ||
-      diffMeta.hasDiffs,
+    hasStructuredContent,
   };
 }
 
 export function shouldPreferStructuredOverPlainText(
   structured?: CodexForgeStructuredReply | null,
   text?: string | null
-) {
+): boolean {
   const trimmed = normalizeString(text);
   if (!trimmed) return true;
 

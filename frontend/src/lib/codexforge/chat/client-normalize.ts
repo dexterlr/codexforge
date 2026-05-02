@@ -7,6 +7,7 @@ import type {
   CodexForgeRole,
   CodexForgeSnapshotMeta,
   CodexForgeStructuredReply,
+  CodexForgeStructuredReplyMode,
   CodexForgeStructuredSection,
   CodexForgeStructuredTool,
 } from "@/lib/codexforge/types";
@@ -17,6 +18,8 @@ export type CodexForgeClientPlan = CodexForgePlan;
 export type CodexForgeClientStructuredReply = CodexForgeStructuredReply;
 export type CodexForgeClientStructuredSection = CodexForgeStructuredSection;
 export type CodexForgeClientStructuredTool = CodexForgeStructuredTool;
+
+const MAX_CLIENT_MESSAGES = 300;
 
 const VALID_PLAN_DOMAINS: readonly CodexForgePlanDomain[] = [
   "general",
@@ -31,7 +34,9 @@ const VALID_PLAN_DOMAINS: readonly CodexForgePlanDomain[] = [
   "automation",
 ] as const;
 
-const VALID_PLAN_STATUSES: readonly NonNullable<CodexForgeClientPlan["status"]>[] = [
+const VALID_PLAN_STATUSES: readonly NonNullable<
+  CodexForgeClientPlan["status"]
+>[] = [
   "draft",
   "active",
   "completed",
@@ -51,6 +56,13 @@ const VALID_EXECUTION_PHASES: readonly CodexForgeExecutionPhase[] = [
   "done",
   "error",
   "fallback",
+] as const;
+
+const VALID_STRUCTURED_REPLY_MODES: readonly CodexForgeStructuredReplyMode[] = [
+  "local",
+  "local-fallback",
+  "local-execution",
+  "local-execution-fallback",
 ] as const;
 
 /* ================= TYPE GUARDS ================= */
@@ -81,10 +93,28 @@ function isExecutionPhase(value: unknown): value is CodexForgeExecutionPhase {
   return VALID_EXECUTION_PHASES.includes(value as CodexForgeExecutionPhase);
 }
 
+function isStructuredReplyMode(
+  value: unknown
+): value is CodexForgeStructuredReplyMode {
+  return VALID_STRUCTURED_REPLY_MODES.includes(
+    value as CodexForgeStructuredReplyMode
+  );
+}
+
 /* ================= PRIMITIVES ================= */
 
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined;
+  }
+
+  return value as Record<string, unknown>;
+}
+
 function asTrimmedString(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : undefined;
 }
 
 function asFiniteNumber(value: unknown): number | undefined {
@@ -108,22 +138,15 @@ function asOptionalArray<T>(values: T[]): T[] | undefined {
   return values.length > 0 ? values : undefined;
 }
 
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return undefined;
-  }
-
-  return value as Record<string, unknown>;
+function hasKeys(value: object): boolean {
+  return Object.keys(value).length > 0;
 }
 
 /* ================= PLAN ================= */
 
 function normalizePlan(value: unknown): CodexForgeClientPlan | undefined {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return undefined;
-  }
-
-  const record = value as Record<string, unknown>;
+  const record = asRecord(value);
+  if (!record) return undefined;
 
   const goal = asTrimmedString(record.goal);
   const steps = dedupeStrings(asStringArray(record.steps));
@@ -138,24 +161,27 @@ function normalizePlan(value: unknown): CodexForgeClientPlan | undefined {
   const notes = dedupeStrings(asStringArray(record.notes));
   const tags = dedupeStrings(asStringArray(record.tags));
 
-  const nextAction = asTrimmedString(record.nextAction) ?? steps[0] ?? undefined;
+  const plan: CodexForgeClientPlan = {
+    goal,
+    steps,
+  };
+
+  const nextAction = asTrimmedString(record.nextAction) ?? steps[0];
   const status = isPlanStatus(record.status) ? record.status : undefined;
   const intent = asTrimmedString(record.intent);
   const domain = isPlanDomain(record.domain) ? record.domain : undefined;
 
-  return {
-    goal,
-    steps,
-    ...(asOptionalArray(risks) ? { risks } : null),
-    ...(asOptionalArray(files) ? { files } : null),
-    ...(asOptionalArray(commands) ? { commands } : null),
-    ...(asOptionalArray(notes) ? { notes } : null),
-    ...(asOptionalArray(tags) ? { tags } : null),
-    ...(nextAction ? { nextAction } : null),
-    ...(status ? { status } : null),
-    ...(intent ? { intent } : null),
-    ...(domain ? { domain } : null),
-  };
+  if (risks.length > 0) plan.risks = risks;
+  if (files.length > 0) plan.files = files;
+  if (commands.length > 0) plan.commands = commands;
+  if (notes.length > 0) plan.notes = notes;
+  if (tags.length > 0) plan.tags = tags;
+  if (nextAction) plan.nextAction = nextAction;
+  if (status) plan.status = status;
+  if (intent) plan.intent = intent;
+  if (domain) plan.domain = domain;
+
+  return plan;
 }
 
 function buildLegacyPlan(
@@ -173,24 +199,25 @@ function buildLegacyPlan(
   const commands = dedupeStrings(asStringArray(record.commands));
   const notes = dedupeStrings(asStringArray(record.notes));
   const tags = dedupeStrings(asStringArray(record.tags));
-
   const intent = asTrimmedString(record.intent);
   const domain = isPlanDomain(record.domain) ? record.domain : undefined;
-  const nextAction = steps[0];
 
-  return {
+  const plan: CodexForgeClientPlan = {
     goal,
     steps,
-    ...(asOptionalArray(risks) ? { risks } : null),
-    ...(asOptionalArray(files) ? { files } : null),
-    ...(asOptionalArray(commands) ? { commands } : null),
-    ...(asOptionalArray(notes) ? { notes } : null),
-    ...(asOptionalArray(tags) ? { tags } : null),
-    ...(nextAction ? { nextAction } : null),
-    ...(intent ? { intent } : null),
-    ...(domain ? { domain } : null),
     status: "active",
+    nextAction: steps[0],
   };
+
+  if (risks.length > 0) plan.risks = risks;
+  if (files.length > 0) plan.files = files;
+  if (commands.length > 0) plan.commands = commands;
+  if (notes.length > 0) plan.notes = notes;
+  if (tags.length > 0) plan.tags = tags;
+  if (intent) plan.intent = intent;
+  if (domain) plan.domain = domain;
+
+  return plan;
 }
 
 /* ================= TOOLS ================= */
@@ -202,9 +229,9 @@ export function normalizeStructuredTools(
 
   return value
     .map((item): CodexForgeClientStructuredTool | null => {
-      if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+      const record = asRecord(item);
+      if (!record) return null;
 
-      const record = item as Record<string, unknown>;
       const name = asTrimmedString(record.name);
       const description = asTrimmedString(record.description);
       const availability = record.availability;
@@ -231,11 +258,9 @@ function normalizeStructuredSections(
 
   return value
     .map((section): CodexForgeClientStructuredSection | null => {
-      if (!section || typeof section !== "object" || Array.isArray(section)) {
-        return null;
-      }
+      const record = asRecord(section);
+      if (!record) return null;
 
-      const record = section as Record<string, unknown>;
       const title = asTrimmedString(record.title);
       const items = dedupeStrings(asStringArray(record.items));
 
@@ -245,7 +270,9 @@ function normalizeStructuredSections(
 
       return { title, items };
     })
-    .filter((section): section is CodexForgeClientStructuredSection => section !== null);
+    .filter(
+      (section): section is CodexForgeClientStructuredSection => section !== null
+    );
 }
 
 /* ================= DIFFS ================= */
@@ -255,11 +282,9 @@ function normalizeDiffs(value: unknown): CodexForgeDiff[] | undefined {
 
   const diffs = value
     .map((item): CodexForgeDiff | null => {
-      if (!item || typeof item !== "object" || Array.isArray(item)) {
-        return null;
-      }
+      const record = asRecord(item);
+      if (!record) return null;
 
-      const record = item as Record<string, unknown>;
       const filePath = asTrimmedString(record.filePath);
       const patch = asTrimmedString(record.patch);
 
@@ -271,7 +296,7 @@ function normalizeDiffs(value: unknown): CodexForgeDiff[] | undefined {
     })
     .filter((item): item is CodexForgeDiff => item !== null);
 
-  return diffs.length > 0 ? diffs : undefined;
+  return asOptionalArray(diffs);
 }
 
 /* ================= SNAPSHOT ================= */
@@ -299,9 +324,9 @@ function normalizeExecution(
   value: unknown
 ): CodexForgeClientStructuredReply["execution"] | undefined {
   const record = asRecord(value);
-  if (!record) {
-    return undefined;
-  }
+  if (!record) return undefined;
+
+  const execution: NonNullable<CodexForgeClientStructuredReply["execution"]> = {};
 
   const stepText = asTrimmedString(record.stepText);
   const resultSummary = asTrimmedString(record.resultSummary);
@@ -311,17 +336,17 @@ function normalizeExecution(
   const snapshotFileCount = asFiniteNumber(record.snapshotFileCount);
   const logs = dedupeStrings(asStringArray(record.logs));
 
-  const execution: NonNullable<CodexForgeClientStructuredReply["execution"]> = {
-    ...(stepIndex !== undefined ? { stepIndex } : null),
-    ...(stepText ? { stepText } : null),
-    ...(resultSummary ? { resultSummary } : null),
-    ...(phase ? { phase } : null),
-    ...(diffCount !== undefined ? { diffCount } : null),
-    ...(snapshotFileCount !== undefined ? { snapshotFileCount } : null),
-    ...(logs.length > 0 ? { logs } : null),
-  };
+  if (stepIndex !== undefined) execution.stepIndex = stepIndex;
+  if (stepText) execution.stepText = stepText;
+  if (resultSummary) execution.resultSummary = resultSummary;
+  if (phase) execution.phase = phase;
+  if (diffCount !== undefined) execution.diffCount = diffCount;
+  if (snapshotFileCount !== undefined) {
+    execution.snapshotFileCount = snapshotFileCount;
+  }
+  if (logs.length > 0) execution.logs = logs;
 
-  return Object.keys(execution).length > 0 ? execution : undefined;
+  return hasKeys(execution) ? execution : undefined;
 }
 
 /* ================= STRUCTURED REPLY ================= */
@@ -329,20 +354,14 @@ function normalizeExecution(
 export function normalizeStructuredReply(
   value: unknown
 ): CodexForgeClientStructuredReply | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-
-  const record = value as Record<string, unknown>;
+  const record = asRecord(value);
+  if (!record) return null;
 
   const tools = normalizeStructuredTools(record.tools);
   const sections = normalizeStructuredSections(record.sections);
   const diffs = normalizeDiffs(record.diffs);
   const snapshot = normalizeSnapshot(record.snapshot);
-
-  const explicitPlan = normalizePlan(record.plan);
-  const legacyPlan = buildLegacyPlan(record);
-  const plan = explicitPlan ?? legacyPlan;
+  const plan = normalizePlan(record.plan) ?? buildLegacyPlan(record);
 
   const directGoal = asTrimmedString(record.goal);
   const directNextSteps = dedupeStrings(asStringArray(record.nextSteps));
@@ -354,40 +373,48 @@ export function normalizeStructuredReply(
   const directStatus = dedupeStrings(asStringArray(record.status));
   const directTags = dedupeStrings(asStringArray(record.tags));
 
-  const domain =
-    isPlanDomain(record.domain) ? record.domain : plan?.domain;
+  const domain = isPlanDomain(record.domain) ? record.domain : plan?.domain;
+  const mergedTags = dedupeStrings([...directTags, ...(plan?.tags ?? [])]);
 
-  const mergedTags = dedupeStrings([
-    ...directTags,
-    ...(plan?.tags ?? []),
-  ]);
+  const structured: CodexForgeClientStructuredReply = {};
 
-  const structured: CodexForgeClientStructuredReply = {
-    mode: asTrimmedString(record.mode),
-    title: asTrimmedString(record.title),
-    summary: asTrimmedString(record.summary),
+  const mode = isStructuredReplyMode(record.mode) ? record.mode : undefined;
+  const title = asTrimmedString(record.title);
+  const summary = asTrimmedString(record.summary);
+  const execution = normalizeExecution(record.execution);
 
-    plan,
+  if (mode) structured.mode = mode;
+  if (title) structured.title = title;
+  if (summary) structured.summary = summary;
+  if (plan) structured.plan = plan;
 
-    goal: directGoal ?? plan?.goal,
-    nextSteps: directNextSteps.length > 0 ? directNextSteps : plan?.steps,
+  const goal = directGoal ?? plan?.goal;
+  const nextSteps =
+    directNextSteps.length > 0 ? directNextSteps : plan?.steps;
+  const files =
+    asOptionalArray(directFiles) ?? asOptionalArray(plan?.files ?? []);
+  const commands =
+    asOptionalArray(directCommands) ?? asOptionalArray(plan?.commands ?? []);
+  const risks =
+    asOptionalArray(directRisks) ?? asOptionalArray(plan?.risks ?? []);
 
-    context: asOptionalArray(directContext),
-    understanding: asOptionalArray(directUnderstanding),
-    files: asOptionalArray(directFiles) ?? plan?.files,
-    commands: asOptionalArray(directCommands) ?? plan?.commands,
-    risks: asOptionalArray(directRisks) ?? plan?.risks,
-    status: asOptionalArray(directStatus),
-
-    tools: tools.length > 0 ? tools : undefined,
-    sections: sections.length > 0 ? sections : undefined,
-
-    execution: normalizeExecution(record.execution),
-    ...(diffs ? { diffs } : null),
-    ...(snapshot ? { snapshot } : null),
-    ...(domain ? { domain } : null),
-    ...(mergedTags.length > 0 ? { tags: mergedTags } : null),
-  };
+  if (goal) structured.goal = goal;
+  if (nextSteps && nextSteps.length > 0) structured.nextSteps = nextSteps;
+  if (directContext.length > 0) structured.context = directContext;
+  if (directUnderstanding.length > 0) {
+    structured.understanding = directUnderstanding;
+  }
+  if (files && files.length > 0) structured.files = files;
+  if (commands && commands.length > 0) structured.commands = commands;
+  if (risks && risks.length > 0) structured.risks = risks;
+  if (directStatus.length > 0) structured.status = directStatus;
+  if (tools.length > 0) structured.tools = tools;
+  if (sections.length > 0) structured.sections = sections;
+  if (execution) structured.execution = execution;
+  if (diffs) structured.diffs = diffs;
+  if (snapshot) structured.snapshot = snapshot;
+  if (domain) structured.domain = domain;
+  if (mergedTags.length > 0) structured.tags = mergedTags;
 
   const hasContent =
     !!structured.mode ||
@@ -420,25 +447,27 @@ export function asMessages(value: unknown): CodexForgeClientMessage[] {
 
   const parsed = value
     .map((item): CodexForgeClientMessage | null => {
-      if (!item || typeof item !== "object" || Array.isArray(item)) {
-        return null;
-      }
+      const candidate = asRecord(item);
+      if (!candidate) return null;
 
-      const candidate = item as Record<string, unknown>;
       const id = asTrimmedString(candidate.id);
       const role = candidate.role;
-      const text =
-        typeof candidate.text === "string" ? candidate.text : "";
-      const ts =
-        typeof candidate.ts === "number" && Number.isFinite(candidate.ts)
-          ? candidate.ts
-          : null;
+      const text = typeof candidate.text === "string" ? candidate.text : "";
+      const ts = asFiniteNumber(candidate.ts);
 
-      if (!id || !isRole(role) || !text || ts === null) {
+      if (!id || !isRole(role) || text.length === 0 || ts === undefined) {
         return null;
       }
 
       const sourceValue = candidate.source;
+      const source =
+        sourceValue === "api" ||
+        sourceValue === "local-fallback" ||
+        sourceValue === "system"
+          ? sourceValue
+          : role === "system"
+            ? "system"
+            : "api";
 
       return {
         id,
@@ -446,17 +475,10 @@ export function asMessages(value: unknown): CodexForgeClientMessage[] {
         text,
         ts,
         structured: normalizeStructuredReply(candidate.structured),
-        source:
-          sourceValue === "api" ||
-          sourceValue === "local-fallback" ||
-          sourceValue === "system"
-            ? sourceValue
-            : role === "system"
-              ? "system"
-              : "api",
+        source,
       };
     })
     .filter((item): item is CodexForgeClientMessage => item !== null);
 
-  return parsed.slice(-300);
+  return parsed.slice(-MAX_CLIENT_MESSAGES);
 }

@@ -1,5 +1,7 @@
 import "server-only";
 
+import { loadBrainGraph, saveBrainGraph } from "../brain";
+import type { CodexForgeBrainGraph } from "../brain/graph";
 import { getCodexForgeToolRegistry } from "../tools";
 import type {
   CodexForgeToolExecutionRequest,
@@ -9,8 +11,6 @@ import {
   executeCodexForgeTool,
   getCodexForgeExecutableToolNames,
 } from "../tools/server";
-import { loadBrainGraph, saveBrainGraph } from "../brain";
-import type { CodexForgeBrainGraph } from "../brain/graph";
 import type {
   CodexForgeEngineBrainGraphSnapshot,
   CodexForgeEngineDependencies,
@@ -26,9 +26,10 @@ export type CodexForgeServerToolExecutionDependency = {
   getExecutableToolNames: () => string[];
 };
 
-export type CodexForgeServerEngineDependencies = CodexForgeEngineDependencies & {
-  toolExecution: CodexForgeServerToolExecutionDependency;
-};
+export type CodexForgeServerEngineDependencies =
+  CodexForgeEngineDependencies & {
+    toolExecution: CodexForgeServerToolExecutionDependency;
+  };
 
 /* ================= CACHE ================= */
 
@@ -36,8 +37,8 @@ let cachedDependencies: CodexForgeServerEngineDependencies | null = null;
 
 /* ================= HELPERS ================= */
 
-function normalizeToolName(value: string): string {
-  return value.trim();
+function normalizeToolName(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
 }
 
 /* ================= BRAIN GRAPH ADAPTER ================= */
@@ -74,7 +75,7 @@ function buildToolExecutionDependency(): CodexForgeServerToolExecutionDependency
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b));
 
-  const executableNameSet = new Set<string>(executableToolNames);
+  const executableToolNameSet = new Set<string>(executableToolNames);
 
   return {
     execute: async (
@@ -85,7 +86,7 @@ function buildToolExecutionDependency(): CodexForgeServerToolExecutionDependency
 
     canExecute: (toolName: string): boolean => {
       const normalized = normalizeToolName(toolName);
-      return normalized.length > 0 && executableNameSet.has(normalized);
+      return normalized.length > 0 && executableToolNameSet.has(normalized);
     },
 
     getExecutableToolNames: (): string[] => {
@@ -107,7 +108,7 @@ function buildCodexForgeServerEngineDependencies(): CodexForgeServerEngineDepend
 /* ================= PUBLIC ================= */
 
 export function getCodexForgeServerEngineDependencies(): CodexForgeServerEngineDependencies {
-  if (cachedDependencies) {
+  if (cachedDependencies !== null) {
     return cachedDependencies;
   }
 

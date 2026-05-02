@@ -135,8 +135,11 @@ export function normalizeExecutionPhase(
 }
 
 export function clampText(text: string, max = 240): string {
-  if (text.length <= max) return text;
-  return `${text.slice(0, max - 1)}…`;
+  if (text.length <= max) {
+    return text;
+  }
+
+  return `${text.slice(0, Math.max(0, max - 3))}...`;
 }
 
 export function stableHash(input: string): string {

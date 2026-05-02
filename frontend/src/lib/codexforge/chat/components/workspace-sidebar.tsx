@@ -43,6 +43,8 @@ type DomainCard = {
   value: string;
 };
 
+type StepStatus = "pending" | "running" | "done" | "error";
+
 const PRODUCT_SECTIONS: SidebarSection[] = [
   {
     title: "What this page should become",
@@ -107,6 +109,532 @@ const DOMAIN_CARDS: DomainCard[] = [
     value: "Project structure, gameplay, cinematics, packaging, and execution flow.",
   },
 ];
+
+/* ================= SMALL HELPERS ================= */
+
+function countByStatus(
+  task: CodexForgeActiveTask,
+  status: StepStatus
+): number {
+  return task.steps.filter((step) => step.status === status).length;
+}
+
+function getProgressPercent(task: CodexForgeActiveTask): number {
+  if (task.steps.length === 0) return 0;
+  return (countByStatus(task, "done") / task.steps.length) * 100;
+}
+
+function getCurrentStepText(task: CodexForgeActiveTask): string {
+  return (
+    task.steps[task.currentStep]?.text ??
+    task.steps.find((step) => step.status !== "done")?.text ??
+    "No current step."
+  );
+}
+
+function getStepBadge(status: StepStatus): string {
+  if (status === "done") return "✓";
+  if (status === "running") return "…";
+  if (status === "error") return "!";
+  return "•";
+}
+
+function getStepStatusLabel(status: StepStatus): string {
+  if (status === "done") return "Done";
+  if (status === "running") return "Running";
+  if (status === "error") return "Error";
+  return "Pending";
+}
+
+function getStepStatusStyle(status: StepStatus): React.CSSProperties {
+  if (status === "done") {
+    return {
+      border: "1px solid rgba(16,185,129,0.24)",
+      background: "rgba(16,185,129,0.12)",
+    };
+  }
+
+  if (status === "running") {
+    return {
+      border: "1px solid rgba(245,158,11,0.24)",
+      background: "rgba(245,158,11,0.12)",
+    };
+  }
+
+  if (status === "error") {
+    return {
+      border: "1px solid rgba(239,68,68,0.24)",
+      background: "rgba(239,68,68,0.12)",
+    };
+  }
+
+  return {
+    border: "1px solid rgba(255,255,255,0.10)",
+    background: "rgba(255,255,255,0.05)",
+  };
+}
+
+function getTaskStepStyle(args: {
+  isActive: boolean;
+  status: StepStatus;
+}): React.CSSProperties {
+  const { isActive, status } = args;
+
+  return {
+    ...taskStep,
+    ...(status === "done" ? taskStepDone : null),
+    ...(status === "running" ? taskStepRunning : null),
+    ...(status === "error" ? taskStepError : null),
+    ...(isActive && status === "pending" ? taskStepActive : null),
+  };
+}
+
+function StatusChip({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <div style={topStatusChip}>{children}</div>;
+}
+
+function SectionTitleRow({
+  title,
+  open,
+}: {
+  title: string;
+  open: boolean;
+}) {
+  return (
+    <>
+      <span style={styles.panelTitle}>{title}</span>
+      <span style={collapsedMark}>{open ? "−" : "+"}</span>
+    </>
+  );
+}
+
+/* ================= COLLAPSIBLE ================= */
+
+function CollapsibleSection({
+  title,
+  children,
+  defaultOpen = true,
+}: {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <section style={styles.panelBlock}>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        style={collapsibleHeaderButton}
+        aria-expanded={open}
+      >
+        <SectionTitleRow title={title} open={open} />
+      </button>
+
+      {open ? children : null}
+    </section>
+  );
+}
+
+/* ================= GENERIC INFO SECTION ================= */
+
+function SidebarInfoSection({ section }: { section: SidebarSection }) {
+  return (
+    <CollapsibleSection
+      title={section.title}
+      defaultOpen={section.defaultOpen}
+    >
+      {section.body ? <div style={styles.panelText}>{section.body}</div> : null}
+
+      {section.bullets?.length ? (
+        <ul style={styles.bulletList}>
+          {section.bullets.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      ) : null}
+    </CollapsibleSection>
+  );
+}
+
+/* ================= ACTIVE TASK ================= */
+
+function TaskSummaryCards({
+  task,
+}: {
+  task: CodexForgeActiveTask;
+}) {
+  const totalSteps = task.steps.length;
+  const completedSteps = countByStatus(task, "done");
+  const runningSteps = countByStatus(task, "running");
+  const errorSteps = countByStatus(task, "error");
+  const domainLabel = getDomainLabel(task.domain) ?? "General";
+
+  const cards = [
+    domainLabel,
+    `Step ${Math.min(task.currentStep + 1, Math.max(totalSteps, 1))}`,
+    `${completedSteps}/${totalSteps} complete`,
+    runningSteps > 0 ? "Running" : null,
+    errorSteps > 0 ? `Errors: ${errorSteps}` : null,
+  ].filter(Boolean) as string[];
+
+  return (
+    <div style={taskMetaRow}>
+      {cards.map((card) => (
+        <div key={card} style={taskMetaChip}>
+          {card}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TaskTags({
+  tags,
+}: {
+  tags: string[];
+}) {
+  if (tags.length === 0) return null;
+
+  return (
+    <div style={tagWrap}>
+      {tags.map((tag) => (
+        <span key={tag} style={tagChip}>
+          {tag}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function TaskProgress({
+  task,
+}: {
+  task: CodexForgeActiveTask;
+}) {
+  const progress = getProgressPercent(task);
+
+  return (
+    <div style={progressWrap} aria-hidden="true">
+      <div
+        style={{
+          ...progressBarBase,
+          width: `${progress}%`,
+        }}
+      />
+    </div>
+  );
+}
+
+function CurrentStepCard({
+  task,
+}: {
+  task: CodexForgeActiveTask;
+}) {
+  return (
+    <div style={currentStepCard}>
+      <div style={currentStepLabel}>Current step</div>
+      <div style={styles.panelText}>{getCurrentStepText(task)}</div>
+    </div>
+  );
+}
+
+function TaskStepsList({
+  task,
+}: {
+  task: CodexForgeActiveTask;
+}) {
+  return (
+    <div style={taskStepsWrap}>
+      {task.steps.map((step, index) => {
+        const isActive = index === task.currentStep;
+
+        return (
+          <div
+            key={step.id}
+            style={getTaskStepStyle({
+              isActive,
+              status: step.status,
+            })}
+          >
+            <span style={taskStepIndex}>{getStepBadge(step.status)}</span>
+
+            <div style={taskStepBody}>
+              <div style={taskStepHeader}>
+                <span style={taskStepText}>{step.text}</span>
+
+                <span
+                  style={{
+                    ...stepStatusChipBase,
+                    ...getStepStatusStyle(step.status),
+                  }}
+                >
+                  {getStepStatusLabel(step.status)}
+                </span>
+              </div>
+
+              {step.result ? (
+                <span style={taskStepResult}>{step.result}</span>
+              ) : null}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function TaskControls({
+  task,
+  busy,
+  onPrevStep,
+  onNextStep,
+  onClearTask,
+}: {
+  task: CodexForgeActiveTask;
+  busy: boolean;
+  onPrevStep: () => void;
+  onNextStep: () => void;
+  onClearTask: () => void;
+}) {
+  return (
+    <div style={taskControls}>
+      <button
+        type="button"
+        onClick={onPrevStep}
+        style={styles.tinyGhostButton}
+        disabled={busy || task.currentStep === 0}
+      >
+        ← Back
+      </button>
+
+      <button
+        type="button"
+        onClick={onNextStep}
+        style={styles.tinyGhostButton}
+        disabled={busy || task.currentStep >= task.steps.length - 1}
+      >
+        Next →
+      </button>
+
+      <button
+        type="button"
+        onClick={onClearTask}
+        style={styles.pillDanger}
+        disabled={busy}
+      >
+        Clear
+      </button>
+    </div>
+  );
+}
+
+function TaskPanel({
+  task,
+  onNextStep,
+  onPrevStep,
+  onClearTask,
+  busy,
+}: {
+  task: CodexForgeActiveTask;
+  onNextStep: () => void;
+  onPrevStep: () => void;
+  onClearTask: () => void;
+  busy: boolean;
+}) {
+  return (
+    <div style={taskShell}>
+      <div style={taskGoal}>{task.goal}</div>
+
+      <TaskSummaryCards task={task} />
+      <TaskTags tags={task.tags} />
+      <TaskProgress task={task} />
+      <CurrentStepCard task={task} />
+      <TaskStepsList task={task} />
+
+      <TaskControls
+        task={task}
+        busy={busy}
+        onPrevStep={onPrevStep}
+        onNextStep={onNextStep}
+        onClearTask={onClearTask}
+      />
+    </div>
+  );
+}
+
+/* ================= QUICK STARTS ================= */
+
+function SuggestionsPanel({
+  suggestions,
+  busy,
+  onSuggestionClick,
+}: {
+  suggestions: Suggestion[];
+  busy: boolean;
+  onSuggestionClick: (prompt: string) => void;
+}) {
+  return (
+    <div style={quickGrid}>
+      <div style={styles.panelText}>
+        These prompts should push CodexForge toward real product behavior, not
+        generic assistant behavior.
+      </div>
+
+      <div style={topStatusWrap}>
+        <StatusChip>Structured-first</StatusChip>
+        <StatusChip>Local-first</StatusChip>
+        <StatusChip>Backend-optional</StatusChip>
+        <StatusChip>Operator-ready</StatusChip>
+      </div>
+
+      <div style={styles.suggestionGrid}>
+        {suggestions.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onSuggestionClick(item.prompt)}
+            disabled={busy}
+            style={{
+              ...styles.suggestionButton,
+              ...(busy ? disabledSuggestionButtonStyle : null),
+            }}
+            title={item.prompt}
+            aria-label={item.label}
+          >
+            <div style={styles.suggestionLabel}>{item.label}</div>
+            <div style={styles.suggestionText}>{item.prompt}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ================= CAPABILITIES ================= */
+
+function CapabilityPanel() {
+  return (
+    <div style={domainGrid}>
+      {DOMAIN_CARDS.map((card) => (
+        <div key={card.label} style={domainCardStyle}>
+          <div style={domainLabelStyle}>{card.label}</div>
+          <div style={domainValueStyle}>{card.value}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ================= BRAIN ================= */
+
+function BrainPanel() {
+  return (
+    <div style={brainPanelWrap}>
+      <div style={styles.panelText}>
+        Open the local brain inspector to review graph memory, connected nodes,
+        edges, and saved workspace context.
+      </div>
+
+      <div style={topStatusWrap}>
+        <StatusChip>Graph memory</StatusChip>
+        <StatusChip>Inspector</StatusChip>
+        <StatusChip>Local storage</StatusChip>
+      </div>
+
+      <div style={brainButtonRow}>
+        <Link href="/brain" style={brainLinkStyle}>
+          Open Brain Inspector
+        </Link>
+
+        <Link href="/ai" style={brainSecondaryLinkStyle}>
+          Open AI Workspace
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ================= MAIN ================= */
+
+export default function WorkspaceSidebar({
+  busy,
+  suggestions,
+  onSuggestionClick,
+  activeTask,
+  onNextStep,
+  onPrevStep,
+  onClearTask,
+  memory = [],
+  onPinMemory,
+  onUnpinMemory,
+  onDeleteMemory,
+  onClearMemory,
+}: WorkspaceSidebarProps) {
+  const safeMemory = useMemo(
+    () => (Array.isArray(memory) ? memory : []),
+    [memory]
+  );
+
+  return (
+    <aside style={styles.leftPanel}>
+      <CollapsibleSection title="Active Task" defaultOpen>
+        {activeTask ? (
+          <TaskPanel
+            task={activeTask}
+            onNextStep={onNextStep}
+            onPrevStep={onPrevStep}
+            onClearTask={onClearTask}
+            busy={busy}
+          />
+        ) : (
+          <div style={styles.panelText}>
+            No active task yet. Ask CodexForge to plan something and it will
+            appear here.
+          </div>
+        )}
+      </CollapsibleSection>
+
+      <CollapsibleSection title="Brain" defaultOpen>
+        <BrainPanel />
+      </CollapsibleSection>
+
+      <CollapsibleSection title="Workspace Memory" defaultOpen>
+        <MemoryPanel
+          memory={safeMemory}
+          onPinMemory={onPinMemory}
+          onUnpinMemory={onUnpinMemory}
+          onDeleteMemory={onDeleteMemory}
+          onClearMemory={onClearMemory}
+          title="Workspace Memory"
+        />
+      </CollapsibleSection>
+
+      <CollapsibleSection title="Quick Starts" defaultOpen>
+        <SuggestionsPanel
+          suggestions={suggestions}
+          busy={busy}
+          onSuggestionClick={onSuggestionClick}
+        />
+      </CollapsibleSection>
+
+      <CollapsibleSection title="Capability Map" defaultOpen={false}>
+        <CapabilityPanel />
+      </CollapsibleSection>
+
+      {PRODUCT_SECTIONS.map((section) => (
+        <SidebarInfoSection key={section.title} section={section} />
+      ))}
+    </aside>
+  );
+}
+
+/* ================= STYLES ================= */
 
 const topStatusWrap: React.CSSProperties = {
   display: "flex",
@@ -383,395 +911,3 @@ const brainSecondaryLinkStyle: React.CSSProperties = {
   fontWeight: 700,
   textDecoration: "none",
 };
-
-function getStepBadge(status: "pending" | "running" | "done" | "error") {
-  if (status === "done") return "✓";
-  if (status === "running") return "…";
-  if (status === "error") return "!";
-  return "•";
-}
-
-function getStepStatusLabel(status: "pending" | "running" | "done" | "error") {
-  if (status === "done") return "Done";
-  if (status === "running") return "Running";
-  if (status === "error") return "Error";
-  return "Pending";
-}
-
-function getStepStatusStyle(
-  status: "pending" | "running" | "done" | "error"
-): React.CSSProperties {
-  if (status === "done") {
-    return {
-      border: "1px solid rgba(16,185,129,0.24)",
-      background: "rgba(16,185,129,0.12)",
-    };
-  }
-
-  if (status === "running") {
-    return {
-      border: "1px solid rgba(245,158,11,0.24)",
-      background: "rgba(245,158,11,0.12)",
-    };
-  }
-
-  if (status === "error") {
-    return {
-      border: "1px solid rgba(239,68,68,0.24)",
-      background: "rgba(239,68,68,0.12)",
-    };
-  }
-
-  return {
-    border: "1px solid rgba(255,255,255,0.10)",
-    background: "rgba(255,255,255,0.05)",
-  };
-}
-
-function CollapsibleSection({
-  title,
-  children,
-  defaultOpen = true,
-}: {
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  return (
-    <section style={styles.panelBlock}>
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        style={collapsibleHeaderButton}
-        aria-expanded={open}
-      >
-        <span style={styles.panelTitle}>{title}</span>
-        <span style={collapsedMark}>{open ? "−" : "+"}</span>
-      </button>
-
-      {open ? children : null}
-    </section>
-  );
-}
-
-function SidebarInfoSection({ section }: { section: SidebarSection }) {
-  return (
-    <CollapsibleSection
-      title={section.title}
-      defaultOpen={section.defaultOpen}
-    >
-      {section.body ? <div style={styles.panelText}>{section.body}</div> : null}
-
-      {section.bullets?.length ? (
-        <ul style={styles.bulletList}>
-          {section.bullets.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      ) : null}
-    </CollapsibleSection>
-  );
-}
-
-function TaskPanel({
-  task,
-  onNextStep,
-  onPrevStep,
-  onClearTask,
-  busy,
-}: {
-  task: CodexForgeActiveTask;
-  onNextStep: () => void;
-  onPrevStep: () => void;
-  onClearTask: () => void;
-  busy: boolean;
-}) {
-  const totalSteps = task.steps.length;
-  const currentStepNumber = Math.min(
-    task.currentStep + 1,
-    Math.max(totalSteps, 1)
-  );
-  const completedSteps = task.steps.filter((step) => step.status === "done").length;
-  const runningSteps = task.steps.filter((step) => step.status === "running").length;
-  const errorSteps = task.steps.filter((step) => step.status === "error").length;
-  const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
-  const currentStepText =
-    task.steps[task.currentStep]?.text ??
-    task.steps.find((step) => step.status !== "done")?.text ??
-    "No current step.";
-
-  const progressLabel = useMemo(
-    () => `${completedSteps}/${totalSteps} complete`,
-    [completedSteps, totalSteps]
-  );
-
-  const domainLabel = getDomainLabel(task.domain) ?? "General";
-
-  return (
-    <div style={taskShell}>
-      <div style={taskGoal}>{task.goal}</div>
-
-      <div style={taskMetaRow}>
-        <div style={taskMetaChip}>{domainLabel}</div>
-        <div style={taskMetaChip}>Step {currentStepNumber}</div>
-        <div style={taskMetaChip}>{progressLabel}</div>
-        {runningSteps > 0 ? <div style={taskMetaChip}>Running</div> : null}
-        {errorSteps > 0 ? <div style={taskMetaChip}>Errors: {errorSteps}</div> : null}
-      </div>
-
-      {task.tags.length > 0 ? (
-        <div style={tagWrap}>
-          {task.tags.map((tag) => (
-            <span key={tag} style={tagChip}>
-              {tag}
-            </span>
-          ))}
-        </div>
-      ) : null}
-
-      <div style={progressWrap} aria-hidden="true">
-        <div
-          style={{
-            ...progressBarBase,
-            width: `${progress}%`,
-          }}
-        />
-      </div>
-
-      <div style={currentStepCard}>
-        <div style={currentStepLabel}>Current step</div>
-        <div style={styles.panelText}>{currentStepText}</div>
-      </div>
-
-      <div style={taskStepsWrap}>
-        {task.steps.map((step, index) => {
-          const isActive = index === task.currentStep;
-          const isDone = step.status === "done";
-          const isRunning = step.status === "running";
-          const isError = step.status === "error";
-
-          return (
-            <div
-              key={step.id}
-              style={{
-                ...taskStep,
-                ...(isDone ? taskStepDone : null),
-                ...(isRunning ? taskStepRunning : null),
-                ...(isError ? taskStepError : null),
-                ...(isActive && !isDone && !isRunning && !isError
-                  ? taskStepActive
-                  : null),
-              }}
-            >
-              <span style={taskStepIndex}>{getStepBadge(step.status)}</span>
-
-              <div style={taskStepBody}>
-                <div style={taskStepHeader}>
-                  <span style={taskStepText}>{step.text}</span>
-                  <span
-                    style={{
-                      ...stepStatusChipBase,
-                      ...getStepStatusStyle(step.status),
-                    }}
-                  >
-                    {getStepStatusLabel(step.status)}
-                  </span>
-                </div>
-
-                {step.result ? (
-                  <span style={taskStepResult}>{step.result}</span>
-                ) : null}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div style={taskControls}>
-        <button
-          type="button"
-          onClick={onPrevStep}
-          style={styles.tinyGhostButton}
-          disabled={busy || task.currentStep === 0}
-        >
-          ← Back
-        </button>
-
-        <button
-          type="button"
-          onClick={onNextStep}
-          style={styles.tinyGhostButton}
-          disabled={busy || task.currentStep >= task.steps.length - 1}
-        >
-          Next →
-        </button>
-
-        <button
-          type="button"
-          onClick={onClearTask}
-          style={styles.pillDanger}
-          disabled={busy}
-        >
-          Clear
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function SuggestionsPanel({
-  suggestions,
-  busy,
-  onSuggestionClick,
-}: {
-  suggestions: Suggestion[];
-  busy: boolean;
-  onSuggestionClick: (prompt: string) => void;
-}) {
-  return (
-    <div style={quickGrid}>
-      <div style={styles.panelText}>
-        These prompts should push CodexForge toward real product behavior, not
-        generic assistant behavior.
-      </div>
-
-      <div style={topStatusWrap}>
-        <div style={topStatusChip}>Structured-first</div>
-        <div style={topStatusChip}>Local-first</div>
-        <div style={topStatusChip}>Backend-optional</div>
-        <div style={topStatusChip}>Operator-ready</div>
-      </div>
-
-      <div style={styles.suggestionGrid}>
-        {suggestions.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onSuggestionClick(item.prompt)}
-            disabled={busy}
-            style={{
-              ...styles.suggestionButton,
-              ...(busy ? disabledSuggestionButtonStyle : null),
-            }}
-            title={item.prompt}
-            aria-label={item.label}
-          >
-            <div style={styles.suggestionLabel}>{item.label}</div>
-            <div style={styles.suggestionText}>{item.prompt}</div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function CapabilityPanel() {
-  return (
-    <div style={domainGrid}>
-      {DOMAIN_CARDS.map((card) => (
-        <div key={card.label} style={domainCardStyle}>
-          <div style={domainLabelStyle}>{card.label}</div>
-          <div style={domainValueStyle}>{card.value}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function BrainPanel() {
-  return (
-    <div style={brainPanelWrap}>
-      <div style={styles.panelText}>
-        Open the local brain inspector to review graph memory, connected nodes,
-        edges, and saved workspace context.
-      </div>
-
-      <div style={topStatusWrap}>
-        <div style={topStatusChip}>Graph memory</div>
-        <div style={topStatusChip}>Inspector</div>
-        <div style={topStatusChip}>Local storage</div>
-      </div>
-
-      <div style={brainButtonRow}>
-        <Link href="/brain" style={brainLinkStyle}>
-          Open Brain Inspector
-        </Link>
-
-        <Link href="/ai" style={brainSecondaryLinkStyle}>
-          Open AI Workspace
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-export default function WorkspaceSidebar({
-  busy,
-  suggestions,
-  onSuggestionClick,
-  activeTask,
-  onNextStep,
-  onPrevStep,
-  onClearTask,
-  memory = [],
-  onPinMemory,
-  onUnpinMemory,
-  onDeleteMemory,
-  onClearMemory,
-}: WorkspaceSidebarProps) {
-  const safeMemory = Array.isArray(memory) ? memory : [];
-
-  return (
-    <aside style={styles.leftPanel}>
-      <CollapsibleSection title="Active Task" defaultOpen>
-        {activeTask ? (
-          <TaskPanel
-            task={activeTask}
-            onNextStep={onNextStep}
-            onPrevStep={onPrevStep}
-            onClearTask={onClearTask}
-            busy={busy}
-          />
-        ) : (
-          <div style={styles.panelText}>
-            No active task yet. Ask CodexForge to plan something and it will
-            appear here.
-          </div>
-        )}
-      </CollapsibleSection>
-
-      <CollapsibleSection title="Brain" defaultOpen>
-        <BrainPanel />
-      </CollapsibleSection>
-
-      <CollapsibleSection title="Workspace Memory" defaultOpen>
-        <MemoryPanel
-          memory={safeMemory}
-          onPinMemory={onPinMemory}
-          onUnpinMemory={onUnpinMemory}
-          onDeleteMemory={onDeleteMemory}
-          onClearMemory={onClearMemory}
-          title="Workspace Memory"
-        />
-      </CollapsibleSection>
-
-      <CollapsibleSection title="Quick Starts" defaultOpen>
-        <SuggestionsPanel
-          suggestions={suggestions}
-          busy={busy}
-          onSuggestionClick={onSuggestionClick}
-        />
-      </CollapsibleSection>
-
-      <CollapsibleSection title="Capability Map" defaultOpen={false}>
-        <CapabilityPanel />
-      </CollapsibleSection>
-
-      {PRODUCT_SECTIONS.map((section) => (
-        <SidebarInfoSection key={section.title} section={section} />
-      ))}
-    </aside>
-  );
-}

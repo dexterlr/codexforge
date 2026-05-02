@@ -118,8 +118,8 @@ export function inferDomain(
 }
 
 function contextTagStringsFromText(text: string): string[] {
-  const tags = new Set<string>();
   const query = lower(text);
+  const tags = new Set<string>();
 
   if (query.includes("workspace")) tags.add("workspace");
   if (query.includes("memory")) tags.add("memory");
@@ -131,6 +131,7 @@ function contextTagStringsFromText(text: string): string[] {
   if (query.includes("offline")) tags.add("offline");
   if (query.includes("graph")) tags.add("graph");
   if (query.includes("search")) tags.add("search");
+  if (query.includes("read")) tags.add("read");
   if (query.includes("file")) tags.add("files");
   if (query.includes("folder")) tags.add("folders");
   if (query.includes("repo")) tags.add("repo");
@@ -171,23 +172,6 @@ export function buildDomainTags(
   if (query.includes("notes")) tags.add("notes");
   if (query.includes("api")) tags.add("api");
   if (query.includes("frontend")) tags.add("frontend");
-  if (query.includes("brain")) tags.add("brain");
-  if (query.includes("offline")) tags.add("offline");
-  if (query.includes("provider")) tags.add("provider");
-  if (query.includes("graph")) tags.add("graph");
-  if (query.includes("search")) tags.add("search");
-  if (query.includes("read")) tags.add("read");
-  if (query.includes("file")) tags.add("files");
-  if (query.includes("folder")) tags.add("folders");
-  if (query.includes("repo")) tags.add("repo");
-  if (query.includes("codebase")) tags.add("codebase");
-  if (query.includes("route")) tags.add("route");
-  if (query.includes("engine")) tags.add("engine");
-  if (query.includes("render")) tags.add("render");
-  if (query.includes("hook")) tags.add("hook");
-  if (query.includes("component")) tags.add("component");
-  if (query.includes("contract")) tags.add("contract");
-  if (query.includes("types")) tags.add("types");
 
   for (const tag of contextTagStringsFromText(text)) {
     tags.add(tag);
@@ -255,6 +239,7 @@ export function inferIntent(
 function stripCommandPrefix(text: string): string {
   const trimmed = clean(text);
   if (!trimmed.startsWith("/")) return trimmed;
+
   const withoutPrefix = trimmed.replace(/^\/[a-zA-Z_-]+\s*/, "");
   return clean(withoutPrefix);
 }
@@ -314,6 +299,7 @@ function buildExecutionGoal(
 
 function extractQuotedSegments(text: string): string[] {
   const matches = text.match(/`([^`]+)`|"([^"]+)"|'([^']+)'/g) ?? [];
+
   return matches
     .map((match) => match.replace(/^["'`]|["'`]$/g, "").trim())
     .filter(Boolean);
@@ -321,6 +307,7 @@ function extractQuotedSegments(text: string): string[] {
 
 function looksLikePath(value: string): boolean {
   const normalized = value.replace(/\\/g, "/");
+
   return (
     normalized.includes("/") ||
     normalized.includes(".") ||
@@ -347,6 +334,7 @@ function extractPathCandidate(text: string): string | undefined {
 
 function shouldPreferListFiles(text: string): boolean {
   const query = lower(text);
+
   return (
     query.includes("list ") ||
     query.includes("tree ") ||
@@ -358,6 +346,7 @@ function shouldPreferListFiles(text: string): boolean {
 
 function shouldPreferReadFile(text: string): boolean {
   const query = lower(text);
+
   return (
     query.includes("read ") ||
     query.includes("open ") ||
@@ -369,6 +358,7 @@ function shouldPreferReadFile(text: string): boolean {
 
 function shouldPreferSearchProject(text: string): boolean {
   const query = lower(text);
+
   return (
     query.includes("search ") ||
     query.includes("find ") ||
@@ -386,11 +376,7 @@ function inferAutoInspectionCandidate(
   context: CodexForgeChatContext,
   deps: CodexForgeEngineDependencies
 ): string | null {
-  if (!deps.toolExecution) {
-    return null;
-  }
-
-  if (isExecutionMode(context)) {
+  if (!deps.toolExecution || isExecutionMode(context)) {
     return null;
   }
 
@@ -426,13 +412,11 @@ function inferAutoInspectionCandidate(
     return "search-project";
   }
 
-  return hasList
-    ? "list-files"
-    : hasRead
-      ? "read-file"
-      : hasSearch
-        ? "search-project"
-        : null;
+  if (hasList) return "list-files";
+  if (hasRead) return "read-file";
+  if (hasSearch) return "search-project";
+
+  return null;
 }
 
 /* ================= FILE CLUSTER HELPERS ================= */
@@ -441,27 +425,28 @@ function normalizePath(value: string): string {
   return value.replace(/\\/g, "/").trim().toLowerCase();
 }
 
-function splitPathSegments(value: string): string[] {
+function splitNormalizedPathSegments(value: string): string[] {
   return normalizePath(value)
     .split("/")
     .map((segment) => segment.trim())
     .filter(Boolean);
 }
 
-function getFileName(path: string): string {
-  const segments = splitPathSegments(path);
-  return segments[segments.length - 1] ?? path;
+function getNormalizedFileName(path: string): string {
+  const segments = splitNormalizedPathSegments(path);
+  return segments[segments.length - 1] ?? normalizePath(path);
 }
 
 function getParentDirectory(path: string): string | undefined {
-  const segments = splitPathSegments(path);
+  const segments = splitNormalizedPathSegments(path);
   if (segments.length <= 1) return undefined;
   return segments.slice(0, -1).join("/");
 }
 
 function looksLikeRoutePath(path: string): boolean {
   const normalized = normalizePath(path);
-  const fileName = getFileName(path);
+  const fileName = getNormalizedFileName(path);
+
   return (
     normalized.includes("/api/") ||
     fileName === "route.ts" ||
@@ -471,19 +456,22 @@ function looksLikeRoutePath(path: string): boolean {
 
 function looksLikeEnginePath(path: string): boolean {
   const normalized = normalizePath(path);
-  const fileName = getFileName(path);
+  const fileName = getNormalizedFileName(path);
+
   return normalized.includes("/engine") || fileName.includes("engine");
 }
 
 function looksLikeRenderPath(path: string): boolean {
   const normalized = normalizePath(path);
-  const fileName = getFileName(path);
+  const fileName = getNormalizedFileName(path);
+
   return normalized.includes("/render") || fileName.includes("render");
 }
 
 function looksLikeHookPath(path: string): boolean {
   const normalized = normalizePath(path);
-  const fileName = getFileName(path);
+  const fileName = getNormalizedFileName(path);
+
   return (
     normalized.includes("/hooks/") ||
     fileName.startsWith("use-") ||
@@ -497,18 +485,17 @@ function looksLikeComponentPath(path: string): boolean {
 }
 
 function looksLikeContractPath(path: string): boolean {
-  const fileName = getFileName(path);
-  return fileName.includes("contract");
+  return getNormalizedFileName(path).includes("contract");
 }
 
 function looksLikeTypesPath(path: string): boolean {
-  const fileName = getFileName(path);
+  const fileName = getNormalizedFileName(path);
   return fileName.includes("types") || fileName.endsWith(".d.ts");
 }
 
 function scoreFilePathForPlan(path: string): number {
   const normalized = normalizePath(path);
-  const fileName = getFileName(path);
+  const fileName = getNormalizedFileName(path);
   let score = 0;
 
   if (looksLikeRoutePath(path)) score += 10;
@@ -555,6 +542,7 @@ function hasClusterPair(
 
   for (const aPath of aMatches) {
     const aParent = getParentDirectory(aPath);
+
     for (const bPath of bMatches) {
       if (aPath === bPath) continue;
 
@@ -775,9 +763,7 @@ function buildFiles(
     );
   }
 
-  return sortPlannedFiles(
-    clampList(getDomainConfig(domain).files, LIMITS.maxFiles)
-  );
+  return sortPlannedFiles(clampList(getDomainConfig(domain).files, LIMITS.maxFiles));
 }
 
 function buildCommands(
@@ -852,10 +838,7 @@ function buildRisks(
     );
   }
 
-  return clampList(
-    [...common, ...getDomainConfig(domain).risks],
-    LIMITS.maxRisks
-  );
+  return clampList([...common, ...getDomainConfig(domain).risks], LIMITS.maxRisks);
 }
 
 function buildNextSteps(

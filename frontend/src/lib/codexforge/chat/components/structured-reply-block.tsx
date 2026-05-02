@@ -7,16 +7,21 @@ import {
   getNextAction,
   getSnapshotMeta,
   getStructuredPlan,
+  getStructuredStatusLabel,
+  getStructuredSummaryMeta,
 } from "@/lib/codexforge/chat/client-renderers";
 import type {
   CodexForgePlanDomain,
   CodexForgeStructuredReply,
+  CodexForgeStructuredSection,
   CodexForgeStructuredTool,
 } from "@/lib/codexforge/types";
 
 type StructuredReplyBlockProps = {
   structured?: CodexForgeStructuredReply | null;
 };
+
+/* ================= HELPERS ================= */
 
 function normalizeString(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -26,12 +31,20 @@ function normalizeString(value: unknown): string | null {
 
 function normalizeStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((item) => (typeof item === "string" ? item.trim() : ""))
-    .filter(Boolean);
+  return Array.from(
+    new Set(
+      value
+        .map((item) => (typeof item === "string" ? item.trim() : ""))
+        .filter(Boolean)
+    )
+  );
 }
 
-function getToolAvailabilityLabel(tool: CodexForgeStructuredTool) {
+function hasItems(items?: string[] | null): items is string[] {
+  return Array.isArray(items) && items.length > 0;
+}
+
+function getToolAvailabilityLabel(tool: CodexForgeStructuredTool): string {
   if (tool.availability === "ready") return "Ready";
   if (tool.availability === "stub") return "Stub";
   return "Unavailable";
@@ -51,33 +64,97 @@ function getToolAvailabilityStyle(
   return styles.toolBadgeUnavailable;
 }
 
+function getSectionKey(section: CodexForgeStructuredSection, index: number): string {
+  return `${section.title}-${index}`;
+}
+
+/* ================= SMALL UI PIECES ================= */
+
+function MetaChip({ children }: { children: React.ReactNode }) {
+  return <span style={metaChip}>{children}</span>;
+}
+
+function StatChip({ children }: { children: React.ReactNode }) {
+  return <span style={statChip}>{children}</span>;
+}
+
+function StructuredCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div style={styles.structuredCard}>
+      <div style={styles.structuredTitle}>{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function ParagraphBlock({
+  title,
+  text,
+}: {
+  title: string;
+  text?: string | null;
+}) {
+  const safeText = normalizeString(text);
+  if (!safeText) return null;
+
+  return (
+    <StructuredCard title={title}>
+      <div style={styles.structuredParagraph}>{safeText}</div>
+    </StructuredCard>
+  );
+}
+
+function BulletList({
+  items,
+  ordered = false,
+}: {
+  items: string[];
+  ordered?: boolean;
+}) {
+  if (!items.length) return null;
+
+  return (
+    <div style={styles.structuredList}>
+      {items.map((item, idx) => (
+        <div key={`${idx}-${item}`} style={styles.structuredListItem}>
+          <span style={styles.structuredBullet}>
+            {ordered ? `${idx + 1}.` : "•"}
+          </span>
+          <span>{item}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ListSection({
   title,
   items,
+  ordered = false,
 }: {
   title: string;
-  items?: string[];
+  items?: string[] | null;
+  ordered?: boolean;
 }) {
   const safeItems = normalizeStringArray(items);
   if (safeItems.length === 0) return null;
 
   return (
-    <div style={styles.structuredCard}>
-      <div style={styles.structuredTitle}>{title}</div>
-      <div style={styles.structuredList}>
-        {safeItems.map((item, idx) => (
-          <div key={`${title}-${idx}-${item}`} style={styles.structuredListItem}>
-            <span style={styles.structuredBullet}>•</span>
-            <span>{item}</span>
-          </div>
-        ))}
-      </div>
-    </div>
+    <StructuredCard title={title}>
+      <BulletList items={safeItems} ordered={ordered} />
+    </StructuredCard>
   );
 }
 
 function SummaryStats({
   mode,
+  status,
   domain,
   toolCount,
   sectionCount,
@@ -88,6 +165,7 @@ function SummaryStats({
   logCount,
 }: {
   mode?: string | null;
+  status?: string | null;
   domain?: string | null;
   toolCount: number;
   sectionCount: number;
@@ -98,8 +176,9 @@ function SummaryStats({
   logCount: number;
 }) {
   const stats = [
-    mode ? `${mode}` : null,
-    domain ? `${domain}` : null,
+    mode,
+    status,
+    domain,
     stepCount > 0 ? `${stepCount} step${stepCount === 1 ? "" : "s"}` : null,
     toolCount > 0 ? `${toolCount} tool${toolCount === 1 ? "" : "s"}` : null,
     sectionCount > 0
@@ -120,10 +199,47 @@ function SummaryStats({
   return (
     <div style={metaRow}>
       {stats.map((stat) => (
-        <span key={stat} style={metaChip}>
-          {stat}
-        </span>
+        <MetaChip key={stat}>{stat}</MetaChip>
       ))}
+    </div>
+  );
+}
+
+/* ================= CORE SECTIONS ================= */
+
+function HeroSection({
+  structured,
+}: {
+  structured: CodexForgeStructuredReply;
+}) {
+  const title = normalizeString(structured.title);
+  const summary = normalizeString(structured.summary);
+
+  if (!title && !summary) return null;
+
+  const meta = getStructuredSummaryMeta(structured);
+  const plan = getStructuredPlan(structured);
+  const status = getStructuredStatusLabel(structured);
+  const domain =
+    getDomainLabel(plan?.domain ?? structured.domain ?? null) ?? null;
+
+  return (
+    <div style={styles.structuredHero}>
+      {title ? <div style={styles.structuredHeroTitle}>{title}</div> : null}
+      {summary ? <div style={styles.structuredHeroText}>{summary}</div> : null}
+
+      <SummaryStats
+        mode={meta.modeLabel}
+        status={status}
+        domain={domain}
+        toolCount={meta.toolCount}
+        sectionCount={meta.sectionCount}
+        stepCount={meta.stepCount}
+        tagCount={meta.tagCount}
+        diffCount={meta.diffCount}
+        snapshotFileCount={meta.snapshotFileCount}
+        logCount={meta.logCount}
+      />
     </div>
   );
 }
@@ -145,37 +261,35 @@ function ExecutionSection({
   }
 
   return (
-    <div style={styles.structuredCard}>
-      <div style={styles.structuredTitle}>Execution</div>
-
+    <StructuredCard title="Execution">
       <div style={statsGrid}>
         {executionMeta.stepNumber !== null ? (
-          <span style={statChip}>Step {executionMeta.stepNumber}</span>
+          <StatChip>Step {executionMeta.stepNumber}</StatChip>
         ) : null}
 
         {executionMeta.phaseLabel ? (
-          <span style={statChip}>Phase: {executionMeta.phaseLabel}</span>
+          <StatChip>Phase: {executionMeta.phaseLabel}</StatChip>
         ) : null}
 
         {executionMeta.diffCount !== null ? (
-          <span style={statChip}>
+          <StatChip>
             {executionMeta.diffCount} diff
             {executionMeta.diffCount === 1 ? "" : "s"}
-          </span>
+          </StatChip>
         ) : null}
 
         {executionMeta.snapshotFileCount !== null ? (
-          <span style={statChip}>
+          <StatChip>
             {executionMeta.snapshotFileCount} snapshot file
             {executionMeta.snapshotFileCount === 1 ? "" : "s"}
-          </span>
+          </StatChip>
         ) : null}
 
         {executionMeta.logCount > 0 ? (
-          <span style={statChip}>
+          <StatChip>
             {executionMeta.logCount} log
             {executionMeta.logCount === 1 ? "" : "s"}
-          </span>
+          </StatChip>
         ) : null}
       </div>
 
@@ -188,9 +302,11 @@ function ExecutionSection({
       ) : null}
 
       {executionMeta.logs.length > 0 ? (
-        <ListSection title="Execution logs" items={executionMeta.logs} />
+        <div style={{ marginTop: 10 }}>
+          <BulletList items={executionMeta.logs} />
+        </div>
       ) : null}
-    </div>
+    </StructuredCard>
   );
 }
 
@@ -204,29 +320,29 @@ function SnapshotSection({
   if (!snapshotMeta.hasSnapshot) return null;
 
   return (
-    <div style={styles.structuredCard}>
-      <div style={styles.structuredTitle}>Snapshot</div>
-
+    <StructuredCard title="Snapshot">
       <div style={statsGrid}>
         {snapshotMeta.fileCount !== null ? (
-          <span style={statChip}>
+          <StatChip>
             {snapshotMeta.fileCount} file
             {snapshotMeta.fileCount === 1 ? "" : "s"}
-          </span>
+          </StatChip>
         ) : null}
 
         {snapshotMeta.sampledPathCount > 0 ? (
-          <span style={statChip}>
+          <StatChip>
             {snapshotMeta.sampledPathCount} sampled path
             {snapshotMeta.sampledPathCount === 1 ? "" : "s"}
-          </span>
+          </StatChip>
         ) : null}
       </div>
 
       {snapshotMeta.sampledPaths.length > 0 ? (
-        <ListSection title="Sampled paths" items={snapshotMeta.sampledPaths} />
+        <div style={{ marginTop: 10 }}>
+          <BulletList items={snapshotMeta.sampledPaths} />
+        </div>
       ) : null}
-    </div>
+    </StructuredCard>
   );
 }
 
@@ -240,18 +356,16 @@ function DiffSection({
   if (!diffMeta.hasDiffs) return null;
 
   return (
-    <div style={styles.structuredCard}>
-      <div style={styles.structuredTitle}>Diff previews</div>
-
+    <StructuredCard title="Diff previews">
       <div style={diffList}>
-        {diffMeta.diffs.map((diff) => (
-          <div key={diff.filePath} style={diffCard}>
+        {diffMeta.diffs.map((diff, index) => (
+          <div key={`${diff.filePath}-${index}`} style={diffCard}>
             <div style={diffFilePath}>{diff.filePath}</div>
             <pre style={diffPatch}>{diff.patch}</pre>
           </div>
         ))}
       </div>
-    </div>
+    </StructuredCard>
   );
 }
 
@@ -276,41 +390,18 @@ function PlanSection({
   domain?: CodexForgePlanDomain;
   nextAction?: string | null;
 }) {
+  const domainLabel = getDomainLabel(domain ?? null);
+
   return (
     <>
-      <div style={styles.structuredCard}>
-        <div style={styles.structuredTitle}>Plan goal</div>
-        <div style={styles.structuredParagraph}>{goal}</div>
-      </div>
+      <ParagraphBlock title="Plan goal" text={goal} />
+      <ParagraphBlock title="Next action" text={nextAction} />
 
-      {domain ? (
-        <div style={styles.structuredCard}>
-          <div style={styles.structuredTitle}>Domain</div>
-          <div style={styles.structuredParagraph}>
-            {getDomainLabel(domain) ?? "General"}
-          </div>
-        </div>
+      {domainLabel ? (
+        <ParagraphBlock title="Domain" text={domainLabel} />
       ) : null}
 
-      {nextAction ? (
-        <div style={styles.structuredCard}>
-          <div style={styles.structuredTitle}>Next action</div>
-          <div style={styles.structuredParagraph}>{nextAction}</div>
-        </div>
-      ) : null}
-
-      <div style={styles.structuredCard}>
-        <div style={styles.structuredTitle}>Execution steps</div>
-        <div style={styles.structuredList}>
-          {steps.map((step, idx) => (
-            <div key={`step-${idx}-${step}`} style={styles.structuredListItem}>
-              <span style={styles.structuredBullet}>{idx + 1}.</span>
-              <span>{step}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
+      <ListSection title="Execution steps" items={steps} ordered />
       <ListSection title="Tags" items={tags} />
       <ListSection title="Files to touch" items={files} />
       <ListSection title="Commands to run" items={commands} />
@@ -323,13 +414,12 @@ function PlanSection({
 function ToolsSection({
   tools,
 }: {
-  tools?: CodexForgeStructuredTool[];
+  tools?: CodexForgeStructuredTool[] | null;
 }) {
   if (!tools || tools.length === 0) return null;
 
   return (
-    <div style={styles.structuredCard}>
-      <div style={styles.structuredTitle}>Recommended tools</div>
+    <StructuredCard title="Recommended tools">
       <div style={styles.toolGrid}>
         {tools.map((tool) => (
           <div key={tool.name} style={styles.toolCard}>
@@ -344,13 +434,36 @@ function ToolsSection({
                 {getToolAvailabilityLabel(tool)}
               </span>
             </div>
+
             <div style={styles.toolDescription}>{tool.description}</div>
           </div>
         ))}
       </div>
-    </div>
+    </StructuredCard>
   );
 }
+
+function StructuredSections({
+  sections,
+}: {
+  sections?: CodexForgeStructuredSection[] | null;
+}) {
+  if (!sections || sections.length === 0) return null;
+
+  return (
+    <>
+      {sections.map((section, index) => (
+        <ListSection
+          key={getSectionKey(section, index)}
+          title={section.title}
+          items={section.items}
+        />
+      ))}
+    </>
+  );
+}
+
+/* ================= MAIN ================= */
 
 export function StructuredReplyBlock({
   structured,
@@ -359,47 +472,16 @@ export function StructuredReplyBlock({
 
   const plan = getStructuredPlan(structured);
   const nextAction = getNextAction(plan);
-  const mode = normalizeString(structured.mode);
-  const domain = plan?.domain ?? structured.domain ?? undefined;
-  const domainLabel = getDomainLabel(domain ?? null);
   const tags = normalizeStringArray(plan?.tags ?? structured.tags);
-  const toolCount = structured.tools?.length ?? 0;
-  const sectionCount = structured.sections?.length ?? 0;
-  const stepCount = plan?.steps.length ?? structured.nextSteps?.length ?? 0;
 
-  const executionMeta = getExecutionMeta(structured);
-  const snapshotMeta = getSnapshotMeta(structured);
-  const diffMeta = getDiffMeta(structured);
-
-  const logCount = executionMeta.logCount;
-  const diffCount = diffMeta.count;
-  const snapshotFileCount = snapshotMeta.fileCount;
+  const hasFallbackGoal = !plan && !!normalizeString(structured.goal);
+  const fallbackDomainLabel = getDomainLabel(
+    (structured.domain as CodexForgePlanDomain | null | undefined) ?? null
+  );
 
   return (
     <div style={styles.structuredWrap}>
-      {structured.title || structured.summary ? (
-        <div style={styles.structuredHero}>
-          {structured.title ? (
-            <div style={styles.structuredHeroTitle}>{structured.title}</div>
-          ) : null}
-
-          {structured.summary ? (
-            <div style={styles.structuredHeroText}>{structured.summary}</div>
-          ) : null}
-
-          <SummaryStats
-            mode={mode}
-            domain={domainLabel}
-            toolCount={toolCount}
-            sectionCount={sectionCount}
-            stepCount={stepCount}
-            tagCount={tags.length}
-            diffCount={diffCount}
-            snapshotFileCount={snapshotFileCount}
-            logCount={logCount}
-          />
-        </div>
-      ) : null}
+      <HeroSection structured={structured} />
 
       <ExecutionSection structured={structured} />
       <SnapshotSection structured={structured} />
@@ -417,11 +499,10 @@ export function StructuredReplyBlock({
           domain={plan.domain}
           nextAction={nextAction}
         />
-      ) : structured.goal ? (
-        <div style={styles.structuredCard}>
-          <div style={styles.structuredTitle}>Goal</div>
-          <div style={styles.structuredParagraph}>{structured.goal}</div>
-        </div>
+      ) : null}
+
+      {hasFallbackGoal ? (
+        <ParagraphBlock title="Goal" text={structured.goal} />
       ) : null}
 
       <ListSection title="Context" items={structured.context} />
@@ -429,34 +510,32 @@ export function StructuredReplyBlock({
 
       {!plan ? (
         <>
-          <ListSection title="Domain" items={domainLabel ? [domainLabel] : []} />
+          <ListSection
+            title="Domain"
+            items={fallbackDomainLabel ? [fallbackDomainLabel] : []}
+          />
           <ListSection title="Tags" items={tags} />
           <ListSection title="Files to check" items={structured.files} />
           <ListSection title="Commands to run" items={structured.commands} />
           <ListSection title="Risks" items={structured.risks} />
-          <ListSection title="Next steps" items={structured.nextSteps} />
+          <ListSection title="Next steps" items={structured.nextSteps} ordered />
         </>
       ) : null}
 
       <ToolsSection tools={structured.tools} />
       <ListSection title="Status" items={structured.status} />
-
-      {structured.sections?.map((section) => (
-        <ListSection
-          key={section.title}
-          title={section.title}
-          items={section.items}
-        />
-      ))}
+      <StructuredSections sections={structured.sections} />
     </div>
   );
 }
+
+/* ================= EXTRA STYLES ================= */
 
 const metaRow: React.CSSProperties = {
   display: "flex",
   gap: 8,
   flexWrap: "wrap",
-  marginTop: 4,
+  marginTop: 6,
 };
 
 const metaChip: React.CSSProperties = {
@@ -474,6 +553,7 @@ const statsGrid: React.CSSProperties = {
   display: "flex",
   gap: 8,
   flexWrap: "wrap",
+  marginTop: 2,
 };
 
 const statChip: React.CSSProperties = {
@@ -486,6 +566,7 @@ const statChip: React.CSSProperties = {
 };
 
 const executionResultCard: React.CSSProperties = {
+  marginTop: 10,
   padding: 10,
   borderRadius: 12,
   border: "1px solid rgba(99,102,241,0.18)",

@@ -14,6 +14,15 @@ type FallbackExecutionRequest = {
   mode?: string;
 };
 
+type FallbackBuildContext = {
+  executionRequest: FallbackExecutionRequest | null;
+  isExecutionFallback: boolean;
+  domain?: CodexForgePlanDomain;
+  tags?: string[];
+};
+
+/* ================= NORMALIZATION ================= */
+
 function asExecutionRequest(
   context: CodexForgeChatContext
 ): FallbackExecutionRequest | null {
@@ -66,15 +75,61 @@ function cloneMessages(messages: CodexForgeMessage[]): CodexForgeMessage[] {
   }));
 }
 
-function buildExecutionTextPrefix(request: FallbackExecutionRequest | null) {
-  if (!request || request.mode !== "execute-task-step") return "";
+function dedupeStrings(values: string[]): string[] {
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+}
+
+function normalizeTags(
+  structured: CodexForgeStructuredReply
+): string[] | undefined {
+  const tags = structured.tags ?? structured.plan?.tags;
+  if (!tags || tags.length === 0) {
+    return undefined;
+  }
+
+  const normalized = dedupeStrings(tags);
+  return normalized.length > 0 ? normalized : undefined;
+}
+
+function normalizeDomain(
+  structured: CodexForgeStructuredReply
+): CodexForgePlanDomain | undefined {
+  return structured.domain ?? structured.plan?.domain;
+}
+
+function isExecutionFallbackRequest(
+  request: FallbackExecutionRequest | null
+): boolean {
+  return request?.mode === "execute-task-step";
+}
+
+function buildFallbackContext(
+  structured: CodexForgeStructuredReply,
+  request: FallbackExecutionRequest | null
+): FallbackBuildContext {
+  return {
+    executionRequest: request,
+    isExecutionFallback: isExecutionFallbackRequest(request),
+    domain: normalizeDomain(structured),
+    tags: normalizeTags(structured),
+  };
+}
+
+/* ================= TEXT BUILDERS ================= */
+
+function buildExecutionTextPrefix(
+  request: FallbackExecutionRequest | null
+): string {
+  if (!isExecutionFallbackRequest(request)) {
+    return "";
+  }
 
   const stepNumber =
-    typeof request.stepIndex === "number" ? request.stepIndex + 1 : null;
+    typeof request?.stepIndex === "number" ? request.stepIndex + 1 : null;
 
   const lines: string[] = ["Execution fallback", ""];
 
-  if (request.taskGoal) {
+  if (request?.taskGoal) {
     lines.push(`Task goal: ${request.taskGoal}`);
   }
 
@@ -82,7 +137,7 @@ function buildExecutionTextPrefix(request: FallbackExecutionRequest | null) {
     lines.push(`Step: ${stepNumber}`);
   }
 
-  if (request.stepText) {
+  if (request?.stepText) {
     lines.push(`Step text: ${request.stepText}`);
   }
 
@@ -90,33 +145,44 @@ function buildExecutionTextPrefix(request: FallbackExecutionRequest | null) {
   return lines.join("\n");
 }
 
-function buildFallbackStatus(
-  structured: CodexForgeStructuredReply,
-  request: FallbackExecutionRequest | null
-) {
-  const base = [...(structured.status ?? [])];
+function buildModeLine(ctx: FallbackBuildContext): string {
+  return ctx.isExecutionFallback
+    ? "Mode: LOCAL EXECUTION FALLBACK (UI-side task-step execution)"
+    : "Mode: LOCAL ENGINE FALLBACK (UI-side engine fallback)";
+}
 
-  if (request?.mode === "execute-task-step") {
-    return [
-      ...base,
-      "Execution handled by UI-side engine fallback.",
-      "Backend route was unavailable or returned an error.",
-      "Task step was processed locally for continuity.",
-    ];
+function buildDomainLine(domain?: CodexForgePlanDomain): string {
+  return domain ? `Domain: ${domain}` : "";
+}
+
+function buildTagsLine(tags?: string[]): string {
+  return tags && tags.length > 0 ? `Tags: ${tags.join(", ")}` : "";
+}
+
+/* ================= STRUCTURED BUILDERS ================= */
+
+function buildFallbackMode(ctx: FallbackBuildContext) {
+  return ctx.isExecutionFallback
+    ? "local-execution-fallback"
+    : "local-fallback";
+}
+
+function buildFallbackTitle(
+  structured: CodexForgeStructuredReply,
+  ctx: FallbackBuildContext
+): string {
+  if (ctx.isExecutionFallback) {
+    return structured.title ?? "CodexForge execution fallback";
   }
 
-  return [
-    ...base,
-    "Using UI-side engine fallback.",
-    "Backend route was unavailable or returned an error.",
-  ];
+  return structured.title ?? "CodexForge local fallback";
 }
 
 function buildFallbackSummary(
   structured: CodexForgeStructuredReply,
-  request: FallbackExecutionRequest | null
-) {
-  if (request?.mode === "execute-task-step") {
+  ctx: FallbackBuildContext
+): string {
+  if (ctx.isExecutionFallback) {
     return (
       structured.summary ??
       "CodexForge executed the requested task step through the local fallback engine."
@@ -129,53 +195,86 @@ function buildFallbackSummary(
   );
 }
 
+function buildFallbackStatus(
+  structured: CodexForgeStructuredReply,
+  ctx: FallbackBuildContext
+): string[] {
+  const base = [...(structured.status ?? [])];
+
+  if (ctx.isExecutionFallback) {
+    return dedupeStrings([
+      ...base,
+      "Execution handled by UI-side engine fallback.",
+      "Backend route was unavailable or returned an error.",
+      "Task step was processed locally for continuity.",
+    ]);
+  }
+
+  return dedupeStrings([
+    ...base,
+    "Using UI-side engine fallback.",
+    "Backend route was unavailable or returned an error.",
+  ]);
+}
+
 function buildFallbackNextSteps(
   structured: CodexForgeStructuredReply,
-  request: FallbackExecutionRequest | null
-) {
+  ctx: FallbackBuildContext
+): string[] | undefined {
   const base = [...(structured.nextSteps ?? [])];
 
-  if (request?.mode === "execute-task-step") {
-    return Array.from(
-      new Set([
-        ...base,
-        "Review the execution result.",
-        "Update the task if the step changed scope.",
-        "Run the next step when ready.",
-      ])
-    );
+  if (!ctx.isExecutionFallback) {
+    return base.length > 0 ? dedupeStrings(base) : undefined;
   }
 
-  return base;
+  const merged = dedupeStrings([
+    ...base,
+    "Review the execution result.",
+    "Update the task if the step changed scope.",
+    "Run the next step when ready.",
+  ]);
+
+  return merged.length > 0 ? merged : undefined;
 }
 
-function buildFallbackMode(request: FallbackExecutionRequest | null) {
-  return request?.mode === "execute-task-step"
-    ? "local-execution-fallback"
-    : "local-fallback";
-}
-
-function resolveDomain(
-  structured: CodexForgeStructuredReply
-): CodexForgePlanDomain | undefined {
-  return structured.domain ?? structured.plan?.domain;
-}
-
-function resolveTags(structured: CodexForgeStructuredReply): string[] | undefined {
-  const tags = structured.tags ?? structured.plan?.tags;
-  return tags && tags.length > 0 ? Array.from(new Set(tags)) : undefined;
-}
-
-function buildFallbackTitle(
+function buildFallbackExecution(
   structured: CodexForgeStructuredReply,
-  request: FallbackExecutionRequest | null
-) {
-  if (request?.mode === "execute-task-step") {
-    return structured.title ?? "CodexForge execution fallback";
+  ctx: FallbackBuildContext
+): CodexForgeStructuredReply["execution"] {
+  if (!ctx.isExecutionFallback) {
+    return structured.execution;
   }
 
-  return structured.title ?? "CodexForge local fallback";
+  const request = ctx.executionRequest;
+
+  return {
+    ...(typeof request?.stepIndex === "number"
+      ? { stepIndex: request.stepIndex }
+      : {}),
+    ...(request?.stepText ? { stepText: request.stepText } : {}),
+    resultSummary: "Step handled through UI-side fallback execution.",
+    phase: "fallback",
+  };
 }
+
+function buildFallbackStructured(
+  structured: CodexForgeStructuredReply,
+  ctx: FallbackBuildContext
+): CodexForgeStructuredReply {
+  return {
+    ...structured,
+    mode: buildFallbackMode(ctx),
+    title: buildFallbackTitle(structured, ctx),
+    summary: buildFallbackSummary(structured, ctx),
+    status: buildFallbackStatus(structured, ctx),
+    nextSteps: buildFallbackNextSteps(structured, ctx),
+    ...(ctx.domain ? { domain: ctx.domain } : {}),
+    ...(ctx.tags ? { tags: ctx.tags } : {}),
+    execution: buildFallbackExecution(structured, ctx),
+  };
+}
+
+/* ================= PUBLIC ================= */
 
 export async function buildClientFallbackFromEngine(
   messages: CodexForgeMessage[],
@@ -185,42 +284,13 @@ export async function buildClientFallbackFromEngine(
   const executionRequest = asExecutionRequest(context);
   const engine = await runCodexForgeEngine(engineMessages, context);
 
-  const domain = resolveDomain(engine.structured);
-  const tags = resolveTags(engine.structured);
-
-  const structured: CodexForgeStructuredReply = {
-    ...engine.structured,
-    mode: buildFallbackMode(executionRequest),
-    title: buildFallbackTitle(engine.structured, executionRequest),
-    summary: buildFallbackSummary(engine.structured, executionRequest),
-    status: buildFallbackStatus(engine.structured, executionRequest),
-    nextSteps: buildFallbackNextSteps(engine.structured, executionRequest),
-    ...(domain ? { domain } : {}),
-    ...(tags ? { tags } : {}),
-    execution:
-      executionRequest?.mode === "execute-task-step"
-        ? {
-            ...(typeof executionRequest.stepIndex === "number"
-              ? { stepIndex: executionRequest.stepIndex }
-              : {}),
-            ...(executionRequest.stepText
-              ? { stepText: executionRequest.stepText }
-              : {}),
-            resultSummary:
-              "Step handled through UI-side fallback execution.",
-            phase: "fallback",
-          }
-        : engine.structured.execution,
-  };
+  const ctx = buildFallbackContext(engine.structured, executionRequest);
+  const structured = buildFallbackStructured(engine.structured, ctx);
 
   const executionPrefix = buildExecutionTextPrefix(executionRequest);
-  const modeLine =
-    executionRequest?.mode === "execute-task-step"
-      ? "Mode: LOCAL EXECUTION FALLBACK (UI-side task-step execution)"
-      : "Mode: LOCAL ENGINE FALLBACK (UI-side engine fallback)";
-
-  const domainLine = domain ? `Domain: ${domain}` : "";
-  const tagsLine = tags?.length ? `Tags: ${tags.join(", ")}` : "";
+  const modeLine = buildModeLine(ctx);
+  const domainLine = buildDomainLine(ctx.domain);
+  const tagsLine = buildTagsLine(ctx.tags);
 
   return {
     text: [executionPrefix, engine.text, "", modeLine, domainLine, tagsLine]

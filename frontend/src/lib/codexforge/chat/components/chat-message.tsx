@@ -62,7 +62,7 @@ function getRowStyle(role: CodexForgeRole): React.CSSProperties {
   };
 }
 
-function normalizeText(value: string | null | undefined) {
+function normalizeText(value: string | null | undefined): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
@@ -87,13 +87,17 @@ function normalizeEnginePhase(
   return null;
 }
 
-function isEngineCheckpointPhase(phase?: CodexForgeExecutionPhase | string) {
+function isEngineCheckpointPhase(
+  phase?: CodexForgeExecutionPhase | string
+): boolean {
   return (
     phase === "awaiting_plan_approval" || phase === "awaiting_diff_approval"
   );
 }
 
-function getMessageToneBadge(meta: ReturnType<typeof getStructuredSummaryMeta>) {
+function getMessageToneBadge(
+  meta: ReturnType<typeof getStructuredSummaryMeta>
+): string | null {
   if (meta.isExecution) return "Execution";
   if (meta.isFallback) return "Fallback";
   if (meta.hasPlan) return "Plan";
@@ -107,7 +111,7 @@ function shouldShowApprovalActions(args: {
   canApproveDiffs: boolean;
   canRejectDiffs: boolean;
   canResetEngine: boolean;
-}) {
+}): boolean {
   if (!args.isAssistant) return false;
 
   return (
@@ -152,15 +156,22 @@ function ActionButton({
   if (!visible || !onClick) return null;
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      style={style}
-    >
+    <button type="button" onClick={onClick} disabled={disabled} style={style}>
       {label}
     </button>
   );
+}
+
+function renderPlainTextBlocks(text: string) {
+  return text
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block, index) => (
+      <div key={`text-block-${index}`} style={plainTextBlock}>
+        {block}
+      </div>
+    ));
 }
 
 /* ================= COMPONENT ================= */
@@ -192,6 +203,7 @@ export function ChatMessage({
 
   const isAssistant = message.role === "assistant";
   const isSystem = message.role === "system";
+  const isUser = message.role === "user";
   const canUseAsDraft = message.role !== "user";
   const isCopied = copiedId === message.id;
 
@@ -251,6 +263,14 @@ export function ChatMessage({
       effectiveSnapshotFileCount > 0 ||
       !!effectivePhaseLabel);
 
+  const showStructuredBlock = isAssistant && hasStructured;
+  const showStructuredOnly = showStructuredBlock && !shouldShowPlainText;
+
+  const leadingSummary =
+    isAssistant && trimmedText
+      ? trimmedText.split(/\n+/).map((line) => line.trim()).find(Boolean) ?? ""
+      : "";
+
   function handleCopy() {
     void onCopy(message);
   }
@@ -265,6 +285,9 @@ export function ChatMessage({
         style={{
           ...styles.messageBubble,
           ...bubbleStyle,
+          ...(isAssistant ? assistantBubbleEnhanced : {}),
+          ...(isUser ? userBubbleEnhanced : {}),
+          ...(isSystem ? systemBubbleEnhanced : {}),
         }}
       >
         <div style={styles.messageMeta}>
@@ -293,6 +316,12 @@ export function ChatMessage({
 
             {summaryMeta.domainLabel ? (
               <span style={domainBadge}>{summaryMeta.domainLabel}</span>
+            ) : null}
+
+            {summaryMeta.statusLabel ? (
+              <span style={statusBadge}>{summaryMeta.statusLabel}</span>
+            ) : plan?.status ? (
+              <span style={statusBadge}>{plan.status}</span>
             ) : null}
 
             {summaryMeta.hasPlan ? (
@@ -325,12 +354,13 @@ export function ChatMessage({
             {summaryMeta.logCount > 0 ? (
               <CountChip label="log" value={summaryMeta.logCount} />
             ) : null}
+          </div>
+        ) : null}
 
-            {summaryMeta.statusLabel ? (
-              <span style={statusBadge}>{summaryMeta.statusLabel}</span>
-            ) : plan?.status ? (
-              <span style={statusBadge}>{plan.status}</span>
-            ) : null}
+        {isAssistant && leadingSummary && showStructuredOnly ? (
+          <div style={assistantHeadlineCard}>
+            <div style={assistantHeadlineLabel}>Outcome</div>
+            <div style={assistantHeadlineText}>{leadingSummary}</div>
           </div>
         ) : null}
 
@@ -419,7 +449,10 @@ export function ChatMessage({
             {diffMeta.filePaths.length > 0 ? (
               <div style={engineTouchedFiles}>
                 {diffMeta.filePaths.map((filePath) => (
-                  <span key={`${message.id}-${filePath}`} style={engineTouchedFileChip}>
+                  <span
+                    key={`${message.id}-${filePath}`}
+                    style={engineTouchedFileChip}
+                  >
                     {filePath}
                   </span>
                 ))}
@@ -429,56 +462,63 @@ export function ChatMessage({
         ) : null}
 
         {shouldShowPlainText ? (
-          <div style={styles.messageText}>{trimmedText}</div>
+          <div style={plainTextWrap}>{renderPlainTextBlocks(trimmedText)}</div>
         ) : null}
 
-        {isAssistant && hasStructured ? (
-          <div style={structuredWrap}>
-            {renderStructuredReply(message.structured)}
-          </div>
+        {showStructuredBlock ? (
+          <div style={structuredWrap}>{renderStructuredReply(message.structured)}</div>
         ) : null}
 
         {showApprovalActions ? (
-          <div style={approvalBar}>
-            <ActionButton
-              visible={canApprovePlan}
-              label="Approve plan"
-              onClick={onApprovePlan}
-              disabled={isExecuting}
-              style={styles.pillGhostButton}
-            />
+          <div style={approvalWrap}>
+            <div style={approvalHeader}>
+              <span style={approvalHeaderLabel}>Available actions</span>
+              {isExecuting ? (
+                <span style={approvalBusyBadge}>Engine busy</span>
+              ) : null}
+            </div>
 
-            <ActionButton
-              visible={canRejectPlan}
-              label="Reject plan"
-              onClick={onRejectPlan}
-              disabled={isExecuting}
-              style={styles.tinyGhostButton}
-            />
+            <div style={approvalBar}>
+              <ActionButton
+                visible={canApprovePlan}
+                label="Approve plan"
+                onClick={onApprovePlan}
+                disabled={isExecuting}
+                style={primaryActionButton}
+              />
 
-            <ActionButton
-              visible={canApproveDiffs}
-              label="Approve diffs"
-              onClick={onApproveDiffs}
-              disabled={isExecuting}
-              style={styles.pillGhostButton}
-            />
+              <ActionButton
+                visible={canRejectPlan}
+                label="Reject plan"
+                onClick={onRejectPlan}
+                disabled={isExecuting}
+                style={secondaryActionButton}
+              />
 
-            <ActionButton
-              visible={canRejectDiffs}
-              label="Reject diffs"
-              onClick={onRejectDiffs}
-              disabled={isExecuting}
-              style={styles.tinyGhostButton}
-            />
+              <ActionButton
+                visible={canApproveDiffs}
+                label="Approve diffs"
+                onClick={onApproveDiffs}
+                disabled={isExecuting}
+                style={primaryActionButton}
+              />
 
-            <ActionButton
-              visible={canResetEngine}
-              label="Reset engine"
-              onClick={onResetEngine}
-              disabled={isExecuting}
-              style={styles.pillDanger}
-            />
+              <ActionButton
+                visible={canRejectDiffs}
+                label="Reject diffs"
+                onClick={onRejectDiffs}
+                disabled={isExecuting}
+                style={secondaryActionButton}
+              />
+
+              <ActionButton
+                visible={canResetEngine}
+                label="Reset engine"
+                onClick={onResetEngine}
+                disabled={isExecuting}
+                style={dangerActionButton}
+              />
+            </div>
           </div>
         ) : null}
 
@@ -516,10 +556,60 @@ export function ChatMessage({
 
 /* ================= EXTRA STYLES ================= */
 
+const assistantBubbleEnhanced: React.CSSProperties = {
+  boxShadow: "0 14px 40px rgba(2, 6, 23, 0.22)",
+};
+
+const userBubbleEnhanced: React.CSSProperties = {
+  boxShadow: "0 10px 24px rgba(2, 6, 23, 0.14)",
+};
+
+const systemBubbleEnhanced: React.CSSProperties = {
+  boxShadow: "0 10px 24px rgba(2, 6, 23, 0.10)",
+};
+
 const structuredWrap: React.CSSProperties = {
-  marginTop: 10,
+  marginTop: 12,
   display: "grid",
   gap: 10,
+};
+
+const plainTextWrap: React.CSSProperties = {
+  marginTop: 10,
+  display: "grid",
+  gap: 8,
+};
+
+const plainTextBlock: React.CSSProperties = {
+  fontSize: 14,
+  lineHeight: 1.7,
+  opacity: 0.96,
+  whiteSpace: "pre-wrap",
+  wordBreak: "break-word",
+};
+
+const assistantHeadlineCard: React.CSSProperties = {
+  marginTop: 10,
+  padding: 12,
+  borderRadius: 12,
+  border: "1px solid rgba(59,130,246,0.18)",
+  background: "rgba(59,130,246,0.08)",
+  display: "grid",
+  gap: 6,
+};
+
+const assistantHeadlineLabel: React.CSSProperties = {
+  fontSize: 11,
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+  opacity: 0.74,
+  fontWeight: 800,
+};
+
+const assistantHeadlineText: React.CSSProperties = {
+  fontSize: 14,
+  lineHeight: 1.6,
+  fontWeight: 700,
 };
 
 const messageMetaChips: React.CSSProperties = {
@@ -695,9 +785,54 @@ const engineTouchedFileChip: React.CSSProperties = {
   wordBreak: "break-word",
 };
 
+const approvalWrap: React.CSSProperties = {
+  marginTop: 12,
+  display: "grid",
+  gap: 8,
+  paddingTop: 10,
+  borderTop: "1px solid rgba(148,163,184,0.12)",
+};
+
+const approvalHeader: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const approvalHeaderLabel: React.CSSProperties = {
+  fontSize: 11,
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+  opacity: 0.72,
+  fontWeight: 800,
+};
+
+const approvalBusyBadge: React.CSSProperties = {
+  fontSize: 10,
+  padding: "4px 6px",
+  borderRadius: 999,
+  border: "1px solid rgba(245,158,11,0.24)",
+  background: "rgba(245,158,11,0.12)",
+  fontWeight: 800,
+};
+
 const approvalBar: React.CSSProperties = {
   display: "flex",
   gap: 8,
   flexWrap: "wrap",
-  marginTop: 12,
+};
+
+const primaryActionButton: React.CSSProperties = {
+  ...styles.pillGhostButton,
+  fontWeight: 800,
+};
+
+const secondaryActionButton: React.CSSProperties = {
+  ...styles.tinyGhostButton,
+};
+
+const dangerActionButton: React.CSSProperties = {
+  ...styles.pillDanger,
 };
