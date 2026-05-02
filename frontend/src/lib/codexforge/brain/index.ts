@@ -35,6 +35,7 @@ export {
 
 /* ================= IMPORTS ================= */
 
+import type { CodexForgeEngineDependencies } from "@/lib/codexforge/chat/contracts";
 import {
   DEFAULT_CODEXFORGE_BRAIN_MODEL,
   DEFAULT_CODEXFORGE_BRAIN_PROVIDER,
@@ -220,11 +221,12 @@ function resolveProviderWithFallback(
 
 function instantiateBrain(
   resolvedProvider: CodexForgeBrainProvider,
-  normalized: NormalizedCodexForgeBrainFactoryOptions
+  normalized: NormalizedCodexForgeBrainFactoryOptions,
+  dependencies?: CodexForgeEngineDependencies
 ): CodexForgeBrain {
   switch (resolvedProvider) {
     case "local-engine":
-      return createLocalEngineBrain();
+      return createLocalEngineBrain(dependencies);
 
     case "ollama":
       return createOllamaBrain({
@@ -247,21 +249,22 @@ function instantiateBrain(
       });
 
     case "openai":
-      return createLocalEngineBrain();
+      return createLocalEngineBrain(dependencies);
 
     case "anthropic":
-      return createLocalEngineBrain();
+      return createLocalEngineBrain(dependencies);
 
     case "custom":
-      return createLocalEngineBrain();
+      return createLocalEngineBrain(dependencies);
 
     default:
-      return createLocalEngineBrain();
+      return createLocalEngineBrain(dependencies);
   }
 }
 
 function buildBrainFactoryResult(
-  options?: CodexForgeBrainFactoryOptions
+  options?: CodexForgeBrainFactoryOptions,
+  dependencies?: CodexForgeEngineDependencies
 ): BrainFactoryResult {
   const normalized = normalizeCodexForgeBrainFactoryOptions(options);
   const preferredProvider = resolvePreferredProviderFromNormalized(normalized);
@@ -272,7 +275,11 @@ function buildBrainFactoryResult(
       ? resolution.resolvedProvider
       : "local-engine";
 
-  const brain = instantiateBrain(safeResolvedProvider, normalized);
+  const brain = instantiateBrain(
+    safeResolvedProvider,
+    normalized,
+    dependencies
+  );
 
   return {
     brain,
@@ -290,9 +297,10 @@ function buildBrainFactoryResult(
 /* ================= PUBLIC FACTORY ================= */
 
 export function createCodexForgeBrain(
-  options?: CodexForgeBrainFactoryOptions
+  options?: CodexForgeBrainFactoryOptions,
+  dependencies?: CodexForgeEngineDependencies
 ): CodexForgeBrain {
-  return buildBrainFactoryResult(options).brain;
+  return buildBrainFactoryResult(options, dependencies).brain;
 }
 
 export function selectBrainProvider(

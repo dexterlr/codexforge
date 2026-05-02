@@ -14,6 +14,7 @@ import {
 } from "@/lib/codexforge/brain/types";
 import type {
   CodexForgeChatContext,
+  CodexForgeChatMode,
   CodexForgeMessage,
   CodexForgePlanDomain,
   CodexForgeStructuredReply,
@@ -71,6 +72,14 @@ const VALID_DOMAINS: readonly CodexForgePlanDomain[] = [
   "automation",
 ] as const;
 
+const VALID_CHAT_MODES: readonly CodexForgeChatMode[] = [
+  "local",
+  "local-fallback",
+  "local-execution",
+  "local-execution-fallback",
+  "remote",
+] as const;
+
 /* ================= HELPERS ================= */
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -114,6 +123,13 @@ function normalizeDomain(value: unknown): CodexForgePlanDomain | undefined {
   return typeof value === "string" &&
     VALID_DOMAINS.includes(value as CodexForgePlanDomain)
     ? (value as CodexForgePlanDomain)
+    : undefined;
+}
+
+function normalizeChatMode(value: unknown): CodexForgeChatMode | undefined {
+  return typeof value === "string" &&
+    VALID_CHAT_MODES.includes(value as CodexForgeChatMode)
+    ? (value as CodexForgeChatMode)
     : undefined;
 }
 
@@ -527,12 +543,8 @@ function buildCurrentWorkStateAppendix(
 
   if (context.executionRequest?.mode === "execute-task-step") {
     lines.push("- Execution request mode: execute-task-step");
-    if (context.executionRequest.taskGoal) {
-      lines.push(`- Execution task goal: ${context.executionRequest.taskGoal}`);
-    }
-    if (context.executionRequest.stepText) {
-      lines.push(`- Execution step text: ${context.executionRequest.stepText}`);
-    }
+    lines.push(`- Execution task goal: ${context.executionRequest.taskGoal}`);
+    lines.push(`- Execution step text: ${context.executionRequest.stepText}`);
   }
 
   if (context.memory?.length) {
@@ -622,17 +634,26 @@ function sanitizeContext(
             isNonEmptyString(item.type) &&
             isNonEmptyString(item.content)
         )
-        .map((item) => ({
-          id: clampText(item.id.trim(), 120),
-          type: item.type,
-          content: clampText(item.content.trim(), LIMITS.maxMemoryItemText),
-          pinned: item.pinned === true,
-          importance:
+        .map((item) => {
+          const normalized: NonNullable<CodexForgeChatContext["memory"]>[number] = {
+            id: clampText(item.id.trim(), 120),
+            type: item.type,
+            content: clampText(item.content.trim(), LIMITS.maxMemoryItemText),
+          };
+
+          if (item.pinned === true) {
+            normalized.pinned = true;
+          }
+
+          if (
             typeof item.importance === "number" &&
             Number.isFinite(item.importance)
-              ? Math.min(Math.max(item.importance, 0), 1)
-              : undefined,
-        }))
+          ) {
+            normalized.importance = Math.min(Math.max(item.importance, 0), 1);
+          }
+
+          return normalized;
+        })
         .sort((a, b) => {
           const aPinned = a.pinned === true ? 1 : 0;
           const bPinned = b.pinned === true ? 1 : 0;
@@ -655,38 +676,89 @@ function sanitizeContext(
       ? {
           goal: clampText(context.activePlan.goal.trim(), LIMITS.maxText),
           steps: normalizedActivePlanSteps,
-          nextAction: normalizeString(
+          ...(normalizeString(
             context.activePlan.nextAction,
             LIMITS.maxPlanItemText
-          ),
-          status: context.activePlan.status,
-          intent: normalizeString(context.activePlan.intent, 120),
-          domain: normalizeDomain(context.activePlan.domain),
-          tags: normalizeStringArray(
+          )
+            ? {
+                nextAction: normalizeString(
+                  context.activePlan.nextAction,
+                  LIMITS.maxPlanItemText
+                ),
+              }
+            : {}),
+          ...(context.activePlan.status ? { status: context.activePlan.status } : {}),
+          ...(normalizeString(context.activePlan.intent, 120)
+            ? { intent: normalizeString(context.activePlan.intent, 120) }
+            : {}),
+          ...(normalizeDomain(context.activePlan.domain)
+            ? { domain: normalizeDomain(context.activePlan.domain) }
+            : {}),
+          ...(normalizeStringArray(
             context.activePlan.tags,
             LIMITS.maxTags,
             LIMITS.maxTagText
-          ),
-          risks: normalizeStringArray(
+          ).length > 0
+            ? {
+                tags: normalizeStringArray(
+                  context.activePlan.tags,
+                  LIMITS.maxTags,
+                  LIMITS.maxTagText
+                ),
+              }
+            : {}),
+          ...(normalizeStringArray(
             context.activePlan.risks,
             LIMITS.maxPlanSteps,
             LIMITS.maxPlanItemText
-          ),
-          files: normalizeStringArray(
+          ).length > 0
+            ? {
+                risks: normalizeStringArray(
+                  context.activePlan.risks,
+                  LIMITS.maxPlanSteps,
+                  LIMITS.maxPlanItemText
+                ),
+              }
+            : {}),
+          ...(normalizeStringArray(
             context.activePlan.files,
             LIMITS.maxPlanSteps,
             LIMITS.maxPlanItemText
-          ),
-          commands: normalizeStringArray(
+          ).length > 0
+            ? {
+                files: normalizeStringArray(
+                  context.activePlan.files,
+                  LIMITS.maxPlanSteps,
+                  LIMITS.maxPlanItemText
+                ),
+              }
+            : {}),
+          ...(normalizeStringArray(
             context.activePlan.commands,
             LIMITS.maxPlanSteps,
             LIMITS.maxPlanItemText
-          ),
-          notes: normalizeStringArray(
+          ).length > 0
+            ? {
+                commands: normalizeStringArray(
+                  context.activePlan.commands,
+                  LIMITS.maxPlanSteps,
+                  LIMITS.maxPlanItemText
+                ),
+              }
+            : {}),
+          ...(normalizeStringArray(
             context.activePlan.notes,
             LIMITS.maxPlanSteps,
             LIMITS.maxPlanItemText
-          ),
+          ).length > 0
+            ? {
+                notes: normalizeStringArray(
+                  context.activePlan.notes,
+                  LIMITS.maxPlanSteps,
+                  LIMITS.maxPlanItemText
+                ),
+              }
+            : {}),
         }
       : null;
 
@@ -708,8 +780,8 @@ function sanitizeContext(
   const currentStateAppendix = buildCurrentWorkStateAppendix(
     {
       ...context,
-      activePlan,
-      memory,
+      ...(activePlan ? { activePlan } : {}),
+      ...(memory ? { memory } : {}),
     },
     dependencies
   );
@@ -720,58 +792,111 @@ function sanitizeContext(
     "\n\n"
   );
 
-  return {
-    projectName: normalizeString(context.projectName, 160),
-    workspaceRoot: normalizeString(context.workspaceRoot, 500),
-    repoPath: normalizeString(context.repoPath, 500),
-    mode: normalizeString(context.mode, 120),
-    ...(systemGuide ? { systemGuide: clampText(systemGuide, LIMITS.maxSystemGuide) } : {}),
-    activePlan,
-    memory,
-    execution: context.execution
-      ? {
-          running: context.execution.running === true,
-          stepIndex: normalizeNumber(context.execution.stepIndex),
-          lastRunLabel: normalizeString(context.execution.lastRunLabel, 300),
-          lastCompletedAt: normalizeNumber(context.execution.lastCompletedAt),
-          enginePhase: context.execution.enginePhase,
-          diffCount: normalizeNumber(context.execution.diffCount),
-          snapshotFileCount: normalizeNumber(
+  const execution =
+    context.execution
+      ? (() => {
+          const running = context.execution.running === true;
+          const stepIndex = normalizeNumber(context.execution.stepIndex);
+          const lastRunLabel = normalizeString(context.execution.lastRunLabel, 300);
+          const lastCompletedAt = normalizeNumber(context.execution.lastCompletedAt);
+          const enginePhase = context.execution.enginePhase;
+          const diffCount = normalizeNumber(context.execution.diffCount);
+          const snapshotFileCount = normalizeNumber(
             context.execution.snapshotFileCount
-          ),
-        }
-      : undefined,
-    executionRequest: context.executionRequest
-      ? {
-          taskId: normalizeString(context.executionRequest.taskId, 120),
-          taskGoal: normalizeString(
+          );
+
+          const hasAnyExecutionValue =
+            running ||
+            stepIndex !== undefined ||
+            lastRunLabel !== undefined ||
+            lastCompletedAt !== undefined ||
+            enginePhase !== undefined ||
+            diffCount !== undefined ||
+            snapshotFileCount !== undefined;
+
+          if (!hasAnyExecutionValue) {
+            return undefined;
+          }
+
+          return {
+            ...(running ? { running: true } : {}),
+            ...(stepIndex !== undefined ? { stepIndex } : {}),
+            ...(lastRunLabel ? { lastRunLabel } : {}),
+            ...(lastCompletedAt !== undefined ? { lastCompletedAt } : {}),
+            ...(enginePhase ? { enginePhase } : {}),
+            ...(diffCount !== undefined ? { diffCount } : {}),
+            ...(snapshotFileCount !== undefined ? { snapshotFileCount } : {}),
+          };
+        })()
+      : undefined;
+
+   const executionRequest =
+    context.executionRequest
+      ? (() => {
+          const taskId = normalizeString(context.executionRequest.taskId, 120);
+          const taskGoal = normalizeString(
             context.executionRequest.taskGoal,
             LIMITS.maxText
-          ),
-          stepIndex: normalizeNumber(context.executionRequest.stepIndex),
-          stepText: normalizeString(
+          );
+          const stepIndex = normalizeNumber(context.executionRequest.stepIndex);
+          const stepText = normalizeString(
             context.executionRequest.stepText,
             LIMITS.maxPlanItemText
-          ),
-          mode:
-            context.executionRequest.mode === "execute-task-step"
-              ? "execute-task-step"
-              : undefined,
-        }
-      : undefined,
-    codexforgeCapabilities:
-      capabilityDomains.length > 0 ? { domains: capabilityDomains } : undefined,
+          );
+
+          if (!taskId || !taskGoal || stepIndex === undefined || !stepText) {
+            return undefined;
+          }
+
+          return {
+            taskId,
+            taskGoal,
+            stepIndex,
+            stepText,
+            mode: "execute-task-step" as const,
+          };
+        })()
+      : undefined;
+
+  return {
+    ...(normalizeString(context.projectName, 160)
+      ? { projectName: normalizeString(context.projectName, 160) }
+      : {}),
+    ...(normalizeString(context.workspaceRoot, 500)
+      ? { workspaceRoot: normalizeString(context.workspaceRoot, 500) }
+      : {}),
+    ...(normalizeString(context.repoPath, 500)
+      ? { repoPath: normalizeString(context.repoPath, 500) }
+      : {}),
+    ...(normalizeChatMode(context.mode)
+      ? { mode: normalizeChatMode(context.mode) }
+      : {}),
+    ...(systemGuide
+      ? { systemGuide: clampText(systemGuide, LIMITS.maxSystemGuide) }
+      : {}),
+    ...(activePlan ? { activePlan } : {}),
+    ...(memory ? { memory } : {}),
+    ...(execution ? { execution } : {}),
+    ...(executionRequest ? { executionRequest } : {}),
+    ...(capabilityDomains.length > 0
+      ? { codexforgeCapabilities: { domains: capabilityDomains } }
+      : {}),
   };
 }
 
-function getResolvedMode(context: CodexForgeChatContext): string {
-  if (isNonEmptyString(context.mode)) return context.mode.trim();
-  if (context.executionRequest?.mode === "execute-task-step") return "execution";
-  if (context.execution?.enginePhase && context.execution.enginePhase !== "idle") {
-    return "execution";
+function getResolvedMode(context: CodexForgeChatContext): CodexForgeChatMode {
+  const explicitMode = normalizeChatMode(context.mode);
+  if (explicitMode) return explicitMode;
+
+  if (context.executionRequest?.mode === "execute-task-step") {
+    return "local-execution";
   }
-  if (context.activePlan) return "planning";
-  return "chat";
+
+  if (context.execution?.enginePhase && context.execution.enginePhase !== "idle") {
+    return "local-execution";
+  }
+
+  return "local";
 }
 
 function getResolvedDomain(
@@ -913,7 +1038,7 @@ function buildResponse(args: {
   intent: string;
   provider: typeof LOCAL_ENGINE_PROVIDER;
   model: typeof LOCAL_ENGINE_MODEL;
-  mode: string;
+  mode: CodexForgeChatMode;
   durationMs: number;
   warnings: string[];
   domain: CodexForgePlanDomain;

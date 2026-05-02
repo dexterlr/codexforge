@@ -14,7 +14,10 @@ import {
 
 /* ================= STORAGE KEYS ================= */
 
-const STORAGE_KEY = "codexforge_brain_graph_v1";
+const STORAGE_KEY = `codexforge_brain_graph_v${CODEXFORGE_BRAIN_GRAPH_VERSION}`;
+const LEGACY_STORAGE_KEYS = [
+  "codexforge_brain_graph_v1",
+] as const;
 
 /* ================= UTILS ================= */
 
@@ -39,6 +42,14 @@ function safeWrite(key: string, value: unknown) {
   }
 }
 
+function safeRemove(key: string) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // ignore storage errors
+  }
+}
+
 function makeId(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
@@ -49,6 +60,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 function cloneNode(node: CodexForgeBrainNode): CodexForgeBrainNode {
@@ -99,33 +114,84 @@ function cloneGraph(graph: CodexForgeBrainGraph): CodexForgeBrainGraph {
   };
 }
 
-function touchMeta(
+function normalizeSourceRefs(value: unknown): CodexForgeBrainBaseMeta["sourceRefs"] {
+  if (!Array.isArray(value)) return undefined;
+
+  const refs = value
+    .filter(isRecord)
+    .map((item) => {
+      const type = isNonEmptyString(item.type) ? item.type.trim() : "";
+      const id = isNonEmptyString(item.id) ? item.id.trim() : "";
+
+      if (!type || !id) return null;
+      return { type, id };
+    })
+    .filter(Boolean) as NonNullable<CodexForgeBrainBaseMeta["sourceRefs"]>;
+
+  return refs.length ? refs : undefined;
+}
+
+function normalizeMeta(
   meta?: Partial<CodexForgeBrainBaseMeta>,
   existing?: CodexForgeBrainBaseMeta
 ): CodexForgeBrainBaseMeta {
   const createdAt = existing?.createdAt ?? meta?.createdAt ?? now();
 
   return {
-    ...(existing ?? {}),
-    ...(meta ?? {}),
     createdAt,
     updatedAt: now(),
+    status: meta?.status ?? existing?.status ?? "idle",
+    importance: meta?.importance ?? existing?.importance ?? "low",
+    ...(typeof (meta?.pinned ?? existing?.pinned) === "boolean"
+      ? { pinned: meta?.pinned ?? existing?.pinned }
+      : {}),
+    ...(typeof (meta?.archived ?? existing?.archived) === "boolean"
+      ? { archived: meta?.archived ?? existing?.archived }
+      : {}),
+    ...(normalizeSourceRefs(meta?.sourceRefs ?? existing?.sourceRefs)
+      ? { sourceRefs: normalizeSourceRefs(meta?.sourceRefs ?? existing?.sourceRefs) }
+      : {}),
+    ...(isFiniteNumber(meta?.version ?? existing?.version)
+      ? { version: meta?.version ?? existing?.version }
+      : {}),
   };
+}
+
+function normalizeDataRecord(raw: unknown): Record<string, unknown> | null {
+  if (!isRecord(raw)) return null;
+
+  const next: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(raw)) {
+    if (value === undefined) continue;
+    next[key] = value;
+  }
+
+  return next;
 }
 
 function normalizeNode(raw: unknown): CodexForgeBrainNode | null {
   if (!isRecord(raw)) return null;
-  if (typeof raw.id !== "string" || raw.id.trim().length === 0) return null;
-  if (typeof raw.kind !== "string" || raw.kind.trim().length === 0) return null;
-  if (!isRecord(raw.data)) return null;
-  if (!isRecord(raw.meta)) return null;
+  if (!isNonEmptyString(raw.id)) return null;
+  if (!isNonEmptyString(raw.kind)) return null;
+
+  const data = normalizeDataRecord(raw.data);
+  if (!data) return null;
+
+  const label =
+    isNonEmptyString(data.label)
+      ? data.label.trim()
+      : `${String(raw.kind).trim()} ${String(raw.id).trim()}`;
 
   const node: CodexForgeBrainNode = {
     ...(raw as Omit<CodexForgeBrainNode, "id" | "kind" | "data" | "meta">),
     id: raw.id.trim(),
-    kind: raw.kind as CodexForgeBrainNode["kind"],
-    data: { ...(raw.data as Record<string, unknown>) } as CodexForgeBrainNode["data"],
-    meta: touchMeta(raw.meta as Partial<CodexForgeBrainBaseMeta>),
+    kind: raw.kind.trim() as CodexForgeBrainNode["kind"],
+    data: {
+      ...data,
+      label,
+    } as CodexForgeBrainNode["data"],
+    meta: normalizeMeta(isRecord(raw.meta) ? (raw.meta as Partial<CodexForgeBrainBaseMeta>) : {}),
   };
 
   if (isRecord(raw.graph)) {
@@ -154,22 +220,21 @@ function normalizeNode(raw: unknown): CodexForgeBrainNode | null {
 
 function normalizeEdge(raw: unknown): CodexForgeBrainEdge | null {
   if (!isRecord(raw)) return null;
-  if (typeof raw.id !== "string" || raw.id.trim().length === 0) return null;
-  if (typeof raw.kind !== "string" || raw.kind.trim().length === 0) return null;
-  if (typeof raw.from !== "string" || raw.from.trim().length === 0) return null;
-  if (typeof raw.to !== "string" || raw.to.trim().length === 0) return null;
-  if (!isRecord(raw.meta)) return null;
+  if (!isNonEmptyString(raw.id)) return null;
+  if (!isNonEmptyString(raw.kind)) return null;
+  if (!isNonEmptyString(raw.from)) return null;
+  if (!isNonEmptyString(raw.to)) return null;
 
   const edge: CodexForgeBrainEdge = {
     ...(raw as Omit<CodexForgeBrainEdge, "id" | "kind" | "from" | "to" | "meta">),
     id: raw.id.trim(),
-    kind: raw.kind as CodexForgeBrainEdge["kind"],
+    kind: raw.kind.trim() as CodexForgeBrainEdge["kind"],
     from: raw.from.trim(),
     to: raw.to.trim(),
-    meta: touchMeta(raw.meta as Partial<CodexForgeBrainBaseMeta>),
+    meta: normalizeMeta(isRecord(raw.meta) ? (raw.meta as Partial<CodexForgeBrainBaseMeta>) : {}),
   };
 
-  if (typeof raw.label === "string" && raw.label.trim().length > 0) {
+  if (isNonEmptyString(raw.label)) {
     edge.label = raw.label.trim();
   }
 
@@ -193,11 +258,14 @@ function normalizeGraphMeta(raw: unknown): CodexForgeBrainGraph["meta"] {
   return {
     createdAt: isFiniteNumber(raw.createdAt) ? raw.createdAt : t,
     updatedAt: isFiniteNumber(raw.updatedAt) ? raw.updatedAt : t,
-    ...(typeof raw.workspaceId === "string" && raw.workspaceId.trim()
+    ...(isNonEmptyString(raw.workspaceId)
       ? { workspaceId: raw.workspaceId.trim() }
       : {}),
-    ...(typeof raw.projectId === "string" && raw.projectId.trim()
+    ...(isNonEmptyString(raw.projectId)
       ? { projectId: raw.projectId.trim() }
+      : {}),
+    ...(isNonEmptyString(raw.repoPath)
+      ? { repoPath: raw.repoPath.trim() }
       : {}),
   };
 }
@@ -206,10 +274,6 @@ function normalizeGraph(raw: unknown): CodexForgeBrainGraph {
   const empty = createEmptyGraph();
 
   if (!isRecord(raw)) {
-    return empty;
-  }
-
-  if (raw.version !== CODEXFORGE_BRAIN_GRAPH_VERSION) {
     return empty;
   }
 
@@ -223,7 +287,7 @@ function normalizeGraph(raw: unknown): CodexForgeBrainGraph {
     nodeMap.set(node.id, node);
   }
 
-  const edgeMap = new Map<CodexForgeBrainEdgeId, CodexForgeBrainEdge>();
+  const edgeMap = new Map<string, CodexForgeBrainEdge>();
   for (const candidate of rawEdges) {
     const edge = normalizeEdge(candidate);
     if (!edge) continue;
@@ -249,6 +313,26 @@ function hasNode(graph: CodexForgeBrainGraph, id: CodexForgeBrainNodeId): boolea
   return graph.nodes.some((node) => node.id === id);
 }
 
+function readStoredGraphRaw(): unknown {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const currentRaw = localStorage.getItem(STORAGE_KEY);
+  if (currentRaw) {
+    return safeParse<unknown>(currentRaw, null);
+  }
+
+  for (const legacyKey of LEGACY_STORAGE_KEYS) {
+    const legacyRaw = localStorage.getItem(legacyKey);
+    if (legacyRaw) {
+      return safeParse<unknown>(legacyRaw, null);
+    }
+  }
+
+  return null;
+}
+
 /* ================= GRAPH INIT ================= */
 
 export function createEmptyGraph(): CodexForgeBrainGraph {
@@ -272,8 +356,20 @@ export function loadBrainGraph(): CodexForgeBrainGraph {
     return createEmptyGraph();
   }
 
-  const parsed = safeParse<unknown>(localStorage.getItem(STORAGE_KEY), null);
-  return normalizeGraph(parsed);
+  const parsed = readStoredGraphRaw();
+  const normalized = normalizeGraph(parsed);
+
+  if (parsed !== null) {
+    safeWrite(STORAGE_KEY, normalized);
+
+    for (const legacyKey of LEGACY_STORAGE_KEYS) {
+      if (legacyKey !== STORAGE_KEY) {
+        safeRemove(legacyKey);
+      }
+    }
+  }
+
+  return normalized;
 }
 
 export function saveBrainGraph(
@@ -282,6 +378,7 @@ export function saveBrainGraph(
   const normalized = normalizeGraph(graph);
   const next: CodexForgeBrainGraph = {
     ...normalized,
+    version: CODEXFORGE_BRAIN_GRAPH_VERSION,
     meta: {
       ...normalized.meta,
       updatedAt: now(),
@@ -290,6 +387,12 @@ export function saveBrainGraph(
 
   if (typeof window !== "undefined") {
     safeWrite(STORAGE_KEY, next);
+
+    for (const legacyKey of LEGACY_STORAGE_KEYS) {
+      if (legacyKey !== STORAGE_KEY) {
+        safeRemove(legacyKey);
+      }
+    }
   }
 
   return next;
@@ -331,10 +434,20 @@ export function addNode(
   graph: CodexForgeBrainGraph,
   input: CodexForgeBrainNodeInput
 ): CodexForgeBrainNode {
+  const baseData = normalizeDataRecord(input.data) ?? {};
+  const label =
+    isNonEmptyString(baseData.label)
+      ? baseData.label.trim()
+      : `${String(input.kind)} ${input.id ?? ""}`.trim();
+
   const node: CodexForgeBrainNode = {
     ...input,
     id: input.id ?? makeId("node"),
-    meta: touchMeta(input.meta),
+    data: {
+      ...baseData,
+      label,
+    } as CodexForgeBrainNode["data"],
+    meta: normalizeMeta(input.meta),
     ...(input.graph
       ? {
           graph: {
@@ -370,7 +483,14 @@ export function updateNode(
   }
 
   if (patch.data !== undefined) {
-    node.data = patch.data as typeof node.data;
+    const nextData = normalizeDataRecord(patch.data) ?? {};
+    node.data = {
+      ...nextData,
+      label:
+        isNonEmptyString(nextData.label)
+          ? nextData.label.trim()
+          : node.data.label,
+    } as typeof node.data;
   }
 
   if (patch.graph !== undefined) {
@@ -384,7 +504,7 @@ export function updateNode(
       : undefined;
   }
 
-  node.meta = touchMeta(patch.meta, node.meta);
+  node.meta = normalizeMeta(patch.meta, node.meta);
   graph.meta.updatedAt = now();
 
   return node;
@@ -424,7 +544,7 @@ export function addEdge(
     ...(typeof input.label === "string" && input.label.trim().length > 0
       ? { label: input.label.trim() }
       : {}),
-    meta: touchMeta(input.meta),
+    meta: normalizeMeta(input.meta),
   };
 
   graph.edges.push(edge);
@@ -455,7 +575,7 @@ export function updateEdge(
     );
   }
 
-  edge.meta = touchMeta(patch.meta, edge.meta);
+  edge.meta = normalizeMeta(patch.meta, edge.meta);
   graph.meta.updatedAt = now();
 
   return edge;

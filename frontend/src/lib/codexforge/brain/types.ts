@@ -1,5 +1,6 @@
 import type {
   CodexForgeChatContext,
+  CodexForgeChatMode,
   CodexForgeChatSuccessMeta,
   CodexForgePlanDomain,
   CodexForgeStructuredReply,
@@ -304,12 +305,23 @@ const VALID_BRAIN_HEALTH_VALUES = new Set<CodexForgeBrainHealth>([
   "offline",
 ]);
 
+const VALID_CHAT_MODES = new Set<CodexForgeChatMode>([
+  "local",
+  "local-fallback",
+  "local-execution",
+  "local-execution-fallback",
+  "remote",
+]);
+
 /* ================= TYPE GUARDS ================= */
 
 export function isCodexForgeBrainProvider(
   value: unknown
 ): value is CodexForgeBrainProvider {
-  return typeof value === "string" && VALID_BRAIN_PROVIDERS.has(value as CodexForgeBrainProvider);
+  return (
+    typeof value === "string" &&
+    VALID_BRAIN_PROVIDERS.has(value as CodexForgeBrainProvider)
+  );
 }
 
 export function isCodexForgeBrainCapability(
@@ -327,6 +339,15 @@ export function isCodexForgeBrainHealth(
   return (
     typeof value === "string" &&
     VALID_BRAIN_HEALTH_VALUES.has(value as CodexForgeBrainHealth)
+  );
+}
+
+export function isCodexForgeChatMode(
+  value: unknown
+): value is CodexForgeChatMode {
+  return (
+    typeof value === "string" &&
+    VALID_CHAT_MODES.has(value as CodexForgeChatMode)
   );
 }
 
@@ -424,10 +445,10 @@ export function getCodexForgeBrainGraphFocusNodeIds(
   context?: CodexForgeBrainGraphContext | null
 ): string[] {
   const direct = Array.isArray(context?.focusNodeIds)
-    ? context?.focusNodeIds
+    ? context.focusNodeIds
     : [];
   const nested = Array.isArray(context?.focus?.nodeIds)
-    ? context?.focus?.nodeIds
+    ? context.focus.nodeIds
     : [];
 
   return Array.from(new Set([...direct, ...nested].filter(Boolean)));
@@ -461,12 +482,16 @@ export function toCodexForgeChatMeta(
   response: CodexForgeBrainResponse,
   overrides?: Partial<CodexForgeChatSuccessMeta>
 ): CodexForgeChatSuccessMeta {
+  const mode = isCodexForgeChatMode(response.meta.mode)
+    ? response.meta.mode
+    : undefined;
+
   return {
     model: response.meta.model,
-    mode: response.meta.mode,
+    ...(mode ? { mode } : {}),
     usedFallback: response.meta.usedFallback,
     intent: response.intent,
-    domain: response.meta.domain,
+    ...(response.meta.domain ? { domain: response.meta.domain } : {}),
     ...(overrides ?? {}),
   };
 }

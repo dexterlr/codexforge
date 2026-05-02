@@ -230,11 +230,40 @@ function toBrainImportance(level: number) {
   return BRAIN_IMPORTANCE.LOW;
 }
 
+function normalizePath(value: string | undefined): string {
+  if (!value) return "";
+
+  return value
+    .trim()
+    .replaceAll("/", "\\")
+    .replace(/\\+/g, "\\")
+    .replace(/\\$/, "");
+}
+
+function getRepoDisplayLabel(repoPath: string): string {
+  const normalized = normalizePath(repoPath);
+  const parts = normalized.split("\\").filter(Boolean);
+  return parts.slice(-2).join("\\") || normalized || repoPath;
+}
+
+function resolveGraphRepoPath(
+  context: CodexForgeChatContext,
+  executionState: CodexForgeExecutionStateLike
+): string | undefined {
+  const executionRepo = normalizePath(executionState.engineState?.goal?.repoPath);
+  if (executionRepo) return executionRepo;
+
+  const contextRepo = normalizePath(context.repoPath);
+  if (contextRepo) return contextRepo;
+
+  return undefined;
+}
+
 function summarizeEngineState(
   engineState: CodexForgeEngineStateLike | null
 ): string {
   if (!engineState) {
-    return "No engine result recorded.";
+    return "No execution result recorded.";
   }
 
   const parts = [
@@ -375,10 +404,7 @@ function summarizeSnapshotState(snapshot: CodexForgeEngineSnapshotLike): string 
 }
 
 function summarizeDiffState(diff: CodexForgeEngineDiffLike): string {
-  return [
-    diff.filePath,
-    diff.patch ? clampText(diff.patch, 140) : "",
-  ]
+  return [diff.filePath, diff.patch ? clampText(diff.patch, 140) : ""]
     .filter(Boolean)
     .join(" • ");
 }
@@ -536,6 +562,7 @@ export function collectBrainFocusNodeIds(
 
   const projectName = args.context.projectName || productName;
   const workspaceRoot = args.context.workspaceRoot || projectName;
+  const repoPath = resolveGraphRepoPath(args.context, args.executionState);
 
   const push = (...values: string[]) => {
     ids.push(...values);
@@ -544,15 +571,15 @@ export function collectBrainFocusNodeIds(
   push(buildStableId("workspace", workspaceRoot));
   push(buildStableId("project", projectName));
 
-  if (args.context.repoPath) {
-    push(buildStableId("repo", args.context.repoPath));
+  if (repoPath) {
+    push(buildStableId("repo", repoPath));
   }
 
   push(
     buildStableId(
       "conversation",
       projectName,
-      args.context.repoPath || args.context.workspaceRoot || "default"
+      repoPath || args.context.workspaceRoot || "default"
     )
   );
 
@@ -756,7 +783,8 @@ export function buildReducedBrainGraph(
 function upsertWorkspaceBrainNode(
   graph: CodexForgeBrainGraph,
   context: CodexForgeChatContext,
-  productName: string
+  productName: string,
+  resolvedRepoPath?: string
 ) {
   const workspaceRoot = context.workspaceRoot || productName;
   const label = context.projectName || `${productName} Workspace`;
@@ -771,10 +799,10 @@ function upsertWorkspaceBrainNode(
       data: {
         label,
         description: `Primary ${productName} workspace`,
-        repoPath: context.repoPath,
+        repoPath: resolvedRepoPath,
         summary: `${productName} local-first workspace root`,
         whyItMatters:
-          "The workspace node anchors repo context, project scope, and saved memory.",
+          "The workspace node anchors product context, repository grounding, execution history, and saved memory.",
       },
       meta: {
         status: BRAIN_STATUS.ACTIVE,
@@ -786,10 +814,10 @@ function upsertWorkspaceBrainNode(
       data: {
         label,
         description: `Primary ${productName} workspace`,
-        repoPath: context.repoPath,
+        repoPath: resolvedRepoPath,
         summary: `${productName} local-first workspace root`,
         whyItMatters:
-          "The workspace node anchors repo context, project scope, and saved memory.",
+          "The workspace node anchors product context, repository grounding, execution history, and saved memory.",
       },
       meta: {
         status: BRAIN_STATUS.ACTIVE,
@@ -802,7 +830,8 @@ function upsertWorkspaceBrainNode(
 function upsertProjectBrainNode(
   graph: CodexForgeBrainGraph,
   context: CodexForgeChatContext,
-  productName: string
+  productName: string,
+  resolvedRepoPath?: string
 ) {
   const projectName = context.projectName || productName;
   const nodeId = buildStableId("project", projectName);
@@ -815,12 +844,12 @@ function upsertProjectBrainNode(
       kind: "project",
       data: {
         label: projectName,
-        description: `${projectName} project`,
-        repoPath: context.repoPath,
+        description: `${projectName} product`,
+        repoPath: resolvedRepoPath,
         workspaceRoot: context.workspaceRoot,
-        summary: `${projectName} is the active product direction.`,
+        summary: `${projectName} is the active product identity.`,
         whyItMatters:
-          "The project node groups task, plan, execution, and repo state into one product context.",
+          "The project node groups tasks, plans, execution, and repository state under one product identity.",
       },
       meta: {
         status: BRAIN_STATUS.ACTIVE,
@@ -831,12 +860,12 @@ function upsertProjectBrainNode(
     () => ({
       data: {
         label: projectName,
-        description: `${projectName} project`,
-        repoPath: context.repoPath,
+        description: `${projectName} product`,
+        repoPath: resolvedRepoPath,
         workspaceRoot: context.workspaceRoot,
-        summary: `${projectName} is the active product direction.`,
+        summary: `${projectName} is the active product identity.`,
         whyItMatters:
-          "The project node groups task, plan, execution, and repo state into one product context.",
+          "The project node groups tasks, plans, execution, and repository state under one product identity.",
       },
       meta: {
         status: BRAIN_STATUS.ACTIVE,
@@ -848,16 +877,19 @@ function upsertProjectBrainNode(
 
 function upsertRepoBrainNode(
   graph: CodexForgeBrainGraph,
-  context: CodexForgeChatContext
+  repoPath?: string
 ) {
-  if (!context.repoPath) {
+  if (!repoPath) {
     return null;
   }
 
-  const repoPath = context.repoPath;
-  const label =
-    repoPath.split("\\").filter(Boolean).slice(-2).join("\\") || "Repo";
-  const nodeId = buildStableId("repo", repoPath);
+  const normalizedRepoPath = normalizePath(repoPath);
+  if (!normalizedRepoPath) {
+    return null;
+  }
+
+  const label = getRepoDisplayLabel(normalizedRepoPath);
+  const nodeId = buildStableId("repo", normalizedRepoPath);
 
   return upsertNode(
     graph,
@@ -867,10 +899,10 @@ function upsertRepoBrainNode(
       kind: "repo",
       data: {
         label,
-        repoPath,
-        summary: `Active repo context: ${label}`,
+        repoPath: normalizedRepoPath,
+        summary: `Current implementation repo: ${label}`,
         whyItMatters:
-          "The repo node identifies where code, diffs, snapshots, and execution work are happening.",
+          "The repo node identifies the codebase where plans, diffs, snapshots, and execution work are actually grounded.",
       },
       meta: {
         status: BRAIN_STATUS.ACTIVE,
@@ -881,10 +913,10 @@ function upsertRepoBrainNode(
     () => ({
       data: {
         label,
-        repoPath,
-        summary: `Active repo context: ${label}`,
+        repoPath: normalizedRepoPath,
+        summary: `Current implementation repo: ${label}`,
         whyItMatters:
-          "The repo node identifies where code, diffs, snapshots, and execution work are happening.",
+          "The repo node identifies the codebase where plans, diffs, snapshots, and execution work are actually grounded.",
       },
       meta: {
         status: BRAIN_STATUS.ACTIVE,
@@ -898,12 +930,13 @@ function upsertConversationBrainNode(
   graph: CodexForgeBrainGraph,
   context: CodexForgeChatContext,
   messages: CodexForgeMessageLike[],
-  productName: string
+  productName: string,
+  resolvedRepoPath?: string
 ) {
   const conversationId = buildStableId(
     "conversation",
     context.projectName || productName,
-    context.repoPath || context.workspaceRoot || "default"
+    resolvedRepoPath || context.workspaceRoot || "default"
   );
 
   const lastMessageAt =
@@ -928,7 +961,7 @@ function upsertConversationBrainNode(
         lastMessageAt,
         summary: `${messages.length} messages in active conversation`,
         whyItMatters:
-          "The conversation node links current dialogue history to tasks, plans, memory, and execution state.",
+          "The conversation node links live dialogue history to tasks, plans, memory, and execution state.",
       },
       meta: {
         status: BRAIN_STATUS.ACTIVE,
@@ -945,7 +978,7 @@ function upsertConversationBrainNode(
         lastMessageAt,
         summary: `${messages.length} messages in active conversation`,
         whyItMatters:
-          "The conversation node links current dialogue history to tasks, plans, memory, and execution state.",
+          "The conversation node links live dialogue history to tasks, plans, memory, and execution state.",
       },
       meta: {
         status: BRAIN_STATUS.ACTIVE,
@@ -984,7 +1017,7 @@ function upsertMessageBrainNodes(
           summary: summarizeMessageState(message),
           whyItMatters:
             message.role === "assistant"
-              ? "Assistant messages may contain plans, decisions, or execution guidance."
+              ? "Assistant messages may contain plans, decisions, execution summaries, or grounded repo guidance."
               : "User messages capture goals, constraints, and requested work.",
         },
         meta: {
@@ -1006,7 +1039,7 @@ function upsertMessageBrainNodes(
           summary: summarizeMessageState(message),
           whyItMatters:
             message.role === "assistant"
-              ? "Assistant messages may contain plans, decisions, or execution guidance."
+              ? "Assistant messages may contain plans, decisions, execution summaries, or grounded repo guidance."
               : "User messages capture goals, constraints, and requested work.",
         },
         meta: {
@@ -1053,9 +1086,9 @@ function upsertMemoryBrainNodes(
           summary: summarizeMemoryState(item),
           whyItMatters:
             item.type === "decision"
-              ? "Decision memory can change future plans and execution choices."
+              ? "Decision memory can change future planning and execution choices."
               : item.type === "task"
-                ? "Task memory helps maintain continuity across sessions."
+                ? "Task memory helps preserve continuity across sessions."
                 : "Memory nodes preserve useful project context beyond a single message.",
         },
         meta: {
@@ -1075,9 +1108,9 @@ function upsertMemoryBrainNodes(
           summary: summarizeMemoryState(item),
           whyItMatters:
             item.type === "decision"
-              ? "Decision memory can change future plans and execution choices."
+              ? "Decision memory can change future planning and execution choices."
               : item.type === "task"
-                ? "Task memory helps maintain continuity across sessions."
+                ? "Task memory helps preserve continuity across sessions."
                 : "Memory nodes preserve useful project context beyond a single message.",
         },
         meta: {
@@ -1117,7 +1150,7 @@ function upsertTaskBrainNode(
         tags: summarizeTags(task.tags),
         summary: summarizeTaskState(task),
         whyItMatters:
-          "The task node is the main unit of current work and should dominate planning context.",
+          "The task node is the primary unit of current work and should dominate planning context.",
       },
       meta: {
         status: task.steps.every((step) => step.status === "done")
@@ -1142,7 +1175,7 @@ function upsertTaskBrainNode(
         tags: summarizeTags(task.tags),
         summary: summarizeTaskState(task),
         whyItMatters:
-          "The task node is the main unit of current work and should dominate planning context.",
+          "The task node is the primary unit of current work and should dominate planning context.",
       },
       meta: {
         status: task.steps.every((step) => step.status === "done")
@@ -1308,7 +1341,7 @@ function upsertTagBrainNodes(
           value: tag,
           summary: `Tag: ${tag}`,
           whyItMatters:
-            "Tags help the brain cluster related work, tooling, and domain context.",
+            "Tags help the graph cluster related work, tooling, domain context, and execution state.",
         },
         meta: {
           status: BRAIN_STATUS.ACTIVE,
@@ -1322,7 +1355,7 @@ function upsertTagBrainNodes(
           value: tag,
           summary: `Tag: ${tag}`,
           whyItMatters:
-            "Tags help the brain cluster related work, tooling, and domain context.",
+            "Tags help the graph cluster related work, tooling, domain context, and execution state.",
         },
         meta: {
           status: BRAIN_STATUS.ACTIVE,
@@ -1377,7 +1410,7 @@ function upsertRunBrainNode(
         logSummary,
         summary: summarizeRunState(executionState, productName),
         whyItMatters:
-          "The run node captures the latest execution attempt, outputs, failures, and pending approvals.",
+          "The run node captures the latest execution attempt, outputs, failures, and approval checkpoints.",
       },
       meta: {
         status:
@@ -1408,7 +1441,7 @@ function upsertRunBrainNode(
         logSummary,
         summary: summarizeRunState(executionState, productName),
         whyItMatters:
-          "The run node captures the latest execution attempt, outputs, failures, and pending approvals.",
+          "The run node captures the latest execution attempt, outputs, failures, and approval checkpoints.",
       },
       meta: {
         status:
@@ -1506,7 +1539,7 @@ function upsertDiffBrainNodes(
               : diff.patch,
           summary: summarizeDiffState(diff),
           whyItMatters:
-            "Diff nodes represent proposed or generated code/file changes from execution.",
+            "Diff nodes represent proposed or generated file changes from execution.",
         },
         meta: {
           status: BRAIN_STATUS.DONE,
@@ -1524,7 +1557,7 @@ function upsertDiffBrainNodes(
               : diff.patch,
           summary: summarizeDiffState(diff),
           whyItMatters:
-            "Diff nodes represent proposed or generated code/file changes from execution.",
+            "Diff nodes represent proposed or generated file changes from execution.",
         },
         meta: {
           status: BRAIN_STATUS.DONE,
@@ -1549,21 +1582,34 @@ export function persistCodexForgeBrainGraph(
   const maxBrainDiffs = args.maxBrainDiffs ?? DEFAULT_MAX_BRAIN_DIFFS;
 
   const graph = loadBrainGraph();
+  const resolvedRepoPath = resolveGraphRepoPath(args.context, args.executionState);
 
-  const workspaceNode = upsertWorkspaceBrainNode(graph, args.context, productName);
-  const projectNode = upsertProjectBrainNode(graph, args.context, productName);
-  const repoNode = upsertRepoBrainNode(graph, args.context);
+  const workspaceNode = upsertWorkspaceBrainNode(
+    graph,
+    args.context,
+    productName,
+    resolvedRepoPath
+  );
+  const projectNode = upsertProjectBrainNode(
+    graph,
+    args.context,
+    productName,
+    resolvedRepoPath
+  );
+  const repoNode = upsertRepoBrainNode(graph, resolvedRepoPath);
   const conversationNode = upsertConversationBrainNode(
     graph,
     args.context,
     args.messages,
-    productName
+    productName,
+    resolvedRepoPath
   );
 
   connectNodes(graph, workspaceNode.id, projectNode.id, "contains");
   connectNodes(graph, projectNode.id, conversationNode.id, "contains");
 
   if (repoNode) {
+    connectNodes(graph, workspaceNode.id, repoNode.id, "contains");
     connectNodes(graph, projectNode.id, repoNode.id, "contains");
     connectNodes(graph, conversationNode.id, repoNode.id, "about");
   }
@@ -1592,6 +1638,11 @@ export function persistCodexForgeBrainGraph(
     connectNodes(graph, conversationNode.id, taskNode.id, "relates_to");
     connectNodes(graph, taskNode.id, planNode.id, "contains");
     connectNodes(graph, planNode.id, taskNode.id, "about");
+
+    if (repoNode) {
+      connectNodes(graph, taskNode.id, repoNode.id, "about");
+      connectNodes(graph, planNode.id, repoNode.id, "about");
+    }
 
     upsertStepBrainNodes(
       graph,
@@ -1622,6 +1673,11 @@ export function persistCodexForgeBrainGraph(
     if (runNode) {
       connectNodes(graph, taskNode.id, runNode.id, "executed_in");
       connectNodes(graph, planNode.id, runNode.id, "generated_by");
+      connectNodes(graph, conversationNode.id, runNode.id, "references");
+
+      if (repoNode) {
+        connectNodes(graph, runNode.id, repoNode.id, "about");
+      }
 
       const snapshotNode = upsertSnapshotBrainNode(
         graph,
@@ -1631,6 +1687,10 @@ export function persistCodexForgeBrainGraph(
 
       if (snapshotNode) {
         connectNodes(graph, runNode.id, snapshotNode.id, "produced");
+
+        if (repoNode) {
+          connectNodes(graph, snapshotNode.id, repoNode.id, "about");
+        }
       }
 
       upsertDiffBrainNodes(
@@ -1639,6 +1699,21 @@ export function persistCodexForgeBrainGraph(
         args.executionState,
         maxBrainDiffs
       );
+
+      for (const diff of (args.executionState.engineState?.diffs ?? []).slice(
+        0,
+        maxBrainDiffs
+      )) {
+        const diffNodeId = buildStableId("diff", runNode.id, diff.filePath);
+
+        if (repoNode) {
+          connectNodes(graph, diffNodeId, repoNode.id, "about");
+        }
+
+        if (taskNode) {
+          connectNodes(graph, taskNode.id, diffNodeId, "references");
+        }
+      }
     }
   } else {
     const runNode = upsertRunBrainNode(
@@ -1651,6 +1726,10 @@ export function persistCodexForgeBrainGraph(
     if (runNode) {
       connectNodes(graph, conversationNode.id, runNode.id, "references");
 
+      if (repoNode) {
+        connectNodes(graph, runNode.id, repoNode.id, "about");
+      }
+
       const snapshotNode = upsertSnapshotBrainNode(
         graph,
         runNode.id,
@@ -1659,6 +1738,10 @@ export function persistCodexForgeBrainGraph(
 
       if (snapshotNode) {
         connectNodes(graph, runNode.id, snapshotNode.id, "produced");
+
+        if (repoNode) {
+          connectNodes(graph, snapshotNode.id, repoNode.id, "about");
+        }
       }
 
       upsertDiffBrainNodes(
@@ -1667,6 +1750,17 @@ export function persistCodexForgeBrainGraph(
         args.executionState,
         maxBrainDiffs
       );
+
+      for (const diff of (args.executionState.engineState?.diffs ?? []).slice(
+        0,
+        maxBrainDiffs
+      )) {
+        const diffNodeId = buildStableId("diff", runNode.id, diff.filePath);
+
+        if (repoNode) {
+          connectNodes(graph, diffNodeId, repoNode.id, "about");
+        }
+      }
     }
   }
 

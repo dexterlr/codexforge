@@ -1,4 +1,4 @@
-export const CODEXFORGE_BRAIN_GRAPH_VERSION = 1 as const;
+export const CODEXFORGE_BRAIN_GRAPH_VERSION = 2 as const;
 
 export const BRAIN_NODE_KINDS = [
   "workspace",
@@ -19,6 +19,13 @@ export const BRAIN_NODE_KINDS = [
   "tag",
   "person",
   "note",
+  "workflow",
+  "generation",
+  "video",
+  "audio",
+  "image",
+  "model",
+  "tool",
 ] as const;
 
 export const BRAIN_EDGE_KINDS = [
@@ -38,6 +45,10 @@ export const BRAIN_EDGE_KINDS = [
   "produced",
   "uses",
   "summarizes",
+  "belongs_to",
+  "triggered_by",
+  "feeds",
+  "outputs_to",
 ] as const;
 
 export const BRAIN_STATUS_VALUES = [
@@ -56,10 +67,26 @@ export const BRAIN_IMPORTANCE_VALUES = [
   "critical",
 ] as const;
 
+export const BRAIN_SOURCE_REF_TYPES = [
+  "chat-message",
+  "active-task",
+  "memory-item",
+  "execution-state",
+  "history-entry",
+  "system",
+  "manual",
+  "derived",
+  "operator-run",
+  "operator-diff",
+  "operator-snapshot",
+  "import",
+] as const;
+
 export type CodexForgeBrainNodeKind = (typeof BRAIN_NODE_KINDS)[number];
 export type CodexForgeBrainEdgeKind = (typeof BRAIN_EDGE_KINDS)[number];
 export type CodexForgeBrainStatus = (typeof BRAIN_STATUS_VALUES)[number];
 export type CodexForgeBrainImportance = (typeof BRAIN_IMPORTANCE_VALUES)[number];
+export type CodexForgeBrainSourceRefType = (typeof BRAIN_SOURCE_REF_TYPES)[number];
 
 export type CodexForgeBrainId = string;
 export type CodexForgeBrainNodeId = CodexForgeBrainId;
@@ -72,15 +99,7 @@ export type CodexForgeBrainCoordinates = {
 };
 
 export type CodexForgeBrainSourceRef = {
-  type:
-    | "chat-message"
-    | "active-task"
-    | "memory-item"
-    | "execution-state"
-    | "history-entry"
-    | "system"
-    | "manual"
-    | "derived";
+  type: CodexForgeBrainSourceRefType;
   id: string;
 };
 
@@ -92,129 +111,192 @@ export type CodexForgeBrainBaseMeta = {
   pinned?: boolean;
   archived?: boolean;
   sourceRefs?: CodexForgeBrainSourceRef[];
+  version?: number;
 };
 
-export type CodexForgeBrainWorkspaceNodeData = {
+export type CodexForgeBrainGraphLayoutMeta = {
+  collapsed?: boolean;
+  hidden?: boolean;
+  coordinates?: CodexForgeBrainCoordinates;
+};
+
+export type CodexForgeBrainBaseNodeData = {
   label: string;
   description?: string;
+  summary?: string;
+  whyItMatters?: string;
+
   repoPath?: string;
+  workspaceRoot?: string;
+  filePath?: string;
+  path?: string;
+
+  source?: string;
+  sourceId?: string;
+  sourceLabel?: string;
+
+  tags?: string[];
+  domain?: string;
+
+  ts?: number;
+  lastRunAt?: number;
+  lastMessageAt?: number;
 };
 
-export type CodexForgeBrainProjectNodeData = {
-  label: string;
-  description?: string;
+export type CodexForgeBrainWorkspaceNodeData = CodexForgeBrainBaseNodeData & {
   repoPath?: string;
   workspaceRoot?: string;
 };
 
-export type CodexForgeBrainRepoNodeData = {
-  label: string;
+export type CodexForgeBrainProjectNodeData = CodexForgeBrainBaseNodeData & {
+  repoPath?: string;
+  workspaceRoot?: string;
+};
+
+export type CodexForgeBrainRepoNodeData = CodexForgeBrainBaseNodeData & {
   repoPath: string;
   branch?: string;
 };
 
-export type CodexForgeBrainConversationNodeData = {
-  label: string;
+export type CodexForgeBrainConversationNodeData = CodexForgeBrainBaseNodeData & {
   messageCount?: number;
+  userMessageCount?: number;
+  assistantMessageCount?: number;
   lastMessageAt?: number;
 };
 
-export type CodexForgeBrainMessageNodeData = {
-  label: string;
+export type CodexForgeBrainMessageNodeData = CodexForgeBrainBaseNodeData & {
   role: "system" | "user" | "assistant";
   text: string;
   source?: "api" | "local-fallback" | "system";
   ts: number;
 };
 
-export type CodexForgeBrainTaskNodeData = {
-  label: string;
+export type CodexForgeBrainTaskNodeData = CodexForgeBrainBaseNodeData & {
   goal: string;
-  domain?: string;
   currentStep?: number;
   totalSteps?: number;
-  tags?: string[];
+  completedSteps?: number;
+  runningSteps?: number;
+  errorSteps?: number;
+  nextAction?: string;
 };
 
-export type CodexForgeBrainPlanNodeData = {
-  label: string;
+export type CodexForgeBrainPlanNodeData = CodexForgeBrainBaseNodeData & {
   goal: string;
-  domain?: string;
   stepCount?: number;
   nextAction?: string;
   risks?: string[];
   files?: string[];
   commands?: string[];
-  tags?: string[];
 };
 
-export type CodexForgeBrainStepNodeData = {
-  label: string;
+export type CodexForgeBrainStepNodeData = CodexForgeBrainBaseNodeData & {
   text: string;
   stepIndex?: number;
   result?: string;
+  resultSummary?: string;
   lastRunAt?: number;
 };
 
-export type CodexForgeBrainMemoryNodeData = {
-  label: string;
+export type CodexForgeBrainMemoryNodeData = CodexForgeBrainBaseNodeData & {
   memoryType: "fact" | "decision" | "task" | "note";
   content: string;
 };
 
-export type CodexForgeBrainDecisionNodeData = {
-  label: string;
+export type CodexForgeBrainDecisionNodeData = CodexForgeBrainBaseNodeData & {
   summary: string;
   rationale?: string;
+  nextAction?: string;
 };
 
-export type CodexForgeBrainResearchNodeData = {
-  label: string;
-  summary?: string;
+export type CodexForgeBrainResearchNodeData = CodexForgeBrainBaseNodeData & {
   findings?: string[];
+  nextAction?: string;
 };
 
-export type CodexForgeBrainArtifactNodeData = {
-  label: string;
+export type CodexForgeBrainArtifactNodeData = CodexForgeBrainBaseNodeData & {
   artifactType?: string;
   path?: string;
-  summary?: string;
 };
 
-export type CodexForgeBrainRunNodeData = {
-  label: string;
+export type CodexForgeBrainRunNodeData = CodexForgeBrainBaseNodeData & {
   phase?: string;
   resultSummary?: string;
   diffCount?: number;
   snapshotFileCount?: number;
+  fileCount?: number;
+  logSummary?: string[];
 };
 
-export type CodexForgeBrainDiffNodeData = {
-  label: string;
+export type CodexForgeBrainDiffNodeData = CodexForgeBrainBaseNodeData & {
   filePath: string;
   patchPreview?: string;
 };
 
-export type CodexForgeBrainSnapshotNodeData = {
-  label: string;
+export type CodexForgeBrainSnapshotNodeData = CodexForgeBrainBaseNodeData & {
   fileCount?: number;
   sampledPaths?: string[];
 };
 
-export type CodexForgeBrainTagNodeData = {
-  label: string;
+export type CodexForgeBrainTagNodeData = CodexForgeBrainBaseNodeData & {
   value: string;
 };
 
-export type CodexForgeBrainPersonNodeData = {
-  label: string;
+export type CodexForgeBrainPersonNodeData = CodexForgeBrainBaseNodeData & {
   name: string;
   role?: string;
 };
 
-export type CodexForgeBrainNoteNodeData = {
-  label: string;
+export type CodexForgeBrainNoteNodeData = CodexForgeBrainBaseNodeData & {
   text: string;
+};
+
+export type CodexForgeBrainWorkflowNodeData = CodexForgeBrainBaseNodeData & {
+  workflowType?: string;
+  currentStage?: string;
+  nextAction?: string;
+};
+
+export type CodexForgeBrainGenerationNodeData = CodexForgeBrainBaseNodeData & {
+  generationType?: "text" | "image" | "audio" | "video" | "mixed";
+  prompt?: string;
+  model?: string;
+  outputPath?: string;
+  resultSummary?: string;
+};
+
+export type CodexForgeBrainVideoNodeData = CodexForgeBrainBaseNodeData & {
+  prompt?: string;
+  script?: string;
+  durationSec?: number;
+  outputPath?: string;
+  statusSummary?: string;
+};
+
+export type CodexForgeBrainAudioNodeData = CodexForgeBrainBaseNodeData & {
+  prompt?: string;
+  transcript?: string;
+  durationSec?: number;
+  outputPath?: string;
+};
+
+export type CodexForgeBrainImageNodeData = CodexForgeBrainBaseNodeData & {
+  prompt?: string;
+  outputPath?: string;
+  style?: string;
+};
+
+export type CodexForgeBrainModelNodeData = CodexForgeBrainBaseNodeData & {
+  provider?: string;
+  model?: string;
+  modality?: string;
+};
+
+export type CodexForgeBrainToolNodeData = CodexForgeBrainBaseNodeData & {
+  toolName?: string;
+  toolType?: string;
+  command?: string;
 };
 
 export type CodexForgeBrainNodeDataMap = {
@@ -236,6 +318,13 @@ export type CodexForgeBrainNodeDataMap = {
   tag: CodexForgeBrainTagNodeData;
   person: CodexForgeBrainPersonNodeData;
   note: CodexForgeBrainNoteNodeData;
+  workflow: CodexForgeBrainWorkflowNodeData;
+  generation: CodexForgeBrainGenerationNodeData;
+  video: CodexForgeBrainVideoNodeData;
+  audio: CodexForgeBrainAudioNodeData;
+  image: CodexForgeBrainImageNodeData;
+  model: CodexForgeBrainModelNodeData;
+  tool: CodexForgeBrainToolNodeData;
 };
 
 export type CodexForgeBrainNode<
@@ -245,11 +334,7 @@ export type CodexForgeBrainNode<
   kind: TKind;
   data: CodexForgeBrainNodeDataMap[TKind];
   meta: CodexForgeBrainBaseMeta;
-  graph?: {
-    collapsed?: boolean;
-    hidden?: boolean;
-    coordinates?: CodexForgeBrainCoordinates;
-  };
+  graph?: CodexForgeBrainGraphLayoutMeta;
 };
 
 export type CodexForgeBrainEdge = {
@@ -271,6 +356,7 @@ export type CodexForgeBrainGraph = {
     updatedAt: CodexForgeBrainTimestamp;
     workspaceId?: string;
     projectId?: string;
+    repoPath?: string;
   };
 };
 
@@ -301,3 +387,10 @@ export type CodexForgeBrainAdjacency = Record<
   CodexForgeBrainNodeId,
   CodexForgeBrainEdge[]
 >;
+
+/* ================= LEGACY COMPAT EXPORTS ================= */
+
+export type CodexForgeGraphNodeType = CodexForgeBrainNodeKind;
+export type CodexForgeGraphEdgeType = CodexForgeBrainEdgeKind;
+export type CodexForgeGraphNode = CodexForgeBrainNode;
+export type CodexForgeGraphEdge = CodexForgeBrainEdge;
