@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+} from "react";
 import {
   buildAdjacency,
   buildNodeLookup,
@@ -9,8 +16,8 @@ import {
   type CodexForgeBrainEdge,
   type CodexForgeBrainGraph,
   type CodexForgeBrainNode,
-  type CodexForgeBrainNodeKind,
 } from "@/lib/codexforge/brain/graph";
+import type { CodexForgeBrainNodeKind } from "@/lib/codexforge/brain/graph/types";
 
 type BrainStats = {
   nodeCount: number;
@@ -29,7 +36,8 @@ type BrainFilters = {
   query: string;
   selectedKind: CodexForgeBrainNodeKind | "all";
   showArchived: boolean;
-  sortBy: "updated" | "label" | "neighbors";
+  onlyPinned: boolean;
+  sortBy: "updated" | "label" | "neighbors" | "importance";
 };
 
 type BrainNodeCard = {
@@ -37,10 +45,18 @@ type BrainNodeCard = {
   detail: string | null;
   neighbors: number;
   label: string;
+  status: string;
+  importance: string;
 };
+
+type ToastState = {
+  kind: "ok" | "err";
+  text: string;
+} | null;
 
 const MAX_DETAIL_LENGTH = 220;
 const MAX_NEIGHBOR_PREVIEW = 8;
+const MAX_EDGE_PREVIEW = 12;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -121,7 +137,13 @@ function getNodeDetail(node: CodexForgeBrainNode): string | null {
 }
 
 function getNodeSearchText(node: CodexForgeBrainNode): string {
-  const parts: string[] = [node.id, node.kind, getNodePrimaryLabel(node)];
+  const parts: string[] = [
+    node.id,
+    node.kind,
+    getNodePrimaryLabel(node),
+    getNodeStatus(node),
+    getNodeImportance(node),
+  ];
 
   const detail = getNodeDetail(node);
   if (detail) {
@@ -174,9 +196,7 @@ function buildStats(graph: CodexForgeBrainGraph): BrainStats {
 
   const kindBreakdown = Array.from(counts.entries())
     .sort((a, b) => {
-      if (b[1] !== a[1]) {
-        return b[1] - a[1];
-      }
+      if (b[1] !== a[1]) return b[1] - a[1];
       return a[0].localeCompare(b[0]);
     })
     .map(([kind, count]) => ({ kind, count }));
@@ -194,6 +214,10 @@ function buildStats(graph: CodexForgeBrainGraph): BrainStats {
 
 function matchesFilters(node: CodexForgeBrainNode, filters: BrainFilters): boolean {
   if (!filters.showArchived && node.meta.archived) {
+    return false;
+  }
+
+  if (filters.onlyPinned && node.meta.pinned !== true) {
     return false;
   }
 
@@ -248,10 +272,218 @@ function summarizeEdge(
 
 function getKindSummaryLabel(kindBreakdown: BrainStats["kindBreakdown"]): string {
   if (kindBreakdown.length === 0) return "No nodes yet";
+
   return kindBreakdown
     .slice(0, 3)
     .map((entry) => `${formatKindLabel(entry.kind)} ${entry.count}`)
     .join(" • ");
+}
+
+function getImportanceRank(value: string): number {
+  switch (value) {
+    case "critical":
+      return 5;
+    case "high":
+      return 4;
+    case "medium":
+      return 3;
+    case "low":
+      return 2;
+    default:
+      return 1;
+  }
+}
+
+function buildWorkspacePrompt(node: CodexForgeBrainNode): string {
+  const label = getNodePrimaryLabel(node);
+  const detail = getNodeDetail(node);
+  const status = getNodeStatus(node);
+  const importance = getNodeImportance(node);
+
+  return [
+    "Use this CodexForge brain node as workspace context.",
+    "",
+    `Label: ${label}`,
+    `Kind: ${formatKindLabel(node.kind)}`,
+    `Node ID: ${node.id}`,
+    `Status: ${status}`,
+    `Importance: ${importance}`,
+    detail ? `Detail: ${detail}` : "",
+    "",
+    "Please use this memory in the next response and suggest the best next action.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function getNodeDataLines(node: CodexForgeBrainNode): Array<{ key: string; value: string }> {
+  if (!isRecord(node.data)) return [];
+
+  const lines: Array<{ key: string; value: string }> = [];
+
+  for (const [key, value] of Object.entries(node.data)) {
+    if (typeof value === "string" && value.trim()) {
+      lines.push({ key, value: clampText(value.trim(), 160) });
+    } else if (typeof value === "number" || typeof value === "boolean") {
+      lines.push({ key, value: String(value) });
+    } else if (Array.isArray(value) && value.length > 0) {
+      const preview = value
+        .slice(0, 3)
+        .map((item) => (typeof item === "string" ? item : JSON.stringify(item)))
+        .join(", ");
+      lines.push({
+        key,
+        value: clampText(preview, 160),
+      });
+    }
+  }
+
+  return lines.slice(0, 8);
+}
+
+function panelStyle(): CSSProperties {
+  return {
+    border: "1px solid rgba(127,127,127,0.16)",
+    background: "rgba(127,127,127,0.06)",
+    borderRadius: 24,
+    padding: 18,
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 8px 30px rgba(0,0,0,0.10)",
+  };
+}
+
+function subPanelStyle(): CSSProperties {
+  return {
+    border: "1px solid rgba(127,127,127,0.14)",
+    background: "rgba(127,127,127,0.04)",
+    borderRadius: 18,
+    padding: 14,
+    minWidth: 0,
+  };
+}
+
+function buttonStyle(danger = false): CSSProperties {
+  return {
+    appearance: "none",
+    border: danger
+      ? "1px solid rgba(239,68,68,0.35)"
+      : "1px solid rgba(127,127,127,0.2)",
+    background: danger ? "rgba(239,68,68,0.12)" : "rgba(127,127,127,0.08)",
+    color: "inherit",
+    borderRadius: 14,
+    padding: "10px 14px",
+    fontSize: 14,
+    fontWeight: 600,
+    cursor: "pointer",
+  };
+}
+
+const inputStyle: CSSProperties = {
+  width: "100%",
+  border: "1px solid rgba(127,127,127,0.22)",
+  background: "rgba(127,127,127,0.06)",
+  color: "inherit",
+  borderRadius: 14,
+  padding: "12px 14px",
+  outline: "none",
+  fontSize: 14,
+};
+
+const labelStyle: CSSProperties = {
+  fontSize: 12,
+  fontWeight: 700,
+  opacity: 0.74,
+  letterSpacing: "0.03em",
+  textTransform: "uppercase",
+};
+
+const preStyle: CSSProperties = {
+  margin: 0,
+  whiteSpace: "pre-wrap",
+  wordBreak: "break-word",
+  overflow: "auto",
+  maxHeight: 320,
+  fontSize: 12,
+  lineHeight: 1.55,
+  fontFamily: "var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace",
+};
+
+const kindPillStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  borderRadius: 999,
+  padding: "6px 10px",
+  background: "rgba(99,102,241,0.18)",
+  border: "1px solid rgba(99,102,241,0.28)",
+  fontSize: 12,
+  fontWeight: 700,
+};
+
+const metaPillStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  borderRadius: 999,
+  padding: "6px 10px",
+  background: "rgba(127,127,127,0.10)",
+  border: "1px solid rgba(127,127,127,0.18)",
+  fontSize: 12,
+};
+
+function badgeStyle(text: string): CSSProperties {
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    borderRadius: 999,
+    padding: "4px 8px",
+    background:
+      text === "Pinned" ? "rgba(34,197,94,0.18)" : "rgba(127,127,127,0.08)",
+    border:
+      text === "Pinned"
+        ? "1px solid rgba(34,197,94,0.28)"
+        : "1px solid rgba(127,127,127,0.18)",
+    fontSize: 11,
+    fontWeight: 700,
+  };
+}
+
+const sectionHeadingStyle: CSSProperties = {
+  fontSize: 18,
+  marginBottom: 12,
+};
+
+const subHeadingStyle: CSSProperties = {
+  fontSize: 14,
+  marginBottom: 10,
+  opacity: 0.82,
+};
+
+function StatCard(props: { label: string; value: string }) {
+  return (
+    <div style={panelStyle()}>
+      <div style={{ display: "grid", gap: 8 }}>
+        <span style={{ ...labelStyle, fontSize: 11 }}>{props.label}</span>
+        <strong style={{ fontSize: 28, lineHeight: 1.1 }}>{props.value}</strong>
+      </div>
+    </div>
+  );
+}
+
+function MiniStat(props: { label: string; value: string }) {
+  return (
+    <div
+      style={{
+        border: "1px solid rgba(127,127,127,0.14)",
+        background: "rgba(127,127,127,0.04)",
+        borderRadius: 16,
+        padding: 12,
+        display: "grid",
+        gap: 6,
+      }}
+    >
+      <span style={{ ...labelStyle, fontSize: 11 }}>{props.label}</span>
+      <strong style={{ fontSize: 14, lineHeight: 1.4 }}>{props.value}</strong>
+    </div>
+  );
 }
 
 export default function BrainPageClient() {
@@ -260,11 +492,18 @@ export default function BrainPageClient() {
     query: "",
     selectedKind: "all",
     showArchived: false,
+    onlyPinned: false,
     sortBy: "updated",
   });
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [copied, setCopied] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [toast, setToast] = useState<ToastState>(null);
+
+  const showToast = useCallback((kind: "ok" | "err", text: string) => {
+    setToast({ kind, text });
+    window.setTimeout(() => setToast(null), 1800);
+  }, []);
 
   const refreshGraph = useCallback(() => {
     try {
@@ -323,6 +562,8 @@ export default function BrainPageClient() {
         label: getNodePrimaryLabel(node),
         detail: getNodeDetail(node),
         neighbors: adjacency[node.id]?.length ?? 0,
+        status: getNodeStatus(node),
+        importance: getNodeImportance(node),
       }));
 
     cards.sort((a, b) => {
@@ -333,9 +574,14 @@ export default function BrainPageClient() {
         return pinnedB - pinnedA;
       }
 
-      if (filters.sortBy === "neighbors") {
-        if (a.neighbors !== b.neighbors) {
-          return b.neighbors - a.neighbors;
+      if (filters.sortBy === "neighbors" && a.neighbors !== b.neighbors) {
+        return b.neighbors - a.neighbors;
+      }
+
+      if (filters.sortBy === "importance") {
+        const rankDiff = getImportanceRank(b.importance) - getImportanceRank(a.importance);
+        if (rankDiff !== 0) {
+          return rankDiff;
         }
       }
 
@@ -365,37 +611,31 @@ export default function BrainPageClient() {
   }, [graph, nodeLookup, selectedNodeId]);
 
   const selectedEdges = useMemo(() => {
-    if (!selectedNode) {
-      return [];
-    }
-
+    if (!selectedNode) return [];
     return adjacency[selectedNode.id] ?? [];
   }, [adjacency, selectedNode]);
 
   const selectedNeighborNodes = useMemo(() => {
-    if (!selectedNode) {
-      return [];
-    }
+    if (!selectedNode) return [];
 
     const seen = new Set<string>();
     const neighbors: CodexForgeBrainNode[] = [];
 
     for (const edge of selectedEdges) {
       const otherId = edge.from === selectedNode.id ? edge.to : edge.from;
-      if (seen.has(otherId)) {
-        continue;
-      }
+      if (seen.has(otherId)) continue;
 
       const neighbor = nodeLookup[otherId];
-      if (!neighbor) {
-        continue;
-      }
+      if (!neighbor) continue;
 
       seen.add(otherId);
       neighbors.push(neighbor);
     }
 
-    neighbors.sort((a, b) => getNodePrimaryLabel(a).localeCompare(getNodePrimaryLabel(b)));
+    neighbors.sort((a, b) =>
+      getNodePrimaryLabel(a).localeCompare(getNodePrimaryLabel(b))
+    );
+
     return neighbors;
   }, [nodeLookup, selectedEdges, selectedNode]);
 
@@ -407,62 +647,158 @@ export default function BrainPageClient() {
     return graph ? JSON.stringify(graph, null, 2) : "";
   }, [graph]);
 
+  const selectedNodeDataLines = useMemo(() => {
+    return selectedNode ? getNodeDataLines(selectedNode) : [];
+  }, [selectedNode]);
+
   const handleCopyNode = useCallback(async () => {
-    if (!selectedNodeRawJson) {
-      return;
-    }
+    if (!selectedNodeRawJson) return;
 
     try {
       await copyToClipboard(selectedNodeRawJson);
       setCopied("node");
+      showToast("ok", "Node JSON copied");
       window.setTimeout(() => setCopied(""), 1500);
     } catch (err) {
-      setError(
+      const message =
         err instanceof Error && err.message.trim()
           ? err.message.trim()
-          : "Could not copy node JSON."
-      );
+          : "Could not copy node JSON.";
+      setError(message);
+      showToast("err", message);
     }
-  }, [selectedNodeRawJson]);
+  }, [selectedNodeRawJson, showToast]);
 
   const handleCopyGraph = useCallback(async () => {
-    if (!selectedGraphJson) {
-      return;
-    }
+    if (!selectedGraphJson) return;
 
     try {
       await copyToClipboard(selectedGraphJson);
       setCopied("graph");
+      showToast("ok", "Graph JSON copied");
       window.setTimeout(() => setCopied(""), 1500);
     } catch (err) {
-      setError(
+      const message =
         err instanceof Error && err.message.trim()
           ? err.message.trim()
-          : "Could not copy graph JSON."
-      );
+          : "Could not copy graph JSON.";
+      setError(message);
+      showToast("err", message);
     }
-  }, [selectedGraphJson]);
+  }, [selectedGraphJson, showToast]);
+
+  const handleCopyPrompt = useCallback(async () => {
+    if (!selectedNode) return;
+
+    try {
+      await copyToClipboard(buildWorkspacePrompt(selectedNode));
+      showToast("ok", "Workspace prompt copied");
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message.trim()
+          ? err.message.trim()
+          : "Could not copy workspace prompt.";
+      setError(message);
+      showToast("err", message);
+    }
+  }, [selectedNode, showToast]);
 
   const handleExportGraph = useCallback(() => {
-    if (!graph) {
-      return;
-    }
-
+    if (!graph) return;
     downloadJson("codexforge-brain-graph.json", graph);
-  }, [graph]);
+    showToast("ok", "Graph exported");
+  }, [graph, showToast]);
+
+  const handlePinToggle = useCallback(() => {
+    if (!graph || !selectedNode) return;
+
+    try {
+      const next: CodexForgeBrainGraph = {
+        ...graph,
+        nodes: graph.nodes.map((node) =>
+          node.id === selectedNode.id
+            ? {
+                ...node,
+                meta: {
+                  ...node.meta,
+                  pinned: !node.meta.pinned,
+                  updatedAt: Date.now(),
+                },
+              }
+            : node
+        ),
+        meta: {
+          ...graph.meta,
+          updatedAt: Date.now(),
+        },
+      };
+
+      const saved = saveBrainGraph(next);
+      setGraph(saved);
+      showToast(
+        "ok",
+        selectedNode.meta.pinned ? "Node unpinned" : "Node pinned"
+      );
+      setError("");
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message.trim()
+          ? err.message.trim()
+          : "Could not update pin state.";
+      setError(message);
+      showToast("err", message);
+    }
+  }, [graph, selectedNode, showToast]);
+
+  const handleArchiveToggle = useCallback(() => {
+    if (!graph || !selectedNode) return;
+
+    try {
+      const next: CodexForgeBrainGraph = {
+        ...graph,
+        nodes: graph.nodes.map((node) =>
+          node.id === selectedNode.id
+            ? {
+                ...node,
+                meta: {
+                  ...node.meta,
+                  archived: !node.meta.archived,
+                  updatedAt: Date.now(),
+                },
+              }
+            : node
+        ),
+        meta: {
+          ...graph.meta,
+          updatedAt: Date.now(),
+        },
+      };
+
+      const saved = saveBrainGraph(next);
+      setGraph(saved);
+      showToast(
+        "ok",
+        selectedNode.meta.archived ? "Node restored" : "Node archived"
+      );
+      setError("");
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message.trim()
+          ? err.message.trim()
+          : "Could not update archive state.";
+      setError(message);
+      showToast("err", message);
+    }
+  }, [graph, selectedNode, showToast]);
 
   const handleResetGraph = useCallback(() => {
-    if (!graph) {
-      return;
-    }
+    if (!graph) return;
 
     const confirmed = window.confirm(
       "Reset the local brain graph? This clears the saved graph in localStorage."
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
       const empty: CodexForgeBrainGraph = {
@@ -479,14 +815,16 @@ export default function BrainPageClient() {
       setGraph(saved);
       setSelectedNodeId(null);
       setError("");
+      showToast("ok", "Brain graph reset");
     } catch (err) {
-      setError(
+      const message =
         err instanceof Error && err.message.trim()
           ? err.message.trim()
-          : "Could not reset graph."
-      );
+          : "Could not reset graph.";
+      setError(message);
+      showToast("err", message);
     }
-  }, [graph]);
+  }, [graph, showToast]);
 
   return (
     <main
@@ -507,7 +845,7 @@ export default function BrainPageClient() {
         <header
           style={{
             display: "grid",
-            gap: 12,
+            gap: 14,
             marginBottom: 20,
           }}
         >
@@ -520,23 +858,39 @@ export default function BrainPageClient() {
               alignItems: "flex-start",
             }}
           >
-            <div style={{ display: "grid", gap: 8 }}>
-              <span
+            <div style={{ display: "grid", gap: 10 }}>
+              <div
                 style={{
-                  display: "inline-flex",
-                  width: "fit-content",
-                  padding: "6px 10px",
-                  borderRadius: 999,
-                  border: "1px solid rgba(127,127,127,0.2)",
-                  background: "rgba(127,127,127,0.08)",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
+                  display: "flex",
+                  gap: 10,
+                  flexWrap: "wrap",
+                  alignItems: "center",
                 }}
               >
-                CodexForge Brain
-              </span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    width: "fit-content",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                    border: "1px solid rgba(127,127,127,0.2)",
+                    background: "rgba(127,127,127,0.08)",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  CodexForge Brain
+                </span>
+
+                <Link href="/ai" style={buttonStyle()}>
+                  Open workspace
+                </Link>
+                <Link href="/history" style={buttonStyle()}>
+                  Activity
+                </Link>
+              </div>
 
               <div style={{ display: "grid", gap: 6 }}>
                 <h1
@@ -549,16 +903,15 @@ export default function BrainPageClient() {
                 </h1>
                 <p
                   style={{
-                    maxWidth: 920,
+                    maxWidth: 980,
                     opacity: 0.82,
                     fontSize: 15,
                     lineHeight: 1.6,
                   }}
                 >
-                  This page reads the local CodexForge brain graph from browser
-                  storage, helps you inspect nodes and relationships, and acts as
-                  the bridge between today’s debug inspector and the future
-                  product-grade memory workspace.
+                  This is the CodexForge memory control surface. Inspect graph
+                  nodes and relationships, review saved context, promote useful
+                  memory, and prepare context to send back into the main workspace.
                 </p>
               </div>
             </div>
@@ -571,36 +924,40 @@ export default function BrainPageClient() {
                 justifyContent: "flex-end",
               }}
             >
-              <button
-                type="button"
-                onClick={refreshGraph}
-                style={buttonStyle()}
-              >
+              <button type="button" onClick={refreshGraph} style={buttonStyle()}>
                 Refresh
               </button>
-              <button
-                type="button"
-                onClick={handleCopyGraph}
-                style={buttonStyle()}
-              >
+              <button type="button" onClick={handleCopyGraph} style={buttonStyle()}>
                 {copied === "graph" ? "Graph copied" : "Copy graph JSON"}
               </button>
-              <button
-                type="button"
-                onClick={handleExportGraph}
-                style={buttonStyle()}
-              >
+              <button type="button" onClick={handleExportGraph} style={buttonStyle()}>
                 Export graph
               </button>
-              <button
-                type="button"
-                onClick={handleResetGraph}
-                style={buttonStyle(true)}
-              >
+              <button type="button" onClick={handleResetGraph} style={buttonStyle(true)}>
                 Reset graph
               </button>
             </div>
           </div>
+
+          {toast ? (
+            <div
+              style={{
+                border:
+                  toast.kind === "ok"
+                    ? "1px solid rgba(34,197,94,0.35)"
+                    : "1px solid rgba(239,68,68,0.35)",
+                background:
+                  toast.kind === "ok"
+                    ? "rgba(34,197,94,0.12)"
+                    : "rgba(239,68,68,0.12)",
+                borderRadius: 16,
+                padding: "12px 14px",
+                fontSize: 14,
+              }}
+            >
+              {toast.text}
+            </div>
+          ) : null}
 
           {error ? (
             <div
@@ -665,8 +1022,8 @@ export default function BrainPageClient() {
                       Graph explorer
                     </h2>
                     <p style={{ fontSize: 13, opacity: 0.72 }}>
-                      Filter nodes, inspect memory objects, and trace
-                      relationships across work context, tasks, runs, and diffs.
+                      Filter memory nodes, inspect work context, and navigate
+                      relationships across tasks, runs, plans, decisions, and files.
                     </p>
                   </div>
 
@@ -730,31 +1087,62 @@ export default function BrainPageClient() {
                         <option value="updated">Recently updated</option>
                         <option value="label">Label</option>
                         <option value="neighbors">Most connected</option>
+                        <option value="importance">Importance</option>
                       </select>
                     </label>
                   </div>
 
-                  <label
+                  <div
                     style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      fontSize: 13,
-                      whiteSpace: "nowrap",
+                      display: "flex",
+                      gap: 16,
+                      flexWrap: "wrap",
                     }}
                   >
-                    <input
-                      type="checkbox"
-                      checked={filters.showArchived}
-                      onChange={(event) =>
-                        setFilters((current) => ({
-                          ...current,
-                          showArchived: event.target.checked,
-                        }))
-                      }
-                    />
-                    Show archived
-                  </label>
+                    <label
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        fontSize: 13,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={filters.showArchived}
+                        onChange={(event) =>
+                          setFilters((current) => ({
+                            ...current,
+                            showArchived: event.target.checked,
+                          }))
+                        }
+                      />
+                      Show archived
+                    </label>
+
+                    <label
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        fontSize: 13,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={filters.onlyPinned}
+                        onChange={(event) =>
+                          setFilters((current) => ({
+                            ...current,
+                            onlyPinned: event.target.checked,
+                          }))
+                        }
+                      />
+                      Only pinned
+                    </label>
+                  </div>
                 </div>
 
                 <div style={subPanelStyle()}>
@@ -802,7 +1190,7 @@ export default function BrainPageClient() {
                         No nodes match the current filters.
                       </div>
                     ) : (
-                      filteredNodes.map(({ node, detail, neighbors, label }) => {
+                      filteredNodes.map(({ node, detail, neighbors, label, status, importance }) => {
                         const isSelected = selectedNodeId === node.id;
 
                         return (
@@ -840,9 +1228,14 @@ export default function BrainPageClient() {
                                 </span>
                               </div>
 
-                              {node.meta.pinned ? (
-                                <span style={badgeStyle("Pinned")}>Pinned</span>
-                              ) : null}
+                              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                                {node.meta.pinned ? (
+                                  <span style={badgeStyle("Pinned")}>Pinned</span>
+                                ) : null}
+                                {node.meta.archived ? (
+                                  <span style={badgeStyle("Archived")}>Archived</span>
+                                ) : null}
+                              </div>
                             </div>
 
                             {detail ? (
@@ -866,9 +1259,9 @@ export default function BrainPageClient() {
                                 opacity: 0.72,
                               }}
                             >
-                              <span>{getNodeStatus(node)}</span>
+                              <span>{status}</span>
                               <span>•</span>
-                              <span>{getNodeImportance(node)}</span>
+                              <span>{importance}</span>
                               <span>•</span>
                               <span>{neighbors} links</span>
                             </div>
@@ -953,6 +1346,27 @@ export default function BrainPageClient() {
                         >
                           <button
                             type="button"
+                            onClick={handlePinToggle}
+                            style={buttonStyle()}
+                          >
+                            {selectedNode.meta.pinned ? "Unpin" : "Pin"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleArchiveToggle}
+                            style={buttonStyle(selectedNode.meta.archived === false)}
+                          >
+                            {selectedNode.meta.archived ? "Restore" : "Archive"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCopyPrompt}
+                            style={buttonStyle()}
+                          >
+                            Copy workspace prompt
+                          </button>
+                          <button
+                            type="button"
                             onClick={handleCopyNode}
                             style={buttonStyle()}
                           >
@@ -985,6 +1399,47 @@ export default function BrainPageClient() {
                           value={selectedNode.meta.pinned ? "Yes" : "No"}
                         />
                       </div>
+
+                      {selectedNodeDataLines.length > 0 ? (
+                        <div style={subPanelStyle()}>
+                          <h3 style={subHeadingStyle}>Quick fields</h3>
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                              gap: 10,
+                            }}
+                          >
+                            {selectedNodeDataLines.map((item) => (
+                              <div
+                                key={item.key}
+                                style={{
+                                  border: "1px solid rgba(127,127,127,0.14)",
+                                  background: "rgba(127,127,127,0.04)",
+                                  borderRadius: 14,
+                                  padding: 12,
+                                  display: "grid",
+                                  gap: 6,
+                                }}
+                              >
+                                <span style={{ ...labelStyle, fontSize: 11 }}>
+                                  {item.key}
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: 13,
+                                    lineHeight: 1.5,
+                                    opacity: 0.88,
+                                    wordBreak: "break-word",
+                                  }}
+                                >
+                                  {item.value}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
 
                       <div
                         style={{
@@ -1079,7 +1534,7 @@ export default function BrainPageClient() {
                       <p style={{ opacity: 0.72 }}>No edges for this node.</p>
                     ) : (
                       <div style={{ display: "grid", gap: 10 }}>
-                        {selectedEdges.map((edge) => (
+                        {selectedEdges.slice(0, MAX_EDGE_PREVIEW).map((edge) => (
                           <div
                             key={edge.id}
                             style={{
@@ -1113,6 +1568,12 @@ export default function BrainPageClient() {
                             ) : null}
                           </div>
                         ))}
+
+                        {selectedEdges.length > MAX_EDGE_PREVIEW ? (
+                          <p style={{ fontSize: 12, opacity: 0.65 }}>
+                            +{selectedEdges.length - MAX_EDGE_PREVIEW} more edges
+                          </p>
+                        ) : null}
                       </div>
                     )}
                   </div>
@@ -1162,150 +1623,5 @@ export default function BrainPageClient() {
         )}
       </div>
     </main>
-  );
-}
-
-function panelStyle(): React.CSSProperties {
-  return {
-    border: "1px solid rgba(127,127,127,0.16)",
-    background: "rgba(127,127,127,0.06)",
-    borderRadius: 24,
-    padding: 18,
-    backdropFilter: "blur(10px)",
-    boxShadow: "0 8px 30px rgba(0,0,0,0.10)",
-  };
-}
-
-function subPanelStyle(): React.CSSProperties {
-  return {
-    border: "1px solid rgba(127,127,127,0.14)",
-    background: "rgba(127,127,127,0.04)",
-    borderRadius: 18,
-    padding: 14,
-    minWidth: 0,
-  };
-}
-
-function buttonStyle(danger = false): React.CSSProperties {
-  return {
-    appearance: "none",
-    border: danger
-      ? "1px solid rgba(239,68,68,0.35)"
-      : "1px solid rgba(127,127,127,0.2)",
-    background: danger ? "rgba(239,68,68,0.12)" : "rgba(127,127,127,0.08)",
-    color: "inherit",
-    borderRadius: 14,
-    padding: "10px 14px",
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: "pointer",
-  };
-}
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  border: "1px solid rgba(127,127,127,0.22)",
-  background: "rgba(127,127,127,0.06)",
-  color: "inherit",
-  borderRadius: 14,
-  padding: "12px 14px",
-  outline: "none",
-  fontSize: 14,
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 12,
-  fontWeight: 700,
-  opacity: 0.74,
-  letterSpacing: "0.03em",
-  textTransform: "uppercase",
-};
-
-const preStyle: React.CSSProperties = {
-  margin: 0,
-  whiteSpace: "pre-wrap",
-  wordBreak: "break-word",
-  overflow: "auto",
-  maxHeight: 320,
-  fontSize: 12,
-  lineHeight: 1.55,
-  fontFamily: "var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace",
-};
-
-const kindPillStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  borderRadius: 999,
-  padding: "6px 10px",
-  background: "rgba(99,102,241,0.18)",
-  border: "1px solid rgba(99,102,241,0.28)",
-  fontSize: 12,
-  fontWeight: 700,
-};
-
-const metaPillStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  borderRadius: 999,
-  padding: "6px 10px",
-  background: "rgba(127,127,127,0.10)",
-  border: "1px solid rgba(127,127,127,0.18)",
-  fontSize: 12,
-};
-
-function badgeStyle(text: string): React.CSSProperties {
-  return {
-    display: "inline-flex",
-    alignItems: "center",
-    borderRadius: 999,
-    padding: "4px 8px",
-    background:
-      text === "Pinned" ? "rgba(34,197,94,0.18)" : "rgba(127,127,127,0.08)",
-    border:
-      text === "Pinned"
-        ? "1px solid rgba(34,197,94,0.28)"
-        : "1px solid rgba(127,127,127,0.18)",
-    fontSize: 11,
-    fontWeight: 700,
-  };
-}
-
-const sectionHeadingStyle: React.CSSProperties = {
-  fontSize: 18,
-  marginBottom: 12,
-};
-
-const subHeadingStyle: React.CSSProperties = {
-  fontSize: 14,
-  marginBottom: 10,
-  opacity: 0.82,
-};
-
-function StatCard(props: { label: string; value: string }) {
-  return (
-    <div style={panelStyle()}>
-      <div style={{ display: "grid", gap: 8 }}>
-        <span style={{ ...labelStyle, fontSize: 11 }}>{props.label}</span>
-        <strong style={{ fontSize: 28, lineHeight: 1.1 }}>{props.value}</strong>
-      </div>
-    </div>
-  );
-}
-
-function MiniStat(props: { label: string; value: string }) {
-  return (
-    <div
-      style={{
-        border: "1px solid rgba(127,127,127,0.14)",
-        background: "rgba(127,127,127,0.04)",
-        borderRadius: 16,
-        padding: 12,
-        display: "grid",
-        gap: 6,
-      }}
-    >
-      <span style={{ ...labelStyle, fontSize: 11 }}>{props.label}</span>
-      <strong style={{ fontSize: 14, lineHeight: 1.4 }}>{props.value}</strong>
-    </div>
   );
 }

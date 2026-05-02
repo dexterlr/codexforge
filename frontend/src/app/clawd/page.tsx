@@ -18,6 +18,8 @@ type Phase =
   | "error"
   | "canceled";
 
+type Mode = "api" | "local";
+
 type PlanStep = {
   id: string;
   title: string;
@@ -174,10 +176,16 @@ type CheckpointRestoreResp =
     }
   | { ok: false; error: string };
 
+type PhaseTone = "neutral" | "active" | "success" | "danger";
+type NoticeTone = "info" | "success" | "danger";
+
 const DEFAULT_REPO =
   "C:\\ai-lab\\projects\\openclaw-workspace\\repos\\health-tracker\\frontend";
 const DEFAULT_GOAL = "Add a simple export button to the history page";
 const FILE_LIST_CAP = 300;
+const MAX_LOG_LINES = 250;
+
+/* ---------------- helpers ---------------- */
 
 function defaultPlan(goal: string): Plan {
   return {
@@ -226,6 +234,7 @@ function defaultPlan(goal: string): Plan {
     ],
     meta: {
       version: "local-stub",
+      createdAt: new Date().toISOString(),
     },
   };
 }
@@ -262,7 +271,7 @@ function asErrorMessage(data: unknown, fallback: string) {
 async function postJSON<TResp>(
   url: string,
   body: unknown,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ): Promise<PostResult<TResp>> {
   try {
     const res = await fetch(url, {
@@ -285,7 +294,11 @@ async function postJSON<TResp>(
 
     return { ok: true, data: data as TResp };
   } catch (e: unknown) {
-    if (e && typeof e === "object" && (e as { name?: unknown }).name === "AbortError") {
+    if (
+      e &&
+      typeof e === "object" &&
+      (e as { name?: unknown }).name === "AbortError"
+    ) {
       return { ok: false, error: "Request canceled." };
     }
     return { ok: false, error: "Network error (API unreachable)." };
@@ -345,19 +358,19 @@ function normalizeServerPhase(value: unknown): Phase {
 }
 
 function isRunStartSuccess(
-  data: RunStartResp,
+  data: RunStartResp
 ): data is { ok: true; runId: string; runFile: string } {
   return data.ok === true;
 }
 
 function isRunGetSuccess(
-  data: RunGetResp,
+  data: RunGetResp
 ): data is { ok: true; run: RunFile; runFile: string } {
   return data.ok === true;
 }
 
 function isRunUpdateSuccess(
-  data: RunUpdateResp,
+  data: RunUpdateResp
 ): data is { ok: true; run: RunFile; runFile: string } {
   return data.ok === true;
 }
@@ -380,13 +393,110 @@ function initialRunState(): RunState {
   };
 }
 
+function getPhaseTone(phase: Phase): PhaseTone {
+  switch (phase) {
+    case "snapshotting":
+    case "planning":
+    case "diffing":
+    case "applying":
+    case "testing":
+      return "active";
+    case "done":
+      return "success";
+    case "error":
+      return "danger";
+    default:
+      return "neutral";
+  }
+}
+
+function getPhaseLabel(phase: Phase) {
+  switch (phase) {
+    case "awaiting_plan_approval":
+      return "Awaiting plan approval";
+    case "awaiting_diff_approval":
+      return "Awaiting diff approval";
+    default:
+      return phase.charAt(0).toUpperCase() + phase.slice(1);
+  }
+}
+
+function getPhasePillStyle(tone: PhaseTone): CSSProperties {
+  if (tone === "active") return phasePillActive;
+  if (tone === "success") return phasePillSuccess;
+  if (tone === "danger") return phasePillDanger;
+  return phasePillNeutral;
+}
+
+function getNoticeStyle(tone: NoticeTone): CSSProperties {
+  if (tone === "success") return noticeSuccess;
+  if (tone === "danger") return noticeDanger;
+  return noticeInfo;
+}
+
+function repoLabelFromPath(path: string) {
+  const parts = path.split("\\").filter(Boolean);
+  return parts.slice(-2).join("\\") || path || "—";
+}
+
+function countSelectedCheckpointFiles(payload: CheckpointRestoreResp | unknown) {
+  if (!payload || typeof payload !== "object") return 0;
+  const record = payload as Record<string, unknown>;
+  if (Array.isArray(record.restored)) return record.restored.length;
+  if (Array.isArray(record.files)) return record.files.length;
+  return 0;
+}
+
+/* ---------------- small UI ---------------- */
+
+function SectionLabel({
+  title,
+  subtitle,
+}: {
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <div style={sectionTitleWrap}>
+      <div style={sectionTitle}>{title}</div>
+      {subtitle ? <div style={sectionSubtitle}>{subtitle}</div> : null}
+    </div>
+  );
+}
+
+function StatBadge({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div style={statBadge}>
+      <div style={statBadgeLabel}>{label}</div>
+      <div style={statBadgeValue}>{value}</div>
+    </div>
+  );
+}
+
+function Pill(props: { label: string; value: string }) {
+  return (
+    <div style={pill}>
+      <div style={pillLabel}>{props.label}</div>
+      <div style={pillValue}>{props.value}</div>
+    </div>
+  );
+}
+
+/* ---------------- main ---------------- */
+
 export default function OperatorPage() {
   const [mounted, setMounted] = useState(false);
 
   const [repoPath, setRepoPath] = useState(DEFAULT_REPO);
   const [goal, setGoal] = useState(DEFAULT_GOAL);
 
-  const [mode, setMode] = useState<"api" | "local">("api");
+  const [mode, setMode] = useState<Mode>("api");
   const [showPayload, setShowPayload] = useState(false);
   const [showSnapshotFiles, setShowSnapshotFiles] = useState(false);
 
@@ -415,27 +525,33 @@ export default function OperatorPage() {
   const [lastCheckpointResp, setLastCheckpointResp] = useState<unknown>(null);
 
   useEffect(() => {
-    const id = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(id);
+    const id = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
 
-    const id = setTimeout(() => {
+    const id = window.setTimeout(() => {
       setRun((current) => {
         if (current.logs.length) return current;
         return { ...current, logs: [logLine("Operator UI loaded.")] };
       });
     }, 0);
 
-    return () => clearTimeout(id);
+    return () => window.clearTimeout(id);
   }, [mounted]);
 
   useEffect(() => {
     if (!mounted) return;
 
-    const id = setTimeout(() => {
+    const id = window.setTimeout(() => {
       setRun((current) => {
         if (current.phase !== "idle") return current;
         if (current.repoPath === repoPath && current.goal === goal) return current;
@@ -443,13 +559,13 @@ export default function OperatorPage() {
       });
     }, 0);
 
-    return () => clearTimeout(id);
+    return () => window.clearTimeout(id);
   }, [mounted, repoPath, goal]);
 
   function appendLog(message: string) {
     setRun((current) => ({
       ...current,
-      logs: [logLine(message), ...current.logs],
+      logs: [logLine(message), ...current.logs].slice(0, MAX_LOG_LINES),
     }));
   }
 
@@ -490,7 +606,11 @@ export default function OperatorPage() {
     abortRef.current?.abort();
     abortRef.current = null;
     setUi({ kind: "idle" });
-    setRun((current) => ({ ...current, phase: "canceled" }));
+    setRun((current) => ({
+      ...current,
+      phase: "canceled",
+      lastError: undefined,
+    }));
     appendLog("Canceled current operation.");
   }
 
@@ -501,6 +621,7 @@ export default function OperatorPage() {
     setUi({ kind: "idle" });
     setRunErr("");
     setRunServer(null);
+
     clearFileViewer();
     clearCheckpointUi();
 
@@ -531,7 +652,7 @@ export default function OperatorPage() {
     const resp = await postJSON<RunStartResp>(
       "/api/operator/run/start",
       body,
-      ac.signal,
+      ac.signal
     );
 
     abortRef.current = null;
@@ -584,7 +705,7 @@ export default function OperatorPage() {
     const resp = await postJSON<RunGetResp>(
       "/api/operator/run/get",
       body,
-      ac.signal,
+      ac.signal
     );
 
     abortRef.current = null;
@@ -614,9 +735,7 @@ export default function OperatorPage() {
       repoPath:
         typeof runData.repoPath === "string" ? runData.repoPath : current.repoPath,
       goal: typeof runData.goal === "string" ? runData.goal : current.goal,
-      logs: Array.isArray(runData.logs)
-        ? [...runData.logs].reverse()
-        : current.logs,
+      logs: Array.isArray(runData.logs) ? [...runData.logs].reverse() : current.logs,
     }));
 
     appendLog(`Run loaded: ${runData.runId}`);
@@ -639,8 +758,6 @@ export default function OperatorPage() {
     setRunBusy(true);
     setRunErr("");
 
-    const ac = new AbortController();
-
     const body = {
       repoPath,
       runId,
@@ -655,11 +772,7 @@ export default function OperatorPage() {
       lastRequest: { url: "/api/operator/run/update", body },
     }));
 
-    const resp = await postJSON<RunUpdateResp>(
-      "/api/operator/run/update",
-      body,
-      ac.signal,
-    );
+    const resp = await postJSON<RunUpdateResp>("/api/operator/run/update", body);
 
     setRunBusy(false);
 
@@ -695,7 +808,7 @@ export default function OperatorPage() {
 
     const resp = await postJSON<CheckpointListResp>(
       "/api/operator/checkpoint/list",
-      body,
+      body
     );
 
     setCheckpointBusy(false);
@@ -740,7 +853,7 @@ export default function OperatorPage() {
 
     const resp = await postJSON<CheckpointRestoreResp>(
       "/api/operator/checkpoint/restore",
-      body,
+      body
     );
 
     setCheckpointBusy(false);
@@ -762,19 +875,13 @@ export default function OperatorPage() {
     }
 
     if (resp.data.dryRun) {
-      const count = Array.isArray(resp.data.restored)
-        ? resp.data.restored.length
-        : Array.isArray(resp.data.files)
-          ? resp.data.files.length
-          : 0;
-      appendLog(`Checkpoint dry-run OK (${count} item(s)).`);
+      appendLog(`Checkpoint dry-run OK (${countSelectedCheckpointFiles(resp.data)} item(s)).`);
       return;
     }
 
-    const restoredCount = Array.isArray(resp.data.restored)
-      ? resp.data.restored.length
-      : 0;
-    appendLog(`Checkpoint restored (${restoredCount} file(s) written).`);
+    appendLog(
+      `Checkpoint restored (${Array.isArray(resp.data.restored) ? resp.data.restored.length : 0} file(s) written).`
+    );
   }
 
   async function loadFile(filePath: string) {
@@ -804,7 +911,7 @@ export default function OperatorPage() {
     const resp = await postJSON<ReadFileResp>(
       "/api/operator/read",
       body,
-      ac.signal,
+      ac.signal
     );
 
     abortRef.current = null;
@@ -831,7 +938,7 @@ export default function OperatorPage() {
 
     void navigator.clipboard.writeText(fileText).then(
       () => appendLog("Copied viewer text to clipboard."),
-      () => appendLog("Copy failed (clipboard permissions)."),
+      () => appendLog("Copy failed (clipboard permissions).")
     );
   }
 
@@ -886,7 +993,7 @@ export default function OperatorPage() {
     const resp = await postJSON<Snapshot>(
       "/api/operator/snapshot",
       body,
-      ac.signal,
+      ac.signal
     );
 
     abortRef.current = null;
@@ -996,7 +1103,7 @@ export default function OperatorPage() {
     const planRaw = resp.data.plan;
     if (!isPlanLike(planRaw)) {
       const msg =
-        "Plan API returned malformed plan (expected {goal, steps:[{id,title,detail}]}).";
+        "Plan API returned malformed plan (expected {goal, steps:[{id,title,detail}]})";
       setError(msg);
       void updateRun({ phase: "error", log: `plan error: ${msg}` });
       return;
@@ -1324,13 +1431,13 @@ export default function OperatorPage() {
   const shownFiles = filteredFiles.slice(0, FILE_LIST_CAP);
   const showCapNote = filteredFiles.length > FILE_LIST_CAP;
 
-  const viewerMeta = useMemo(() => {
+  const selectedFileInfo = useMemo(() => {
     if (!selectedFile) return { bytes: undefined as number | undefined };
     const match = snapshotFiles.find((f) => f.path === selectedFile);
     return { bytes: match?.bytes };
   }, [snapshotFiles, selectedFile]);
 
-  const runStatusText = useMemo(() => {
+  const runStatusMessage = useMemo(() => {
     if (mode !== "api") return "Local mode (no server run).";
     if (!runId) return "No run yet.";
     if (runBusy) return "Syncing run…";
@@ -1338,7 +1445,7 @@ export default function OperatorPage() {
     return "Run ready.";
   }, [mode, runId, runBusy, runErr]);
 
-  const checkpointStatusText = useMemo(() => {
+  const checkpointStatusMessage = useMemo(() => {
     if (mode !== "api") return "Local mode (no checkpoints).";
     if (checkpointBusy) return "Working…";
     if (checkpointErr) return `Checkpoint error: ${checkpointErr}`;
@@ -1355,39 +1462,105 @@ export default function OperatorPage() {
   }, [run.v3Plan]);
 
   const plannedConstraints = run.v3Plan?.constraints ?? null;
+  const phaseTone = getPhaseTone(run.phase);
 
   return (
     <main style={page}>
       <div style={shell}>
         <div style={topRow}>
-          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={navCluster}>
             <Link href="/" style={navLink}>
               ← Home
             </Link>
-            <div style={{ opacity: 0.55 }}>•</div>
+            <div style={navDot}>•</div>
+            <Link href="/ai" style={navLink}>
+              Workspace
+            </Link>
+            <div style={navDot}>•</div>
             <Link href="/history" style={navLink}>
               History
             </Link>
+            <div style={navDot}>•</div>
+            <Link href="/brain" style={navLink}>
+              Brain
+            </Link>
+            <div style={navDot}>•</div>
+            <Link href="/entry" style={navLink}>
+              Entry
+            </Link>
           </div>
 
-          <div style={phasePill}>
-            <div style={{ fontSize: 11, opacity: 0.7 }}>Phase</div>
-            <div style={{ fontWeight: 950 }}>{run.phase}</div>
-            <div style={{ marginTop: 6, fontSize: 11, opacity: 0.75, lineHeight: 1.3 }}>
+          <div style={{ ...phasePillBase, ...getPhasePillStyle(phaseTone) }}>
+            <div style={phasePillLabel}>Phase</div>
+            <div style={phasePillValue}>{getPhaseLabel(run.phase)}</div>
+            <div style={phasePillMeta}>
               Run: <b>{runId || "—"}</b>
-              {runFile ? <div style={{ marginTop: 3, opacity: 0.7 }}>File: {runFile}</div> : null}
-              <div style={{ marginTop: 3 }}>{runStatusText}</div>
+              {runFile ? <div style={phasePillSubline}>File: {runFile}</div> : null}
+              <div style={phasePillSubline}>{runStatusMessage}</div>
             </div>
           </div>
         </div>
 
-        <h1 style={title}>CodexForge Operator (UI harness)</h1>
-        <p style={subtitle}>
-          Proves the loop: <b>snapshot → plan → approve → diff → approve → apply → test</b>. Mode can be{" "}
-          <b>API</b> (real endpoints) or <b>Local</b> (stubs).
-        </p>
+        <section style={heroCard}>
+          <div style={heroGrid}>
+            <div style={heroMain}>
+              <div style={heroEyebrow}>CodexForge operator</div>
+              <h1 style={title}>Approval-driven execution control</h1>
+              <p style={subtitle}>
+                This is the dedicated operator surface for
+                <b> snapshot → plan → approve → diff → approve → apply → test</b>.
+                Keep workspace conversation in <b>/ai</b>. Come here when you want
+                explicit execution visibility and control.
+              </p>
+
+              <div style={heroActions}>
+                <button
+                  onClick={runSnapshot}
+                  disabled={!canSnapshot}
+                  style={ghostBtn}
+                >
+                  Snapshot
+                </button>
+                <button
+                  onClick={startPlanning}
+                  disabled={!canStart}
+                  style={primaryBtn}
+                >
+                  Start plan
+                </button>
+                <button
+                  onClick={() => setMode((m) => (m === "api" ? "local" : "api"))}
+                  style={ghostBtn}
+                  disabled={!isEditable}
+                  title="API mode calls real endpoints. Local mode uses stubs."
+                >
+                  Mode: {mode === "api" ? "API" : "Local"}
+                </button>
+              </div>
+
+              <div style={heroSupportText}>
+                Use API mode for real routes. Use Local mode to exercise the UI
+                safely when backend execution is unavailable.
+              </div>
+            </div>
+
+            <div style={heroStats}>
+              <StatBadge label="Repo" value={repoLabelFromPath(repoPath)} />
+              <StatBadge label="Goal" value={goal ? "Set" : "Unset"} />
+              <StatBadge label="Diffs" value={run.diffs.length} />
+              <StatBadge label="Snapshot files" value={run.snapshot?.fileCount ?? 0} />
+              <StatBadge label="Logs" value={run.logs.length} />
+              <StatBadge label="Mode" value={mode.toUpperCase()} />
+            </div>
+          </div>
+        </section>
 
         <section style={card}>
+          <SectionLabel
+            title="Run definition"
+            subtitle="Define the target repository and operator goal before planning."
+          />
+
           <div style={grid2}>
             <label style={field}>
               <div style={labelRow}>
@@ -1416,210 +1589,236 @@ export default function OperatorPage() {
             </label>
           </div>
 
-          <div style={actions}>
-            <button onClick={runSnapshot} disabled={!canSnapshot} style={ghostBtn}>
-              Snapshot
-            </button>
+          <div style={actionSection}>
+            <div style={actionGroupLabel}>Execution controls</div>
+            <div style={actions}>
+              <button onClick={runSnapshot} disabled={!canSnapshot} style={ghostBtn}>
+                Snapshot
+              </button>
 
-            <button onClick={startPlanning} disabled={!canStart} style={primaryBtn}>
-              Start (Plan)
-            </button>
+              <button onClick={startPlanning} disabled={!canStart} style={primaryBtn}>
+                Start (Plan)
+              </button>
 
-            <button onClick={approvePlan} disabled={!canApprovePlan} style={ghostBtn}>
-              Approve plan
-            </button>
+              <button onClick={approvePlan} disabled={!canApprovePlan} style={ghostBtn}>
+                Approve plan
+              </button>
 
-            <button onClick={rejectPlan} disabled={!canRejectPlan} style={dangerBtn}>
-              Reject plan
-            </button>
+              <button onClick={rejectPlan} disabled={!canRejectPlan} style={dangerBtn}>
+                Reject plan
+              </button>
 
-            <button onClick={approveDiffs} disabled={!canApproveDiffs} style={ghostBtn}>
-              Approve diffs
-            </button>
+              <button onClick={approveDiffs} disabled={!canApproveDiffs} style={ghostBtn}>
+                Approve diffs
+              </button>
 
-            <button onClick={rejectDiffs} disabled={!canRejectDiffs} style={dangerBtn}>
-              Reject diffs
-            </button>
-
-            <div style={{ flex: 1 }} />
-
-            <button
-              onClick={() => setMode((m) => (m === "api" ? "local" : "api"))}
-              style={ghostBtn}
-              disabled={!isEditable}
-              title="API mode calls /api/operator/* routes. Local mode uses stubs."
-            >
-              Mode: {mode === "api" ? "API" : "Local"}
-            </button>
-
-            <button
-              onClick={() => void startRunManual()}
-              style={ghostBtn}
-              disabled={!mounted || mode !== "api" || runBusy}
-              title="Create a fresh server-backed run (new runId)."
-            >
-              New run
-            </button>
-
-            <button
-              onClick={() => void getRun()}
-              style={ghostBtn}
-              disabled={!mounted || mode !== "api" || runBusy || !runId}
-              title="Load the run file from disk via /api/operator/run/get."
-            >
-              Load run
-            </button>
-
-            <button
-              onClick={() =>
-                void updateRun({
-                  log: "manual ping from UI",
-                  patch: { uiPingAt: new Date().toISOString() },
-                })
-              }
-              style={ghostBtn}
-              disabled={!mounted || mode !== "api" || runBusy || !runId}
-              title="Writes a log line to the run file."
-            >
-              Ping run
-            </button>
-
-            <button
-              onClick={() => setShowPayload((v) => !v)}
-              style={ghostBtn}
-              disabled={!mounted}
-              title="Show the last request/response payload"
-            >
-              {showPayload ? "Hide" : "Show"} payload
-            </button>
-
-            <button onClick={resetAll} disabled={!mounted} style={ghostBtn}>
-              Reset
-            </button>
-
-            <button onClick={cancelInFlight} disabled={!canCancel} style={dangerBtn}>
-              Cancel
-            </button>
+              <button onClick={rejectDiffs} disabled={!canRejectDiffs} style={dangerBtn}>
+                Reject diffs
+              </button>
+            </div>
           </div>
 
-          <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.10)" }}>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <div style={{ fontWeight: 950 }}>Checkpoints</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>List + restore (dry-run or apply)</div>
-              <div style={{ flex: 1 }} />
-              <div style={{ fontSize: 12, opacity: 0.8 }}>{checkpointStatusText}</div>
-            </div>
-
-            <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <div style={actionSection}>
+            <div style={actionGroupLabel}>Run file controls</div>
+            <div style={actions}>
               <button
-                onClick={() => void listCheckpoints()}
+                onClick={() => void startRunManual()}
                 style={ghostBtn}
-                disabled={!mounted || mode !== "api" || checkpointBusy}
+                disabled={!mounted || mode !== "api" || runBusy}
+                title="Create a fresh server-backed run (new runId)."
               >
-                List checkpoints
-              </button>
-
-              <label style={{ display: "grid", gap: 6, minWidth: 360, flex: 1 }}>
-                <div style={{ fontSize: 12, opacity: 0.8 }}>Selected checkpoint</div>
-                <select
-                  value={selectedCheckpointId}
-                  onChange={(e) => setSelectedCheckpointId(e.target.value)}
-                  style={{ ...input, padding: "10px 12px" }}
-                  disabled={!mounted || mode !== "api" || checkpointBusy || checkpoints.length === 0}
-                >
-                  <option value="">{checkpoints.length ? "Select…" : "No checkpoints loaded"}</option>
-                  {checkpoints.map((c) => {
-                    const createdAt = typeof c.meta?.createdAt === "string" ? c.meta.createdAt : "";
-                    const label = createdAt ? `${c.id} (${createdAt})` : c.id;
-                    return (
-                      <option key={c.id} value={c.id}>
-                        {label}
-                      </option>
-                    );
-                  })}
-                </select>
-              </label>
-
-              <button
-                onClick={() => void restoreCheckpoint(true)}
-                style={ghostBtn}
-                disabled={!mounted || mode !== "api" || checkpointBusy || !selectedCheckpointId}
-              >
-                Dry-run restore
+                New run
               </button>
 
               <button
-                onClick={() => void restoreCheckpoint(false)}
-                style={dangerBtn}
-                disabled={!mounted || mode !== "api" || checkpointBusy || !selectedCheckpointId}
+                onClick={() => void getRun()}
+                style={ghostBtn}
+                disabled={!mounted || mode !== "api" || runBusy || !runId}
+                title="Load the run file from disk via /api/operator/run/get."
               >
-                Restore
+                Load run
+              </button>
+
+              <button
+                onClick={() =>
+                  void updateRun({
+                    log: "manual ping from UI",
+                    patch: { uiPingAt: new Date().toISOString() },
+                  })
+                }
+                style={ghostBtn}
+                disabled={!mounted || mode !== "api" || runBusy || !runId}
+                title="Writes a log line to the run file."
+              >
+                Ping run
+              </button>
+
+              <button
+                onClick={() => setShowPayload((v) => !v)}
+                style={ghostBtn}
+                disabled={!mounted}
+                title="Show the last request/response payload"
+              >
+                {showPayload ? "Hide" : "Show"} payload
+              </button>
+
+              <button onClick={resetAll} disabled={!mounted} style={ghostBtn}>
+                Reset
+              </button>
+
+              <button onClick={cancelInFlight} disabled={!canCancel} style={dangerBtn}>
+                Cancel
               </button>
             </div>
+          </div>
 
+          <div style={inlineStatusRow}>
+            <span style={inlineStatusText}>
+              Status: <b>{statusText}</b>
+              {ui.kind === "error" ? <span> — {ui.message}</span> : null}
+            </span>
+
+            {mode === "api" && runServer ? (
+              <span style={inlineStatusText}>
+                Server run: phase=<b>{String(runServer.phase)}</b>, updatedAt=
+                <b>{runServer.updatedAt}</b>
+              </span>
+            ) : null}
+          </div>
+        </section>
+
+        <section style={card}>
+          <SectionLabel
+            title="Checkpoints"
+            subtitle="List existing checkpoints and restore them in dry-run or write mode."
+          />
+
+          <div style={checkpointHeaderRow}>
+            <div style={checkpointStatusTextStyle}>{checkpointStatusMessage}</div>
             {mode === "api" && checkpointsDir ? (
-              <div style={{ marginTop: 8, fontSize: 12, opacity: 0.75 }}>
+              <div style={checkpointDirText}>
                 Dir: <b>{checkpointsDir}</b>
               </div>
             ) : null}
-
-            {checkpointErr ? (
-              <div style={{ marginTop: 8, fontSize: 12, opacity: 0.95 }}>
-                <b>Error:</b> {checkpointErr}
-              </div>
-            ) : null}
           </div>
 
-          <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>
-            Status: <b>{statusText}</b> {ui.kind === "error" ? <span>— {ui.message}</span> : null}
+          <div style={checkpointControls}>
+            <button
+              onClick={() => void listCheckpoints()}
+              style={ghostBtn}
+              disabled={!mounted || mode !== "api" || checkpointBusy}
+            >
+              List checkpoints
+            </button>
+
+            <label style={checkpointField}>
+              <div style={checkpointFieldLabel}>Selected checkpoint</div>
+              <select
+                value={selectedCheckpointId}
+                onChange={(e) => setSelectedCheckpointId(e.target.value)}
+                style={{ ...input, padding: "10px 12px" }}
+                disabled={
+                  !mounted ||
+                  mode !== "api" ||
+                  checkpointBusy ||
+                  checkpoints.length === 0
+                }
+              >
+                <option value="">
+                  {checkpoints.length ? "Select…" : "No checkpoints loaded"}
+                </option>
+                {checkpoints.map((c) => {
+                  const createdAt =
+                    typeof c.meta?.createdAt === "string" ? c.meta.createdAt : "";
+                  const label = createdAt ? `${c.id} (${createdAt})` : c.id;
+                  return (
+                    <option key={c.id} value={c.id}>
+                      {label}
+                    </option>
+                  );
+                })}
+              </select>
+            </label>
+
+            <button
+              onClick={() => void restoreCheckpoint(true)}
+              style={ghostBtn}
+              disabled={
+                !mounted ||
+                mode !== "api" ||
+                checkpointBusy ||
+                !selectedCheckpointId
+              }
+            >
+              Dry-run restore
+            </button>
+
+            <button
+              onClick={() => void restoreCheckpoint(false)}
+              style={dangerBtn}
+              disabled={
+                !mounted ||
+                mode !== "api" ||
+                checkpointBusy ||
+                !selectedCheckpointId
+              }
+            >
+              Restore
+            </button>
           </div>
 
-          {mode === "api" && runServer ? (
-            <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8, lineHeight: 1.5 }}>
-              <b>Server run snapshot:</b> phase=<b>{String(runServer.phase)}</b>, updatedAt=
-              <b>{runServer.updatedAt}</b>
+          {checkpointErr ? (
+            <div style={errorBanner}>
+              <b>Error:</b> {checkpointErr}
             </div>
           ) : null}
         </section>
 
         {run.snapshot?.ok ? (
           <section style={card}>
-            <div style={sectionHead}>
-              <div style={{ fontWeight: 950 }}>Snapshot</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>
-                Repo: <b>{run.snapshot.root}</b> • Files: <b>{run.snapshot.fileCount ?? "?"}</b>{" "}
-                {run.snapshot.capped ? "• (capped)" : null}
-              </div>
+            <SectionLabel
+              title="Snapshot"
+              subtitle="Repository snapshot used by planning and diff generation."
+            />
+
+            <div style={snapshotMetaRow}>
+              <StatBadge label="Root" value={run.snapshot.root ?? "—"} />
+              <StatBadge label="Files" value={run.snapshot.fileCount ?? "?"} />
+              <StatBadge label="Capped" value={run.snapshot.capped ? "Yes" : "No"} />
             </div>
 
-            <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <button style={ghostBtn} onClick={() => setShowSnapshotFiles((v) => !v)} disabled={!mounted}>
+            <div style={actions}>
+              <button
+                style={ghostBtn}
+                onClick={() => setShowSnapshotFiles((v) => !v)}
+                disabled={!mounted}
+              >
                 {showSnapshotFiles ? "Hide" : "Show"} files (raw)
               </button>
 
-              <div style={{ fontSize: 12, opacity: 0.75 }}>
-                Snapshot is used by Plan/Diff endpoints if you include it.
+              <div style={hintText}>
+                Snapshot data can be included in plan and diff requests.
               </div>
             </div>
 
             {showSnapshotFiles ? (
-              <pre style={payloadBox}>{JSON.stringify(run.snapshot.files ?? [], null, 2)}</pre>
+              <pre style={payloadBox}>
+                {JSON.stringify(run.snapshot.files ?? [], null, 2)}
+              </pre>
             ) : null}
           </section>
         ) : null}
 
         {run.snapshot?.ok ? (
           <section style={card}>
-            <div style={sectionHead}>
-              <div style={{ fontWeight: 950 }}>Repo Browser</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>
-                Click any file to read full contents (read-only).
-              </div>
-            </div>
+            <SectionLabel
+              title="Repo browser"
+              subtitle="Read files from the snapshot target without leaving the operator surface."
+            />
 
-            <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <label style={{ display: "grid", gap: 6, flex: 1, minWidth: 260 }}>
-                <div style={{ fontSize: 12, opacity: 0.8 }}>Search files</div>
+            <div style={repoBrowserToolbar}>
+              <label style={searchField}>
+                <div style={checkpointFieldLabel}>Search files</div>
                 <input
                   value={fileQuery}
                   onChange={(e) => setFileQuery(e.target.value)}
@@ -1641,37 +1840,32 @@ export default function OperatorPage() {
               </button>
             </div>
 
-            <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1.25fr", gap: 12 }}>
-              <div style={{ ...miniCard, maxHeight: 420, overflow: "auto" }}>
-                <div style={{ fontWeight: 900, marginBottom: 8 }}>
-                  Files{" "}
-                  <span style={{ fontWeight: 700, opacity: 0.7, fontSize: 12 }}>
-                    ({filteredFiles.length.toLocaleString()})
-                  </span>
+            <div style={repoBrowserGrid}>
+              <div style={{ ...miniCard, maxHeight: 460, overflow: "auto" }}>
+                <div style={listPanelHeader}>
+                  <div style={listPanelTitle}>Files</div>
+                  <div style={listPanelMeta}>{filteredFiles.length.toLocaleString()}</div>
                 </div>
 
                 {filteredFiles.length === 0 ? (
-                  <div style={{ fontSize: 12, opacity: 0.8 }}>No files match your search.</div>
+                  <div style={emptyInlineText}>No files match your search.</div>
                 ) : (
-                  <div style={{ display: "grid", gap: 6 }}>
+                  <div style={fileList}>
                     {shownFiles.map((f) => {
                       const active = f.path === selectedFile;
+
                       return (
                         <button
                           key={f.path}
                           onClick={() => void loadFile(f.path)}
                           style={{
-                            ...ghostBtn,
-                            textAlign: "left",
-                            padding: "8px 10px",
-                            borderRadius: 10,
-                            opacity: active ? 1 : 0.92,
-                            background: active ? "rgba(99,102,241,0.22)" : ghostBtn.background,
+                            ...fileRowButton,
+                            ...(active ? fileRowButtonActive : null),
                           }}
                           title={`${f.path} (${formatBytes(f.bytes)})`}
                         >
-                          <div style={{ fontWeight: 850, fontSize: 12 }}>{f.path}</div>
-                          <div style={{ fontSize: 11, opacity: 0.7 }}>{formatBytes(f.bytes)}</div>
+                          <div style={fileRowTitle}>{f.path}</div>
+                          <div style={fileRowMeta}>{formatBytes(f.bytes)}</div>
                         </button>
                       );
                     })}
@@ -1679,74 +1873,87 @@ export default function OperatorPage() {
                 )}
 
                 {showCapNote ? (
-                  <div style={{ marginTop: 8, fontSize: 11, opacity: 0.7 }}>
-                    Showing first {FILE_LIST_CAP} results.
-                  </div>
+                  <div style={capNote}>Showing first {FILE_LIST_CAP} results.</div>
                 ) : null}
               </div>
 
               <div style={miniCard}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                  <div style={{ fontWeight: 900 }}>Viewer</div>
-                  <div style={{ fontSize: 12, opacity: 0.75 }}>
+                <div style={viewerHeader}>
+                  <div style={listPanelTitle}>Viewer</div>
+                  <div style={viewerMetaTextStyle}>
                     {selectedFile || "No file selected"}
-                    {selectedFile && typeof viewerMeta.bytes === "number" ? (
-                      <span style={{ opacity: 0.75 }}> • {formatBytes(viewerMeta.bytes)}</span>
+                    {selectedFile && typeof selectedFileInfo.bytes === "number" ? (
+                      <span> • {formatBytes(selectedFileInfo.bytes)}</span>
                     ) : null}
                   </div>
                 </div>
 
-                <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  <button style={ghostBtn} onClick={copyViewerToClipboard} disabled={!mounted || !fileText}>
+                <div style={actions}>
+                  <button
+                    style={ghostBtn}
+                    onClick={copyViewerToClipboard}
+                    disabled={!mounted || !fileText}
+                  >
                     Copy
                   </button>
 
                   <button
                     style={ghostBtn}
-                    onClick={() => void (selectedFile ? loadFile(selectedFile) : Promise.resolve())}
+                    onClick={() =>
+                      void (selectedFile ? loadFile(selectedFile) : Promise.resolve())
+                    }
                     disabled={!mounted || !selectedFile || fileLoading}
                   >
                     Refresh
                   </button>
 
                   <div style={{ flex: 1 }} />
-                  <div style={{ fontSize: 12, opacity: 0.75 }}>
+
+                  <div style={hintText}>
                     Route: <b>/api/operator/read</b>
                   </div>
                 </div>
 
                 {fileLoading ? (
-                  <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>Loading…</div>
+                  <div style={emptyInlineText}>Loading…</div>
                 ) : fileError ? (
-                  <div style={{ marginTop: 10, fontSize: 12, opacity: 0.9 }}>
+                  <div style={errorBanner}>
                     <b>Error:</b> {fileError}
                   </div>
                 ) : (
-                  <pre style={{ ...codeBox, marginTop: 10, maxHeight: 320, overflow: "auto", whiteSpace: "pre" }}>
+                  <pre
+                    style={{
+                      ...codeBox,
+                      marginTop: 10,
+                      maxHeight: 360,
+                      overflow: "auto",
+                      whiteSpace: "pre",
+                    }}
+                  >
                     {fileText || "Click a file to load it."}
                   </pre>
                 )}
               </div>
             </div>
 
-            <div style={{ marginTop: 10, fontSize: 12, opacity: 0.75 }}>
-              Tip: Click <b>Snapshot</b> first to refresh the file list.
+            <div style={hintText}>
+              Tip: run a fresh <b>Snapshot</b> first whenever the repo has changed.
             </div>
           </section>
         ) : null}
 
-        <div style={split}>
+        <div style={contentGrid}>
           <section style={card}>
-            <div style={sectionHead}>
-              <div style={{ fontWeight: 950 }}>Plan</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>Human must approve before diffs</div>
-            </div>
+            <SectionLabel
+              title="Plan"
+              subtitle="Human approval is required before diff generation."
+            />
 
             {run.plan ? (
-              <div style={{ marginTop: 10, display: "grid", gap: 12 }}>
+              <div style={sectionStack}>
                 <div style={miniCard}>
-                  <div style={{ fontWeight: 900, marginBottom: 8 }}>Steps</div>
-                  <ol style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
+                  <div style={subCardTitle}>Plan steps</div>
+                  <ol style={orderedList}>
                     {run.plan.steps.map((s) => (
                       <li key={s.id}>
                         <b>{s.title}:</b> <span style={{ opacity: 0.92 }}>{s.detail}</span>
@@ -1757,54 +1964,57 @@ export default function OperatorPage() {
 
                 {run.v3Plan ? (
                   <div style={miniCard}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                      <div style={{ fontWeight: 900 }}>v3Plan (shadow, structured)</div>
-                      <div style={{ fontSize: 12, opacity: 0.75 }}>
+                    <div style={subCardHeader}>
+                      <div style={subCardTitle}>v3Plan (shadow, structured)</div>
+                      <div style={subCardMeta}>
                         version=<b>{run.v3Plan.version}</b>
                       </div>
                     </div>
 
                     {plannedConstraints ? (
-                      <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
-                        <div>
-                          <div style={{ fontWeight: 850, fontSize: 12, opacity: 0.9 }}>Constraints</div>
-                          <div style={{ marginTop: 6, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                            <Pill label="allowlistOnly" value={String(plannedConstraints.allowlistOnly)} />
-                            <Pill label="offlineCapable" value={String(plannedConstraints.offlineCapable)} />
-                            <Pill
-                              label="humanApprovalBeforeApply"
-                              value={String(plannedConstraints.requiresHumanApprovalBeforeApply)}
-                            />
-                            <Pill label="maxFiles" value={String(plannedConstraints.maxFiles)} />
-                            <Pill label="maxDepth" value={String(plannedConstraints.maxDepth)} />
-                            <Pill label="skipDirs" value={String(plannedConstraints.skipDirs.length)} />
-                          </div>
+                      <div style={constraintBlock}>
+                        <div style={microTitle}>Constraints</div>
+                        <div style={pillRow}>
+                          <Pill
+                            label="allowlistOnly"
+                            value={String(plannedConstraints.allowlistOnly)}
+                          />
+                          <Pill
+                            label="offlineCapable"
+                            value={String(plannedConstraints.offlineCapable)}
+                          />
+                          <Pill
+                            label="humanApprovalBeforeApply"
+                            value={String(
+                              plannedConstraints.requiresHumanApprovalBeforeApply
+                            )}
+                          />
+                          <Pill
+                            label="maxFiles"
+                            value={String(plannedConstraints.maxFiles)}
+                          />
+                          <Pill
+                            label="maxDepth"
+                            value={String(plannedConstraints.maxDepth)}
+                          />
+                          <Pill
+                            label="skipDirs"
+                            value={String(plannedConstraints.skipDirs.length)}
+                          />
                         </div>
 
                         {plannedConstraints.skipDirs.length ? (
-                          <div style={{ fontSize: 12, opacity: 0.85, lineHeight: 1.5 }}>
-                            <b>skipDirs:</b>{" "}
-                            <span style={{ opacity: 0.9 }}>
-                              {plannedConstraints.skipDirs.join(", ")}
-                            </span>
+                          <div style={microCopy}>
+                            <b>skipDirs:</b> {plannedConstraints.skipDirs.join(", ")}
                           </div>
                         ) : null}
                       </div>
                     ) : null}
 
                     {plannedRisks.length ? (
-                      <div style={{ marginTop: 12 }}>
-                        <div style={{ fontWeight: 850, fontSize: 12, opacity: 0.9 }}>Risks / warnings</div>
-                        <ul
-                          style={{
-                            marginTop: 6,
-                            marginBottom: 0,
-                            paddingLeft: 18,
-                            fontSize: 12,
-                            opacity: 0.9,
-                            lineHeight: 1.5,
-                          }}
-                        >
+                      <div style={riskBlock}>
+                        <div style={microTitle}>Risks / warnings</div>
+                        <ul style={compactList}>
                           {plannedRisks.map((r, i) => (
                             <li key={i}>{r}</li>
                           ))}
@@ -1812,78 +2022,78 @@ export default function OperatorPage() {
                       </div>
                     ) : null}
 
-                    <div style={{ marginTop: 12 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                        <div style={{ fontWeight: 850, fontSize: 12, opacity: 0.9 }}>Planned files</div>
-                        <div style={{ fontSize: 12, opacity: 0.75 }}>
+                    <div style={plannedFilesBlock}>
+                      <div style={subCardHeader}>
+                        <div style={microTitle}>Planned files</div>
+                        <div style={subCardMeta}>
                           {plannedFiles.length ? `${plannedFiles.length} file(s)` : "none"}
                         </div>
                       </div>
 
                       {plannedFiles.length ? (
-                        <div style={{ marginTop: 8, display: "grid", gap: 8 }}>
+                        <div style={plannedFileGrid}>
                           {plannedFiles.map((f) => (
-                            <div key={f.path} style={{ ...miniCard, padding: 10 }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                                <div style={{ fontWeight: 900, fontSize: 12 }}>{f.path}</div>
+                            <div key={f.path} style={plannedFileCard}>
+                              <div style={subCardHeader}>
+                                <div style={plannedFilePath}>{f.path}</div>
                                 <button
-                                  style={{ ...ghostBtn, padding: "6px 10px", borderRadius: 12, fontSize: 12 }}
+                                  style={miniGhostBtn}
                                   disabled={!mounted || !run.snapshot?.ok}
-                                  title={run.snapshot?.ok ? "Open in Repo Browser viewer" : "Take a Snapshot first to enable the viewer"}
+                                  title={
+                                    run.snapshot?.ok
+                                      ? "Open in Repo Browser viewer"
+                                      : "Take a Snapshot first to enable the viewer"
+                                  }
                                   onClick={() => void loadFile(f.path)}
                                 >
                                   Open
                                 </button>
                               </div>
-                              <div style={{ fontSize: 12, opacity: 0.85, marginTop: 6, lineHeight: 1.5 }}>
-                                {f.reason}
-                              </div>
+                              <div style={plannedFileReason}>{f.reason}</div>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div style={{ marginTop: 8, fontSize: 12, opacity: 0.8 }}>
-                          No planned files yet.
-                        </div>
+                        <div style={emptyInlineText}>No planned files yet.</div>
                       )}
                     </div>
                   </div>
                 ) : (
-                  <div style={{ fontSize: 12, opacity: 0.8 }}>v3Plan not present.</div>
+                  <div style={emptyInlineText}>v3Plan not present.</div>
                 )}
               </div>
             ) : (
-              <div style={{ marginTop: 10, opacity: 0.8 }}>
+              <div style={emptyInlineText}>
                 No plan yet. Click <b>Start (Plan)</b>.
               </div>
             )}
           </section>
 
           <section style={card}>
-            <div style={sectionHead}>
-              <div style={{ fontWeight: 950 }}>Diffs</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>Human must approve before apply/test</div>
-            </div>
+            <SectionLabel
+              title="Diffs"
+              subtitle="Human approval is required before apply and test."
+            />
 
             {run.diffs.length ? (
-              <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
+              <div style={sectionStack}>
                 {run.diffs.map((d, idx) => (
                   <div key={`${d.filePath}-${idx}`} style={miniCard}>
-                    <div style={{ fontWeight: 900 }}>{d.filePath}</div>
+                    <div style={subCardTitle}>{d.filePath}</div>
                     <pre style={codeBox}>{d.patch}</pre>
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{ marginTop: 10, opacity: 0.8 }}>
+              <div style={emptyInlineText}>
                 No diffs yet. Approve a plan first.
               </div>
             )}
 
             {run.appliedFiles?.length ? (
-              <div style={{ marginTop: 12, fontSize: 12, opacity: 0.85, lineHeight: 1.5 }}>
-                <b>Applied files:</b>
-                <ul style={{ marginTop: 6, marginBottom: 0, paddingLeft: 18 }}>
+              <div style={supplementBlock}>
+                <div style={microTitle}>Applied files</div>
+                <ul style={compactList}>
                   {run.appliedFiles.map((f) => (
                     <li key={f}>{f}</li>
                   ))}
@@ -1892,43 +2102,48 @@ export default function OperatorPage() {
             ) : null}
 
             {run.testOutput ? (
-              <div style={{ marginTop: 12 }}>
-                <div style={{ fontWeight: 900, marginBottom: 6 }}>Test output</div>
+              <div style={supplementBlock}>
+                <div style={microTitle}>Test output</div>
                 <pre style={codeBox}>{run.testOutput}</pre>
               </div>
             ) : null}
           </section>
 
           <section style={card}>
-            <div style={sectionHead}>
-              <div style={{ fontWeight: 950 }}>Logs</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>Audit trail starts here</div>
-            </div>
-
+            <SectionLabel
+              title="Logs"
+              subtitle="Audit trail and operator activity history."
+            />
             <pre style={logBox}>{run.logs.length ? run.logs.join("\n") : "Loading…"}</pre>
           </section>
 
           {showPayload ? (
             <section style={card}>
-              <div style={sectionHead}>
-                <div style={{ fontWeight: 950 }}>Last request/response</div>
-                <div style={{ fontSize: 12, opacity: 0.75 }}>Debug + audit visibility</div>
-              </div>
+              <SectionLabel
+                title="Last request / response"
+                subtitle="Debug and audit visibility for the current run."
+              />
 
-              <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
+              <div style={sectionStack}>
                 <div style={miniCard}>
-                  <div style={{ fontWeight: 900, marginBottom: 8 }}>Request</div>
-                  <pre style={payloadBox}>{JSON.stringify(run.lastRequest ?? null, null, 2)}</pre>
+                  <div style={subCardTitle}>Request</div>
+                  <pre style={payloadBox}>
+                    {JSON.stringify(run.lastRequest ?? null, null, 2)}
+                  </pre>
                 </div>
 
                 <div style={miniCard}>
-                  <div style={{ fontWeight: 900, marginBottom: 8 }}>Response</div>
-                  <pre style={payloadBox}>{JSON.stringify(run.lastResponse ?? null, null, 2)}</pre>
+                  <div style={subCardTitle}>Response</div>
+                  <pre style={payloadBox}>
+                    {JSON.stringify(run.lastResponse ?? null, null, 2)}
+                  </pre>
                 </div>
 
                 <div style={miniCard}>
-                  <div style={{ fontWeight: 900, marginBottom: 8 }}>Checkpoint response (last)</div>
-                  <pre style={payloadBox}>{JSON.stringify(lastCheckpointResp ?? null, null, 2)}</pre>
+                  <div style={subCardTitle}>Checkpoint response (last)</div>
+                  <pre style={payloadBox}>
+                    {JSON.stringify(lastCheckpointResp ?? null, null, 2)}
+                  </pre>
                 </div>
               </div>
             </section>
@@ -1936,21 +2151,15 @@ export default function OperatorPage() {
         </div>
 
         <div style={footnote}>
-          Non-negotiable: AI must be optional. Operator must never block browsing/editing even if AI is slow/offline/broken.
+          Non-negotiable: AI must be optional. Operator must never block browsing
+          or editing even if AI is slow, offline, or broken.
         </div>
       </div>
     </main>
   );
 }
 
-function Pill(props: { label: string; value: string }) {
-  return (
-    <div style={pill}>
-      <div style={{ fontSize: 11, opacity: 0.75 }}>{props.label}</div>
-      <div style={{ fontWeight: 950 }}>{props.value}</div>
-    </div>
-  );
-}
+/* ---------------- styles ---------------- */
 
 const page: CSSProperties = {
   minHeight: "100vh",
@@ -1961,12 +2170,12 @@ const page: CSSProperties = {
     "linear-gradient(180deg, #070A12 0%, #050710 100%)",
   color: "white",
   fontFamily:
-    'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
+    'var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
 };
 
 const shell: CSSProperties = {
   width: "100%",
-  maxWidth: 1100,
+  maxWidth: 1180,
   margin: "0 auto",
   display: "grid",
   gap: 16,
@@ -1975,9 +2184,20 @@ const shell: CSSProperties = {
 const topRow: CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "center",
+  alignItems: "flex-start",
   gap: 12,
   flexWrap: "wrap",
+};
+
+const navCluster: CSSProperties = {
+  display: "flex",
+  gap: 12,
+  alignItems: "center",
+  flexWrap: "wrap",
+};
+
+const navDot: CSSProperties = {
+  opacity: 0.55,
 };
 
 const navLink: CSSProperties = {
@@ -1986,42 +2206,177 @@ const navLink: CSSProperties = {
   fontWeight: 950,
 };
 
-const phasePill: CSSProperties = {
-  padding: "8px 10px",
-  borderRadius: 999,
+const phasePillBase: CSSProperties = {
+  padding: "10px 12px",
+  borderRadius: 18,
   border: "1px solid rgba(255,255,255,0.14)",
-  background: "rgba(255,255,255,0.05)",
   display: "grid",
-  gap: 2,
-  minWidth: 260,
+  gap: 4,
+  minWidth: 280,
+  maxWidth: 360,
+};
+
+const phasePillNeutral: CSSProperties = {
+  background: "rgba(255,255,255,0.05)",
+};
+
+const phasePillActive: CSSProperties = {
+  background: "rgba(245,158,11,0.12)",
+  border: "1px solid rgba(245,158,11,0.28)",
+};
+
+const phasePillSuccess: CSSProperties = {
+  background: "rgba(16,185,129,0.12)",
+  border: "1px solid rgba(16,185,129,0.28)",
+};
+
+const phasePillDanger: CSSProperties = {
+  background: "rgba(239,68,68,0.12)",
+  border: "1px solid rgba(239,68,68,0.28)",
+};
+
+const phasePillLabel: CSSProperties = {
+  fontSize: 11,
+  opacity: 0.72,
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+  fontWeight: 900,
+};
+
+const phasePillValue: CSSProperties = {
+  fontWeight: 950,
+  fontSize: 16,
+};
+
+const phasePillMeta: CSSProperties = {
+  marginTop: 2,
+  fontSize: 12,
+  opacity: 0.84,
+  lineHeight: 1.45,
+};
+
+const phasePillSubline: CSSProperties = {
+  opacity: 0.75,
+};
+
+const heroCard: CSSProperties = {
+  borderRadius: 20,
+  border: "1px solid rgba(255,255,255,0.12)",
+  background:
+    "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))",
+  boxShadow: "0 30px 100px rgba(0,0,0,0.45)",
+  padding: 18,
+  overflow: "hidden",
+};
+
+const heroGrid: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1.3fr) minmax(260px, 0.85fr)",
+  gap: 16,
+  alignItems: "start",
+};
+
+const heroMain: CSSProperties = {
+  display: "grid",
+  gap: 12,
+};
+
+const heroEyebrow: CSSProperties = {
+  fontSize: 12,
+  fontWeight: 900,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  opacity: 0.74,
 };
 
 const title: CSSProperties = {
   margin: 0,
-  fontSize: "clamp(28px, 4vw, 42px)",
-  letterSpacing: -0.6,
+  fontSize: "clamp(30px, 4vw, 46px)",
+  letterSpacing: -0.8,
+  lineHeight: 1.02,
 };
 
 const subtitle: CSSProperties = {
   margin: 0,
-  opacity: 0.85,
-  lineHeight: 1.6,
+  opacity: 0.88,
+  lineHeight: 1.65,
   maxWidth: 920,
+  fontSize: 15,
+};
+
+const heroActions: CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  alignItems: "center",
+};
+
+const heroSupportText: CSSProperties = {
+  fontSize: 13,
+  lineHeight: 1.6,
+  opacity: 0.78,
+};
+
+const heroStats: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: 10,
+};
+
+const statBadge: CSSProperties = {
+  padding: 12,
+  borderRadius: 14,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(255,255,255,0.04)",
+  display: "grid",
+  gap: 4,
+};
+
+const statBadgeLabel: CSSProperties = {
+  fontSize: 11,
+  opacity: 0.7,
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+  fontWeight: 900,
+};
+
+const statBadgeValue: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 900,
+  wordBreak: "break-word",
 };
 
 const card: CSSProperties = {
   borderRadius: 18,
   border: "1px solid rgba(255,255,255,0.12)",
-  background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))",
+  background:
+    "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))",
   boxShadow: "0 30px 100px rgba(0,0,0,0.45)",
   padding: 16,
   overflow: "hidden",
+};
+
+const sectionTitleWrap: CSSProperties = {
+  display: "grid",
+  gap: 4,
+};
+
+const sectionTitle: CSSProperties = {
+  fontWeight: 950,
+  fontSize: 18,
+};
+
+const sectionSubtitle: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.76,
+  lineHeight: 1.5,
 };
 
 const grid2: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
   gap: 12,
+  marginTop: 14,
 };
 
 const field: CSSProperties = {
@@ -2055,12 +2410,340 @@ const input: CSSProperties = {
   outline: "none",
 };
 
+const actionSection: CSSProperties = {
+  marginTop: 14,
+  display: "grid",
+  gap: 8,
+};
+
+const actionGroupLabel: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.76,
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+  fontWeight: 900,
+};
+
 const actions: CSSProperties = {
   display: "flex",
   gap: 10,
   flexWrap: "wrap",
   alignItems: "center",
+};
+
+const inlineStatusRow: CSSProperties = {
+  marginTop: 14,
+  display: "flex",
+  gap: 16,
+  flexWrap: "wrap",
+};
+
+const inlineStatusText: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.82,
+  lineHeight: 1.5,
+};
+
+const checkpointHeaderRow: CSSProperties = {
   marginTop: 12,
+  display: "flex",
+  gap: 10,
+  justifyContent: "space-between",
+  alignItems: "center",
+  flexWrap: "wrap",
+};
+
+const checkpointStatusTextStyle: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.82,
+};
+
+const checkpointDirText: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.76,
+};
+
+const checkpointControls: CSSProperties = {
+  marginTop: 12,
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  alignItems: "end",
+};
+
+const checkpointField: CSSProperties = {
+  display: "grid",
+  gap: 6,
+  minWidth: 360,
+  flex: 1,
+};
+
+const checkpointFieldLabel: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.8,
+};
+
+const noticeBase: CSSProperties = {
+  marginTop: 10,
+  padding: "12px 14px",
+  borderRadius: 14,
+  fontSize: 12,
+  lineHeight: 1.5,
+};
+
+const noticeInfo: CSSProperties = {
+  ...noticeBase,
+  border: "1px solid rgba(148,163,184,0.24)",
+  background: "rgba(15,23,42,0.28)",
+  color: "rgba(226,232,240,0.96)",
+};
+
+const noticeSuccess: CSSProperties = {
+  ...noticeBase,
+  border: "1px solid rgba(16,185,129,0.28)",
+  background: "rgba(6,78,59,0.18)",
+  color: "rgba(209,250,229,0.96)",
+};
+
+const noticeDanger: CSSProperties = {
+  ...noticeBase,
+  border: "1px solid rgba(239,68,68,0.28)",
+  background: "rgba(127,29,29,0.18)",
+  color: "rgba(254,226,226,0.96)",
+};
+
+const errorBanner = getNoticeStyle("danger");
+
+const snapshotMetaRow: CSSProperties = {
+  marginTop: 14,
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gap: 10,
+};
+
+const hintText: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.75,
+  lineHeight: 1.5,
+};
+
+const repoBrowserToolbar: CSSProperties = {
+  marginTop: 14,
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  alignItems: "end",
+};
+
+const searchField: CSSProperties = {
+  display: "grid",
+  gap: 6,
+  minWidth: 260,
+  flex: 1,
+};
+
+const repoBrowserGrid: CSSProperties = {
+  marginTop: 14,
+  display: "grid",
+  gridTemplateColumns: "minmax(280px, 0.9fr) minmax(0, 1.2fr)",
+  gap: 12,
+};
+
+const listPanelHeader: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 10,
+  alignItems: "center",
+  marginBottom: 8,
+};
+
+const listPanelTitle: CSSProperties = {
+  fontWeight: 900,
+};
+
+const listPanelMeta: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.72,
+};
+
+const fileList: CSSProperties = {
+  display: "grid",
+  gap: 6,
+};
+
+const fileRowButton: CSSProperties = {
+  padding: "8px 10px",
+  borderRadius: 10,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(255,255,255,0.04)",
+  color: "white",
+  textAlign: "left",
+  cursor: "pointer",
+  display: "grid",
+  gap: 4,
+};
+
+const fileRowButtonActive: CSSProperties = {
+  background: "rgba(99,102,241,0.22)",
+  border: "1px solid rgba(99,102,241,0.30)",
+};
+
+const fileRowTitle: CSSProperties = {
+  fontWeight: 850,
+  fontSize: 12,
+  wordBreak: "break-word",
+};
+
+const fileRowMeta: CSSProperties = {
+  fontSize: 11,
+  opacity: 0.7,
+};
+
+const capNote: CSSProperties = {
+  marginTop: 8,
+  fontSize: 11,
+  opacity: 0.7,
+};
+
+const viewerHeader: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 10,
+  flexWrap: "wrap",
+  alignItems: "center",
+};
+
+const viewerMetaTextStyle: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.75,
+  wordBreak: "break-word",
+};
+
+const contentGrid: CSSProperties = {
+  display: "grid",
+  gap: 14,
+};
+
+const sectionStack: CSSProperties = {
+  marginTop: 12,
+  display: "grid",
+  gap: 12,
+};
+
+const miniCard: CSSProperties = {
+  padding: 12,
+  borderRadius: 14,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(255,255,255,0.04)",
+  display: "grid",
+  gap: 8,
+};
+
+const subCardHeader: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 10,
+  flexWrap: "wrap",
+  alignItems: "center",
+};
+
+const subCardTitle: CSSProperties = {
+  fontWeight: 900,
+};
+
+const subCardMeta: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.75,
+};
+
+const orderedList: CSSProperties = {
+  margin: 0,
+  paddingLeft: 18,
+  lineHeight: 1.6,
+};
+
+const constraintBlock: CSSProperties = {
+  marginTop: 6,
+  display: "grid",
+  gap: 10,
+};
+
+const riskBlock: CSSProperties = {
+  marginTop: 4,
+  display: "grid",
+  gap: 6,
+};
+
+const plannedFilesBlock: CSSProperties = {
+  marginTop: 4,
+  display: "grid",
+  gap: 8,
+};
+
+const microTitle: CSSProperties = {
+  fontWeight: 850,
+  fontSize: 12,
+  opacity: 0.9,
+};
+
+const microCopy: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.86,
+  lineHeight: 1.5,
+};
+
+const compactList: CSSProperties = {
+  marginTop: 2,
+  marginBottom: 0,
+  paddingLeft: 18,
+  fontSize: 12,
+  opacity: 0.9,
+  lineHeight: 1.5,
+};
+
+const pillRow: CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const plannedFileGrid: CSSProperties = {
+  display: "grid",
+  gap: 8,
+};
+
+const plannedFileCard: CSSProperties = {
+  padding: 10,
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(0,0,0,0.18)",
+  display: "grid",
+  gap: 6,
+};
+
+const plannedFilePath: CSSProperties = {
+  fontWeight: 900,
+  fontSize: 12,
+  wordBreak: "break-word",
+};
+
+const plannedFileReason: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.85,
+  lineHeight: 1.5,
+};
+
+const supplementBlock: CSSProperties = {
+  marginTop: 12,
+  display: "grid",
+  gap: 6,
+};
+
+const emptyInlineText: CSSProperties = {
+  marginTop: 10,
+  fontSize: 12,
+  opacity: 0.8,
+  lineHeight: 1.5,
 };
 
 const btnBase: CSSProperties = {
@@ -2091,26 +2774,11 @@ const dangerBtn: CSSProperties = {
   color: "white",
 };
 
-const split: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "1fr",
-  gap: 14,
-};
-
-const sectionHead: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "baseline",
-  gap: 10,
-};
-
-const miniCard: CSSProperties = {
-  padding: 12,
-  borderRadius: 14,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-  display: "grid",
-  gap: 8,
+const miniGhostBtn: CSSProperties = {
+  ...ghostBtn,
+  padding: "6px 10px",
+  borderRadius: 12,
+  fontSize: 12,
 };
 
 const codeBox: CSSProperties = {
@@ -2132,7 +2800,7 @@ const logBox: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.10)",
   background: "rgba(0,0,0,0.25)",
   color: "rgba(255,255,255,0.92)",
-  minHeight: 180,
+  minHeight: 200,
   whiteSpace: "pre-wrap",
   fontSize: 12,
   lineHeight: 1.55,
@@ -2156,6 +2824,7 @@ const footnote: CSSProperties = {
   fontSize: 12,
   opacity: 0.7,
   marginTop: 2,
+  lineHeight: 1.55,
 };
 
 const pill: CSSProperties = {
@@ -2165,4 +2834,13 @@ const pill: CSSProperties = {
   background: "rgba(255,255,255,0.05)",
   display: "grid",
   gap: 2,
+};
+
+const pillLabel: CSSProperties = {
+  fontSize: 11,
+  opacity: 0.75,
+};
+
+const pillValue: CSSProperties = {
+  fontWeight: 950,
 };

@@ -55,6 +55,25 @@ type LegacyStats = {
   countWithAnyMetric: number;
 };
 
+type ActivityTotals = {
+  total: number;
+  visible: number;
+  notes: number;
+  tagged: number;
+  latestDate: string;
+};
+
+type HeroStatus = {
+  label: string;
+  value: string;
+};
+
+const MAX_VISIBLE_ENTRIES = 100;
+
+/* =========================
+   helpers
+========================= */
+
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
@@ -157,9 +176,7 @@ function makeToastMessage(prefix: string, msg: string) {
   return `${prefix}${prefix ? ": " : ""}${safeTrim(clean, 180)}`;
 }
 
-function normalizeCategory(
-  value: unknown
-): ActivityEntry["category"] {
+function normalizeCategory(value: unknown): ActivityEntry["category"] {
   return value === "note" ||
     value === "plan" ||
     value === "task" ||
@@ -172,9 +189,7 @@ function normalizeCategory(
     : "note";
 }
 
-function normalizeStatus(
-  value: unknown
-): ActivityEntry["status"] {
+function normalizeStatus(value: unknown): ActivityEntry["status"] {
   return value === "idea" ||
     value === "active" ||
     value === "done" ||
@@ -284,7 +299,7 @@ function spark(values: number[], width = 24) {
   const span = maxV - minV || 1;
 
   const sampled: number[] = [];
-  for (let i = 0; i < width; i++) {
+  for (let i = 0; i < width; i += 1) {
     const idx = Math.floor((i / (width - 1)) * (values.length - 1));
     sampled.push(values[idx]);
   }
@@ -322,7 +337,13 @@ function computeLegacyStats(entriesNewestFirst: ActivityEntry[]): LegacyStats {
   const sleep30 = last30.map((e) => e.sleep).filter(isNum);
 
   const countWithAnyMetric = last7.filter((e) => {
-    return isNum(e.weight) || isNum(e.steps) || isNum(e.water) || isNum(e.sleep) || !!e.notes;
+    return (
+      isNum(e.weight) ||
+      isNum(e.steps) ||
+      isNum(e.water) ||
+      isNum(e.sleep) ||
+      !!e.notes
+    );
   }).length;
 
   return {
@@ -547,6 +568,56 @@ async function persistEntriesBestEffort(next: ActivityEntry[]): Promise<PersistR
   }
 }
 
+function getActivityTotals(
+  entries: ActivityEntry[],
+  filteredEntries: ActivityEntry[]
+): ActivityTotals {
+  const latestDate = entries.slice().sort(compareByDateDesc)[0]?.date ?? "—";
+
+  return {
+    total: entries.length,
+    visible: filteredEntries.length,
+    notes: entries.filter((entry) => !!entry.notes?.trim()).length,
+    tagged: entries.filter((entry) => (entry.tags?.length ?? 0) > 0).length,
+    latestDate,
+  };
+}
+
+function getHeroStatuses(
+  categoryCounts: Record<string, number>,
+  quickFacts: LegacySignals
+): HeroStatus[] {
+  return [
+    {
+      label: "Primary role",
+      value: "Workspace activity log",
+    },
+    {
+      label: "AI policy",
+      value: "Optional, never blocking",
+    },
+    {
+      label: "Latest metric trend",
+      value:
+        quickFacts.weightTrend === "flat"
+          ? "Stable"
+          : quickFacts.weightTrend === "up"
+            ? "Rising"
+            : quickFacts.weightTrend === "down"
+              ? "Falling"
+              : "Insufficient data",
+    },
+    {
+      label: "Migration state",
+      value: categoryCounts["legacy-health"] ? "Legacy data present" : "CodexForge-first",
+    },
+  ];
+}
+
+/* =========================
+   page
+========================= */
+
 export default function HistoryPage() {
   const [mounted, setMounted] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
@@ -638,6 +709,11 @@ export default function HistoryPage() {
     return list;
   }, [entries, query, sortMode, rangeMode, categoryMode]);
 
+  const visibleEntries = useMemo(
+    () => filteredEntries.slice(0, MAX_VISIBLE_ENTRIES),
+    [filteredEntries]
+  );
+
   const categoryCounts = useMemo(() => {
     return entries.reduce<Record<string, number>>((acc, entry) => {
       acc[entry.category] = (acc[entry.category] ?? 0) + 1;
@@ -645,17 +721,36 @@ export default function HistoryPage() {
     }, {});
   }, [entries]);
 
-  const notesCount = useMemo(
-    () => entries.filter((e) => !!e.notes?.trim()).length,
-    [entries]
+  const quickFacts = useMemo(() => getLegacySignals(sortedEntries), [sortedEntries]);
+  const totals = useMemo(
+    () => getActivityTotals(entries, filteredEntries),
+    [entries, filteredEntries]
+  );
+  const heroStatuses = useMemo(
+    () => getHeroStatuses(categoryCounts, quickFacts),
+    [categoryCounts, quickFacts]
   );
 
-  const quickFacts = useMemo(() => getLegacySignals(sortedEntries), [sortedEntries]);
-
-  const weightsForSpark = legacyStats.last30.slice().reverse().map((e) => e.weight).filter(isNum);
-  const stepsForSpark = legacyStats.last30.slice().reverse().map((e) => e.steps).filter(isNum);
-  const waterForSpark = legacyStats.last30.slice().reverse().map((e) => e.water).filter(isNum);
-  const sleepForSpark = legacyStats.last30.slice().reverse().map((e) => e.sleep).filter(isNum);
+  const weightsForSpark = legacyStats.last30
+    .slice()
+    .reverse()
+    .map((e) => e.weight)
+    .filter(isNum);
+  const stepsForSpark = legacyStats.last30
+    .slice()
+    .reverse()
+    .map((e) => e.steps)
+    .filter(isNum);
+  const waterForSpark = legacyStats.last30
+    .slice()
+    .reverse()
+    .map((e) => e.water)
+    .filter(isNum);
+  const sleepForSpark = legacyStats.last30
+    .slice()
+    .reverse()
+    .map((e) => e.sleep)
+    .filter(isNum);
 
   function onReload() {
     setReloadTick((x) => x + 1);
@@ -720,7 +815,6 @@ export default function HistoryPage() {
       const normalized = parsed.map((x: unknown, idx: number) => normalizeEntry(x, idx));
 
       saveEntries(normalized);
-
       setAi({ kind: "idle" });
       setReloadTick((x) => x + 1);
       showToast("ok", `Imported ${normalized.length} entries.`);
@@ -902,39 +996,19 @@ export default function HistoryPage() {
           </div>
 
           <div style={heroPills}>
-            <StatPill label="Entries" value={formatNum(entries.length)} />
-            <StatPill label="Visible" value={formatNum(filteredEntries.length)} />
-            <StatPill label="Latest" value={latest?.date ?? "—"} />
-            <StatPill label="Notes" value={formatNum(notesCount)} />
+            <StatPill label="Entries" value={formatNum(totals.total)} />
+            <StatPill label="Visible" value={formatNum(totals.visible)} />
+            <StatPill label="Tagged" value={formatNum(totals.tagged)} />
+            <StatPill label="Latest" value={totals.latestDate} />
           </div>
 
           <div style={heroMetaRow}>
-            <div style={heroMetaCard}>
-              <div style={heroMetaLabel}>Primary role</div>
-              <div style={heroMetaValue}>Workspace activity log</div>
-            </div>
-            <div style={heroMetaCard}>
-              <div style={heroMetaLabel}>AI policy</div>
-              <div style={heroMetaValue}>Optional, never blocking</div>
-            </div>
-            <div style={heroMetaCard}>
-              <div style={heroMetaLabel}>Latest metric trend</div>
-              <div style={heroMetaValue}>
-                {quickFacts.weightTrend === "flat"
-                  ? "Stable"
-                  : quickFacts.weightTrend === "up"
-                    ? "Rising"
-                    : quickFacts.weightTrend === "down"
-                      ? "Falling"
-                      : "Insufficient data"}
+            {heroStatuses.map((item) => (
+              <div key={item.label} style={heroMetaCard}>
+                <div style={heroMetaLabel}>{item.label}</div>
+                <div style={heroMetaValue}>{item.value}</div>
               </div>
-            </div>
-            <div style={heroMetaCard}>
-              <div style={heroMetaLabel}>Migration state</div>
-              <div style={heroMetaValue}>
-                {categoryCounts["legacy-health"] ? "Legacy data present" : "CodexForge-first"}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -987,6 +1061,13 @@ export default function HistoryPage() {
               Reset filters
             </button>
           </div>
+
+          <div style={filterSummary}>
+            <span style={metaChip}>Showing {visibleEntries.length} of {filteredEntries.length}</span>
+            <span style={metaChip}>Sort: {sortMode}</span>
+            <span style={metaChip}>Range: {rangeMode}</span>
+            <span style={metaChip}>Category: {categoryMode}</span>
+          </div>
         </section>
 
         <section style={card}>
@@ -1036,7 +1117,9 @@ export default function HistoryPage() {
             <div style={sectionHead}>
               <div>
                 <div style={sectionTitle}>Activity entries</div>
-                <div style={sectionSub}>Showing up to 100 entries after filtering.</div>
+                <div style={sectionSub}>
+                  Showing up to {MAX_VISIBLE_ENTRIES} entries after filtering.
+                </div>
               </div>
             </div>
 
@@ -1052,7 +1135,7 @@ export default function HistoryPage() {
               </div>
             ) : (
               <div style={entriesList}>
-                {filteredEntries.slice(0, 100).map((entry) => (
+                {visibleEntries.map((entry) => (
                   <div key={entry.id} style={row}>
                     <div style={rowTop}>
                       <div style={{ display: "grid", gap: 6 }}>
@@ -1093,7 +1176,7 @@ export default function HistoryPage() {
                       <Metric label="Steps" value={isNum(entry.steps) ? formatNum(entry.steps) : "—"} />
                     </div>
 
-                    {(isNum(entry.water) || isNum(entry.sleep)) ? (
+                    {isNum(entry.water) || isNum(entry.sleep) ? (
                       <div style={metricGridSecondary}>
                         <Metric label="Water" value={isNum(entry.water) ? `${entry.water} L` : "—"} />
                         <Metric label="Sleep" value={isNum(entry.sleep) ? `${entry.sleep} h` : "—"} />
@@ -1103,6 +1186,12 @@ export default function HistoryPage() {
                     {entry.notes ? <div style={notesBox}>{entry.notes}</div> : null}
                   </div>
                 ))}
+
+                {filteredEntries.length > MAX_VISIBLE_ENTRIES ? (
+                  <div style={resultCapNote}>
+                    Showing the first {MAX_VISIBLE_ENTRIES} matching entries. Narrow your filters to inspect more precisely.
+                  </div>
+                ) : null}
               </div>
             )}
           </section>
@@ -1182,6 +1271,10 @@ export default function HistoryPage() {
   );
 }
 
+/* =========================
+   subcomponents
+========================= */
+
 function StatPill(props: { label: string; value: string }) {
   return (
     <div style={pill}>
@@ -1235,6 +1328,10 @@ function Metric(props: { label: string; value: string; title?: string }) {
   );
 }
 
+/* =========================
+   styles
+========================= */
+
 const page: React.CSSProperties = {
   minHeight: "100vh",
   padding: "clamp(16px, 4vw, 40px)",
@@ -1244,7 +1341,7 @@ const page: React.CSSProperties = {
     "linear-gradient(180deg, #070A12 0%, #050710 100%)",
   color: "white",
   fontFamily:
-    'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
+    'var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
 };
 
 const shell: React.CSSProperties = {
@@ -1405,6 +1502,13 @@ const toolbarGrid: React.CSSProperties = {
   gridTemplateColumns: "minmax(240px, 1fr) auto auto auto auto",
   gap: 10,
   alignItems: "center",
+};
+
+const filterSummary: React.CSSProperties = {
+  marginTop: 12,
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
 };
 
 const statsGrid: React.CSSProperties = {
@@ -1568,6 +1672,15 @@ const footnote: React.CSSProperties = {
   lineHeight: 1.5,
 };
 
+const resultCapNote: React.CSSProperties = {
+  padding: 12,
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(255,255,255,0.03)",
+  fontSize: 12,
+  opacity: 0.8,
+};
+
 const btnBase: React.CSSProperties = {
   padding: "10px 14px",
   borderRadius: 14,
@@ -1672,7 +1785,7 @@ const chipValue: React.CSSProperties = {
 
 const sparkBox: React.CSSProperties = {
   marginTop: 10,
-  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+  fontFamily: 'var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
 };
 
 const sparkLabel: React.CSSProperties = {
