@@ -5,6 +5,7 @@ import {
 } from "@/lib/codexforge/brain";
 import type { CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph/types";
 import { toCodexForgeChatMeta } from "@/lib/codexforge/brain/types";
+import { selectCodexForgeAgentTeam } from "@/lib/codexforge/agents";
 import { getCodexForgeServerEngineDependencies } from "@/lib/codexforge/chat/dependencies.server";
 import type {
   CodexForgeChatContext,
@@ -2248,6 +2249,13 @@ export async function POST(req: Request) {
     const graphDiagnostics = buildGraphDiagnostics(context, graphContext);
     const fileIntent = extractFileIntentDiagnostics(lastUser.text);
     const capabilityRouting = detectCapabilityRouting(lastUser.text, context);
+    const agentTeam = selectCodexForgeAgentTeam({
+      domain: capabilityRouting.domain,
+      tags: capabilityRouting.tags,
+      explicitFileRequest: fileIntent.explicitFileRequest,
+      requestedPaths: fileIntent.requestedPaths,
+      requestedVerbs: fileIntent.requestedVerbs,
+    });
 
     const groundedDiagnostics = buildGroundedDiagnostics(
       messages,
@@ -2327,6 +2335,12 @@ export async function POST(req: Request) {
       capabilityTags: capabilityRouting.tags,
       capabilityMatched: capabilityRouting.matched,
       capabilityReasons: capabilityRouting.reasons,
+      agentPrimaryRole: agentTeam.primaryRole.id,
+      agentSupportRoles: agentTeam.supportRoles.map((role) => role.id),
+      agentReviewRoles: agentTeam.reviewRoles.map((role) => role.id),
+      agentAllowedTools: agentTeam.allowedTools.map((policy) => policy.tool),
+      agentApprovalRequiredTools: agentTeam.approvalRequiredTools.map((policy) => policy.tool),
+      agentBlockedTools: agentTeam.blockedTools.map((policy) => policy.tool),
       groundedPrimaryFile: groundedDiagnostics.primaryFile ?? null,
       groundedSupportingFiles: groundedDiagnostics.supportingFiles,
       groundedSignals: groundedDiagnostics.fileSignals,
@@ -2453,6 +2467,12 @@ export async function POST(req: Request) {
       capabilityDomain: capabilityRouting.domain,
       capabilityTags: capabilityRouting.tags,
       capabilityMatched: capabilityRouting.matched,
+      agentPrimaryRole: agentTeam.primaryRole.id,
+      agentSupportRoleCount: agentTeam.supportRoles.length,
+      agentReviewRoleCount: agentTeam.reviewRoles.length,
+      agentAllowedToolCount: agentTeam.allowedTools.length,
+      agentApprovalRequiredToolCount: agentTeam.approvalRequiredTools.length,
+      agentBlockedToolCount: agentTeam.blockedTools.length,
       groundedPrimaryFile: groundedDiagnostics.primaryFile ?? null,
       groundedSupportingFileCount: groundedDiagnostics.supportingFiles.length,
       groundedSignalCount: groundedDiagnostics.fileSignals.length,
@@ -2479,6 +2499,12 @@ export async function POST(req: Request) {
         "x-codexforge-capability-domain": capabilityRouting.domain,
         "x-codexforge-capability-matched": boolHeader(capabilityRouting.matched),
         "x-codexforge-capability-tags": capabilityRouting.tags.join(","),
+        "x-codexforge-agent-primary-role": agentTeam.primaryRole.id,
+        "x-codexforge-agent-support-roles": agentTeam.supportRoles.map((role) => role.id).join(","),
+        "x-codexforge-agent-review-roles": agentTeam.reviewRoles.map((role) => role.id).join(","),
+        "x-codexforge-agent-allowed-tools": agentTeam.allowedTools.map((policy) => policy.tool).join(","),
+        "x-codexforge-agent-approval-tools": agentTeam.approvalRequiredTools.map((policy) => policy.tool).join(","),
+        "x-codexforge-agent-blocked-tools": agentTeam.blockedTools.map((policy) => policy.tool).join(","),
         "x-codexforge-generated-plan": boolHeader(
           successResponse.meta?.generatedPlan === true
         ),
@@ -2533,6 +2559,10 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
+
+
+
 
 
 
