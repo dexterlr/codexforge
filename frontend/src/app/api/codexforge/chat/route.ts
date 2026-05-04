@@ -2632,11 +2632,26 @@ export async function POST(req: Request) {
           enrichedContext.mode ??
           mapRouteModeToChatMode(resolvedMode);
 
+    const decoratedStructured = attachAgentTeamToStructuredReply(
+      response.structured ?? undefined,
+      agentTeamSummary,
+      capabilityRouting
+    );
+
+    const decoratedText = decoratedStructured
+      ? structuredToText(decoratedStructured)
+      : response.text;
+
+    const decoratedDomain =
+      decoratedStructured?.domain ??
+      decoratedStructured?.plan?.domain ??
+      agentTeamSummary.domain ??
+      capabilityRouting.domain;
     const resolvedDomain = resolveResponseDomain({
       fileIntent,
       responseDomain: response.meta.domain,
-      structuredDomain: response.structured?.domain,
-      structuredPlanDomain: response.structured?.plan?.domain,
+      structuredDomain: decoratedDomain,
+      structuredPlanDomain: decoratedStructured?.plan?.domain ?? decoratedDomain,
       activePlanDomain: enrichedContext.activePlan?.domain,
       capabilityDomain: capabilityRouting.domain,
     });
@@ -2663,17 +2678,7 @@ export async function POST(req: Request) {
       model: response.meta.model || MODEL_NAME,
     });
 
-    const decoratedStructured = attachAgentTeamToStructuredReply(
-      response.structured ?? undefined,
-      agentTeamSummary,
-      capabilityRouting
-    );
-
-    const decoratedText = decoratedStructured
-      ? structuredToText(decoratedStructured)
-      : response.text;
-
-    const successResponse: CodexForgeChatSuccessResponse = {
+const successResponse: CodexForgeChatSuccessResponse = {
       ok: true,
       reply: {
         id: uid(),
@@ -2740,7 +2745,7 @@ export async function POST(req: Request) {
         ),
         "x-codexforge-chat-mode": resolvedChatMode,
         "x-codexforge-warning-count": String(mergedWarnings.length),
-        "x-codexforge-domain": successResponse.meta?.domain ?? "general",
+        "x-codexforge-domain": decoratedDomain,
         "x-codexforge-capability-domain": capabilityRouting.domain,
         "x-codexforge-capability-matched": boolHeader(capabilityRouting.matched),
         "x-codexforge-capability-tags": capabilityRouting.tags.join(","),
@@ -2804,6 +2809,9 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
+
+
 
 
 
