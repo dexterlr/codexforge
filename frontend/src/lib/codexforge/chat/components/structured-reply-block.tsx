@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import * as styles from "@/lib/codexforge/chat/client-styles";
 import {
   getDiffMeta,
@@ -168,6 +168,42 @@ function clampPatchForPreview(patch: string, maxLines = 180): string {
   } more line${lines.length - maxLines === 1 ? "" : "s"}`;
 }
 
+function normalizeTitleKey(value: string): string {
+  return value.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function isGroundingSection(section: CodexForgeStructuredSection): boolean {
+  const title = normalizeTitleKey(section.title);
+
+  return (
+    title === "best edit target" ||
+    title === "next action" ||
+    title === "grounded recommendation" ||
+    title === "recommended next action" ||
+    title === "tool audit" ||
+    title.startsWith("auto inspection:") ||
+    title.startsWith("follow-up inspection:")
+  );
+}
+
+function getGroundingSections(
+  sections?: CodexForgeStructuredSection[] | null
+): CodexForgeStructuredSection[] {
+  if (!Array.isArray(sections)) return [];
+  return sections.filter(isGroundingSection);
+}
+
+function getNonGroundingSections(
+  sections?: CodexForgeStructuredSection[] | null
+): CodexForgeStructuredSection[] {
+  if (!Array.isArray(sections)) return [];
+  return sections.filter((section) => !isGroundingSection(section));
+}
+
+function getReadyToolCount(tools?: CodexForgeStructuredTool[] | null): number {
+  if (!Array.isArray(tools)) return 0;
+  return tools.filter((tool) => tool.availability === "ready").length;
+}
 /* ================= SMALL UI PIECES ================= */
 
 function MetaChip({ children }: { children: React.ReactNode }) {
@@ -650,38 +686,90 @@ function PlanSection({
   );
 }
 
-function ToolsSection({
-  tools,
+function GroundingSection({
+  structured,
 }: {
-  tools?: CodexForgeStructuredTool[] | null;
+  structured?: CodexForgeStructuredReply | null;
 }) {
-  if (!tools || tools.length === 0) return null;
+  const groundingSections = getGroundingSections(structured?.sections);
+  const tools = Array.isArray(structured?.tools) ? structured.tools : [];
+  const readyToolCount = getReadyToolCount(tools);
+
+  if (groundingSections.length === 0 && tools.length === 0) return null;
 
   return (
-    <StructuredCard title="Recommended tools">
-      <div style={styles.toolGrid}>
-        {tools.map((tool) => (
-          <div key={tool.name} style={styles.toolCard}>
-            <div style={styles.toolHeader}>
-              <div style={styles.toolName}>{tool.name}</div>
-              <span
-                style={{
-                  ...styles.toolBadgeBase,
-                  ...getToolAvailabilityStyle(tool),
-                }}
-              >
-                {getToolAvailabilityLabel(tool)}
-              </span>
-            </div>
+    <StructuredCard title="Grounding and inspection">
+      <div style={groundingHero}>
+        <div style={groundingHeroText}>
+          Repository-aware evidence, inspection notes, and tool availability used
+          to shape this response.
+        </div>
 
-            <div style={styles.toolDescription}>{tool.description}</div>
-          </div>
-        ))}
+        <div style={approvalHeroStats}>
+          {groundingSections.length > 0 ? (
+            <StatChip>{plural(groundingSections.length, "grounding section")}</StatChip>
+          ) : null}
+          {tools.length > 0 ? <StatChip>{plural(tools.length, "tool")}</StatChip> : null}
+          {readyToolCount > 0 ? (
+            <StatChip>{plural(readyToolCount, "ready tool")}</StatChip>
+          ) : null}
+        </div>
       </div>
+
+      {groundingSections.length > 0 ? (
+        <div style={groundingSectionGrid}>
+          {groundingSections.map((section, index) => (
+            <div key={getSectionKey(section, index)} style={groundingSectionCard}>
+              <div style={groundingSectionTitle}>{section.title}</div>
+              <BulletList items={normalizeStringArray(section.items)} />
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {tools.length > 0 ? (
+        <div style={{ marginTop: groundingSections.length > 0 ? 12 : 0 }}>
+          <ToolsSection tools={tools} compact />
+        </div>
+      ) : null}
     </StructuredCard>
   );
 }
+function ToolsSection({
+  tools,
+  compact = false,
+}: {
+  tools?: CodexForgeStructuredTool[] | null;
+  compact?: boolean;
+}) {
+  if (!tools || tools.length === 0) return null;
 
+  const content = (
+    <div style={compact ? compactToolGrid : styles.toolGrid}>
+      {tools.map((tool) => (
+        <div key={tool.name} style={compact ? compactToolCard : styles.toolCard}>
+          <div style={styles.toolHeader}>
+            <div style={styles.toolName}>{tool.name}</div>
+            <span
+              style={{
+                ...styles.toolBadgeBase,
+                ...getToolAvailabilityStyle(tool),
+              }}
+            >
+              {getToolAvailabilityLabel(tool)}
+            </span>
+          </div>
+
+          <div style={styles.toolDescription}>{tool.description}</div>
+        </div>
+      ))}
+    </div>
+  );
+
+  if (compact) return content;
+
+  return <StructuredCard title="Recommended tools">{content}</StructuredCard>;
+}
 function StructuredSections({
   sections,
 }: {
@@ -1019,3 +1107,57 @@ const mutationChip: React.CSSProperties = {
   fontSize: 10,
   fontWeight: 900,
 };
+
+const groundingHero: React.CSSProperties = {
+  display: "grid",
+  gap: 10,
+  padding: 10,
+  borderRadius: 12,
+  border: "1px solid rgba(99,102,241,0.18)",
+  background: "rgba(99,102,241,0.08)",
+  marginBottom: 12,
+};
+
+const groundingHeroText: React.CSSProperties = {
+  fontSize: 13,
+  lineHeight: 1.55,
+  opacity: 0.88,
+};
+
+const groundingSectionGrid: React.CSSProperties = {
+  display: "grid",
+  gap: 10,
+};
+
+const groundingSectionCard: React.CSSProperties = {
+  display: "grid",
+  gap: 8,
+  padding: 10,
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.035)",
+};
+
+const groundingSectionTitle: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 900,
+  letterSpacing: 0.2,
+};
+
+const compactToolGrid: React.CSSProperties = {
+  display: "grid",
+  gap: 8,
+};
+
+const compactToolCard: React.CSSProperties = {
+  display: "grid",
+  gap: 6,
+  padding: 10,
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.035)",
+};
+
+
+
+
