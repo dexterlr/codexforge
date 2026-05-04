@@ -321,6 +321,40 @@ function asStringArray(
   return uniqueStrings(normalized).slice(0, maxItems);
 }
 
+function buildAgentTeamSummary(agentTeam: ReturnType<typeof selectCodexForgeAgentTeam>) {
+  return {
+    domain: agentTeam.domain,
+    primaryRole: {
+      id: agentTeam.primaryRole.id,
+      label: agentTeam.primaryRole.label,
+      mission: agentTeam.primaryRole.mission,
+    },
+    supportRoles: agentTeam.supportRoles.map((role) => ({
+      id: role.id,
+      label: role.label,
+    })),
+    reviewRoles: agentTeam.reviewRoles.map((role) => ({
+      id: role.id,
+      label: role.label,
+    })),
+    allowedTools: agentTeam.allowedTools.map((policy) => ({
+      name: policy.tool,
+      permission: policy.permission,
+      reason: policy.reason,
+    })),
+    approvalRequiredTools: agentTeam.approvalRequiredTools.map((policy) => ({
+      name: policy.tool,
+      permission: policy.permission,
+      reason: policy.reason,
+    })),
+    blockedTools: agentTeam.blockedTools.map((policy) => ({
+      name: policy.tool,
+      permission: policy.permission,
+      reason: policy.reason,
+    })),
+    reasons: [...agentTeam.reasons],
+  };
+}
 function buildJsonHeaders(extra?: HeadersInit): HeadersInit {
   return {
     "Cache-Control": "no-store",
@@ -2256,6 +2290,7 @@ export async function POST(req: Request) {
       requestedPaths: fileIntent.requestedPaths,
       requestedVerbs: fileIntent.requestedVerbs,
     });
+    const agentTeamSummary = buildAgentTeamSummary(agentTeam);
 
     const groundedDiagnostics = buildGroundedDiagnostics(
       messages,
@@ -2559,6 +2594,7 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
 
 
 

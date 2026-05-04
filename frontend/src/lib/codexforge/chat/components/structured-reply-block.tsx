@@ -686,6 +686,52 @@ function PlanSection({
   );
 }
 
+function AgentTeamSection({
+  structured,
+}: {
+  structured?: CodexForgeStructuredReply | null;
+}) {
+  const agentTeam = structured?.agentTeam;
+  if (!agentTeam) return null;
+
+  const supportLabels = agentTeam.supportRoles.map((role) => role.label);
+  const reviewLabels = agentTeam.reviewRoles.map((role) => role.label);
+  const approvalTools = agentTeam.approvalRequiredTools.map((tool) => tool.name);
+  const blockedTools = agentTeam.blockedTools.map((tool) => tool.name);
+
+  return (
+    <StructuredCard title="Agent team">
+      <div style={agentTeamHero}>
+        <div>
+          <div style={agentTeamEyebrow}>Primary agent</div>
+          <div style={agentTeamPrimary}>{agentTeam.primaryRole.label}</div>
+          <div style={styles.structuredParagraph}>
+            {agentTeam.primaryRole.mission}
+          </div>
+        </div>
+
+        <div style={approvalHeroStats}>
+          <StatChip>{agentTeam.domain}</StatChip>
+          {supportLabels.length > 0 ? (
+            <StatChip>{plural(supportLabels.length, "support role")}</StatChip>
+          ) : null}
+          {approvalTools.length > 0 ? (
+            <StatChip>{plural(approvalTools.length, "approval tool")}</StatChip>
+          ) : null}
+          {blockedTools.length > 0 ? (
+            <StatChip>{plural(blockedTools.length, "blocked tool")}</StatChip>
+          ) : null}
+        </div>
+      </div>
+
+      <ListSection title="Support team" items={supportLabels} />
+      <ListSection title="Review team" items={reviewLabels} />
+      <ListSection title="Approval-required tools" items={approvalTools} />
+      <ListSection title="Blocked tools" items={blockedTools} />
+      <ListSection title="Routing reasons" items={agentTeam.reasons} />
+    </StructuredCard>
+  );
+}
 function ToolEvidenceSummary({
   structured,
 }: {
@@ -853,6 +899,7 @@ export function StructuredReplyBlock({
   return (
     <div style={styles.structuredWrap}>
       <HeroSection structured={structured} />
+      <AgentTeamSection structured={structured} />
 
       <ExecutionSection structured={structured} />
       <SnapshotSection structured={structured} />
@@ -1238,4 +1285,28 @@ const toolEvidenceStats: React.CSSProperties = {
   alignItems: "flex-start",
 };
 
+
+
+const agentTeamHero: React.CSSProperties = {
+  display: "grid",
+  gap: 10,
+  padding: 10,
+  borderRadius: 12,
+  border: "1px solid rgba(34,197,94,0.18)",
+  background: "rgba(34,197,94,0.06)",
+};
+
+const agentTeamEyebrow: React.CSSProperties = {
+  fontSize: 10,
+  fontWeight: 900,
+  letterSpacing: 0.4,
+  textTransform: "uppercase",
+  opacity: 0.72,
+};
+
+const agentTeamPrimary: React.CSSProperties = {
+  fontSize: 15,
+  fontWeight: 900,
+  letterSpacing: -0.1,
+};
 

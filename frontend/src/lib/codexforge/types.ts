@@ -236,6 +236,8 @@ export type CodexForgePlan = CodexForgeGraphAware & {
 
   domain?: CodexForgePlanDomain;
   tags?: string[];
+
+  agentTeam?: CodexForgeAgentTeamSummary;
   notes?: string[];
 
   approvals?: CodexForgeApprovalGate[];
@@ -288,6 +290,32 @@ export type CodexForgeStructuredExecution = CodexForgeGraphAware & {
   logs?: string[];
 };
 
+export type CodexForgeAgentTeamToolSummary = {
+  name: string;
+  permission: "read-only" | "approval-required" | "blocked-by-default";
+  reason?: string;
+};
+
+export type CodexForgeAgentTeamSummary = {
+  domain: CodexForgePlanDomain;
+  primaryRole: {
+    id: string;
+    label: string;
+    mission: string;
+  };
+  supportRoles: Array<{
+    id: string;
+    label: string;
+  }>;
+  reviewRoles: Array<{
+    id: string;
+    label: string;
+  }>;
+  allowedTools: CodexForgeAgentTeamToolSummary[];
+  approvalRequiredTools: CodexForgeAgentTeamToolSummary[];
+  blockedTools: CodexForgeAgentTeamToolSummary[];
+  reasons: string[];
+};
 export type CodexForgeStructuredReply = CodexForgeGraphAware & {
   mode?: CodexForgeStructuredReplyMode;
 
@@ -322,6 +350,8 @@ export type CodexForgeStructuredReply = CodexForgeGraphAware & {
 
   domain?: CodexForgePlanDomain;
   tags?: string[];
+
+  agentTeam?: CodexForgeAgentTeamSummary;
 };
 
 /* ================= CHAT MESSAGE ================= */
@@ -572,3 +602,4 @@ export type CodexForgeStructuredSummaryMeta = {
 
   hasStructuredContent: boolean;
 };
+
