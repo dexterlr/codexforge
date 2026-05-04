@@ -62,7 +62,8 @@ const VALID_PLAN_DOMAINS: readonly CodexForgePlanDomain[] = [
   "blender",
   "design",
   "marketing",
-  "decks",] as const;
+  "decks",
+] as const;
 
 const VALID_PLAN_STATUSES: readonly CodexForgePlanStatus[] = [
   "draft",
@@ -1494,6 +1495,46 @@ function detectCapabilityRouting(
   }
 
   if (
+    /\b(stock|stocks|share|shares|equity|equities|crypto|bitcoin|btc|ethereum|eth|altcoin|trading|trade|trader|portfolio|market data|candles?|ohlcv|backtest|backtesting|paper trading|paper trade|broker|exchange|position sizing|stop loss|take profit|risk reward|technical analysis|signals?|alerts?)\b/.test(
+      normalized
+    )
+  ) {
+    match("trading", "trading", "Trading, market research, or strategy workflow keywords detected.");
+  }
+
+  if (
+    /\b(blender|geometry nodes?|bpy|cycles|eevee|scene|mesh|material|shader|uv|rigging|animation|keyframes?|render settings|viewport|camera path|asset pipeline|procedural model|procedural scene)\b/.test(
+      normalized
+    )
+  ) {
+    match("blender", "blender-production", "Blender production keywords detected.");
+  }
+
+  if (
+    /\b(design system|brand|branding|visual identity|ui design|ux design|wireframe|mockup|prototype|typography|layout|spacing|color palette|component system|premium polish|god tier design|designer|visual hierarchy|responsive design)\b/.test(
+      normalized
+    )
+  ) {
+    match("design", "design", "Design, UX, brand, or visual-system keywords detected.");
+  }
+
+  if (
+    /\b(marketing|promotion|promotions|campaign|funnel|landing copy|ad copy|copywriting|launch|go to market|gtm|audience|offer|cta|conversion|analytics|creative variants?|growth|sales page|email sequence|social campaign)\b/.test(
+      normalized
+    )
+  ) {
+    match("marketing", "marketing", "Marketing, campaign, promotion, or funnel keywords detected.");
+  }
+
+  if (
+    /\b(deck|decks|slide|slides|slideshow|presentation|pitch deck|sales deck|investor deck|research deck|speaker notes|slide-by-slide|executive deck|keynote|powerpoint|pptx)\b/.test(
+      normalized
+    )
+  ) {
+    match("decks", "decks", "Deck, slides, or presentation keywords detected.");
+  }
+
+  if (
     /\b(automation|agent|jarvis|desktop|browser|camera|webcam|voice|photoshop|blender|canvas|operator|multi-agent|multi agent|apply-diff|generate-diff|write-file|run-command|snapshot|checkpoint)\b/.test(
       normalized
     )
@@ -2458,5 +2499,6 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
 
 
