@@ -686,6 +686,50 @@ function PlanSection({
   );
 }
 
+function ToolEvidenceSummary({
+  structured,
+}: {
+  structured?: CodexForgeStructuredReply | null;
+}) {
+  const groundingSections = getGroundingSections(structured?.sections);
+  const tools = Array.isArray(structured?.tools) ? structured.tools : [];
+  const readyToolCount = getReadyToolCount(tools);
+  const unavailableToolCount = tools.filter(
+    (tool) => tool.availability !== "ready"
+  ).length;
+
+  const hasEvidence = groundingSections.length > 0 || tools.length > 0;
+  if (!hasEvidence) return null;
+
+  return (
+    <div style={toolEvidenceSummary}>
+      <div style={toolEvidenceHeader}>
+        <div>
+          <div style={toolEvidenceTitle}>Tool evidence</div>
+          <div style={toolEvidenceText}>
+            Visible inspection and tool availability summary for this response.
+          </div>
+        </div>
+
+        <div style={toolEvidenceStats}>
+          {groundingSections.length > 0 ? (
+            <StatChip>{plural(groundingSections.length, "grounding section")}</StatChip>
+          ) : null}
+
+          {tools.length > 0 ? <StatChip>{plural(tools.length, "tool")}</StatChip> : null}
+
+          {readyToolCount > 0 ? (
+            <StatChip>{plural(readyToolCount, "ready tool")}</StatChip>
+          ) : null}
+
+          {unavailableToolCount > 0 ? (
+            <StatChip>{plural(unavailableToolCount, "limited tool")}</StatChip>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
 function GroundingSection({
   structured,
 }: {
@@ -1158,7 +1202,39 @@ const compactToolCard: React.CSSProperties = {
   background: "rgba(255,255,255,0.035)",
 };
 
+const toolEvidenceSummary: React.CSSProperties = {
+  padding: 10,
+  borderRadius: 14,
+  border: "1px solid rgba(99,102,241,0.16)",
+  background: "rgba(99,102,241,0.07)",
+};
 
+const toolEvidenceHeader: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 12,
+  flexWrap: "wrap",
+};
 
+const toolEvidenceTitle: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 900,
+  letterSpacing: 0.35,
+  textTransform: "uppercase",
+};
 
+const toolEvidenceText: React.CSSProperties = {
+  marginTop: 4,
+  fontSize: 12,
+  lineHeight: 1.45,
+  opacity: 0.78,
+};
+
+const toolEvidenceStats: React.CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+  alignItems: "flex-start",
+};
 
