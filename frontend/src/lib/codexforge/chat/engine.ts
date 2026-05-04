@@ -576,18 +576,22 @@ export async function runCodexForgeEngine(
 
   const structuredStage = startTraceStage(trace, "structured-render");
 
+  const visibleSafeToolOutcomes = context.productionOnlyPlanning
+    ? []
+    : safeToolOutcomes;
+
   let structured = buildStructured(analysis, plan, context);
 
   structured = enrichStructuredWithAgentTeam(structured, context);
   trace.domain = structured.plan?.domain ?? structured.domain ?? trace.domain;
-  structured = enrichStructuredWithToolOutcomes(structured, safeToolOutcomes);
+  structured = enrichStructuredWithToolOutcomes(structured, visibleSafeToolOutcomes);
   structured = enrichStructuredWithSafetyState(
     structured,
     intentFlags,
     trace,
     deps
   );
-  structured = withGroundedExecutionNotes(structured, safeToolOutcomes);
+  structured = withGroundedExecutionNotes(structured, visibleSafeToolOutcomes);
 
   structuredStage.complete("Structured response assembled.");
 
@@ -639,7 +643,7 @@ export async function runCodexForgeEngine(
     plan,
     graphWarnings,
     deps,
-    safeToolOutcomes,
+    safeToolOutcomes: visibleSafeToolOutcomes,
     intentFlags,
     claimGuardWarnings: claimGuard.warnings,
   });
@@ -648,7 +652,7 @@ export async function runCodexForgeEngine(
 
   const preDiagnosticQuality = buildResponseQuality(
     structured,
-    safeToolOutcomes,
+    visibleSafeToolOutcomes,
     finalWarnings
   );
 
@@ -675,6 +679,11 @@ export async function runCodexForgeEngine(
     ...(finalWarnings.length > 0 ? { warnings: finalWarnings } : {}),
   };
 }
+
+
+
+
+
 
 
 
