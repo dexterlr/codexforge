@@ -451,14 +451,49 @@ function attachAgentTeamToStructuredReply(
     ],
   };
 
-  const cleanedSections = (structured.sections ?? []).filter((section) => {
-    const title = section.title.trim().toLowerCase();
+  const rewriteSectionItems = (title: string, items?: string[] | null): string[] => {
+    if (!Array.isArray(items)) return [];
 
-    return (
-      title !== "agent operating mode" &&
-      !(routedDomain !== "comfyui" && title.includes("comfyui workflow focus"))
-    );
-  });
+    const normalizedTitle = title.trim().toLowerCase();
+
+    return items
+      .map((item) => {
+        const normalized = item.trim().toLowerCase();
+
+        if (
+          normalizedTitle === "engine trace" &&
+          normalized.startsWith("domain:")
+        ) {
+          return `Domain: ${routedDomain}`;
+        }
+
+        if (
+          normalized.startsWith("the likely domain is") ||
+          normalized.includes("likely domain is comfyui") ||
+          normalized.includes("domain is comfyui") ||
+          normalized.includes("domain: comfyui")
+        ) {
+          return "";
+        }
+
+        return item;
+      })
+      .filter((item) => item.trim().length > 0);
+  };
+
+  const cleanedSections = (structured.sections ?? [])
+    .filter((section) => {
+      const title = section.title.trim().toLowerCase();
+
+      return (
+        title !== "agent operating mode" &&
+        !(routedDomain !== "comfyui" && title.includes("comfyui workflow focus"))
+      );
+    })
+    .map((section) => ({
+      ...section,
+      items: rewriteSectionItems(section.title, section.items),
+    }));
 
   const finalTags = Array.from(
     new Set([
@@ -2769,6 +2804,7 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
 
 
 
