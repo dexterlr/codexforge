@@ -357,6 +357,87 @@ function buildAgentTeamSummary(agentTeam: ReturnType<typeof selectCodexForgeAgen
     reasons: [...agentTeam.reasons],
   };
 }
+function scrubProductionOnlyRouteStructuredReply<T extends { sections?: Array<{ title: string; items?: string[] }>; files?: string[]; commands?: string[]; status?: string[]; context?: string[]; understanding?: string[] }>(
+  structured: T,
+): T {
+  const blockedTerms = [
+    "src/",
+    "src\\",
+    ".ts",
+    ".tsx",
+    "route.ts",
+    "engine.ts",
+    "engine-render",
+    "engine-analysis",
+    "use-codexforge-chat",
+    "types.ts",
+    "npm run",
+    "read-file",
+    "list-files",
+    "search-project",
+    "safe tool",
+    "repo path",
+    "codebase",
+    "implementation file",
+    "grounded file",
+    "grounding confidence",
+    "best next edit point",
+    "docs\\scratch",
+    "codexforge-files.txt",
+  ];
+
+  const blockedSectionTitles = [
+    "outcome",
+    "why",
+    "next action",
+    "evidence",
+    "files to change",
+    "execution posture",
+    "engine trace",
+    "response quality",
+    "commands",
+  ];
+
+  const isBlockedText = (value: string): boolean => {
+    const normalized = value.toLowerCase();
+    return blockedTerms.some((term) => normalized.includes(term.toLowerCase()));
+  };
+
+  const cleanList = (items?: string[]): string[] =>
+    (items ?? []).filter((item) => !isBlockedText(item));
+
+  return {
+    ...structured,
+    files: [
+      "Blender scene file",
+      "Geometry node group library",
+      "Material and lighting preset notes",
+      "ComfyUI concept workflow",
+      "Preview render exports",
+      "Final render output folder",
+      "Asset and output naming sheet",
+    ],
+    commands: [
+      "Validate the geometry nodes setup with a small viewport preview.",
+      "Run a low-sample lighting and camera test render.",
+      "Review ComfyUI concept references against the scene direction.",
+    ],
+    sections: (structured.sections ?? [])
+      .filter((section) => {
+        const title = section.title.toLowerCase();
+        return !blockedSectionTitles.some((blocked) => title.includes(blocked));
+      })
+      .map((section) => ({
+        ...section,
+        items: cleanList(section.items),
+      }))
+      .filter((section) => (section.items ?? []).length > 0),
+    status: cleanList(structured.status),
+    context: cleanList(structured.context),
+    understanding: cleanList(structured.understanding),
+  };
+}
+
 function attachAgentTeamToStructuredReply(
   structured: CodexForgeStructuredReply | undefined,
   agentTeamSummary: ReturnType<typeof buildAgentTeamSummary>,
@@ -2684,11 +2765,16 @@ export async function POST(req: Request) {
           enrichedContext.mode ??
           mapRouteModeToChatMode(resolvedMode);
 
-    const decoratedStructured = attachAgentTeamToStructuredReply(
+    const rawDecoratedStructured = attachAgentTeamToStructuredReply(
       response.structured ?? undefined,
       agentTeamSummary,
       capabilityRouting
     );
+
+    const decoratedStructured =
+      productionOnlyPlanning && rawDecoratedStructured
+        ? scrubProductionOnlyRouteStructuredReply(rawDecoratedStructured)
+        : rawDecoratedStructured;
 
     const decoratedText = decoratedStructured
       ? structuredToText(decoratedStructured)
@@ -2863,6 +2949,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
