@@ -3785,6 +3785,11 @@ export async function runCodexForgeEngine(
   const trace = createEngineTrace(runStartedAt);
   const deps = dependencies ?? getCodexForgeEngineDependencies();
 
+  /*
+   * Stage 1: analysis
+   *
+   * Pure request interpretation. No tools, no graph writes, no rendering.
+   */
   const analysisStage = startTraceStage(trace, "analysis");
   const analysis = analyze(messages, context);
   const intentFlags = extractIntentFlags(analysis.userText);
@@ -3794,20 +3799,43 @@ export async function runCodexForgeEngine(
     intentFlags.wantsApprovalFlow ||
     intentFlags.wantsDiffPreview ||
     intentFlags.wantsApplyDiff;
-  trace.mutationIntentBlocked = intentFlags.wantsMutation;
+
+  trace.mutationIntentBlocked =
+    intentFlags.wantsMutation || intentFlags.wantsApplyDiff;
 
   analysisStage.complete(`Intent: ${analysis.intent}`);
 
+  /*
+   * Stage 2: planning
+   *
+   * Produces the plan contract consumed by rendering, diagnostics, memory,
+   * and execution guidance.
+   */
   const planStage = startTraceStage(trace, "planning");
   const plan = buildPlan(analysis, deps, context);
   trace.domain = plan.domain;
-  planStage.complete(plan.goal ? `Goal: ${clampText(plan.goal, 160)}` : "Plan built.");
 
+  planStage.complete(
+    plan.goal ? `Goal: ${clampText(plan.goal, 160)}` : "Plan built."
+  );
+
+  /*
+   * Stage 3: safe repo inspection
+   *
+   * This is the only automatic execution path. It must remain read-only.
+   */
   const safeToolStage = startTraceStage(trace, "safe-tool-pass");
-  const safeToolOutcomes = await executeSafeToolPass(analysis, context, deps, trace);
+  const safeToolOutcomes = await executeSafeToolPass(
+    analysis,
+    context,
+    deps,
+    trace
+  );
+
   const executedCount = safeToolOutcomes.filter(
     (outcome) => outcome.status === "executed"
   ).length;
+
   const failedCount = safeToolOutcomes.filter(
     (outcome) => outcome.status === "failed"
   ).length;
@@ -3820,15 +3848,32 @@ export async function runCodexForgeEngine(
     safeToolStage.skip("No safe tool action executed.");
   }
 
+  /*
+   * Stage 4: structured assembly
+   *
+   * Build the canonical structured reply once, then enrich it with grounding,
+   * safety, and execution notes.
+   */
   const structuredStage = startTraceStage(trace, "structured-render");
 
   let structured = buildStructured(analysis, plan, context);
+
   structured = enrichStructuredWithToolOutcomes(structured, safeToolOutcomes);
-  structured = enrichStructuredWithSafetyState(structured, intentFlags, trace, deps);
+  structured = enrichStructuredWithSafetyState(
+    structured,
+    intentFlags,
+    trace,
+    deps
+  );
   structured = withGroundedExecutionNotes(structured, safeToolOutcomes);
 
   structuredStage.complete("Structured response assembled.");
 
+  /*
+   * Stage 5: graph persistence
+   *
+   * Graph persistence is valuable but must never block the response path.
+   */
   const graphStage = startTraceStage(trace, "brain-graph-persistence");
   const graphWarnings: string[] = [];
 
@@ -3856,62 +3901,33 @@ export async function runCodexForgeEngine(
     graphStage.fail(warning);
   }
 
-  const preliminaryText = structuredToText(structured);
-
+  /*
+   * Stage 6: claim guard
+   *
+   * Validate the answer before diagnostics are attached. Diagnostics then report
+   * the true pre-diagnostic claim state.
+   */
   const claimGuardStage = startTraceStage(trace, "claim-guard");
-  const firstClaimGuard = validateGroundedClaims({
-    text: preliminaryText,
+  const textBeforeDiagnostics = structuredToText(structured);
+
+  const claimGuard = validateGroundedClaims({
+    text: textBeforeDiagnostics,
     structured,
     outcomes: safeToolOutcomes,
   });
 
-  if (firstClaimGuard.warnings.length > 0) {
-    claimGuardStage.fail(`${firstClaimGuard.warnings.length} claim guard warning(s).`);
+  if (claimGuard.warnings.length > 0) {
+    claimGuardStage.fail(`${claimGuard.warnings.length} claim guard warning(s).`);
   } else {
     claimGuardStage.complete("No unsupported visible claims detected.");
   }
 
-  const warningsBeforeDiagnostics = buildFinalWarningSet({
-    analysis,
-    context,
-    plan,
-    graphWarnings,
-    deps,
-    safeToolOutcomes,
-    intentFlags,
-    claimGuardWarnings: firstClaimGuard.warnings,
-  });
-
-  const finalizedTracePreview = finalizeEngineTrace(
-    trace,
-    warningsBeforeDiagnostics,
-    structured
-  );
-
-  const qualityPreview = buildResponseQuality(
-    structured,
-    safeToolOutcomes,
-    warningsBeforeDiagnostics
-  );
-
-  structured = enrichStructuredWithDiagnostics({
-    structured,
-    trace: finalizedTracePreview,
-    quality: qualityPreview,
-    flags: intentFlags,
-    outcomes: safeToolOutcomes,
-    deps,
-    warnings: warningsBeforeDiagnostics,
-  });
-
-  const finalTextPreview = structuredToText(structured);
-
-  const finalClaimGuard = validateGroundedClaims({
-    text: finalTextPreview,
-    structured,
-    outcomes: safeToolOutcomes,
-  });
-
+  /*
+   * Stage 7: final warning set
+   *
+   * Compose warnings exactly once. This prevents stale trace/quality data and
+   * avoids duplicate diagnostic sections.
+   */
   const finalWarnings = buildFinalWarningSet({
     analysis,
     context,
@@ -3920,27 +3936,44 @@ export async function runCodexForgeEngine(
     deps,
     safeToolOutcomes,
     intentFlags,
-    claimGuardWarnings: finalClaimGuard.warnings,
+    claimGuardWarnings: claimGuard.warnings,
   });
 
-  const finalizedTrace = finalizeEngineTrace(trace, finalWarnings, structured);
+  /*
+   * Stage 8: diagnostics
+   *
+   * Important: mark the diagnostics stage complete before finalizing trace so
+   * the trace section includes the diagnostics stage itself.
+   */
+  const diagnosticsStage = startTraceStage(trace, "diagnostics");
 
-  const finalQuality = buildResponseQuality(
+  const preDiagnosticQuality = buildResponseQuality(
     structured,
     safeToolOutcomes,
     finalWarnings
   );
 
+  diagnosticsStage.complete(
+    `Quality: ${preDiagnosticQuality.score}/100, warnings: ${finalWarnings.length}.`
+  );
+
+  const finalizedTrace = finalizeEngineTrace(trace, finalWarnings, structured);
+
   structured = enrichStructuredWithDiagnostics({
     structured,
     trace: finalizedTrace,
-    quality: finalQuality,
+    quality: preDiagnosticQuality,
     flags: intentFlags,
     outcomes: safeToolOutcomes,
     deps,
     warnings: finalWarnings,
   });
 
+  /*
+   * Stage 9: final render
+   *
+   * Do not mutate structured output after this point.
+   */
   return {
     text: structuredToText(structured),
     structured,
@@ -3948,4 +3981,3 @@ export async function runCodexForgeEngine(
     ...(finalWarnings.length > 0 ? { warnings: finalWarnings } : {}),
   };
 }
-
