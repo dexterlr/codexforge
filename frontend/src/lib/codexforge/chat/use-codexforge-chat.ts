@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildClientFallbackFromEngine } from "@/lib/codexforge/chat/client-fallback";
@@ -154,17 +154,17 @@ const PRODUCT_DIRECTION_LINES = [
 const STATUS = {
   READY: "Ready",
   THINKING: "Thinking",
-  API: "Ready • API connected",
-  FALLBACK: "Ready • local fallback",
-  ENGINE: "Ready • local engine fallback",
+  API: "Ready â€¢ API connected",
+  FALLBACK: "Ready â€¢ local fallback",
+  ENGINE: "Ready â€¢ local engine fallback",
   EXECUTING: "Executing task step",
-  EXECUTED_API: "Ready • step executed via API",
-  EXECUTED_FALLBACK: "Ready • step executed locally",
-  APPROVED_PLAN: "Ready • plan approved",
-  REJECTED_PLAN: "Ready • plan rejected",
-  APPROVED_DIFFS: "Ready • diffs approved",
-  REJECTED_DIFFS: "Ready • diffs rejected",
-  RESET_ENGINE: "Ready • engine reset",
+  EXECUTED_API: "Ready â€¢ step executed via API",
+  EXECUTED_FALLBACK: "Ready â€¢ step executed locally",
+  APPROVED_PLAN: "Ready â€¢ plan approved",
+  REJECTED_PLAN: "Ready â€¢ plan rejected",
+  APPROVED_DIFFS: "Ready â€¢ diffs approved",
+  REJECTED_DIFFS: "Ready â€¢ diffs rejected",
+  RESET_ENGINE: "Ready â€¢ engine reset",
 } as const;
 
 type StatusText = (typeof STATUS)[keyof typeof STATUS];
@@ -348,7 +348,7 @@ function summarizeEngineState(engineState: CodexForgeEngineState | null): string
     parts.push(`Error: ${engineState.error}`);
   }
 
-  return parts.join(" • ");
+  return parts.join(" â€¢ ");
 }
 
 function summarizeDiffTargets(diffs: CodexForgeEngineDiff[]): string[] {
@@ -1600,7 +1600,90 @@ export function useCodexForgeChat({
     setExecutionState(createIdleExecutionState());
   }, []);
 
-  /* ================= REQUEST ASSISTANT ================= */
+  function shouldLatestMessageOverrideActiveTask(text: string): boolean {
+  const normalized = text.toLowerCase();
+
+  const explicitFixRequest =
+    normalized.startsWith("fix ") ||
+    normalized.includes("current failure:") ||
+    normalized.includes("required behavior:") ||
+    normalized.includes("required edit:") ||
+    normalized.includes("primary target:") ||
+    normalized.includes("implementation target:") ||
+    normalized.includes("expected output:");
+
+  const activeTaskOverrideRequest =
+    normalized.includes("stale active task") ||
+    normalized.includes("active task contamination") ||
+    normalized.includes("latest-message authority") ||
+    normalized.includes("latest message authority") ||
+    normalized.includes("latest explicit user request") ||
+    normalized.includes("replace or bypass stale task") ||
+    normalized.includes("latestmessageoverridesactivetask") ||
+    normalized.includes("activetasksuppressedforrequest");
+
+  return explicitFixRequest && activeTaskOverrideRequest;
+}
+
+function buildLatestMessageOverrideActivePlan(): NonNullable<CodexForgeChatContext["activePlan"]> {
+  return {
+    goal:
+      "Fix CodexForge stale Active Task contamination so the latest explicit user request can replace or bypass stale task, memory, graph, and previous planning context for this request.",
+    steps: [
+      "Detect latest-message override intent before constructing the chat request context.",
+      "Suppress stale activeTask, stale task tags, stale activePlan, memory carryover, and graph-derived goals for that request only.",
+      "Send explicit metadata so route.ts and engine.ts treat the latest message as authoritative.",
+    ],
+    nextAction:
+      "Detect latest-message override intent before constructing the chat request context.",
+    files: [
+      "src/lib/codexforge/chat/use-codexforge-chat.ts",
+      "src/app/api/codexforge/chat/route.ts",
+      "src/lib/codexforge/types.ts",
+    ],
+    risks: [
+      "Do not permanently delete the active task or memory during request-scoped suppression.",
+      "Do not suppress useful task context for normal follow-up messages.",
+      "Do not let adjacent tasks such as diff approvals, repo grounding, or architecture plans replace the latest request.",
+      "Keep execution and approval flows intact.",
+    ],
+    tags: [
+      "codexforge-product",
+      "active-task",
+      "context-isolation",
+      "latest-message-authority",
+      "task-routing",
+      "debug",
+    ],
+    status: "active",
+    intent: "capability-plan",
+    domain: "debug",
+  };
+}
+
+function buildLatestMessageOverrideContext(
+  context: CodexForgeChatContext
+): CodexForgeChatContext {
+  return {
+    ...context,
+    memory: [],
+    activePlan: buildLatestMessageOverrideActivePlan(),
+    execution: {
+      ...context.execution,
+      running: false,
+      stepIndex: null,
+      lastRunLabel: "",
+      enginePhase: "idle",
+      diffCount: 0,
+      snapshotFileCount: 0,
+    },
+    latestMessageOverridesActiveTask: true,
+    activeTaskSuppressedForRequest: true,
+    activePlanGoalSource: "latest-user-message",
+  } as CodexForgeChatContext;
+}
+
+/* ================= REQUEST ASSISTANT ================= */
 
   const requestAssistant = useCallback(
     async (
