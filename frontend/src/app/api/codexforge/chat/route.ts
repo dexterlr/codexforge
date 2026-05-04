@@ -2513,9 +2513,9 @@ export async function POST(req: Request) {
     const agentTeam = selectCodexForgeAgentTeam({
       domain: capabilityRouting.domain,
       tags: capabilityRouting.tags,
-      explicitFileRequest: fileIntent.explicitFileRequest,
-      requestedPaths: fileIntent.requestedPaths,
-      requestedVerbs: fileIntent.requestedVerbs,
+      explicitFileRequest: effectiveFileIntent.explicitFileRequest,
+      requestedPaths: effectiveFileIntent.requestedPaths,
+      requestedVerbs: effectiveFileIntent.requestedVerbs,
     });
     const agentTeamSummary = buildAgentTeamSummary(agentTeam);
 
@@ -2861,6 +2861,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
