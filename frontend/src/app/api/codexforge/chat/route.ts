@@ -2611,9 +2611,9 @@ export async function POST(req: Request) {
       graphFocusNodeCount: graphDiagnostics.focusNodeCount,
       graphFocusKinds: graphDiagnostics.focusKinds,
       graphWarnings: graphDiagnostics.warnings,
-      fileExplicitRequest: fileIntent.explicitFileRequest,
-      fileRequestedPaths: fileIntent.requestedPaths,
-      fileRequestedVerbs: fileIntent.requestedVerbs,
+      fileExplicitRequest: effectiveFileIntent.explicitFileRequest,
+      fileRequestedPaths: effectiveFileIntent.requestedPaths,
+      fileRequestedVerbs: effectiveFileIntent.requestedVerbs,
       capabilityDomain: capabilityRouting.domain,
       capabilityTags: capabilityRouting.tags,
       capabilityMatched: capabilityRouting.matched,
@@ -2662,8 +2662,8 @@ export async function POST(req: Request) {
         resolvedMode,
         forceLocalEngine,
         forceLocalReason: localEngineDecision.reason,
-        fileExplicitRequest: fileIntent.explicitFileRequest,
-        fileRequestedPaths: fileIntent.requestedPaths,
+        fileExplicitRequest: effectiveFileIntent.explicitFileRequest,
+        fileRequestedPaths: effectiveFileIntent.requestedPaths,
         capabilityDomain: capabilityRouting.domain,
         groundedPrimaryFile: effectiveGroundedDiagnostics.primaryFile ?? null,
         groundedSupportingFileCount: effectiveGroundedDiagnostics.supportingFiles.length,
@@ -2676,7 +2676,7 @@ export async function POST(req: Request) {
     const response = outcome.response;
 
     const resolvedChatMode =
-      resolvedMode === "execution" || fileIntent.explicitFileRequest
+      resolvedMode === "execution" || effectiveFileIntent.explicitFileRequest
         ? "local-execution"
         : asChatMode(response.meta.mode) ??
           enrichedContext.mode ??
@@ -2708,7 +2708,7 @@ export async function POST(req: Request) {
 
     const resolvedIntent =
       commandIntent ??
-      (fileIntent.explicitFileRequest ? "grounded-file-inspection" : undefined) ??
+      (effectiveFileIntent.explicitFileRequest ? "grounded-file-inspection" : undefined) ??
       response.intent;
 
     const meta = toCodexForgeChatMeta(response, {
@@ -2720,7 +2720,7 @@ export async function POST(req: Request) {
       executionMode:
         enrichedContext.executionRequest?.mode === "execute-task-step" ||
         resolvedMode === "execution" ||
-        fileIntent.explicitFileRequest,
+        effectiveFileIntent.explicitFileRequest,
       domain: resolvedDomain,
       mode: resolvedChatMode,
       intent: resolvedIntent,
@@ -2762,8 +2762,8 @@ const successResponse: CodexForgeChatSuccessResponse = {
       durationMs: response.meta.durationMs ?? 0,
       graphUsed: graphDiagnostics.hasGraph && graphDiagnostics.nodeCount > 0,
       graphBriefingCount: graphDiagnostics.graphBriefing.length,
-      fileExplicitRequest: fileIntent.explicitFileRequest,
-      fileRequestedPathCount: fileIntent.requestedPaths.length,
+      fileExplicitRequest: effectiveFileIntent.explicitFileRequest,
+      fileRequestedPathCount: effectiveFileIntent.requestedPaths.length,
       capabilityDomain: capabilityRouting.domain,
       capabilityTags: capabilityRouting.tags,
       capabilityMatched: capabilityRouting.matched,
@@ -2832,11 +2832,11 @@ const successResponse: CodexForgeChatSuccessResponse = {
         "x-codexforge-graph-has-task": boolHeader(graphDiagnostics.hasTaskNode),
         "x-codexforge-graph-has-plan": boolHeader(graphDiagnostics.hasPlanNode),
         "x-codexforge-graph-has-run": boolHeader(graphDiagnostics.hasRunNode),
-        "x-codexforge-file-explicit-request": boolHeader(fileIntent.explicitFileRequest),
-        "x-codexforge-file-requested-paths": String(fileIntent.requestedPaths.length),
-        "x-codexforge-file-requested-verbs": fileIntent.requestedVerbs.join(","),
+        "x-codexforge-file-explicit-request": boolHeader(effectiveFileIntent.explicitFileRequest),
+        "x-codexforge-file-requested-paths": String(effectiveFileIntent.requestedPaths.length),
+        "x-codexforge-file-requested-verbs": effectiveFileIntent.requestedVerbs.join(","),
         "x-codexforge-grounded-primary-file":
-          groundedDiagnostics.primaryFile ?? "none",
+          effectiveGroundedDiagnostics.primaryFile ?? "none",
         "x-codexforge-grounded-supporting-files": String(
           effectiveGroundedDiagnostics.supportingFiles.length
         ),
@@ -2861,6 +2861,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
