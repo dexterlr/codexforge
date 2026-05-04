@@ -14,22 +14,12 @@ import { persistBrainGraph } from "./engine-graph";
 import { buildStructured, structuredToText } from "./engine-render";
 import { mergeWarnings } from "./engine-shared";
 import {
-  extractReadFileGrounding,
-  extractSearchProjectGrounding,
-  formatPathForDisplay,
-  getFileName,
-  getFileStem,
-  mergeGroundings,
-  normalizeGroundedCandidates,
   type Confidence,
   type SafeToolGrounding,
 } from "./engine-grounding";
 import {
   extractIntentFlags,
-  buildApprovalIntentSection,
-  buildMutationFirewallWarnings,
   executeSafeToolPass,
-  shouldAutoInspectRepo,
 } from "./engine-safe-tools";
 import {
   buildFinalWarningSet,
@@ -54,38 +44,10 @@ const AUTO_EXECUTION_ALLOWED_TOOLS = new Set<string>(
   SAFE_EXECUTION_CANDIDATE_TOOLS
 );
 
-const MUTATION_TOOL_NAMES = new Set<string>([
-  "write-file",
-  "apply-diff",
-  "run-command",
-  "run-tests",
-  "build-web-app",
-  "snapshot-project",
-]);
-
-const DIFF_PREVIEW_TOOL_NAMES = new Set<string>([
-  "generate-diff",
-  "apply-diff",
-]);
-
-const VERIFICATION_TOOL_NAMES = new Set<string>([
-  "run-command",
-  "run-tests",
-]);
-
 const MAX_TOOL_RESULT_PATHS = 10;
 const MAX_TOOL_RESULT_LINES = 10;
 const MAX_TOOL_RESULT_PREVIEW = 320;
 const MAX_ENGINE_TRACE_LINES = 18;
-const MAX_RESPONSE_QUALITY_NOTES = 12;
-const MAX_APPROVAL_SAFETY_ITEMS = 12;
-const MAX_GROUNDING_SECTION_ITEMS = MAX_TOOL_RESULT_LINES + 10 + 28;
-
-const FALLBACK_GROUNDED_SUMMARY =
-  "CodexForge produced a grounded repository response.";
-
-const CANONICAL_APPROVAL_FLOW =
-  "Canonical flow: plan -> generate dry-run diff preview -> review -> approve/reject -> apply approved diff -> verify -> checkpoint.";
 
 /* ================= TYPES ================= */
 
@@ -201,28 +163,6 @@ type EngineStageTraceHandle = {
   complete(summary?: string): void;
   fail(summary?: string): void;
   skip(summary?: string): void;
-};
-
-type ResponseQuality = {
-  score: number;
-  hasGoal: boolean;
-  hasNextSteps: boolean;
-  hasFiles: boolean;
-  hasEvidence: boolean;
-  hasToolAudit: boolean;
-  hasGroundedEditPoint: boolean;
-  hasDiffPreviewAwareness: boolean;
-  hasApprovalAwareness: boolean;
-  hasWarnings: boolean;
-  notes: string[];
-};
-
-type ClaimGuardResult = {
-  warnings: string[];
-  claimsGroundedExecution: boolean;
-  claimsGroundedFile: boolean;
-  claimsDiffPreview: boolean;
-  claimsApproval: boolean;
 };
 
 /* ================= GENERIC HELPERS ================= */
@@ -572,6 +512,7 @@ export async function runCodexForgeEngine(
     ...(finalWarnings.length > 0 ? { warnings: finalWarnings } : {}),
   };
 }
+
 
 
 
