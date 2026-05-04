@@ -357,6 +357,82 @@ function buildAgentTeamSummary(agentTeam: ReturnType<typeof selectCodexForgeAgen
     reasons: [...agentTeam.reasons],
   };
 }
+function scrubProductionOnlyVisibleText(text: string): string {
+  const blockedLineTerms = [
+    "src\\",
+    "src/",
+    ".ts",
+    ".tsx",
+    "use-codexforge-chat",
+    "engine.ts",
+    "engine-render",
+    "engine-analysis",
+    "route.ts",
+    "types.ts",
+    "read-file",
+    "list-files",
+    "search-project",
+    "safe tool",
+    "grounded function",
+    "grounded file",
+    "grounding confidence",
+    "best next edit point",
+    "open src",
+    "repo path",
+    "codebase",
+    "implementation file",
+    "frontend and backend drift",
+    "npm run",
+  ];
+
+  const blockedSectionTitles = new Set([
+    "Outcome",
+    "Why",
+    "Next action",
+    "Evidence",
+    "Execution posture",
+    "Engine trace",
+    "Response quality",
+  ]);
+
+  const lines = text.split(/\r?\n/);
+  const kept: string[] = [];
+  let skippingBlockedSection = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const normalized = trimmed.toLowerCase();
+
+    if (blockedSectionTitles.has(trimmed)) {
+      skippingBlockedSection = true;
+      continue;
+    }
+
+    if (skippingBlockedSection && trimmed.length > 0 && !line.startsWith("-")) {
+      skippingBlockedSection = false;
+    }
+
+    if (skippingBlockedSection) {
+      continue;
+    }
+
+    if (
+      blockedLineTerms.some((term) =>
+        normalized.includes(term.toLowerCase())
+      )
+    ) {
+      continue;
+    }
+
+    kept.push(line);
+  }
+
+  return kept
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function scrubProductionOnlyRouteStructuredReply<T extends { sections?: Array<{ title: string; items?: string[] }>; files?: string[]; commands?: string[]; status?: string[]; context?: string[]; understanding?: string[] }>(
   structured: T,
 ): T {
@@ -2776,9 +2852,13 @@ export async function POST(req: Request) {
         ? scrubProductionOnlyRouteStructuredReply(rawDecoratedStructured)
         : rawDecoratedStructured;
 
-    const decoratedText = decoratedStructured
+    const rawDecoratedText = decoratedStructured
       ? structuredToText(decoratedStructured)
       : response.text;
+
+    const decoratedText = productionOnlyPlanning
+      ? scrubProductionOnlyVisibleText(rawDecoratedText)
+      : rawDecoratedText;
 
     const decoratedDomain =
       decoratedStructured?.domain ??
@@ -2949,6 +3029,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
