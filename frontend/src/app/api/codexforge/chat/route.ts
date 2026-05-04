@@ -58,7 +58,11 @@ const VALID_PLAN_DOMAINS: readonly CodexForgePlanDomain[] = [
   "comfyui",
   "unreal",
   "automation",
-] as const;
+  "trading",
+  "blender",
+  "design",
+  "marketing",
+  "decks",] as const;
 
 const VALID_PLAN_STATUSES: readonly CodexForgePlanStatus[] = [
   "draft",
@@ -168,7 +172,8 @@ const CAPABILITY_BRIEFINGS: Record<CodexForgePlanDomain, readonly string[]> = {
   decks: [
     "Decks mode: plan slideshows, pitch decks, sales decks, research decks, story arcs, slide-by-slide structure, speaker notes, and visual direction.",
     "Optimize for narrative clarity, executive readability, evidence, and strong visual hierarchy.",
-  ],} as const;
+  ],
+} as const;
 
 /* ================= TYPES ================= */
 
@@ -2453,4 +2458,5 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
 
