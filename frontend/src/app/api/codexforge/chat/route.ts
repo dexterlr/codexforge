@@ -21,7 +21,7 @@ import type {
 
 /* ================= CONFIG ================= */
 
-const MODEL_NAME = "codexforge-brain-router-v6";
+const MODEL_NAME = "codexforge-brain-router-v7";
 
 const LIMITS = {
   maxMessages: 80,
@@ -40,10 +40,11 @@ const LIMITS = {
   maxGraphKinds: 24,
   maxGraphBriefingItems: 8,
   maxGroundedFiles: 8,
-  maxGroundedSignals: 10,
+  maxGroundedSignals: 12,
   maxDoctrineLines: 18,
   maxCapabilityBriefingLines: 12,
   maxDebugHeaderText: 500,
+  maxRepoCandidates: 12,
 } as const;
 
 const VALID_PLAN_DOMAINS: readonly CodexForgePlanDomain[] = [
@@ -252,7 +253,7 @@ function asFiniteNumber(value: unknown): number | undefined {
 }
 
 function clampText(text: string, max: number): string {
-  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1))}…`;
+  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1))}...`;
 }
 
 function asClampedString(value: unknown, max: number): string | undefined {
@@ -287,7 +288,7 @@ function asStringArray(
 
   const normalized = value
     .filter((item): item is string => typeof item === "string")
-    .map((item) => item.trim())
+    .map((item) => sanitizePathPunctuationInText(item.trim()))
     .filter(Boolean)
     .map((item) => clampText(item, maxText));
 
@@ -392,6 +393,100 @@ function getPathFileName(value: string): string {
   return parts[parts.length - 1] ?? value;
 }
 
+function stripPathTrailingPunctuation(value: string): string {
+  let output = value.trim();
+
+  while (
+    output.length > 0 &&
+    /[.,;:!?)}\]]$/.test(output) &&
+    looksLikePath(output.slice(0, -1))
+  ) {
+    output = output.slice(0, -1);
+  }
+
+  return output;
+}
+
+function stripPathWrapping(value: string): string {
+  return value
+    .trim()
+    .replace(/^["'`(<[{]+/, "")
+    .replace(/["'`)>}\]]+$/, "");
+}
+
+function sanitizePathLikeSegment(value: string): string {
+  return stripPathTrailingPunctuation(stripPathWrapping(value));
+}
+
+function sanitizePathPunctuationInText(text: string): string {
+  return text.replace(
+    /(?:[A-Za-z]:)?(?:[A-Za-z0-9_.-]+[\\/])+[A-Za-z0-9_.-]+[.,;:!?)}\]]*|[A-Za-z0-9_.-]+\.[A-Za-z0-9_.-]+[.,;:!?)}\]]*/g,
+    (match) => sanitizePathLikeSegment(match)
+  );
+}
+
+function isFrontendRepoPath(path: string): boolean {
+  const normalized = normalizePathForCompare(path) ?? "";
+  return (
+    normalized.endsWith("/frontend") ||
+    normalized.includes("/repos/health-tracker/frontend") ||
+    normalized.includes("/health-tracker/frontend")
+  );
+}
+
+function isWorkspaceRootPath(path: string): boolean {
+  const normalized = normalizePathForCompare(path) ?? "";
+  return (
+    normalized.endsWith("/openclaw-workspace") ||
+    normalized.endsWith("/workspace") ||
+    normalized.endsWith("/repos") ||
+    normalized === "c:/ai-lab/projects/openclaw-workspace"
+  );
+}
+
+function scoreRepoPathCandidate(path: string): number {
+  const normalized = normalizePathForCompare(path) ?? "";
+  let score = 0;
+
+  if (!normalized) return -1000;
+
+  if (isFrontendRepoPath(normalized)) score += 200;
+  if (normalized.includes("/repos/")) score += 60;
+  if (normalized.includes("/health-tracker")) score += 40;
+  if (normalized.includes("/frontend")) score += 80;
+  if (normalized.includes("/src/")) score -= 80;
+  if (normalized.endsWith(".ts") || normalized.endsWith(".tsx")) score -= 120;
+  if (normalized.includes("/node_modules/")) score -= 200;
+  if (normalized.includes("/.next/")) score -= 200;
+  if (isWorkspaceRootPath(normalized)) score -= 60;
+
+  return score;
+}
+
+function chooseBestRepoPath(args: {
+  context: CodexForgeChatContext;
+  graphDiagnostics: GraphDiagnostics;
+}): string | undefined {
+  const candidates = uniqueStrings([
+    args.context.repoPath ?? "",
+    ...args.graphDiagnostics.repoPaths,
+    args.context.workspaceRoot ?? "",
+  ]).slice(0, LIMITS.maxRepoCandidates);
+
+  if (candidates.length === 0) return undefined;
+
+  const explicitContextRepo = args.context.repoPath;
+  if (explicitContextRepo && isFrontendRepoPath(explicitContextRepo)) {
+    return explicitContextRepo;
+  }
+
+  const sorted = [...candidates].sort(
+    (a, b) => scoreRepoPathCandidate(b) - scoreRepoPathCandidate(a)
+  );
+
+  return sorted[0] ?? explicitContextRepo;
+}
+
 /* ================= COMMANDS ================= */
 
 function detectCommand(text: string): BrainRouteMode | null {
@@ -418,7 +513,9 @@ function normalizeMessage(raw: unknown, idx: number): CodexForgeMessage {
     throw new Error(`Message #${idx + 1} has invalid role.`);
   }
 
-  const text = asClampedString(raw.text, LIMITS.maxText);
+  const rawText = asClampedString(raw.text, LIMITS.maxText);
+  const text = rawText ? sanitizePathPunctuationInText(rawText) : undefined;
+
   if (!text) {
     throw new Error(`Message #${idx + 1} is missing text.`);
   }
@@ -538,7 +635,7 @@ function normalizeExecution(raw: unknown): CodexForgeChatContext["execution"] {
 
       return {
         ...(id ? { id } : {}),
-        filePath,
+        filePath: sanitizePathLikeSegment(filePath),
         patch,
       };
     })
@@ -592,7 +689,7 @@ function normalizeExecutionRequest(
     taskId,
     taskGoal,
     stepIndex,
-    stepText,
+    stepText: sanitizePathPunctuationInText(stepText),
     mode,
   };
 }
@@ -945,7 +1042,7 @@ function buildGraphDiagnostics(
   const graphBriefing = prioritizedNodes.map((node) => {
     const label = readNodeLabel(node);
     const summary = readNodeSummary(node);
-    return summary ? `${node.kind}: ${label} — ${summary}` : `${node.kind}: ${label}`;
+    return summary ? `${node.kind}: ${label} - ${summary}` : `${node.kind}: ${label}`;
   });
 
   const warnings: string[] = [];
@@ -1030,7 +1127,8 @@ function buildGraphBriefingLines(diagnostics: GraphDiagnostics): string[] {
 /* ================= GROUNDED PATH HELPERS ================= */
 
 function looksLikePath(value: string): boolean {
-  const normalized = normalizePathForCompare(value) ?? value.toLowerCase();
+  const cleaned = stripPathWrapping(value);
+  const normalized = normalizePathForCompare(cleaned) ?? cleaned.toLowerCase();
 
   return (
     normalized.includes("/") ||
@@ -1050,15 +1148,17 @@ function looksLikePath(value: string): boolean {
 function extractPathLikeSegments(text: string): string[] {
   const quoted = text.match(/`([^`]+)`|"([^"]+)"|'([^']+)'/g) ?? [];
   const quotedValues = quoted
-    .map((match) => match.replace(/^["'`]|["'`]$/g, "").trim())
+    .map((match) => sanitizePathLikeSegment(match))
     .filter(Boolean);
 
   const tokenMatches =
     text.match(
-      /(?:[A-Za-z]:)?(?:[A-Za-z0-9_.-]+[\\/])+[A-Za-z0-9_.-]+|[A-Za-z0-9_.-]+\.[A-Za-z0-9_.-]+/g
+      /(?:[A-Za-z]:)?(?:[A-Za-z0-9_.-]+[\\/])+[A-Za-z0-9_.-]+[.,;:!?)}\]]*|[A-Za-z0-9_.-]+\.[A-Za-z0-9_.-]+[.,;:!?)}\]]*/g
     ) ?? [];
 
-  return uniqueStrings([...quotedValues, ...tokenMatches].filter(looksLikePath));
+  const cleanedTokens = tokenMatches.map((match) => sanitizePathLikeSegment(match));
+
+  return uniqueStrings([...quotedValues, ...cleanedTokens].filter(looksLikePath));
 }
 
 function inferFileRoleFromPath(filePath: string): string {
@@ -1119,8 +1219,12 @@ function inferFileRoleFromPath(filePath: string): string {
 function inferFileEditSuggestion(filePath: string): string {
   const normalized = normalizePathForCompare(filePath) ?? filePath.toLowerCase();
 
-  if (normalized.includes("engine")) {
-    return "Likely edit point: engine logic flow, tool orchestration, grounding, or decision branches.";
+  if (normalized.includes("engine-render")) {
+    return "Likely edit point: structured output assembly, diff preview metadata, or visible response priority.";
+  }
+
+  if (normalized.includes("engine.ts")) {
+    return "Likely edit point: engine logic flow, tool orchestration, grounding, trace construction, or decision branches.";
   }
 
   if (normalized.includes("route")) {
@@ -1197,6 +1301,9 @@ function extractFileIntentDiagnostics(text: string): FileIntentDiagnostics {
     /\bdebug\b/.test(normalized) ? "debug" : "",
     /\bfix\b/.test(normalized) ? "fix" : "",
     /\bedit point\b/.test(normalized) ? "edit-point" : "",
+    /\bchanging\b/.test(normalized) ? "change" : "",
+    /\bchange\b/.test(normalized) ? "change" : "",
+    /\bimplement\b/.test(normalized) ? "implement" : "",
   ]);
 
   const explicitFileRequest =
@@ -1237,6 +1344,7 @@ function scoreGroundedFileCandidate(
   if (normalized.startsWith("app/") || normalized.includes("/app/")) score += 18;
   if (normalized.startsWith("lib/") || normalized.includes("/lib/")) score += 18;
   if (normalized.includes("/chat/")) score += 16;
+  if (normalized.includes("engine-render")) score += 20;
   if (normalized.includes("engine")) score += 14;
   if (normalized.includes("route")) score += 10;
   if (normalized.includes("tool")) score += 8;
@@ -1254,15 +1362,15 @@ function scoreGroundedFileCandidate(
 
     const requestedFileName = getPathFileName(normalizedRequested);
 
-    if (normalized === normalizedRequested) score += 140;
-    if (normalized.endsWith(`/${normalizedRequested}`)) score += 125;
-    if (normalizedRequested.endsWith(`/${normalized}`)) score += 70;
+    if (normalized === normalizedRequested) score += 180;
+    if (normalized.endsWith(`/${normalizedRequested}`)) score += 160;
+    if (normalizedRequested.endsWith(`/${normalized}`)) score += 80;
 
     if (fileName === requestedFileName && requestedFileName.includes(".")) {
-      score += 45;
+      score += 75;
     }
 
-    if (normalized.includes(normalizedRequested)) score += 20;
+    if (normalized.includes(normalizedRequested)) score += 30;
   }
 
   return score;
@@ -1338,7 +1446,7 @@ function detectCapabilityRouting(
   }
 
   if (
-    /\b(video|youtube|tiktok|reel|shorts|davinci|da vinci|davinci resolve|da vinci resolve|thumbnail|timeline|b-roll|voice over|voiceover|video edit|video editing|render video|render a video|rendering a video)\b/.test(
+    /\b(video|youtube|tiktok|reel|shorts|davinci|da vinci|davinci resolve|thumbnail|timeline|b-roll|voice over|voiceover|video edit|video editing|render video|render a video|rendering a video)\b/.test(
       normalized
     )
   ) {
@@ -1423,28 +1531,24 @@ function buildGroundedDiagnostics(
   context: CodexForgeChatContext,
   graphDiagnostics: GraphDiagnostics
 ): GroundedDiagnostics {
-  const recentUserText = messages
-    .filter((message) => message.role === "user")
-    .slice(-4)
-    .map((message) => message.text)
-    .join("\n");
+  const lastUser = getLastUser(messages);
+  const latestUserText = lastUser?.text ?? "";
 
-  const fileIntent = extractFileIntentDiagnostics(recentUserText);
+  const fileIntent = extractFileIntentDiagnostics(latestUserText);
   const pathCandidates = fileIntent.requestedPaths;
 
+  const activePlanFiles =
+    pathCandidates.length > 0 ? [] : context.activePlan?.files ?? [];
+
   const repoCandidates = uniqueStrings([
-    ...(context.activePlan?.files ?? []),
     ...pathCandidates,
+    ...activePlanFiles,
     ...graphDiagnostics.repoPaths,
     ...(context.repoPath ? [context.repoPath] : []),
     ...(context.workspaceRoot ? [context.workspaceRoot] : []),
   ]);
 
   const normalizedCandidates = pathCandidates
-    .map((candidate) => normalizePathForCompare(candidate))
-    .filter((candidate): candidate is string => !!candidate);
-
-  const normalizedRepoCandidates = repoCandidates
     .map((candidate) => normalizePathForCompare(candidate))
     .filter((candidate): candidate is string => !!candidate);
 
@@ -1462,11 +1566,16 @@ function buildGroundedDiagnostics(
     });
   });
 
-  const rankedFiles = uniqueStrings([
-    ...pathCandidates,
-    ...matchingRepoFiles,
-    ...repoCandidates,
-  ])
+  const rankedInputs =
+    pathCandidates.length > 0
+      ? uniqueStrings([
+          ...pathCandidates,
+          ...matchingRepoFiles,
+          ...repoCandidates.filter(isProbableSourceFile),
+        ])
+      : uniqueStrings([...activePlanFiles, ...matchingRepoFiles, ...repoCandidates]);
+
+  const rankedFiles = rankedInputs
     .sort(
       (a, b) =>
         scoreGroundedFileCandidate(b, pathCandidates) -
@@ -1486,6 +1595,9 @@ function buildGroundedDiagnostics(
         inferFileEditSuggestion(primaryFile),
         fileIntent.explicitFileRequest
           ? "Intent: explicit file inspection request; use safe repo tools before answering."
+          : "",
+        pathCandidates.length > 0
+          ? "Intent: latest user request contains explicit path context; prefer it over stale active plan files."
           : "",
         isLikelyRepoRootPath(primaryFile)
           ? "Warning signal: primary path appears to be a repo root, not a source file."
@@ -1508,17 +1620,6 @@ function buildGroundedDiagnostics(
 
   if (primaryFile && isLikelyRepoRootPath(primaryFile)) {
     warnings.push("Primary grounded path appears to be a repo root rather than a source file.");
-  }
-
-  if (
-    primaryFile &&
-    normalizedRepoCandidates.length > 0 &&
-    !normalizedRepoCandidates.includes(normalizePathForCompare(primaryFile) ?? "") &&
-    pathCandidates.length === 0
-  ) {
-    warnings.push(
-      "Primary grounded file came from indirect context rather than an explicit request."
-    );
   }
 
   return {
@@ -1640,10 +1741,6 @@ function resolveRouteMode(args: {
     return "execution";
   }
 
-  if (args.graphDiagnostics.hasRunNode) {
-    return "execution";
-  }
-
   if (
     args.capabilityRouting.domain === "debug" &&
     args.fileIntent.requestedPaths.length > 0
@@ -1651,15 +1748,15 @@ function resolveRouteMode(args: {
     return "execution";
   }
 
+  if (args.capabilityRouting.matched && args.capabilityRouting.domain !== "general") {
+    return "planning";
+  }
+
   if (
     args.context.activePlan ||
     args.graphDiagnostics.hasTaskNode ||
     args.graphDiagnostics.hasPlanNode
   ) {
-    return "planning";
-  }
-
-  if (args.capabilityRouting.matched && args.capabilityRouting.domain !== "general") {
     return "planning";
   }
 
@@ -1681,6 +1778,41 @@ function mapRouteModeToChatMode(
   return "local";
 }
 
+function latestRequestShouldReplaceActivePlan(args: {
+  latestUserText: string;
+  context: CodexForgeChatContext;
+  fileIntent: FileIntentDiagnostics;
+  capabilityRouting: CapabilityRouting;
+}): boolean {
+  if (!args.context.activePlan) return true;
+
+  const latest = args.latestUserText.toLowerCase();
+  const activeGoal = args.context.activePlan.goal.toLowerCase();
+
+  if (args.fileIntent.requestedPaths.length > 0) {
+    return !args.fileIntent.requestedPaths.some((path) =>
+      activeGoal.includes(path.toLowerCase())
+    );
+  }
+
+  if (
+    /\b(plan|design|build|implement|create|add|rewrite|upgrade)\b/.test(latest) &&
+    args.capabilityRouting.matched
+  ) {
+    const latestTokens = uniqueStrings(
+      latest
+        .split(/[^a-z0-9_.-]+/i)
+        .filter((token) => token.length >= 5)
+        .slice(0, 20)
+    );
+
+    const overlap = latestTokens.filter((token) => activeGoal.includes(token)).length;
+    return overlap < Math.min(2, latestTokens.length);
+  }
+
+  return false;
+}
+
 function buildImplicitActivePlan(args: {
   latestUserText: string;
   context: CodexForgeChatContext;
@@ -1689,10 +1821,6 @@ function buildImplicitActivePlan(args: {
   capabilityRouting: CapabilityRouting;
   resolvedMode: BrainRouteMode;
 }): CodexForgeChatContext["activePlan"] {
-  if (args.context.activePlan) {
-    return args.context.activePlan;
-  }
-
   const primaryFile = args.groundedDiagnostics.primaryFile;
 
   if (args.fileIntent.explicitFileRequest && primaryFile) {
@@ -1724,6 +1852,16 @@ function buildImplicitActivePlan(args: {
   ) {
     const goal = clampText(args.latestUserText, LIMITS.maxText);
 
+    const files = uniqueStrings([
+      ...(primaryFile && !isLikelyRepoRootPath(primaryFile) ? [primaryFile] : []),
+      ...args.groundedDiagnostics.supportingFiles.filter(
+        (filePath) => !isLikelyRepoRootPath(filePath)
+      ),
+      ...args.fileIntent.requestedPaths.filter(
+        (filePath) => !isLikelyRepoRootPath(filePath)
+      ),
+    ]);
+
     return {
       goal,
       steps: [
@@ -1731,7 +1869,9 @@ function buildImplicitActivePlan(args: {
         "Map files, contracts, tools, approvals, and state boundaries.",
         "Return a phased implementation plan with the first concrete edit point.",
       ],
+      ...(files.length > 0 ? { files } : {}),
       notes: uniqueStrings([
+        ...args.groundedDiagnostics.fileSignals,
         ...args.capabilityRouting.briefing,
         ...args.capabilityRouting.reasons,
       ]),
@@ -1759,8 +1899,8 @@ function buildEnrichedContext(
   const capabilityLines = buildCapabilityBriefingLines(capabilityRouting);
 
   const inferredRepoPath =
+    chooseBestRepoPath({ context, graphDiagnostics }) ??
     context.repoPath ??
-    graphDiagnostics.repoPaths[0] ??
     context.workspaceRoot;
 
   const groundedLines =
@@ -1774,6 +1914,7 @@ function buildEnrichedContext(
   const safetyLines = [
     "Safety contract: read-only inspection is allowed through safe tools.",
     "Safety contract: file writes, diff application, shell commands, installs, deployments, desktop automation, camera/voice actions, and render jobs require explicit user approval.",
+    "Path hygiene: strip trailing punctuation from path-like tokens before selecting files or executing read-file/search-project/generate-diff.",
     fileIntent.explicitFileRequest
       ? "Execution instruction: this is an explicit file inspection request; use read-file/search-project/list-files before answering and do not merely suggest shell commands."
       : undefined,
@@ -1782,6 +1923,14 @@ function buildEnrichedContext(
       : undefined,
     groundedDiagnostics.primaryFile
       ? `Visible-answer instruction: lead with the grounded file ${groundedDiagnostics.primaryFile} and the strongest concrete edit point when answering inspection/debug prompts.`
+      : undefined,
+    latestRequestShouldReplaceActivePlan({
+      latestUserText,
+      context,
+      fileIntent,
+      capabilityRouting,
+    })
+      ? "Planning instruction: the latest user request supersedes stale activePlan context for goal, files, and next action."
       : undefined,
   ].filter((value): value is string => typeof value === "string" && value.length > 0);
 
@@ -1794,26 +1943,37 @@ function buildEnrichedContext(
     resolvedMode,
   });
 
+  const preferImplicitPlan =
+    !!implicitActivePlan &&
+    latestRequestShouldReplaceActivePlan({
+      latestUserText,
+      context,
+      fileIntent,
+      capabilityRouting,
+    });
+
+  const basePlan =
+    preferImplicitPlan || !context.activePlan ? implicitActivePlan : context.activePlan;
+
   const mergedFiles = uniqueStrings([
-    ...(groundedDiagnostics.primaryFile ? [groundedDiagnostics.primaryFile] : []),
+    ...(groundedDiagnostics.primaryFile && !isLikelyRepoRootPath(groundedDiagnostics.primaryFile)
+      ? [groundedDiagnostics.primaryFile]
+      : []),
     ...groundedDiagnostics.supportingFiles.filter(
       (filePath) => !isLikelyRepoRootPath(filePath)
     ),
-    ...(implicitActivePlan?.files ?? []),
-    ...(context.activePlan?.files ?? []),
+    ...(basePlan?.files ?? []),
   ]);
 
   const mergedNotes = uniqueStrings([
-    ...(context.activePlan?.notes ?? []),
-    ...(implicitActivePlan?.notes ?? []),
+    ...(basePlan?.notes ?? []),
     ...groundedDiagnostics.fileSignals,
     ...capabilityRouting.briefing,
     ...capabilityRouting.reasons,
   ]);
 
   const mergedTags = uniqueStrings([
-    ...(context.activePlan?.tags ?? []),
-    ...(implicitActivePlan?.tags ?? []),
+    ...(basePlan?.tags ?? []),
     ...capabilityRouting.tags,
   ]);
 
@@ -1834,15 +1994,6 @@ function buildEnrichedContext(
       typeof value === "string" && value.trim().length > 0
   );
 
-  const activePlan = implicitActivePlan
-    ? {
-        ...implicitActivePlan,
-        ...(mergedFiles.length > 0 ? { files: mergedFiles } : {}),
-        ...(mergedNotes.length > 0 ? { notes: mergedNotes } : {}),
-        ...(mergedTags.length > 0 ? { tags: mergedTags } : {}),
-      }
-    : null;
-
   return {
     ...context,
     ...(inferredRepoPath ? { repoPath: inferredRepoPath } : {}),
@@ -1851,15 +2002,15 @@ function buildEnrichedContext(
       systemGuideParts.length > 0
         ? clampText(systemGuideParts.join("\n"), LIMITS.maxSystemGuide)
         : context.systemGuide,
-    activePlan: context.activePlan
+    activePlan: basePlan
       ? {
-          ...context.activePlan,
+          ...basePlan,
           ...(mergedFiles.length > 0 ? { files: mergedFiles } : {}),
           ...(mergedNotes.length > 0 ? { notes: mergedNotes } : {}),
           ...(mergedTags.length > 0 ? { tags: mergedTags } : {}),
           ...(capabilityRouting.domain ? { domain: capabilityRouting.domain } : {}),
         }
-      : activePlan,
+      : null,
     codexforgeCapabilities: {
       ...(context.codexforgeCapabilities ?? {}),
       structuredReplies: true,
@@ -2055,8 +2206,10 @@ export async function POST(req: Request) {
       usedFallback: selectionInfo.usedFallback,
       hasRepoPath: !!enrichedContext.repoPath,
       repoPath: enrichedContext.repoPath ?? null,
+      workspaceRoot: enrichedContext.workspaceRoot ?? null,
       hasSystemGuide: !!enrichedContext.systemGuide,
       systemGuideLength: enrichedContext.systemGuide?.length ?? 0,
+      activePlanGoal: enrichedContext.activePlan?.goal ?? null,
       activePlanSteps: enrichedContext.activePlan?.steps.length ?? 0,
       activePlanFiles: enrichedContext.activePlan?.files?.length ?? 0,
       activePlanNotes: enrichedContext.activePlan?.notes?.length ?? 0,
