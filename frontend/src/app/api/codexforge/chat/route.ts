@@ -390,6 +390,8 @@ function attachAgentTeamToStructuredReply(
         !normalized.startsWith("the likely domain is") &&
         !normalized.includes("likely domain is comfyui") &&
         !normalized.includes("domain is comfyui") &&
+        !normalized.includes("domain: comfyui") &&
+        !normalized.includes("the request is being handled as") &&
         !normalized.startsWith("primary agent:")
       );
     });
@@ -2767,6 +2769,8 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
+
 
 
 
