@@ -50,3 +50,8 @@ next-env.d.ts
 all-files.txt
 repo-index.txt
 src-tree.txt
+
+_codexforge-backups/
+
+/frontend/_codexforge-backups/
+_codexforge-backups/
