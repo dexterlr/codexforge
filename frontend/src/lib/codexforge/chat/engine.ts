@@ -496,6 +496,80 @@ function startTraceStage(trace: EngineTrace, name: string): EngineStageTraceHand
 
 /* ================= MAIN ================= */
 
+function scrubProductionOnlyStructuredReply(structured: CodexForgeStructuredReply): CodexForgeStructuredReply {
+  const blockedTerms = [
+    "src/",
+    "src\\",
+    ".ts",
+    ".tsx",
+    "route.ts",
+    "engine.ts",
+    "engine-render",
+    "engine-analysis",
+    "use-codexforge-chat",
+    "types.ts",
+    "npm run",
+    "read-file",
+    "list-files",
+    "search-project",
+    "safe tool",
+    "repo path",
+    "codebase",
+    "implementation file",
+    "grounded file",
+    "grounding confidence",
+  ];
+
+  const isBlocked = (value: string): boolean => {
+    const normalized = value.toLowerCase();
+    return blockedTerms.some((term) => normalized.includes(term.toLowerCase()));
+  };
+
+  const cleanList = (items?: string[] | null): string[] =>
+    (items ?? []).filter((item) => !isBlocked(item));
+
+  return {
+    ...structured,
+    files: [
+      "Blender scene file",
+      "Geometry node group library",
+      "Material and lighting preset notes",
+      "ComfyUI concept workflow",
+      "Preview render exports",
+      "Final render output folder",
+      "Asset and output naming sheet",
+    ],
+    commands: [
+      "Validate the geometry nodes setup with a small viewport preview.",
+      "Run a low-sample lighting and camera test render.",
+      "Review ComfyUI concept references against the scene direction.",
+    ],
+    sections: (structured.sections ?? [])
+      .filter((section) => {
+        const title = section.title.toLowerCase();
+        return (
+          !title.includes("outcome") &&
+          !title.includes("why") &&
+          !title.includes("next action") &&
+          !title.includes("evidence") &&
+          !title.includes("files to change") &&
+          !title.includes("execution posture") &&
+          !title.includes("engine trace") &&
+          !title.includes("response quality") &&
+          !title.includes("commands")
+        );
+      })
+      .map((section) => ({
+        ...section,
+        items: cleanList(section.items),
+      }))
+      .filter((section) => (section.items ?? []).length > 0),
+    status: cleanList(structured.status),
+    context: cleanList(structured.context),
+    understanding: cleanList(structured.understanding),
+  };
+}
+
 export async function runCodexForgeEngine(
   messages: CodexForgeMessage[],
   context: CodexForgeChatContext,
@@ -746,13 +820,20 @@ export async function runCodexForgeEngine(
     warnings: finalWarnings,
   });
 
-  return {
+  
+  if (context.productionOnlyPlanning) {
+    structured = scrubProductionOnlyStructuredReply(structured);
+  }
+return {
     text: structuredToText(structured),
     structured,
     intent: analysis.intent,
     ...(finalWarnings.length > 0 ? { warnings: finalWarnings } : {}),
   };
 }
+
+
+
 
 
 
