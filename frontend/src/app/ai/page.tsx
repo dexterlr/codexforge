@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -489,7 +489,7 @@ function WorkspaceHeroIntro({
           </div>
 
           <div style={heroMetaTextStyle}>
-            local-first • backend-optional • planning, memory, and execution context
+            local-first â€¢ backend-optional â€¢ planning, memory, and execution context
           </div>
         </div>
 
@@ -655,7 +655,7 @@ function EmptyState() {
       <div style={styles.emptyExamples}>
         {EMPTY_EXAMPLES.map((example) => (
           <div key={example} style={styles.exampleChip}>
-            “{example}”
+            â€œ{example}â€
           </div>
         ))}
       </div>
@@ -681,7 +681,7 @@ function LatestReplyCard({ snapshot }: LatestReplyCardProps) {
         <MetaCard label="Mode" value={snapshot.modeLabel} />
         <MetaCard label="Steps" value={snapshot.stepCount} />
         <MetaCard label="Diffs" value={snapshot.diffCount} />
-        <MetaCard label="Snapshot" value={snapshot.snapshotFileCount ?? "—"} />
+        <MetaCard label="Snapshot" value={snapshot.snapshotFileCount ?? "â€”"} />
         <MetaCard
           label="Execution phase"
           value={snapshot.executionPhaseLabel}
@@ -1060,7 +1060,7 @@ function ExecutionPanel({
           style={styles.pillGhostButton}
           disabled={busy || isExecuting || totalSteps === 0}
         >
-          {isExecuting ? "Running…" : "Run current step"}
+          {isExecuting ? "Runningâ€¦" : "Run current step"}
         </button>
 
         <ActionButton
@@ -1253,16 +1253,16 @@ export default function AiPage() {
 
     return {
       textLength: lastAssistant?.text.length ?? 0,
-      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "—",
+      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "â€”",
       structured: !!lastAssistant?.structured,
       toolCount: summaryMeta.toolCount,
       domainLabel: summaryMeta.domainLabel ?? "General",
       tagCount: summaryMeta.tagCount,
-      modeLabel: summaryMeta.modeLabel ?? "—",
+      modeLabel: summaryMeta.modeLabel ?? "â€”",
       stepCount: summaryMeta.stepCount,
       diffCount: summaryMeta.diffCount,
       snapshotFileCount: summaryMeta.snapshotFileCount,
-      executionPhaseLabel: executionMeta.phaseLabel ?? "—",
+      executionPhaseLabel: executionMeta.phaseLabel ?? "â€”",
       logCount: executionMeta.logCount,
     };
   }, [lastAssistant]);
@@ -1417,6 +1417,16 @@ export default function AiPage() {
                 )}
               </div>
 
+              <div style={composerDockStyle}>
+                <ChatComposer
+                  ref={inputRef}
+                  input={input}
+                  busy={busy || isExecuting}
+                  onChange={setInput}
+                  onClearDraft={handleClearDraft}
+                  onSend={handleSend}
+                />
+              </div>
               <div style={sectionStackStyle}>
                 <WorkspaceOverviewCard
                   hasMessages={hasMessages}
@@ -1505,15 +1515,6 @@ export default function AiPage() {
                   />
                 ) : null}
               </div>
-
-              <ChatComposer
-                ref={inputRef}
-                input={input}
-                busy={busy || isExecuting}
-                onChange={setInput}
-                onClearDraft={handleClearDraft}
-                onSend={handleSend}
-              />
 
               <div style={styles.footerNote}>
                 Main CodexForge workspace. Use the operator page for explicit
@@ -1783,6 +1784,7 @@ const surfaceLinkTextStyle: React.CSSProperties = {
 const sectionStackStyle: React.CSSProperties = {
   display: "grid",
   gap: 14,
+  marginTop: 16,
 };
 
 const executionChipStyle: React.CSSProperties = {
@@ -2057,3 +2059,19 @@ const panelSubtleTextStyle: React.CSSProperties = {
   lineHeight: 1.55,
   opacity: 0.8,
 };
+const composerDockStyle: React.CSSProperties = {
+  position: "sticky",
+  bottom: 14,
+  zIndex: 40,
+  marginTop: 14,
+  padding: 12,
+  borderRadius: 24,
+  border: "1px solid rgba(148,163,184,0.22)",
+  background:
+    "linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.86))",
+  boxShadow:
+    "0 24px 70px rgba(0,0,0,0.42), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.06)",
+  backdropFilter: "blur(22px)",
+};
+
+
