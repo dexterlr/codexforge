@@ -402,33 +402,6 @@ function buildExecution(context: CodexForgeChatContext) {
   };
 }
 
-function normalizeDiffs(diffs: unknown): CodexForgeDiff[] | undefined {
-  if (!Array.isArray(diffs) || diffs.length === 0) {
-    return undefined;
-  }
-
-  const normalized = diffs
-    .filter(
-      (diff): diff is CodexForgeDiff =>
-        !!diff &&
-        typeof diff.filePath === "string" &&
-        diff.filePath.trim().length > 0 &&
-        typeof diff.patch === "string"
-    )
-    .map((diff) => ({
-      ...diff,
-      filePath: diff.filePath.trim(),
-      patch: diff.patch,
-    }))
-    .slice(0, LIMITS.maxGraphDiffs);
-
-  return normalized.length > 0 ? normalized : undefined;
-}
-
-function getDiffs(context: CodexForgeChatContext): CodexForgeDiff[] | undefined {
-  return normalizeDiffs(context.execution?.diffs);
-}
-
 /* ================= PLAN ================= */
 
 function buildStructuredPlan(
@@ -785,4 +758,5 @@ export function buildStructured(
 /* ================= TEXT RENDER EXPORT ================= */
 
 export { structuredToText } from "./engine-render-text";
+
 
