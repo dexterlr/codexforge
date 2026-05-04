@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   getDiffMeta,
   getExecutionMeta,
@@ -11,9 +11,12 @@ import {
 } from "@/lib/codexforge/chat/client-renderers";
 import * as styles from "@/lib/codexforge/chat/client-styles";
 import type {
+  CodexForgeApprovalGate,
+  CodexForgeDiffPreview,
   CodexForgeExecutionPhase,
   CodexForgeMessage,
   CodexForgeRole,
+  CodexForgeStructuredReply,
 } from "@/lib/codexforge/types";
 
 type ChatMessageProps = {
@@ -62,6 +65,8 @@ function getRowStyle(role: CodexForgeRole): React.CSSProperties {
   };
 }
 
+/* ================= GENERIC HELPERS ================= */
+
 function normalizeText(value: string | null | undefined): string {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -104,6 +109,137 @@ function getMessageToneBadge(
   return null;
 }
 
+function asNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function getMetaNumber(
+  meta: ReturnType<typeof getStructuredSummaryMeta>,
+  key: string
+): number {
+  const value = (meta as Record<string, unknown>)[key];
+  return asNumber(value) ?? 0;
+}
+
+function plural(value: number, singular: string, pluralLabel?: string): string {
+  return `${value} ${value === 1 ? singular : pluralLabel ?? `${singular}s`}`;
+}
+
+function getStructuredDiffPreviews(
+  structured?: CodexForgeStructuredReply | null
+): CodexForgeDiffPreview[] {
+  return Array.isArray(structured?.diffPreviews)
+    ? structured.diffPreviews.filter(
+        (preview): preview is CodexForgeDiffPreview =>
+          !!preview &&
+          typeof preview.filePath === "string" &&
+          typeof preview.patch === "string"
+      )
+    : [];
+}
+
+function getStructuredApprovals(
+  structured?: CodexForgeStructuredReply | null
+): CodexForgeApprovalGate[] {
+  return Array.isArray(structured?.approvals)
+    ? structured.approvals.filter(
+        (approval): approval is CodexForgeApprovalGate =>
+          !!approval &&
+          typeof approval.label === "string" &&
+          typeof approval.state === "string"
+      )
+    : [];
+}
+
+function getPendingApprovalCount(
+  structured?: CodexForgeStructuredReply | null
+): number {
+  return getStructuredApprovals(structured).filter(
+    (approval) => approval.state === "pending"
+  ).length;
+}
+
+function getDiffPreviewCount(
+  structured?: CodexForgeStructuredReply | null
+): number {
+  const previewCount = getStructuredDiffPreviews(structured).length;
+  const batchCount = structured?.diffPreviewBatch?.previews?.length ?? 0;
+  return Math.max(previewCount, batchCount);
+}
+
+function getApprovalStateLabel(state?: string): string {
+  if (state === "approved") return "Approved";
+  if (state === "rejected") return "Rejected";
+  if (state === "stale") return "Stale";
+  if (state === "failed") return "Failed";
+  if (state === "not-required") return "Not required";
+  return "Pending";
+}
+
+function getPreviewStatusLabel(status?: string): string {
+  if (status === "ready") return "Ready";
+  if (status === "approved") return "Approved";
+  if (status === "rejected") return "Rejected";
+  if (status === "stale") return "Stale";
+  if (status === "applying") return "Applying";
+  if (status === "applied") return "Applied";
+  if (status === "failed") return "Failed";
+  if (status === "draft") return "Draft";
+  return "Awaiting approval";
+}
+
+function getStatusStyle(status?: string): React.CSSProperties {
+  if (status === "approved" || status === "applied") return approvedBadge;
+  if (status === "rejected" || status === "failed") return rejectedBadge;
+  if (status === "stale") return staleBadge;
+  if (status === "applying") return applyingBadge;
+  return pendingBadge;
+}
+
+function summarizePatch(patch: string): {
+  additions: number;
+  deletions: number;
+  hunks: number;
+} {
+  let additions = 0;
+  let deletions = 0;
+  let hunks = 0;
+
+  for (const line of patch.split(/\r?\n/)) {
+    if (line.startsWith("@@")) hunks += 1;
+    if (line.startsWith("+++") || line.startsWith("---")) continue;
+    if (line.startsWith("+")) additions += 1;
+    if (line.startsWith("-")) deletions += 1;
+  }
+
+  return { additions, deletions, hunks };
+}
+
+function clampPatchForPreview(patch: string, maxLines = 120): string {
+  const lines = patch.split(/\r?\n/);
+  if (lines.length <= maxLines) return patch;
+  return `${lines.slice(0, maxLines).join("\n")}\n\n... truncated ${
+    lines.length - maxLines
+  } more line${lines.length - maxLines === 1 ? "" : "s"}`;
+}
+
+async function copyTextToClipboard(text: string): Promise<boolean> {
+  if (
+    typeof navigator === "undefined" ||
+    !navigator.clipboard ||
+    typeof navigator.clipboard.writeText !== "function"
+  ) {
+    return false;
+  }
+
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function shouldShowApprovalActions(args: {
   isAssistant: boolean;
   canApprovePlan: boolean;
@@ -122,6 +258,8 @@ function shouldShowApprovalActions(args: {
     args.canResetEngine
   );
 }
+
+/* ================= SMALL UI PIECES ================= */
 
 function CountChip({
   label,
@@ -174,6 +312,187 @@ function renderPlainTextBlocks(text: string) {
     ));
 }
 
+/* ================= DIFF / APPROVAL UI ================= */
+
+function ApprovalGateRow({ approval }: { approval: CodexForgeApprovalGate }) {
+  return (
+    <div style={approvalGateRow}>
+      <div style={approvalGateMain}>
+        <span style={approvalGateLabel}>{approval.label}</span>
+        <span style={getStatusStyle(approval.state)}>
+          {getApprovalStateLabel(approval.state)}
+        </span>
+      </div>
+
+      {approval.reason ? (
+        <div style={approvalGateReason}>{approval.reason}</div>
+      ) : null}
+    </div>
+  );
+}
+
+function DiffPreviewCard({
+  preview,
+  copiedPreviewId,
+  onCopyPatch,
+}: {
+  preview: CodexForgeDiffPreview;
+  copiedPreviewId: string | null;
+  onCopyPatch: (preview: CodexForgeDiffPreview) => void;
+}) {
+  const patchStats = summarizePatch(preview.patch);
+  const approvalState = preview.approval?.state ?? "pending";
+  const isCopied = copiedPreviewId === preview.previewId;
+
+  return (
+    <div style={diffPreviewCard}>
+      <div style={diffPreviewHeader}>
+        <div style={diffPreviewPathWrap}>
+          <div style={diffPreviewFile}>{preview.filePath}</div>
+          {preview.summary ? (
+            <div style={diffPreviewSummary}>{preview.summary}</div>
+          ) : null}
+        </div>
+
+        <div style={diffPreviewBadges}>
+          <span style={getStatusStyle(preview.status)}>
+            {getPreviewStatusLabel(preview.status)}
+          </span>
+          <span style={getStatusStyle(approvalState)}>
+            Approval: {getApprovalStateLabel(approvalState)}
+          </span>
+          <span style={preview.dryRun ? dryRunBadge : mutationBadge}>
+            {preview.dryRun ? "Dry run" : "Mutation"}
+          </span>
+        </div>
+      </div>
+
+      <div style={diffStatsRow}>
+        <span style={diffStatChip}>+{patchStats.additions}</span>
+        <span style={diffStatChip}>-{patchStats.deletions}</span>
+        <span style={diffStatChip}>{plural(patchStats.hunks, "hunk")}</span>
+        {preview.validation?.status ? (
+          <span style={diffStatChip}>Validation: {preview.validation.status}</span>
+        ) : null}
+        {preview.applyResult ? (
+          <span style={preview.applyResult.ok ? approvedBadge : rejectedBadge}>
+            Apply: {preview.applyResult.ok ? "ok" : "failed"}
+          </span>
+        ) : null}
+      </div>
+
+      {preview.approval ? <ApprovalGateRow approval={preview.approval} /> : null}
+
+      <details style={patchDetails}>
+        <summary style={patchSummary}>Review patch</summary>
+        <pre style={diffPatch}>{clampPatchForPreview(preview.patch)}</pre>
+      </details>
+
+      <div style={diffPreviewActions}>
+        <button
+          type="button"
+          onClick={() => onCopyPatch(preview)}
+          style={styles.tinyGhostButton}
+        >
+          {isCopied ? "Patch copied" : "Copy patch"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DiffPreviewPanel({
+  structured,
+}: {
+  structured?: CodexForgeStructuredReply | null;
+}) {
+  const [copiedPreviewId, setCopiedPreviewId] = useState<string | null>(null);
+
+  const previews = getStructuredDiffPreviews(structured);
+  const approvals = getStructuredApprovals(structured);
+  const batch = structured?.diffPreviewBatch;
+
+  const visibleApprovals = approvals.filter(
+    (approval) =>
+      !previews.some(
+        (preview) =>
+          preview.approval?.label === approval.label &&
+          preview.approval?.state === approval.state
+      )
+  );
+
+  const hasDiffUi =
+    previews.length > 0 || visibleApprovals.length > 0 || !!batch;
+
+  const copyPatch = useCallback(async (preview: CodexForgeDiffPreview) => {
+    const ok = await copyTextToClipboard(preview.patch);
+    if (!ok) return;
+
+    setCopiedPreviewId(preview.previewId);
+    window.setTimeout(() => setCopiedPreviewId(null), 1600);
+  }, []);
+
+  if (!hasDiffUi) return null;
+
+  return (
+    <div style={diffPreviewPanel}>
+      <div style={diffPreviewPanelHeader}>
+        <div>
+          <div style={diffPreviewPanelTitle}>Approval diff preview</div>
+          <div style={diffPreviewPanelSubtext}>
+            Review the generated patch. Applying should stay blocked until an
+            explicit approval action is recorded.
+          </div>
+        </div>
+
+        <div style={diffPreviewPanelBadges}>
+          {previews.length > 0 ? (
+            <span style={pendingBadge}>{plural(previews.length, "preview")}</span>
+          ) : null}
+
+          {getPendingApprovalCount(structured) > 0 ? (
+            <span style={pendingBadge}>
+              {plural(getPendingApprovalCount(structured), "pending approval")}
+            </span>
+          ) : null}
+
+          {batch?.status ? (
+            <span style={getStatusStyle(batch.status)}>
+              Batch: {getPreviewStatusLabel(batch.status)}
+            </span>
+          ) : null}
+        </div>
+      </div>
+
+      {batch?.summary ? <div style={batchSummary}>{batch.summary}</div> : null}
+
+      {previews.length > 0 ? (
+        <div style={diffPreviewList}>
+          {previews.map((preview, index) => (
+            <DiffPreviewCard
+              key={`${preview.previewId}-${preview.filePath}-${index}`}
+              preview={preview}
+              copiedPreviewId={copiedPreviewId}
+              onCopyPatch={copyPatch}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      {visibleApprovals.length > 0 ? (
+        <div style={approvalGateList}>
+          {visibleApprovals.map((approval, index) => (
+            <ApprovalGateRow
+              key={`${approval.kind}-${approval.label}-${approval.state}-${index}`}
+              approval={approval}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 /* ================= COMPONENT ================= */
 
 export function ChatMessage({
@@ -216,6 +535,14 @@ export function ChatMessage({
   const toneBadge = getMessageToneBadge(summaryMeta);
   const executionMeta = getExecutionMeta(message.structured);
   const diffMeta = getDiffMeta(message.structured);
+
+  const approvalCount = getMetaNumber(summaryMeta, "approvalCount");
+  const pendingApprovalCount =
+    getMetaNumber(summaryMeta, "pendingApprovalCount") ||
+    getPendingApprovalCount(message.structured);
+  const diffPreviewCount =
+    getMetaNumber(summaryMeta, "diffPreviewCount") ||
+    getDiffPreviewCount(message.structured);
 
   const normalizedEnginePhase = normalizeEnginePhase(enginePhase);
   const enginePhaseLabel = getExecutionPhaseLabel(normalizedEnginePhase);
@@ -261,6 +588,8 @@ export function ChatMessage({
     (isEngineCheckpointPhase(normalizedEnginePhase ?? undefined) ||
       effectiveDiffCount > 0 ||
       effectiveSnapshotFileCount > 0 ||
+      diffPreviewCount > 0 ||
+      pendingApprovalCount > 0 ||
       !!effectivePhaseLabel);
 
   const showStructuredBlock = isAssistant && hasStructured;
@@ -342,6 +671,22 @@ export function ChatMessage({
 
             {summaryMeta.diffCount > 0 ? (
               <CountChip label="diff" value={summaryMeta.diffCount} />
+            ) : null}
+
+            {diffPreviewCount > 0 ? (
+              <CountChip label="preview" value={diffPreviewCount} />
+            ) : null}
+
+            {approvalCount > 0 ? (
+              <CountChip label="approval" value={approvalCount} />
+            ) : null}
+
+            {pendingApprovalCount > 0 ? (
+              <CountChip
+                label="pending approval"
+                value={pendingApprovalCount}
+                style={pendingBadge}
+              />
             ) : null}
 
             {summaryMeta.snapshotFileCount !== null ? (
@@ -433,6 +778,16 @@ export function ChatMessage({
                 <div style={engineStatChip}>Diffs: {effectiveDiffCount}</div>
               ) : null}
 
+              {diffPreviewCount > 0 ? (
+                <div style={engineStatChip}>Previews: {diffPreviewCount}</div>
+              ) : null}
+
+              {pendingApprovalCount > 0 ? (
+                <div style={engineStatChip}>
+                  Pending approvals: {pendingApprovalCount}
+                </div>
+              ) : null}
+
               {effectiveSnapshotFileCount > 0 ? (
                 <div style={engineStatChip}>
                   Snapshot files: {effectiveSnapshotFileCount}
@@ -463,6 +818,10 @@ export function ChatMessage({
 
         {shouldShowPlainText ? (
           <div style={plainTextWrap}>{renderPlainTextBlocks(trimmedText)}</div>
+        ) : null}
+
+        {isAssistant && hasStructured ? (
+          <DiffPreviewPanel structured={message.structured} />
         ) : null}
 
         {showStructuredBlock ? (
@@ -783,6 +1142,243 @@ const engineTouchedFileChip: React.CSSProperties = {
   background: "rgba(255,255,255,0.04)",
   fontWeight: 700,
   wordBreak: "break-word",
+};
+
+const diffPreviewPanel: React.CSSProperties = {
+  marginTop: 12,
+  padding: 12,
+  borderRadius: 14,
+  border: "1px solid rgba(59,130,246,0.20)",
+  background:
+    "linear-gradient(180deg, rgba(59,130,246,0.10), rgba(15,23,42,0.14))",
+  display: "grid",
+  gap: 10,
+};
+
+const diffPreviewPanelHeader: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 10,
+  flexWrap: "wrap",
+};
+
+const diffPreviewPanelTitle: React.CSSProperties = {
+  fontSize: 12,
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+  fontWeight: 900,
+};
+
+const diffPreviewPanelSubtext: React.CSSProperties = {
+  marginTop: 4,
+  fontSize: 12,
+  lineHeight: 1.5,
+  opacity: 0.78,
+};
+
+const diffPreviewPanelBadges: React.CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 6,
+  flexWrap: "wrap",
+};
+
+const batchSummary: React.CSSProperties = {
+  padding: 10,
+  borderRadius: 10,
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.04)",
+  fontSize: 12,
+  lineHeight: 1.55,
+};
+
+const diffPreviewList: React.CSSProperties = {
+  display: "grid",
+  gap: 10,
+};
+
+const diffPreviewCard: React.CSSProperties = {
+  display: "grid",
+  gap: 10,
+  padding: 10,
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(2,6,23,0.24)",
+};
+
+const diffPreviewHeader: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 10,
+  flexWrap: "wrap",
+};
+
+const diffPreviewPathWrap: React.CSSProperties = {
+  display: "grid",
+  gap: 4,
+  minWidth: 0,
+};
+
+const diffPreviewFile: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 900,
+  wordBreak: "break-word",
+};
+
+const diffPreviewSummary: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.78,
+  lineHeight: 1.45,
+};
+
+const diffPreviewBadges: React.CSSProperties = {
+  display: "flex",
+  gap: 6,
+  flexWrap: "wrap",
+  alignItems: "flex-start",
+};
+
+const diffStatsRow: React.CSSProperties = {
+  display: "flex",
+  gap: 6,
+  flexWrap: "wrap",
+};
+
+const diffStatChip: React.CSSProperties = {
+  fontSize: 10,
+  padding: "4px 7px",
+  borderRadius: 999,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(255,255,255,0.04)",
+  fontWeight: 800,
+};
+
+const patchDetails: React.CSSProperties = {
+  display: "grid",
+  gap: 8,
+};
+
+const patchSummary: React.CSSProperties = {
+  cursor: "pointer",
+  fontSize: 12,
+  fontWeight: 900,
+  opacity: 0.86,
+};
+
+const diffPatch: React.CSSProperties = {
+  margin: 0,
+  padding: 12,
+  borderRadius: 10,
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(0,0,0,0.28)",
+  fontSize: 12,
+  lineHeight: 1.55,
+  overflowX: "auto",
+  whiteSpace: "pre-wrap",
+  wordBreak: "break-word",
+  fontFamily:
+    'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+};
+
+const diffPreviewActions: React.CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const approvalGateList: React.CSSProperties = {
+  display: "grid",
+  gap: 8,
+};
+
+const approvalGateRow: React.CSSProperties = {
+  display: "grid",
+  gap: 5,
+  padding: 9,
+  borderRadius: 10,
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.035)",
+};
+
+const approvalGateMain: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const approvalGateLabel: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 900,
+};
+
+const approvalGateReason: React.CSSProperties = {
+  fontSize: 11,
+  lineHeight: 1.45,
+  opacity: 0.72,
+};
+
+const pendingBadge: React.CSSProperties = {
+  fontSize: 10,
+  padding: "4px 6px",
+  borderRadius: 999,
+  border: "1px solid rgba(245,158,11,0.28)",
+  background: "rgba(245,158,11,0.12)",
+  fontWeight: 800,
+};
+
+const approvedBadge: React.CSSProperties = {
+  fontSize: 10,
+  padding: "4px 6px",
+  borderRadius: 999,
+  border: "1px solid rgba(16,185,129,0.28)",
+  background: "rgba(16,185,129,0.12)",
+  fontWeight: 800,
+};
+
+const rejectedBadge: React.CSSProperties = {
+  fontSize: 10,
+  padding: "4px 6px",
+  borderRadius: 999,
+  border: "1px solid rgba(239,68,68,0.28)",
+  background: "rgba(239,68,68,0.12)",
+  fontWeight: 800,
+};
+
+const staleBadge: React.CSSProperties = {
+  fontSize: 10,
+  padding: "4px 6px",
+  borderRadius: 999,
+  border: "1px solid rgba(148,163,184,0.24)",
+  background: "rgba(148,163,184,0.12)",
+  fontWeight: 800,
+};
+
+const applyingBadge: React.CSSProperties = {
+  fontSize: 10,
+  padding: "4px 6px",
+  borderRadius: 999,
+  border: "1px solid rgba(99,102,241,0.28)",
+  background: "rgba(99,102,241,0.12)",
+  fontWeight: 800,
+};
+
+const dryRunBadge: React.CSSProperties = {
+  fontSize: 10,
+  padding: "4px 6px",
+  borderRadius: 999,
+  border: "1px solid rgba(59,130,246,0.28)",
+  background: "rgba(59,130,246,0.12)",
+  fontWeight: 800,
+};
+
+const mutationBadge: React.CSSProperties = {
+  fontSize: 10,
+  padding: "4px 6px",
+  borderRadius: 999,
+  border: "1px solid rgba(239,68,68,0.28)",
+  background: "rgba(239,68,68,0.12)",
+  fontWeight: 800,
 };
 
 const approvalWrap: React.CSSProperties = {
