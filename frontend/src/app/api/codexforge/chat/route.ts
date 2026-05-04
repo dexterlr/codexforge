@@ -2535,7 +2535,20 @@ export async function POST(req: Request) {
         capabilityRouting
       ),
       agentTeam: agentTeamSummary,
+      productionOnlyPlanning,
     };
+
+    if (productionOnlyPlanning) {
+      enrichedContext.repoPath = undefined;
+      enrichedContext.workspaceRoot = undefined;
+      enrichedContext.systemGuide = [
+        enrichedContext.systemGuide,
+        "",
+        "Production-only planning instruction: do not inspect, list, read, edit, or reference CodexForge source files.",
+        "Production-only planning instruction: produce the actual production workflow, deliverables, checkpoints, assets, and review criteria.",
+        "Production-only planning instruction: do not convert the request into a route, UI, repo, API, debug, or implementation-plan task.",
+      ].join("\n");
+    }
 
     const warnings = buildWarnings(
       messages,
@@ -2591,6 +2604,7 @@ export async function POST(req: Request) {
       capabilityTags: capabilityRouting.tags,
       capabilityMatched: capabilityRouting.matched,
       productionOnlyPlanning,
+      productionRepoGroundingSuppressed: productionOnlyPlanning,
       capabilityReasons: capabilityRouting.reasons,
       agentPrimaryRole: agentTeam.primaryRole.id,
       agentSupportRoles: agentTeam.supportRoles.map((role) => role.id),
@@ -2740,6 +2754,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
       capabilityTags: capabilityRouting.tags,
       capabilityMatched: capabilityRouting.matched,
       productionOnlyPlanning,
+      productionRepoGroundingSuppressed: productionOnlyPlanning,
       agentPrimaryRole: agentTeam.primaryRole.id,
       agentSupportRoleCount: agentTeam.supportRoles.length,
       agentReviewRoleCount: agentTeam.reviewRoles.length,
@@ -2832,6 +2847,8 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
 
 
 

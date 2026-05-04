@@ -543,12 +543,20 @@ export async function runCodexForgeEngine(
   );
 
   const safeToolStage = startTraceStage(trace, "safe-tool-pass");
-  const safeToolOutcomes = await executeSafeToolPass(
-    analysis,
-    context,
-    deps,
-    trace
-  );
+  const safeToolOutcomes = context.productionOnlyPlanning
+    ? []
+    : await executeSafeToolPass(
+        analysis,
+        context,
+        deps,
+        trace
+      );
+
+  if (context.productionOnlyPlanning) {
+    trace.safeToolPassAttempted = false;
+    trace.safeToolsExecuted = [];
+    safeToolStage.complete("Skipped for production-only planning.");
+  }
 
   const executedCount = safeToolOutcomes.filter(
     (outcome) => outcome.status === "executed"
@@ -667,6 +675,8 @@ export async function runCodexForgeEngine(
     ...(finalWarnings.length > 0 ? { warnings: finalWarnings } : {}),
   };
 }
+
+
 
 
 
