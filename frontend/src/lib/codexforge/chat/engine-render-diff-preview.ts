@@ -70,6 +70,36 @@ function summarizePatch(filePath: string, patch: string): string {
 
   return `Reviewable diff preview for ${fileName}: +${additions} / -${deletions}.`;
 }
+/* ================= DIFF NORMALIZATION ================= */
+
+function normalizeDiffs(diffs: unknown): CodexForgeDiff[] | undefined {
+  if (!Array.isArray(diffs) || diffs.length === 0) {
+    return undefined;
+  }
+
+  const normalized = diffs
+    .filter(
+      (diff): diff is CodexForgeDiff =>
+        !!diff &&
+        typeof diff.filePath === "string" &&
+        diff.filePath.trim().length > 0 &&
+        typeof diff.patch === "string"
+    )
+    .map((diff) => ({
+      ...diff,
+      filePath: diff.filePath.trim(),
+      patch: diff.patch,
+    }))
+    .slice(0, LIMITS.maxGraphDiffs);
+
+  return normalized.length > 0 ? normalized : undefined;
+}
+
+export function getDiffs(
+  context: CodexForgeChatContext
+): CodexForgeDiff[] | undefined {
+  return normalizeDiffs(context.execution?.diffs);
+}
 /* ================= APPROVAL / DIFF PREVIEWS ================= */
 
 function buildDiffApprovalGate(args: {
@@ -311,3 +341,4 @@ export function buildDiffPreviewBundle(
     approvals,
   };
 }
+
