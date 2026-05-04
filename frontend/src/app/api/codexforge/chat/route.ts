@@ -1535,7 +1535,7 @@ function detectCapabilityRouting(
   }
 
   if (
-    /\b(automation|agent|jarvis|desktop|browser|camera|webcam|voice|photoshop|blender|canvas|operator|multi-agent|multi agent|apply-diff|generate-diff|write-file|run-command|snapshot|checkpoint)\b/.test(
+    /\b(automation|agent|jarvis|desktop|browser|camera|webcam|voice|photoshop|canvas|operator|multi-agent|multi agent|apply-diff|generate-diff|write-file|run-command|snapshot|checkpoint)\b/.test(
       normalized
     )
   ) {
@@ -2499,6 +2499,7 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
 
 
 

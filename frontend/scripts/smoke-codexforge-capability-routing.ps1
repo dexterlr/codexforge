@@ -58,7 +58,8 @@ foreach ($case in $cases) {
       -Uri "$baseUrl/api/codexforge/chat" `
       -Method POST `
       -ContentType "application/json" `
-      -Body $body
+      -Body $body `
+      -UseBasicParsing
 
     $domain = $response.Headers["x-codexforge-capability-domain"]
     $matched = $response.Headers["x-codexforge-capability-matched"]
@@ -85,3 +86,4 @@ if ($failures.Count -gt 0) {
 
 Write-Host ""
 Write-Host "All CodexForge capability routing smoke tests passed."
+
