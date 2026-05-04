@@ -236,8 +236,6 @@ export type CodexForgePlan = CodexForgeGraphAware & {
 
   domain?: CodexForgePlanDomain;
   tags?: string[];
-
-  agentTeam?: CodexForgeAgentTeamSummary;
   notes?: string[];
 
   approvals?: CodexForgeApprovalGate[];
@@ -602,4 +600,5 @@ export type CodexForgeStructuredSummaryMeta = {
 
   hasStructuredContent: boolean;
 };
+
 
