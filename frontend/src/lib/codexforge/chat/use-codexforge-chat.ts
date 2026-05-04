@@ -1605,12 +1605,15 @@ export function useCodexForgeChat({
 
   const explicitFixRequest =
     normalized.startsWith("fix ") ||
+    normalized.startsWith("goal: fix ") ||
     normalized.includes("current failure:") ||
     normalized.includes("required behavior:") ||
     normalized.includes("required edit:") ||
     normalized.includes("primary target:") ||
     normalized.includes("implementation target:") ||
-    normalized.includes("expected output:");
+    normalized.includes("expected output:") ||
+    normalized.includes("best edit point:") ||
+    normalized.includes("grounded file:");
 
   const activeTaskOverrideRequest =
     normalized.includes("stale active task") ||
@@ -1622,7 +1625,20 @@ export function useCodexForgeChat({
     normalized.includes("latestmessageoverridesactivetask") ||
     normalized.includes("activetasksuppressedforrequest");
 
-  return explicitFixRequest && activeTaskOverrideRequest;
+  const staleOutputRejection =
+    normalized.includes("no approval-driven diff previews") ||
+    normalized.includes("no approval driven diff previews") ||
+    normalized.includes("no chatmessage") ||
+    normalized.includes("no engine.ts") ||
+    normalized.includes("no search-project") ||
+    normalized.includes("must not mention approval-driven diff previews") ||
+    normalized.includes("must not select approvediffs") ||
+    normalized.includes("must not select engine-render-diff-preview");
+
+  return (
+    (explicitFixRequest && activeTaskOverrideRequest) ||
+    (activeTaskOverrideRequest && staleOutputRejection)
+  );
 }
 
 function buildLatestMessageOverrideActivePlan(): NonNullable<CodexForgeChatContext["activePlan"]> {
@@ -2406,5 +2422,6 @@ function buildLatestMessageOverrideContext(
     setMemory,
   };
 }
+
 
 
