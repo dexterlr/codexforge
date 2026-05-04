@@ -1680,6 +1680,10 @@ function buildLatestMessageOverrideContext(
     latestMessageOverridesActiveTask: true,
     activeTaskSuppressedForRequest: true,
     activePlanGoalSource: "latest-user-message",
+    preferredGroundingFile: "src/lib/codexforge/chat/use-codexforge-chat.ts",
+    preferredGroundingFunction: "send",
+    suppressBroadRepoSearch: true,
+    suppressStaleGraphContext: true,
   } as CodexForgeChatContext;
 }
 
@@ -2402,4 +2406,5 @@ function buildLatestMessageOverrideContext(
     setMemory,
   };
 }
+
 

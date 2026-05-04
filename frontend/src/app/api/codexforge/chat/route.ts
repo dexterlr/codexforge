@@ -357,6 +357,29 @@ function buildAgentTeamSummary(agentTeam: ReturnType<typeof selectCodexForgeAgen
     reasons: [...agentTeam.reasons],
   };
 }
+function shouldSuppressBroadGroundingForLatestMessageOverride(context: unknown): boolean {
+  if (!context || typeof context !== "object") return false;
+
+  const record = context as Record<string, unknown>;
+
+  return (
+    record.latestMessageOverridesActiveTask === true ||
+    record.activeTaskSuppressedForRequest === true ||
+    record.suppressBroadRepoSearch === true
+  );
+}
+
+function getLatestMessageOverridePreferredPath(context: unknown): string | null {
+  if (!context || typeof context !== "object") return null;
+
+  const record = context as Record<string, unknown>;
+  const preferred = record.preferredGroundingFile;
+
+  return typeof preferred === "string" && preferred.trim().length > 0
+    ? preferred.trim()
+    : null;
+}
+
 function scrubProductionOnlyVisibleText(text: string): string {
   const blockedLineTerms = [
     "src\\",
@@ -2786,9 +2809,9 @@ export async function POST(req: Request) {
       agentApprovalRequiredTools: agentTeam.approvalRequiredTools.map((policy) => policy.tool),
       agentBlockedTools: agentTeam.blockedTools.map((policy) => policy.tool),
       groundedPrimaryFile: effectiveGroundedDiagnostics.primaryFile ?? null,
-      groundedSupportingFiles: groundedDiagnostics.supportingFiles,
-      groundedSignals: groundedDiagnostics.fileSignals,
-      groundedWarnings: groundedDiagnostics.warnings,
+      groundedSupportingFiles: effectiveGroundedDiagnostics.supportingFiles,
+      groundedSignals: effectiveGroundedDiagnostics.fileSignals,
+      groundedWarnings: effectiveGroundedDiagnostics.warnings,
       executableToolCount: executableToolNames.length,
       executableToolNames,
     });
@@ -3029,6 +3052,9 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
+
 
 
 
