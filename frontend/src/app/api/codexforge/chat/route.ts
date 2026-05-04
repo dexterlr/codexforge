@@ -2699,16 +2699,35 @@ export async function POST(req: Request) {
     });
     const agentTeamSummary = buildAgentTeamSummary(agentTeam);
 
-    const groundedDiagnostics = buildGroundedDiagnostics(
-      messages,
-      context,
-      graphDiagnostics
-    );
+    const suppressBroadGrounding =
+      shouldSuppressBroadGroundingForLatestMessageOverride(context);
+    const preferredGroundingFile =
+      getLatestMessageOverridePreferredPath(context);
 
-    
+    const groundedDiagnostics = suppressBroadGrounding
+      ? emptyGroundedDiagnostics()
+      : buildGroundedDiagnostics(messages, context, graphDiagnostics);
+
     const effectiveGroundedDiagnostics = productionOnlyPlanning
       ? emptyGroundedDiagnostics()
-      : groundedDiagnostics;
+      : suppressBroadGrounding
+        ? {
+            ...emptyGroundedDiagnostics(),
+            primaryFile:
+              preferredGroundingFile ??
+              "src/lib/codexforge/chat/use-codexforge-chat.ts",
+            supportingFiles: [
+              "src/app/api/codexforge/chat/route.ts",
+              "src/lib/codexforge/types.ts",
+            ],
+            fileSignals: [
+              "Latest-message override request pinned grounding to outbound chat request construction.",
+              "Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
+              "Broad repo search suppressed for this request to avoid stale active task and graph contamination.",
+            ],
+            warnings: [],
+          }
+        : groundedDiagnostics;
 
     const resolvedMode = resolveRouteMode({
       commandIntent,
@@ -3052,6 +3071,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
