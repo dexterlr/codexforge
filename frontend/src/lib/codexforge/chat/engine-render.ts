@@ -33,11 +33,6 @@ import { buildCleanSections } from "./engine-render-sections";
 
 type MaybeString = string | undefined | null | false;
 
-type TextSection = {
-  title: string;
-  items: string[];
-};
-
 /* ================= CONSTANTS ================= */
 
 const MAX_VISIBLE_DIFF_PREVIEWS = 8;
@@ -115,7 +110,7 @@ function buildExecutionSummary(context: CodexForgeChatContext): string {
       : "",
   ]);
 
-  return clampText(parts.join(" â€¢ "), LIMITS.maxSummaryText);
+  return clampText(parts.join(" • "), LIMITS.maxSummaryText);
 }
 
 function buildSummary(
@@ -333,6 +328,7 @@ export function buildStructured(
 /* ================= TEXT RENDER EXPORT ================= */
 
 export { structuredToText } from "./engine-render-text";
+
 
 
 
