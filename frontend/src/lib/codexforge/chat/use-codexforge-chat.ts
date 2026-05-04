@@ -1853,24 +1853,33 @@ function buildLatestMessageOverrideContext(
       }
 
       try {
-        const requestContext = options.executionRequest
+        const latestMessageOverridesActiveTask =
+          shouldLatestMessageOverrideActiveTask(text);
+
+        const baseRequestContext = options.executionRequest
           ? {
               ...contextWithMemory,
               executionRequest: options.executionRequest,
             }
           : contextWithMemory;
 
-        const graphContext = buildRequestBrainGraphContextPayload({
-          context: {
-            ...requestContext,
-            systemGuide,
-          },
-          messages: nextMessages,
-          activeTask,
-          memory,
-          executionState,
-          productName: PRODUCT_NAME,
-        });
+        const requestContext = latestMessageOverridesActiveTask
+          ? buildLatestMessageOverrideContext(baseRequestContext)
+          : baseRequestContext;
+
+        const graphContext = latestMessageOverridesActiveTask
+          ? undefined
+          : buildRequestBrainGraphContextPayload({
+              context: {
+                ...requestContext,
+                systemGuide,
+              },
+              messages: nextMessages,
+              activeTask,
+              memory,
+              executionState,
+              productName: PRODUCT_NAME,
+            });
 
         const result = await requestAssistant(
           nextMessages,
@@ -2393,3 +2402,4 @@ function buildLatestMessageOverrideContext(
     setMemory,
   };
 }
+
