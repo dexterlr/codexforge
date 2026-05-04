@@ -2561,6 +2561,8 @@ export async function POST(req: Request) {
         "Production-only planning instruction: do not inspect, list, read, edit, or reference CodexForge source files.",
         "Production-only planning instruction: produce the actual production workflow, deliverables, checkpoints, assets, and review criteria.",
         "Production-only planning instruction: do not convert the request into a route, UI, repo, API, debug, or implementation-plan task.",
+        "Production-only planning instruction: the Files/Files to change section must describe production assets only, such as Blender scene files, node groups, materials, ComfyUI workflows, renders, review exports, and naming sheets.",
+        "Production-only planning instruction: do not mention source files, TypeScript files, hooks, routes, engine files, repo paths, npm commands, safe tools, read-file, list-files, search-project, or build validation.",
       ].join("\n");
     }
 
@@ -2861,6 +2863,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 

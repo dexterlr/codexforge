@@ -583,6 +583,80 @@ export async function runCodexForgeEngine(
   let structured = buildStructured(analysis, plan, context);
 
   structured = enrichStructuredWithAgentTeam(structured, context);
+
+  if (context.productionOnlyPlanning) {
+    const blockedProductionOnlyTerms = [
+      "src/",
+      "src\\",
+      ".ts",
+      ".tsx",
+      "route.ts",
+      "engine.ts",
+      "engine-render",
+      "engine-analysis",
+      "use-codexforge-chat",
+      "types.ts",
+      "npm run",
+      "read-file",
+      "list-files",
+      "search-project",
+      "safe tool",
+      "repo path",
+      "codebase",
+      "implementation file",
+    ];
+
+    const isBlockedProductionOnlyText = (value: string): boolean => {
+      const normalized = value.toLowerCase();
+      return blockedProductionOnlyTerms.some((term) =>
+        normalized.includes(term.toLowerCase())
+      );
+    };
+
+    structured = {
+      ...structured,
+      files: [
+        "Blender scene file",
+        "Geometry node group library",
+        "Material and lighting preset notes",
+        "ComfyUI concept workflow",
+        "Preview render exports",
+        "Final render output folder",
+        "Asset and output naming sheet",
+      ],
+      commands: [
+        "Validate the geometry nodes setup with a small viewport preview.",
+        "Run a low-sample lighting and camera test render.",
+        "Review ComfyUI concept references against the scene direction.",
+      ],
+      sections: (structured.sections ?? [])
+        .filter((section) => {
+          const title = section.title.toLowerCase();
+          return (
+            !title.includes("evidence") &&
+            !title.includes("files to change") &&
+            !title.includes("execution posture") &&
+            !title.includes("engine trace") &&
+            !title.includes("response quality")
+          );
+        })
+        .map((section) => ({
+          ...section,
+          items: (section.items ?? []).filter(
+            (item) => !isBlockedProductionOnlyText(item)
+          ),
+        })),
+      status: (structured.status ?? []).filter(
+        (item) => !isBlockedProductionOnlyText(item)
+      ),
+      context: (structured.context ?? []).filter(
+        (item) => !isBlockedProductionOnlyText(item)
+      ),
+      understanding: (structured.understanding ?? []).filter(
+        (item) => !isBlockedProductionOnlyText(item)
+      ),
+    };
+  }
   trace.domain = structured.plan?.domain ?? structured.domain ?? trace.domain;
   structured = enrichStructuredWithToolOutcomes(structured, visibleSafeToolOutcomes);
   structured = enrichStructuredWithSafetyState(
@@ -679,6 +753,8 @@ export async function runCodexForgeEngine(
     ...(finalWarnings.length > 0 ? { warnings: finalWarnings } : {}),
   };
 }
+
+
 
 
 
