@@ -1401,6 +1401,38 @@ function scoreGroundedFileCandidate(
   return score;
 }
 
+function chooseDominantCapabilityDomain(
+  tags: string[],
+  fallback: CodexForgePlanDomain
+): CodexForgePlanDomain {
+  const priority: Array<{
+    domain: CodexForgePlanDomain;
+    tags: readonly string[];
+  }> = [
+    { domain: "debug", tags: ["debugging"] },
+    { domain: "trading", tags: ["trading"] },
+    { domain: "blender", tags: ["blender-production"] },
+    { domain: "design", tags: ["design"] },
+    { domain: "marketing", tags: ["marketing"] },
+    { domain: "decks", tags: ["decks"] },
+    { domain: "unreal", tags: ["unreal"] },
+    { domain: "comfyui", tags: ["comfyui"] },
+    { domain: "video", tags: ["video-production"] },
+    { domain: "movie", tags: ["movie-pipeline"] },
+    { domain: "game-server", tags: ["game-server"] },
+    { domain: "web", tags: ["web-production", "codexforge-product"] },
+    { domain: "research", tags: ["research"] },
+    { domain: "automation", tags: ["automation", "brain-architecture"] },
+  ];
+
+  for (const candidate of priority) {
+    if (candidate.tags.some((tag) => tags.includes(tag))) {
+      return candidate.domain;
+    }
+  }
+
+  return fallback;
+}
 /* ================= CAPABILITY ROUTING ================= */
 
 function detectCapabilityRouting(
@@ -1553,6 +1585,8 @@ function detectCapabilityRouting(
   const briefing = uniqueStrings([
     ...(CAPABILITY_BRIEFINGS[domain] ?? CAPABILITY_BRIEFINGS.general),
   ]).slice(0, LIMITS.maxCapabilityBriefingLines);
+
+  domain = chooseDominantCapabilityDomain(tags, domain);
 
   return {
     domain,
@@ -2499,6 +2533,9 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
+
+
 
 
 
