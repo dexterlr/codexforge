@@ -846,11 +846,11 @@ export function StructuredReplyBlock({
           <ListSection title="Risks" items={structured.risks} />
           <ListSection title="Next steps" items={structured.nextSteps} ordered />
         </>
+      ) : null}      {getGroundingSections(structured.sections).length === 0 ? (
+        <ToolsSection tools={structured.tools} />
       ) : null}
-
-      <ToolsSection tools={structured.tools} />
       <ListSection title="Status" items={structured.status} />
-      <StructuredSections sections={structured.sections} />
+      <StructuredSections sections={getNonGroundingSections(structured.sections)} />
     </div>
   );
 }
@@ -1157,6 +1157,7 @@ const compactToolCard: React.CSSProperties = {
   border: "1px solid rgba(255,255,255,0.08)",
   background: "rgba(255,255,255,0.035)",
 };
+
 
 
 
