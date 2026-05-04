@@ -32,6 +32,145 @@ import {
   withGroundedExecutionNotes,
 } from "./engine-grounded-render";
 
+function buildAgentTeamInstructionSection(
+  context: CodexForgeChatContext
+): NonNullable<CodexForgeStructuredReply["sections"]> {
+  const agentTeam = context.agentTeam;
+  if (!agentTeam) return [];
+
+  const items = [
+    `Primary agent: ${agentTeam.primaryRole.label} (${agentTeam.primaryRole.id}).`,
+    `Mission: ${agentTeam.primaryRole.mission}`,
+    agentTeam.supportRoles.length > 0
+      ? `Support agents: ${agentTeam.supportRoles.map((role) => role.label).join(", ")}.`
+      : "",
+    agentTeam.reviewRoles.length > 0
+      ? `Review agents: ${agentTeam.reviewRoles.map((role) => role.label).join(", ")}.`
+      : "",
+    agentTeam.approvalRequiredTools.length > 0
+      ? `Approval-required tools: ${agentTeam.approvalRequiredTools.map((tool) => tool.name).join(", ")}.`
+      : "",
+    agentTeam.blockedTools.length > 0
+      ? `Blocked-by-default tools: ${agentTeam.blockedTools.map((tool) => tool.name).join(", ")}.`
+      : "",
+    ...agentTeam.reasons.map((reason) => `Routing reason: ${reason}`),
+  ].filter((item): item is string => item.length > 0);
+
+  return [
+    {
+      title: "Agent operating mode",
+      items,
+    },
+  ];
+}
+
+function enrichStructuredWithAgentTeam(
+  structured: CodexForgeStructuredReply,
+  context: CodexForgeChatContext
+): CodexForgeStructuredReply {
+  const agentTeam = context.agentTeam;
+  if (!agentTeam) return structured;
+
+  const agentSections = buildAgentTeamInstructionSection(context);
+
+  const resolvedDomain =
+    agentTeam.domain ?? context.activePlan?.domain ?? structured.plan?.domain ?? structured.domain;
+
+  const agentNotes = [
+    `Primary agent: ${agentTeam.primaryRole.label}.`,
+    `Agent mission: ${agentTeam.primaryRole.mission}`,
+    ...agentTeam.reasons,
+  ];
+
+  const normalizedTags = Array.from(
+    new Set(
+      [
+        ...(structured.tags ?? []),
+        ...(structured.plan?.tags ?? []),
+        ...(context.activePlan?.tags ?? []),
+        resolvedDomain,
+        agentTeam.primaryRole.id,
+      ].filter((tag): tag is string => typeof tag === "string" && tag.length > 0)
+    )
+  );
+
+  const stripStaleDomainLines = (items?: string[] | null): string[] => {
+    if (!Array.isArray(items)) return [];
+
+    return items.filter((item) => {
+      const normalized = item.trim().toLowerCase();
+      return (
+        !normalized.startsWith("domain:") &&
+        !normalized.startsWith("the likely domain is") &&
+        !normalized.startsWith("primary agent:")
+      );
+    });
+  };
+
+  const agentContextLines = [
+    `Domain: ${resolvedDomain}`,
+    `Primary agent: ${agentTeam.primaryRole.label}`,
+  ];
+
+  const agentUnderstandingLines = [
+    `The likely domain is ${resolvedDomain}.`,
+    `Primary agent: ${agentTeam.primaryRole.label}.`,
+    `Primary mission: ${agentTeam.primaryRole.mission}`,
+  ];
+
+  const agentStatusLines = [
+    `Domain: ${resolvedDomain}`,
+    `Primary agent: ${agentTeam.primaryRole.label}`,
+  ];
+
+  return {
+    ...structured,
+    agentTeam,
+    domain: resolvedDomain,
+    tags: normalizedTags,
+    context: [
+      ...stripStaleDomainLines(structured.context),
+      ...agentContextLines,
+    ],
+    understanding: [
+      ...agentUnderstandingLines,
+      ...stripStaleDomainLines(structured.understanding),
+    ],
+    status: [
+      ...stripStaleDomainLines(structured.status),
+      ...agentStatusLines,
+    ],
+    sections: [...agentSections, ...(structured.sections ?? [])],
+    plan: structured.plan
+      ? {
+          ...structured.plan,
+          domain: resolvedDomain,
+          tags: Array.from(
+            new Set([
+              ...(structured.plan.tags ?? []),
+              ...(context.activePlan?.tags ?? []),
+              resolvedDomain,
+              agentTeam.primaryRole.id,
+            ].filter((tag): tag is string => typeof tag === "string" && tag.length > 0))
+          ),
+          notes: [...agentNotes, ...(structured.plan.notes ?? [])],
+        }
+      : context.activePlan
+        ? {
+            ...context.activePlan,
+            domain: resolvedDomain,
+            tags: Array.from(
+              new Set([
+                ...(context.activePlan.tags ?? []),
+                resolvedDomain,
+                agentTeam.primaryRole.id,
+              ].filter((tag): tag is string => typeof tag === "string" && tag.length > 0))
+            ),
+            notes: [...agentNotes, ...(context.activePlan.notes ?? [])],
+          }
+        : structured.plan,
+  };
+}
 /* ================= CONSTANTS ================= */
 
 const SAFE_EXECUTION_CANDIDATE_TOOLS = [
@@ -383,6 +522,20 @@ export async function runCodexForgeEngine(
 
   const planStage = startTraceStage(trace, "planning");
   const plan = buildPlan(analysis, deps, context);
+
+  const routedDomain = context.agentTeam?.domain ?? context.activePlan?.domain;
+  if (routedDomain) {
+    const routedTags = [
+      ...(plan.tags ?? []),
+      ...(context.activePlan?.tags ?? []),
+      routedDomain,
+      context.agentTeam?.primaryRole.id,
+    ].filter((tag): tag is string => typeof tag === "string" && tag.length > 0);
+
+    plan.domain = routedDomain;
+    plan.tags = Array.from(new Set(routedTags));
+  }
+
   trace.domain = plan.domain;
 
   planStage.complete(
@@ -417,6 +570,8 @@ export async function runCodexForgeEngine(
 
   let structured = buildStructured(analysis, plan, context);
 
+  structured = enrichStructuredWithAgentTeam(structured, context);
+  trace.domain = structured.plan?.domain ?? structured.domain ?? trace.domain;
   structured = enrichStructuredWithToolOutcomes(structured, safeToolOutcomes);
   structured = enrichStructuredWithSafetyState(
     structured,
@@ -512,6 +667,16 @@ export async function runCodexForgeEngine(
     ...(finalWarnings.length > 0 ? { warnings: finalWarnings } : {}),
   };
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

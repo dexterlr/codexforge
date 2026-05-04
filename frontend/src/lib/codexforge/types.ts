@@ -448,6 +448,8 @@ export type CodexForgeChatContext = {
 
   mode?: CodexForgeChatMode;
   systemGuide?: string;
+
+  agentTeam?: CodexForgeAgentTeamSummary;
 
   activePlan?: CodexForgePlan | null;
 
@@ -600,6 +602,8 @@ export type CodexForgeStructuredSummaryMeta = {
 
   hasStructuredContent: boolean;
 };
+
+
 
 
 

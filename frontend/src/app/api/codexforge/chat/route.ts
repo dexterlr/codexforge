@@ -18,6 +18,7 @@ import type {
   CodexForgeMessage,
   CodexForgePlanDomain,
   CodexForgePlanStatus,
+  CodexForgeStructuredReply,
 } from "@/lib/codexforge/types";
 
 /* ================= CONFIG ================= */
@@ -353,6 +354,84 @@ function buildAgentTeamSummary(agentTeam: ReturnType<typeof selectCodexForgeAgen
       reason: policy.reason,
     })),
     reasons: [...agentTeam.reasons],
+  };
+}
+function attachAgentTeamToStructuredReply(
+  structured: CodexForgeStructuredReply | undefined,
+  agentTeamSummary: ReturnType<typeof buildAgentTeamSummary>,
+  capabilityRouting: CapabilityRouting
+): CodexForgeStructuredReply | undefined {
+  if (!structured) return structured;
+
+  const routedDomain =
+    agentTeamSummary.domain ?? capabilityRouting.domain ?? structured.plan?.domain ?? structured.domain;
+
+  const mergedTags = Array.from(
+    new Set(
+      [
+        ...(structured.tags ?? []),
+        ...(structured.plan?.tags ?? []),
+        ...capabilityRouting.tags,
+        routedDomain,
+        agentTeamSummary.primaryRole.id,
+      ].filter((tag): tag is string => typeof tag === "string" && tag.length > 0)
+    )
+  );
+
+  const stripStaleLines = (items?: string[] | null): string[] => {
+    if (!Array.isArray(items)) return [];
+
+    return items.filter((item) => {
+      const normalized = item.trim().toLowerCase();
+      return (
+        !normalized.startsWith("domain:") &&
+        !normalized.startsWith("the likely domain is") &&
+        !normalized.startsWith("primary agent:")
+      );
+    });
+  };
+
+  const agentContextLines = [
+    `Domain: ${routedDomain}`,
+    `Primary agent: ${agentTeamSummary.primaryRole.label}`,
+  ];
+
+  const agentUnderstandingLines = [
+    `The likely domain is ${routedDomain}.`,
+    `Primary agent: ${agentTeamSummary.primaryRole.label}.`,
+    `Primary mission: ${agentTeamSummary.primaryRole.mission}`,
+  ];
+
+  const agentStatusLines = [
+    `Domain: ${routedDomain}`,
+    `Primary agent: ${agentTeamSummary.primaryRole.label}`,
+  ];
+
+  return {
+    ...structured,
+    agentTeam: agentTeamSummary,
+    domain: routedDomain,
+    tags: mergedTags,
+    context: [...stripStaleLines(structured.context), ...agentContextLines],
+    understanding: [
+      ...agentUnderstandingLines,
+      ...stripStaleLines(structured.understanding),
+    ],
+    status: [...stripStaleLines(structured.status), ...agentStatusLines],
+    plan: structured.plan
+      ? {
+          ...structured.plan,
+          domain: routedDomain,
+          tags: Array.from(
+            new Set([
+              ...(structured.plan.tags ?? []),
+              ...capabilityRouting.tags,
+              routedDomain,
+              agentTeamSummary.primaryRole.id,
+            ])
+          ),
+        }
+      : structured.plan,
   };
 }
 function buildJsonHeaders(extra?: HeadersInit): HeadersInit {
@@ -2306,15 +2385,18 @@ export async function POST(req: Request) {
       capabilityRouting,
     });
 
-    const enrichedContext = buildEnrichedContext(
-      lastUser.text,
-      context,
-      graphDiagnostics,
-      groundedDiagnostics,
-      resolvedMode,
-      fileIntent,
-      capabilityRouting
-    );
+    const enrichedContext = {
+      ...buildEnrichedContext(
+        lastUser.text,
+        context,
+        graphDiagnostics,
+        groundedDiagnostics,
+        resolvedMode,
+        fileIntent,
+        capabilityRouting
+      ),
+      agentTeam: agentTeamSummary,
+    };
 
     const warnings = buildWarnings(
       messages,
@@ -2470,7 +2552,11 @@ export async function POST(req: Request) {
         role: "assistant",
         text: response.text,
         ts: Date.now(),
-        structured: response.structured ?? undefined,
+        structured: attachAgentTeamToStructuredReply(
+          response.structured ?? undefined,
+          agentTeamSummary,
+          capabilityRouting
+        ),
       },
       meta,
     };
@@ -2594,6 +2680,13 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
+
+
+
+
+
+
 
 
 
