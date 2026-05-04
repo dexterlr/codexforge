@@ -80,26 +80,6 @@ function dedupeStrings(values: string[]): string[] {
   return output;
 }
 
-function normalizeVisibleText(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[\\\/]+/g, "/")
-    .replace(/\s+/g, " ")
-    .replace(/[â€¢\-â€“â€”:;.]+$/g, "")
-    .trim();
-}
-
-function safeSlug(value: string): string {
-  const slug = value
-    .replace(/\\/g, "/")
-    .replace(/[^a-zA-Z0-9._-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|
-function getFileName(filePath: string): string {
-  const parts = filePath.replace(/\\/g, "/").split("/").filter(Boolean);
-  return parts[parts.length - 1] ?? filePath;
-}
-
 /* ================= SUMMARY ================= */
 
 function buildExecutionSummary(context: CodexForgeChatContext): string {
@@ -353,6 +333,7 @@ export function buildStructured(
 /* ================= TEXT RENDER EXPORT ================= */
 
 export { structuredToText } from "./engine-render-text";
+
 
 
 
