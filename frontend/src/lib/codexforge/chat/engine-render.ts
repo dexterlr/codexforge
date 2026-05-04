@@ -94,43 +94,10 @@ function safeSlug(value: string): string {
     .replace(/\\/g, "/")
     .replace(/[^a-zA-Z0-9._-]+/g, "-")
     .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 90);
-
-  return slug || "target";
-}
-
+    .replace(/^-|
 function getFileName(filePath: string): string {
   const parts = filePath.replace(/\\/g, "/").split("/").filter(Boolean);
   return parts[parts.length - 1] ?? filePath;
-}
-
-function createStableId(prefix: string, filePath: string, index: number): string {
-  return `${prefix}-${index + 1}-${safeSlug(filePath)}`;
-}
-
-function countPatchChanges(patch: string): { additions: number; deletions: number } {
-  let additions = 0;
-  let deletions = 0;
-
-  for (const line of patch.split(/\r?\n/)) {
-    if (line.startsWith("+++") || line.startsWith("---")) continue;
-    if (line.startsWith("+")) additions += 1;
-    if (line.startsWith("-")) deletions += 1;
-  }
-
-  return { additions, deletions };
-}
-
-function summarizePatch(filePath: string, patch: string): string {
-  const { additions, deletions } = countPatchChanges(patch);
-  const fileName = getFileName(filePath);
-
-  if (additions === 0 && deletions === 0) {
-    return `Reviewable diff preview for ${fileName}.`;
-  }
-
-  return `Reviewable diff preview for ${fileName}: +${additions} / -${deletions}.`;
 }
 
 /* ================= SUMMARY ================= */
@@ -386,6 +353,7 @@ export function buildStructured(
 /* ================= TEXT RENDER EXPORT ================= */
 
 export { structuredToText } from "./engine-render-text";
+
 
 
 
