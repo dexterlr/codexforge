@@ -552,6 +552,18 @@ function attachAgentTeamToStructuredReply(
       : structured.plan,
   };
 }
+function isProductionOnlyPlanningRequest(text: string): boolean {
+  const normalized = text.toLowerCase();
+
+  return (
+    normalized.includes("do not edit codexforge source files") ||
+    normalized.includes("do not edit source files") ||
+    normalized.includes("give me a production plan") ||
+    normalized.includes("production plan, not a codebase implementation plan") ||
+    normalized.includes("not a codebase implementation plan")
+  );
+}
+
 function buildJsonHeaders(extra?: HeadersInit): HeadersInit {
   return {
     "Cache-Control": "no-store",
@@ -2480,6 +2492,15 @@ export async function POST(req: Request) {
     const graphDiagnostics = buildGraphDiagnostics(context, graphContext);
     const fileIntent = extractFileIntentDiagnostics(lastUser.text);
     const capabilityRouting = detectCapabilityRouting(lastUser.text, context);
+    const productionOnlyPlanning = isProductionOnlyPlanningRequest(lastUser.text);
+    const effectiveFileIntent = productionOnlyPlanning
+      ? {
+          ...fileIntent,
+          explicitFileRequest: false,
+          requestedPaths: [],
+          requestedVerbs: [],
+        }
+      : fileIntent;
     const agentTeam = selectCodexForgeAgentTeam({
       domain: capabilityRouting.domain,
       tags: capabilityRouting.tags,
@@ -2499,7 +2520,7 @@ export async function POST(req: Request) {
       commandIntent,
       context,
       graphDiagnostics,
-      fileIntent,
+      fileIntent: effectiveFileIntent,
       capabilityRouting,
     });
 
@@ -2510,7 +2531,7 @@ export async function POST(req: Request) {
         graphDiagnostics,
         groundedDiagnostics,
         resolvedMode,
-        fileIntent,
+        effectiveFileIntent,
         capabilityRouting
       ),
       agentTeam: agentTeamSummary,
@@ -2526,7 +2547,7 @@ export async function POST(req: Request) {
 
     const localEngineDecision = shouldForceLocalEngine({
       resolvedMode,
-      fileIntent,
+      fileIntent: effectiveFileIntent,
       capabilityRouting,
       enrichedContext,
     });
@@ -2569,6 +2590,7 @@ export async function POST(req: Request) {
       capabilityDomain: capabilityRouting.domain,
       capabilityTags: capabilityRouting.tags,
       capabilityMatched: capabilityRouting.matched,
+      productionOnlyPlanning,
       capabilityReasons: capabilityRouting.reasons,
       agentPrimaryRole: agentTeam.primaryRole.id,
       agentSupportRoles: agentTeam.supportRoles.map((role) => role.id),
@@ -2648,7 +2670,7 @@ export async function POST(req: Request) {
       agentTeamSummary.domain ??
       capabilityRouting.domain;
     const resolvedDomain = resolveResponseDomain({
-      fileIntent,
+      fileIntent: effectiveFileIntent,
       responseDomain: response.meta.domain,
       structuredDomain: decoratedDomain,
       structuredPlanDomain: decoratedStructured?.plan?.domain ?? decoratedDomain,
@@ -2717,6 +2739,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
       capabilityDomain: capabilityRouting.domain,
       capabilityTags: capabilityRouting.tags,
       capabilityMatched: capabilityRouting.matched,
+      productionOnlyPlanning,
       agentPrimaryRole: agentTeam.primaryRole.id,
       agentSupportRoleCount: agentTeam.supportRoles.length,
       agentReviewRoleCount: agentTeam.reviewRoles.length,
@@ -2809,6 +2832,11 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
+
+
+
 
 
 
