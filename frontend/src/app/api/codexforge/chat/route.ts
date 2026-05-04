@@ -7,6 +7,7 @@ import type { CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph/types";
 import { toCodexForgeChatMeta } from "@/lib/codexforge/brain/types";
 import { selectCodexForgeAgentTeam } from "@/lib/codexforge/agents";
 import { getCodexForgeServerEngineDependencies } from "@/lib/codexforge/chat/dependencies.server";
+import { structuredToText } from "@/lib/codexforge/chat/engine-render";
 import type {
   CodexForgeChatContext,
   CodexForgeChatErrorResponse,
@@ -2545,18 +2546,24 @@ export async function POST(req: Request) {
       model: response.meta.model || MODEL_NAME,
     });
 
+    const decoratedStructured = attachAgentTeamToStructuredReply(
+      response.structured ?? undefined,
+      agentTeamSummary,
+      capabilityRouting
+    );
+
+    const decoratedText = decoratedStructured
+      ? structuredToText(decoratedStructured)
+      : response.text;
+
     const successResponse: CodexForgeChatSuccessResponse = {
       ok: true,
       reply: {
         id: uid(),
         role: "assistant",
-        text: response.text,
+        text: decoratedText,
         ts: Date.now(),
-        structured: attachAgentTeamToStructuredReply(
-          response.structured ?? undefined,
-          agentTeamSummary,
-          capabilityRouting
-        ),
+        structured: decoratedStructured,
       },
       meta,
     };
@@ -2680,6 +2687,7 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
 
 
 
