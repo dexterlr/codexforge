@@ -22,27 +22,46 @@ const SAFE_EXECUTION_CANDIDATE_TOOLS = [
   "search-project",
 ] as const;
 
+const AUTO_EXECUTION_ALLOWED_TOOLS = new Set<string>(
+  SAFE_EXECUTION_CANDIDATE_TOOLS
+);
+
+const MUTATION_TOOL_NAMES = new Set<string>([
+  "write-file",
+  "apply-diff",
+  "run-command",
+  "run-tests",
+  "build-web-app",
+  "snapshot-project",
+]);
+
+const DIFF_PREVIEW_TOOL_NAMES = new Set<string>([
+  "generate-diff",
+  "apply-diff",
+]);
+
 const MAX_TOOL_RESULT_PATHS = 10;
 const MAX_TOOL_RESULT_LINES = 10;
 const MAX_TOOL_RESULT_PREVIEW = 320;
 const MAX_GROUNDED_NOTES = 10;
 const MAX_MULTI_FILE_MATCHES = 8;
 const MAX_FUNCTION_CANDIDATES = 96;
+const MAX_ENGINE_TRACE_LINES = 16;
+const MAX_RESPONSE_QUALITY_NOTES = 10;
 const MAX_GROUNDING_SECTION_ITEMS =
   MAX_TOOL_RESULT_LINES + MAX_GROUNDED_NOTES + 24;
 
 const FALLBACK_GROUNDED_SUMMARY =
   "CodexForge produced a grounded repository response.";
 
-const KNOWN_CORE_EDIT_TARGETS: Record<
-  string,
-  {
-    primaryFunction: string;
-    fallbacks: string[];
-    role: string;
-    reason: string;
-  }
-> = {
+type KnownEditTarget = {
+  primaryFunction: string;
+  fallbacks: string[];
+  role: string;
+  reason: string;
+};
+
+const KNOWN_CORE_EDIT_TARGETS: Record<string, KnownEditTarget> = {
   "src/lib/codexforge/chat/engine.ts": {
     primaryFunction: "runCodexForgeEngine",
     fallbacks: [
@@ -50,30 +69,143 @@ const KNOWN_CORE_EDIT_TARGETS: Record<
       "enrichStructuredWithToolOutcomes",
       "buildGroundedSummary",
       "buildSafeToolPlan",
+      "validateGroundedClaims",
+      "buildEngineTraceSection",
+      "buildResponseQuality",
       "chooseBestFunctionCandidate",
       "inferLikelyEditPoint",
     ],
     role: "This is the core chat engine orchestration layer.",
     reason:
-      "It is the top-level orchestration seam where analysis, planning, safe repo inspection, structured rendering, and graph persistence converge.",
+      "It is the top-level orchestration seam where analysis, planning, safe repo inspection, structured rendering, trace construction, claim validation, and graph persistence converge.",
   },
   "src/lib/codexforge/chat/engine-render.ts": {
     primaryFunction: "buildStructured",
-    fallbacks: ["structuredToText"],
+    fallbacks: [
+      "structuredToText",
+      "buildDiffPreviewBundle",
+      "buildDiffPreviewFromDiff",
+      "buildDiffApprovalGate",
+      "renderGroundedRepoText",
+    ],
     role: "This is the structured reply rendering layer.",
     reason:
-      "It assembles structured response fields and converts them into the final visible chat answer.",
+      "It assembles structured response fields, approval metadata, diff preview fields, and converts them into the final visible chat answer.",
   },
   "src/lib/codexforge/chat/engine-analysis.ts": {
     primaryFunction: "analyze",
-    fallbacks: ["buildPlan", "buildWarnings"],
+    fallbacks: [
+      "buildPlan",
+      "buildWarnings",
+      "buildPlanStatus",
+      "buildUnderstandingItems",
+    ],
     role: "This is the intent, domain, and plan analysis layer.",
     reason:
       "It classifies the user request and builds the plan primitives consumed by the engine.",
   },
+  "src/lib/codexforge/chat/use-codexforge-chat.ts": {
+    primaryFunction: "useCodexForgeChat",
+    fallbacks: [
+      "approvePlan",
+      "rejectPlan",
+      "approveDiffs",
+      "rejectDiffs",
+      "runEngineUiAction",
+      "sendMessage",
+      "executeTaskStep",
+    ],
+    role: "This is the client-side CodexForge chat state and execution hook.",
+    reason:
+      "It owns local chat state, task state, approval actions, pending execution state, and the UI-to-engine bridge.",
+  },
+  "src/lib/codexforge/chat/components/chat-message.tsx": {
+    primaryFunction: "ChatMessage",
+    fallbacks: [
+      "shouldShowApprovalActions",
+      "ActionButton",
+      "getMessageToneBadge",
+      "isApprovalPhase",
+    ],
+    role: "This is the per-message UI rendering surface.",
+    reason:
+      "It controls assistant message display, approval action visibility, and message-level execution controls.",
+  },
+  "src/lib/codexforge/chat/components/structured-reply-block.tsx": {
+    primaryFunction: "StructuredReplyBlock",
+    fallbacks: [
+      "renderStructuredSection",
+      "renderDiffPreviews",
+      "renderApprovals",
+      "buildStructuredSummaryMeta",
+    ],
+    role: "This is the structured reply UI block.",
+    reason:
+      "It renders structured plan, execution, diff preview, approval, tool, and status metadata for the workspace UI.",
+  },
+  "src/lib/codexforge/tools/contracts.ts": {
+    primaryFunction: "createCodexForgeToolRegistry",
+    fallbacks: [
+      "createCodexForgeToolSuccessResult",
+      "createCodexForgeToolErrorResult",
+      "createToolParameter",
+      "isCodexForgeToolDefinition",
+    ],
+    role: "This is the shared tool contract and result-shape layer.",
+    reason:
+      "It defines the tool execution schema, safety metadata, handler contract, and normalized success/error result shape.",
+  },
+  "src/lib/codexforge/tools/server.ts": {
+    primaryFunction: "executeCodexForgeTool",
+    fallbacks: [
+      "getCodexForgeServerToolRegistry",
+      "isCodexForgeExecutableToolName",
+      "buildServerRegistryTools",
+      "withExecutionMetadata",
+    ],
+    role: "This is the server-side executable tool registry.",
+    reason:
+      "It binds client-safe tool descriptors to server-only handlers and enforces executable tool resolution.",
+  },
+  "src/lib/codexforge/tools/generate-diff.ts": {
+    primaryFunction: "generateDiffTool",
+    fallbacks: [
+      "buildUnifiedDiff",
+      "normalizeGenerateDiffInput",
+      "validateGenerateDiffPath",
+      "createGenerateDiffSuccess",
+    ],
+    role: "This is the dry-run diff preview generation tool.",
+    reason:
+      "It creates reviewable unified diff previews without mutating workspace files.",
+  },
+  "src/lib/codexforge/tools/apply-diff.ts": {
+    primaryFunction: "applyDiffTool",
+    fallbacks: [
+      "normalizeApplyDiffInput",
+      "applyUnifiedDiff",
+      "createBackup",
+      "createApplyDiffSuccess",
+    ],
+    role: "This is the guarded diff mutation tool.",
+    reason:
+      "It applies approved unified diffs with workspace path validation, dry-run support, and backup metadata.",
+  },
+  "src/lib/codexforge/types.ts": {
+    primaryFunction: "CodexForgeStructuredReply",
+    fallbacks: [
+      "CodexForgeDiffPreview",
+      "CodexForgeApprovalGate",
+      "CodexForgeContextExecution",
+      "CodexForgeCapabilities",
+    ],
+    role: "This is the shared CodexForge type contract layer.",
+    reason:
+      "It defines the cross-boundary contracts used by the engine, route, local hook, UI, tools, and brain graph.",
+  },
   "src/lib/codexforge/brain/local-engine-brain.ts": {
     primaryFunction: "run",
-    fallbacks: ["sanitizeContext"],
+    fallbacks: ["sanitizeContext", "buildLocalEngineReply"],
     role: "This is the local engine brain provider adapter.",
     reason:
       "It is the local provider execution entry point that turns chat requests into engine responses.",
@@ -85,6 +217,8 @@ const KNOWN_CORE_EDIT_TARGETS: Record<
 type SafeToolName = (typeof SAFE_EXECUTION_CANDIDATE_TOOLS)[number];
 
 type Confidence = "low" | "medium" | "high";
+
+type EngineStageStatus = "pending" | "running" | "completed" | "failed" | "skipped";
 
 type SafeToolPlan = {
   toolName: SafeToolName;
@@ -177,6 +311,75 @@ type IntentFlags = {
   wantsTopLevelOrchestration: boolean;
   wantsVisibleTextRenderer: boolean;
   wantsStructuredReplyAssembly: boolean;
+
+  wantsDiffPreview: boolean;
+  wantsPatch: boolean;
+  wantsApprovalFlow: boolean;
+  wantsApplyDiff: boolean;
+  wantsDryRun: boolean;
+  wantsVerification: boolean;
+  wantsMutation: boolean;
+};
+
+type EngineTraceStage = {
+  name: string;
+  status: EngineStageStatus;
+  startedAt: number;
+  completedAt?: number;
+  durationMs?: number;
+  summary?: string;
+};
+
+type EngineTrace = {
+  runId: string;
+  startedAt: number;
+  completedAt?: number;
+  durationMs?: number;
+
+  analysisIntent?: string;
+  domain?: string;
+
+  safeToolPassAttempted: boolean;
+  safeToolsExecuted: string[];
+  safeToolsFailed: string[];
+
+  grounded: boolean;
+  groundedFile?: string;
+  groundedFunction?: string;
+  groundedLine?: number;
+  groundingConfidence?: Confidence;
+
+  generatedDiffPreviewCount: number;
+  pendingApprovalCount: number;
+
+  approvalIntentDetected: boolean;
+  mutationIntentBlocked: boolean;
+  graphPersisted: boolean;
+
+  stages: EngineTraceStage[];
+  warningCount: number;
+};
+
+type ResponseQuality = {
+  score: number;
+  hasGoal: boolean;
+  hasNextSteps: boolean;
+  hasFiles: boolean;
+  hasEvidence: boolean;
+  hasToolAudit: boolean;
+  hasGroundedEditPoint: boolean;
+  hasDiffPreviewAwareness: boolean;
+  hasApprovalAwareness: boolean;
+  hasWarnings: boolean;
+  notes: string[];
+};
+
+type ClaimGuardResult = {
+  warnings: string[];
+  claimsGroundedExecution: boolean;
+  claimsGroundedFile: boolean;
+  claimsDiffPreview: boolean;
+  claimsApproval: boolean;
 };
 
 /* ================= GENERIC HELPERS ================= */
@@ -198,7 +401,11 @@ function asFiniteNumber(value: unknown): number | undefined {
 }
 
 function clampText(text: string, max = MAX_TOOL_RESULT_PREVIEW): string {
-  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 1))}…`;
+  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 3))}...`;
+}
+
+function clampArray<T>(values: T[], max: number): T[] {
+  return values.slice(0, Math.max(0, max));
 }
 
 function dedupeStrings(values: string[]): string[] {
@@ -217,6 +424,12 @@ function dedupeStrings(values: string[]): string[] {
   }
 
   return output;
+}
+
+function compact(values: Array<string | undefined | null | false>): string[] {
+  return values
+    .map((value) => (typeof value === "string" ? value.trim() : ""))
+    .filter((value): value is string => value.length > 0);
 }
 
 function lower(value: string): string {
@@ -275,9 +488,7 @@ function pathMatches(path: string, suffix: string): boolean {
   return cleanPath === cleanSuffix || cleanPath.endsWith(`/${cleanSuffix}`);
 }
 
-function findKnownTargetForPath(
-  path: string
-): (typeof KNOWN_CORE_EDIT_TARGETS)[string] | undefined {
+function findKnownTargetForPath(path: string): KnownEditTarget | undefined {
   const normalizedPath = normalizePathKey(path);
 
   for (const [suffix, target] of Object.entries(KNOWN_CORE_EDIT_TARGETS)) {
@@ -299,10 +510,14 @@ function scorePathSpecificity(path: string): number {
   if (normalized.includes("/lib/")) score += 20;
   if (normalized.includes("/app/")) score += 20;
   if (normalized.includes("/api/")) score += 18;
-  if (normalized.includes("/chat/")) score += 16;
+  if (normalized.includes("/chat/")) score += 18;
   if (normalized.includes("/brain/")) score += 14;
-  if (normalized.includes("/tools/")) score += 12;
-  if (normalized.includes("engine")) score += 14;
+  if (normalized.includes("/tools/")) score += 14;
+  if (normalized.includes("/components/")) score += 12;
+  if (normalized.includes("engine")) score += 16;
+  if (normalized.includes("render")) score += 10;
+  if (normalized.includes("analysis")) score += 10;
+  if (normalized.includes("types")) score += 8;
   if (normalized.endsWith(".ts")) score += 8;
   if (normalized.endsWith(".tsx")) score += 10;
   if (normalized.endsWith(".md")) score += 3;
@@ -362,6 +577,149 @@ function buildToolContext(context: CodexForgeChatContext) {
   };
 }
 
+function nowMs(): number {
+  return Date.now();
+}
+
+function createRunId(startedAt: number): string {
+  return `codexforge-engine-${startedAt}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}`;
+}
+
+/* ================= TRACE HELPERS ================= */
+
+function createEngineTrace(startedAt: number): EngineTrace {
+  return {
+    runId: createRunId(startedAt),
+    startedAt,
+    safeToolPassAttempted: false,
+    safeToolsExecuted: [],
+    safeToolsFailed: [],
+    grounded: false,
+    generatedDiffPreviewCount: 0,
+    pendingApprovalCount: 0,
+    approvalIntentDetected: false,
+    mutationIntentBlocked: false,
+    graphPersisted: false,
+    stages: [],
+    warningCount: 0,
+  };
+}
+
+function startTraceStage(trace: EngineTrace, name: string): EngineStageTraceHandle {
+  const startedAt = nowMs();
+  const stage: EngineTraceStage = {
+    name,
+    status: "running",
+    startedAt,
+  };
+
+  trace.stages.push(stage);
+
+  return {
+    complete(summary?: string) {
+      const completedAt = nowMs();
+      stage.status = "completed";
+      stage.completedAt = completedAt;
+      stage.durationMs = completedAt - startedAt;
+      if (summary) stage.summary = summary;
+    },
+    fail(summary?: string) {
+      const completedAt = nowMs();
+      stage.status = "failed";
+      stage.completedAt = completedAt;
+      stage.durationMs = completedAt - startedAt;
+      if (summary) stage.summary = summary;
+    },
+    skip(summary?: string) {
+      const completedAt = nowMs();
+      stage.status = "skipped";
+      stage.completedAt = completedAt;
+      stage.durationMs = completedAt - startedAt;
+      if (summary) stage.summary = summary;
+    },
+  };
+}
+
+type EngineStageTraceHandle = {
+  complete(summary?: string): void;
+  fail(summary?: string): void;
+  skip(summary?: string): void;
+};
+
+function finalizeEngineTrace(
+  trace: EngineTrace,
+  warnings: string[],
+  structured: CodexForgeStructuredReply
+): EngineTrace {
+  const completedAt = nowMs();
+
+  const primaryGrounding = collectPrimaryGroundingFromStructured(structured);
+  const diffPreviewCount = structured.diffPreviews?.length ?? 0;
+  const pendingApprovalCount =
+    structured.approvals?.filter((approval) => approval.state === "pending")
+      .length ?? 0;
+
+  return {
+    ...trace,
+    completedAt,
+    durationMs: completedAt - trace.startedAt,
+    warningCount: warnings.length,
+    generatedDiffPreviewCount: diffPreviewCount,
+    pendingApprovalCount,
+    grounded: trace.grounded || !!primaryGrounding.file,
+    groundedFile: trace.groundedFile ?? primaryGrounding.file,
+    groundedFunction: trace.groundedFunction ?? primaryGrounding.fn,
+    groundedLine: trace.groundedLine ?? primaryGrounding.line,
+    groundingConfidence: trace.groundingConfidence ?? primaryGrounding.confidence,
+  };
+}
+
+function buildEngineTraceSection(
+  trace: EngineTrace
+): { title: string; items: string[] } | null {
+  const items = dedupeStrings([
+    `Run: ${trace.runId}`,
+    `Duration: ${trace.durationMs ?? 0}ms`,
+    trace.analysisIntent ? `Intent: ${trace.analysisIntent}` : "",
+    trace.domain ? `Domain: ${trace.domain}` : "",
+    `Safe tool pass: ${trace.safeToolPassAttempted ? "attempted" : "not attempted"}`,
+    trace.safeToolsExecuted.length
+      ? `Safe tools executed: ${trace.safeToolsExecuted.join(", ")}`
+      : "Safe tools executed: none",
+    trace.safeToolsFailed.length
+      ? `Safe tools failed: ${trace.safeToolsFailed.join(", ")}`
+      : "",
+    trace.groundedFile ? `Grounded file: ${trace.groundedFile}` : "",
+    trace.groundedFunction ? `Grounded function: ${trace.groundedFunction}` : "",
+    trace.groundedLine !== undefined ? `Grounded line: ${trace.groundedLine}` : "",
+    trace.groundingConfidence
+      ? `Grounding confidence: ${trace.groundingConfidence}`
+      : "",
+    `Diff previews: ${trace.generatedDiffPreviewCount}`,
+    `Pending approvals: ${trace.pendingApprovalCount}`,
+    `Approval intent detected: ${trace.approvalIntentDetected ? "yes" : "no"}`,
+    `Mutation intent blocked: ${trace.mutationIntentBlocked ? "yes" : "no"}`,
+    `Brain graph persisted: ${trace.graphPersisted ? "yes" : "no"}`,
+    `Warnings: ${trace.warningCount}`,
+    ...trace.stages.slice(0, MAX_ENGINE_TRACE_LINES).map((stage) =>
+      compact([
+        `${stage.name}: ${stage.status}`,
+        typeof stage.durationMs === "number" ? `${stage.durationMs}ms` : "",
+        stage.summary,
+      ]).join(" - ")
+    ),
+  ]);
+
+  if (items.length === 0) return null;
+
+  return {
+    title: "Engine trace",
+    items,
+  };
+}
+
 /* ================= INTENT HELPERS ================= */
 
 function textSuggestsTopLevelOrchestration(text: string): boolean {
@@ -418,6 +776,81 @@ function textSuggestsStructuredAssembly(text: string): boolean {
     normalized.includes("files") ||
     normalized.includes("next steps") ||
     normalized.includes("contract")
+  );
+}
+
+function textSuggestsDiffPreview(text: string): boolean {
+  const normalized = lower(text);
+
+  return (
+    normalized.includes("diff preview") ||
+    normalized.includes("diff previews") ||
+    normalized.includes("reviewable patch") ||
+    normalized.includes("patch preview") ||
+    normalized.includes("generated patch") ||
+    normalized.includes("generate-diff") ||
+    normalized.includes("dry-run diff") ||
+    normalized.includes("dry run diff") ||
+    normalized.includes("show patch") ||
+    normalized.includes("propose changes") ||
+    normalized.includes("preview changes")
+  );
+}
+
+function textSuggestsApprovalFlow(text: string): boolean {
+  const normalized = lower(text);
+
+  return (
+    normalized.includes("approval") ||
+    normalized.includes("approve") ||
+    normalized.includes("reject") ||
+    normalized.includes("awaiting_diff_approval") ||
+    normalized.includes("awaiting diff approval") ||
+    normalized.includes("human approval") ||
+    normalized.includes("explicit approval") ||
+    normalized.includes("approval-driven") ||
+    normalized.includes("approval driven")
+  );
+}
+
+function textSuggestsApplyDiff(text: string): boolean {
+  const normalized = lower(text);
+
+  return (
+    normalized.includes("apply-diff") ||
+    normalized.includes("apply diff") ||
+    normalized.includes("apply patch") ||
+    normalized.includes("apply changes") ||
+    normalized.includes("write the changes") ||
+    normalized.includes("mutate files") ||
+    normalized.includes("make the file changes")
+  );
+}
+
+function textSuggestsDryRun(text: string): boolean {
+  const normalized = lower(text);
+
+  return (
+    normalized.includes("dry-run") ||
+    normalized.includes("dry run") ||
+    normalized.includes("no mutation") ||
+    normalized.includes("without mutating") ||
+    normalized.includes("without applying") ||
+    normalized.includes("preview only")
+  );
+}
+
+function textSuggestsVerification(text: string): boolean {
+  const normalized = lower(text);
+
+  return (
+    normalized.includes("verify") ||
+    normalized.includes("verification") ||
+    normalized.includes("run build") ||
+    normalized.includes("npm run build") ||
+    normalized.includes("run tests") ||
+    normalized.includes("test after") ||
+    normalized.includes("check after")
   );
 }
 
@@ -497,6 +930,23 @@ function extractIntentFlags(text: string): IntentFlags {
   const wantsTopLevelOrchestration = textSuggestsTopLevelOrchestration(query);
   const wantsVisibleTextRenderer = textSuggestsVisibleRenderer(query);
   const wantsStructuredReplyAssembly = textSuggestsStructuredAssembly(query);
+  const wantsDiffPreview = textSuggestsDiffPreview(query);
+  const wantsPatch =
+    wantsDiffPreview ||
+    query.includes("patch") ||
+    query.includes("diff") ||
+    query.includes("unified diff");
+  const wantsApprovalFlow = textSuggestsApprovalFlow(query);
+  const wantsApplyDiff = textSuggestsApplyDiff(query);
+  const wantsDryRun = textSuggestsDryRun(query);
+  const wantsVerification = textSuggestsVerification(query);
+  const wantsMutation =
+    wantsApplyDiff ||
+    query.includes("write-file") ||
+    query.includes("write file") ||
+    query.includes("run-command") ||
+    query.includes("run command") ||
+    query.includes("execute command");
 
   return {
     wantsRead,
@@ -510,8 +960,70 @@ function extractIntentFlags(text: string): IntentFlags {
     wantsTopLevelOrchestration,
     wantsVisibleTextRenderer,
     wantsStructuredReplyAssembly,
+    wantsDiffPreview,
+    wantsPatch,
+    wantsApprovalFlow,
+    wantsApplyDiff,
+    wantsDryRun,
+    wantsVerification,
+    wantsMutation,
   };
-} 
+}
+
+/* ================= MUTATION FIREWALL ================= */
+
+function assertAutoExecutionIsSafe(toolName: string): void {
+  if (!AUTO_EXECUTION_ALLOWED_TOOLS.has(toolName)) {
+    throw new Error(`Refused automatic execution of unsafe tool: ${toolName}`);
+  }
+
+  if (MUTATION_TOOL_NAMES.has(toolName)) {
+    throw new Error(`Refused automatic mutation-capable tool: ${toolName}`);
+  }
+}
+
+function buildMutationFirewallWarnings(flags: IntentFlags): string[] {
+  if (!flags.wantsMutation) return [];
+
+  return [
+    "Mutation intent detected. CodexForge will not auto-run mutation tools from chat without an explicit approval state.",
+    "Allowed automatic tools remain read-only: read-file, list-files, search-project.",
+  ];
+}
+
+function buildApprovalIntentSection(
+  flags: IntentFlags
+): { title: string; items: string[] } | null {
+  if (!flags.wantsDiffPreview && !flags.wantsApprovalFlow && !flags.wantsApplyDiff) {
+    return null;
+  }
+
+  const items = dedupeStrings([
+    flags.wantsDiffPreview
+      ? "Diff preview intent detected: generate or display a reviewable patch without mutating files."
+      : "",
+    flags.wantsApprovalFlow
+      ? "Approval intent detected: require explicit user approval before apply-diff or file mutation."
+      : "",
+    flags.wantsApplyDiff
+      ? "Apply intent detected: mutation must stay blocked until an approved diff preview exists."
+      : "",
+    flags.wantsDryRun
+      ? "Dry-run requested: proposed changes should remain preview-only."
+      : "Default safety posture: diff previews stay dry-run unless an approved apply path is explicitly invoked.",
+    flags.wantsVerification
+      ? "Verification intent detected: build/test commands should be proposed or run only through an approved guarded path."
+      : "",
+    "Canonical flow: plan -> generate diff preview -> review -> approve/reject -> apply approved diff -> verify -> checkpoint.",
+  ]);
+
+  if (items.length === 0) return null;
+
+  return {
+    title: "Approval safety",
+    items,
+  };
+}
 
 /* ================= LINE / FUNCTION INFERENCE ================= */
 
@@ -526,7 +1038,9 @@ function extractFunctionNameFromLine(line: string): string | undefined {
     ) ??
     line.match(
       /\bconst\s+([A-Za-z0-9_]+)\s*=\s*(?:async\s*)?[A-Za-z0-9_]+\s*=>/
-    );
+    ) ??
+    line.match(/\btype\s+([A-Za-z0-9_]+)\s*=/) ??
+    line.match(/\binterface\s+([A-Za-z0-9_]+)\s*\{/);
 
   return functionMatch?.[1]?.trim();
 }
@@ -547,6 +1061,12 @@ function scoreFunctionName(name: string): number {
   if (name.includes("Build")) score += 6;
   if (name.includes("Infer")) score += 4;
   if (name.includes("Choose")) score += 3;
+  if (name.includes("Approval")) score += 16;
+  if (name.includes("Diff")) score += 16;
+  if (name.includes("Preview")) score += 12;
+  if (name.includes("Quality")) score += 10;
+  if (name.includes("Trace")) score += 10;
+  if (name.includes("Guard")) score += 10;
 
   if (name === "runCodexForgeEngine") score += 100;
   if (name === "executeSafeToolPass") score += 70;
@@ -555,8 +1075,11 @@ function scoreFunctionName(name: string): number {
   if (name === "buildSafeToolPlan") score += 54;
   if (name === "buildStructured") score += 70;
   if (name === "structuredToText") score += 72;
-  if (name === "chooseBestFunctionCandidate") score -= 30;
-  if (name === "inferLikelyEditPoint") score -= 20;
+  if (name === "validateGroundedClaims") score += 78;
+  if (name === "buildResponseQuality") score += 64;
+  if (name === "buildEngineTraceSection") score += 58;
+  if (name === "chooseBestFunctionCandidate") score -= 20;
+  if (name === "inferLikelyEditPoint") score -= 10;
 
   return score;
 }
@@ -580,13 +1103,15 @@ function findFunctionCandidates(content: string): FunctionCandidate[] {
     else if (lowered.startsWith("async function")) score += 24;
     else if (lowered.startsWith("function")) score += 20;
     else if (lowered.startsWith("const")) score += 12;
+    else if (lowered.startsWith("type")) score += 8;
+    else if (lowered.startsWith("interface")) score += 8;
 
     candidates.push({
       name,
       line: index + 1,
       signature: clampText(trimmed, 220),
       score,
-      reason: "Function signature found in inspected file.",
+      reason: "Symbol signature found in inspected file.",
     });
   });
 
@@ -622,9 +1147,21 @@ function chooseKnownTargetCandidate(
     candidates.find((candidate) => candidate.name === name);
 
   const userTextLower = lower(userText);
-  const wantsTopLevel = textSuggestsTopLevelOrchestration(userText);
-  const wantsVisibleRenderer = textSuggestsVisibleRenderer(userText);
+  const flags = extractIntentFlags(userTextLower);
+  const wantsTopLevel = textSuggestsTopLevelOrchestration(userTextLower);
+  const wantsVisibleRenderer = textSuggestsVisibleRenderer(userTextLower);
   const isRenderFile = pathMatches(path, "src/lib/codexforge/chat/engine-render.ts");
+  const isHookFile = pathMatches(path, "src/lib/codexforge/chat/use-codexforge-chat.ts");
+  const isChatMessageFile = pathMatches(
+    path,
+    "src/lib/codexforge/chat/components/chat-message.tsx"
+  );
+  const isStructuredBlockFile = pathMatches(
+    path,
+    "src/lib/codexforge/chat/components/structured-reply-block.tsx"
+  );
+  const isToolServerFile = pathMatches(path, "src/lib/codexforge/tools/server.ts");
+  const isTypesFile = pathMatches(path, "src/lib/codexforge/types.ts");
 
   if (isRenderFile && wantsVisibleRenderer) {
     const renderer = byName("structuredToText");
@@ -642,6 +1179,105 @@ function chooseKnownTargetCandidate(
             reason:
               "The request is about the final visible chat answer. The safe read may be truncated, so CodexForge selected the known visible text renderer.",
           })
+    );
+  }
+
+  if (isRenderFile && (flags.wantsDiffPreview || flags.wantsApprovalFlow)) {
+    const diffBuilder =
+      byName("buildDiffPreviewBundle") ??
+      byName("buildDiffPreviewFromDiff") ??
+      byName("buildStructured");
+
+    return (
+      diffBuilder ??
+      createVirtualFunctionCandidate({
+        name: "buildDiffPreviewBundle",
+        score: 100_000,
+        reason:
+          "The request is about approval-driven diff preview rendering, so the diff preview bundle builder is the correct seam.",
+      })
+    );
+  }
+
+  if (isHookFile && (flags.wantsApprovalFlow || flags.wantsApplyDiff)) {
+    const approvalHandler =
+      byName("approveDiffs") ??
+      byName("rejectDiffs") ??
+      byName("runEngineUiAction") ??
+      byName("useCodexForgeChat");
+
+    return (
+      approvalHandler ??
+      createVirtualFunctionCandidate({
+        name: "approveDiffs",
+        score: 100_000,
+        reason:
+          "The request is about client-side approval actions, so the approval handler in the chat hook is the correct seam.",
+      })
+    );
+  }
+
+  if (isChatMessageFile && flags.wantsApprovalFlow) {
+    const actionRenderer =
+      byName("shouldShowApprovalActions") ??
+      byName("ActionButton") ??
+      byName("ChatMessage");
+
+    return (
+      actionRenderer ??
+      createVirtualFunctionCandidate({
+        name: "shouldShowApprovalActions",
+        score: 100_000,
+        reason:
+          "The request is about message-level approval controls, so approval action visibility is the correct seam.",
+      })
+    );
+  }
+
+  if (isStructuredBlockFile && flags.wantsDiffPreview) {
+    const previewRenderer =
+      byName("renderDiffPreviews") ??
+      byName("renderApprovals") ??
+      byName("StructuredReplyBlock");
+
+    return (
+      previewRenderer ??
+      createVirtualFunctionCandidate({
+        name: "renderDiffPreviews",
+        score: 100_000,
+        reason:
+          "The request is about rendering diff previews in structured UI, so the diff preview renderer is the correct seam.",
+      })
+    );
+  }
+
+  if (isToolServerFile && flags.wantsApplyDiff) {
+    const executor = byName("executeCodexForgeTool");
+    return (
+      executor ??
+      createVirtualFunctionCandidate({
+        name: "executeCodexForgeTool",
+        score: 100_000,
+        reason:
+          "The request is about server-side tool execution and apply-diff gating, so executeCodexForgeTool is the correct seam.",
+      })
+    );
+  }
+
+  if (isTypesFile && (flags.wantsDiffPreview || flags.wantsApprovalFlow)) {
+    const contract =
+      byName("CodexForgeDiffPreview") ??
+      byName("CodexForgeApprovalGate") ??
+      byName("CodexForgeStructuredReply");
+
+    return (
+      contract ??
+      createVirtualFunctionCandidate({
+        name: "CodexForgeDiffPreview",
+        score: 100_000,
+        reason:
+          "The request is about the approval/diff preview contract, so the shared diff preview type is the correct seam.",
+      })
     );
   }
 
@@ -708,6 +1344,7 @@ function chooseBestFunctionCandidate(
   const contentLower = lower(content);
   const userTextLower = lower(userText);
   const candidates = findFunctionCandidates(content);
+  const flags = extractIntentFlags(userTextLower);
 
   const byName = (name: string): FunctionCandidate | undefined =>
     candidates.find((candidate) => candidate.name === name);
@@ -735,14 +1372,40 @@ function chooseBestFunctionCandidate(
     normalizedPath,
     "src/lib/codexforge/chat/engine-render.ts"
   );
+  const isEngineAnalysisFile = pathMatches(
+    normalizedPath,
+    "src/lib/codexforge/chat/engine-analysis.ts"
+  );
   const isLocalBrainFile = pathMatches(
     normalizedPath,
     "src/lib/codexforge/brain/local-engine-brain.ts"
+  );
+  const isChatHookFile = pathMatches(
+    normalizedPath,
+    "src/lib/codexforge/chat/use-codexforge-chat.ts"
+  );
+  const isToolServerFile = pathMatches(
+    normalizedPath,
+    "src/lib/codexforge/tools/server.ts"
   );
 
   if (isChatEngineFile) {
     const priority = [
       knownTarget,
+      flags.wantsApprovalFlow || flags.wantsDiffPreview || flags.wantsMutation
+        ? boost(
+            byName("validateGroundedClaims"),
+            80_000,
+            "Approval/diff work benefits from the claim guard and final response validation seam."
+          )
+        : undefined,
+      flags.wantsApprovalFlow || flags.wantsDiffPreview || flags.wantsMutation
+        ? boost(
+            byName("enrichStructuredWithSafetyState"),
+            79_000,
+            "Approval/diff work should surface safety state through structured output before rendering."
+          )
+        : undefined,
       boost(
         byName("runCodexForgeEngine"),
         50_000,
@@ -770,6 +1433,8 @@ function chooseBestFunctionCandidate(
         "Grounded summary rendering seam."
       ),
       boost(byName("buildSafeToolPlan"), 1_200, "Safe tool selection planner."),
+      boost(byName("buildResponseQuality"), 900, "Response quality scoring seam."),
+      boost(byName("buildEngineTraceSection"), 800, "Engine trace visibility seam."),
       boost(byName("chooseBestFunctionCandidate"), 400, "Function ranking helper."),
       boost(byName("inferLikelyEditPoint"), 350, "Edit-point inference helper."),
     ].filter((candidate): candidate is FunctionCandidate => !!candidate);
@@ -779,6 +1444,28 @@ function chooseBestFunctionCandidate(
 
   if (isEngineRenderFile) {
     const wantsVisibleTextRenderer = textSuggestsVisibleRenderer(userTextLower);
+
+    if (flags.wantsDiffPreview || flags.wantsApprovalFlow) {
+      return (
+        knownTarget ??
+        boost(
+          byName("buildDiffPreviewBundle"),
+          100_000,
+          "The user asked about approval-driven diff previews, so diff preview bundle construction is the correct edit point."
+        ) ??
+        boost(
+          byName("buildStructured"),
+          90_000,
+          "Structured reply assembly owns diff preview attachment."
+        ) ??
+        createVirtualFunctionCandidate({
+          name: "buildDiffPreviewBundle",
+          score: 100_000,
+          reason:
+            "The user asked about approval-driven diff previews. The read output may be truncated before the diff preview helper.",
+        })
+      );
+    }
 
     if (wantsVisibleTextRenderer) {
       return (
@@ -805,11 +1492,45 @@ function chooseBestFunctionCandidate(
     );
   }
 
+  if (isEngineAnalysisFile) {
+    return (
+      knownTarget ??
+      boost(byName("analyze"), 10_000, "Intent analysis entry point.") ??
+      boost(byName("buildPlan"), 9_000, "Planning assembly seam.") ??
+      boost(byName("buildWarnings"), 7_000, "Warning construction seam.") ??
+      [...candidates].sort((a, b) => b.score - a.score)[0]
+    );
+  }
+
   if (isLocalBrainFile) {
     return (
       knownTarget ??
       boost(byName("run"), 10_000, "Local brain execution entry point.") ??
       boost(byName("sanitizeContext"), 8_000, "Context sanitation seam.") ??
+      [...candidates].sort((a, b) => b.score - a.score)[0]
+    );
+  }
+
+  if (isChatHookFile) {
+    return (
+      knownTarget ??
+      boost(byName("useCodexForgeChat"), 10_000, "Client state and action hook.") ??
+      boost(byName("approveDiffs"), 9_000, "Diff approval action seam.") ??
+      boost(byName("rejectDiffs"), 8_000, "Diff rejection action seam.") ??
+      boost(byName("runEngineUiAction"), 7_000, "UI to engine action dispatcher.") ??
+      [...candidates].sort((a, b) => b.score - a.score)[0]
+    );
+  }
+
+  if (isToolServerFile) {
+    return (
+      knownTarget ??
+      boost(byName("executeCodexForgeTool"), 10_000, "Server tool execution seam.") ??
+      boost(
+        byName("isCodexForgeExecutableToolName"),
+        8_000,
+        "Executable tool name validation seam."
+      ) ??
       [...candidates].sort((a, b) => b.score - a.score)[0]
     );
   }
@@ -843,6 +1564,9 @@ function confidenceForEditPoint(
   if (!candidate) return "low";
   if (candidate.name === "runCodexForgeEngine") return "high";
   if (candidate.name === "structuredToText") return "high";
+  if (candidate.name === "buildStructured") return "high";
+  if (candidate.name === "validateGroundedClaims") return "high";
+  if (candidate.name === "buildResponseQuality") return "high";
   if (candidate.virtual && candidate.score >= 900) return "high";
   if (candidate.score >= 80) return "high";
   if (candidate.score >= 34) return "medium";
@@ -851,7 +1575,7 @@ function confidenceForEditPoint(
 
 function describeFunctionReason(candidate: FunctionCandidate): string {
   if (candidate.name === "runCodexForgeEngine") {
-    return "It is the top-level orchestration seam where analysis, planning, safe repo inspection, structured rendering, and graph persistence converge.";
+    return "It is the top-level orchestration seam where analysis, planning, safe repo inspection, structured rendering, trace construction, claim validation, and graph persistence converge.";
   }
 
   if (candidate.name === "executeSafeToolPass") {
@@ -876,6 +1600,18 @@ function describeFunctionReason(candidate: FunctionCandidate): string {
 
   if (candidate.name === "structuredToText") {
     return "It controls the final visible chat text, including repetition, section ordering, and low-value rendered details.";
+  }
+
+  if (candidate.name === "validateGroundedClaims") {
+    return "It prevents the final response from claiming tool execution, grounding, approvals, or diff previews that were not actually produced.";
+  }
+
+  if (candidate.name === "buildResponseQuality") {
+    return "It scores response completeness so thin answers can be detected and improved.";
+  }
+
+  if (candidate.name === "buildEngineTraceSection") {
+    return "It exposes the real engine path through traceable structured sections.";
   }
 
   return candidate.reason;
@@ -1004,7 +1740,9 @@ function shouldAutoInspectRepo(
     flags.wantsArchitecture ||
     flags.wantsTopLevelOrchestration ||
     flags.wantsVisibleTextRenderer ||
-    flags.wantsStructuredReplyAssembly
+    flags.wantsStructuredReplyAssembly ||
+    flags.wantsDiffPreview ||
+    flags.wantsApprovalFlow
   );
 }
 
@@ -1037,7 +1775,9 @@ function buildSafeToolPlan(
       flags.wantsArchitecture ||
       flags.wantsTopLevelOrchestration ||
       flags.wantsVisibleTextRenderer ||
-      flags.wantsStructuredReplyAssembly) &&
+      flags.wantsStructuredReplyAssembly ||
+      flags.wantsDiffPreview ||
+      flags.wantsApprovalFlow) &&
     explicitPath &&
     safeTools.has("read-file")
   ) {
@@ -1188,7 +1928,7 @@ function extractDetailLinesFromJson(
         if (!relativePath) return null;
 
         const linePart = line !== undefined ? `:${line}` : "";
-        const previewPart = preview ? ` — ${clampText(preview)}` : "";
+        const previewPart = preview ? ` - ${clampText(preview)}` : "";
 
         return `${relativePath}${linePart}${previewPart}`;
       })
@@ -1335,6 +2075,14 @@ function inferFileRoleSummary(path: string, content: string): string | undefined
   }
 
   if (
+    contentLower.includes("diffpreview") ||
+    contentLower.includes("approvalgate") ||
+    contentLower.includes("approvalrequired")
+  ) {
+    return "This looks like an approval or diff-preview contract surface.";
+  }
+
+  if (
     normalizedPath.includes("/api/") ||
     normalizedPath.endsWith("/route.ts") ||
     contentLower.includes("nextresponse")
@@ -1398,6 +2146,14 @@ function inferLikelyEditPoint(
     return "The next likely edit point is the structured rendering path.";
   }
 
+  if (
+    contentLower.includes("diffpreview") ||
+    contentLower.includes("approvalgate") ||
+    contentLower.includes("approvalrequired")
+  ) {
+    return "The next likely edit point is the approval or diff-preview contract path.";
+  }
+
   if (contentLower.includes("analyze(") || contentLower.includes("buildplan(")) {
     return "The next likely edit point is the analysis or planning path.";
   }
@@ -1433,6 +2189,12 @@ function inferRelatedPaths(path: string): string[] {
     knownTarget && parent ? `${parent}/engine-analysis.ts` : "",
     knownTarget && parent ? `${parent}/engine-graph.ts` : "",
     knownTarget && parent ? `${parent}/engine-shared.ts` : "",
+    knownTarget ? "src/lib/codexforge/types.ts" : "",
+    knownTarget ? "src/lib/codexforge/tools/server.ts" : "",
+    knownTarget ? "src/lib/codexforge/chat/use-codexforge-chat.ts" : "",
+    knownTarget
+      ? "src/lib/codexforge/chat/components/structured-reply-block.tsx"
+      : "",
   ])
     .filter((candidate) => normalizePathKey(candidate) !== normalizePathKey(path))
     .slice(0, MAX_TOOL_RESULT_PATHS);
@@ -1514,6 +2276,8 @@ function createGroundedFileCandidate(args: {
   if (bestFunction?.virtual) priority += 20;
   if (bestFunction?.name === "runCodexForgeEngine") priority += 100;
   if (bestFunction?.name === "structuredToText") priority += 100;
+  if (bestFunction?.name === "buildStructured") priority += 70;
+  if (bestFunction?.name === "validateGroundedClaims") priority += 65;
   if (role) priority += 8;
   if (editPoint) priority += 12;
   if (confidence === "high") priority += 25;
@@ -1688,6 +2452,8 @@ async function executeToolWithAdapter(
   json: Record<string, unknown> | null;
 }> {
   try {
+    assertAutoExecutionIsSafe(toolName);
+
     const result = await deps.toolExecution!.execute({
       toolName,
       input,
@@ -1799,8 +2565,11 @@ async function maybeRunFollowUpReadFile(
 async function executeSafeToolPass(
   analysis: CodexForgeEngineAnalysis,
   context: CodexForgeChatContext,
-  deps: CodexForgeEngineDependencies
+  deps: CodexForgeEngineDependencies,
+  trace?: EngineTrace
 ): Promise<SafeToolOutcome[]> {
+  trace && (trace.safeToolPassAttempted = true);
+
   if (!deps.toolExecution) {
     return [
       {
@@ -1867,6 +2636,34 @@ async function executeSafeToolPass(
     }
   }
 
+  if (trace) {
+    trace.safeToolsExecuted = dedupeStrings([
+      ...trace.safeToolsExecuted,
+      ...outcomes
+        .filter((outcome) => outcome.status === "executed")
+        .map((outcome) => outcome.toolName),
+    ]);
+
+    trace.safeToolsFailed = dedupeStrings([
+      ...trace.safeToolsFailed,
+      ...outcomes
+        .filter((outcome) => outcome.status === "failed")
+        .map((outcome) => outcome.toolName),
+    ]);
+
+    const grounded = outcomes.find(
+      (outcome) => outcome.status === "executed" && outcome.grounding?.matchedFile
+    );
+
+    if (grounded?.status === "executed" && grounded.grounding) {
+      trace.grounded = true;
+      trace.groundedFile = grounded.grounding.matchedFile;
+      trace.groundedFunction = grounded.grounding.editFunction;
+      trace.groundedLine = grounded.grounding.editLine;
+      trace.groundingConfidence = grounded.grounding.confidence;
+    }
+  }
+
   return outcomes;
 }
 
@@ -1879,7 +2676,7 @@ function buildGroundingHeadline(
 
   const displayPath = formatPathForDisplay(grounding.matchedFile);
   const functionPart = grounding.editFunction
-    ? ` → ${grounding.editFunction}(...)`
+    ? ` -> ${grounding.editFunction}(...)`
     : "";
   const linePart = grounding.editLine ? `:${grounding.editLine}` : "";
 
@@ -1892,7 +2689,7 @@ function buildGroundingWhyLine(
   if (!grounding) return undefined;
 
   if (grounding.editFunction === "runCodexForgeEngine") {
-    return "Why this edit point: it is the top-level orchestration seam connecting analysis, planning, safe repo inspection, structured rendering, and graph persistence.";
+    return "Why this edit point: it is the top-level orchestration seam connecting analysis, planning, safe repo inspection, structured rendering, trace construction, claim validation, and graph persistence.";
   }
 
   if (grounding.editFunction === "executeSafeToolPass") {
@@ -1917,6 +2714,10 @@ function buildGroundingWhyLine(
 
   if (grounding.editFunction === "structuredToText") {
     return "Why this edit point: it controls the final visible chat answer, including section ordering, repetition, and low-value rendered details.";
+  }
+
+  if (grounding.editFunction === "validateGroundedClaims") {
+    return "Why this edit point: it guards against final responses claiming unsupported tool, grounding, approval, or diff-preview evidence.";
   }
 
   if (grounding.fileRoleSummary) {
@@ -2016,7 +2817,7 @@ function buildGroundedSummary(
   const likelyEditPoint = grounded.grounding.likelyEditPoint;
 
   if (headline && likelyEditPoint) {
-    return `${headline} — ${likelyEditPoint}`;
+    return `${headline} - ${likelyEditPoint}`;
   }
 
   if (headline) {
@@ -2120,6 +2921,9 @@ function shouldKeepExistingSection(section: { title: string; items: string[] }):
     title !== "grounded recommendation" &&
     title !== "recommended next action" &&
     title !== "tool audit" &&
+    title !== "engine trace" &&
+    title !== "response quality" &&
+    title !== "approval safety" &&
     !title.startsWith("auto inspection:") &&
     !title.startsWith("follow-up inspection:")
   );
@@ -2261,6 +3065,322 @@ function enrichStructuredWithToolOutcomes(
   };
 }
 
+function enrichStructuredWithSafetyState(
+  structured: CodexForgeStructuredReply,
+  flags: IntentFlags,
+  trace: EngineTrace
+): CodexForgeStructuredReply {
+  const approvalSection = buildApprovalIntentSection(flags);
+  const mutationWarnings = buildMutationFirewallWarnings(flags);
+
+  if (!approvalSection && mutationWarnings.length === 0) {
+    return structured;
+  }
+
+  trace.approvalIntentDetected =
+    trace.approvalIntentDetected ||
+    flags.wantsApprovalFlow ||
+    flags.wantsDiffPreview ||
+    flags.wantsApplyDiff;
+
+  trace.mutationIntentBlocked =
+    trace.mutationIntentBlocked || flags.wantsMutation || flags.wantsApplyDiff;
+
+  return {
+    ...structured,
+    status: dedupeStrings([
+      ...(structured.status ?? []),
+      ...(flags.wantsDiffPreview
+        ? ["Diff preview mode detected. Preview must remain dry-run by default."]
+        : []),
+      ...(flags.wantsApprovalFlow
+        ? ["Approval flow detected. Explicit user action is required before mutation."]
+        : []),
+      ...mutationWarnings,
+    ]),
+    sections: dedupeByKey(
+      [
+        ...(structured.sections ?? []).filter(shouldKeepExistingSection),
+        ...(approvalSection ? [approvalSection] : []),
+      ],
+      (section) => `${lower(section.title)}::${section.items.map(lower).join("|")}`
+    ),
+  };
+}
+
+/* ================= CLAIM GUARD / QUALITY ================= */
+
+function collectVisibleText(structured: CodexForgeStructuredReply, text: string): string {
+  return [
+    text,
+    structured.summary,
+    structured.goal,
+    ...(structured.context ?? []),
+    ...(structured.status ?? []),
+    ...(structured.files ?? []),
+    ...(structured.nextSteps ?? []),
+    ...(structured.sections ?? []).flatMap((section) => [
+      section.title,
+      ...section.items,
+    ]),
+  ]
+    .filter((value): value is string => typeof value === "string")
+    .join("\n")
+    .toLowerCase();
+}
+
+function collectPrimaryGroundingFromStructured(
+  structured: CodexForgeStructuredReply
+): {
+  file?: string;
+  fn?: string;
+  line?: number;
+  confidence?: Confidence;
+} {
+  const pool = [
+    ...(structured.context ?? []),
+    ...(structured.status ?? []),
+    ...(structured.sections ?? []).flatMap((section) => section.items),
+  ];
+
+  const fileLine = pool.find((item) =>
+    /^(matched file|grounded file|best grounded file|primary file):/i.test(item)
+  );
+  const functionLine = pool.find((item) =>
+    /^(matched function|grounded function|best grounded function|best function|primary file function):/i.test(
+      item
+    )
+  );
+  const lineLine = pool.find((item) =>
+    /^(matched line|grounded line|best edit line|edit line|primary file edit line):/i.test(
+      item
+    )
+  );
+  const confidenceLine = pool.find((item) =>
+    /^(confidence|grounding confidence|primary file confidence):/i.test(item)
+  );
+
+  const extractAfterColon = (value: string | undefined): string | undefined => {
+    if (!value) return undefined;
+    const colon = value.indexOf(":");
+    return colon >= 0 ? value.slice(colon + 1).trim() : value.trim();
+  };
+
+  const lineNumber = (() => {
+    const value = extractAfterColon(lineLine);
+    if (!value) return undefined;
+    const match = value.match(/\d+/);
+    return match ? Number(match[0]) : undefined;
+  })();
+
+  const confidence = (() => {
+    const value = lower(extractAfterColon(confidenceLine) ?? "");
+    if (value.includes("high")) return "high";
+    if (value.includes("medium")) return "medium";
+    if (value.includes("low")) return "low";
+    return undefined;
+  })();
+
+  return {
+    file: extractAfterColon(fileLine),
+    fn: extractAfterColon(functionLine),
+    line: lineNumber,
+    confidence,
+  };
+}
+
+function validateGroundedClaims(args: {
+  text: string;
+  structured: CodexForgeStructuredReply;
+  outcomes: SafeToolOutcome[];
+}): ClaimGuardResult {
+  const combined = collectVisibleText(args.structured, args.text);
+
+  const executedOutcomes = args.outcomes.filter(
+    (outcome): outcome is Extract<SafeToolOutcome, { status: "executed" }> =>
+      outcome.status === "executed"
+  );
+
+  const hasExecutedTool = executedOutcomes.length > 0;
+  const hasGroundedFile =
+    executedOutcomes.some((outcome) => outcome.grounding?.matchedFile) ||
+    !!collectPrimaryGroundingFromStructured(args.structured).file;
+
+  const hasDiffPreview =
+    !!args.structured.diffPreviews?.length || !!args.structured.diffs?.length;
+
+  const hasApproval = !!args.structured.approvals?.length;
+
+  const claimsGroundedExecution =
+    combined.includes("safe tool executed") ||
+    combined.includes("auto tool executed") ||
+    combined.includes("tool used:");
+
+  const claimsGroundedFile =
+    combined.includes("grounded file") ||
+    combined.includes("matched file") ||
+    combined.includes("best grounded file");
+
+  const claimsDiffPreview =
+    combined.includes("diff preview") ||
+    combined.includes("reviewable patch") ||
+    combined.includes("generate-diff");
+
+  const claimsApproval =
+    combined.includes("approval") ||
+    combined.includes("approve diff") ||
+    combined.includes("awaiting approval");
+
+  const warnings = dedupeStrings([
+    claimsGroundedExecution && !hasExecutedTool
+      ? "Claim guard: visible response claimed tool execution, but no executed safe tool outcome was recorded."
+      : "",
+    claimsGroundedFile && !hasGroundedFile
+      ? "Claim guard: visible response claimed grounded file evidence, but no matched file was recorded."
+      : "",
+    claimsDiffPreview && !hasDiffPreview
+      ? "Claim guard: visible response mentioned diff previews, but no diff preview or diff was attached."
+      : "",
+    claimsApproval && !hasApproval && hasDiffPreview
+      ? "Claim guard: visible response mentioned approval, but no approval gate was attached."
+      : "",
+  ]);
+
+  return {
+    warnings,
+    claimsGroundedExecution,
+    claimsGroundedFile,
+    claimsDiffPreview,
+    claimsApproval,
+  };
+}
+
+function buildResponseQuality(
+  structured: CodexForgeStructuredReply,
+  outcomes: SafeToolOutcome[],
+  warnings: string[]
+): ResponseQuality {
+  const visibleText = collectVisibleText(structured, "");
+  const executedOutcomes = outcomes.filter((outcome) => outcome.status === "executed");
+  const hasGroundedOutcome = executedOutcomes.some(
+    (outcome) => outcome.grounding?.matchedFile
+  );
+
+  const hasGoal = !!structured.goal || !!structured.plan?.goal;
+  const hasNextSteps = !!structured.nextSteps?.length || !!structured.plan?.steps?.length;
+  const hasFiles = !!structured.files?.length;
+  const hasEvidence =
+    hasGroundedOutcome ||
+    visibleText.includes("safe tool executed") ||
+    visibleText.includes("tool used") ||
+    visibleText.includes("evidence");
+  const hasToolAudit =
+    structured.sections?.some((section) => lower(section.title) === "tool audit") ??
+    false;
+  const hasGroundedEditPoint =
+    visibleText.includes("best next edit point") ||
+    visibleText.includes("best grounded edit target") ||
+    visibleText.includes("matched function");
+  const hasDiffPreviewAwareness =
+    !!structured.diffPreviews?.length ||
+    !!structured.diffs?.length ||
+    visibleText.includes("diff preview");
+  const hasApprovalAwareness =
+    !!structured.approvals?.length ||
+    visibleText.includes("approval") ||
+    visibleText.includes("approve");
+  const hasWarnings = warnings.length > 0;
+
+  let score = 0;
+  if (hasGoal) score += 15;
+  if (hasNextSteps) score += 15;
+  if (hasFiles) score += 10;
+  if (hasEvidence) score += 15;
+  if (hasToolAudit) score += 10;
+  if (hasGroundedEditPoint) score += 20;
+  if (hasDiffPreviewAwareness) score += 8;
+  if (hasApprovalAwareness) score += 7;
+  if (hasWarnings) score -= Math.min(15, warnings.length * 3);
+
+  score = Math.max(0, Math.min(100, score));
+
+  const notes = dedupeStrings([
+    hasGoal ? "Goal present." : "Goal missing or weak.",
+    hasNextSteps ? "Next steps present." : "Next steps missing or weak.",
+    hasFiles ? "Relevant files present." : "File list missing or weak.",
+    hasEvidence ? "Evidence or tool grounding present." : "Evidence missing or weak.",
+    hasToolAudit ? "Tool audit present." : "Tool audit not present.",
+    hasGroundedEditPoint
+      ? "Grounded edit point present."
+      : "Grounded edit point not present.",
+    hasDiffPreviewAwareness
+      ? "Diff preview awareness present."
+      : "No diff preview awareness detected.",
+    hasApprovalAwareness
+      ? "Approval awareness present."
+      : "No approval awareness detected.",
+    hasWarnings ? `${warnings.length} warning(s) present.` : "No warnings present.",
+  ]).slice(0, MAX_RESPONSE_QUALITY_NOTES);
+
+  return {
+    score,
+    hasGoal,
+    hasNextSteps,
+    hasFiles,
+    hasEvidence,
+    hasToolAudit,
+    hasGroundedEditPoint,
+    hasDiffPreviewAwareness,
+    hasApprovalAwareness,
+    hasWarnings,
+    notes,
+  };
+}
+
+function buildResponseQualitySection(
+  quality: ResponseQuality
+): { title: string; items: string[] } {
+  return {
+    title: "Response quality",
+    items: [
+      `Score: ${quality.score}/100`,
+      ...quality.notes,
+    ],
+  };
+}
+
+function enrichStructuredWithDiagnostics(args: {
+  structured: CodexForgeStructuredReply;
+  trace: EngineTrace;
+  quality: ResponseQuality;
+}): CodexForgeStructuredReply {
+  const traceSection = buildEngineTraceSection(args.trace);
+  const qualitySection = buildResponseQualitySection(args.quality);
+
+  const sections = dedupeByKey(
+    [
+      ...(args.structured.sections ?? []).filter(shouldKeepExistingSection),
+      ...(traceSection ? [traceSection] : []),
+      qualitySection,
+    ],
+    (section) => `${lower(section.title)}::${section.items.map(lower).join("|")}`
+  );
+
+  return {
+    ...args.structured,
+    status: dedupeStrings([
+      ...(args.structured.status ?? []),
+      `Engine quality score: ${args.quality.score}/100`,
+      args.trace.graphPersisted
+        ? "Brain graph persistence completed."
+        : "Brain graph persistence did not complete.",
+    ]),
+    sections,
+  };
+}
+
+/* ================= WARNINGS ================= */
+
 function buildToolExecutionWarnings(
   context: CodexForgeChatContext,
   deps: CodexForgeEngineDependencies,
@@ -2359,15 +3479,47 @@ export async function runCodexForgeEngine(
   context: CodexForgeChatContext,
   dependencies?: CodexForgeEngineDependencies
 ): Promise<CodexForgeEngineReply> {
+  const runStartedAt = nowMs();
+  const trace = createEngineTrace(runStartedAt);
   const deps = dependencies ?? getCodexForgeEngineDependencies();
 
+  const analysisStage = startTraceStage(trace, "analysis");
   const analysis = analyze(messages, context);
+  const intentFlags = extractIntentFlags(analysis.userText);
+  trace.analysisIntent = analysis.intent;
+  trace.approvalIntentDetected =
+    intentFlags.wantsApprovalFlow ||
+    intentFlags.wantsDiffPreview ||
+    intentFlags.wantsApplyDiff;
+  trace.mutationIntentBlocked = intentFlags.wantsMutation;
+  analysisStage.complete(`Intent: ${analysis.intent}`);
+
+  const planStage = startTraceStage(trace, "planning");
   const plan = buildPlan(analysis, deps, context);
+  trace.domain = plan.domain;
+  planStage.complete(plan.goal ? `Goal: ${clampText(plan.goal, 160)}` : "Plan built.");
 
-  const safeToolOutcomes = await executeSafeToolPass(analysis, context, deps);
+  const safeToolStage = startTraceStage(trace, "safe-tool-pass");
+  const safeToolOutcomes = await executeSafeToolPass(analysis, context, deps, trace);
+  const executedCount = safeToolOutcomes.filter(
+    (outcome) => outcome.status === "executed"
+  ).length;
+  const failedCount = safeToolOutcomes.filter(
+    (outcome) => outcome.status === "failed"
+  ).length;
 
+  if (failedCount > 0) {
+    safeToolStage.fail(`${executedCount} executed, ${failedCount} failed.`);
+  } else if (executedCount > 0) {
+    safeToolStage.complete(`${executedCount} safe tool action(s) executed.`);
+  } else {
+    safeToolStage.skip("No safe tool action executed.");
+  }
+
+  const structuredStage = startTraceStage(trace, "structured-render");
   let structured = buildStructured(analysis, plan, context);
   structured = enrichStructuredWithToolOutcomes(structured, safeToolOutcomes);
+  structured = enrichStructuredWithSafetyState(structured, intentFlags, trace);
 
   const groundedExecutionNotes = buildGroundedExecutionNotes(safeToolOutcomes);
   if (groundedExecutionNotes.length > 0) {
@@ -2384,8 +3536,9 @@ export async function runCodexForgeEngine(
     };
   }
 
-  const text = structuredToText(structured);
+  structuredStage.complete("Structured response assembled.");
 
+  const graphStage = startTraceStage(trace, "brain-graph-persistence");
   const graphWarnings: string[] = [];
   try {
     persistBrainGraph({
@@ -2396,29 +3549,101 @@ export async function runCodexForgeEngine(
       plan,
       structured,
     });
+    trace.graphPersisted = true;
+    graphStage.complete("Brain graph persisted.");
   } catch (error) {
-    graphWarnings.push(
+    trace.graphPersisted = false;
+    const warning =
       error instanceof Error && error.message.trim()
         ? `Brain graph persistence failed: ${error.message.trim()}`
-        : "Brain graph persistence failed."
-    );
+        : "Brain graph persistence failed.";
+
+    graphWarnings.push(warning);
+    graphStage.fail(warning);
   }
 
-  const warnings = mergeWarnings(
+  const preliminaryWarnings = mergeWarnings(
     buildWarnings(analysis, context, plan),
     graphWarnings,
     buildToolExecutionWarnings(context, deps, safeToolOutcomes),
-    buildEngineStatusWarnings(analysis, context, safeToolOutcomes)
+    buildEngineStatusWarnings(analysis, context, safeToolOutcomes),
+    buildMutationFirewallWarnings(intentFlags)
   );
 
+  const preliminaryText = structuredToText(structured);
+
+  const claimGuardStage = startTraceStage(trace, "claim-guard");
+  const claimGuard = validateGroundedClaims({
+    text: preliminaryText,
+    structured,
+    outcomes: safeToolOutcomes,
+  });
+
+  if (claimGuard.warnings.length > 0) {
+    claimGuardStage.fail(`${claimGuard.warnings.length} claim guard warning(s).`);
+  } else {
+    claimGuardStage.complete("No unsupported visible claims detected.");
+  }
+
+  const warningsBeforeDiagnostics = mergeWarnings(
+    preliminaryWarnings,
+    claimGuard.warnings
+  );
+
+  const finalizedTracePreview = finalizeEngineTrace(
+    trace,
+    warningsBeforeDiagnostics,
+    structured
+  );
+
+  const quality = buildResponseQuality(
+    structured,
+    safeToolOutcomes,
+    warningsBeforeDiagnostics
+  );
+
+  structured = enrichStructuredWithDiagnostics({
+    structured,
+    trace: finalizedTracePreview,
+    quality,
+  });
+
+  const finalText = structuredToText(structured);
+
+  const finalClaimGuard = validateGroundedClaims({
+    text: finalText,
+    structured,
+    outcomes: safeToolOutcomes,
+  });
+
+  const finalWarnings = mergeWarnings(
+    warningsBeforeDiagnostics,
+    finalClaimGuard.warnings
+  );
+
+  const finalizedTrace = finalizeEngineTrace(trace, finalWarnings, structured);
+
+  if (
+    finalizedTrace.warningCount !== finalizedTracePreview.warningCount ||
+    finalizedTrace.durationMs !== finalizedTracePreview.durationMs
+  ) {
+    const finalQuality = buildResponseQuality(
+      structured,
+      safeToolOutcomes,
+      finalWarnings
+    );
+
+    structured = enrichStructuredWithDiagnostics({
+      structured,
+      trace: finalizedTrace,
+      quality: finalQuality,
+    });
+  }
+
   return {
-    text,
+    text: structuredToText(structured),
     structured,
     intent: analysis.intent,
-    ...(warnings.length > 0 ? { warnings } : {}),
+    ...(finalWarnings.length > 0 ? { warnings: finalWarnings } : {}),
   };
 }
-
-
-
-
