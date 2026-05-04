@@ -1,4 +1,4 @@
-import type { CodexForgePlanDomain } from "../types";
+﻿import type { CodexForgePlanDomain } from "../types";
 
 export type ToolCandidate = {
   name: string;
@@ -439,7 +439,152 @@ export const DOMAIN_CONFIG: Record<CodexForgePlanDomain, DomainConfig> = {
       "Build one safe workflow stage before expanding scope.",
     ],
   },
-};
+  trading: {
+    files: [
+      "Strategy research files",
+      "Market data adapters",
+      "Backtest or paper-trading modules",
+      "Risk configuration",
+    ],
+    commands: [
+      "Run static checks",
+      "Run strategy tests",
+      "Run backtest or paper-trading validation",
+    ],
+    risks: [
+      "No profit guarantees",
+      "Live execution requires explicit approval and broker/exchange safeguards",
+      "Market data quality and latency can invalidate results",
+      "Strategy overfitting must be checked before use",
+    ],
+    nextSteps: [
+      "Separate research, signal design, backtesting, alerts, and execution",
+      "Define risk limits before any execution path",
+      "Prefer paper trading before live trading",
+    ],
+    sectionTitle: "Trading safety rails",
+    sectionItems: [
+      "Treat outputs as research and tooling support, not financial advice",
+      "Keep execution gated behind explicit approval",
+      "Track assumptions, data source, timeframe, fees, slippage, and position sizing",
+    ],
+  },
+  blender: {
+    files: [
+      "Blender Python scripts",
+      "Scene assets",
+      "Materials and geometry node assets",
+      "Render/export settings",
+    ],
+    commands: [
+      "Validate script syntax",
+      "Run Blender automation in dry-run or preview mode when possible",
+      "Render a low-resolution preview before final output",
+    ],
+    risks: [
+      "Large render jobs can be slow or resource-heavy",
+      "Asset paths and external textures may break portability",
+      "Scene mutations should be checkpointed before automation",
+    ],
+    nextSteps: [
+      "Define scene goal, asset list, lighting, materials, animation, and render target",
+      "Create reusable procedural steps where possible",
+      "Checkpoint assets before destructive edits or render batches",
+    ],
+    sectionTitle: "Blender production pipeline",
+    sectionItems: [
+      "Plan scene, assets, materials, lighting, camera, animation, render, and export",
+      "Prefer repeatable Python/procedural workflows",
+      "Keep asset versions and output folders explicit",
+    ],
+  },
+  design: {
+    files: [
+      "Design system files",
+      "UI component files",
+      "Brand and copy assets",
+      "Responsive layout specs",
+    ],
+    commands: [
+      "Run build",
+      "Run lint/type checks",
+      "Capture visual QA notes",
+    ],
+    risks: [
+      "Visual polish can regress without component-level consistency",
+      "Accessibility and responsive layout must be checked explicitly",
+      "Brand direction needs clear constraints and target audience",
+    ],
+    nextSteps: [
+      "Define audience, brand feel, layout hierarchy, components, and interaction states",
+      "Produce implementation-ready specs",
+      "Validate responsive, accessible, premium UI polish",
+    ],
+    sectionTitle: "Design excellence checklist",
+    sectionItems: [
+      "Prioritize hierarchy, spacing, typography, contrast, motion, and responsiveness",
+      "Tie visual choices to user intent and conversion goal",
+      "Keep reusable components and design tokens aligned",
+    ],
+  },
+  marketing: {
+    files: [
+      "Landing page files",
+      "Campaign copy",
+      "Creative variants",
+      "Analytics or funnel configuration",
+    ],
+    commands: [
+      "Run build",
+      "Validate links and forms",
+      "Check tracking and conversion events",
+    ],
+    risks: [
+      "Claims need evidence and compliance review",
+      "Audience/channel mismatch can weaken conversion",
+      "Tracking gaps make iteration unreliable",
+    ],
+    nextSteps: [
+      "Define audience, offer, channel, funnel, creative variants, and conversion metric",
+      "Build launch assets and measurement plan",
+      "Iterate from analytics and qualitative feedback",
+    ],
+    sectionTitle: "Marketing launch structure",
+    sectionItems: [
+      "Clarify audience, pain, offer, proof, CTA, channel, and metric",
+      "Prepare variants for copy, visuals, landing page, and promotion",
+      "Connect analytics before launch",
+    ],
+  },
+  decks: {
+    files: [
+      "Deck outline",
+      "Slide content",
+      "Visual direction assets",
+      "Speaker notes",
+    ],
+    commands: [
+      "Validate narrative flow",
+      "Review slide count and executive readability",
+      "Export or package deck assets",
+    ],
+    risks: [
+      "Weak narrative arc can make good content feel scattered",
+      "Dense slides reduce executive readability",
+      "Evidence and claims need source tracking",
+    ],
+    nextSteps: [
+      "Define audience, objective, story arc, slide sequence, proof points, and visual style",
+      "Create slide-by-slide structure before production polish",
+      "Add speaker notes and evidence references where useful",
+    ],
+    sectionTitle: "Deck production standard",
+    sectionItems: [
+      "Optimize for narrative clarity, strong hierarchy, and fast executive scanning",
+      "Separate headline, evidence, visual, and speaker-note intent per slide",
+      "Use consistent layout rhythm and visual system",
+    ],
+  },};
 
 export function getDomainConfig(domain: CodexForgePlanDomain): DomainConfig {
   return DOMAIN_CONFIG[domain] ?? DOMAIN_CONFIG.general;

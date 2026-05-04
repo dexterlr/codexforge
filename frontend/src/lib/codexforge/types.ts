@@ -1,4 +1,4 @@
-export type CodexForgeRole = "system" | "user" | "assistant";
+﻿export type CodexForgeRole = "system" | "user" | "assistant";
 
 /* ================= CORE ENUMS ================= */
 
@@ -20,7 +20,12 @@ export type CodexForgePlanDomain =
   | "video"
   | "comfyui"
   | "unreal"
-  | "automation";
+  | "automation"
+  | "trading"
+  | "blender"
+  | "design"
+  | "marketing"
+  | "decks";
 
 export type CodexForgeExecutionRequestMode = "execute-task-step";
 

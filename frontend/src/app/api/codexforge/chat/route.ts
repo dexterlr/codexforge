@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import {
   createCodexForgeBrain,
   getCodexForgeBrainSelectionInfo,
@@ -149,7 +149,26 @@ const CAPABILITY_BRIEFINGS: Record<CodexForgePlanDomain, readonly string[]> = {
     "For desktop/browser/camera/voice style automation, require explicit consent and visible state.",
     "For approval-driven diff preview work, keep plan -> generate diff -> preview -> approve -> apply -> test -> checkpoint as the canonical flow.",
   ],
-} as const;
+  trading: [
+    "Trading mode: support stock, share, and crypto research workflows with explicit risk controls, evidence tracking, position sizing concepts, paper-trading first, and no guarantees of profit.",
+    "Trading work must separate research, strategy design, backtesting, alerts, execution, and compliance/safety review.",
+  ],
+  blender: [
+    "Blender mode: plan scene creation, assets, geometry, materials, lighting, animation, Python automation, render settings, and export pipelines.",
+    "Prefer reusable procedural workflows and clear asset/version tracking.",
+  ],
+  design: [
+    "Design mode: produce high-end visual systems, UX structure, brand direction, layouts, component systems, copy hierarchy, and implementation-ready specs.",
+    "Prioritize premium polish, accessibility, responsive layout, and clear creative rationale.",
+  ],
+  marketing: [
+    "Marketing mode: plan campaigns, promotions, landing pages, positioning, creative variants, funnels, launch assets, analytics, and iteration loops.",
+    "Keep outputs practical, testable, and tied to audience, offer, channel, and conversion goal.",
+  ],
+  decks: [
+    "Decks mode: plan slideshows, pitch decks, sales decks, research decks, story arcs, slide-by-slide structure, speaker notes, and visual direction.",
+    "Optimize for narrative clarity, executive readability, evidence, and strong visual hierarchy.",
+  ],} as const;
 
 /* ================= TYPES ================= */
 
@@ -2434,3 +2453,4 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+

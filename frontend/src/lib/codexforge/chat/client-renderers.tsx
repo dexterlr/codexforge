@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { StructuredReplyBlock } from "@/lib/codexforge/chat/components/structured-reply-block";
 import type {
   CodexForgeDiff,
@@ -26,6 +26,11 @@ const VALID_DOMAINS = [
   "comfyui",
   "unreal",
   "automation",
+  "trading",
+  "blender",
+  "design",
+  "marketing",
+  "decks",
 ] as const satisfies readonly CodexForgePlanDomain[];
 
 const VALID_PLAN_STATUSES = [
@@ -61,6 +66,11 @@ const DOMAIN_LABELS: Record<CodexForgePlanDomain, string> = {
   comfyui: "ComfyUI",
   unreal: "Unreal",
   automation: "Automation",
+  trading: "Trading",
+  blender: "Blender",
+  design: "Design",
+  marketing: "Marketing",
+  decks: "Decks",
 };
 
 const PLAN_STATUS_LABELS: Record<
@@ -546,3 +556,6 @@ export function renderStructuredReply(
   if (!structured) return null;
   return <StructuredReplyBlock structured={structured} />;
 }
+
+
+
