@@ -1973,6 +1973,15 @@ function buildGroundedDiagnostics(
   };
 }
 
+function emptyGroundedDiagnostics(): GroundedDiagnostics {
+  return {
+    primaryFile: undefined,
+    supportingFiles: [],
+    fileSignals: [],
+    warnings: [],
+  };
+}
+
 /* ================= WARNINGS ================= */
 
 function buildWarnings(
@@ -2516,6 +2525,11 @@ export async function POST(req: Request) {
       graphDiagnostics
     );
 
+    
+    const effectiveGroundedDiagnostics = productionOnlyPlanning
+      ? emptyGroundedDiagnostics()
+      : groundedDiagnostics;
+
     const resolvedMode = resolveRouteMode({
       commandIntent,
       context,
@@ -2529,7 +2543,7 @@ export async function POST(req: Request) {
         lastUser.text,
         context,
         graphDiagnostics,
-        groundedDiagnostics,
+        effectiveGroundedDiagnostics,
         resolvedMode,
         effectiveFileIntent,
         capabilityRouting
@@ -2612,7 +2626,7 @@ export async function POST(req: Request) {
       agentAllowedTools: agentTeam.allowedTools.map((policy) => policy.tool),
       agentApprovalRequiredTools: agentTeam.approvalRequiredTools.map((policy) => policy.tool),
       agentBlockedTools: agentTeam.blockedTools.map((policy) => policy.tool),
-      groundedPrimaryFile: groundedDiagnostics.primaryFile ?? null,
+      groundedPrimaryFile: effectiveGroundedDiagnostics.primaryFile ?? null,
       groundedSupportingFiles: groundedDiagnostics.supportingFiles,
       groundedSignals: groundedDiagnostics.fileSignals,
       groundedWarnings: groundedDiagnostics.warnings,
@@ -2651,8 +2665,8 @@ export async function POST(req: Request) {
         fileExplicitRequest: fileIntent.explicitFileRequest,
         fileRequestedPaths: fileIntent.requestedPaths,
         capabilityDomain: capabilityRouting.domain,
-        groundedPrimaryFile: groundedDiagnostics.primaryFile ?? null,
-        groundedSupportingFileCount: groundedDiagnostics.supportingFiles.length,
+        groundedPrimaryFile: effectiveGroundedDiagnostics.primaryFile ?? null,
+        groundedSupportingFileCount: effectiveGroundedDiagnostics.supportingFiles.length,
         executableToolCount: executableToolNames.length,
       });
 
@@ -2761,9 +2775,9 @@ const successResponse: CodexForgeChatSuccessResponse = {
       agentAllowedToolCount: agentTeam.allowedTools.length,
       agentApprovalRequiredToolCount: agentTeam.approvalRequiredTools.length,
       agentBlockedToolCount: agentTeam.blockedTools.length,
-      groundedPrimaryFile: groundedDiagnostics.primaryFile ?? null,
-      groundedSupportingFileCount: groundedDiagnostics.supportingFiles.length,
-      groundedSignalCount: groundedDiagnostics.fileSignals.length,
+      groundedPrimaryFile: effectiveGroundedDiagnostics.primaryFile ?? null,
+      groundedSupportingFileCount: effectiveGroundedDiagnostics.supportingFiles.length,
+      groundedSignalCount: effectiveGroundedDiagnostics.fileSignals.length,
       executableToolCount: executableToolNames.length,
       generatedPlan: !!response.structured?.plan || !!enrichedContext.activePlan,
       hasStructured: !!response.structured,
@@ -2824,10 +2838,10 @@ const successResponse: CodexForgeChatSuccessResponse = {
         "x-codexforge-grounded-primary-file":
           groundedDiagnostics.primaryFile ?? "none",
         "x-codexforge-grounded-supporting-files": String(
-          groundedDiagnostics.supportingFiles.length
+          effectiveGroundedDiagnostics.supportingFiles.length
         ),
         "x-codexforge-grounded-signal-count": String(
-          groundedDiagnostics.fileSignals.length
+          effectiveGroundedDiagnostics.fileSignals.length
         ),
         "x-codexforge-tools-executable-count": String(executableToolNames.length),
         "x-codexforge-tools-executable-names": executableToolNames.join(","),
@@ -2847,6 +2861,11 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
+
+
+
 
 
 
