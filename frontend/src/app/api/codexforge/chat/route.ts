@@ -386,7 +386,10 @@ function attachAgentTeamToStructuredReply(
       const normalized = item.trim().toLowerCase();
       return (
         !normalized.startsWith("domain:") &&
+        !normalized.startsWith("engine trace") &&
         !normalized.startsWith("the likely domain is") &&
+        !normalized.includes("likely domain is comfyui") &&
+        !normalized.includes("domain is comfyui") &&
         !normalized.startsWith("primary agent:")
       );
     });
@@ -408,11 +411,88 @@ function attachAgentTeamToStructuredReply(
     `Primary agent: ${agentTeamSummary.primaryRole.label}`,
   ];
 
+  const agentOperatingSection = {
+    title: "Agent operating mode",
+    items: [
+      `Domain: ${routedDomain}`,
+      `Primary agent: ${agentTeamSummary.primaryRole.label}`,
+      `Mission: ${agentTeamSummary.primaryRole.mission}`,
+      ...(agentTeamSummary.supportRoles.length > 0
+        ? [
+            `Support agents: ${agentTeamSummary.supportRoles
+              .map((role) => role.label)
+              .join(", ")}`,
+          ]
+        : []),
+      ...(agentTeamSummary.reviewRoles.length > 0
+        ? [
+            `Review agents: ${agentTeamSummary.reviewRoles
+              .map((role) => role.label)
+              .join(", ")}`,
+          ]
+        : []),
+      ...(agentTeamSummary.approvalRequiredTools.length > 0
+        ? [
+            `Approval-required tools: ${agentTeamSummary.approvalRequiredTools
+              .map((tool) => tool.name)
+              .join(", ")}`,
+          ]
+        : []),
+      ...(agentTeamSummary.blockedTools.length > 0
+        ? [
+            `Blocked-by-default tools: ${agentTeamSummary.blockedTools
+              .map((tool) => tool.name)
+              .join(", ")}`,
+          ]
+        : []),
+      ...agentTeamSummary.reasons.map((reason) => `Routing reason: ${reason}`),
+    ],
+  };
+
+  const cleanedSections = (structured.sections ?? []).filter((section) => {
+    const title = section.title.trim().toLowerCase();
+
+    return (
+      title !== "agent operating mode" &&
+      !(routedDomain !== "comfyui" && title.includes("comfyui workflow focus"))
+    );
+  });
+
+  const finalTags = Array.from(
+    new Set([
+      routedDomain,
+      agentTeamSummary.primaryRole.id,
+      ...mergedTags.filter((tag) => tag !== "general"),
+    ])
+  );
+
+  const structuredWithDiagnostics = structured as CodexForgeStructuredReply & {
+    trace?: Record<string, unknown>;
+    diagnostics?: Record<string, unknown>;
+  };
+
+  const repairedTrace = structuredWithDiagnostics.trace
+    ? {
+        ...structuredWithDiagnostics.trace,
+        domain: routedDomain,
+      }
+    : structuredWithDiagnostics.trace;
+
+  const repairedDiagnostics = structuredWithDiagnostics.diagnostics
+    ? {
+        ...structuredWithDiagnostics.diagnostics,
+        domain: routedDomain,
+      }
+    : structuredWithDiagnostics.diagnostics;
+
   return {
     ...structured,
     agentTeam: agentTeamSummary,
     domain: routedDomain,
-    tags: mergedTags,
+    ...(repairedTrace ? { trace: repairedTrace } : {}),
+    ...(repairedDiagnostics ? { diagnostics: repairedDiagnostics } : {}),
+    tags: finalTags,
+    sections: [agentOperatingSection, ...cleanedSections],
     context: [...stripStaleLines(structured.context), ...agentContextLines],
     understanding: [
       ...agentUnderstandingLines,
@@ -425,10 +505,10 @@ function attachAgentTeamToStructuredReply(
           domain: routedDomain,
           tags: Array.from(
             new Set([
-              ...(structured.plan.tags ?? []),
-              ...capabilityRouting.tags,
               routedDomain,
               agentTeamSummary.primaryRole.id,
+              ...(structured.plan.tags ?? []).filter((tag) => tag !== "general"),
+              ...capabilityRouting.tags,
             ])
           ),
         }
@@ -2687,6 +2767,9 @@ export async function POST(req: Request) {
     return badRequest(message, 500);
   }
 }
+
+
+
 
 
 
