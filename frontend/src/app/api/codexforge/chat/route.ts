@@ -2556,7 +2556,18 @@ function buildImplicitActivePlan(args: {
 }): CodexForgeChatContext["activePlan"] {
   const primaryFile = args.groundedDiagnostics.primaryFile;
 
-  if (args.fileIntent.explicitFileRequest && primaryFile) {
+  
+  if (
+    isProductSurfacePlanningRequest(args.latestUserText) &&
+    args.capabilityRouting.domain === "web" &&
+    !args.fileIntent.explicitFileRequest
+  ) {
+    return buildProductSurfacePlan({
+      latestUserText: args.latestUserText,
+      capabilityRouting: args.capabilityRouting,
+    });
+  }
+if (args.fileIntent.explicitFileRequest && primaryFile) {
     return {
       goal: `Inspect ${primaryFile}`,
       steps: [
@@ -2688,15 +2699,23 @@ function buildEnrichedContext(
   const basePlan =
     preferImplicitPlan || !context.activePlan ? implicitActivePlan : context.activePlan;
 
-  const mergedFiles = uniqueStrings([
-    ...(groundedDiagnostics.primaryFile && !isLikelyRepoRootPath(groundedDiagnostics.primaryFile)
-      ? [groundedDiagnostics.primaryFile]
-      : []),
-    ...groundedDiagnostics.supportingFiles.filter(
-      (filePath) => !isLikelyRepoRootPath(filePath)
-    ),
-    ...(basePlan?.files ?? []),
-  ]);
+  const productSurfacePlanning =
+    isProductSurfacePlanningRequest(latestUserText) &&
+    capabilityRouting.domain === "web" &&
+    !fileIntent.explicitFileRequest;
+
+  const mergedFiles = productSurfacePlanning
+    ? uniqueStrings(basePlan?.files ?? [])
+    : uniqueStrings([
+        ...(groundedDiagnostics.primaryFile &&
+        !isLikelyRepoRootPath(groundedDiagnostics.primaryFile)
+          ? [groundedDiagnostics.primaryFile]
+          : []),
+        ...groundedDiagnostics.supportingFiles.filter(
+          (filePath) => !isLikelyRepoRootPath(filePath)
+        ),
+        ...(basePlan?.files ?? []),
+      ]);
 
   const mergedNotes = uniqueStrings([
     ...(basePlan?.notes ?? []),
@@ -3419,6 +3438,8 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
 
 
 
