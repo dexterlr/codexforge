@@ -1703,6 +1703,171 @@ function buildLatestMessageOverrideContext(
   } as CodexForgeChatContext;
 }
 
+type LatestMessageAuthorityIntent = {
+  active: boolean;
+  goal: string;
+  nextAction: string;
+  files: string[];
+  steps: string[];
+  risks: string[];
+  tags: string[];
+  blockedSelections: string[];
+  preferredGroundingFile?: string;
+  preferredGroundingFunction?: string;
+};
+
+function buildLatestMessageAuthorityIntent(text: string): LatestMessageAuthorityIntent | null {
+  const normalized = text.toLowerCase();
+
+  const explicitAuthorityRequest =
+    normalized.includes("stale active task") ||
+    normalized.includes("active task contamination") ||
+    normalized.includes("latest-message authority") ||
+    normalized.includes("latest message authority") ||
+    normalized.includes("latest explicit user request") ||
+    normalized.includes("replace or bypass stale task") ||
+    normalized.includes("bypass stale task") ||
+    normalized.includes("suppress stale graph") ||
+    normalized.includes("suppress broad repo") ||
+    normalized.includes("latestmessageoverridesactivetask") ||
+    normalized.includes("activetasksuppressedforrequest");
+
+  const pinnedTarget =
+    normalized.includes("usecodexforgechat") ||
+    normalized.includes("request payload/context construction") ||
+    normalized.includes("best edit point: send") ||
+    normalized.includes("grounded file:");
+
+  const staleOutputRejection =
+    normalized.includes("no approval-driven diff previews") ||
+    normalized.includes("no approval driven diff previews") ||
+    normalized.includes("no chatmessage") ||
+    normalized.includes("no engine.ts") ||
+    normalized.includes("no engine-grounded-render") ||
+    normalized.includes("no search-project") ||
+    normalized.includes("must not mention approval-driven diff previews") ||
+    normalized.includes("must not select approvediffs") ||
+    normalized.includes("must not select engine-render-diff-preview");
+
+  if (!explicitAuthorityRequest && !(pinnedTarget && staleOutputRejection)) {
+    return null;
+  }
+
+  const preferredGroundingFile =
+    normalized.includes("use-codexforge-chat") || normalized.includes("usecodexforgechat")
+      ? "src/lib/codexforge/chat/use-codexforge-chat.ts"
+      : undefined;
+
+  const preferredGroundingFunction =
+    normalized.includes("send(") || normalized.includes("send(...)") || normalized.includes("request payload/context")
+      ? "send"
+      : undefined;
+
+  const blockedSelections = dedupeStrings([
+    normalized.includes("no chatmessage") ? "No ChatMessage." : "",
+    normalized.includes("no engine.ts") ? "No engine.ts." : "",
+    normalized.includes("no engine-grounded-render") ? "No engine-grounded-render.ts." : "",
+    normalized.includes("no approval-driven diff previews") ||
+    normalized.includes("no approval driven diff previews")
+      ? "No approval-driven diff previews."
+      : "",
+    normalized.includes("no search-project") ? "No search-project/read-file stale evidence." : "",
+  ]);
+
+  return {
+    active: true,
+    goal:
+      "Fix CodexForge stale Active Task contamination. The latest message must override stale active task context for this request.",
+    nextAction:
+      preferredGroundingFunction === "send"
+        ? "Patch send(...) request payload/context construction in useCodexForgeChat so stale active task, memory, graph, and broad repo grounding are bypassed request-scope only."
+        : "Patch request payload/context construction so stale active task, memory, graph, and broad repo grounding are bypassed request-scope only.",
+    files: dedupeStrings([
+      preferredGroundingFile ?? "",
+      "src/app/api/codexforge/chat/route.ts",
+      "src/lib/codexforge/types.ts",
+    ]),
+    steps: [
+      "Detect latest-message override intent before constructing the outbound chat request context.",
+      "Suppress stale activeTask, activePlan carryover, memory carryover, graph context, and broad safe-tool grounding for this request only.",
+      "Return the pinned grounded edit point instead of stale task, graph, memory, or repo-tool output.",
+    ],
+    risks: [
+      "Do not permanently delete active task or memory.",
+      "Do not suppress useful context for normal follow-up messages.",
+      "Do not let adjacent tasks replace the latest explicit user request.",
+      "Keep execution and approval flows intact.",
+    ],
+    tags: [
+      "debug",
+      "codexforge-product",
+      "active-task",
+      "context-isolation",
+      "latest-message-authority",
+      "task-routing",
+    ],
+    blockedSelections,
+    preferredGroundingFile,
+    preferredGroundingFunction,
+  };
+}
+
+function buildLatestMessageAuthorityActivePlan(
+  intent: LatestMessageAuthorityIntent
+): NonNullable<CodexForgeChatContext["activePlan"]> {
+  return {
+    goal: intent.goal,
+    steps: intent.steps,
+    nextAction: intent.nextAction,
+    files: intent.files,
+    risks: intent.risks,
+    tags: intent.tags,
+    status: "active",
+    intent: "latest-message-override",
+    domain: "debug",
+    notes: dedupeStrings([
+      intent.preferredGroundingFile
+        ? `Grounded file: ${intent.preferredGroundingFile}`
+        : "",
+      intent.preferredGroundingFunction
+        ? `Best edit point: ${intent.preferredGroundingFunction}(...) request payload/context construction.`
+        : "",
+      ...intent.blockedSelections,
+    ]),
+  };
+}
+
+function buildLatestMessageAuthorityContext(
+  context: CodexForgeChatContext,
+  intent: LatestMessageAuthorityIntent
+): CodexForgeChatContext {
+  return {
+    ...context,
+    memory: [],
+    activePlan: buildLatestMessageAuthorityActivePlan(intent),
+    execution: {
+      ...context.execution,
+      running: false,
+      stepIndex: null,
+      lastRunLabel: "",
+      enginePhase: "idle",
+      diffCount: 0,
+      snapshotFileCount: 0,
+    },
+    latestMessageOverridesActiveTask: true,
+    activeTaskSuppressedForRequest: true,
+    activePlanGoalSource: "latest-user-message",
+    ...(intent.preferredGroundingFile
+      ? { preferredGroundingFile: intent.preferredGroundingFile }
+      : {}),
+    ...(intent.preferredGroundingFunction
+      ? { preferredGroundingFunction: intent.preferredGroundingFunction }
+      : {}),
+    suppressBroadRepoSearch: true,
+    suppressStaleGraphContext: true,
+  } as CodexForgeChatContext;
+}
+
 /* ================= REQUEST ASSISTANT ================= */
 
   const requestAssistant = useCallback(
@@ -1873,7 +2038,10 @@ function buildLatestMessageOverrideContext(
       }
 
       try {
+        const latestMessageAuthorityIntent =
+          buildLatestMessageAuthorityIntent(text);
         const latestMessageOverridesActiveTask =
+          latestMessageAuthorityIntent?.active === true ||
           shouldLatestMessageOverrideActiveTask(text);
 
         const baseRequestContext = options.executionRequest
@@ -1883,9 +2051,14 @@ function buildLatestMessageOverrideContext(
             }
           : contextWithMemory;
 
-        const requestContext = latestMessageOverridesActiveTask
-          ? buildLatestMessageOverrideContext(baseRequestContext)
-          : baseRequestContext;
+        const requestContext = latestMessageAuthorityIntent
+          ? buildLatestMessageAuthorityContext(
+              baseRequestContext,
+              latestMessageAuthorityIntent
+            )
+          : latestMessageOverridesActiveTask
+            ? buildLatestMessageOverrideContext(baseRequestContext)
+            : baseRequestContext;
 
         const graphContext = latestMessageOverridesActiveTask
           ? undefined
@@ -2422,6 +2595,9 @@ function buildLatestMessageOverrideContext(
     setMemory,
   };
 }
+
+
+
 
 
 

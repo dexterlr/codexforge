@@ -2778,82 +2778,85 @@ function resolveResponseDomain(args: {
 
 /* ================= ROUTE ================= */
 
-function buildLatestMessageOverrideSuccessResponse(): CodexForgeChatSuccessResponse {
+function buildLatestMessageOverrideSuccessResponse(
+  latestUserText: string,
+  context: CodexForgeChatContext
+): CodexForgeChatSuccessResponse {
   const now = Date.now();
+  const activePlan = context.activePlan ?? buildRouteLatestMessageOverrideContext(context).activePlan;
+  const preferredFile =
+    getLatestMessageOverridePreferredPath(context) ??
+    activePlan?.files?.[0] ??
+    "src/lib/codexforge/chat/use-codexforge-chat.ts";
+
+  const preferredFunction =
+    typeof (context as Record<string, unknown>).preferredGroundingFunction === "string"
+      ? String((context as Record<string, unknown>).preferredGroundingFunction)
+      : "send";
+
+  const normalized = latestUserText.toLowerCase();
+
+  const blockedSelections = uniqueStrings([
+    normalized.includes("no chatmessage") ? "No ChatMessage." : "",
+    normalized.includes("no engine.ts") ? "No engine.ts." : "",
+    normalized.includes("no engine-grounded-render") ? "No engine-grounded-render.ts." : "",
+    normalized.includes("no approval-driven diff previews") ||
+    normalized.includes("no approval driven diff previews")
+      ? "No approval-driven diff previews."
+      : "",
+    normalized.includes("no search-project") ? "No search-project/read-file stale evidence." : "",
+  ]);
 
   const structured: CodexForgeStructuredReply = {
-    title: "CodexForge debugging",
+    title: "CodexForge latest-message authority",
     summary:
-      "Goal: Fix CodexForge stale Active Task contamination. Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
+      activePlan?.notes?.find((note) => note.toLowerCase().includes("best edit point")) ??
+      `Goal: ${activePlan?.goal ?? "Fix CodexForge stale Active Task contamination."}`,
     domain: "debug",
-    tags: [
+    tags: uniqueStrings([
+      ...(activePlan?.tags ?? []),
       "debug",
       "codexforge-product",
-      "active-task",
-      "context-isolation",
       "latest-message-authority",
-      "task-routing",
-    ],
-    plan: {
-      goal:
-        "Fix CodexForge stale Active Task contamination. The latest message must override stale active task context for this request.",
-      nextAction:
-        "Patch send(...) request payload/context construction in useCodexForgeChat so stale active task, memory, graph, and broad repo grounding are bypassed request-scope only.",
-      domain: "debug",
-      status: "active",
-      intent: "capability-plan",
-      files: [
-        "src/lib/codexforge/chat/use-codexforge-chat.ts",
-        "src/app/api/codexforge/chat/route.ts",
-        "src/lib/codexforge/types.ts",
-      ],
-      steps: [
-        "Detect latest-message override intent before constructing the outbound chat request context.",
-        "Suppress stale activeTask, activePlan carryover, memory carryover, graph context, and broad safe-tool grounding for this request only.",
-        "Return the pinned grounded edit point instead of stale diff-preview, ChatMessage, engine.ts, or repo-tool output.",
-      ],
-      risks: [
-        "Do not permanently delete active task or memory.",
-        "Do not suppress useful context for normal follow-up messages.",
-        "Do not select approveDiffs, engine.ts, ChatMessage, engine-grounded-render.ts, or diff-preview files for this request.",
-      ],
-      tags: [
-        "debug",
-        "codexforge-product",
-        "active-task",
-        "context-isolation",
-        "latest-message-authority",
-        "task-routing",
-      ],
-      notes: [
-        "Grounded file: src/lib/codexforge/chat/use-codexforge-chat.ts",
-        "Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
-        "Route bypassed brain.run(...) for this latest-message override request.",
-      ],
-    },
+      "context-isolation",
+    ]),
+    plan: activePlan
+      ? {
+          ...activePlan,
+          domain: "debug",
+          status: activePlan.status ?? "active",
+          intent: activePlan.intent ?? "latest-message-override",
+          files: uniqueStrings([preferredFile, ...(activePlan.files ?? [])]),
+          notes: uniqueStrings([
+            ...(activePlan.notes ?? []),
+            `Grounded file: ${preferredFile}`,
+            `Best edit point: ${preferredFunction}(...) request payload/context construction.`,
+            "Route bypassed brain.run(...) for this latest-message override request.",
+          ]),
+        }
+      : undefined,
     sections: [
       {
         title: "Outcome",
         items: [
-          "Goal: Fix CodexForge stale Active Task contamination.",
-          "Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
-          "Grounded file: src/lib/codexforge/chat/use-codexforge-chat.ts",
+          activePlan?.goal ? `Goal: ${activePlan.goal}` : "Goal: Fix CodexForge stale Active Task contamination.",
+          `Best edit point: ${preferredFunction}(...) request payload/context construction.`,
+          `Grounded file: ${preferredFile}`,
         ],
       },
-      {
-        title: "Blocked stale selections",
-        items: [
-          "No ChatMessage.",
-          "No engine.ts.",
-          "No engine-grounded-render.ts.",
-          "No approval-driven diff previews.",
-          "No search-project/read-file stale evidence.",
-        ],
-      },
+      ...(blockedSelections.length > 0
+        ? [
+            {
+              title: "Blocked stale selections",
+              items: blockedSelections,
+            },
+          ]
+        : []),
       {
         title: "Next action",
         items: [
-          "Patch send(...) request payload/context construction in src/lib/codexforge/chat/use-codexforge-chat.ts.",
+          activePlan?.nextAction ??
+            `Patch ${preferredFunction}(...) request payload/context construction in ${preferredFile}.`,
         ],
       },
     ],
@@ -2868,7 +2871,6 @@ function buildLatestMessageOverrideSuccessResponse(): CodexForgeChatSuccessRespo
       role: "assistant",
       text,
       ts: now,
-
       structured,
     },
     meta: {
@@ -2914,7 +2916,15 @@ export async function POST(req: Request) {
       shouldRouteForceLatestMessageOverride(lastUser.text, context);
 
     if (latestMessageOverrideActive) {
-      const successResponse = buildLatestMessageOverrideSuccessResponse();
+      const overrideContext = buildRouteLatestMessageOverrideContext(context);
+      const groundedPrimaryFile =
+        getLatestMessageOverridePreferredPath(overrideContext) ??
+        overrideContext.activePlan?.files?.[0] ??
+        "src/lib/codexforge/chat/use-codexforge-chat.ts";
+      const successResponse = buildLatestMessageOverrideSuccessResponse(
+        lastUser.text,
+        overrideContext
+      );
 
       return NextResponse.json<CodexForgeChatResponse>(successResponse, {
         headers: buildJsonHeaders({
@@ -2923,8 +2933,7 @@ export async function POST(req: Request) {
           "x-codexforge-domain": "debug",
           "x-codexforge-mode": "local-execution",
           "x-codexforge-latest-message-override": "true",
-          "x-codexforge-grounded-primary-file":
-            "src/lib/codexforge/chat/use-codexforge-chat.ts",
+          "x-codexforge-grounded-primary-file": groundedPrimaryFile,
         }),
       });
     }
@@ -3335,6 +3344,8 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
 
 
 
