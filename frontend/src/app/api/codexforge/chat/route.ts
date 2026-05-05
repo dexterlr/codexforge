@@ -357,6 +357,124 @@ function buildAgentTeamSummary(agentTeam: ReturnType<typeof selectCodexForgeAgen
     reasons: [...agentTeam.reasons],
   };
 }
+function shouldRouteForceLatestMessageOverride(
+  latestUserText: string,
+  context: CodexForgeChatContext
+): boolean {
+  const normalized = latestUserText.toLowerCase();
+  const record = context as Record<string, unknown>;
+
+  if (
+    record.latestMessageOverridesActiveTask === true ||
+    record.activeTaskSuppressedForRequest === true ||
+    record.suppressBroadRepoSearch === true ||
+    record.suppressStaleGraphContext === true
+  ) {
+    return true;
+  }
+
+  const staleActiveTaskSignal =
+    normalized.includes("stale active task") ||
+    normalized.includes("active task contamination") ||
+    normalized.includes("latest-message authority") ||
+    normalized.includes("latest message authority") ||
+    normalized.includes("latest explicit user request") ||
+    normalized.includes("override stale active task") ||
+    normalized.includes("latest message must override stale active task");
+
+  const pinnedUseHookSignal =
+    normalized.includes("use-codexforge-chat.ts") ||
+    normalized.includes("usecodexforgechat") ||
+    normalized.includes("request payload/context construction") ||
+    normalized.includes("outbound chat request");
+
+  const staleOutputRejection =
+    normalized.includes("no approval-driven diff previews") ||
+    normalized.includes("no approval driven diff previews") ||
+    normalized.includes("no chatmessage") ||
+    normalized.includes("no engine.ts") ||
+    normalized.includes("no engine-grounded-render.ts") ||
+    normalized.includes("no search-project") ||
+    normalized.includes("must not mention approval-driven diff previews") ||
+    normalized.includes("must not select approvediffs") ||
+    normalized.includes("must not select engine-render-diff-preview");
+
+  const staleActivePlan =
+    typeof context.activePlan?.goal === "string" &&
+    context.activePlan.goal
+      .toLowerCase()
+      .includes("approval-driven diff previews");
+
+  return (
+    staleActiveTaskSignal ||
+    (pinnedUseHookSignal && staleOutputRejection) ||
+    (staleActivePlan && pinnedUseHookSignal) ||
+    (staleActivePlan && staleOutputRejection)
+  );
+}
+
+function buildRouteLatestMessageOverrideContext(
+  context: CodexForgeChatContext
+): CodexForgeChatContext {
+  return {
+    ...context,
+    memory: [],
+    graph: undefined,
+    activePlan: {
+      goal:
+        "Fix CodexForge stale Active Task contamination. The latest message must override stale active task context for this request.",
+      nextAction:
+        "Patch request payload/context construction in useCodexForgeChat so stale active task, memory, graph, and broad repo grounding are bypassed request-scope only.",
+      domain: "debug",
+      status: "active",
+      intent: "capability-plan",
+      files: [
+        "src/lib/codexforge/chat/use-codexforge-chat.ts",
+        "src/app/api/codexforge/chat/route.ts",
+        "src/lib/codexforge/types.ts",
+      ],
+      steps: [
+        "Detect latest-message override intent before constructing the outbound chat request context.",
+        "Suppress stale activeTask, activePlan carryover, memory carryover, graph context, and broad safe-tool grounding for this request only.",
+        "Return the pinned grounded edit point instead of stale diff-preview or repo-tool output.",
+      ],
+      risks: [
+        "Do not permanently delete active task or memory.",
+        "Do not suppress useful context for normal follow-up messages.",
+        "Do not select approveDiffs, engine.ts, ChatMessage, engine-grounded-render.ts, or diff-preview files for this request.",
+      ],
+      tags: [
+        "debug",
+        "codexforge-product",
+        "active-task",
+        "context-isolation",
+        "latest-message-authority",
+        "task-routing",
+      ],
+      notes: [
+        "Grounded file: src/lib/codexforge/chat/use-codexforge-chat.ts",
+        "Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
+        "Server route forced latest-message override context before graph, grounding, routing, and engine execution.",
+      ],
+    },
+    execution: {
+      ...context.execution,
+      running: false,
+      stepIndex: null,
+      lastRunLabel: "",
+      enginePhase: "idle",
+      diffCount: 0,
+      snapshotFileCount: 0,
+    },
+    latestMessageOverridesActiveTask: true,
+    activeTaskSuppressedForRequest: true,
+    activePlanGoalSource: "latest-user-message",
+    preferredGroundingFile: "src/lib/codexforge/chat/use-codexforge-chat.ts",
+    preferredGroundingFunction: "send",
+    suppressBroadRepoSearch: true,
+    suppressStaleGraphContext: true,
+  } as CodexForgeChatContext;
+}
 function shouldSuppressBroadGroundingForLatestMessageOverride(context: unknown): boolean {
   if (!context || typeof context !== "object") return false;
 
@@ -2678,9 +2796,16 @@ export async function POST(req: Request) {
     }
 
     const commandIntent = detectCommand(lastUser.text);
-    const graphDiagnostics = buildGraphDiagnostics(context, graphContext);
+    const latestMessageOverrideActive =
+      shouldRouteForceLatestMessageOverride(lastUser.text, context);
+    const routeContext = latestMessageOverrideActive
+      ? buildRouteLatestMessageOverrideContext(context)
+      : context;
+    const routeGraphContext = latestMessageOverrideActive ? undefined : graphContext;
+
+    const graphDiagnostics = buildGraphDiagnostics(routeContext, routeGraphContext);
     const fileIntent = extractFileIntentDiagnostics(lastUser.text);
-    const capabilityRouting = detectCapabilityRouting(lastUser.text, context);
+    const capabilityRouting = detectCapabilityRouting(lastUser.text, routeContext);
     const productionOnlyPlanning = isProductionOnlyPlanningRequest(lastUser.text);
     const effectiveFileIntent = productionOnlyPlanning
       ? {
@@ -2700,13 +2825,13 @@ export async function POST(req: Request) {
     const agentTeamSummary = buildAgentTeamSummary(agentTeam);
 
     const suppressBroadGrounding =
-      shouldSuppressBroadGroundingForLatestMessageOverride(context);
+      shouldSuppressBroadGroundingForLatestMessageOverride(routeContext);
     const preferredGroundingFile =
-      getLatestMessageOverridePreferredPath(context);
+      getLatestMessageOverridePreferredPath(routeContext);
 
     const groundedDiagnostics = suppressBroadGrounding
       ? emptyGroundedDiagnostics()
-      : buildGroundedDiagnostics(messages, context, graphDiagnostics);
+      : buildGroundedDiagnostics(messages, routeContext, graphDiagnostics);
 
     const effectiveGroundedDiagnostics = productionOnlyPlanning
       ? emptyGroundedDiagnostics()
@@ -2731,7 +2856,7 @@ export async function POST(req: Request) {
 
     const resolvedMode = resolveRouteMode({
       commandIntent,
-      context,
+      context: routeContext,
       graphDiagnostics,
       fileIntent: effectiveFileIntent,
       capabilityRouting,
@@ -3071,6 +3196,12 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
+
+
+
+
 
 
 
