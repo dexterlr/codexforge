@@ -43,6 +43,9 @@ Assert-True ($component.Contains("minmax(min(100%, 220px), 1fr)")) "component ha
 Assert-True ($page.Contains("CodexForgeProductSurface")) "AI page imports product surface"
 Assert-True ($page.Contains("<CodexForgeProductSurface />")) "AI page renders product surface"
 Assert-True ($page.Contains('id="workspace"')) "AI page has workspace anchor"
+Assert-True ($page.Contains("WorkspaceCommandCenter")) "AI page renders workspace command center"
+Assert-True (-not $page.Contains("<WorkspaceHero workspaceCards={workspaceCards} />")) "AI page does not render duplicate old workspace hero"
+Assert-True (-not $page.Contains("<WorkspaceHeroIntro")) "AI page does not render duplicate old workspace intro"
 
 Write-Host ""
 Write-Host "[OK] CodexForge product surface UI smoke passed."
