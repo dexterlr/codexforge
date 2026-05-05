@@ -1122,11 +1122,17 @@ export async function executeSafeToolPass(
   trace?: EngineTraceForSafeTools
 ): Promise<SafeToolOutcome[]> {
     if (shouldSkipSafeToolsForLatestMessageOverride(context)) {
-    trace.safeToolPassAttempted = false;
-    trace.safeToolsExecuted = [];
+    if (trace) {
+      trace.safeToolPassAttempted = false;
+      trace.safeToolsExecuted = [];
+    }
+
     return [];
   }
-trace && (trace.safeToolPassAttempted = true);
+
+  if (trace) {
+    trace.safeToolPassAttempted = true;
+  }
 
   if (!deps.toolExecution) {
     return [
@@ -1238,6 +1244,7 @@ trace && (trace.safeToolPassAttempted = true);
 
   return outcomes;
 }
+
 
 
 
