@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -60,7 +60,11 @@ foreach ($item in $scripts) {
   Write-Host "[RUN ] $name"
 
   try {
-    powershell -ExecutionPolicy Bypass -File $path -BaseUrl $BaseUrl
+    & powershell -ExecutionPolicy Bypass -File $path -BaseUrl $BaseUrl
+
+    if ($LASTEXITCODE -ne 0) {
+      throw "[FAIL] $name exited with code $LASTEXITCODE"
+    }
 
     Write-Host "[PASS] $name"
     Write-Host ""
