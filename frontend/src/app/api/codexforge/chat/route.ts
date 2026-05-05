@@ -2868,12 +2868,10 @@ function buildLatestMessageOverrideSuccessResponse(): CodexForgeChatSuccessRespo
       role: "assistant",
       text,
       ts: now,
-      source: "api",
-      mode: "local",
+
       structured,
     },
     meta: {
-      source: "api",
       mode: "local-execution",
       model: MODEL_NAME,
       usedFallback: false,
@@ -3337,6 +3335,8 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
 
 
 
