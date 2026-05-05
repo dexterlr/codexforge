@@ -373,18 +373,13 @@ function shouldRouteForceLatestMessageOverride(
     return true;
   }
 
-  const activeGoal = context.activePlan?.goal?.toLowerCase() ?? "";
-  const activeNextAction = context.activePlan?.nextAction?.toLowerCase() ?? "";
+  const hasPinnedUseCodexForgeChatTarget =
+    normalized.includes("usecodexforgechat") &&
+    (normalized.includes("best edit point") ||
+      normalized.includes("grounded file") ||
+      normalized.includes("request payload/context construction"));
 
-  const pinnedOverrideRequest =
-    normalized.includes("goal: fix codexforge stale active task contamination") ||
-    normalized.includes("fix codexforge stale active task contamination") ||
-    normalized.includes("best edit point: send(") ||
-    normalized.includes("best edit point: send(...)") ||
-    normalized.includes("request payload/context construction in usecodexforgechat") ||
-    normalized.includes("grounded file: src/lib/codexforge/chat/use-codexforge-chat.ts");
-
-  const explicitStaleContextRequest =
+  const hasStaleActiveTaskFixIntent =
     normalized.includes("stale active task") ||
     normalized.includes("active task contamination") ||
     normalized.includes("latest-message authority") ||
@@ -408,6 +403,9 @@ function shouldRouteForceLatestMessageOverride(
     normalized.includes("must not select approvediffs") ||
     normalized.includes("must not select engine-render-diff-preview");
 
+  const activeGoal = context.activePlan?.goal?.toLowerCase() ?? "";
+  const activeNextAction = context.activePlan?.nextAction?.toLowerCase() ?? "";
+
   const activeTaskLooksStale =
     activeGoal.includes("repo-grounded") ||
     activeGoal.includes("approval-driven diff previews") ||
@@ -417,9 +415,9 @@ function shouldRouteForceLatestMessageOverride(
     activeNextAction.includes("force the local structured engine");
 
   return (
-    pinnedOverrideRequest ||
-    (explicitStaleContextRequest && activeTaskLooksStale) ||
-    (explicitStaleContextRequest && rejectsKnownBadSelections)
+    hasPinnedUseCodexForgeChatTarget ||
+    (hasStaleActiveTaskFixIntent && rejectsKnownBadSelections) ||
+    (hasStaleActiveTaskFixIntent && activeTaskLooksStale)
   );
 }
 
@@ -2814,7 +2812,15 @@ export async function POST(req: Request) {
     const routeGraphContext = latestMessageOverrideActive ? undefined : graphContext;
 
     const graphDiagnostics = buildGraphDiagnostics(routeContext, routeGraphContext);
-    const fileIntent = extractFileIntentDiagnostics(lastUser.text);
+    const rawFileIntent = extractFileIntentDiagnostics(lastUser.text);
+    const fileIntent = latestMessageOverrideActive
+      ? {
+          ...rawFileIntent,
+          explicitFileRequest: true,
+          requestedPaths: ["src/lib/codexforge/chat/use-codexforge-chat.ts"],
+          requestedVerbs: ["fix"],
+        }
+      : rawFileIntent;
     const capabilityRouting = detectCapabilityRouting(lastUser.text, routeContext);
     const productionOnlyPlanning = isProductionOnlyPlanningRequest(lastUser.text);
     const effectiveFileIntent = productionOnlyPlanning
@@ -3206,6 +3212,8 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
 
 
 
