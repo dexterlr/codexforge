@@ -15,14 +15,17 @@ function Assert-True {
 
 $dataPath = ".\src\lib\codexforge\product-surface.ts"
 $componentPath = ".\src\lib\codexforge\chat\components\codexforge-product-surface.tsx"
+$commandCenterPath = ".\src\lib\codexforge\chat\components\workspace-command-center.tsx"
 $pagePath = ".\src\app\ai\page.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
 Assert-True (Test-Path $componentPath) "product surface component file exists"
+Assert-True (Test-Path $commandCenterPath) "workspace command center component file exists"
 Assert-True (Test-Path $pagePath) "AI page exists"
 
 $data = Get-Content -Raw $dataPath
 $component = Get-Content -Raw $componentPath
+$commandCenter = Get-Content -Raw $commandCenterPath
 $page = Get-Content -Raw $pagePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
@@ -43,7 +46,13 @@ Assert-True ($component.Contains("minmax(min(100%, 220px), 1fr)")) "component ha
 Assert-True ($page.Contains("CodexForgeProductSurface")) "AI page imports product surface"
 Assert-True ($page.Contains("<CodexForgeProductSurface />")) "AI page renders product surface"
 Assert-True ($page.Contains('id="workspace"')) "AI page has workspace anchor"
-Assert-True ($page.Contains("WorkspaceCommandCenter")) "AI page renders workspace command center"
+Assert-True ($commandCenter.Contains("export function WorkspaceCommandCenter")) "workspace command center exports component"
+Assert-True ($commandCenter.Contains("Workspace command center")) "workspace command center includes heading"
+Assert-True ($commandCenter.Contains("latest-message authority")) "workspace command center preserves latest-message authority copy"
+Assert-True ($page.Contains("workspace-command-center")) "AI page imports workspace command center"
+Assert-True ($page.Contains("<WorkspaceCommandCenter")) "AI page renders workspace command center"
+Assert-True (-not $page.Contains("function WorkspaceCommandCenter")) "AI page does not define local workspace command center"
+Assert-True (-not $page.Contains("const commandCenterShellStyle")) "AI page does not keep command center styles inline"
 Assert-True (-not $page.Contains("<WorkspaceHero workspaceCards={workspaceCards} />")) "AI page does not render duplicate old workspace hero"
 Assert-True (-not $page.Contains("<WorkspaceHeroIntro")) "AI page does not render duplicate old workspace intro"
 
