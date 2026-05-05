@@ -2673,7 +2673,10 @@ function applyProductSurfacePlanningStructuredOverride(
       "Product surface planning override applied after local engine output.",
       "This request is a landing-page/product-surface plan, not a repo-engine implementation plan.",
     ],
-  }, "local");
+  }, "local", {
+    includeExecution: false,
+    includeSnapshot: false,
+  });
 }
 
 function buildImplicitActivePlan(args: {
@@ -3002,21 +3005,36 @@ function resolveResponseDomain(args: {
 
 function applyRouteVisibleStructuredDefaults(
   structured: CodexForgeStructuredReply,
-  mode: CodexForgeStructuredReply["mode"] = "local"
+  mode: CodexForgeStructuredReply["mode"] = "local",
+  options?: {
+    includeExecution?: boolean;
+    includeSnapshot?: boolean;
+  }
 ): CodexForgeStructuredReply {
+  const includeExecution = options?.includeExecution !== false;
+  const includeSnapshot = options?.includeSnapshot !== false;
+
   return {
     ...structured,
     mode: structured.mode ?? mode,
-    execution: {
-      phase: "idle",
-      diffCount: 0,
-      snapshotFileCount: 0,
-      ...(structured.execution ?? {}),
-    },
-    snapshot: structured.snapshot ?? {
-      fileCount: 0,
-      sampledPaths: [],
-    },
+    ...(includeExecution
+      ? {
+          execution: {
+            phase: "idle",
+            diffCount: 0,
+            snapshotFileCount: 0,
+            ...(structured.execution ?? {}),
+          },
+        }
+      : {}),
+    ...(includeSnapshot
+      ? {
+          snapshot: structured.snapshot ?? {
+            fileCount: 0,
+            sampledPaths: [],
+          },
+        }
+      : {}),
   };
 }
 
@@ -3599,6 +3617,8 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
 
 
 
