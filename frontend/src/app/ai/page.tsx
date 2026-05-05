@@ -490,7 +490,7 @@ function WorkspaceHeroIntro({
           </div>
 
           <div style={heroMetaTextStyle}>
-            local-first ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ backend-optional ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ planning, memory, and execution context
+            local-first • backend-optional • planning, memory, and execution context
           </div>
         </div>
 
@@ -717,9 +717,7 @@ function EmptyState() {
 
       <div style={styles.emptyExamples}>
         {EMPTY_EXAMPLES.map((example) => (
-          <div key={example} style={styles.exampleChip}>
-            ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ{example}ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â
-          </div>
+          <div key={example} style={styles.exampleChip}>"{example}"</div>
         ))}
       </div>
     </div>
@@ -744,7 +742,7 @@ function LatestReplyCard({ snapshot }: LatestReplyCardProps) {
         <MetaCard label="Mode" value={snapshot.modeLabel} />
         <MetaCard label="Steps" value={snapshot.stepCount} />
         <MetaCard label="Diffs" value={snapshot.diffCount} />
-        <MetaCard label="Snapshot" value={snapshot.snapshotFileCount ?? "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â"} />
+        <MetaCard label="Snapshot" value={snapshot.snapshotFileCount ?? "—"} />
         <MetaCard
           label="Execution phase"
           value={snapshot.executionPhaseLabel}
@@ -1123,7 +1121,7 @@ function ExecutionPanel({
           style={styles.pillGhostButton}
           disabled={busy || isExecuting || totalSteps === 0}
         >
-          {isExecuting ? "RunningÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦" : "Run current step"}
+          {isExecuting ? "Running…" : "Run current step"}
         </button>
 
         <ActionButton
@@ -1316,16 +1314,16 @@ export default function AiPage() {
 
     return {
       textLength: lastAssistant?.text.length ?? 0,
-      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
+      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "—",
       structured: !!lastAssistant?.structured,
       toolCount: summaryMeta.toolCount,
       domainLabel: summaryMeta.domainLabel ?? "General",
       tagCount: summaryMeta.tagCount,
-      modeLabel: summaryMeta.modeLabel ?? "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
+      modeLabel: summaryMeta.modeLabel ?? "—",
       stepCount: summaryMeta.stepCount,
       diffCount: summaryMeta.diffCount,
       snapshotFileCount: summaryMeta.snapshotFileCount,
-      executionPhaseLabel: executionMeta.phaseLabel ?? "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
+      executionPhaseLabel: executionMeta.phaseLabel ?? "—",
       logCount: executionMeta.logCount,
     };
   }, [lastAssistant]);
@@ -1410,17 +1408,6 @@ export default function AiPage() {
 
 
         <div id="workspace" />
-
-
-        <WorkspaceHero workspaceCards={workspaceCards} />
-
-        <WorkspaceHeroIntro
-          repoLabel={repoLabel}
-          diffCount={diffCount}
-          snapshotFileCount={snapshotFileCount}
-          enginePhaseLabel={enginePhaseLabel}
-        />
-
         <section style={styles.mainCard}>
           <StatusBar
             busy={busy}
