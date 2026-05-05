@@ -2630,7 +2630,7 @@ function applyProductSurfacePlanningStructuredOverride(
     (section) => !blockedGenericSectionTitles.has(section.title.trim().toLowerCase())
   );
 
-  return {
+  return applyRouteVisibleStructuredDefaults({
     ...structured,
     title: structured.title ?? "CodexForge product surface plan",
     summary: productPlan.goal,
@@ -2665,7 +2665,7 @@ function applyProductSurfacePlanningStructuredOverride(
       "Product surface planning override applied after local engine output.",
       "This request is a landing-page/product-surface plan, not a repo-engine implementation plan.",
     ],
-  };
+  }, "local");
 }
 
 function buildImplicitActivePlan(args: {
@@ -2992,6 +2992,26 @@ function resolveResponseDomain(args: {
   );
 }
 
+function applyRouteVisibleStructuredDefaults(
+  structured: CodexForgeStructuredReply,
+  mode: CodexForgeStructuredReply["mode"] = "local"
+): CodexForgeStructuredReply {
+  return {
+    ...structured,
+    mode: structured.mode ?? mode,
+    execution: {
+      phase: "idle",
+      diffCount: 0,
+      snapshotFileCount: 0,
+      ...(structured.execution ?? {}),
+    },
+    snapshot: structured.snapshot ?? {
+      fileCount: 0,
+      sampledPaths: [],
+    },
+  };
+}
+
 /* ================= ROUTE ================= */
 
 function buildLatestMessageOverrideSuccessResponse(
@@ -3078,7 +3098,11 @@ function buildLatestMessageOverrideSuccessResponse(
     ],
   };
 
-  const text = structuredToText(structured);
+  const structuredWithVisibleDefaults = applyRouteVisibleStructuredDefaults(
+    structured,
+    "local-execution"
+  );
+  const text = structuredToText(structuredWithVisibleDefaults);
 
   return {
     ok: true,
@@ -3087,7 +3111,7 @@ function buildLatestMessageOverrideSuccessResponse(
       role: "assistant",
       text,
       ts: now,
-      structured,
+      structured: structuredWithVisibleDefaults,
     },
     meta: {
       mode: "local-execution",
@@ -3567,6 +3591,9 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
+
 
 
 
