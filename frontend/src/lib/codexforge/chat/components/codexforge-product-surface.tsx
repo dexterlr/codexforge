@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import React from "react";
 import { codexForgeProductSurface } from "@/lib/codexforge/product-surface";
 
@@ -160,7 +160,7 @@ const ambientTwoStyle: React.CSSProperties = {
 const heroStyle: React.CSSProperties = {
   position: "relative",
   display: "grid",
-  gridTemplateColumns: "minmax(0, 1.25fr) minmax(300px, 0.75fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
   gap: 18,
   alignItems: "stretch",
 };
@@ -297,7 +297,7 @@ const consoleKeyStyle: React.CSSProperties = {
 const metricsGridStyle: React.CSSProperties = {
   position: "relative",
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))",
   gap: 10,
 };
 
@@ -352,7 +352,7 @@ const sectionTitleStyle: React.CSSProperties = {
 const capabilityGridStyle: React.CSSProperties = {
   position: "relative",
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
   gap: 12,
 };
 
@@ -404,7 +404,7 @@ const workflowShellStyle: React.CSSProperties = {
 
 const workflowGridStyle: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))",
   gap: 10,
 };
 
@@ -437,7 +437,7 @@ const workflowTextStyle: React.CSSProperties = {
 const useCaseGridStyle: React.CSSProperties = {
   position: "relative",
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
   gap: 10,
 };
 

@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Stop"
 
 function Assert-True {
   param(
@@ -36,6 +36,9 @@ Assert-True ($component.Contains("export function CodexForgeProductSurface")) "c
 Assert-True ($component.Contains("codexForgeProductSurface")) "component imports product data"
 Assert-True ($component.Contains("mission stack")) "component includes mission stack"
 Assert-True ($component.Contains("world-class Jarvis-level builder cockpit")) "component includes Jarvis-level posture"
+Assert-True ($component.Contains("minmax(min(100%, 320px), 1fr)")) "component has responsive hero grid"
+Assert-True ($component.Contains("minmax(min(100%, 240px), 1fr)")) "component has responsive capability grid"
+Assert-True ($component.Contains("minmax(min(100%, 220px), 1fr)")) "component has responsive use-case grid"
 
 Assert-True ($page.Contains("CodexForgeProductSurface")) "AI page imports product surface"
 Assert-True ($page.Contains("<CodexForgeProductSurface />")) "AI page renders product surface"
