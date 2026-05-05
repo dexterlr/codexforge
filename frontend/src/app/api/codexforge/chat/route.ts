@@ -2607,9 +2607,22 @@ function applyProductSurfacePlanningStructuredOverride(
   ];
 
   const blockedGenericSectionTitles = new Set([
+    "goal",
+    "next steps",
+    "files",
     "files to change",
     "files to check",
     "file clusters",
+    "commands",
+    "risks",
+    "interpretation",
+    "context",
+    "understanding",
+    "tools",
+    "status",
+    "execution posture",
+    "engine trace",
+    "response quality",
     "first three implementation steps",
   ]);
 
@@ -2638,12 +2651,20 @@ function applyProductSurfacePlanningStructuredOverride(
     files: productPlan.files,
     commands: productPlan.commands,
     risks: productPlan.risks,
+    nextSteps: productPlan.steps.slice(0, 3),
+    understanding: [
+      "This is a product-surface planning request.",
+      "The output should prioritize pages, components, data, risks, and first implementation steps.",
+    ],
+    status: [
+      "Product surface plan.",
+      "No repo-engine implementation plan required yet.",
+    ],
     sections: [...productSections, ...cleanedExistingSections],
-    context: uniqueStrings([
-      ...(structured.context ?? []),
+    context: [
       "Product surface planning override applied after local engine output.",
       "This request is a landing-page/product-surface plan, not a repo-engine implementation plan.",
-    ]),
+    ],
   };
 }
 
@@ -3546,6 +3567,8 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
 
 
 
