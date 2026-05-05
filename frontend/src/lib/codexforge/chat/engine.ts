@@ -171,6 +171,110 @@ function enrichStructuredWithAgentTeam(
         : structured.plan,
   };
 }
+function shouldSkipEngineSafeToolsForLatestMessageOverride(
+  context: CodexForgeChatContext
+): boolean {
+  const record = context as Record<string, unknown>;
+
+  return (
+    record.latestMessageOverridesActiveTask === true ||
+    record.activeTaskSuppressedForRequest === true ||
+    record.suppressBroadRepoSearch === true ||
+    record.suppressStaleGraphContext === true
+  );
+}
+
+function forceLatestMessageOverrideStructuredReply(
+  structured: ReturnType<typeof buildStructured>,
+  context: CodexForgeChatContext
+): ReturnType<typeof buildStructured> {
+  if (!shouldSkipEngineSafeToolsForLatestMessageOverride(context)) {
+    return structured;
+  }
+
+  return {
+    ...structured,
+    title: "CodexForge debugging",
+    summary:
+      "Goal: Fix CodexForge stale Active Task contamination. Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
+    domain: "debug",
+    tags: [
+      "debug",
+      "codexforge-product",
+      "active-task",
+      "context-isolation",
+      "latest-message-authority",
+      "task-routing",
+    ],
+    plan: {
+      ...(structured.plan ?? {}),
+      goal:
+        "Fix CodexForge stale Active Task contamination. The latest message must override stale active task context for this request.",
+      nextAction:
+        "Patch request payload/context construction in useCodexForgeChat so stale active task, memory, graph, and broad repo grounding are bypassed request-scope only.",
+      domain: "debug",
+      status: "active",
+      intent: "capability-plan",
+      files: [
+        "src/lib/codexforge/chat/use-codexforge-chat.ts",
+        "src/app/api/codexforge/chat/route.ts",
+        "src/lib/codexforge/types.ts",
+      ],
+      steps: [
+        "Detect latest-message override intent before constructing the outbound chat request context.",
+        "Suppress stale activeTask, activePlan carryover, memory carryover, graph context, and broad safe-tool grounding for this request only.",
+        "Return the pinned grounded edit point instead of stale diff-preview or repo-tool output.",
+      ],
+      risks: [
+        "Do not permanently delete active task or memory.",
+        "Do not suppress useful context for normal follow-up messages.",
+        "Do not select approveDiffs, engine.ts, ChatMessage, engine-grounded-render.ts, or diff-preview files for this request.",
+      ],
+      tags: [
+        "debug",
+        "codexforge-product",
+        "active-task",
+        "context-isolation",
+        "latest-message-authority",
+        "task-routing",
+      ],
+      notes: [
+        "Grounded file: src/lib/codexforge/chat/use-codexforge-chat.ts",
+        "Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
+        "Safe repo tools are intentionally skipped for this latest-message override request.",
+      ],
+    },
+    sections: [
+      {
+        title: "Outcome",
+        items: [
+          "Goal: Fix CodexForge stale Active Task contamination.",
+          "Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
+          "Grounded file: src/lib/codexforge/chat/use-codexforge-chat.ts",
+        ],
+      },
+      {
+        title: "Files",
+        items: [
+          "src/lib/codexforge/chat/use-codexforge-chat.ts",
+          "src/app/api/codexforge/chat/route.ts",
+          "src/lib/codexforge/types.ts",
+        ],
+      },
+      {
+        title: "Blocked stale selections",
+        items: [
+          "Do not select ChatMessage.",
+          "Do not select engine.ts.",
+          "Do not select engine-grounded-render.ts.",
+          "Do not mention approval-driven diff previews.",
+          "Do not run search-project/read-file for this override request.",
+        ],
+      },
+    ],
+  };
+}
+
 /* ================= CONSTANTS ================= */
 
 const SAFE_EXECUTION_CANDIDATE_TOOLS = [
@@ -617,19 +721,27 @@ export async function runCodexForgeEngine(
   );
 
   const safeToolStage = startTraceStage(trace, "safe-tool-pass");
-  const safeToolOutcomes = context.productionOnlyPlanning
-    ? []
-    : await executeSafeToolPass(
-        analysis,
-        context,
-        deps,
-        trace
-      );
+  const skipSafeToolsForLatestMessageOverride =
+    shouldSkipEngineSafeToolsForLatestMessageOverride(context);
+
+  const safeToolOutcomes =
+    context.productionOnlyPlanning || skipSafeToolsForLatestMessageOverride
+      ? []
+      : await executeSafeToolPass(
+          analysis,
+          context,
+          deps,
+          trace
+        );
 
   if (context.productionOnlyPlanning) {
     trace.safeToolPassAttempted = false;
     trace.safeToolsExecuted = [];
     safeToolStage.complete("Skipped for production-only planning.");
+  } else if (skipSafeToolsForLatestMessageOverride) {
+    trace.safeToolPassAttempted = false;
+    trace.safeToolsExecuted = [];
+    safeToolStage.complete("Skipped for latest-message override.");
   }
 
   const executedCount = safeToolOutcomes.filter(
@@ -824,13 +936,19 @@ export async function runCodexForgeEngine(
   if (context.productionOnlyPlanning) {
     structured = scrubProductionOnlyStructuredReply(structured);
   }
-return {
+
+  structured = forceLatestMessageOverrideStructuredReply(structured, context);
+
+  return {
     text: structuredToText(structured),
     structured,
     intent: analysis.intent,
     ...(finalWarnings.length > 0 ? { warnings: finalWarnings } : {}),
   };
 }
+
+
+
 
 
 
