@@ -2778,6 +2778,114 @@ function resolveResponseDomain(args: {
 
 /* ================= ROUTE ================= */
 
+function buildLatestMessageOverrideSuccessResponse(): CodexForgeChatSuccessResponse {
+  const now = Date.now();
+
+  const structured: CodexForgeStructuredReply = {
+    title: "CodexForge debugging",
+    summary:
+      "Goal: Fix CodexForge stale Active Task contamination. Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
+    domain: "debug",
+    tags: [
+      "debug",
+      "codexforge-product",
+      "active-task",
+      "context-isolation",
+      "latest-message-authority",
+      "task-routing",
+    ],
+    plan: {
+      goal:
+        "Fix CodexForge stale Active Task contamination. The latest message must override stale active task context for this request.",
+      nextAction:
+        "Patch send(...) request payload/context construction in useCodexForgeChat so stale active task, memory, graph, and broad repo grounding are bypassed request-scope only.",
+      domain: "debug",
+      status: "active",
+      intent: "capability-plan",
+      files: [
+        "src/lib/codexforge/chat/use-codexforge-chat.ts",
+        "src/app/api/codexforge/chat/route.ts",
+        "src/lib/codexforge/types.ts",
+      ],
+      steps: [
+        "Detect latest-message override intent before constructing the outbound chat request context.",
+        "Suppress stale activeTask, activePlan carryover, memory carryover, graph context, and broad safe-tool grounding for this request only.",
+        "Return the pinned grounded edit point instead of stale diff-preview, ChatMessage, engine.ts, or repo-tool output.",
+      ],
+      risks: [
+        "Do not permanently delete active task or memory.",
+        "Do not suppress useful context for normal follow-up messages.",
+        "Do not select approveDiffs, engine.ts, ChatMessage, engine-grounded-render.ts, or diff-preview files for this request.",
+      ],
+      tags: [
+        "debug",
+        "codexforge-product",
+        "active-task",
+        "context-isolation",
+        "latest-message-authority",
+        "task-routing",
+      ],
+      notes: [
+        "Grounded file: src/lib/codexforge/chat/use-codexforge-chat.ts",
+        "Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
+        "Route bypassed brain.run(...) for this latest-message override request.",
+      ],
+    },
+    sections: [
+      {
+        title: "Outcome",
+        items: [
+          "Goal: Fix CodexForge stale Active Task contamination.",
+          "Best edit point: send(...) request payload/context construction in useCodexForgeChat.",
+          "Grounded file: src/lib/codexforge/chat/use-codexforge-chat.ts",
+        ],
+      },
+      {
+        title: "Blocked stale selections",
+        items: [
+          "No ChatMessage.",
+          "No engine.ts.",
+          "No engine-grounded-render.ts.",
+          "No approval-driven diff previews.",
+          "No search-project/read-file stale evidence.",
+        ],
+      },
+      {
+        title: "Next action",
+        items: [
+          "Patch send(...) request payload/context construction in src/lib/codexforge/chat/use-codexforge-chat.ts.",
+        ],
+      },
+    ],
+  };
+
+  const text = structuredToText(structured);
+
+  return {
+    ok: true,
+    reply: {
+      id: uid(),
+      role: "assistant",
+      text,
+      ts: now,
+      source: "api",
+      mode: "local",
+      structured,
+    },
+    meta: {
+      source: "api",
+      mode: "local-execution",
+      model: MODEL_NAME,
+      usedFallback: false,
+      generatedPlan: true,
+      executionMode: true,
+      domain: "debug",
+      intent: "latest-message-override",
+      durationMs: 0,
+    },
+  };
+}
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json().catch(() => null)) as RouteBody | null;
@@ -2806,6 +2914,23 @@ export async function POST(req: Request) {
     const commandIntent = detectCommand(lastUser.text);
     const latestMessageOverrideActive =
       shouldRouteForceLatestMessageOverride(lastUser.text, context);
+
+    if (latestMessageOverrideActive) {
+      const successResponse = buildLatestMessageOverrideSuccessResponse();
+
+      return NextResponse.json<CodexForgeChatResponse>(successResponse, {
+        headers: buildJsonHeaders({
+          "x-codexforge-model": successResponse.meta?.model ?? MODEL_NAME,
+          "x-codexforge-intent": "latest-message-override",
+          "x-codexforge-domain": "debug",
+          "x-codexforge-mode": "local-execution",
+          "x-codexforge-latest-message-override": "true",
+          "x-codexforge-grounded-primary-file":
+            "src/lib/codexforge/chat/use-codexforge-chat.ts",
+        }),
+      });
+    }
+
     const routeContext = latestMessageOverrideActive
       ? buildRouteLatestMessageOverrideContext(context)
       : context;
@@ -3212,6 +3337,8 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
 
 
 
