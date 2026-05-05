@@ -2865,7 +2865,7 @@ export async function POST(req: Request) {
     const enrichedContext = {
       ...buildEnrichedContext(
         lastUser.text,
-        context,
+        routeContext,
         graphDiagnostics,
         effectiveGroundedDiagnostics,
         resolvedMode,
@@ -3196,6 +3196,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
