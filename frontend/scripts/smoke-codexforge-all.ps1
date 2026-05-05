@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -7,6 +7,11 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 
 $scripts = @(
+  @{
+    Name = "Product surface UI"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-product-surface-ui.ps1"
+    Required = $true
+  },
   @{
     Name = "Product surface planning"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-product-surface-planning.ps1"
@@ -97,3 +102,4 @@ if ($passed -lt 1) {
 }
 
 Write-Host "[OK] CodexForge smoke suite passed."
+

@@ -12,6 +12,7 @@ import {
 } from "@/lib/codexforge/chat/client-renderers";
 import { ChatComposer } from "@/lib/codexforge/chat/components/chat-composer";
 import { ChatMessage } from "@/lib/codexforge/chat/components/chat-message";
+import { CodexForgeProductSurface } from "@/lib/codexforge/chat/components/codexforge-product-surface";
 import {
   WorkspaceHero,
   type WorkspaceCard,
@@ -1343,6 +1344,12 @@ export default function AiPage() {
           onClearChat={clearChat}
         />
 
+        <CodexForgeProductSurface />
+
+
+        <div id="workspace" />
+
+
         <WorkspaceHero workspaceCards={workspaceCards} />
 
         <WorkspaceHeroIntro
@@ -2073,5 +2080,8 @@ const composerDockStyle: React.CSSProperties = {
     "0 24px 70px rgba(0,0,0,0.42), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.06)",
   backdropFilter: "blur(22px)",
 };
+
+
+
 
 
