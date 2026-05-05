@@ -2607,6 +2607,7 @@ function applyProductSurfacePlanningStructuredOverride(
   ];
 
   const blockedGenericSectionTitles = new Set([
+    "agent operating mode",
     "goal",
     "next steps",
     "files",
@@ -2619,6 +2620,7 @@ function applyProductSurfacePlanningStructuredOverride(
     "context",
     "understanding",
     "tools",
+    "recommended tool names",
     "status",
     "execution posture",
     "engine trace",
@@ -3591,6 +3593,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
