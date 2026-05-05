@@ -373,43 +373,53 @@ function shouldRouteForceLatestMessageOverride(
     return true;
   }
 
-  const staleActiveTaskSignal =
+  const activeGoal = context.activePlan?.goal?.toLowerCase() ?? "";
+  const activeNextAction = context.activePlan?.nextAction?.toLowerCase() ?? "";
+
+  const pinnedOverrideRequest =
+    normalized.includes("goal: fix codexforge stale active task contamination") ||
+    normalized.includes("fix codexforge stale active task contamination") ||
+    normalized.includes("best edit point: send(") ||
+    normalized.includes("best edit point: send(...)") ||
+    normalized.includes("request payload/context construction in usecodexforgechat") ||
+    normalized.includes("grounded file: src/lib/codexforge/chat/use-codexforge-chat.ts");
+
+  const explicitStaleContextRequest =
     normalized.includes("stale active task") ||
     normalized.includes("active task contamination") ||
     normalized.includes("latest-message authority") ||
     normalized.includes("latest message authority") ||
     normalized.includes("latest explicit user request") ||
-    normalized.includes("override stale active task") ||
-    normalized.includes("latest message must override stale active task");
+    normalized.includes("replace or bypass stale task") ||
+    normalized.includes("bypass stale task") ||
+    normalized.includes("suppress stale graph") ||
+    normalized.includes("suppress broad repo") ||
+    normalized.includes("latestmessageoverridesactivetask") ||
+    normalized.includes("activetasksuppressedforrequest");
 
-  const pinnedUseHookSignal =
-    normalized.includes("use-codexforge-chat.ts") ||
-    normalized.includes("usecodexforgechat") ||
-    normalized.includes("request payload/context construction") ||
-    normalized.includes("outbound chat request");
-
-  const staleOutputRejection =
-    normalized.includes("no approval-driven diff previews") ||
-    normalized.includes("no approval driven diff previews") ||
+  const rejectsKnownBadSelections =
     normalized.includes("no chatmessage") ||
     normalized.includes("no engine.ts") ||
-    normalized.includes("no engine-grounded-render.ts") ||
+    normalized.includes("no engine-grounded-render") ||
+    normalized.includes("no approval-driven diff previews") ||
+    normalized.includes("no approval driven diff previews") ||
     normalized.includes("no search-project") ||
     normalized.includes("must not mention approval-driven diff previews") ||
     normalized.includes("must not select approvediffs") ||
     normalized.includes("must not select engine-render-diff-preview");
 
-  const staleActivePlan =
-    typeof context.activePlan?.goal === "string" &&
-    context.activePlan.goal
-      .toLowerCase()
-      .includes("approval-driven diff previews");
+  const activeTaskLooksStale =
+    activeGoal.includes("repo-grounded") ||
+    activeGoal.includes("approval-driven diff previews") ||
+    activeGoal.includes("safe inspection tools") ||
+    activeNextAction.includes("safe inspection") ||
+    activeNextAction.includes("generic planning") ||
+    activeNextAction.includes("force the local structured engine");
 
   return (
-    staleActiveTaskSignal ||
-    (pinnedUseHookSignal && staleOutputRejection) ||
-    (staleActivePlan && pinnedUseHookSignal) ||
-    (staleActivePlan && staleOutputRejection)
+    pinnedOverrideRequest ||
+    (explicitStaleContextRequest && activeTaskLooksStale) ||
+    (explicitStaleContextRequest && rejectsKnownBadSelections)
   );
 }
 
@@ -3196,6 +3206,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
