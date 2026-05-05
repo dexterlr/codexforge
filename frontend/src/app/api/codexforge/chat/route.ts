@@ -2500,9 +2500,9 @@ function buildProductSurfacePlan(args: {
   return {
     goal,
     steps: [
-      "Define the landing-page narrative, target audience, conversion goal, and success criteria.",
-      "Map the page structure, reusable components, content/data model, and responsive states.",
-      "Implement the first production slice, validate responsive polish, and review copy/CTA clarity.",
+      "Define the landing-page narrative, target audience, CTA, conversion goal, and premium positioning.",
+      "Map sections: hero, proof bar, feature grid, workflow, use cases, trust/pricing, CTA, and footer.",
+      "Implement the first responsive landing-page slice with content data, premium visual polish, and accessibility checks.",
     ],
     files: [
       "Landing page route",
@@ -3438,6 +3438,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
