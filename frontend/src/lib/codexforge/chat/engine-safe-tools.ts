@@ -1101,13 +1101,32 @@ async function maybeFallbackReadFileToSearchProject(
   return followUpRead;
 }
 
+function shouldSkipSafeToolsForLatestMessageOverride(
+  context: unknown
+): boolean {
+  if (!context || typeof context !== "object") return false;
+
+  const record = context as Record<string, unknown>;
+
+  return (
+    record.latestMessageOverridesActiveTask === true ||
+    record.activeTaskSuppressedForRequest === true ||
+    record.suppressBroadRepoSearch === true ||
+    record.suppressStaleGraphContext === true
+  );
+}
 export async function executeSafeToolPass(
   analysis: CodexForgeEngineAnalysis,
   context: CodexForgeChatContext,
   deps: CodexForgeEngineDependencies,
   trace?: EngineTraceForSafeTools
 ): Promise<SafeToolOutcome[]> {
-  trace && (trace.safeToolPassAttempted = true);
+    if (shouldSkipSafeToolsForLatestMessageOverride(context)) {
+    trace.safeToolPassAttempted = false;
+    trace.safeToolsExecuted = [];
+    return [];
+  }
+trace && (trace.safeToolPassAttempted = true);
 
   if (!deps.toolExecution) {
     return [
@@ -1219,6 +1238,7 @@ export async function executeSafeToolPass(
 
   return outcomes;
 }
+
 
 
 
