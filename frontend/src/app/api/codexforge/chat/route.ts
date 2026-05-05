@@ -2984,7 +2984,7 @@ export async function POST(req: Request) {
         ts: message.ts,
       })),
       context: enrichedContext,
-      ...(graphContext ? { graph: graphContext } : {}),
+      ...(routeGraphContext ? { graph: routeGraphContext } : {}),
       runtime: {
         requestId: uid(),
         now: Date.now(),
@@ -3212,6 +3212,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
