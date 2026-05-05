@@ -2546,6 +2546,107 @@ function buildProductSurfacePlan(args: {
   };
 }
 
+function applyProductSurfacePlanningStructuredOverride(
+  structured: CodexForgeStructuredReply | undefined,
+  latestUserText: string,
+  capabilityRouting: CapabilityRouting
+): CodexForgeStructuredReply | undefined {
+  if (
+    !structured ||
+    !isProductSurfacePlanningRequest(latestUserText) ||
+    capabilityRouting.domain !== "web"
+  ) {
+    return structured;
+  }
+
+  const productPlan = buildProductSurfacePlan({
+    latestUserText,
+    capabilityRouting,
+  });
+
+  if (!productPlan) {
+    return structured;
+  }
+
+  const productSections: CodexForgeStructuredReply["sections"] = [
+    {
+      title: "Pages",
+      items: [
+        "Landing page.",
+        "Optional product workflow section.",
+        "Optional pricing/trust section.",
+      ],
+    },
+    {
+      title: "Components",
+      items: [
+        "Hero section with premium positioning and primary CTA.",
+        "Proof bar for credibility signals.",
+        "Feature grid for core CodexForge capabilities.",
+        "Workflow section showing plan, inspect, diff, approve, execute.",
+        "Use-case cards for websites, game servers, movies, ComfyUI, Unreal, and operator workflows.",
+        "Final CTA and footer.",
+      ],
+    },
+    {
+      title: "Data",
+      items: [
+        "Headline and subheadline.",
+        "Primary and secondary CTA labels.",
+        "Feature card data.",
+        "Workflow step data.",
+        "Proof/trust points.",
+        "Use-case card data.",
+        "Navigation links.",
+      ],
+    },
+    {
+      title: "First three implementation steps",
+      items: productPlan.steps.slice(0, 3),
+    },
+  ];
+
+  const blockedGenericSectionTitles = new Set([
+    "files to change",
+    "files to check",
+    "file clusters",
+    "first three implementation steps",
+  ]);
+
+  const cleanedExistingSections = (structured.sections ?? []).filter(
+    (section) => !blockedGenericSectionTitles.has(section.title.trim().toLowerCase())
+  );
+
+  return {
+    ...structured,
+    title: structured.title ?? "CodexForge product surface plan",
+    summary: productPlan.goal,
+    domain: "web",
+    tags: uniqueStrings([
+      ...(structured.tags ?? []),
+      ...(productPlan.tags ?? []),
+      "landing-page",
+      "product-surface-plan",
+    ]),
+    plan: {
+      ...(structured.plan ?? {}),
+      ...productPlan,
+      domain: "web",
+      status: productPlan.status ?? "draft",
+      intent: productPlan.intent ?? "product-surface-plan",
+    },
+    files: productPlan.files,
+    commands: productPlan.commands,
+    risks: productPlan.risks,
+    sections: [...productSections, ...cleanedExistingSections],
+    context: uniqueStrings([
+      ...(structured.context ?? []),
+      "Product surface planning override applied after local engine output.",
+      "This request is a landing-page/product-surface plan, not a repo-engine implementation plan.",
+    ]),
+  };
+}
+
 function buildImplicitActivePlan(args: {
   latestUserText: string;
   context: CodexForgeChatContext;
@@ -3256,10 +3357,17 @@ export async function POST(req: Request) {
       capabilityRouting
     );
 
+    const productSurfaceDecoratedStructured =
+      applyProductSurfacePlanningStructuredOverride(
+        rawDecoratedStructured,
+        lastUser.text,
+        capabilityRouting
+      );
+
     const decoratedStructured =
-      productionOnlyPlanning && rawDecoratedStructured
-        ? scrubProductionOnlyRouteStructuredReply(rawDecoratedStructured)
-        : rawDecoratedStructured;
+      productionOnlyPlanning && productSurfaceDecoratedStructured
+        ? scrubProductionOnlyRouteStructuredReply(productSurfaceDecoratedStructured)
+        : productSurfaceDecoratedStructured;
 
     const rawDecoratedText = decoratedStructured
       ? structuredToText(decoratedStructured)
@@ -3438,6 +3546,8 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
 
 
 
