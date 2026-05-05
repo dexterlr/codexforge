@@ -2654,6 +2654,12 @@ function applyProductSurfacePlanningStructuredOverride(
     commands: productPlan.commands,
     risks: productPlan.risks,
     nextSteps: productPlan.steps.slice(0, 3),
+    tools: [],
+    execution: undefined,
+    snapshot: undefined,
+    diffs: undefined,
+    diffPreviews: undefined,
+    approvals: undefined,
     understanding: [
       "This is a product-surface planning request.",
       "The output should prioritize pages, components, data, risks, and first implementation steps.",
@@ -3593,6 +3599,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
 
 
 
