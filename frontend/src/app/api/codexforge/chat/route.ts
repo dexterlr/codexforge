@@ -2471,6 +2471,81 @@ function latestRequestShouldReplaceActivePlan(args: {
   return false;
 }
 
+function isProductSurfacePlanningRequest(text: string): boolean {
+  const normalized = text.toLowerCase();
+
+  const asksForProductSurface =
+    /\b(landing page|homepage|marketing site|product page|website|web app|site)\b/.test(
+      normalized
+    );
+
+  const asksForPlanningShape =
+    normalized.includes("include goal") ||
+    normalized.includes("include pages") ||
+    normalized.includes("include components") ||
+    normalized.includes("include data") ||
+    normalized.includes("first three implementation steps") ||
+    normalized.includes("implementation steps") ||
+    normalized.includes("risks");
+
+  return asksForProductSurface && asksForPlanningShape;
+}
+
+function buildProductSurfacePlan(args: {
+  latestUserText: string;
+  capabilityRouting: CapabilityRouting;
+}): CodexForgeChatContext["activePlan"] {
+  const goal = clampText(args.latestUserText.replace(/^plan\s+/i, "").trim(), LIMITS.maxText);
+
+  return {
+    goal,
+    steps: [
+      "Define the landing-page narrative, target audience, conversion goal, and success criteria.",
+      "Map the page structure, reusable components, content/data model, and responsive states.",
+      "Implement the first production slice, validate responsive polish, and review copy/CTA clarity.",
+    ],
+    files: [
+      "Landing page route",
+      "Hero section component",
+      "Feature grid component",
+      "Workflow/benefits section component",
+      "CTA section component",
+      "Pricing or trust section component",
+      "Shared landing-page content data",
+      "Responsive styling tokens",
+    ],
+    commands: [
+      "Validate the page in desktop and mobile viewport sizes.",
+      "Run the project build after implementation.",
+      "Review copy, CTA hierarchy, accessibility, and visual polish manually.",
+    ],
+    risks: [
+      "Do not let visual polish hide unclear positioning.",
+      "Keep the first slice small enough to validate quickly.",
+      "Avoid hardcoding content where a small content model would keep the page easier to iterate.",
+      "Preserve local-first behavior and existing workspace state.",
+      "Do not claim file edits or tool execution until a diff/apply step actually runs.",
+    ],
+    notes: [
+      "Pages: landing page, optional pricing/trust section, optional product workflow section.",
+      "Components: hero, proof bar, feature grid, workflow steps, use-case cards, CTA, footer.",
+      "Data: headline, subheadline, CTA labels, feature cards, workflow steps, proof points, navigation links.",
+      "Design posture: premium, high-contrast, spacious, product-led, developer-assistant focused.",
+    ],
+    tags: uniqueStrings([
+      "web",
+      "web-production",
+      "codexforge-product",
+      "landing-page",
+      "product-planning",
+      ...args.capabilityRouting.tags,
+    ]),
+    status: "draft",
+    intent: "product-surface-plan",
+    domain: "web",
+  };
+}
+
 function buildImplicitActivePlan(args: {
   latestUserText: string;
   context: CodexForgeChatContext;
@@ -3344,6 +3419,9 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
+
+
+
 
 
 
