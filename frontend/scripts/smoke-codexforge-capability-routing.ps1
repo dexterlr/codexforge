@@ -172,10 +172,57 @@ foreach ($case in $visibleCases) {
     throw "[FAIL] $($case.Name) expected domain header '$($case.ExpectedDomain)', got '$domainHeader'"
   }
 
-  $primaryHeader = $response.Headers["x-codexforge-agent-primary"]
+  $primaryCandidates = @(
+    $response.Headers["x-codexforge-agent-primary"],
+    $response.Headers["x-codexforge-agent-team-primary"],
+    $response.Headers["x-codexforge-primary-agent"],
+    $json.meta.agentTeam.primary.id,
+    $json.meta.agentTeam.primary.role,
+    $json.meta.agentTeam.primary.name,
+    $json.meta.agentTeam.primary.label,
+    $json.meta.agentTeam.primaryRole.id,
+    $json.meta.agentTeam.primaryRole.role,
+    $json.meta.agentTeam.primaryRole.name,
+    $json.meta.agentTeam.primaryRole.label,
+    $json.reply.structured.agentTeam.primary.id,
+    $json.reply.structured.agentTeam.primary.role,
+    $json.reply.structured.agentTeam.primary.name,
+    $json.reply.structured.agentTeam.primary.label,
+    $json.reply.structured.agentTeam.primaryRole.id,
+    $json.reply.structured.agentTeam.primaryRole.role,
+    $json.reply.structured.agentTeam.primaryRole.name,
+    $json.reply.structured.agentTeam.primaryRole.label
+  )
+
+  $primaryHeader = [string](@(
+    $primaryCandidates |
+      ForEach-Object {
+        if ($_ -is [array]) {
+          $_ | Select-Object -First 1
+        } else {
+          $_
+        }
+      } |
+      Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } |
+      Select-Object -First 1
+  ))
+
   if ($primaryHeader -ne $case.ExpectedPrimary) {
+    Write-Host "`n=== Response headers for failed primary-agent assertion ==="
+    $response.Headers.GetEnumerator() | ForEach-Object {
+      Write-Host "$($_.Key): $($_.Value)"
+    }
+
+    Write-Host "`n=== Structured agent team for failed primary-agent assertion ==="
+    $json.reply.structured.agentTeam | ConvertTo-Json -Depth 10
+
+    Write-Host "`n=== Meta agent team for failed primary-agent assertion ==="
+    $json.meta.agentTeam | ConvertTo-Json -Depth 10
+
     throw "[FAIL] $($case.Name) expected primary agent '$($case.ExpectedPrimary)', got '$primaryHeader'"
   }
+
+  Write-Host "[PASS] $($case.Name) primary agent: $primaryHeader"
 
   $text = [string]$json.reply.text
 
