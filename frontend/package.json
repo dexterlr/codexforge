@@ -12,7 +12,8 @@
                     "check":  "npm run lint \u0026\u0026 npm run typecheck",
                     "clean":  "rimraf .next",
                     "rebuild":  "npm run clean \u0026\u0026 npm run build",
-                    "smoke:codexforge":  "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-all.ps1"
+                    "smoke:codexforge":  "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-all.ps1",
+                    "smoke:codexforge:server":  "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-with-server.ps1"
                 },
     "dependencies":  {
                          "next":  "16.1.6",
