@@ -1,3 +1,4 @@
+import { applyAgentTeamRuntimePolicy } from "@/lib/codexforge/chat/agent-team-runtime-policy";
 import type { CodexForgeStructuredReply } from "@/lib/codexforge/types";
 
 type AnyRecord = Record<string, unknown>;
@@ -327,9 +328,16 @@ export function applyAgentTeamEngineInfluence(
     nextPlan.goal = structuredRecord.goal;
   }
 
-  return {
+  const influencedStructured = {
     ...structured,
     plan: nextPlan,
     sections: nextSections as CodexForgeStructuredReply["sections"],
   } as CodexForgeStructuredReply;
+
+  const policyStructured = applyAgentTeamRuntimePolicy(
+    influencedStructured,
+    explicitAgentTeam
+  );
+
+  return policyStructured;
 }

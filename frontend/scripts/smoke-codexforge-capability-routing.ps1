@@ -255,3 +255,131 @@ foreach ($case in $visibleCases) {
 }
 
 Write-Host "[PASS] visible agent-team influence smoke tests passed"
+
+Write-Host "`n=== Visible agent runtime policy smoke tests ==="
+
+$runtimePolicyCases = @(
+  @{
+    Name = "Blender runtime policy"
+    Prompt = "Plan a Blender and ComfyUI cinematic workflow for a short product video. Include runtime policy, render approval gates, and quality gates."
+    ExpectedDomain = "blender"
+    RequiredText = @(
+      "Agent runtime policy",
+      "Runtime rules",
+      "Safety rules",
+      "Quality gates",
+      "Approval-required tools:",
+      "render-job",
+      "video-render"
+    )
+    ForbiddenText = @()
+  },
+  @{
+    Name = "Trading runtime policy"
+    Prompt = "Research a crypto trading workflow and outline the runtime policy. Do not execute broker actions."
+    ExpectedDomain = "trading"
+    RequiredText = @(
+      "Agent runtime policy",
+      "Runtime rules",
+      "Safety rules",
+      "Quality gates",
+      "Blocked tools:",
+      "broker-execution"
+    )
+    ForbiddenText = @(
+      "I will place",
+      "I can place a trade",
+      "executing broker action"
+    )
+  },
+  @{
+    Name = "Decks runtime policy"
+    Prompt = "Plan a CodexForge investor deck and include the runtime policy, export approval gates, and quality gates."
+    ExpectedDomain = "decks"
+    RequiredText = @(
+      "Agent runtime policy",
+      "Runtime rules",
+      "Safety rules",
+      "Quality gates",
+      "Approval-required tools:",
+      "deck-export"
+    )
+    ForbiddenText = @()
+  }
+)
+
+foreach ($case in $runtimePolicyCases) {
+  Write-Host "[RUN ] $($case.Name)"
+
+  $body = @{
+    messages = @(
+      @{
+        role = "user"
+        text = $case.Prompt
+      }
+    )
+  } | ConvertTo-Json -Depth 8
+
+  $response = Invoke-WebRequest `
+    -Uri "$BaseUrl/api/codexforge/chat" `
+    -Method POST `
+    -Body $body `
+    -ContentType "application/json" `
+    -UseBasicParsing
+
+  if ($response.StatusCode -ne 200) {
+    throw "[FAIL] $($case.Name) HTTP status was $($response.StatusCode)"
+  }
+
+  $json = $response.Content | ConvertFrom-Json
+
+  if (-not $json.ok) {
+    throw "[FAIL] $($case.Name) response ok was not true"
+  }
+
+  $domainHeader = $response.Headers["x-codexforge-domain"]
+  if ($domainHeader -ne $case.ExpectedDomain) {
+    throw "[FAIL] $($case.Name) expected domain '$($case.ExpectedDomain)', got '$domainHeader'"
+  }
+
+  $text = [string]$json.reply.text
+
+  foreach ($required in $case.RequiredText) {
+    if (-not $text.Contains($required)) {
+      Write-Host "`n=== Visible text for failed runtime-policy case ==="
+      $text
+      throw "[FAIL] $($case.Name) visible text missing: $required"
+    }
+
+    Write-Host "[PASS] $($case.Name) visible text includes: $required"
+  }
+
+  foreach ($forbidden in $case.ForbiddenText) {
+    if ($text.Contains($forbidden)) {
+      Write-Host "`n=== Visible text for forbidden runtime-policy case ==="
+      $text
+      throw "[FAIL] $($case.Name) visible text contains forbidden phrase: $forbidden"
+    }
+
+    Write-Host "[PASS] $($case.Name) visible text excludes: $forbidden"
+  }
+
+  $sectionTitles = @()
+  if ($json.reply.structured.sections) {
+    $sectionTitles = @($json.reply.structured.sections | ForEach-Object { $_.title })
+  }
+
+  foreach ($requiredSection in @("Agent runtime policy", "Runtime rules", "Safety rules", "Quality gates")) {
+    if ($sectionTitles -notcontains $requiredSection) {
+      Write-Host "`n=== Structured section titles for failed runtime-policy case ==="
+      $sectionTitles
+      throw "[FAIL] $($case.Name) structured sections missing: $requiredSection"
+    }
+
+    Write-Host "[PASS] $($case.Name) structured section exists: $requiredSection"
+  }
+
+  Write-Host "[PASS] $($case.Name)"
+}
+
+Write-Host "[PASS] visible agent runtime policy smoke tests passed"

@@ -397,9 +397,9 @@ foreach ($fileName in $requiredStructuredFiles) {
 
 $forbiddenGlobalPatterns = @(
   "export export",
-  "Ã¢â‚¬Â¢",
-  "Ã¢â‚¬",
-  "ï¿½"
+  "ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢",
+  "ÃƒÂ¢Ã¢â€šÂ¬",
+  "Ã¯Â¿Â½"
 )
 
 foreach ($pattern in $forbiddenGlobalPatterns) {
@@ -475,3 +475,57 @@ foreach ($pattern in $forbiddenRoutePatterns) {
 }
 
 Write-Host "[PASS] agent-team engine influence assertions passed"
+
+Write-Host "`n[RUN ] Agent-team runtime policy wiring"
+
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Split-Path -Parent $scriptRoot
+$chatDir = Join-Path $repoRoot "src/lib/codexforge/chat"
+$policyPath = Join-Path $chatDir "agent-team-runtime-policy.ts"
+$influencePath = Join-Path $chatDir "agent-team-engine-influence.ts"
+
+if (-not (Test-Path $policyPath)) {
+  throw "[FAIL] missing agent-team runtime policy helper"
+}
+Write-Host "[PASS] agent-team runtime policy helper exists"
+
+$policyContent = Get-Content -Raw $policyPath
+$influenceContent = Get-Content -Raw $influencePath
+
+$policyRequired = @(
+  "export type CodexForgeAgentRuntimePolicy",
+  "export function buildCodexForgeAgentRuntimePolicy",
+  "export function applyAgentTeamRuntimePolicy",
+  "Agent runtime policy",
+  "Runtime rules",
+  "Safety rules",
+  "Quality gates",
+  "Preferred output sections",
+  "broker-execution",
+  "render-job",
+  "deck-export"
+)
+
+foreach ($pattern in $policyRequired) {
+  if ($policyContent -notmatch [regex]::Escape($pattern)) {
+    throw "[FAIL] runtime policy helper missing behavior: $pattern"
+  }
+
+  Write-Host "[PASS] runtime policy helper includes behavior: $pattern"
+}
+
+$influenceRequired = @(
+  "agent-team-runtime-policy",
+  "applyAgentTeamRuntimePolicy",
+  "const policyStructured = applyAgentTeamRuntimePolicy("
+)
+
+foreach ($pattern in $influenceRequired) {
+  if ($influenceContent -notmatch [regex]::Escape($pattern)) {
+    throw "[FAIL] influence helper missing runtime policy integration: $pattern"
+  }
+
+  Write-Host "[PASS] influence helper includes runtime policy integration: $pattern"
+}
+
+Write-Host "[PASS] agent-team runtime policy assertions passed"
