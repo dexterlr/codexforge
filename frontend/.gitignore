@@ -55,3 +55,6 @@ _codexforge-backups/
 
 /frontend/_codexforge-backups/
 _codexforge-backups/
+
+# CodexForge local runtime state
+.codexforge/
