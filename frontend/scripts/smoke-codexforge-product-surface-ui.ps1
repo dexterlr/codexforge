@@ -23,6 +23,7 @@ $engineStatePath = ".\src\lib\codexforge\chat\components\engine-state-card.tsx"
 $workspaceOverviewPath = ".\src\lib\codexforge\chat\components\workspace-overview-card.tsx"
 $topBarPath = ".\src\lib\codexforge\chat\components\top-bar.tsx"
 $emptyStatePath = ".\src\lib\codexforge\chat\components\empty-state.tsx"
+$workspaceInsightsPath = ".\src\lib\codexforge\chat\components\workspace-insights-panel.tsx"
 $pagePath = ".\src\app\ai\page.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
@@ -35,6 +36,7 @@ Assert-True (Test-Path $engineStatePath) "engine state component file exists"
 Assert-True (Test-Path $workspaceOverviewPath) "workspace overview component file exists"
 Assert-True (Test-Path $topBarPath) "top bar component file exists"
 Assert-True (Test-Path $emptyStatePath) "empty state component file exists"
+Assert-True (Test-Path $workspaceInsightsPath) "workspace insights component file exists"
 Assert-True (Test-Path $pagePath) "AI page exists"
 
 $data = Get-Content -Raw $dataPath
@@ -47,6 +49,7 @@ $engineState = Get-Content -Raw $engineStatePath
 $workspaceOverview = Get-Content -Raw $workspaceOverviewPath
 $topBar = Get-Content -Raw $topBarPath
 $emptyState = Get-Content -Raw $emptyStatePath
+$workspaceInsights = Get-Content -Raw $workspaceInsightsPath
 $page = Get-Content -Raw $pagePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
@@ -149,6 +152,19 @@ Assert-True ($emptyState.Contains("Ready for a real task")) "empty state preserv
 Assert-True ($page.Contains("components/empty-state")) "AI page imports empty state"
 Assert-True ($page.Contains("<EmptyState")) "AI page renders empty state"
 Assert-True (-not $page.Contains("function EmptyState")) "AI page does not define local empty state"
+Assert-True ($workspaceInsights.Contains("export function WorkspaceInsightsPanel")) "workspace insights exports component"
+Assert-True ($workspaceInsights.Contains("CodexForge direction")) "workspace insights preserves direction heading"
+Assert-True ($workspaceInsights.Contains("What this page should become")) "workspace insights preserves product direction heading"
+Assert-True ($workspaceInsights.Contains("Product posture")) "workspace insights preserves product posture copy"
+Assert-True ($page.Contains("components/workspace-insights-panel")) "AI page imports workspace insights panel"
+Assert-True ($page.Contains("<WorkspaceInsightsPanel")) "AI page renders workspace insights panel"
+Assert-True (-not $page.Contains("function CapabilityCard")) "AI page does not define local capability card"
+Assert-True (-not $page.Contains("function ProductDirectionPanel")) "AI page does not define local product direction panel"
+Assert-True (-not $page.Contains("function getCapabilityCards")) "AI page does not keep capability card data helper"
+Assert-True (-not $page.Contains("function getDirectionCards")) "AI page does not keep direction card data helper"
+Assert-True (-not $page.Contains("const capabilityCardStyle")) "AI page does not keep capability card styles inline"
+Assert-True (-not $page.Contains("const directionCardStyle")) "AI page does not keep direction card styles inline"
+Assert-True (-not $page.Contains("const insightsRowStyle")) "AI page does not keep insights row styles inline"
 Assert-True (-not $page.Contains("function WorkspaceCommandCenter")) "AI page does not define local workspace command center"
 Assert-True (-not $page.Contains("const commandCenterShellStyle")) "AI page does not keep command center styles inline"
 Assert-True (-not $page.Contains("<WorkspaceHero workspaceCards={workspaceCards} />")) "AI page does not render duplicate old workspace hero"

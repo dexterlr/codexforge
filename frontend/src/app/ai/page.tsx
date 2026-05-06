@@ -21,6 +21,7 @@ import { EngineStateCard } from "@/lib/codexforge/chat/components/engine-state-c
 import { WorkspaceOverviewCard } from "@/lib/codexforge/chat/components/workspace-overview-card";
 import { TopBar } from "@/lib/codexforge/chat/components/top-bar";
 import { EmptyState } from "@/lib/codexforge/chat/components/empty-state";
+import { WorkspaceInsightsPanel } from "@/lib/codexforge/chat/components/workspace-insights-panel";
 import type { WorkspaceCard } from "@/lib/codexforge/chat/components/workspace-hero";
 import WorkspaceSidebar from "@/lib/codexforge/chat/components/workspace-sidebar";
 import { WorkspaceSlider } from "@/lib/codexforge/chat/components/workspace-slider";
@@ -207,118 +208,15 @@ function formatTime(ts: number) {
   });
 }
 
-function getCapabilityCards(): FocusAreaCard[] {
-  return [
-    {
-      label: "Websites",
-      value: "Plan, scaffold, wire, iterate, and deploy site work.",
-    },
-    {
-      label: "Game servers",
-      value: "Design themed servers, content, infra, admin, and rollout flows.",
-    },
-    {
-      label: "Movies",
-      value: "Turn scripts into shot plans, asset plans, and production stages.",
-    },
-    {
-      label: "ComfyUI",
-      value: "Build reusable generation workflows and render pipelines.",
-    },
-    {
-      label: "Unreal",
-      value: "Structure project setup, content, tools, and execution passes.",
-    },
-    {
-      label: "Operator loop",
-      value: "Use approval-driven plan and diff checkpoints before mutation.",
-    },
-  ];
-}
-
-function getDirectionCards(): DirectionCardData[] {
-  return [
-    {
-      title: "Workspace shell",
-      text: "This page should be the operational shell for planning, conversation, repo-aware context, memory, and guided execution.",
-    },
-    {
-      title: "Brain and memory",
-      text: "CodexForge should accumulate useful project state over time instead of acting like a stateless chat box.",
-    },
-    {
-      title: "Execution clarity",
-      text: "Plans, diffs, approvals, snapshots, and run state should stay visible without turning the main workspace into a raw operator console.",
-    },
-    {
-      title: "Local-first runtime",
-      text: "The workspace should remain useful when providers are missing, slow, or intentionally disabled.",
-    },
-  ];
-}
-
-function getRepoLabel(repoPath: string | undefined) {
-  if (!repoPath) return "No repo path";
-  return repoPath.split("\\").filter(Boolean).slice(-2).join("\\");
-}
-
-
-
 /* ---------------- small components ---------------- */
 
-function CapabilityCard() {
-  const capabilityCards = getCapabilityCards();
+function getRepoLabel(repoPath?: string) {
+  if (!repoPath) return "No repo selected";
 
-  return (
-    <div style={styles.statusCard}>
-      <div style={styles.panelTitle}>CodexForge direction</div>
-
-      <div style={capabilityGridStyle}>
-        {capabilityCards.map((card) => (
-          <div key={card.label} style={capabilityCardStyle}>
-            <div style={capabilityLabelStyle}>{card.label}</div>
-            <div style={capabilityValueStyle}>{card.value}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={productCardStyle}>
-        <div style={productCardTitleStyle}>Product posture</div>
-        <div style={productCardTextStyle}>
-          This is the main CodexForge workspace. Operator mechanics belong in
-          the dedicated operator surface, while this page stays focused on
-          planning, memory, conversation, context, and safe execution guidance.
-        </div>
-      </div>
-    </div>
-  );
+  const normalized = repoPath.replace(/\\/g, "/");
+  const parts = normalized.split("/").filter(Boolean);
+  return parts.at(-1) ?? repoPath;
 }
-
-function DirectionCard({ title, text }: DirectionCardData) {
-  return (
-    <div style={directionCardStyle}>
-      <div style={directionCardTitleStyle}>{title}</div>
-      <div style={directionCardTextStyle}>{text}</div>
-    </div>
-  );
-}
-
-function ProductDirectionPanel() {
-  const cards = getDirectionCards();
-
-  return (
-    <div style={styles.statusCard}>
-      <div style={styles.panelTitle}>What this page should become</div>
-
-      <div style={directionGridStyle}>
-        {cards.map((card) => (
-          <DirectionCard key={card.title} title={card.title} text={card.text} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ---------------- page ---------------- */
 
 export default function AiPage() {
@@ -460,16 +358,16 @@ export default function AiPage() {
 
     return {
       textLength: lastAssistant?.text.length ?? 0,
-      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
+      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "Ã¢â‚¬â€",
       structured: !!lastAssistant?.structured,
       toolCount: summaryMeta.toolCount,
       domainLabel: summaryMeta.domainLabel ?? "General",
       tagCount: summaryMeta.tagCount,
-      modeLabel: summaryMeta.modeLabel ?? "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
+      modeLabel: summaryMeta.modeLabel ?? "Ã¢â‚¬â€",
       stepCount: summaryMeta.stepCount,
       diffCount: summaryMeta.diffCount,
       snapshotFileCount: summaryMeta.snapshotFileCount,
-      executionPhaseLabel: executionMeta.phaseLabel ?? "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
+      executionPhaseLabel: executionMeta.phaseLabel ?? "Ã¢â‚¬â€",
       logCount: executionMeta.logCount,
     };
   }, [lastAssistant]);
@@ -673,10 +571,7 @@ export default function AiPage() {
                   <LatestReplyCard snapshot={lastReplySnapshot} />
                 ) : null}
 
-                <div style={insightsRowStyle}>
-                  <CapabilityCard />
-                  <ProductDirectionPanel />
-                </div>
+                <WorkspaceInsightsPanel />
 
                 <EngineStateCard
                   enginePhase={enginePhase}
@@ -996,56 +891,6 @@ const sectionStackStyle: React.CSSProperties = {
 
 
 
-const capabilityGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
-  gap: 10,
-  marginTop: 12,
-};
-
-const capabilityCardStyle: React.CSSProperties = {
-  padding: 12,
-  borderRadius: 14,
-  border: "1px solid rgba(148,163,184,0.14)",
-  background: "rgba(15,23,42,0.18)",
-  display: "grid",
-  gap: 6,
-};
-
-const capabilityLabelStyle: React.CSSProperties = {
-  fontSize: 11,
-  textTransform: "uppercase",
-  letterSpacing: "0.08em",
-  opacity: 0.7,
-};
-
-const capabilityValueStyle: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 700,
-  lineHeight: 1.45,
-};
-
-const productCardStyle: React.CSSProperties = {
-  marginTop: 12,
-  padding: 14,
-  borderRadius: 16,
-  border: "1px solid rgba(99,102,241,0.18)",
-  background:
-    "linear-gradient(180deg, rgba(99,102,241,0.10), rgba(15,23,42,0.20))",
-  display: "grid",
-  gap: 8,
-};
-
-const productCardTitleStyle: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 800,
-};
-
-const productCardTextStyle: React.CSSProperties = {
-  fontSize: 13,
-  lineHeight: 1.6,
-  opacity: 0.92,
-};
 
 
 
@@ -1060,37 +905,16 @@ const productCardTextStyle: React.CSSProperties = {
 
 
 
-const directionGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: 10,
-  marginTop: 12,
-};
 
-const directionCardStyle: React.CSSProperties = {
-  padding: 14,
-  borderRadius: 14,
-  border: "1px solid rgba(148,163,184,0.14)",
-  background: "rgba(15,23,42,0.18)",
-  display: "grid",
-  gap: 8,
-};
 
-const directionCardTitleStyle: React.CSSProperties = {
-  fontSize: 13,
-  fontWeight: 800,
-};
 
-const directionCardTextStyle: React.CSSProperties = {
-  fontSize: 13,
-  lineHeight: 1.55,
-  opacity: 0.9,
-};
 
-const insightsRowStyle: React.CSSProperties = {
-  display: "grid",
-  gap: 14,
-};
+
+
+
+
+
+
 
 
 
