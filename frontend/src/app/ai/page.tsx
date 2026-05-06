@@ -43,10 +43,6 @@ import * as styles from "@/lib/codexforge/chat/client-styles";
 import { useCodexForgeChat } from "@/lib/codexforge/chat/use-codexforge-chat";
 import type { CodexForgeExecutionPhase } from "@/lib/codexforge/types";
 
-/* ---------------- types ---------------- */
-
-/* ---------------- page ---------------- */
-
 /* ---------------- page ---------------- */
 
 export default function AiPage() {
