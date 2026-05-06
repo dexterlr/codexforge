@@ -64,7 +64,7 @@ function asTrimmedString(value: unknown): string | undefined {
 }
 
 function clampText(value: string, max: number): string {
-  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}â€¦`;
+  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}Ã¢â‚¬Â¦`;
 }
 
 function json(status: number, payload: ExecuteToolRouteResponse) {
@@ -153,6 +153,22 @@ export async function POST(req: Request) {
         error: "Expected a JSON body with toolName, input, and optional context.",
         meta: {
           availableTools: getCodexForgeExecutableToolNames(),
+        },
+      });
+    }
+
+    const toolPolicyDecision = evaluateCodexForgeToolPolicy(
+      buildCodexForgeToolPolicyInputFromBody(body)
+    );
+
+    if (!toolPolicyDecision.allowed) {
+      return json(toolPolicyDecision.status, {
+        ok: false,
+        error: toolPolicyDecision.reason,
+        meta: {
+          toolName: toolPolicyDecision.normalizedToolName ?? undefined,
+          availableTools: getCodexForgeExecutableToolNames(),
+          toolPolicy: toolPolicyDecision,
         },
       });
     }

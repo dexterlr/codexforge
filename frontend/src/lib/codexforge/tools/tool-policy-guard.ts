@@ -318,10 +318,10 @@ export function buildCodexForgeToolPolicyInputFromBody(body: unknown): CodexForg
       asRecord(record.action)?.toolName ??
       asRecord(record.action)?.tool,
     mode:
-      record.mode ??
-      record.phase ??
-      asRecord(record.action)?.mode ??
-      asRecord(record.request)?.mode,
+      normalizeString(record.mode) ??
+      normalizeString(record.phase) ??
+      normalizeString(asRecord(record.action)?.mode) ??
+      normalizeString(asRecord(record.request)?.mode),
     domain:
       record.domain ??
       asRecord(metadata).domain ??
