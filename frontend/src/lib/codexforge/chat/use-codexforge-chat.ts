@@ -154,17 +154,17 @@ const PRODUCT_DIRECTION_LINES = [
 const STATUS = {
   READY: "Ready",
   THINKING: "Thinking",
-  API: "Ready â€¢ API connected",
-  FALLBACK: "Ready â€¢ local fallback",
-  ENGINE: "Ready â€¢ local engine fallback",
+  API: "Ready - API connected",
+  FALLBACK: "Ready - local fallback",
+  ENGINE: "Ready - local engine fallback",
   EXECUTING: "Executing task step",
-  EXECUTED_API: "Ready â€¢ step executed via API",
-  EXECUTED_FALLBACK: "Ready â€¢ step executed locally",
-  APPROVED_PLAN: "Ready â€¢ plan approved",
-  REJECTED_PLAN: "Ready â€¢ plan rejected",
-  APPROVED_DIFFS: "Ready â€¢ diffs approved",
-  REJECTED_DIFFS: "Ready â€¢ diffs rejected",
-  RESET_ENGINE: "Ready â€¢ engine reset",
+  EXECUTED_API: "Ready - step executed via API",
+  EXECUTED_FALLBACK: "Ready - step executed locally",
+  APPROVED_PLAN: "Ready - plan approved",
+  REJECTED_PLAN: "Ready - plan rejected",
+  APPROVED_DIFFS: "Ready - diffs approved",
+  REJECTED_DIFFS: "Ready - diffs rejected",
+  RESET_ENGINE: "Ready - engine reset",
 } as const;
 
 type StatusText = (typeof STATUS)[keyof typeof STATUS];
@@ -2595,9 +2595,4 @@ function buildLatestMessageAuthorityContext(
     setMemory,
   };
 }
-
-
-
-
-
 

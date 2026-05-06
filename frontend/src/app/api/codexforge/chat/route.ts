@@ -3004,6 +3004,81 @@ function resolveResponseDomain(args: {
   );
 }
 
+function validateFinalCodexForgeResponse(args: {
+  text: string;
+  structured?: CodexForgeStructuredReply;
+  resolvedDomain: CodexForgePlanDomain;
+  resolvedChatMode: CodexForgeChatMode;
+  executionMode: boolean;
+  productionOnlyPlanning: boolean;
+}): {
+  text: string;
+  structured?: CodexForgeStructuredReply;
+  warnings: string[];
+} {
+  const warnings: string[] = [];
+  let text = args.text;
+  let structured = args.structured;
+
+  const structuredDomain = structured?.plan?.domain ?? structured?.domain;
+
+  if (structured && structuredDomain && structuredDomain !== args.resolvedDomain) {
+    warnings.push(
+      `Final response domain mismatch repaired: structured=${structuredDomain}, meta=${args.resolvedDomain}.`
+    );
+
+    structured = {
+      ...structured,
+      domain: args.resolvedDomain,
+      plan: structured.plan
+        ? {
+            ...structured.plan,
+            domain: args.resolvedDomain,
+          }
+        : structured.plan,
+    };
+
+    text = structuredToText(structured);
+  }
+
+  if (structured && !structured.mode) {
+    const structuredMode =
+      args.resolvedChatMode === "remote" ? "local" : args.resolvedChatMode;
+
+    structured = {
+      ...structured,
+      mode: structuredMode,
+    };
+
+    text = structuredToText(structured);
+  }
+
+  if (!args.executionMode && structured?.execution) {
+    warnings.push("Final response removed stale execution payload from non-execution reply.");
+
+    structured = {
+      ...structured,
+      execution: undefined,
+    };
+
+    text = structuredToText(structured);
+  }
+
+  if (args.productionOnlyPlanning && structured) {
+    const scrubbed = scrubProductionOnlyRouteStructuredReply(structured);
+
+    warnings.push("Final response enforced production-only response scrub.");
+
+    structured = scrubbed;
+    text = scrubProductionOnlyVisibleText(structuredToText(structured));
+  }
+
+  return {
+    text,
+    structured,
+    warnings,
+  };
+}
 function applyRouteVisibleStructuredDefaults(
   structured: CodexForgeStructuredReply,
   mode: CodexForgeStructuredReply["mode"] = "local",
@@ -3455,6 +3530,11 @@ export async function POST(req: Request) {
     const decoratedText = productionOnlyPlanning
       ? scrubProductionOnlyVisibleText(rawDecoratedText)
       : rawDecoratedText;
+
+    const finalExecutionMode =
+      enrichedContext.executionRequest?.mode === "execute-task-step" ||
+      resolvedMode === "execution" ||
+      effectiveFileIntent.explicitFileRequest;
 
     const decoratedDomain =
       decoratedStructured?.domain ??
