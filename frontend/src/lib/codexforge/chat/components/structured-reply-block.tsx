@@ -61,7 +61,7 @@ export function StructuredReplyBlock({
       <ListSection title="Context" items={structured.context} />
       <ListSection title="What I understood" items={structured.understanding} />
 
-      <GroundingSection sections={getGroundingSections(structured.sections)} />
+      <GroundingSection structured={structured} />
       <ToolEvidenceSummary structured={structured} />
 
       {getGroundingSections(structured.sections).length === 0 ? (
