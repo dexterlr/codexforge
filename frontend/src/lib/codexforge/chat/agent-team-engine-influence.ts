@@ -245,20 +245,23 @@ function buildInfluenceSections(team: AgentTeamInfluence): Array<AnyRecord> {
       : null,
   ].filter((item): item is string => !!item);
 
-  return [
-    roleItems.length > 0
-      ? {
-          title: "Agent-directed planning",
-          items: roleItems,
-        }
-      : null,
-    safetyItems.length > 0
-      ? {
-          title: "Agent safety and approval gates",
-          items: safetyItems,
-        }
-      : null,
-  ].filter((item): item is AnyRecord => !!item);
+  const sections: Array<AnyRecord> = [];
+
+  if (roleItems.length > 0) {
+    sections.push({
+      title: "Agent-directed planning",
+      items: roleItems,
+    });
+  }
+
+  if (safetyItems.length > 0) {
+    sections.push({
+      title: "Agent safety and approval gates",
+      items: safetyItems,
+    });
+  }
+
+  return sections;
 }
 
 export function applyAgentTeamEngineInfluence(
