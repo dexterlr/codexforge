@@ -137,8 +137,31 @@ function extractAgentTeamInfluence(
     ])
   );
 
-  const approvalTools = mergeUnique(source.approvalTools, source.approval_tools);
-  const blockedTools = mergeUnique(source.blockedTools, source.blocked_tools);
+  const approvalTools = mergeUnique(
+    source.approvalTools,
+    source.approval_tools,
+    source.approvalRequiredTools,
+    source.approval_required_tools,
+    source.requiresApproval,
+    source.requires_approval,
+    source.approvalGatedTools,
+    source.approval_gated_tools,
+    source.toolsRequiringApproval,
+    source.tools_requiring_approval,
+    source.humanApprovalTools,
+    source.human_approval_tools
+  );
+
+  const blockedTools = mergeUnique(
+    source.blockedTools,
+    source.blocked_tools,
+    source.forbiddenTools,
+    source.forbidden_tools,
+    source.disallowedTools,
+    source.disallowed_tools,
+    source.deniedTools,
+    source.denied_tools
+  );
 
   const domain =
     firstString(source, ["domain", "capabilityDomain", "capability"]) ??
