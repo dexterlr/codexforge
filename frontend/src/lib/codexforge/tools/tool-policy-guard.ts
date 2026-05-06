@@ -307,42 +307,47 @@ export function buildCodexForgeToolPolicyInputFromBody(body: unknown): CodexForg
     asRecord(record.context) ??
     {};
 
+  const metadataRecord = asRecord(metadata) ?? {};
+  const contextRecord = asRecord(record.context) ?? {};
+  const actionRecord = asRecord(record.action) ?? {};
+  const requestRecord = asRecord(record.request) ?? {};
+
   return {
     toolName:
       record.toolName ??
       record.tool ??
       record.name ??
       record.id ??
-      asRecord(record.request)?.toolName ??
-      asRecord(record.request)?.tool ??
-      asRecord(record.action)?.toolName ??
-      asRecord(record.action)?.tool,
+      requestRecord.toolName ??
+      requestRecord.tool ??
+      actionRecord.toolName ??
+      actionRecord.tool,
     mode:
       normalizeString(record.mode) ??
       normalizeString(record.phase) ??
-      normalizeString(asRecord(record.action)?.mode) ??
-      normalizeString(asRecord(record.request)?.mode),
+      normalizeString(actionRecord.mode) ??
+      normalizeString(requestRecord.mode),
     domain:
       record.domain ??
-      asRecord(metadata).domain ??
-      asRecord(record.context)?.domain,
+      metadataRecord.domain ??
+      contextRecord.domain,
     runtimePolicy:
       record.runtimePolicy ??
       record.agentRuntimePolicy ??
-      asRecord(metadata).runtimePolicy ??
-      asRecord(metadata).agentRuntimePolicy,
+      metadataRecord.runtimePolicy ??
+      metadataRecord.agentRuntimePolicy,
     agentRuntimePolicy:
       record.agentRuntimePolicy ??
-      asRecord(metadata).agentRuntimePolicy,
+      metadataRecord.agentRuntimePolicy,
     agentTeam:
       record.agentTeam ??
-      asRecord(metadata).agentTeam ??
-      asRecord(record.context)?.agentTeam,
+      metadataRecord.agentTeam ??
+      contextRecord.agentTeam,
     approvalState:
       record.approvalState ??
       record.approval ??
-      asRecord(metadata).approvalState ??
-      asRecord(metadata).approval,
+      metadataRecord.approvalState ??
+      metadataRecord.approval,
     approval:
       record.approval,
     metadata,

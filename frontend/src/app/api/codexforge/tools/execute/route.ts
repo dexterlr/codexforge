@@ -65,7 +65,7 @@ function asTrimmedString(value: unknown): string | undefined {
 }
 
 function clampText(value: string, max: number): string {
-  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦`;
+  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦`;
 }
 
 function json(status: number, payload: ExecuteToolRouteResponse) {

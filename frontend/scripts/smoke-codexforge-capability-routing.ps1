@@ -462,3 +462,113 @@ foreach ($required in @("evaluateCodexForgeToolPolicy", "toolPolicyDecision", "t
 }
 
 Write-Host "[PASS] direct executable tool-policy smoke tests passed"
+
+Write-Host "`n=== Direct execute API tool-policy enforcement smoke tests ==="
+
+$executePolicyCases = @(
+  @{
+    Name = "Execute API blocks trading broker execution"
+    Body = @{
+      toolName = "broker-execution"
+      input = @{}
+      context = @{
+        domain = "trading"
+      }
+    }
+    ExpectedStatus = 403
+    RequiredText = @(
+      "Tool execution blocked by CodexForge runtime policy",
+      "broker-execution"
+    )
+  },
+  @{
+    Name = "Execute API requires approval for Blender render job"
+    Body = @{
+      toolName = "render-job"
+      input = @{}
+      context = @{
+        domain = "blender"
+      }
+    }
+    ExpectedStatus = 428
+    RequiredText = @(
+      "Tool execution requires explicit approval",
+      "render-job"
+    )
+  },
+  @{
+    Name = "Execute API allows read-only search project"
+    Body = @{
+      toolName = "search-project"
+      input = @{
+        query = "codexforge"
+      }
+      context = @{
+        domain = "design"
+      }
+    }
+    ExpectedStatus = 200
+    RequiredText = @(
+      """ok"""
+    )
+  }
+)
+
+foreach ($case in $executePolicyCases) {
+  Write-Host "[RUN ] $($case.Name)"
+
+  $body = $case.Body | ConvertTo-Json -Depth 12
+
+  try {
+    $response = Invoke-WebRequest `
+      -Uri "$BaseUrl/api/codexforge/tools/execute" `
+      -Method POST `
+      -Body $body `
+      -ContentType "application/json" `
+      -UseBasicParsing
+
+    $statusCode = [int]$response.StatusCode
+    $content = [string]$response.Content
+  } catch {
+    if (-not $_.Exception.Response) {
+      throw
+    }
+
+    $statusCode = [int]$_.Exception.Response.StatusCode
+    $stream = $_.Exception.Response.GetResponseStream()
+    $reader = New-Object System.IO.StreamReader($stream)
+    $content = $reader.ReadToEnd()
+  }
+
+  if ($statusCode -ne $case.ExpectedStatus) {
+    Write-Host "`n=== Execute policy response body ==="
+    Write-Host $content
+    throw "[FAIL] $($case.Name) expected HTTP $($case.ExpectedStatus), got $statusCode"
+  }
+
+  Write-Host "[PASS] $($case.Name) HTTP $statusCode"
+
+  foreach ($required in $case.RequiredText) {
+    if (-not $content.Contains($required)) {
+      Write-Host "`n=== Execute policy response body ==="
+      Write-Host $content
+      throw "[FAIL] $($case.Name) response missing: $required"
+    }
+
+    Write-Host "[PASS] $($case.Name) response includes: $required"
+  }
+
+  if ($case.ExpectedStatus -ne 200 -and -not $content.Contains("toolPolicy")) {
+    Write-Host "`n=== Execute policy response body ==="
+    Write-Host $content
+    throw "[FAIL] $($case.Name) policy rejection missing top-level toolPolicy payload"
+  }
+
+  if ($case.ExpectedStatus -ne 200) {
+    Write-Host "[PASS] $($case.Name) rejection includes top-level toolPolicy payload"
+  }
+
+  Write-Host "[PASS] $($case.Name)"
+}
+
+Write-Host "[PASS] direct execute API tool-policy enforcement smoke tests passed"
