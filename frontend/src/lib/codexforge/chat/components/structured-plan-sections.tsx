@@ -27,7 +27,7 @@ function PlanSection({
   notes,
 }: {
   goal?: string | null;
-  domain?: CodexForgePlanDomain | string | null;
+  domain?: CodexForgePlanDomain | null;
   steps?: string[] | null;
   tags?: string[] | null;
   files?: string[] | null;
