@@ -16,6 +16,7 @@ import { LatestReplyCard } from "@/lib/codexforge/chat/components/latest-reply-c
 import { CodexForgeProductSurface } from "@/lib/codexforge/chat/components/codexforge-product-surface";
 import { WorkspaceCommandCenter } from "@/lib/codexforge/chat/components/workspace-command-center";
 import { WorkspaceStateCard } from "@/lib/codexforge/chat/components/workspace-state-card";
+import { ExecutionPanel } from "@/lib/codexforge/chat/components/execution-panel";
 import type { WorkspaceCard } from "@/lib/codexforge/chat/components/workspace-hero";
 import WorkspaceSidebar from "@/lib/codexforge/chat/components/workspace-sidebar";
 import { WorkspaceSlider } from "@/lib/codexforge/chat/components/workspace-slider";
@@ -71,10 +72,6 @@ type TopBarProps = {
 };
 
 
-type MetaCardProps = {
-  label: string;
-  value: React.ReactNode;
-};
 
 
 
@@ -101,30 +98,6 @@ type EngineStateCardProps = {
   onResetEngine: () => void;
 };
 
-type ExecutionPanelProps = {
-  activeTaskDomainLabel: string;
-  completedSteps: number;
-  totalSteps: number;
-  enginePhaseLabel: string;
-  snapshotFileCount: number;
-  diffCount: number;
-  tagCount: number;
-  tags: string[];
-  lastRunLabel: string;
-  busy: boolean;
-  isExecuting: boolean;
-  canApprovePlan: boolean;
-  canRejectPlan: boolean;
-  canApproveDiffs: boolean;
-  canRejectDiffs: boolean;
-  canResetEngine: boolean;
-  onRunCurrentTaskStep: () => void;
-  onApprovePlan: () => void;
-  onRejectPlan: () => void;
-  onApproveDiffs: () => void;
-  onRejectDiffs: () => void;
-  onResetEngine: () => void;
-};
 
 type ActionButtonProps = {
   visible: boolean;
@@ -369,15 +342,6 @@ function ActionButton({
   );
 }
 
-function MetaCard({ label, value }: MetaCardProps) {
-  return (
-    <div style={compactMetaCardStyle}>
-      <div style={compactMetaLabelStyle}>{label}</div>
-      <div style={compactMetaValueStyle}>{value}</div>
-    </div>
-  );
-}
-
 function TopBar({
   sliderOpen,
   onOpenSlider,
@@ -463,7 +427,7 @@ function WorkspaceHeroIntro({
           </div>
 
           <div style={heroMetaTextStyle}>
-            local-first Ã¢â‚¬Â¢ backend-optional Ã¢â‚¬Â¢ planning, memory, and execution context
+            local-first • backend-optional • planning, memory, and execution context
           </div>
         </div>
 
@@ -849,112 +813,6 @@ function EngineStateCard({
   );
 }
 
-function ExecutionPanel({
-  activeTaskDomainLabel,
-  completedSteps,
-  totalSteps,
-  enginePhaseLabel,
-  snapshotFileCount,
-  diffCount,
-  tagCount,
-  tags,
-  lastRunLabel,
-  busy,
-  isExecuting,
-  canApprovePlan,
-  canRejectPlan,
-  canApproveDiffs,
-  canRejectDiffs,
-  canResetEngine,
-  onRunCurrentTaskStep,
-  onApprovePlan,
-  onRejectPlan,
-  onApproveDiffs,
-  onRejectDiffs,
-  onResetEngine,
-}: ExecutionPanelProps) {
-  return (
-    <div style={styles.statusCard}>
-      <div style={styles.panelTitle}>Execution</div>
-
-      <div style={compactMetaGridStyle}>
-        <MetaCard label="Domain" value={activeTaskDomainLabel} />
-        <MetaCard label="Completed" value={`${completedSteps}/${totalSteps}`} />
-        <MetaCard label="Engine phase" value={enginePhaseLabel} />
-        <MetaCard label="Snapshot" value={snapshotFileCount} />
-        <MetaCard label="Diff previews" value={diffCount} />
-        <MetaCard label="Tags" value={tagCount} />
-      </div>
-
-      <div style={styles.panelText}>
-        Last run: <b>{lastRunLabel || "Nothing run yet"}</b>
-      </div>
-
-      {tags.length > 0 ? (
-        <div style={styles.panelText}>
-          Tags: <b>{tags.join(", ")}</b>
-        </div>
-      ) : null}
-
-      <div style={executionActionsStyle}>
-        <button
-          type="button"
-          onClick={onRunCurrentTaskStep}
-          style={styles.pillGhostButton}
-          disabled={busy || isExecuting || totalSteps === 0}
-        >
-          {isExecuting ? "RunningÃ¢â‚¬Â¦" : "Run current step"}
-        </button>
-
-        <ActionButton
-          visible={canApprovePlan}
-          onClick={onApprovePlan}
-          style={styles.pillGhostButton}
-          disabled={busy || isExecuting}
-        >
-          Approve plan
-        </ActionButton>
-
-        <ActionButton
-          visible={canRejectPlan}
-          onClick={onRejectPlan}
-          style={styles.tinyGhostButton}
-          disabled={busy || isExecuting}
-        >
-          Reject plan
-        </ActionButton>
-
-        <ActionButton
-          visible={canApproveDiffs}
-          onClick={onApproveDiffs}
-          style={styles.pillGhostButton}
-          disabled={busy || isExecuting}
-        >
-          Approve diffs
-        </ActionButton>
-
-        <ActionButton
-          visible={canRejectDiffs}
-          onClick={onRejectDiffs}
-          style={styles.tinyGhostButton}
-          disabled={busy || isExecuting}
-        >
-          Reject diffs
-        </ActionButton>
-
-        <ActionButton
-          visible={canResetEngine}
-          onClick={onResetEngine}
-          style={styles.pillDanger}
-          disabled={busy || isExecuting}
-        >
-          Reset engine
-        </ActionButton>
-      </div>
-    </div>
-  );
-}
-
 /* ---------------- page ---------------- */
 
 export default function AiPage() {
@@ -1096,16 +954,16 @@ export default function AiPage() {
 
     return {
       textLength: lastAssistant?.text.length ?? 0,
-      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "Ã¢â‚¬â€",
+      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "—",
       structured: !!lastAssistant?.structured,
       toolCount: summaryMeta.toolCount,
       domainLabel: summaryMeta.domainLabel ?? "General",
       tagCount: summaryMeta.tagCount,
-      modeLabel: summaryMeta.modeLabel ?? "Ã¢â‚¬â€",
+      modeLabel: summaryMeta.modeLabel ?? "—",
       stepCount: summaryMeta.stepCount,
       diffCount: summaryMeta.diffCount,
       snapshotFileCount: summaryMeta.snapshotFileCount,
-      executionPhaseLabel: executionMeta.phaseLabel ?? "Ã¢â‚¬â€",
+      executionPhaseLabel: executionMeta.phaseLabel ?? "—",
       logCount: executionMeta.logCount,
     };
   }, [lastAssistant]);
@@ -1631,12 +1489,6 @@ const sectionStackStyle: React.CSSProperties = {
 };
 
 
-const executionActionsStyle: React.CSSProperties = {
-  display: "flex",
-  gap: 8,
-  flexWrap: "wrap",
-  marginTop: 8,
-};
 
 const engineGridStyle: React.CSSProperties = {
   display: "grid",
@@ -1786,33 +1638,9 @@ const approvalBarStyle: React.CSSProperties = {
   marginTop: 12,
 };
 
-const compactMetaGridStyle: React.CSSProperties = {
-  marginTop: 10,
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-  gap: 10,
-};
 
-const compactMetaCardStyle: React.CSSProperties = {
-  border: "1px solid rgba(148,163,184,0.14)",
-  background: "rgba(15,23,42,0.18)",
-  borderRadius: 12,
-  padding: 10,
-  display: "grid",
-  gap: 4,
-};
 
-const compactMetaLabelStyle: React.CSSProperties = {
-  fontSize: 10,
-  textTransform: "uppercase",
-  letterSpacing: "0.08em",
-  opacity: 0.7,
-};
 
-const compactMetaValueStyle: React.CSSProperties = {
-  fontSize: 13,
-  fontWeight: 800,
-};
 
 
 const directionGridStyle: React.CSSProperties = {

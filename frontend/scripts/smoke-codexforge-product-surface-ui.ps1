@@ -18,6 +18,7 @@ $componentPath = ".\src\lib\codexforge\chat\components\codexforge-product-surfac
 $commandCenterPath = ".\src\lib\codexforge\chat\components\workspace-command-center.tsx"
 $toolbarStatusPath = ".\src\lib\codexforge\chat\components\toolbar-status.tsx"
 $workspaceStatePath = ".\src\lib\codexforge\chat\components\workspace-state-card.tsx"
+$executionPanelPath = ".\src\lib\codexforge\chat\components\execution-panel.tsx"
 $pagePath = ".\src\app\ai\page.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
@@ -25,6 +26,7 @@ Assert-True (Test-Path $componentPath) "product surface component file exists"
 Assert-True (Test-Path $commandCenterPath) "workspace command center component file exists"
 Assert-True (Test-Path $toolbarStatusPath) "toolbar status component file exists"
 Assert-True (Test-Path $workspaceStatePath) "workspace state component file exists"
+Assert-True (Test-Path $executionPanelPath) "execution panel component file exists"
 Assert-True (Test-Path $pagePath) "AI page exists"
 
 $data = Get-Content -Raw $dataPath
@@ -32,6 +34,7 @@ $component = Get-Content -Raw $componentPath
 $commandCenter = Get-Content -Raw $commandCenterPath
 $toolbarStatus = Get-Content -Raw $toolbarStatusPath
 $workspaceState = Get-Content -Raw $workspaceStatePath
+$executionPanel = Get-Content -Raw $executionPanelPath
 $page = Get-Content -Raw $pagePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
@@ -71,6 +74,20 @@ Assert-True ($page.Contains("<WorkspaceStateCard")) "AI page renders workspace s
 Assert-True (-not $page.Contains("function WorkspaceStateCard")) "AI page does not define local workspace state card"
 Assert-True (-not $page.Contains("type WorkspaceStateCardProps")) "AI page does not keep workspace state props inline"
 Assert-True (-not $page.Contains("const workspaceStateGridStyle")) "AI page does not keep workspace state styles inline"
+Assert-True ($executionPanel.Contains("export function ExecutionPanel")) "execution panel exports component"
+Assert-True ($executionPanel.Contains("Run current step")) "execution panel preserves run step action"
+Assert-True ($executionPanel.Contains("Approve diffs")) "execution panel preserves diff approval action"
+Assert-True ($page.Contains("execution-panel")) "AI page imports execution panel"
+Assert-True ($page.Contains("<ExecutionPanel")) "AI page renders execution panel"
+Assert-True (-not $page.Contains("function ExecutionPanel")) "AI page does not define local execution panel"
+Assert-True (-not $page.Contains("type ExecutionPanelProps")) "AI page does not keep execution panel props inline"
+Assert-True (-not $page.Contains("type MetaCardProps")) "AI page does not keep local meta card props"
+Assert-True (-not $page.Contains("function MetaCard")) "AI page does not keep local meta card helper"
+Assert-True (-not $page.Contains("const executionActionsStyle")) "AI page does not keep execution action styles inline"
+Assert-True (-not $page.Contains("const compactMetaGridStyle")) "AI page does not keep compact meta grid inline"
+Assert-True (-not $page.Contains("const compactMetaCardStyle")) "AI page does not keep compact meta card inline"
+Assert-True (-not $page.Contains("const compactMetaLabelStyle")) "AI page does not keep compact meta label inline"
+Assert-True (-not $page.Contains("const compactMetaValueStyle")) "AI page does not keep compact meta value inline"
 Assert-True (-not $page.Contains("function WorkspaceCommandCenter")) "AI page does not define local workspace command center"
 Assert-True (-not $page.Contains("const commandCenterShellStyle")) "AI page does not keep command center styles inline"
 Assert-True (-not $page.Contains("<WorkspaceHero workspaceCards={workspaceCards} />")) "AI page does not render duplicate old workspace hero"
