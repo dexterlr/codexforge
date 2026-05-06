@@ -19,6 +19,8 @@ import { WorkspaceStateCard } from "@/lib/codexforge/chat/components/workspace-s
 import { ExecutionPanel } from "@/lib/codexforge/chat/components/execution-panel";
 import { EngineStateCard } from "@/lib/codexforge/chat/components/engine-state-card";
 import { WorkspaceOverviewCard } from "@/lib/codexforge/chat/components/workspace-overview-card";
+import { TopBar } from "@/lib/codexforge/chat/components/top-bar";
+import { EmptyState } from "@/lib/codexforge/chat/components/empty-state";
 import type { WorkspaceCard } from "@/lib/codexforge/chat/components/workspace-hero";
 import WorkspaceSidebar from "@/lib/codexforge/chat/components/workspace-sidebar";
 import { WorkspaceSlider } from "@/lib/codexforge/chat/components/workspace-slider";
@@ -66,12 +68,6 @@ type DirectionCardData = {
   text: string;
 };
 
-type TopBarProps = {
-  sliderOpen: boolean;
-  onOpenSlider: () => void;
-  onAddSystemMessage: () => void;
-  onClearChat: () => void;
-};
 
 
 
@@ -270,195 +266,6 @@ function getRepoLabel(repoPath: string | undefined) {
 
 /* ---------------- small components ---------------- */
 
-function TopBar({
-  sliderOpen,
-  onOpenSlider,
-  onAddSystemMessage,
-  onClearChat,
-}: TopBarProps) {
-  return (
-    <div style={styles.topBar}>
-      <div style={styles.brandWrap}>
-        <div style={styles.brandOrb} />
-        <div style={brandTextWrapStyle}>
-          <div style={styles.brandTitle}>CodexForge</div>
-          <div style={styles.brandSubtitle}>AI Workspace</div>
-        </div>
-      </div>
-
-      <div style={styles.navRow}>
-        <Link href="/" style={styles.pillGhost}>
-          Home
-        </Link>
-
-        <Link href="/clawd" style={styles.pillGhost}>
-          Operator
-        </Link>
-
-        <Link href="/history" style={styles.pillGhost}>
-          History
-        </Link>
-
-        <Link href="/brain" style={styles.pillGhost}>
-          Brain
-        </Link>
-
-        <Link href="/entry" style={styles.pillGhost}>
-          Entry
-        </Link>
-
-        <button
-          type="button"
-          onClick={onOpenSlider}
-          style={styles.pillGhostButton}
-          aria-label="Open workspace panel"
-          aria-expanded={sliderOpen}
-          aria-controls="codexforge-workspace-slider"
-        >
-          Workspace
-        </button>
-
-        <button
-          type="button"
-          onClick={onAddSystemMessage}
-          style={styles.pillGhostButton}
-        >
-          Add note
-        </button>
-
-        <button type="button" onClick={onClearChat} style={styles.pillDanger}>
-          Clear
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function WorkspaceHeroIntro({
-  repoLabel,
-  diffCount,
-  snapshotFileCount,
-  enginePhaseLabel,
-}: {
-  repoLabel: string;
-  diffCount: number;
-  snapshotFileCount: number;
-  enginePhaseLabel: string;
-}) {
-  return (
-    <section style={heroShellStyle}>
-      <div style={heroCardStyle}>
-        <div style={heroTopRowStyle}>
-          <div style={heroBadgeStyle}>
-            <span aria-hidden="true" style={heroDotStyle} />
-            Main workspace surface
-          </div>
-
-          <div style={heroMetaTextStyle}>
-            local-first Ã¢â‚¬Â¢ backend-optional Ã¢â‚¬Â¢ planning, memory, and execution context
-          </div>
-        </div>
-
-        <div style={heroGridStyle}>
-          <div style={heroMainStyle}>
-            <div style={heroEyebrowStyle}>CodexForge workspace</div>
-
-            <h1 style={heroTitleStyle}>
-              Plan, reason, and move work forward in a{" "}
-              <span style={heroGradientStyle}>real AI workspace</span>.
-            </h1>
-
-            <div style={heroBodyStyle}>
-              This page is the main CodexForge working surface. Use it for
-              conversation, planning, memory-aware context, structured replies,
-              and guided execution. Raw operator mechanics belong in the
-              dedicated operator page, not here.
-            </div>
-
-            <div style={heroActionRowStyle}>
-              <Link href="/clawd" style={heroSecondaryActionStyle}>
-                Open operator
-              </Link>
-              <Link href="/history" style={heroSecondaryActionStyle}>
-                View activity
-              </Link>
-              <Link href="/brain" style={heroSecondaryActionStyle}>
-                Inspect brain graph
-              </Link>
-              <Link href="/entry" style={heroPrimaryActionStyle}>
-                Quick launch into workspace
-              </Link>
-            </div>
-
-            <div style={heroSupportTextStyle}>
-              Start here for planning and conversation. Switch to the operator
-              page when you need explicit snapshot, diff, apply, test, or checkpoint control.
-            </div>
-          </div>
-
-          <aside style={heroAsideStyle}>
-            <div style={heroAsideTitleStyle}>Current workspace posture</div>
-
-            <div style={heroAsideGridStyle}>
-              <div style={heroAsideCardStyle}>
-                <div style={heroAsideLabelStyle}>Repo</div>
-                <div style={heroAsideValueStyle}>{repoLabel}</div>
-              </div>
-
-              <div style={heroAsideCardStyle}>
-                <div style={heroAsideLabelStyle}>Engine</div>
-                <div style={heroAsideValueStyle}>{enginePhaseLabel}</div>
-              </div>
-
-              <div style={heroAsideCardStyle}>
-                <div style={heroAsideLabelStyle}>Diffs</div>
-                <div style={heroAsideValueStyle}>{diffCount}</div>
-              </div>
-
-              <div style={heroAsideCardStyle}>
-                <div style={heroAsideLabelStyle}>Snapshot files</div>
-                <div style={heroAsideValueStyle}>{snapshotFileCount}</div>
-              </div>
-            </div>
-
-            <div style={heroAsideCopyStyle}>
-              Keep this page focused on planning, context, and decision support.
-              Use the operator surface for approval-driven mutation flows.
-            </div>
-          </aside>
-        </div>
-      </div>
-
-      <div style={surfaceGridStyle}>
-        {SURFACE_LINKS.map((item) => (
-          <Link key={item.href} href={item.href} style={surfaceLinkStyle}>
-            <div style={surfaceLinkTitleStyle}>{item.label}</div>
-            <div style={surfaceLinkTextStyle}>{item.detail}</div>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div style={styles.emptyState}>
-      <div style={styles.emptyTitle}>Start your workspace</div>
-
-      <div style={styles.emptyText}>
-        Ask CodexForge to plan, debug, research, or build something real.
-      </div>
-
-      <div style={styles.emptyExamples}>
-        {EMPTY_EXAMPLES.map((example) => (
-          <div key={example} style={styles.exampleChip}>"{example}"</div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function CapabilityCard() {
   const capabilityCards = getCapabilityCards();
 
@@ -653,16 +460,16 @@ export default function AiPage() {
 
     return {
       textLength: lastAssistant?.text.length ?? 0,
-      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "Ã¢â‚¬â€",
+      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
       structured: !!lastAssistant?.structured,
       toolCount: summaryMeta.toolCount,
       domainLabel: summaryMeta.domainLabel ?? "General",
       tagCount: summaryMeta.tagCount,
-      modeLabel: summaryMeta.modeLabel ?? "Ã¢â‚¬â€",
+      modeLabel: summaryMeta.modeLabel ?? "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
       stepCount: summaryMeta.stepCount,
       diffCount: summaryMeta.diffCount,
       snapshotFileCount: summaryMeta.snapshotFileCount,
-      executionPhaseLabel: executionMeta.phaseLabel ?? "Ã¢â‚¬â€",
+      executionPhaseLabel: executionMeta.phaseLabel ?? "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
       logCount: executionMeta.logCount,
     };
   }, [lastAssistant]);
@@ -971,10 +778,6 @@ export default function AiPage() {
 /* ---------------- local styles ---------------- */
 
 
-const brandTextWrapStyle: React.CSSProperties = {
-  display: "grid",
-  gap: 2,
-};
 
 const heroShellStyle: React.CSSProperties = {
   display: "grid",

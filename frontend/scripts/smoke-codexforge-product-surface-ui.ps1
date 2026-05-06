@@ -21,6 +21,8 @@ $workspaceStatePath = ".\src\lib\codexforge\chat\components\workspace-state-card
 $executionPanelPath = ".\src\lib\codexforge\chat\components\execution-panel.tsx"
 $engineStatePath = ".\src\lib\codexforge\chat\components\engine-state-card.tsx"
 $workspaceOverviewPath = ".\src\lib\codexforge\chat\components\workspace-overview-card.tsx"
+$topBarPath = ".\src\lib\codexforge\chat\components\top-bar.tsx"
+$emptyStatePath = ".\src\lib\codexforge\chat\components\empty-state.tsx"
 $pagePath = ".\src\app\ai\page.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
@@ -31,6 +33,8 @@ Assert-True (Test-Path $workspaceStatePath) "workspace state component file exis
 Assert-True (Test-Path $executionPanelPath) "execution panel component file exists"
 Assert-True (Test-Path $engineStatePath) "engine state component file exists"
 Assert-True (Test-Path $workspaceOverviewPath) "workspace overview component file exists"
+Assert-True (Test-Path $topBarPath) "top bar component file exists"
+Assert-True (Test-Path $emptyStatePath) "empty state component file exists"
 Assert-True (Test-Path $pagePath) "AI page exists"
 
 $data = Get-Content -Raw $dataPath
@@ -41,6 +45,8 @@ $workspaceState = Get-Content -Raw $workspaceStatePath
 $executionPanel = Get-Content -Raw $executionPanelPath
 $engineState = Get-Content -Raw $engineStatePath
 $workspaceOverview = Get-Content -Raw $workspaceOverviewPath
+$topBar = Get-Content -Raw $topBarPath
+$emptyState = Get-Content -Raw $emptyStatePath
 $page = Get-Content -Raw $pagePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
@@ -129,6 +135,20 @@ Assert-True (-not $page.Contains("const primaryWorkspaceTextStyle")) "AI page do
 Assert-True (-not $page.Contains("const miniTagRowStyle")) "AI page does not keep mini tag row styles inline"
 Assert-True (-not $page.Contains("const miniTagStyle")) "AI page does not keep mini tag styles inline"
 Assert-True (-not $page.Contains("const panelSubtleTextStyle")) "AI page does not keep panel subtle text styles inline"
+Assert-True ($topBar.Contains("export function TopBar")) "top bar exports component"
+Assert-True ($topBar.Contains("CodexForge")) "top bar preserves brand title"
+Assert-True ($topBar.Contains("AI Workspace")) "top bar preserves brand subtitle"
+Assert-True ($topBar.Contains("Add system note")) "top bar preserves system note action"
+Assert-True ($page.Contains("components/top-bar")) "AI page imports top bar"
+Assert-True ($page.Contains("<TopBar")) "AI page renders top bar"
+Assert-True (-not $page.Contains("function TopBar")) "AI page does not define local top bar"
+Assert-True (-not $page.Contains("type TopBarProps")) "AI page does not keep top bar props inline"
+Assert-True (-not $page.Contains("const brandTextWrapStyle")) "AI page does not keep top bar brand text styles inline"
+Assert-True ($emptyState.Contains("export function EmptyState")) "empty state exports component"
+Assert-True ($emptyState.Contains("Ready for a real task")) "empty state preserves ready copy"
+Assert-True ($page.Contains("components/empty-state")) "AI page imports empty state"
+Assert-True ($page.Contains("<EmptyState")) "AI page renders empty state"
+Assert-True (-not $page.Contains("function EmptyState")) "AI page does not define local empty state"
 Assert-True (-not $page.Contains("function WorkspaceCommandCenter")) "AI page does not define local workspace command center"
 Assert-True (-not $page.Contains("const commandCenterShellStyle")) "AI page does not keep command center styles inline"
 Assert-True (-not $page.Contains("<WorkspaceHero workspaceCards={workspaceCards} />")) "AI page does not render duplicate old workspace hero"
