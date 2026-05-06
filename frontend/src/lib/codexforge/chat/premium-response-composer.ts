@@ -8,10 +8,18 @@ type StructuredSection = NonNullable<CodexForgeStructuredReply["sections"]>[numb
 
 type PremiumComposerMode = "standard" | "execution" | "diagnostic";
 
+export type CodexForgeResponseProfile =
+  | "product-plan"
+  | "runtime-policy"
+  | "diagnostic"
+  | "execution"
+  | "grounded-inspection";
+
 export type PremiumResponseComposerInput = {
   structured?: CodexForgeStructuredReply;
   executionMode?: boolean;
   diagnosticMode?: boolean;
+  responseProfile?: CodexForgeResponseProfile;
 };
 
 /* ================= CONSTANTS ================= */
@@ -77,6 +85,17 @@ const PREMIUM_PLANNING_SECTION_ORDER = [
   "next action",
 ];
 
+const PREMIUM_PRODUCT_PLAN_SECTION_ORDER = [
+  "pages",
+  "components",
+  "data",
+  "first three implementation steps",
+  "outcome",
+  "goal",
+  "risks",
+  "next action",
+];
+
 const PREMIUM_RUNTIME_POLICY_SECTION_ORDER = [
   "agent safety and approval gates",
   "agent-directed planning",
@@ -94,6 +113,7 @@ const PREMIUM_GROUNDED_SECTION_ORDER = [
   "evidence",
   "goal",
   "files to change",
+  "files",
   "risks",
   "commands",
 ];
@@ -146,15 +166,36 @@ function getStructuredDomain(structured: CodexForgeStructuredReply): string {
   return normalizeKey(rawDomain);
 }
 
-function shouldExposeRuntimePolicySections(args: {
+function inferResponseProfile(args: {
+  input: PremiumResponseComposerInput;
   mode: PremiumComposerMode;
   domain: string;
-}): boolean {
-  if (args.mode === "diagnostic" || args.mode === "execution") {
-    return true;
+}): CodexForgeResponseProfile {
+  if (args.input.responseProfile) {
+    return args.input.responseProfile;
   }
 
-  return args.domain !== "web" && args.domain !== "general";
+  if (args.mode === "diagnostic") {
+    return "diagnostic";
+  }
+
+  if (args.mode === "execution") {
+    return "execution";
+  }
+
+  if (args.domain === "web") {
+    return "product-plan";
+  }
+
+  if (args.domain !== "general") {
+    return "runtime-policy";
+  }
+
+  return "product-plan";
+}
+
+function shouldExposeRuntimePolicySections(profile: CodexForgeResponseProfile): boolean {
+  return profile === "runtime-policy" || profile === "diagnostic" || profile === "execution";
 }
 
 function cleanSection(section: StructuredSection): StructuredSection | null {
@@ -178,16 +219,16 @@ function cleanSection(section: StructuredSection): StructuredSection | null {
 function shouldKeepPremiumSection(
   section: StructuredSection,
   mode: PremiumComposerMode,
-  domain: string
+  profile: CodexForgeResponseProfile
 ): boolean {
   const title = sectionKey(section);
 
-  if (mode === "diagnostic") {
+  if (profile === "diagnostic") {
     return true;
   }
 
   if (PREMIUM_RUNTIME_POLICY_SECTION_TITLES.has(title)) {
-    return shouldExposeRuntimePolicySections({ mode, domain });
+    return shouldExposeRuntimePolicySections(profile);
   }
 
   if (mode !== "execution" && title === "execution") {
@@ -238,23 +279,47 @@ function rankSection(section: StructuredSection, order: readonly string[]): numb
   return order.length + 100;
 }
 
+function getBaseSectionOrder(args: {
+  sections: StructuredSection[];
+  mode: PremiumComposerMode;
+  profile: CodexForgeResponseProfile;
+}): readonly string[] {
+  if (args.profile === "product-plan") {
+    return PREMIUM_PRODUCT_PLAN_SECTION_ORDER;
+  }
+
+  if (args.profile === "grounded-inspection") {
+    return PREMIUM_GROUNDED_SECTION_ORDER;
+  }
+
+  if (args.profile === "execution" || args.mode === "execution") {
+    return PREMIUM_EXECUTION_SECTION_ORDER;
+  }
+
+  if (
+    args.sections.some((section) =>
+      ["outcome", "why", "evidence"].includes(sectionKey(section))
+    )
+  ) {
+    return PREMIUM_GROUNDED_SECTION_ORDER;
+  }
+
+  return PREMIUM_PLANNING_SECTION_ORDER;
+}
+
 function sortPremiumSections(
   sections: StructuredSection[],
   mode: PremiumComposerMode,
-  exposeRuntimePolicySections: boolean
+  profile: CodexForgeResponseProfile
 ): StructuredSection[] {
-  const baseOrder =
-    mode === "execution"
-      ? PREMIUM_EXECUTION_SECTION_ORDER
-      : sections.some((section) =>
-          ["outcome", "why", "evidence"].includes(sectionKey(section))
-        )
-        ? PREMIUM_GROUNDED_SECTION_ORDER
-        : PREMIUM_PLANNING_SECTION_ORDER;
+  const baseOrder = getBaseSectionOrder({ sections, mode, profile });
 
-  const order = exposeRuntimePolicySections
-    ? [...baseOrder, ...PREMIUM_RUNTIME_POLICY_SECTION_ORDER]
-    : baseOrder;
+  const order =
+    profile === "runtime-policy"
+      ? [...PREMIUM_RUNTIME_POLICY_SECTION_ORDER, ...baseOrder]
+      : shouldExposeRuntimePolicySections(profile)
+        ? [...baseOrder, ...PREMIUM_RUNTIME_POLICY_SECTION_ORDER]
+        : baseOrder;
 
   return [...sections].sort((a, b) => {
     const ranked = rankSection(a, order) - rankSection(b, order);
@@ -286,15 +351,21 @@ function dedupeSections(sections: StructuredSection[]): StructuredSection[] {
 }
 
 function getComposerMode(input: PremiumResponseComposerInput): PremiumComposerMode {
-  if (input.diagnosticMode) {
+  if (input.responseProfile === "diagnostic" || input.diagnosticMode) {
     return "diagnostic";
   }
 
-  if (input.executionMode || input.structured?.execution) {
+  if (input.responseProfile === "execution" || input.executionMode || input.structured?.execution) {
     return "execution";
   }
 
   return "standard";
+}
+
+function getVisibleSectionLimit(profile: CodexForgeResponseProfile): number {
+  return shouldExposeRuntimePolicySections(profile)
+    ? PREMIUM_VISIBLE_RUNTIME_POLICY_SECTION_LIMIT
+    : PREMIUM_VISIBLE_SECTION_LIMIT;
 }
 
 /* ================= PUBLIC API ================= */
@@ -315,24 +386,21 @@ export function composePremiumCodexForgeResponse(
   }
 
   const domain = getStructuredDomain(structured);
-  const exposeRuntimePolicySections = shouldExposeRuntimePolicySections({
+  const responseProfile = inferResponseProfile({
+    input,
     mode,
     domain,
   });
 
-  const visibleSectionLimit = exposeRuntimePolicySections
-    ? PREMIUM_VISIBLE_RUNTIME_POLICY_SECTION_LIMIT
-    : PREMIUM_VISIBLE_SECTION_LIMIT;
-
   const cleanedSections = sortPremiumSections(
     dedupeSections(
       (structured.sections ?? []).filter((section) =>
-        shouldKeepPremiumSection(section, mode, domain)
+        shouldKeepPremiumSection(section, mode, responseProfile)
       )
     ),
     mode,
-    exposeRuntimePolicySections
-  ).slice(0, visibleSectionLimit);
+    responseProfile
+  ).slice(0, getVisibleSectionLimit(responseProfile));
 
   return {
     ...structured,

@@ -68,8 +68,8 @@ try {
     Write-Host "[RUN ] dev server is not reachable; starting npm run dev"
 
     $serverProcess = Start-Process `
-      -FilePath "npm" `
-      -ArgumentList @("run", "dev") `
+      -FilePath "cmd.exe" `
+      -ArgumentList @("/c", "npm", "run", "dev") `
       -WorkingDirectory $repoRoot `
       -RedirectStandardOutput $stdoutLog `
       -RedirectStandardError $stderrLog `

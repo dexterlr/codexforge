@@ -7,7 +7,7 @@ import {
 import type { CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph/types";
 import { toCodexForgeChatMeta } from "@/lib/codexforge/brain/types";
 import { selectCodexForgeAgentTeam } from "@/lib/codexforge/agents";
-import { composePremiumCodexForgeResponse } from "@/lib/codexforge/chat/premium-response-composer";
+import { composePremiumCodexForgeResponse, type CodexForgeResponseProfile } from "@/lib/codexforge/chat/premium-response-composer";
 import { getCodexForgeServerEngineDependencies } from "@/lib/codexforge/chat/dependencies.server";
 import { structuredToText } from "@/lib/codexforge/chat/engine-render";
 import type {
@@ -3005,6 +3005,36 @@ function resolveResponseDomain(args: {
   );
 }
 
+function resolveResponseProfile(args: {
+  productionOnlyPlanning: boolean;
+  executionMode: boolean;
+  fileIntent: FileIntentDiagnostics;
+  resolvedDomain: CodexForgePlanDomain;
+  capabilityDomain: CodexForgePlanDomain;
+}): CodexForgeResponseProfile {
+  if (args.productionOnlyPlanning) {
+    return "product-plan";
+  }
+
+  if (args.fileIntent.explicitFileRequest) {
+    return "grounded-inspection";
+  }
+
+  if (args.resolvedDomain === "debug" || args.capabilityDomain === "debug") {
+    return "diagnostic";
+  }
+
+  if (args.capabilityDomain !== "web" && args.capabilityDomain !== "general") {
+    return "runtime-policy";
+  }
+
+  if (args.resolvedDomain !== "web" && args.resolvedDomain !== "general") {
+    return "runtime-policy";
+  }
+
+  return args.executionMode ? "execution" : "product-plan";
+}
+
 function validateFinalCodexForgeResponse(args: {
   text: string;
   structured?: CodexForgeStructuredReply;
@@ -3543,10 +3573,19 @@ export async function POST(req: Request) {
       capabilityDomain: capabilityRouting.domain,
     });
 
+    const responseProfile = resolveResponseProfile({
+      productionOnlyPlanning,
+      executionMode: finalExecutionMode,
+      fileIntent: effectiveFileIntent,
+      resolvedDomain,
+      capabilityDomain: capabilityRouting.domain,
+    });
+
     const premiumStructured = composePremiumCodexForgeResponse({
       structured: agentInfluencedStructured,
       executionMode: finalExecutionMode,
-      diagnosticMode: resolvedDomain === "debug" && finalExecutionMode,
+      diagnosticMode: responseProfile === "diagnostic",
+      responseProfile,
     });
 
     const rawDecoratedText = premiumStructured
@@ -3657,6 +3696,7 @@ export async function POST(req: Request) {
           LIMITS.maxDebugHeaderText
         ),
         "x-codexforge-chat-mode": resolvedChatMode,
+        "x-codexforge-response-profile": responseProfile,
         "x-codexforge-warning-count": String(mergedWarnings.length),
         "x-codexforge-domain": decoratedDomain,
         "x-codexforge-capability-domain": capabilityRouting.domain,

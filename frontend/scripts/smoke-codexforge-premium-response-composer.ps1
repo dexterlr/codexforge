@@ -48,24 +48,54 @@ function Invoke-CodexForgeChat {
     -Body $Body
 }
 
+function Invoke-CodexForgeChatWithHeaders {
+  param(
+    [string]$Text,
+    [hashtable]$Context = @{}
+  )
+
+  $Body = @{
+    messages = @(
+      @{
+        id = "user-premium-response-profile-test"
+        role = "user"
+        text = $Text
+        ts = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+        structured = $null
+        source = "api"
+      }
+    )
+    context = $Context
+  } | ConvertTo-Json -Depth 30
+
+  Invoke-WebRequest `
+    -UseBasicParsing `
+    -Method Post `
+    -Uri "$BaseUrl/api/codexforge/chat" `
+    -ContentType "application/json" `
+    -Body $Body
+}
+
+$BaseContext = @{
+  mode = "local"
+  projectName = "CodexForge"
+  codexforgeCapabilities = @{
+    structuredReplies = $true
+    localExecution = $true
+    approvals = $true
+    diffPreviews = $true
+    snapshots = $true
+    brainGraph = $true
+    domains = @("web")
+  }
+}
+
 Write-Host ""
 Write-Host "[RUN ] Premium product planning response"
 
 $Response = Invoke-CodexForgeChat `
   -Text "Plan a premium CodexForge landing page. Include goal, pages, components, data, risks, and first three implementation steps." `
-  -Context @{
-    mode = "local"
-    projectName = "CodexForge"
-    codexforgeCapabilities = @{
-      structuredReplies = $true
-      localExecution = $true
-      approvals = $true
-      diffPreviews = $true
-      snapshots = $true
-      brainGraph = $true
-      domains = @("web")
-    }
-  }
+  -Context $BaseContext
 
 $Structured = $Response.reply.structured
 $Text = [string]$Response.reply.text
@@ -96,6 +126,52 @@ Assert-True (-not ($SectionTitles -contains "Tool audit")) "structured sections 
 Assert-True (-not ($SectionTitles -contains "Agent runtime policy")) "structured sections exclude Agent runtime policy"
 
 Write-Host ""
+Write-Host "[RUN ] Response profile headers"
+
+$ProductProfileResponse = Invoke-CodexForgeChatWithHeaders `
+  -Text "Plan a premium CodexForge landing page. Include goal, pages, components, data, risks, and first three implementation steps." `
+  -Context $BaseContext
+
+Assert-True ($ProductProfileResponse.Headers["x-codexforge-response-profile"] -eq "product-plan") "product planning response profile is product-plan"
+
+$BlenderProfileResponse = Invoke-CodexForgeChatWithHeaders `
+  -Text "Plan a Blender and ComfyUI cinematic workflow for a short product video. Include runtime policy, render approval gates, and quality gates." `
+  -Context @{
+    mode = "local"
+    projectName = "CodexForge"
+    codexforgeCapabilities = @{
+      structuredReplies = $true
+      localExecution = $true
+      approvals = $true
+      diffPreviews = $true
+      snapshots = $true
+      brainGraph = $true
+      domains = @("blender")
+    }
+  }
+
+Assert-True ($BlenderProfileResponse.Headers["x-codexforge-response-profile"] -eq "runtime-policy") "Blender response profile is runtime-policy"
+
+$DebugProfileResponse = Invoke-CodexForgeChatWithHeaders `
+  -Text "Read src/lib/codexforge/chat/premium-response-composer.ts and tell me the best next edit point." `
+  -Context @{
+    mode = "local"
+    projectName = "CodexForge"
+    repoPath = (Get-Location).Path
+    codexforgeCapabilities = @{
+      structuredReplies = $true
+      localExecution = $true
+      approvals = $true
+      diffPreviews = $true
+      snapshots = $true
+      brainGraph = $true
+      domains = @("debug")
+    }
+  }
+
+Assert-True ($DebugProfileResponse.Headers["x-codexforge-response-profile"] -eq "grounded-inspection") "explicit file request response profile is grounded-inspection"
+
+Write-Host ""
 Write-Host "[RUN ] Static premium composer assertions"
 
 $ComposerPath = Join-Path (Get-Location) "src\lib\codexforge\chat\premium-response-composer.ts"
@@ -104,12 +180,21 @@ $RoutePath = Join-Path (Get-Location) "src\app\api\codexforge\chat\route.ts"
 $ComposerText = Get-Content -Raw $ComposerPath
 $RouteText = Get-Content -Raw $RoutePath
 
+Assert-True ($ComposerText -match "export type CodexForgeResponseProfile") "premium composer exports response profile type"
+Assert-True ($ComposerText -match "responseProfile") "premium composer accepts response profile"
+Assert-True ($ComposerText -match '"product-plan"') "premium composer supports product-plan profile"
+Assert-True ($ComposerText -match '"runtime-policy"') "premium composer supports runtime-policy profile"
+Assert-True ($ComposerText -match '"diagnostic"') "premium composer supports diagnostic profile"
+Assert-True ($ComposerText -match '"execution"') "premium composer supports execution profile"
+Assert-True ($ComposerText -match '"grounded-inspection"') "premium composer supports grounded-inspection profile"
 Assert-True ($ComposerText -match "composePremiumCodexForgeResponse") "premium composer exports composer"
 Assert-True ($ComposerText -match "PREMIUM_ALWAYS_HIDE_SECTION_TITLES") "premium composer has hidden section policy"
 Assert-True ($ComposerText -match "engine trace") "premium composer blocks engine trace"
 Assert-True ($ComposerText -match "response quality") "premium composer blocks response quality"
 Assert-True ($ComposerText -match "execution posture") "premium composer blocks execution posture"
-Assert-True ($RouteText -match "composePremiumCodexForgeResponse") "route invokes premium composer"
+Assert-True ($RouteText -match "resolveResponseProfile") "route resolves response profile"
+Assert-True ($RouteText -match "responseProfile,") "route passes response profile"
+Assert-True ($RouteText -match "x-codexforge-response-profile") "route exposes response profile header"
 Assert-True ($RouteText -match "structured: premiumStructured") "final validation uses premium structured payload"
 
 Write-Host ""
