@@ -26,6 +26,7 @@ $emptyStatePath = ".\src\lib\codexforge\chat\components\empty-state.tsx"
 $workspaceInsightsPath = ".\src\lib\codexforge\chat\components\workspace-insights-panel.tsx"
 $composerDockPath = ".\src\lib\codexforge\chat\components\composer-dock.tsx"
 $workspaceSectionStackPath = ".\src\lib\codexforge\chat\components\workspace-section-stack.tsx"
+$pageConfigPath = ".\src\lib\codexforge\chat\page-config.ts"
 $pagePath = ".\src\app\ai\page.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
@@ -41,6 +42,7 @@ Assert-True (Test-Path $emptyStatePath) "empty state component file exists"
 Assert-True (Test-Path $workspaceInsightsPath) "workspace insights component file exists"
 Assert-True (Test-Path $composerDockPath) "composer dock component file exists"
 Assert-True (Test-Path $workspaceSectionStackPath) "workspace section stack component file exists"
+Assert-True (Test-Path $pageConfigPath) "page config file exists"
 Assert-True (Test-Path $pagePath) "AI page exists"
 
 $data = Get-Content -Raw $dataPath
@@ -56,6 +58,7 @@ $emptyState = Get-Content -Raw $emptyStatePath
 $workspaceInsights = Get-Content -Raw $workspaceInsightsPath
 $composerDock = Get-Content -Raw $composerDockPath
 $workspaceSectionStack = Get-Content -Raw $workspaceSectionStackPath
+$pageConfig = Get-Content -Raw $pageConfigPath
 $page = Get-Content -Raw $pagePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
@@ -158,6 +161,19 @@ Assert-True ($emptyState.Contains("Ready for a real task")) "empty state preserv
 Assert-True ($page.Contains("components/empty-state")) "AI page imports empty state"
 Assert-True ($page.Contains("<EmptyState")) "AI page renders empty state"
 Assert-True (-not $page.Contains("function EmptyState")) "AI page does not define local empty state"
+Assert-True ($pageConfig.Contains("export const SUGGESTIONS")) "page config exports suggestions"
+Assert-True ($pageConfig.Contains("export const EMPTY_EXAMPLES")) "page config exports empty examples"
+Assert-True ($pageConfig.Contains("export const BACKEND_LABELS")) "page config exports backend labels"
+Assert-True ($pageConfig.Contains("export const SURFACE_LINKS")) "page config exports surface links"
+Assert-True ($pageConfig.Contains("export function buildSystemGuide")) "page config exports system guide helper"
+Assert-True ($pageConfig.Contains("export function getRepoLabel")) "page config exports repo label helper"
+Assert-True ($page.Contains("chat/page-config")) "AI page imports page config"
+Assert-True (-not $page.Contains("const SUGGESTIONS")) "AI page does not keep suggestions inline"
+Assert-True (-not $page.Contains("const EMPTY_EXAMPLES")) "AI page does not keep empty examples inline"
+Assert-True (-not $page.Contains("const BACKEND_LABELS")) "AI page does not keep backend labels inline"
+Assert-True (-not $page.Contains("const SURFACE_LINKS")) "AI page does not keep surface links inline"
+Assert-True (-not $page.Contains("function buildSystemGuide")) "AI page does not keep system guide helper inline"
+Assert-True (-not $page.Contains("function getRepoLabel")) "AI page does not keep repo label helper inline"
 Assert-True ($workspaceSectionStack.Contains("export function WorkspaceSectionStack")) "workspace section stack exports component"
 Assert-True ($workspaceSectionStack.Contains("sectionStackStyle")) "workspace section stack owns layout style"
 Assert-True ($page.Contains("components/workspace-section-stack")) "AI page imports workspace section stack"

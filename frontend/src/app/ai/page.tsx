@@ -10,6 +10,18 @@ import {
   getSourceLabel,
   getStructuredSummaryMeta,
 } from "@/lib/codexforge/chat/client-renderers";
+import {
+  BACKEND_LABELS,
+  EMPTY_EXAMPLES,
+  SUGGESTIONS,
+  SURFACE_LINKS,
+  buildSystemGuide,
+  formatTime,
+  getRepoLabel,
+  type LatestReplySnapshot,
+  type SurfaceLink,
+  type Suggestion,
+} from "@/lib/codexforge/chat/page-config";
 import { ComposerDock } from "@/lib/codexforge/chat/components/composer-dock";
 import { ChatMessage } from "@/lib/codexforge/chat/components/chat-message";
 import { LatestReplyCard } from "@/lib/codexforge/chat/components/latest-reply-card";
@@ -33,191 +45,8 @@ import type { CodexForgeExecutionPhase } from "@/lib/codexforge/types";
 
 /* ---------------- types ---------------- */
 
-type Suggestion = {
-  id: string;
-  label: string;
-  prompt: string;
-};
+/* ---------------- page ---------------- */
 
-type LatestReplySnapshot = {
-  textLength: number;
-  sourceLabel: string;
-  structured: boolean;
-  toolCount: number;
-  domainLabel: string;
-  tagCount: number;
-  modeLabel: string;
-  stepCount: number;
-  diffCount: number;
-  snapshotFileCount: number | null;
-  executionPhaseLabel: string;
-  logCount: number;
-};
-
-type SurfaceLink = {
-  href: string;
-  label: string;
-  detail: string;
-};
-
-type FocusAreaCard = {
-  label: string;
-  value: string;
-};
-
-type DirectionCardData = {
-  title: string;
-  text: string;
-};
-
-
-
-
-
-
-
-
-
-/* ---------------- constants ---------------- */
-
-const SUGGESTIONS: Suggestion[] = [
-  {
-    id: "plan-feature",
-    label: "Plan a feature",
-    prompt:
-      "Help me plan a feature. Give me a concrete goal, files to change, risks, and the first three implementation steps.",
-  },
-  {
-    id: "debug-error",
-    label: "Debug error",
-    prompt:
-      "I have an error. Ask me the exact error text, likely file, and what changed recently, then give me a structured debug plan.",
-  },
-  {
-    id: "build-website",
-    label: "Build site",
-    prompt:
-      "Break building a website into safe phases: pages, data, styling, APIs, and deployment.",
-  },
-  {
-    id: "research-task",
-    label: "Research",
-    prompt:
-      "Give me a structured research plan with key unknowns, evidence to gather, and an output format.",
-  },
-  {
-    id: "design-codexforge",
-    label: "Design CodexForge",
-    prompt:
-      "Help design CodexForge as a full AI developer workspace with memory, execution, structured plans, repo tooling, and a stable backend contract.",
-  },
-  {
-    id: "offline-brain",
-    label: "Offline brain",
-    prompt:
-      "Design an offline-first CodexForge brain architecture using local models, clear provider routing, fallback rules, caching, and execution-safe behavior.",
-  },
-  {
-    id: "repo-tooling",
-    label: "Repo tooling",
-    prompt:
-      "Design CodexForge repo tooling for search, read-file, diff previews, approval flow, snapshots, and safe apply behavior.",
-  },
-  {
-    id: "minecraft-server",
-    label: "Minecraft server",
-    prompt:
-      "Plan a Christmas-themed Minecraft server from scratch. Include server stack, plugins or mods, world theme, content pipeline, art assets, admin tooling, deployment, backups, and phased build steps.",
-  },
-  {
-    id: "movie-pipeline",
-    label: "Movie pipeline",
-    prompt:
-      "Design a script-to-movie pipeline for CodexForge. Cover scripting, storyboards, shot planning, image generation, video generation, voice, music, editing, rendering, review loops, storage, and automation steps.",
-  },
-  {
-    id: "comfy-workflow",
-    label: "ComfyUI workflow",
-    prompt:
-      "Design a ComfyUI-based generation workflow for CodexForge with prompt templates, reusable nodes, asset tracking, render queue ideas, and approval checkpoints.",
-  },
-  {
-    id: "unreal-pipeline",
-    label: "Unreal pipeline",
-    prompt:
-      "Design an Unreal Engine production workflow for CodexForge covering project setup, assets, blueprints or C++, cinematic tooling, packaging, and operator-style task execution.",
-  },
-];
-
-const EMPTY_EXAMPLES = [
-  "Plan my next CodexForge feature",
-  "Design an offline-first AI workspace",
-  "Build repo diff approvals with safe apply",
-] as const;
-
-const BACKEND_LABELS = {
-  api: "API",
-  "local-fallback": "Fallback",
-} as const;
-
-const SURFACE_LINKS: readonly SurfaceLink[] = [
-  {
-    href: "/clawd",
-    label: "Operator surface",
-    detail:
-      "Use approval-driven snapshot, diff, apply, test, and checkpoint controls.",
-  },
-  {
-    href: "/history",
-    label: "Activity history",
-    detail:
-      "Review launches, notes, tasks, execution history, and migrated local activity.",
-  },
-  {
-    href: "/brain",
-    label: "Brain graph",
-    detail:
-      "Inspect local graph memory, saved context, relationships, and connected nodes.",
-  },
-  {
-    href: "/entry",
-    label: "Quick launch",
-    detail:
-      "Prepare a structured task and send it directly into the workspace.",
-  },
-] as const;
-
-/* ---------------- helpers ---------------- */
-
-function buildSystemGuide() {
-  return [
-    "You are CodexForge, an AI developer assistant and research copilot.",
-    "CodexForge is the real product and the primary AI workspace frontend.",
-    "Treat CodexForge as the main application, not as a test harness.",
-    "Be structured, practical, and beginner-safe.",
-    "Prefer the smallest correct next step.",
-    "When useful, organize responses as: goal, files, commands, risks, and next action.",
-    "Keep local-first behavior working even when the backend is unavailable.",
-    "CodexForge should evolve into a full AI developer workspace with planning, execution, memory, research, media workflows, operator-style repo tooling, content pipelines, game-server automation, website creation, Unreal Engine workflows, and ComfyUI-based generation systems.",
-  ].join(" ");
-}
-
-function formatTime(ts: number) {
-  return new Date(ts).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-/* ---------------- small components ---------------- */
-
-function getRepoLabel(repoPath?: string) {
-  if (!repoPath) return "No repo selected";
-
-  const normalized = repoPath.replace(/\\/g, "/");
-  const parts = normalized.split("/").filter(Boolean);
-  return parts.at(-1) ?? repoPath;
-}
 /* ---------------- page ---------------- */
 
 export default function AiPage() {
