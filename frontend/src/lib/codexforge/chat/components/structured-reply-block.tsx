@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import * as styles from "@/lib/codexforge/chat/client-styles";
 import {
   getDiffMeta,
@@ -204,6 +204,89 @@ function getReadyToolCount(tools?: CodexForgeStructuredTool[] | null): number {
   if (!Array.isArray(tools)) return 0;
   return tools.filter((tool) => tool.availability === "ready").length;
 }
+
+type PrimaryGroundingEvidence = {
+  file?: string;
+  editPoint?: string;
+  confidence?: string;
+  tool?: string;
+  why?: string;
+};
+
+function getEvidenceValue(items: string[], prefixes: string[]): string | undefined {
+  const match = items.find((item) =>
+    prefixes.some((prefix) => item.toLowerCase().startsWith(prefix.toLowerCase()))
+  );
+
+  if (!match) return undefined;
+
+  const colonIndex = match.indexOf(":");
+  if (colonIndex < 0) return match.trim();
+
+  return match.slice(colonIndex + 1).trim();
+}
+
+function getPrimaryGroundingEvidence(
+  sections?: CodexForgeStructuredSection[] | null
+): PrimaryGroundingEvidence | null {
+  const groundingSections = getGroundingSections(sections);
+  if (groundingSections.length === 0) return null;
+
+  const primarySection =
+    groundingSections.find((section) => {
+      const title = normalizeTitleKey(section.title);
+      return (
+        title === "grounded recommendation" ||
+        title.startsWith("auto inspection:") ||
+        title.startsWith("follow-up inspection:")
+      );
+    }) ?? groundingSections[0];
+
+  const items = normalizeStringArray(primarySection.items);
+
+  const file =
+    getEvidenceValue(items, [
+      "Best next edit point",
+      "Best edit target",
+      "Matched file",
+      "Best grounded file",
+      "Primary file",
+    ]) ?? undefined;
+
+  const editPoint =
+    getEvidenceValue(items, [
+      "Matched function",
+      "Best grounded function",
+      "Change target",
+      "Primary file edit point",
+      "Primary file function",
+    ]) ?? undefined;
+
+  const confidence =
+    getEvidenceValue(items, [
+      "Confidence",
+      "Grounding confidence",
+      "Primary file confidence",
+    ]) ?? undefined;
+
+  const explicitTool = getEvidenceValue(items, ["Tool used"]) ?? undefined;
+  const toolFromTitle =
+    primarySection.title.includes(":")
+      ? primarySection.title.split(":").slice(1).join(":").trim()
+      : undefined;
+
+  const why = items.find((item) => item.toLowerCase().startsWith("why this"));
+
+  const evidence: PrimaryGroundingEvidence = {
+    file,
+    editPoint,
+    confidence,
+    tool: explicitTool ?? toolFromTitle,
+    why,
+  };
+
+  return Object.values(evidence).some(Boolean) ? evidence : null;
+}
 /* ================= SMALL UI PIECES ================= */
 
 function MetaChip({ children }: { children: React.ReactNode }) {
@@ -260,7 +343,7 @@ function BulletList({
       {items.map((item, idx) => (
         <div key={`${idx}-${item}`} style={styles.structuredListItem}>
           <span style={styles.structuredBullet}>
-            {ordered ? `${idx + 1}.` : "•"}
+            {ordered ? `${idx + 1}.` : "â€¢"}
           </span>
           <span>{item}</span>
         </div>
@@ -732,6 +815,23 @@ function AgentTeamSection({
     </StructuredCard>
   );
 }
+function EvidenceTile({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | number | null;
+}) {
+  if (value === undefined || value === null || value === "") return null;
+
+  return (
+    <div style={toolEvidenceEvidenceCard}>
+      <div style={toolEvidenceLabel}>{label}</div>
+      <div style={toolEvidenceValue}>{value}</div>
+    </div>
+  );
+}
+
 function ToolEvidenceSummary({
   structured,
 }: {
@@ -743,17 +843,20 @@ function ToolEvidenceSummary({
   const unavailableToolCount = tools.filter(
     (tool) => tool.availability !== "ready"
   ).length;
+  const primaryEvidence = getPrimaryGroundingEvidence(structured?.sections);
 
-  const hasEvidence = groundingSections.length > 0 || tools.length > 0;
+  const hasEvidence =
+    groundingSections.length > 0 || tools.length > 0 || !!primaryEvidence;
   if (!hasEvidence) return null;
 
   return (
     <div style={toolEvidenceSummary}>
       <div style={toolEvidenceHeader}>
         <div>
-          <div style={toolEvidenceTitle}>Tool evidence</div>
+          <div style={toolEvidenceTitle}>Grounding evidence</div>
           <div style={toolEvidenceText}>
-            Visible inspection and tool availability summary for this response.
+            Primary file, edit point, tool audit, and inspection confidence used
+            to shape this response.
           </div>
         </div>
 
@@ -773,9 +876,20 @@ function ToolEvidenceSummary({
           ) : null}
         </div>
       </div>
+
+      {primaryEvidence ? (
+        <div style={toolEvidenceEvidenceGrid}>
+          <EvidenceTile label="Primary grounded file" value={primaryEvidence.file} />
+          <EvidenceTile label="Likely edit point" value={primaryEvidence.editPoint} />
+          <EvidenceTile label="Tool used" value={primaryEvidence.tool} />
+          <EvidenceTile label="Confidence" value={primaryEvidence.confidence} />
+          <EvidenceTile label="Why this matters" value={primaryEvidence.why} />
+        </div>
+      ) : null}
     </div>
   );
 }
+
 function GroundingSection({
   structured,
 }: {
@@ -1285,6 +1399,37 @@ const toolEvidenceStats: React.CSSProperties = {
   alignItems: "flex-start",
 };
 
+const toolEvidenceEvidenceGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gap: 8,
+  marginTop: 10,
+};
+
+const toolEvidenceEvidenceCard: React.CSSProperties = {
+  display: "grid",
+  gap: 4,
+  padding: 10,
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.035)",
+};
+
+const toolEvidenceLabel: React.CSSProperties = {
+  fontSize: 10,
+  fontWeight: 900,
+  letterSpacing: 0.35,
+  textTransform: "uppercase",
+  opacity: 0.72,
+};
+
+const toolEvidenceValue: React.CSSProperties = {
+  fontSize: 12,
+  lineHeight: 1.45,
+  fontWeight: 750,
+  wordBreak: "break-word",
+};
+
 
 
 const agentTeamHero: React.CSSProperties = {
@@ -1309,4 +1454,3 @@ const agentTeamPrimary: React.CSSProperties = {
   fontWeight: 900,
   letterSpacing: -0.1,
 };
-
