@@ -572,3 +572,93 @@ foreach ($case in $executePolicyCases) {
 }
 
 Write-Host "[PASS] direct execute API tool-policy enforcement smoke tests passed"
+
+Write-Host "`n=== Direct execute API visible tool-policy UX smoke tests ==="
+
+$visiblePolicyCases = @(
+  @{
+    Name = "Visible rejection for broker execution"
+    Body = @{
+      toolName = "broker-execution"
+      input = @{}
+      context = @{
+        domain = "trading"
+      }
+    }
+    ExpectedStatus = 403
+    RequiredText = @(
+      "toolPolicySummary",
+      "Tool blocked by policy",
+      "Blocked",
+      "Next action",
+      "broker-execution"
+    )
+  },
+  @{
+    Name = "Visible approval gate for Blender render"
+    Body = @{
+      toolName = "render-job"
+      input = @{}
+      context = @{
+        domain = "blender"
+      }
+    }
+    ExpectedStatus = 428
+    RequiredText = @(
+      "toolPolicySummary",
+      "Approval required before tool execution",
+      "Approval required",
+      "Next action",
+      "render-job"
+    )
+  }
+)
+
+foreach ($case in $visiblePolicyCases) {
+  Write-Host "[RUN ] $($case.Name)"
+
+  $body = $case.Body | ConvertTo-Json -Depth 12
+
+  try {
+    $response = Invoke-WebRequest `
+      -Uri "$BaseUrl/api/codexforge/tools/execute" `
+      -Method POST `
+      -Body $body `
+      -ContentType "application/json" `
+      -UseBasicParsing
+
+    $statusCode = [int]$response.StatusCode
+    $content = [string]$response.Content
+  } catch {
+    if (-not $_.Exception.Response) {
+      throw
+    }
+
+    $statusCode = [int]$_.Exception.Response.StatusCode
+    $stream = $_.Exception.Response.GetResponseStream()
+    $reader = New-Object System.IO.StreamReader($stream)
+    $content = $reader.ReadToEnd()
+  }
+
+  if ($statusCode -ne $case.ExpectedStatus) {
+    Write-Host "`n=== Visible policy response body ==="
+    Write-Host $content
+    throw "[FAIL] $($case.Name) expected HTTP $($case.ExpectedStatus), got $statusCode"
+  }
+
+  Write-Host "[PASS] $($case.Name) HTTP $statusCode"
+
+  foreach ($required in $case.RequiredText) {
+    if (-not $content.Contains($required)) {
+      Write-Host "`n=== Visible policy response body ==="
+      Write-Host $content
+      throw "[FAIL] $($case.Name) response missing: $required"
+    }
+
+    Write-Host "[PASS] $($case.Name) response includes: $required"
+  }
+
+  Write-Host "[PASS] $($case.Name)"
+}
+
+Write-Host "[PASS] direct execute API visible tool-policy UX smoke tests passed"

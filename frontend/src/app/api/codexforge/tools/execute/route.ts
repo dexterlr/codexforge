@@ -1,3 +1,4 @@
+import { serializeVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
 import { buildCodexForgeToolPolicyInputFromBody, evaluateCodexForgeToolPolicy } from "@/lib/codexforge/tools/tool-policy-guard";
 import { NextResponse } from "next/server";
 import {
@@ -37,6 +38,7 @@ type ExecuteToolRouteError = {
   ok: false;
   error: string;
   toolPolicy?: unknown;
+  toolPolicySummary?: unknown;
   meta?: Partial<ExecuteToolRouteMeta> & {
     availableTools?: string[];
   };
@@ -65,7 +67,7 @@ function asTrimmedString(value: unknown): string | undefined {
 }
 
 function clampText(value: string, max: number): string {
-  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦`;
+  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦`;
 }
 
 function json(status: number, payload: ExecuteToolRouteResponse) {
@@ -162,11 +164,14 @@ export async function POST(req: Request) {
       buildCodexForgeToolPolicyInputFromBody(body)
     );
 
+    const visibleToolPolicy = serializeVisibleToolPolicy(toolPolicyDecision);
+
     if (!toolPolicyDecision.allowed) {
       return json(toolPolicyDecision.status, {
         ok: false,
         error: toolPolicyDecision.reason,
         toolPolicy: toolPolicyDecision,
+        toolPolicySummary: visibleToolPolicy,
         meta: {
           toolName: toolPolicyDecision.normalizedToolName ?? undefined,
           availableTools: getCodexForgeExecutableToolNames(),
