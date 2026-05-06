@@ -397,9 +397,9 @@ foreach ($fileName in $requiredStructuredFiles) {
 
 $forbiddenGlobalPatterns = @(
   "export export",
-  "â€¢",
-  "â€",
-  "�"
+  "Ã¢â‚¬Â¢",
+  "Ã¢â‚¬",
+  "ï¿½"
 )
 
 foreach ($pattern in $forbiddenGlobalPatterns) {
@@ -411,3 +411,67 @@ foreach ($pattern in $forbiddenGlobalPatterns) {
 }
 
 Write-Host "[PASS] structured reply hardening assertions passed"
+
+Write-Host "`n[RUN ] Agent-team engine influence wiring"
+
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Split-Path -Parent $scriptRoot
+$chatDir = Join-Path $repoRoot "src/lib/codexforge/chat"
+$routePath = Join-Path $repoRoot "src/app/api/codexforge/chat/route.ts"
+$influencePath = Join-Path $chatDir "agent-team-engine-influence.ts"
+
+if (-not (Test-Path $influencePath)) {
+  throw "[FAIL] missing agent-team engine influence helper"
+}
+Write-Host "[PASS] agent-team engine influence helper exists"
+
+$routeContent = Get-Content -Raw $routePath
+$influenceContent = Get-Content -Raw $influencePath
+
+$routeRequired = @(
+  "agent-team-engine-influence",
+  "applyAgentTeamEngineInfluence",
+  "agentInfluencedStructured",
+  "structuredToText(agentInfluencedStructured)",
+  "structured: agentInfluencedStructured"
+)
+
+foreach ($pattern in $routeRequired) {
+  if ($routeContent -notmatch [regex]::Escape($pattern)) {
+    throw "[FAIL] chat route missing agent-team influence wiring: $pattern"
+  }
+
+  Write-Host "[PASS] chat route includes agent-team influence wiring: $pattern"
+}
+
+$helperRequired = @(
+  "export function applyAgentTeamEngineInfluence",
+  "Agent-directed planning",
+  "Agent safety and approval gates",
+  "Approval-gated tools",
+  "Blocked tools",
+  "Review gate"
+)
+
+foreach ($pattern in $helperRequired) {
+  if ($influenceContent -notmatch [regex]::Escape($pattern)) {
+    throw "[FAIL] influence helper missing behavior: $pattern"
+  }
+
+  Write-Host "[PASS] influence helper includes behavior: $pattern"
+}
+
+$forbiddenRoutePatterns = @(
+  "structuredToText(decoratedStructured)",
+  "structured: decoratedStructured"
+)
+
+foreach ($pattern in $forbiddenRoutePatterns) {
+  if ($routeContent -match [regex]::Escape($pattern)) {
+    throw "[FAIL] chat route still bypasses agent influence: $pattern"
+  }
+
+  Write-Host "[PASS] chat route no longer bypasses agent influence: $pattern"
+}
+
+Write-Host "[PASS] agent-team engine influence assertions passed"

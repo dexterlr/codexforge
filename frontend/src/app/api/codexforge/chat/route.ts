@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import {
   createCodexForgeBrain,
   getCodexForgeBrainSelectionInfo,
@@ -2135,7 +2135,7 @@ function detectCapabilityRouting(
   const briefing = uniqueStrings([
     ...(CAPABILITY_BRIEFINGS[domain] ?? CAPABILITY_BRIEFINGS.general),
   ]).slice(0, LIMITS.maxCapabilityBriefingLines);
-
+
   domain = chooseDominantCapabilityDomain(tags, domain);
 
   return {
@@ -3441,7 +3441,11 @@ export async function POST(req: Request) {
         : productSurfaceDecoratedStructured;
 
     const rawDecoratedText = decoratedStructured
-      ? structuredToText(decoratedStructured)
+      const agentInfluencedStructured = applyAgentTeamEngineInfluence(
+        decoratedStructured,
+        (decoratedStructured as { agentTeam?: unknown }).agentTeam
+      );
+      ? structuredToText(agentInfluencedStructured)
       : response.text;
 
     const decoratedText = productionOnlyPlanning
@@ -3491,7 +3495,7 @@ const successResponse: CodexForgeChatSuccessResponse = {
         role: "assistant",
         text: decoratedText,
         ts: Date.now(),
-        structured: decoratedStructured,
+        structured: agentInfluencedStructured,
       },
       meta,
     };
@@ -3617,97 +3621,3 @@ const successResponse: CodexForgeChatSuccessResponse = {
     return badRequest(message, 500);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
