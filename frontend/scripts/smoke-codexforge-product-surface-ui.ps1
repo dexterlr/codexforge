@@ -24,6 +24,7 @@ $workspaceOverviewPath = ".\src\lib\codexforge\chat\components\workspace-overvie
 $topBarPath = ".\src\lib\codexforge\chat\components\top-bar.tsx"
 $emptyStatePath = ".\src\lib\codexforge\chat\components\empty-state.tsx"
 $workspaceInsightsPath = ".\src\lib\codexforge\chat\components\workspace-insights-panel.tsx"
+$composerDockPath = ".\src\lib\codexforge\chat\components\composer-dock.tsx"
 $pagePath = ".\src\app\ai\page.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
@@ -37,6 +38,7 @@ Assert-True (Test-Path $workspaceOverviewPath) "workspace overview component fil
 Assert-True (Test-Path $topBarPath) "top bar component file exists"
 Assert-True (Test-Path $emptyStatePath) "empty state component file exists"
 Assert-True (Test-Path $workspaceInsightsPath) "workspace insights component file exists"
+Assert-True (Test-Path $composerDockPath) "composer dock component file exists"
 Assert-True (Test-Path $pagePath) "AI page exists"
 
 $data = Get-Content -Raw $dataPath
@@ -50,6 +52,7 @@ $workspaceOverview = Get-Content -Raw $workspaceOverviewPath
 $topBar = Get-Content -Raw $topBarPath
 $emptyState = Get-Content -Raw $emptyStatePath
 $workspaceInsights = Get-Content -Raw $workspaceInsightsPath
+$composerDock = Get-Content -Raw $composerDockPath
 $page = Get-Content -Raw $pagePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
@@ -152,6 +155,13 @@ Assert-True ($emptyState.Contains("Ready for a real task")) "empty state preserv
 Assert-True ($page.Contains("components/empty-state")) "AI page imports empty state"
 Assert-True ($page.Contains("<EmptyState")) "AI page renders empty state"
 Assert-True (-not $page.Contains("function EmptyState")) "AI page does not define local empty state"
+Assert-True ($composerDock.Contains("ComposerDock")) "composer dock exports component"
+Assert-True ($composerDock.Contains("ChatComposer")) "composer dock wraps chat composer"
+Assert-True ($composerDock.Contains("position: `"sticky`"")) "composer dock preserves sticky positioning"
+Assert-True ($page.Contains("components/composer-dock")) "AI page imports composer dock"
+Assert-True ($page.Contains("<ComposerDock")) "AI page renders composer dock"
+Assert-True (-not $page.Contains("components/chat-composer")) "AI page no longer imports chat composer directly"
+Assert-True (-not $page.Contains("const composerDockStyle")) "AI page does not keep composer dock styles inline"
 Assert-True ($workspaceInsights.Contains("export function WorkspaceInsightsPanel")) "workspace insights exports component"
 Assert-True ($workspaceInsights.Contains("CodexForge direction")) "workspace insights preserves direction heading"
 Assert-True ($workspaceInsights.Contains("What this page should become")) "workspace insights preserves product direction heading"

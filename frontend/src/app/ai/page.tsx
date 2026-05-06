@@ -10,7 +10,7 @@ import {
   getSourceLabel,
   getStructuredSummaryMeta,
 } from "@/lib/codexforge/chat/client-renderers";
-import { ChatComposer } from "@/lib/codexforge/chat/components/chat-composer";
+import { ComposerDock } from "@/lib/codexforge/chat/components/composer-dock";
 import { ChatMessage } from "@/lib/codexforge/chat/components/chat-message";
 import { LatestReplyCard } from "@/lib/codexforge/chat/components/latest-reply-card";
 import { CodexForgeProductSurface } from "@/lib/codexforge/chat/components/codexforge-product-surface";
@@ -528,16 +528,14 @@ export default function AiPage() {
                 )}
               </div>
 
-              <div style={composerDockStyle}>
-                <ChatComposer
-                  ref={inputRef}
-                  input={input}
-                  busy={busy || isExecuting}
-                  onChange={setInput}
-                  onClearDraft={handleClearDraft}
-                  onSend={handleSend}
-                />
-              </div>
+              <ComposerDock
+                ref={inputRef}
+                input={input}
+                busy={busy || isExecuting}
+                onChange={setInput}
+                onClearDraft={handleClearDraft}
+                onSend={handleSend}
+              />
               <div style={sectionStackStyle}>
                 <WorkspaceOverviewCard
                   hasMessages={hasMessages}
@@ -706,59 +704,3 @@ const sectionStackStyle: React.CSSProperties = {
   gap: 14,
   marginTop: 16,
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const composerDockStyle: React.CSSProperties = {
-  position: "sticky",
-  bottom: 14,
-  zIndex: 40,
-  marginTop: 14,
-  padding: 12,
-  borderRadius: 24,
-  border: "1px solid rgba(148,163,184,0.22)",
-  background:
-    "linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.86))",
-  boxShadow:
-    "0 24px 70px rgba(0,0,0,0.42), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.06)",
-  backdropFilter: "blur(22px)",
-};
-
-
-
-
-
