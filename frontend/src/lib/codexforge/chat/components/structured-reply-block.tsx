@@ -1,5 +1,7 @@
 import React from "react";
 import * as styles from "@/lib/codexforge/chat/client-styles";
+import { AgentTeamSection } from "@/lib/codexforge/chat/components/agent-team-section";
+import { StructuredSections } from "@/lib/codexforge/chat/components/structured-sections";
 import {
   getGroundingSections,
   getNonGroundingSections,
@@ -22,7 +24,6 @@ import type {
   CodexForgeDiffPreview,
   CodexForgePlanDomain,
   CodexForgeStructuredReply,
-  CodexForgeStructuredSection,
 } from "@/lib/codexforge/types";
 
 type StructuredReplyBlockProps = {
@@ -210,7 +211,7 @@ function BulletList({
       {items.map((item, idx) => (
         <div key={`${idx}-${item}`} style={styles.structuredListItem}>
           <span style={styles.structuredBullet}>
-            {ordered ? `${idx + 1}.` : "ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢"}
+            {ordered ? `${idx + 1}.` : "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢"}
           </span>
           <span>{item}</span>
         </div>
@@ -636,72 +637,6 @@ function PlanSection({
   );
 }
 
-function AgentTeamSection({
-  structured,
-}: {
-  structured?: CodexForgeStructuredReply | null;
-}) {
-  const agentTeam = structured?.agentTeam;
-  if (!agentTeam) return null;
-
-  const supportLabels = agentTeam.supportRoles.map((role) => role.label);
-  const reviewLabels = agentTeam.reviewRoles.map((role) => role.label);
-  const approvalTools = agentTeam.approvalRequiredTools.map((tool) => tool.name);
-  const blockedTools = agentTeam.blockedTools.map((tool) => tool.name);
-
-  return (
-    <StructuredCard title="Agent team">
-      <div style={agentTeamHero}>
-        <div>
-          <div style={agentTeamEyebrow}>Primary agent</div>
-          <div style={agentTeamPrimary}>{agentTeam.primaryRole.label}</div>
-          <div style={styles.structuredParagraph}>
-            {agentTeam.primaryRole.mission}
-          </div>
-        </div>
-
-        <div style={approvalHeroStats}>
-          <StatChip>{agentTeam.domain}</StatChip>
-          {supportLabels.length > 0 ? (
-            <StatChip>{plural(supportLabels.length, "support role")}</StatChip>
-          ) : null}
-          {approvalTools.length > 0 ? (
-            <StatChip>{plural(approvalTools.length, "approval tool")}</StatChip>
-          ) : null}
-          {blockedTools.length > 0 ? (
-            <StatChip>{plural(blockedTools.length, "blocked tool")}</StatChip>
-          ) : null}
-        </div>
-      </div>
-
-      <ListSection title="Support team" items={supportLabels} />
-      <ListSection title="Review team" items={reviewLabels} />
-      <ListSection title="Approval-required tools" items={approvalTools} />
-      <ListSection title="Blocked tools" items={blockedTools} />
-      <ListSection title="Routing reasons" items={agentTeam.reasons} />
-    </StructuredCard>
-  );
-}
-function StructuredSections({
-  sections,
-}: {
-  sections?: CodexForgeStructuredSection[] | null;
-}) {
-  if (!sections || sections.length === 0) return null;
-
-  return (
-    <>
-      {sections.map((section, index) => (
-        <ListSection
-          key={getSectionKey(section, index)}
-          title={section.title}
-          items={section.items}
-        />
-      ))}
-    </>
-  );
-}
-
 /* ================= MAIN ================= */
 
 export function StructuredReplyBlock({
@@ -1019,27 +954,4 @@ const mutationChip: React.CSSProperties = {
   background: "rgba(239,68,68,0.12)",
   fontSize: 10,
   fontWeight: 900,
-};
-
-const agentTeamHero: React.CSSProperties = {
-  display: "grid",
-  gap: 10,
-  padding: 10,
-  borderRadius: 12,
-  border: "1px solid rgba(34,197,94,0.18)",
-  background: "rgba(34,197,94,0.06)",
-};
-
-const agentTeamEyebrow: React.CSSProperties = {
-  fontSize: 10,
-  fontWeight: 900,
-  letterSpacing: 0.4,
-  textTransform: "uppercase",
-  opacity: 0.72,
-};
-
-const agentTeamPrimary: React.CSSProperties = {
-  fontSize: 15,
-  fontWeight: 900,
-  letterSpacing: -0.1,
 };
