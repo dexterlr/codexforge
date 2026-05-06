@@ -383,3 +383,82 @@ foreach ($case in $runtimePolicyCases) {
 }
 
 Write-Host "[PASS] visible agent runtime policy smoke tests passed"
+
+Write-Host "`n=== Direct executable tool-policy smoke tests ==="
+
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Split-Path -Parent $scriptRoot
+$guardPath = Join-Path $repoRoot "src/lib/codexforge/tools/tool-policy-guard.ts"
+$executeRoutePath = Join-Path $repoRoot "src/app/api/codexforge/tools/execute/route.ts"
+
+$guardContent = Get-Content -Raw $guardPath
+$executeRouteContent = Get-Content -Raw $executeRoutePath
+
+$directPolicyCases = @(
+  @{
+    Name = "Trading blocks broker execution"
+    Required = @(
+      "broker-execution",
+      "Tool execution blocked by CodexForge runtime policy"
+    )
+  },
+  @{
+    Name = "Blender requires render approval"
+    Required = @(
+      "render-job",
+      "video-render",
+      "Tool execution requires explicit approval"
+    )
+  },
+  @{
+    Name = "Deck export requires approval"
+    Required = @(
+      "deck-export",
+      "Approval-required tools"
+    )
+  },
+  @{
+    Name = "Mutation tools are approval gated"
+    Required = @(
+      "apply-diff",
+      "write-file",
+      "run-command",
+      "run-tests",
+      "build-web-app",
+      "generate-diff"
+    )
+  },
+  @{
+    Name = "Read tools are known safe tools"
+    Required = @(
+      "read-file",
+      "list-files",
+      "search-project",
+      "snapshot-project"
+    )
+  }
+)
+
+foreach ($case in $directPolicyCases) {
+  Write-Host "[RUN ] $($case.Name)"
+
+  foreach ($required in $case.Required) {
+    if ($guardContent -notmatch [regex]::Escape($required)) {
+      throw "[FAIL] $($case.Name) guard missing: $required"
+    }
+
+    Write-Host "[PASS] $($case.Name) guard includes: $required"
+  }
+
+  Write-Host "[PASS] $($case.Name)"
+}
+
+foreach ($required in @("evaluateCodexForgeToolPolicy", "toolPolicyDecision", "toolPolicy")) {
+  if ($executeRouteContent -notmatch [regex]::Escape($required)) {
+    throw "[FAIL] execute route missing executable policy marker: $required"
+  }
+
+  Write-Host "[PASS] execute route includes executable policy marker: $required"
+}
+
+Write-Host "[PASS] direct executable tool-policy smoke tests passed"

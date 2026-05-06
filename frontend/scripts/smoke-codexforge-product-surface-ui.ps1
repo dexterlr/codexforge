@@ -397,9 +397,9 @@ foreach ($fileName in $requiredStructuredFiles) {
 
 $forbiddenGlobalPatterns = @(
   "export export",
-  "ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢",
-  "ÃƒÂ¢Ã¢â€šÂ¬",
-  "Ã¯Â¿Â½"
+  "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢",
+  "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬",
+  "ÃƒÂ¯Ã‚Â¿Ã‚Â½"
 )
 
 foreach ($pattern in $forbiddenGlobalPatterns) {
@@ -529,3 +529,73 @@ foreach ($pattern in $influenceRequired) {
 }
 
 Write-Host "[PASS] agent-team runtime policy assertions passed"
+
+Write-Host "`n[RUN ] Executable tool-policy guard assertions"
+
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Split-Path -Parent $scriptRoot
+$guardPath = Join-Path $repoRoot "src/lib/codexforge/tools/tool-policy-guard.ts"
+$executeRoutePath = Join-Path $repoRoot "src/app/api/codexforge/tools/execute/route.ts"
+$serverToolsPath = Join-Path $repoRoot "src/lib/codexforge/tools/server.ts"
+
+if (-not (Test-Path $guardPath)) {
+  throw "[FAIL] missing central tool-policy guard"
+}
+Write-Host "[PASS] central tool-policy guard exists"
+
+$guardContent = Get-Content -Raw $guardPath
+$executeRouteContent = Get-Content -Raw $executeRoutePath
+$serverToolsContent = Get-Content -Raw $serverToolsPath
+
+$guardRequired = @(
+  "export function evaluateCodexForgeToolPolicy",
+  "export function assertCodexForgeToolAllowed",
+  "export function buildCodexForgeToolPolicyInputFromBody",
+  "CodexForgeToolPolicyError",
+  "broker-execution",
+  "render-job",
+  "deck-export",
+  "apply-diff",
+  "write-file",
+  "run-command",
+  "Tool execution requires explicit approval",
+  "Tool execution blocked by CodexForge runtime policy"
+)
+
+foreach ($pattern in $guardRequired) {
+  if ($guardContent -notmatch [regex]::Escape($pattern)) {
+    throw "[FAIL] tool-policy guard missing behavior: $pattern"
+  }
+
+  Write-Host "[PASS] tool-policy guard includes behavior: $pattern"
+}
+
+$routeRequired = @(
+  "tool-policy-guard",
+  "evaluateCodexForgeToolPolicy",
+  "buildCodexForgeToolPolicyInputFromBody"
+)
+
+foreach ($pattern in $routeRequired) {
+  if ($executeRouteContent -notmatch [regex]::Escape($pattern)) {
+    throw "[FAIL] execute route missing policy guard wiring: $pattern"
+  }
+
+  Write-Host "[PASS] execute route includes policy guard wiring: $pattern"
+}
+
+$serverRequired = @(
+  "tool-policy-guard",
+  "evaluateCodexForgeToolPolicy",
+  "assertCodexForgeToolAllowed"
+)
+
+foreach ($pattern in $serverRequired) {
+  if ($serverToolsContent -notmatch [regex]::Escape($pattern)) {
+    throw "[FAIL] server tools missing policy guard export: $pattern"
+  }
+
+  Write-Host "[PASS] server tools exposes policy guard: $pattern"
+}
+
+Write-Host "[PASS] executable tool-policy guard assertions passed"

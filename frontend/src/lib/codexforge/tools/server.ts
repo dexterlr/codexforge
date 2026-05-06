@@ -1,3 +1,4 @@
+export { evaluateCodexForgeToolPolicy, assertCodexForgeToolAllowed } from "@/lib/codexforge/tools/tool-policy-guard";
 import "server-only";
 
 import type {

@@ -1,3 +1,4 @@
+import { buildCodexForgeToolPolicyInputFromBody, evaluateCodexForgeToolPolicy } from "@/lib/codexforge/tools/tool-policy-guard";
 import { NextResponse } from "next/server";
 import {
   executeCodexForgeTool,
@@ -63,7 +64,7 @@ function asTrimmedString(value: unknown): string | undefined {
 }
 
 function clampText(value: string, max: number): string {
-  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}…`;
+  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}â€¦`;
 }
 
 function json(status: number, payload: ExecuteToolRouteResponse) {
