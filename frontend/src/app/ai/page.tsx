@@ -674,210 +674,32 @@ export default function AiPage() {
 
 
 
-const heroShellStyle: React.CSSProperties = {
-  display: "grid",
-  gap: 16,
-  marginBottom: 16,
-};
 
-const heroCardStyle: React.CSSProperties = {
-  border: "1px solid rgba(148,163,184,0.16)",
-  background:
-    "linear-gradient(180deg, rgba(99,102,241,0.10), rgba(15,23,42,0.26))",
-  borderRadius: 20,
-  padding: 18,
-  display: "grid",
-  gap: 16,
-};
 
-const heroTopRowStyle: React.CSSProperties = {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-  alignItems: "center",
-};
 
-const heroBadgeStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 8,
-  padding: "6px 10px",
-  borderRadius: 999,
-  border: "1px solid rgba(99,102,241,0.22)",
-  background: "rgba(99,102,241,0.12)",
-  fontSize: 12,
-  fontWeight: 800,
-};
 
-const heroDotStyle: React.CSSProperties = {
-  width: 8,
-  height: 8,
-  borderRadius: 999,
-  background: "rgba(16,185,129,0.95)",
-  boxShadow: "0 0 0 4px rgba(16,185,129,0.14)",
-};
 
-const heroMetaTextStyle: React.CSSProperties = {
-  fontSize: 12,
-  opacity: 0.72,
-};
 
-const heroGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "minmax(0, 1.3fr) minmax(300px, 0.9fr)",
-  gap: 16,
-};
 
-const heroMainStyle: React.CSSProperties = {
-  display: "grid",
-  gap: 14,
-};
 
-const heroEyebrowStyle: React.CSSProperties = {
-  fontSize: 12,
-  fontWeight: 900,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
-  opacity: 0.74,
-};
 
-const heroTitleStyle: React.CSSProperties = {
-  margin: 0,
-  fontSize: "clamp(28px, 4vw, 46px)",
-  lineHeight: 1.02,
-  letterSpacing: -0.9,
-};
 
-const heroGradientStyle: React.CSSProperties = {
-  background:
-    "linear-gradient(135deg, rgba(99,102,241,1), rgba(16,185,129,1))",
-  WebkitBackgroundClip: "text",
-  backgroundClip: "text",
-  color: "transparent",
-};
 
-const heroBodyStyle: React.CSSProperties = {
-  fontSize: 15,
-  lineHeight: 1.7,
-  opacity: 0.9,
-  maxWidth: 860,
-};
 
-const heroActionRowStyle: React.CSSProperties = {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-};
 
-const heroPrimaryActionStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 10,
-  padding: "12px 14px",
-  borderRadius: 14,
-  textDecoration: "none",
-  fontWeight: 900,
-  background:
-    "linear-gradient(135deg, rgba(99,102,241,1), rgba(16,185,129,1))",
-  color: "white",
-  border: "1px solid rgba(255,255,255,0.18)",
-};
 
-const heroSecondaryActionStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 10,
-  padding: "12px 14px",
-  borderRadius: 14,
-  textDecoration: "none",
-  fontWeight: 800,
-  background: "rgba(255,255,255,0.05)",
-  color: "white",
-  border: "1px solid rgba(255,255,255,0.16)",
-};
 
-const heroSupportTextStyle: React.CSSProperties = {
-  fontSize: 13,
-  lineHeight: 1.6,
-  opacity: 0.76,
-};
 
-const heroAsideStyle: React.CSSProperties = {
-  display: "grid",
-  gap: 12,
-  border: "1px solid rgba(148,163,184,0.16)",
-  background: "rgba(15,23,42,0.22)",
-  borderRadius: 18,
-  padding: 14,
-};
 
-const heroAsideTitleStyle: React.CSSProperties = {
-  fontSize: 13,
-  fontWeight: 900,
-  opacity: 0.84,
-};
 
-const heroAsideGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-  gap: 10,
-};
 
-const heroAsideCardStyle: React.CSSProperties = {
-  padding: 12,
-  borderRadius: 14,
-  border: "1px solid rgba(148,163,184,0.12)",
-  background: "rgba(0,0,0,0.18)",
-  display: "grid",
-  gap: 4,
-};
 
-const heroAsideLabelStyle: React.CSSProperties = {
-  fontSize: 11,
-  textTransform: "uppercase",
-  letterSpacing: "0.08em",
-  opacity: 0.68,
-  fontWeight: 900,
-};
 
-const heroAsideValueStyle: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 900,
-};
 
-const heroAsideCopyStyle: React.CSSProperties = {
-  fontSize: 12,
-  lineHeight: 1.6,
-  opacity: 0.82,
-};
 
-const surfaceGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: 10,
-};
 
-const surfaceLinkStyle: React.CSSProperties = {
-  padding: 12,
-  borderRadius: 14,
-  border: "1px solid rgba(148,163,184,0.14)",
-  background: "rgba(15,23,42,0.18)",
-  color: "white",
-  textDecoration: "none",
-  display: "grid",
-  gap: 6,
-};
 
-const surfaceLinkTitleStyle: React.CSSProperties = {
-  fontWeight: 800,
-  fontSize: 14,
-};
 
-const surfaceLinkTextStyle: React.CSSProperties = {
-  fontSize: 12,
-  lineHeight: 1.55,
-  opacity: 0.82,
-};
 
 const sectionStackStyle: React.CSSProperties = {
   display: "grid",
