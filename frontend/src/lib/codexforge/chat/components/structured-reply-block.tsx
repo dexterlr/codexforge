@@ -343,7 +343,7 @@ function BulletList({
       {items.map((item, idx) => (
         <div key={`${idx}-${item}`} style={styles.structuredListItem}>
           <span style={styles.structuredBullet}>
-            {ordered ? `${idx + 1}.` : "â€¢"}
+            {ordered ? `${idx + 1}.` : "Ã¢â‚¬Â¢"}
           </span>
           <span>{item}</span>
         </div>
