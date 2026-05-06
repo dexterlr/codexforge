@@ -1,15 +1,17 @@
 import React from "react";
 import * as styles from "@/lib/codexforge/chat/client-styles";
+import {
+  plural,
+  StatChip,
+  StructuredCard,
+  wrapRow,
+} from "@/lib/codexforge/chat/components/structured-ui-primitives";
 import { getDiffMeta } from "@/lib/codexforge/chat/client-renderers";
 import type {
   CodexForgeApprovalGate,
   CodexForgeDiffPreview,
   CodexForgeStructuredReply,
 } from "@/lib/codexforge/types";
-
-function plural(value: number, singular: string, pluralLabel?: string): string {
-  return `${value} ${value === 1 ? singular : pluralLabel ?? `${singular}s`}`;
-}
 
 function getStructuredDiffPreviews(
   structured?: CodexForgeStructuredReply | null
@@ -115,25 +117,6 @@ function getPreviewCheckpointId(preview: CodexForgeDiffPreview): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
-function StatChip({ children }: { children: React.ReactNode }) {
-  return <span style={statChip}>{children}</span>;
-}
-
-function StructuredCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div style={styles.structuredCard}>
-      <div style={styles.structuredTitle}>{title}</div>
-      {children}
-    </div>
-  );
-}
-
 export function DiffSection({
   structured,
 }: {
@@ -192,7 +175,7 @@ export function DiffPreviewSection({
           until the matching approval gate is explicitly approved.
         </div>
 
-        <div style={approvalHeroStats}>
+        <div style={wrapRow}>
           {previews.length > 0 ? (
             <StatChip>{plural(previews.length, "preview")}</StatChip>
           ) : null}
@@ -229,7 +212,7 @@ export function DiffPreviewSection({
                     ) : null}
                   </div>
 
-                  <div style={previewBadgeWrap}>
+                  <div style={wrapRow}>
                     <span style={getStateChipStyle(preview.status)}>
                       {getPreviewStatusLabel(preview.status)}
                     </span>
@@ -248,7 +231,7 @@ export function DiffPreviewSection({
                     : "No approval gate is required."}
                 </div>
 
-                <div style={previewBadgeWrap}>
+                <div style={wrapRow}>
                   <StatChip>{plural(patchStats.lines, "patch line")}</StatChip>
                   <StatChip>{plural(patchStats.additions, "addition")}</StatChip>
                   <StatChip>{plural(patchStats.deletions, "deletion")}</StatChip>
@@ -283,15 +266,6 @@ export function DiffPreviewSection({
   );
 }
 
-const statChip: React.CSSProperties = {
-  padding: "5px 8px",
-  borderRadius: 999,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-  fontSize: 11,
-  fontWeight: 800,
-};
-
 const approvalHero: React.CSSProperties = {
   display: "grid",
   gap: 10,
@@ -306,12 +280,6 @@ const approvalHeroText: React.CSSProperties = {
   fontSize: 13,
   lineHeight: 1.55,
   opacity: 0.88,
-};
-
-const approvalHeroStats: React.CSSProperties = {
-  display: "flex",
-  gap: 8,
-  flexWrap: "wrap",
 };
 
 const batchSummary: React.CSSProperties = {
@@ -367,13 +335,6 @@ const diffSummary: React.CSSProperties = {
   fontSize: 12,
   lineHeight: 1.45,
   opacity: 0.76,
-};
-
-const previewBadgeWrap: React.CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: 8,
-  alignItems: "flex-start",
 };
 
 const diffPatch: React.CSSProperties = {

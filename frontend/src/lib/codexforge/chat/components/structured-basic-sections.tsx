@@ -1,5 +1,6 @@
 import React from "react";
 import * as styles from "@/lib/codexforge/chat/client-styles";
+import { StructuredCard } from "@/lib/codexforge/chat/components/structured-ui-primitives";
 
 export function normalizeString(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -23,22 +24,7 @@ export function hasItems(items?: string[] | null): items is string[] {
   return Array.isArray(items) && items.length > 0;
 }
 
-export function StructuredCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div style={styles.structuredCard}>
-      <div style={styles.structuredTitle}>{title}</div>
-      {children}
-    </div>
-  );
-}
-
-export function ParagraphBlock({
+export export function ParagraphBlock({
   title,
   text,
 }: {

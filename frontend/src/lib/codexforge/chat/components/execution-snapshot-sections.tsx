@@ -1,6 +1,12 @@
 import React from "react";
 import * as styles from "@/lib/codexforge/chat/client-styles";
 import {
+  plural,
+  StatChip,
+  StructuredCard,
+  wrapRow,
+} from "@/lib/codexforge/chat/components/structured-ui-primitives";
+import {
   getExecutionMeta,
   getSnapshotMeta,
 } from "@/lib/codexforge/chat/client-renderers";
@@ -15,29 +21,6 @@ function normalizeStringArray(value: unknown): string[] {
         .map((item) => item.trim())
         .filter(Boolean)
     )
-  );
-}
-
-function plural(value: number, singular: string, pluralLabel?: string): string {
-  return `${value} ${value === 1 ? singular : pluralLabel ?? `${singular}s`}`;
-}
-
-function StatChip({ children }: { children: React.ReactNode }) {
-  return <span style={statChip}>{children}</span>;
-}
-
-function StructuredCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div style={styles.structuredCard}>
-      <div style={styles.structuredTitle}>{title}</div>
-      {children}
-    </div>
   );
 }
 
@@ -83,7 +66,7 @@ export function ExecutionSection({
 
   return (
     <StructuredCard title="Execution">
-      <div style={statsGrid}>
+      <div style={wrapRow}>
         {executionMeta.stepNumber !== null ? (
           <StatChip>Step {executionMeta.stepNumber}</StatChip>
         ) : null}
@@ -135,7 +118,7 @@ export function SnapshotSection({
 
   return (
     <StructuredCard title="Snapshot">
-      <div style={statsGrid}>
+      <div style={wrapRow}>
         {snapshotMeta.fileCount !== null ? (
           <StatChip>{plural(snapshotMeta.fileCount, "file")}</StatChip>
         ) : null}
@@ -153,21 +136,6 @@ export function SnapshotSection({
     </StructuredCard>
   );
 }
-
-const statsGrid: React.CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: 8,
-};
-
-const statChip: React.CSSProperties = {
-  padding: "5px 8px",
-  borderRadius: 999,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-  fontSize: 11,
-  fontWeight: 800,
-};
 
 const executionResultCard: React.CSSProperties = {
   marginTop: 10,

@@ -1,5 +1,11 @@
 import React from "react";
 import * as styles from "@/lib/codexforge/chat/client-styles";
+import {
+  InlineMetaChip,
+  plural,
+  StructuredCard,
+  wrapRow,
+} from "@/lib/codexforge/chat/components/structured-ui-primitives";
 import type { CodexForgeStructuredReply } from "@/lib/codexforge/types";
 
 function normalizeStringArray(value: unknown): string[] {
@@ -11,29 +17,6 @@ function normalizeStringArray(value: unknown): string[] {
         .map((item) => item.trim())
         .filter(Boolean)
     )
-  );
-}
-
-function plural(value: number, singular: string, pluralLabel?: string): string {
-  return `${value} ${value === 1 ? singular : pluralLabel ?? `${singular}s`}`;
-}
-
-function StatChip({ children }: { children: React.ReactNode }) {
-  return <span style={statChip}>{children}</span>;
-}
-
-function StructuredCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section style={styles.structuredCard}>
-      <div style={styles.structuredTitle}>{title}</div>
-      {children}
-    </section>
   );
 }
 
@@ -105,16 +88,16 @@ export function AgentTeamSection({
           </div>
         </div>
 
-        <div style={approvalHeroStats}>
-          <StatChip>{agentTeam.domain}</StatChip>
+        <div style={wrapRow}>
+          <InlineMetaChip>{agentTeam.domain}</InlineMetaChip>
           {supportLabels.length > 0 ? (
-            <StatChip>{plural(supportLabels.length, "support role")}</StatChip>
+            <InlineMetaChip>{plural(supportLabels.length, "support role")}</InlineMetaChip>
           ) : null}
           {approvalTools.length > 0 ? (
-            <StatChip>{plural(approvalTools.length, "approval tool")}</StatChip>
+            <InlineMetaChip>{plural(approvalTools.length, "approval tool")}</InlineMetaChip>
           ) : null}
           {blockedTools.length > 0 ? (
-            <StatChip>{plural(blockedTools.length, "blocked tool")}</StatChip>
+            <InlineMetaChip>{plural(blockedTools.length, "blocked tool")}</InlineMetaChip>
           ) : null}
         </div>
       </div>
@@ -127,25 +110,6 @@ export function AgentTeamSection({
     </StructuredCard>
   );
 }
-
-const statChip: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 5,
-  padding: "5px 8px",
-  borderRadius: 999,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-  fontSize: 11,
-  fontWeight: 800,
-};
-
-const approvalHeroStats: React.CSSProperties = {
-  display: "flex",
-  gap: 8,
-  flexWrap: "wrap",
-  alignItems: "flex-start",
-};
 
 const agentTeamHero: React.CSSProperties = {
   display: "grid",

@@ -16,6 +16,12 @@ import {
   hasItems,
   normalizeString,
 } from "@/lib/codexforge/chat/components/structured-basic-sections";
+import {
+  InlineMetaChip,
+  plural,
+  StatChip,
+  wrapRow,
+} from "@/lib/codexforge/chat/components/structured-ui-primitives";
 
 function asNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
@@ -27,18 +33,6 @@ function getMetaNumber(
 ): number {
   const value = (meta as Record<string, unknown>)[key];
   return asNumber(value) ?? 0;
-}
-
-function plural(value: number, singular: string, pluralLabel?: string): string {
-  return `${value} ${value === 1 ? singular : pluralLabel ?? `${singular}s`}`;
-}
-
-function MetaChip({ children }: { children: React.ReactNode }) {
-  return <span style={metaChip}>{children}</span>;
-}
-
-function StatChip({ children }: { children: React.ReactNode }) {
-  return <span style={statChip}>{children}</span>;
 }
 
 function SummaryStats({
@@ -91,7 +85,7 @@ function SummaryStats({
   if (stats.length === 0) return null;
 
   return (
-    <div style={statsGrid}>
+    <div style={wrapRow}>
       {stats.map((item) => (
         <StatChip key={item}>{item}</StatChip>
       ))}
@@ -129,11 +123,11 @@ export function HeroSection({
       {title ? <div style={styles.structuredHeroTitle}>{title}</div> : null}
       {summary ? <div style={styles.structuredParagraph}>{summary}</div> : null}
 
-      <div style={metaRow}>
-        {status ? <MetaChip>{status}</MetaChip> : null}
-        {domain ? <MetaChip>{domain}</MetaChip> : null}
+      <div style={wrapRow}>
+        {status ? <InlineMetaChip>{status}</InlineMetaChip> : null}
+        {domain ? <InlineMetaChip>{domain}</InlineMetaChip> : null}
         {hasItems(structured.tags) ? (
-          <MetaChip>{plural(structured.tags.length, "tag")}</MetaChip>
+          <InlineMetaChip>{plural(structured.tags.length, "tag")}</InlineMetaChip>
         ) : null}
       </div>
 
@@ -155,34 +149,3 @@ export function HeroSection({
     </div>
   );
 }
-
-const metaRow: React.CSSProperties = {
-  display: "flex",
-  gap: 8,
-  flexWrap: "wrap",
-  alignItems: "center",
-};
-
-const metaChip: React.CSSProperties = {
-  padding: "4px 8px",
-  borderRadius: 999,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-  fontSize: 11,
-  fontWeight: 800,
-};
-
-const statsGrid: React.CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: 8,
-};
-
-const statChip: React.CSSProperties = {
-  padding: "5px 8px",
-  borderRadius: 999,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-  fontSize: 11,
-  fontWeight: 800,
-};
