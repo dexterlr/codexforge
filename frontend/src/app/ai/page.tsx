@@ -355,7 +355,7 @@ function WorkspaceHeroIntro({
           </div>
 
           <div style={heroMetaTextStyle}>
-            local-first • backend-optional • planning, memory, and execution context
+            local-first Ã¢â‚¬Â¢ backend-optional Ã¢â‚¬Â¢ planning, memory, and execution context
           </div>
         </div>
 
@@ -512,78 +512,6 @@ function ProductDirectionPanel() {
   );
 }
 
-function WorkspaceOverviewCard({
-  hasMessages,
-  messageCount,
-  activeTaskGoal,
-  completedSteps,
-  totalSteps,
-  enginePhaseLabel,
-  diffCount,
-  snapshotFileCount,
-  tags,
-  isExecuting,
-}: {
-  hasMessages: boolean;
-  messageCount: number;
-  activeTaskGoal?: string;
-  completedSteps: number;
-  totalSteps: number;
-  enginePhaseLabel: string;
-  diffCount: number;
-  snapshotFileCount: number;
-  tags: string[];
-  isExecuting: boolean;
-}) {
-  const conversationDescriptor = getConversationDescriptor(
-    messageCount,
-    isExecuting
-  );
-  const executionDescriptor = getExecutionDescriptor({
-    isExecuting,
-    enginePhaseLabel,
-    diffCount,
-    snapshotFileCount,
-  });
-
-  return (
-    <div style={styles.statusCard}>
-      <div style={styles.panelTitle}>Workspace overview</div>
-
-      <div style={primaryWorkspaceCardStyle}>
-        <div style={primaryWorkspaceTitleStyle}>
-          {activeTaskGoal || "No active task yet"}
-        </div>
-
-        <div style={primaryWorkspaceTextStyle}>
-          {hasMessages
-            ? conversationDescriptor
-            : "This workspace should stay useful even before a full task exists. Start with planning, repo inspection, product design, or execution-safe research."}
-        </div>
-
-        <div style={panelSubtleTextStyle}>{executionDescriptor}</div>
-
-        {totalSteps > 0 ? (
-          <div style={panelSubtleTextStyle}>
-            Task progress: <b>{completedSteps}</b> of <b>{totalSteps}</b> steps
-            completed.
-          </div>
-        ) : null}
-
-        {tags.length > 0 ? (
-          <div style={miniTagRowStyle}>
-            {tags.slice(0, 6).map((tag) => (
-              <div key={tag} style={miniTagStyle}>
-                {tag}
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
 /* ---------------- page ---------------- */
 
 export default function AiPage() {
@@ -725,16 +653,16 @@ export default function AiPage() {
 
     return {
       textLength: lastAssistant?.text.length ?? 0,
-      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "—",
+      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "Ã¢â‚¬â€",
       structured: !!lastAssistant?.structured,
       toolCount: summaryMeta.toolCount,
       domainLabel: summaryMeta.domainLabel ?? "General",
       tagCount: summaryMeta.tagCount,
-      modeLabel: summaryMeta.modeLabel ?? "—",
+      modeLabel: summaryMeta.modeLabel ?? "Ã¢â‚¬â€",
       stepCount: summaryMeta.stepCount,
       diffCount: summaryMeta.diffCount,
       snapshotFileCount: summaryMeta.snapshotFileCount,
-      executionPhaseLabel: executionMeta.phaseLabel ?? "—",
+      executionPhaseLabel: executionMeta.phaseLabel ?? "Ã¢â‚¬â€",
       logCount: executionMeta.logCount,
     };
   }, [lastAssistant]);
