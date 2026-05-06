@@ -209,6 +209,8 @@ Write-Host "[OK] CodexForge product surface UI smoke passed."
 
 Write-Host "`n[RUN ] Structured reply extraction boundaries"
 
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Split-Path -Parent $scriptRoot
 $structuredComponentsDir = Join-Path $repoRoot "src/lib/codexforge/chat/components"
 
 $requiredStructuredFiles = @(

@@ -24,7 +24,7 @@ export function hasItems(items?: string[] | null): items is string[] {
   return Array.isArray(items) && items.length > 0;
 }
 
-export export function ParagraphBlock({
+export function ParagraphBlock({
   title,
   text,
 }: {
