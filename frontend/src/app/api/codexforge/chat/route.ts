@@ -3572,19 +3572,29 @@ export async function POST(req: Request) {
       model: response.meta.model || MODEL_NAME,
     });
 
-const successResponse: CodexForgeChatSuccessResponse = {
+    const finalValidation = validateFinalCodexForgeResponse({
+      text: decoratedText,
+      structured: agentInfluencedStructured,
+      resolvedDomain,
+      resolvedChatMode,
+      executionMode: finalExecutionMode,
+      productionOnlyPlanning,
+    });
+
+    const successResponse: CodexForgeChatSuccessResponse = {
       ok: true,
       reply: {
         id: uid(),
         role: "assistant",
-        text: decoratedText,
+        text: finalValidation.text,
         ts: Date.now(),
-        structured: agentInfluencedStructured,
+        structured: finalValidation.structured,
       },
       meta,
     };
 
     const mergedWarnings = uniqueStrings([
+      ...finalValidation.warnings,
       ...warnings,
       ...(response.meta.warnings ?? []),
       ...(selectionInfo.fallbackReason ? [selectionInfo.fallbackReason] : []),

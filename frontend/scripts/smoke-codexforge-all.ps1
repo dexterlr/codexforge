@@ -33,6 +33,11 @@ $scripts = @(
     Required = $false
   },
   @{
+    Name = "Final response validation"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-final-response-validation.ps1"
+    Required = $true
+  },
+  @{
     Name = "Route override visible meta"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-route-override-visible-meta.ps1"
     Required = $false
