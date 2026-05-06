@@ -432,7 +432,7 @@ $routeRequired = @(
   "agent-team-engine-influence",
   "applyAgentTeamEngineInfluence",
   "agentInfluencedStructured",
-  "structuredToText(agentInfluencedStructured)",
+  "structuredToText(premiumStructured)",
   "structured: agentInfluencedStructured"
 )
 

@@ -33,6 +33,11 @@ $scripts = @(
     Required = $false
   },
   @{
+    Name = "Premium response composer"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-premium-response-composer.ps1"
+    Required = $true
+  },
+  @{
     Name = "Final response validation"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-final-response-validation.ps1"
     Required = $true

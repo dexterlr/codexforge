@@ -7,6 +7,7 @@ import {
 import type { CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph/types";
 import { toCodexForgeChatMeta } from "@/lib/codexforge/brain/types";
 import { selectCodexForgeAgentTeam } from "@/lib/codexforge/agents";
+import { composePremiumCodexForgeResponse } from "@/lib/codexforge/chat/premium-response-composer";
 import { getCodexForgeServerEngineDependencies } from "@/lib/codexforge/chat/dependencies.server";
 import { structuredToText } from "@/lib/codexforge/chat/engine-render";
 import type {
@@ -3523,14 +3524,6 @@ export async function POST(req: Request) {
         )
       : decoratedStructured;
 
-    const rawDecoratedText = agentInfluencedStructured
-      ? structuredToText(agentInfluencedStructured)
-      : response.text;
-
-    const decoratedText = productionOnlyPlanning
-      ? scrubProductionOnlyVisibleText(rawDecoratedText)
-      : rawDecoratedText;
-
     const finalExecutionMode =
       enrichedContext.executionRequest?.mode === "execute-task-step" ||
       resolvedMode === "execution" ||
@@ -3549,6 +3542,20 @@ export async function POST(req: Request) {
       activePlanDomain: enrichedContext.activePlan?.domain,
       capabilityDomain: capabilityRouting.domain,
     });
+
+    const premiumStructured = composePremiumCodexForgeResponse({
+      structured: agentInfluencedStructured,
+      executionMode: finalExecutionMode,
+      diagnosticMode: resolvedDomain === "debug" && finalExecutionMode,
+    });
+
+    const rawDecoratedText = premiumStructured
+      ? structuredToText(premiumStructured)
+      : response.text;
+
+    const decoratedText = productionOnlyPlanning
+      ? scrubProductionOnlyVisibleText(rawDecoratedText)
+      : rawDecoratedText;
 
     const resolvedIntent =
       commandIntent ??
@@ -3574,7 +3581,7 @@ export async function POST(req: Request) {
 
     const finalValidation = validateFinalCodexForgeResponse({
       text: decoratedText,
-      structured: agentInfluencedStructured,
+      structured: premiumStructured,
       resolvedDomain,
       resolvedChatMode,
       executionMode: finalExecutionMode,
