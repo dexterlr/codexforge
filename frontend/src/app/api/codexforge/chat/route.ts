@@ -1,3 +1,4 @@
+import { applyAgentTeamEngineInfluence } from "@/lib/codexforge/chat/agent-team-engine-influence";
 import { NextResponse } from "next/server";
 import {
   createCodexForgeBrain,
@@ -3440,11 +3441,14 @@ export async function POST(req: Request) {
         ? scrubProductionOnlyRouteStructuredReply(productSurfaceDecoratedStructured)
         : productSurfaceDecoratedStructured;
 
-    const rawDecoratedText = decoratedStructured
-      const agentInfluencedStructured = applyAgentTeamEngineInfluence(
-        decoratedStructured,
-        (decoratedStructured as { agentTeam?: unknown }).agentTeam
-      );
+    const agentInfluencedStructured = decoratedStructured
+      ? applyAgentTeamEngineInfluence(
+          decoratedStructured,
+          (decoratedStructured as { agentTeam?: unknown }).agentTeam
+        )
+      : decoratedStructured;
+
+    const rawDecoratedText = agentInfluencedStructured
       ? structuredToText(agentInfluencedStructured)
       : response.text;
 
