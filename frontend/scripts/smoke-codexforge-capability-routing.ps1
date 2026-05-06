@@ -145,7 +145,7 @@ foreach ($case in $visibleCases) {
     messages = @(
       @{
         role = "user"
-        content = $case.Prompt
+        text = $case.Prompt
       }
     )
   } | ConvertTo-Json -Depth 8
