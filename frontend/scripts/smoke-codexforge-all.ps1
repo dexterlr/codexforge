@@ -16,7 +16,8 @@ $scripts = @(
     Name = "Product surface planning"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-product-surface-planning.ps1"
     Required = $true
-  },  @{
+  },
+  @{
     Name = "Tool-policy UI"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-tool-policy-ui.ps1"
     Required = $true
