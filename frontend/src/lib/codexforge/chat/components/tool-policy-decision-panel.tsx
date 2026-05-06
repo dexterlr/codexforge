@@ -1,10 +1,12 @@
 "use client";
 
 import type { CodexForgeToolPolicyDecision } from "@/lib/codexforge/tools/tool-policy-guard";
+import type { CodexForgeVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
 import { buildVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
 
 type ToolPolicyDecisionPanelProps = {
   decision?: CodexForgeToolPolicyDecision | null;
+  summary?: CodexForgeVisibleToolPolicy | null;
   compact?: boolean;
 };
 
@@ -32,9 +34,10 @@ const badgeByTone: Record<string, string> = {
 
 export function ToolPolicyDecisionPanel({
   decision,
+  summary,
   compact = false,
 }: ToolPolicyDecisionPanelProps) {
-  const visible = buildVisibleToolPolicy(decision);
+  const visible = summary ?? buildVisibleToolPolicy(decision);
 
   if (!visible) {
     return null;

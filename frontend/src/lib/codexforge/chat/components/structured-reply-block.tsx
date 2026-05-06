@@ -18,6 +18,7 @@ import {
   SnapshotSection,
 } from "@/lib/codexforge/chat/components/execution-snapshot-sections";
 import { StructuredSections } from "@/lib/codexforge/chat/components/structured-sections";
+import { ToolPolicyDecisionPanel } from "@/lib/codexforge/chat/components/tool-policy-decision-panel";
 import {
   getGroundingSections,
   getNonGroundingSections,
@@ -28,12 +29,50 @@ import {
 import type {
   CodexForgeStructuredReply,
 } from "@/lib/codexforge/types";
+import type { CodexForgeVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
 
 type StructuredReplyBlockProps = {
   structured?: CodexForgeStructuredReply | null;
 };
 
 /* ================= HELPERS ================= */
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isVisibleToolPolicy(value: unknown): value is CodexForgeVisibleToolPolicy {
+  if (!isRecord(value)) return false;
+
+  return (
+    typeof value.title === "string" &&
+    typeof value.tone === "string" &&
+    typeof value.badge === "string" &&
+    typeof value.summary === "string" &&
+    typeof value.nextAction === "string" &&
+    isStringArray(value.bullets) &&
+    isStringArray(value.audit)
+  );
+}
+
+function getStructuredToolPolicySummary(
+  structured?: CodexForgeStructuredReply | null
+): CodexForgeVisibleToolPolicy | null {
+  if (!structured) return null;
+
+  const directSummary = (structured as { toolPolicySummary?: unknown }).toolPolicySummary;
+  if (isVisibleToolPolicy(directSummary)) return directSummary;
+
+  const metadataValue = (structured as { metadata?: unknown }).metadata;
+  const metadata = isRecord(metadataValue) ? metadataValue : null;
+  const metadataSummary = metadata?.toolPolicySummary;
+
+  return isVisibleToolPolicy(metadataSummary) ? metadataSummary : null;
+}
 
 /* ================= SMALL UI PIECES ================= */
 
@@ -50,6 +89,7 @@ export function StructuredReplyBlock({
     <div style={styles.structuredWrap}>
       <HeroSection structured={structured} />
       <AgentTeamSection structured={structured} />
+      <ToolPolicyDecisionPanel summary={getStructuredToolPolicySummary(structured)} />
 
       <ExecutionSection structured={structured} />
       <SnapshotSection structured={structured} />
