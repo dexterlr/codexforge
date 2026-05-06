@@ -36,6 +36,7 @@ type ExecuteToolRouteSuccess = {
 type ExecuteToolRouteError = {
   ok: false;
   error: string;
+  toolPolicy?: unknown;
   meta?: Partial<ExecuteToolRouteMeta> & {
     availableTools?: string[];
   };
@@ -64,7 +65,7 @@ function asTrimmedString(value: unknown): string | undefined {
 }
 
 function clampText(value: string, max: number): string {
-  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}Ã¢â‚¬Â¦`;
+  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦`;
 }
 
 function json(status: number, payload: ExecuteToolRouteResponse) {
@@ -165,10 +166,10 @@ export async function POST(req: Request) {
       return json(toolPolicyDecision.status, {
         ok: false,
         error: toolPolicyDecision.reason,
+        toolPolicy: toolPolicyDecision,
         meta: {
           toolName: toolPolicyDecision.normalizedToolName ?? undefined,
           availableTools: getCodexForgeExecutableToolNames(),
-          toolPolicy: toolPolicyDecision,
         },
       });
     }
