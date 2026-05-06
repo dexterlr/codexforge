@@ -18,6 +18,7 @@ import { WorkspaceCommandCenter } from "@/lib/codexforge/chat/components/workspa
 import { WorkspaceStateCard } from "@/lib/codexforge/chat/components/workspace-state-card";
 import { ExecutionPanel } from "@/lib/codexforge/chat/components/execution-panel";
 import { EngineStateCard } from "@/lib/codexforge/chat/components/engine-state-card";
+import { WorkspaceOverviewCard } from "@/lib/codexforge/chat/components/workspace-overview-card";
 import type { WorkspaceCard } from "@/lib/codexforge/chat/components/workspace-hero";
 import WorkspaceSidebar from "@/lib/codexforge/chat/components/workspace-sidebar";
 import { WorkspaceSlider } from "@/lib/codexforge/chat/components/workspace-slider";
@@ -265,36 +266,7 @@ function getRepoLabel(repoPath: string | undefined) {
   return repoPath.split("\\").filter(Boolean).slice(-2).join("\\");
 }
 
-function getConversationDescriptor(messageCount: number, busy: boolean) {
-  if (busy) return "Working on your latest request";
-  if (messageCount === 0) return "Ready for a real task";
-  if (messageCount < 4) return "Conversation just started";
-  if (messageCount < 10) return "Context building";
-  return "Deep workspace context";
-}
 
-function getExecutionDescriptor(params: {
-  isExecuting: boolean;
-  enginePhaseLabel: string;
-  diffCount: number;
-  snapshotFileCount: number;
-}) {
-  const { isExecuting, enginePhaseLabel, diffCount, snapshotFileCount } = params;
-
-  if (isExecuting) {
-    return `Engine is active in ${enginePhaseLabel}.`;
-  }
-
-  if (diffCount > 0 || snapshotFileCount > 0) {
-    return `Engine is idle with ${diffCount} diff preview${
-      diffCount === 1 ? "" : "s"
-    } and ${snapshotFileCount} snapshot file${
-      snapshotFileCount === 1 ? "" : "s"
-    }.`;
-  }
-
-  return "Engine is idle and ready for planning, approvals, and execution.";
-}
 
 /* ---------------- small components ---------------- */
 
@@ -1389,47 +1361,11 @@ const insightsRowStyle: React.CSSProperties = {
   gap: 14,
 };
 
-const primaryWorkspaceCardStyle: React.CSSProperties = {
-  padding: 14,
-  borderRadius: 16,
-  border: "1px solid rgba(99,102,241,0.18)",
-  background:
-    "linear-gradient(180deg, rgba(99,102,241,0.10), rgba(15,23,42,0.16))",
-  display: "grid",
-  gap: 10,
-};
 
-const primaryWorkspaceTitleStyle: React.CSSProperties = {
-  fontSize: 15,
-  fontWeight: 800,
-};
 
-const primaryWorkspaceTextStyle: React.CSSProperties = {
-  fontSize: 13,
-  lineHeight: 1.6,
-  opacity: 0.92,
-};
 
-const miniTagRowStyle: React.CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: 8,
-};
 
-const miniTagStyle: React.CSSProperties = {
-  padding: "6px 10px",
-  borderRadius: 999,
-  border: "1px solid rgba(148,163,184,0.16)",
-  background: "rgba(15,23,42,0.18)",
-  fontSize: 11,
-  fontWeight: 700,
-};
 
-const panelSubtleTextStyle: React.CSSProperties = {
-  fontSize: 12,
-  lineHeight: 1.55,
-  opacity: 0.8,
-};
 const composerDockStyle: React.CSSProperties = {
   position: "sticky",
   bottom: 14,

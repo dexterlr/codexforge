@@ -20,6 +20,7 @@ $toolbarStatusPath = ".\src\lib\codexforge\chat\components\toolbar-status.tsx"
 $workspaceStatePath = ".\src\lib\codexforge\chat\components\workspace-state-card.tsx"
 $executionPanelPath = ".\src\lib\codexforge\chat\components\execution-panel.tsx"
 $engineStatePath = ".\src\lib\codexforge\chat\components\engine-state-card.tsx"
+$workspaceOverviewPath = ".\src\lib\codexforge\chat\components\workspace-overview-card.tsx"
 $pagePath = ".\src\app\ai\page.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
@@ -29,6 +30,7 @@ Assert-True (Test-Path $toolbarStatusPath) "toolbar status component file exists
 Assert-True (Test-Path $workspaceStatePath) "workspace state component file exists"
 Assert-True (Test-Path $executionPanelPath) "execution panel component file exists"
 Assert-True (Test-Path $engineStatePath) "engine state component file exists"
+Assert-True (Test-Path $workspaceOverviewPath) "workspace overview component file exists"
 Assert-True (Test-Path $pagePath) "AI page exists"
 
 $data = Get-Content -Raw $dataPath
@@ -38,6 +40,7 @@ $toolbarStatus = Get-Content -Raw $toolbarStatusPath
 $workspaceState = Get-Content -Raw $workspaceStatePath
 $executionPanel = Get-Content -Raw $executionPanelPath
 $engineState = Get-Content -Raw $engineStatePath
+$workspaceOverview = Get-Content -Raw $workspaceOverviewPath
 $page = Get-Content -Raw $pagePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
@@ -111,6 +114,21 @@ Assert-True (-not $page.Contains("const logListStyle")) "AI page does not keep l
 Assert-True (-not $page.Contains("const diffListStyle")) "AI page does not keep diff list styles inline"
 Assert-True (-not $page.Contains("const sampledPathsListStyle")) "AI page does not keep sampled paths styles inline"
 Assert-True (-not $page.Contains("const alertCardStyle")) "AI page does not keep engine alert styles inline"
+Assert-True ($workspaceOverview.Contains("export function WorkspaceOverviewCard")) "workspace overview exports component"
+Assert-True ($workspaceOverview.Contains("Workspace overview")) "workspace overview includes heading"
+Assert-True ($workspaceOverview.Contains("No active task yet")) "workspace overview preserves empty task copy"
+Assert-True ($workspaceOverview.Contains("Task progress")) "workspace overview preserves task progress copy"
+Assert-True ($page.Contains("workspace-overview-card")) "AI page imports workspace overview card"
+Assert-True ($page.Contains("<WorkspaceOverviewCard")) "AI page renders workspace overview card"
+Assert-True (-not $page.Contains("function WorkspaceOverviewCard")) "AI page does not define local workspace overview card"
+Assert-True (-not $page.Contains("function getConversationDescriptor")) "AI page does not keep conversation descriptor helper"
+Assert-True (-not $page.Contains("function getExecutionDescriptor")) "AI page does not keep execution descriptor helper"
+Assert-True (-not $page.Contains("const primaryWorkspaceCardStyle")) "AI page does not keep workspace overview card styles inline"
+Assert-True (-not $page.Contains("const primaryWorkspaceTitleStyle")) "AI page does not keep workspace overview title styles inline"
+Assert-True (-not $page.Contains("const primaryWorkspaceTextStyle")) "AI page does not keep workspace overview text styles inline"
+Assert-True (-not $page.Contains("const miniTagRowStyle")) "AI page does not keep mini tag row styles inline"
+Assert-True (-not $page.Contains("const miniTagStyle")) "AI page does not keep mini tag styles inline"
+Assert-True (-not $page.Contains("const panelSubtleTextStyle")) "AI page does not keep panel subtle text styles inline"
 Assert-True (-not $page.Contains("function WorkspaceCommandCenter")) "AI page does not define local workspace command center"
 Assert-True (-not $page.Contains("const commandCenterShellStyle")) "AI page does not keep command center styles inline"
 Assert-True (-not $page.Contains("<WorkspaceHero workspaceCards={workspaceCards} />")) "AI page does not render duplicate old workspace hero"
