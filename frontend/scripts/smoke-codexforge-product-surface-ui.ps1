@@ -19,6 +19,7 @@ $commandCenterPath = ".\src\lib\codexforge\chat\components\workspace-command-cen
 $toolbarStatusPath = ".\src\lib\codexforge\chat\components\toolbar-status.tsx"
 $workspaceStatePath = ".\src\lib\codexforge\chat\components\workspace-state-card.tsx"
 $executionPanelPath = ".\src\lib\codexforge\chat\components\execution-panel.tsx"
+$engineStatePath = ".\src\lib\codexforge\chat\components\engine-state-card.tsx"
 $pagePath = ".\src\app\ai\page.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
@@ -27,6 +28,7 @@ Assert-True (Test-Path $commandCenterPath) "workspace command center component f
 Assert-True (Test-Path $toolbarStatusPath) "toolbar status component file exists"
 Assert-True (Test-Path $workspaceStatePath) "workspace state component file exists"
 Assert-True (Test-Path $executionPanelPath) "execution panel component file exists"
+Assert-True (Test-Path $engineStatePath) "engine state component file exists"
 Assert-True (Test-Path $pagePath) "AI page exists"
 
 $data = Get-Content -Raw $dataPath
@@ -35,6 +37,7 @@ $commandCenter = Get-Content -Raw $commandCenterPath
 $toolbarStatus = Get-Content -Raw $toolbarStatusPath
 $workspaceState = Get-Content -Raw $workspaceStatePath
 $executionPanel = Get-Content -Raw $executionPanelPath
+$engineState = Get-Content -Raw $engineStatePath
 $page = Get-Content -Raw $pagePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
@@ -88,6 +91,26 @@ Assert-True (-not $page.Contains("const compactMetaGridStyle")) "AI page does no
 Assert-True (-not $page.Contains("const compactMetaCardStyle")) "AI page does not keep compact meta card inline"
 Assert-True (-not $page.Contains("const compactMetaLabelStyle")) "AI page does not keep compact meta label inline"
 Assert-True (-not $page.Contains("const compactMetaValueStyle")) "AI page does not keep compact meta value inline"
+Assert-True ($engineState.Contains("export function EngineStateCard")) "engine state exports component"
+Assert-True ($engineState.Contains("Execution engine")) "engine state includes heading"
+Assert-True ($engineState.Contains("Approve plan")) "engine state preserves plan approval action"
+Assert-True ($engineState.Contains("Approve diffs")) "engine state preserves diff approval action"
+Assert-True ($engineState.Contains("Snapshot sample")) "engine state preserves snapshot sample section"
+Assert-True ($page.Contains("engine-state-card")) "AI page imports engine state card"
+Assert-True ($page.Contains("<EngineStateCard")) "AI page renders engine state card"
+Assert-True (-not $page.Contains("function EngineStateCard")) "AI page does not define local engine state card"
+Assert-True (-not $page.Contains("type EngineStateCardProps")) "AI page does not keep engine state props inline"
+Assert-True (-not $page.Contains("type ActionButtonProps")) "AI page does not keep action button props inline"
+Assert-True (-not $page.Contains("function ActionButton")) "AI page does not keep action button helper"
+Assert-True (-not $page.Contains("const engineGridStyle")) "AI page does not keep engine grid styles inline"
+Assert-True (-not $page.Contains("const engineStatCardStyle")) "AI page does not keep engine stat card styles inline"
+Assert-True (-not $page.Contains("const engineStatLabelStyle")) "AI page does not keep engine stat label styles inline"
+Assert-True (-not $page.Contains("const engineStatValueStyle")) "AI page does not keep engine stat value styles inline"
+Assert-True (-not $page.Contains("const approvalBarStyle")) "AI page does not keep approval bar styles inline"
+Assert-True (-not $page.Contains("const logListStyle")) "AI page does not keep log list styles inline"
+Assert-True (-not $page.Contains("const diffListStyle")) "AI page does not keep diff list styles inline"
+Assert-True (-not $page.Contains("const sampledPathsListStyle")) "AI page does not keep sampled paths styles inline"
+Assert-True (-not $page.Contains("const alertCardStyle")) "AI page does not keep engine alert styles inline"
 Assert-True (-not $page.Contains("function WorkspaceCommandCenter")) "AI page does not define local workspace command center"
 Assert-True (-not $page.Contains("const commandCenterShellStyle")) "AI page does not keep command center styles inline"
 Assert-True (-not $page.Contains("<WorkspaceHero workspaceCards={workspaceCards} />")) "AI page does not render duplicate old workspace hero"
