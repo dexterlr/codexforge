@@ -17,18 +17,21 @@ $dataPath = ".\src\lib\codexforge\product-surface.ts"
 $componentPath = ".\src\lib\codexforge\chat\components\codexforge-product-surface.tsx"
 $commandCenterPath = ".\src\lib\codexforge\chat\components\workspace-command-center.tsx"
 $toolbarStatusPath = ".\src\lib\codexforge\chat\components\toolbar-status.tsx"
+$workspaceStatePath = ".\src\lib\codexforge\chat\components\workspace-state-card.tsx"
 $pagePath = ".\src\app\ai\page.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
 Assert-True (Test-Path $componentPath) "product surface component file exists"
 Assert-True (Test-Path $commandCenterPath) "workspace command center component file exists"
 Assert-True (Test-Path $toolbarStatusPath) "toolbar status component file exists"
+Assert-True (Test-Path $workspaceStatePath) "workspace state component file exists"
 Assert-True (Test-Path $pagePath) "AI page exists"
 
 $data = Get-Content -Raw $dataPath
 $component = Get-Content -Raw $componentPath
 $commandCenter = Get-Content -Raw $commandCenterPath
 $toolbarStatus = Get-Content -Raw $toolbarStatusPath
+$workspaceState = Get-Content -Raw $workspaceStatePath
 $page = Get-Content -Raw $pagePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
@@ -60,6 +63,14 @@ Assert-True ($page.Contains("toolbar-status")) "AI page imports toolbar status"
 Assert-True ($page.Contains("<ToolbarStatus")) "AI page renders toolbar status"
 Assert-True (-not $page.Contains("function StatusBar")) "AI page does not define local status bar"
 Assert-True (-not $page.Contains("type StatusBarProps")) "AI page does not keep status bar props inline"
+Assert-True ($workspaceState.Contains("export function WorkspaceStateCard")) "workspace state exports component"
+Assert-True ($workspaceState.Contains("Current workspace")) "workspace state includes heading"
+Assert-True ($workspaceState.Contains("Snapshot files")) "workspace state preserves snapshot file metric"
+Assert-True ($page.Contains("workspace-state-card")) "AI page imports workspace state card"
+Assert-True ($page.Contains("<WorkspaceStateCard")) "AI page renders workspace state card"
+Assert-True (-not $page.Contains("function WorkspaceStateCard")) "AI page does not define local workspace state card"
+Assert-True (-not $page.Contains("type WorkspaceStateCardProps")) "AI page does not keep workspace state props inline"
+Assert-True (-not $page.Contains("const workspaceStateGridStyle")) "AI page does not keep workspace state styles inline"
 Assert-True (-not $page.Contains("function WorkspaceCommandCenter")) "AI page does not define local workspace command center"
 Assert-True (-not $page.Contains("const commandCenterShellStyle")) "AI page does not keep command center styles inline"
 Assert-True (-not $page.Contains("<WorkspaceHero workspaceCards={workspaceCards} />")) "AI page does not render duplicate old workspace hero"

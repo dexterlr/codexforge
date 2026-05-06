@@ -15,6 +15,7 @@ import { ChatMessage } from "@/lib/codexforge/chat/components/chat-message";
 import { LatestReplyCard } from "@/lib/codexforge/chat/components/latest-reply-card";
 import { CodexForgeProductSurface } from "@/lib/codexforge/chat/components/codexforge-product-surface";
 import { WorkspaceCommandCenter } from "@/lib/codexforge/chat/components/workspace-command-center";
+import { WorkspaceStateCard } from "@/lib/codexforge/chat/components/workspace-state-card";
 import type { WorkspaceCard } from "@/lib/codexforge/chat/components/workspace-hero";
 import WorkspaceSidebar from "@/lib/codexforge/chat/components/workspace-sidebar";
 import { WorkspaceSlider } from "@/lib/codexforge/chat/components/workspace-slider";
@@ -76,18 +77,6 @@ type MetaCardProps = {
 };
 
 
-type WorkspaceStateCardProps = {
-  repoLabel: string;
-  backendLabel: string;
-  conversationState: string;
-  activeTaskLabel: string;
-  memoryCount: number;
-  pinnedMemoryCount: number;
-  diffCount: number;
-  snapshotFileCount: number;
-  enginePhaseLabel: string;
-  isExecuting: boolean;
-};
 
 type EngineStateCardProps = {
   enginePhase: CodexForgeExecutionPhase;
@@ -474,7 +463,7 @@ function WorkspaceHeroIntro({
           </div>
 
           <div style={heroMetaTextStyle}>
-            local-first â€¢ backend-optional â€¢ planning, memory, and execution context
+            local-first Ã¢â‚¬Â¢ backend-optional Ã¢â‚¬Â¢ planning, memory, and execution context
           </div>
         </div>
 
@@ -573,38 +562,6 @@ function EmptyState() {
         {EMPTY_EXAMPLES.map((example) => (
           <div key={example} style={styles.exampleChip}>"{example}"</div>
         ))}
-      </div>
-    </div>
-  );
-}
-
-function WorkspaceStateCard({
-  repoLabel,
-  backendLabel,
-  conversationState,
-  activeTaskLabel,
-  memoryCount,
-  pinnedMemoryCount,
-  diffCount,
-  snapshotFileCount,
-  enginePhaseLabel,
-  isExecuting,
-}: WorkspaceStateCardProps) {
-  return (
-    <div style={styles.statusCard}>
-      <div style={styles.panelTitle}>Current workspace</div>
-
-      <div style={workspaceStateGridStyle}>
-        <MetaCard label="Repo" value={repoLabel} />
-        <MetaCard label="Backend" value={backendLabel} />
-        <MetaCard label="Conversation" value={conversationState} />
-        <MetaCard label="Task" value={activeTaskLabel} />
-        <MetaCard label="Memory" value={memoryCount} />
-        <MetaCard label="Pinned" value={pinnedMemoryCount} />
-        <MetaCard label="Engine" value={enginePhaseLabel} />
-        <MetaCard label="Executing" value={isExecuting ? "Yes" : "No"} />
-        <MetaCard label="Diffs" value={diffCount} />
-        <MetaCard label="Snapshot files" value={snapshotFileCount} />
       </div>
     </div>
   );
@@ -946,7 +903,7 @@ function ExecutionPanel({
           style={styles.pillGhostButton}
           disabled={busy || isExecuting || totalSteps === 0}
         >
-          {isExecuting ? "Runningâ€¦" : "Run current step"}
+          {isExecuting ? "RunningÃ¢â‚¬Â¦" : "Run current step"}
         </button>
 
         <ActionButton
@@ -1139,16 +1096,16 @@ export default function AiPage() {
 
     return {
       textLength: lastAssistant?.text.length ?? 0,
-      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "â€”",
+      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "Ã¢â‚¬â€",
       structured: !!lastAssistant?.structured,
       toolCount: summaryMeta.toolCount,
       domainLabel: summaryMeta.domainLabel ?? "General",
       tagCount: summaryMeta.tagCount,
-      modeLabel: summaryMeta.modeLabel ?? "â€”",
+      modeLabel: summaryMeta.modeLabel ?? "Ã¢â‚¬â€",
       stepCount: summaryMeta.stepCount,
       diffCount: summaryMeta.diffCount,
       snapshotFileCount: summaryMeta.snapshotFileCount,
-      executionPhaseLabel: executionMeta.phaseLabel ?? "â€”",
+      executionPhaseLabel: executionMeta.phaseLabel ?? "Ã¢â‚¬â€",
       logCount: executionMeta.logCount,
     };
   }, [lastAssistant]);
@@ -1857,12 +1814,6 @@ const compactMetaValueStyle: React.CSSProperties = {
   fontWeight: 800,
 };
 
-const workspaceStateGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-  gap: 10,
-  marginTop: 12,
-};
 
 const directionGridStyle: React.CSSProperties = {
   display: "grid",
