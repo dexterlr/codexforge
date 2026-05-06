@@ -22,6 +22,7 @@ import { WorkspaceOverviewCard } from "@/lib/codexforge/chat/components/workspac
 import { TopBar } from "@/lib/codexforge/chat/components/top-bar";
 import { EmptyState } from "@/lib/codexforge/chat/components/empty-state";
 import { WorkspaceInsightsPanel } from "@/lib/codexforge/chat/components/workspace-insights-panel";
+import { WorkspaceSectionStack } from "@/lib/codexforge/chat/components/workspace-section-stack";
 import type { WorkspaceCard } from "@/lib/codexforge/chat/components/workspace-hero";
 import WorkspaceSidebar from "@/lib/codexforge/chat/components/workspace-sidebar";
 import { WorkspaceSlider } from "@/lib/codexforge/chat/components/workspace-slider";
@@ -536,7 +537,7 @@ export default function AiPage() {
                 onClearDraft={handleClearDraft}
                 onSend={handleSend}
               />
-              <div style={sectionStackStyle}>
+              <WorkspaceSectionStack>
                 <WorkspaceOverviewCard
                   hasMessages={hasMessages}
                   messageCount={messages.length}
@@ -620,7 +621,7 @@ export default function AiPage() {
                     onResetEngine={resetEngine}
                   />
                 ) : null}
-              </div>
+              </WorkspaceSectionStack>
 
               <div style={styles.footerNote}>
                 Main CodexForge workspace. Use the operator page for explicit
@@ -669,38 +670,3 @@ export default function AiPage() {
 }
 
 /* ---------------- local styles ---------------- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const sectionStackStyle: React.CSSProperties = {
-  display: "grid",
-  gap: 14,
-  marginTop: 16,
-};

@@ -25,6 +25,7 @@ $topBarPath = ".\src\lib\codexforge\chat\components\top-bar.tsx"
 $emptyStatePath = ".\src\lib\codexforge\chat\components\empty-state.tsx"
 $workspaceInsightsPath = ".\src\lib\codexforge\chat\components\workspace-insights-panel.tsx"
 $composerDockPath = ".\src\lib\codexforge\chat\components\composer-dock.tsx"
+$workspaceSectionStackPath = ".\src\lib\codexforge\chat\components\workspace-section-stack.tsx"
 $pagePath = ".\src\app\ai\page.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
@@ -39,6 +40,7 @@ Assert-True (Test-Path $topBarPath) "top bar component file exists"
 Assert-True (Test-Path $emptyStatePath) "empty state component file exists"
 Assert-True (Test-Path $workspaceInsightsPath) "workspace insights component file exists"
 Assert-True (Test-Path $composerDockPath) "composer dock component file exists"
+Assert-True (Test-Path $workspaceSectionStackPath) "workspace section stack component file exists"
 Assert-True (Test-Path $pagePath) "AI page exists"
 
 $data = Get-Content -Raw $dataPath
@@ -53,6 +55,7 @@ $topBar = Get-Content -Raw $topBarPath
 $emptyState = Get-Content -Raw $emptyStatePath
 $workspaceInsights = Get-Content -Raw $workspaceInsightsPath
 $composerDock = Get-Content -Raw $composerDockPath
+$workspaceSectionStack = Get-Content -Raw $workspaceSectionStackPath
 $page = Get-Content -Raw $pagePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
@@ -155,6 +158,11 @@ Assert-True ($emptyState.Contains("Ready for a real task")) "empty state preserv
 Assert-True ($page.Contains("components/empty-state")) "AI page imports empty state"
 Assert-True ($page.Contains("<EmptyState")) "AI page renders empty state"
 Assert-True (-not $page.Contains("function EmptyState")) "AI page does not define local empty state"
+Assert-True ($workspaceSectionStack.Contains("export function WorkspaceSectionStack")) "workspace section stack exports component"
+Assert-True ($workspaceSectionStack.Contains("sectionStackStyle")) "workspace section stack owns layout style"
+Assert-True ($page.Contains("components/workspace-section-stack")) "AI page imports workspace section stack"
+Assert-True ($page.Contains("<WorkspaceSectionStack")) "AI page renders workspace section stack"
+Assert-True (-not $page.Contains("const sectionStackStyle")) "AI page does not keep section stack style inline"
 Assert-True ($composerDock.Contains("ComposerDock")) "composer dock exports component"
 Assert-True ($composerDock.Contains("ChatComposer")) "composer dock wraps chat composer"
 Assert-True ($composerDock.Contains("position: `"sticky`"")) "composer dock preserves sticky positioning"
