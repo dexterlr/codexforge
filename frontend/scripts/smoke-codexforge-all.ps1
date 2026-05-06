@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -15,6 +15,10 @@ $scripts = @(
   @{
     Name = "Product surface planning"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-product-surface-planning.ps1"
+    Required = $true
+  },  @{
+    Name = "Tool-policy UI"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-tool-policy-ui.ps1"
     Required = $true
   },
   @{
@@ -102,4 +106,3 @@ if ($passed -lt 1) {
 }
 
 Write-Host "[OK] CodexForge smoke suite passed."
-
