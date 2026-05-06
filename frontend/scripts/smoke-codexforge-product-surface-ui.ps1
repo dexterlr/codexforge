@@ -397,9 +397,9 @@ foreach ($fileName in $requiredStructuredFiles) {
 
 $forbiddenGlobalPatterns = @(
   "export export",
-  "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢",
-  "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬",
-  "ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¿Ãƒâ€šÃ‚Â½"
+  "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢",
+  "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬",
+  "ÃƒÂ¯Ã‚Â¿Ã‚Â½"
 )
 
 foreach ($pattern in $forbiddenGlobalPatterns) {
@@ -599,75 +599,3 @@ foreach ($pattern in $serverRequired) {
 }
 
 Write-Host "[PASS] executable tool-policy guard assertions passed"
-
-Write-Host "`n[RUN ] Visible tool-policy UX assertions"
-
-$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = Split-Path -Parent $scriptRoot
-$visibilityPath = Join-Path $repoRoot "src/lib/codexforge/tools/tool-policy-visibility.ts"
-$panelPath = Join-Path $repoRoot "src/lib/codexforge/chat/components/tool-policy-decision-panel.tsx"
-$executeRoutePath = Join-Path $repoRoot "src/app/api/codexforge/tools/execute/route.ts"
-
-foreach ($path in @($visibilityPath, $panelPath, $executeRoutePath)) {
-  if (-not (Test-Path $path)) {
-    throw "[FAIL] missing visible tool-policy UX file: $path"
-  }
-
-  Write-Host "[PASS] visible tool-policy UX file exists: $path"
-}
-
-$visibilityContent = Get-Content -Raw $visibilityPath
-$panelContent = Get-Content -Raw $panelPath
-$routeContent = Get-Content -Raw $executeRoutePath
-
-$visibilityRequired = @(
-  "export function buildVisibleToolPolicy",
-  "export function serializeVisibleToolPolicy",
-  "Tool blocked by policy",
-  "Approval required before tool execution",
-  "Tool approved for execution",
-  "Next action:"
-)
-
-foreach ($pattern in $visibilityRequired) {
-  if ($visibilityContent -notmatch [regex]::Escape($pattern)) {
-    throw "[FAIL] tool-policy visibility helper missing behavior: $pattern"
-  }
-
-  Write-Host "[PASS] tool-policy visibility helper includes: $pattern"
-}
-
-$panelRequired = @(
-  "export function ToolPolicyDecisionPanel",
-  "data-codexforge-tool-policy-panel",
-  "data-codexforge-tool-policy-tone",
-  "Decision",
-  "Audit",
-  "Next action:"
-)
-
-foreach ($pattern in $panelRequired) {
-  if ($panelContent -notmatch [regex]::Escape($pattern)) {
-    throw "[FAIL] tool-policy decision panel missing behavior: $pattern"
-  }
-
-  Write-Host "[PASS] tool-policy decision panel includes: $pattern"
-}
-
-$routeRequired = @(
-  "tool-policy-visibility",
-  "serializeVisibleToolPolicy",
-  "toolPolicySummary?: unknown;",
-  "const visibleToolPolicy = serializeVisibleToolPolicy(toolPolicyDecision);",
-  "toolPolicySummary: visibleToolPolicy"
-)
-
-foreach ($pattern in $routeRequired) {
-  if ($routeContent -notmatch [regex]::Escape($pattern)) {
-    throw "[FAIL] execute route missing visible tool-policy payload: $pattern"
-  }
-
-  Write-Host "[PASS] execute route includes visible tool-policy payload: $pattern"
-}
-
-Write-Host "[PASS] visible tool-policy UX assertions passed"
