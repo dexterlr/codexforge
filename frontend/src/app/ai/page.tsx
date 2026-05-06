@@ -358,16 +358,16 @@ export default function AiPage() {
 
     return {
       textLength: lastAssistant?.text.length ?? 0,
-      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "Ã¢â‚¬â€",
+      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "-",
       structured: !!lastAssistant?.structured,
       toolCount: summaryMeta.toolCount,
       domainLabel: summaryMeta.domainLabel ?? "General",
       tagCount: summaryMeta.tagCount,
-      modeLabel: summaryMeta.modeLabel ?? "Ã¢â‚¬â€",
+      modeLabel: summaryMeta.modeLabel ?? "-",
       stepCount: summaryMeta.stepCount,
       diffCount: summaryMeta.diffCount,
       snapshotFileCount: summaryMeta.snapshotFileCount,
-      executionPhaseLabel: executionMeta.phaseLabel ?? "Ã¢â‚¬â€",
+      executionPhaseLabel: executionMeta.phaseLabel ?? "-",
       logCount: executionMeta.logCount,
     };
   }, [lastAssistant]);
