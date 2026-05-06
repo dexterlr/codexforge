@@ -1,4 +1,4 @@
-import type { CodexForgeBackendMode } from "@/lib/codexforge/chat/use-codexforge-chat";
+export type CodexForgeBackendMode = "api" | "local-fallback";
 
 export type Suggestion = {
   id: string;
