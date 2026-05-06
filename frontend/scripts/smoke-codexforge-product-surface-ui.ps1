@@ -292,3 +292,122 @@ foreach ($fileName in $primitiveUsers) {
 }
 
 Write-Host "[PASS] structured reply extraction smoke assertions passed"
+
+Write-Host "`n[RUN ] Structured reply hardening assertions"
+
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Split-Path -Parent $scriptRoot
+$structuredComponentsDir = Join-Path $repoRoot "src/lib/codexforge/chat/components"
+
+$requiredStructuredFiles = @(
+  "structured-reply-block.tsx",
+  "structured-ui-primitives.tsx",
+  "structured-basic-sections.tsx",
+  "structured-reply-hero.tsx",
+  "structured-plan-sections.tsx",
+  "execution-snapshot-sections.tsx",
+  "diff-approval-sections.tsx",
+  "grounding-inspection-section.tsx",
+  "agent-team-section.tsx",
+  "structured-sections.tsx"
+)
+
+foreach ($fileName in $requiredStructuredFiles) {
+  $candidate = Join-Path $structuredComponentsDir $fileName
+  if (-not (Test-Path $candidate)) {
+    throw "[FAIL] missing structured reply file: $fileName"
+  }
+
+  Write-Host "[PASS] structured reply file exists: $fileName"
+}
+
+$structuredShell = Get-Content -Raw (Join-Path $structuredComponentsDir "structured-reply-block.tsx")
+
+$requiredShellImports = @(
+  "structured-basic-sections",
+  "structured-reply-hero",
+  "structured-plan-sections",
+  "execution-snapshot-sections",
+  "diff-approval-sections",
+  "grounding-inspection-section",
+  "agent-team-section",
+  "structured-sections"
+)
+
+foreach ($importName in $requiredShellImports) {
+  if ($structuredShell -notmatch [regex]::Escape($importName)) {
+    throw "[FAIL] structured shell missing extracted boundary import: $importName"
+  }
+
+  Write-Host "[PASS] structured shell imports extracted boundary: $importName"
+}
+
+$forbiddenShellPatterns = @(
+  "function SummaryStats",
+  "function HeroSection",
+  "function PlanSection",
+  "function ExecutionSection",
+  "function SnapshotSection",
+  "function DiffPreviewSection",
+  "function DiffSection",
+  "function StructuredCard",
+  "function BulletList",
+  "function ParagraphBlock",
+  "function StatChip",
+  "const metaRow",
+  "const metaChip",
+  "const statsGrid",
+  "const statChip",
+  "getDomainLabel(",
+  "getStructuredPlan(",
+  "getNextAction(",
+  "normalizeStringArray(",
+  "CodexForgePlanDomain"
+)
+
+foreach ($pattern in $forbiddenShellPatterns) {
+  if ($structuredShell -match [regex]::Escape($pattern)) {
+    throw "[FAIL] structured shell still owns stale/extracted code: $pattern"
+  }
+
+  Write-Host "[PASS] structured shell excludes stale/extracted code: $pattern"
+}
+
+$primitiveUsers = @(
+  "structured-basic-sections.tsx",
+  "structured-reply-hero.tsx",
+  "execution-snapshot-sections.tsx",
+  "diff-approval-sections.tsx",
+  "agent-team-section.tsx"
+)
+
+foreach ($fileName in $primitiveUsers) {
+  $content = Get-Content -Raw (Join-Path $structuredComponentsDir $fileName)
+  if ($content -notmatch "structured-ui-primitives") {
+    throw "[FAIL] extracted component does not use shared primitives: $fileName"
+  }
+
+  Write-Host "[PASS] extracted component uses shared primitives: $fileName"
+}
+
+$allStructuredContent = ""
+foreach ($fileName in $requiredStructuredFiles) {
+  $allStructuredContent += "`n" + (Get-Content -Raw (Join-Path $structuredComponentsDir $fileName))
+}
+
+$forbiddenGlobalPatterns = @(
+  "export export",
+  "â€¢",
+  "â€",
+  "�"
+)
+
+foreach ($pattern in $forbiddenGlobalPatterns) {
+  if ($allStructuredContent -match [regex]::Escape($pattern)) {
+    throw "[FAIL] forbidden text found in structured reply layer: $pattern"
+  }
+
+  Write-Host "[PASS] structured layer excludes forbidden text: $pattern"
+}
+
+Write-Host "[PASS] structured reply hardening assertions passed"
