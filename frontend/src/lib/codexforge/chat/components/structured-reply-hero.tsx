@@ -108,7 +108,7 @@ export function HeroSection({
   const summary = normalizeString(structured.summary);
   const plan = getStructuredPlan(structured);
   const meta = getStructuredSummaryMeta(structured);
-  const status = getStructuredStatusLabel(structured.status);
+  const status = getStructuredStatusLabel(structured);
   const domain =
     getDomainLabel(plan?.domain ?? structured.domain ?? null) ?? null;
 
