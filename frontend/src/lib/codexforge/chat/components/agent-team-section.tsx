@@ -140,6 +140,13 @@ const statChip: React.CSSProperties = {
   fontWeight: 800,
 };
 
+const approvalHeroStats: React.CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+  alignItems: "flex-start",
+};
+
 const agentTeamHero: React.CSSProperties = {
   display: "grid",
   gap: 10,
