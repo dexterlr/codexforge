@@ -12,6 +12,7 @@ import {
 } from "@/lib/codexforge/chat/client-renderers";
 import { ChatComposer } from "@/lib/codexforge/chat/components/chat-composer";
 import { ChatMessage } from "@/lib/codexforge/chat/components/chat-message";
+import { LatestReplyCard } from "@/lib/codexforge/chat/components/latest-reply-card";
 import { CodexForgeProductSurface } from "@/lib/codexforge/chat/components/codexforge-product-surface";
 import { WorkspaceCommandCenter } from "@/lib/codexforge/chat/components/workspace-command-center";
 import type { WorkspaceCard } from "@/lib/codexforge/chat/components/workspace-hero";
@@ -74,9 +75,6 @@ type MetaCardProps = {
   value: React.ReactNode;
 };
 
-type LatestReplyCardProps = {
-  snapshot: LatestReplySnapshot;
-};
 
 type WorkspaceStateCardProps = {
   repoLabel: string;
@@ -476,7 +474,7 @@ function WorkspaceHeroIntro({
           </div>
 
           <div style={heroMetaTextStyle}>
-            local-first • backend-optional • planning, memory, and execution context
+            local-first â€¢ backend-optional â€¢ planning, memory, and execution context
           </div>
         </div>
 
@@ -575,35 +573,6 @@ function EmptyState() {
         {EMPTY_EXAMPLES.map((example) => (
           <div key={example} style={styles.exampleChip}>"{example}"</div>
         ))}
-      </div>
-    </div>
-  );
-}
-
-function LatestReplyCard({ snapshot }: LatestReplyCardProps) {
-  return (
-    <div style={styles.statusCard}>
-      <div style={styles.panelTitle}>Latest assistant reply</div>
-
-      <div style={compactMetaGridStyle}>
-        <MetaCard label="Length" value={snapshot.textLength} />
-        <MetaCard label="Source" value={snapshot.sourceLabel} />
-        <MetaCard
-          label="Structured"
-          value={snapshot.structured ? "On" : "Text only"}
-        />
-        <MetaCard label="Tools" value={snapshot.toolCount} />
-        <MetaCard label="Domain" value={snapshot.domainLabel} />
-        <MetaCard label="Tags" value={snapshot.tagCount} />
-        <MetaCard label="Mode" value={snapshot.modeLabel} />
-        <MetaCard label="Steps" value={snapshot.stepCount} />
-        <MetaCard label="Diffs" value={snapshot.diffCount} />
-        <MetaCard label="Snapshot" value={snapshot.snapshotFileCount ?? "—"} />
-        <MetaCard
-          label="Execution phase"
-          value={snapshot.executionPhaseLabel}
-        />
-        <MetaCard label="Logs" value={snapshot.logCount} />
       </div>
     </div>
   );
@@ -977,7 +946,7 @@ function ExecutionPanel({
           style={styles.pillGhostButton}
           disabled={busy || isExecuting || totalSteps === 0}
         >
-          {isExecuting ? "Running…" : "Run current step"}
+          {isExecuting ? "Runningâ€¦" : "Run current step"}
         </button>
 
         <ActionButton
@@ -1170,16 +1139,16 @@ export default function AiPage() {
 
     return {
       textLength: lastAssistant?.text.length ?? 0,
-      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "—",
+      sourceLabel: lastAssistant ? getSourceLabel(lastAssistant) : "â€”",
       structured: !!lastAssistant?.structured,
       toolCount: summaryMeta.toolCount,
       domainLabel: summaryMeta.domainLabel ?? "General",
       tagCount: summaryMeta.tagCount,
-      modeLabel: summaryMeta.modeLabel ?? "—",
+      modeLabel: summaryMeta.modeLabel ?? "â€”",
       stepCount: summaryMeta.stepCount,
       diffCount: summaryMeta.diffCount,
       snapshotFileCount: summaryMeta.snapshotFileCount,
-      executionPhaseLabel: executionMeta.phaseLabel ?? "—",
+      executionPhaseLabel: executionMeta.phaseLabel ?? "â€”",
       logCount: executionMeta.logCount,
     };
   }, [lastAssistant]);
