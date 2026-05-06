@@ -530,5 +530,5 @@ export function applyAgentTeamRuntimePolicy(
     plan: nextPlan,
     sections: nextSections as CodexForgeStructuredReply["sections"],
     meta: nextMeta,
-  } as CodexForgeStructuredReply;
+  } as unknown as CodexForgeStructuredReply;
 }
