@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Stop"
 
 $baseUrl = $env:CODEXFORGE_SMOKE_BASE_URL
 if ([string]::IsNullOrWhiteSpace($baseUrl)) {
@@ -97,4 +97,114 @@ if ($failures.Count -gt 0) {
 Write-Host ""
 Write-Host "All CodexForge capability routing smoke tests passed."
 
+Write-Host "`n=== Visible agent-team influence smoke tests ==="
 
+$visibleCases = @(
+  @{
+    Name = "Blender visible influence"
+    Prompt = "Plan a Blender and ComfyUI cinematic workflow for a short product video. Show the agent-directed plan and approval gates."
+    ExpectedDomain = "blender"
+    ExpectedPrimary = "blender-operator"
+    RequiredText = @(
+      "Agent-directed planning",
+      "Agent safety and approval gates",
+      "Primary: Blender Operator",
+      "Approval tools:"
+    )
+  },
+  @{
+    Name = "Trading visible influence"
+    Prompt = "Research a crypto trading workflow and outline what the trading agent should do without executing broker actions."
+    ExpectedDomain = "trading"
+    ExpectedPrimary = "trading-researcher"
+    RequiredText = @(
+      "Agent-directed planning",
+      "Agent safety and approval gates",
+      "Primary: Trading Researcher",
+      "Blocked tools:"
+    )
+  },
+  @{
+    Name = "Decks visible influence"
+    Prompt = "Plan a deck for CodexForge investor positioning with research, design, and export approval gates."
+    ExpectedDomain = "decks"
+    ExpectedPrimary = "deck-strategist"
+    RequiredText = @(
+      "Agent-directed planning",
+      "Agent safety and approval gates",
+      "Primary: Deck Strategist",
+      "Approval tools:"
+    )
+  }
+)
+
+foreach ($case in $visibleCases) {
+  Write-Host "[RUN ] $($case.Name)"
+
+  $body = @{
+    messages = @(
+      @{
+        role = "user"
+        content = $case.Prompt
+      }
+    )
+  } | ConvertTo-Json -Depth 8
+
+  $response = Invoke-WebRequest `
+    -Uri "$BaseUrl/api/codexforge/chat" `
+    -Method POST `
+    -Body $body `
+    -ContentType "application/json" `
+    -UseBasicParsing
+
+  if ($response.StatusCode -ne 200) {
+    throw "[FAIL] $($case.Name) HTTP status was $($response.StatusCode)"
+  }
+
+  $json = $response.Content | ConvertFrom-Json
+
+  if (-not $json.ok) {
+    throw "[FAIL] $($case.Name) response ok was not true"
+  }
+
+  $domainHeader = $response.Headers["x-codexforge-domain"]
+  if ($domainHeader -ne $case.ExpectedDomain) {
+    throw "[FAIL] $($case.Name) expected domain header '$($case.ExpectedDomain)', got '$domainHeader'"
+  }
+
+  $primaryHeader = $response.Headers["x-codexforge-agent-primary"]
+  if ($primaryHeader -ne $case.ExpectedPrimary) {
+    throw "[FAIL] $($case.Name) expected primary agent '$($case.ExpectedPrimary)', got '$primaryHeader'"
+  }
+
+  $text = [string]$json.reply.text
+
+  foreach ($required in $case.RequiredText) {
+    if (-not $text.Contains($required)) {
+      Write-Host "`n=== Visible text for failed case ==="
+      $text
+      throw "[FAIL] $($case.Name) visible text missing: $required"
+    }
+
+    Write-Host "[PASS] $($case.Name) visible text includes: $required"
+  }
+
+  $sectionTitles = @()
+  if ($json.reply.structured.sections) {
+    $sectionTitles = @($json.reply.structured.sections | ForEach-Object { $_.title })
+  }
+
+  foreach ($requiredSection in @("Agent-directed planning", "Agent safety and approval gates")) {
+    if ($sectionTitles -notcontains $requiredSection) {
+      Write-Host "`n=== Structured section titles for failed case ==="
+      $sectionTitles
+      throw "[FAIL] $($case.Name) structured sections missing: $requiredSection"
+    }
+
+    Write-Host "[PASS] $($case.Name) structured section exists: $requiredSection"
+  }
+
+  Write-Host "[PASS] $($case.Name)"
+}
+
+Write-Host "[PASS] visible agent-team influence smoke tests passed"
