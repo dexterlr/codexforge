@@ -150,6 +150,15 @@ $RoutePath = Join-Path (Get-Location) "src\app\api\codexforge\chat\route.ts"
 $RouteText = Get-Content -Raw $RoutePath
 
 $LatestOverridePath = Join-Path (Get-Location) "src\lib\codexforge\chat\latest-message-override-response.ts"
+$LatestContextPath = Join-Path (Get-Location) "src\lib\codexforge\chat\latest-message-override-context.ts"
+Assert-True (Test-Path $LatestContextPath) "latest-message override context module exists"
+
+$LatestContextText = Get-Content -Raw $LatestContextPath
+Assert-True ($LatestContextText -match "export function buildRouteLatestMessageOverrideContext") "latest-message context module exports override context helper"
+Assert-True ($LatestContextText -match "export function getLatestMessageOverridePreferredPath") "latest-message context module exports preferred path helper"
+Assert-True ($RouteText -match "latest-message-override-context") "route imports latest-message context module"
+Assert-True ($RouteText -notmatch "function buildRouteLatestMessageOverrideContext") "route no longer owns latest-message override context helper"
+Assert-True ($RouteText -notmatch "function getLatestMessageOverridePreferredPath") "route no longer owns latest-message preferred path helper"
 Assert-True (Test-Path $LatestOverridePath) "latest-message override response module exists"
 
 $LatestOverrideText = Get-Content -Raw $LatestOverridePath

@@ -92,6 +92,18 @@ $LatestOverridePath = Join-Path (Get-Location) "src\lib\codexforge\chat\latest-m
 Assert-True (Test-Path $LatestOverridePath) "latest-message override response module exists"
 
 $LatestOverrideText = Get-Content -Raw $LatestOverridePath
+$LatestContextPath = Join-Path (Get-Location) "src\lib\codexforge\chat\latest-message-override-context.ts"
+Assert-True (Test-Path $LatestContextPath) "latest-message override context module exists"
+
+$LatestContextText = Get-Content -Raw $LatestContextPath
+Assert-True ($LatestContextText -match "export function buildRouteLatestMessageOverrideContext") "latest-message context module exports override context helper"
+Assert-True ($LatestContextText -match "export function getLatestMessageOverridePreferredPath") "latest-message context module exports preferred path helper"
+Assert-True ($LatestOverrideText -match "latest-message-override-context") "latest-message response module imports shared context helpers"
+Assert-True ($LatestOverrideText -notmatch "function buildRouteLatestMessageOverrideContext") "latest-message response module no longer owns override context helper"
+Assert-True ($LatestOverrideText -notmatch "function getLatestMessageOverridePreferredPath") "latest-message response module no longer owns preferred path helper"
+Assert-True ($RouteText -match "latest-message-override-context") "route imports latest-message context module"
+Assert-True ($RouteText -notmatch "function buildRouteLatestMessageOverrideContext") "route no longer owns override context helper"
+Assert-True ($RouteText -notmatch "function getLatestMessageOverridePreferredPath") "route no longer owns preferred path helper"
 Assert-True ($LatestOverrideText -match "export function buildLatestMessageOverrideSuccessResponse") "latest-message module exports success response builder"
 Assert-True ($LatestOverrideText -match "buildRouteLatestMessageOverrideContext") "latest-message module owns override context helper"
 Assert-True ($LatestOverrideText -match "getLatestMessageOverridePreferredPath") "latest-message module owns preferred path helper"
