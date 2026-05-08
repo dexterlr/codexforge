@@ -1,3 +1,9 @@
+import {
+  getCodexForgeToolAdapter,
+  getCodexForgeToolAdapterNames,
+  listCodexForgeToolAdapters,
+  requireCodexForgeToolAdapter,
+} from "@/lib/codexforge/tools/tool-adapter-registry";
 export { evaluateCodexForgeToolPolicy, assertCodexForgeToolAllowed } from "@/lib/codexforge/tools/tool-policy-guard";
 import "server-only";
 
@@ -449,3 +455,9 @@ export function getCodexForgeClientToolDescriptor(
   if (!normalized) return undefined;
   return getClientToolByName(normalized as never);
 }
+export {
+  getCodexForgeToolAdapter,
+  getCodexForgeToolAdapterNames,
+  listCodexForgeToolAdapters,
+  requireCodexForgeToolAdapter,
+};

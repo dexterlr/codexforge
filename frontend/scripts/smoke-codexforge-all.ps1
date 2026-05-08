@@ -18,7 +18,9 @@ $scripts = @(
     Required = $true
   },
   @{
-    Name = "Tool-policy UI"
+    Name = "Tool adapter registry
+powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-tool-adapter-registry.ps1
+Tool-policy UI"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-tool-policy-ui.ps1"
     Required = $true
   },
