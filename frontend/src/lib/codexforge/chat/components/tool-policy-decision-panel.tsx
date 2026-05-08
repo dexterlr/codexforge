@@ -5,6 +5,10 @@ import type { CodexForgeToolPolicyDecision } from "@/lib/codexforge/tools/tool-p
 import type { CodexForgeVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
 import { buildVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
 import {
+  retryApprovedToolPolicy,
+  type CodexForgeToolApprovalRetryResult,
+} from "@/lib/codexforge/tools/tool-approval-retry";
+import {
   buildApprovedToolApprovalState,
   buildDeniedToolApprovalState,
   buildToolApprovalLifecycleSnapshot,
@@ -129,11 +133,31 @@ export function ToolPolicyDecisionPanel({
     onDenyTool?.(deniedPayload);
   }
 
-  function retryTool() {
+  async function retryTool() {
     if (!approvedPayload) return;
 
     setLifecycleStatus("approved");
+    setRetrying(true);
+    setRetryResult(null);
     onRetryTool?.(approvedPayload);
+
+    try {
+      const result = await retryApprovedToolPolicy({
+        visible,
+        payload: approvedPayload,
+      });
+
+      setRetryResult(result);
+    } catch (error) {
+      setRetryResult({
+        ok: false,
+        status: 0,
+        message: error instanceof Error ? error.message : "Tool retry request failed.",
+        body: null,
+      });
+    } finally {
+      setRetrying(false);
+    }
   }
 
   return (
@@ -215,10 +239,10 @@ export function ToolPolicyDecisionPanel({
                     type="button"
                     className={actionButton}
                     data-codexforge-tool-policy-retry="true"
-                    disabled={lifecycle?.retryEnabled !== true}
+                    disabled={retrying || lifecycle?.retryEnabled !== true}
                     onClick={retryTool}
                   >
-                    Retry
+                    {retrying ? "Retrying" : "Retry"}
                   </button>
                 </div>
               </div>
@@ -229,6 +253,16 @@ export function ToolPolicyDecisionPanel({
                   data-codexforge-tool-policy-approval-state="true"
                 >
                   {JSON.stringify({ approvalState: lifecycle.approvalState }, null, 2)}
+                </pre>
+              ) : null}
+
+              {retryResult ? (
+                <pre
+                  className="mt-3 max-h-44 overflow-auto rounded-lg border border-white/10 bg-black/20 p-2 text-[11px] opacity-85"
+                  data-codexforge-tool-policy-retry-result="true"
+                  data-codexforge-tool-policy-retry-status={retryResult.status}
+                >
+                  {JSON.stringify(retryResult, null, 2)}
                 </pre>
               ) : null}
             </div>

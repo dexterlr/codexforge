@@ -27,8 +27,9 @@ $visibilityPath = "src\lib\codexforge\tools\tool-policy-visibility.ts"
 $panelPath = "src\lib\codexforge\chat\components\tool-policy-decision-panel.tsx"
 $routePath = "src\app\api\codexforge\tools\execute\route.ts"
 $lifecyclePath = "src\lib\codexforge\tools\tool-approval-lifecycle.ts"
+$retryPath = "src\lib\codexforge\tools\tool-approval-retry.ts"
 
-foreach ($path in @($guardPath, $visibilityPath, $panelPath, $routePath, $lifecyclePath)) {
+foreach ($path in @($guardPath, $visibilityPath, $panelPath, $routePath, $lifecyclePath, $retryPath)) {
   if (-not (Test-Path $path)) {
     throw "[FAIL] Missing expected file: $path"
   }
@@ -41,6 +42,7 @@ $visibility = Get-Content -Raw $visibilityPath
 $panel = Get-Content -Raw $panelPath
 $route = Get-Content -Raw $routePath
 $lifecycle = Get-Content -Raw $lifecyclePath
+$retry = Get-Content -Raw $retryPath
 
 Assert-Contains $guard "approvalId: string | null;" "guard decision approval id contract"
 Assert-Contains $guard "approvalState: CodexForgeToolApprovalState;" "guard decision approval state contract"
@@ -51,6 +53,12 @@ Assert-Contains $lifecycle "CodexForgeToolApprovalLifecycleStatus" "approval lif
 Assert-Contains $lifecycle "buildApprovedToolApprovalState" "approval lifecycle approved state builder"
 Assert-Contains $lifecycle "buildDeniedToolApprovalState" "approval lifecycle denied state builder"
 Assert-Contains $lifecycle "buildToolApprovalLifecycleSnapshot" "approval lifecycle snapshot builder"
+
+Assert-Contains $retry "buildToolApprovalRetryRequest" "retry request builder"
+Assert-Contains $retry "retryApprovedToolPolicy" "approved retry execute route helper"
+Assert-Contains $retry "/api/codexforge/tools/execute" "retry uses execute route"
+Assert-Contains $retry "approvalState" "retry forwards approval state"
+Assert-Contains $retry "approvalRetry" "retry marks approval retry input"
 
 Assert-Contains $visibility "CodexForgeVisibleToolPolicy" "visible policy type"
 Assert-Contains $visibility "approvalId?: string | null;" "visible approval id contract"
@@ -75,6 +83,9 @@ Assert-Contains $panel "data-codexforge-tool-policy-approval-state" "panel appro
 Assert-Contains $panel "onApproveTool" "panel approve callback contract"
 Assert-Contains $panel "onDenyTool" "panel deny callback contract"
 Assert-Contains $panel "onRetryTool" "panel retry callback contract"
+Assert-Contains $panel "retryApprovedToolPolicy" "panel invokes approved retry helper"
+Assert-Contains $panel "data-codexforge-tool-policy-retry-result" "panel retry result marker"
+Assert-Contains $panel "data-codexforge-tool-policy-retry-status" "panel retry status marker"
 
 Assert-Contains $route "serializeVisibleToolPolicy" "execute route serializes visible policy"
 Assert-Contains $route "approvalId?: string | null;" "execute route error meta approval id contract"
