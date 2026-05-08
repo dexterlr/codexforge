@@ -43,6 +43,11 @@ $scripts = @(
     Required = $true
   },
   @{
+    Name = "Domain alignment"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-domain-alignment.ps1"
+    Required = $true
+  },
+  @{
     Name = "Route override visible meta"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-route-override-visible-meta.ps1"
     Required = $false
@@ -105,10 +110,6 @@ $finishedAt = Get-Date
 $passed = @($results | Where-Object { $_.Status -eq "PASS" }).Count
 $skipped = @($results | Where-Object { $_.Status -eq "SKIP" }).Count
 
-Write-Host ""
-Write-Host "[RUN ] Domain alignment"
-& "$PSScriptRoot/smoke-codexforge-domain-alignment.ps1" -BaseUrl $BaseUrl
-Write-Host "[PASS] Domain alignment"
 Write-Host ""
 Write-Host "=== CodexForge smoke suite complete ==="
 Write-Host "Passed:  $passed"
