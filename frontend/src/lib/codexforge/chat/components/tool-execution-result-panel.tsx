@@ -13,6 +13,16 @@ function asRecord(value: unknown): JsonRecord {
     : {};
 }
 
+function asRecordArray(value: unknown): JsonRecord[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is JsonRecord => Boolean(item) && typeof item === "object" && !Array.isArray(item))
+    : [];
+}
+
+function hasKey(value: JsonRecord, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
+}
+
 function asString(value: unknown, fallback = "-"): string {
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
