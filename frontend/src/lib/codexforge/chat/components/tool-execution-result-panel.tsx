@@ -89,7 +89,7 @@ export function ToolExecutionResultPanel({
           Tool execution result
         </p>
         <h4 className="text-sm font-semibold text-white">
-          {toolName} Â· {resultStatus}
+          {toolName} - {resultStatus}
         </h4>
         <p className="text-xs text-slate-300">
           Approved replay completed through the CodexForge tool-policy guard.
