@@ -33,6 +33,11 @@ $scripts = @(
     Required = $true
   },
   @{
+    Name = "Self-upgrade console UI"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-self-upgrade-console-ui.ps1"
+    Required = $true
+  },
+  @{
     Name = "Tool-policy UI"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-tool-policy-ui.ps1"
     Required = $true
