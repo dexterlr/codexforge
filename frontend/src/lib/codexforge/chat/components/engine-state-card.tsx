@@ -1,5 +1,7 @@
 import React from "react";
 import * as styles from "@/lib/codexforge/chat/client-styles";
+import { ToolExecutionResultPanel } from "./tool-execution-result-panel";
+import type { CodexForgeToolExecutionEvent } from "@/lib/codexforge/chat/tool-execution-events";
 import type { CodexForgeExecutionPhase } from "@/lib/codexforge/types";
 
 type EngineStateCardProps = {
@@ -23,6 +25,8 @@ type EngineStateCardProps = {
   onApproveDiffs: () => void;
   onRejectDiffs: () => void;
   onResetEngine: () => void;
+  latestToolExecutionEvent?: CodexForgeToolExecutionEvent | null;
+  toolExecutionEventCount?: number;
 };
 
 type ActionButtonProps = {
@@ -70,6 +74,8 @@ export function EngineStateCard({
   onApproveDiffs,
   onRejectDiffs,
   onResetEngine,
+  latestToolExecutionEvent,
+  toolExecutionEventCount = 0,
 }: EngineStateCardProps) {
   return (
     <div style={styles.statusCard}>
@@ -96,6 +102,11 @@ export function EngineStateCard({
         <div style={engineStatCardStyle}>
           <div style={engineStatLabelStyle}>Recent logs</div>
           <div style={engineStatValueStyle}>{recentLogs.length}</div>
+        </div>
+
+        <div style={engineStatCardStyle} data-codexforge-tool-execution-event-count>
+          <div style={engineStatLabelStyle}>Tool results</div>
+          <div style={engineStatValueStyle}>{toolExecutionEventCount}</div>
         </div>
       </div>
 
@@ -158,6 +169,12 @@ export function EngineStateCard({
         <div style={alertCardStyle}>
           <div style={styles.panelTitle}>Engine error</div>
           <div style={styles.panelText}>{engineError}</div>
+        </div>
+      ) : null}
+
+      {latestToolExecutionEvent ? (
+        <div style={{ marginTop: 14 }} data-codexforge-persisted-tool-execution-result>
+          <ToolExecutionResultPanel executionEvent={latestToolExecutionEvent} />
         </div>
       ) : null}
 

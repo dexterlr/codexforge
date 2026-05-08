@@ -31,9 +31,11 @@ import type {
 } from "@/lib/codexforge/types";
 import type { CodexForgeVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
 import type { CodexForgeToolApprovalReplayRequest } from "@/lib/codexforge/tools/tool-approval-retry";
+import type { CodexForgeToolExecutionEvent } from "@/lib/codexforge/chat/tool-execution-events";
 
 type StructuredReplyBlockProps = {
   structured?: CodexForgeStructuredReply | null;
+  onToolExecutionResult?: (event: CodexForgeToolExecutionEvent) => void;
 };
 
 /* ================= HELPERS ================= */
@@ -115,9 +117,7 @@ function getStructuredToolPolicySummary(
 
 /* ================= MAIN ================= */
 
-export function StructuredReplyBlock({
-  structured,
-}: StructuredReplyBlockProps) {
+export function StructuredReplyBlock({ structured, onToolExecutionResult }: StructuredReplyBlockProps) {
   if (!structured) return null;
 
   return (
@@ -127,6 +127,7 @@ export function StructuredReplyBlock({
       <ToolPolicyDecisionPanel
         summary={getStructuredToolPolicySummary(structured)}
         replayRequest={getStructuredToolPolicyReplayRequest(structured)}
+              onToolExecutionResult={onToolExecutionResult}
       />
 
       <ExecutionSection structured={structured} />

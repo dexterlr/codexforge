@@ -72,6 +72,9 @@ export default function AiPage() {
     executionState,
     engineState,
     enginePhase,
+    latestToolExecutionEvent,
+    toolExecutionEvents,
+    recordToolExecutionResult,
     isExecuting,
     canApprovePlan,
     canRejectPlan,
@@ -348,6 +351,7 @@ export default function AiPage() {
                         onApproveDiffs={approveDiffs}
                         onRejectDiffs={rejectDiffs}
                         onResetEngine={resetEngine}
+                        onToolExecutionResult={recordToolExecutionResult}
                       />
                     ))}
                   </div>
@@ -418,6 +422,8 @@ export default function AiPage() {
                   onApproveDiffs={approveDiffs}
                   onRejectDiffs={rejectDiffs}
                   onResetEngine={resetEngine}
+                  latestToolExecutionEvent={latestToolExecutionEvent}
+                  toolExecutionEventCount={toolExecutionEvents.length}
                 />
 
                 {activeTask ? (

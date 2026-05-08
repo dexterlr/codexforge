@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildClientFallbackFromEngine } from "@/lib/codexforge/chat/client-fallback";
@@ -10,6 +10,7 @@ import {
   buildRequestBrainGraphContextPayload,
   persistCodexForgeBrainGraph,
 } from "@/lib/codexforge/brain/sync";
+import type { CodexForgeToolExecutionEvent } from "@/lib/codexforge/chat/tool-execution-events";
 import type {
   CodexForgeChatContext,
   CodexForgeChatErrorResponse,
@@ -110,6 +111,7 @@ export type CodexForgeExecutionState = {
   lastResultMessageId: string | null;
   lastRunLabel: string;
   engineState: CodexForgeEngineState | null;
+  toolExecutionEvents: CodexForgeToolExecutionEvent[];
 };
 
 type ExecutionRequest = {
@@ -188,6 +190,7 @@ const MAX_REQUEST_MESSAGES = 80;
 const MAX_ENGINE_LOG_LINES = 5;
 const MAX_ENGINE_SAMPLE_PATHS = 6;
 const MAX_ENGINE_DIFF_PREVIEW = 3;
+const MAX_TOOL_EXECUTION_EVENTS = 20;
 const CHAT_REQUEST_TIMEOUT_MS = 90_000;
 
 /* ================= DOMAIN ================= */
@@ -348,7 +351,7 @@ function summarizeEngineState(engineState: CodexForgeEngineState | null): string
     parts.push(`Error: ${engineState.error}`);
   }
 
-  return parts.join(" â€¢ ");
+  return parts.join(" ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ");
 }
 
 function summarizeDiffTargets(diffs: CodexForgeEngineDiff[]): string[] {
@@ -584,6 +587,23 @@ function normalizeEngineState(raw: unknown): CodexForgeEngineState | null {
   };
 }
 
+function normalizeToolExecutionEvents(raw: unknown): CodexForgeToolExecutionEvent[] {
+  if (!Array.isArray(raw)) return [];
+
+  return raw
+    .filter((item): item is CodexForgeToolExecutionEvent => {
+      if (!isRecord(item)) return false;
+
+      return (
+        typeof item.id === "string" &&
+        typeof item.createdAt === "number" &&
+        Number.isFinite(item.createdAt) &&
+        typeof item.toolName === "string" &&
+        typeof item.ok === "boolean"
+      );
+    })
+    .slice(-MAX_TOOL_EXECUTION_EVENTS);
+}
 function normalizeExecutionState(
   raw: unknown
 ): CodexForgeExecutionState | null {
@@ -615,6 +635,7 @@ function normalizeExecutionState(
         : null,
     lastRunLabel: typeof raw.lastRunLabel === "string" ? raw.lastRunLabel : "",
     engineState: normalizeEngineState(raw.engineState),
+    toolExecutionEvents: normalizeToolExecutionEvents(raw.toolExecutionEvents),
   };
 }
 
@@ -713,6 +734,7 @@ function createIdleExecutionState(): CodexForgeExecutionState {
     lastResultMessageId: null,
     lastRunLabel: "",
     engineState: null,
+    toolExecutionEvents: [],
   };
 }
 
@@ -1563,6 +1585,7 @@ export function useCodexForgeChat({
         lastResultMessageId: previous.lastResultMessageId,
         lastRunLabel: `Step ${stepIndex + 1}: ${stepText}`,
         engineState: previous.engineState,
+        toolExecutionEvents: previous.toolExecutionEvents,
       });
     },
     []
@@ -1596,6 +1619,20 @@ export function useCodexForgeChat({
     []
   );
 
+  const recordToolExecutionResult = useCallback(
+    (event: CodexForgeToolExecutionEvent) => {
+      setExecutionState((current) => ({
+        ...current,
+        lastCompletedAt: event.createdAt,
+        lastRunLabel: `${event.toolName} approved replay`,
+        toolExecutionEvents: [
+          ...current.toolExecutionEvents.filter((item) => item.id !== event.id),
+          event,
+        ].slice(-MAX_TOOL_EXECUTION_EVENTS),
+      }));
+    },
+    []
+  );
   const resetExecution = useCallback(() => {
     setExecutionState(createIdleExecutionState());
   }, []);
@@ -2564,6 +2601,9 @@ function buildLatestMessageAuthorityContext(
     executionState,
     engineState,
     enginePhase,
+    latestToolExecutionEvent: executionState.toolExecutionEvents.at(-1) ?? null,
+    toolExecutionEvents: executionState.toolExecutionEvents,
+    recordToolExecutionResult,
     isExecuting,
     canApprovePlan,
     canRejectPlan,
@@ -2595,4 +2635,3 @@ function buildLatestMessageAuthorityContext(
     setMemory,
   };
 }
-

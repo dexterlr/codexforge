@@ -1,5 +1,6 @@
-﻿import React from "react";
+import React from "react";
 import { StructuredReplyBlock } from "@/lib/codexforge/chat/components/structured-reply-block";
+import type { CodexForgeToolExecutionEvent } from "@/lib/codexforge/chat/tool-execution-events";
 import type {
   CodexForgeDiff,
   CodexForgeDiffMetaSummary,
@@ -551,11 +552,15 @@ export function shouldPreferStructuredOverPlainText(
 /* ================= RENDER ================= */
 
 export function renderStructuredReply(
-  structured?: CodexForgeStructuredReply | null
+  structured?: CodexForgeStructuredReply | null,
+  onToolExecutionResult?: (event: CodexForgeToolExecutionEvent) => void
 ) {
   if (!structured) return null;
-  return <StructuredReplyBlock structured={structured} />;
+
+  return (
+    <StructuredReplyBlock
+      structured={structured}
+      onToolExecutionResult={onToolExecutionResult}
+    />
+  );
 }
-
-
-

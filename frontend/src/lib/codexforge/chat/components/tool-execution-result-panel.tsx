@@ -1,7 +1,10 @@
+import type { CodexForgeToolExecutionEvent } from "@/lib/codexforge/chat/tool-execution-events";
+
 type JsonRecord = Record<string, unknown>;
 
 export type ToolExecutionResultPanelProps = {
   retryResult?: unknown;
+  executionEvent?: CodexForgeToolExecutionEvent | null;
 };
 
 function asRecord(value: unknown): JsonRecord {
@@ -38,8 +41,9 @@ function stringifyJson(value: unknown): string {
 
 export function ToolExecutionResultPanel({
   retryResult,
+  executionEvent,
 }: ToolExecutionResultPanelProps) {
-  const retry = asRecord(retryResult);
+  const retry = asRecord(executionEvent?.retryResult ?? retryResult);
   const body = asRecord(retry.body ?? retry.Body);
   const result = asRecord(body.result);
   const meta = asRecord(body.meta);
@@ -48,6 +52,7 @@ export function ToolExecutionResultPanel({
 
   const content = asRecord(result.content);
   const contentJson = asRecord(content.json);
+  const visibleContentJson = executionEvent?.contentJson ?? contentJson;
   const job = asRecord(result.job);
   const resultMetadata = asRecord(result.metadata);
 
@@ -55,19 +60,19 @@ export function ToolExecutionResultPanel({
     meta.toolName ?? toolPolicy.toolName ?? toolPolicySummary.toolName,
     "unknown tool"
   );
-  const resultStatus = result.ok === true || body.ok === true ? "Succeeded" : "Unknown";
+  const resultStatus = executionEvent?.ok === true || result.ok === true || body.ok === true ? "Succeeded" : "Unknown";
   const approvalId = asString(
     meta.approvalId ?? toolPolicy.approvalId ?? toolPolicySummary.approvalId
   );
-  const policySource = asString(meta.policySource ?? toolPolicy.source);
-  const approvalSatisfied = meta.approvalSatisfied ?? toolPolicy.approvalSatisfied;
-  const resultSummary = asString(result.summary);
-  const jobId = asString(job.id);
-  const jobStage = asString(job.stage);
-  const jobMessage = asString(job.message);
-  const adapter = asString(resultMetadata.adapter ?? contentJson.adapter);
-  const executionMode = asString(contentJson.executionMode);
-  const sideEffect = asString(contentJson.sideEffect);
+  const policySource = executionEvent?.policySource ?? asString(meta.policySource ?? toolPolicy.source);
+  const approvalSatisfied = executionEvent?.approvalSatisfied ?? meta.approvalSatisfied ?? toolPolicy.approvalSatisfied;
+  const resultSummary = executionEvent?.resultSummary ?? asString(result.summary);
+  const jobId = executionEvent?.job.id ?? asString(job.id);
+  const jobStage = executionEvent?.job.stage ?? asString(job.stage);
+  const jobMessage = executionEvent?.job.message ?? asString(job.message);
+  const adapter = executionEvent?.metadata.adapter ?? asString(resultMetadata.adapter ?? contentJson.adapter);
+  const executionMode = executionEvent?.executionMode ?? asString(contentJson.executionMode);
+  const sideEffect = executionEvent?.sideEffect ?? asString(contentJson.sideEffect);
 
   const hasExecutionResult =
     body.ok === true &&
@@ -148,7 +153,7 @@ export function ToolExecutionResultPanel({
       >
         <p className="text-xs font-semibold text-slate-400">Content JSON summary</p>
         <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words text-xs text-slate-200">
-          {stringifyJson(contentJson)}
+          {stringifyJson(visibleContentJson)}
         </pre>
       </div>
 

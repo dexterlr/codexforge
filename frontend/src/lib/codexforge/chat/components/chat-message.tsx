@@ -10,6 +10,7 @@ import {
   shouldPreferStructuredOverPlainText,
 } from "@/lib/codexforge/chat/client-renderers";
 import * as styles from "@/lib/codexforge/chat/client-styles";
+import type { CodexForgeToolExecutionEvent } from "@/lib/codexforge/chat/tool-execution-events";
 import type {
   CodexForgeApprovalGate,
   CodexForgeDiffPreview,
@@ -42,6 +43,7 @@ type ChatMessageProps = {
   onApproveDiffs?: () => void;
   onRejectDiffs?: () => void;
   onResetEngine?: () => void;
+  onToolExecutionResult?: (event: CodexForgeToolExecutionEvent) => void;
 };
 
 /* ================= ROLE ================= */
@@ -515,6 +517,7 @@ export function ChatMessage({
   onApproveDiffs,
   onRejectDiffs,
   onResetEngine,
+  onToolExecutionResult,
 }: ChatMessageProps) {
   const roleLabel = getRoleLabel(message.role);
   const sourceLabel = getSourceLabel(message);
@@ -825,7 +828,7 @@ export function ChatMessage({
         ) : null}
 
         {showStructuredBlock ? (
-          <div style={structuredWrap}>{renderStructuredReply(message.structured)}</div>
+          <div style={structuredWrap}>{renderStructuredReply(message.structured, onToolExecutionResult)}</div>
         ) : null}
 
         {showApprovalActions ? (

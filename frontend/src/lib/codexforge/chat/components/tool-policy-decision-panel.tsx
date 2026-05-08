@@ -2,6 +2,10 @@
 
 
 import { ToolExecutionResultPanel } from "./tool-execution-result-panel";
+import {
+  buildCodexForgeToolExecutionEventFromRetryResult,
+  type CodexForgeToolExecutionEvent,
+} from "@/lib/codexforge/chat/tool-execution-events";
 import { useMemo, useState } from "react";
 import type { CodexForgeToolPolicyDecision } from "@/lib/codexforge/tools/tool-policy-guard";
 import type { CodexForgeVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
@@ -29,6 +33,7 @@ type ToolPolicyDecisionPanelProps = {
   onApproveTool?: (payload: CodexForgeToolApprovalActionPayload) => void;
   onDenyTool?: (payload: CodexForgeToolApprovalActionPayload) => void;
   onRetryTool?: (payload: CodexForgeToolApprovalActionPayload) => void;
+  onToolExecutionResult?: (event: CodexForgeToolExecutionEvent) => void;
 };
 
 const shellByTone: Record<string, string> = {
@@ -71,6 +76,7 @@ export function ToolPolicyDecisionPanel({
   onApproveTool,
   onDenyTool,
   onRetryTool,
+  onToolExecutionResult,
 }: ToolPolicyDecisionPanelProps) {
   const visible = summary ?? buildVisibleToolPolicy(decision);
   const [lifecycleStatus, setLifecycleStatus] =
@@ -164,6 +170,10 @@ export function ToolPolicyDecisionPanel({
       });
 
       setRetryResult(result);
+      const executionEvent = buildCodexForgeToolExecutionEventFromRetryResult(result);
+      if (executionEvent) {
+        onToolExecutionResult?.(executionEvent);
+      }
     } catch (error) {
       setRetryResult({
         kind: "error",
