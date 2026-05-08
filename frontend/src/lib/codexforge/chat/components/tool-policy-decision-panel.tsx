@@ -1,13 +1,25 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import type { CodexForgeToolPolicyDecision } from "@/lib/codexforge/tools/tool-policy-guard";
 import type { CodexForgeVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
 import { buildVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
+import {
+  buildApprovedToolApprovalState,
+  buildDeniedToolApprovalState,
+  buildToolApprovalLifecycleSnapshot,
+  normalizeToolApprovalId,
+  type CodexForgeToolApprovalActionPayload,
+  type CodexForgeToolApprovalLifecycleStatus,
+} from "@/lib/codexforge/tools/tool-approval-lifecycle";
 
 type ToolPolicyDecisionPanelProps = {
   decision?: CodexForgeToolPolicyDecision | null;
   summary?: CodexForgeVisibleToolPolicy | null;
   compact?: boolean;
+  onApproveTool?: (payload: CodexForgeToolApprovalActionPayload) => void;
+  onDenyTool?: (payload: CodexForgeToolApprovalActionPayload) => void;
+  onRetryTool?: (payload: CodexForgeToolApprovalActionPayload) => void;
 };
 
 const shellByTone: Record<string, string> = {
@@ -32,15 +44,96 @@ const badgeByTone: Record<string, string> = {
     "border-zinc-300/30 bg-zinc-300/10 text-zinc-100",
 };
 
+const actionButton =
+  "rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-45";
+
+function getLifecycleLabel(status: CodexForgeToolApprovalLifecycleStatus): string {
+  if (status === "approved") return "Approved - retry enabled";
+  if (status === "denied") return "Denied - execution remains blocked";
+  if (status === "pending") return "Pending operator approval";
+  return "No approval action required";
+}
+
 export function ToolPolicyDecisionPanel({
   decision,
   summary,
   compact = false,
+  onApproveTool,
+  onDenyTool,
+  onRetryTool,
 }: ToolPolicyDecisionPanelProps) {
   const visible = summary ?? buildVisibleToolPolicy(decision);
+  const [lifecycleStatus, setLifecycleStatus] =
+    useState<CodexForgeToolApprovalLifecycleStatus>("idle");
+
+  const approvalId = normalizeToolApprovalId(visible?.approvalId);
+  const canReviewApproval =
+    !!visible &&
+    visible.requiresApproval === true &&
+    visible.approvalSatisfied !== true &&
+    visible.blocked !== true &&
+    !!approvalId;
+
+  const approvedPayload = useMemo<CodexForgeToolApprovalActionPayload | null>(() => {
+    if (!visible || !approvalId) return null;
+
+    return {
+      approvalId,
+      approvalState: buildApprovedToolApprovalState(approvalId),
+      visible,
+    };
+  }, [approvalId, visible]);
+
+  const deniedPayload = useMemo<CodexForgeToolApprovalActionPayload | null>(() => {
+    if (!visible || !approvalId) return null;
+
+    return {
+      approvalId,
+      approvalState: buildDeniedToolApprovalState(approvalId),
+      visible,
+    };
+  }, [approvalId, visible]);
+
+  const lifecycle = useMemo(
+    () =>
+      visible
+        ? buildToolApprovalLifecycleSnapshot({
+            visible,
+            status: lifecycleStatus === "idle" ? undefined : lifecycleStatus,
+            approvalState:
+              lifecycleStatus === "approved"
+                ? approvedPayload?.approvalState ?? null
+                : lifecycleStatus === "denied"
+                  ? deniedPayload?.approvalState ?? null
+                  : null,
+          })
+        : null,
+    [approvedPayload, deniedPayload, lifecycleStatus, visible]
+  );
 
   if (!visible) {
     return null;
+  }
+
+  function approveTool() {
+    if (!approvedPayload) return;
+
+    setLifecycleStatus("approved");
+    onApproveTool?.(approvedPayload);
+  }
+
+  function denyTool() {
+    if (!deniedPayload) return;
+
+    setLifecycleStatus("denied");
+    onDenyTool?.(deniedPayload);
+  }
+
+  function retryTool() {
+    if (!approvedPayload) return;
+
+    setLifecycleStatus("approved");
+    onRetryTool?.(approvedPayload);
   }
 
   return (
@@ -52,6 +145,7 @@ export function ToolPolicyDecisionPanel({
       data-codexforge-tool-policy-panel="true"
       data-codexforge-tool-policy-tone={visible.tone}
       data-codexforge-tool-policy-approval-id={visible.approvalId ?? ""}
+      data-codexforge-tool-policy-lifecycle={lifecycle?.status ?? "idle"}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
@@ -83,6 +177,62 @@ export function ToolPolicyDecisionPanel({
               </div>
             ) : null}
           </div>
+
+          {canReviewApproval ? (
+            <div
+              className="mt-3 rounded-xl border border-white/10 bg-black/10 p-3 text-xs"
+              data-codexforge-tool-policy-actions="true"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="font-semibold">Approval lifecycle</p>
+                  <p
+                    className="mt-1 opacity-75"
+                    data-codexforge-tool-policy-lifecycle-label="true"
+                  >
+                    {getLifecycleLabel(lifecycle?.status ?? "pending")}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className={actionButton}
+                    data-codexforge-tool-policy-approve="true"
+                    onClick={approveTool}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    className={actionButton}
+                    data-codexforge-tool-policy-deny="true"
+                    onClick={denyTool}
+                  >
+                    Deny
+                  </button>
+                  <button
+                    type="button"
+                    className={actionButton}
+                    data-codexforge-tool-policy-retry="true"
+                    disabled={lifecycle?.retryEnabled !== true}
+                    onClick={retryTool}
+                  >
+                    Retry
+                  </button>
+                </div>
+              </div>
+
+              {lifecycle?.approvalState ? (
+                <pre
+                  className="mt-3 max-h-40 overflow-auto rounded-lg border border-white/10 bg-black/20 p-2 text-[11px] opacity-85"
+                  data-codexforge-tool-policy-approval-state="true"
+                >
+                  {JSON.stringify({ approvalState: lifecycle.approvalState }, null, 2)}
+                </pre>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <div className="space-y-2">

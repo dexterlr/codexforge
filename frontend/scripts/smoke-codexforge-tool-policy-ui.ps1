@@ -26,8 +26,9 @@ $guardPath = "src\lib\codexforge\tools\tool-policy-guard.ts"
 $visibilityPath = "src\lib\codexforge\tools\tool-policy-visibility.ts"
 $panelPath = "src\lib\codexforge\chat\components\tool-policy-decision-panel.tsx"
 $routePath = "src\app\api\codexforge\tools\execute\route.ts"
+$lifecyclePath = "src\lib\codexforge\tools\tool-approval-lifecycle.ts"
 
-foreach ($path in @($guardPath, $visibilityPath, $panelPath, $routePath)) {
+foreach ($path in @($guardPath, $visibilityPath, $panelPath, $routePath, $lifecyclePath)) {
   if (-not (Test-Path $path)) {
     throw "[FAIL] Missing expected file: $path"
   }
@@ -39,11 +40,17 @@ $guard = Get-Content -Raw $guardPath
 $visibility = Get-Content -Raw $visibilityPath
 $panel = Get-Content -Raw $panelPath
 $route = Get-Content -Raw $routePath
+$lifecycle = Get-Content -Raw $lifecyclePath
 
 Assert-Contains $guard "approvalId: string | null;" "guard decision approval id contract"
 Assert-Contains $guard "approvalState: CodexForgeToolApprovalState;" "guard decision approval state contract"
 Assert-Contains $guard "function buildPendingApprovalId" "guard deterministic pending approval id helper"
 Assert-Contains $guard "codexforge-approval" "guard approval id namespace"
+
+Assert-Contains $lifecycle "CodexForgeToolApprovalLifecycleStatus" "approval lifecycle status type"
+Assert-Contains $lifecycle "buildApprovedToolApprovalState" "approval lifecycle approved state builder"
+Assert-Contains $lifecycle "buildDeniedToolApprovalState" "approval lifecycle denied state builder"
+Assert-Contains $lifecycle "buildToolApprovalLifecycleSnapshot" "approval lifecycle snapshot builder"
 
 Assert-Contains $visibility "CodexForgeVisibleToolPolicy" "visible policy type"
 Assert-Contains $visibility "approvalId?: string | null;" "visible approval id contract"
@@ -60,6 +67,14 @@ Assert-Contains $panel "data-codexforge-tool-policy-tone" "panel tone marker"
 Assert-Contains $panel "data-codexforge-tool-policy-approval-id" "panel approval id marker"
 Assert-Contains $panel "Approval ID:" "panel approval id label"
 Assert-Contains $panel "data-codexforge-tool-policy-approval-id-label" "panel approval id label marker"
+Assert-Contains $panel "data-codexforge-tool-policy-actions" "panel approval actions marker"
+Assert-Contains $panel "data-codexforge-tool-policy-approve" "panel approve action marker"
+Assert-Contains $panel "data-codexforge-tool-policy-deny" "panel deny action marker"
+Assert-Contains $panel "data-codexforge-tool-policy-retry" "panel retry action marker"
+Assert-Contains $panel "data-codexforge-tool-policy-approval-state" "panel approval state marker"
+Assert-Contains $panel "onApproveTool" "panel approve callback contract"
+Assert-Contains $panel "onDenyTool" "panel deny callback contract"
+Assert-Contains $panel "onRetryTool" "panel retry callback contract"
 
 Assert-Contains $route "serializeVisibleToolPolicy" "execute route serializes visible policy"
 Assert-Contains $route "approvalId?: string | null;" "execute route error meta approval id contract"
