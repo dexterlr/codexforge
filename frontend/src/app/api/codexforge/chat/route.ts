@@ -10,6 +10,11 @@ import { selectCodexForgeAgentTeam } from "@/lib/codexforge/agents";
 import { composePremiumCodexForgeResponse, type CodexForgeResponseProfile } from "@/lib/codexforge/chat/premium-response-composer";
 import { getCodexForgeServerEngineDependencies } from "@/lib/codexforge/chat/dependencies.server";
 import { structuredToText } from "@/lib/codexforge/chat/engine-render";
+import {
+  resolveCodexForgeResponseDomain,
+  resolveCodexForgeResponseProfile,
+  validateFinalCodexForgeResponse,
+} from "@/lib/codexforge/chat/response-contract";
 import type {
   CodexForgeChatContext,
   CodexForgeChatErrorResponse,
@@ -2975,146 +2980,7 @@ function shouldForceLocalEngine(args: {
   };
 }
 
-function preferNonGeneralDomain(
-  ...domains: Array<CodexForgePlanDomain | undefined>
-): CodexForgePlanDomain {
-  for (const domain of domains) {
-    if (domain && domain !== "general") return domain;
-  }
 
-  return domains.find((domain): domain is CodexForgePlanDomain => !!domain) ?? "general";
-}
-
-function resolveResponseDomain(args: {
-  fileIntent: FileIntentDiagnostics;
-  responseDomain?: CodexForgePlanDomain;
-  structuredDomain?: CodexForgePlanDomain;
-  structuredPlanDomain?: CodexForgePlanDomain;
-  activePlanDomain?: CodexForgePlanDomain;
-  capabilityDomain: CodexForgePlanDomain;
-  capabilityMatched: boolean;
-}): CodexForgePlanDomain {
-  if (args.fileIntent.explicitFileRequest) return "debug";
-
-  if (args.capabilityMatched && args.capabilityDomain !== "general") {
-    return args.capabilityDomain;
-  }
-
-  return preferNonGeneralDomain(
-    args.structuredDomain,
-    args.structuredPlanDomain,
-    args.activePlanDomain,
-    args.responseDomain,
-    args.capabilityDomain,
-    "general"
-  );
-}
-
-function resolveResponseProfile(args: {
-  productionOnlyPlanning: boolean;
-  executionMode: boolean;
-  fileIntent: FileIntentDiagnostics;
-  resolvedDomain: CodexForgePlanDomain;
-  capabilityDomain: CodexForgePlanDomain;
-}): CodexForgeResponseProfile {
-  if (args.productionOnlyPlanning) {
-    return "product-plan";
-  }
-
-  if (args.fileIntent.explicitFileRequest) {
-    return "grounded-inspection";
-  }
-
-  if (args.resolvedDomain === "debug" || args.capabilityDomain === "debug") {
-    return "diagnostic";
-  }
-
-  if (args.capabilityDomain !== "web" && args.capabilityDomain !== "general") {
-    return "runtime-policy";
-  }
-
-  if (args.resolvedDomain !== "web" && args.resolvedDomain !== "general") {
-    return "runtime-policy";
-  }
-
-  return args.executionMode ? "execution" : "product-plan";
-}
-
-function validateFinalCodexForgeResponse(args: {
-  text: string;
-  structured?: CodexForgeStructuredReply;
-  resolvedDomain: CodexForgePlanDomain;
-  resolvedChatMode: CodexForgeChatMode;
-  executionMode: boolean;
-  productionOnlyPlanning: boolean;
-}): {
-  text: string;
-  structured?: CodexForgeStructuredReply;
-  warnings: string[];
-} {
-  const warnings: string[] = [];
-  let text = args.text;
-  let structured = args.structured;
-
-  const structuredDomain = structured?.plan?.domain ?? structured?.domain;
-
-  if (structured && structuredDomain && structuredDomain !== args.resolvedDomain) {
-    warnings.push(
-      `Final response domain mismatch repaired: structured=${structuredDomain}, meta=${args.resolvedDomain}.`
-    );
-
-    structured = {
-      ...structured,
-      domain: args.resolvedDomain,
-      plan: structured.plan
-        ? {
-            ...structured.plan,
-            domain: args.resolvedDomain,
-          }
-        : structured.plan,
-    };
-
-    text = structuredToText(structured);
-  }
-
-  if (structured && !structured.mode) {
-    const structuredMode =
-      args.resolvedChatMode === "remote" ? "local" : args.resolvedChatMode;
-
-    structured = {
-      ...structured,
-      mode: structuredMode,
-    };
-
-    text = structuredToText(structured);
-  }
-
-  if (!args.executionMode && structured?.execution) {
-    warnings.push("Final response removed stale execution payload from non-execution reply.");
-
-    structured = {
-      ...structured,
-      execution: undefined,
-    };
-
-    text = structuredToText(structured);
-  }
-
-  if (args.productionOnlyPlanning && structured) {
-    const scrubbed = scrubProductionOnlyRouteStructuredReply(structured);
-
-    warnings.push("Final response enforced production-only response scrub.");
-
-    structured = scrubbed;
-    text = scrubProductionOnlyVisibleText(structuredToText(structured));
-  }
-
-  return {
-    text,
-    structured,
-    warnings,
-  };
-}
 function applyRouteVisibleStructuredDefaults(
   structured: CodexForgeStructuredReply,
   mode: CodexForgeStructuredReply["mode"] = "local",
@@ -3569,7 +3435,7 @@ export async function POST(req: Request) {
       decoratedStructured?.plan?.domain ??
       agentTeamSummary.domain ??
       capabilityRouting.domain;
-    const resolvedDomain = resolveResponseDomain({
+    const resolvedDomain = resolveCodexForgeResponseDomain({
       fileIntent: effectiveFileIntent,
       responseDomain: response.meta.domain,
       structuredDomain: decoratedDomain,
@@ -3579,7 +3445,7 @@ export async function POST(req: Request) {
       capabilityMatched: capabilityRouting.matched,
     });
 
-    const responseProfile = resolveResponseProfile({
+    const responseProfile = resolveCodexForgeResponseProfile({
       productionOnlyPlanning,
       executionMode: finalExecutionMode,
       fileIntent: effectiveFileIntent,

@@ -146,18 +146,34 @@ Assert-True ($LatestResponse.reply.text -match "No approval-driven diff previews
 
 Write-Host ""
 Write-Host "[RUN ] Static final validation seam assertions"
-
 $RoutePath = Join-Path (Get-Location) "src\app\api\codexforge\chat\route.ts"
 $RouteText = Get-Content -Raw $RoutePath
+$ResponseContractPath = Join-Path (Get-Location) "src\lib\codexforge\chat\response-contract.ts"
+Assert-True (Test-Path $ResponseContractPath) "response contract module exists"
 
-Assert-True ($RouteText -match "function validateFinalCodexForgeResponse") "route defines validateFinalCodexForgeResponse"
-Assert-True ($RouteText -match "finalValidation\s*=\s*validateFinalCodexForgeResponse") "route invokes final validation before success response"
+$ResponseContractText = Get-Content -Raw $ResponseContractPath
+Assert-True ($ResponseContractText -match "resolveCodexForgeResponseDomain") "response contract resolves final domain"
+Assert-True ($ResponseContractText -match "resolveCodexForgeResponseProfile") "response contract resolves response profile"
+Assert-True ($ResponseContractText -match "validateFinalCodexForgeResponse") "response contract validates final response"
+Assert-True ($ResponseContractText -match "capabilityMatched") "response contract honors capability match authority"
+Assert-True ($ResponseContractText -match [regex]::Escape('args.capabilityDomain !== "general"')) "response contract prioritizes non-general capability domain"
+Assert-True ($ResponseContractText -match "Final response domain mismatch repaired") "response contract repairs domain mismatch"
+Assert-True ($ResponseContractText -match "Final response removed stale execution payload") "response contract removes stale execution payload"
+Assert-True ($ResponseContractText -match "Final response enforced production-only response scrub") "response contract enforces production-only scrub"
+Assert-True ($RouteText -match "response-contract") "route imports response contract module"
+Assert-True ($RouteText -match "resolveCodexForgeResponseDomain") "route uses extracted domain resolver"
+Assert-True ($RouteText -match "resolveCodexForgeResponseProfile") "route uses extracted profile resolver"
+Assert-True ($RouteText -notmatch "function resolveResponseDomain") "route no longer owns domain resolver"
+Assert-True ($RouteText -notmatch "function resolveResponseProfile") "route no longer owns profile resolver"
+Assert-True ($RouteText -notmatch "function validateFinalCodexForgeResponse") "route no longer owns final validation helper"
+
+Assert-True ($RouteText -match "finalValidation\s*=\s*validateFinalCodexForgeResponse") "route invokes extracted final validation before success response"
 Assert-True ($RouteText -match "text: finalValidation\.text") "success response uses finalValidation text"
 Assert-True ($RouteText -match "structured: finalValidation\.structured") "success response uses finalValidation structured payload"
 Assert-True ($RouteText -match "\.\.\.finalValidation\.warnings") "final validation warnings are merged"
-Assert-True ($RouteText -match 'args\.resolvedChatMode === "remote" \? "local" : args\.resolvedChatMode') "remote chat mode is mapped to structured local mode"
-Assert-True ($RouteText -match "Final response removed stale execution payload from non-execution reply") "non-execution stale execution guard exists"
-Assert-True ($RouteText -match "Final response enforced production-only response scrub") "production-only final scrub guard exists"
+Assert-True ($ResponseContractText -match 'args\.resolvedChatMode === "remote" \? "local" : args\.resolvedChatMode') "remote chat mode is mapped to structured local mode"
+Assert-True ($ResponseContractText -match "Final response removed stale execution payload from non-execution reply") "non-execution stale execution guard exists"
+Assert-True ($ResponseContractText -match "Final response enforced production-only response scrub") "production-only final scrub guard exists"
 
 Write-Host ""
 Write-Host "[OK] CodexForge final response validation smoke passed."
