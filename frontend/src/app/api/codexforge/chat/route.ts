@@ -10,6 +10,7 @@ import { selectCodexForgeAgentTeam } from "@/lib/codexforge/agents";
 import { composePremiumCodexForgeResponse, type CodexForgeResponseProfile } from "@/lib/codexforge/chat/premium-response-composer";
 import { getCodexForgeServerEngineDependencies } from "@/lib/codexforge/chat/dependencies.server";
 import { structuredToText } from "@/lib/codexforge/chat/engine-render";
+import { applyRouteVisibleStructuredDefaults } from "@/lib/codexforge/chat/response-defaults";
 import {
   resolveCodexForgeResponseDomain,
   resolveCodexForgeResponseProfile,
@@ -2977,42 +2978,6 @@ function shouldForceLocalEngine(args: {
   return {
     forceLocalEngine: false,
     reason: "generic-chat-provider-allowed",
-  };
-}
-
-
-function applyRouteVisibleStructuredDefaults(
-  structured: CodexForgeStructuredReply,
-  mode: CodexForgeStructuredReply["mode"] = "local",
-  options?: {
-    includeExecution?: boolean;
-    includeSnapshot?: boolean;
-  }
-): CodexForgeStructuredReply {
-  const includeExecution = options?.includeExecution !== false;
-  const includeSnapshot = options?.includeSnapshot !== false;
-
-  return {
-    ...structured,
-    mode: structured.mode ?? mode,
-    ...(includeExecution
-      ? {
-          execution: {
-            phase: "idle",
-            diffCount: 0,
-            snapshotFileCount: 0,
-            ...(structured.execution ?? {}),
-          },
-        }
-      : {}),
-    ...(includeSnapshot
-      ? {
-          snapshot: structured.snapshot ?? {
-            fileCount: 0,
-            sampledPaths: [],
-          },
-        }
-      : {}),
   };
 }
 

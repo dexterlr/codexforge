@@ -148,6 +148,16 @@ Write-Host ""
 Write-Host "[RUN ] Static final validation seam assertions"
 $RoutePath = Join-Path (Get-Location) "src\app\api\codexforge\chat\route.ts"
 $RouteText = Get-Content -Raw $RoutePath
+$ResponseDefaultsPath = Join-Path (Get-Location) "src\lib\codexforge\chat\response-defaults.ts"
+Assert-True (Test-Path $ResponseDefaultsPath) "response defaults module exists"
+
+$ResponseDefaultsText = Get-Content -Raw $ResponseDefaultsPath
+Assert-True ($ResponseDefaultsText -match "applyRouteVisibleStructuredDefaults") "response defaults exports visible structured defaults"
+Assert-True ($ResponseDefaultsText -match "snapshotFileCount") "response defaults preserves execution snapshot defaults"
+Assert-True ($ResponseDefaultsText -match "sampledPaths") "response defaults preserves snapshot sampled paths default"
+Assert-True ($RouteText -match "response-defaults") "route imports response defaults module"
+Assert-True ($RouteText -match "applyRouteVisibleStructuredDefaults") "route uses extracted visible structured defaults"
+Assert-True ($RouteText -notmatch "function applyRouteVisibleStructuredDefaults") "route no longer owns visible structured defaults helper"
 $ResponseContractPath = Join-Path (Get-Location) "src\lib\codexforge\chat\response-contract.ts"
 Assert-True (Test-Path $ResponseContractPath) "response contract module exists"
 
