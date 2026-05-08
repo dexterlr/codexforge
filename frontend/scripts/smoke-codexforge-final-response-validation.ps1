@@ -148,6 +148,19 @@ Write-Host ""
 Write-Host "[RUN ] Static final validation seam assertions"
 $RoutePath = Join-Path (Get-Location) "src\app\api\codexforge\chat\route.ts"
 $RouteText = Get-Content -Raw $RoutePath
+$RouteResponseUtilsPath = Join-Path (Get-Location) "src\lib\codexforge\chat\route-response-utils.ts"
+Assert-True (Test-Path $RouteResponseUtilsPath) "route response utilities module exists"
+
+$RouteResponseUtilsText = Get-Content -Raw $RouteResponseUtilsPath
+Assert-True ($RouteResponseUtilsText -match "export function scrubProductionOnlyVisibleText") "route response utilities exports production scrub helper"
+Assert-True ($RouteResponseUtilsText -match "export function isProductionOnlyPlanningRequest") "route response utilities exports production planning detector"
+Assert-True ($RouteResponseUtilsText -match "export function boolHeader") "route response utilities exports boolean header helper"
+Assert-True ($RouteResponseUtilsText -match "export function buildJsonHeaders") "route response utilities exports JSON header builder"
+Assert-True ($RouteText -match "route-response-utils") "route imports route response utilities module"
+Assert-True ($RouteText -notmatch "function scrubProductionOnlyVisibleText") "route no longer owns production scrub helper"
+Assert-True ($RouteText -notmatch "function isProductionOnlyPlanningRequest") "route no longer owns production planning detector"
+Assert-True ($RouteText -notmatch "function boolHeader") "route no longer owns boolean header helper"
+Assert-True ($RouteText -notmatch "function buildJsonHeaders") "route no longer owns JSON header builder"
 
 $LatestOverridePath = Join-Path (Get-Location) "src\lib\codexforge\chat\latest-message-override-response.ts"
 $LatestContextPath = Join-Path (Get-Location) "src\lib\codexforge\chat\latest-message-override-context.ts"

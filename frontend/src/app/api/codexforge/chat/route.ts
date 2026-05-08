@@ -13,6 +13,7 @@ import { structuredToText } from "@/lib/codexforge/chat/engine-render";
 import { applyRouteVisibleStructuredDefaults } from "@/lib/codexforge/chat/response-defaults";
 import { buildLatestMessageOverrideSuccessResponse } from "@/lib/codexforge/chat/latest-message-override-response";
 import { buildRouteLatestMessageOverrideContext, getLatestMessageOverridePreferredPath } from "@/lib/codexforge/chat/latest-message-override-context";
+import { buildJsonHeaders, isProductionOnlyPlanningRequest, scrubProductionOnlyVisibleText } from "@/lib/codexforge/chat/route-response-utils";
 import {
   resolveCodexForgeResponseDomain,
   resolveCodexForgeResponseProfile,
@@ -443,82 +444,6 @@ function shouldSuppressBroadGroundingForLatestMessageOverride(context: unknown):
   );
 }
 
-function scrubProductionOnlyVisibleText(text: string): string {
-  const blockedLineTerms = [
-    "src\\",
-    "src/",
-    ".ts",
-    ".tsx",
-    "use-codexforge-chat",
-    "engine.ts",
-    "engine-render",
-    "engine-analysis",
-    "route.ts",
-    "types.ts",
-    "read-file",
-    "list-files",
-    "search-project",
-    "safe tool",
-    "grounded function",
-    "grounded file",
-    "grounding confidence",
-    "best next edit point",
-    "open src",
-    "repo path",
-    "codebase",
-    "implementation file",
-    "frontend and backend drift",
-    "npm run",
-  ];
-
-  const blockedSectionTitles = new Set([
-    "Outcome",
-    "Why",
-    "Next action",
-    "Evidence",
-    "Execution posture",
-    "Engine trace",
-    "Response quality",
-  ]);
-
-  const lines = text.split(/\r?\n/);
-  const kept: string[] = [];
-  let skippingBlockedSection = false;
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    const normalized = trimmed.toLowerCase();
-
-    if (blockedSectionTitles.has(trimmed)) {
-      skippingBlockedSection = true;
-      continue;
-    }
-
-    if (skippingBlockedSection && trimmed.length > 0 && !line.startsWith("-")) {
-      skippingBlockedSection = false;
-    }
-
-    if (skippingBlockedSection) {
-      continue;
-    }
-
-    if (
-      blockedLineTerms.some((term) =>
-        normalized.includes(term.toLowerCase())
-      )
-    ) {
-      continue;
-    }
-
-    kept.push(line);
-  }
-
-  return kept
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
 function scrubProductionOnlyRouteStructuredReply<T extends { sections?: Array<{ title: string; items?: string[] }>; files?: string[]; commands?: string[]; status?: string[]; context?: string[]; understanding?: string[] }>(
   structured: T,
 ): T {
@@ -795,24 +720,6 @@ function attachAgentTeamToStructuredReply(
       : structured.plan,
   };
 }
-function isProductionOnlyPlanningRequest(text: string): boolean {
-  const normalized = text.toLowerCase();
-
-  return (
-    normalized.includes("do not edit codexforge source files") ||
-    normalized.includes("do not edit source files") ||
-    normalized.includes("give me a production plan") ||
-    normalized.includes("production plan, not a codebase implementation plan") ||
-    normalized.includes("not a codebase implementation plan")
-  );
-}
-
-function buildJsonHeaders(extra?: HeadersInit): HeadersInit {
-  return {
-    "Cache-Control": "no-store",
-    ...extra,
-  };
-}
 
 function badRequest(error: string, status = 400) {
   return NextResponse.json<CodexForgeChatErrorResponse>(
@@ -822,10 +729,6 @@ function badRequest(error: string, status = 400) {
       headers: buildJsonHeaders(),
     }
   );
-}
-
-function boolHeader(value: boolean): "true" | "false" {
-  return value ? "true" : "false";
 }
 
 /* ================= ENUM NORMALIZERS ================= */

@@ -206,6 +206,7 @@ Assert-True ($RouteText -match "response-contract") "route imports response cont
 Assert-True ($RouteText -match "response-defaults") "route imports response defaults"
 Assert-True ($RouteText -match "latest-message-override-response") "route imports latest-message override module"
 Assert-True ($RouteText -match "latest-message-override-context") "route imports latest-message context module"
+Assert-True ($RouteText -match "route-response-utils") "route imports response utilities module"
 Assert-True ($RouteText -match "responseProfile,") "route passes response profile"
 Assert-True ($RouteText -match "x-codexforge-response-profile") "route exposes response profile header"
 Assert-True ($RouteText -match "structured: premiumStructured") "final validation uses premium structured payload"
