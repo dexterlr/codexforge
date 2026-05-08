@@ -25,11 +25,12 @@ Write-Host "Base URL: $BaseUrl"
 $guardPath = "src\lib\codexforge\tools\tool-policy-guard.ts"
 $visibilityPath = "src\lib\codexforge\tools\tool-policy-visibility.ts"
 $panelPath = "src\lib\codexforge\chat\components\tool-policy-decision-panel.tsx"
+$blockPath = "src\lib\codexforge\chat\components\structured-reply-block.tsx"
 $routePath = "src\app\api\codexforge\tools\execute\route.ts"
 $lifecyclePath = "src\lib\codexforge\tools\tool-approval-lifecycle.ts"
 $retryPath = "src\lib\codexforge\tools\tool-approval-retry.ts"
 
-foreach ($path in @($guardPath, $visibilityPath, $panelPath, $routePath, $lifecyclePath, $retryPath)) {
+foreach ($path in @($guardPath, $visibilityPath, $panelPath, $blockPath, $routePath, $lifecyclePath, $retryPath)) {
   if (-not (Test-Path $path)) {
     throw "[FAIL] Missing expected file: $path"
   }
@@ -40,6 +41,7 @@ foreach ($path in @($guardPath, $visibilityPath, $panelPath, $routePath, $lifecy
 $guard = Get-Content -Raw $guardPath
 $visibility = Get-Content -Raw $visibilityPath
 $panel = Get-Content -Raw $panelPath
+$block = Get-Content -Raw $blockPath
 $route = Get-Content -Raw $routePath
 $lifecycle = Get-Content -Raw $lifecyclePath
 $retry = Get-Content -Raw $retryPath
@@ -94,11 +96,23 @@ Assert-Contains $panel "data-codexforge-tool-policy-retry-status" "panel retry s
 Assert-Contains $panel "const [retrying, setRetrying] = useState(false);" "panel retrying state hook"
 Assert-Contains $panel "setRetryResult" "panel retry result state setter"
 Assert-Contains $panel "if (!approvedPayload || !visible) return;" "panel retry visible null guard"
+Assert-Contains $panel "replayRequest?: CodexForgeToolApprovalReplayRequest | null;" "panel replay request prop"
+Assert-Contains $panel "replayRequest," "panel forwards replay request"
 
 Assert-Contains $route "serializeVisibleToolPolicy" "execute route serializes visible policy"
 Assert-Contains $route "approvalId?: string | null;" "execute route error meta approval id contract"
 Assert-Contains $route "approvalId: toolPolicyDecision.approvalId" "execute route maps approval id"
 Assert-Contains $route "requiresApproval: toolPolicyDecision.requiresApproval" "execute route maps requires approval"
 Assert-Contains $route "policySource: toolPolicyDecision.source" "execute route maps policy source"
+Assert-Contains $route "type ExecuteToolReplayRequest" "execute route replay request type"
+Assert-Contains $route "buildToolPolicyReplayRequest" "execute route replay helper"
+Assert-Contains $route "toolPolicyReplayRequest" "execute route serializes replay request"
+Assert-Contains $route "input: normalizeInput(body.input)" "execute route preserves replay input"
+Assert-Contains $route "context: normalizeInput(body.context)" "execute route preserves replay context"
 
 Write-Host "[OK] CodexForge tool-policy UI smoke passed."
+
+Assert-Contains $block "getStructuredToolPolicyReplayRequest" "structured block replay extraction helper"
+Assert-Contains $block "isToolApprovalReplayRequest" "structured block replay guard"
+Assert-Contains $block "toolPolicyReplayRequest" "structured block reads replay request"
+Assert-Contains $block "replayRequest={getStructuredToolPolicyReplayRequest(structured)}" "structured block passes replay request"

@@ -30,6 +30,7 @@ import type {
   CodexForgeStructuredReply,
 } from "@/lib/codexforge/types";
 import type { CodexForgeVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
+import type { CodexForgeToolApprovalReplayRequest } from "@/lib/codexforge/tools/tool-approval-retry";
 
 type StructuredReplyBlockProps = {
   structured?: CodexForgeStructuredReply | null;
@@ -57,6 +58,40 @@ function isVisibleToolPolicy(value: unknown): value is CodexForgeVisibleToolPoli
     isStringArray(value.bullets) &&
     isStringArray(value.audit)
   );
+}
+
+function isToolApprovalReplayRequest(
+  value: unknown
+): value is CodexForgeToolApprovalReplayRequest {
+  if (!isRecord(value)) return false;
+
+  return (
+    typeof value.toolName === "string" &&
+    (!("mode" in value) ||
+      value.mode === "execute" ||
+      value.mode === "plan" ||
+      value.mode === "preview") &&
+    (!("input" in value) || isRecord(value.input)) &&
+    (!("context" in value) || isRecord(value.context))
+  );
+}
+
+function getStructuredToolPolicyReplayRequest(
+  structured?: CodexForgeStructuredReply | null
+): CodexForgeToolApprovalReplayRequest | null {
+  if (!structured) return null;
+
+  const directReplayRequest = (structured as { toolPolicyReplayRequest?: unknown })
+    .toolPolicyReplayRequest;
+  if (isToolApprovalReplayRequest(directReplayRequest)) return directReplayRequest;
+
+  const metadataValue = (structured as { metadata?: unknown }).metadata;
+  const metadata = isRecord(metadataValue) ? metadataValue : null;
+  const metadataReplayRequest = metadata?.toolPolicyReplayRequest;
+
+  return isToolApprovalReplayRequest(metadataReplayRequest)
+    ? metadataReplayRequest
+    : null;
 }
 
 function getStructuredToolPolicySummary(
@@ -89,7 +124,10 @@ export function StructuredReplyBlock({
     <div style={styles.structuredWrap}>
       <HeroSection structured={structured} />
       <AgentTeamSection structured={structured} />
-      <ToolPolicyDecisionPanel summary={getStructuredToolPolicySummary(structured)} />
+      <ToolPolicyDecisionPanel
+        summary={getStructuredToolPolicySummary(structured)}
+        replayRequest={getStructuredToolPolicyReplayRequest(structured)}
+      />
 
       <ExecutionSection structured={structured} />
       <SnapshotSection structured={structured} />
