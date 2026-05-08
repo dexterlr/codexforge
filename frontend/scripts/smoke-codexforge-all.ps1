@@ -28,6 +28,11 @@ $scripts = @(
     Required = $true
   },
   @{
+    Name = "Web research executor"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-web-research.ps1"
+    Required = $true
+  },
+  @{
     Name = "Self-upgrade backlog"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-self-upgrade.ps1"
     Required = $true
