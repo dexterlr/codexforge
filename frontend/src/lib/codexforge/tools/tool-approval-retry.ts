@@ -27,13 +27,31 @@ export type CodexForgeToolApprovalRetryRequest = {
   approvalState: CodexForgeToolApprovalState;
 };
 
-export type CodexForgeToolApprovalRetryResult = {
-  ok: boolean;
-  status: number;
-  message: string;
-  request: CodexForgeToolApprovalRetryRequest;
-  body: unknown;
-};
+export type CodexForgeToolApprovalRetryResult =
+  | {
+      kind: "accepted";
+      ok: true;
+      status: number;
+      message: string;
+      request: CodexForgeToolApprovalRetryRequest;
+      body: unknown;
+    }
+  | {
+      kind: "rejected";
+      ok: false;
+      status: number;
+      message: string;
+      request: CodexForgeToolApprovalRetryRequest;
+      body: unknown;
+    }
+  | {
+      kind: "error";
+      ok: false;
+      status: 0;
+      message: string;
+      request?: CodexForgeToolApprovalRetryRequest;
+      body: null;
+    };
 
 function extractVisiblePolicyValue(
   visible: CodexForgeVisibleToolPolicy,
@@ -133,11 +151,21 @@ export async function retryApprovedToolPolicy(args: {
         ? "Tool retry request accepted."
         : `Tool retry request failed with HTTP ${response.status}.`;
 
-  return {
-    ok: response.ok,
-    status: response.status,
-    message,
-    request,
-    body,
-  };
+  return response.ok
+    ? {
+        kind: "accepted",
+        ok: true,
+        status: response.status,
+        message,
+        request,
+        body,
+      }
+    : {
+        kind: "rejected",
+        ok: false,
+        status: response.status,
+        message,
+        request,
+        body,
+      };
 }
