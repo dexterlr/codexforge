@@ -109,7 +109,6 @@ function WebResearchResultEvidence({ payload }: { payload: JsonRecord }) {
         </div>
       </dl>
 
-      {webResearchResult ? <WebResearchResultEvidence payload={webResearchResult} /> : null}
 
       {citations.length > 0 ? (
         <div className="mt-4" data-codexforge-web-research-citations="true">
@@ -256,6 +255,7 @@ export function ToolExecutionResultPanel({
           <dt className="font-semibold text-slate-400">Adapter</dt>
           <dd>{adapter}</dd>
         </div>
+      {webResearchResult ? <WebResearchResultEvidence payload={webResearchResult} /> : null}
         <div data-codexforge-tool-execution-mode>
           <dt className="font-semibold text-slate-400">Execution mode</dt>
           <dd>{executionMode}</dd>
@@ -274,7 +274,6 @@ export function ToolExecutionResultPanel({
         </div>
       </dl>
 
-      {webResearchResult ? <WebResearchResultEvidence payload={webResearchResult} /> : null}
 
       <div
         data-codexforge-tool-execution-result-summary
