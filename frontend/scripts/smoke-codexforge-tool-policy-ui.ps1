@@ -18,6 +18,20 @@ function Assert-Contains {
   Write-Host "[PASS] $Name"
 }
 
+function Assert-NotContains {
+  param(
+    [Parameter(Mandatory = $true)][string]$Content,
+    [Parameter(Mandatory = $true)][string]$Needle,
+    [Parameter(Mandatory = $true)][string]$Name
+  )
+
+  if ($Content.Contains($Needle)) {
+    throw "[FAIL] Found forbidden $Name marker: $Needle"
+  }
+
+  Write-Host "[PASS] $Name"
+}
+
 Write-Host ""
 Write-Host "=== CodexForge tool-policy UI smoke ==="
 Write-Host "Base URL: $BaseUrl"
@@ -146,5 +160,7 @@ Assert-Contains $resultPanelSource "Job stage" "result panel job stage label"
 Assert-Contains $resultPanelSource "Adapter" "result panel adapter label"
 Assert-Contains $resultPanelSource "local-safe-render-job" "result panel local-safe adapter marker"
 Assert-Contains $resultPanelSource "sideEffect" "result panel sideEffect marker"
+Assert-Contains $resultPanelSource "{toolName} - {resultStatus}" "result panel ASCII status separator"
+Assert-NotContains $resultPanelSource "Â" "result panel mojibake guard"
 Assert-Contains $decisionPanelSource "tool-execution-result-panel" "decision panel imports result panel"
 Assert-Contains $decisionPanelSource "<ToolExecutionResultPanel" "decision panel renders result panel"
