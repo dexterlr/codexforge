@@ -59,128 +59,147 @@ function isWebResearchResult(value: JsonRecord): boolean {
     asString(value.version).includes("web-research-executor") ||
     asString(value.mode) === "source-fetch" ||
     asString(value.mode) === "research-plan-only" ||
-    Array.isArray(value.citations) ||
-    Array.isArray(value.sourceResults)
+    hasKey(value, "groundedContext") ||
+    hasKey(value, "memoryCandidates") ||
+    hasKey(value, "sourceResults")
   );
 }
 
 function WebResearchResultEvidence({ payload }: { payload: JsonRecord }) {
-  const citations = asArray(payload.citations).map(asRecord);
-  const sourceResults = asArray(payload.sourceResults).map(asRecord);
-  const sourceCount =
-    typeof payload.sourceCount === "number" && Number.isFinite(payload.sourceCount)
-      ? payload.sourceCount
-      : sourceResults.length;
-  const citationCount = citations.length;
-  const mode = asString(payload.mode, "unknown");
-  const query = asString(payload.query, "-");
-  const nextAction = asString(payload.nextAction, "-");
-  const firstFetchedAt = asString(
-    citations[0]?.fetchedAt ?? sourceResults[0]?.fetchedAt,
-    "-"
+  const groundedContext = asRecord(payload.groundedContext);
+  const sourceResults = asRecordArray(payload.sourceResults);
+  const citations = asRecordArray(payload.citations);
+  const memoryCandidates = asRecordArray(payload.memoryCandidates);
+  const evidenceDigest = Array.isArray(groundedContext.evidenceDigest)
+    ? groundedContext.evidenceDigest.map((item) => asString(item)).filter(Boolean)
+    : [];
+
+  const summary = asString(
+    groundedContext.summary,
+    "Approved web research evidence is available for review."
+  );
+  const latestFetchedAt =
+    asString(citations[0]?.fetchedAt) ||
+    asString(sourceResults[0]?.fetchedAt) ||
+    "No source fetched yet";
+  const webResearchNextAction = asString(
+    payload.nextAction,
+    "Review the captured evidence, citations, source excerpts, and memory candidates before using them in a grounded answer."
   );
 
   return (
     <section
-      className="mt-4 rounded-2xl border border-sky-300/20 bg-sky-400/10 p-4 text-xs text-sky-50"
+      className="mt-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-xs text-cyan-50"
       data-codexforge-web-research-result="true"
+      data-codexforge-web-research-evidence="true"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h5 className="text-sm font-semibold">Web research evidence</h5>
-          <p className="mt-1 text-sky-100/80">
-            Approved source-scoped research returned citation metadata and source excerpts.
+          <p className="text-sm font-semibold">Web research evidence</p>
+          <p className="mt-1 text-cyan-100/80" data-codexforge-web-research-grounded-summary="true">
+            {summary}
           </p>
         </div>
-        <span
-          className="rounded-full border border-sky-200/20 bg-sky-200/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]"
-          data-codexforge-web-research-mode="true"
-        >
-          {mode}
-        </span>
+        <div className="rounded-full border border-cyan-200/20 bg-cyan-200/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+          {asString(payload.mode, "research")} - {asString(payload.sourceCount, "0")} sources
+        </div>
       </div>
 
-      <dl className="mt-4 grid gap-2 sm:grid-cols-2">
-        <div data-codexforge-web-research-query="true">
-          <dt className="font-semibold text-sky-100/70">Query</dt>
-          <dd className="break-words">{query}</dd>
-        </div>
-        <div data-codexforge-web-research-freshness="true">
-          <dt className="font-semibold text-sky-100/70">Freshness</dt>
-          <dd>{firstFetchedAt}</dd>
-        </div>
+      <dl className="mt-4 grid gap-2 sm:grid-cols-4">
         <div data-codexforge-web-research-source-count="true">
-          <dt className="font-semibold text-sky-100/70">Sources</dt>
-          <dd>{sourceCount}</dd>
+          <dt className="font-semibold text-cyan-100/70">Sources</dt>
+          <dd>{asString(groundedContext.sourceCount ?? payload.sourceCount, "0")}</dd>
         </div>
         <div data-codexforge-web-research-citation-count="true">
-          <dt className="font-semibold text-sky-100/70">Citations</dt>
-          <dd>{citationCount}</dd>
+          <dt className="font-semibold text-cyan-100/70">Citations</dt>
+          <dd>{asString(groundedContext.citationCount ?? citations.length, "0")}</dd>
+        </div>
+        <div data-codexforge-web-research-excerpt-count="true">
+          <dt className="font-semibold text-cyan-100/70">Evidence excerpts</dt>
+          <dd>{asString(groundedContext.excerptCount ?? evidenceDigest.length, "0")}</dd>
+        </div>
+        <div data-codexforge-web-research-memory-count="true">
+          <dt className="font-semibold text-cyan-100/70">Memory candidates</dt>
+          <dd>{asString(groundedContext.memoryCandidateCount ?? memoryCandidates.length, "0")}</dd>
+        </div>
+        <div data-codexforge-web-research-freshness="true">
+          <dt className="font-semibold text-cyan-100/70">Freshness</dt>
+          <dd>{latestFetchedAt}</dd>
         </div>
       </dl>
-
-
-      {citations.length > 0 ? (
-        <div className="mt-4" data-codexforge-web-research-citations="true">
-          <p className="font-semibold text-sky-100/80">Captured citations</p>
-          <ul className="mt-2 space-y-2">
-            {citations.slice(0, 5).map((citation, index) => {
-              const url = asString(citation.url, "-");
-              const title = asString(citation.title, url);
-              const fetchedAt = asString(citation.fetchedAt, "-");
-
-              return (
-                <li
-                  key={`${url}-${index}`}
-                  className="rounded-xl border border-white/10 bg-black/15 p-3"
-                  data-codexforge-web-research-citation="true"
-                >
-                  <p className="font-semibold">{title}</p>
-                  <p className="mt-1 break-all text-sky-100/70">{url}</p>
-                  <p className="mt-1 text-sky-100/60">Fetched: {fetchedAt}</p>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : null}
-
-      {sourceResults.length > 0 ? (
-        <div className="mt-4" data-codexforge-web-research-sources="true">
-          <p className="font-semibold text-sky-100/80">Source excerpts</p>
-          <ul className="mt-2 space-y-2">
-            {sourceResults.slice(0, 3).map((source, index) => {
-              const url = asString(source.url, "-");
-              const title = asString(source.title, url);
-              const excerpt = asString(source.excerpt, "-");
-              const status = asString(source.status, "-");
-
-              return (
-                <li
-                  key={`${url}-${index}`}
-                  className="rounded-xl border border-white/10 bg-black/15 p-3"
-                  data-codexforge-web-research-source="true"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-semibold">{title}</p>
-                    <span className="text-sky-100/60">HTTP {status}</span>
-                  </div>
-                  <p className="mt-1 break-all text-sky-100/70">{url}</p>
-                  <p className="mt-2 text-sky-50/85">{excerpt}</p>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : null}
 
       <div
         className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3"
         data-codexforge-web-research-next-action="true"
       >
-        <span className="font-semibold">Next action: </span>
-        <span>{nextAction}</span>
+        <p className="font-semibold text-cyan-100">Next action</p>
+        <p className="mt-1 text-cyan-50/85">{webResearchNextAction}</p>
       </div>
+      {evidenceDigest.length > 0 ? (
+        <div className="mt-4" data-codexforge-web-research-evidence-digest="true">
+          <p className="font-semibold text-cyan-100">Evidence digest</p>
+          <ul className="mt-2 space-y-2">
+            {evidenceDigest.map((item, index) => (
+              <li key={`${item}-${index}`} className="rounded-xl border border-white/10 bg-black/15 p-3 text-cyan-50/90">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {citations.length > 0 ? (
+        <div className="mt-4" data-codexforge-web-research-citations="true">
+          <p className="font-semibold text-cyan-100">Citations</p>
+          <ul className="mt-2 space-y-2">
+            {citations.map((citation, index) => (
+              <li key={`${asString(citation.url)}-${index}`} className="rounded-xl border border-white/10 bg-black/15 p-3">
+                <p className="font-semibold">{asString(citation.title, "Untitled source")}</p>
+                <p className="mt-1 break-all text-cyan-100/75">{asString(citation.url)}</p>
+                <p className="mt-1 text-cyan-100/60">{asString(citation.fetchedAt)}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {memoryCandidates.length > 0 ? (
+        <div className="mt-4" data-codexforge-web-research-memory-candidates="true">
+          <p className="font-semibold text-cyan-100">Memory candidate review</p>
+          <p className="mt-1 text-cyan-100/70">
+            Review-only. CodexForge does not persist these research memories automatically.
+          </p>
+          <ul className="mt-2 space-y-2">
+            {memoryCandidates.map((candidate, index) => (
+              <li key={`${asString(candidate.id)}-${index}`} className="rounded-xl border border-white/10 bg-black/15 p-3">
+                <p className="font-semibold">{asString(candidate.title, "Research memory candidate")}</p>
+                <p className="mt-1 text-cyan-50/85">{asString(candidate.content)}</p>
+                <p className="mt-1 break-all text-cyan-100/60">{asString(candidate.sourceUrl)}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {sourceResults.length > 0 ? (
+        <div className="mt-4" data-codexforge-web-research-source-results="true" data-codexforge-web-research-sources="true">
+          <p className="font-semibold text-cyan-100">Source fetch results</p>
+          <ul className="mt-2 space-y-2">
+            {sourceResults.map((source, index) => (
+              <li key={`${asString(source.url)}-${index}`} className="rounded-xl border border-white/10 bg-black/15 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-semibold">{asString(source.title, "Source")}</p>
+                  <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.14em]">
+                    {source.ok === true ? "ok" : "failed"} - {asString(source.status, "0")}
+                  </span>
+                </div>
+                <p className="mt-1 break-all text-cyan-100/60">{asString(source.url)}</p>
+                <p className="mt-2 text-cyan-50/85">{asString(source.excerpt)}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -265,7 +284,6 @@ export function ToolExecutionResultPanel({
           <dt className="font-semibold text-slate-400">Adapter</dt>
           <dd>{adapter}</dd>
         </div>
-      {webResearchResult ? <WebResearchResultEvidence payload={webResearchResult} /> : null}
         <div data-codexforge-tool-execution-mode>
           <dt className="font-semibold text-slate-400">Execution mode</dt>
           <dd>{executionMode}</dd>
@@ -283,6 +301,8 @@ export function ToolExecutionResultPanel({
           <dd className="break-all">{jobId}</dd>
         </div>
       </dl>
+
+      {webResearchResult ? <WebResearchResultEvidence payload={webResearchResult} /> : null}
 
 
       <div

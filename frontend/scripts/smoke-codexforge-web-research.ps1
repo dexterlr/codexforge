@@ -71,16 +71,19 @@ Write-Host "Base URL: $BaseUrl"
 
 $executorPath = "src\lib\codexforge\tools\web-research-executor.ts"
 $routePath = "src\app\api\codexforge\tools\web-research\route.ts"
+$panelPath = "src\lib\codexforge\chat\components\tool-execution-result-panel.tsx"
 $resultPanelPath = "src\lib\codexforge\chat\components\tool-execution-result-panel.tsx"
 $capabilityPath = $null
 $selfUpgradePath = "src\lib\codexforge\tools\self-upgrade-backlog.ts"
 
 Assert-FileExists $executorPath
 Assert-FileExists $routePath
+Assert-FileExists $panelPath
 Assert-FileExists $resultPanelPath
 
 $executor = Get-Content -Raw $executorPath
 $route = Get-Content -Raw $routePath
+$panel = Get-Content -Raw $panelPath
 $resultPanel = Get-Content -Raw $resultPanelPath
 $capability = ""
 $selfUpgrade = Get-Content -Raw $selfUpgradePath
