@@ -5,6 +5,7 @@ import type { CodexForgeToolPolicyDecision } from "@/lib/codexforge/tools/tool-p
 import type { CodexForgeVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
 import { buildVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visibility";
 import {
+  buildToolApprovalRetryRequest,
   retryApprovedToolPolicy,
   type CodexForgeToolApprovalRetryResult,
   type CodexForgeToolApprovalReplayRequest,
@@ -64,6 +65,7 @@ export function ToolPolicyDecisionPanel({
   decision,
   summary,
   compact = false,
+  replayRequest,
   onApproveTool,
   onDenyTool,
   onRetryTool,
@@ -141,6 +143,12 @@ export function ToolPolicyDecisionPanel({
   async function retryTool() {
     if (!approvedPayload || !visible) return;
 
+    const request = buildToolApprovalRetryRequest({
+      visible,
+      payload: approvedPayload,
+      replayRequest,
+    });
+
     setLifecycleStatus("approved");
     setRetrying(true);
     setRetryResult(null);
@@ -159,6 +167,7 @@ export function ToolPolicyDecisionPanel({
         ok: false,
         status: 0,
         message: error instanceof Error ? error.message : "Tool retry request failed.",
+        request,
         body: null,
       });
     } finally {
