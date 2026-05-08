@@ -71,14 +71,17 @@ Write-Host "Base URL: $BaseUrl"
 
 $executorPath = "src\lib\codexforge\tools\web-research-executor.ts"
 $routePath = "src\app\api\codexforge\tools\web-research\route.ts"
+$resultPanelPath = "src\lib\codexforge\chat\components\tool-execution-result-panel.tsx"
 $capabilityPath = $null
 $selfUpgradePath = "src\lib\codexforge\tools\self-upgrade-backlog.ts"
 
 Assert-FileExists $executorPath
 Assert-FileExists $routePath
+Assert-FileExists $resultPanelPath
 
 $executor = Get-Content -Raw $executorPath
 $route = Get-Content -Raw $routePath
+$resultPanel = Get-Content -Raw $resultPanelPath
 $capability = ""
 $selfUpgrade = Get-Content -Raw $selfUpgradePath
 
@@ -95,6 +98,13 @@ Assert-Contains $route "toolPolicyReplayRequest" "replay request response"
 Assert-Contains $route "noSilentBrowsing" "no silent browsing marker"
 Assert-Contains $route "explicitSourcesOnly" "explicit source scope marker"
 Assert-Contains $route "executeCodexForgeWebResearch" "route executor call"
+Assert-Contains $resultPanel "data-codexforge-web-research-result" "result panel web research root marker"
+Assert-Contains $resultPanel "Web research evidence" "result panel web research heading"
+Assert-Contains $resultPanel "data-codexforge-web-research-citations" "result panel citation list marker"
+Assert-Contains $resultPanel "data-codexforge-web-research-sources" "result panel source list marker"
+Assert-Contains $resultPanel "data-codexforge-web-research-freshness" "result panel freshness marker"
+Assert-Contains $resultPanel "data-codexforge-web-research-next-action" "result panel next action marker"
+Assert-Contains $resultPanel "isWebResearchResult(visibleContentJson)" "result panel detects web research payload"
 
 # Capability bridge is verified through the live /api/codexforge/tools/capabilities endpoint below.
 Assert-Contains $selfUpgrade "approved-web-research-executor-v1" "self-upgrade backlog includes web research"

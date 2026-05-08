@@ -39,6 +39,143 @@ function stringifyJson(value: unknown): string {
   }
 }
 
+
+function asArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function isWebResearchResult(value: JsonRecord): boolean {
+  return (
+    asString(value.version).includes("web-research-executor") ||
+    asString(value.mode) === "source-fetch" ||
+    asString(value.mode) === "research-plan-only" ||
+    Array.isArray(value.citations) ||
+    Array.isArray(value.sourceResults)
+  );
+}
+
+function WebResearchResultEvidence({ payload }: { payload: JsonRecord }) {
+  const citations = asArray(payload.citations).map(asRecord);
+  const sourceResults = asArray(payload.sourceResults).map(asRecord);
+  const sourceCount =
+    typeof payload.sourceCount === "number" && Number.isFinite(payload.sourceCount)
+      ? payload.sourceCount
+      : sourceResults.length;
+  const citationCount = citations.length;
+  const mode = asString(payload.mode, "unknown");
+  const query = asString(payload.query, "-");
+  const nextAction = asString(payload.nextAction, "-");
+  const firstFetchedAt = asString(
+    citations[0]?.fetchedAt ?? sourceResults[0]?.fetchedAt,
+    "-"
+  );
+
+  return (
+    <section
+      className="mt-4 rounded-2xl border border-sky-300/20 bg-sky-400/10 p-4 text-xs text-sky-50"
+      data-codexforge-web-research-result="true"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h5 className="text-sm font-semibold">Web research evidence</h5>
+          <p className="mt-1 text-sky-100/80">
+            Approved source-scoped research returned citation metadata and source excerpts.
+          </p>
+        </div>
+        <span
+          className="rounded-full border border-sky-200/20 bg-sky-200/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]"
+          data-codexforge-web-research-mode="true"
+        >
+          {mode}
+        </span>
+      </div>
+
+      <dl className="mt-4 grid gap-2 sm:grid-cols-2">
+        <div data-codexforge-web-research-query="true">
+          <dt className="font-semibold text-sky-100/70">Query</dt>
+          <dd className="break-words">{query}</dd>
+        </div>
+        <div data-codexforge-web-research-freshness="true">
+          <dt className="font-semibold text-sky-100/70">Freshness</dt>
+          <dd>{firstFetchedAt}</dd>
+        </div>
+        <div data-codexforge-web-research-source-count="true">
+          <dt className="font-semibold text-sky-100/70">Sources</dt>
+          <dd>{sourceCount}</dd>
+        </div>
+        <div data-codexforge-web-research-citation-count="true">
+          <dt className="font-semibold text-sky-100/70">Citations</dt>
+          <dd>{citationCount}</dd>
+        </div>
+      </dl>
+
+      {webResearchResult ? <WebResearchResultEvidence payload={webResearchResult} /> : null}
+
+      {citations.length > 0 ? (
+        <div className="mt-4" data-codexforge-web-research-citations="true">
+          <p className="font-semibold text-sky-100/80">Captured citations</p>
+          <ul className="mt-2 space-y-2">
+            {citations.slice(0, 5).map((citation, index) => {
+              const url = asString(citation.url, "-");
+              const title = asString(citation.title, url);
+              const fetchedAt = asString(citation.fetchedAt, "-");
+
+              return (
+                <li
+                  key={`${url}-${index}`}
+                  className="rounded-xl border border-white/10 bg-black/15 p-3"
+                  data-codexforge-web-research-citation="true"
+                >
+                  <p className="font-semibold">{title}</p>
+                  <p className="mt-1 break-all text-sky-100/70">{url}</p>
+                  <p className="mt-1 text-sky-100/60">Fetched: {fetchedAt}</p>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
+
+      {sourceResults.length > 0 ? (
+        <div className="mt-4" data-codexforge-web-research-sources="true">
+          <p className="font-semibold text-sky-100/80">Source excerpts</p>
+          <ul className="mt-2 space-y-2">
+            {sourceResults.slice(0, 3).map((source, index) => {
+              const url = asString(source.url, "-");
+              const title = asString(source.title, url);
+              const excerpt = asString(source.excerpt, "-");
+              const status = asString(source.status, "-");
+
+              return (
+                <li
+                  key={`${url}-${index}`}
+                  className="rounded-xl border border-white/10 bg-black/15 p-3"
+                  data-codexforge-web-research-source="true"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-semibold">{title}</p>
+                    <span className="text-sky-100/60">HTTP {status}</span>
+                  </div>
+                  <p className="mt-1 break-all text-sky-100/70">{url}</p>
+                  <p className="mt-2 text-sky-50/85">{excerpt}</p>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
+
+      <div
+        className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3"
+        data-codexforge-web-research-next-action="true"
+      >
+        <span className="font-semibold">Next action: </span>
+        <span>{nextAction}</span>
+      </div>
+    </section>
+  );
+}
+
 export function ToolExecutionResultPanel({
   retryResult,
   executionEvent,
@@ -53,6 +190,7 @@ export function ToolExecutionResultPanel({
   const content = asRecord(result.content);
   const contentJson = asRecord(content.json);
   const visibleContentJson = executionEvent?.contentJson ?? contentJson;
+  const webResearchResult = isWebResearchResult(visibleContentJson) ? visibleContentJson : null;
   const job = asRecord(result.job);
   const resultMetadata = asRecord(result.metadata);
 
@@ -135,6 +273,8 @@ export function ToolExecutionResultPanel({
           <dd className="break-all">{jobId}</dd>
         </div>
       </dl>
+
+      {webResearchResult ? <WebResearchResultEvidence payload={webResearchResult} /> : null}
 
       <div
         data-codexforge-tool-execution-result-summary
