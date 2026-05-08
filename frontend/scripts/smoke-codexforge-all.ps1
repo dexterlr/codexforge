@@ -23,6 +23,11 @@ $scripts = @(
     Required = $true
   },
   @{
+    Name = "Tool approval retry API"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-tool-approval-retry-api.ps1"
+    Required = $true
+  },
+  @{
     Name = "Capability routing"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-capability-routing.ps1"
     Required = $false

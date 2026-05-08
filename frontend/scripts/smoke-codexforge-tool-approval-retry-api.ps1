@@ -24,27 +24,46 @@ function Invoke-CodexForgeExecute {
   )
 
   $json = $Body | ConvertTo-Json -Depth 30
-  $response = Invoke-WebRequest `
-    -Uri "$BaseUrl/api/codexforge/tools/execute" `
-    -Method POST `
-    -ContentType "application/json" `
-    -Body $json `
-    -SkipHttpErrorCheck
 
-  if ($AllowedStatus -notcontains [int]$response.StatusCode) {
+  try {
+    $response = Invoke-WebRequest `
+      -Uri "$BaseUrl/api/codexforge/tools/execute" `
+      -Method POST `
+      -ContentType "application/json" `
+      -Body $json
+  } catch {
+    $response = $_.Exception.Response
+
+    if (-not $response) {
+      throw
+    }
+
+    $reader = New-Object System.IO.StreamReader($response.GetResponseStream())
+    $errorContent = $reader.ReadToEnd()
+
+    $response = [pscustomobject]@{
+      StatusCode = [int]$response.StatusCode
+      Content = $errorContent
+    }
+  }
+
+  $statusCode = [int]$response.StatusCode
+  $raw = [string]$response.Content
+
+  if ($AllowedStatus -notcontains $statusCode) {
     Write-Host "--- Request ---"
     Write-Host $json
     Write-Host "--- Response status ---"
-    Write-Host $response.StatusCode
+    Write-Host $statusCode
     Write-Host "--- Response body ---"
-    Write-Host $response.Content
-    throw "[FAIL] Unexpected HTTP status $($response.StatusCode). Expected: $($AllowedStatus -join ', ')"
+    Write-Host $raw
+    throw "[FAIL] Unexpected HTTP status $statusCode. Expected: $($AllowedStatus -join ', ')"
   }
 
   return @{
-    StatusCode = [int]$response.StatusCode
-    Body = $response.Content | ConvertFrom-Json
-    Raw = $response.Content
+    StatusCode = $statusCode
+    Body = $raw | ConvertFrom-Json
+    Raw = $raw
   }
 }
 
