@@ -166,8 +166,11 @@ function buildServerToolDefinition(
 function buildServerRegistryTools(): CodexForgeToolDefinition[] {
   const clientRegistry = getClientToolRegistry();
   const executableNameSet = new Set<string>(EXECUTABLE_TOOL_NAMES);
+  const registeredToolNames = new Set(
+    clientRegistry.tools.map((tool) => tool.name)
+  );
 
-  return clientRegistry.tools.map((tool) => {
+  const clientBackedTools = clientRegistry.tools.map((tool) => {
     if (!executableNameSet.has(tool.name)) {
       return tool;
     }
@@ -177,6 +180,16 @@ function buildServerRegistryTools(): CodexForgeToolDefinition[] {
 
     return buildServerToolDefinition(tool, executableTool);
   });
+
+  const executableOnlyTools = EXECUTABLE_TOOL_NAMES.filter(
+    (toolName) => !registeredToolNames.has(toolName)
+  ).map((toolName) => {
+    const executableTool = EXECUTABLE_TOOLS[toolName];
+    assertExecutableToolShape(executableTool);
+    return executableTool;
+  });
+
+  return [...clientBackedTools, ...executableOnlyTools];
 }
 
 function buildToolMap(
