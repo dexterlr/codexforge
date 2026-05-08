@@ -2992,14 +2992,19 @@ function resolveResponseDomain(args: {
   structuredPlanDomain?: CodexForgePlanDomain;
   activePlanDomain?: CodexForgePlanDomain;
   capabilityDomain: CodexForgePlanDomain;
+  capabilityMatched: boolean;
 }): CodexForgePlanDomain {
   if (args.fileIntent.explicitFileRequest) return "debug";
 
+  if (args.capabilityMatched && args.capabilityDomain !== "general") {
+    return args.capabilityDomain;
+  }
+
   return preferNonGeneralDomain(
-    args.responseDomain,
     args.structuredDomain,
     args.structuredPlanDomain,
     args.activePlanDomain,
+    args.responseDomain,
     args.capabilityDomain,
     "general"
   );
@@ -3571,6 +3576,7 @@ export async function POST(req: Request) {
       structuredPlanDomain: decoratedStructured?.plan?.domain ?? decoratedDomain,
       activePlanDomain: enrichedContext.activePlan?.domain,
       capabilityDomain: capabilityRouting.domain,
+      capabilityMatched: capabilityRouting.matched,
     });
 
     const responseProfile = resolveResponseProfile({
@@ -3680,8 +3686,8 @@ export async function POST(req: Request) {
       groundedSignalCount: effectiveGroundedDiagnostics.fileSignals.length,
       executableToolCount: executableToolNames.length,
       generatedPlan: !!response.structured?.plan || !!enrichedContext.activePlan,
-      hasStructured: !!response.structured,
-      replyLength: response.text.length,
+      hasStructured: !!finalValidation.structured,
+      replyLength: finalValidation.text.length,
     });
 
     return NextResponse.json<CodexForgeChatResponse>(successResponse, {
@@ -3698,7 +3704,7 @@ export async function POST(req: Request) {
         "x-codexforge-chat-mode": resolvedChatMode,
         "x-codexforge-response-profile": responseProfile,
         "x-codexforge-warning-count": String(mergedWarnings.length),
-        "x-codexforge-domain": decoratedDomain,
+        "x-codexforge-domain": resolvedDomain,
         "x-codexforge-capability-domain": capabilityRouting.domain,
         "x-codexforge-capability-matched": boolHeader(capabilityRouting.matched),
         "x-codexforge-capability-tags": capabilityRouting.tags.join(","),
