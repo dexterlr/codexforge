@@ -86,6 +86,8 @@ Assert-Contains $panel "onRetryTool" "panel retry callback contract"
 Assert-Contains $panel "retryApprovedToolPolicy" "panel invokes approved retry helper"
 Assert-Contains $panel "data-codexforge-tool-policy-retry-result" "panel retry result marker"
 Assert-Contains $panel "data-codexforge-tool-policy-retry-status" "panel retry status marker"
+Assert-Contains $panel "const [retrying, setRetrying] = useState(false);" "panel retrying state hook"
+Assert-Contains $panel "setRetryResult" "panel retry result state setter"
 
 Assert-Contains $route "serializeVisibleToolPolicy" "execute route serializes visible policy"
 Assert-Contains $route "approvalId?: string | null;" "execute route error meta approval id contract"

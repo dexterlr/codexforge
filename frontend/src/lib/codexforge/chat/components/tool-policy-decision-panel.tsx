@@ -69,6 +69,9 @@ export function ToolPolicyDecisionPanel({
   const visible = summary ?? buildVisibleToolPolicy(decision);
   const [lifecycleStatus, setLifecycleStatus] =
     useState<CodexForgeToolApprovalLifecycleStatus>("idle");
+  const [retrying, setRetrying] = useState(false);
+  const [retryResult, setRetryResult] =
+    useState<CodexForgeToolApprovalRetryResult | null>(null);
 
   const approvalId = normalizeToolApprovalId(visible?.approvalId);
   const canReviewApproval =
