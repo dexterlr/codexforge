@@ -1,3 +1,5 @@
+export const MAX_TOOL_EXECUTION_EVENTS = 8;
+
 type JsonRecord = Record<string, unknown>;
 
 export type CodexForgeToolExecutionEvent = {
@@ -7,8 +9,8 @@ export type CodexForgeToolExecutionEvent = {
   ok: boolean;
   status: number;
   approvalId: string;
+  approvalSatisfied: boolean;
   policySource: string;
-  approvalSatisfied: boolean | null;
   resultSummary: string;
   contentJson: JsonRecord;
   job: {
@@ -35,10 +37,6 @@ function asString(value: unknown, fallback = "-"): string {
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
     : fallback;
-}
-
-function asBooleanOrNull(value: unknown): boolean | null {
-  return typeof value === "boolean" ? value : null;
 }
 
 function getRetryStatus(value: unknown): number {
@@ -91,9 +89,10 @@ export function buildCodexForgeToolExecutionEventFromRetryResult(
     meta.approvalId ?? toolPolicy.approvalId ?? toolPolicySummary.approvalId
   );
   const policySource = asString(meta.policySource ?? toolPolicy.source);
-  const approvalSatisfied = asBooleanOrNull(
-    meta.approvalSatisfied ?? toolPolicy.approvalSatisfied
-  );
+  const approvalSatisfied =
+    meta.approvalSatisfied === true ||
+    toolPolicy.approvalSatisfied === true ||
+    toolPolicySummary.approvalSatisfied === true;
   const resultSummary = asString(result.summary);
   const adapter = asString(resultMetadata.adapter ?? contentJson.adapter);
   const executionMode = asString(contentJson.executionMode);

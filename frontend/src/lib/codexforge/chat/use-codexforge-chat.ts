@@ -10,7 +10,10 @@ import {
   buildRequestBrainGraphContextPayload,
   persistCodexForgeBrainGraph,
 } from "@/lib/codexforge/brain/sync";
-import type { CodexForgeToolExecutionEvent } from "@/lib/codexforge/chat/tool-execution-events";
+import {
+  MAX_TOOL_EXECUTION_EVENTS,
+  type CodexForgeToolExecutionEvent,
+} from "@/lib/codexforge/chat/tool-execution-events";
 import type {
   CodexForgeChatContext,
   CodexForgeChatErrorResponse,
@@ -190,7 +193,6 @@ const MAX_REQUEST_MESSAGES = 80;
 const MAX_ENGINE_LOG_LINES = 5;
 const MAX_ENGINE_SAMPLE_PATHS = 6;
 const MAX_ENGINE_DIFF_PREVIEW = 3;
-const MAX_TOOL_EXECUTION_EVENTS = 20;
 const CHAT_REQUEST_TIMEOUT_MS = 90_000;
 
 /* ================= DOMAIN ================= */
@@ -351,7 +353,7 @@ function summarizeEngineState(engineState: CodexForgeEngineState | null): string
     parts.push(`Error: ${engineState.error}`);
   }
 
-  return parts.join(" ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ");
+  return parts.join(" ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ ");
 }
 
 function summarizeDiffTargets(diffs: CodexForgeEngineDiff[]): string[] {
