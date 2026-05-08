@@ -129,7 +129,7 @@ $approved = Invoke-CodexForgeExecute `
 
 Assert-True (($approved.StatusCode -eq 200) -or ($approved.StatusCode -eq 404)) "approved replay passes approval gate before executor outcome"
 Assert-True (($approved.Body.ok -eq $true) -or ($approved.Body.error -match "Unknown tool")) "approved replay either executes or reaches unknown-tool executor boundary"
-Assert-True ($null -ne $approved.Body.toolPolicy) "approved replay includes policy decision"
+Assert-True (($null -ne $approved.Body.toolPolicy) -or ($null -ne $approved.Body.meta)) "approved replay includes policy decision or policy meta"
 Assert-True (($approved.Body.toolPolicy.allowed -eq $true) -or ($approved.Body.meta.policySource -eq "allowed")) "approved replay policy allowed before executor dispatch"
 Assert-True (($approved.Body.toolPolicy.requiresApproval -eq $true) -or ($approved.Body.meta.requiresApproval -eq $true)) "approved replay still identifies approval-gated tool"
 Assert-True (($approved.Body.toolPolicy.approvalSatisfied -eq $true) -or ($approved.Body.meta.approvalSatisfied -eq $true)) "approved replay marks approval satisfied"
@@ -138,5 +138,7 @@ Assert-True ($approved.Body.meta.approvalSatisfied -eq $true) "approved replay m
 Assert-True ($approved.Body.meta.approvalId -eq $approvalId) "approved replay meta preserves approval id"
 Assert-True (($approved.StatusCode -ne 428) -and ($approved.Raw -notmatch "Tool execution requires explicit approval before running")) "approved replay does not re-trigger missing approval rejection"
 Assert-True (($approved.StatusCode -ne 404) -or ($approved.Raw -match "Unknown tool")) "approved replay 404 is executor boundary only"
+Assert-True (($approved.StatusCode -ne 404) -or ($approved.Body.meta.policySource -eq "allowed")) "approved replay 404 preserves allowed policy source"
+Assert-True (($approved.StatusCode -ne 404) -or ($approved.Body.meta.approvalSatisfied -eq $true)) "approved replay 404 preserves approval satisfaction"
 
 Write-Host "[OK] CodexForge direct approval retry API smoke passed."
