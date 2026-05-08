@@ -92,6 +92,11 @@ Assert-Contains $executor "privateNetworkBlocked" "private network safety marker
 Assert-Contains $executor "MAX_SOURCES = 3" "source cap"
 Assert-Contains $executor "MAX_BYTES_PER_SOURCE" "source byte cap"
 Assert-Contains $executor "credentialHarvestingBlocked" "credential harvesting safety marker"
+Assert-Contains $executor "memoryCandidates" "memory candidate contract"
+Assert-Contains $executor "groundedContext" "grounded context contract"
+Assert-Contains $executor "evidenceDigest" "grounded evidence digest"
+Assert-Contains $executor "explicitSourcesOnly" "explicit sources only safety marker"
+Assert-Contains $executor "noSilentBrowsing" "no silent browsing safety marker"
 
 Assert-Contains $route "Web research requires explicit approval before network access." "approval required response"
 Assert-Contains $route "toolPolicyReplayRequest" "replay request response"
@@ -166,6 +171,14 @@ if ($approvedPlanResponse.Json.result.mode -ne "research-plan-only") {
 
 if ($approvedPlanResponse.Json.result.needsSources -ne $true) {
   throw "[FAIL] approved source-less request should require explicit sources"
+}
+
+if ($approvedPlanResponse.Json.result.groundedContext.memoryCandidateCount -ne 0) {
+  throw "[FAIL] source-less research should not create memory candidates"
+}
+
+if ($approvedPlanResponse.Json.result.safety.explicitSourcesOnly -ne $true) {
+  throw "[FAIL] source-less research did not preserve explicit source safety"
 }
 
 Write-Host "[PASS] approved query without sources does not silently browse"
