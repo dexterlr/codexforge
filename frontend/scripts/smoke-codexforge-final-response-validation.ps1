@@ -146,15 +146,23 @@ Assert-True ($LatestResponse.reply.text -match "No approval-driven diff previews
 
 Write-Host ""
 Write-Host "[RUN ] Static final validation seam assertions"
+$RoutePath = Join-Path (Get-Location) "src\app\api\codexforge\chat\route.ts"
+$RouteText = Get-Content -Raw $RoutePath
+
 $LatestOverridePath = Join-Path (Get-Location) "src\lib\codexforge\chat\latest-message-override-response.ts"
 Assert-True (Test-Path $LatestOverridePath) "latest-message override response module exists"
 
 $LatestOverrideText = Get-Content -Raw $LatestOverridePath
 Assert-True ($LatestOverrideText -match "export function buildLatestMessageOverrideSuccessResponse") "latest-message module exports response builder"
+Assert-True ($LatestOverrideText -match "type LatestMessageOverrideResponseDeps") "latest-message module has explicit dependency contract"
+Assert-True ($LatestOverrideText -match "deps\.makeId\(\)") "latest-message module receives id factory dependency"
+Assert-True ($LatestOverrideText -match "deps\.modelName") "latest-message module receives model name dependency"
+Assert-True ($LatestOverrideText -notmatch "uid\(") "latest-message module does not capture route-local uid"
+Assert-True ($LatestOverrideText -notmatch "MODEL_NAME") "latest-message module does not capture route-local model constant"
 Assert-True ($RouteText -match "latest-message-override-response") "route imports latest-message override module"
+Assert-True ($RouteText -match "makeId:\s*uid") "route passes latest-message id dependency"
+Assert-True ($RouteText -match "modelName:\s*MODEL_NAME") "route passes latest-message model dependency"
 Assert-True ($RouteText -notmatch "function buildLatestMessageOverrideSuccessResponse") "route no longer owns latest-message response builder"
-$RoutePath = Join-Path (Get-Location) "src\app\api\codexforge\chat\route.ts"
-$RouteText = Get-Content -Raw $RoutePath
 $ResponseDefaultsPath = Join-Path (Get-Location) "src\lib\codexforge\chat\response-defaults.ts"
 Assert-True (Test-Path $ResponseDefaultsPath) "response defaults module exists"
 

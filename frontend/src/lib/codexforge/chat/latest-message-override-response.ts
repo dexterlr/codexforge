@@ -6,6 +6,11 @@ import type {
   CodexForgeStructuredReply,
 } from "@/lib/codexforge/types";
 
+type LatestMessageOverrideResponseDeps = {
+  makeId: () => string;
+  modelName: string;
+};
+
 /*
  * Latest-message override response assembly is intentionally isolated from
  * the route orchestration layer. Keep this module focused on deterministic
@@ -107,7 +112,8 @@ function getLatestMessageOverridePreferredPath(context: unknown): string | null 
 
 export function buildLatestMessageOverrideSuccessResponse(
   latestUserText: string,
-  context: CodexForgeChatContext
+  context: CodexForgeChatContext,
+  deps: LatestMessageOverrideResponseDeps
 ): CodexForgeChatSuccessResponse {
   const now = Date.now();
   const activePlan = context.activePlan ?? buildRouteLatestMessageOverrideContext(context).activePlan;
@@ -198,7 +204,7 @@ export function buildLatestMessageOverrideSuccessResponse(
   return {
     ok: true,
     reply: {
-      id: uid(),
+      id: deps.makeId(),
       role: "assistant",
       text,
       ts: now,
@@ -206,7 +212,7 @@ export function buildLatestMessageOverrideSuccessResponse(
     },
     meta: {
       mode: "local-execution",
-      model: MODEL_NAME,
+      model: deps.modelName,
       usedFallback: false,
       generatedPlan: true,
       executionMode: true,

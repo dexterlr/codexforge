@@ -3021,7 +3021,11 @@ export async function POST(req: Request) {
         "src/lib/codexforge/chat/use-codexforge-chat.ts";
       const successResponse = buildLatestMessageOverrideSuccessResponse(
         lastUser.text,
-        overrideContext
+        overrideContext,
+        {
+          makeId: uid,
+          modelName: MODEL_NAME,
+        }
       );
 
       return NextResponse.json<CodexForgeChatResponse>(successResponse, {
