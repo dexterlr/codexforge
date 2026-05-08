@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -70,6 +70,21 @@ function Invoke-CodexForgeChat {
   Assert-Equal "$Label structured domain" $Json.reply.structured.domain $ExpectedDomain
   Assert-Equal "$Label structured plan domain" $Json.reply.structured.plan.domain $ExpectedDomain
   Assert-Equal "$Label response profile" $Profile $ExpectedProfile
+
+  $VisibleText = [string]$Json.reply.text
+  $ExpectedDomainLine = "Domain: $ExpectedDomain"
+
+  if ($VisibleText -notlike "*$ExpectedDomainLine*") {
+    throw "[FAIL] $Label visible text does not include '$ExpectedDomainLine'"
+  }
+
+  Write-Host "[PASS] $Label visible text includes $ExpectedDomainLine"
+
+  if ($VisibleText -match "Domain:\s+(video|research|web|comfyui|general)" -and $ExpectedDomain -notin @("video", "research", "web", "comfyui", "general")) {
+    throw "[FAIL] $Label visible text contains a stale broad domain instead of authoritative '$ExpectedDomain'"
+  }
+
+  Write-Host "[PASS] $Label visible text excludes stale broad domain labels"
 
   Write-Host "[PASS] $Label final domain alignment"
 }
