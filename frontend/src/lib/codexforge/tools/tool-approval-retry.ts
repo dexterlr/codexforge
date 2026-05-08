@@ -7,14 +7,21 @@ type CodexForgeToolApprovalRetryFetcher = (
   init?: RequestInit
 ) => Promise<Response>;
 
+export type CodexForgeToolApprovalReplayRequest = {
+  toolName: string;
+  mode?: "execute" | "plan" | "preview";
+  input?: Record<string, unknown>;
+  context?: Record<string, unknown>;
+};
+
 export type CodexForgeToolApprovalRetryRequest = {
   toolName: string;
   mode: "execute";
-  input: {
+  input: Record<string, unknown> & {
     approvalRetry: true;
     approvalId: string;
   };
-  context: {
+  context: Record<string, unknown> & {
     domain: string;
   };
   approvalState: CodexForgeToolApprovalState;
@@ -24,6 +31,7 @@ export type CodexForgeToolApprovalRetryResult = {
   ok: boolean;
   status: number;
   message: string;
+  request: CodexForgeToolApprovalRetryRequest;
   body: unknown;
 };
 
@@ -44,34 +52,60 @@ function extractVisiblePolicyValue(
   return null;
 }
 
-export function buildToolApprovalRetryRequest(
-  visible: CodexForgeVisibleToolPolicy,
-  payload: CodexForgeToolApprovalActionPayload
-): CodexForgeToolApprovalRetryRequest {
-  const toolName = extractVisiblePolicyValue(visible, "Tool") ?? "unknown-tool";
-  const domain = extractVisiblePolicyValue(visible, "Domain") ?? "general";
+function normalizeRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return value as Record<string, unknown>;
+}
+
+export function buildToolApprovalRetryRequest(args: {
+  visible: CodexForgeVisibleToolPolicy;
+  payload: CodexForgeToolApprovalActionPayload;
+  replayRequest?: CodexForgeToolApprovalReplayRequest | null;
+}): CodexForgeToolApprovalRetryRequest {
+  const replay = args.replayRequest ?? null;
+  const toolName =
+    replay?.toolName ??
+    extractVisiblePolicyValue(args.visible, "Tool") ??
+    "unknown-tool";
+  const visibleDomain = extractVisiblePolicyValue(args.visible, "Domain") ?? "general";
+  const replayInput = normalizeRecord(replay?.input);
+  const replayContext = normalizeRecord(replay?.context);
+  const replayDomain =
+    typeof replayContext.domain === "string" && replayContext.domain.trim().length > 0
+      ? replayContext.domain
+      : visibleDomain;
 
   return {
     toolName,
     mode: "execute",
     input: {
+      ...replayInput,
       approvalRetry: true,
-      approvalId: payload.approvalId,
+      approvalId: args.payload.approvalId,
     },
     context: {
-      domain,
+      ...replayContext,
+      domain: replayDomain,
     },
-    approvalState: payload.approvalState,
+    approvalState: args.payload.approvalState,
   };
 }
 
 export async function retryApprovedToolPolicy(args: {
   visible: CodexForgeVisibleToolPolicy;
   payload: CodexForgeToolApprovalActionPayload;
+  replayRequest?: CodexForgeToolApprovalReplayRequest | null;
   fetcher?: CodexForgeToolApprovalRetryFetcher;
 }): Promise<CodexForgeToolApprovalRetryResult> {
   const fetcher = args.fetcher ?? fetch;
-  const request = buildToolApprovalRetryRequest(args.visible, args.payload);
+  const request = buildToolApprovalRetryRequest({
+    visible: args.visible,
+    payload: args.payload,
+    replayRequest: args.replayRequest,
+  });
 
   const response = await fetcher("/api/codexforge/tools/execute", {
     method: "POST",
@@ -103,6 +137,7 @@ export async function retryApprovedToolPolicy(args: {
     ok: response.ok,
     status: response.status,
     message,
+    request,
     body,
   };
 }

@@ -7,6 +7,7 @@ import { buildVisibleToolPolicy } from "@/lib/codexforge/tools/tool-policy-visib
 import {
   retryApprovedToolPolicy,
   type CodexForgeToolApprovalRetryResult,
+  type CodexForgeToolApprovalReplayRequest,
 } from "@/lib/codexforge/tools/tool-approval-retry";
 import {
   buildApprovedToolApprovalState,
@@ -21,6 +22,7 @@ type ToolPolicyDecisionPanelProps = {
   decision?: CodexForgeToolPolicyDecision | null;
   summary?: CodexForgeVisibleToolPolicy | null;
   compact?: boolean;
+  replayRequest?: CodexForgeToolApprovalReplayRequest | null;
   onApproveTool?: (payload: CodexForgeToolApprovalActionPayload) => void;
   onDenyTool?: (payload: CodexForgeToolApprovalActionPayload) => void;
   onRetryTool?: (payload: CodexForgeToolApprovalActionPayload) => void;
@@ -148,6 +150,7 @@ export function ToolPolicyDecisionPanel({
       const result = await retryApprovedToolPolicy({
         visible,
         payload: approvedPayload,
+        replayRequest,
       });
 
       setRetryResult(result);

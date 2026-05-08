@@ -59,6 +59,11 @@ Assert-Contains $retry "retryApprovedToolPolicy" "approved retry execute route h
 Assert-Contains $retry "/api/codexforge/tools/execute" "retry uses execute route"
 Assert-Contains $retry "approvalState" "retry forwards approval state"
 Assert-Contains $retry "approvalRetry" "retry marks approval retry input"
+Assert-Contains $retry "CodexForgeToolApprovalReplayRequest" "retry replay request contract"
+Assert-Contains $retry "replayRequest" "retry accepts replay request"
+Assert-Contains $retry "...replayInput" "retry preserves original tool input"
+Assert-Contains $retry "...replayContext" "retry preserves original tool context"
+Assert-Contains $retry "request: CodexForgeToolApprovalRetryRequest" "retry result exposes replayed request"
 
 Assert-Contains $visibility "CodexForgeVisibleToolPolicy" "visible policy type"
 Assert-Contains $visibility "approvalId?: string | null;" "visible approval id contract"
