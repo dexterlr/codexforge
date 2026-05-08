@@ -10,19 +10,19 @@ function asRecord(value: unknown): JsonRecord {
     : {};
 }
 
-function asString(value: unknown, fallback = "—"): string {
+function asString(value: unknown, fallback = "-"): string {
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
     : fallback;
 }
 
 function asBooleanLabel(value: unknown): string {
-  return value === true ? "Yes" : value === false ? "No" : "—";
+  return value === true ? "Yes" : value === false ? "No" : "-";
 }
 
 function stringifyJson(value: unknown): string {
   if (value === undefined || value === null) {
-    return "—";
+    return "-";
   }
 
   if (typeof value === "string") {
@@ -89,7 +89,7 @@ export function ToolExecutionResultPanel({
           Tool execution result
         </p>
         <h4 className="text-sm font-semibold text-white">
-          {toolName} · {resultStatus}
+          {toolName} Â· {resultStatus}
         </h4>
         <p className="text-xs text-slate-300">
           Approved replay completed through the CodexForge tool-policy guard.
@@ -137,7 +137,7 @@ export function ToolExecutionResultPanel({
       >
         <p className="font-semibold text-slate-400">Result summary</p>
         <p className="mt-1">{resultSummary}</p>
-        {jobMessage !== "—" ? (
+        {jobMessage !== "-" ? (
           <p className="mt-2 text-slate-300">Job message: {jobMessage}</p>
         ) : null}
       </div>

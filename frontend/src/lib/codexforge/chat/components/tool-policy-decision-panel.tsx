@@ -283,6 +283,8 @@ export function ToolPolicyDecisionPanel({
                   {JSON.stringify(retryResult, null, 2)}
                 </pre>
               ) : null}
+
+      <ToolExecutionResultPanel retryResult={retryResult} />
             </div>
           ) : null}
 
