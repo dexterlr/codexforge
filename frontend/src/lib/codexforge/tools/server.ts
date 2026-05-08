@@ -26,6 +26,7 @@ import { buildWebAppTool } from "./build-web-app";
 import { generateDiffTool } from "./generate-diff";
 import { listFilesTool } from "./list-files";
 import { readFileTool } from "./read-file";
+import { renderJobTool } from "./render-job";
 import { runCommandTool } from "./run-command";
 import { runTestsTool } from "./run-tests";
 import { searchProjectTool } from "./search-project";
@@ -41,6 +42,7 @@ export type CodexForgeServerToolName =
   | "generate-diff"
   | "apply-diff"
   | "snapshot-project"
+  | "render-job"
   | "run-tests"
   | "build-web-app";
 
@@ -59,6 +61,7 @@ const EXECUTABLE_TOOLS: ExecutableToolMap = {
   "generate-diff": generateDiffTool,
   "apply-diff": applyDiffTool,
   "snapshot-project": snapshotProjectTool,
+  "render-job": renderJobTool,
   "run-tests": runTestsTool,
   "build-web-app": buildWebAppTool,
 };

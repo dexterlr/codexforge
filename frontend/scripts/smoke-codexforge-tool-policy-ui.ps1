@@ -29,8 +29,10 @@ $blockPath = "src\lib\codexforge\chat\components\structured-reply-block.tsx"
 $routePath = "src\app\api\codexforge\tools\execute\route.ts"
 $lifecyclePath = "src\lib\codexforge\tools\tool-approval-lifecycle.ts"
 $retryPath = "src\lib\codexforge\tools\tool-approval-retry.ts"
+$serverPath = "src\lib\codexforge\tools\server.ts"
+$renderJobPath = "src\lib\codexforge\tools\render-job.ts"
 
-foreach ($path in @($guardPath, $visibilityPath, $panelPath, $blockPath, $routePath, $lifecyclePath, $retryPath)) {
+foreach ($path in @($guardPath, $visibilityPath, $panelPath, $blockPath, $routePath, $lifecyclePath, $retryPath, $serverPath, $renderJobPath)) {
   if (-not (Test-Path $path)) {
     throw "[FAIL] Missing expected file: $path"
   }
@@ -45,6 +47,8 @@ $block = Get-Content -Raw $blockPath
 $route = Get-Content -Raw $routePath
 $lifecycle = Get-Content -Raw $lifecyclePath
 $retry = Get-Content -Raw $retryPath
+$server = Get-Content -Raw $serverPath
+$renderJob = Get-Content -Raw $renderJobPath
 
 Assert-Contains $guard "approvalId: string | null;" "guard decision approval id contract"
 Assert-Contains $guard "approvalState: CodexForgeToolApprovalState;" "guard decision approval state contract"
@@ -70,6 +74,10 @@ Assert-Contains $retry 'kind: "accepted"' "retry accepted result discriminant"
 Assert-Contains $retry 'kind: "rejected"' "retry rejected result discriminant"
 Assert-Contains $retry 'kind: "error"' "retry error result discriminant"
 Assert-Contains $retry "return response.ok" "retry branches by HTTP outcome"
+Assert-Contains $server '| "render-job"' "server exposes render-job type"
+Assert-Contains $server '"render-job": renderJobTool' "server registers render-job executable"
+Assert-Contains $renderJob 'local-safe-simulated' "render-job uses local-safe simulated adapter"
+Assert-Contains $renderJob 'no Blender process or external renderer was launched' "render-job declares no side effects"
 
 Assert-Contains $visibility "CodexForgeVisibleToolPolicy" "visible policy type"
 Assert-Contains $visibility "approvalId?: string | null;" "visible approval id contract"

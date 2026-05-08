@@ -109,7 +109,7 @@ $approvalId = [string]$initial.Body.toolPolicySummary.approvalId
 $replay = $initial.Body.toolPolicyReplayRequest
 
 $approved = Invoke-CodexForgeExecute `
-  -AllowedStatus @(200, 404) `
+  -AllowedStatus @(200) `
   -Body @{
     toolName = $replay.toolName
     mode = $replay.mode
@@ -127,18 +127,18 @@ $approved = Invoke-CodexForgeExecute `
     }
   }
 
-Assert-True (($approved.StatusCode -eq 200) -or ($approved.StatusCode -eq 404)) "approved replay passes approval gate before executor outcome"
-Assert-True (($approved.Body.ok -eq $true) -or ($approved.Body.error -match "Unknown tool")) "approved replay either executes or reaches unknown-tool executor boundary"
-Assert-True (($null -ne $approved.Body.toolPolicy) -or ($null -ne $approved.Body.meta)) "approved replay includes policy decision or policy meta"
-Assert-True (($approved.Body.toolPolicy.allowed -eq $true) -or ($approved.Body.meta.policySource -eq "allowed")) "approved replay policy allowed before executor dispatch"
-Assert-True (($approved.Body.toolPolicy.requiresApproval -eq $true) -or ($approved.Body.meta.requiresApproval -eq $true)) "approved replay still identifies approval-gated tool"
-Assert-True (($approved.Body.toolPolicy.approvalSatisfied -eq $true) -or ($approved.Body.meta.approvalSatisfied -eq $true)) "approved replay marks approval satisfied"
-Assert-True (($approved.Body.toolPolicy.approvalId -eq $approvalId) -or ($approved.Body.meta.approvalId -eq $approvalId)) "approved replay preserves approval id"
+Assert-True ($approved.StatusCode -eq 200) "approved replay returns HTTP 200"
+Assert-True ($approved.Body.ok -eq $true) "approved replay response ok true"
+Assert-True ($null -ne $approved.Body.result) "approved replay includes execution result"
+Assert-True ($approved.Body.meta.policySource -eq "allowed") "approved replay policy allowed before executor dispatch"
+Assert-True ($approved.Body.meta.requiresApproval -eq $true) "approved replay still identifies approval-gated tool"
+Assert-True ($approved.Body.meta.approvalSatisfied -eq $true) "approved replay marks approval satisfied"
+Assert-True ($approved.Body.meta.approvalId -eq $approvalId) "approved replay preserves approval id"
 Assert-True ($approved.Body.meta.approvalSatisfied -eq $true) "approved replay meta marks approval satisfied"
 Assert-True ($approved.Body.meta.approvalId -eq $approvalId) "approved replay meta preserves approval id"
-Assert-True (($approved.StatusCode -ne 428) -and ($approved.Raw -notmatch "Tool execution requires explicit approval before running")) "approved replay does not re-trigger missing approval rejection"
-Assert-True (($approved.StatusCode -ne 404) -or ($approved.Raw -match "Unknown tool")) "approved replay 404 is executor boundary only"
-Assert-True (($approved.StatusCode -ne 404) -or ($approved.Body.meta.policySource -eq "allowed")) "approved replay 404 preserves allowed policy source"
-Assert-True (($approved.StatusCode -ne 404) -or ($approved.Body.meta.approvalSatisfied -eq $true)) "approved replay 404 preserves approval satisfaction"
+Assert-True ($approved.Raw -notmatch "Tool execution requires explicit approval before running") "approved replay does not re-trigger missing approval rejection"
+Assert-True ($approved.Raw -notmatch "Unknown tool") "approved replay does not hit unknown-tool executor boundary"
+Assert-True ($approved.Body.result.ok -eq $true) "approved replay tool result ok true"
+Assert-True ($approved.Body.result.data.executionMode -eq "local-safe-simulated") "approved replay uses local-safe render adapter"
 
 Write-Host "[OK] CodexForge direct approval retry API smoke passed."
