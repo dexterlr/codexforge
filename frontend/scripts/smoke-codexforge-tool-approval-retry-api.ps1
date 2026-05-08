@@ -140,6 +140,9 @@ Assert-True ($approved.Body.meta.approvalId -eq $approvalId) "approved replay me
 Assert-True ($approved.Raw -notmatch "Tool execution requires explicit approval before running") "approved replay does not re-trigger missing approval rejection"
 Assert-True ($approved.Raw -notmatch "Unknown tool") "approved replay does not hit unknown-tool executor boundary"
 Assert-True ($approved.Body.result.ok -eq $true) "approved replay tool result ok true"
-Assert-True ($approved.Body.result.data.executionMode -eq "local-safe-simulated") "approved replay uses local-safe render adapter"
+Assert-True ($approved.Body.result.content.type -eq "json") "approved replay returns JSON result content"
+Assert-True ($approved.Body.result.content.json.executionMode -eq "local-safe-simulated") "approved replay uses local-safe render adapter"
+Assert-True ($approved.Body.result.content.json.sideEffect -eq "none") "approved replay render adapter has no side effect"
+Assert-True ($approved.Body.result.metadata.adapter -eq "local-safe-render-job") "approved replay result metadata identifies local-safe render adapter"
 
 Write-Host "[OK] CodexForge direct approval retry API smoke passed."
