@@ -40,6 +40,8 @@ export type CodexForgeToolPolicyDecision = {
   requiresApproval: boolean;
   blocked: boolean;
   approvalSatisfied: boolean;
+  approvalId: string | null;
+  approvalState: CodexForgeToolApprovalState;
   source: "blocked" | "approval-required" | "allowed" | "unknown-tool" | "missing-tool";
   approvalRequiredTools: string[];
   blockedTools: string[];
@@ -244,6 +246,24 @@ function approvalSatisfied(value: CodexForgeToolApprovalState): boolean {
   return value.approved === true && !!value.approvalId;
 }
 
+function slugApprovalPart(value: string | null | undefined): string {
+  const normalized = value?.trim().toLowerCase().replace(/[^a-z0-9._-]+/g, "-");
+  return normalized && normalized.length > 0 ? normalized : "unknown";
+}
+
+function buildPendingApprovalId(args: {
+  domain: string | null;
+  mode: string;
+  toolName: string;
+}): string {
+  return [
+    "codexforge-approval",
+    slugApprovalPart(args.domain ?? "general"),
+    slugApprovalPart(args.mode),
+    slugApprovalPart(args.toolName),
+  ].join(":");
+}
+
 function extractDomain(input: CodexForgeToolPolicyInput, runtimePolicy: AnyRecord | null): string | null {
   return (
     normalizeString(input.domain) ??
@@ -380,6 +400,8 @@ export function evaluateCodexForgeToolPolicy(
       requiresApproval: false,
       blocked: false,
       approvalSatisfied: false,
+      approvalId: approval.approvalId ?? null,
+      approvalState: approval,
       source: "missing-tool",
       approvalRequiredTools,
       blockedTools,
@@ -400,6 +422,8 @@ export function evaluateCodexForgeToolPolicy(
       requiresApproval: false,
       blocked: true,
       approvalSatisfied: approvalOk,
+      approvalId: approval.approvalId ?? null,
+      approvalState: approval,
       source: "blocked",
       approvalRequiredTools,
       blockedTools,
@@ -424,6 +448,14 @@ export function evaluateCodexForgeToolPolicy(
       requiresApproval: true,
       blocked: false,
       approvalSatisfied: false,
+      approvalId:
+        approval.approvalId ??
+        buildPendingApprovalId({
+          domain,
+          mode,
+          toolName: normalizedToolName,
+        }),
+      approvalState: approval,
       source: "approval-required",
       approvalRequiredTools,
       blockedTools,
@@ -447,6 +479,16 @@ export function evaluateCodexForgeToolPolicy(
     requiresApproval,
     blocked: false,
     approvalSatisfied: approvalOk,
+    approvalId:
+      approval.approvalId ??
+      (requiresApproval
+        ? buildPendingApprovalId({
+            domain,
+            mode,
+            toolName: normalizedToolName,
+          })
+        : null),
+    approvalState: approval,
     source: "allowed",
     approvalRequiredTools,
     blockedTools,

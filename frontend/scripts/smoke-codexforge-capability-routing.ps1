@@ -97,7 +97,8 @@ if ($failures.Count -gt 0) {
 Write-Host ""
 Write-Host "All CodexForge capability routing smoke tests passed."
 
-Write-Host "`n=== Visible agent-team influence smoke tests ==="
+Write-Host "
+=== Visible agent-team influence smoke tests ==="
 
 $visibleCases = @(
   @{
@@ -208,15 +209,18 @@ foreach ($case in $visibleCases) {
   ))
 
   if ($primaryHeader -ne $case.ExpectedPrimary) {
-    Write-Host "`n=== Response headers for failed primary-agent assertion ==="
+    Write-Host "
+=== Response headers for failed primary-agent assertion ==="
     $response.Headers.GetEnumerator() | ForEach-Object {
       Write-Host "$($_.Key): $($_.Value)"
     }
 
-    Write-Host "`n=== Structured agent team for failed primary-agent assertion ==="
+    Write-Host "
+=== Structured agent team for failed primary-agent assertion ==="
     $json.reply.structured.agentTeam | ConvertTo-Json -Depth 10
 
-    Write-Host "`n=== Meta agent team for failed primary-agent assertion ==="
+    Write-Host "
+=== Meta agent team for failed primary-agent assertion ==="
     $json.meta.agentTeam | ConvertTo-Json -Depth 10
 
     throw "[FAIL] $($case.Name) expected primary agent '$($case.ExpectedPrimary)', got '$primaryHeader'"
@@ -228,7 +232,8 @@ foreach ($case in $visibleCases) {
 
   foreach ($required in $case.RequiredText) {
     if (-not $text.Contains($required)) {
-      Write-Host "`n=== Visible text for failed case ==="
+      Write-Host "
+=== Visible text for failed case ==="
       $text
       throw "[FAIL] $($case.Name) visible text missing: $required"
     }
@@ -243,7 +248,8 @@ foreach ($case in $visibleCases) {
 
   foreach ($requiredSection in @("Agent-directed planning", "Agent safety and approval gates")) {
     if ($sectionTitles -notcontains $requiredSection) {
-      Write-Host "`n=== Structured section titles for failed case ==="
+      Write-Host "
+=== Structured section titles for failed case ==="
       $sectionTitles
       throw "[FAIL] $($case.Name) structured sections missing: $requiredSection"
     }
@@ -256,7 +262,8 @@ foreach ($case in $visibleCases) {
 
 Write-Host "[PASS] visible agent-team influence smoke tests passed"
 
-Write-Host "`n=== Visible agent runtime policy smoke tests ==="
+Write-Host "
+=== Visible agent runtime policy smoke tests ==="
 
 $runtimePolicyCases = @(
   @{
@@ -346,7 +353,8 @@ foreach ($case in $runtimePolicyCases) {
 
   foreach ($required in $case.RequiredText) {
     if (-not $text.Contains($required)) {
-      Write-Host "`n=== Visible text for failed runtime-policy case ==="
+      Write-Host "
+=== Visible text for failed runtime-policy case ==="
       $text
       throw "[FAIL] $($case.Name) visible text missing: $required"
     }
@@ -356,7 +364,8 @@ foreach ($case in $runtimePolicyCases) {
 
   foreach ($forbidden in $case.ForbiddenText) {
     if ($text.Contains($forbidden)) {
-      Write-Host "`n=== Visible text for forbidden runtime-policy case ==="
+      Write-Host "
+=== Visible text for forbidden runtime-policy case ==="
       $text
       throw "[FAIL] $($case.Name) visible text contains forbidden phrase: $forbidden"
     }
@@ -371,7 +380,8 @@ foreach ($case in $runtimePolicyCases) {
 
   foreach ($requiredSection in @("Agent runtime policy", "Runtime rules", "Safety rules", "Quality gates")) {
     if ($sectionTitles -notcontains $requiredSection) {
-      Write-Host "`n=== Structured section titles for failed runtime-policy case ==="
+      Write-Host "
+=== Structured section titles for failed runtime-policy case ==="
       $sectionTitles
       throw "[FAIL] $($case.Name) structured sections missing: $requiredSection"
     }
@@ -384,7 +394,8 @@ foreach ($case in $runtimePolicyCases) {
 
 Write-Host "[PASS] visible agent runtime policy smoke tests passed"
 
-Write-Host "`n=== Direct executable tool-policy smoke tests ==="
+Write-Host "
+=== Direct executable tool-policy smoke tests ==="
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent $scriptRoot
@@ -463,7 +474,8 @@ foreach ($required in @("evaluateCodexForgeToolPolicy", "toolPolicyDecision", "t
 
 Write-Host "[PASS] direct executable tool-policy smoke tests passed"
 
-Write-Host "`n=== Direct execute API tool-policy enforcement smoke tests ==="
+Write-Host "
+=== Direct execute API tool-policy enforcement smoke tests ==="
 
 $executePolicyCases = @(
   @{
@@ -541,7 +553,8 @@ foreach ($case in $executePolicyCases) {
   }
 
   if ($statusCode -ne $case.ExpectedStatus) {
-    Write-Host "`n=== Execute policy response body ==="
+    Write-Host "
+=== Execute policy response body ==="
     Write-Host $content
     throw "[FAIL] $($case.Name) expected HTTP $($case.ExpectedStatus), got $statusCode"
   }
@@ -550,7 +563,8 @@ foreach ($case in $executePolicyCases) {
 
   foreach ($required in $case.RequiredText) {
     if (-not $content.Contains($required)) {
-      Write-Host "`n=== Execute policy response body ==="
+      Write-Host "
+=== Execute policy response body ==="
       Write-Host $content
       throw "[FAIL] $($case.Name) response missing: $required"
     }
@@ -559,7 +573,8 @@ foreach ($case in $executePolicyCases) {
   }
 
   if ($case.ExpectedStatus -ne 200 -and -not $content.Contains("toolPolicy")) {
-    Write-Host "`n=== Execute policy response body ==="
+    Write-Host "
+=== Execute policy response body ==="
     Write-Host $content
     throw "[FAIL] $($case.Name) policy rejection missing top-level toolPolicy payload"
   }
@@ -573,7 +588,8 @@ foreach ($case in $executePolicyCases) {
 
 Write-Host "[PASS] direct execute API tool-policy enforcement smoke tests passed"
 
-Write-Host "`n=== Direct execute API visible tool-policy UX smoke tests ==="
+Write-Host "
+=== Direct execute API visible tool-policy UX smoke tests ==="
 
 $visiblePolicyCases = @(
   @{
@@ -590,7 +606,7 @@ $visiblePolicyCases = @(
       "toolPolicySummary",
       "Tool blocked by policy",
       "Blocked",
-      "Next action",
+      "nextAction",
       "broker-execution"
     )
   },
@@ -608,7 +624,7 @@ $visiblePolicyCases = @(
       "toolPolicySummary",
       "Approval required before tool execution",
       "Approval required",
-      "Next action",
+      "nextAction",
       "render-job"
     )
   }
@@ -641,7 +657,8 @@ foreach ($case in $visiblePolicyCases) {
   }
 
   if ($statusCode -ne $case.ExpectedStatus) {
-    Write-Host "`n=== Visible policy response body ==="
+    Write-Host "
+=== Visible policy response body ==="
     Write-Host $content
     throw "[FAIL] $($case.Name) expected HTTP $($case.ExpectedStatus), got $statusCode"
   }
@@ -650,7 +667,8 @@ foreach ($case in $visiblePolicyCases) {
 
   foreach ($required in $case.RequiredText) {
     if (-not $content.Contains($required)) {
-      Write-Host "`n=== Visible policy response body ==="
+      Write-Host "
+=== Visible policy response body ==="
       Write-Host $content
       throw "[FAIL] $($case.Name) response missing: $required"
     }

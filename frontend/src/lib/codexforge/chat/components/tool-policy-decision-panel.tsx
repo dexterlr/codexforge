@@ -51,6 +51,7 @@ export function ToolPolicyDecisionPanel({
       ].join(" ")}
       data-codexforge-tool-policy-panel="true"
       data-codexforge-tool-policy-tone={visible.tone}
+      data-codexforge-tool-policy-approval-id={visible.approvalId ?? ""}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
@@ -73,6 +74,14 @@ export function ToolPolicyDecisionPanel({
           <div className="mt-3 rounded-xl border border-white/10 bg-black/10 p-3 text-xs">
             <span className="font-semibold">Next action: </span>
             <span className="opacity-85">{visible.nextAction}</span>
+            {visible.approvalId ? (
+              <div className="mt-2 opacity-85">
+                <span className="font-semibold">Approval ID: </span>
+                <code data-codexforge-tool-policy-approval-id-label="true">
+                  {visible.approvalId}
+                </code>
+              </div>
+            ) : null}
           </div>
 
           <div className="mt-3 grid gap-3 md:grid-cols-2">
