@@ -137,7 +137,7 @@ export function ToolPolicyDecisionPanel({
   }
 
   async function retryTool() {
-    if (!approvedPayload) return;
+    if (!approvedPayload || !visible) return;
 
     setLifecycleStatus("approved");
     setRetrying(true);
