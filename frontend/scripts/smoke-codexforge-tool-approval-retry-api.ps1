@@ -30,7 +30,8 @@ function Invoke-CodexForgeExecute {
       -Uri "$BaseUrl/api/codexforge/tools/execute" `
       -Method POST `
       -ContentType "application/json" `
-      -Body $json
+      -Body $json `
+      -UseBasicParsing
   } catch {
     $response = $_.Exception.Response
 
