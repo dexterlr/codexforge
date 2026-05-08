@@ -13,7 +13,7 @@ import { structuredToText } from "@/lib/codexforge/chat/engine-render";
 import { applyRouteVisibleStructuredDefaults } from "@/lib/codexforge/chat/response-defaults";
 import { buildLatestMessageOverrideSuccessResponse } from "@/lib/codexforge/chat/latest-message-override-response";
 import { buildRouteLatestMessageOverrideContext, getLatestMessageOverridePreferredPath } from "@/lib/codexforge/chat/latest-message-override-context";
-import { buildJsonHeaders, isProductionOnlyPlanningRequest, scrubProductionOnlyVisibleText } from "@/lib/codexforge/chat/route-response-utils";
+import { boolHeader, buildJsonHeaders, isProductionOnlyPlanningRequest, scrubProductionOnlyVisibleText } from "@/lib/codexforge/chat/route-response-utils";
 import {
   resolveCodexForgeResponseDomain,
   resolveCodexForgeResponseProfile,
