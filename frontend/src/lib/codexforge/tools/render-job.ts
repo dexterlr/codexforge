@@ -1,5 +1,4 @@
 import type { CodexForgeToolDefinition } from "./contracts";
-import { createCodexForgeToolSuccessResult } from "./shared";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -47,7 +46,8 @@ export const renderJobTool: CodexForgeToolDefinition = {
     const frames = asNumber(input.frames, 1);
     const quality = asString(input.quality, "preview");
 
-    return createCodexForgeToolSuccessResult({
+    return {
+      ok: true,
       toolName: "render-job",
       summary:
         "Render job accepted by local-safe CodexForge adapter; no Blender process or external renderer was launched.",
@@ -66,6 +66,6 @@ export const renderJobTool: CodexForgeToolDefinition = {
         adapter: "local-safe-render-job",
         approvalRequired: true,
       },
-    });
+    };
   },
 };
