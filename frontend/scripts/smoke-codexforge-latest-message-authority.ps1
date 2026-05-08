@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -82,4 +82,23 @@ Assert-True (-not $text.Contains("Generate preview")) "visible text excludes sta
 Assert-True (-not $text.Contains("Render approval UI")) "visible text excludes stale active plan UI step"
 
 Write-Host ""
+Write-Host ""
+Write-Host "[RUN ] Static latest-message override extraction assertions"
+
+$RoutePath = Join-Path (Get-Location) "src\app\api\codexforge\chat\route.ts"
+$RouteText = Get-Content -Raw $RoutePath
+
+$LatestOverridePath = Join-Path (Get-Location) "src\lib\codexforge\chat\latest-message-override-response.ts"
+Assert-True (Test-Path $LatestOverridePath) "latest-message override response module exists"
+
+$LatestOverrideText = Get-Content -Raw $LatestOverridePath
+Assert-True ($LatestOverrideText -match "export function buildLatestMessageOverrideSuccessResponse") "latest-message module exports success response builder"
+Assert-True ($LatestOverrideText -match "buildRouteLatestMessageOverrideContext") "latest-message module owns override context helper"
+Assert-True ($LatestOverrideText -match "getLatestMessageOverridePreferredPath") "latest-message module owns preferred path helper"
+Assert-True ($LatestOverrideText -match "applyRouteVisibleStructuredDefaults") "latest-message module applies visible structured defaults"
+Assert-True ($LatestOverrideText -match "structuredToText") "latest-message module renders structured override text"
+Assert-True ($RouteText -match "latest-message-override-response") "route imports latest-message override module"
+Assert-True ($RouteText -match "buildLatestMessageOverrideSuccessResponse") "route uses extracted latest-message response builder"
+Assert-True ($RouteText -notmatch "function buildLatestMessageOverrideSuccessResponse") "route no longer owns latest-message response builder"
+
 Write-Host "[OK] Latest-message authority smoke passed."

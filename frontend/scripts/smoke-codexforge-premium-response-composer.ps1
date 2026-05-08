@@ -204,6 +204,7 @@ Assert-True ($ComposerText -match "execution posture") "premium composer blocks 
 Assert-True ($RouteText -match "resolveCodexForgeResponseProfile") "route resolves response profile via response contract"
 Assert-True ($RouteText -match "response-contract") "route imports response contract"
 Assert-True ($RouteText -match "response-defaults") "route imports response defaults"
+Assert-True ($RouteText -match "latest-message-override-response") "route imports latest-message override module"
 Assert-True ($RouteText -match "responseProfile,") "route passes response profile"
 Assert-True ($RouteText -match "x-codexforge-response-profile") "route exposes response profile header"
 Assert-True ($RouteText -match "structured: premiumStructured") "final validation uses premium structured payload"
