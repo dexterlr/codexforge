@@ -164,6 +164,7 @@ export function ToolPolicyDecisionPanel({
       setRetryResult(result);
     } catch (error) {
       setRetryResult({
+        kind: "error",
         ok: false,
         status: 0,
         message: error instanceof Error ? error.message : "Tool retry request failed.",
