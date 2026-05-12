@@ -97,6 +97,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Cognitive memory runtime integration"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-cognitive-memory-runtime-integration.ps1"
+    Required = $true
+  }
+  @{
     Name = "Model router"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-model-router.ps1"
   }

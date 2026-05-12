@@ -9,6 +9,12 @@ import type {
   CodexForgeBrainStatus,
   CodexForgeBrainTimestamp,
 } from "@/lib/codexforge/brain/graph/types";
+import type {
+  CodexForgeCognitiveMemoryScore,
+  CodexForgeMemoryClusterSummary,
+  CodexForgeMemoryContradiction,
+  CodexForgePromotableConcept,
+} from "./memory";
 
 export const CODEXFORGE_BRAIN_RUNTIME_EVENT_TYPES = [
   "message.created",
@@ -277,6 +283,20 @@ export type CodexForgeBrainRuntimeContext = {
   edges: CodexForgeBrainRuntimeContextEdge[];
   events: CodexForgeBrainRuntimeContextEvent[];
   memory: CodexForgeBrainRankedMemory[];
+  cognitiveMemory?: CodexForgeCognitiveMemoryScore[];
+  memoryClusters?: CodexForgeMemoryClusterSummary[];
+  contradictionCandidates?: CodexForgeMemoryContradiction[];
+  promotableConcepts?: CodexForgePromotableConcept[];
+  memorySummary?: {
+    candidateCount: number;
+    rankedCount: number;
+    duplicateClusterCount: number;
+    contradictionCandidateCount: number;
+    promotableConceptCount: number;
+    archivedDominatesContext: boolean;
+    topMemoryIds: string[];
+    clusterHints: string[];
+  };
   goals: string[];
   failures: string[];
   outputs: string[];

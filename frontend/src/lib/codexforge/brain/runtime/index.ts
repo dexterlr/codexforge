@@ -56,6 +56,7 @@ export {
   synthesizeConcepts,
   extractExecutionLineage,
   scoreSemanticLinks,
+  buildCognitiveRuntimeContext,
   runBrainRuntime,
 } from "./runtime";
 
@@ -66,7 +67,10 @@ export type {
   CodexForgeBrainRuntimeRequiredApi,
 } from "./runtime-contract";
 
-export type { CodexForgeBrainRuntimeHealthReport } from "./runtime-health";
+export type {
+  CodexForgeBrainRuntimeHealthInput,
+  CodexForgeBrainRuntimeHealthReport,
+} from "./runtime-health";
 
 export type { CodexForgeBrainRuntimeTimelineItem } from "./runtime-timeline";
 

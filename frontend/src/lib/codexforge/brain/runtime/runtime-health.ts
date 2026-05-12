@@ -4,6 +4,7 @@ import {
   CODEXFORGE_BRAIN_RUNTIME_REQUIRED_APIS,
   getCodexForgeBrainRuntimeContract,
 } from "./runtime-contract";
+import type { CodexForgeBrainRuntimeContext } from "./runtime-types";
 import { CODEXFORGE_BRAIN_RUNTIME_EVENT_TYPES } from "./runtime-types";
 
 export type CodexForgeBrainRuntimeHealthReport = {
@@ -20,6 +21,17 @@ export type CodexForgeBrainRuntimeHealthReport = {
   nextSafeSteps: readonly string[];
 };
 
+export type CodexForgeBrainRuntimeHealthInput = {
+  apiMap?: Record<string, unknown>;
+  context?: Pick<
+    CodexForgeBrainRuntimeContext,
+    | "cognitiveMemory"
+    | "contradictionCandidates"
+    | "memoryClusters"
+    | "memorySummary"
+  >;
+};
+
 function includesAll(
   values: readonly string[],
   requiredValues: readonly string[]
@@ -31,10 +43,16 @@ function hasDuplicates(values: readonly string[]): boolean {
   return new Set(values).size !== values.length;
 }
 
-export function evaluateBrainRuntimeHealth(): CodexForgeBrainRuntimeHealthReport {
+export function evaluateBrainRuntimeHealth(
+  input: CodexForgeBrainRuntimeHealthInput = {}
+): CodexForgeBrainRuntimeHealthReport {
   const contract = getCodexForgeBrainRuntimeContract();
   const warnings: string[] = [];
   const risks: string[] = [];
+  let cognitiveMemoryApisReady = includesAll(
+    contract.cognitiveMemoryApis,
+    CODEXFORGE_BRAIN_RUNTIME_COGNITIVE_MEMORY_APIS
+  );
 
   if (
     contract.canonicalSchemaPath !==
@@ -54,6 +72,21 @@ export function evaluateBrainRuntimeHealth(): CodexForgeBrainRuntimeHealthReport
     )
   ) {
     risks.push("Runtime contract is missing one or more cognitive memory APIs.");
+  }
+
+  if (input.apiMap) {
+    const missingMemoryApis = CODEXFORGE_BRAIN_RUNTIME_COGNITIVE_MEMORY_APIS.filter(
+      (apiName) => typeof input.apiMap?.[apiName] !== "function"
+    );
+
+    if (missingMemoryApis.length > 0) {
+      cognitiveMemoryApisReady = false;
+      risks.push(
+        `Runtime API map is missing cognitive memory APIs: ${missingMemoryApis
+          .sort((a, b) => a.localeCompare(b))
+          .join(", ")}.`
+      );
+    }
   }
 
   if (!includesAll(contract.eventTypes, CODEXFORGE_BRAIN_RUNTIME_EVENT_TYPES)) {
@@ -76,16 +109,42 @@ export function evaluateBrainRuntimeHealth(): CodexForgeBrainRuntimeHealthReport
     warnings.push("Runtime contract has no next safe steps.");
   }
 
+  if (input.context) {
+    const memorySummary = input.context.memorySummary;
+    const cognitiveMemoryCount = input.context.cognitiveMemory?.length ?? 0;
+    const contradictionCount = input.context.contradictionCandidates?.length ?? 0;
+    const duplicateClusterCount = memorySummary?.duplicateClusterCount ?? 0;
+
+    if ((memorySummary?.candidateCount ?? cognitiveMemoryCount) === 0) {
+      warnings.push("Runtime context has no cognitive memory signals.");
+    }
+
+    if (contradictionCount > 0) {
+      risks.push(
+        `Runtime context has ${contradictionCount} cognitive memory contradiction candidates.`
+      );
+    }
+
+    if (memorySummary?.archivedDominatesContext) {
+      warnings.push("Archived or stale memory dominates cognitive context.");
+    }
+
+    if (duplicateClusterCount > 0) {
+      warnings.push(
+        `Runtime context has ${duplicateClusterCount} duplicate memory clusters.`
+      );
+    }
+  }
+
   return {
     version: contract.version,
     ok: warnings.length === 0 && risks.length === 0,
     canonicalSchemaPath: contract.canonicalSchemaPath,
     requiredApis: contract.requiredApis,
     cognitiveMemoryApis: contract.cognitiveMemoryApis,
-    cognitiveMemoryReady: includesAll(
-      contract.cognitiveMemoryApis,
-      CODEXFORGE_BRAIN_RUNTIME_COGNITIVE_MEMORY_APIS
-    ),
+    cognitiveMemoryReady:
+      cognitiveMemoryApisReady &&
+      warnings.every((warning) => !warning.includes("no cognitive memory signals")),
     eventTypes: contract.eventTypes,
     forbiddenImports: contract.forbiddenImports,
     warnings,

@@ -13,6 +13,7 @@ import { synthesizeConcepts } from "./concept-synthesizer";
 import { extractExecutionLineage } from "./execution-lineage";
 import { scoreSemanticLinks } from "./semantic-links";
 import type {
+  CodexForgeBrainAssembleContextInput,
   CodexForgeBrainEventStore,
   CodexForgeBrainRuntimeContext,
   CodexForgeBrainRuntimeEvent,
@@ -51,6 +52,12 @@ export {
   extractExecutionLineage,
   scoreSemanticLinks,
 };
+
+export function buildCognitiveRuntimeContext(
+  input: CodexForgeBrainAssembleContextInput
+): CodexForgeBrainRuntimeContext {
+  return assembleContext(input);
+}
 
 export function runBrainRuntime(
   input: CodexForgeBrainRuntimeRunInput

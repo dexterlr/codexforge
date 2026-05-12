@@ -51,13 +51,13 @@ function summarizeEvent(event: CodexForgeBrainRuntimeEvent): string {
     case "diff.generated":
       return `Diff generated: ${event.payload.filePath}`;
     case "memory.promoted":
-      return `Memory promoted: ${clampText(event.payload.content, 140)}`;
+      return `Memory promoted: ${event.payload.memoryType} ${event.payload.memoryId}: ${clampText(event.payload.content, 140)}`;
     case "concept.synthesized":
-      return `Concept synthesized: ${event.payload.label}`;
+      return `Concept synthesized: ${event.payload.label} ${event.payload.conceptId}`;
     case "failure.detected":
-      return `Failure detected: ${clampText(event.payload.message, 140)}`;
+      return `Failure detected: ${event.payload.failureId}: ${clampText(event.payload.message, 140)}`;
     case "recovery.detected":
-      return `Recovery detected: ${clampText(event.payload.message, 140)}`;
+      return `Recovery detected: ${event.payload.recoveryId}: ${clampText(event.payload.message, 140)}`;
   }
 }
 
@@ -104,13 +104,13 @@ function eventLabel(event: CodexForgeBrainRuntimeEvent): string {
     case "diff.generated":
       return "Diff generated";
     case "memory.promoted":
-      return "Memory promoted";
+      return `Memory promoted: ${event.payload.memoryType}`;
     case "concept.synthesized":
-      return "Concept synthesized";
+      return `Concept synthesized: ${event.payload.label}`;
     case "failure.detected":
-      return "Failure detected";
+      return `Failure detected: ${event.payload.severity ?? "unknown"}`;
     case "recovery.detected":
-      return "Recovery detected";
+      return `Recovery detected: ${event.payload.strategy ?? "recovery"}`;
   }
 }
 

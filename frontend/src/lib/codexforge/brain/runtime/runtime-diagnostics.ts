@@ -8,7 +8,13 @@ import {
 import {
   CODEXFORGE_BRAIN_GRAPH_VERSION,
   type CodexForgeBrainGraph,
+  type CodexForgeBrainNode,
 } from "@/lib/codexforge/brain/graph/types";
+import {
+  dedupeCognitiveMemory,
+  detectMemoryContradictions,
+  findPromotableConcepts,
+} from "./memory";
 
 export type CodexForgeBrainRuntimeDiagnosticSeverity =
   | "info"
@@ -46,6 +52,7 @@ export type CodexForgeBrainRuntimeDiagnosticsInput = {
   legacyImportLabels?: readonly string[];
   nextStepLabels?: readonly string[];
   canonicalSchemaPath?: string;
+  memoryCandidates?: readonly CodexForgeBrainNode[];
 };
 
 const DEFAULT_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
@@ -84,6 +91,21 @@ function describesUnsafeGraphMutation(label: string): boolean {
     normalized.includes("wire");
 
   return mentionsGraph && mentionsMutation && mentionsDirectUi;
+}
+
+function describesUnsafeRawMemoryInjection(label: string): boolean {
+  const normalized = normalizeLabel(label);
+  const mentionsMemory = normalized.includes("memory");
+  const mentionsRaw =
+    normalized.includes("raw") ||
+    normalized.includes("inject") ||
+    normalized.includes("injection");
+  const mentionsRankingOrDedupe =
+    normalized.includes("rank") ||
+    normalized.includes("dedupe") ||
+    normalized.includes("deduplicate");
+
+  return mentionsMemory && mentionsRaw && !mentionsRankingOrDedupe;
 }
 
 function diagnostic(
@@ -183,6 +205,72 @@ export function runBrainRuntimeDiagnostics(
     );
   }
 
+  if (input.memoryCandidates) {
+    const memoryCandidates = [...input.memoryCandidates].sort((a, b) =>
+      a.id.localeCompare(b.id)
+    );
+    const duplicateMemoryFingerprints = dedupeCognitiveMemory(
+      memoryCandidates.map((node) => ({
+        id: node.id,
+        node,
+        updatedAt: node.meta.updatedAt ?? node.meta.createdAt,
+        pinned: node.meta.pinned,
+      }))
+    );
+    const contradictionCandidates = detectMemoryContradictions({
+      nodes: memoryCandidates,
+    });
+    const promotableConcepts = findPromotableConcepts({
+      nodes: memoryCandidates,
+    });
+
+    if (memoryCandidates.length === 0) {
+      diagnostics.push(
+        diagnostic(
+          "warning",
+          "empty-memory-candidate-set",
+          "Empty memory candidate set",
+          "The runtime has no cognitive memory candidates to rank, dedupe, cluster, or audit."
+        )
+      );
+    }
+
+    if (duplicateMemoryFingerprints.length > 0) {
+      diagnostics.push(
+        diagnostic(
+          "warning",
+          "duplicate-memory-fingerprints",
+          "Duplicate memory fingerprints",
+          "Cognitive memory candidates include deterministic duplicate or near-duplicate fingerprints.",
+          duplicateMemoryFingerprints.map((group) => group.fingerprint)
+        )
+      );
+    }
+
+    if (contradictionCandidates.length > 0) {
+      diagnostics.push(
+        diagnostic(
+          "risk",
+          "memory-contradiction-candidate-risk",
+          "Memory contradiction candidate risk",
+          "Cognitive memory candidates include deterministic contradiction candidates.",
+          contradictionCandidates.map((item) => item.id)
+        )
+      );
+    }
+
+    if (memoryCandidates.length > 0 && promotableConcepts.length === 0) {
+      diagnostics.push(
+        diagnostic(
+          "info",
+          "no-promotable-concepts",
+          "No promotable concepts",
+          "Cognitive memory candidates do not currently meet deterministic concept promotion thresholds."
+        )
+      );
+    }
+  }
+
   if (input.graph) {
     if (!Array.isArray(input.graph.nodes) || input.graph.nodes.length === 0) {
       diagnostics.push(
@@ -272,6 +360,21 @@ export function runBrainRuntimeDiagnostics(
         "Unsafe UI graph mutation path",
         "Next-step labels suggest wiring UI surfaces directly to graph mutations instead of runtime events.",
         unsafeNextSteps
+      )
+    );
+  }
+
+  const unsafeRawMemorySteps = (input.nextStepLabels ?? []).filter(
+    describesUnsafeRawMemoryInjection
+  );
+  if (unsafeRawMemorySteps.length > 0) {
+    diagnostics.push(
+      diagnostic(
+        "blocker",
+        "unsafe-raw-memory-injection",
+        "Unsafe raw memory injection path",
+        "Next-step labels suggest injecting raw memory without deterministic ranking and dedupe.",
+        unsafeRawMemorySteps
       )
     );
   }

@@ -36,6 +36,7 @@ export const CODEXFORGE_BRAIN_RUNTIME_COGNITIVE_MEMORY_APIS = [
   "summarizeMemoryCluster",
   "buildCognitiveMemoryFixtureNodes",
   "buildCognitiveMemoryFixtureEvents",
+  "buildCognitiveRuntimeContext",
 ] as const;
 
 export const CODEXFORGE_BRAIN_RUNTIME_EVENT_TYPES = RUNTIME_EVENT_TYPES;
@@ -48,6 +49,9 @@ export const CODEXFORGE_BRAIN_RUNTIME_FORBIDDEN_IMPORTS = [
 
 export const CODEXFORGE_BRAIN_RUNTIME_NEXT_SAFE_STEPS = [
   "Cognitive memory foundations are scaffolded for deterministic scoring, aging, dedupe, contradiction candidates, promotion candidates, and clusters.",
+  "Phase 2B should keep cognitive memory integrated through ranked, deduped, contradiction-aware runtime context assembly.",
+  "Runtime health and diagnostics should report cognitive memory readiness and quality without reaching into UI or persistence surfaces.",
+  "Timeline summaries should preserve stable memory, concept, failure, and recovery hints for execution-safe context.",
   "Phase 2 memory should append typed runtime events and let reduceGraph update the canonical graph.",
   "Agent and tool integration should publish runtime events before reading assembled context.",
   "Files surfaces should consume readonly timeline, health, diagnostics, and graph context data.",

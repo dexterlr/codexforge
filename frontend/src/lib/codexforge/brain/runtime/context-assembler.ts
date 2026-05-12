@@ -6,6 +6,14 @@ import type {
 } from "@/lib/codexforge/brain/graph/types";
 import { getRuntimeEventNodeIds } from "./event-store";
 import { rankMemory } from "./memory-ranker";
+import {
+  clusterMemorySignals,
+  dedupeCognitiveMemory,
+  detectMemoryContradictions,
+  findPromotableConcepts,
+  rankCognitiveMemory,
+  summarizeMemoryCluster,
+} from "./memory";
 import type {
   CodexForgeBrainAssembleContextInput,
   CodexForgeBrainRuntimeContext,
@@ -19,6 +27,7 @@ const DEFAULT_MAX_EDGES = 48;
 const DEFAULT_MAX_EVENTS = 16;
 const DEFAULT_MAX_MEMORY = 8;
 const DEFAULT_DEPTH = 1;
+const MEMORY_NODE_KINDS = new Set(["memory", "decision", "task", "plan", "note", "research"]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -242,6 +251,37 @@ function collectOutputs(events: CodexForgeBrainRuntimeEvent[]): string[] {
     .slice(-8);
 }
 
+function isMemoryCandidateNode(node: CodexForgeBrainNode): boolean {
+  return MEMORY_NODE_KINDS.has(node.kind);
+}
+
+function buildContradictionRiskMap(
+  contradictions: ReturnType<typeof detectMemoryContradictions>
+): Record<string, number> {
+  const risks: Record<string, number> = {};
+
+  for (const contradiction of contradictions) {
+    for (const nodeId of contradiction.nodeIds) {
+      risks[nodeId] = Math.max(risks[nodeId] ?? 0, contradiction.riskScore);
+    }
+  }
+
+  return risks;
+}
+
+function archivedDominatesContext(
+  cognitiveMemory: ReturnType<typeof rankCognitiveMemory>
+): boolean {
+  if (cognitiveMemory.length === 0) return false;
+
+  const archivedCount = cognitiveMemory.filter(
+    (item) =>
+      item.node.meta.archived === true || item.node.meta.status === "archived"
+  ).length;
+
+  return archivedCount > cognitiveMemory.length / 2;
+}
+
 export function assembleContext(
   input: CodexForgeBrainAssembleContextInput
 ): CodexForgeBrainRuntimeContext {
@@ -270,6 +310,39 @@ export function assembleContext(
     })
     .slice(0, input.maxEvents ?? DEFAULT_MAX_EVENTS)
     .reverse();
+  const memoryCandidates = input.graph.nodes
+    .filter(isMemoryCandidateNode)
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const contradictionCandidates = detectMemoryContradictions({
+    nodes: memoryCandidates,
+  });
+  const cognitiveMemory = rankCognitiveMemory({
+    graph: input.graph,
+    events: input.events,
+    focusNodeIds,
+    contradictionRisks: buildContradictionRiskMap(contradictionCandidates),
+    limit: input.maxMemory ?? DEFAULT_MAX_MEMORY,
+    now: input.now,
+  });
+  const duplicateMemoryClusters = dedupeCognitiveMemory(
+    cognitiveMemory.map((item) => ({
+      id: item.node.id,
+      node: item.node,
+      updatedAt: item.updatedAt,
+      pinned: item.node.meta.pinned,
+      confidence: item.confidence,
+    }))
+  );
+  const memoryClusters = clusterMemorySignals({
+    nodes: cognitiveMemory.map((item) => item.node),
+    events: input.events,
+    limit: input.maxMemory ?? DEFAULT_MAX_MEMORY,
+  }).map((cluster) => summarizeMemoryCluster(cluster));
+  const promotableConcepts = findPromotableConcepts({
+    nodes: cognitiveMemory.map((item) => item.node),
+    events: input.events,
+    limit: input.maxMemory ?? DEFAULT_MAX_MEMORY,
+  });
 
   return {
     generatedAt: input.now ?? Date.now(),
@@ -298,6 +371,20 @@ export function assembleContext(
       limit: input.maxMemory ?? DEFAULT_MAX_MEMORY,
       now: input.now,
     }),
+    cognitiveMemory,
+    memoryClusters,
+    contradictionCandidates,
+    promotableConcepts,
+    memorySummary: {
+      candidateCount: memoryCandidates.length,
+      rankedCount: cognitiveMemory.length,
+      duplicateClusterCount: duplicateMemoryClusters.length,
+      contradictionCandidateCount: contradictionCandidates.length,
+      promotableConceptCount: promotableConcepts.length,
+      archivedDominatesContext: archivedDominatesContext(cognitiveMemory),
+      topMemoryIds: cognitiveMemory.map((item) => item.node.id),
+      clusterHints: memoryClusters.map((cluster) => cluster.nextAction),
+    },
     goals: collectGoals(selectedNodes, input.events ?? []),
     failures: collectFailures(input.events ?? []),
     outputs: collectOutputs(input.events ?? []),
