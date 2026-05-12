@@ -353,7 +353,7 @@ function summarizeEngineState(engineState: CodexForgeEngineState | null): string
     parts.push(`Error: ${engineState.error}`);
   }
 
-  return parts.join(" ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ ");
+  return parts.join(" - ");
 }
 
 function summarizeDiffTargets(diffs: CodexForgeEngineDiff[]): string[] {
@@ -383,7 +383,7 @@ function buildFallbackSuffix(
       typeof value === "string" && value.trim().length > 0
   );
 
-  return parts.length > 0 ? parts.join("\n\n") : null;
+  return parts.length > 0 ? parts.join(" - ") : null;
 }
 
 function resolveExecutionRepoPath(defaultContext: CodexForgeChatContext): string {

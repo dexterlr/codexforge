@@ -16,7 +16,7 @@ function Assert-FileExists {
 
 function Assert-Contains {
   param(
-    [Parameter(Mandatory = $true)][string]$Haystack,
+    [AllowEmptyString()][string]$Haystack,
     [Parameter(Mandatory = $true)][string]$Needle,
     [Parameter(Mandatory = $true)][string]$Name
   )
@@ -30,7 +30,7 @@ function Assert-Contains {
 
 function Assert-NotContains {
   param(
-    [Parameter(Mandatory = $true)][string]$Haystack,
+    [AllowEmptyString()][string]$Haystack,
     [Parameter(Mandatory = $true)][string]$Needle,
     [Parameter(Mandatory = $true)][string]$Name
   )
@@ -39,37 +39,63 @@ function Assert-NotContains {
     throw "[FAIL] Unexpected $Name marker: $Needle"
   }
 
-  Write-Host "[PASS] $Name absent"
+  Write-Host "[PASS] $Name"
 }
 
 Write-Host "=== CodexForge brain graph UI smoke ==="
 Write-Host "Base URL: $BaseUrl"
 
-$pagePath = "src\app\brain\page-client.tsx"
-$componentPath = "src\lib\codexforge\brain\components\brain-graph-view.tsx"
+$pageClientPath = "src\app\brain\page-client.tsx"
+$graphComponentPath = "src\lib\codexforge\brain\components\brain-graph-view.tsx"
 
-Assert-FileExists $pagePath
-Assert-FileExists $componentPath
+Assert-FileExists $pageClientPath
+Assert-FileExists $graphComponentPath
 
-$page = Get-Content -Raw $pagePath
-$component = Get-Content -Raw $componentPath
+$pageSource = Get-Content -Raw $pageClientPath
+$graphSource = Get-Content -Raw $graphComponentPath
 
-Assert-Contains $page "BrainGraphView" "brain page imports graph view"
-Assert-Contains $page "<BrainGraphView" "brain page renders graph view"
-Assert-Contains $page "onSelectNode={setSelectedNodeId}" "graph selection updates inspector"
+if ([string]::IsNullOrWhiteSpace($pageSource)) {
+  throw "[FAIL] brain page source was empty"
+}
 
-Assert-Contains $component "data-codexforge-brain-graph-view" "graph root marker"
-Assert-Contains $component "data-codexforge-brain-graph-svg" "graph svg marker"
-Assert-Contains $component "data-codexforge-brain-graph-node" "graph node marker"
-Assert-Contains $component "data-codexforge-brain-graph-edge" "graph edge marker"
-Assert-Contains $component "data-codexforge-brain-graph-insight-panel" "insight panel marker"
-Assert-Contains $component "data-codexforge-brain-graph-next-action" "next action marker"
-Assert-Contains $component "Obsidian graph mode" "obsidian graph heading"
-Assert-Contains $component "Visual brain constellation" "visual constellation heading"
-Assert-Contains $component "MAX_VISIBLE_NODES" "node cap"
-Assert-Contains $component "MAX_VISIBLE_EDGES" "edge cap"
+if ([string]::IsNullOrWhiteSpace($graphSource)) {
+  throw "[FAIL] brain graph component source was empty"
+}
 
-Assert-NotContains $component "Math.random()" "random layout"
-Assert-NotContains $component "forceSimulation" "external force simulation dependency"
+Assert-Contains $pageSource 'brain-graph-view' "brain page imports graph view"
+Assert-Contains $pageSource '<BrainGraphView' "brain page renders graph view"
+Assert-Contains $pageSource 'onSelectNode={setSelectedNodeId}' "graph selection updates inspector"
+
+Assert-Contains $graphSource 'data-codexforge-brain-graph-view' "graph root marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-svg' "graph svg marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-node' "graph node marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-edge' "graph edge marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-insight-panel' "insight panel marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-next-action' "next action marker"
+
+Assert-Contains $graphSource 'data-codexforge-brain-neural-canvas' "neural canvas marker"
+Assert-Contains $graphSource 'data-codexforge-brain-focus-node' "focus node marker"
+Assert-Contains $graphSource 'data-codexforge-brain-cluster-map' "cluster map marker"
+Assert-Contains $graphSource 'data-codexforge-brain-signal-panel' "signal panel marker"
+Assert-Contains $graphSource 'data-codexforge-brain-action-queue' "action queue marker"
+
+Assert-Contains $graphSource 'Neural memory net' "neural net heading"
+Assert-Contains $graphSource 'CodexForge neural constellation' "neural constellation heading"
+Assert-Contains $graphSource 'MAX_VISIBLE_NODES' "node cap"
+Assert-Contains $graphSource 'MAX_VISIBLE_EDGES' "edge cap"
+
+Assert-NotContains $graphSource 'Math.random(' "random layout absent"
+Assert-NotContains $graphSource 'd3-force' "external force simulation dependency absent"
+
+$forbiddenMojibake = @(
+  [string][char]0x00C3,
+  [string][char]0x00C2,
+  [string][char]0x00E2,
+  [string][char]0xFFFD
+)
+
+foreach ($needle in $forbiddenMojibake) {
+  Assert-NotContains $pageSource $needle "brain page mojibake removed"
+}
 
 Write-Host "[OK] CodexForge brain graph UI smoke passed."

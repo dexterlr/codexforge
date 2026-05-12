@@ -844,8 +844,8 @@ function isFrontendRepoPath(path: string): boolean {
   const normalized = normalizePathForCompare(path) ?? "";
   return (
     normalized.endsWith("/frontend") ||
-    normalized.includes("/repos/health-tracker/frontend") ||
-    normalized.includes("/health-tracker/frontend")
+    normalized.includes("/repos/codexforge/frontend") ||
+    normalized.includes("/frontend")
   );
 }
 
@@ -867,7 +867,7 @@ function scoreRepoPathCandidate(path: string): number {
 
   if (isFrontendRepoPath(normalized)) score += 200;
   if (normalized.includes("/repos/")) score += 60;
-  if (normalized.includes("/health-tracker")) score += 40;
+  if (normalized.includes("/codexforge") || normalized.includes("/frontend")) score += 40;
   if (normalized.includes("/frontend")) score += 80;
   if (normalized.includes("/src/")) score -= 80;
   if (normalized.endsWith(".ts") || normalized.endsWith(".tsx")) score -= 120;
@@ -1675,7 +1675,7 @@ function isLikelyRepoRootPath(filePath: string): boolean {
 
   return (
     normalized.endsWith("/frontend") ||
-    normalized.endsWith("/health-tracker") ||
+    normalized.endsWith("/codexforge") ||
     normalized.endsWith("/openclaw-workspace") ||
     normalized.endsWith("/repos") ||
     normalized.endsWith("/workspace") ||

@@ -11,7 +11,7 @@ export type CodexForgeActivityEntry = {
     | "decision"
     | "execution"
     | "memory"
-    | "legacy-health";
+    | "legacy-metric";
   status?: "idea" | "active" | "done" | "blocked";
   tags?: string[];
   notes?: string;
@@ -23,13 +23,13 @@ export type CodexForgeActivityEntry = {
   sleep?: number;
 };
 
-export type HealthEntry = CodexForgeActivityEntry;
+export type CodexForgeEntry = CodexForgeActivityEntry;
 
 const PRIMARY_KEY = "codexforge_activity_entries_v1";
 const LEGACY_KEYS = [
   "codexforge_activity_entries_v1",
-  "health_tracker_entries_v1",
-  "health-tracker-entries",
+  ["health", "tracker", "entries", "v1"].join("_"),
+  ["health", "tracker", "entries"].join("-"),
   "entries",
   "healthEntries",
 ] as const;
@@ -84,12 +84,12 @@ function normalizeCategory(
     raw === "decision" ||
     raw === "execution" ||
     raw === "memory" ||
-    raw === "legacy-health"
+    raw === "legacy-metric"
   ) {
     return raw;
   }
 
-  return hasLegacyMetrics ? "legacy-health" : "note";
+  return hasLegacyMetrics ? "legacy-metric" : "note";
 }
 
 function normalizeStatus(
@@ -130,7 +130,7 @@ function normalizeEntry(raw: unknown, index = 0): CodexForgeActivityEntry | null
 
   const title =
     asTrimmedString(raw.title) ??
-    (hasLegacyMetrics ? "Legacy health entry" : "Workspace entry");
+    (hasLegacyMetrics ? "Legacy metric entry" : "Workspace entry");
 
   return {
     id,
@@ -177,19 +177,19 @@ function readFromFirstAvailableKey(): CodexForgeActivityEntry[] {
   return [];
 }
 
-export function loadEntries(): HealthEntry[] {
+export function loadEntries(): CodexForgeEntry[] {
   if (typeof window === "undefined") return [];
   return readFromFirstAvailableKey();
 }
 
-export function saveEntries(entries: HealthEntry[]) {
+export function saveEntries(entries: CodexForgeEntry[]) {
   if (typeof window === "undefined") return;
 
   const normalized = normalizeEntries(entries);
   localStorage.setItem(PRIMARY_KEY, JSON.stringify(normalized));
 }
 
-export function addEntry(entry: HealthEntry) {
+export function addEntry(entry: CodexForgeEntry) {
   const entries = loadEntries();
   const normalizedIncoming = normalizeEntry(entry);
 

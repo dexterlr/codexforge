@@ -6,7 +6,7 @@ HEAD before docs commit: b00d30c
 
 ## Repo root
 
-C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
+<codexforge-frontend-root>
 
 ## Core app routes
 

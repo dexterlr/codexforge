@@ -8,7 +8,7 @@ type ActivityCategory =
   | "decision"
   | "execution"
   | "memory"
-  | "legacy-health";
+  | "legacy-metric";
 
 type ActivityStatus = "idea" | "active" | "done" | "blocked";
 
@@ -181,7 +181,7 @@ function formatNumber(n: number) {
 }
 
 function safeTrim(s: string, max: number) {
-  return s.length <= max ? s : `${s.slice(0, max - 1)}…`;
+  return s.length <= max ? s : `${s.slice(0, max - 1)}â€¦`;
 }
 
 function makeStableId(idx: number) {
@@ -219,12 +219,12 @@ function normalizeCategory(raw: unknown, hasLegacyMetrics: boolean): ActivityCat
     raw === "decision" ||
     raw === "execution" ||
     raw === "memory" ||
-    raw === "legacy-health"
+    raw === "legacy-metric"
   ) {
     return raw;
   }
 
-  return hasLegacyMetrics ? "legacy-health" : "note";
+  return hasLegacyMetrics ? "legacy-metric" : "note";
 }
 
 function normalizeStatus(raw: unknown): ActivityStatus | undefined {
@@ -263,7 +263,7 @@ function normalizeEntry(raw: unknown, idx: number): CodexForgeActivityEntry {
 
   const title =
     parseOptionalString(raw.title) ??
-    (hasLegacyMetrics ? "Legacy health entry" : "Workspace entry");
+    (hasLegacyMetrics ? "Legacy metric entry" : "Workspace entry");
 
   return {
     id,
@@ -295,7 +295,7 @@ function buildCategoryCounts(entries: CodexForgeActivityEntry[]): CategoryCounts
       decision: 0,
       execution: 0,
       memory: 0,
-      "legacy-health": 0,
+      "legacy-metric": 0,
     }
   );
 }
@@ -311,7 +311,7 @@ function buildActivitySignals(entriesNewestFirst: CodexForgeActivityEntry[]): Ac
     executionCount: counts.execution,
     memoryCount: counts.memory,
     noteCount: counts.note,
-    legacyHealthCount: counts["legacy-health"],
+    legacyHealthCount: counts["legacy-metric"],
     taggedEntryCount: entriesNewestFirst.filter((entry) => (entry.tags?.length ?? 0) > 0).length,
     activeCount: entriesNewestFirst.filter((entry) => entry.status === "active").length,
     doneCount: entriesNewestFirst.filter((entry) => entry.status === "done").length,
@@ -321,7 +321,7 @@ function buildActivitySignals(entriesNewestFirst: CodexForgeActivityEntry[]): Ac
 
 function buildLegacySignals(entriesNewestFirst: CodexForgeActivityEntry[]): LegacySignals {
   const legacyEntries = entriesNewestFirst.filter(
-    (entry) => entry.category === "legacy-health" || hasAnyLegacyMetric(entry)
+    (entry) => entry.category === "legacy-metric" || hasAnyLegacyMetric(entry)
   );
 
   const last7 = legacyEntries.slice(0, 7);
@@ -400,9 +400,9 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
         "",
         "Suggested next actions",
         "----------------------",
-        "• Use /entry to launch a real CodexForge task into the AI workspace.",
-        "• Keep this route deterministic, instant, and useful without a model call.",
-        "• Preserve this path as a local fallback even after richer AI analysis exists.",
+        "â€¢ Use /entry to launch a real CodexForge task into the AI workspace.",
+        "â€¢ Keep this route deterministic, instant, and useful without a model call.",
+        "â€¢ Preserve this path as a local fallback even after richer AI analysis exists.",
         "",
         "Mode: LOCAL (no model call, offline-safe fallback)",
       ].join("\n"),
@@ -443,7 +443,7 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
   const legacySignals = buildLegacySignals(sorted);
 
   if (activitySignals.legacyHealthCount > 0) {
-    warnings.push("Legacy health data is still present in workspace history.");
+    warnings.push("Legacy metric data is still present in workspace history.");
   }
   if (legacySignals.completeEntryCount === 0 && activitySignals.legacyHealthCount > 0) {
     warnings.push("Legacy metric entries are present but few are complete.");
@@ -469,23 +469,23 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
   lines.push("-------");
   lines.push(`Entries received: ${sorted.length}`);
   lines.push(`Entries analyzed: ${sorted.length}`);
-  lines.push(`Latest entry: ${latestEntryDate ?? "—"}`);
-  lines.push(`Oldest analyzed entry: ${oldestAnalyzedDate ?? "—"}`);
+  lines.push(`Latest entry: ${latestEntryDate ?? "â€”"}`);
+  lines.push(`Oldest analyzed entry: ${oldestAnalyzedDate ?? "â€”"}`);
   lines.push("");
 
   lines.push("Workspace activity");
   lines.push("------------------");
-  lines.push(`• Plans: ${activitySignals.planCount}`);
-  lines.push(`• Tasks: ${activitySignals.taskCount}`);
-  lines.push(`• Research items: ${activitySignals.researchCount}`);
-  lines.push(`• Decisions: ${activitySignals.decisionCount}`);
-  lines.push(`• Execution events: ${activitySignals.executionCount}`);
-  lines.push(`• Memory items: ${activitySignals.memoryCount}`);
-  lines.push(`• Notes: ${activitySignals.noteCount}`);
-  lines.push(`• Tagged entries: ${activitySignals.taggedEntryCount}`);
-  lines.push(`• Active items: ${activitySignals.activeCount}`);
-  lines.push(`• Done items: ${activitySignals.doneCount}`);
-  lines.push(`• Blocked items: ${activitySignals.blockedCount}`);
+  lines.push(`â€¢ Plans: ${activitySignals.planCount}`);
+  lines.push(`â€¢ Tasks: ${activitySignals.taskCount}`);
+  lines.push(`â€¢ Research items: ${activitySignals.researchCount}`);
+  lines.push(`â€¢ Decisions: ${activitySignals.decisionCount}`);
+  lines.push(`â€¢ Execution events: ${activitySignals.executionCount}`);
+  lines.push(`â€¢ Memory items: ${activitySignals.memoryCount}`);
+  lines.push(`â€¢ Notes: ${activitySignals.noteCount}`);
+  lines.push(`â€¢ Tagged entries: ${activitySignals.taggedEntryCount}`);
+  lines.push(`â€¢ Active items: ${activitySignals.activeCount}`);
+  lines.push(`â€¢ Done items: ${activitySignals.doneCount}`);
+  lines.push(`â€¢ Blocked items: ${activitySignals.blockedCount}`);
   lines.push("");
 
   const latest = sorted[0];
@@ -502,49 +502,49 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
   lines.push("Migration readout");
   lines.push("-----------------");
   if (activitySignals.legacyHealthCount > 0) {
-    lines.push(`• Legacy health entries still present: ${activitySignals.legacyHealthCount}.`);
-    lines.push("• History is successfully handling migration-era data alongside CodexForge-native activity.");
+    lines.push(`â€¢ Legacy metric entries still present: ${activitySignals.legacyHealthCount}.`);
+    lines.push("â€¢ History is successfully handling migration-era data alongside CodexForge-native activity.");
   } else {
-    lines.push("• No legacy health data detected.");
-    lines.push("• History is operating in CodexForge-first mode.");
+    lines.push("â€¢ No legacy health data detected.");
+    lines.push("â€¢ History is operating in CodexForge-first mode.");
   }
   lines.push("");
 
   lines.push("Legacy metric snapshot");
   lines.push("----------------------");
   if (legacySignals.legacyEntryCount === 0) {
-    lines.push("• No legacy metric entries found.");
+    lines.push("â€¢ No legacy metric entries found.");
   } else {
     if (typeof legacySignals.avgWeight === "number") {
-      lines.push(`• Avg weight: ${legacySignals.avgWeight.toFixed(1)} kg`);
+      lines.push(`â€¢ Avg weight: ${legacySignals.avgWeight.toFixed(1)} kg`);
     }
     if (typeof legacySignals.avgSteps === "number") {
-      lines.push(`• Avg steps: ${formatNumber(legacySignals.avgSteps)}`);
+      lines.push(`â€¢ Avg steps: ${formatNumber(legacySignals.avgSteps)}`);
     }
     if (typeof legacySignals.avgWater === "number") {
-      lines.push(`• Avg water: ${legacySignals.avgWater.toFixed(1)} L`);
+      lines.push(`â€¢ Avg water: ${legacySignals.avgWater.toFixed(1)} L`);
     }
     if (typeof legacySignals.avgSleep === "number") {
-      lines.push(`• Avg sleep: ${legacySignals.avgSleep.toFixed(1)} hrs`);
+      lines.push(`â€¢ Avg sleep: ${legacySignals.avgSleep.toFixed(1)} hrs`);
     }
 
     if (typeof legacySignals.weightDelta === "number") {
       if (Math.abs(legacySignals.weightDelta) < 0.3) {
-        lines.push("• Weight is broadly stable across recent legacy entries.");
+        lines.push("â€¢ Weight is broadly stable across recent legacy entries.");
       } else if (legacySignals.weightDelta > 0) {
-        lines.push(`• Weight is trending upward by about ${legacySignals.weightDelta.toFixed(1)} kg.`);
+        lines.push(`â€¢ Weight is trending upward by about ${legacySignals.weightDelta.toFixed(1)} kg.`);
       } else {
-        lines.push(`• Weight is trending downward by about ${Math.abs(legacySignals.weightDelta).toFixed(1)} kg.`);
+        lines.push(`â€¢ Weight is trending downward by about ${Math.abs(legacySignals.weightDelta).toFixed(1)} kg.`);
       }
     }
 
     if (typeof legacySignals.stepsDelta === "number") {
       if (Math.abs(legacySignals.stepsDelta) < 500) {
-        lines.push("• Activity level is broadly steady.");
+        lines.push("â€¢ Activity level is broadly steady.");
       } else if (legacySignals.stepsDelta > 0) {
-        lines.push("• Steps are trending upward.");
+        lines.push("â€¢ Steps are trending upward.");
       } else {
-        lines.push("• Steps are trending downward.");
+        lines.push("â€¢ Steps are trending downward.");
       }
     }
   }
@@ -552,10 +552,10 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
 
   lines.push("Suggested next actions");
   lines.push("----------------------");
-  lines.push("• Keep using /entry as a CodexForge launchpad so history fills with real workspace activity.");
-  lines.push("• Add more execution and memory events so /history becomes a true operational timeline.");
-  lines.push("• Preserve legacy health data only as migration-safe historical content.");
-  lines.push("• Keep this route fast and deterministic as the offline-safe local fallback.");
+  lines.push("â€¢ Keep using /entry as a CodexForge launchpad so history fills with real workspace activity.");
+  lines.push("â€¢ Add more execution and memory events so /history becomes a true operational timeline.");
+  lines.push("â€¢ Preserve legacy health data only as migration-safe historical content.");
+  lines.push("â€¢ Keep this route fast and deterministic as the offline-safe local fallback.");
   lines.push("");
   lines.push("Mode: LOCAL (no model call, offline-safe fallback)");
 

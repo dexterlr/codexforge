@@ -86,6 +86,14 @@ $scripts = @(
     Name = "Brain graph UI"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-graph-ui.ps1"
   }
+  @{
+    Name = "Model router"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-model-router.ps1"
+  }
+  @{
+    Name = "Brand cleanup"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brand-clean.ps1"
+  }
 )
 
 $startedAt = Get-Date

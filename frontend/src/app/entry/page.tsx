@@ -32,7 +32,7 @@ const STORAGE = {
 } as const;
 
 const DEFAULT_REPO_PATH =
-  "C:\\ai-lab\\projects\\openclaw-workspace\\repos\\health-tracker\\frontend";
+  "C:\\ai-lab\\projects\\openclaw-workspace\\repos\\codexforge\\frontend";
 
 const MODE_META: Record<LaunchMode, LaunchModeMeta> = {
   plan: {
@@ -97,7 +97,7 @@ const PRESETS: readonly LaunchPreset[] = [
     mode: "build",
     title: "Migrate remaining legacy pages",
     goal:
-      "Replace remaining migration-era surfaces with proper CodexForge pages and remove leftover Health Tracker naming or framing.",
+      "Replace remaining migration-era surfaces with proper CodexForge pages and remove leftover legacy naming or framing.",
     tags: "codexforge, migration, cleanup, rename",
     notes:
       "History and entry should feel fully CodexForge-native, with legacy compatibility preserved only where still needed.",
@@ -520,16 +520,16 @@ export default function EntryPage() {
           <div style={launchChecklist}>
             <div style={checklistTitle}>What gets created on launch</div>
             <div style={checklistGrid}>
-              <div style={checkItem}>• Structured AI draft in local storage</div>
-              <div style={checkItem}>• Matching activity entry in history</div>
-              <div style={checkItem}>• Clean handoff into /ai workspace</div>
-              <div style={checkItem}>• Better starting context for future operator flow</div>
+              <div style={checkItem}>Ã¢â‚¬Â¢ Structured AI draft in local storage</div>
+              <div style={checkItem}>Ã¢â‚¬Â¢ Matching activity entry in history</div>
+              <div style={checkItem}>Ã¢â‚¬Â¢ Clean handoff into /ai workspace</div>
+              <div style={checkItem}>Ã¢â‚¬Â¢ Better starting context for future operator flow</div>
             </div>
           </div>
 
           <div style={actionRow}>
             <button type="submit" disabled={launching || !isReady} style={btnPrimary}>
-              {launching ? "Launching…" : "Open in AI workspace"}
+              {launching ? "LaunchingÃ¢â‚¬Â¦" : "Open in AI workspace"}
             </button>
 
             <button type="button" onClick={resetForm} style={btnGhostButton}>
@@ -570,20 +570,20 @@ export default function EntryPage() {
           <div style={infoCard}>
             <div style={infoTitle}>Use this page when</div>
             <div style={infoList}>
-              <div style={infoItem}>• you want a fast structured launch into chat</div>
-              <div style={infoItem}>• you need the task captured in activity history</div>
-              <div style={infoItem}>• you want CodexForge briefed before entering the full workspace</div>
-              <div style={infoItem}>• you are starting a future Jarvis-style workflow from intent</div>
+              <div style={infoItem}>Ã¢â‚¬Â¢ you want a fast structured launch into chat</div>
+              <div style={infoItem}>Ã¢â‚¬Â¢ you need the task captured in activity history</div>
+              <div style={infoItem}>Ã¢â‚¬Â¢ you want CodexForge briefed before entering the full workspace</div>
+              <div style={infoItem}>Ã¢â‚¬Â¢ you are starting a future Jarvis-style workflow from intent</div>
             </div>
           </div>
 
           <div style={infoCard}>
             <div style={infoTitle}>Use other pages when</div>
             <div style={infoList}>
-              <div style={infoItem}>• go to <b>/ai</b> for the main working surface</div>
-              <div style={infoItem}>• go to <b>/clawd</b> for approvals, diffs, apply, tests, and checkpoints</div>
-              <div style={infoItem}>• go to <b>/brain</b> to inspect graph memory state</div>
-              <div style={infoItem}>• go to <b>/history</b> to review launches and workspace activity</div>
+              <div style={infoItem}>Ã¢â‚¬Â¢ go to <b>/ai</b> for the main working surface</div>
+              <div style={infoItem}>Ã¢â‚¬Â¢ go to <b>/clawd</b> for approvals, diffs, apply, tests, and checkpoints</div>
+              <div style={infoItem}>Ã¢â‚¬Â¢ go to <b>/brain</b> to inspect graph memory state</div>
+              <div style={infoItem}>Ã¢â‚¬Â¢ go to <b>/history</b> to review launches and workspace activity</div>
             </div>
           </div>
         </section>

@@ -168,7 +168,7 @@ function withinRange(dateYYYYMMDD: string, range: RangeMode) {
 
 function safeTrim(s: string, max: number) {
   if (s.length <= max) return s;
-  return `${s.slice(0, max - 1)}…`;
+  return `${s.slice(0, max - 1)}Ã¢â‚¬Â¦`;
 }
 
 function makeToastMessage(prefix: string, msg: string) {
@@ -184,7 +184,7 @@ function normalizeCategory(value: unknown): ActivityEntry["category"] {
     value === "decision" ||
     value === "execution" ||
     value === "memory" ||
-    value === "legacy-health"
+    value === "legacy-metric"
     ? value
     : "note";
 }
@@ -218,7 +218,7 @@ function normalizeEntry(x: unknown, idx: number): ActivityEntry {
   const title =
     parseOptionalString(record.title) ??
     ((weight ?? steps ?? water ?? sleep) !== undefined
-      ? "Legacy health entry"
+      ? "Legacy metric entry"
       : "Workspace entry");
 
   return {
@@ -291,9 +291,9 @@ async function readFileAsText(file: File) {
 }
 
 function spark(values: number[], width = 24) {
-  if (values.length < 2) return "—";
+  if (values.length < 2) return "Ã¢â‚¬â€";
 
-  const blocks = "▁▂▃▄▅▆▇█";
+  const blocks = "Ã¢â€“ÂÃ¢â€“â€šÃ¢â€“Æ’Ã¢â€“â€žÃ¢â€“â€¦Ã¢â€“â€ Ã¢â€“â€¡Ã¢â€“Ë†";
   const minV = Math.min(...values);
   const maxV = Math.max(...values);
   const span = maxV - minV || 1;
@@ -316,7 +316,7 @@ function spark(values: number[], width = 24) {
 function computeLegacyStats(entriesNewestFirst: ActivityEntry[]): LegacyStats {
   const legacyEntries = entriesNewestFirst.filter(
     (entry) =>
-      entry.category === "legacy-health" ||
+      entry.category === "legacy-metric" ||
       isNum(entry.weight) ||
       isNum(entry.steps) ||
       isNum(entry.water) ||
@@ -420,9 +420,9 @@ function buildLocalSummary(entriesNewestFirst: ActivityEntry[]) {
       "",
       "Suggested next actions",
       "----------------------",
-      "• Use /entry to launch a real CodexForge task into the AI workspace.",
-      "• Let /history evolve into plans, runs, decisions, and memory events.",
-      "• Keep AI optional so local summaries always work instantly.",
+      "Ã¢â‚¬Â¢ Use /entry to launch a real CodexForge task into the AI workspace.",
+      "Ã¢â‚¬Â¢ Let /history evolve into plans, runs, decisions, and memory events.",
+      "Ã¢â‚¬Â¢ Keep AI optional so local summaries always work instantly.",
       "",
       "Mode: LOCAL (no AI, instant, offline-safe)",
     ].join("\n");
@@ -454,7 +454,7 @@ function buildLocalSummary(entriesNewestFirst: ActivityEntry[]) {
   lines.push(`Decisions: ${categoryCounts.decision ?? 0}`);
   lines.push(`Memory: ${categoryCounts.memory ?? 0}`);
   lines.push(`Notes: ${categoryCounts.note ?? 0}`);
-  lines.push(`Legacy health: ${categoryCounts["legacy-health"] ?? 0}`);
+  lines.push(`Legacy metric: ${categoryCounts["legacy-metric"] ?? 0}`);
   lines.push("");
 
   lines.push("Latest entry");
@@ -469,28 +469,28 @@ function buildLocalSummary(entriesNewestFirst: ActivityEntry[]) {
   lines.push("Legacy metric snapshot");
   lines.push("----------------------");
   if (legacyStats.last7.length === 0) {
-    lines.push("• No legacy health metrics found in recent entries.");
+    lines.push("Ã¢â‚¬Â¢ No legacy metrics found in recent entries.");
   } else {
     if (legacyStats.weights7.length) {
-      lines.push(`• Avg weight (7): ${round1(avg(legacyStats.weights7)).toFixed(1)} kg`);
+      lines.push(`Ã¢â‚¬Â¢ Avg weight (7): ${round1(avg(legacyStats.weights7)).toFixed(1)} kg`);
     }
     if (legacyStats.steps7.length) {
-      lines.push(`• Avg steps (7): ${formatNum(Math.round(avg(legacyStats.steps7)))}`);
+      lines.push(`Ã¢â‚¬Â¢ Avg steps (7): ${formatNum(Math.round(avg(legacyStats.steps7)))}`);
     }
     if (legacyStats.water7.length) {
-      lines.push(`• Avg water (7): ${round1(avg(legacyStats.water7)).toFixed(1)} L`);
+      lines.push(`Ã¢â‚¬Â¢ Avg water (7): ${round1(avg(legacyStats.water7)).toFixed(1)} L`);
     }
     if (legacyStats.sleep7.length) {
-      lines.push(`• Avg sleep (7): ${round1(avg(legacyStats.sleep7)).toFixed(1)} hrs`);
+      lines.push(`Ã¢â‚¬Â¢ Avg sleep (7): ${round1(avg(legacyStats.sleep7)).toFixed(1)} hrs`);
     }
 
     if (signals.weightTrend === "flat") {
-      lines.push("• Weight is broadly stable across recent legacy entries.");
+      lines.push("Ã¢â‚¬Â¢ Weight is broadly stable across recent legacy entries.");
     } else if (signals.weightTrend === "up" && isNum(signals.weightDelta)) {
-      lines.push(`• Weight is trending upward by about ${round1(signals.weightDelta).toFixed(1)} kg.`);
+      lines.push(`Ã¢â‚¬Â¢ Weight is trending upward by about ${round1(signals.weightDelta).toFixed(1)} kg.`);
     } else if (signals.weightTrend === "down" && isNum(signals.weightDelta)) {
       lines.push(
-        `• Weight is trending downward by about ${round1(Math.abs(signals.weightDelta)).toFixed(1)} kg.`
+        `Ã¢â‚¬Â¢ Weight is trending downward by about ${round1(Math.abs(signals.weightDelta)).toFixed(1)} kg.`
       );
     }
   }
@@ -498,9 +498,9 @@ function buildLocalSummary(entriesNewestFirst: ActivityEntry[]) {
 
   lines.push("Suggested next actions");
   lines.push("----------------------");
-  lines.push("• Keep using /entry as a CodexForge launchpad, not a health form.");
-  lines.push("• Move future history items toward plans, runs, approvals, and memory events.");
-  lines.push("• Preserve legacy data only as historical compatibility content.");
+  lines.push("Ã¢â‚¬Â¢ Keep using /entry as a CodexForge launchpad, not a health form.");
+  lines.push("Ã¢â‚¬Â¢ Move future history items toward plans, runs, approvals, and memory events.");
+  lines.push("Ã¢â‚¬Â¢ Preserve legacy data only as historical compatibility content.");
   lines.push("");
   lines.push("Mode: LOCAL (no AI, instant, offline-safe)");
 
@@ -516,8 +516,8 @@ function buildExportSummary(entriesNewestFirst: ActivityEntry[]) {
     "=================================",
     `Generated: ${new Date().toISOString()}`,
     `Total entries: ${entriesNewestFirst.length}`,
-    `Latest entry: ${latest?.date ?? "—"}`,
-    `Latest title: ${latest?.title ?? "—"}`,
+    `Latest entry: ${latest?.date ?? "Ã¢â‚¬â€"}`,
+    `Latest title: ${latest?.title ?? "Ã¢â‚¬â€"}`,
     `Legacy metric entries (7d): ${legacyStats.countWithAnyMetric}/${legacyStats.last7.length || 0}`,
     "",
     buildLocalSummary(entriesNewestFirst),
@@ -542,8 +542,8 @@ function formatCategoryLabel(category: ActivityEntry["category"]) {
       return "Execution";
     case "memory":
       return "Memory";
-    case "legacy-health":
-      return "Legacy health";
+    case "legacy-metric":
+      return "Legacy metric";
     case "note":
     default:
       return "Note";
@@ -551,7 +551,7 @@ function formatCategoryLabel(category: ActivityEntry["category"]) {
 }
 
 function formatStatusLabel(status?: ActivityEntry["status"]) {
-  if (!status) return "—";
+  if (!status) return "Ã¢â‚¬â€";
   if (status === "idea") return "Idea";
   if (status === "active") return "Active";
   if (status === "done") return "Done";
@@ -572,7 +572,7 @@ function getActivityTotals(
   entries: ActivityEntry[],
   filteredEntries: ActivityEntry[]
 ): ActivityTotals {
-  const latestDate = entries.slice().sort(compareByDateDesc)[0]?.date ?? "—";
+  const latestDate = entries.slice().sort(compareByDateDesc)[0]?.date ?? "Ã¢â‚¬â€";
 
   return {
     total: entries.length,
@@ -609,7 +609,7 @@ function getHeroStatuses(
     },
     {
       label: "Migration state",
-      value: categoryCounts["legacy-health"] ? "Legacy data present" : "CodexForge-first",
+      value: categoryCounts["legacy-metric"] ? "Legacy metric data present" : "CodexForge-first",
     },
   ];
 }
@@ -928,17 +928,17 @@ export default function HistoryPage() {
         <div style={topBar}>
           <div style={navGroup}>
             <Link href="/" style={navLink}>
-              ← Home
+              Ã¢â€ Â Home
             </Link>
-            <div style={dot}>•</div>
+            <div style={dot}>Ã¢â‚¬Â¢</div>
             <Link href="/ai" style={navLink}>
               AI workspace
             </Link>
-            <div style={dot}>•</div>
+            <div style={dot}>Ã¢â‚¬Â¢</div>
             <Link href="/entry" style={navLink}>
               Launch task
             </Link>
-            <div style={dot}>•</div>
+            <div style={dot}>Ã¢â‚¬Â¢</div>
             <button onClick={onReload} style={ghostBtn} title="Reload local activity">
               Reload
             </button>
@@ -1054,7 +1054,7 @@ export default function HistoryPage() {
               <option value="execution">Execution</option>
               <option value="memory">Memory</option>
               <option value="note">Note</option>
-              <option value="legacy-health">Legacy health</option>
+              <option value="legacy-metric">Legacy metric</option>
             </select>
 
             <button onClick={onResetFilters} style={ghostBtn}>
@@ -1083,30 +1083,30 @@ export default function HistoryPage() {
           <div style={statsGrid}>
             <StatCard
               label="Weight"
-              avg7={legacyStats.weights7.length ? `${round1(avg(legacyStats.weights7)).toFixed(1)} kg` : "—"}
-              med7={legacyStats.weights7.length ? `${round1(median(legacyStats.weights7)).toFixed(1)} kg` : "—"}
-              spark30={weightsForSpark.length ? spark(weightsForSpark) : "—"}
+              avg7={legacyStats.weights7.length ? `${round1(avg(legacyStats.weights7)).toFixed(1)} kg` : "Ã¢â‚¬â€"}
+              med7={legacyStats.weights7.length ? `${round1(median(legacyStats.weights7)).toFixed(1)} kg` : "Ã¢â‚¬â€"}
+              spark30={weightsForSpark.length ? spark(weightsForSpark) : "Ã¢â‚¬â€"}
               hint="Legacy metric support only."
             />
             <StatCard
               label="Steps"
-              avg7={legacyStats.steps7.length ? formatNum(Math.round(avg(legacyStats.steps7))) : "—"}
-              med7={legacyStats.steps7.length ? formatNum(Math.round(median(legacyStats.steps7))) : "—"}
-              spark30={stepsForSpark.length ? spark(stepsForSpark) : "—"}
+              avg7={legacyStats.steps7.length ? formatNum(Math.round(avg(legacyStats.steps7))) : "Ã¢â‚¬â€"}
+              med7={legacyStats.steps7.length ? formatNum(Math.round(median(legacyStats.steps7))) : "Ã¢â‚¬â€"}
+              spark30={stepsForSpark.length ? spark(stepsForSpark) : "Ã¢â‚¬â€"}
               hint="Legacy metric support only."
             />
             <StatCard
               label="Water"
-              avg7={legacyStats.water7.length ? `${round1(avg(legacyStats.water7)).toFixed(1)} L` : "—"}
-              med7={legacyStats.water7.length ? `${round1(median(legacyStats.water7)).toFixed(1)} L` : "—"}
-              spark30={waterForSpark.length ? spark(waterForSpark) : "—"}
+              avg7={legacyStats.water7.length ? `${round1(avg(legacyStats.water7)).toFixed(1)} L` : "Ã¢â‚¬â€"}
+              med7={legacyStats.water7.length ? `${round1(median(legacyStats.water7)).toFixed(1)} L` : "Ã¢â‚¬â€"}
+              spark30={waterForSpark.length ? spark(waterForSpark) : "Ã¢â‚¬â€"}
               hint="Legacy metric support only."
             />
             <StatCard
               label="Sleep"
-              avg7={legacyStats.sleep7.length ? `${round1(avg(legacyStats.sleep7)).toFixed(1)} h` : "—"}
-              med7={legacyStats.sleep7.length ? `${round1(median(legacyStats.sleep7)).toFixed(1)} h` : "—"}
-              spark30={sleepForSpark.length ? spark(sleepForSpark) : "—"}
+              avg7={legacyStats.sleep7.length ? `${round1(avg(legacyStats.sleep7)).toFixed(1)} h` : "Ã¢â‚¬â€"}
+              med7={legacyStats.sleep7.length ? `${round1(median(legacyStats.sleep7)).toFixed(1)} h` : "Ã¢â‚¬â€"}
+              spark30={sleepForSpark.length ? spark(sleepForSpark) : "Ã¢â‚¬â€"}
               hint="Legacy metric support only."
             />
           </div>
@@ -1172,14 +1172,14 @@ export default function HistoryPage() {
                     <div style={metricGrid}>
                       <Metric label="Category" value={formatCategoryLabel(entry.category)} />
                       <Metric label="Status" value={formatStatusLabel(entry.status)} />
-                      <Metric label="Weight" value={isNum(entry.weight) ? `${entry.weight} kg` : "—"} />
-                      <Metric label="Steps" value={isNum(entry.steps) ? formatNum(entry.steps) : "—"} />
+                      <Metric label="Weight" value={isNum(entry.weight) ? `${entry.weight} kg` : "Ã¢â‚¬â€"} />
+                      <Metric label="Steps" value={isNum(entry.steps) ? formatNum(entry.steps) : "Ã¢â‚¬â€"} />
                     </div>
 
                     {isNum(entry.water) || isNum(entry.sleep) ? (
                       <div style={metricGridSecondary}>
-                        <Metric label="Water" value={isNum(entry.water) ? `${entry.water} L` : "—"} />
-                        <Metric label="Sleep" value={isNum(entry.sleep) ? `${entry.sleep} h` : "—"} />
+                        <Metric label="Water" value={isNum(entry.water) ? `${entry.water} L` : "Ã¢â‚¬â€"} />
+                        <Metric label="Sleep" value={isNum(entry.sleep) ? `${entry.sleep} h` : "Ã¢â‚¬â€"} />
                       </div>
                     ) : null}
 
@@ -1213,7 +1213,7 @@ export default function HistoryPage() {
 
               <div style={actionGroup}>
                 <button onClick={onGenerate} disabled={ai.kind === "loading"} style={primaryBtn}>
-                  {ai.kind === "loading" ? "Thinking…" : "Generate insights"}
+                  {ai.kind === "loading" ? "ThinkingÃ¢â‚¬Â¦" : "Generate insights"}
                 </button>
 
                 {ai.kind === "loading" ? (
@@ -1254,8 +1254,8 @@ export default function HistoryPage() {
                 {ai.kind === "ready"
                   ? ai.text
                   : ai.kind === "loading"
-                    ? "Thinking…"
-                    : "Click “Generate insights” to see a summary here."}
+                    ? "ThinkingÃ¢â‚¬Â¦"
+                    : "Click Ã¢â‚¬Å“Generate insightsÃ¢â‚¬Â to see a summary here."}
               </pre>
 
               {showRaw ? <pre style={payloadBox}>{buildPayload(entries)}</pre> : null}

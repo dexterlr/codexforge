@@ -64,18 +64,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function clampText(text: string, max: number): string {
-  return text.length <= max ? text : `${text.slice(0, max - 1)}Ã¢â‚¬Â¦`;
+  return text.length <= max ? text : `${text.slice(0, Math.max(0, max - 3))}...`;
 }
 
 function formatDateTime(timestamp?: number): string {
   if (typeof timestamp !== "number" || !Number.isFinite(timestamp)) {
-    return "Ã¢â‚¬â€";
+    return "-";
   }
 
   try {
     return new Date(timestamp).toLocaleString();
   } catch {
-    return "Ã¢â‚¬â€";
+    return "-";
   }
 }
 
@@ -262,7 +262,7 @@ function summarizeEdge(
   currentNodeId: string,
   nodeLookup: Record<string, CodexForgeBrainNode>
 ): string {
-  const direction = edge.from === currentNodeId ? "Ã¢â€ â€™" : "Ã¢â€ Â";
+  const direction = edge.from === currentNodeId ? "->" : "<-";
   const otherId = edge.from === currentNodeId ? edge.to : edge.from;
   const otherNode = nodeLookup[otherId];
   const otherLabel = otherNode ? getNodePrimaryLabel(otherNode) : otherId;
@@ -277,7 +277,7 @@ function getKindSummaryLabel(kindBreakdown: BrainStats["kindBreakdown"]): string
   return kindBreakdown
     .slice(0, 3)
     .map((entry) => `${formatKindLabel(entry.kind)} ${entry.count}`)
-    .join(" Ã¢â‚¬Â¢ ");
+    .join(" / ");
 }
 
 function getImportanceRank(value: string): number {
@@ -978,7 +978,7 @@ export default function BrainPageClient() {
 
         {!graph || !stats ? (
           <div style={panelStyle()}>
-            <p style={{ opacity: 0.8 }}>Loading brain graphÃ¢â‚¬Â¦</p>
+            <p style={{ opacity: 0.8 }}>Loading brain graph'</p>
           </div>
         ) : (
           <>
@@ -1043,7 +1043,7 @@ export default function BrainPageClient() {
                           query: event.target.value,
                         }))
                       }
-                      placeholder="Search id, label, text, goal, file pathÃ¢â‚¬Â¦"
+                      placeholder="Search id, label, text, goal, file path'"
                       style={inputStyle}
                     />
                   </label>
@@ -1266,9 +1266,9 @@ export default function BrainPageClient() {
                               }}
                             >
                               <span>{status}</span>
-                              <span>Ã¢â‚¬Â¢</span>
+                              <span>'</span>
                               <span>{importance}</span>
-                              <span>Ã¢â‚¬Â¢</span>
+                              <span>'</span>
                               <span>{neighbors} links</span>
                             </div>
                           </button>

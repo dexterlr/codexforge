@@ -6,7 +6,7 @@ CodexForge is an AI developer assistant and research system that helps users pla
 
 
 
-Health Tracker is only a test harness used to validate CodexForge features, UX, and safety rules.
+The legacy app shell is only a test harness used to validate CodexForge features, UX, and safety rules.
 
 
 
@@ -34,7 +34,7 @@ Health Tracker is only a test harness used to validate CodexForge features, UX, 
 
 \- Edit and refactor code
 
-\- Run safe operator workflows (plan → diff → apply)
+\- Run safe operator workflows (plan Ã¢â€ â€™ diff Ã¢â€ â€™ apply)
 
 
 
@@ -65,4 +65,3 @@ Health Tracker is only a test harness used to validate CodexForge features, UX, 
 \- Game/server setup (e.g. Minecraft servers)
 
 \- Long-running memory and learning system
-

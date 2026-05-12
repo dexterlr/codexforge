@@ -8,11 +8,11 @@ HEAD before docs commit: b00d30c
 
 Repo:
 
-C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
+<codexforge-frontend-root>
 
 Start with:
 
-- cd C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
+- cd <codexforge-frontend-root>
 - git status --short
 - git log --oneline --decorate -8
 - npm run build

@@ -203,6 +203,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
     <section
       style={panelStyle()}
       data-codexforge-brain-graph-view="true"
+      data-codexforge-brain-neural-canvas="true"
       data-codexforge-brain-graph-node-count={graph.nodes.length}
       data-codexforge-brain-graph-edge-count={graph.edges.length}
     >
@@ -236,13 +237,13 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                   color: "#7dd3fc",
                 }}
               >
-                Obsidian graph mode
+                Neural memory net
               </p>
               <h2 style={{ margin: "6px 0 0", fontSize: 24, lineHeight: 1.1 }}>
-                Visual brain constellation
+                CodexForge neural constellation
               </h2>
               <p style={{ margin: "8px 0 0", maxWidth: 720, color: "rgba(224,242,254,0.78)", fontSize: 13 }}>
-                Click a memory, task, run, repo, message, or tag node to focus the inspector. Node size reflects connectivity and importance.
+                Click a memory, task, run, repo, message, or tag node to focus the inspector. Node size reflects connectivity and importance. The focus halo, cluster map, and signal panel make the brain usable as an operator-grade memory topology.
               </p>
             </div>
 
@@ -254,16 +255,17 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                 alignItems: "flex-start",
               }}
               data-codexforge-brain-graph-stats="true"
+              data-codexforge-brain-signal-panel="true"
             >
               <div style={statStyle()}>
                 <div style={{ fontSize: 11, color: "rgba(224,242,254,0.64)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-                  Visible nodes
+                  Synaptic nodes
                 </div>
                 <strong style={{ fontSize: 20 }}>{layoutNodes.length}</strong>
               </div>
               <div style={statStyle()}>
                 <div style={{ fontSize: 11, color: "rgba(224,242,254,0.64)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-                  Visible edges
+                  Synaptic links
                 </div>
                 <strong style={{ fontSize: 20 }}>{visibleEdges.length}</strong>
               </div>
@@ -417,6 +419,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
             minWidth: 0,
           }}
           data-codexforge-brain-graph-insight-panel="true"
+          data-codexforge-brain-focus-node="true"
         >
           <p
             style={{
@@ -461,7 +464,8 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                 </div>
               </div>
 
-              <div data-codexforge-brain-graph-legend="true">
+              <div data-codexforge-brain-graph-legend="true"
+                data-codexforge-brain-cluster-map="true">
                 <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 800, color: "#bae6fd" }}>
                   Visible node kinds
                 </p>
@@ -505,6 +509,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                   color: "rgba(224,242,254,0.82)",
                 }}
                 data-codexforge-brain-graph-next-action="true"
+                data-codexforge-brain-action-queue="true"
               >
                 Next: use the existing inspector below for pin/archive/export actions, or copy the workspace prompt to route this node back into the AI workspace.
               </p>

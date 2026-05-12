@@ -46,7 +46,4 @@ It helps users:
 
 
 
-Health Tracker is a test harness for CodexForge.
-
-
-
+The legacy app shell is a test harness for CodexForge.

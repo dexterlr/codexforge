@@ -1,0 +1,95 @@
+param(
+  [string]$Root = "."
+)
+
+$ErrorActionPreference = "Stop"
+
+function Assert-FileExists {
+  param([Parameter(Mandatory = $true)][string]$Path)
+
+  if (-not (Test-Path $Path)) {
+    throw "[FAIL] Missing file: $Path"
+  }
+
+  Write-Host "[PASS] file exists: $Path"
+}
+
+function Assert-NotContains {
+  param(
+    [AllowEmptyString()][string]$Haystack,
+    [Parameter(Mandatory = $true)][string]$Needle,
+    [Parameter(Mandatory = $true)][string]$Name
+  )
+
+  if ($Haystack.Contains($Needle)) {
+    throw "[FAIL] Unexpected $Name marker: $Needle"
+  }
+
+  Write-Host "[PASS] $Name"
+}
+
+Write-Host "=== CodexForge brand cleanup smoke ==="
+
+$scanPaths = @(
+  "src",
+  "docs",
+  "CODEXFORGE-HANDOFF.md",
+  "CODEXFORGE-TREE.md"
+)
+
+$forbidden = @(
+  ("health" + "-tracker"),
+  ("Health" + " Tracker"),
+  ("Health" + "Tracker"),
+  ("health" + " tracker"),
+  ("health" + "_tracker")
+)
+
+foreach ($path in $scanPaths) {
+  if (-not (Test-Path $path)) {
+    continue
+  }
+
+  if ((Get-Item $path).PSIsContainer) {
+    $files = Get-ChildItem $path -Recurse -File
+  } else {
+    $files = @(Get-Item $path)
+  }
+
+  foreach ($file in $files) {
+    $relative = Resolve-Path -Relative $file.FullName
+    $content = Get-Content -Raw $file.FullName
+
+    foreach ($needle in $forbidden) {
+      Assert-NotContains $content $needle "$relative excludes legacy brand"
+    }
+  }
+}
+
+Assert-FileExists "src\app\brain\page-client.tsx"
+Assert-FileExists "src\lib\codexforge\brain\components\brain-graph-view.tsx"
+Assert-FileExists "src\lib\storage.ts"
+Assert-FileExists "src\app\history\page.tsx"
+
+$brainPage = Get-Content -Raw "src\app\brain\page-client.tsx"
+$chatHook = Get-Content -Raw "src\lib\codexforge\chat\use-codexforge-chat.ts"
+$storage = Get-Content -Raw "src\lib\storage.ts"
+$history = Get-Content -Raw "src\app\history\page.tsx"
+
+$forbiddenMojibake = @(
+  [string][char]0x00C3,
+  [string][char]0x00C2,
+  [string][char]0x00E2,
+  [string][char]0xFFFD
+)
+
+foreach ($needle in $forbiddenMojibake) {
+  Assert-NotContains $brainPage $needle "brain page mojibake"
+}
+
+Assert-NotContains $chatHook ([string][char]0x00C3) "chat hook mojibake join"
+Assert-NotContains $storage "legacy-health" "storage legacy health category"
+Assert-NotContains $history "legacy-health" "history legacy health category"
+Assert-NotContains $history "Legacy health" "history legacy health label"
+
+Write-Host "[OK] CodexForge brand cleanup smoke passed."

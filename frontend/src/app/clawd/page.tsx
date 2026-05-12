@@ -180,7 +180,7 @@ type PhaseTone = "neutral" | "active" | "success" | "danger";
 type NoticeTone = "info" | "success" | "danger";
 
 const DEFAULT_REPO =
-  "C:\\ai-lab\\projects\\openclaw-workspace\\repos\\health-tracker\\frontend";
+  "C:\\ai-lab\\projects\\openclaw-workspace\\repos\\codexforge\\frontend";
 const DEFAULT_GOAL = "Add a simple export button to the history page";
 const FILE_LIST_CAP = 300;
 const MAX_LOG_LINES = 250;
@@ -306,7 +306,7 @@ async function postJSON<TResp>(
 }
 
 function formatBytes(n: number) {
-  if (!Number.isFinite(n) || n < 0) return "—";
+  if (!Number.isFinite(n) || n < 0) return "Ã¢â‚¬â€";
   if (n < 1024) return `${n} B`;
   const kb = n / 1024;
   if (kb < 1024) return `${kb.toFixed(1)} KB`;
@@ -436,7 +436,7 @@ function getNoticeStyle(tone: NoticeTone): CSSProperties {
 
 function repoLabelFromPath(path: string) {
   const parts = path.split("\\").filter(Boolean);
-  return parts.slice(-2).join("\\") || path || "—";
+  return parts.slice(-2).join("\\") || path || "Ã¢â‚¬â€";
 }
 
 function countSelectedCheckpointFiles(payload: CheckpointRestoreResp | unknown) {
@@ -946,7 +946,7 @@ export default function OperatorPage() {
     if (!mounted) return;
 
     clearError();
-    setUi({ kind: "loading", label: "Snapshotting…" });
+    setUi({ kind: "loading", label: "SnapshottingÃ¢â‚¬Â¦" });
     setRun((current) => ({
       ...current,
       phase: "snapshotting",
@@ -955,7 +955,7 @@ export default function OperatorPage() {
       lastResponse: undefined,
       lastError: undefined,
     }));
-    appendLog("Reading repository snapshot…");
+    appendLog("Reading repository snapshotÃ¢â‚¬Â¦");
     void updateRun({ phase: "snapshotting", log: "snapshotting" });
 
     clearFileViewer();
@@ -1030,7 +1030,7 @@ export default function OperatorPage() {
     if (!mounted) return;
 
     clearError();
-    setUi({ kind: "loading", label: "Planning…" });
+    setUi({ kind: "loading", label: "PlanningÃ¢â‚¬Â¦" });
     setRun((current) => ({
       ...current,
       phase: "planning",
@@ -1045,7 +1045,7 @@ export default function OperatorPage() {
       lastResponse: undefined,
       lastError: undefined,
     }));
-    appendLog("Starting planning phase…");
+    appendLog("Starting planning phaseÃ¢â‚¬Â¦");
     void updateRun({ phase: "planning", log: "starting planning" });
 
     if (mode === "local") {
@@ -1130,13 +1130,13 @@ export default function OperatorPage() {
     if (!mounted || !run.plan) return;
 
     clearError();
-    setUi({ kind: "loading", label: "Generating diffs…" });
+    setUi({ kind: "loading", label: "Generating diffsÃ¢â‚¬Â¦" });
     setRun((current) => ({
       ...current,
       phase: "diffing",
       diffs: [],
     }));
-    appendLog("Plan approved. Generating diffs…");
+    appendLog("Plan approved. Generating diffsÃ¢â‚¬Â¦");
     void updateRun({ phase: "diffing", log: "plan approved; diffing" });
 
     if (mode === "local") {
@@ -1234,21 +1234,21 @@ export default function OperatorPage() {
     if (!mounted || run.diffs.length === 0) return;
 
     clearError();
-    setUi({ kind: "loading", label: "Applying…" });
+    setUi({ kind: "loading", label: "ApplyingÃ¢â‚¬Â¦" });
     setRun((current) => ({
       ...current,
       phase: "applying",
       appliedFiles: undefined,
       testOutput: undefined,
     }));
-    appendLog("Diffs approved. Applying changes…");
+    appendLog("Diffs approved. Applying changesÃ¢â‚¬Â¦");
     void updateRun({ phase: "applying", log: "diffs approved; applying" });
 
     if (mode === "local") {
-      appendLog("(Local) Pretending to apply diffs to disk…");
+      appendLog("(Local) Pretending to apply diffs to diskÃ¢â‚¬Â¦");
       setRun((current) => ({ ...current, phase: "testing" }));
-      setUi({ kind: "loading", label: "Testing…" });
-      appendLog("(Local) Pretending to run tests…");
+      setUi({ kind: "loading", label: "TestingÃ¢â‚¬Â¦" });
+      appendLog("(Local) Pretending to run testsÃ¢â‚¬Â¦");
       setRun((current) => ({
         ...current,
         phase: "done",
@@ -1318,8 +1318,8 @@ export default function OperatorPage() {
     }
 
     setRun((current) => ({ ...current, phase: "testing" }));
-    setUi({ kind: "loading", label: "Testing…" });
-    appendLog("Running tests…");
+    setUi({ kind: "loading", label: "TestingÃ¢â‚¬Â¦" });
+    appendLog("Running testsÃ¢â‚¬Â¦");
     void updateRun({ phase: "testing", log: "testing" });
 
     {
@@ -1408,7 +1408,7 @@ export default function OperatorPage() {
   const uiLabel = ui.kind === "loading" ? ui.label : "";
 
   const statusText = useMemo(() => {
-    if (!mounted) return "Loading…";
+    if (!mounted) return "LoadingÃ¢â‚¬Â¦";
     if (ui.kind === "loading") return uiLabel;
     if (run.phase === "done") return "Done.";
     if (run.phase === "canceled") return "Canceled.";
@@ -1440,14 +1440,14 @@ export default function OperatorPage() {
   const runStatusMessage = useMemo(() => {
     if (mode !== "api") return "Local mode (no server run).";
     if (!runId) return "No run yet.";
-    if (runBusy) return "Syncing run…";
+    if (runBusy) return "Syncing runÃ¢â‚¬Â¦";
     if (runErr) return `Run error: ${runErr}`;
     return "Run ready.";
   }, [mode, runId, runBusy, runErr]);
 
   const checkpointStatusMessage = useMemo(() => {
     if (mode !== "api") return "Local mode (no checkpoints).";
-    if (checkpointBusy) return "Working…";
+    if (checkpointBusy) return "WorkingÃ¢â‚¬Â¦";
     if (checkpointErr) return `Checkpoint error: ${checkpointErr}`;
     if (!checkpoints.length) return "No checkpoints loaded.";
     return `Loaded ${checkpoints.length} checkpoint(s).`;
@@ -1470,21 +1470,21 @@ export default function OperatorPage() {
         <div style={topRow}>
           <div style={navCluster}>
             <Link href="/" style={navLink}>
-              ← Home
+              Ã¢â€ Â Home
             </Link>
-            <div style={navDot}>•</div>
+            <div style={navDot}>Ã¢â‚¬Â¢</div>
             <Link href="/ai" style={navLink}>
               Workspace
             </Link>
-            <div style={navDot}>•</div>
+            <div style={navDot}>Ã¢â‚¬Â¢</div>
             <Link href="/history" style={navLink}>
               History
             </Link>
-            <div style={navDot}>•</div>
+            <div style={navDot}>Ã¢â‚¬Â¢</div>
             <Link href="/brain" style={navLink}>
               Brain
             </Link>
-            <div style={navDot}>•</div>
+            <div style={navDot}>Ã¢â‚¬Â¢</div>
             <Link href="/entry" style={navLink}>
               Entry
             </Link>
@@ -1494,7 +1494,7 @@ export default function OperatorPage() {
             <div style={phasePillLabel}>Phase</div>
             <div style={phasePillValue}>{getPhaseLabel(run.phase)}</div>
             <div style={phasePillMeta}>
-              Run: <b>{runId || "—"}</b>
+              Run: <b>{runId || "Ã¢â‚¬â€"}</b>
               {runFile ? <div style={phasePillSubline}>File: {runFile}</div> : null}
               <div style={phasePillSubline}>{runStatusMessage}</div>
             </div>
@@ -1508,7 +1508,7 @@ export default function OperatorPage() {
               <h1 style={title}>Approval-driven execution control</h1>
               <p style={subtitle}>
                 This is the dedicated operator surface for
-                <b> snapshot → plan → approve → diff → approve → apply → test</b>.
+                <b> snapshot Ã¢â€ â€™ plan Ã¢â€ â€™ approve Ã¢â€ â€™ diff Ã¢â€ â€™ approve Ã¢â€ â€™ apply Ã¢â€ â€™ test</b>.
                 Keep workspace conversation in <b>/ai</b>. Come here when you want
                 explicit execution visibility and control.
               </p>
@@ -1675,7 +1675,7 @@ export default function OperatorPage() {
           <div style={inlineStatusRow}>
             <span style={inlineStatusText}>
               Status: <b>{statusText}</b>
-              {ui.kind === "error" ? <span> — {ui.message}</span> : null}
+              {ui.kind === "error" ? <span> Ã¢â‚¬â€ {ui.message}</span> : null}
             </span>
 
             {mode === "api" && runServer ? (
@@ -1725,7 +1725,7 @@ export default function OperatorPage() {
                 }
               >
                 <option value="">
-                  {checkpoints.length ? "Select…" : "No checkpoints loaded"}
+                  {checkpoints.length ? "SelectÃ¢â‚¬Â¦" : "No checkpoints loaded"}
                 </option>
                 {checkpoints.map((c) => {
                   const createdAt =
@@ -1782,7 +1782,7 @@ export default function OperatorPage() {
             />
 
             <div style={snapshotMetaRow}>
-              <StatBadge label="Root" value={run.snapshot.root ?? "—"} />
+              <StatBadge label="Root" value={run.snapshot.root ?? "Ã¢â‚¬â€"} />
               <StatBadge label="Files" value={run.snapshot.fileCount ?? "?"} />
               <StatBadge label="Capped" value={run.snapshot.capped ? "Yes" : "No"} />
             </div>
@@ -1883,7 +1883,7 @@ export default function OperatorPage() {
                   <div style={viewerMetaTextStyle}>
                     {selectedFile || "No file selected"}
                     {selectedFile && typeof selectedFileInfo.bytes === "number" ? (
-                      <span> • {formatBytes(selectedFileInfo.bytes)}</span>
+                      <span> Ã¢â‚¬Â¢ {formatBytes(selectedFileInfo.bytes)}</span>
                     ) : null}
                   </div>
                 </div>
@@ -1915,7 +1915,7 @@ export default function OperatorPage() {
                 </div>
 
                 {fileLoading ? (
-                  <div style={emptyInlineText}>Loading…</div>
+                  <div style={emptyInlineText}>LoadingÃ¢â‚¬Â¦</div>
                 ) : fileError ? (
                   <div style={errorBanner}>
                     <b>Error:</b> {fileError}
@@ -2114,7 +2114,7 @@ export default function OperatorPage() {
               title="Logs"
               subtitle="Audit trail and operator activity history."
             />
-            <pre style={logBox}>{run.logs.length ? run.logs.join("\n") : "Loading…"}</pre>
+            <pre style={logBox}>{run.logs.length ? run.logs.join("\n") : "LoadingÃ¢â‚¬Â¦"}</pre>
           </section>
 
           {showPayload ? (
