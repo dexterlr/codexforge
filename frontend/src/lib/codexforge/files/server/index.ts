@@ -21,6 +21,8 @@ export {
 
 export { buildRuntimeFileContextSignals } from "./runtime-file-context";
 
+export { buildPredictiveFileContextSummary } from "./predictive-file-context";
+
 export type {
   CodexForgeProjectFileFilters,
   CodexForgeProjectFilesResult,

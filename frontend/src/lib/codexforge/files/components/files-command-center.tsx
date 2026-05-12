@@ -21,6 +21,7 @@ import { FileActionBar } from "./file-action-bar";
 import { FileInspector } from "./file-inspector";
 import { FileTimeline } from "./file-timeline";
 import { FileTree } from "./file-tree";
+import { PredictiveContextPanel } from "./predictive-context-panel";
 import { RelatedFilesPanel } from "./related-files-panel";
 import { SafeEditPreview } from "./safe-edit-preview";
 
@@ -72,6 +73,20 @@ export function FilesCommandCenter() {
       codexForgeFileFixtures[0]
     );
   }, [sourceFiles, state.selectedPath, visibleFiles]);
+
+  const runtimeContextSignals = useMemo(() => {
+    return selectedFile
+      ? selectedFile.insights.map((insight) => ({
+          id: `${selectedFile.path}:insight:${insight.id}`,
+          filePath: selectedFile.path,
+          label: insight.label,
+          source: "fixture" as const,
+          strength: "medium" as const,
+          detail: insight.detail,
+          reasons: [insight.value],
+        }))
+      : [];
+  }, [selectedFile]);
 
   const riskCounts = useMemo(() => {
     return sourceFiles.reduce<Record<CodexForgeFileRiskLevel, number>>(
@@ -228,6 +243,12 @@ export function FilesCommandCenter() {
         </div>
 
         <aside style={rightRail}>
+          <PredictiveContextPanel
+            file={selectedFile}
+            files={sourceFiles}
+            dependencies={sourceDependencies}
+            runtimeSignals={runtimeContextSignals}
+          />
           <DependencyMap file={selectedFile} dependencies={sourceDependencies} />
           <DependencyTracePanel
             selectedFile={selectedFile}

@@ -6,5 +6,6 @@ export * from "./file-risk-badge";
 export * from "./file-timeline";
 export * from "./file-tree";
 export * from "./files-command-center";
+export * from "./predictive-context-panel";
 export * from "./related-files-panel";
 export * from "./safe-edit-preview";

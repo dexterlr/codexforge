@@ -487,6 +487,79 @@ function MiniStat(props: { label: string; value: string }) {
   );
 }
 
+function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
+  const memoryKinds = stats.kindBreakdown
+    .filter((entry) => ["memory", "decision", "note"].includes(entry.kind))
+    .reduce((total, entry) => total + entry.count, 0);
+  const taskKinds = stats.kindBreakdown
+    .filter((entry) => ["task", "plan", "run"].includes(entry.kind))
+    .reduce((total, entry) => total + entry.count, 0);
+  const predictiveReady = stats.nodeCount > 0 && stats.edgeCount > 0;
+  const memoryReady = memoryKinds > 0;
+  const runtimeHealth = predictiveReady && memoryReady ? "ready" : "warming";
+  const nextStep = predictiveReady
+    ? "Inspect the selected focus node before routing context into files or chat."
+    : "Add or refresh graph context before relying on predictive routing.";
+
+  return (
+    <section
+      data-codexforge-brain-runtime-readiness
+      data-codexforge-predictive-context-readiness={predictiveReady ? "ready" : "warming"}
+      style={{
+        ...panelStyle(),
+        display: "grid",
+        gap: 14,
+        marginBottom: 18,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 14,
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+        }}
+      >
+        <div>
+          <span style={labelStyle}>Runtime health</span>
+          <h2 style={{ margin: "6px 0 0", fontSize: 20 }}>
+            Predictive context readiness
+          </h2>
+        </div>
+        <span style={kindPillStyle}>Predictive context runtime</span>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: 10,
+        }}
+      >
+        <MiniStat label="Runtime health" value={runtimeHealth} />
+        <MiniStat label="Predictive context readiness" value={predictiveReady ? "ready" : "warming"} />
+        <MiniStat label="Memory readiness" value={memoryReady ? "ready" : "warming"} />
+        <MiniStat label="Agent readiness" value={taskKinds > 0 ? "context available" : "placeholder"} />
+      </div>
+
+      <div
+        style={{
+          border: "1px solid rgba(127,127,127,0.14)",
+          background: "rgba(127,127,127,0.04)",
+          borderRadius: 16,
+          padding: 12,
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        <strong>Next safe runtime step: </strong>
+        {nextStep}
+      </div>
+    </section>
+  );
+}
+
 export default function BrainPageClient() {
   const [graph, setGraph] = useState<CodexForgeBrainGraph | null>(null);
   const [filters, setFilters] = useState<BrainFilters>({
@@ -997,6 +1070,7 @@ export default function BrainPageClient() {
               <StatCard label="Archived" value={String(stats.archivedCount)} />
               <StatCard label="Last updated" value={stats.updatedAtLabel} />
             </section>
+            <RuntimeReadinessPanel stats={stats} />
             <BrainGraphView
               graph={graph}
               selectedNodeId={selectedNodeId}

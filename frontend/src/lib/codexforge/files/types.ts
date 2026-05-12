@@ -178,8 +178,15 @@ export type CodexForgeFilesApiResponse = {
   previews: Record<string, CodexForgeFilePreview>;
   dependencyTrace: CodexForgeFileDependencyTrace;
   predictiveContext?: {
+    sourceLabel?: string;
     predictedIntent: string;
     contextConfidence: number;
+    architectureRole?: string;
+    relatedFiles?: string[];
+    relatedMemories?: string[];
+    relatedTasks?: string[];
+    taskFocus?: string;
+    contextReasons?: string[];
     signals: Array<{
       id: string;
       kind: string;
@@ -197,6 +204,7 @@ export type CodexForgeFilesApiResponse = {
       reasons: string[];
       nextSafeAction: string;
     }>;
+    riskHints?: string[];
     nextSafeActions: string[];
   };
   generatedAt: string;

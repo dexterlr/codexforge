@@ -1,9 +1,4 @@
 import { NextResponse } from "next/server";
-import {
-  buildPredictiveContext,
-  buildPredictiveContextFixtureEvents,
-  buildPredictiveContextFixtureGraph,
-} from "@/lib/codexforge/brain/runtime";
 import { calculateFileRisk } from "@/lib/codexforge/files/file-risk";
 import type {
   CodexForgeFilesApiResponse,
@@ -16,6 +11,7 @@ import {
   CODEXFORGE_FILES_MAX_PREVIEW_LENGTH,
   buildDependencyTrace,
   buildFilePreviews,
+  buildPredictiveFileContextSummary,
   buildRuntimeFileContextSignals,
   collectCodexForgeProjectFiles,
   relateFilesDeterministically,
@@ -116,20 +112,10 @@ export async function GET(request: Request) {
   const relatedFiles = relateFilesDeterministically(selectedFile, files, dependencies);
   const previews = await buildFilePreviews([selectedFile, ...relatedFiles], CODEXFORGE_FILES_MAX_PREVIEW_LENGTH);
   const runtimeContextSignals = buildRuntimeFileContextSignals(selectedFile);
-  const predictive = buildPredictiveContext({
-    graph: buildPredictiveContextFixtureGraph(),
-    events: buildPredictiveContextFixtureEvents(),
-    fileIntelligence: [selectedFile, ...relatedFiles].map((file) => ({
-      path: file.path,
-      summary: file.summary,
-      concepts: file.concepts,
-      riskLevel: risks[file.path]?.level,
-    })),
-    activeFocus: {
-      filePath: selectedFile.path,
-      text: [selectedFile.summary, selectedFile.architectureRole, ...selectedFile.concepts].join(" "),
-    },
-    limit: 12,
+  const predictiveContext = buildPredictiveFileContextSummary({
+    selectedFile,
+    relatedFiles,
+    risks,
   });
   const response: CodexForgeFilesApiResponse = {
     files,
@@ -152,28 +138,7 @@ export async function GET(request: Request) {
     runtimeContextSignals,
     previews,
     dependencyTrace,
-    predictiveContext: {
-      predictedIntent: predictive.predictedIntent.route,
-      contextConfidence: predictive.contextConfidence,
-      signals: predictive.signals.slice(0, 8).map((signal) => ({
-        id: signal.id,
-        kind: signal.kind,
-        label: signal.label,
-        score: signal.score,
-        confidence: signal.confidence,
-        reasons: signal.reasons,
-      })),
-      risks: predictive.risks.slice(0, 5).map((item) => ({
-        id: item.id,
-        label: item.label,
-        severity: item.severity,
-        score: item.score,
-        confidence: item.confidence,
-        reasons: item.reasons,
-        nextSafeAction: item.nextSafeAction,
-      })),
-      nextSafeActions: predictive.likelyNextSafeActions.map((signal) => signal.label),
-    },
+    predictiveContext,
     generatedAt: CODEXFORGE_FILES_GENERATED_AT,
   };
 
