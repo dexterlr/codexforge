@@ -1,5 +1,6 @@
 import {
   CODEXFORGE_BRAIN_RUNTIME_CANONICAL_SCHEMA_PATH,
+  CODEXFORGE_BRAIN_RUNTIME_COGNITIVE_MEMORY_APIS,
   CODEXFORGE_BRAIN_RUNTIME_EVENT_TYPES,
   CODEXFORGE_BRAIN_RUNTIME_FORBIDDEN_IMPORTS,
   CODEXFORGE_BRAIN_RUNTIME_REQUIRED_APIS,
@@ -133,6 +134,22 @@ export function runBrainRuntimeDiagnostics(
           "Missing required runtime APIs",
           "The supplied runtime API map does not expose every required Phase 1 runtime function.",
           missingApis
+        )
+      );
+    }
+
+    const missingMemoryApis = CODEXFORGE_BRAIN_RUNTIME_COGNITIVE_MEMORY_APIS.filter(
+      (apiName) => typeof input.apiMap?.[apiName] !== "function"
+    );
+
+    if (missingMemoryApis.length > 0) {
+      diagnostics.push(
+        diagnostic(
+          "warning",
+          "cognitive-memory-api-readiness",
+          "Cognitive memory scoring readiness",
+          "The supplied runtime API map does not expose every deterministic cognitive memory function.",
+          missingMemoryApis
         )
       );
     }

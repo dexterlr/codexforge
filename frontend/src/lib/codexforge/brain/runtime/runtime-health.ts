@@ -1,5 +1,6 @@
 import {
   CODEXFORGE_BRAIN_RUNTIME_CANONICAL_SCHEMA_PATH,
+  CODEXFORGE_BRAIN_RUNTIME_COGNITIVE_MEMORY_APIS,
   CODEXFORGE_BRAIN_RUNTIME_REQUIRED_APIS,
   getCodexForgeBrainRuntimeContract,
 } from "./runtime-contract";
@@ -10,6 +11,8 @@ export type CodexForgeBrainRuntimeHealthReport = {
   ok: boolean;
   canonicalSchemaPath: string;
   requiredApis: readonly string[];
+  cognitiveMemoryApis: readonly string[];
+  cognitiveMemoryReady: boolean;
   eventTypes: readonly string[];
   forbiddenImports: readonly string[];
   warnings: readonly string[];
@@ -44,6 +47,15 @@ export function evaluateBrainRuntimeHealth(): CodexForgeBrainRuntimeHealthReport
     risks.push("Runtime contract is missing one or more required runtime APIs.");
   }
 
+  if (
+    !includesAll(
+      contract.cognitiveMemoryApis,
+      CODEXFORGE_BRAIN_RUNTIME_COGNITIVE_MEMORY_APIS
+    )
+  ) {
+    risks.push("Runtime contract is missing one or more cognitive memory APIs.");
+  }
+
   if (!includesAll(contract.eventTypes, CODEXFORGE_BRAIN_RUNTIME_EVENT_TYPES)) {
     risks.push("Runtime contract event types do not match runtime event architecture.");
   }
@@ -69,6 +81,11 @@ export function evaluateBrainRuntimeHealth(): CodexForgeBrainRuntimeHealthReport
     ok: warnings.length === 0 && risks.length === 0,
     canonicalSchemaPath: contract.canonicalSchemaPath,
     requiredApis: contract.requiredApis,
+    cognitiveMemoryApis: contract.cognitiveMemoryApis,
+    cognitiveMemoryReady: includesAll(
+      contract.cognitiveMemoryApis,
+      CODEXFORGE_BRAIN_RUNTIME_COGNITIVE_MEMORY_APIS
+    ),
     eventTypes: contract.eventTypes,
     forbiddenImports: contract.forbiddenImports,
     warnings,
@@ -91,6 +108,7 @@ export function summarizeBrainRuntimeHealth(
     `Brain runtime ${report.version}: ${status}.`,
     `Canonical schema: ${report.canonicalSchemaPath}.`,
     `Required APIs: ${report.requiredApis.join(", ")}.`,
+    `Cognitive memory: ${report.cognitiveMemoryReady ? "ready" : "attention required"}.`,
     `Events: ${report.eventTypes.length}.`,
     `Health findings: ${issueText}.`,
     report.nextSafeSteps[0] ? `Next safe step: ${report.nextSafeSteps[0]}` : "",

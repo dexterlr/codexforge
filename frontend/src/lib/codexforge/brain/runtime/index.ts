@@ -1,5 +1,6 @@
 export {
   CODEXFORGE_BRAIN_RUNTIME_CANONICAL_SCHEMA_PATH,
+  CODEXFORGE_BRAIN_RUNTIME_COGNITIVE_MEMORY_APIS,
   CODEXFORGE_BRAIN_RUNTIME_EVENT_TYPES,
   CODEXFORGE_BRAIN_RUNTIME_FORBIDDEN_IMPORTS,
   CODEXFORGE_BRAIN_RUNTIME_NEXT_SAFE_STEPS,
@@ -24,6 +25,26 @@ export {
 } from "./runtime-diagnostics";
 
 export {
+  buildCognitiveMemoryFixtureEvents,
+  buildCognitiveMemoryFixtureNodes,
+  buildCognitiveMemoryScoreBreakdown,
+  calculateMemoryAgeScore,
+  calculateMemoryConfidence,
+  calculateMemoryDecay,
+  calculateMemoryImportance,
+  calculateMemoryRecency,
+  clusterMemorySignals,
+  dedupeCognitiveMemory,
+  detectMemoryContradictions,
+  findPromotableConcepts,
+  normalizeMemoryFingerprint,
+  promoteConceptCandidate,
+  rankCognitiveMemory,
+  scoreContradictionRisk,
+  summarizeMemoryCluster,
+} from "./memory";
+
+export {
   appendEvent,
   createBrainRuntimeEventStore,
   filterEvents,
@@ -40,6 +61,7 @@ export {
 
 export type {
   CodexForgeBrainRuntimeContract,
+  CodexForgeBrainRuntimeCognitiveMemoryApi,
   CodexForgeBrainRuntimeForbiddenImport,
   CodexForgeBrainRuntimeRequiredApi,
 } from "./runtime-contract";
@@ -55,6 +77,28 @@ export type {
   CodexForgeBrainRuntimeDiagnosticsInput,
   CodexForgeBrainRuntimeDiagnosticSeverity,
 } from "./runtime-diagnostics";
+
+export type {
+  CodexForgeClusterMemorySignalsInput,
+  CodexForgeCognitiveMemoryAgeInput,
+  CodexForgeCognitiveMemoryAgeScore,
+  CodexForgeCognitiveMemoryConfidenceInput,
+  CodexForgeCognitiveMemoryDecayInput,
+  CodexForgeCognitiveMemoryDedupeCandidate,
+  CodexForgeCognitiveMemoryDedupeGroup,
+  CodexForgeCognitiveMemoryScore,
+  CodexForgeCognitiveMemoryScoreBreakdown,
+  CodexForgeConceptPromotionResult,
+  CodexForgeContradictionRiskScore,
+  CodexForgeContradictionSignal,
+  CodexForgeDetectMemoryContradictionsInput,
+  CodexForgeFindPromotableConceptsInput,
+  CodexForgeMemoryCluster,
+  CodexForgeMemoryClusterSummary,
+  CodexForgeMemoryContradiction,
+  CodexForgePromotableConcept,
+  CodexForgeRankCognitiveMemoryInput,
+} from "./memory";
 
 export type {
   CodexForgeBrainRuntimeRunInput,

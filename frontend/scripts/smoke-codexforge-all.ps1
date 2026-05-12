@@ -92,6 +92,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Cognitive memory"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-cognitive-memory.ps1"
+    Required = $true
+  }
+  @{
     Name = "Model router"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-model-router.ps1"
   }
