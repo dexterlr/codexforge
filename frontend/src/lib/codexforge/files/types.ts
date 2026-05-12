@@ -148,14 +148,17 @@ export type CodexForgeFileRuntimeContextSignal = {
   id: string;
   filePath: string;
   label: string;
-  source: "runtime" | "memory" | "tool" | "smoke" | "fixture";
+  source: "runtime" | "memory" | "tool" | "smoke" | "fixture" | "predictive-context";
   strength: "weak" | "medium" | "strong";
   detail: string;
+  score?: number;
+  confidence?: number;
+  reasons?: string[];
 };
 
 export type CodexForgeFilesApiResponse = {
   files: CodexForgeFileNode[];
-  selectedFile: CodexForgeFileNode;
+  selectedFile: CodexForgeFileNode | null;
   summary: {
     source: "live";
     root: string;
@@ -174,5 +177,27 @@ export type CodexForgeFilesApiResponse = {
   runtimeContextSignals: CodexForgeFileRuntimeContextSignal[];
   previews: Record<string, CodexForgeFilePreview>;
   dependencyTrace: CodexForgeFileDependencyTrace;
+  predictiveContext?: {
+    predictedIntent: string;
+    contextConfidence: number;
+    signals: Array<{
+      id: string;
+      kind: string;
+      label: string;
+      score: number;
+      confidence: number;
+      reasons: string[];
+    }>;
+    risks: Array<{
+      id: string;
+      label: string;
+      severity: CodexForgeFileRiskLevel;
+      score: number;
+      confidence: number;
+      reasons: string[];
+      nextSafeAction: string;
+    }>;
+    nextSafeActions: string[];
+  };
   generatedAt: string;
 };

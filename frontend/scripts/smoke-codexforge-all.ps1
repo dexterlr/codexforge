@@ -112,6 +112,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Predictive context"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-predictive-context.ps1"
+    Required = $true
+  }
+  @{
     Name = "Model router"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-model-router.ps1"
   }

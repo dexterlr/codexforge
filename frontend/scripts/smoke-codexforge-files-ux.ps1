@@ -191,7 +191,7 @@ foreach ($marker in @("Math.random", "d3-force", "Pinecone", "Chroma", "Weaviate
   Assert-NotContains $allSource $marker "banned dependency marker absent: $marker"
 }
 
-foreach ($marker in @("fetch(", "XMLHttpRequest", "WebSocket", "OpenAI", "API-key", "apiKey")) {
+foreach ($marker in @("fetch(", "globalThis.fetch", "/api/codexforge/files", "XMLHttpRequest", "WebSocket", "OpenAI", "API-key", "apiKey")) {
   Assert-NotContains $allSource $marker "network/API marker absent: $marker"
 }
 

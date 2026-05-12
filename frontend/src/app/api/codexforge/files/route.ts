@@ -1,4 +1,9 @@
 import { NextResponse } from "next/server";
+import {
+  buildPredictiveContext,
+  buildPredictiveContextFixtureEvents,
+  buildPredictiveContextFixtureGraph,
+} from "@/lib/codexforge/brain/runtime";
 import { calculateFileRisk } from "@/lib/codexforge/files/file-risk";
 import type {
   CodexForgeFilesApiResponse,
@@ -56,7 +61,6 @@ export async function GET(request: Request) {
     kind: VALID_KINDS.has(kind ?? "all") ? (kind as CodexForgeFileKind | "all") : "all",
     limit: parseLimit(url),
   });
-
   const risks = Object.fromEntries(result.files.map((file) => [file.path, calculateFileRisk(file)]));
   const riskFilter = VALID_RISKS.has(risk ?? "all") ? risk : "all";
   const files =
@@ -68,7 +72,8 @@ export async function GET(request: Request) {
     files.find((file) => file.path === selectedPath) ??
     files.find((file) => selectedPath && file.path.endsWith(selectedPath)) ??
     files[0] ??
-    result.files[0];
+    result.files[0] ??
+    null;
 
   if (!selectedFile) {
     return NextResponse.json(
@@ -111,7 +116,21 @@ export async function GET(request: Request) {
   const relatedFiles = relateFilesDeterministically(selectedFile, files, dependencies);
   const previews = await buildFilePreviews([selectedFile, ...relatedFiles], CODEXFORGE_FILES_MAX_PREVIEW_LENGTH);
   const runtimeContextSignals = buildRuntimeFileContextSignals(selectedFile);
-
+  const predictive = buildPredictiveContext({
+    graph: buildPredictiveContextFixtureGraph(),
+    events: buildPredictiveContextFixtureEvents(),
+    fileIntelligence: [selectedFile, ...relatedFiles].map((file) => ({
+      path: file.path,
+      summary: file.summary,
+      concepts: file.concepts,
+      riskLevel: risks[file.path]?.level,
+    })),
+    activeFocus: {
+      filePath: selectedFile.path,
+      text: [selectedFile.summary, selectedFile.architectureRole, ...selectedFile.concepts].join(" "),
+    },
+    limit: 12,
+  });
   const response: CodexForgeFilesApiResponse = {
     files,
     selectedFile,
@@ -133,6 +152,28 @@ export async function GET(request: Request) {
     runtimeContextSignals,
     previews,
     dependencyTrace,
+    predictiveContext: {
+      predictedIntent: predictive.predictedIntent.route,
+      contextConfidence: predictive.contextConfidence,
+      signals: predictive.signals.slice(0, 8).map((signal) => ({
+        id: signal.id,
+        kind: signal.kind,
+        label: signal.label,
+        score: signal.score,
+        confidence: signal.confidence,
+        reasons: signal.reasons,
+      })),
+      risks: predictive.risks.slice(0, 5).map((item) => ({
+        id: item.id,
+        label: item.label,
+        severity: item.severity,
+        score: item.score,
+        confidence: item.confidence,
+        reasons: item.reasons,
+        nextSafeAction: item.nextSafeAction,
+      })),
+      nextSafeActions: predictive.likelyNextSafeActions.map((signal) => signal.label),
+    },
     generatedAt: CODEXFORGE_FILES_GENERATED_AT,
   };
 

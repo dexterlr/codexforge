@@ -60,6 +60,25 @@ export {
   runBrainRuntime,
 } from "./runtime";
 
+export {
+  buildPredictiveContext,
+  summarizePredictiveContext,
+  calculateRelevanceScore,
+  rankContextSignals,
+  inferSemanticRoute,
+  routeContextFocus,
+  deriveTaskFocus,
+  summarizeTaskFocus,
+  prioritizeContextRisks,
+  summarizePrioritizedRisks,
+  retrieveArchitecturalContext,
+  summarizeArchitecturalContext,
+  buildPredictiveContextFixture,
+  buildPredictiveContextFixtureGraph,
+  buildPredictiveContextFixtureEvents,
+  buildPredictiveContextFixtureFiles,
+} from "./context";
+
 export type {
   CodexForgeBrainRuntimeContract,
   CodexForgeBrainRuntimeCognitiveMemoryApi,
@@ -108,6 +127,23 @@ export type {
   CodexForgeBrainRuntimeRunInput,
   CodexForgeBrainRuntimeRunResult,
 } from "./runtime";
+
+export type {
+  CodexForgeArchitecturalContext,
+  CodexForgeArchitecturalRetrievalInput,
+  CodexForgePredictiveContextInput,
+  CodexForgePredictiveContextResult,
+  CodexForgePredictiveContextSignal,
+  CodexForgePrioritizedRisk,
+  CodexForgeRelevanceInput,
+  CodexForgeRelevanceScore,
+  CodexForgeRiskPrioritizerInput,
+  CodexForgeSemanticRoute,
+  CodexForgeSemanticRouteResult,
+  CodexForgeSemanticRoutingInput,
+  CodexForgeTaskFocus,
+  CodexForgeTaskFocusInput,
+} from "./context";
 
 export type {
   CodexForgeBrainAppendEventResult,

@@ -17,41 +17,25 @@ function Assert-DirectoryExists {
 }
 
 function Assert-Contains {
-  param(
-    [AllowEmptyString()][string]$Haystack,
-    [Parameter(Mandatory = $true)][string]$Needle,
-    [Parameter(Mandatory = $true)][string]$Name
-  )
+  param([AllowEmptyString()][string]$Haystack, [string]$Needle, [string]$Name)
   if (-not $Haystack.Contains($Needle)) { throw "[FAIL] Missing $Name`: $Needle" }
   Write-Host "[PASS] $Name"
 }
 
 function Assert-NotContains {
-  param(
-    [AllowEmptyString()][string]$Haystack,
-    [Parameter(Mandatory = $true)][string]$Needle,
-    [Parameter(Mandatory = $true)][string]$Name
-  )
+  param([AllowEmptyString()][string]$Haystack, [string]$Needle, [string]$Name)
   if ($Haystack.Contains($Needle)) { throw "[FAIL] Unexpected $Name`: $Needle" }
   Write-Host "[PASS] $Name"
 }
 
 function Assert-Matches {
-  param(
-    [AllowEmptyString()][string]$Haystack,
-    [Parameter(Mandatory = $true)][string]$Pattern,
-    [Parameter(Mandatory = $true)][string]$Name
-  )
+  param([AllowEmptyString()][string]$Haystack, [string]$Pattern, [string]$Name)
   if ($Haystack -notmatch $Pattern) { throw "[FAIL] Missing $Name`: $Pattern" }
   Write-Host "[PASS] $Name"
 }
 
 function Assert-NotMatches {
-  param(
-    [AllowEmptyString()][string]$Haystack,
-    [Parameter(Mandatory = $true)][string]$Pattern,
-    [Parameter(Mandatory = $true)][string]$Name
-  )
+  param([AllowEmptyString()][string]$Haystack, [string]$Pattern, [string]$Name)
   if ($Haystack -match $Pattern) { throw "[FAIL] Unexpected $Name`: $Pattern" }
   Write-Host "[PASS] $Name"
 }
@@ -85,18 +69,8 @@ $runtimeContextSource = Get-Content -Raw $runtimeContextPath
 $serverIndexSource = Get-Content -Raw $serverIndexPath
 $commandCenterSource = Get-Content -Raw $commandCenterPath
 $allSmokeSource = Get-Content -Raw $allSmokePath
-$serverSource = @(
-  $routeSource,
-  $projectSource,
-  $previewSource,
-  $dependencySource,
-  $runtimeContextSource,
-  $serverIndexSource
-) -join "`n"
-$allFilesSource = @(
-  $serverSource,
-  $commandCenterSource
-) -join "`n"
+$serverSource = @($routeSource, $projectSource, $previewSource, $dependencySource, $runtimeContextSource, $serverIndexSource) -join "`n"
+$allFilesSource = @($serverSource, $commandCenterSource) -join "`n"
 
 Assert-Matches $routeSource "export\s+async\s+function\s+GET" "route exposes GET"
 foreach ($method in @("POST", "PUT", "PATCH", "DELETE")) {
@@ -115,27 +89,16 @@ foreach ($marker in @("writeFile", "appendFile", "unlink", "rm(", "rmdir", "mkdi
   Assert-NotContains $serverSource $marker "server/helper mutation or command marker absent: $marker"
 }
 
-Assert-Contains $commandCenterSource '"/api/codexforge/files"' "FilesCommandCenter uses Files API path"
-Assert-Contains $commandCenterSource "globalThis.fetch" "FilesCommandCenter reads API with browser fetch"
-foreach ($marker in @("loading", "fallback", "Read-only Files API", "Fixture fallback", "Live read-only intelligence")) {
-  Assert-Contains $commandCenterSource $marker "live/read-only/fallback handling $marker"
-}
-
-foreach ($marker in @(
-  "data-codexforge-files-live-source",
-  "data-codexforge-files-read-only-api",
-  "data-codexforge-files-runtime-context",
-  "data-codexforge-files-preview-panel",
-  "data-codexforge-files-dependency-trace"
-)) {
-  Assert-Contains $commandCenterSource $marker "required Files runtime marker $marker"
-}
-
+Assert-Contains $commandCenterSource "data-codexforge-files-command-center" "FilesCommandCenter marker exists"
+Assert-Contains $commandCenterSource "data-codexforge-files-preview-panel" "Files preview panel marker exists"
+Assert-Contains $commandCenterSource "data-codexforge-files-dependency-trace" "Files dependency trace marker exists"
 Assert-Contains $dependencySource "buildDependencyTrace" "dependency trace helper exists"
 Assert-Contains $dependencySource ".sort" "dependency trace helper is deterministic"
 Assert-Contains $runtimeContextSource "buildRuntimeFileContextSignals" "runtime file context helper exists"
 Assert-Contains $runtimeContextSource "@/lib/codexforge/brain/runtime" "runtime file context references runtime/memory context"
+Assert-Contains $runtimeContextSource "buildPredictiveContextFixture" "runtime file context references predictive context"
 Assert-NotContains $runtimeContextSource "brain-graph" "runtime file context avoids legacy brain-graph import"
+Assert-Contains $routeSource "predictiveContext" "Files API returns optional predictive context"
 
 foreach ($marker in @("Math.random", "d3-force", "Pinecone", "Chroma", "Weaviate", "Qdrant", "Milvus", "FAISS", "pgvector", "embedding", "embeddings")) {
   Assert-NotContains $allFilesSource $marker "banned intelligence dependency absent: $marker"

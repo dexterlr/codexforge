@@ -26,7 +26,11 @@ function uniqueSorted(values: string[]): string[] {
   return Array.from(new Set(values.filter(Boolean))).sort();
 }
 
-function resolveImportTarget(fromPath: string, specifier: string, files: CodexForgeFileNode[]): string | null {
+function resolveImportTarget(
+  fromPath: string,
+  specifier: string,
+  files: CodexForgeFileNode[]
+): string | null {
   if (!specifier.startsWith(".") && !specifier.startsWith("@/")) return null;
   const root = process.cwd();
   const base = specifier.startsWith("@/")
@@ -63,7 +67,6 @@ export async function buildDependencyTrace(
       .map((specifier) => resolveImportTarget(selectedFile.path, specifier, files))
       .filter((value): value is string => Boolean(value))
   );
-
   const dependencies: CodexForgeFileDependency[] = internalTargets.map((target) => ({
     id: `live:${selectedFile.path}->${target}`,
     fromPath: selectedFile.path,

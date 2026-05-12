@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import {
   codexForgeFileDependencies,
   codexForgeFileFixtures,
@@ -13,7 +13,6 @@ import type {
   CodexForgeFileDependency,
   CodexForgeFileKind,
   CodexForgeFileNode,
-  CodexForgeFilesApiResponse,
   CodexForgeFileRiskLevel,
 } from "../types";
 import { DependencyMap } from "./dependency-map";
@@ -44,9 +43,6 @@ const RISK_FILTERS: Array<CodexForgeFileRiskLevel | "all"> = [
 ];
 
 export function FilesCommandCenter() {
-  const [liveResponse, setLiveResponse] = useState<CodexForgeFilesApiResponse | null>(null);
-  const [liveStatus, setLiveStatus] = useState<"loading" | "live" | "fallback">("loading");
-  const [liveError, setLiveError] = useState<string>("");
   const [state, setState] = useState<CodexForgeFileCommandCenterState>({
     query: "",
     selectedPath: codexForgeFileFixtures[0]?.path ?? "",
@@ -57,53 +53,8 @@ export function FilesCommandCenter() {
     recent: false,
   });
   const [activeAction, setActiveAction] = useState<CodexForgeFileAction>("summarize");
-  const sourceFiles = liveResponse?.files.length ? liveResponse.files : codexForgeFileFixtures;
-  const sourceDependencies =
-    liveResponse?.dependencies.length ? liveResponse.dependencies : codexForgeFileDependencies;
-  const sourceLabel = liveResponse?.summary.source === "live" ? "live" : "fixture";
-
-  useEffect(() => {
-    let active = true;
-    const readOnlyApiPath = "/api/codexforge/files";
-    const fetcher = globalThis.fetch;
-
-    if (!fetcher) {
-      setLiveStatus("fallback");
-      setLiveError("Read-only Files API unavailable in this browser.");
-      return;
-    }
-
-    fetcher
-      .call(globalThis, readOnlyApiPath)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Read-only Files API returned ${response.status}.`);
-        }
-        return response.json() as Promise<CodexForgeFilesApiResponse>;
-      })
-      .then((payload) => {
-        if (!active) return;
-        setLiveResponse(payload);
-        setLiveStatus("live");
-        setLiveError("");
-        setState((current) => ({
-          ...current,
-          selectedPath:
-            payload.selectedFile?.path ??
-            payload.files[0]?.path ??
-            current.selectedPath,
-        }));
-      })
-      .catch((error: unknown) => {
-        if (!active) return;
-        setLiveStatus("fallback");
-        setLiveError(error instanceof Error ? error.message : "Read-only Files API failed.");
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
+  const sourceFiles = codexForgeFileFixtures;
+  const sourceDependencies = codexForgeFileDependencies;
 
   const tags = useMemo(() => {
     return Array.from(new Set(sourceFiles.flatMap((file) => file.tags))).sort();
@@ -132,10 +83,6 @@ export function FilesCommandCenter() {
     );
   }, [sourceFiles]);
 
-  const selectedPreview = selectedFile ? liveResponse?.previews[selectedFile.path] : undefined;
-  const dependencyTrace = liveResponse?.dependencyTrace;
-  const runtimeContextSignals = liveResponse?.runtimeContextSignals ?? [];
-
   function selectPath(path: string) {
     setState((current) => ({ ...current, selectedPath: path }));
   }
@@ -151,8 +98,8 @@ export function FilesCommandCenter() {
   return (
     <main
       data-codexforge-files-command-center
-      data-codexforge-files-live-source={sourceLabel}
-      data-codexforge-files-read-only-api={liveStatus}
+      data-codexforge-files-source="deterministic-fixtures"
+      data-codexforge-files-preview-only="true"
       style={page}
     >
       <section style={hero}>
@@ -174,17 +121,13 @@ export function FilesCommandCenter() {
 
       <section style={liveStrip}>
         <div>
-          <span style={statusDot(liveStatus)} />
-          <strong>{sourceLabel === "live" ? "Live read-only intelligence" : "Fixture fallback"}</strong>
+          <span style={statusDot()} />
+          <strong>Deterministic local intelligence</strong>
           <span style={statusText}>
-            {liveStatus === "loading"
-              ? "Loading bounded project scan..."
-              : liveStatus === "live"
-                ? `Generated ${liveResponse?.generatedAt ?? ""}`
-                : liveError || "Using deterministic fixture data."}
+            Fixed Phase 3A fixtures, no network calls, no filesystem reads, no write/apply behavior.
           </span>
         </div>
-        <span style={readonlyPill}>read-only API</span>
+        <span style={readonlyPill}>preview-only</span>
       </section>
 
       <section style={commandBar}>
@@ -281,7 +224,7 @@ export function FilesCommandCenter() {
               ))}
             </div>
           </section>
-          <PreviewPanel file={selectedFile} preview={selectedPreview?.preview ?? ""} />
+          <PreviewPanel file={selectedFile} />
         </div>
 
         <aside style={rightRail}>
@@ -289,14 +232,11 @@ export function FilesCommandCenter() {
           <DependencyTracePanel
             selectedFile={selectedFile}
             dependencies={sourceDependencies}
-            imports={dependencyTrace?.imports ?? []}
-            exports={dependencyTrace?.exports ?? []}
-            summary={dependencyTrace?.summary ?? "Fixture dependency map only."}
+            summary="Deterministic dependency map derived from Phase 3A fixture relationships."
           />
-          <RuntimeContextPanel signals={runtimeContextSignals} />
           <RelatedFilesPanel
             file={selectedFile}
-            files={liveResponse?.relatedFiles.length ? liveResponse.relatedFiles : sourceFiles}
+            files={sourceFiles}
             dependencies={sourceDependencies}
             onSelectPath={selectPath}
           />
@@ -317,18 +257,18 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function PreviewPanel({
-  file,
-  preview,
-}: {
-  file: CodexForgeFileNode;
-  preview: string;
-}) {
+function PreviewPanel({ file }: { file: CodexForgeFileNode }) {
   return (
     <section data-codexforge-files-preview-panel style={insightPanel}>
       <div style={eyebrow}>Read-only preview</div>
       <pre style={previewBox}>
-        {preview || `Live preview is not available for ${file.path}.`}
+        {`${file.path}
+
+${file.summary}
+
+Architecture role: ${file.architectureRole}
+Owner area: ${file.ownerArea}
+Risk and edit planning are preview-only in Phase 3A.`}
       </pre>
     </section>
   );
@@ -337,14 +277,10 @@ function PreviewPanel({
 function DependencyTracePanel({
   selectedFile,
   dependencies,
-  imports,
-  exports,
   summary,
 }: {
   selectedFile: CodexForgeFileNode;
   dependencies: CodexForgeFileDependency[];
-  imports: string[];
-  exports: string[];
   summary: string;
 }) {
   const active = dependencies.filter(
@@ -356,32 +292,16 @@ function DependencyTracePanel({
     <section data-codexforge-files-dependency-trace style={railPanel}>
       <div style={eyebrow}>Dependency trace</div>
       <p style={railBody}>{summary}</p>
-      <TinyList label="imports" values={imports} fallback={String(active.length)} />
-      <TinyList label="exports" values={exports} fallback="0" />
-    </section>
-  );
-}
-
-function RuntimeContextPanel({
-  signals,
-}: {
-  signals: CodexForgeFilesApiResponse["runtimeContextSignals"];
-}) {
-  return (
-    <section data-codexforge-files-runtime-context style={railPanel}>
-      <div style={eyebrow}>Runtime context</div>
-      {signals.length === 0 ? (
-        <p style={railBody}>Fixture mode has no live runtime context signals.</p>
-      ) : (
-        <div style={miniStack}>
-          {signals.map((signal) => (
-            <div key={signal.id} style={miniCard}>
-              <strong>{signal.label}</strong>
-              <span>{signal.detail}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      <TinyList
+        label="links"
+        values={active.map((dependency) => dependency.summary)}
+        fallback={String(active.length)}
+      />
+      <TinyList
+        label="ids"
+        values={active.map((dependency) => dependency.id)}
+        fallback="0"
+      />
     </section>
   );
 }
@@ -416,15 +336,14 @@ function chip(active: boolean): CSSProperties {
   };
 }
 
-function statusDot(status: "loading" | "live" | "fallback"): CSSProperties {
+function statusDot(): CSSProperties {
   return {
     width: 8,
     height: 8,
     borderRadius: 999,
     display: "inline-block",
     marginRight: 8,
-    background:
-      status === "live" ? "#34d399" : status === "loading" ? "#fbbf24" : "#94a3b8",
+    background: "#34d399",
   };
 }
 
@@ -637,22 +556,6 @@ const previewBox: CSSProperties = {
   lineHeight: 1.45,
   whiteSpace: "pre-wrap",
   overflowWrap: "anywhere",
-};
-
-const miniStack: CSSProperties = {
-  display: "grid",
-  gap: 8,
-};
-
-const miniCard: CSSProperties = {
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(0,0,0,0.18)",
-  borderRadius: 8,
-  padding: 9,
-  display: "grid",
-  gap: 4,
-  fontSize: 12,
-  lineHeight: 1.4,
 };
 
 const tinyBlock: CSSProperties = {

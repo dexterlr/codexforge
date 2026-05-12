@@ -89,8 +89,7 @@ function clampLimit(value: number | undefined): number {
 }
 
 function isTextCandidate(filePath: string): boolean {
-  const extension = path.extname(filePath).toLowerCase();
-  return TEXT_EXTENSIONS.has(extension);
+  return TEXT_EXTENSIONS.has(path.extname(filePath).toLowerCase());
 }
 
 function blockedDir(name: string): boolean {
@@ -148,7 +147,7 @@ function tagsForPath(relativePath: string): string[] {
 }
 
 function toNode(file: Candidate): CodexForgeFileNode {
-  const tags = tagsForPath(file.relativePath);
+  const concepts = inferRelatedConcepts(file.relativePath);
   return {
     id: file.relativePath,
     path: file.relativePath,
@@ -159,9 +158,9 @@ function toNode(file: Candidate): CodexForgeFileNode {
     architectureRole: inferArchitectureRole(file.relativePath),
     summary: summarizeFilePurpose(file.relativePath),
     extension: file.extension,
-    tags,
-    concepts: inferRelatedConcepts(file.relativePath),
-    relatedMemory: inferRelatedConcepts(file.relativePath).map((concept) => `Runtime context: ${concept}`),
+    tags: tagsForPath(file.relativePath),
+    concepts,
+    relatedMemory: concepts.map((concept) => `Runtime context: ${concept}`),
     lastTouchedAt: file.updatedAt,
     lineCount: file.lineCount,
     dependencyIds: [],

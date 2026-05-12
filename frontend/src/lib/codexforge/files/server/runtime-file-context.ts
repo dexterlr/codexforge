@@ -2,6 +2,7 @@ import {
   CODEXFORGE_BRAIN_RUNTIME_EVENT_TYPES,
   buildCognitiveMemoryFixtureEvents,
   buildCognitiveMemoryFixtureNodes,
+  buildPredictiveContextFixture,
 } from "@/lib/codexforge/brain/runtime";
 import type { CodexForgeFileNode, CodexForgeFileRuntimeContextSignal } from "../types";
 
@@ -15,6 +16,23 @@ export function buildRuntimeFileContextSignals(
   const lowerPath = selectedFile.path.toLowerCase();
   const memoryNodes = buildCognitiveMemoryFixtureNodes();
   const memoryEvents = buildCognitiveMemoryFixtureEvents();
+  const predictiveContext = buildPredictiveContextFixture();
+  const predictiveSignals = predictiveContext.signals
+    .filter((item) => item.ref?.path === selectedFile.path || lowerPath.includes("runtime"))
+    .slice(0, 3)
+    .map((item) =>
+      signal({
+        id: `${selectedFile.path}:predictive:${item.id}`,
+        filePath: selectedFile.path,
+        label: `Predictive ${item.kind}`,
+        source: "predictive-context",
+        strength: item.score >= 0.7 ? "strong" : "medium",
+        detail: item.label,
+        score: item.score,
+        confidence: item.confidence,
+        reasons: item.reasons,
+      })
+    );
   const signals: CodexForgeFileRuntimeContextSignal[] = [
     signal({
       id: `${selectedFile.path}:runtime-events`,
@@ -24,6 +42,7 @@ export function buildRuntimeFileContextSignals(
       strength: lowerPath.includes("runtime") || lowerPath.includes("route") ? "strong" : "medium",
       detail: `${CODEXFORGE_BRAIN_RUNTIME_EVENT_TYPES.length} canonical runtime event types available for context alignment.`,
     }),
+    ...predictiveSignals,
   ];
 
   if (lowerPath.includes("memory") || lowerPath.includes("files")) {
