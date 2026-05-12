@@ -107,6 +107,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Files runtime"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-files-runtime.ps1"
+    Required = $true
+  }
+  @{
     Name = "Model router"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-model-router.ps1"
   }

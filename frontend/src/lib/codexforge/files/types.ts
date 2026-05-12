@@ -124,3 +124,55 @@ export type CodexForgeFileRiskSummary = {
   signals: CodexForgeFileRiskSignal[];
   summary: string;
 };
+
+export type CodexForgeFilePreview = {
+  path: string;
+  language: string;
+  preview: string;
+  lineCount: number;
+  byteLength: number;
+  truncated: boolean;
+  maxPreviewLength: number;
+};
+
+export type CodexForgeFileDependencyTrace = {
+  filePath: string;
+  imports: string[];
+  exports: string[];
+  internalTargets: string[];
+  dependencies: CodexForgeFileDependency[];
+  summary: string;
+};
+
+export type CodexForgeFileRuntimeContextSignal = {
+  id: string;
+  filePath: string;
+  label: string;
+  source: "runtime" | "memory" | "tool" | "smoke" | "fixture";
+  strength: "weak" | "medium" | "strong";
+  detail: string;
+};
+
+export type CodexForgeFilesApiResponse = {
+  files: CodexForgeFileNode[];
+  selectedFile: CodexForgeFileNode;
+  summary: {
+    source: "live";
+    root: string;
+    totalFiles: number;
+    returnedFiles: number;
+    scannedFiles: number;
+    truncated: boolean;
+    maxFileCount: number;
+    maxPreviewLength: number;
+  };
+  risks: Record<string, CodexForgeFileRiskSummary>;
+  dependencies: CodexForgeFileDependency[];
+  relatedFiles: CodexForgeFileNode[];
+  timeline: CodexForgeFileTimelineItem[];
+  executionHistory: CodexForgeFileExecutionHistoryItem[];
+  runtimeContextSignals: CodexForgeFileRuntimeContextSignal[];
+  previews: Record<string, CodexForgeFilePreview>;
+  dependencyTrace: CodexForgeFileDependencyTrace;
+  generatedAt: string;
+};
