@@ -45,6 +45,7 @@ function Invoke-JsonPost {
       -Uri $Uri `
       -Body $json `
       -ContentType "application/json" `
+      -UseBasicParsing `
       -TimeoutSec 10
 
     return @{
@@ -53,6 +54,10 @@ function Invoke-JsonPost {
       Json = $response.Content | ConvertFrom-Json
     }
   } catch {
+    if (-not $_.Exception.Response) {
+      throw
+    }
+
     $statusCode = [int]$_.Exception.Response.StatusCode.value__
     $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
     $content = $reader.ReadToEnd()

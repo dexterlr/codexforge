@@ -87,6 +87,11 @@ $scripts = @(
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-graph-ui.ps1"
   }
   @{
+    Name = "Brain runtime"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-runtime.ps1"
+    Required = $true
+  }
+  @{
     Name = "Model router"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-model-router.ps1"
   }

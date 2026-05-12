@@ -29,6 +29,19 @@ export {
 } from "./local-engine-brain";
 
 export {
+  appendEvent,
+  reduceGraph,
+  assembleContext,
+  rankMemory,
+  createEpisode,
+  synthesizeConcepts,
+  createBrainRuntimeEventStore,
+  extractExecutionLineage,
+  scoreSemanticLinks,
+  runBrainRuntime,
+} from "./runtime";
+
+export {
   OllamaBrain,
   createOllamaBrain,
 } from "./ollama-brain";
