@@ -82,6 +82,10 @@ $scripts = @(
     Path = Join-Path $PSScriptRoot "smoke-codexforge-route-override-visible-meta.ps1"
     Required = $false
   }
+  @{
+    Name = "Brain graph UI"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-graph-ui.ps1"
+  }
 )
 
 $startedAt = Get-Date

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BrainGraphView } from "@/lib/codexforge/brain/components/brain-graph-view";
 import {
   useCallback,
   useEffect,
@@ -63,18 +64,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function clampText(text: string, max: number): string {
-  return text.length <= max ? text : `${text.slice(0, max - 1)}…`;
+  return text.length <= max ? text : `${text.slice(0, max - 1)}Ã¢â‚¬Â¦`;
 }
 
 function formatDateTime(timestamp?: number): string {
   if (typeof timestamp !== "number" || !Number.isFinite(timestamp)) {
-    return "—";
+    return "Ã¢â‚¬â€";
   }
 
   try {
     return new Date(timestamp).toLocaleString();
   } catch {
-    return "—";
+    return "Ã¢â‚¬â€";
   }
 }
 
@@ -261,7 +262,7 @@ function summarizeEdge(
   currentNodeId: string,
   nodeLookup: Record<string, CodexForgeBrainNode>
 ): string {
-  const direction = edge.from === currentNodeId ? "→" : "←";
+  const direction = edge.from === currentNodeId ? "Ã¢â€ â€™" : "Ã¢â€ Â";
   const otherId = edge.from === currentNodeId ? edge.to : edge.from;
   const otherNode = nodeLookup[otherId];
   const otherLabel = otherNode ? getNodePrimaryLabel(otherNode) : otherId;
@@ -276,7 +277,7 @@ function getKindSummaryLabel(kindBreakdown: BrainStats["kindBreakdown"]): string
   return kindBreakdown
     .slice(0, 3)
     .map((entry) => `${formatKindLabel(entry.kind)} ${entry.count}`)
-    .join(" • ");
+    .join(" Ã¢â‚¬Â¢ ");
 }
 
 function getImportanceRank(value: string): number {
@@ -977,7 +978,7 @@ export default function BrainPageClient() {
 
         {!graph || !stats ? (
           <div style={panelStyle()}>
-            <p style={{ opacity: 0.8 }}>Loading brain graph…</p>
+            <p style={{ opacity: 0.8 }}>Loading brain graphÃ¢â‚¬Â¦</p>
           </div>
         ) : (
           <>
@@ -996,6 +997,11 @@ export default function BrainPageClient() {
               <StatCard label="Archived" value={String(stats.archivedCount)} />
               <StatCard label="Last updated" value={stats.updatedAtLabel} />
             </section>
+            <BrainGraphView
+              graph={graph}
+              selectedNodeId={selectedNodeId}
+              onSelectNode={setSelectedNodeId}
+            />
 
             <section
               style={{
@@ -1037,7 +1043,7 @@ export default function BrainPageClient() {
                           query: event.target.value,
                         }))
                       }
-                      placeholder="Search id, label, text, goal, file path…"
+                      placeholder="Search id, label, text, goal, file pathÃ¢â‚¬Â¦"
                       style={inputStyle}
                     />
                   </label>
@@ -1260,9 +1266,9 @@ export default function BrainPageClient() {
                               }}
                             >
                               <span>{status}</span>
-                              <span>•</span>
+                              <span>Ã¢â‚¬Â¢</span>
                               <span>{importance}</span>
-                              <span>•</span>
+                              <span>Ã¢â‚¬Â¢</span>
                               <span>{neighbors} links</span>
                             </div>
                           </button>
