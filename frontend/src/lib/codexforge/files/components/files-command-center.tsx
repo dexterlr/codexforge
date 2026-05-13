@@ -5,6 +5,7 @@ import {
   codexForgeFileDependencies,
   codexForgeFileFixtures,
 } from "../file-fixtures";
+import { buildFileWorkflow, summarizeFileWorkflow } from "../file-workflow";
 import { calculateFileRisk } from "../file-risk";
 import { buildCodexForgeFileReactKey, searchFiles } from "../file-search";
 import type {
@@ -19,9 +20,15 @@ import type {
 import { DependencyMap } from "./dependency-map";
 import { ExecutionHistory } from "./execution-history";
 import { FileActionBar } from "./file-action-bar";
+import { FileCognitiveContextPanel } from "./FileCognitiveContextPanel";
 import { FileInspector } from "./file-inspector";
+import { FileOpenInBrainLink } from "./FileOpenInBrainLink";
+import { FileReadinessBoard } from "./FileReadinessBoard";
+import { FileSafePlanPanel } from "./FileSafePlanPanel";
 import { FileTimeline } from "./file-timeline";
 import { FileTree } from "./file-tree";
+import { FileWorkflowRail } from "./FileWorkflowRail";
+import { FilesCommandPalette } from "./FilesCommandPalette";
 import { PredictiveContextPanel } from "./predictive-context-panel";
 import { RelatedFilesPanel } from "./related-files-panel";
 import { SafeEditPreview } from "./safe-edit-preview";
@@ -103,6 +110,15 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
       : [];
   }, [initialData?.runtimeContextSignals, selectedFile]);
 
+  const fileWorkflow = useMemo(() => {
+    return buildFileWorkflow({
+      selectedFile,
+      files: sourceFiles,
+      dependencies: sourceDependencies,
+      runtimeSignals: runtimeContextSignals,
+    });
+  }, [runtimeContextSignals, selectedFile, sourceDependencies, sourceFiles]);
+
   const riskCounts = useMemo(() => {
     return sourceFiles.reduce<Record<CodexForgeFileRiskLevel, number>>(
       (counts, file) => {
@@ -160,6 +176,17 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
           </span>
         </div>
         <span style={readonlyPill}>preview-only</span>
+      </section>
+
+      <section
+        data-codexforge-file-workflow-summary
+        style={workflowSummary}
+      >
+        <div>
+          <span style={statusDot()} />
+          <strong>{summarizeFileWorkflow(fileWorkflow)}</strong>
+        </div>
+        <FileOpenInBrainLink filePath={selectedFile.path} />
       </section>
 
       <section style={commandBar}>
@@ -237,12 +264,16 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
         />
 
         <div style={middle}>
+          <FileWorkflowRail workflow={fileWorkflow} />
+          <FilesCommandPalette workflow={fileWorkflow} />
           <FileInspector file={selectedFile} />
           <FileActionBar
             file={selectedFile}
             activeAction={activeAction}
             onAction={setActiveAction}
           />
+          <FileReadinessBoard board={fileWorkflow.readinessBoard} />
+          <FileSafePlanPanel plan={fileWorkflow.safeEditPlan} />
           <SafeEditPreview file={selectedFile} action={activeAction} />
           <section style={insightPanel}>
             <div style={eyebrow}>Memory and concepts</div>
@@ -273,6 +304,7 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
         </div>
 
         <aside style={rightRail}>
+          <FileCognitiveContextPanel context={fileWorkflow.cognitiveContext} />
           <PredictiveContextPanel
             file={selectedFile}
             files={sourceFiles}
@@ -491,6 +523,23 @@ const liveStrip: CSSProperties = {
   gap: 12,
   alignItems: "center",
   fontSize: 12,
+};
+
+const workflowSummary: CSSProperties = {
+  maxWidth: 1540,
+  width: "100%",
+  margin: "0 auto",
+  border: "1px solid rgba(255,255,255,0.12)",
+  background: "rgba(255,255,255,0.045)",
+  borderRadius: 8,
+  padding: "10px 12px",
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "space-between",
+  gap: 12,
+  alignItems: "center",
+  fontSize: 12,
+  minWidth: 0,
 };
 
 const statusText: CSSProperties = {

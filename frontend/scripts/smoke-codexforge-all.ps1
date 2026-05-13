@@ -182,6 +182,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "File workflow"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-file-workflow.ps1"
+    Required = $true
+  }
+  @{
     Name = "Predictive context"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-predictive-context.ps1"
     Required = $true

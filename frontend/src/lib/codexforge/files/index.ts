@@ -5,3 +5,8 @@ export * from "./file-fixtures";
 export * from "./file-intelligence";
 export * from "./file-risk";
 export * from "./file-search";
+export * from "./file-cognitive-context";
+export * from "./file-command-palette";
+export * from "./file-readiness";
+export * from "./file-safe-plan";
+export * from "./file-workflow";
