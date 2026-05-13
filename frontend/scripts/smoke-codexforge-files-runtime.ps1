@@ -49,6 +49,7 @@ $projectFilesPath = Join-Path $serverDir "project-files.ts"
 $previewPath = Join-Path $serverDir "file-preview.ts"
 $dependencyPath = Join-Path $serverDir "dependency-trace.ts"
 $runtimeContextPath = Join-Path $serverDir "runtime-file-context.ts"
+$fileContextPath = "src\lib\codexforge\files\file-context.ts"
 $serverIndexPath = Join-Path $serverDir "index.ts"
 $commandCenterPath = "src\lib\codexforge\files\components\files-command-center.tsx"
 $allSmokePath = "scripts\smoke-codexforge-all.ps1"
@@ -59,6 +60,7 @@ Assert-FileExists $projectFilesPath
 Assert-FileExists $previewPath
 Assert-FileExists $dependencyPath
 Assert-FileExists $runtimeContextPath
+Assert-FileExists $fileContextPath
 Assert-FileExists $serverIndexPath
 
 $routeSource = Get-Content -Raw $routePath
@@ -66,6 +68,7 @@ $projectSource = Get-Content -Raw $projectFilesPath
 $previewSource = Get-Content -Raw $previewPath
 $dependencySource = Get-Content -Raw $dependencyPath
 $runtimeContextSource = Get-Content -Raw $runtimeContextPath
+$fileContextSource = Get-Content -Raw $fileContextPath
 $serverIndexSource = Get-Content -Raw $serverIndexPath
 $commandCenterSource = Get-Content -Raw $commandCenterPath
 $allSmokeSource = Get-Content -Raw $allSmokePath
@@ -98,7 +101,8 @@ Assert-Contains $runtimeContextSource "buildRuntimeFileContextSignals" "runtime 
 Assert-Contains $runtimeContextSource "@/lib/codexforge/brain/runtime" "runtime file context references runtime/memory context"
 Assert-Contains $runtimeContextSource "buildPredictiveContextFixture" "runtime file context references predictive context"
 Assert-NotContains $runtimeContextSource "brain-graph" "runtime file context avoids legacy brain-graph import"
-Assert-Contains $routeSource "predictiveContext" "Files API returns optional predictive context"
+Assert-Contains $fileContextSource "predictiveContext" "Files context returns optional predictive context"
+Assert-Contains $routeSource "buildCodexForgeFilesContext" "Files API delegates to context assembler"
 
 foreach ($marker in @("Math.random", "d3-force", "Pinecone", "Chroma", "Weaviate", "Qdrant", "Milvus", "FAISS", "pgvector", "embedding", "embeddings")) {
   Assert-NotContains $allFilesSource $marker "banned intelligence dependency absent: $marker"

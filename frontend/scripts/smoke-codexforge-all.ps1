@@ -177,6 +177,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Files Command Center"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-files-command-center.ps1"
+    Required = $true
+  }
+  @{
     Name = "Predictive context"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-predictive-context.ps1"
     Required = $true

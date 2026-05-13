@@ -14,6 +14,7 @@ import type {
   CodexForgeFileKind,
   CodexForgeFileNode,
   CodexForgeFileRiskLevel,
+  CodexForgeFilesApiResponse,
 } from "../types";
 import { DependencyMap } from "./dependency-map";
 import { ExecutionHistory } from "./execution-history";
@@ -43,10 +44,17 @@ const RISK_FILTERS: Array<CodexForgeFileRiskLevel | "all"> = [
   "low",
 ];
 
-export function FilesCommandCenter() {
+type FilesCommandCenterProps = {
+  initialData?: CodexForgeFilesApiResponse;
+};
+
+export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
+  const initialFiles = initialData?.files.length
+    ? initialData.files
+    : codexForgeFileFixtures;
   const [state, setState] = useState<CodexForgeFileCommandCenterState>({
     query: "",
-    selectedPath: codexForgeFileFixtures[0]?.path ?? "",
+    selectedPath: initialData?.selectedFile?.path ?? initialFiles[0]?.path ?? "",
     kind: "all",
     risk: "all",
     tag: "all",
@@ -54,8 +62,10 @@ export function FilesCommandCenter() {
     recent: false,
   });
   const [activeAction, setActiveAction] = useState<CodexForgeFileAction>("summarize");
-  const sourceFiles = codexForgeFileFixtures;
-  const sourceDependencies = codexForgeFileDependencies;
+  const sourceFiles = initialFiles;
+  const sourceDependencies = initialData?.dependencies.length
+    ? initialData.dependencies
+    : codexForgeFileDependencies;
 
   const tags = useMemo(() => {
     return Array.from(new Set(sourceFiles.flatMap((file) => file.tags))).sort();
@@ -70,11 +80,16 @@ export function FilesCommandCenter() {
       sourceFiles.find((file) => file.path === state.selectedPath) ??
       visibleFiles[0] ??
       sourceFiles[0] ??
-      codexForgeFileFixtures[0]
+      initialFiles[0]
     );
-  }, [sourceFiles, state.selectedPath, visibleFiles]);
+  }, [initialFiles, sourceFiles, state.selectedPath, visibleFiles]);
 
   const runtimeContextSignals = useMemo(() => {
+    const liveSignals = initialData?.runtimeContextSignals.filter(
+      (signal) => signal.filePath === selectedFile?.path
+    );
+    if (liveSignals?.length) return liveSignals;
+
     return selectedFile
       ? selectedFile.insights.map((insight) => ({
           id: `${selectedFile.path}:insight:${insight.id}`,
@@ -86,7 +101,7 @@ export function FilesCommandCenter() {
           reasons: [insight.value],
         }))
       : [];
-  }, [selectedFile]);
+  }, [initialData?.runtimeContextSignals, selectedFile]);
 
   const riskCounts = useMemo(() => {
     return sourceFiles.reduce<Record<CodexForgeFileRiskLevel, number>>(
@@ -113,7 +128,7 @@ export function FilesCommandCenter() {
   return (
     <main
       data-codexforge-files-command-center
-      data-codexforge-files-source="deterministic-fixtures"
+      data-codexforge-files-source={initialData ? "live-read-only-runtime" : "deterministic-fixtures"}
       data-codexforge-files-preview-only="true"
       style={page}
     >
@@ -139,7 +154,9 @@ export function FilesCommandCenter() {
           <span style={statusDot()} />
           <strong>Deterministic local intelligence</strong>
           <span style={statusText}>
-            Fixed Phase 3A fixtures, no network calls, no filesystem reads, no write/apply behavior.
+            {initialData
+              ? `Live bounded scan of ${initialData.summary.scannedFiles} files with readonly runtime signals.`
+              : "Fixed Phase 3A fixtures, no network calls, no filesystem reads, no write/apply behavior."}
           </span>
         </div>
         <span style={readonlyPill}>preview-only</span>
@@ -239,7 +256,10 @@ export function FilesCommandCenter() {
               ))}
             </div>
           </section>
-          <PreviewPanel file={selectedFile} />
+          <PreviewPanel
+            file={selectedFile}
+            preview={initialData?.previews[selectedFile.path]}
+          />
         </div>
 
         <aside style={rightRail}>
@@ -253,7 +273,11 @@ export function FilesCommandCenter() {
           <DependencyTracePanel
             selectedFile={selectedFile}
             dependencies={sourceDependencies}
-            summary="Deterministic dependency map derived from Phase 3A fixture relationships."
+            summary={
+              initialData?.dependencyTrace.filePath === selectedFile.path
+                ? initialData.dependencyTrace.summary
+                : "Deterministic dependency map derived from Phase 3A fixture relationships."
+            }
           />
           <RelatedFilesPanel
             file={selectedFile}
@@ -278,19 +302,36 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function PreviewPanel({ file }: { file: CodexForgeFileNode }) {
-  return (
-    <section data-codexforge-files-preview-panel style={insightPanel}>
-      <div style={eyebrow}>Read-only preview</div>
-      <pre style={previewBox}>
-        {`${file.path}
+function PreviewPanel({
+  file,
+  preview,
+}: {
+  file: CodexForgeFileNode;
+  preview?: CodexForgeFilesApiResponse["previews"][string];
+}) {
+  const previewText = preview?.preview.trim()
+    ? preview.preview
+    : `${file.path}
 
 ${file.summary}
 
 Architecture role: ${file.architectureRole}
 Owner area: ${file.ownerArea}
-Risk and edit planning are preview-only in Phase 3A.`}
-      </pre>
+Risk and edit planning are preview-only in Phase 3.`;
+
+  return (
+    <section data-codexforge-files-preview-panel style={insightPanel}>
+      <div style={eyebrow}>Read-only preview</div>
+      <pre style={previewBox}>{previewText}</pre>
+      {preview ? (
+        <div style={tinyBlock}>
+          <strong>{preview.language}</strong>
+          <span>
+            {preview.lineCount} lines, {preview.byteLength} bytes
+            {preview.truncated ? ", truncated preview" : ""}
+          </span>
+        </div>
+      ) : null}
     </section>
   );
 }

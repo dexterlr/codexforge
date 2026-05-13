@@ -86,9 +86,11 @@ Write-Host "Base URL: $BaseUrl"
 $filesDir = "src\lib\codexforge\files"
 $componentsDir = Join-Path $filesDir "components"
 $pagePath = "src\app\files\page.tsx"
+$pageClientPath = "src\app\files\page-client.tsx"
 $allSmokePath = "scripts\smoke-codexforge-all.ps1"
 
 Assert-FileExists $pagePath
+Assert-FileExists $pageClientPath
 Assert-DirectoryExists $filesDir
 Assert-DirectoryExists $componentsDir
 
@@ -123,6 +125,7 @@ foreach ($file in $requiredComponents) {
 }
 
 $pageSource = Get-Content -Raw $pagePath
+$pageClientSource = Get-Content -Raw $pageClientPath
 $commandCenterSource = Get-Content -Raw (Join-Path $componentsDir "files-command-center.tsx")
 $safePreviewSource = Get-Content -Raw (Join-Path $componentsDir "safe-edit-preview.tsx")
 $riskSource = Get-Content -Raw (Join-Path $filesDir "file-risk.ts")
@@ -134,8 +137,9 @@ $allSource = (Get-ChildItem $filesDir -Recurse -File | ForEach-Object {
 }) -join "`n"
 $allSmokeSource = Get-Content -Raw $allSmokePath
 
-Assert-Contains $pageSource "FilesCommandCenter" "page imports FilesCommandCenter"
-Assert-Matches $pageSource "<FilesCommandCenter\s*/>" "page renders FilesCommandCenter"
+Assert-Contains $pageSource "FilesPageClient" "page imports FilesPageClient"
+Assert-Contains $pageClientSource "FilesCommandCenter" "page-client imports FilesCommandCenter"
+Assert-Matches $pageClientSource "<FilesCommandCenter\s+initialData=\{initialData\}\s*/>" "page-client renders FilesCommandCenter"
 
 $markers = @(
   "data-codexforge-files-command-center",
