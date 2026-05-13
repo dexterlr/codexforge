@@ -13,6 +13,7 @@ import {
 } from "@/lib/codexforge/brain/runtime";
 import { BrainTopologyInspector } from "./brain-topology-inspector";
 import { BrainTopologyLegend, topologySignalColor } from "./brain-topology-legend";
+import { BrainReadOnlyBadge, BrainSectionHeader } from "./ui";
 
 type BrainKnowledgeTopologyPanelProps = {
   graph: CodexForgeBrainGraph;
@@ -39,13 +40,12 @@ export function BrainKnowledgeTopologyPanel({ graph }: BrainKnowledgeTopologyPan
 
   return (
     <section data-codexforge-brain-knowledge-topology-panel style={panelStyle}>
-      <div style={headerStyle}>
-        <div>
-          <div style={eyebrowStyle}>Knowledge topology</div>
-          <h2 style={titleStyle}>Cluster graph and cognitive lanes</h2>
-        </div>
-        <span style={pillStyle}>deterministic layout</span>
-      </div>
+      <BrainSectionHeader
+        eyebrow="Knowledge topology"
+        title="Cluster graph and cognitive lanes"
+        description="Read-only cluster topology with deterministic layout and weighted relations."
+        status={<BrainReadOnlyBadge label="read-only deterministic" />}
+      />
 
       <div data-codexforge-brain-topology-summary style={summaryStyle}>
         {topology.summary.text} Next safe action: {topology.summary.nextSafeAction}
@@ -143,16 +143,9 @@ const panelStyle: CSSProperties = {
   background: "radial-gradient(circle at 25% 0%, rgba(20,184,166,0.18), transparent 30%), rgba(15,23,42,0.84)",
 };
 
-const headerStyle: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  gap: 12,
-  alignItems: "start",
-};
-
 const layoutStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "minmax(0, 1fr) minmax(270px, 0.34fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 270px), 1fr))",
   gap: 12,
   alignItems: "start",
 };
@@ -205,25 +198,10 @@ const summaryStyle: CSSProperties = {
   lineHeight: 1.5,
 };
 
-const pillStyle: CSSProperties = {
-  borderRadius: 999,
-  padding: "3px 7px",
-  background: "rgba(14,165,233,0.14)",
-  color: "rgba(186,230,253,0.92)",
-  fontSize: 10,
-  fontWeight: 900,
-};
-
 const eyebrowStyle: CSSProperties = {
   fontSize: 10,
   fontWeight: 900,
   letterSpacing: 0,
   textTransform: "uppercase",
   color: "rgba(186,230,253,0.86)",
-};
-
-const titleStyle: CSSProperties = {
-  margin: "4px 0 0",
-  fontSize: 18,
-  lineHeight: 1.2,
 };

@@ -127,62 +127,146 @@ export const BRAIN_COMMAND_CENTER_LEGACY_MODE_ALIASES = [
   },
 ] as const;
 
+const MODE_KEYBOARD_HINTS: Partial<Record<CodexForgeBrainCommandMode, string>> = {
+  graph: "G G",
+  "focus-mode": "G F",
+  "runtime-health": "G H",
+  "system-status": "G S",
+  drilldown: "G D",
+};
+
 type BrainModeTabsProps = {
   activeMode: CodexForgeBrainCommandMode;
   onModeChange: (mode: CodexForgeBrainCommandMode) => void;
 };
 
 export function BrainModeTabs({ activeMode, onModeChange }: BrainModeTabsProps) {
+  const activePanel = BRAIN_COMMAND_CENTER_MODES.find((mode) => mode.id === activeMode);
+
   return (
     <nav
       aria-label="Brain command center modes"
       data-codexforge-brain-mode-tabs
       style={tabsStyle}
     >
-      {BRAIN_COMMAND_CENTER_MODES.map((mode) => {
-        const active = mode.id === activeMode;
+      <div style={tabsHeaderStyle}>
+        <div>
+          <div style={eyebrowStyle}>Mode navigation</div>
+          <strong>{activePanel?.label ?? activeMode}</strong>
+        </div>
+        <span style={hintStyle}>Ctrl+K / Cmd+K for full command search</span>
+      </div>
 
-        return (
-          <button
-            key={mode.id}
-            type="button"
-            onClick={() => onModeChange(mode.id)}
-            title={mode.description}
-            style={{
-              ...tabStyle,
-              borderColor: active
-                ? "rgba(125,211,252,0.56)"
-                : "rgba(255,255,255,0.10)",
-              background: active ? "rgba(14,165,233,0.20)" : "rgba(255,255,255,0.045)",
-              color: active ? "#f0f9ff" : "rgba(226,232,240,0.78)",
-            }}
-            data-codexforge-brain-mode={mode.id}
-            data-codexforge-brain-mode-active={active ? "true" : "false"}
-          >
-            {mode.label}
-          </button>
-        );
-      })}
+      <div role="tablist" aria-label="Brain modes" style={tabRailStyle}>
+        {BRAIN_COMMAND_CENTER_MODES.map((mode) => {
+          const active = mode.id === activeMode;
+          const hint = MODE_KEYBOARD_HINTS[mode.id];
+
+          return (
+            <button
+              key={mode.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              aria-label={`Switch Brain mode to ${mode.label}`}
+              aria-current={active ? "page" : undefined}
+              onClick={() => onModeChange(mode.id)}
+              title={mode.description}
+              style={{
+                ...tabStyle,
+                borderColor: active
+                  ? "rgba(125,211,252,0.62)"
+                  : "rgba(255,255,255,0.10)",
+                background: active
+                  ? "linear-gradient(180deg, rgba(14,165,233,0.24), rgba(14,165,233,0.12))"
+                  : "rgba(255,255,255,0.045)",
+                color: active ? "#f0f9ff" : "rgba(226,232,240,0.78)",
+              }}
+              data-codexforge-brain-mode={mode.id}
+              data-codexforge-brain-mode-active={active ? "true" : "false"}
+              data-codexforge-brain-mode-tab
+              data-codexforge-brain-mode-tab-active={active ? "true" : undefined}
+            >
+              <span>{mode.label}</span>
+              {hint ? <kbd style={kbdStyle}>{hint}</kbd> : null}
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 }
 
 const tabsStyle: CSSProperties = {
+  display: "grid",
+  gap: 10,
+  padding: 10,
+  borderRadius: 8,
+  border: "1px solid rgba(125,211,252,0.18)",
+  background: "rgba(2,6,23,0.34)",
+  minWidth: 0,
+};
+
+const tabsHeaderStyle: CSSProperties = {
   display: "flex",
+  justifyContent: "space-between",
+  gap: 10,
+  alignItems: "center",
+  flexWrap: "wrap",
+  color: "rgba(226,232,240,0.86)",
+  fontSize: 12,
+};
+
+const tabRailStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
   gap: 8,
   overflowX: "auto",
-  paddingBottom: 3,
+  paddingBottom: 2,
 };
 
 const tabStyle: CSSProperties = {
   appearance: "none",
   border: "1px solid rgba(255,255,255,0.10)",
   borderRadius: 8,
-  padding: "9px 11px",
-  minHeight: 38,
+  padding: "8px 10px",
+  minHeight: 40,
   whiteSpace: "nowrap",
   fontSize: 12,
   fontWeight: 850,
   letterSpacing: 0,
   cursor: "pointer",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 7,
+  minWidth: 0,
+};
+
+const hintStyle: CSSProperties = {
+  borderRadius: 999,
+  padding: "3px 8px",
+  border: "1px solid rgba(125,211,252,0.18)",
+  background: "rgba(14,165,233,0.08)",
+  color: "rgba(186,230,253,0.9)",
+  fontSize: 10,
+  fontWeight: 900,
+};
+
+const kbdStyle: CSSProperties = {
+  borderRadius: 6,
+  padding: "2px 5px",
+  border: "1px solid rgba(125,211,252,0.22)",
+  background: "rgba(2,6,23,0.54)",
+  color: "rgba(224,242,254,0.92)",
+  fontFamily: "var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace",
+  fontSize: 10,
+  fontWeight: 900,
+};
+
+const eyebrowStyle: CSSProperties = {
+  fontSize: 10,
+  fontWeight: 900,
+  letterSpacing: 0,
+  textTransform: "uppercase",
+  color: "rgba(186,230,253,0.86)",
 };

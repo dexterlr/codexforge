@@ -14,6 +14,7 @@ import {
   type CodexForgeBrainCommandCategory,
   type CodexForgeBrainCommandSearchResult,
 } from "./commands";
+import { BrainEmptyState, BrainReadOnlyBadge } from "./ui";
 
 type BrainCommandPaletteProps = {
   open: boolean;
@@ -141,6 +142,7 @@ export function BrainCommandPalette({
             <div style={eyebrowStyle}>Brain command palette</div>
             <h2 style={titleStyle}>Keyboard cognitive navigation</h2>
           </div>
+          <BrainReadOnlyBadge label="read-only commands" />
           <button type="button" onClick={onClose} style={closeStyle}>
             Escape
           </button>
@@ -148,6 +150,7 @@ export function BrainCommandPalette({
 
         <input
           ref={inputRef}
+          aria-label="Search read-only Brain commands"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search modes, panels, focus targets, health, replay, topology..."
@@ -178,10 +181,11 @@ export function BrainCommandPalette({
 
         <div style={resultFrameStyle}>
           {results.length === 0 ? (
-            <div style={emptyStyle}>
-              No matching read-only Brain commands. Try graph, health, topology,
-              replay, focus, agents, or status.
-            </div>
+            <BrainEmptyState
+              title="No matching read-only Brain commands."
+              detail="Try graph, health, topology, replay, focus, agents, or status."
+              style={emptyStyle}
+            />
           ) : (
             groups.map((group) => (
               <section
@@ -211,6 +215,7 @@ export function BrainCommandPalette({
                         disabled={!activatable}
                         onMouseEnter={() => setSelectedIndex(globalIndex)}
                         onClick={() => activate(command)}
+                        aria-label={`${command.label}: ${command.description}`}
                         style={{
                           ...resultStyle,
                           borderColor: selected
@@ -287,6 +292,7 @@ const headerStyle: CSSProperties = {
   justifyContent: "space-between",
   gap: 12,
   alignItems: "start",
+  flexWrap: "wrap",
 };
 
 const inputStyle: CSSProperties = {
@@ -363,6 +369,7 @@ const resultStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(255,255,255,0.09)",
   color: "inherit",
+  minWidth: 0,
 };
 
 const resultMainStyle: CSSProperties = {
@@ -414,12 +421,7 @@ const disabledReasonStyle: CSSProperties = {
 };
 
 const emptyStyle: CSSProperties = {
-  padding: 16,
-  borderRadius: 8,
-  border: "1px dashed rgba(125,211,252,0.26)",
-  color: "rgba(226,232,240,0.72)",
   fontSize: 13,
-  lineHeight: 1.5,
 };
 
 const closeStyle: CSSProperties = {
@@ -446,4 +448,3 @@ const titleStyle: CSSProperties = {
   fontSize: 20,
   lineHeight: 1.15,
 };
-

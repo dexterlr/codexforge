@@ -30,6 +30,14 @@ import { BrainCommandStatusBar } from "./brain-command-status-bar";
 import { BrainKeyboardShortcutsPanel } from "./brain-keyboard-shortcuts-panel";
 import { BrainQuickJumpPanel } from "./brain-quick-jump-panel";
 import {
+  BrainDensityControls,
+  BrainMetricPill,
+  BrainPanelFrame,
+  BrainReadOnlyBadge,
+  BrainResponsiveShell,
+  type BrainDisplayDensity,
+} from "./ui";
+import {
   buildBrainCommandRegistry,
   matchBrainKeyboardShortcut,
   type CodexForgeBrainCommand,
@@ -86,6 +94,7 @@ export function BrainCommandCenter({
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [pendingKey, setPendingKey] = useState<string | null>(null);
+  const [density, setDensity] = useState<BrainDisplayDensity>("comfortable");
   const [commandHistory, setCommandHistory] = useState<CodexForgeBrainCommand[]>([]);
 
   const focusTargets = useMemo(() => {
@@ -225,9 +234,10 @@ export function BrainCommandCenter({
   );
 
   return (
-    <section
+    <BrainResponsiveShell
       data-codexforge-brain-command-center
-      style={shellStyle}
+      data-codexforge-brain-command-center-polished
+      density={density}
       tabIndex={0}
       onKeyDown={handleCommandCenterKeyDown}
     >
@@ -247,6 +257,12 @@ export function BrainCommandCenter({
             A read-only command layer for runtime health, memory, agents,
             prediction, risks, replay, lineage, timeline, and the preserved graph inspector flow.
           </p>
+          <div style={hintRowStyle}>
+            <BrainReadOnlyBadge label="read-only command surface" />
+            <span style={keyboardHintStyle}>Ctrl+K / Cmd+K palette</span>
+            <span style={keyboardHintStyle}>? shortcuts</span>
+            <span style={keyboardHintStyle}>G then G graph</span>
+          </div>
         </div>
         <div style={headerControlsStyle}>
           <div style={statusGridStyle}>
@@ -254,9 +270,11 @@ export function BrainCommandCenter({
             <Status label="Edges" value={String(graph.edges.length)} />
             <Status label="Mode" value={activeMode} />
           </div>
+          <BrainDensityControls value={density} onChange={setDensity} />
           <div style={actionGridStyle}>
             <button
               type="button"
+              aria-label="Open Brain command palette"
               onClick={() => setPaletteOpen(true)}
               style={actionButtonStyle}
             >
@@ -264,6 +282,7 @@ export function BrainCommandCenter({
             </button>
             <button
               type="button"
+              aria-label="Toggle Brain keyboard shortcuts"
               onClick={() => setShortcutsOpen((value) => !value)}
               style={actionButtonStyle}
             >
@@ -282,6 +301,16 @@ export function BrainCommandCenter({
         paletteOpen={paletteOpen}
       />
 
+      {graph.nodes.length === 0 ? (
+        <BrainPanelFrame
+          title="Fixture-backed command center"
+          eyebrow="Empty graph fallback"
+          description="The command center remains navigable with read-only fixture panels while the preserved graph has no nodes."
+          compact
+          status={<BrainReadOnlyBadge label="no runtime mutation" />}
+        />
+      ) : null}
+
       <BrainQuickJumpPanel
         commands={commands}
         activeMode={activeMode}
@@ -295,7 +324,7 @@ export function BrainCommandCenter({
 
       <BrainModeTabs activeMode={activeMode} onModeChange={setActiveMode} />
 
-      <div style={panelGridStyle}>
+      <div style={getPanelGridStyle(density)}>
         <BrainRuntimeHealthPanel graph={graph} />
         <BrainSystemStatusPanel graph={graph} />
         <BrainMemoryClustersPanel graph={graph} />
@@ -313,9 +342,7 @@ export function BrainCommandCenter({
         <BrainDrilldownPanel graph={graph} selectedNodeId={selectedNodeId} />
       </div>
 
-      <div style={modePanelStyle} data-codexforge-brain-active-mode={activeMode}>
-        <ModeSummary mode={activeMode} />
-      </div>
+      <ModeSummary mode={activeMode} />
 
       <div data-codexforge-brain-graph-preserved style={graphFrameStyle}>
         <BrainGraphView
@@ -329,7 +356,7 @@ export function BrainCommandCenter({
         Graph Inspector remains below with the existing selection, pin, archive,
         copy, export, and raw JSON workflows.
       </div>
-    </section>
+    </BrainResponsiveShell>
   );
 }
 
@@ -340,38 +367,26 @@ function ModeSummary({ mode }: { mode: CodexForgeBrainCommandMode }) {
     .join(" ");
 
   return (
-    <div>
-      <div style={eyebrowStyle}>Active mode</div>
-      <strong style={{ fontSize: 15 }}>{label}</strong>
-    </div>
+    <BrainPanelFrame
+      data-codexforge-brain-active-mode={mode}
+      title={label}
+      eyebrow="Active mode"
+      description="Mode state is local to this command surface; graph data and runtime contracts remain unchanged."
+      compact
+      status={<BrainReadOnlyBadge label="keyboard-first" />}
+    />
   );
 }
 
 function Status({ label, value }: { label: string; value: string }) {
   return (
-    <div style={statusStyle}>
-      <span style={eyebrowStyle}>{label}</span>
-      <strong>{value}</strong>
-    </div>
+    <BrainMetricPill label={label} value={value} />
   );
 }
 
-const shellStyle: CSSProperties = {
-  display: "grid",
-  gap: 14,
-  padding: 16,
-  marginBottom: 18,
-  borderRadius: 8,
-  border: "1px solid rgba(125,211,252,0.24)",
-  background:
-    "radial-gradient(circle at 35% 0%, rgba(14,165,233,0.22), transparent 34%), linear-gradient(180deg, rgba(2,6,23,0.96), rgba(15,23,42,0.92))",
-  color: "rgba(241,245,249,0.96)",
-  boxShadow: "0 22px 80px rgba(2,6,23,0.30)",
-};
-
 const headerStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "minmax(0, 1fr) minmax(260px, 0.42fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
   gap: 14,
   alignItems: "start",
 };
@@ -404,29 +419,17 @@ const actionButtonStyle: CSSProperties = {
   cursor: "pointer",
 };
 
-const statusStyle: CSSProperties = {
-  display: "grid",
-  gap: 5,
-  padding: 10,
-  borderRadius: 8,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.045)",
-  minWidth: 0,
-};
+function getPanelGridStyle(density: BrainDisplayDensity): CSSProperties {
+  const minWidth = density === "dense" ? 300 : density === "compact" ? 320 : 340;
+  const gap = density === "dense" ? 10 : 12;
 
-const panelGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 330px), 1fr))",
-  gap: 12,
-  alignItems: "start",
-};
-
-const modePanelStyle: CSSProperties = {
-  padding: 12,
-  borderRadius: 8,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-};
+  return {
+    display: "grid",
+    gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, ${minWidth}px), 1fr))`,
+    gap,
+    alignItems: "start",
+  };
+}
 
 const graphFrameStyle: CSSProperties = {
   display: "grid",
@@ -462,6 +465,24 @@ const copyStyle: CSSProperties = {
   color: "rgba(226,232,240,0.76)",
   fontSize: 13,
   lineHeight: 1.55,
+};
+
+const hintRowStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 7,
+  marginTop: 12,
+};
+
+const keyboardHintStyle: CSSProperties = {
+  borderRadius: 999,
+  padding: "3px 8px",
+  border: "1px solid rgba(125,211,252,0.20)",
+  background: "rgba(14,165,233,0.08)",
+  color: "rgba(224,242,254,0.86)",
+  fontSize: 10,
+  fontWeight: 900,
+  whiteSpace: "nowrap",
 };
 
 export default BrainCommandCenter;

@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import type { CodexForgeBrainCommand } from "./commands";
 import type { CodexForgeBrainCommandMode } from "./brain-command-center-types";
+import { BrainEmptyState, BrainReadOnlyBadge, BrainSectionHeader } from "./ui";
 
 type BrainQuickJumpPanelProps = {
   commands: readonly CodexForgeBrainCommand[];
@@ -39,16 +40,21 @@ export function BrainQuickJumpPanel({
 
   return (
     <section data-codexforge-brain-quick-jump-panel style={panelStyle}>
-      <div style={headerStyle}>
-        <div>
-          <div style={eyebrowStyle}>Quick jump</div>
-          <h2 style={titleStyle}>High-signal cognitive surfaces</h2>
-        </div>
-        <span style={pillStyle}>read-only</span>
-      </div>
+      <BrainSectionHeader
+        eyebrow="Quick jump"
+        title="High-signal cognitive surfaces"
+        description="Keyboard-friendly shortcuts into the main command center modes."
+        status={<BrainReadOnlyBadge />}
+        compact
+      />
 
       <div style={gridStyle}>
-        {quickCommands.map((command) => {
+        {quickCommands.length === 0 ? (
+          <BrainEmptyState
+            title="No quick commands registered."
+            detail="Open the command palette to inspect the full read-only command registry."
+          />
+        ) : quickCommands.map((command) => {
           const active = command.targetMode === activeMode;
           const activatable = isActivatable(command);
 
@@ -58,6 +64,7 @@ export function BrainQuickJumpPanel({
               type="button"
               data-codexforge-brain-quick-jump-command
               disabled={!activatable}
+              aria-label={`Jump to ${command.label.replace("Jump to ", "")}`}
               onClick={() => {
                 if (activatable) onCommand(command);
               }}
@@ -91,13 +98,6 @@ const panelStyle: CSSProperties = {
   background: "rgba(15,23,42,0.72)",
 };
 
-const headerStyle: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  gap: 12,
-  alignItems: "start",
-};
-
 const gridStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))",
@@ -116,27 +116,3 @@ const buttonStyle: CSSProperties = {
   fontSize: 12,
   lineHeight: 1.35,
 };
-
-const pillStyle: CSSProperties = {
-  borderRadius: 999,
-  padding: "3px 7px",
-  background: "rgba(34,197,94,0.10)",
-  color: "rgba(220,252,231,0.94)",
-  fontSize: 10,
-  fontWeight: 900,
-};
-
-const eyebrowStyle: CSSProperties = {
-  fontSize: 10,
-  fontWeight: 900,
-  letterSpacing: 0,
-  textTransform: "uppercase",
-  color: "rgba(186,230,253,0.86)",
-};
-
-const titleStyle: CSSProperties = {
-  margin: "4px 0 0",
-  fontSize: 16,
-  lineHeight: 1.2,
-};
-

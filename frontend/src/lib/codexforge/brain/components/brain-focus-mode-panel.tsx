@@ -9,6 +9,7 @@ import {
 import { BrainFocusBreadcrumbs } from "./brain-focus-breadcrumbs";
 import { BrainFocusInspector } from "./brain-focus-inspector";
 import { BrainFocusLensCard } from "./brain-focus-lens-card";
+import { BrainReadOnlyBadge, BrainSectionHeader } from "./ui";
 
 type BrainFocusModePanelProps = {
   graph?: CodexForgeBrainGraph;
@@ -31,13 +32,12 @@ export function BrainFocusModePanel({ graph, selectedNodeId }: BrainFocusModePan
       data-codexforge-brain-focus-readonly="true"
       style={panelStyle}
     >
-      <div style={headerStyle}>
-        <div>
-          <div style={eyebrowStyle}>Brain focus mode</div>
-          <h2 style={titleStyle}>Cognitive navigation focus</h2>
-        </div>
-        <span style={pillStyle}>read-only</span>
-      </div>
+      <BrainSectionHeader
+        eyebrow="Brain focus mode"
+        title="Cognitive navigation focus"
+        description="Local lens selection over the current focus target and neighborhood."
+        status={<BrainReadOnlyBadge />}
+      />
 
       <div data-codexforge-brain-focus-summary style={summaryStyle}>
         <SummaryMetric label="Focus target" value={model.focusTarget.label} />
@@ -107,13 +107,6 @@ const panelStyle: CSSProperties = {
   background: "radial-gradient(circle at 18% 0%, rgba(14,165,233,0.20), transparent 34%), rgba(15,23,42,0.86)",
 };
 
-const headerStyle: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  gap: 12,
-  alignItems: "start",
-};
-
 const summaryStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))",
@@ -145,7 +138,7 @@ const nextStyle: CSSProperties = {
 
 const layoutStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "minmax(0, 1fr) minmax(280px, 0.34fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
   gap: 12,
   alignItems: "start",
 };
@@ -185,25 +178,10 @@ const highlightStyle: CSSProperties = {
   lineHeight: 1.4,
 };
 
-const pillStyle: CSSProperties = {
-  borderRadius: 999,
-  padding: "3px 7px",
-  background: "rgba(14,165,233,0.14)",
-  color: "rgba(186,230,253,0.92)",
-  fontSize: 10,
-  fontWeight: 900,
-};
-
 const eyebrowStyle: CSSProperties = {
   fontSize: 10,
   fontWeight: 900,
   letterSpacing: 0,
   textTransform: "uppercase",
   color: "rgba(186,230,253,0.86)",
-};
-
-const titleStyle: CSSProperties = {
-  margin: "4px 0 0",
-  fontSize: 18,
-  lineHeight: 1.2,
 };

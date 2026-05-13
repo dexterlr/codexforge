@@ -16,6 +16,7 @@ import {
 } from "@/lib/codexforge/brain/runtime";
 import { BrainInsightInspector } from "./brain-insight-inspector";
 import { BrainRecommendationCard } from "./brain-recommendation-card";
+import { BrainReadOnlyBadge, BrainSectionHeader } from "./ui";
 
 type BrainRecommendationsPanelProps = {
   graph?: CodexForgeBrainGraph;
@@ -51,13 +52,12 @@ export function BrainRecommendationsPanel({ graph }: BrainRecommendationsPanelPr
 
   return (
     <section data-codexforge-brain-recommendations-panel style={panelStyle}>
-      <div style={headerStyle}>
-        <div>
-          <div style={eyebrowStyle}>Runtime recommendations</div>
-          <h2 style={titleStyle}>Recommended next attention</h2>
-        </div>
-        <span style={pillStyle}>read-only</span>
-      </div>
+      <BrainSectionHeader
+        eyebrow="Runtime recommendations"
+        title="Recommended next attention"
+        description="Deterministic advisory signals only; actions remain outside this panel."
+        status={<BrainReadOnlyBadge label="read-only advisory" />}
+      />
 
       <div data-codexforge-brain-recommendations-summary style={summaryStyle}>
         <SummaryStat label="Total" value={String(summary.total)} />
@@ -110,13 +110,6 @@ const panelStyle: CSSProperties = {
   background: "radial-gradient(circle at 18% 0%, rgba(14,165,233,0.18), transparent 34%), rgba(15,23,42,0.84)",
 };
 
-const headerStyle: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  gap: 12,
-  alignItems: "start",
-};
-
 const summaryStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 100px), 1fr))",
@@ -156,7 +149,7 @@ const approvalStyle: CSSProperties = {
 
 const layoutStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "minmax(0, 1fr) minmax(270px, 0.34fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 270px), 1fr))",
   gap: 12,
   alignItems: "start",
 };
@@ -167,25 +160,10 @@ const cardsStyle: CSSProperties = {
   gap: 10,
 };
 
-const pillStyle: CSSProperties = {
-  borderRadius: 999,
-  padding: "3px 7px",
-  background: "rgba(14,165,233,0.14)",
-  color: "rgba(186,230,253,0.92)",
-  fontSize: 10,
-  fontWeight: 900,
-};
-
 const eyebrowStyle: CSSProperties = {
   fontSize: 10,
   fontWeight: 900,
   letterSpacing: 0,
   textTransform: "uppercase",
   color: "rgba(186,230,253,0.86)",
-};
-
-const titleStyle: CSSProperties = {
-  margin: "4px 0 0",
-  fontSize: 18,
-  lineHeight: 1.2,
 };
