@@ -364,22 +364,26 @@ function getNodeDataLines(node: CodexForgeBrainNode): Array<{ key: string; value
 
 function panelStyle(): CSSProperties {
   return {
-    border: "1px solid rgba(127,127,127,0.16)",
-    background: "rgba(127,127,127,0.06)",
+    border: "1px solid rgba(125,211,252,0.18)",
+    background:
+      "linear-gradient(145deg, rgba(15,23,42,0.84), rgba(2,6,23,0.68)), radial-gradient(circle at 12% 0%, rgba(14,165,233,0.12), transparent 34%)",
     borderRadius: 24,
     padding: 18,
-    backdropFilter: "blur(10px)",
-    boxShadow: "0 8px 30px rgba(0,0,0,0.10)",
+    backdropFilter: "blur(14px)",
+    boxShadow: "0 18px 60px rgba(2,6,23,0.24), inset 0 1px 0 rgba(255,255,255,0.04)",
+    minWidth: 0,
   };
 }
 
 function subPanelStyle(): CSSProperties {
   return {
-    border: "1px solid rgba(127,127,127,0.14)",
-    background: "rgba(127,127,127,0.04)",
+    border: "1px solid rgba(125,211,252,0.13)",
+    background:
+      "linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025))",
     borderRadius: 18,
     padding: 14,
     minWidth: 0,
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.035)",
   };
 }
 
@@ -388,34 +392,48 @@ function buttonStyle(danger = false): CSSProperties {
     appearance: "none",
     border: danger
       ? "1px solid rgba(239,68,68,0.35)"
-      : "1px solid rgba(127,127,127,0.2)",
-    background: danger ? "rgba(239,68,68,0.12)" : "rgba(127,127,127,0.08)",
+      : "1px solid rgba(125,211,252,0.22)",
+    background: danger
+      ? "rgba(239,68,68,0.12)"
+      : "linear-gradient(180deg, rgba(14,165,233,0.14), rgba(14,165,233,0.06))",
     color: "inherit",
     borderRadius: 14,
     padding: "10px 14px",
     fontSize: 14,
     fontWeight: 600,
     cursor: "pointer",
+    minWidth: 0,
+    maxWidth: "100%",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
   };
 }
 
 const inputStyle: CSSProperties = {
   width: "100%",
-  border: "1px solid rgba(127,127,127,0.22)",
-  background: "rgba(127,127,127,0.06)",
+  border: "1px solid rgba(125,211,252,0.2)",
+  background: "rgba(2,6,23,0.36)",
   color: "inherit",
   borderRadius: 14,
   padding: "12px 14px",
   outline: "none",
   fontSize: 14,
+  minWidth: 0,
 };
 
 const labelStyle: CSSProperties = {
   fontSize: 12,
-  fontWeight: 700,
-  opacity: 0.74,
+  fontWeight: 800,
+  opacity: 0.78,
   letterSpacing: "0.03em",
   textTransform: "uppercase",
+};
+
+const safeWrapStyle: CSSProperties = {
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const preStyle: CSSProperties = {
@@ -438,6 +456,10 @@ const kindPillStyle: CSSProperties = {
   border: "1px solid rgba(99,102,241,0.28)",
   fontSize: 12,
   fontWeight: 700,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
+  whiteSpace: "normal",
 };
 
 const metaPillStyle: CSSProperties = {
@@ -448,6 +470,10 @@ const metaPillStyle: CSSProperties = {
   background: "rgba(127,127,127,0.10)",
   border: "1px solid rgba(127,127,127,0.18)",
   fontSize: 12,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
+  whiteSpace: "normal",
 };
 
 function badgeStyle(text: string): CSSProperties {
@@ -464,6 +490,10 @@ function badgeStyle(text: string): CSSProperties {
         : "1px solid rgba(127,127,127,0.18)",
     fontSize: 11,
     fontWeight: 700,
+    maxWidth: "100%",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
+    whiteSpace: "normal",
   };
 }
 
@@ -495,7 +525,7 @@ function StatCard(props: { label: string; value: string }) {
     <div style={panelStyle()}>
       <div style={{ display: "grid", gap: 8 }}>
         <span style={{ ...labelStyle, fontSize: 11 }}>{props.label}</span>
-        <strong style={{ fontSize: 28, lineHeight: 1.1 }}>{props.value}</strong>
+        <strong style={{ fontSize: 28, lineHeight: 1.1, ...safeWrapStyle }}>{props.value}</strong>
       </div>
     </div>
   );
@@ -512,10 +542,11 @@ function MiniStat(props: { label: string; value: string }) {
         display: "grid",
         gap: 6,
         minWidth: 0,
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.035)",
       }}
     >
       <span style={{ ...labelStyle, fontSize: 11 }}>{props.label}</span>
-      <strong style={{ fontSize: 14, lineHeight: 1.4, overflowWrap: "normal" }}>
+      <strong style={{ fontSize: 14, lineHeight: 1.4, ...safeWrapStyle }}>
         {props.value}
       </strong>
     </div>
@@ -545,6 +576,8 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         display: "grid",
         gap: 14,
         marginBottom: 18,
+        background:
+          "radial-gradient(circle at 8% 0%, rgba(34,197,94,0.13), transparent 36%), linear-gradient(145deg, rgba(15,23,42,0.88), rgba(2,6,23,0.72))",
       }}
     >
       <div
@@ -558,7 +591,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
       >
         <div>
           <span style={labelStyle}>Runtime health</span>
-          <h2 style={{ margin: "6px 0 0", fontSize: 20 }}>
+          <h2 style={{ margin: "6px 0 0", fontSize: 20, ...safeWrapStyle }}>
             Predictive context readiness
           </h2>
         </div>
@@ -585,11 +618,12 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
       <div
         style={{
           border: "1px solid rgba(127,127,127,0.14)",
-          background: "rgba(127,127,127,0.04)",
+          background: "rgba(2,6,23,0.28)",
           borderRadius: 16,
           padding: 12,
           fontSize: 13,
           lineHeight: 1.5,
+          ...safeWrapStyle,
         }}
       >
         <strong>Next safe runtime step: </strong>
@@ -1160,7 +1194,7 @@ export default function BrainPageClient() {
       style={{
         minHeight: "100vh",
         background:
-          "radial-gradient(circle at top, rgba(99,102,241,0.16), transparent 28%), var(--background)",
+          "radial-gradient(circle at 50% -12%, rgba(14,165,233,0.22), transparent 34%), radial-gradient(circle at 4% 18%, rgba(99,102,241,0.14), transparent 28%), linear-gradient(180deg, rgba(2,6,23,0.96), rgba(15,23,42,0.86) 54%, rgba(2,6,23,0.98)), var(--background)",
         color: "var(--foreground)",
       }}
     >
@@ -1169,6 +1203,7 @@ export default function BrainPageClient() {
           maxWidth: 1500,
           margin: "0 auto",
           padding: "24px 20px 48px",
+          minWidth: 0,
         }}
       >
         <header
@@ -1187,7 +1222,7 @@ export default function BrainPageClient() {
               alignItems: "flex-start",
             }}
           >
-            <div style={{ display: "grid", gap: 10 }}>
+            <div style={{ display: "grid", gap: 10, minWidth: 0 }}>
               <div
                 style={{
                   display: "flex",
@@ -1203,7 +1238,7 @@ export default function BrainPageClient() {
                     padding: "6px 10px",
                     borderRadius: 999,
                     border: "1px solid rgba(127,127,127,0.2)",
-                    background: "rgba(127,127,127,0.08)",
+                    background: "linear-gradient(180deg, rgba(14,165,233,0.16), rgba(14,165,233,0.06))",
                     fontSize: 12,
                     fontWeight: 700,
                     letterSpacing: "0.04em",
@@ -1226,9 +1261,10 @@ export default function BrainPageClient() {
                   style={{
                     fontSize: "clamp(1.8rem, 2.8vw, 3rem)",
                     lineHeight: 1.05,
+                    ...safeWrapStyle,
                   }}
                 >
-                  Local graph memory workspace
+                  Neural memory command center
                 </h1>
                 <p
                   style={{
@@ -1236,11 +1272,12 @@ export default function BrainPageClient() {
                     opacity: 0.82,
                     fontSize: 15,
                     lineHeight: 1.6,
+                    ...safeWrapStyle,
                   }}
                 >
-                  This is the CodexForge memory control surface. Inspect graph
-                  nodes and relationships, review saved context, promote useful
-                  memory, and prepare context to send back into the main workspace.
+                  Inspect graph nodes and relationships, review saved context,
+                  promote useful memory, and route high-signal context back into
+                  the main workspace from a dense operator console.
                 </p>
               </div>
             </div>
@@ -1282,6 +1319,7 @@ export default function BrainPageClient() {
                 borderRadius: 16,
                 padding: "12px 14px",
                 fontSize: 14,
+                ...safeWrapStyle,
               }}
             >
               {toast.text}
@@ -1297,6 +1335,7 @@ export default function BrainPageClient() {
                 borderRadius: 16,
                 padding: "12px 14px",
                 fontSize: 14,
+                ...safeWrapStyle,
               }}
             >
               {error}
@@ -1354,6 +1393,7 @@ export default function BrainPageClient() {
               style={{
                 ...responsiveGridStyle,
                 marginBottom: 18,
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 190px), 1fr))",
               }}
             >
               <StatCard label="Nodes" value={String(stats.nodeCount)} />
@@ -1384,6 +1424,7 @@ export default function BrainPageClient() {
                 gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 380px), 1fr))",
                 gap: 18,
                 alignItems: "start",
+                minWidth: 0,
               }}
             >
               <aside
@@ -1404,7 +1445,7 @@ export default function BrainPageClient() {
                     <h2 style={{ fontSize: 18, marginBottom: 6 }}>
                       Graph explorer
                     </h2>
-                    <p style={{ fontSize: 13, opacity: 0.72 }}>
+                    <p style={{ fontSize: 13, opacity: 0.72, lineHeight: 1.55, ...safeWrapStyle }}>
                       Filter memory nodes, inspect work context, and navigate
                       relationships across tasks, runs, plans, decisions, and files.
                     </p>
@@ -1488,7 +1529,7 @@ export default function BrainPageClient() {
                         alignItems: "center",
                         gap: 8,
                         fontSize: 13,
-                        whiteSpace: "nowrap",
+                        ...safeWrapStyle,
                       }}
                     >
                       <input
@@ -1510,7 +1551,7 @@ export default function BrainPageClient() {
                         alignItems: "center",
                         gap: 8,
                         fontSize: 13,
-                        whiteSpace: "nowrap",
+                        ...safeWrapStyle,
                       }}
                     >
                       <input
@@ -1530,7 +1571,7 @@ export default function BrainPageClient() {
 
                 <div style={subPanelStyle()}>
                   <h3 style={subHeadingStyle}>Overview</h3>
-                  <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.82 }}>
+                  <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.82, ...safeWrapStyle }}>
                     {getKindSummaryLabel(stats.kindBreakdown)}
                   </div>
                 </div>
@@ -1596,6 +1637,10 @@ export default function BrainPageClient() {
                               cursor: "pointer",
                               display: "grid",
                               gap: 8,
+                              minWidth: 0,
+                              boxShadow: isSelected
+                                ? "0 12px 40px rgba(99,102,241,0.16), inset 0 1px 0 rgba(255,255,255,0.05)"
+                                : "inset 0 1px 0 rgba(255,255,255,0.035)",
                             }}
                           >
                             <div
@@ -1607,8 +1652,8 @@ export default function BrainPageClient() {
                               }}
                             >
                               <div style={{ display: "grid", gap: 4, minWidth: 0 }}>
-                                <strong style={{ fontSize: 14, overflowWrap: "normal" }}>{label}</strong>
-                                <span style={{ fontSize: 12, opacity: 0.72 }}>
+                                <strong style={{ fontSize: 14, ...safeWrapStyle }}>{label}</strong>
+                                <span style={{ fontSize: 12, opacity: 0.72, ...safeWrapStyle }}>
                                   {formatKindLabel(node.kind)}
                                 </span>
                               </div>
@@ -1629,7 +1674,7 @@ export default function BrainPageClient() {
                                   fontSize: 13,
                                   lineHeight: 1.5,
                                   opacity: 0.82,
-                                  overflowWrap: "normal",
+                                  ...safeWrapStyle,
                                 }}
                               >
                                 {detail}
@@ -1643,13 +1688,14 @@ export default function BrainPageClient() {
                                 gap: 8,
                                 fontSize: 12,
                                 opacity: 0.72,
+                                minWidth: 0,
                               }}
                             >
-                              <span>{status}</span>
+                              <span style={safeWrapStyle}>{status}</span>
                               <span>/</span>
-                              <span>{importance}</span>
+                              <span style={safeWrapStyle}>{importance}</span>
                               <span>/</span>
-                              <span>{neighbors} links</span>
+                              <span style={safeWrapStyle}>{neighbors} links</span>
                             </div>
                           </button>
                         );
@@ -1686,7 +1732,7 @@ export default function BrainPageClient() {
                           alignItems: "flex-start",
                         }}
                       >
-                        <div style={{ display: "grid", gap: 8 }}>
+                        <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
                           <div
                             style={{
                               display: "flex",
@@ -1706,8 +1752,8 @@ export default function BrainPageClient() {
                             </span>
                           </div>
 
-                          <div style={{ display: "grid", gap: 5 }}>
-                            <h2 style={{ fontSize: "clamp(1.3rem, 2vw, 2rem)", overflowWrap: "normal" }}>
+                          <div style={{ display: "grid", gap: 5, minWidth: 0 }}>
+                            <h2 style={{ fontSize: "clamp(1.3rem, 2vw, 2rem)", ...safeWrapStyle }}>
                               {getNodePrimaryLabel(selectedNode)}
                             </h2>
                             <p
@@ -1716,7 +1762,7 @@ export default function BrainPageClient() {
                                   "var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace",
                                 fontSize: 12,
                                 opacity: 0.68,
-                                overflowWrap: "anywhere",
+                                ...safeWrapStyle,
                               }}
                             >
                               {selectedNode.id}
@@ -1729,6 +1775,7 @@ export default function BrainPageClient() {
                             display: "flex",
                             flexWrap: "wrap",
                             gap: 10,
+                            minWidth: 0,
                           }}
                         >
                           <button
@@ -1767,6 +1814,7 @@ export default function BrainPageClient() {
                           display: "grid",
                           gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
                           gap: 10,
+                          minWidth: 0,
                         }}
                       >
                         <MiniStat
@@ -1807,6 +1855,7 @@ export default function BrainPageClient() {
                                   padding: 12,
                                   display: "grid",
                                   gap: 6,
+                                  minWidth: 0,
                                 }}
                               >
                                 <span style={{ ...labelStyle, fontSize: 11 }}>
@@ -1817,7 +1866,7 @@ export default function BrainPageClient() {
                                     fontSize: 13,
                                     lineHeight: 1.5,
                                     opacity: 0.88,
-                                    overflowWrap: "normal",
+                                    ...safeWrapStyle,
                                   }}
                                 >
                                   {item.value}
@@ -1886,16 +1935,17 @@ export default function BrainPageClient() {
                                 cursor: "pointer",
                                 display: "grid",
                                 gap: 6,
+                                minWidth: 0,
                               }}
                             >
-                              <strong style={{ fontSize: 14 }}>
+                              <strong style={{ fontSize: 14, ...safeWrapStyle }}>
                                 {getNodePrimaryLabel(neighbor)}
                               </strong>
-                              <span style={{ fontSize: 12, opacity: 0.72 }}>
+                              <span style={{ fontSize: 12, opacity: 0.72, ...safeWrapStyle }}>
                                 {formatKindLabel(neighbor.kind)}
                               </span>
                               {getNodeDetail(neighbor) ? (
-                                <span style={{ fontSize: 13, opacity: 0.8, overflowWrap: "normal" }}>
+                                <span style={{ fontSize: 13, opacity: 0.8, ...safeWrapStyle }}>
                                   {getNodeDetail(neighbor)}
                                 </span>
                               ) : null}
@@ -1931,25 +1981,26 @@ export default function BrainPageClient() {
                               padding: 12,
                               display: "grid",
                               gap: 6,
+                              minWidth: 0,
                             }}
                           >
-                            <strong style={{ fontSize: 14 }}>{edge.kind}</strong>
+                            <strong style={{ fontSize: 14, ...safeWrapStyle }}>{edge.kind}</strong>
                             <span
                               style={{
                                 fontFamily:
                                   "var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace",
                                 fontSize: 12,
                                 opacity: 0.76,
-                                overflowWrap: "anywhere",
+                                ...safeWrapStyle,
                               }}
                             >
                               {edge.id}
                             </span>
-                            <span style={{ fontSize: 13, opacity: 0.82, overflowWrap: "normal" }}>
+                            <span style={{ fontSize: 13, opacity: 0.82, ...safeWrapStyle }}>
                               {summarizeEdge(edge, selectedNode.id, nodeLookup)}
                             </span>
                             {edge.label ? (
-                              <span style={{ fontSize: 12, opacity: 0.7 }}>
+                              <span style={{ fontSize: 12, opacity: 0.7, ...safeWrapStyle }}>
                                 label: {edge.label}
                               </span>
                             ) : null}
@@ -1988,9 +2039,10 @@ export default function BrainPageClient() {
                             padding: 14,
                             display: "grid",
                             gap: 6,
+                            minWidth: 0,
                           }}
                         >
-                          <strong>{formatKindLabel(entry.kind)}</strong>
+                          <strong style={safeWrapStyle}>{formatKindLabel(entry.kind)}</strong>
                           <span style={{ fontSize: 24, fontWeight: 700 }}>
                             {entry.count}
                           </span>

@@ -155,9 +155,9 @@ export function BrainModeTabs({ activeMode, onModeChange }: BrainModeTabsProps) 
       style={tabsStyle}
     >
       <div style={tabsHeaderStyle}>
-        <div>
+        <div style={{ minWidth: 0, maxWidth: "100%" }}>
           <div style={eyebrowStyle}>Mode navigation</div>
-          <strong>{activePanel?.label ?? activeMode}</strong>
+          <strong style={safeWrapStyle}>{activePanel?.label ?? activeMode}</strong>
         </div>
         <span style={hintStyle}>Ctrl+K / Cmd+K for full command search</span>
       </div>
@@ -205,11 +205,13 @@ export function BrainModeTabs({ activeMode, onModeChange }: BrainModeTabsProps) 
 const tabsStyle: CSSProperties = {
   display: "grid",
   gap: 10,
-  padding: 10,
-  borderRadius: 8,
-  border: "1px solid rgba(125,211,252,0.18)",
-  background: "rgba(2,6,23,0.34)",
+  padding: 12,
+  borderRadius: 16,
+  border: "1px solid rgba(125,211,252,0.2)",
+  background:
+    "linear-gradient(180deg, rgba(2,6,23,0.58), rgba(15,23,42,0.42))",
   minWidth: 0,
+  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
 };
 
 const tabsHeaderStyle: CSSProperties = {
@@ -220,6 +222,7 @@ const tabsHeaderStyle: CSSProperties = {
   flexWrap: "wrap",
   color: "rgba(226,232,240,0.86)",
   fontSize: 12,
+  minWidth: 0,
 };
 
 const tabRailStyle: CSSProperties = {
@@ -228,15 +231,16 @@ const tabRailStyle: CSSProperties = {
   gap: 8,
   overflowX: "auto",
   paddingBottom: 2,
+  minWidth: 0,
 };
 
 const tabStyle: CSSProperties = {
   appearance: "none",
   border: "1px solid rgba(255,255,255,0.10)",
-  borderRadius: 8,
+  borderRadius: 12,
   padding: "8px 10px",
   minHeight: 40,
-  whiteSpace: "nowrap",
+  whiteSpace: "normal",
   fontSize: 12,
   fontWeight: 850,
   letterSpacing: 0,
@@ -245,6 +249,9 @@ const tabStyle: CSSProperties = {
   alignItems: "center",
   gap: 7,
   minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const hintStyle: CSSProperties = {
@@ -255,6 +262,9 @@ const hintStyle: CSSProperties = {
   color: "rgba(186,230,253,0.9)",
   fontSize: 10,
   fontWeight: 900,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const kbdStyle: CSSProperties = {
@@ -274,4 +284,11 @@ const eyebrowStyle: CSSProperties = {
   letterSpacing: 0,
   textTransform: "uppercase",
   color: "rgba(186,230,253,0.86)",
+};
+
+const safeWrapStyle: CSSProperties = {
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };

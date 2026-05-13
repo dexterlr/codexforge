@@ -107,15 +107,17 @@ function Section({ title, items }: { title: string; items: readonly string[] }) 
 
 const panelStyle: CSSProperties = {
   display: "grid",
-  gap: 12,
-  padding: 12,
-  borderRadius: 8,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(2,6,23,0.46)",
+  gap: 13,
+  padding: 14,
+  borderRadius: 16,
+  border: "1px solid rgba(125,211,252,0.18)",
+  background:
+    "radial-gradient(circle at 10% 0%, rgba(99,102,241,0.13), transparent 34%), linear-gradient(180deg, rgba(2,6,23,0.62), rgba(15,23,42,0.46))",
   alignContent: "start",
   minWidth: 0,
   maxHeight: 560,
   overflow: "auto",
+  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
 };
 
 const statGridStyle: CSSProperties = {
@@ -127,12 +129,15 @@ const statGridStyle: CSSProperties = {
 const statStyle: CSSProperties = {
   display: "grid",
   gap: 4,
-  padding: 8,
-  borderRadius: 8,
-  background: "rgba(255,255,255,0.04)",
+  padding: 10,
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025))",
   fontSize: 11,
   minWidth: 0,
-  overflowWrap: "normal",
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const sectionStyle: CSSProperties = {
@@ -142,25 +147,32 @@ const sectionStyle: CSSProperties = {
 
 const rowStyle: CSSProperties = {
   padding: 8,
-  borderRadius: 8,
-  background: "rgba(255,255,255,0.04)",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.07)",
+  background: "rgba(255,255,255,0.045)",
   color: "rgba(226,232,240,0.75)",
   fontSize: 11,
   lineHeight: 1.45,
+  minWidth: 0,
+  maxWidth: "100%",
   overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const actionStyle: CSSProperties = {
   display: "grid",
   gap: 6,
   padding: 10,
-  borderRadius: 8,
+  borderRadius: 14,
   border: "1px solid rgba(34,197,94,0.20)",
-  background: "rgba(34,197,94,0.08)",
+  background: "linear-gradient(180deg, rgba(34,197,94,0.12), rgba(34,197,94,0.055))",
   color: "rgba(220,252,231,0.9)",
   fontSize: 12,
   lineHeight: 1.45,
-  overflowWrap: "normal",
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const emptyStyle: CSSProperties = {
@@ -180,7 +192,10 @@ const titleStyle: CSSProperties = {
   margin: "4px 0 0",
   fontSize: 16,
   lineHeight: 1.25,
-  overflowWrap: "normal",
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const copyStyle: CSSProperties = {
@@ -188,5 +203,8 @@ const copyStyle: CSSProperties = {
   color: "rgba(226,232,240,0.74)",
   fontSize: 12,
   lineHeight: 1.5,
-  overflowWrap: "normal",
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };

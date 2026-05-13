@@ -184,12 +184,13 @@ const panelStyle: CSSProperties = {
   display: "grid",
   gap: 14,
   padding: 16,
-  borderRadius: 8,
-  border: "1px solid rgba(125,211,252,0.22)",
-  background: "radial-gradient(circle at 18% 0%, rgba(14,165,233,0.20), transparent 34%), rgba(15,23,42,0.86)",
+  borderRadius: 18,
+  border: "1px solid rgba(125,211,252,0.24)",
+  background: "radial-gradient(circle at 18% 0%, rgba(14,165,233,0.22), transparent 34%), linear-gradient(145deg, rgba(15,23,42,0.9), rgba(2,6,23,0.72))",
   minWidth: 0,
   maxHeight: 680,
   overflow: "auto",
+  boxShadow: "0 18px 60px rgba(2,6,23,0.22), inset 0 1px 0 rgba(255,255,255,0.04)",
 };
 
 const statusRowStyle: CSSProperties = {
@@ -209,12 +210,15 @@ const metricStyle: CSSProperties = {
   display: "grid",
   gap: 5,
   padding: 10,
-  borderRadius: 8,
+  borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.09)",
-  background: "rgba(255,255,255,0.04)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025))",
   minWidth: 0,
+  maxWidth: "100%",
   fontSize: 12,
   lineHeight: 1.35,
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const calloutStyle: CSSProperties = {
@@ -224,6 +228,10 @@ const calloutStyle: CSSProperties = {
   background: "rgba(14,165,233,0.08)",
   fontSize: 12,
   lineHeight: 1.5,
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const nextActionStyle: CSSProperties = {
@@ -236,6 +244,10 @@ const nextActionStyle: CSSProperties = {
   color: "rgba(220,252,231,0.92)",
   fontSize: 12,
   lineHeight: 1.5,
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const layoutStyle: CSSProperties = {
@@ -248,6 +260,7 @@ const layoutStyle: CSSProperties = {
 const mainStyle: CSSProperties = {
   display: "grid",
   gap: 12,
+  minWidth: 0,
 };
 
 const sectionStyle: CSSProperties = {
@@ -268,16 +281,18 @@ const signalStyle: CSSProperties = {
   display: "grid",
   gap: 6,
   padding: 10,
-  borderRadius: 8,
+  borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.09)",
-  background: "rgba(255,255,255,0.04)",
+  background: "rgba(255,255,255,0.045)",
   color: "inherit",
   textAlign: "left",
   cursor: "pointer",
   fontSize: 11,
   lineHeight: 1.45,
   minWidth: 0,
-  overflowWrap: "normal",
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const signalHeaderStyle: CSSProperties = {

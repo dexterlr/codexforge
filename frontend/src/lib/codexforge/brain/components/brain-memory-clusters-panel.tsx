@@ -139,12 +139,14 @@ const panelStyle: CSSProperties = {
   display: "grid",
   gap: 14,
   padding: 16,
-  borderRadius: 8,
+  borderRadius: 18,
   border: "1px solid rgba(125,211,252,0.22)",
-  background: "rgba(15,23,42,0.76)",
+  background:
+    "radial-gradient(circle at 14% 0%, rgba(34,197,94,0.12), transparent 32%), linear-gradient(145deg, rgba(15,23,42,0.86), rgba(2,6,23,0.68))",
   minWidth: 0,
   maxHeight: 620,
   overflow: "auto",
+  boxShadow: "0 18px 60px rgba(2,6,23,0.2), inset 0 1px 0 rgba(255,255,255,0.04)",
 };
 
 const headerStyle: CSSProperties = {
@@ -165,9 +167,13 @@ const metricStyle: CSSProperties = {
   display: "grid",
   gap: 6,
   padding: 11,
-  borderRadius: 8,
+  borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.09)",
-  background: "rgba(255,255,255,0.045)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025))",
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const twoColumnStyle: CSSProperties = {
@@ -179,6 +185,7 @@ const twoColumnStyle: CSSProperties = {
 const listPanelStyle: CSSProperties = {
   display: "grid",
   gap: 8,
+  minWidth: 0,
 };
 
 const listStyle: CSSProperties = {
@@ -192,12 +199,16 @@ const rowStyle: CSSProperties = {
   gap: 8,
   alignItems: "start",
   padding: "8px 9px",
-  borderRadius: 8,
-  background: "rgba(255,255,255,0.04)",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.07)",
+  background: "rgba(255,255,255,0.045)",
   color: "rgba(226,232,240,0.86)",
   fontSize: 12,
   lineHeight: 1.45,
-  overflowWrap: "normal",
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const duplicateStyle: CSSProperties = {

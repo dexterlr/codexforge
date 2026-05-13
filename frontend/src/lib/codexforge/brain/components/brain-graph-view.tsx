@@ -171,12 +171,12 @@ function getSelectedNode(graph: CodexForgeBrainGraph, selectedNodeId: string | n
 
 function panelStyle(): CSSProperties {
   return {
-    border: "1px solid rgba(125, 211, 252, 0.22)",
+    border: "1px solid rgba(125, 211, 252, 0.28)",
     background:
-      "radial-gradient(circle at 50% 0%, rgba(14,165,233,0.18), transparent 34%), linear-gradient(135deg, rgba(2,6,23,0.84), rgba(15,23,42,0.58))",
+      "radial-gradient(circle at 50% 0%, rgba(14,165,233,0.26), transparent 36%), radial-gradient(circle at 8% 22%, rgba(99,102,241,0.16), transparent 26%), linear-gradient(135deg, rgba(2,6,23,0.94), rgba(15,23,42,0.72))",
     borderRadius: 28,
-    padding: 18,
-    boxShadow: "0 24px 80px rgba(2, 6, 23, 0.28)",
+    padding: 20,
+    boxShadow: "0 30px 100px rgba(2, 6, 23, 0.42), inset 0 1px 0 rgba(255,255,255,0.05)",
     overflow: "hidden",
     minWidth: 0,
   };
@@ -185,13 +185,28 @@ function panelStyle(): CSSProperties {
 function statStyle(): CSSProperties {
   return {
     border: "1px solid rgba(255,255,255,0.12)",
-    background: "rgba(255,255,255,0.06)",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.035))",
     borderRadius: 18,
     padding: "12px 14px",
-    minWidth: 120,
-    overflowWrap: "normal",
+    minWidth: 0,
+    maxWidth: "100%",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
   };
 }
+
+const safeWrapStyle: CSSProperties = {
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
+};
+
+const pillTextStyle: CSSProperties = {
+  ...safeWrapStyle,
+  whiteSpace: "normal",
+};
 
 export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGraphViewProps) {
   const layoutNodes = useMemo(() => buildLayout(graph, selectedNodeId), [graph, selectedNodeId]);
@@ -215,7 +230,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 360px), 1fr))",
-          gap: 18,
+          gap: 20,
           alignItems: "stretch",
         }}
       >
@@ -230,7 +245,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
               color: "#e0f2fe",
             }}
           >
-            <div>
+            <div style={{ minWidth: 0 }}>
               <p
                 style={{
                   margin: 0,
@@ -243,10 +258,10 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
               >
                 Neural memory net
               </p>
-              <h2 style={{ margin: "6px 0 0", fontSize: 24, lineHeight: 1.1 }}>
+              <h2 style={{ margin: "6px 0 0", fontSize: 24, lineHeight: 1.1, ...safeWrapStyle }}>
                 CodexForge neural constellation
               </h2>
-              <p style={{ margin: "8px 0 0", maxWidth: 720, color: "rgba(224,242,254,0.78)", fontSize: 13, lineHeight: 1.55, overflowWrap: "normal" }}>
+              <p style={{ margin: "8px 0 0", maxWidth: 720, color: "rgba(224,242,254,0.78)", fontSize: 13, lineHeight: 1.55, ...safeWrapStyle }}>
                 Click a memory, task, run, repo, message, or tag node to focus the inspector. Node size reflects connectivity and importance. The focus halo, cluster map, and signal panel make the brain usable as an operator-grade memory topology.
               </p>
             </div>
@@ -257,6 +272,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                 flexWrap: "wrap",
                 gap: 8,
                 alignItems: "flex-start",
+                minWidth: 0,
               }}
               data-codexforge-brain-graph-stats="true"
               data-codexforge-brain-signal-panel="true"
@@ -279,10 +295,11 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
           <div
             style={{
               border: "1px solid rgba(125,211,252,0.16)",
-              background:
-                "radial-gradient(circle at center, rgba(14,165,233,0.16), transparent 30%), rgba(2,6,23,0.42)",
+                background:
+                "radial-gradient(circle at center, rgba(14,165,233,0.20), transparent 31%), radial-gradient(circle at 50% 50%, rgba(99,102,241,0.12), transparent 48%), rgba(2,6,23,0.54)",
               borderRadius: 24,
               overflow: "hidden",
+              boxShadow: "inset 0 0 80px rgba(14,165,233,0.08), inset 0 1px 0 rgba(255,255,255,0.04)",
             }}
           >
             <svg
@@ -416,7 +433,8 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
         <aside
           style={{
             border: "1px solid rgba(255,255,255,0.12)",
-            background: "rgba(15,23,42,0.58)",
+            background:
+              "linear-gradient(180deg, rgba(15,23,42,0.78), rgba(2,6,23,0.64))",
             borderRadius: 24,
             padding: 16,
             color: "#e0f2fe",
@@ -444,10 +462,10 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
           {selectedNode ? (
             <div style={{ display: "grid", gap: 14, marginTop: 10 }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: 22, lineHeight: 1.15 }}>
+                <h3 style={{ margin: 0, fontSize: 22, lineHeight: 1.15, ...safeWrapStyle }}>
                   {getNodeLabel(selectedNode)}
                 </h3>
-                <p style={{ margin: "8px 0 0", color: "rgba(224,242,254,0.7)", fontSize: 13, lineHeight: 1.5, overflowWrap: "normal" }}>
+                <p style={{ margin: "8px 0 0", color: "rgba(224,242,254,0.7)", fontSize: 13, lineHeight: 1.5, ...safeWrapStyle }}>
                   {selectedSummary || "No summary available yet."}
                 </p>
               </div>
@@ -455,15 +473,15 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))", gap: 10 }}>
                 <div style={statStyle()} data-codexforge-brain-graph-focus-kind="true">
                   <div style={{ fontSize: 11, color: "rgba(224,242,254,0.64)" }}>Kind</div>
-                  <strong>{selectedNode.kind}</strong>
+                  <strong style={safeWrapStyle}>{selectedNode.kind}</strong>
                 </div>
                 <div style={statStyle()} data-codexforge-brain-graph-focus-importance="true">
                   <div style={{ fontSize: 11, color: "rgba(224,242,254,0.64)" }}>Importance</div>
-                  <strong>{selectedNode.meta.importance ?? "low"}</strong>
+                  <strong style={safeWrapStyle}>{selectedNode.meta.importance ?? "low"}</strong>
                 </div>
                 <div style={statStyle()} data-codexforge-brain-graph-focus-status="true">
                   <div style={{ fontSize: 11, color: "rgba(224,242,254,0.64)" }}>Status</div>
-                  <strong>{selectedNode.meta.status ?? "idle"}</strong>
+                  <strong style={safeWrapStyle}>{selectedNode.meta.status ?? "idle"}</strong>
                 </div>
                 <div style={statStyle()} data-codexforge-brain-graph-focus-neighbors="true">
                   <div style={{ fontSize: 11, color: "rgba(224,242,254,0.64)" }}>Neighbors</div>
@@ -489,6 +507,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                         padding: "6px 9px",
                         background: "rgba(255,255,255,0.06)",
                         fontSize: 11,
+                        ...pillTextStyle,
                       }}
                     >
                       <span
@@ -499,7 +518,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                           background: getNodeKindColor(kind),
                         }}
                       />
-                      {kind}
+                      <span style={pillTextStyle}>{kind}</span>
                     </span>
                   ))}
                 </div>
@@ -514,6 +533,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                   padding: 12,
                   fontSize: 12,
                   color: "rgba(224,242,254,0.82)",
+                  ...safeWrapStyle,
                 }}
                 data-codexforge-brain-graph-next-action="true"
                 data-codexforge-brain-action-queue="true"

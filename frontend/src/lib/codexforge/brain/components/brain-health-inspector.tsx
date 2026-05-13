@@ -154,14 +154,16 @@ function List({ title, items }: { title: string; items: readonly string[] }) {
 
 const panelStyle: CSSProperties = {
   display: "grid",
-  gap: 12,
-  padding: 12,
-  borderRadius: 8,
-  border: "1px solid rgba(125,211,252,0.18)",
-  background: "rgba(2,6,23,0.34)",
+  gap: 13,
+  padding: 14,
+  borderRadius: 16,
+  border: "1px solid rgba(125,211,252,0.22)",
+  background:
+    "radial-gradient(circle at 12% 0%, rgba(14,165,233,0.14), transparent 32%), linear-gradient(180deg, rgba(2,6,23,0.58), rgba(15,23,42,0.42))",
   minWidth: 0,
   maxHeight: 520,
   overflow: "auto",
+  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
 };
 
 const rowsStyle: CSSProperties = {
@@ -173,12 +175,15 @@ const rowsStyle: CSSProperties = {
 const rowStyle: CSSProperties = {
   display: "grid",
   gap: 4,
-  padding: 8,
-  borderRadius: 8,
-  background: "rgba(255,255,255,0.04)",
+  padding: 10,
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025))",
   fontSize: 11,
   minWidth: 0,
-  overflowWrap: "normal",
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const listStyle: CSSProperties = {
@@ -188,25 +193,32 @@ const listStyle: CSSProperties = {
 
 const listItemStyle: CSSProperties = {
   padding: 8,
-  borderRadius: 8,
-  background: "rgba(255,255,255,0.04)",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.07)",
+  background: "rgba(255,255,255,0.045)",
   color: "rgba(226,232,240,0.78)",
   fontSize: 11,
   lineHeight: 1.45,
-  overflowWrap: "normal",
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const actionStyle: CSSProperties = {
   display: "grid",
   gap: 5,
   padding: 10,
-  borderRadius: 8,
+  borderRadius: 14,
   border: "1px solid rgba(34,197,94,0.18)",
-  background: "rgba(34,197,94,0.08)",
+  background: "linear-gradient(180deg, rgba(34,197,94,0.12), rgba(34,197,94,0.055))",
   color: "rgba(220,252,231,0.92)",
   fontSize: 11,
   lineHeight: 1.45,
-  overflowWrap: "normal",
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const eyebrowStyle: CSSProperties = {
@@ -221,4 +233,8 @@ const titleStyle: CSSProperties = {
   margin: "4px 0 0",
   fontSize: 15,
   lineHeight: 1.25,
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
