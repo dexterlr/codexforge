@@ -363,6 +363,7 @@ export function BrainCommandCenter({
 
       <div
         data-codexforge-brain-panel-readiness-summary
+        data-codexforge-brain-readiness-grid
         style={readinessSummaryStyle}
       >
         <Status label="Live panels" value={String(effectiveIntegrationSummary.livePanels.length)} />
@@ -399,7 +400,7 @@ export function BrainCommandCenter({
 
       <BrainModeTabs activeMode={activeMode} onModeChange={setActiveMode} />
 
-      <div style={getPanelGridStyle(density)}>
+      <div data-codexforge-brain-responsive-grid style={getPanelGridStyle(density)}>
         <BrainLiveSnapshotPanel
           snapshot={runtimeSnapshot}
           panelData={effectivePanelData["live-snapshot"]}
@@ -493,13 +494,13 @@ const headerControlsStyle: CSSProperties = {
 
 const statusGridStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 110px), 1fr))",
   gap: 8,
 };
 
 const actionGridStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 120px), 1fr))",
   gap: 8,
 };
 
@@ -516,9 +517,10 @@ const actionButtonStyle: CSSProperties = {
 
 const readinessSummaryStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 120px), 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 170px), 1fr))",
   gap: 8,
   alignItems: "stretch",
+  minWidth: 0,
 };
 
 const sourceLegendStyle: CSSProperties = {
@@ -544,7 +546,7 @@ const sourceMarkerStyle: CSSProperties = {
 };
 
 function getPanelGridStyle(density: BrainDisplayDensity): CSSProperties {
-  const minWidth = density === "dense" ? 300 : density === "compact" ? 320 : 340;
+  const minWidth = density === "dense" ? 340 : density === "compact" ? 360 : 380;
   const gap = density === "dense" ? 10 : 12;
 
   return {

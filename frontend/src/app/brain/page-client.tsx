@@ -421,7 +421,7 @@ const labelStyle: CSSProperties = {
 const preStyle: CSSProperties = {
   margin: 0,
   whiteSpace: "pre-wrap",
-  wordBreak: "break-word",
+  overflowWrap: "anywhere",
   overflow: "auto",
   maxHeight: 320,
   fontSize: 12,
@@ -478,6 +478,18 @@ const subHeadingStyle: CSSProperties = {
   opacity: 0.82,
 };
 
+const responsiveGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+  gap: 14,
+};
+
+const densePanelOverflowGuardStyle: CSSProperties = {
+  maxHeight: 520,
+  overflow: "auto",
+  minWidth: 0,
+};
+
 function StatCard(props: { label: string; value: string }) {
   return (
     <div style={panelStyle()}>
@@ -499,10 +511,13 @@ function MiniStat(props: { label: string; value: string }) {
         padding: 12,
         display: "grid",
         gap: 6,
+        minWidth: 0,
       }}
     >
       <span style={{ ...labelStyle, fontSize: 11 }}>{props.label}</span>
-      <strong style={{ fontSize: 14, lineHeight: 1.4 }}>{props.value}</strong>
+      <strong style={{ fontSize: 14, lineHeight: 1.4, overflowWrap: "normal" }}>
+        {props.value}
+      </strong>
     </div>
   );
 }
@@ -551,10 +566,14 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
       </div>
 
       <div
+        data-codexforge-brain-readiness-grid
+        data-codexforge-brain-overflow-guard
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
           gap: 10,
+          ...densePanelOverflowGuardStyle,
+          maxHeight: 260,
         }}
       >
         <MiniStat label="Runtime health" value={runtimeHealth} />
@@ -1330,10 +1349,10 @@ export default function BrainPageClient() {
             ) : null}
 
             <section
+              data-codexforge-brain-layout-root
+              data-codexforge-brain-responsive-grid
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: 14,
+                ...responsiveGridStyle,
                 marginBottom: 18,
               }}
             >
@@ -1359,9 +1378,10 @@ export default function BrainPageClient() {
 
             <section
               data-codexforge-brain-inspector-preserved
+              data-codexforge-brain-responsive-grid
               style={{
                 display: "grid",
-                gridTemplateColumns: "minmax(320px, 430px) minmax(0, 1fr)",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 380px), 1fr))",
                 gap: 18,
                 alignItems: "start",
               }}
@@ -1374,8 +1394,10 @@ export default function BrainPageClient() {
                   display: "grid",
                   gap: 14,
                   maxHeight: "calc(100vh - 36px)",
-                  overflow: "hidden",
+                  overflow: "auto",
+                  minWidth: 0,
                 }}
+                data-codexforge-brain-overflow-guard
               >
                 <div style={{ display: "grid", gap: 12 }}>
                   <div>
@@ -1398,7 +1420,7 @@ export default function BrainPageClient() {
                           query: event.target.value,
                         }))
                       }
-                      placeholder="Search id, label, text, goal, file path'"
+                      placeholder="Search id, label, text, goal, file path"
                       style={inputStyle}
                     />
                   </label>
@@ -1406,7 +1428,7 @@ export default function BrainPageClient() {
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
                       gap: 10,
                     }}
                   >
@@ -1531,11 +1553,13 @@ export default function BrainPageClient() {
                   </div>
 
                   <div
+                    data-codexforge-brain-overflow-guard
                     style={{
                       overflow: "auto",
                       display: "grid",
                       gap: 10,
                       paddingRight: 4,
+                      ...densePanelOverflowGuardStyle,
                     }}
                   >
                     {filteredNodes.length === 0 ? (
@@ -1582,8 +1606,8 @@ export default function BrainPageClient() {
                                 gap: 10,
                               }}
                             >
-                              <div style={{ display: "grid", gap: 4 }}>
-                                <strong style={{ fontSize: 14 }}>{label}</strong>
+                              <div style={{ display: "grid", gap: 4, minWidth: 0 }}>
+                                <strong style={{ fontSize: 14, overflowWrap: "normal" }}>{label}</strong>
                                 <span style={{ fontSize: 12, opacity: 0.72 }}>
                                   {formatKindLabel(node.kind)}
                                 </span>
@@ -1605,6 +1629,7 @@ export default function BrainPageClient() {
                                   fontSize: 13,
                                   lineHeight: 1.5,
                                   opacity: 0.82,
+                                  overflowWrap: "normal",
                                 }}
                               >
                                 {detail}
@@ -1621,9 +1646,9 @@ export default function BrainPageClient() {
                               }}
                             >
                               <span>{status}</span>
-                              <span>'</span>
+                              <span>/</span>
                               <span>{importance}</span>
-                              <span>'</span>
+                              <span>/</span>
                               <span>{neighbors} links</span>
                             </div>
                           </button>
@@ -1638,6 +1663,7 @@ export default function BrainPageClient() {
                 style={{
                   display: "grid",
                   gap: 18,
+                  minWidth: 0,
                 }}
               >
                 <div style={panelStyle()}>
@@ -1681,7 +1707,7 @@ export default function BrainPageClient() {
                           </div>
 
                           <div style={{ display: "grid", gap: 5 }}>
-                            <h2 style={{ fontSize: "clamp(1.3rem, 2vw, 2rem)" }}>
+                            <h2 style={{ fontSize: "clamp(1.3rem, 2vw, 2rem)", overflowWrap: "normal" }}>
                               {getNodePrimaryLabel(selectedNode)}
                             </h2>
                             <p
@@ -1690,7 +1716,7 @@ export default function BrainPageClient() {
                                   "var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace",
                                 fontSize: 12,
                                 opacity: 0.68,
-                                wordBreak: "break-all",
+                                overflowWrap: "anywhere",
                               }}
                             >
                               {selectedNode.id}
@@ -1767,7 +1793,7 @@ export default function BrainPageClient() {
                           <div
                             style={{
                               display: "grid",
-                              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
                               gap: 10,
                             }}
                           >
@@ -1791,7 +1817,7 @@ export default function BrainPageClient() {
                                     fontSize: 13,
                                     lineHeight: 1.5,
                                     opacity: 0.88,
-                                    wordBreak: "break-word",
+                                    overflowWrap: "normal",
                                   }}
                                 >
                                   {item.value}
@@ -1805,7 +1831,7 @@ export default function BrainPageClient() {
                       <div
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "minmax(0, 1.2fr) minmax(320px, 0.8fr)",
+                          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
                           gap: 18,
                         }}
                       >
@@ -1830,7 +1856,7 @@ export default function BrainPageClient() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
                     gap: 18,
                   }}
                 >
@@ -1869,7 +1895,7 @@ export default function BrainPageClient() {
                                 {formatKindLabel(neighbor.kind)}
                               </span>
                               {getNodeDetail(neighbor) ? (
-                                <span style={{ fontSize: 13, opacity: 0.8 }}>
+                                <span style={{ fontSize: 13, opacity: 0.8, overflowWrap: "normal" }}>
                                   {getNodeDetail(neighbor)}
                                 </span>
                               ) : null}
@@ -1914,12 +1940,12 @@ export default function BrainPageClient() {
                                   "var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace",
                                 fontSize: 12,
                                 opacity: 0.76,
-                                wordBreak: "break-all",
+                                overflowWrap: "anywhere",
                               }}
                             >
                               {edge.id}
                             </span>
-                            <span style={{ fontSize: 13, opacity: 0.82 }}>
+                            <span style={{ fontSize: 13, opacity: 0.82, overflowWrap: "normal" }}>
                               {summarizeEdge(edge, selectedNode.id, nodeLookup)}
                             </span>
                             {edge.label ? (

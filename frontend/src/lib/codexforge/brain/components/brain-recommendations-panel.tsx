@@ -57,7 +57,11 @@ export function BrainRecommendationsPanel({
   const selected = recommendations.find((item) => item.id === selectedId) ?? recommendations[0] ?? null;
 
   return (
-    <section data-codexforge-brain-recommendations-panel style={panelStyle}>
+    <section
+      data-codexforge-brain-recommendations-panel
+      data-codexforge-brain-overflow-guard
+      style={panelStyle}
+    >
       <BrainSectionHeader
         eyebrow="Runtime recommendations"
         title="Recommended next attention"
@@ -87,8 +91,8 @@ export function BrainRecommendationsPanel({
         Approval boundary: recommendations are advisory only. Mutation, command, external, and render actions require explicit approval outside this panel.
       </div>
 
-      <div style={layoutStyle}>
-        <div style={cardsStyle}>
+      <div data-codexforge-brain-responsive-grid style={layoutStyle}>
+        <div data-codexforge-brain-overflow-guard style={cardsStyle}>
           {recommendations.slice(0, 8).map((recommendation) => (
             <BrainRecommendationCard
               key={recommendation.id}
@@ -97,7 +101,9 @@ export function BrainRecommendationsPanel({
             />
           ))}
         </div>
-        <BrainInsightInspector recommendation={selected} />
+        <div data-codexforge-brain-recommendation-inspector-card style={inspectorCardStyle}>
+          <BrainInsightInspector recommendation={selected} />
+        </div>
       </div>
     </section>
   );
@@ -119,6 +125,9 @@ const panelStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(125,211,252,0.22)",
   background: "radial-gradient(circle at 18% 0%, rgba(14,165,233,0.18), transparent 34%), rgba(15,23,42,0.84)",
+  minWidth: 0,
+  maxHeight: 720,
+  overflow: "auto",
 };
 
 const statusRowStyle: CSSProperties = {
@@ -130,7 +139,7 @@ const statusRowStyle: CSSProperties = {
 
 const summaryStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 100px), 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 130px), 1fr))",
   gap: 8,
 };
 
@@ -141,6 +150,7 @@ const summaryStatStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(255,255,255,0.09)",
   background: "rgba(255,255,255,0.04)",
+  minWidth: 0,
 };
 
 const nextActionStyle: CSSProperties = {
@@ -167,15 +177,24 @@ const approvalStyle: CSSProperties = {
 
 const layoutStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 270px), 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 360px), 1fr))",
   gap: 12,
   alignItems: "start",
 };
 
 const cardsStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 270px), 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
   gap: 10,
+  maxHeight: 560,
+  overflow: "auto",
+  minWidth: 0,
+  paddingRight: 2,
+};
+
+const inspectorCardStyle: CSSProperties = {
+  display: "grid",
+  minWidth: 0,
 };
 
 const eyebrowStyle: CSSProperties = {

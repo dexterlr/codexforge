@@ -84,6 +84,7 @@ const cardStyle: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.09)",
   background: "rgba(255,255,255,0.04)",
   minWidth: 0,
+  overflowWrap: "normal",
 };
 
 const headerStyle: CSSProperties = {
@@ -92,6 +93,7 @@ const headerStyle: CSSProperties = {
   justifyContent: "space-between",
   alignItems: "start",
   fontSize: 12,
+  flexWrap: "wrap",
 };
 
 const scoreStyle: CSSProperties = {
@@ -105,10 +107,12 @@ const evidenceStyle: CSSProperties = {
   color: "rgba(226,232,240,0.74)",
   fontSize: 11,
   lineHeight: 1.4,
+  overflowWrap: "normal",
 };
 
 const nextStyle: CSSProperties = {
   color: "rgba(187,247,208,0.88)",
   fontSize: 11,
   lineHeight: 1.45,
+  overflowWrap: "normal",
 };

@@ -33,7 +33,12 @@ export function BrainInsightInspector({
   } : null);
 
   return (
-    <aside data-codexforge-brain-insight-inspector style={panelStyle}>
+    <aside
+      data-codexforge-brain-insight-inspector
+      data-codexforge-brain-recommendation-inspector
+      data-codexforge-brain-overflow-guard
+      style={panelStyle}
+    >
       <div>
         <div style={eyebrowStyle}>Insight inspector</div>
         <h3 style={titleStyle}>{selected?.title ?? "No insight selected"}</h3>
@@ -108,11 +113,14 @@ const panelStyle: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.10)",
   background: "rgba(2,6,23,0.46)",
   alignContent: "start",
+  minWidth: 0,
+  maxHeight: 560,
+  overflow: "auto",
 };
 
 const statGridStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))",
   gap: 7,
 };
 
@@ -123,6 +131,8 @@ const statStyle: CSSProperties = {
   borderRadius: 8,
   background: "rgba(255,255,255,0.04)",
   fontSize: 11,
+  minWidth: 0,
+  overflowWrap: "normal",
 };
 
 const sectionStyle: CSSProperties = {
@@ -137,7 +147,7 @@ const rowStyle: CSSProperties = {
   color: "rgba(226,232,240,0.75)",
   fontSize: 11,
   lineHeight: 1.45,
-  wordBreak: "break-word",
+  overflowWrap: "anywhere",
 };
 
 const actionStyle: CSSProperties = {
@@ -150,6 +160,7 @@ const actionStyle: CSSProperties = {
   color: "rgba(220,252,231,0.9)",
   fontSize: 12,
   lineHeight: 1.45,
+  overflowWrap: "normal",
 };
 
 const emptyStyle: CSSProperties = {
@@ -169,6 +180,7 @@ const titleStyle: CSSProperties = {
   margin: "4px 0 0",
   fontSize: 16,
   lineHeight: 1.25,
+  overflowWrap: "normal",
 };
 
 const copyStyle: CSSProperties = {
@@ -176,4 +188,5 @@ const copyStyle: CSSProperties = {
   color: "rgba(226,232,240,0.74)",
   fontSize: 12,
   lineHeight: 1.5,
+  overflowWrap: "normal",
 };

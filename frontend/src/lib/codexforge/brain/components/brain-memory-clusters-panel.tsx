@@ -14,6 +14,12 @@ type BrainMemoryClustersPanelProps = {
 };
 
 const MEMORY_KINDS = new Set(["memory", "decision", "note"]);
+const MAX_UNIQUE_CLUSTER_SUMMARIES = 4;
+
+type VisualSummaryItem = {
+  text: string;
+  duplicateCount: number;
+};
 
 export function BrainMemoryClustersPanel({ graph, panelData }: BrainMemoryClustersPanelProps) {
   const memoryNodes = graph.nodes.filter((node) => MEMORY_KINDS.has(node.kind));
@@ -28,9 +34,13 @@ export function BrainMemoryClustersPanel({ graph, panelData }: BrainMemoryCluste
   const contradictions = memoryNodes
     .filter((node) => textForNode(node).toLowerCase().includes("contradict"))
     .slice(0, 4);
+  const uniqueClusterSummaries = summarizeUniqueVisualItems(
+    clusters.map((cluster) => `${cluster.summary.label}: ${cluster.summary.itemCount} items. ${cluster.summary.nextAction}`),
+    MAX_UNIQUE_CLUSTER_SUMMARIES
+  );
 
   return (
-    <section data-codexforge-brain-memory-clusters style={panelStyle}>
+    <section data-codexforge-brain-memory-clusters data-codexforge-brain-overflow-guard style={panelStyle}>
       <div style={headerStyle}>
         <div>
           <div style={eyebrowStyle}>Cognitive memory</div>
@@ -45,7 +55,7 @@ export function BrainMemoryClustersPanel({ graph, panelData }: BrainMemoryCluste
         <Metric label="Pinned" value={String(pinned.length)} />
       </div>
       <div style={twoColumnStyle}>
-        <List title="Cluster summaries" items={clusters.map((cluster) => `${cluster.summary.label}: ${cluster.summary.itemCount} items. ${cluster.summary.nextAction}`)} />
+        <List title="Cluster summaries" items={uniqueClusterSummaries} deduped />
         <List title="Pinned concepts" items={pinned.map(labelForNode)} />
         <List title="High-confidence concepts" items={highConfidence.map(labelForNode)} />
         <List title="Stale concepts" items={stale.map(labelForNode)} />
@@ -67,6 +77,20 @@ function labelForNode(node: CodexForgeBrainNode): string {
   return String(data.label ?? data.summary ?? data.content ?? data.text ?? node.id);
 }
 
+function summarizeUniqueVisualItems(items: readonly string[], limit: number): VisualSummaryItem[] {
+  const counts = new Map<string, number>();
+
+  for (const item of items) {
+    const normalized = item.trim().replace(/\s+/g, " ");
+    if (!normalized) continue;
+    counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
+  }
+
+  return Array.from(counts.entries())
+    .slice(0, limit)
+    .map(([text, duplicateCount]) => ({ text, duplicateCount }));
+}
+
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div style={metricStyle}>
@@ -76,17 +100,33 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function List({ title, items }: { title: string; items: readonly string[] }) {
+function List({
+  title,
+  items,
+  deduped = false,
+}: {
+  title: string;
+  items: readonly string[] | readonly VisualSummaryItem[];
+  deduped?: boolean;
+}) {
   return (
     <div style={listPanelStyle}>
       <div style={sectionTitleStyle}>{title}</div>
       <div style={listStyle}>
         {items.length > 0 ? (
-          items.map((item, index) => (
-            <div key={buildStableReactKey("memory-cluster-row", [title, item], index)} style={rowStyle}>
-              {item}
+          items.map((item, index) => {
+            const text = typeof item === "string" ? item : item.text;
+            const duplicateCount = typeof item === "string" ? 1 : item.duplicateCount;
+
+            return (
+            <div key={buildStableReactKey("memory-cluster-row", [title, text], index)} style={rowStyle}>
+              <span>{text}</span>
+              {deduped && duplicateCount > 1 ? (
+                <span style={duplicateStyle}>x{duplicateCount}</span>
+              ) : null}
             </div>
-          ))
+            );
+          })
         ) : (
           <div style={emptyStyle}>No matching memory signals yet.</div>
         )}
@@ -102,6 +142,9 @@ const panelStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(125,211,252,0.22)",
   background: "rgba(15,23,42,0.76)",
+  minWidth: 0,
+  maxHeight: 620,
+  overflow: "auto",
 };
 
 const headerStyle: CSSProperties = {
@@ -114,7 +157,7 @@ const headerStyle: CSSProperties = {
 
 const metricGridStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 130px), 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))",
   gap: 10,
 };
 
@@ -129,7 +172,7 @@ const metricStyle: CSSProperties = {
 
 const twoColumnStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
   gap: 10,
 };
 
@@ -144,12 +187,26 @@ const listStyle: CSSProperties = {
 };
 
 const rowStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr) auto",
+  gap: 8,
+  alignItems: "start",
   padding: "8px 9px",
   borderRadius: 8,
   background: "rgba(255,255,255,0.04)",
   color: "rgba(226,232,240,0.86)",
   fontSize: 12,
   lineHeight: 1.45,
+  overflowWrap: "normal",
+};
+
+const duplicateStyle: CSSProperties = {
+  borderRadius: 999,
+  padding: "2px 7px",
+  border: "1px solid rgba(125,211,252,0.18)",
+  color: "rgba(186,230,253,0.9)",
+  fontSize: 10,
+  fontWeight: 900,
 };
 
 const emptyStyle: CSSProperties = {

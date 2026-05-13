@@ -59,7 +59,11 @@ export function BrainRuntimeHealthPanel({
     null;
 
   return (
-    <section data-codexforge-brain-runtime-health-panel style={panelStyle}>
+    <section
+      data-codexforge-brain-runtime-health-panel
+      data-codexforge-brain-overflow-guard
+      style={panelStyle}
+    >
       <BrainSectionHeader
         eyebrow="Runtime health dashboard"
         title="Cognitive runtime status"
@@ -100,7 +104,7 @@ export function BrainRuntimeHealthPanel({
 
       <div style={layoutStyle}>
         <div style={mainStyle}>
-          <section style={sectionStyle}>
+          <section data-codexforge-brain-overflow-guard style={sectionStyle}>
             <div style={eyebrowStyle}>Top health signals</div>
             <div style={signalGridStyle}>
               {dashboard.signals.slice(0, 6).map((signal) => (
@@ -114,7 +118,7 @@ export function BrainRuntimeHealthPanel({
             </div>
           </section>
 
-          <section style={sectionStyle}>
+          <section data-codexforge-brain-readiness-grid style={sectionStyle}>
             <div style={eyebrowStyle}>Subsystem hot path</div>
             <div style={subsystemGridStyle}>
               {dashboard.subsystemReadiness.slice(0, 4).map((subsystem) => (
@@ -183,6 +187,9 @@ const panelStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(125,211,252,0.22)",
   background: "radial-gradient(circle at 18% 0%, rgba(14,165,233,0.20), transparent 34%), rgba(15,23,42,0.86)",
+  minWidth: 0,
+  maxHeight: 680,
+  overflow: "auto",
 };
 
 const statusRowStyle: CSSProperties = {
@@ -194,7 +201,7 @@ const statusRowStyle: CSSProperties = {
 
 const summaryGridStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 170px), 1fr))",
   gap: 8,
 };
 
@@ -233,7 +240,7 @@ const nextActionStyle: CSSProperties = {
 
 const layoutStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 270px), 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
   gap: 12,
   alignItems: "start",
 };
@@ -246,11 +253,14 @@ const mainStyle: CSSProperties = {
 const sectionStyle: CSSProperties = {
   display: "grid",
   gap: 8,
+  maxHeight: 340,
+  overflow: "auto",
+  minWidth: 0,
 };
 
 const signalGridStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
   gap: 8,
 };
 
@@ -266,17 +276,20 @@ const signalStyle: CSSProperties = {
   cursor: "pointer",
   fontSize: 11,
   lineHeight: 1.45,
+  minWidth: 0,
+  overflowWrap: "normal",
 };
 
 const signalHeaderStyle: CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
   gap: 8,
+  flexWrap: "wrap",
 };
 
 const subsystemGridStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
   gap: 8,
 };
 

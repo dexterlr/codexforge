@@ -23,7 +23,7 @@ export function BrainHealthInspector({
   const rows = buildRows({ signal, subsystem, smoke, safety });
 
   return (
-    <aside data-codexforge-brain-health-inspector style={panelStyle}>
+    <aside data-codexforge-brain-health-inspector data-codexforge-brain-overflow-guard style={panelStyle}>
       <div>
         <div style={eyebrowStyle}>Health inspector</div>
         <h3 style={titleStyle}>{rows.title}</h3>
@@ -160,11 +160,13 @@ const panelStyle: CSSProperties = {
   border: "1px solid rgba(125,211,252,0.18)",
   background: "rgba(2,6,23,0.34)",
   minWidth: 0,
+  maxHeight: 520,
+  overflow: "auto",
 };
 
 const rowsStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))",
   gap: 7,
 };
 
@@ -175,6 +177,8 @@ const rowStyle: CSSProperties = {
   borderRadius: 8,
   background: "rgba(255,255,255,0.04)",
   fontSize: 11,
+  minWidth: 0,
+  overflowWrap: "normal",
 };
 
 const listStyle: CSSProperties = {
@@ -189,6 +193,7 @@ const listItemStyle: CSSProperties = {
   color: "rgba(226,232,240,0.78)",
   fontSize: 11,
   lineHeight: 1.45,
+  overflowWrap: "normal",
 };
 
 const actionStyle: CSSProperties = {
@@ -201,6 +206,7 @@ const actionStyle: CSSProperties = {
   color: "rgba(220,252,231,0.92)",
   fontSize: 11,
   lineHeight: 1.45,
+  overflowWrap: "normal",
 };
 
 const eyebrowStyle: CSSProperties = {

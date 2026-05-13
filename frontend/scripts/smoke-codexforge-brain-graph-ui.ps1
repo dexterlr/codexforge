@@ -113,8 +113,31 @@ Assert-Contains $graphSource 'CodexForge neural constellation' "neural constella
 Assert-Contains $graphSource 'MAX_VISIBLE_NODES' "node cap"
 Assert-Contains $graphSource 'MAX_VISIBLE_EDGES' "edge cap"
 
-Assert-NotContains $graphSource 'Math.random(' "random layout absent"
-Assert-NotContains $graphSource 'd3-force' "external force simulation dependency absent"
+Assert-Contains $brainUiSource 'data-codexforge-brain-layout-root' "brain layout root marker exists"
+Assert-Contains $brainUiSource 'data-codexforge-brain-responsive-grid' "responsive grid marker exists"
+Assert-Contains $brainUiSource 'data-codexforge-brain-no-duplicate-key-risk' "no duplicate React key risk marker exists"
+Assert-Contains $brainUiSource 'data-codexforge-brain-overflow-guard' "overflow guard marker exists"
+Assert-Contains $brainUiSource 'data-codexforge-brain-recommendation-inspector' "recommendation inspector marker exists"
+Assert-Contains $brainUiSource 'data-codexforge-brain-recommendation-inspector-card' "recommendation inspector card marker exists"
+Assert-Contains $brainUiSource 'data-codexforge-brain-readiness-grid' "readiness grid marker exists"
+
+foreach ($densePanelMarker in @(
+  'data-codexforge-brain-recommendations-panel',
+  'data-codexforge-brain-memory-clusters',
+  'data-codexforge-brain-runtime-health-panel',
+  'data-codexforge-brain-runtime-readiness'
+)) {
+  $markerIndex = $brainUiSource.IndexOf($densePanelMarker)
+  if ($markerIndex -lt 0) {
+    throw "[FAIL] Missing dense panel marker: $densePanelMarker"
+  }
+
+  $nearbySource = $brainUiSource.Substring($markerIndex, [Math]::Min(1400, $brainUiSource.Length - $markerIndex))
+  Assert-Contains $nearbySource 'data-codexforge-brain-overflow-guard' "dense panel uses overflow guard near $densePanelMarker"
+}
+
+Assert-NotContains $brainUiSource 'Math.random' "random layout absent"
+Assert-NotContains $brainUiSource 'd3-force' "external force simulation dependency absent"
 Assert-Contains $brainUiSource 'buildStableReactKey' "stable React key helper used"
 
 $forbiddenTextOnlyKeyPatterns = @(
@@ -142,7 +165,7 @@ $forbiddenMojibake = @(
 )
 
 foreach ($needle in $forbiddenMojibake) {
-  Assert-NotContains $pageSource $needle "brain page mojibake removed"
+  Assert-NotContains $brainUiSource $needle "brain UI mojibake removed"
 }
 
 Write-Host "[OK] CodexForge brain graph UI smoke passed."

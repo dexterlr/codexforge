@@ -178,6 +178,7 @@ function panelStyle(): CSSProperties {
     padding: 18,
     boxShadow: "0 24px 80px rgba(2, 6, 23, 0.28)",
     overflow: "hidden",
+    minWidth: 0,
   };
 }
 
@@ -188,6 +189,7 @@ function statStyle(): CSSProperties {
     borderRadius: 18,
     padding: "12px 14px",
     minWidth: 120,
+    overflowWrap: "normal",
   };
 }
 
@@ -207,11 +209,12 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
       data-codexforge-brain-neural-canvas="true"
       data-codexforge-brain-graph-node-count={graph.nodes.length}
       data-codexforge-brain-graph-edge-count={graph.edges.length}
+      data-codexforge-brain-responsive-grid
     >
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(0, 1.6fr) minmax(280px, 0.8fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 360px), 1fr))",
           gap: 18,
           alignItems: "stretch",
         }}
@@ -243,7 +246,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
               <h2 style={{ margin: "6px 0 0", fontSize: 24, lineHeight: 1.1 }}>
                 CodexForge neural constellation
               </h2>
-              <p style={{ margin: "8px 0 0", maxWidth: 720, color: "rgba(224,242,254,0.78)", fontSize: 13 }}>
+              <p style={{ margin: "8px 0 0", maxWidth: 720, color: "rgba(224,242,254,0.78)", fontSize: 13, lineHeight: 1.55, overflowWrap: "normal" }}>
                 Click a memory, task, run, repo, message, or tag node to focus the inspector. Node size reflects connectivity and importance. The focus halo, cluster map, and signal panel make the brain usable as an operator-grade memory topology.
               </p>
             </div>
@@ -418,9 +421,12 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
             padding: 16,
             color: "#e0f2fe",
             minWidth: 0,
+            maxHeight: 520,
+            overflow: "auto",
           }}
           data-codexforge-brain-graph-insight-panel="true"
           data-codexforge-brain-focus-node="true"
+          data-codexforge-brain-overflow-guard
         >
           <p
             style={{
@@ -441,12 +447,12 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                 <h3 style={{ margin: 0, fontSize: 22, lineHeight: 1.15 }}>
                   {getNodeLabel(selectedNode)}
                 </h3>
-                <p style={{ margin: "8px 0 0", color: "rgba(224,242,254,0.7)", fontSize: 13 }}>
+                <p style={{ margin: "8px 0 0", color: "rgba(224,242,254,0.7)", fontSize: 13, lineHeight: 1.5, overflowWrap: "normal" }}>
                   {selectedSummary || "No summary available yet."}
                 </p>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))", gap: 10 }}>
                 <div style={statStyle()} data-codexforge-brain-graph-focus-kind="true">
                   <div style={{ fontSize: 11, color: "rgba(224,242,254,0.64)" }}>Kind</div>
                   <strong>{selectedNode.kind}</strong>

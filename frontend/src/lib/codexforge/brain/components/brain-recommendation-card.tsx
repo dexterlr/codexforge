@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { CodexForgeRuntimeRecommendation } from "@/lib/codexforge/brain/runtime";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainRecommendationCardProps = {
   recommendation: CodexForgeRuntimeRecommendation;
@@ -39,8 +40,12 @@ export function BrainRecommendationCard({
       </div>
 
       <div data-codexforge-brain-recommendation-evidence style={evidenceStyle}>
-        {recommendation.evidence.slice(0, 3).map((item) => (
-          <div key={item.id} style={evidenceRowStyle}>
+        {recommendation.evidence.slice(0, 3).map((item, index) => (
+          <div
+            key={buildStableReactKey("recommendation-evidence", [recommendation.id, item.id], index)}
+            data-codexforge-brain-no-duplicate-key-risk
+            style={evidenceRowStyle}
+          >
             <strong>{item.label}</strong>
             <span>{item.detail}</span>
           </div>
@@ -103,6 +108,7 @@ const cardStyle: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.10)",
   background: "rgba(2,6,23,0.44)",
   minWidth: 0,
+  overflowWrap: "normal",
 };
 
 const headerStyle: CSSProperties = {
@@ -110,6 +116,7 @@ const headerStyle: CSSProperties = {
   justifyContent: "space-between",
   gap: 10,
   alignItems: "start",
+  minWidth: 0,
 };
 
 const metaStyle: CSSProperties = {
@@ -120,12 +127,14 @@ const metaStyle: CSSProperties = {
   fontSize: 10,
   fontWeight: 900,
   textTransform: "uppercase",
+  overflowWrap: "normal",
 };
 
 const titleStyle: CSSProperties = {
   margin: 0,
   fontSize: 14,
   lineHeight: 1.25,
+  overflowWrap: "normal",
 };
 
 const copyStyle: CSSProperties = {
@@ -133,6 +142,7 @@ const copyStyle: CSSProperties = {
   color: "rgba(226,232,240,0.74)",
   fontSize: 12,
   lineHeight: 1.5,
+  overflowWrap: "normal",
 };
 
 const scoreStyle: CSSProperties = {
@@ -152,7 +162,7 @@ const scoreLabelStyle: CSSProperties = {
 
 const metricGridStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 92px), 1fr))",
   gap: 7,
 };
 
@@ -164,6 +174,7 @@ const metricStyle: CSSProperties = {
   background: "rgba(255,255,255,0.04)",
   minWidth: 0,
   fontSize: 11,
+  overflowWrap: "normal",
 };
 
 const evidenceStyle: CSSProperties = {
@@ -180,6 +191,7 @@ const evidenceRowStyle: CSSProperties = {
   color: "rgba(226,232,240,0.72)",
   fontSize: 11,
   lineHeight: 1.45,
+  overflowWrap: "normal",
 };
 
 const actionStyle: CSSProperties = {
@@ -192,6 +204,7 @@ const actionStyle: CSSProperties = {
   color: "rgba(220,252,231,0.9)",
   fontSize: 12,
   lineHeight: 1.45,
+  overflowWrap: "normal",
 };
 
 const pillStyle: CSSProperties = {
