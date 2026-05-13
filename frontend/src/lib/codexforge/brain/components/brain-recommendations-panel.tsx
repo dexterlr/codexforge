@@ -12,17 +12,23 @@ import {
   buildRecommendationFixtureTopology,
   buildRuntimeRecommendations,
   summarizeRuntimeRecommendations,
+  type CodexForgeBrainPanelDataAdapterResult,
   type CodexForgeRuntimeRecommendation,
 } from "@/lib/codexforge/brain/runtime";
 import { BrainInsightInspector } from "./brain-insight-inspector";
 import { BrainRecommendationCard } from "./brain-recommendation-card";
 import { BrainReadOnlyBadge, BrainSectionHeader } from "./ui";
+import { BrainLiveDataBoundary } from "./brain-live-data-boundary";
 
 type BrainRecommendationsPanelProps = {
   graph?: CodexForgeBrainGraph;
+  panelData?: CodexForgeBrainPanelDataAdapterResult;
 };
 
-export function BrainRecommendationsPanel({ graph }: BrainRecommendationsPanelProps) {
+export function BrainRecommendationsPanel({
+  graph,
+  panelData,
+}: BrainRecommendationsPanelProps) {
   const { recommendations, summary } = useMemo(() => {
     const useFixture = !graph || graph.nodes.length === 0;
     const sourceGraph = useFixture ? buildRecommendationFixtureGraph() : graph;
@@ -56,7 +62,12 @@ export function BrainRecommendationsPanel({ graph }: BrainRecommendationsPanelPr
         eyebrow="Runtime recommendations"
         title="Recommended next attention"
         description="Deterministic advisory signals only; actions remain outside this panel."
-        status={<BrainReadOnlyBadge label="read-only advisory" />}
+        status={
+          <div style={statusRowStyle}>
+            <BrainLiveDataBoundary panelId="recommendations" panelData={panelData} />
+            <BrainReadOnlyBadge label="read-only advisory" />
+          </div>
+        }
       />
 
       <div data-codexforge-brain-recommendations-summary style={summaryStyle}>
@@ -108,6 +119,13 @@ const panelStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(125,211,252,0.22)",
   background: "radial-gradient(circle at 18% 0%, rgba(14,165,233,0.18), transparent 34%), rgba(15,23,42,0.84)",
+};
+
+const statusRowStyle: CSSProperties = {
+  display: "flex",
+  gap: 8,
+  alignItems: "center",
+  flexWrap: "wrap",
 };
 
 const summaryStyle: CSSProperties = {

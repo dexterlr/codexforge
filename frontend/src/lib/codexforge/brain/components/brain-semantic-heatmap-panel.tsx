@@ -9,17 +9,23 @@ import {
   buildSemanticTopologyFixtureGraph,
   buildSemanticTopologyFixtureMemory,
   selectTopologyHotspots,
+  type CodexForgeBrainPanelDataAdapterResult,
   type CodexForgeSemanticHeatmapCell,
 } from "@/lib/codexforge/brain/runtime";
 import { BrainTopologyInspector } from "./brain-topology-inspector";
 import { BrainTopologyLegend, topologySignalColor } from "./brain-topology-legend";
 import { BrainReadOnlyBadge, BrainSectionHeader } from "./ui";
+import { BrainLiveDataBoundary } from "./brain-live-data-boundary";
 
 type BrainSemanticHeatmapPanelProps = {
   graph: CodexForgeBrainGraph;
+  panelData?: CodexForgeBrainPanelDataAdapterResult;
 };
 
-export function BrainSemanticHeatmapPanel({ graph }: BrainSemanticHeatmapPanelProps) {
+export function BrainSemanticHeatmapPanel({
+  graph,
+  panelData,
+}: BrainSemanticHeatmapPanelProps) {
   const heatmap = useMemo(() => {
     const useFixture = graph.nodes.length === 0;
     return buildSemanticHeatmap({
@@ -45,7 +51,12 @@ export function BrainSemanticHeatmapPanel({ graph }: BrainSemanticHeatmapPanelPr
         eyebrow="Semantic heatmap"
         title="Cognitive weight radar"
         description="Deterministic topology intensity, risk, and relevance map."
-        status={<BrainReadOnlyBadge label="read-only topology" />}
+        status={
+          <div style={statusRowStyle}>
+            <BrainLiveDataBoundary panelId="semantic-heatmap" panelData={panelData} />
+            <BrainReadOnlyBadge label="read-only topology" />
+          </div>
+        }
       />
 
       <div data-codexforge-brain-heatmap-summary style={summaryStyle}>
@@ -132,6 +143,13 @@ const panelStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(125,211,252,0.22)",
   background: "radial-gradient(circle at 20% 0%, rgba(14,165,233,0.18), transparent 32%), rgba(15,23,42,0.84)",
+};
+
+const statusRowStyle: CSSProperties = {
+  display: "flex",
+  gap: 8,
+  alignItems: "center",
+  flexWrap: "wrap",
 };
 
 const layoutStyle: CSSProperties = {

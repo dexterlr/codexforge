@@ -20,6 +20,36 @@ export {
 } from "./runtime-timeline";
 
 export {
+  buildCodexForgeBrainRuntimeSnapshot,
+} from "./snapshot";
+
+export {
+  buildBrainPanelDataAdapters,
+  adaptBrainMemoryPanelData,
+  adaptBrainRiskPanelData,
+  adaptBrainPredictionPanelData,
+  adaptBrainAgentPanelData,
+  adaptBrainReplayPanelData,
+  adaptBrainLineagePanelData,
+  adaptBrainTopologyPanelData,
+  adaptBrainRecommendationPanelData,
+  adaptBrainHealthPanelData,
+  adaptBrainFocusPanelData,
+  classifyBrainPanelDataSource,
+  buildBrainPanelDataSignal,
+  summarizeBrainPanelDataSource,
+  mergePanelLiveAndFixtureSignals,
+  buildBrainPanelIntegrationReadinessMap,
+  scoreBrainPanelIntegrationReadiness,
+  summarizeBrainPanelIntegrationReadiness,
+  selectLiveBackedBrainPanels,
+  buildBrainPanelIntegrationFixtureSnapshot,
+  buildBrainPanelIntegrationFixtureAdapters,
+  buildBrainPanelIntegrationFixtureReadiness,
+  buildBrainPanelIntegrationFixtureSummary,
+} from "./panels";
+
+export {
   buildRuntimeHealthDashboard,
   buildRuntimeHealthSignal,
   buildRuntimeHealthSection,
@@ -217,6 +247,27 @@ export type {
 } from "./runtime-health";
 
 export type { CodexForgeBrainRuntimeTimelineItem } from "./runtime-timeline";
+
+export type {
+  CodexForgeBrainRuntimeSnapshot,
+  CodexForgeBrainRuntimeSnapshotInput,
+  CodexForgeBrainRuntimeSnapshotStats,
+  CodexForgeBrainRuntimeSnapshotStatus,
+} from "./snapshot";
+
+export type {
+  CodexForgeBrainPanelId,
+  CodexForgeBrainPanelDataSource,
+  CodexForgeBrainPanelDataStatus,
+  CodexForgeBrainPanelDataSeverity,
+  CodexForgeBrainPanelDataSignal,
+  CodexForgeBrainPanelDataCounts,
+  CodexForgeBrainPanelDataPayload,
+  CodexForgeBrainPanelDataAdapterResult,
+  CodexForgeBrainPanelDataReadiness,
+  CodexForgeBrainPanelIntegrationInput,
+  CodexForgeBrainPanelIntegrationSummary,
+} from "./panels";
 
 export type {
   CodexForgeRuntimeHealthSeverity,

@@ -4,19 +4,26 @@ import { useMemo, useState, type CSSProperties } from "react";
 import type { CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph";
 import {
   buildBrainFocusModel,
+  type CodexForgeBrainPanelDataAdapterResult,
   type CodexForgeBrainFocusLens,
 } from "@/lib/codexforge/brain/runtime";
 import { BrainFocusBreadcrumbs } from "./brain-focus-breadcrumbs";
 import { BrainFocusInspector } from "./brain-focus-inspector";
 import { BrainFocusLensCard } from "./brain-focus-lens-card";
 import { BrainReadOnlyBadge, BrainSectionHeader } from "./ui";
+import { BrainLiveDataBoundary } from "./brain-live-data-boundary";
 
 type BrainFocusModePanelProps = {
   graph?: CodexForgeBrainGraph;
   selectedNodeId?: string | null;
+  panelData?: CodexForgeBrainPanelDataAdapterResult;
 };
 
-export function BrainFocusModePanel({ graph, selectedNodeId }: BrainFocusModePanelProps) {
+export function BrainFocusModePanel({
+  graph,
+  selectedNodeId,
+  panelData,
+}: BrainFocusModePanelProps) {
   const model = useMemo(
     () => buildBrainFocusModel({ graph, selectedNodeId, now: graph?.meta.updatedAt }),
     [graph, selectedNodeId]
@@ -36,7 +43,12 @@ export function BrainFocusModePanel({ graph, selectedNodeId }: BrainFocusModePan
         eyebrow="Brain focus mode"
         title="Cognitive navigation focus"
         description="Local lens selection over the current focus target and neighborhood."
-        status={<BrainReadOnlyBadge />}
+        status={
+          <div style={statusRowStyle}>
+            <BrainLiveDataBoundary panelId="focus-mode" panelData={panelData} />
+            <BrainReadOnlyBadge />
+          </div>
+        }
       />
 
       <div data-codexforge-brain-focus-summary style={summaryStyle}>
@@ -105,6 +117,13 @@ const panelStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(125,211,252,0.22)",
   background: "radial-gradient(circle at 18% 0%, rgba(14,165,233,0.20), transparent 34%), rgba(15,23,42,0.86)",
+};
+
+const statusRowStyle: CSSProperties = {
+  display: "flex",
+  gap: 8,
+  alignItems: "center",
+  flexWrap: "wrap",
 };
 
 const summaryStyle: CSSProperties = {

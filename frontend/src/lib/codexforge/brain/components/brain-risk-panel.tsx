@@ -1,11 +1,14 @@
 import type { CSSProperties } from "react";
+import type { CodexForgeBrainPanelDataAdapterResult } from "@/lib/codexforge/brain/runtime";
 import type { CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph";
+import { BrainLiveDataBoundary } from "./brain-live-data-boundary";
 
 type BrainRiskPanelProps = {
   graph: CodexForgeBrainGraph;
+  panelData?: CodexForgeBrainPanelDataAdapterResult;
 };
 
-export function BrainRiskPanel({ graph }: BrainRiskPanelProps) {
+export function BrainRiskPanel({ graph, panelData }: BrainRiskPanelProps) {
   const staleContext = graph.nodes.filter((node) => node.meta.archived).length;
   const risks = [
     {
@@ -37,9 +40,12 @@ export function BrainRiskPanel({ graph }: BrainRiskPanelProps) {
 
   return (
     <section data-codexforge-brain-risk style={panelStyle}>
-      <div>
-        <div style={eyebrowStyle}>Runtime risks</div>
-        <h2 style={titleStyle}>Risk posture</h2>
+      <div style={headerStyle}>
+        <div>
+          <div style={eyebrowStyle}>Runtime risks</div>
+          <h2 style={titleStyle}>Risk posture</h2>
+        </div>
+        <BrainLiveDataBoundary panelId="risk" panelData={panelData} />
       </div>
       <div style={riskGridStyle}>
         {risks.map((risk) => (
@@ -61,6 +67,14 @@ const panelStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(125,211,252,0.22)",
   background: "rgba(15,23,42,0.76)",
+};
+
+const headerStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 12,
+  alignItems: "start",
+  flexWrap: "wrap",
 };
 
 const riskGridStyle: CSSProperties = {

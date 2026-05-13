@@ -2,6 +2,13 @@ import type {
   CodexForgeBrainGraph,
   CodexForgeBrainNode,
 } from "@/lib/codexforge/brain/graph";
+import type {
+  CodexForgeBrainPanelDataAdapterResult,
+  CodexForgeBrainPanelDataReadiness,
+  CodexForgeBrainPanelId,
+  CodexForgeBrainPanelIntegrationSummary,
+  CodexForgeBrainRuntimeSnapshot,
+} from "@/lib/codexforge/brain/runtime";
 
 export type CodexForgeBrainCommandMode =
   | "memory"
@@ -26,6 +33,7 @@ export type CodexForgeBrainCommandMode =
   | "system-status"
   | "replay"
   | "lineage"
+  | "live-snapshot"
   | "graph";
 
 export type CodexForgeBrainCommandCenterMetric = {
@@ -45,4 +53,12 @@ export type CodexForgeBrainCommandCenterProps = {
   selectedNodeId: string | null;
   selectedNode?: CodexForgeBrainNode | null;
   onSelectNode: (nodeId: string) => void;
+  runtimeSnapshot?: CodexForgeBrainRuntimeSnapshot | null;
+  panelData?: Partial<
+    Record<CodexForgeBrainPanelId, CodexForgeBrainPanelDataAdapterResult>
+  >;
+  panelReadiness?: Partial<
+    Record<CodexForgeBrainPanelId, CodexForgeBrainPanelDataReadiness>
+  >;
+  panelIntegrationSummary?: CodexForgeBrainPanelIntegrationSummary | null;
 };

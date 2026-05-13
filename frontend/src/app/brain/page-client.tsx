@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { BrainCommandCenter } from "@/lib/codexforge/brain/components/brain-command-center";
 import {
+  buildBrainPanelDataAdapters,
+  buildBrainPanelIntegrationFixtureAdapters,
+  buildBrainPanelIntegrationReadinessMap,
+  buildCodexForgeBrainRuntimeSnapshot,
+  summarizeBrainPanelIntegrationReadiness,
+} from "@/lib/codexforge/brain/runtime";
+import {
   useCallback,
   useEffect,
   useMemo,
@@ -725,6 +732,44 @@ export default function BrainPageClient() {
     return selectedNode ? getNodeDataLines(selectedNode) : [];
   }, [selectedNode]);
 
+  const runtimeSnapshot = useMemo(() => {
+    if (!graph) return null;
+
+    return buildCodexForgeBrainRuntimeSnapshot({
+      graph,
+      selectedNodeId,
+      now: graph.meta.updatedAt,
+    });
+  }, [graph, selectedNodeId]);
+
+  const panelFixtureAdapters = useMemo(
+    () => buildBrainPanelIntegrationFixtureAdapters(),
+    []
+  );
+
+  const panelData = useMemo(() => {
+    return buildBrainPanelDataAdapters({
+      snapshot: runtimeSnapshot,
+      fixtureAdapters: panelFixtureAdapters,
+      now: runtimeSnapshot?.generatedAt ?? graph?.meta.updatedAt ?? 0,
+      selectedNodeId,
+    });
+  }, [graph?.meta.updatedAt, panelFixtureAdapters, runtimeSnapshot, selectedNodeId]);
+
+  const panelReadiness = useMemo(
+    () => buildBrainPanelIntegrationReadinessMap(panelData),
+    [panelData]
+  );
+
+  const panelIntegrationSummary = useMemo(
+    () =>
+      summarizeBrainPanelIntegrationReadiness(
+        panelReadiness,
+        runtimeSnapshot?.generatedAt ?? graph?.meta.updatedAt ?? 0
+      ),
+    [graph?.meta.updatedAt, panelReadiness, runtimeSnapshot?.generatedAt]
+  );
+
   const handleCopyNode = useCallback(async () => {
     if (!selectedNodeRawJson) return;
 
@@ -1076,6 +1121,10 @@ export default function BrainPageClient() {
               selectedNode={selectedNode}
               selectedNodeId={selectedNodeId}
               onSelectNode={setSelectedNodeId}
+              runtimeSnapshot={runtimeSnapshot}
+              panelData={panelData}
+              panelReadiness={panelReadiness}
+              panelIntegrationSummary={panelIntegrationSummary}
             />
 
             <section

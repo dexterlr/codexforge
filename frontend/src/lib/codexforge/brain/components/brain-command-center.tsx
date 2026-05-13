@@ -24,6 +24,8 @@ import { BrainRiskPanel } from "./brain-risk-panel";
 import { BrainRuntimeHealthPanel } from "./brain-runtime-health-panel";
 import { BrainSystemStatusPanel } from "./brain-system-status-panel";
 import { BrainSemanticHeatmapPanel } from "./brain-semantic-heatmap-panel";
+import { BrainLiveSnapshotPanel } from "./brain-live-snapshot-panel";
+import { BrainSnapshotStatusStrip } from "./brain-snapshot-status-strip";
 import { BrainTimelinePanel } from "./brain-timeline-panel";
 import { BrainCommandPalette } from "./brain-command-palette";
 import { BrainCommandStatusBar } from "./brain-command-status-bar";
@@ -42,6 +44,14 @@ import {
   matchBrainKeyboardShortcut,
   type CodexForgeBrainCommand,
 } from "./commands";
+import {
+  buildBrainPanelIntegrationFixtureAdapters,
+  buildBrainPanelIntegrationReadinessMap,
+  summarizeBrainPanelIntegrationReadiness,
+  type CodexForgeBrainPanelDataAdapterResult,
+  type CodexForgeBrainPanelDataReadiness,
+  type CodexForgeBrainPanelId,
+} from "@/lib/codexforge/brain/runtime";
 import type {
   CodexForgeBrainCommandCenterProps,
   CodexForgeBrainCommandMode,
@@ -88,6 +98,10 @@ export function BrainCommandCenter({
   selectedNode,
   selectedNodeId,
   onSelectNode,
+  runtimeSnapshot,
+  panelData,
+  panelReadiness,
+  panelIntegrationSummary,
 }: CodexForgeBrainCommandCenterProps) {
   const [activeMode, setActiveMode] =
     useState<CodexForgeBrainCommandMode>("runtime-health");
@@ -96,6 +110,40 @@ export function BrainCommandCenter({
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [density, setDensity] = useState<BrainDisplayDensity>("comfortable");
   const [commandHistory, setCommandHistory] = useState<CodexForgeBrainCommand[]>([]);
+
+  const fixturePanelData = useMemo(
+    () => buildBrainPanelIntegrationFixtureAdapters(),
+    []
+  );
+  const effectivePanelData = useMemo(
+    () =>
+      ({
+        ...fixturePanelData,
+        ...(panelData ?? {}),
+      }) as Record<CodexForgeBrainPanelId, CodexForgeBrainPanelDataAdapterResult>,
+    [fixturePanelData, panelData]
+  );
+  const computedReadiness = useMemo(
+    () => buildBrainPanelIntegrationReadinessMap(effectivePanelData),
+    [effectivePanelData]
+  );
+  const effectiveReadiness = useMemo(
+    () =>
+      ({
+        ...computedReadiness,
+        ...(panelReadiness ?? {}),
+      }) as Record<CodexForgeBrainPanelId, CodexForgeBrainPanelDataReadiness>,
+    [computedReadiness, panelReadiness]
+  );
+  const effectiveIntegrationSummary = useMemo(
+    () =>
+      panelIntegrationSummary ??
+      summarizeBrainPanelIntegrationReadiness(
+        effectiveReadiness,
+        runtimeSnapshot?.generatedAt ?? 0
+      ),
+    [effectiveReadiness, panelIntegrationSummary, runtimeSnapshot?.generatedAt]
+  );
 
   const focusTargets = useMemo(() => {
     return graph.nodes
@@ -237,6 +285,7 @@ export function BrainCommandCenter({
     <BrainResponsiveShell
       data-codexforge-brain-command-center
       data-codexforge-brain-command-center-polished
+      data-codexforge-brain-panel-data-integration
       density={density}
       tabIndex={0}
       onKeyDown={handleCommandCenterKeyDown}
@@ -301,6 +350,26 @@ export function BrainCommandCenter({
         paletteOpen={paletteOpen}
       />
 
+      <BrainSnapshotStatusStrip
+        snapshot={runtimeSnapshot}
+        summary={effectiveIntegrationSummary}
+      />
+
+      <div
+        data-codexforge-brain-panel-readiness-summary
+        style={readinessSummaryStyle}
+      >
+        <Status label="Live panels" value={String(effectiveIntegrationSummary.livePanels.length)} />
+        <Status label="Mixed panels" value={String(effectiveIntegrationSummary.mixedPanels.length)} />
+        <Status label="Fixture panels" value={String(effectiveIntegrationSummary.fixturePanels.length)} />
+        <Status label="Unavailable" value={String(effectiveIntegrationSummary.unavailablePanels.length)} />
+        <div style={sourceLegendStyle}>
+          <span data-codexforge-brain-panel-source-live="true" style={sourceMarkerStyle}>live</span>
+          <span data-codexforge-brain-panel-source-mixed="true" style={sourceMarkerStyle}>mixed</span>
+          <span data-codexforge-brain-panel-source-fixture="true" style={sourceMarkerStyle}>fixture</span>
+        </div>
+      </div>
+
       {graph.nodes.length === 0 ? (
         <BrainPanelFrame
           title="Fixture-backed command center"
@@ -325,20 +394,40 @@ export function BrainCommandCenter({
       <BrainModeTabs activeMode={activeMode} onModeChange={setActiveMode} />
 
       <div style={getPanelGridStyle(density)}>
-        <BrainRuntimeHealthPanel graph={graph} />
+        <BrainLiveSnapshotPanel
+          snapshot={runtimeSnapshot}
+          panelData={effectivePanelData["live-snapshot"]}
+        />
+        <BrainRuntimeHealthPanel
+          graph={graph}
+          panelData={effectivePanelData["runtime-health"]}
+        />
         <BrainSystemStatusPanel graph={graph} />
-        <BrainMemoryClustersPanel graph={graph} />
+        <BrainMemoryClustersPanel
+          graph={graph}
+          panelData={effectivePanelData.memory}
+        />
         <BrainAgentActivityPanel />
         <BrainPredictionPanel graph={graph} selectedNode={selectedNode} />
-        <BrainRiskPanel graph={graph} />
+        <BrainRiskPanel graph={graph} panelData={effectivePanelData.risk} />
         <BrainTimelinePanel graph={graph} />
         <BrainReplayPanel graph={graph} />
         <BrainLineagePanel graph={graph} />
-        <BrainSemanticHeatmapPanel graph={graph} />
+        <BrainSemanticHeatmapPanel
+          graph={graph}
+          panelData={effectivePanelData["semantic-heatmap"]}
+        />
         <BrainKnowledgeTopologyPanel graph={graph} />
-        <BrainRecommendationsPanel graph={graph} />
+        <BrainRecommendationsPanel
+          graph={graph}
+          panelData={effectivePanelData.recommendations}
+        />
         <BrainInsightQueuePanel graph={graph} />
-        <BrainFocusModePanel graph={graph} selectedNodeId={selectedNodeId} />
+        <BrainFocusModePanel
+          graph={graph}
+          selectedNodeId={selectedNodeId}
+          panelData={effectivePanelData["focus-mode"]}
+        />
         <BrainDrilldownPanel graph={graph} selectedNodeId={selectedNodeId} />
       </div>
 
@@ -417,6 +506,35 @@ const actionButtonStyle: CSSProperties = {
   fontSize: 11,
   fontWeight: 900,
   cursor: "pointer",
+};
+
+const readinessSummaryStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 120px), 1fr))",
+  gap: 8,
+  alignItems: "stretch",
+};
+
+const sourceLegendStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 6,
+  alignItems: "center",
+  padding: 10,
+  borderRadius: 8,
+  border: "1px solid rgba(255,255,255,0.09)",
+  background: "rgba(255,255,255,0.04)",
+};
+
+const sourceMarkerStyle: CSSProperties = {
+  borderRadius: 999,
+  padding: "3px 8px",
+  border: "1px solid rgba(125,211,252,0.18)",
+  background: "rgba(14,165,233,0.08)",
+  color: "rgba(224,242,254,0.86)",
+  fontSize: 10,
+  fontWeight: 900,
+  textTransform: "uppercase",
 };
 
 function getPanelGridStyle(density: BrainDisplayDensity): CSSProperties {

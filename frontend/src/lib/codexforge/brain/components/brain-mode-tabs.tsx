@@ -103,6 +103,11 @@ export const BRAIN_COMMAND_CENTER_MODES: readonly CodexForgeBrainCommandCenterPa
     description: "Read-only cognitive drilldown paths across memory, topology, lineage, health, agents, files, and risks.",
   },
   {
+    id: "live-snapshot",
+    label: "Live Snapshot",
+    description: "Read-only runtime snapshot source, status, and panel backing evidence.",
+  },
+  {
     id: "knowledge-clusters",
     label: "Knowledge Clusters",
     description: "Memory cluster summaries and high-confidence concepts.",

@@ -9,17 +9,23 @@ import {
   runBrainRuntimeDiagnostics,
   summarizeBrainRuntimeDiagnostics,
   summarizeCognitiveSystemStatus,
+  type CodexForgeBrainPanelDataAdapterResult,
   type CodexForgeRuntimeHealthSignal,
 } from "@/lib/codexforge/brain/runtime";
 import { BrainHealthInspector } from "./brain-health-inspector";
 import { BrainSubsystemStatusCard } from "./brain-subsystem-status-card";
 import { BrainReadOnlyBadge, BrainSectionHeader } from "./ui";
+import { BrainLiveDataBoundary } from "./brain-live-data-boundary";
 
 type BrainRuntimeHealthPanelProps = {
   graph?: CodexForgeBrainGraph;
+  panelData?: CodexForgeBrainPanelDataAdapterResult;
 };
 
-export function BrainRuntimeHealthPanel({ graph }: BrainRuntimeHealthPanelProps) {
+export function BrainRuntimeHealthPanel({
+  graph,
+  panelData,
+}: BrainRuntimeHealthPanelProps) {
   const dashboard = useMemo(() => {
     if (!graph || graph.nodes.length === 0) {
       return buildRuntimeHealthFixtureDashboard();
@@ -58,7 +64,12 @@ export function BrainRuntimeHealthPanel({ graph }: BrainRuntimeHealthPanelProps)
         eyebrow="Runtime health dashboard"
         title="Cognitive runtime status"
         description="Read-only contract, diagnostics, subsystem, and next-safe-action telemetry."
-        status={<BrainReadOnlyBadge />}
+        status={
+          <div style={statusRowStyle}>
+            <BrainLiveDataBoundary panelId="runtime-health" panelData={panelData} />
+            <BrainReadOnlyBadge />
+          </div>
+        }
       />
 
       <div style={summaryGridStyle}>
@@ -172,6 +183,13 @@ const panelStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(125,211,252,0.22)",
   background: "radial-gradient(circle at 18% 0%, rgba(14,165,233,0.20), transparent 34%), rgba(15,23,42,0.86)",
+};
+
+const statusRowStyle: CSSProperties = {
+  display: "flex",
+  gap: 8,
+  alignItems: "center",
+  flexWrap: "wrap",
 };
 
 const summaryGridStyle: CSSProperties = {

@@ -1,17 +1,20 @@
 import type { CSSProperties } from "react";
 import { clusterMemorySignals } from "@/lib/codexforge/brain/runtime";
+import type { CodexForgeBrainPanelDataAdapterResult } from "@/lib/codexforge/brain/runtime";
 import type {
   CodexForgeBrainGraph,
   CodexForgeBrainNode,
 } from "@/lib/codexforge/brain/graph";
+import { BrainLiveDataBoundary } from "./brain-live-data-boundary";
 
 type BrainMemoryClustersPanelProps = {
   graph: CodexForgeBrainGraph;
+  panelData?: CodexForgeBrainPanelDataAdapterResult;
 };
 
 const MEMORY_KINDS = new Set(["memory", "decision", "note"]);
 
-export function BrainMemoryClustersPanel({ graph }: BrainMemoryClustersPanelProps) {
+export function BrainMemoryClustersPanel({ graph, panelData }: BrainMemoryClustersPanelProps) {
   const memoryNodes = graph.nodes.filter((node) => MEMORY_KINDS.has(node.kind));
   const clusters = clusterMemorySignals({ nodes: memoryNodes, limit: 5 });
   const pinned = memoryNodes.filter((node) => node.meta.pinned).slice(0, 4);
@@ -27,9 +30,12 @@ export function BrainMemoryClustersPanel({ graph }: BrainMemoryClustersPanelProp
 
   return (
     <section data-codexforge-brain-memory-clusters style={panelStyle}>
-      <div>
-        <div style={eyebrowStyle}>Cognitive memory</div>
-        <h2 style={titleStyle}>Memory and knowledge clusters</h2>
+      <div style={headerStyle}>
+        <div>
+          <div style={eyebrowStyle}>Cognitive memory</div>
+          <h2 style={titleStyle}>Memory and knowledge clusters</h2>
+        </div>
+        <BrainLiveDataBoundary panelId="memory" panelData={panelData} />
       </div>
       <div style={metricGridStyle}>
         <Metric label="Readiness" value={memoryNodes.length > 0 ? "available" : "warming"} />
@@ -95,6 +101,14 @@ const panelStyle: CSSProperties = {
   borderRadius: 8,
   border: "1px solid rgba(125,211,252,0.22)",
   background: "rgba(15,23,42,0.76)",
+};
+
+const headerStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 12,
+  alignItems: "start",
+  flexWrap: "wrap",
 };
 
 const metricGridStyle: CSSProperties = {

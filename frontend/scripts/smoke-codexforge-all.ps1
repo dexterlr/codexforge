@@ -122,6 +122,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Brain panel data integration"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-panel-data-integration.ps1"
+    Required = $true
+  }
+  @{
     Name = "Brain focus drilldown"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-focus-drilldown.ps1"
     Required = $true
