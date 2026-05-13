@@ -53,6 +53,8 @@ Assert-FileExists $graphComponentPath
 
 $pageSource = Get-Content -Raw $pageClientPath
 $graphSource = Get-Content -Raw $graphComponentPath
+$commandComponentPath = "src\lib\codexforge\brain\components\brain-command-center.tsx"
+$commandSource = if (Test-Path $commandComponentPath) { Get-Content -Raw $commandComponentPath } else { "" }
 
 if ([string]::IsNullOrWhiteSpace($pageSource)) {
   throw "[FAIL] brain page source was empty"
@@ -62,9 +64,19 @@ if ([string]::IsNullOrWhiteSpace($graphSource)) {
   throw "[FAIL] brain graph component source was empty"
 }
 
-Assert-Contains $pageSource 'brain-graph-view' "brain page imports graph view"
-Assert-Contains $pageSource '<BrainGraphView' "brain page renders graph view"
-Assert-Contains $pageSource 'onSelectNode={setSelectedNodeId}' "graph selection updates inspector"
+if ($pageSource.Contains('brain-graph-view')) {
+  Assert-Contains $pageSource 'brain-graph-view' "brain page imports graph view"
+} else {
+  Assert-Contains $commandSource 'brain-graph-view' "command center imports graph view"
+}
+
+if ($pageSource.Contains('<BrainGraphView')) {
+  Assert-Contains $pageSource '<BrainGraphView' "brain page renders graph view"
+} else {
+  Assert-Contains $commandSource '<BrainGraphView' "command center renders graph view"
+}
+
+Assert-Contains ($pageSource + $commandSource) 'onSelectNode={setSelectedNodeId}' "graph selection updates inspector"
 
 Assert-Contains $graphSource 'data-codexforge-brain-graph-view' "graph root marker"
 Assert-Contains $graphSource 'data-codexforge-brain-graph-svg' "graph svg marker"

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BrainGraphView } from "@/lib/codexforge/brain/components/brain-graph-view";
+import { BrainCommandCenter } from "@/lib/codexforge/brain/components/brain-command-center";
 import {
   useCallback,
   useEffect,
@@ -1071,13 +1071,15 @@ export default function BrainPageClient() {
               <StatCard label="Last updated" value={stats.updatedAtLabel} />
             </section>
             <RuntimeReadinessPanel stats={stats} />
-            <BrainGraphView
+            <BrainCommandCenter
               graph={graph}
+              selectedNode={selectedNode}
               selectedNodeId={selectedNodeId}
               onSelectNode={setSelectedNodeId}
             />
 
             <section
+              data-codexforge-brain-inspector-preserved
               style={{
                 display: "grid",
                 gridTemplateColumns: "minmax(320px, 430px) minmax(0, 1fr)",

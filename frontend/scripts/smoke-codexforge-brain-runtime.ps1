@@ -165,9 +165,21 @@ foreach ($marker in @("â", "Ã", "Â", "�")) {
 }
 
 $pageClientPath = "src\app\brain\page-client.tsx"
+$commandComponentPath = "src\lib\codexforge\brain\components\brain-command-center.tsx"
 Assert-FileExists $pageClientPath
 $pageSource = Get-Content -Raw $pageClientPath
-Assert-Contains $pageSource 'brain-graph-view' "brain page imports graph view"
-Assert-Contains $pageSource '<BrainGraphView' "brain page renders graph view"
+$commandSource = if (Test-Path $commandComponentPath) { Get-Content -Raw $commandComponentPath } else { "" }
+
+if ($pageSource.Contains('brain-graph-view')) {
+  Assert-Contains $pageSource 'brain-graph-view' "brain page imports graph view"
+} else {
+  Assert-Contains $commandSource 'brain-graph-view' "command center imports graph view"
+}
+
+if ($pageSource.Contains('<BrainGraphView')) {
+  Assert-Contains $pageSource '<BrainGraphView' "brain page renders graph view"
+} else {
+  Assert-Contains $commandSource '<BrainGraphView' "command center renders graph view"
+}
 
 Write-Host "[OK] CodexForge brain runtime smoke passed."
