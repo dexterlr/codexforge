@@ -253,6 +253,26 @@ export {
   buildBrainFocusFixtureModel,
 } from "./focus";
 
+export {
+  buildCodexForgeBrainSeedGraph,
+  buildCodexForgeBrainSeedNode,
+  buildCodexForgeBrainSeedEdge,
+  summarizeCodexForgeBrainSeedGraph,
+  buildBrainFirstRunOnboardingPlan,
+  buildBrainOnboardingStep,
+  summarizeBrainOnboardingPlan,
+  selectNextOnboardingStep,
+  evaluateBrainSeedQuality,
+  buildBrainSeedQualityGate,
+  validateBrainSeedGraphShape,
+  validateBrainSeedDoesNotOverwrite,
+  buildBrainSeedFixtureEmptyGraph,
+  buildBrainSeedFixtureExistingGraph,
+  buildBrainSeedFixtureSeedGraph,
+  buildBrainSeedFixtureOnboardingPlan,
+  buildBrainSeedFixtureQualityGates,
+} from "./seeding";
+
 export type {
   CodexForgeBrainRuntimeContract,
   CodexForgeBrainRuntimeCognitiveMemoryApi,
@@ -420,6 +440,20 @@ export type {
   CodexForgeBrainFocusTarget,
   CodexForgeBrainFocusTargetKind,
 } from "./focus";
+
+export type {
+  CodexForgeBrainOnboardingPlan,
+  CodexForgeBrainOnboardingStep,
+  CodexForgeBrainSeedBuildInput,
+  CodexForgeBrainSeedEdgePlan,
+  CodexForgeBrainSeedGraphPlan,
+  CodexForgeBrainSeedKind,
+  CodexForgeBrainSeedNodePlan,
+  CodexForgeBrainSeedPreview,
+  CodexForgeBrainSeedQualityGate,
+  CodexForgeBrainSeedStatus,
+  CodexForgeBrainSeedSummary,
+} from "./seeding";
 
 export type {
   CodexForgeBrainAppendEventResult,

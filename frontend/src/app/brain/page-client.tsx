@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { BrainCommandCenter } from "@/lib/codexforge/brain/components/brain-command-center";
+import { BrainFirstRunOnboarding } from "@/lib/codexforge/brain/components/brain-first-run-onboarding";
 import { BrainGraphEmptyState } from "@/lib/codexforge/brain/components/brain-graph-empty-state";
 import { BrainGraphErrorState } from "@/lib/codexforge/brain/components/brain-graph-error-state";
 import { BrainGraphLoadingState } from "@/lib/codexforge/brain/components/brain-graph-loading-state";
@@ -10,9 +11,11 @@ import {
   buildBrainPanelDataAdapters,
   buildBrainPanelIntegrationFixtureAdapters,
   buildBrainPanelIntegrationReadinessMap,
+  buildBrainFirstRunOnboardingPlan,
   buildCodexForgeBrainRuntimeSnapshot,
   evaluateBrainEmptyState,
   evaluateBrainGraphLoadState,
+  evaluateBrainSeedQuality,
   evaluateBrainSnapshotPanelGates,
   summarizeBrainPanelIntegrationReadiness,
   type CodexForgeBrainLoadPhase,
@@ -593,6 +596,7 @@ export default function BrainPageClient() {
   const [copied, setCopied] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [toast, setToast] = useState<ToastState>(null);
+  const [keptEmptyGraph, setKeptEmptyGraph] = useState(false);
 
   const showToast = useCallback((kind: "ok" | "err", text: string) => {
     setToast({ kind, text });
@@ -868,6 +872,25 @@ export default function BrainPageClient() {
     ]
   );
 
+  const firstRunSeedPlan = useMemo(
+    () =>
+      evaluateBrainSeedQuality({
+        existingGraph: graph,
+        now: graph?.meta.updatedAt,
+      }),
+    [graph]
+  );
+
+  const firstRunOnboardingPlan = useMemo(
+    () =>
+      buildBrainFirstRunOnboardingPlan({
+        hasGraph: Boolean(graph && (graph.nodes.length > 0 || graph.edges.length > 0)),
+        previewAvailable: true,
+        keptEmpty: keptEmptyGraph,
+      }),
+    [graph, keptEmptyGraph]
+  );
+
   const handleCopyNode = useCallback(async () => {
     if (!selectedNodeRawJson) return;
 
@@ -1075,6 +1098,43 @@ export default function BrainPageClient() {
     }
   }, [graph, showToast]);
 
+  const handleCreateStarterGraph = useCallback(() => {
+    if (!graph) return;
+
+    if (graph.nodes.length > 0 || graph.edges.length > 0) {
+      showToast("err", "Starter graph creation is blocked because this graph already has data.");
+      return;
+    }
+
+    if (firstRunSeedPlan.status === "blocked") {
+      showToast("err", "Starter graph quality gates are blocked.");
+      return;
+    }
+
+    try {
+      const saved = saveBrainGraph(firstRunSeedPlan.graph);
+      setGraph(saved);
+      setSelectedNodeId(saved.nodes[0]?.id ?? null);
+      setError("");
+      setLoadComplete(true);
+      setLoadPhase(saved.nodes.length === 0 && saved.edges.length === 0 ? "empty" : "loaded");
+      setKeptEmptyGraph(false);
+      showToast("ok", "Starter graph created");
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message.trim()
+          ? err.message.trim()
+          : "Could not create starter graph.";
+      setError(message);
+      showToast("err", message);
+    }
+  }, [firstRunSeedPlan, graph, showToast]);
+
+  const handleKeepEmptyGraph = useCallback(() => {
+    setKeptEmptyGraph(true);
+    showToast("ok", "Brain graph left empty");
+  }, [showToast]);
+
   return (
     <main
       style={{
@@ -1246,11 +1306,26 @@ export default function BrainPageClient() {
         ) : (
           <>
             {emptyState.isEmpty ? (
-              <BrainGraphEmptyState
-                emptyState={emptyState}
-                onRefreshGraph={refreshGraph}
-                onResetGraph={handleResetGraph}
-              />
+              <>
+                <section
+                  data-codexforge-brain-first-run-onboarding
+                  data-codexforge-brain-empty-first-run
+                  data-codexforge-brain-explicit-seed-action
+                  data-codexforge-brain-create-starter-graph
+                >
+                  <BrainFirstRunOnboarding
+                    seedPlan={firstRunSeedPlan}
+                    onboardingPlan={firstRunOnboardingPlan}
+                    onCreateStarterGraph={handleCreateStarterGraph}
+                    onKeepEmptyGraph={handleKeepEmptyGraph}
+                  />
+                </section>
+                <BrainGraphEmptyState
+                  emptyState={emptyState}
+                  onRefreshGraph={refreshGraph}
+                  onResetGraph={handleResetGraph}
+                />
+              </>
             ) : null}
 
             <section

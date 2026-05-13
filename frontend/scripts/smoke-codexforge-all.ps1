@@ -132,6 +132,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Brain first-run onboarding"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-first-run-onboarding.ps1"
+    Required = $true
+  }
+  @{
     Name = "Brain focus drilldown"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-focus-drilldown.ps1"
     Required = $true
