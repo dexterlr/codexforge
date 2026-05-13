@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+} from "react";
+import type { CodexForgeBrainNode } from "@/lib/codexforge/brain/graph";
 import { BrainGraphView } from "./brain-graph-view";
 import { BrainAgentActivityPanel } from "./brain-agent-activity-panel";
 import { BrainMemoryClustersPanel } from "./brain-memory-clusters-panel";
@@ -18,10 +25,55 @@ import { BrainRuntimeHealthPanel } from "./brain-runtime-health-panel";
 import { BrainSystemStatusPanel } from "./brain-system-status-panel";
 import { BrainSemanticHeatmapPanel } from "./brain-semantic-heatmap-panel";
 import { BrainTimelinePanel } from "./brain-timeline-panel";
+import { BrainCommandPalette } from "./brain-command-palette";
+import { BrainCommandStatusBar } from "./brain-command-status-bar";
+import { BrainKeyboardShortcutsPanel } from "./brain-keyboard-shortcuts-panel";
+import { BrainQuickJumpPanel } from "./brain-quick-jump-panel";
+import {
+  buildBrainCommandRegistry,
+  matchBrainKeyboardShortcut,
+  type CodexForgeBrainCommand,
+} from "./commands";
 import type {
   CodexForgeBrainCommandCenterProps,
   CodexForgeBrainCommandMode,
 } from "./brain-command-center-types";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function getBrainNodeLabel(node: CodexForgeBrainNode): string {
+  if (
+    isRecord(node.data) &&
+    typeof node.data.label === "string" &&
+    node.data.label.trim()
+  ) {
+    return node.data.label.trim();
+  }
+
+  return `${node.kind} ${node.id}`;
+}
+
+function isTextEntryTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+
+  const tagName = target.tagName.toLowerCase();
+  return tagName === "input" || tagName === "textarea" || tagName === "select";
+}
+
+function shortcutOpensPalette(event: KeyboardEvent<HTMLElement>): boolean {
+  return (
+    event.key.toLowerCase() === "k" &&
+    (event.ctrlKey || event.metaKey) &&
+    !event.altKey
+  );
+}
+
+function normalizeKeyboardKey(key: string): string {
+  return key.length === 1 ? key.toUpperCase() : key;
+}
 
 export function BrainCommandCenter({
   graph,
@@ -31,9 +83,162 @@ export function BrainCommandCenter({
 }: CodexForgeBrainCommandCenterProps) {
   const [activeMode, setActiveMode] =
     useState<CodexForgeBrainCommandMode>("runtime-health");
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
+  const [commandHistory, setCommandHistory] = useState<CodexForgeBrainCommand[]>([]);
+
+  const focusTargets = useMemo(() => {
+    return graph.nodes
+      .map((node) => ({
+        id: node.id,
+        label: getBrainNodeLabel(node),
+        kind: node.kind,
+      }))
+      .sort(
+        (left, right) =>
+          left.label.localeCompare(right.label, "en", { sensitivity: "base" }) ||
+          left.kind.localeCompare(right.kind, "en", { sensitivity: "base" }) ||
+          left.id.localeCompare(right.id, "en", { sensitivity: "base" })
+      )
+      .slice(0, 12);
+  }, [graph.nodes]);
+
+  const commands = useMemo(
+    () =>
+      buildBrainCommandRegistry({
+        activeMode,
+        selectedNodeId,
+        graphNodeCount: graph.nodes.length,
+        graphEdgeCount: graph.edges.length,
+        focusTargets,
+      }),
+    [activeMode, focusTargets, graph.edges.length, graph.nodes.length, selectedNodeId]
+  );
+
+  const selectedNodeLabel = selectedNode ? getBrainNodeLabel(selectedNode) : null;
+
+  const rememberCommand = useCallback((command: CodexForgeBrainCommand) => {
+    setCommandHistory((current) => [
+      command,
+      ...current.filter((item) => item.id !== command.id),
+    ].slice(0, 8));
+  }, []);
+
+  const activateCommand = useCallback(
+    (command: CodexForgeBrainCommand) => {
+      if (command.safety !== "read-only" || command.disabledReason) {
+        return;
+      }
+
+      rememberCommand(command);
+
+      if (command.kind === "show-shortcuts") {
+        setShortcutsOpen(true);
+        setPaletteOpen(false);
+        return;
+      }
+
+      if (command.kind === "close-palette") {
+        setPaletteOpen(false);
+        setShortcutsOpen(false);
+        return;
+      }
+
+      if (
+        (command.kind === "focus-target" || command.kind === "open-drilldown") &&
+        command.targetId
+      ) {
+        onSelectNode(command.targetId);
+      }
+
+      if (command.targetMode) {
+        setActiveMode(command.targetMode);
+      }
+
+      setPaletteOpen(false);
+    },
+    [onSelectNode, rememberCommand]
+  );
+
+  const handleShortcutCommand = useCallback(
+    (commandId?: string) => {
+      if (commandId === "brain.palette.open") {
+        setPaletteOpen(true);
+        return;
+      }
+
+      if (commandId === "brain.help.close-palette") {
+        setPaletteOpen(false);
+        setShortcutsOpen(false);
+        return;
+      }
+
+      const command = commands.find((item) => item.id === commandId);
+      if (command) {
+        activateCommand(command);
+      }
+    },
+    [activateCommand, commands]
+  );
+
+  const handleCommandCenterKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      const textEntry = isTextEntryTarget(event.target);
+      const key = normalizeKeyboardKey(event.key);
+
+      if (textEntry && !shortcutOpensPalette(event) && key !== "Escape") {
+        return;
+      }
+
+      const shortcut = matchBrainKeyboardShortcut(event.nativeEvent, pendingKey);
+      if (shortcut) {
+        event.preventDefault();
+        event.stopPropagation();
+        setPendingKey(null);
+
+        if (shortcut.shortcut === "?") {
+          setShortcutsOpen(true);
+        }
+
+        handleShortcutCommand(shortcut.commandId);
+        return;
+      }
+
+      if (
+        key === "G" &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey &&
+        !textEntry
+      ) {
+        event.preventDefault();
+        setPendingKey("G");
+        return;
+      }
+
+      if (pendingKey) {
+        setPendingKey(null);
+      }
+    },
+    [handleShortcutCommand, pendingKey]
+  );
 
   return (
-    <section data-codexforge-brain-command-center style={shellStyle}>
+    <section
+      data-codexforge-brain-command-center
+      style={shellStyle}
+      tabIndex={0}
+      onKeyDown={handleCommandCenterKeyDown}
+    >
+      <BrainCommandPalette
+        open={paletteOpen}
+        commands={commands}
+        history={commandHistory}
+        onActivateCommand={activateCommand}
+        onClose={() => setPaletteOpen(false)}
+      />
+
       <div style={headerStyle}>
         <div>
           <div style={eyebrowStyle}>Cognitive command center</div>
@@ -43,12 +248,50 @@ export function BrainCommandCenter({
             prediction, risks, replay, lineage, timeline, and the preserved graph inspector flow.
           </p>
         </div>
-        <div style={statusGridStyle}>
-          <Status label="Nodes" value={String(graph.nodes.length)} />
-          <Status label="Edges" value={String(graph.edges.length)} />
-          <Status label="Mode" value={activeMode} />
+        <div style={headerControlsStyle}>
+          <div style={statusGridStyle}>
+            <Status label="Nodes" value={String(graph.nodes.length)} />
+            <Status label="Edges" value={String(graph.edges.length)} />
+            <Status label="Mode" value={activeMode} />
+          </div>
+          <div style={actionGridStyle}>
+            <button
+              type="button"
+              onClick={() => setPaletteOpen(true)}
+              style={actionButtonStyle}
+            >
+              Ctrl+K
+            </button>
+            <button
+              type="button"
+              onClick={() => setShortcutsOpen((value) => !value)}
+              style={actionButtonStyle}
+            >
+              Shortcuts
+            </button>
+          </div>
         </div>
       </div>
+
+      <BrainCommandStatusBar
+        activeMode={activeMode}
+        commandCount={commands.length}
+        historyCount={commandHistory.length}
+        selectedNodeId={selectedNodeId}
+        selectedNodeLabel={selectedNodeLabel}
+        paletteOpen={paletteOpen}
+      />
+
+      <BrainQuickJumpPanel
+        commands={commands}
+        activeMode={activeMode}
+        onCommand={activateCommand}
+      />
+
+      <BrainKeyboardShortcutsPanel
+        open={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+      />
 
       <BrainModeTabs activeMode={activeMode} onModeChange={setActiveMode} />
 
@@ -133,10 +376,32 @@ const headerStyle: CSSProperties = {
   alignItems: "start",
 };
 
+const headerControlsStyle: CSSProperties = {
+  display: "grid",
+  gap: 8,
+};
+
 const statusGridStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
   gap: 8,
+};
+
+const actionGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: 8,
+};
+
+const actionButtonStyle: CSSProperties = {
+  border: "1px solid rgba(125,211,252,0.22)",
+  background: "rgba(14,165,233,0.10)",
+  color: "inherit",
+  borderRadius: 8,
+  padding: "9px 10px",
+  fontSize: 11,
+  fontWeight: 900,
+  cursor: "pointer",
 };
 
 const statusStyle: CSSProperties = {

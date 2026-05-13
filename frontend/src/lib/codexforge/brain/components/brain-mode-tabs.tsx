@@ -58,13 +58,13 @@ export const BRAIN_COMMAND_CENTER_MODES: readonly CodexForgeBrainCommandCenterPa
     description: "Execution, memory, concept, failure, recovery, and agent lineage.",
   },
   {
-    id: "risks",
-    label: "Risks",
+    id: "risk",
+    label: "Risk",
     description: "Schema, mutation, approval, and stale context risks.",
   },
   {
-    id: "agent-activity",
-    label: "Agent Activity",
+    id: "agents",
+    label: "Agents",
     description: "Read-only agent lanes, gates, and approval boundaries.",
   },
   {
@@ -111,6 +111,19 @@ export const BRAIN_COMMAND_CENTER_MODES: readonly CodexForgeBrainCommandCenterPa
     id: "graph",
     label: "Graph",
     description: "Preserved neural graph and inspector workflow.",
+  },
+] as const;
+
+export const BRAIN_COMMAND_CENTER_LEGACY_MODE_ALIASES = [
+  {
+    id: "risks",
+    label: "Risks",
+    canonicalId: "risk",
+  },
+  {
+    id: "agent-activity",
+    label: "Agent Activity",
+    canonicalId: "agents",
   },
 ] as const;
 
