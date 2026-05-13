@@ -177,6 +177,33 @@ export {
   summarizeRuntimeRecommendations,
 } from "./recommendations";
 
+export {
+  buildBrainFocusModel,
+  buildBrainFocusTarget,
+  buildBrainFocusSignal,
+  summarizeBrainFocusTarget,
+  buildBrainDrilldownPaths,
+  buildBrainDrilldownStep,
+  selectNextDrilldownSteps,
+  summarizeBrainDrilldownPath,
+  buildBrainFocusBreadcrumbs,
+  buildBrainFocusBreadcrumb,
+  summarizeBrainFocusBreadcrumbs,
+  buildBrainFocusNeighborhood,
+  groupFocusSignalsByKind,
+  selectFocusNeighborhoodHighlights,
+  recommendFocusNextSafeDrilldown,
+  buildBrainFocusFixtureGraph,
+  buildBrainFocusFixtureEvents,
+  buildBrainFocusFixtureMemory,
+  buildBrainFocusFixtureContext,
+  buildBrainFocusFixtureTopology,
+  buildBrainFocusFixtureRecommendations,
+  buildBrainFocusFixtureHealth,
+  buildBrainFocusFixtureAgents,
+  buildBrainFocusFixtureModel,
+} from "./focus";
+
 export type {
   CodexForgeBrainRuntimeContract,
   CodexForgeBrainRuntimeCognitiveMemoryApi,
@@ -295,6 +322,21 @@ export type {
   CodexForgeRuntimeInsight,
   CodexForgeRuntimeRecommendation,
 } from "./recommendations";
+
+export type {
+  CodexForgeBrainDrilldownPath,
+  CodexForgeBrainDrilldownStep,
+  CodexForgeBrainFocusBreadcrumb,
+  CodexForgeBrainFocusBuildInput,
+  CodexForgeBrainFocusLens,
+  CodexForgeBrainFocusModel,
+  CodexForgeBrainFocusNeighborhood,
+  CodexForgeBrainFocusSignal,
+  CodexForgeBrainFocusSignalKind,
+  CodexForgeBrainFocusSummary,
+  CodexForgeBrainFocusTarget,
+  CodexForgeBrainFocusTargetKind,
+} from "./focus";
 
 export type {
   CodexForgeBrainAppendEventResult,

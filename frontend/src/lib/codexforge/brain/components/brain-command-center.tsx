@@ -11,6 +11,8 @@ import { BrainKnowledgeTopologyPanel } from "./brain-knowledge-topology-panel";
 import { BrainReplayPanel } from "./brain-replay-panel";
 import { BrainRecommendationsPanel } from "./brain-recommendations-panel";
 import { BrainInsightQueuePanel } from "./brain-insight-queue-panel";
+import { BrainFocusModePanel } from "./brain-focus-mode-panel";
+import { BrainDrilldownPanel } from "./brain-drilldown-panel";
 import { BrainRiskPanel } from "./brain-risk-panel";
 import { BrainRuntimeHealthPanel } from "./brain-runtime-health-panel";
 import { BrainSystemStatusPanel } from "./brain-system-status-panel";
@@ -64,6 +66,8 @@ export function BrainCommandCenter({
         <BrainKnowledgeTopologyPanel graph={graph} />
         <BrainRecommendationsPanel graph={graph} />
         <BrainInsightQueuePanel graph={graph} />
+        <BrainFocusModePanel graph={graph} selectedNodeId={selectedNodeId} />
+        <BrainDrilldownPanel graph={graph} selectedNodeId={selectedNodeId} />
       </div>
 
       <div style={modePanelStyle} data-codexforge-brain-active-mode={activeMode}>

@@ -18,6 +18,8 @@ export type CodexForgeBrainCommandMode =
   | "knowledge-topology"
   | "recommendations"
   | "insight-queue"
+  | "focus-mode"
+  | "drilldown"
   | "runtime-health"
   | "system-status"
   | "replay"

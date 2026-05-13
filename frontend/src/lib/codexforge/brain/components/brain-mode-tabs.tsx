@@ -93,6 +93,16 @@ export const BRAIN_COMMAND_CENTER_MODES: readonly CodexForgeBrainCommandCenterPa
     description: "Autonomous read-only insight queue grouped by severity, kind, and status.",
   },
   {
+    id: "focus-mode",
+    label: "Focus Mode",
+    description: "Read-only cognitive focus target, neighborhood, lenses, breadcrumbs, and inspector.",
+  },
+  {
+    id: "drilldown",
+    label: "Drilldown",
+    description: "Read-only cognitive drilldown paths across memory, topology, lineage, health, agents, files, and risks.",
+  },
+  {
     id: "knowledge-clusters",
     label: "Knowledge Clusters",
     description: "Memory cluster summaries and high-confidence concepts.",
