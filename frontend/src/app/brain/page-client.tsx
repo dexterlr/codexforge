@@ -7,6 +7,7 @@ import { BrainGraphEmptyState } from "@/lib/codexforge/brain/components/brain-gr
 import { BrainGraphErrorState } from "@/lib/codexforge/brain/components/brain-graph-error-state";
 import { BrainGraphLoadingState } from "@/lib/codexforge/brain/components/brain-graph-loading-state";
 import { BrainQualityGateStrip } from "@/lib/codexforge/brain/components/brain-quality-gate-strip";
+import { buildStableReactKey } from "@/lib/codexforge/brain/components/brain-react-key";
 import {
   buildBrainPanelDataAdapters,
   buildBrainPanelIntegrationFixtureAdapters,
@@ -1424,8 +1425,8 @@ export default function BrainPageClient() {
                         style={inputStyle}
                       >
                         <option value="all">All kinds</option>
-                        {kinds.map((kind) => (
-                          <option key={kind} value={kind}>
+                        {kinds.map((kind, index) => (
+                          <option key={buildStableReactKey("brain-kind-option", [kind], index)} value={kind}>
                             {formatKindLabel(kind)}
                           </option>
                         ))}
@@ -1770,9 +1771,9 @@ export default function BrainPageClient() {
                               gap: 10,
                             }}
                           >
-                            {selectedNodeDataLines.map((item) => (
+                            {selectedNodeDataLines.map((item, index) => (
                               <div
-                                key={item.key}
+                                key={buildStableReactKey("selected-node-data", [selectedNode.id, item.key], index)}
                                 style={{
                                   border: "1px solid rgba(127,127,127,0.14)",
                                   background: "rgba(127,127,127,0.04)",
@@ -1951,9 +1952,9 @@ export default function BrainPageClient() {
                         gap: 10,
                       }}
                     >
-                      {stats.kindBreakdown.map((entry) => (
+                      {stats.kindBreakdown.map((entry, index) => (
                         <div
-                          key={entry.kind}
+                          key={buildStableReactKey("kind-breakdown", [entry.kind], index)}
                           style={{
                             border: "1px solid rgba(127,127,127,0.18)",
                             background: "rgba(127,127,127,0.05)",

@@ -7,6 +7,7 @@ import type {
   CodexForgeBrainGraph,
   CodexForgeBrainNode,
 } from "@/lib/codexforge/brain/graph";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainPredictionPanelProps = {
   graph: CodexForgeBrainGraph;
@@ -66,8 +67,8 @@ function List({ title, items }: { title: string; items: readonly string[] }) {
       <div style={sectionTitleStyle}>{title}</div>
       <div style={listStyle}>
         {items.filter(Boolean).length > 0 ? (
-          items.filter(Boolean).map((item) => (
-            <div key={item} style={rowStyle}>
+          items.filter(Boolean).map((item, index) => (
+            <div key={buildStableReactKey("prediction-list-row", [title, item], index)} style={rowStyle}>
               {item}
             </div>
           ))

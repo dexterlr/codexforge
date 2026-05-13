@@ -5,6 +5,7 @@ import type {
   CodexForgeRuntimeSmokeCoverageItem,
   CodexForgeRuntimeSubsystemReadiness,
 } from "@/lib/codexforge/brain/runtime";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainHealthInspectorProps = {
   signal?: CodexForgeRuntimeHealthSignal | null;
@@ -28,8 +29,8 @@ export function BrainHealthInspector({
         <h3 style={titleStyle}>{rows.title}</h3>
       </div>
       <div style={rowsStyle}>
-        {rows.items.map((item) => (
-          <div key={item.label} style={rowStyle}>
+        {rows.items.map((item, index) => (
+          <div key={buildStableReactKey("health-row", [rows.title, item.label], index)} style={rowStyle}>
             <span style={eyebrowStyle}>{item.label}</span>
             <strong>{item.value}</strong>
           </div>
@@ -142,8 +143,8 @@ function List({ title, items }: { title: string; items: readonly string[] }) {
   return (
     <div style={listStyle}>
       <div style={eyebrowStyle}>{title}</div>
-      {(items.length > 0 ? items : ["No detail available."]).slice(0, 5).map((item) => (
-        <div key={item} style={listItemStyle}>
+      {(items.length > 0 ? items : ["No detail available."]).slice(0, 5).map((item, index) => (
+        <div key={buildStableReactKey("health-list", [title, item], index)} style={listItemStyle}>
           {item}
         </div>
       ))}

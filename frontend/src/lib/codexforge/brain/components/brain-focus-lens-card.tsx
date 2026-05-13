@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import type { CodexForgeBrainFocusLens } from "@/lib/codexforge/brain/runtime";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainFocusLensCardProps = {
   lens: CodexForgeBrainFocusLens;
@@ -33,8 +34,10 @@ export function BrainFocusLensCard({ lens, active = false, onInspect }: BrainFoc
         <span>{lens.signals.length} signals</span>
       </div>
       <div style={evidenceStyle}>
-        {lens.evidence.slice(0, 3).map((item) => (
-          <span key={item}>{item}</span>
+        {lens.evidence.slice(0, 3).map((item, index) => (
+          <span key={buildStableReactKey("focus-lens-evidence", [lens.id, item], index)}>
+            {item}
+          </span>
         ))}
       </div>
       <div style={nextStyle}>{lens.nextSafeDrilldown}</div>

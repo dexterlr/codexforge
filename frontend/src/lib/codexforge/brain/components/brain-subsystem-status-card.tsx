@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { CodexForgeRuntimeSubsystemReadiness } from "@/lib/codexforge/brain/runtime";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainSubsystemStatusCardProps = {
   subsystem: CodexForgeRuntimeSubsystemReadiness;
@@ -22,8 +23,10 @@ export function BrainSubsystemStatusCard({
         Readiness {(subsystem.readinessScore * 100).toFixed(0)} percent
       </div>
       <div style={evidenceStyle}>
-        {subsystem.evidence.slice(0, 2).map((item) => (
-          <span key={item}>{item}</span>
+        {subsystem.evidence.slice(0, 2).map((item, index) => (
+          <span key={buildStableReactKey("subsystem-evidence", [subsystem.id, item], index)}>
+            {item}
+          </span>
         ))}
       </div>
       <div data-codexforge-brain-subsystem-next-action style={nextStyle}>

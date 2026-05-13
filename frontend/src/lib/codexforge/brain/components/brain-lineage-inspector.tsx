@@ -3,6 +3,7 @@ import type {
   CodexForgeBrainLineageEdge,
   CodexForgeBrainLineageNode,
 } from "@/lib/codexforge/brain/runtime";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainLineageInspectorProps = {
   selectedNode?: CodexForgeBrainLineageNode | null;
@@ -41,8 +42,11 @@ export function BrainLineageInspector({
       </div>
       {rows.length > 0 ? (
         <div style={rowGridStyle}>
-          {rows.map(([label, value]) => (
-            <div key={String(label)} style={rowStyle}>
+          {rows.map(([label, value], index) => (
+            <div
+              key={buildStableReactKey("lineage-inspector-row", [selectedNode?.id ?? selectedEdge?.id, label], index)}
+              style={rowStyle}
+            >
               <span style={eyebrowStyle}>{label}</span>
               <strong>{String(value)}</strong>
             </div>

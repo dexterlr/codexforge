@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import type { CodexForgeBrainPanelDataAdapterResult } from "@/lib/codexforge/brain/runtime";
 import type { CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph";
 import { BrainLiveDataBoundary } from "./brain-live-data-boundary";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainRiskPanelProps = {
   graph: CodexForgeBrainGraph;
@@ -48,8 +49,8 @@ export function BrainRiskPanel({ graph, panelData }: BrainRiskPanelProps) {
         <BrainLiveDataBoundary panelId="risk" panelData={panelData} />
       </div>
       <div style={riskGridStyle}>
-        {risks.map((risk) => (
-          <div key={risk.label} style={riskStyle}>
+        {risks.map((risk, index) => (
+          <div key={buildStableReactKey("risk-panel-risk", [risk.label, risk.status], index)} style={riskStyle}>
             <strong>{risk.label}</strong>
             <span style={mutedStyle}>{risk.status}</span>
             <span style={nextStyle}>Next safe action: {risk.next}</span>

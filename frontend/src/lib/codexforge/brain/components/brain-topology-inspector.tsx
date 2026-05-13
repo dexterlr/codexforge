@@ -5,6 +5,7 @@ import type {
 } from "@/lib/codexforge/brain/runtime";
 import { recommendTopologyNextAction } from "@/lib/codexforge/brain/runtime";
 import { topologySignalColor } from "./brain-topology-legend";
+import { buildStableReactKey } from "./brain-react-key";
 
 type Selection = CodexForgeSemanticHeatmapCell | CodexForgeKnowledgeClusterNode | null;
 
@@ -88,8 +89,8 @@ function List({ title, items }: { title: string; items: readonly string[] }) {
     <div style={listStyle}>
       <div style={eyebrowStyle}>{title}</div>
       {items.length > 0 ? (
-        items.slice(0, 8).map((item) => (
-          <div key={item} style={rowStyle}>
+        items.slice(0, 8).map((item, index) => (
+          <div key={buildStableReactKey("topology-inspector-row", [title, item], index)} style={rowStyle}>
             {item}
           </div>
         ))

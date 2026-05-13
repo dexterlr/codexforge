@@ -13,6 +13,7 @@ import {
 } from "@/lib/codexforge/brain/runtime";
 import { BrainHealthInspector } from "./brain-health-inspector";
 import { BrainSubsystemStatusCard } from "./brain-subsystem-status-card";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainSystemStatusPanelProps = {
   graph?: CodexForgeBrainGraph;
@@ -71,7 +72,7 @@ export function BrainSystemStatusPanel({ graph }: BrainSystemStatusPanelProps) {
 
       <div data-codexforge-brain-cognition-pipeline style={pipelineStyle}>
         {PIPELINE.map((item, index) => (
-          <div key={item} style={pipelineStepStyle}>
+          <div key={buildStableReactKey("system-pipeline-step", [item], index)} style={pipelineStepStyle}>
             <strong>{item}</strong>
             <span>{index + 1}</span>
           </div>

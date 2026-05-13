@@ -15,6 +15,7 @@ import {
 import type { CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph";
 import { buildAgentRuntimeFixturePlan } from "@/lib/codexforge/agents/runtime";
 import { BrainReplayControls } from "./brain-replay-controls";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainReplayPanelProps = {
   graph: CodexForgeBrainGraph;
@@ -79,8 +80,12 @@ export function BrainReplayPanel({ graph, replayInput }: BrainReplayPanelProps) 
           <div style={sectionTitleStyle}>Replay highlights</div>
           <div style={listStyle}>
             {highlights.length > 0 ? (
-              highlights.map((highlight) => (
-                <div key={highlight} data-codexforge-brain-replay-highlight style={rowStyle}>
+              highlights.map((highlight, index) => (
+                <div
+                  key={buildStableReactKey("replay-highlight", [highlight], index)}
+                  data-codexforge-brain-replay-highlight
+                  style={rowStyle}
+                >
                   {highlight}
                 </div>
               ))

@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { listCodexForgeAgentRuntimeProfiles } from "@/lib/codexforge/agents/runtime";
+import { buildStableReactKey } from "./brain-react-key";
 
 export function BrainAgentActivityPanel() {
   const profiles = listCodexForgeAgentRuntimeProfiles();
@@ -46,8 +47,11 @@ function Lane({
   return (
     <div style={laneStyle}>
       <div style={sectionTitleStyle}>{title}</div>
-      {profiles.map((profile) => (
-        <div key={profile.role} style={agentStyle}>
+      {profiles.map((profile, index) => (
+        <div
+          key={buildStableReactKey("agent-profile", [title, profile.role, profile.permission], index)}
+          style={agentStyle}
+        >
           <strong>{profile.role}</strong>
           <span style={mutedStyle}>{profile.permission}</span>
           <span style={mutedStyle}>{profile.safeBoundaries[0]}</span>

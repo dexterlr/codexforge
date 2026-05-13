@@ -6,6 +6,7 @@ import type {
   CodexForgeBrainNode,
 } from "@/lib/codexforge/brain/graph";
 import { BrainLiveDataBoundary } from "./brain-live-data-boundary";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainMemoryClustersPanelProps = {
   graph: CodexForgeBrainGraph;
@@ -81,8 +82,8 @@ function List({ title, items }: { title: string; items: readonly string[] }) {
       <div style={sectionTitleStyle}>{title}</div>
       <div style={listStyle}>
         {items.length > 0 ? (
-          items.map((item) => (
-            <div key={item} style={rowStyle}>
+          items.map((item, index) => (
+            <div key={buildStableReactKey("memory-cluster-row", [title, item], index)} style={rowStyle}>
               {item}
             </div>
           ))

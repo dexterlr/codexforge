@@ -11,6 +11,7 @@ import {
   type CodexForgeRuntimeInsight,
 } from "@/lib/codexforge/brain/runtime";
 import { BrainInsightInspector } from "./brain-insight-inspector";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainInsightQueuePanelProps = {
   graph?: CodexForgeBrainGraph;
@@ -112,8 +113,8 @@ function Group({
     <section data-codexforge-brain-insight-queue-group style={groupStyle}>
       <div style={eyebrowStyle}>{title}</div>
       <div style={groupGridStyle}>
-        {groups.map(([label, insights]) => (
-          <div key={label} style={bucketStyle}>
+        {groups.map(([label, insights], index) => (
+          <div key={buildStableReactKey("insight-group", [title, label], index)} style={bucketStyle}>
             <div style={bucketHeaderStyle}>
               <strong>{label}</strong>
               <span>{insights.length}</span>

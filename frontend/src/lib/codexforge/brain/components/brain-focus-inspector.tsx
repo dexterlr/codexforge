@@ -5,6 +5,7 @@ import type {
   CodexForgeBrainFocusSignal,
   CodexForgeBrainFocusTarget,
 } from "@/lib/codexforge/brain/runtime";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainFocusInspectorProps = {
   target: CodexForgeBrainFocusTarget;
@@ -88,8 +89,8 @@ function List({ items }: { items: readonly string[] }) {
 
   return (
     <div style={listStyle}>
-      {items.map((item) => (
-        <span key={item}>{item}</span>
+      {items.map((item, index) => (
+        <span key={buildStableReactKey("focus-inspector-list", [item], index)}>{item}</span>
       ))}
     </div>
   );

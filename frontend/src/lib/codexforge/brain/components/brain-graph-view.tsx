@@ -6,6 +6,7 @@ import type {
   CodexForgeBrainGraph,
   CodexForgeBrainNode,
 } from "@/lib/codexforge/brain/graph";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainGraphViewProps = {
   graph: CodexForgeBrainGraph;
@@ -470,9 +471,9 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                   Visible node kinds
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {visibleKinds.map((kind) => (
+                  {visibleKinds.map((kind, index) => (
                     <span
-                      key={kind}
+                      key={buildStableReactKey("visible-node-kind", [kind], index)}
                       style={{
                         display: "inline-flex",
                         gap: 6,

@@ -3,6 +3,7 @@ import type {
   CodexForgeRuntimeInsight,
   CodexForgeRuntimeRecommendation,
 } from "@/lib/codexforge/brain/runtime";
+import { buildStableReactKey } from "./brain-react-key";
 
 type BrainInsightInspectorProps = {
   insight?: CodexForgeRuntimeInsight | null;
@@ -87,8 +88,10 @@ function Section({ title, items }: { title: string; items: readonly string[] }) 
     <section style={sectionStyle}>
       <div style={eyebrowStyle}>{title}</div>
       {items.length > 0 ? (
-        items.slice(0, 8).map((item) => (
-          <div key={item} style={rowStyle}>{item}</div>
+        items.slice(0, 8).map((item, index) => (
+          <div key={buildStableReactKey("insight-section-row", [title, item], index)} style={rowStyle}>
+            {item}
+          </div>
         ))
       ) : (
         <div style={emptyStyle}>No signal available.</div>
