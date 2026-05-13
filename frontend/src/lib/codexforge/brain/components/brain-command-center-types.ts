@@ -14,6 +14,8 @@ export type CodexForgeBrainCommandMode =
   | "agent-activity"
   | "prediction"
   | "knowledge-clusters"
+  | "semantic-heatmap"
+  | "knowledge-topology"
   | "runtime-health"
   | "replay"
   | "lineage"

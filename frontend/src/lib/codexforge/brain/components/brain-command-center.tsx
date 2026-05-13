@@ -7,9 +7,11 @@ import { BrainMemoryClustersPanel } from "./brain-memory-clusters-panel";
 import { BrainModeTabs } from "./brain-mode-tabs";
 import { BrainPredictionPanel } from "./brain-prediction-panel";
 import { BrainLineagePanel } from "./brain-lineage-panel";
+import { BrainKnowledgeTopologyPanel } from "./brain-knowledge-topology-panel";
 import { BrainReplayPanel } from "./brain-replay-panel";
 import { BrainRiskPanel } from "./brain-risk-panel";
 import { BrainRuntimeHealthPanel } from "./brain-runtime-health-panel";
+import { BrainSemanticHeatmapPanel } from "./brain-semantic-heatmap-panel";
 import { BrainTimelinePanel } from "./brain-timeline-panel";
 import type {
   CodexForgeBrainCommandCenterProps,
@@ -54,6 +56,8 @@ export function BrainCommandCenter({
         <BrainTimelinePanel graph={graph} />
         <BrainReplayPanel graph={graph} />
         <BrainLineagePanel graph={graph} />
+        <BrainSemanticHeatmapPanel graph={graph} />
+        <BrainKnowledgeTopologyPanel graph={graph} />
       </div>
 
       <div style={modePanelStyle} data-codexforge-brain-active-mode={activeMode}>

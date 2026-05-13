@@ -68,6 +68,16 @@ export const BRAIN_COMMAND_CENTER_MODES: readonly CodexForgeBrainCommandCenterPa
     description: "Likely next files, risks, concepts, task focus, and architecture.",
   },
   {
+    id: "semantic-heatmap",
+    label: "Semantic Heatmap",
+    description: "Read-only cognitive heatmap for memory, risk, concepts, files, agents, and prediction.",
+  },
+  {
+    id: "knowledge-topology",
+    label: "Knowledge Topology",
+    description: "Deterministic read-only cluster topology with weighted relations and hotspots.",
+  },
+  {
     id: "knowledge-clusters",
     label: "Knowledge Clusters",
     description: "Memory cluster summaries and high-confidence concepts.",

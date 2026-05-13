@@ -97,6 +97,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Brain semantic topology"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-semantic-topology.ps1"
+    Required = $true
+  }
+  @{
     Name = "Brain runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-runtime.ps1"
     Required = $true

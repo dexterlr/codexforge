@@ -95,6 +95,30 @@ export {
   summarizeBrainRuntimeReplay,
 } from "./replay";
 
+export {
+  buildDeterministicTopologyLayout,
+  buildKnowledgeClusterEdges,
+  buildKnowledgeClusterNode,
+  buildKnowledgeTopology,
+  buildSemanticHeatmap,
+  buildSemanticHeatmapLayer,
+  buildSemanticTopologyFixtureContext,
+  buildSemanticTopologyFixtureEvents,
+  buildSemanticTopologyFixtureGraph,
+  buildSemanticTopologyFixtureMemory,
+  buildSemanticTopologyFixtureTopology,
+  groupTopologySignals,
+  normalizeHeatmapIntensity,
+  normalizeTopologyWeight,
+  positionTopologyCluster,
+  recommendTopologyNextAction,
+  scoreSemanticHeatmapCell,
+  selectTopologyHotspots,
+  sortTopologyClusters,
+  summarizeKnowledgeTopology,
+  summarizeSemanticHeatmap,
+} from "./topology";
+
 export type {
   CodexForgeBrainRuntimeContract,
   CodexForgeBrainRuntimeCognitiveMemoryApi,
@@ -173,6 +197,19 @@ export type {
   CodexForgeBrainReplayLaneId,
   CodexForgeBrainReplaySummary,
 } from "./replay";
+
+export type {
+  CodexForgeKnowledgeClusterEdge,
+  CodexForgeKnowledgeClusterNode,
+  CodexForgeKnowledgeTopology,
+  CodexForgeSemanticHeatmap,
+  CodexForgeSemanticHeatmapCell,
+  CodexForgeSemanticHeatmapLayer,
+  CodexForgeTopologyBuildInput,
+  CodexForgeTopologyLayoutPoint,
+  CodexForgeTopologySignalKind,
+  CodexForgeTopologySummary,
+} from "./topology";
 
 export type {
   CodexForgeBrainAppendEventResult,
