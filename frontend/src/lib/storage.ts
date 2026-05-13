@@ -16,7 +16,7 @@ export type CodexForgeActivityEntry = {
   tags?: string[];
   notes?: string;
 
-  // Legacy fields kept temporarily so old entry/history pages do not break
+  // Migration-only numeric fields retained so older local exports keep round-tripping.
   weight?: number;
   steps?: number;
   water?: number;
@@ -130,7 +130,7 @@ function normalizeEntry(raw: unknown, index = 0): CodexForgeActivityEntry | null
 
   const title =
     asTrimmedString(raw.title) ??
-    (hasLegacyMetrics ? "Legacy metric entry" : "Workspace entry");
+    (hasLegacyMetrics ? "Archived import" : "Workspace entry");
 
   return {
     id,

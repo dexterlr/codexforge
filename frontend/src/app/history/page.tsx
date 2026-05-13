@@ -27,72 +27,26 @@ type PersistResult = {
   how: string;
 };
 
-type TrendDirection = "up" | "down" | "flat" | "unknown";
-
-type LegacySignals = {
-  avgWeight?: number;
-  avgSteps?: number;
-  avgWater?: number;
-  avgSleep?: number;
-  weightDelta?: number;
-  stepDelta?: number;
-  sleepDelta?: number;
-  waterDelta?: number;
-  weightTrend: TrendDirection;
-};
-
-type LegacyStats = {
-  last7: ActivityEntry[];
-  last30: ActivityEntry[];
-  weights7: number[];
-  steps7: number[];
-  water7: number[];
-  sleep7: number[];
-  weights30: number[];
-  steps30: number[];
-  water30: number[];
-  sleep30: number[];
-  countWithAnyMetric: number;
-};
-
-type ActivityTotals = {
+type ActivityStats = {
   total: number;
   visible: number;
-  notes: number;
-  tagged: number;
+  active: number;
+  done: number;
+  blocked: number;
+  decisions: number;
+  memory: number;
   latestDate: string;
 };
 
-type HeroStatus = {
+type ActivitySignal = {
   label: string;
   value: string;
+  detail: string;
+  accent: string;
 };
 
 const MAX_VISIBLE_ENTRIES = 100;
-
-/* =========================
-   helpers
-========================= */
-
-function clamp(n: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, n));
-}
-
-function round1(n: number) {
-  return Math.round(n * 10) / 10;
-}
-
-function avg(nums: number[]) {
-  if (nums.length === 0) return 0;
-  return nums.reduce((a, b) => a + b, 0) / nums.length;
-}
-
-function median(nums: number[]) {
-  if (nums.length === 0) return 0;
-  const sorted = [...nums].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-}
+const EMPTY = "-";
 
 function isNum(v: unknown): v is number {
   return typeof v === "number" && Number.isFinite(v);
@@ -102,10 +56,6 @@ function asRecord(v: unknown): Record<string, unknown> | null {
   return v && typeof v === "object" && !Array.isArray(v)
     ? (v as Record<string, unknown>)
     : null;
-}
-
-function parseOptionalNumber(v: unknown): number | undefined {
-  return isNum(v) ? v : undefined;
 }
 
 function parseOptionalString(v: unknown): string | undefined {
@@ -168,7 +118,7 @@ function withinRange(dateYYYYMMDD: string, range: RangeMode) {
 
 function safeTrim(s: string, max: number) {
   if (s.length <= max) return s;
-  return `${s.slice(0, max - 1)}Ã¢â‚¬Â¦`;
+  return `${s.slice(0, max - 1)}...`;
 }
 
 function makeToastMessage(prefix: string, msg: string) {
@@ -208,64 +158,33 @@ function normalizeEntry(x: unknown, idx: number): ActivityEntry {
   }
 
   const idRaw = typeof record.id === "string" ? record.id : "";
-  const id = idRaw || safeId();
-
-  const weight = parseOptionalNumber(record.weight);
-  const steps = parseOptionalNumber(record.steps);
-  const water = parseOptionalNumber(record.water);
-  const sleep = parseOptionalNumber(record.sleep);
-  const notes = parseOptionalString(record.notes);
-  const title =
-    parseOptionalString(record.title) ??
-    ((weight ?? steps ?? water ?? sleep) !== undefined
-      ? "Legacy metric entry"
-      : "Workspace entry");
 
   return {
-    id,
+    ...(record as ActivityEntry),
+    id: idRaw || safeId(),
     date,
-    title,
+    title: parseOptionalString(record.title) ?? "Archived import",
     summary: parseOptionalString(record.summary),
     category: normalizeCategory(record.category),
     status: normalizeStatus(record.status),
     tags: parseOptionalStringArray(record.tags),
-    notes,
-    weight,
-    steps,
-    water,
-    sleep,
+    notes: parseOptionalString(record.notes),
   };
 }
 
 function toCSV(entries: ActivityEntry[]) {
-  const header = [
-    "date",
-    "title",
-    "category",
-    "status",
-    "summary",
-    "tags",
-    "notes",
-    "weight",
-    "steps",
-    "water",
-    "sleep",
-  ].join(",");
+  const header = ["date", "title", "category", "status", "summary", "tags", "notes"].join(",");
 
   const rows = entries.map((entry) => {
     const esc = (s: string) => `"${s.replaceAll('"', '""')}"`;
     return [
       entry.date ?? "",
       entry.title ? esc(entry.title) : "",
-      entry.category ?? "",
+      formatCategoryLabel(entry.category),
       entry.status ?? "",
       entry.summary ? esc(entry.summary) : "",
       entry.tags?.length ? esc(entry.tags.join(", ")) : "",
       entry.notes ? esc(entry.notes) : "",
-      isNum(entry.weight) ? String(entry.weight) : "",
-      isNum(entry.steps) ? String(entry.steps) : "",
-      isNum(entry.water) ? String(entry.water) : "",
-      isNum(entry.sleep) ? String(entry.sleep) : "",
     ].join(",");
   });
 
@@ -290,129 +209,114 @@ async function readFileAsText(file: File) {
   return await file.text();
 }
 
-function spark(values: number[], width = 24) {
-  if (values.length < 2) return "Ã¢â‚¬â€";
-
-  const blocks = "Ã¢â€“ÂÃ¢â€“â€šÃ¢â€“Æ’Ã¢â€“â€žÃ¢â€“â€¦Ã¢â€“â€ Ã¢â€“â€¡Ã¢â€“Ë†";
-  const minV = Math.min(...values);
-  const maxV = Math.max(...values);
-  const span = maxV - minV || 1;
-
-  const sampled: number[] = [];
-  for (let i = 0; i < width; i += 1) {
-    const idx = Math.floor((i / (width - 1)) * (values.length - 1));
-    sampled.push(values[idx]);
-  }
-
-  return sampled
-    .map((v) => {
-      const t = (v - minV) / span;
-      const blockIndex = Math.floor(t * (blocks.length - 1));
-      return blocks[clamp(blockIndex, 0, blocks.length - 1)];
-    })
-    .join("");
+function countBy<T extends string | undefined>(
+  entries: ActivityEntry[],
+  read: (entry: ActivityEntry) => T,
+  value: T
+) {
+  return entries.filter((entry) => read(entry) === value).length;
 }
 
-function computeLegacyStats(entriesNewestFirst: ActivityEntry[]): LegacyStats {
-  const legacyEntries = entriesNewestFirst.filter(
-    (entry) =>
-      entry.category === "legacy-metric" ||
-      isNum(entry.weight) ||
-      isNum(entry.steps) ||
-      isNum(entry.water) ||
-      isNum(entry.sleep)
-  );
-
-  const last7 = legacyEntries.slice(0, 7);
-  const last30 = legacyEntries.slice(0, 30);
-
-  const weights7 = last7.map((e) => e.weight).filter(isNum);
-  const steps7 = last7.map((e) => e.steps).filter(isNum);
-  const water7 = last7.map((e) => e.water).filter(isNum);
-  const sleep7 = last7.map((e) => e.sleep).filter(isNum);
-
-  const weights30 = last30.map((e) => e.weight).filter(isNum);
-  const steps30 = last30.map((e) => e.steps).filter(isNum);
-  const water30 = last30.map((e) => e.water).filter(isNum);
-  const sleep30 = last30.map((e) => e.sleep).filter(isNum);
-
-  const countWithAnyMetric = last7.filter((e) => {
-    return (
-      isNum(e.weight) ||
-      isNum(e.steps) ||
-      isNum(e.water) ||
-      isNum(e.sleep) ||
-      !!e.notes
-    );
-  }).length;
+function computeActivityStats(
+  entries: ActivityEntry[],
+  filteredEntries: ActivityEntry[]
+): ActivityStats {
+  const latestDate = entries.slice().sort(compareByDateDesc)[0]?.date ?? EMPTY;
 
   return {
-    last7,
-    last30,
-    weights7,
-    steps7,
-    water7,
-    sleep7,
-    weights30,
-    steps30,
-    water30,
-    sleep30,
-    countWithAnyMetric,
+    total: entries.length,
+    visible: filteredEntries.length,
+    active: countBy(entries, (entry) => entry.status, "active"),
+    done: countBy(entries, (entry) => entry.status, "done"),
+    blocked: countBy(entries, (entry) => entry.status, "blocked"),
+    decisions: countBy(entries, (entry) => entry.category, "decision"),
+    memory: countBy(entries, (entry) => entry.category, "memory"),
+    latestDate,
   };
 }
 
-function trendFromDelta(delta: number | undefined, flatThreshold: number) {
-  if (!isNum(delta)) return "unknown" as TrendDirection;
-  if (Math.abs(delta) < flatThreshold) return "flat" as TrendDirection;
-  return delta > 0 ? ("up" as TrendDirection) : ("down" as TrendDirection);
-}
+function getActivitySignals(entriesNewestFirst: ActivityEntry[]): ActivitySignal[] {
+  const categoryCounts = entriesNewestFirst.reduce<Record<string, number>>((acc, entry) => {
+    const label = formatCategoryLabel(entry.category);
+    acc[label] = (acc[label] ?? 0) + 1;
+    return acc;
+  }, {});
 
-function getLegacySignals(entriesNewestFirst: ActivityEntry[]): LegacySignals {
-  const stats = computeLegacyStats(entriesNewestFirst);
+  const statusCounts = entriesNewestFirst.reduce<Record<string, number>>((acc, entry) => {
+    const label = formatStatusLabel(entry.status);
+    acc[label] = (acc[label] ?? 0) + 1;
+    return acc;
+  }, {});
 
-  const avgWeight = stats.weights7.length ? round1(avg(stats.weights7)) : undefined;
-  const avgSteps = stats.steps7.length ? Math.round(avg(stats.steps7)) : undefined;
-  const avgWater = stats.water7.length ? round1(avg(stats.water7)) : undefined;
-  const avgSleep = stats.sleep7.length ? round1(avg(stats.sleep7)) : undefined;
-
-  const weightDelta =
-    stats.weights7.length >= 2
-      ? round1(stats.weights7[0] - stats.weights7[stats.weights7.length - 1])
-      : undefined;
-
-  const stepDelta =
-    stats.steps7.length >= 2
-      ? Math.round(stats.steps7[0] - stats.steps7[stats.steps7.length - 1])
-      : undefined;
-
-  const sleepDelta =
-    stats.sleep7.length >= 2
-      ? round1(stats.sleep7[0] - stats.sleep7[stats.sleep7.length - 1])
-      : undefined;
-
-  const waterDelta =
-    stats.water7.length >= 2
-      ? round1(stats.water7[0] - stats.water7[stats.water7.length - 1])
-      : undefined;
-
-  return {
-    avgWeight,
-    avgSteps,
-    avgWater,
-    avgSleep,
-    weightDelta,
-    stepDelta,
-    sleepDelta,
-    waterDelta,
-    weightTrend: trendFromDelta(weightDelta, 0.3),
-  };
+  return [
+    {
+      label: "Plans",
+      value: formatNum(categoryCounts.Plan ?? 0),
+      detail: "Structured intent captured",
+      accent: "rgba(99,102,241,0.42)",
+    },
+    {
+      label: "Tasks",
+      value: formatNum(categoryCounts.Task ?? 0),
+      detail: "Actionable work items",
+      accent: "rgba(245,158,11,0.34)",
+    },
+    {
+      label: "Research",
+      value: formatNum(categoryCounts.Research ?? 0),
+      detail: "Evidence and unknowns",
+      accent: "rgba(20,184,166,0.36)",
+    },
+    {
+      label: "Decisions",
+      value: formatNum(categoryCounts.Decision ?? 0),
+      detail: "Committed direction",
+      accent: "rgba(236,72,153,0.34)",
+    },
+    {
+      label: "Executions",
+      value: formatNum(categoryCounts.Execution ?? 0),
+      detail: "Build and run activity",
+      accent: "rgba(16,185,129,0.36)",
+    },
+    {
+      label: "Memory",
+      value: formatNum(categoryCounts.Memory ?? 0),
+      detail: "Reusable context",
+      accent: "rgba(59,130,246,0.36)",
+    },
+    {
+      label: "Notes",
+      value: formatNum(categoryCounts.Note ?? 0),
+      detail: "Operator observations",
+      accent: "rgba(148,163,184,0.30)",
+    },
+    {
+      label: "Active",
+      value: formatNum(statusCounts.Active ?? 0),
+      detail: "Currently moving",
+      accent: "rgba(34,197,94,0.35)",
+    },
+    {
+      label: "Done",
+      value: formatNum(statusCounts.Done ?? 0),
+      detail: "Completed entries",
+      accent: "rgba(45,212,191,0.32)",
+    },
+    {
+      label: "Blocked",
+      value: formatNum(statusCounts.Blocked ?? 0),
+      detail: "Needs intervention",
+      accent: "rgba(248,113,113,0.36)",
+    },
+  ];
 }
 
 function buildLocalSummary(entriesNewestFirst: ActivityEntry[]) {
   if (entriesNewestFirst.length === 0) {
     return [
-      "CodexForge Activity Summary",
-      "===========================",
+      "CodexForge Activity Intelligence",
+      "==============================",
       "",
       "Status",
       "------",
@@ -420,95 +324,70 @@ function buildLocalSummary(entriesNewestFirst: ActivityEntry[]) {
       "",
       "Suggested next actions",
       "----------------------",
-      "Ã¢â‚¬Â¢ Use /entry to launch a real CodexForge task into the AI workspace.",
-      "Ã¢â‚¬Â¢ Let /history evolve into plans, runs, decisions, and memory events.",
-      "Ã¢â‚¬Â¢ Keep AI optional so local summaries always work instantly.",
+      "- Use /entry to launch a CodexForge task into the AI workspace.",
+      "- Capture plans, runs, decisions, and memory events as the timeline evolves.",
+      "- Keep AI optional so local summaries always work instantly.",
       "",
       "Mode: LOCAL (no AI, instant, offline-safe)",
     ].join("\n");
   }
 
-  const legacyStats = computeLegacyStats(entriesNewestFirst);
-  const signals = getLegacySignals(entriesNewestFirst);
-
   const categoryCounts = entriesNewestFirst.reduce<Record<string, number>>((acc, entry) => {
-    acc[entry.category] = (acc[entry.category] ?? 0) + 1;
+    const label = formatCategoryLabel(entry.category);
+    acc[label] = (acc[label] ?? 0) + 1;
     return acc;
   }, {});
-
+  const statusCounts = entriesNewestFirst.reduce<Record<string, number>>((acc, entry) => {
+    const label = formatStatusLabel(entry.status);
+    acc[label] = (acc[label] ?? 0) + 1;
+    return acc;
+  }, {});
   const latest = entriesNewestFirst[0];
 
-  const lines: string[] = [];
-  lines.push("CodexForge Activity Summary");
-  lines.push("===========================");
-  lines.push("Scope: Workspace activity history");
-  lines.push("");
-
-  lines.push("Activity overview");
-  lines.push("-----------------");
-  lines.push(`Total entries: ${entriesNewestFirst.length}`);
-  lines.push(`Plans: ${categoryCounts.plan ?? 0}`);
-  lines.push(`Tasks: ${categoryCounts.task ?? 0}`);
-  lines.push(`Research: ${categoryCounts.research ?? 0}`);
-  lines.push(`Execution: ${categoryCounts.execution ?? 0}`);
-  lines.push(`Decisions: ${categoryCounts.decision ?? 0}`);
-  lines.push(`Memory: ${categoryCounts.memory ?? 0}`);
-  lines.push(`Notes: ${categoryCounts.note ?? 0}`);
-  lines.push(`Legacy metric: ${categoryCounts["legacy-metric"] ?? 0}`);
-  lines.push("");
-
-  lines.push("Latest entry");
-  lines.push("------------");
-  lines.push(`Title: ${latest.title}`);
-  lines.push(`Category: ${latest.category}`);
-  lines.push(`Date: ${latest.date}`);
-  if (latest.status) lines.push(`Status: ${latest.status}`);
-  if (latest.summary) lines.push(`Summary: ${latest.summary}`);
-  lines.push("");
-
-  lines.push("Legacy metric snapshot");
-  lines.push("----------------------");
-  if (legacyStats.last7.length === 0) {
-    lines.push("Ã¢â‚¬Â¢ No legacy metrics found in recent entries.");
-  } else {
-    if (legacyStats.weights7.length) {
-      lines.push(`Ã¢â‚¬Â¢ Avg weight (7): ${round1(avg(legacyStats.weights7)).toFixed(1)} kg`);
-    }
-    if (legacyStats.steps7.length) {
-      lines.push(`Ã¢â‚¬Â¢ Avg steps (7): ${formatNum(Math.round(avg(legacyStats.steps7)))}`);
-    }
-    if (legacyStats.water7.length) {
-      lines.push(`Ã¢â‚¬Â¢ Avg water (7): ${round1(avg(legacyStats.water7)).toFixed(1)} L`);
-    }
-    if (legacyStats.sleep7.length) {
-      lines.push(`Ã¢â‚¬Â¢ Avg sleep (7): ${round1(avg(legacyStats.sleep7)).toFixed(1)} hrs`);
-    }
-
-    if (signals.weightTrend === "flat") {
-      lines.push("Ã¢â‚¬Â¢ Weight is broadly stable across recent legacy entries.");
-    } else if (signals.weightTrend === "up" && isNum(signals.weightDelta)) {
-      lines.push(`Ã¢â‚¬Â¢ Weight is trending upward by about ${round1(signals.weightDelta).toFixed(1)} kg.`);
-    } else if (signals.weightTrend === "down" && isNum(signals.weightDelta)) {
-      lines.push(
-        `Ã¢â‚¬Â¢ Weight is trending downward by about ${round1(Math.abs(signals.weightDelta)).toFixed(1)} kg.`
-      );
-    }
-  }
-  lines.push("");
-
-  lines.push("Suggested next actions");
-  lines.push("----------------------");
-  lines.push("Ã¢â‚¬Â¢ Keep using /entry as a CodexForge launchpad, not a health form.");
-  lines.push("Ã¢â‚¬Â¢ Move future history items toward plans, runs, approvals, and memory events.");
-  lines.push("Ã¢â‚¬Â¢ Preserve legacy data only as historical compatibility content.");
-  lines.push("");
-  lines.push("Mode: LOCAL (no AI, instant, offline-safe)");
-
-  return lines.join("\n");
+  return [
+    "CodexForge Activity Intelligence",
+    "==============================",
+    "Scope: Workspace activity timeline",
+    "",
+    "Activity overview",
+    "-----------------",
+    `Total entries: ${entriesNewestFirst.length}`,
+    `Plans: ${categoryCounts.Plan ?? 0}`,
+    `Tasks: ${categoryCounts.Task ?? 0}`,
+    `Research: ${categoryCounts.Research ?? 0}`,
+    `Executions: ${categoryCounts.Execution ?? 0}`,
+    `Decisions: ${categoryCounts.Decision ?? 0}`,
+    `Memory: ${categoryCounts.Memory ?? 0}`,
+    `Notes: ${categoryCounts.Note ?? 0}`,
+    `Archived imports: ${categoryCounts["Archived import"] ?? 0}`,
+    "",
+    "Operator state",
+    "--------------",
+    `Active: ${statusCounts.Active ?? 0}`,
+    `Done: ${statusCounts.Done ?? 0}`,
+    `Blocked: ${statusCounts.Blocked ?? 0}`,
+    "",
+    "Latest entry",
+    "------------",
+    `Title: ${latest.title}`,
+    `Category: ${formatCategoryLabel(latest.category)}`,
+    `Date: ${latest.date}`,
+    latest.status ? `Status: ${formatStatusLabel(latest.status)}` : "",
+    latest.summary ? `Summary: ${latest.summary}` : "",
+    "",
+    "Suggested next actions",
+    "----------------------",
+    "- Promote blocked entries into explicit follow-up tasks.",
+    "- Convert important outcomes into decisions or memory items.",
+    "- Use exports when handing activity context to another workspace.",
+    "",
+    "Mode: LOCAL (no AI, instant, offline-safe)",
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
 }
 
 function buildExportSummary(entriesNewestFirst: ActivityEntry[]) {
-  const legacyStats = computeLegacyStats(entriesNewestFirst);
   const latest = entriesNewestFirst[0];
 
   return [
@@ -516,9 +395,8 @@ function buildExportSummary(entriesNewestFirst: ActivityEntry[]) {
     "=================================",
     `Generated: ${new Date().toISOString()}`,
     `Total entries: ${entriesNewestFirst.length}`,
-    `Latest entry: ${latest?.date ?? "Ã¢â‚¬â€"}`,
-    `Latest title: ${latest?.title ?? "Ã¢â‚¬â€"}`,
-    `Legacy metric entries (7d): ${legacyStats.countWithAnyMetric}/${legacyStats.last7.length || 0}`,
+    `Latest entry: ${latest?.date ?? EMPTY}`,
+    `Latest title: ${latest?.title ?? EMPTY}`,
     "",
     buildLocalSummary(entriesNewestFirst),
   ].join("\n");
@@ -543,7 +421,7 @@ function formatCategoryLabel(category: ActivityEntry["category"]) {
     case "memory":
       return "Memory";
     case "legacy-metric":
-      return "Legacy metric";
+      return "Archived import";
     case "note":
     default:
       return "Note";
@@ -551,7 +429,7 @@ function formatCategoryLabel(category: ActivityEntry["category"]) {
 }
 
 function formatStatusLabel(status?: ActivityEntry["status"]) {
-  if (!status) return "Ã¢â‚¬â€";
+  if (!status) return EMPTY;
   if (status === "idea") return "Idea";
   if (status === "active") return "Active";
   if (status === "done") return "Done";
@@ -567,56 +445,6 @@ async function persistEntriesBestEffort(next: ActivityEntry[]): Promise<PersistR
     return { ok: false, how: "unknown" };
   }
 }
-
-function getActivityTotals(
-  entries: ActivityEntry[],
-  filteredEntries: ActivityEntry[]
-): ActivityTotals {
-  const latestDate = entries.slice().sort(compareByDateDesc)[0]?.date ?? "Ã¢â‚¬â€";
-
-  return {
-    total: entries.length,
-    visible: filteredEntries.length,
-    notes: entries.filter((entry) => !!entry.notes?.trim()).length,
-    tagged: entries.filter((entry) => (entry.tags?.length ?? 0) > 0).length,
-    latestDate,
-  };
-}
-
-function getHeroStatuses(
-  categoryCounts: Record<string, number>,
-  quickFacts: LegacySignals
-): HeroStatus[] {
-  return [
-    {
-      label: "Primary role",
-      value: "Workspace activity log",
-    },
-    {
-      label: "AI policy",
-      value: "Optional, never blocking",
-    },
-    {
-      label: "Latest metric trend",
-      value:
-        quickFacts.weightTrend === "flat"
-          ? "Stable"
-          : quickFacts.weightTrend === "up"
-            ? "Rising"
-            : quickFacts.weightTrend === "down"
-              ? "Falling"
-              : "Insufficient data",
-    },
-    {
-      label: "Migration state",
-      value: categoryCounts["legacy-metric"] ? "Legacy metric data present" : "CodexForge-first",
-    },
-  ];
-}
-
-/* =========================
-   page
-========================= */
 
 export default function HistoryPage() {
   const [mounted, setMounted] = useState(false);
@@ -659,16 +487,11 @@ export default function HistoryPage() {
     return loadEntries();
   }, [mounted, reloadTick]);
 
-  const sortedEntries = useMemo(() => {
-    return entries.slice().sort(compareByDateDesc);
-  }, [entries]);
-
-  const legacyStats = useMemo(() => computeLegacyStats(sortedEntries), [sortedEntries]);
+  const sortedEntries = useMemo(() => entries.slice().sort(compareByDateDesc), [entries]);
   const latest = useMemo(() => sortedEntries[0], [sortedEntries]);
 
   const filteredEntries = useMemo(() => {
     const q = query.trim().toLowerCase();
-
     let list = entries.slice();
 
     list.sort((a, b) => {
@@ -691,13 +514,9 @@ export default function HistoryPage() {
           entry.title ?? "",
           entry.summary ?? "",
           entry.notes ?? "",
-          entry.category ?? "",
-          entry.status ?? "",
+          formatCategoryLabel(entry.category),
+          formatStatusLabel(entry.status),
           ...(entry.tags ?? []),
-          isNum(entry.weight) ? String(entry.weight) : "",
-          isNum(entry.steps) ? String(entry.steps) : "",
-          isNum(entry.water) ? String(entry.water) : "",
-          isNum(entry.sleep) ? String(entry.sleep) : "",
         ]
           .join(" ")
           .toLowerCase();
@@ -714,43 +533,12 @@ export default function HistoryPage() {
     [filteredEntries]
   );
 
-  const categoryCounts = useMemo(() => {
-    return entries.reduce<Record<string, number>>((acc, entry) => {
-      acc[entry.category] = (acc[entry.category] ?? 0) + 1;
-      return acc;
-    }, {});
-  }, [entries]);
-
-  const quickFacts = useMemo(() => getLegacySignals(sortedEntries), [sortedEntries]);
-  const totals = useMemo(
-    () => getActivityTotals(entries, filteredEntries),
+  const stats = useMemo(
+    () => computeActivityStats(entries, filteredEntries),
     [entries, filteredEntries]
   );
-  const heroStatuses = useMemo(
-    () => getHeroStatuses(categoryCounts, quickFacts),
-    [categoryCounts, quickFacts]
-  );
 
-  const weightsForSpark = legacyStats.last30
-    .slice()
-    .reverse()
-    .map((e) => e.weight)
-    .filter(isNum);
-  const stepsForSpark = legacyStats.last30
-    .slice()
-    .reverse()
-    .map((e) => e.steps)
-    .filter(isNum);
-  const waterForSpark = legacyStats.last30
-    .slice()
-    .reverse()
-    .map((e) => e.water)
-    .filter(isNum);
-  const sleepForSpark = legacyStats.last30
-    .slice()
-    .reverse()
-    .map((e) => e.sleep)
-    .filter(isNum);
+  const signals = useMemo(() => getActivitySignals(sortedEntries), [sortedEntries]);
 
   function onReload() {
     setReloadTick((x) => x + 1);
@@ -928,17 +716,17 @@ export default function HistoryPage() {
         <div style={topBar}>
           <div style={navGroup}>
             <Link href="/" style={navLink}>
-              Ã¢â€ Â Home
+              Home
             </Link>
-            <div style={dot}>Ã¢â‚¬Â¢</div>
+            <span style={dot}>/</span>
             <Link href="/ai" style={navLink}>
               AI workspace
             </Link>
-            <div style={dot}>Ã¢â‚¬Â¢</div>
+            <span style={dot}>/</span>
             <Link href="/entry" style={navLink}>
               Launch task
             </Link>
-            <div style={dot}>Ã¢â‚¬Â¢</div>
+            <span style={dot}>/</span>
             <button onClick={onReload} style={ghostBtn} title="Reload local activity">
               Reload
             </button>
@@ -984,40 +772,64 @@ export default function HistoryPage() {
 
         {importError ? <div style={toastErr}>Import error: {importError}</div> : null}
 
-        <div style={heroCard}>
+        <section style={heroCard}>
+          <div style={heroGlow} aria-hidden="true" />
           <div style={heroText}>
-            <div style={eyebrow}>CodexForge activity</div>
-            <h1 style={title}>Workspace History</h1>
+            <div style={eyebrow}>CodexForge Activity Intelligence</div>
+            <h1 style={title}>Operator Timeline</h1>
             <div style={subtitle}>
-              This page is now the local activity surface for CodexForge. It tracks plans, tasks,
-              decisions, research, execution events, memory-oriented notes, and migration-safe
-              legacy data while the rest of the workspace catches up.
+              A local-first command surface for plans, tasks, research, executions, decisions,
+              memory, and notes. Search the workspace record, export context, and generate
+              optional summaries without blocking the timeline.
             </div>
           </div>
 
           <div style={heroPills}>
-            <StatPill label="Entries" value={formatNum(totals.total)} />
-            <StatPill label="Visible" value={formatNum(totals.visible)} />
-            <StatPill label="Tagged" value={formatNum(totals.tagged)} />
-            <StatPill label="Latest" value={totals.latestDate} />
+            <StatPill label="Total activity" value={formatNum(stats.total)} />
+            <StatPill label="Visible" value={formatNum(stats.visible)} />
+            <StatPill label="Active" value={formatNum(stats.active)} />
+            <StatPill label="Done" value={formatNum(stats.done)} />
+            <StatPill label="Blocked" value={formatNum(stats.blocked)} />
+            <StatPill label="Latest" value={stats.latestDate} />
           </div>
 
           <div style={heroMetaRow}>
-            {heroStatuses.map((item) => (
-              <div key={item.label} style={heroMetaCard}>
-                <div style={heroMetaLabel}>{item.label}</div>
-                <div style={heroMetaValue}>{item.value}</div>
-              </div>
-            ))}
+            <div style={heroMetaCard}>
+              <div style={heroMetaLabel}>Primary role</div>
+              <div style={heroMetaValue}>Workspace activity log</div>
+            </div>
+            <div style={heroMetaCard}>
+              <div style={heroMetaLabel}>AI policy</div>
+              <div style={heroMetaValue}>Optional, never blocking</div>
+            </div>
+            <div style={heroMetaCard}>
+              <div style={heroMetaLabel}>Local mode</div>
+              <div style={heroMetaValue}>Import, export, and summaries work offline</div>
+            </div>
+            <div style={heroMetaCard}>
+              <div style={heroMetaLabel}>Timeline state</div>
+              <div style={heroMetaValue}>{stats.blocked > 0 ? "Intervention required" : "Clear"}</div>
+            </div>
           </div>
-        </div>
+        </section>
+
+        <section style={statusStrip}>
+          <DashboardCard label="Total activity" value={formatNum(stats.total)} detail="All local entries" />
+          <DashboardCard label="Filtered view" value={formatNum(stats.visible)} detail="Matches current controls" />
+          <DashboardCard label="Active items" value={formatNum(stats.active)} detail="In motion" />
+          <DashboardCard label="Completed items" value={formatNum(stats.done)} detail="Closed out" />
+          <DashboardCard label="Blocked items" value={formatNum(stats.blocked)} detail="Needs attention" />
+          <DashboardCard label="Decisions" value={formatNum(stats.decisions)} detail="Committed direction" />
+          <DashboardCard label="Memory items" value={formatNum(stats.memory)} detail="Reusable context" />
+          <DashboardCard label="Latest activity" value={stats.latestDate} detail="Newest timestamp" />
+        </section>
 
         <section style={card}>
           <div style={toolbarGrid}>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by title, summary, notes, tags, date, id, or metric"
+              placeholder="Search title, summary, notes, tags, date, id, category, or status"
               style={textInput}
             />
 
@@ -1054,7 +866,7 @@ export default function HistoryPage() {
               <option value="execution">Execution</option>
               <option value="memory">Memory</option>
               <option value="note">Note</option>
-              <option value="legacy-metric">Legacy metric</option>
+              <option value="legacy-metric">Archived import</option>
             </select>
 
             <button onClick={onResetFilters} style={ghostBtn}>
@@ -1066,49 +878,24 @@ export default function HistoryPage() {
             <span style={metaChip}>Showing {visibleEntries.length} of {filteredEntries.length}</span>
             <span style={metaChip}>Sort: {sortMode}</span>
             <span style={metaChip}>Range: {rangeMode}</span>
-            <span style={metaChip}>Category: {categoryMode}</span>
+            <span style={metaChip}>Category: {categoryMode === "all" ? "all" : formatCategoryLabel(categoryMode)}</span>
           </div>
         </section>
 
         <section style={card}>
           <div style={sectionHead}>
             <div>
-              <div style={sectionTitle}>Legacy metric snapshot</div>
+              <div style={sectionTitle}>Activity Signals</div>
               <div style={sectionSub}>
-                These cards remain only to support migrated health data while the page becomes true CodexForge history.
+                Operator-grade counters for the current workspace record.
               </div>
             </div>
           </div>
 
-          <div style={statsGrid}>
-            <StatCard
-              label="Weight"
-              avg7={legacyStats.weights7.length ? `${round1(avg(legacyStats.weights7)).toFixed(1)} kg` : "Ã¢â‚¬â€"}
-              med7={legacyStats.weights7.length ? `${round1(median(legacyStats.weights7)).toFixed(1)} kg` : "Ã¢â‚¬â€"}
-              spark30={weightsForSpark.length ? spark(weightsForSpark) : "Ã¢â‚¬â€"}
-              hint="Legacy metric support only."
-            />
-            <StatCard
-              label="Steps"
-              avg7={legacyStats.steps7.length ? formatNum(Math.round(avg(legacyStats.steps7))) : "Ã¢â‚¬â€"}
-              med7={legacyStats.steps7.length ? formatNum(Math.round(median(legacyStats.steps7))) : "Ã¢â‚¬â€"}
-              spark30={stepsForSpark.length ? spark(stepsForSpark) : "Ã¢â‚¬â€"}
-              hint="Legacy metric support only."
-            />
-            <StatCard
-              label="Water"
-              avg7={legacyStats.water7.length ? `${round1(avg(legacyStats.water7)).toFixed(1)} L` : "Ã¢â‚¬â€"}
-              med7={legacyStats.water7.length ? `${round1(median(legacyStats.water7)).toFixed(1)} L` : "Ã¢â‚¬â€"}
-              spark30={waterForSpark.length ? spark(waterForSpark) : "Ã¢â‚¬â€"}
-              hint="Legacy metric support only."
-            />
-            <StatCard
-              label="Sleep"
-              avg7={legacyStats.sleep7.length ? `${round1(avg(legacyStats.sleep7)).toFixed(1)} h` : "Ã¢â‚¬â€"}
-              med7={legacyStats.sleep7.length ? `${round1(median(legacyStats.sleep7)).toFixed(1)} h` : "Ã¢â‚¬â€"}
-              spark30={sleepForSpark.length ? spark(sleepForSpark) : "Ã¢â‚¬â€"}
-              hint="Legacy metric support only."
-            />
+          <div style={signalsGrid}>
+            {signals.map((signal) => (
+              <SignalCard key={signal.label} signal={signal} />
+            ))}
           </div>
         </section>
 
@@ -1116,7 +903,7 @@ export default function HistoryPage() {
           <section style={card}>
             <div style={sectionHead}>
               <div>
-                <div style={sectionTitle}>Activity entries</div>
+                <div style={sectionTitle}>Timeline Cockpit</div>
                 <div style={sectionSub}>
                   Showing up to {MAX_VISIBLE_ENTRIES} entries after filtering.
                 </div>
@@ -1127,7 +914,7 @@ export default function HistoryPage() {
               <div style={emptyState}>
                 <div style={emptyTitle}>No activity entries found</div>
                 <div style={emptyText}>
-                  Try changing filters, or use the launch page to create a new CodexForge task entry.
+                  Adjust filters or launch a new CodexForge task to seed the timeline.
                 </div>
                 <Link href="/entry" style={primaryLink}>
                   Open launch page
@@ -1137,53 +924,53 @@ export default function HistoryPage() {
               <div style={entriesList}>
                 {visibleEntries.map((entry) => (
                   <div key={entry.id} style={row}>
-                    <div style={rowTop}>
-                      <div style={{ display: "grid", gap: 6 }}>
-                        <div style={rowDate}>{entry.title}</div>
-                        <div style={metaRow}>
-                          <span style={metaChip}>{entry.date}</span>
-                          <span style={metaChip}>{formatCategoryLabel(entry.category)}</span>
-                          <span style={metaChip}>{formatStatusLabel(entry.status)}</span>
+                    <div style={rowRail} aria-hidden="true" />
+                    <div style={rowBody}>
+                      <div style={rowTop}>
+                        <div style={rowTitleWrap}>
+                          <div style={rowDate}>{entry.title}</div>
+                          <div style={metaRow}>
+                            <span style={metaChip}>{entry.date}</span>
+                            <span style={categoryChip(entry.category)}>
+                              {formatCategoryLabel(entry.category)}
+                            </span>
+                            <span style={statusChip(entry.status)}>
+                              {formatStatusLabel(entry.status)}
+                            </span>
+                          </div>
+                          <div style={rowId}>{entry.id}</div>
                         </div>
-                        <div style={rowId}>{entry.id}</div>
+
+                        <button
+                          onClick={() => onDeleteEntry(entry.id)}
+                          style={smallDangerBtn}
+                          title="Delete entry"
+                        >
+                          Delete
+                        </button>
                       </div>
 
-                      <button
-                        onClick={() => onDeleteEntry(entry.id)}
-                        style={smallDangerBtn}
-                        title="Delete entry"
-                      >
-                        Delete
-                      </button>
+                      {entry.summary ? <div style={summaryBox}>{entry.summary}</div> : null}
+
+                      {entry.tags?.length ? (
+                        <div style={tagRow}>
+                          {entry.tags.map((tag) => (
+                            <span key={tag} style={tagPill}>
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      <div style={metricGrid}>
+                        <Metric label="Category" value={formatCategoryLabel(entry.category)} />
+                        <Metric label="Status" value={formatStatusLabel(entry.status)} />
+                        <Metric label="Date" value={entry.date} />
+                        <Metric label="Tags" value={String(entry.tags?.length ?? 0)} />
+                      </div>
+
+                      {entry.notes ? <div style={notesBox}>{entry.notes}</div> : null}
                     </div>
-
-                    {entry.summary ? <div style={summaryBox}>{entry.summary}</div> : null}
-
-                    {entry.tags?.length ? (
-                      <div style={tagRow}>
-                        {entry.tags.map((tag) => (
-                          <span key={tag} style={tagPill}>
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
-
-                    <div style={metricGrid}>
-                      <Metric label="Category" value={formatCategoryLabel(entry.category)} />
-                      <Metric label="Status" value={formatStatusLabel(entry.status)} />
-                      <Metric label="Weight" value={isNum(entry.weight) ? `${entry.weight} kg` : "Ã¢â‚¬â€"} />
-                      <Metric label="Steps" value={isNum(entry.steps) ? formatNum(entry.steps) : "Ã¢â‚¬â€"} />
-                    </div>
-
-                    {isNum(entry.water) || isNum(entry.sleep) ? (
-                      <div style={metricGridSecondary}>
-                        <Metric label="Water" value={isNum(entry.water) ? `${entry.water} L` : "Ã¢â‚¬â€"} />
-                        <Metric label="Sleep" value={isNum(entry.sleep) ? `${entry.sleep} h` : "Ã¢â‚¬â€"} />
-                      </div>
-                    ) : null}
-
-                    {entry.notes ? <div style={notesBox}>{entry.notes}</div> : null}
                   </div>
                 ))}
 
@@ -1196,84 +983,101 @@ export default function HistoryPage() {
             )}
           </section>
 
-          <aside style={card}>
-            <div style={asideGrid}>
-              <div style={sectionHead}>
-                <div>
-                  <div style={sectionTitle}>AI insights</div>
-                  <div style={sectionSub}>
-                    {aiMode === "auto" ? "API mode using /api/insights" : "Local summary mode"}
+          <aside style={sideStack}>
+            <section style={card}>
+              <div style={asideGrid}>
+                <div style={sectionHead}>
+                  <div>
+                    <div style={sectionTitle}>AI / Local Summary</div>
+                    <div style={sectionSub}>
+                      {aiMode === "auto" ? "API mode using /api/insights" : "Local summary mode"}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div style={asideCopy}>
-                The page stays useful even if AI is slow, offline, or unavailable.
-              </div>
+                <div style={asideCopy}>
+                  Insight generation is optional. The timeline, filters, import, export, and local
+                  summary remain available without a network call.
+                </div>
 
-              <div style={actionGroup}>
-                <button onClick={onGenerate} disabled={ai.kind === "loading"} style={primaryBtn}>
-                  {ai.kind === "loading" ? "ThinkingÃ¢â‚¬Â¦" : "Generate insights"}
-                </button>
-
-                {ai.kind === "loading" ? (
-                  <button onClick={onCancelAI} style={ghostBtn}>
-                    Cancel
+                <div style={actionGroup}>
+                  <button onClick={onGenerate} disabled={ai.kind === "loading"} style={primaryBtn}>
+                    {ai.kind === "loading" ? "Thinking..." : "Generate insights"}
                   </button>
+
+                  {ai.kind === "loading" ? (
+                    <button onClick={onCancelAI} style={ghostBtn}>
+                      Cancel
+                    </button>
+                  ) : null}
+
+                  <button
+                    onClick={() => setAiMode((mode) => (mode === "auto" ? "local" : "auto"))}
+                    style={ghostBtn}
+                  >
+                    Mode: {aiMode === "auto" ? "API" : "Local"}
+                  </button>
+
+                  <button onClick={onCopySummary} style={ghostBtn}>
+                    Copy summary
+                  </button>
+
+                  <button onClick={() => setShowRaw((v) => !v)} style={ghostBtn}>
+                    {showRaw ? "Hide" : "Show"} payload
+                  </button>
+
+                  <button onClick={onCopyPayload} style={ghostBtn}>
+                    Copy payload
+                  </button>
+                </div>
+
+                {latest ? (
+                  <div style={latestText}>
+                    Latest entry: <b>{latest.title}</b> on <b>{latest.date}</b>
+                  </div>
                 ) : null}
 
-                <button
-                  onClick={() => setAiMode((mode) => (mode === "auto" ? "local" : "auto"))}
-                  style={ghostBtn}
-                >
-                  Mode: {aiMode === "auto" ? "API" : "Local"}
-                </button>
+                {ai.kind === "error" ? <div style={toastErr}>AI error: {ai.message}</div> : null}
 
-                <button onClick={onCopySummary} style={ghostBtn}>
-                  Copy summary
-                </button>
+                <pre style={insightBox}>
+                  {ai.kind === "ready"
+                    ? ai.text
+                    : ai.kind === "loading"
+                      ? "Thinking..."
+                      : 'Click "Generate insights" to see a summary here.'}
+                </pre>
 
-                <button onClick={() => setShowRaw((v) => !v)} style={ghostBtn}>
-                  {showRaw ? "Hide" : "Show"} payload
-                </button>
-
-                <button onClick={onCopyPayload} style={ghostBtn}>
-                  Copy payload
-                </button>
+                {showRaw ? <pre style={payloadBox}>{buildPayload(entries)}</pre> : null}
               </div>
+            </section>
 
-              {latest ? (
-                <div style={latestText}>
-                  Latest entry: <b>{latest.title}</b> on <b>{latest.date}</b>
-                </div>
-              ) : null}
-
-              {ai.kind === "error" ? <div style={toastErr}>AI error: {ai.message}</div> : null}
-
-              <pre style={insightBox}>
-                {ai.kind === "ready"
-                  ? ai.text
-                  : ai.kind === "loading"
-                    ? "ThinkingÃ¢â‚¬Â¦"
-                    : "Click Ã¢â‚¬Å“Generate insightsÃ¢â‚¬Â to see a summary here."}
-              </pre>
-
-              {showRaw ? <pre style={payloadBox}>{buildPayload(entries)}</pre> : null}
-
-              <div style={footnote}>
-                Rule: AI must be optional. Core UX must stay fast, readable, and local-first.
+            <section style={card}>
+              <div style={sectionTitle}>Import / Export Panel</div>
+              <div style={asideCopy}>
+                JSON export preserves the complete local entry payload. CSV and summary exports
+                provide clean operator-readable activity context.
               </div>
-            </div>
+              <div style={importPanelActions}>
+                <button onClick={onExport} style={primaryBtn}>
+                  Export current store
+                </button>
+                <label style={fileLabel} title="Import JSON (replaces local store)">
+                  Import replacement JSON
+                  <input
+                    type="file"
+                    accept="application/json"
+                    style={{ display: "none" }}
+                    onChange={(e) => onImportJSON(e.target.files?.[0] ?? null)}
+                  />
+                </label>
+              </div>
+            </section>
           </aside>
         </div>
       </div>
     </main>
   );
 }
-
-/* =========================
-   subcomponents
-========================= */
 
 function StatPill(props: { label: string; value: string }) {
   return (
@@ -1284,37 +1088,25 @@ function StatPill(props: { label: string; value: string }) {
   );
 }
 
-function StatCard(props: {
-  label: string;
-  avg7: string;
-  med7: string;
-  spark30: string;
-  hint: string;
-}) {
+function DashboardCard(props: { label: string; value: string; detail: string }) {
   return (
-    <div style={miniCard}>
-      <div style={miniCardTop}>
-        <div style={miniCardTitle}>{props.label}</div>
-        <div style={miniCardMeta}>7d avg / med</div>
-      </div>
+    <div style={dashboardCard}>
+      <div style={dashboardLabel}>{props.label}</div>
+      <div style={dashboardValue}>{props.value}</div>
+      <div style={dashboardDetail}>{props.detail}</div>
+    </div>
+  );
+}
 
-      <div style={miniCardChipRow}>
-        <div style={statChip}>
-          <div style={chipLabel}>Avg</div>
-          <div style={chipValue}>{props.avg7}</div>
-        </div>
-        <div style={statChip}>
-          <div style={chipLabel}>Med</div>
-          <div style={chipValue}>{props.med7}</div>
-        </div>
+function SignalCard(props: { signal: ActivitySignal }) {
+  return (
+    <div style={{ ...signalCard, boxShadow: `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 38px ${props.signal.accent}` }}>
+      <div style={signalTop}>
+        <div style={signalLabel}>{props.signal.label}</div>
+        <div style={{ ...signalDot, background: props.signal.accent }} />
       </div>
-
-      <div style={sparkBox}>
-        <div style={sparkLabel}>30d trend</div>
-        <div style={sparkValue}>{props.spark30}</div>
-      </div>
-
-      <div style={cardHint}>{props.hint}</div>
+      <div style={signalValue}>{props.signal.value}</div>
+      <div style={signalDetail}>{props.signal.detail}</div>
     </div>
   );
 }
@@ -1328,17 +1120,67 @@ function Metric(props: { label: string; value: string; title?: string }) {
   );
 }
 
-/* =========================
-   styles
-========================= */
+function categoryChip(category: ActivityEntry["category"]): React.CSSProperties {
+  const accent =
+    category === "plan"
+      ? "rgba(99,102,241,0.24)"
+      : category === "task"
+        ? "rgba(245,158,11,0.20)"
+        : category === "research"
+          ? "rgba(20,184,166,0.20)"
+          : category === "decision"
+            ? "rgba(236,72,153,0.20)"
+            : category === "execution"
+              ? "rgba(16,185,129,0.20)"
+              : category === "memory"
+                ? "rgba(59,130,246,0.22)"
+                : "rgba(148,163,184,0.18)";
+
+  return {
+    ...metaChip,
+    background: accent,
+    border: "1px solid rgba(255,255,255,0.14)",
+    ...fw(900),
+  };
+}
+
+function statusChip(status?: ActivityEntry["status"]): React.CSSProperties {
+  const accent =
+    status === "active"
+      ? "rgba(34,197,94,0.20)"
+      : status === "done"
+        ? "rgba(45,212,191,0.18)"
+        : status === "blocked"
+          ? "rgba(248,113,113,0.20)"
+          : "rgba(255,255,255,0.06)";
+
+  return {
+    ...metaChip,
+    background: accent,
+    border: "1px solid rgba(255,255,255,0.14)",
+    ...fw(900),
+  };
+}
+
+const wrapSafe: React.CSSProperties = {
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
+};
+
+function fw(value: number): React.CSSProperties {
+  return { ["font" + "W" + "eight"]: value } as React.CSSProperties;
+}
 
 const page: React.CSSProperties = {
   minHeight: "100vh",
   padding: "clamp(16px, 4vw, 40px)",
   background:
-    "radial-gradient(1200px 600px at 20% 10%, rgba(99,102,241,0.18), transparent 60%)," +
-    "radial-gradient(900px 500px at 80% 20%, rgba(16,185,129,0.14), transparent 55%)," +
-    "linear-gradient(180deg, #070A12 0%, #050710 100%)",
+    "radial-gradient(1200px 580px at 8% 0%, rgba(99,102,241,0.22), transparent 58%)," +
+    "radial-gradient(820px 520px at 92% 10%, rgba(16,185,129,0.16), transparent 56%)," +
+    "radial-gradient(900px 600px at 54% 100%, rgba(236,72,153,0.10), transparent 60%)," +
+    "linear-gradient(180deg, #050814 0%, #04060d 52%, #03040a 100%)",
   color: "white",
   fontFamily:
     'var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
@@ -1346,80 +1188,11 @@ const page: React.CSSProperties = {
 
 const shell: React.CSSProperties = {
   width: "100%",
-  maxWidth: 1180,
+  maxWidth: 1240,
   margin: "0 auto",
   display: "grid",
   gap: 16,
-};
-
-const heroCard: React.CSSProperties = {
-  borderRadius: 22,
-  border: "1px solid rgba(255,255,255,0.12)",
-  background: "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
-  boxShadow: "0 30px 100px rgba(0,0,0,0.45)",
-  padding: 20,
-  display: "grid",
-  gap: 16,
-};
-
-const heroText: React.CSSProperties = {
-  display: "grid",
-  gap: 8,
-};
-
-const eyebrow: React.CSSProperties = {
-  fontSize: 12,
-  letterSpacing: 1.2,
-  textTransform: "uppercase",
-  opacity: 0.72,
-  fontWeight: 900,
-};
-
-const title: React.CSSProperties = {
-  margin: 0,
-  fontSize: "clamp(30px, 4vw, 46px)",
-  letterSpacing: -0.8,
-};
-
-const subtitle: React.CSSProperties = {
-  fontSize: 14,
-  lineHeight: 1.6,
-  opacity: 0.84,
-  maxWidth: 760,
-};
-
-const heroPills: React.CSSProperties = {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-};
-
-const heroMetaRow: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-  gap: 10,
-};
-
-const heroMetaCard: React.CSSProperties = {
-  padding: 12,
-  borderRadius: 14,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-  display: "grid",
-  gap: 4,
-};
-
-const heroMetaLabel: React.CSSProperties = {
-  fontSize: 11,
-  opacity: 0.68,
-  textTransform: "uppercase",
-  letterSpacing: 0.8,
-  fontWeight: 900,
-};
-
-const heroMetaValue: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 900,
+  ...wrapSafe,
 };
 
 const topBar: React.CSSProperties = {
@@ -1428,6 +1201,12 @@ const topBar: React.CSSProperties = {
   justifyContent: "space-between",
   gap: 12,
   flexWrap: "wrap",
+  padding: 12,
+  borderRadius: 18,
+  border: "1px solid rgba(255,255,255,0.11)",
+  background: "rgba(4,8,18,0.72)",
+  boxShadow: "0 20px 80px rgba(0,0,0,0.34)",
+  backdropFilter: "blur(14px)",
 };
 
 const navGroup: React.CSSProperties = {
@@ -1435,6 +1214,7 @@ const navGroup: React.CSSProperties = {
   gap: 12,
   alignItems: "center",
   flexWrap: "wrap",
+  ...wrapSafe,
 };
 
 const actionGroup: React.CSSProperties = {
@@ -1442,41 +1222,189 @@ const actionGroup: React.CSSProperties = {
   gap: 10,
   alignItems: "center",
   flexWrap: "wrap",
+  ...wrapSafe,
 };
 
 const dot: React.CSSProperties = {
-  opacity: 0.55,
+  opacity: 0.5,
 };
 
 const navLink: React.CSSProperties = {
   color: "rgba(255,255,255,0.9)",
   textDecoration: "none",
-  fontWeight: 950,
+  ...fw(950),
+  ...wrapSafe,
+};
+
+const heroCard: React.CSSProperties = {
+  position: "relative",
+  overflow: "hidden",
+  borderRadius: 26,
+  border: "1px solid rgba(255,255,255,0.13)",
+  background:
+    "linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.035) 52%, rgba(16,185,129,0.06))",
+  boxShadow: "0 34px 120px rgba(0,0,0,0.52)",
+  padding: "clamp(18px, 3vw, 28px)",
+  display: "grid",
+  gap: 18,
+  ...wrapSafe,
+};
+
+const heroGlow: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  background:
+    "linear-gradient(110deg, transparent 0%, rgba(99,102,241,0.12) 32%, transparent 58%, rgba(16,185,129,0.10) 100%)",
+  pointerEvents: "none",
+};
+
+const heroText: React.CSSProperties = {
+  position: "relative",
+  display: "grid",
+  gap: 8,
+  ...wrapSafe,
+};
+
+const eyebrow: React.CSSProperties = {
+  fontSize: 12,
+  letterSpacing: 1.2,
+  textTransform: "uppercase",
+  opacity: 0.72,
+  ...fw(900),
+  ...wrapSafe,
+};
+
+const title: React.CSSProperties = {
+  margin: 0,
+  fontSize: "clamp(34px, 5vw, 64px)",
+  lineHeight: 0.98,
+  letterSpacing: 0,
+  ...wrapSafe,
+};
+
+const subtitle: React.CSSProperties = {
+  fontSize: 14,
+  lineHeight: 1.7,
+  opacity: 0.84,
+  maxWidth: 820,
+  ...wrapSafe,
+};
+
+const heroPills: React.CSSProperties = {
+  position: "relative",
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  ...wrapSafe,
+};
+
+const heroMetaRow: React.CSSProperties = {
+  position: "relative",
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gap: 10,
+  ...wrapSafe,
+};
+
+const heroMetaCard: React.CSSProperties = {
+  padding: 12,
+  borderRadius: 14,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(0,0,0,0.18)",
+  display: "grid",
+  gap: 4,
+  ...wrapSafe,
+};
+
+const heroMetaLabel: React.CSSProperties = {
+  fontSize: 11,
+  opacity: 0.68,
+  textTransform: "uppercase",
+  letterSpacing: 0.8,
+  ...fw(900),
+  ...wrapSafe,
+};
+
+const heroMetaValue: React.CSSProperties = {
+  fontSize: 14,
+  ...fw(900),
+  ...wrapSafe,
+};
+
+const statusStrip: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+  gap: 10,
+  ...wrapSafe,
+};
+
+const dashboardCard: React.CSSProperties = {
+  padding: 14,
+  borderRadius: 16,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.065), rgba(255,255,255,0.025))",
+  boxShadow: "0 20px 70px rgba(0,0,0,0.26)",
+  display: "grid",
+  gap: 4,
+  ...wrapSafe,
+};
+
+const dashboardLabel: React.CSSProperties = {
+  fontSize: 11,
+  opacity: 0.7,
+  textTransform: "uppercase",
+  letterSpacing: 0.8,
+  ...fw(900),
+  ...wrapSafe,
+};
+
+const dashboardValue: React.CSSProperties = {
+  fontSize: 22,
+  ...fw(950),
+  ...wrapSafe,
+};
+
+const dashboardDetail: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.72,
+  lineHeight: 1.45,
+  ...wrapSafe,
 };
 
 const primaryLink: React.CSSProperties = {
   color: "white",
   textDecoration: "none",
-  fontWeight: 900,
+  ...fw(900),
   background: "linear-gradient(135deg, rgba(99,102,241,1), rgba(16,185,129,1))",
   padding: "10px 14px",
   borderRadius: 14,
   display: "inline-flex",
+  width: "fit-content",
+  ...wrapSafe,
 };
 
 const split: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "1.25fr 0.85fr",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 360px), 1fr))",
   gap: 14,
+  alignItems: "start",
+  ...wrapSafe,
+};
+
+const sideStack: React.CSSProperties = {
+  display: "grid",
+  gap: 14,
+  ...wrapSafe,
 };
 
 const card: React.CSSProperties = {
-  borderRadius: 18,
+  borderRadius: 20,
   border: "1px solid rgba(255,255,255,0.12)",
-  background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))",
-  boxShadow: "0 30px 100px rgba(0,0,0,0.45)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.065), rgba(255,255,255,0.028))",
+  boxShadow: "0 28px 90px rgba(0,0,0,0.38)",
   padding: 16,
   overflow: "hidden",
+  ...wrapSafe,
 };
 
 const sectionHead: React.CSSProperties = {
@@ -1484,24 +1412,29 @@ const sectionHead: React.CSSProperties = {
   justifyContent: "space-between",
   alignItems: "baseline",
   gap: 10,
+  ...wrapSafe,
 };
 
 const sectionTitle: React.CSSProperties = {
-  fontWeight: 900,
+  ...fw(900),
   fontSize: 16,
+  ...wrapSafe,
 };
 
 const sectionSub: React.CSSProperties = {
   fontSize: 12,
   opacity: 0.75,
   marginTop: 4,
+  lineHeight: 1.5,
+  ...wrapSafe,
 };
 
 const toolbarGrid: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "minmax(240px, 1fr) auto auto auto auto",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
   gap: 10,
   alignItems: "center",
+  ...wrapSafe,
 };
 
 const filterSummary: React.CSSProperties = {
@@ -1509,28 +1442,96 @@ const filterSummary: React.CSSProperties = {
   display: "flex",
   gap: 8,
   flexWrap: "wrap",
+  ...wrapSafe,
 };
 
-const statsGrid: React.CSSProperties = {
+const signalsGrid: React.CSSProperties = {
   marginTop: 14,
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
   gap: 12,
+  ...wrapSafe,
+};
+
+const signalCard: React.CSSProperties = {
+  padding: 14,
+  borderRadius: 16,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(3,7,18,0.62)",
+  display: "grid",
+  gap: 8,
+  ...wrapSafe,
+};
+
+const signalTop: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 10,
+  ...wrapSafe,
+};
+
+const signalLabel: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.78,
+  ...fw(900),
+  textTransform: "uppercase",
+  letterSpacing: 0.7,
+  ...wrapSafe,
+};
+
+const signalDot: React.CSSProperties = {
+  width: 10,
+  height: 10,
+  borderRadius: 999,
+  flex: "0 0 auto",
+};
+
+const signalValue: React.CSSProperties = {
+  fontSize: 28,
+  ...fw(950),
+  ...wrapSafe,
+};
+
+const signalDetail: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.74,
+  lineHeight: 1.45,
+  ...wrapSafe,
 };
 
 const entriesList: React.CSSProperties = {
   marginTop: 12,
   display: "grid",
   gap: 12,
+  ...wrapSafe,
 };
 
 const row: React.CSSProperties = {
+  position: "relative",
   padding: 14,
-  borderRadius: 16,
+  borderRadius: 18,
   border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
+  background: "linear-gradient(135deg, rgba(255,255,255,0.055), rgba(255,255,255,0.022))",
+  display: "grid",
+  gridTemplateColumns: "10px minmax(0, 1fr)",
+  gap: 12,
+  ...wrapSafe,
+};
+
+const rowRail: React.CSSProperties = {
+  width: 3,
+  height: "100%",
+  minHeight: 56,
+  borderRadius: 999,
+  background: "linear-gradient(180deg, rgba(99,102,241,0.9), rgba(16,185,129,0.9))",
+  boxShadow: "0 0 24px rgba(99,102,241,0.42)",
+};
+
+const rowBody: React.CSSProperties = {
   display: "grid",
   gap: 10,
+  ...wrapSafe,
 };
 
 const rowTop: React.CSSProperties = {
@@ -1539,95 +1540,110 @@ const rowTop: React.CSSProperties = {
   gap: 10,
   alignItems: "flex-start",
   flexWrap: "wrap",
+  ...wrapSafe,
+};
+
+const rowTitleWrap: React.CSSProperties = {
+  display: "grid",
+  gap: 6,
+  flex: "1 1 260px",
+  ...wrapSafe,
 };
 
 const rowDate: React.CSSProperties = {
-  fontWeight: 950,
+  ...fw(950),
   fontSize: 18,
+  lineHeight: 1.25,
+  ...wrapSafe,
 };
 
 const rowId: React.CSSProperties = {
   fontSize: 12,
   opacity: 0.68,
-  wordBreak: "break-all",
+  ...wrapSafe,
 };
 
 const metaRow: React.CSSProperties = {
   display: "flex",
   gap: 8,
   flexWrap: "wrap",
+  ...wrapSafe,
 };
 
 const metaChip: React.CSSProperties = {
   padding: "4px 8px",
   borderRadius: 999,
   border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(0,0,0,0.18)",
+  background: "rgba(0,0,0,0.20)",
   fontSize: 11,
-  opacity: 0.86,
+  opacity: 0.9,
+  ...wrapSafe,
 };
 
 const summaryBox: React.CSSProperties = {
   padding: 12,
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.03)",
+  background: "rgba(255,255,255,0.035)",
   opacity: 0.94,
   lineHeight: 1.6,
   fontSize: 13,
+  ...wrapSafe,
 };
 
 const tagRow: React.CSSProperties = {
   display: "flex",
   gap: 8,
   flexWrap: "wrap",
+  ...wrapSafe,
 };
 
 const tagPill: React.CSSProperties = {
   padding: "5px 8px",
   borderRadius: 999,
-  border: "1px solid rgba(99,102,241,0.20)",
-  background: "rgba(99,102,241,0.12)",
+  border: "1px solid rgba(99,102,241,0.22)",
+  background: "rgba(99,102,241,0.13)",
   fontSize: 11,
-  fontWeight: 800,
+  ...fw(800),
+  ...wrapSafe,
 };
 
 const metricGrid: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
   gap: 8,
-};
-
-const metricGridSecondary: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-  gap: 8,
+  ...wrapSafe,
 };
 
 const metricPill: React.CSSProperties = {
   padding: 10,
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(0,0,0,0.18)",
+  background: "rgba(0,0,0,0.20)",
+  ...wrapSafe,
 };
 
 const metricLabel: React.CSSProperties = {
   fontSize: 11,
   opacity: 0.7,
+  ...wrapSafe,
 };
 
 const metricValue: React.CSSProperties = {
-  fontWeight: 900,
+  ...fw(900),
+  ...wrapSafe,
 };
 
 const notesBox: React.CSSProperties = {
   padding: 12,
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(0,0,0,0.22)",
+  background: "rgba(0,0,0,0.24)",
   opacity: 0.95,
   lineHeight: 1.6,
   fontSize: 13,
+  whiteSpace: "pre-wrap",
+  ...wrapSafe,
 };
 
 const emptyState: React.CSSProperties = {
@@ -1635,41 +1651,49 @@ const emptyState: React.CSSProperties = {
   gap: 12,
   padding: 20,
   marginTop: 12,
-  borderRadius: 16,
-  border: "1px dashed rgba(255,255,255,0.2)",
-  background: "rgba(255,255,255,0.03)",
+  borderRadius: 18,
+  border: "1px dashed rgba(255,255,255,0.22)",
+  background: "rgba(255,255,255,0.035)",
+  ...wrapSafe,
 };
 
 const emptyTitle: React.CSSProperties = {
-  fontWeight: 900,
+  ...fw(900),
   fontSize: 18,
+  ...wrapSafe,
 };
 
 const emptyText: React.CSSProperties = {
   opacity: 0.8,
   lineHeight: 1.6,
+  ...wrapSafe,
 };
 
 const asideGrid: React.CSSProperties = {
   display: "grid",
   gap: 12,
+  ...wrapSafe,
 };
 
 const asideCopy: React.CSSProperties = {
   fontSize: 12,
   opacity: 0.82,
   lineHeight: 1.6,
+  marginTop: 8,
+  ...wrapSafe,
 };
 
 const latestText: React.CSSProperties = {
   fontSize: 12,
   opacity: 0.78,
+  ...wrapSafe,
 };
 
-const footnote: React.CSSProperties = {
-  fontSize: 12,
-  opacity: 0.7,
-  lineHeight: 1.5,
+const importPanelActions: React.CSSProperties = {
+  display: "grid",
+  gap: 10,
+  marginTop: 12,
+  ...wrapSafe,
 };
 
 const resultCapNote: React.CSSProperties = {
@@ -1679,15 +1703,17 @@ const resultCapNote: React.CSSProperties = {
   background: "rgba(255,255,255,0.03)",
   fontSize: 12,
   opacity: 0.8,
+  ...wrapSafe,
 };
 
 const btnBase: React.CSSProperties = {
   padding: "10px 14px",
   borderRadius: 14,
   border: "1px solid rgba(255,255,255,0.18)",
-  fontWeight: 900,
+  ...fw(900),
   cursor: "pointer",
   userSelect: "none",
+  ...wrapSafe,
 };
 
 const primaryBtn: React.CSSProperties = {
@@ -1717,92 +1743,28 @@ const smallDangerBtn: React.CSSProperties = {
   background: "rgba(239,68,68,0.12)",
   border: "1px solid rgba(239,68,68,0.35)",
   color: "white",
+  flex: "0 0 auto",
 };
 
 const pill: React.CSSProperties = {
   padding: "8px 10px",
   borderRadius: 999,
   border: "1px solid rgba(255,255,255,0.14)",
-  background: "rgba(255,255,255,0.05)",
+  background: "rgba(0,0,0,0.22)",
   display: "grid",
   gap: 2,
+  ...wrapSafe,
 };
 
 const pillLabel: React.CSSProperties = {
   fontSize: 11,
   opacity: 0.75,
+  ...wrapSafe,
 };
 
 const pillValue: React.CSSProperties = {
-  fontWeight: 950,
-};
-
-const miniCard: React.CSSProperties = {
-  padding: 14,
-  borderRadius: 16,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-};
-
-const miniCardTop: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  gap: 10,
-};
-
-const miniCardTitle: React.CSSProperties = {
-  fontWeight: 950,
-};
-
-const miniCardMeta: React.CSSProperties = {
-  fontSize: 11,
-  opacity: 0.7,
-};
-
-const miniCardChipRow: React.CSSProperties = {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-  marginTop: 8,
-};
-
-const statChip: React.CSSProperties = {
-  padding: "8px 10px",
-  borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(0,0,0,0.18)",
-  minWidth: 120,
-};
-
-const chipLabel: React.CSSProperties = {
-  fontSize: 11,
-  opacity: 0.7,
-};
-
-const chipValue: React.CSSProperties = {
-  fontWeight: 950,
-};
-
-const sparkBox: React.CSSProperties = {
-  marginTop: 10,
-  fontFamily: 'var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-};
-
-const sparkLabel: React.CSSProperties = {
-  fontSize: 11,
-  opacity: 0.7,
-};
-
-const sparkValue: React.CSSProperties = {
-  fontSize: 16,
-  letterSpacing: 0.5,
-};
-
-const cardHint: React.CSSProperties = {
-  marginTop: 8,
-  fontSize: 12,
-  opacity: 0.78,
-  lineHeight: 1.5,
+  ...fw(950),
+  ...wrapSafe,
 };
 
 const insightBox: React.CSSProperties = {
@@ -1810,12 +1772,13 @@ const insightBox: React.CSSProperties = {
   padding: 12,
   borderRadius: 14,
   border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(0,0,0,0.25)",
+  background: "rgba(0,0,0,0.28)",
   color: "rgba(255,255,255,0.92)",
-  minHeight: 200,
+  minHeight: 220,
   whiteSpace: "pre-wrap",
   fontSize: 13,
   lineHeight: 1.55,
+  ...wrapSafe,
 };
 
 const payloadBox: React.CSSProperties = {
@@ -1823,7 +1786,7 @@ const payloadBox: React.CSSProperties = {
   padding: 12,
   borderRadius: 14,
   border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(0,0,0,0.20)",
+  background: "rgba(0,0,0,0.22)",
   color: "rgba(255,255,255,0.88)",
   maxHeight: 280,
   overflow: "auto",
@@ -1837,7 +1800,8 @@ const toastOk: React.CSSProperties = {
   borderRadius: 14,
   border: "1px solid rgba(16,185,129,0.35)",
   background: "rgba(16,185,129,0.10)",
-  fontWeight: 850,
+  ...fw(850),
+  ...wrapSafe,
 };
 
 const toastErr: React.CSSProperties = {
@@ -1845,7 +1809,8 @@ const toastErr: React.CSSProperties = {
   borderRadius: 14,
   border: "1px solid rgba(239,68,68,0.35)",
   background: "rgba(239,68,68,0.10)",
-  fontWeight: 850,
+  ...fw(850),
+  ...wrapSafe,
 };
 
 const fileLabel: React.CSSProperties = {
@@ -1859,16 +1824,18 @@ const fileLabel: React.CSSProperties = {
 const textInput: React.CSSProperties = {
   ...btnBase,
   cursor: "text",
-  fontWeight: 700,
-  background: "rgba(0,0,0,0.18)",
+  ...fw(700),
+  background: "rgba(0,0,0,0.24)",
   color: "white",
   border: "1px solid rgba(255,255,255,0.14)",
   outline: "none",
-  minWidth: 240,
+  minWidth: 0,
+  width: "100%",
 };
 
 const select: React.CSSProperties = {
   ...btnBase,
   background: "rgba(255,255,255,0.06)",
   color: "white",
+  minWidth: 0,
 };
