@@ -415,6 +415,13 @@ export function normalizeStructuredReply(
   if (snapshot) structured.snapshot = snapshot;
   if (domain) structured.domain = domain;
   if (mergedTags.length > 0) structured.tags = mergedTags;
+  if (asRecord(record.agentTeam)) {
+    structured.agentTeam = record.agentTeam as CodexForgeClientStructuredReply["agentTeam"];
+  }
+  if (asRecord(record.agentRuntime)) {
+    structured.agentRuntime =
+      record.agentRuntime as CodexForgeClientStructuredReply["agentRuntime"];
+  }
 
   const hasContent =
     !!structured.mode ||
@@ -435,6 +442,8 @@ export function normalizeStructuredReply(
     (structured.diffs?.length ?? 0) > 0 ||
     !!structured.snapshot ||
     !!structured.domain ||
+    !!structured.agentTeam ||
+    !!structured.agentRuntime ||
     (structured.tags?.length ?? 0) > 0;
 
   return hasContent ? structured : null;

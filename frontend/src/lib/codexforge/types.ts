@@ -1,4 +1,6 @@
-﻿export type CodexForgeRole = "system" | "user" | "assistant";
+﻿import type { CodexForgeVisibleAgentRuntimeSummary } from "@/lib/codexforge/chat/agent-runtime-visibility";
+
+export type CodexForgeRole = "system" | "user" | "assistant";
 
 /* ================= CORE ENUMS ================= */
 
@@ -350,6 +352,7 @@ export type CodexForgeStructuredReply = CodexForgeGraphAware & {
   tags?: string[];
 
   agentTeam?: CodexForgeAgentTeamSummary;
+  agentRuntime?: CodexForgeVisibleAgentRuntimeSummary;
 };
 
 /* ================= CHAT MESSAGE ================= */

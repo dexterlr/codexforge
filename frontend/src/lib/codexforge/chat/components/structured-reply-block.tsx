@@ -1,6 +1,7 @@
 import React from "react";
 import * as styles from "@/lib/codexforge/chat/client-styles";
 import { AgentTeamSection } from "@/lib/codexforge/chat/components/agent-team-section";
+import { AgentRuntimePanel } from "@/lib/codexforge/chat/components/agent-runtime-panel";
 import {
   ListSection,
 } from "@/lib/codexforge/chat/components/structured-basic-sections";
@@ -124,6 +125,7 @@ export function StructuredReplyBlock({ structured, onToolExecutionResult }: Stru
     <div style={styles.structuredWrap}>
       <HeroSection structured={structured} />
       <AgentTeamSection structured={structured} />
+      <AgentRuntimePanel summary={structured.agentRuntime} />
       <ToolPolicyDecisionPanel
         summary={getStructuredToolPolicySummary(structured)}
         replayRequest={getStructuredToolPolicyReplayRequest(structured)}

@@ -97,6 +97,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Agent runtime UX"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-agent-runtime-ux.ps1"
+    Required = $true
+  }
+  @{
     Name = "Cognitive memory"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-cognitive-memory.ps1"
     Required = $true

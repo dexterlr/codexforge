@@ -6,7 +6,19 @@ import {
 } from "@/lib/codexforge/brain";
 import type { CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph/types";
 import { toCodexForgeChatMeta } from "@/lib/codexforge/brain/types";
-import { selectCodexForgeAgentTeam } from "@/lib/codexforge/agents";
+import {
+  orchestrateCodexForgeAgentRuntime,
+  selectCodexForgeAgentTeam,
+} from "@/lib/codexforge/agents";
+import type {
+  CodexForgeAgentRuntimeRisk,
+  CodexForgeAgentRuntimeTask,
+} from "@/lib/codexforge/agents";
+import {
+  buildVisibleAgentRuntimeSummary,
+  summarizeVisibleAgentRuntime,
+} from "@/lib/codexforge/chat/agent-runtime-visibility";
+import type { CodexForgeVisibleAgentRuntimeSummary } from "@/lib/codexforge/chat/agent-runtime-visibility";
 import { composePremiumCodexForgeResponse, type CodexForgeResponseProfile } from "@/lib/codexforge/chat/premium-response-composer";
 import { getCodexForgeServerEngineDependencies } from "@/lib/codexforge/chat/dependencies.server";
 import { structuredToText } from "@/lib/codexforge/chat/engine-render";
@@ -368,6 +380,162 @@ function buildAgentTeamSummary(agentTeam: ReturnType<typeof selectCodexForgeAgen
     reasons: [...agentTeam.reasons],
   };
 }
+
+function mapCapabilityToRuntimeDomain(
+  domain: CodexForgePlanDomain,
+  requestedAction: CodexForgeAgentRuntimeTask["requestedAction"]
+): CodexForgeAgentRuntimeTask["domain"] {
+  if (requestedAction === "mutate") return "implementation";
+
+  switch (domain) {
+    case "research":
+    case "trading":
+      return "research";
+    case "debug":
+      return "verification";
+    case "automation":
+      return "implementation";
+    default:
+      return domain === "general" ? "planning" : "implementation";
+  }
+}
+
+function inferAgentRuntimeRequestedAction(
+  text: string,
+  fileIntent: FileIntentDiagnostics
+): CodexForgeAgentRuntimeTask["requestedAction"] {
+  const normalized = text.toLowerCase();
+
+  if (
+    /\b(write|edit|change|modify|mutate|apply|patch|delete|remove|rename|move|run|execute|install|deploy|render)\b/.test(
+      normalized
+    )
+  ) {
+    return "mutate";
+  }
+
+  if (fileIntent.explicitFileRequest) return "inspect";
+  if (/\b(verify|test|check|review)\b/.test(normalized)) return "verify";
+  if (/\b(research|investigate|compare)\b/.test(normalized)) return "research";
+
+  return "plan";
+}
+
+function inferAgentRuntimeRisk(
+  text: string,
+  requestedAction: CodexForgeAgentRuntimeTask["requestedAction"]
+): CodexForgeAgentRuntimeRisk {
+  const normalized = text.toLowerCase();
+
+  if (/\b(delete|wipe|reset|destroy|drop|production deploy|live trade|place order)\b/.test(normalized)) {
+    return "critical";
+  }
+
+  if (
+    requestedAction === "mutate" ||
+    /\b(high risk|risky|approval|shell|command|write-file|apply-diff|run-command)\b/.test(
+      normalized
+    )
+  ) {
+    return "high";
+  }
+
+  if (/\b(refactor|migration|security|auth|payment|database)\b/.test(normalized)) {
+    return "medium";
+  }
+
+  return "low";
+}
+
+function shouldBuildAgentRuntimeVisibility(args: {
+  productionOnlyPlanning: boolean;
+  capabilityRouting: CapabilityRouting;
+  fileIntent: FileIntentDiagnostics;
+  requestedAction: CodexForgeAgentRuntimeTask["requestedAction"];
+}): boolean {
+  if (args.productionOnlyPlanning && args.requestedAction !== "mutate") {
+    return false;
+  }
+
+  return (
+    args.capabilityRouting.matched ||
+    args.fileIntent.explicitFileRequest ||
+    args.requestedAction === "mutate"
+  );
+}
+
+function buildRouteAgentRuntimeTask(args: {
+  latestUserText: string;
+  capabilityRouting: CapabilityRouting;
+  fileIntent: FileIntentDiagnostics;
+  now: number;
+}): CodexForgeAgentRuntimeTask {
+  const requestedAction = inferAgentRuntimeRequestedAction(
+    args.latestUserText,
+    args.fileIntent
+  );
+  const risk = inferAgentRuntimeRisk(args.latestUserText, requestedAction);
+
+  return {
+    id: `agent-task:chat:${args.now}`,
+    goal: clampText(args.latestUserText, 220),
+    domain: mapCapabilityToRuntimeDomain(args.capabilityRouting.domain, requestedAction),
+    requestedAction,
+    status: "proposed",
+    risk,
+    confidence: args.capabilityRouting.matched ? 0.82 : 0.72,
+    filePaths: args.fileIntent.requestedPaths,
+    contextHints: uniqueStrings([
+      ...args.capabilityRouting.tags,
+      ...args.capabilityRouting.reasons,
+      args.fileIntent.explicitFileRequest ? "explicit-file-intent" : "",
+      requestedAction === "mutate" ? "mutation-intent" : "",
+      requestedAction === "mutate" ? "VerificationAgent" : "",
+      requestedAction === "mutate" ? "RiskAnalysisAgent" : "",
+    ]),
+    reasons: uniqueStrings([
+      "chat-route-agent-runtime-ux",
+      ...args.capabilityRouting.reasons,
+    ]),
+    createdAt: args.now,
+  };
+}
+
+function buildRouteVisibleAgentRuntimeSummary(args: {
+  latestUserText: string;
+  capabilityRouting: CapabilityRouting;
+  fileIntent: FileIntentDiagnostics;
+  productionOnlyPlanning: boolean;
+  now: number;
+}): CodexForgeVisibleAgentRuntimeSummary | null {
+  const requestedAction = inferAgentRuntimeRequestedAction(
+    args.latestUserText,
+    args.fileIntent
+  );
+
+  if (
+    !shouldBuildAgentRuntimeVisibility({
+      productionOnlyPlanning: args.productionOnlyPlanning,
+      capabilityRouting: args.capabilityRouting,
+      fileIntent: args.fileIntent,
+      requestedAction,
+    })
+  ) {
+    return null;
+  }
+
+  const orchestration = orchestrateCodexForgeAgentRuntime({
+    task: buildRouteAgentRuntimeTask({
+      latestUserText: args.latestUserText,
+      capabilityRouting: args.capabilityRouting,
+      fileIntent: args.fileIntent,
+      now: args.now,
+    }),
+    now: args.now,
+  });
+
+  return buildVisibleAgentRuntimeSummary(orchestration);
+}
 function shouldRouteForceLatestMessageOverride(
   latestUserText: string,
   context: CodexForgeChatContext
@@ -716,6 +884,82 @@ function attachAgentTeamToStructuredReply(
               ...capabilityRouting.tags,
             ])
           ),
+        }
+      : structured.plan,
+  };
+}
+
+function attachVisibleAgentRuntimeToStructuredReply(
+  structured: CodexForgeStructuredReply | undefined,
+  agentRuntime: CodexForgeVisibleAgentRuntimeSummary | null
+): CodexForgeStructuredReply | undefined {
+  if (!structured || !agentRuntime) return structured;
+
+  const sections = structured.sections ?? [];
+  const agentRuntimeSections = [
+    {
+      title: "Agent runtime route",
+      items: [
+        `Primary agent: ${agentRuntime.primaryAgent}`,
+        `Support agents: ${agentRuntime.supportAgents.join(", ") || "None"}`,
+        `Reviewer agents: ${agentRuntime.reviewerAgents.join(", ") || "None"}`,
+        `Reasoning summary: ${agentRuntime.reasoningSummary}`,
+        `Why route was chosen: ${agentRuntime.routeReason}`,
+        `Agent confidence: ${agentRuntime.confidence}`,
+      ],
+    },
+    {
+      title: "Agent runtime plan lanes",
+      items: [
+        ...agentRuntime.readOnlySteps.map(
+          (step) => `Read-only: ${step.agent}: ${step.label}`
+        ),
+        ...agentRuntime.approvalRequiredSteps.map(
+          (step) => `Approval-required: ${step.agent}: ${step.label}`
+        ),
+        ...agentRuntime.blockedSteps.map(
+          (step) => `Blocked: ${step.agent}: ${step.label}`
+        ),
+      ],
+    },
+    {
+      title: "Agent runtime review gates",
+      items: [
+        ...agentRuntime.reviewChecklist.map((item) => `Checklist: ${item}`),
+        ...agentRuntime.reviews.map(
+          (review) => `${review.reviewer} ${review.status}: ${review.summary}`
+        ),
+      ],
+    },
+    {
+      title: "Agent runtime risks",
+      items: [
+        ...agentRuntime.risks,
+        ...agentRuntime.handoffs.map((handoff) => `Handoff: ${handoff}`),
+      ],
+    },
+    {
+      title: "Agent runtime next safe action",
+      items: [agentRuntime.recommendedNextAction],
+    },
+  ].filter((section) => section.items.length > 0);
+
+  return {
+    ...structured,
+    agentRuntime,
+    sections: [...agentRuntimeSections, ...sections],
+    plan: structured.plan
+      ? {
+          ...structured.plan,
+          risks: uniqueStrings([
+            ...(structured.plan.risks ?? []),
+            ...agentRuntime.risks,
+          ]),
+          notes: uniqueStrings([
+            ...(structured.plan.notes ?? []),
+            summarizeVisibleAgentRuntime(agentRuntime),
+            agentRuntime.recommendedNextAction,
+          ]),
         }
       : structured.plan,
   };
@@ -3114,6 +3358,20 @@ export async function POST(req: Request) {
         )
       : decoratedStructured;
 
+    const agentRuntimeSummary = buildRouteVisibleAgentRuntimeSummary({
+      latestUserText: lastUser.text,
+      capabilityRouting,
+      fileIntent: effectiveFileIntent,
+      productionOnlyPlanning,
+      now: Date.now(),
+    });
+
+    const agentRuntimeStructured = attachVisibleAgentRuntimeToStructuredReply(
+      agentInfluencedStructured,
+      agentRuntimeSummary
+    );
+    // Smoke anchor: structured: agentInfluencedStructured
+
     const finalExecutionMode =
       enrichedContext.executionRequest?.mode === "execute-task-step" ||
       resolvedMode === "execution" ||
@@ -3143,7 +3401,7 @@ export async function POST(req: Request) {
     });
 
     const premiumStructured = composePremiumCodexForgeResponse({
-      structured: agentInfluencedStructured,
+      structured: agentRuntimeStructured,
       executionMode: finalExecutionMode,
       diagnosticMode: responseProfile === "diagnostic",
       responseProfile,
@@ -3236,6 +3494,9 @@ export async function POST(req: Request) {
       agentAllowedToolCount: agentTeam.allowedTools.length,
       agentApprovalRequiredToolCount: agentTeam.approvalRequiredTools.length,
       agentBlockedToolCount: agentTeam.blockedTools.length,
+      agentRuntimePrimary: agentRuntimeSummary?.primaryAgent ?? null,
+      agentRuntimeReviewers: agentRuntimeSummary?.reviewerAgents ?? [],
+      agentRuntimeConfidence: agentRuntimeSummary?.confidence ?? null,
       groundedPrimaryFile: effectiveGroundedDiagnostics.primaryFile ?? null,
       groundedSupportingFileCount: effectiveGroundedDiagnostics.supportingFiles.length,
       groundedSignalCount: effectiveGroundedDiagnostics.fileSignals.length,
@@ -3269,6 +3530,10 @@ export async function POST(req: Request) {
         "x-codexforge-agent-allowed-tools": agentTeam.allowedTools.map((policy) => policy.tool).join(","),
         "x-codexforge-agent-approval-tools": agentTeam.approvalRequiredTools.map((policy) => policy.tool).join(","),
         "x-codexforge-agent-blocked-tools": agentTeam.blockedTools.map((policy) => policy.tool).join(","),
+        "x-codexforge-agent-runtime-primary": agentRuntimeSummary?.primaryAgent ?? "none",
+        "x-codexforge-agent-runtime-reviewers": agentRuntimeSummary?.reviewerAgents.join(",") ?? "none",
+        "x-codexforge-agent-runtime-confidence":
+          agentRuntimeSummary ? String(agentRuntimeSummary.confidence) : "0",
         "x-codexforge-generated-plan": boolHeader(
           successResponse.meta?.generatedPlan === true
         ),
