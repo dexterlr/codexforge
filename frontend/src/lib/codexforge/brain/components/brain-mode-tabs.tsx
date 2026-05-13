@@ -78,6 +78,16 @@ export const BRAIN_COMMAND_CENTER_MODES: readonly CodexForgeBrainCommandCenterPa
     description: "Deterministic read-only cluster topology with weighted relations and hotspots.",
   },
   {
+    id: "recommendations",
+    label: "Recommendations",
+    description: "Deterministic read-only runtime recommendations and next safe action.",
+  },
+  {
+    id: "insight-queue",
+    label: "Insight Queue",
+    description: "Autonomous read-only insight queue grouped by severity, kind, and status.",
+  },
+  {
     id: "knowledge-clusters",
     label: "Knowledge Clusters",
     description: "Memory cluster summaries and high-confidence concepts.",

@@ -102,6 +102,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Brain recommendations"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-recommendations.ps1"
+    Required = $true
+  }
+  @{
     Name = "Brain runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-runtime.ps1"
     Required = $true

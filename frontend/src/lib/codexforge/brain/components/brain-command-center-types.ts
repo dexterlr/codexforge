@@ -16,6 +16,8 @@ export type CodexForgeBrainCommandMode =
   | "knowledge-clusters"
   | "semantic-heatmap"
   | "knowledge-topology"
+  | "recommendations"
+  | "insight-queue"
   | "runtime-health"
   | "replay"
   | "lineage"

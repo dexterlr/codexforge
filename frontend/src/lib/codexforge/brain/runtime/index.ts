@@ -119,6 +119,38 @@ export {
   summarizeSemanticHeatmap,
 } from "./topology";
 
+export {
+  buildAgentRecommendations,
+  buildApprovalRequiredRecommendationAction,
+  buildContextRecommendations,
+  buildInsightQueue,
+  buildMemoryRecommendations,
+  buildReadOnlyRecommendationAction,
+  buildRecommendationFixtureAgents,
+  buildRecommendationFixtureContext,
+  buildRecommendationFixtureEvents,
+  buildRecommendationFixtureGraph,
+  buildRecommendationFixtureMemory,
+  buildRecommendationFixtureQueue,
+  buildRecommendationFixtureTopology,
+  buildRiskRecommendations,
+  buildRuntimeInsight,
+  buildRuntimeRecommendations,
+  buildTopologyRecommendations,
+  classifyRecommendationActionSafety,
+  filterResolvedInsights,
+  getRecommendationSeverityWeight,
+  groupInsightsByKind,
+  normalizeRecommendationScore,
+  prioritizeRuntimeRecommendations,
+  recommendNextSafeBrainAction,
+  scoreRuntimeRecommendation,
+  selectTopRuntimeInsights,
+  summarizeInsightQueue,
+  summarizeRecommendationActionSafety,
+  summarizeRuntimeRecommendations,
+} from "./recommendations";
+
 export type {
   CodexForgeBrainRuntimeContract,
   CodexForgeBrainRuntimeCognitiveMemoryApi,
@@ -210,6 +242,20 @@ export type {
   CodexForgeTopologySignalKind,
   CodexForgeTopologySummary,
 } from "./topology";
+
+export type {
+  CodexForgeInsightQueue,
+  CodexForgeRecommendationAction,
+  CodexForgeRecommendationActionSafety,
+  CodexForgeRecommendationBuildInput,
+  CodexForgeRecommendationEvidence,
+  CodexForgeRecommendationKind,
+  CodexForgeRecommendationSeverity,
+  CodexForgeRecommendationStatus,
+  CodexForgeRecommendationSummary,
+  CodexForgeRuntimeInsight,
+  CodexForgeRuntimeRecommendation,
+} from "./recommendations";
 
 export type {
   CodexForgeBrainAppendEventResult,

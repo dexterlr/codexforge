@@ -9,6 +9,8 @@ import { BrainPredictionPanel } from "./brain-prediction-panel";
 import { BrainLineagePanel } from "./brain-lineage-panel";
 import { BrainKnowledgeTopologyPanel } from "./brain-knowledge-topology-panel";
 import { BrainReplayPanel } from "./brain-replay-panel";
+import { BrainRecommendationsPanel } from "./brain-recommendations-panel";
+import { BrainInsightQueuePanel } from "./brain-insight-queue-panel";
 import { BrainRiskPanel } from "./brain-risk-panel";
 import { BrainRuntimeHealthPanel } from "./brain-runtime-health-panel";
 import { BrainSemanticHeatmapPanel } from "./brain-semantic-heatmap-panel";
@@ -58,6 +60,8 @@ export function BrainCommandCenter({
         <BrainLineagePanel graph={graph} />
         <BrainSemanticHeatmapPanel graph={graph} />
         <BrainKnowledgeTopologyPanel graph={graph} />
+        <BrainRecommendationsPanel graph={graph} />
+        <BrainInsightQueuePanel graph={graph} />
       </div>
 
       <div style={modePanelStyle} data-codexforge-brain-active-mode={activeMode}>
