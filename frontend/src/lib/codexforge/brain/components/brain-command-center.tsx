@@ -26,6 +26,7 @@ import { BrainSystemStatusPanel } from "./brain-system-status-panel";
 import { BrainSemanticHeatmapPanel } from "./brain-semantic-heatmap-panel";
 import { BrainLiveSnapshotPanel } from "./brain-live-snapshot-panel";
 import { BrainSnapshotStatusStrip } from "./brain-snapshot-status-strip";
+import { BrainQualityGateStrip } from "./brain-quality-gate-strip";
 import { BrainTimelinePanel } from "./brain-timeline-panel";
 import { BrainCommandPalette } from "./brain-command-palette";
 import { BrainCommandStatusBar } from "./brain-command-status-bar";
@@ -102,6 +103,7 @@ export function BrainCommandCenter({
   panelData,
   panelReadiness,
   panelIntegrationSummary,
+  qualityGateSummary,
 }: CodexForgeBrainCommandCenterProps) {
   const [activeMode, setActiveMode] =
     useState<CodexForgeBrainCommandMode>("runtime-health");
@@ -354,6 +356,10 @@ export function BrainCommandCenter({
         snapshot={runtimeSnapshot}
         summary={effectiveIntegrationSummary}
       />
+
+      {qualityGateSummary ? (
+        <BrainQualityGateStrip summary={qualityGateSummary} />
+      ) : null}
 
       <div
         data-codexforge-brain-panel-readiness-summary

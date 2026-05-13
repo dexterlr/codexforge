@@ -127,6 +127,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Brain quality gates"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-quality-gates.ps1"
+    Required = $true
+  }
+  @{
     Name = "Brain focus drilldown"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-focus-drilldown.ps1"
     Required = $true

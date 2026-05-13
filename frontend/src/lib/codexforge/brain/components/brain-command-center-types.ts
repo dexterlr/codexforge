@@ -7,6 +7,7 @@ import type {
   CodexForgeBrainPanelDataReadiness,
   CodexForgeBrainPanelId,
   CodexForgeBrainPanelIntegrationSummary,
+  CodexForgeBrainQualitySummary,
   CodexForgeBrainRuntimeSnapshot,
 } from "@/lib/codexforge/brain/runtime";
 
@@ -61,4 +62,5 @@ export type CodexForgeBrainCommandCenterProps = {
     Record<CodexForgeBrainPanelId, CodexForgeBrainPanelDataReadiness>
   >;
   panelIntegrationSummary?: CodexForgeBrainPanelIntegrationSummary | null;
+  qualityGateSummary?: CodexForgeBrainQualitySummary | null;
 };

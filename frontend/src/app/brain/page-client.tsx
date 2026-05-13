@@ -2,12 +2,20 @@
 
 import Link from "next/link";
 import { BrainCommandCenter } from "@/lib/codexforge/brain/components/brain-command-center";
+import { BrainGraphEmptyState } from "@/lib/codexforge/brain/components/brain-graph-empty-state";
+import { BrainGraphErrorState } from "@/lib/codexforge/brain/components/brain-graph-error-state";
+import { BrainGraphLoadingState } from "@/lib/codexforge/brain/components/brain-graph-loading-state";
+import { BrainQualityGateStrip } from "@/lib/codexforge/brain/components/brain-quality-gate-strip";
 import {
   buildBrainPanelDataAdapters,
   buildBrainPanelIntegrationFixtureAdapters,
   buildBrainPanelIntegrationReadinessMap,
   buildCodexForgeBrainRuntimeSnapshot,
+  evaluateBrainEmptyState,
+  evaluateBrainGraphLoadState,
+  evaluateBrainSnapshotPanelGates,
   summarizeBrainPanelIntegrationReadiness,
+  type CodexForgeBrainLoadPhase,
 } from "@/lib/codexforge/brain/runtime";
 import {
   useCallback,
@@ -65,6 +73,7 @@ type ToastState = {
 const MAX_DETAIL_LENGTH = 220;
 const MAX_NEIGHBOR_PREVIEW = 8;
 const MAX_EDGE_PREVIEW = 12;
+const BRAIN_GRAPH_LOADING_LABEL = "Loading brain graph";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -569,6 +578,10 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
 
 export default function BrainPageClient() {
   const [graph, setGraph] = useState<CodexForgeBrainGraph | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [loadComplete, setLoadComplete] = useState(false);
+  const [loadPhase, setLoadPhase] =
+    useState<CodexForgeBrainLoadPhase>("initializing");
   const [filters, setFilters] = useState<BrainFilters>({
     query: "",
     selectedKind: "all",
@@ -587,6 +600,9 @@ export default function BrainPageClient() {
   }, []);
 
   const refreshGraph = useCallback(() => {
+    setLoadPhase("loading");
+    setLoadComplete(false);
+
     try {
       const next = loadBrainGraph();
       setGraph(next);
@@ -602,16 +618,25 @@ export default function BrainPageClient() {
       });
 
       setError("");
+      setLoadComplete(true);
+      setLoadPhase(
+        next.nodes.length === 0 && next.edges.length === 0 ? "empty" : "loaded"
+      );
     } catch (err) {
-      setError(
+      const message =
         err instanceof Error && err.message.trim()
           ? err.message.trim()
-          : "Failed to load brain graph."
-      );
+          : "Failed to load brain graph.";
+      setGraph(null);
+      setSelectedNodeId(null);
+      setError(message);
+      setLoadComplete(true);
+      setLoadPhase("error");
     }
   }, []);
 
   useEffect(() => {
+    setMounted(true);
     refreshGraph();
   }, [refreshGraph]);
 
@@ -735,11 +760,15 @@ export default function BrainPageClient() {
   const runtimeSnapshot = useMemo(() => {
     if (!graph) return null;
 
-    return buildCodexForgeBrainRuntimeSnapshot({
-      graph,
-      selectedNodeId,
-      now: graph.meta.updatedAt,
-    });
+    try {
+      return buildCodexForgeBrainRuntimeSnapshot({
+        graph,
+        selectedNodeId,
+        now: graph.meta.updatedAt,
+      });
+    } catch {
+      return null;
+    }
   }, [graph, selectedNodeId]);
 
   const panelFixtureAdapters = useMemo(
@@ -768,6 +797,75 @@ export default function BrainPageClient() {
         runtimeSnapshot?.generatedAt ?? graph?.meta.updatedAt ?? 0
       ),
     [graph?.meta.updatedAt, panelReadiness, runtimeSnapshot?.generatedAt]
+  );
+
+  const graphLoadState = useMemo(
+    () =>
+      evaluateBrainGraphLoadState({
+        mounted,
+        loaded: loadComplete,
+        graph,
+        error,
+      }),
+    [error, graph, loadComplete, mounted]
+  );
+
+  const emptyState = useMemo(
+    () =>
+      evaluateBrainEmptyState({
+        graph,
+        error: error || null,
+        includeResetAction: Boolean(graph),
+      }),
+    [error, graph]
+  );
+
+  const snapshotPanelGates = useMemo(
+    () =>
+      evaluateBrainSnapshotPanelGates({
+        snapshot: runtimeSnapshot,
+        panelData,
+        panelReadiness,
+        now: runtimeSnapshot?.generatedAt ?? graph?.meta.updatedAt ?? 0,
+      }),
+    [graph?.meta.updatedAt, panelData, panelReadiness, runtimeSnapshot]
+  );
+
+  const qualityGateSummary = useMemo(
+    () => ({
+      generatedAt: runtimeSnapshot?.generatedAt ?? graph?.meta.updatedAt ?? 0,
+      readOnly: true as const,
+      loadPhase: graphLoadState.phase,
+      graphStatus: graphLoadState.status,
+      snapshotStatus: snapshotPanelGates.snapshotStatus,
+      panelStatus: snapshotPanelGates.panelStatus,
+      sourceStatus: `${loadPhase} / ${snapshotPanelGates.livePanels.length} live / ${snapshotPanelGates.mixedPanels.length} mixed / ${snapshotPanelGates.fixturePanels.length} fixture`,
+      gates: [
+        graphLoadState.gate,
+        snapshotPanelGates.snapshotGate,
+        snapshotPanelGates.panelGate,
+        ...(emptyState.isEmpty ? [emptyState.gate, ...emptyState.actions] : []),
+      ],
+      nextSafeAction: graphLoadState.gate.nextSafeAction,
+    }),
+    [
+      emptyState.actions,
+      emptyState.gate,
+      emptyState.isEmpty,
+      graph?.meta.updatedAt,
+      graphLoadState.gate,
+      graphLoadState.phase,
+      graphLoadState.status,
+      loadPhase,
+      runtimeSnapshot?.generatedAt,
+      snapshotPanelGates.fixturePanels.length,
+      snapshotPanelGates.livePanels.length,
+      snapshotPanelGates.mixedPanels.length,
+      snapshotPanelGates.panelGate,
+      snapshotPanelGates.panelStatus,
+      snapshotPanelGates.snapshotGate,
+      snapshotPanelGates.snapshotStatus,
+    ]
   );
 
   const handleCopyNode = useCallback(async () => {
@@ -805,6 +903,32 @@ export default function BrainPageClient() {
       showToast("err", message);
     }
   }, [selectedGraphJson, showToast]);
+
+  const handleCopyLoadDiagnostic = useCallback(async () => {
+    const diagnostic = JSON.stringify(
+      {
+        phase: graphLoadState.phase,
+        status: graphLoadState.status,
+        reason: graphLoadState.gate.reason,
+        evidence: graphLoadState.gate.evidence,
+        error: graphLoadState.errorMessage ?? error,
+      },
+      null,
+      2
+    );
+
+    try {
+      await copyToClipboard(diagnostic);
+      showToast("ok", "Load diagnostic copied");
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message.trim()
+          ? err.message.trim()
+          : "Could not copy load diagnostic.";
+      setError(message);
+      showToast("err", message);
+    }
+  }, [error, graphLoadState, showToast]);
 
   const handleCopyPrompt = useCallback(async () => {
     if (!selectedNode) return;
@@ -854,6 +978,8 @@ export default function BrainPageClient() {
 
       const saved = saveBrainGraph(next);
       setGraph(saved);
+      setLoadComplete(true);
+      setLoadPhase(saved.nodes.length === 0 && saved.edges.length === 0 ? "empty" : "loaded");
       showToast(
         "ok",
         selectedNode.meta.pinned ? "Node unpinned" : "Node pinned"
@@ -895,6 +1021,8 @@ export default function BrainPageClient() {
 
       const saved = saveBrainGraph(next);
       setGraph(saved);
+      setLoadComplete(true);
+      setLoadPhase(saved.nodes.length === 0 && saved.edges.length === 0 ? "empty" : "loaded");
       showToast(
         "ok",
         selectedNode.meta.archived ? "Node restored" : "Node archived"
@@ -934,6 +1062,8 @@ export default function BrainPageClient() {
       setGraph(saved);
       setSelectedNodeId(null);
       setError("");
+      setLoadComplete(true);
+      setLoadPhase("empty");
       showToast("ok", "Brain graph reset");
     } catch (err) {
       const message =
@@ -1094,12 +1224,35 @@ export default function BrainPageClient() {
           ) : null}
         </header>
 
-        {!graph || !stats ? (
-          <div style={panelStyle()}>
-            <p style={{ opacity: 0.8 }}>Loading brain graph'</p>
+        <BrainQualityGateStrip
+          loadState={graphLoadState}
+          snapshotPanelGates={snapshotPanelGates}
+          summary={qualityGateSummary}
+        />
+
+        {graphLoadState.phase === "error" ? (
+          <BrainGraphErrorState
+            loadState={graphLoadState}
+            onRetryLoad={refreshGraph}
+            onCopyDiagnostic={handleCopyLoadDiagnostic}
+          />
+        ) : graphLoadState.phase === "initializing" ||
+          graphLoadState.phase === "loading" ||
+          !graph ||
+          !stats ? (
+          <div aria-label={BRAIN_GRAPH_LOADING_LABEL}>
+            <BrainGraphLoadingState loadState={graphLoadState} />
           </div>
         ) : (
           <>
+            {emptyState.isEmpty ? (
+              <BrainGraphEmptyState
+                emptyState={emptyState}
+                onRefreshGraph={refreshGraph}
+                onResetGraph={handleResetGraph}
+              />
+            ) : null}
+
             <section
               style={{
                 display: "grid",
@@ -1125,6 +1278,7 @@ export default function BrainPageClient() {
               panelData={panelData}
               panelReadiness={panelReadiness}
               panelIntegrationSummary={panelIntegrationSummary}
+              qualityGateSummary={qualityGateSummary}
             />
 
             <section
