@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { calculateFileRisk } from "../file-risk";
+import { inferSafeNextActions } from "../file-intelligence";
 import type { CodexForgeFileNode } from "../types";
 import { FileRiskBadge } from "./file-risk-badge";
 
@@ -11,6 +12,14 @@ type FileInspectorProps = {
 
 export function FileInspector({ file }: FileInspectorProps) {
   const risk = calculateFileRisk(file);
+  const safeNextAction = inferSafeNextActions(file)[0] ?? "summarize";
+  const suggestedValidation = file.kind === "smoke"
+    ? "Run this smoke script after approved edits."
+    : file.path.includes("/files/")
+      ? "Run build plus Files Command Center smoke after approved edits."
+      : file.path.includes("/app/api/")
+        ? "Run build, server smoke, and nearest route validation after approved edits."
+        : "Run build and the nearest CodexForge smoke after approved edits.";
 
   return (
     <section data-codexforge-file-inspector style={panel}>
@@ -28,13 +37,25 @@ export function FileInspector({ file }: FileInspectorProps) {
       <div style={metrics}>
         <Metric label="Owner" value={file.ownerArea} />
         <Metric label="Kind" value={file.kind} />
+        <Metric label="Type" value={file.extension || "text"} />
         <Metric label="Lines" value={String(file.lineCount)} />
         <Metric label="Risk" value={`${risk.level} ${risk.score}/100`} />
+        <Metric label="Mode" value="read-only" />
       </div>
 
       <div style={block}>
         <h3 style={heading}>Architecture role</h3>
         <p style={body}>{file.architectureRole}</p>
+      </div>
+
+      <div style={block}>
+        <h3 style={heading}>Why it matters</h3>
+        <p style={body}>{risk.summary}</p>
+      </div>
+
+      <div style={metrics}>
+        <Metric label="Safe next action" value={safeNextAction} />
+        <Metric label="Suggested validation" value={suggestedValidation} />
       </div>
 
       <div style={block}>
@@ -113,7 +134,7 @@ const summary: CSSProperties = {
 
 const metrics: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))",
   gap: 8,
 };
 

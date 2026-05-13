@@ -6,7 +6,7 @@ import {
   codexForgeFileFixtures,
 } from "../file-fixtures";
 import { calculateFileRisk } from "../file-risk";
-import { searchFiles } from "../file-search";
+import { buildCodexForgeFileReactKey, searchFiles } from "../file-search";
 import type {
   CodexForgeFileAction,
   CodexForgeFileCommandCenterState,
@@ -178,7 +178,7 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
         <div style={chipRow}>
           {KIND_FILTERS.map((kind) => (
             <button
-              key={kind}
+              key={buildCodexForgeFileReactKey("kind-filter", [kind], 0)}
               type="button"
               onClick={() => setKind(kind)}
               style={chip(state.kind === kind)}
@@ -191,7 +191,7 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
         <div style={chipRow}>
           {RISK_FILTERS.map((risk) => (
             <button
-              key={risk}
+              key={buildCodexForgeFileReactKey("risk-filter", [risk], 0)}
               type="button"
               onClick={() => setRisk(risk)}
               style={chip(state.risk === risk)}
@@ -218,14 +218,18 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
         >
           <option value="all">all tags</option>
           {tags.map((tag) => (
-            <option key={tag} value={tag}>
+            <option key={buildCodexForgeFileReactKey("tag-filter", [tag], 0)} value={tag}>
               {tag}
             </option>
           ))}
         </select>
       </section>
 
-      <section style={layout}>
+      <section
+        data-codexforge-files-responsive-layout
+        data-codexforge-files-overflow-guard
+        style={layout}
+      >
         <FileTree
           files={visibleFiles}
           selectedPath={selectedFile.path}
@@ -244,12 +248,18 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
             <div style={eyebrow}>Memory and concepts</div>
             <div style={memoryGrid}>
               {selectedFile.relatedMemory.map((memory) => (
-                <div key={memory} style={memoryCard}>
+                <div
+                  key={buildCodexForgeFileReactKey("memory", [selectedFile.path, memory], 0)}
+                  style={memoryCard}
+                >
                   {memory}
                 </div>
               ))}
               {selectedFile.insights.map((insight) => (
-                <div key={insight.id} style={memoryCard}>
+                <div
+                  key={buildCodexForgeFileReactKey("insight", [selectedFile.path, insight.id], 0)}
+                  style={memoryCard}
+                >
                   <strong>{insight.label}</strong>
                   <span>{insight.value}</span>
                 </div>
@@ -425,7 +435,7 @@ const page: CSSProperties = {
 
 const hero: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "minmax(0, 1fr) minmax(320px, 520px)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
   gap: 16,
   alignItems: "end",
   maxWidth: 1540,
@@ -463,7 +473,7 @@ const lede: CSSProperties = {
 
 const summaryGrid: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
   gap: 8,
 };
 
@@ -476,6 +486,7 @@ const liveStrip: CSSProperties = {
   borderRadius: 8,
   padding: "10px 12px",
   display: "flex",
+  flexWrap: "wrap",
   justifyContent: "space-between",
   gap: 12,
   alignItems: "center",
@@ -516,7 +527,7 @@ const commandBar: CSSProperties = {
   borderRadius: 8,
   padding: 12,
   display: "grid",
-  gridTemplateColumns: "minmax(260px, 1fr) auto auto 150px",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
   gap: 10,
   alignItems: "end",
 };
@@ -566,19 +577,22 @@ const layout: CSSProperties = {
   width: "100%",
   margin: "0 auto",
   display: "grid",
-  gridTemplateColumns: "minmax(320px, 0.85fr) minmax(460px, 1.35fr) minmax(300px, 0.75fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
   gap: 14,
   alignItems: "start",
+  minWidth: 0,
 };
 
 const middle: CSSProperties = {
   display: "grid",
   gap: 12,
+  minWidth: 0,
 };
 
 const rightRail: CSSProperties = {
   display: "grid",
   gap: 12,
+  minWidth: 0,
 };
 
 const insightPanel: CSSProperties = {
@@ -632,7 +646,7 @@ const tinyBlock: CSSProperties = {
 
 const memoryGrid: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
   gap: 8,
 };
 

@@ -23,8 +23,13 @@ export function SafeEditPreview({ file, action }: SafeEditPreviewProps) {
 
       <p style={body}>
         {preview.summary} This surface is preview-only: no overwrite happens
-        without approval, and Phase 3A does not mutate project files.
+        without preview and approval, and Phase 3 does not mutate project files.
       </p>
+
+      <div style={workflow}>
+        <strong>Future guarded workflow</strong>
+        <span>inspect -&gt; plan -&gt; preview diff -&gt; approve -&gt; apply via guarded tool</span>
+      </div>
 
       <div style={grid}>
         <HintBlock title="Plan" items={preview.proposedSteps} />
@@ -98,8 +103,20 @@ const body: CSSProperties = {
 
 const grid: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))",
   gap: 8,
+};
+
+const workflow: CSSProperties = {
+  border: "1px solid rgba(16,185,129,0.22)",
+  background: "rgba(0,0,0,0.18)",
+  borderRadius: 8,
+  padding: 10,
+  display: "grid",
+  gap: 5,
+  fontSize: 12,
+  lineHeight: 1.5,
+  overflowWrap: "anywhere",
 };
 
 const block: CSSProperties = {

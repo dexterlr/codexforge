@@ -10,7 +10,6 @@ function clampScore(score: number): number {
 }
 
 function levelFromScore(score: number): CodexForgeFileRiskLevel {
-  if (score >= 82) return "critical";
   if (score >= 62) return "high";
   if (score >= 34) return "medium";
   return "low";
@@ -29,17 +28,30 @@ function signal(
 export function calculateFileRisk(file: CodexForgeFileNode): CodexForgeFileRiskSummary {
   const signals: CodexForgeFileRiskSignal[] = [];
   const path = file.path.toLowerCase();
+  const searchable = `${file.path} ${file.name} ${file.summary} ${file.tags.join(" ")}`.toLowerCase();
 
   if (path.includes("/app/api/") || path.endsWith("route.ts")) {
-    signals.push(signal("route-server-code", "Route/server code", "high", 24, "Server boundaries can affect request handling and persistence."));
+    signals.push(signal("route-server-code", "API route/server code", "high", 30, "Server boundaries can affect request handling, data exposure, and persistence."));
   }
 
-  if (path.includes("/tools/") && /(write|apply|delete|patch|mutation|execute)/i.test(file.summary + file.tags.join(" "))) {
-    signals.push(signal("mutation-tool", "Mutation tool surface", "critical", 28, "Tool code may cross from inspection into workspace mutation."));
+  if (path.includes("/tools/") && /(write|apply|delete|patch|mutation|execute|run|test|build)/i.test(searchable)) {
+    signals.push(signal("mutation-tool", "Mutation-capable tool surface", "high", 34, "Tool code may cross from inspection into workspace mutation or command execution."));
   }
 
-  if (path.includes("/brain/runtime/") || path.includes("/brain/graph/")) {
-    signals.push(signal("runtime-core", "Runtime schema/core", "critical", 30, "Runtime files carry cognitive graph and execution contract risk."));
+  if (/(write|apply|delete|patch|overwrite|run-command|run-tests|build-web-app|generate-diff)/i.test(searchable)) {
+    signals.push(signal("write-run-build-keyword", "Write/run/build keyword", "high", 24, "The path or summary mentions a mutation, command, test, or build boundary."));
+  }
+
+  if (/(auth|safety|policy|approval|permission|guard)/i.test(searchable)) {
+    signals.push(signal("safety-policy-code", "Auth/safety/policy code", "high", 26, "Safety and approval code controls operator trust boundaries."));
+  }
+
+  if (path.includes("/brain/runtime/") || path.includes("/brain/graph/") || path.includes("/memory/")) {
+    signals.push(signal("runtime-core", "Runtime/graph/memory surface", "medium", 18, "Runtime files carry cognitive graph, memory, and execution contract risk."));
+  }
+
+  if (path.includes("/chat/") && /(state|composer|message|runtime|panel)/i.test(searchable)) {
+    signals.push(signal("chat-state", "Chat state surface", "medium", 16, "Chat state and runtime panels influence operator context and decisions."));
   }
 
   if (path.includes("scripts/smoke-")) {

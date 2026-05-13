@@ -1,11 +1,44 @@
 import { calculateFileRisk } from "./file-risk";
 import type {
+  CodexForgeFileKind,
   CodexForgeFileNode,
   CodexForgeFileSearchFilters,
 } from "./types";
 
-function normalize(value: string | undefined): string {
+export function normalizeFileSearchQuery(value: string | undefined): string {
   return (value ?? "").trim().toLowerCase();
+}
+
+export function buildCodexForgeFileReactKey(
+  scope: string,
+  parts: Array<string | number | undefined>,
+  index: number
+): string {
+  const stableParts = parts
+    .map((part) => String(part ?? "").trim().toLowerCase().replace(/[^a-z0-9_.:/-]+/g, "-"))
+    .filter(Boolean);
+
+  return [scope, ...stableParts, String(index)].join(":");
+}
+
+export function getCodexForgeFileCategory(file: Pick<CodexForgeFileNode, "path" | "kind">): string {
+  const path = file.path.toLowerCase();
+
+  if (path.includes("/app/api/") || path.endsWith("/route.ts")) return "API routes";
+  if (path.includes("/app/")) return "App routes";
+  if (file.kind === "component" || path.includes("/components/")) return "Components";
+  if (path.includes("/brain/runtime/")) return "Runtime";
+  if (path.includes("/tools/")) return "Tools";
+  if (path.includes("/brain/")) return "Brain";
+  if (file.kind === "docs") return "Docs";
+  if (path.startsWith("scripts/")) return "Scripts";
+  if (file.kind === "config") return "Config";
+  if (file.kind === "smoke" || path.includes("smoke")) return "Tests/Smoke";
+  return "Library";
+}
+
+export function scoreFileSearchMatch(file: CodexForgeFileNode, query: string): number {
+  return scoreFile(file, query);
 }
 
 function matchesQuery(file: CodexForgeFileNode, query: string): boolean {
@@ -32,7 +65,7 @@ export function filterFiles(
   files: CodexForgeFileNode[],
   filters: CodexForgeFileSearchFilters = {}
 ): CodexForgeFileNode[] {
-  const query = normalize(filters.query);
+  const query = normalizeFileSearchQuery(filters.query);
   const kind = filters.kind ?? "all";
   const risk = filters.risk ?? "all";
   const tag = filters.tag ?? "all";
@@ -54,7 +87,7 @@ export function rankFiles(
   files: CodexForgeFileNode[],
   query = ""
 ): CodexForgeFileNode[] {
-  const normalizedQuery = normalize(query);
+  const normalizedQuery = normalizeFileSearchQuery(query);
 
   return [...files].sort((a, b) => {
     const scoreA = scoreFile(a, normalizedQuery);
@@ -75,6 +108,9 @@ export function searchFiles(
 function scoreFile(file: CodexForgeFileNode, query: string): number {
   let score = 0;
   const risk = calculateFileRisk(file);
+  const extension = file.extension.toLowerCase();
+  const kind: CodexForgeFileKind = file.kind;
+  const category = getCodexForgeFileCategory(file).toLowerCase();
 
   if (file.tags.includes("recent")) score += 20;
   if (file.tags.includes("entrypoint")) score += 18;
@@ -85,6 +121,10 @@ function scoreFile(file: CodexForgeFileNode, query: string): number {
   if (query) {
     if (file.name.toLowerCase().includes(query)) score += 60;
     if (file.path.toLowerCase().includes(query)) score += 40;
+    if (extension && extension.includes(query)) score += 30;
+    if (kind.includes(query)) score += 28;
+    if (category.includes(query)) score += 26;
+    if (file.ownerArea.toLowerCase().includes(query)) score += 24;
     if (file.summary.toLowerCase().includes(query)) score += 24;
     if (file.concepts.join(" ").toLowerCase().includes(query)) score += 18;
   }
