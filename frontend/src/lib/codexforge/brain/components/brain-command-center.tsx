@@ -6,6 +6,8 @@ import { BrainAgentActivityPanel } from "./brain-agent-activity-panel";
 import { BrainMemoryClustersPanel } from "./brain-memory-clusters-panel";
 import { BrainModeTabs } from "./brain-mode-tabs";
 import { BrainPredictionPanel } from "./brain-prediction-panel";
+import { BrainLineagePanel } from "./brain-lineage-panel";
+import { BrainReplayPanel } from "./brain-replay-panel";
 import { BrainRiskPanel } from "./brain-risk-panel";
 import { BrainRuntimeHealthPanel } from "./brain-runtime-health-panel";
 import { BrainTimelinePanel } from "./brain-timeline-panel";
@@ -31,7 +33,7 @@ export function BrainCommandCenter({
           <h2 style={titleStyle}>CodexForge brain runtime</h2>
           <p style={copyStyle}>
             A read-only command layer for runtime health, memory, agents,
-            prediction, risks, timeline, and the preserved graph inspector flow.
+            prediction, risks, replay, lineage, timeline, and the preserved graph inspector flow.
           </p>
         </div>
         <div style={statusGridStyle}>
@@ -50,6 +52,8 @@ export function BrainCommandCenter({
         <BrainPredictionPanel graph={graph} selectedNode={selectedNode} />
         <BrainRiskPanel graph={graph} />
         <BrainTimelinePanel graph={graph} />
+        <BrainReplayPanel graph={graph} />
+        <BrainLineagePanel graph={graph} />
       </div>
 
       <div style={modePanelStyle} data-codexforge-brain-active-mode={activeMode}>

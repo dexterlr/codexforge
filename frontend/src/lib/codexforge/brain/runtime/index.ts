@@ -79,6 +79,22 @@ export {
   buildPredictiveContextFixtureFiles,
 } from "./context";
 
+export {
+  buildAgentLineageView,
+  buildBrainReplayFixtureEvents,
+  buildBrainReplayFixtureGraph,
+  buildBrainReplayFixtureLineage,
+  buildBrainReplayFrame,
+  buildBrainRuntimeLineage,
+  buildBrainRuntimeReplay,
+  buildExecutionLineageView,
+  buildMemoryLineageView,
+  groupReplayEventsByLane,
+  selectReplayHighlights,
+  summarizeBrainRuntimeLineage,
+  summarizeBrainRuntimeReplay,
+} from "./replay";
+
 export type {
   CodexForgeBrainRuntimeContract,
   CodexForgeBrainRuntimeCognitiveMemoryApi,
@@ -144,6 +160,19 @@ export type {
   CodexForgeTaskFocus,
   CodexForgeTaskFocusInput,
 } from "./context";
+
+export type {
+  CodexForgeBrainLineageEdge,
+  CodexForgeBrainLineageGraph,
+  CodexForgeBrainLineageNode,
+  CodexForgeBrainLineageNodeKind,
+  CodexForgeBrainReplayBuildInput,
+  CodexForgeBrainReplayFrame,
+  CodexForgeBrainReplayItem,
+  CodexForgeBrainReplayLane,
+  CodexForgeBrainReplayLaneId,
+  CodexForgeBrainReplaySummary,
+} from "./replay";
 
 export type {
   CodexForgeBrainAppendEventResult,

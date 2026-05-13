@@ -15,6 +15,8 @@ export type CodexForgeBrainCommandMode =
   | "prediction"
   | "knowledge-clusters"
   | "runtime-health"
+  | "replay"
+  | "lineage"
   | "graph";
 
 export type CodexForgeBrainCommandCenterMetric = {

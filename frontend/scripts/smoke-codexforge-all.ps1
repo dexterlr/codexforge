@@ -92,6 +92,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Brain replay lineage"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-replay-lineage.ps1"
+    Required = $true
+  }
+  @{
     Name = "Brain runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-runtime.ps1"
     Required = $true

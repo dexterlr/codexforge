@@ -43,6 +43,16 @@ export const BRAIN_COMMAND_CENTER_MODES: readonly CodexForgeBrainCommandCenterPa
     description: "Deterministic runtime timeline rows.",
   },
   {
+    id: "replay",
+    label: "Replay",
+    description: "Read-only event replay, frames, lanes, and highlights.",
+  },
+  {
+    id: "lineage",
+    label: "Lineage",
+    description: "Execution, memory, concept, failure, recovery, and agent lineage.",
+  },
+  {
     id: "risks",
     label: "Risks",
     description: "Schema, mutation, approval, and stale context risks.",
