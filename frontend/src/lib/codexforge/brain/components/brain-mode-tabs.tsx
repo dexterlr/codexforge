@@ -13,6 +13,11 @@ export const BRAIN_COMMAND_CENTER_MODES: readonly CodexForgeBrainCommandCenterPa
     description: "Contract, readiness, required APIs, and safe next steps.",
   },
   {
+    id: "system-status",
+    label: "System Status",
+    description: "Subsystem readiness, smoke coverage, safety posture, and cognition pipeline.",
+  },
+  {
     id: "memory",
     label: "Memory",
     description: "Read-only cognitive memory readiness and promoted signals.",

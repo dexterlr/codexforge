@@ -107,6 +107,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Brain runtime health dashboard"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-runtime-health-dashboard.ps1"
+    Required = $true
+  }
+  @{
     Name = "Brain runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-runtime.ps1"
     Required = $true

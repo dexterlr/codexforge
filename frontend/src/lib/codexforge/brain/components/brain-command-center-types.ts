@@ -19,6 +19,7 @@ export type CodexForgeBrainCommandMode =
   | "recommendations"
   | "insight-queue"
   | "runtime-health"
+  | "system-status"
   | "replay"
   | "lineage"
   | "graph";

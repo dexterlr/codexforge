@@ -13,6 +13,7 @@ import { BrainRecommendationsPanel } from "./brain-recommendations-panel";
 import { BrainInsightQueuePanel } from "./brain-insight-queue-panel";
 import { BrainRiskPanel } from "./brain-risk-panel";
 import { BrainRuntimeHealthPanel } from "./brain-runtime-health-panel";
+import { BrainSystemStatusPanel } from "./brain-system-status-panel";
 import { BrainSemanticHeatmapPanel } from "./brain-semantic-heatmap-panel";
 import { BrainTimelinePanel } from "./brain-timeline-panel";
 import type {
@@ -51,6 +52,7 @@ export function BrainCommandCenter({
 
       <div style={panelGridStyle}>
         <BrainRuntimeHealthPanel graph={graph} />
+        <BrainSystemStatusPanel graph={graph} />
         <BrainMemoryClustersPanel graph={graph} />
         <BrainAgentActivityPanel />
         <BrainPredictionPanel graph={graph} selectedNode={selectedNode} />

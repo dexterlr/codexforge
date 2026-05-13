@@ -1,76 +1,167 @@
-import type { CSSProperties } from "react";
-import {
-  evaluateBrainRuntimeHealth,
-  getCodexForgeBrainRuntimeContract,
-  summarizeBrainRuntimeHealth,
-} from "@/lib/codexforge/brain/runtime";
+"use client";
+
+import { useMemo, useState, type CSSProperties } from "react";
 import type { CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph";
+import {
+  buildKnowledgeTopology,
+  buildRuntimeHealthDashboard,
+  buildRuntimeHealthFixtureDashboard,
+  runBrainRuntimeDiagnostics,
+  summarizeBrainRuntimeDiagnostics,
+  summarizeCognitiveSystemStatus,
+  type CodexForgeRuntimeHealthSignal,
+} from "@/lib/codexforge/brain/runtime";
+import { BrainHealthInspector } from "./brain-health-inspector";
+import { BrainSubsystemStatusCard } from "./brain-subsystem-status-card";
 
 type BrainRuntimeHealthPanelProps = {
-  graph: CodexForgeBrainGraph;
+  graph?: CodexForgeBrainGraph;
 };
 
 export function BrainRuntimeHealthPanel({ graph }: BrainRuntimeHealthPanelProps) {
-  const report = evaluateBrainRuntimeHealth();
-  const contract = getCodexForgeBrainRuntimeContract();
-  const graphSummary =
-    graph.nodes.length > 0
-      ? `${graph.nodes.length} nodes and ${graph.edges.length} edges loaded`
-      : "Graph is empty; runtime contract is still available";
+  const dashboard = useMemo(() => {
+    if (!graph || graph.nodes.length === 0) {
+      return buildRuntimeHealthFixtureDashboard();
+    }
+
+    const diagnostics = runBrainRuntimeDiagnostics({
+      graph,
+      now: graph.meta.updatedAt,
+      memoryCandidates: graph.nodes.filter((node) =>
+        ["memory", "note", "decision", "concept"].includes(node.kind)
+      ),
+    });
+    const topology = buildKnowledgeTopology({ graph, events: [], now: graph.meta.updatedAt });
+
+    return buildRuntimeHealthDashboard({
+      generatedAt: graph.meta.updatedAt,
+      runtimeDiagnostics: diagnostics,
+      topologySummary: topology.summary,
+      smokeCoverageDescriptors: [
+        { id: "brain-runtime", present: true, coverageLevel: 1, reason: "Brain runtime smoke descriptor supplied." },
+        { id: "brain-command-center", present: true, coverageLevel: 1, reason: "Brain command center smoke descriptor supplied." },
+        { id: "brain-recommendations", present: true, coverageLevel: 1, reason: "Brain recommendations smoke descriptor supplied." },
+        { id: "brain-semantic-topology", present: true, coverageLevel: 1, reason: "Brain semantic topology smoke descriptor supplied." },
+      ],
+    });
+  }, [graph]);
+  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
+  const selectedSignal =
+    dashboard.signals.find((signal) => signal.id === selectedSignalId) ??
+    dashboard.signals[0] ??
+    null;
 
   return (
-    <section data-codexforge-brain-runtime-health style={panelStyle}>
-      <Header title="Runtime Health" eyebrow="Contract readiness" />
-      <div style={metricGridStyle}>
-        <Metric label="Runtime" value={report.version} />
-        <Metric label="Graph data" value={graphSummary} />
-        <Metric label="Cognitive memory" value={report.cognitiveMemoryReady ? "ready" : "warming"} />
-        <Metric label="Findings" value={`${report.risks.length} risks / ${report.warnings.length} warnings`} />
+    <section data-codexforge-brain-runtime-health-panel style={panelStyle}>
+      <div style={headerStyle}>
+        <div>
+          <div style={eyebrowStyle}>Runtime health dashboard</div>
+          <h2 style={titleStyle}>Cognitive runtime status</h2>
+        </div>
+        <span style={pillStyle}>read-only</span>
       </div>
-      <div style={calloutStyle}>{summarizeBrainRuntimeHealth(report)}</div>
-      <div style={twoColumnStyle}>
-        <List title="Canonical schema" items={[contract.canonicalSchemaPath]} />
-        <List title="Required APIs" items={contract.requiredApis} />
+
+      <div style={summaryGridStyle}>
+        <Metric
+          label="Health score"
+          value={String(dashboard.healthScore)}
+          marker="data-codexforge-brain-runtime-health-score"
+        />
+        <Metric label="State" value={dashboard.status} />
+        <Metric
+          label="Contract"
+          value={dashboard.runtimeContract?.version ?? "fixture"}
+          marker="data-codexforge-brain-runtime-contract-status"
+        />
+        <Metric
+          label="Diagnostics"
+          value={summarizeBrainRuntimeDiagnostics()}
+          marker="data-codexforge-brain-runtime-diagnostic-status"
+        />
       </div>
-      <List title="Next safe steps" items={contract.nextSafeSteps.slice(0, 4)} />
+
+      <div style={calloutStyle}>{summarizeCognitiveSystemStatus(dashboard)}</div>
+
+      <div data-codexforge-brain-runtime-health-next-action style={nextActionStyle}>
+        <strong>{dashboard.summary.nextSafeAction.label}</strong>
+        <span>{dashboard.summary.nextSafeAction.detail}</span>
+      </div>
+
+      <div style={layoutStyle}>
+        <div style={mainStyle}>
+          <section style={sectionStyle}>
+            <div style={eyebrowStyle}>Top health signals</div>
+            <div style={signalGridStyle}>
+              {dashboard.signals.slice(0, 6).map((signal) => (
+                <SignalButton
+                  key={signal.id}
+                  signal={signal}
+                  active={selectedSignal?.id === signal.id}
+                  onSelect={setSelectedSignalId}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section style={sectionStyle}>
+            <div style={eyebrowStyle}>Subsystem hot path</div>
+            <div style={subsystemGridStyle}>
+              {dashboard.subsystemReadiness.slice(0, 4).map((subsystem) => (
+                <BrainSubsystemStatusCard key={subsystem.id} subsystem={subsystem} />
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <BrainHealthInspector signal={selectedSignal} safety={dashboard.safetyPosture} />
+      </div>
     </section>
   );
 }
 
-function Header({ title, eyebrow }: { title: string; eyebrow: string }) {
+function Metric({
+  label,
+  value,
+  marker,
+}: {
+  label: string;
+  value: string;
+  marker?: string;
+}) {
+  const markerProps = marker ? { [marker]: true } : {};
   return (
-    <div>
-      <div style={eyebrowStyle}>{eyebrow}</div>
-      <h2 style={titleStyle}>{title}</h2>
+    <div {...markerProps} style={metricStyle}>
+      <span style={eyebrowStyle}>{label}</span>
+      <strong>{value}</strong>
     </div>
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function SignalButton({
+  signal,
+  active,
+  onSelect,
+}: {
+  signal: CodexForgeRuntimeHealthSignal;
+  active: boolean;
+  onSelect: (id: string) => void;
+}) {
   return (
-    <div style={metricStyle}>
-      <div style={eyebrowStyle}>{label}</div>
-      <strong style={metricValueStyle}>{value}</strong>
-    </div>
-  );
-}
-
-function List({ title, items }: { title: string; items: readonly string[] }) {
-  return (
-    <div style={listPanelStyle}>
-      <div style={sectionTitleStyle}>{title}</div>
-      <div style={listStyle}>
-        {items.length > 0 ? (
-          items.map((item) => (
-            <div key={item} style={rowStyle}>
-              {item}
-            </div>
-          ))
-        ) : (
-          <div style={emptyStyle}>No data available yet.</div>
-        )}
+    <button
+      type="button"
+      data-codexforge-brain-runtime-health-signal
+      onClick={() => onSelect(signal.id)}
+      style={{
+        ...signalStyle,
+        borderColor: active ? "rgba(125,211,252,0.44)" : "rgba(255,255,255,0.09)",
+      }}
+    >
+      <div style={signalHeaderStyle}>
+        <strong>{signal.title}</strong>
+        <span>{signal.severity}</span>
       </div>
-    </div>
+      <span>{signal.detail}</span>
+    </button>
   );
 }
 
@@ -80,66 +171,111 @@ const panelStyle: CSSProperties = {
   padding: 16,
   borderRadius: 8,
   border: "1px solid rgba(125,211,252,0.22)",
-  background: "rgba(15,23,42,0.76)",
+  background: "radial-gradient(circle at 18% 0%, rgba(14,165,233,0.20), transparent 34%), rgba(15,23,42,0.86)",
 };
 
-const metricGridStyle: CSSProperties = {
+const headerStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 12,
+  alignItems: "start",
+};
+
+const summaryGridStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))",
-  gap: 10,
+  gap: 8,
 };
 
 const metricStyle: CSSProperties = {
   display: "grid",
-  gap: 6,
-  padding: 11,
+  gap: 5,
+  padding: 10,
   borderRadius: 8,
   border: "1px solid rgba(255,255,255,0.09)",
-  background: "rgba(255,255,255,0.045)",
-};
-
-const metricValueStyle: CSSProperties = {
-  fontSize: 14,
+  background: "rgba(255,255,255,0.04)",
+  minWidth: 0,
+  fontSize: 12,
   lineHeight: 1.35,
 };
 
 const calloutStyle: CSSProperties = {
-  padding: 12,
+  padding: 11,
+  borderRadius: 8,
+  border: "1px solid rgba(125,211,252,0.18)",
+  background: "rgba(14,165,233,0.08)",
+  fontSize: 12,
+  lineHeight: 1.5,
+};
+
+const nextActionStyle: CSSProperties = {
+  display: "grid",
+  gap: 5,
+  padding: 11,
   borderRadius: 8,
   border: "1px solid rgba(34,197,94,0.18)",
   background: "rgba(34,197,94,0.08)",
-  fontSize: 13,
-  lineHeight: 1.55,
+  color: "rgba(220,252,231,0.92)",
+  fontSize: 12,
+  lineHeight: 1.5,
 };
 
-const twoColumnStyle: CSSProperties = {
+const layoutStyle: CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
-  gap: 10,
+  gridTemplateColumns: "minmax(0, 1fr) minmax(270px, 0.35fr)",
+  gap: 12,
+  alignItems: "start",
 };
 
-const listPanelStyle: CSSProperties = {
+const mainStyle: CSSProperties = {
+  display: "grid",
+  gap: 12,
+};
+
+const sectionStyle: CSSProperties = {
   display: "grid",
   gap: 8,
 };
 
-const listStyle: CSSProperties = {
+const signalGridStyle: CSSProperties = {
   display: "grid",
-  gap: 6,
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+  gap: 8,
 };
 
-const rowStyle: CSSProperties = {
-  padding: "8px 9px",
+const signalStyle: CSSProperties = {
+  display: "grid",
+  gap: 6,
+  padding: 10,
   borderRadius: 8,
+  border: "1px solid rgba(255,255,255,0.09)",
   background: "rgba(255,255,255,0.04)",
-  color: "rgba(226,232,240,0.86)",
-  fontSize: 12,
+  color: "inherit",
+  textAlign: "left",
+  cursor: "pointer",
+  fontSize: 11,
   lineHeight: 1.45,
 };
 
-const emptyStyle: CSSProperties = {
-  color: "rgba(148,163,184,0.86)",
-  fontSize: 12,
+const signalHeaderStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+};
+
+const subsystemGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))",
+  gap: 8,
+};
+
+const pillStyle: CSSProperties = {
+  borderRadius: 999,
+  padding: "3px 7px",
+  background: "rgba(14,165,233,0.14)",
+  color: "rgba(186,230,253,0.92)",
+  fontSize: 10,
+  fontWeight: 900,
 };
 
 const eyebrowStyle: CSSProperties = {
@@ -148,11 +284,6 @@ const eyebrowStyle: CSSProperties = {
   letterSpacing: 0,
   textTransform: "uppercase",
   color: "rgba(186,230,253,0.86)",
-};
-
-const sectionTitleStyle: CSSProperties = {
-  ...eyebrowStyle,
-  color: "rgba(226,232,240,0.78)",
 };
 
 const titleStyle: CSSProperties = {

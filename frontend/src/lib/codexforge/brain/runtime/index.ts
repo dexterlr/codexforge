@@ -20,6 +20,32 @@ export {
 } from "./runtime-timeline";
 
 export {
+  buildRuntimeHealthDashboard,
+  buildRuntimeHealthSignal,
+  buildRuntimeHealthSection,
+  normalizeRuntimeHealthSeverity,
+  buildSubsystemReadiness,
+  scoreSubsystemReadiness,
+  summarizeSubsystemReadiness,
+  sortSubsystemReadiness,
+  buildSmokeCoverageMap,
+  summarizeSmokeCoverage,
+  scoreSmokeCoverage,
+  buildRuntimeSafetyPosture,
+  classifyRuntimeSafetySignal,
+  summarizeRuntimeSafetyPosture,
+  summarizeRuntimeHealthDashboard,
+  selectRuntimeHealthHotspots,
+  recommendRuntimeHealthNextSafeAction,
+  summarizeCognitiveSystemStatus,
+  buildRuntimeHealthFixtureDashboard,
+  buildRuntimeHealthFixtureSignals,
+  buildRuntimeHealthFixtureSubsystems,
+  buildRuntimeHealthFixtureSmokeCoverage,
+  buildRuntimeHealthFixtureSafetyPosture,
+} from "./health";
+
+export {
   runBrainRuntimeDiagnostics,
   summarizeBrainRuntimeDiagnostics,
 } from "./runtime-diagnostics";
@@ -164,6 +190,19 @@ export type {
 } from "./runtime-health";
 
 export type { CodexForgeBrainRuntimeTimelineItem } from "./runtime-timeline";
+
+export type {
+  CodexForgeRuntimeHealthSeverity,
+  CodexForgeRuntimeSubsystemStatus,
+  CodexForgeRuntimeSubsystemKind,
+  CodexForgeRuntimeSubsystemReadiness,
+  CodexForgeRuntimeSmokeCoverageItem,
+  CodexForgeRuntimeSafetyPosture,
+  CodexForgeRuntimeHealthDashboard,
+  CodexForgeRuntimeHealthSignal,
+  CodexForgeRuntimeHealthBuildInput,
+  CodexForgeRuntimeHealthSummary,
+} from "./health";
 
 export type {
   CodexForgeBrainRuntimeDiagnostic,
