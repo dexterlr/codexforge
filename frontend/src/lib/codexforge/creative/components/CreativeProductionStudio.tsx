@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { CodexForgeLocalActionBar } from "@/lib/codexforge/navigation";
 import type { CreativeContext } from "../creative-types";
 import { ArtifactGalleryPanel } from "./ArtifactGalleryPanel";
 import { BlenderScenePlanPanel } from "./BlenderScenePlanPanel";
@@ -21,28 +22,20 @@ export function CreativeProductionStudio({ context }: { context: CreativeContext
       data-codexforge-creative-approval-required="approval required before execution"
       style={page}
     >
-      <section style={hero}>
-        <div style={heroText}>
-          <span style={eyebrow}>CodexForge Phase 7</span>
-          <h1 style={headline}>Creative Production Studio</h1>
-          <p style={subhead}>
-            Creative brief to production plan to artifact pipeline preview, with Safe Patch Preview handoff as the approval boundary.
-          </p>
-          <div style={linkRow}>
-            <a href="/runs" style={runLink}>Open Operator Run Center</a>
-            <a href="/bridge" style={runLink}>Bridge readiness</a>
-            <a href="/artifacts" style={runLink}>Artifact Executor</a>
-          </div>
-        </div>
-        <div style={statusGrid}>
-          <span style={statusPill}>preview-only</span>
-          <span style={statusPill}>approval required before execution</span>
-          <span style={statusPill}>No render execution</span>
-          <span style={statusPill}>No Blender execution</span>
-          <span style={statusPill}>No Unreal execution</span>
-          <span style={statusPill}>No ComfyUI execution</span>
-        </div>
-      </section>
+      <CodexForgeLocalActionBar
+        title="Creative Production Studio"
+        subtitle="Creative brief to production plan to artifact pipeline preview, with Safe Patch Preview handoff as the approval boundary"
+        status="preview-only"
+      >
+        <a href="/runs" style={runLink}>Open Operator Run Center</a>
+        <a href="/bridge" style={runLink}>Bridge readiness</a>
+        <a href="/artifacts" style={runLink}>Artifact Executor</a>
+        <span style={statusPill}>approval required before execution</span>
+        <span style={statusPill}>No render execution</span>
+        <span style={statusPill}>No Blender execution</span>
+        <span style={statusPill}>No Unreal execution</span>
+        <span style={statusPill}>No ComfyUI execution</span>
+      </CodexForgeLocalActionBar>
 
       <CreativeBriefPanel brief={context.brief} />
       <ProductionPlanBoard plan={context.productionPlan} />

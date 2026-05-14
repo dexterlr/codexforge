@@ -237,6 +237,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Artifact Workspace"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-artifact-workspace.ps1"
+    Required = $true
+  }
+  @{
     Name = "Predictive context"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-predictive-context.ps1"
     Required = $true

@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { CodexForgeLocalActionBar } from "@/lib/codexforge/navigation";
 import { buildCapabilityContext, type CodexForgeCapabilityContext } from "../capability-context";
 import { AdapterHealthPanel } from "./AdapterHealthPanel";
 import { ApprovalBoundaryPanel } from "./ApprovalBoundaryPanel";
@@ -30,26 +31,18 @@ export function CapabilityCommandCenter({ initialData }: CapabilityCommandCenter
       data-codexforge-preview-only="true"
       style={page}
     >
-      <section style={hero}>
-        <div style={heroCopy}>
-          <div style={eyebrow}>CodexForge Capabilities</div>
-          <h1 style={h1}>Capability Cockpit</h1>
-          <p style={lede}>
-            A local-first control room for readiness, policy, preview plans, consent boundaries,
-            and future adapter handoff. The cockpit prepares safe workflows and executes nothing.
-          </p>
-          <div style={linkRow}>
-            <a href="/runs" style={runLink}>Open Operator Run Center</a>
-            <a href="/bridge" style={runLink}>Open Jarvis Local Bridge</a>
-          </div>
-        </div>
-        <div style={summaryGrid}>
-          <Stat label="Capabilities" value={String(context.summary.capabilityCount)} />
-          <Stat label="Available" value={String(availableCount)} />
-          <Stat label="Approval gates" value={String(approvalCount)} />
-          <Stat label="Blocked" value={String(blockedCount)} />
-        </div>
-      </section>
+      <CodexForgeLocalActionBar
+        title="Capability Cockpit"
+        subtitle="Readiness, policy, preview plans, consent boundaries, and future adapter handoff"
+        status="preview-only"
+      >
+        <a href="/runs" style={runLink}>Open Operator Run Center</a>
+        <a href="/bridge" style={runLink}>Open Jarvis Local Bridge</a>
+        <Stat label="Capabilities" value={String(context.summary.capabilityCount)} />
+        <Stat label="Available" value={String(availableCount)} />
+        <Stat label="Approval gates" value={String(approvalCount)} />
+        <Stat label="Blocked" value={String(blockedCount)} />
+      </CodexForgeLocalActionBar>
 
       <section style={statusStrip}>
         <div>
@@ -107,7 +100,7 @@ const eyebrow: CSSProperties = { fontSize: 11, fontWeight: 900, textTransform: "
 const h1: CSSProperties = { margin: "6px 0 0", fontSize: 36, letterSpacing: 0 };
 const lede: CSSProperties = { margin: "8px 0 0", maxWidth: 840, fontSize: 14, lineHeight: 1.55, opacity: 0.78 };
 const linkRow: CSSProperties = { display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 };
-const runLink: CSSProperties = { display: "inline-block", width: "fit-content", marginTop: 12, border: "1px solid rgba(45,212,191,0.30)", background: "rgba(45,212,191,0.10)", borderRadius: 8, padding: "8px 10px", color: "#ccfbf1", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none" };
+const runLink: CSSProperties = { display: "inline-block", width: "fit-content", border: "1px solid rgba(45,212,191,0.30)", background: "rgba(45,212,191,0.10)", borderRadius: 8, padding: "8px 10px", color: "#ccfbf1", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none" };
 const summaryGrid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8 };
 const stat: CSSProperties = { border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: 12, display: "grid", gap: 6, minWidth: 0 };
 const statusStrip: CSSProperties = { maxWidth: 1560, width: "100%", margin: "0 auto", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.045)", borderRadius: 8, padding: "10px 12px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 12, alignItems: "center", fontSize: 12 };

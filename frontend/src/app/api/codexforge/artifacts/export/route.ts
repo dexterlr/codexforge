@@ -1,0 +1,119 @@
+import { mkdir, stat, writeFile as persistUtf8Artifact } from "fs/promises";
+import path from "path";
+import { NextResponse } from "next/server";
+import {
+  CODEXFORGE_ARTIFACT_WORKSPACE_ROOT,
+  buildArtifactExportLedgerItem,
+  buildArtifactExportRequest,
+  buildSafeArtifactPath,
+  validateArtifactExportContent,
+  validateArtifactExportRequest,
+} from "@/lib/codexforge/artifact-workspace";
+
+export const dynamic = "force-dynamic";
+
+type ExportFailureStatus = 400 | 403 | 409 | 500;
+
+export async function POST(request: Request) {
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch {
+    return failure("Invalid JSON payload.", 400);
+  }
+
+  const exportRequest = buildArtifactExportRequest(body && typeof body === "object" ? body : {});
+  const validation = validateArtifactExportContent(exportRequest);
+  const requestIssues = validateArtifactExportRequest(exportRequest);
+
+  if (exportRequest.approved !== true) {
+    return failure("Artifact export requires approved true.", 403, validation.summary);
+  }
+
+  if (requestIssues.length > 0 || validation.state === "blocked") {
+    return failure("Artifact export blocked by validation.", 403, [
+      ...validation.summary,
+      ...requestIssues,
+    ]);
+  }
+
+  const safeArtifactPath = buildSafeArtifactPath(exportRequest.targetRelativePath);
+  if (!safeArtifactPath || !validation.pathValidation.normalizedPath) {
+    return failure("Artifact target path is outside the safe artifact workspace.", 403, validation.summary);
+  }
+
+  const workspaceRoot = path.resolve(process.cwd(), CODEXFORGE_ARTIFACT_WORKSPACE_ROOT);
+  const targetPath = path.resolve(workspaceRoot, validation.pathValidation.normalizedPath);
+  const relativeFromRoot = path.relative(workspaceRoot, targetPath);
+  const insideWorkspace =
+    !!relativeFromRoot &&
+    !relativeFromRoot.startsWith("..") &&
+    !path.isAbsolute(relativeFromRoot);
+
+  if (!insideWorkspace) {
+    return failure("Resolved artifact target escaped the safe workspace.", 403, validation.summary);
+  }
+
+  try {
+    await stat(targetPath);
+    if (!exportRequest.overwrite) {
+      return failure("Artifact file already exists. Set overwrite true to replace it.", 409, validation.summary);
+    }
+  } catch (error) {
+    if (!isMissingFile(error)) {
+      return failure("Unable to inspect artifact target.", 500, validation.summary);
+    }
+  }
+
+  await mkdir(path.dirname(targetPath), { recursive: true });
+  await persistUtf8Artifact(targetPath, exportRequest.content, { encoding: "utf8" });
+
+  const ledgerItem = buildArtifactExportLedgerItem({
+    request: exportRequest,
+    validation,
+    exported: true,
+  });
+
+  return NextResponse.json({
+    ok: true,
+    mode: "artifact-export-only",
+    workspaceRoot: CODEXFORGE_ARTIFACT_WORKSPACE_ROOT,
+    targetRelativePath: validation.pathValidation.normalizedPath,
+    targetPath: safeArtifactPath,
+    metadata: {
+      artifactId: exportRequest.artifactId,
+      title: exportRequest.title,
+      type: exportRequest.type,
+      sourceSurface: exportRequest.sourceSurface,
+      sourceRunId: exportRequest.sourceRunId,
+      approvalNote: exportRequest.approvalNote,
+      overwrite: exportRequest.overwrite,
+      contentBytes: Buffer.byteLength(exportRequest.content, "utf8"),
+      safetyNote: "artifact export only; source mutation blocked; commands and external apps are not executed",
+    },
+    validation,
+    ledgerItem,
+  });
+}
+
+function failure(message: string, status: ExportFailureStatus, details: string[] = []) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: message,
+      workspaceRoot: CODEXFORGE_ARTIFACT_WORKSPACE_ROOT,
+      details,
+    },
+    { status }
+  );
+}
+
+function isMissingFile(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "ENOENT"
+  );
+}

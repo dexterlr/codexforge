@@ -1,5 +1,6 @@
 import React from "react";
 import * as styles from "@/lib/codexforge/chat/client-styles";
+import { CodexForgeLocalActionBar } from "@/lib/codexforge/navigation";
 
 type TopBarProps = {
   sliderOpen: boolean;
@@ -15,15 +16,11 @@ export function TopBar({
   onClearChat,
 }: TopBarProps) {
   return (
-    <div style={styles.topBar}>
-      <div style={styles.brandWrap}>
-        <div style={styles.brandOrb} />
-        <div style={brandTextWrapStyle}>
-          <div style={styles.brandTitle}>CodexForge</div>
-          <div style={styles.brandSubtitle}>AI Workspace</div>
-        </div>
-      </div>
-
+    <CodexForgeLocalActionBar
+      title="AI Workspace"
+      subtitle="Chat, memory, tool state, and execution context"
+      status={sliderOpen ? "Workspace panel open" : "Ready"}
+    >
       <div style={topActionsStyle}>
         <button
           type="button"
@@ -46,14 +43,10 @@ export function TopBar({
           Clear
         </button>
       </div>
-    </div>
+    </CodexForgeLocalActionBar>
   );
 }
 
-const brandTextWrapStyle: React.CSSProperties = {
-  display: "grid",
-  gap: 2,
-};
 const topActionsStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",

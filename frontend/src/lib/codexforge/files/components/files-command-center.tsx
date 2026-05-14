@@ -21,6 +21,7 @@ import { calculateFileRisk } from "../file-risk";
 import { buildCodexForgeFileReactKey, searchFiles } from "../file-search";
 import { buildPatchPreviewPlan } from "@/lib/codexforge/patch-preview";
 import { PatchPreviewCockpit } from "@/lib/codexforge/patch-preview/components";
+import { CodexForgeLocalActionBar } from "@/lib/codexforge/navigation";
 import type {
   CodexForgeFileAction,
   CodexForgeFileCommandCenterState,
@@ -284,22 +285,16 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
       data-codexforge-files-preview-only="true"
       style={page}
     >
-      <section style={hero}>
-        <div style={heroCopy}>
-          <div style={eyebrow}>CodexForge Files</div>
-          <h1 style={h1}>Files Command Center</h1>
-          <p style={lede}>
-            AI-native file intelligence for risk, dependencies, lineage, memory
-            context, and preview-only edit planning.
-          </p>
-        </div>
-        <div style={summaryGrid}>
-          <Stat label="Indexed" value={String(sourceFiles.length)} />
-          <Stat label="Critical" value={String(riskCounts.critical)} />
-          <Stat label="High" value={String(riskCounts.high)} />
-          <Stat label="Links" value={String(sourceDependencies.length)} />
-        </div>
-      </section>
+      <CodexForgeLocalActionBar
+        title="Files Command Center"
+        subtitle="File intelligence for risk, dependencies, lineage, memory context, and preview-only edit planning"
+        status="preview-only"
+      >
+        <Stat label="Indexed" value={String(sourceFiles.length)} />
+        <Stat label="Critical" value={String(riskCounts.critical)} />
+        <Stat label="High" value={String(riskCounts.high)} />
+        <Stat label="Links" value={String(sourceDependencies.length)} />
+      </CodexForgeLocalActionBar>
 
       <section style={liveStrip}>
         <div>

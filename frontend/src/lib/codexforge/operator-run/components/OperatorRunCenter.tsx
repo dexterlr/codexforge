@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { CodexForgeLocalActionBar } from "@/lib/codexforge/navigation";
 import { buildRunQueue } from "../run-queue";
 import type { OperatorRunQueue } from "../run-types";
 import { BlockedRunNotice } from "./BlockedRunNotice";
@@ -23,25 +24,17 @@ export function OperatorRunCenter({ queue = buildRunQueue() }: { queue?: Operato
       data-codexforge-operator-run-preview-only="preview-only"
       data-codexforge-operator-run-approval="approval required before execution"
     >
-      <section style={hero}>
-        <div style={heroText}>
-          <span style={eyebrow}>CodexForge Phase 8</span>
-          <h1 style={headline}>Operator Run Center</h1>
-          <p style={subhead}>
-            preview-only run control for plan review, approval boundaries, queued run previews, timelines, artifact ledgers, replay packets, and future brain memory handoff.
-          </p>
-          <div style={linkRow}>
-            <a href="/bridge" style={bridgeLink}>Open Jarvis Local Bridge</a>
-            <a href="/artifacts" style={bridgeLink}>Open Artifact Executor</a>
-          </div>
-        </div>
-        <div style={statusGrid}>
-          <span style={statusPill}>preview-only</span>
-          <span style={statusPill}>approval required before execution</span>
-          <span style={statusPill}>broker execution blocked</span>
-          <span style={statusPill}>no desktop control/camera/trading execution</span>
-        </div>
-      </section>
+      <CodexForgeLocalActionBar
+        title="Operator Run Center"
+        subtitle="Preview-only run control for plan review, approval boundaries, timelines, artifacts, replay packets, and future brain memory handoff"
+        status="preview-only"
+      >
+        <a href="/bridge" style={bridgeLink}>Open Jarvis Local Bridge</a>
+        <a href="/artifacts" style={bridgeLink}>Open Artifact Executor</a>
+        <span style={statusPill}>approval required before execution</span>
+        <span style={statusPill}>broker execution blocked</span>
+        <span style={statusPill}>no desktop control/camera/trading execution</span>
+      </CodexForgeLocalActionBar>
 
       <div style={layout}>
         <div style={mainColumn}>
