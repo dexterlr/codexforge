@@ -2,7 +2,9 @@
 
 
 import { SelfUpgradeConsole } from "@/lib/codexforge/chat/components/self-upgrade-console";
+import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { getDefaultCodexForgeClientContext } from "@/lib/codexforge/chat/client-context";
 import {
   getDomainLabel,
@@ -274,6 +276,10 @@ export default function AiPage() {
       <div style={styles.shell}>
         <CodexForgeGlobalNav compact />
 
+        <Link href="/mission" style={missionLink}>
+          Mission Control: health, readiness, safe next actions, and approval gated surfaces
+        </Link>
+
         <TopBar
           sliderOpen={sliderOpen}
           onOpenSlider={openSlider}
@@ -508,3 +514,17 @@ export default function AiPage() {
 }
 
 /* ---------------- local styles ---------------- */
+
+const missionLink: CSSProperties = {
+  border: "1px solid rgba(45,212,191,0.22)",
+  background: "rgba(20,184,166,0.08)",
+  borderRadius: 8,
+  color: "#ccfbf1",
+  display: "block",
+  fontSize: 12,
+  fontWeight: 900,
+  lineHeight: 1.4,
+  padding: "10px 12px",
+  textDecoration: "none",
+  overflowWrap: "anywhere",
+};

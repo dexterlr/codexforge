@@ -10,6 +10,7 @@ export type CodexForgeRouteGroup =
 export type CodexForgeRoute = {
   id:
     | "home"
+    | "mission"
     | "workspace"
     | "brain"
     | "files"
@@ -39,6 +40,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Core",
     description: "Launchpad for every CodexForge product surface.",
+  },
+  {
+    id: "mission",
+    path: "/mission",
+    label: "Mission Control",
+    shortLabel: "Mission",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Core",
+    description: "Unified readonly cockpit for health, surfaces, readiness, and safe next actions.",
   },
   {
     id: "workspace",

@@ -41,6 +41,13 @@ type HighlightStat = {
 
 const PRIMARY_ACTIONS: readonly ActionLink[] = [
   {
+    href: "/mission",
+    label: "Mission Control",
+    description:
+      "Open the unified cockpit for health, active surfaces, readiness, safety, and safe next actions.",
+    variant: "primary",
+  },
+  {
     href: "/ai",
     label: "Workspace",
     description:
@@ -141,7 +148,7 @@ const PRODUCT_PILLARS: readonly Pillar[] = [
 const CURRENT_STATUS: readonly StatusItem[] = [
   {
     label: "Primary surface",
-    value: "/ai",
+    value: "/mission + /ai",
   },
   {
     label: "Memory and files",
@@ -158,6 +165,12 @@ const CURRENT_STATUS: readonly StatusItem[] = [
 ] as const;
 
 const HIGHLIGHT_STATS: readonly HighlightStat[] = [
+  {
+    label: "Mission Control",
+    value: "/mission",
+    detail:
+      "Unified cockpit for system health, surfaces, readiness, activity, and safety.",
+  },
   {
     label: "AI Workspace",
     value: "/ai",
@@ -201,6 +214,13 @@ const PRODUCT_AREAS: readonly string[] = [
 ] as const;
 
 const SURFACE_MAP: readonly SurfaceCard[] = [
+  {
+    title: "Mission Control Dashboard",
+    path: "/mission",
+    summary:
+      "Unified readonly cockpit for health, active surfaces, safe next actions, readiness, activity, and safety posture.",
+    status: "Mission",
+  },
   {
     title: "AI Workspace",
     path: "/ai",
@@ -380,13 +400,17 @@ export default function Home() {
                     Open Files
                   </Link>
 
+                  <Link href="/mission" style={ctaSecondary}>
+                    Mission Control
+                  </Link>
+
                   <Link href="/runs" style={ctaTertiary}>
                     Open Runs
                   </Link>
                 </div>
 
                 <div style={ctaSupportText}>
-                  Start in Workspace for planning and conversation. Use Brain,
+                  Start in Mission Control for system posture or Workspace for planning and conversation. Use Brain,
                   Files, Runs, Capabilities, Creative, History, and Operator as
                   focused surfaces inside the same system.
                 </div>
