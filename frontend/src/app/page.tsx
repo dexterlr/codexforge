@@ -38,30 +38,58 @@ type HighlightStat = {
 const PRIMARY_ACTIONS: readonly ActionLink[] = [
   {
     href: "/ai",
-    label: "Open workspace",
+    label: "Workspace",
     description:
-      "Enter the main CodexForge surface for planning, chat, memory, execution, and structured workflow guidance.",
+      "Plan, chat, route context, and coordinate local-first AI engineering work.",
     variant: "primary",
   },
   {
-    href: "/clawd",
-    label: "Open operator",
+    href: "/brain",
+    label: "Brain",
     description:
-      "Use the approval-driven operator surface for snapshot, plan, diff, apply, test, and checkpoint flows.",
+      "Inspect graph memory, connected project context, relationships, and saved workspace state.",
     variant: "secondary",
+  },
+  {
+    href: "/files",
+    label: "Files",
+    description:
+      "Review file context, safe patch previews, and approval-first file workflow handoffs.",
+    variant: "secondary",
+  },
+  {
+    href: "/runs",
+    label: "Runs",
+    description:
+      "Track operator run queues, approvals, safety gates, and execution state.",
+    variant: "secondary",
+  },
+  {
+    href: "/capabilities",
+    label: "Capabilities",
+    description:
+      "Open the capability cockpit for tool readiness, routing, and production workflows.",
+    variant: "ghost",
+  },
+  {
+    href: "/creative",
+    label: "Creative",
+    description:
+      "Plan creative production, previews, artifacts, and approval-safe render handoffs.",
+    variant: "ghost",
   },
   {
     href: "/history",
-    label: "View activity",
+    label: "History",
     description:
-      "Review saved activity, launches, and evolving workspace history instead of raw legacy lists.",
-    variant: "secondary",
+      "Review activity intelligence, launches, notes, and evolving workspace history.",
+    variant: "ghost",
   },
   {
-    href: "/brain",
-    label: "Inspect brain graph",
+    href: "/clawd",
+    label: "Operator",
     description:
-      "Open the local graph memory inspector to review nodes, edges, relationships, and saved workspace context.",
+      "Use the approval-driven operator surface for snapshot, plan, diff, apply, test, and checkpoint flows.",
     variant: "ghost",
   },
   {
@@ -75,126 +103,162 @@ const PRIMARY_ACTIONS: readonly ActionLink[] = [
 
 const PRODUCT_PILLARS: readonly Pillar[] = [
   {
-    title: "Structured planning",
+    title: "Local-first workspace",
     text:
-      "Turn rough requests into goals, steps, risks, files, commands, and next actions without losing context.",
+      "Keep planning, chat, context, files, and execution visible even when remote providers are unavailable.",
   },
   {
-    title: "Local-first resilience",
+    title: "Memory and continuity",
     text:
-      "Keep the workspace useful when remote providers fail, time out, or are intentionally disabled.",
+      "Preserve useful graph memory, activity, project facts, decisions, and reusable context across surfaces.",
   },
   {
-    title: "Memory that matters",
+    title: "Preview-first file work",
     text:
-      "Preserve useful decisions, project facts, task state, and reusable context across the workspace.",
+      "Route file changes through context review, safe patch previews, and approval-aware workflows.",
   },
   {
-    title: "Safe execution flow",
+    title: "Operator-safe runs",
     text:
-      "Move through planning, approvals, diff previews, snapshots, and controlled execution instead of blind mutation.",
+      "Move through plans, run queues, approvals, diffs, tests, and checkpoints without blind mutation.",
   },
   {
-    title: "Research and design",
+    title: "Capability cockpit",
     text:
-      "Support architecture thinking, investigation, comparison, and product reasoning from the same frontend.",
+      "Expose tool readiness, routing, production capability, and safety boundaries from one control layer.",
   },
   {
-    title: "Operator visibility",
+    title: "Creative planning",
     text:
-      "Expose the real execution loop through a proper operator page instead of sending users into API endpoints.",
+      "Support storyboards, render plans, artifact previews, and creative handoffs without leaving CodexForge.",
   },
 ] as const;
 
 const CURRENT_STATUS: readonly StatusItem[] = [
   {
     label: "Primary surface",
-    value: "/ai workspace",
+    value: "/ai",
   },
   {
-    label: "Operator surface",
-    value: "/clawd",
+    label: "Memory and files",
+    value: "/brain + /files",
   },
   {
-    label: "Brain inspector",
-    value: "/brain",
+    label: "Runs and operator",
+    value: "/runs + /clawd",
   },
   {
-    label: "Execution path",
-    value: "Approval-oriented",
+    label: "Production surfaces",
+    value: "/capabilities + /creative",
   },
 ] as const;
 
 const HIGHLIGHT_STATS: readonly HighlightStat[] = [
   {
-    label: "Primary entry point",
+    label: "AI Workspace",
     value: "/ai",
-    detail: "Main workspace for active product work.",
+    detail: "Main surface for planning, chat, and local-first engineering.",
   },
   {
-    label: "Execution control",
-    value: "/clawd",
-    detail: "Human approval before apply and test flow.",
+    label: "Files Command Center",
+    value: "/files",
+    detail: "File context, previews, and safe patch workflow.",
   },
   {
-    label: "Memory surface",
-    value: "/brain",
-    detail: "Inspect graph state and connected context.",
+    label: "Operator Run Center",
+    value: "/runs",
+    detail: "Run queues, approvals, execution gates, and operator state.",
   },
   {
-    label: "Launch flow",
-    value: "/entry",
-    detail: "Quick-start into the workspace with activity tracking.",
+    label: "Creative Studio",
+    value: "/creative",
+    detail: "Creative production planning with preview-safe handoffs.",
   },
 ] as const;
 
 const ROADMAP: readonly string[] = [
-  "Make /ai the unquestioned main CodexForge workspace.",
-  "Treat /clawd as the explicit operator control surface instead of exposing raw JSON routes.",
-  "Replace remaining legacy wording and old test-harness framing.",
-  "Turn /history into real workspace history for plans, runs, diffs, memory, and events.",
-  "Keep backend usage optional with stable local fallback behavior.",
+  "Keep all major product surfaces reachable from Home and obvious entry points.",
+  "Make /ai, /brain, /files, /runs, /capabilities, and /creative feel like one operating system.",
+  "Keep preview and approval boundaries clear before file or operator execution.",
+  "Turn /history into activity intelligence for plans, runs, diffs, memory, and events.",
+  "Preserve stable local-first fallback behavior across the workspace.",
 ] as const;
 
 const PRODUCT_AREAS: readonly string[] = [
   "Planning",
   "Memory",
+  "Files",
+  "Runs",
   "Execution",
-  "Research",
-  "Repo tooling",
-  "Workflows",
+  "Capabilities",
+  "Creative",
   "Operator approvals",
   "Local fallback",
 ] as const;
 
 const SURFACE_MAP: readonly SurfaceCard[] = [
   {
-    title: "AI workspace",
+    title: "AI Workspace",
     path: "/ai",
     summary:
-      "Main working surface for conversation, planning, memory, structured replies, and local-first execution state.",
+      "Main working surface for chat, planning, structured replies, memory routing, and local-first engineering state.",
     status: "Primary",
   },
   {
-    title: "Operator",
-    path: "/clawd",
-    summary:
-      "Explicit operator UI for snapshot, plan approval, diff approval, apply, test, and checkpoint workflows.",
-    status: "Execution",
-  },
-  {
-    title: "Brain graph",
+    title: "Brain Command Center",
     path: "/brain",
     summary:
-      "Inspector for local graph memory, connected context, saved nodes, and relationships across the workspace.",
+      "Graph memory inspector for connected context, saved nodes, relationships, and workspace continuity.",
     status: "Memory",
   },
   {
-    title: "Activity",
+    title: "Files Command Center / Safe Patch Preview",
+    path: "/files",
+    summary:
+      "File context surface for safe patch preview, file workflow, and approval-first handoffs.",
+    status: "Files",
+  },
+  {
+    title: "Operator Run Center",
+    path: "/runs",
+    summary:
+      "Run queue and execution status surface for operator-safe approvals, gates, and runtime visibility.",
+    status: "Runs",
+  },
+  {
+    title: "Capability Cockpit",
+    path: "/capabilities",
+    summary:
+      "Capability routing, tool readiness, production affordances, and safety boundary visibility.",
+    status: "Capabilities",
+  },
+  {
+    title: "Creative Production Studio",
+    path: "/creative",
+    summary:
+      "Creative planning surface for briefs, storyboards, render queues, artifacts, and patch handoffs.",
+    status: "Creative",
+  },
+  {
+    title: "History / Activity Intelligence",
     path: "/history",
     summary:
-      "Workspace history for launches, notes, task flow, and evolving project activity rather than raw legacy screens.",
+      "Workspace history for launches, notes, task flow, memory, runs, and evolving project activity.",
     status: "History",
+  },
+  {
+    title: "Operator / Clawd",
+    path: "/clawd",
+    summary:
+      "Explicit operator UI for snapshot, plan approval, diff approval, apply, test, and checkpoint workflows.",
+    status: "Operator",
+  },
+  {
+    title: "Quick Launch",
+    path: "/entry",
+    summary:
+      "Fast launch surface for structured drafts that feed back into the main AI workspace.",
+    status: "Launch",
   },
 ] as const;
 
@@ -276,14 +340,26 @@ export default function Home() {
             <Link href="/ai" style={linkPillPrimary}>
               Workspace
             </Link>
-            <Link href="/clawd" style={linkPillGhost}>
-              Operator
-            </Link>
-            <Link href="/history" style={linkPillGhost}>
-              Activity
-            </Link>
             <Link href="/brain" style={linkPillGhost}>
               Brain
+            </Link>
+            <Link href="/files" style={linkPillGhost}>
+              Files
+            </Link>
+            <Link href="/runs" style={linkPillGhost}>
+              Runs
+            </Link>
+            <Link href="/capabilities" style={linkPillGhost}>
+              Capabilities
+            </Link>
+            <Link href="/creative" style={linkPillGhost}>
+              Creative
+            </Link>
+            <Link href="/history" style={linkPillGhost}>
+              History
+            </Link>
+            <Link href="/clawd" style={linkPillGhost}>
+              Operator
             </Link>
             <Link href="/entry" style={linkPillGhost}>
               Quick launch
@@ -296,52 +372,53 @@ export default function Home() {
             <div style={heroStatusRow}>
               <span style={badge}>
                 <span aria-hidden="true" style={statusDot} />
-                Local-first • backend-optional • product migration active
+                Local-first / preview-first / operator-safe
               </span>
 
               <span style={metaText}>
-                real workspace • operator surface • memory graph • safe execution
+                memory + files + runs + capabilities + creative planning
               </span>
             </div>
 
             <div style={heroGrid}>
               <div style={heroMain}>
                 <h1 style={heroTitle}>
-                  Build a real workspace for{" "}
+                  CodexForge is a local-first AI engineering workspace for{" "}
                   <span style={gradientText}>
-                    planning, memory, research, and safe execution
+                    memory, files, runs, capabilities, and creative planning
                   </span>
                   .
                 </h1>
 
                 <p style={heroSubtitle}>
-                  <b>{PRODUCT_NAME}</b> should feel like an AI developer
-                  assistant and research copilot, not a starter template. This
-                  page is the front door into the real product surfaces:
-                  workspace, operator, activity, graph memory, and quick launch.
+                  <b>{PRODUCT_NAME}</b> is the front door into a coherent
+                  local-first operating system for engineering work. Use it to
+                  plan with memory, inspect files, preview changes, coordinate
+                  runs, manage capabilities, and shape creative production while
+                  keeping approval and operator safety visible.
                 </p>
 
                 <div style={ctaRow}>
                   <Link href="/ai" style={ctaPrimary}>
-                    Open CodexForge workspace
+                    Open Workspace
                     <span aria-hidden="true" style={arrowIcon}>
-                      →
+                      -&gt;
                     </span>
                   </Link>
 
-                  <Link href="/clawd" style={ctaSecondary}>
-                    Open operator
+                  <Link href="/files" style={ctaSecondary}>
+                    Open Files
                   </Link>
 
-                  <Link href="/entry" style={ctaTertiary}>
-                    Quick launch
+                  <Link href="/runs" style={ctaTertiary}>
+                    Open Runs
                   </Link>
                 </div>
 
                 <div style={ctaSupportText}>
-                  Start in the workspace for planning and conversation. Use the
-                  operator for approval-driven execution. Use history and brain
-                  to inspect continuity and state.
+                  Start in Workspace for planning and conversation. Use Brain,
+                  Files, Runs, Capabilities, Creative, History, and Operator as
+                  focused surfaces inside the same system.
                 </div>
               </div>
 
@@ -356,11 +433,13 @@ export default function Home() {
 
                 <div style={statusNote}>
                   Treat <code style={code}>/ai</code> as the main product
-                  surface. Use <code style={code}> /clawd</code> for the
-                  operator loop, <code style={code}> /brain</code> for graph
-                  memory inspection, and <code style={code}> /history</code> for
-                  activity review. <code style={code}> /entry</code> is a fast
-                  launch surface, not the product identity.
+                  surface. Use <code style={code}>/brain</code> for memory,{" "}
+                  <code style={code}>/files</code> for file workflow,{" "}
+                  <code style={code}>/runs</code> for run control,{" "}
+                  <code style={code}>/capabilities</code> for capability
+                  routing, <code style={code}>/creative</code> for production
+                  planning, and <code style={code}>/clawd</code> for the
+                  operator loop.
                 </div>
               </aside>
             </div>
@@ -386,7 +465,7 @@ export default function Home() {
                   <div style={quickLinkTitleRow}>
                     <div style={quickLinkTitle}>{item.label}</div>
                     <div style={quickLinkArrow} aria-hidden="true">
-                      →
+                      -&gt;
                     </div>
                   </div>
                   <div style={quickLinkText}>{item.description}</div>
@@ -395,8 +474,8 @@ export default function Home() {
             </div>
 
             <SectionHeader
-              label="Product surfaces"
-              hint="Each page should have a clear job inside one coherent system"
+              label="System surfaces"
+              hint="Each route has a clear job inside one coherent operating system"
             />
 
             <div style={surfaceGrid}>
@@ -413,11 +492,11 @@ export default function Home() {
             <div style={whyCard}>
               <div style={whyTitle}>A serious local-first working environment</div>
               <div style={whyText}>
-                CodexForge is moving toward a real operating surface for
-                developer work: planning, approvals, memory, research, and
-                execution. The product should stay useful even when remote
-                systems fail, keep humans in control of change, and make state
-                visible across the whole app.
+                CodexForge brings memory, files, runs, capabilities, creative
+                planning, history, and operator controls into one local-first
+                AI engineering workspace. The product should stay useful when
+                remote systems fail, preview meaningful change before approval,
+                and keep humans in control of execution.
               </div>
             </div>
 
@@ -464,8 +543,9 @@ export default function Home() {
                 <div style={tipTitle}>What Home should do now</div>
                 <div style={tipText}>
                   Act as a clean front door into the real CodexForge product,
-                  route clearly to workspace, operator, history, brain, and
-                  quick launch, and keep implementation routes behind the UI.
+                  route clearly to workspace, brain, files, runs, capabilities,
+                  creative, history, operator, and quick launch, and keep
+                  implementation routes behind the UI.
                 </div>
               </div>
 
@@ -528,17 +608,19 @@ const brand: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 10,
+  minWidth: 0,
 };
 
 const brandTextWrap: CSSProperties = {
   display: "grid",
   gap: 2,
   lineHeight: 1.1,
+  minWidth: 0,
 };
 
 const brandTitle: CSSProperties = {
   fontWeight: 800,
-  letterSpacing: 0.2,
+  letterSpacing: 0,
 };
 
 const brandSubtitle: CSSProperties = {
@@ -559,6 +641,8 @@ const topNav: CSSProperties = {
   display: "flex",
   gap: 10,
   flexWrap: "wrap",
+  minWidth: 0,
+  justifyContent: "flex-end",
 };
 
 const heroCard: CSSProperties = {
@@ -623,19 +707,21 @@ const statusCard: CSSProperties = {
   background: "rgba(0,0,0,0.18)",
   display: "grid",
   gap: 4,
+  minWidth: 0,
 };
 
 const statusCardLabel: CSSProperties = {
   fontSize: 11,
   opacity: 0.7,
   textTransform: "uppercase",
-  letterSpacing: 0.8,
+  letterSpacing: 0,
   fontWeight: 900,
 };
 
 const statusCardValue: CSSProperties = {
   fontSize: 14,
   fontWeight: 900,
+  overflowWrap: "anywhere",
 };
 
 const statusNote: CSSProperties = {
@@ -657,12 +743,13 @@ const highlightCard: CSSProperties = {
   background: "rgba(255,255,255,0.04)",
   display: "grid",
   gap: 6,
+  minWidth: 0,
 };
 
 const highlightLabel: CSSProperties = {
   fontSize: 11,
   fontWeight: 900,
-  letterSpacing: "0.08em",
+  letterSpacing: 0,
   textTransform: "uppercase",
   opacity: 0.68,
 };
@@ -670,6 +757,7 @@ const highlightLabel: CSSProperties = {
 const highlightValue: CSSProperties = {
   fontSize: 18,
   fontWeight: 900,
+  overflowWrap: "anywhere",
 };
 
 const highlightDetail: CSSProperties = {
@@ -680,9 +768,9 @@ const highlightDetail: CSSProperties = {
 
 const heroTitle: CSSProperties = {
   margin: 0,
-  fontSize: "clamp(34px, 5vw, 58px)",
+  fontSize: 44,
   lineHeight: 1.03,
-  letterSpacing: -0.9,
+  letterSpacing: 0,
   maxWidth: 940,
 };
 
@@ -779,7 +867,7 @@ const ctaBase: CSSProperties = {
   borderRadius: 14,
   textDecoration: "none",
   fontWeight: 900,
-  letterSpacing: 0.2,
+  letterSpacing: 0,
   border: "1px solid rgba(255,255,255,0.18)",
   userSelect: "none",
 };
@@ -813,7 +901,7 @@ const sectionLabel: CSSProperties = {
   fontSize: 12,
   fontWeight: 900,
   textTransform: "uppercase",
-  letterSpacing: 1,
+  letterSpacing: 0,
   opacity: 0.72,
 };
 
@@ -836,6 +924,7 @@ const quickLinkBase: CSSProperties = {
   borderRadius: 16,
   textDecoration: "none",
   border: "1px solid rgba(255,255,255,0.10)",
+  minWidth: 0,
 };
 
 const quickLinkPrimary: CSSProperties = {
@@ -866,6 +955,8 @@ const quickLinkTitleRow: CSSProperties = {
 const quickLinkTitle: CSSProperties = {
   fontWeight: 900,
   fontSize: 15,
+  minWidth: 0,
+  overflowWrap: "anywhere",
 };
 
 const quickLinkArrow: CSSProperties = {
@@ -877,6 +968,7 @@ const quickLinkText: CSSProperties = {
   fontSize: 13,
   opacity: 0.82,
   lineHeight: 1.5,
+  overflowWrap: "anywhere",
 };
 
 const surfaceGrid: CSSProperties = {
@@ -894,6 +986,7 @@ const surfaceCard: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.10)",
   background: "rgba(255,255,255,0.04)",
   color: "white",
+  minWidth: 0,
 };
 
 const surfaceTopRow: CSSProperties = {
@@ -906,9 +999,10 @@ const surfaceTopRow: CSSProperties = {
 const surfacePath: CSSProperties = {
   fontSize: 11,
   fontWeight: 900,
-  letterSpacing: "0.08em",
+  letterSpacing: 0,
   textTransform: "uppercase",
   opacity: 0.72,
+  overflowWrap: "anywhere",
 };
 
 const surfaceStatus: CSSProperties = {
@@ -919,17 +1013,20 @@ const surfaceStatus: CSSProperties = {
   fontSize: 11,
   fontWeight: 800,
   opacity: 0.86,
+  whiteSpace: "nowrap",
 };
 
 const surfaceTitle: CSSProperties = {
   fontWeight: 900,
   fontSize: 15,
+  overflowWrap: "anywhere",
 };
 
 const surfaceText: CSSProperties = {
   fontSize: 13,
   opacity: 0.84,
   lineHeight: 1.55,
+  overflowWrap: "anywhere",
 };
 
 const whyCard: CSSProperties = {

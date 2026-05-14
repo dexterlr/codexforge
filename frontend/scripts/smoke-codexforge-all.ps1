@@ -8,6 +8,11 @@ $root = Split-Path -Parent $PSScriptRoot
 
 $scripts = @(
   @{
+    Name = "Navigation"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-navigation.ps1"
+    Required = $true
+  },
+  @{
     Name = "Product surface UI"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-product-surface-ui.ps1"
     Required = $true

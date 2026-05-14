@@ -79,10 +79,40 @@ export const BACKEND_LABELS: Record<CodexForgeBackendMode, string> = {
 
 export const SURFACE_LINKS: readonly SurfaceLink[] = [
   {
-    href: "/clawd",
-    label: "Operator surface",
+    href: "/ai",
+    label: "Workspace",
     detail:
-      "Use approval-driven snapshot, diff, apply, test, and checkpoint controls.",
+      "Use the main AI workspace for planning, chat, memory routing, and local-first engineering work.",
+  },
+  {
+    href: "/brain",
+    label: "Brain",
+    detail:
+      "Inspect project memory, graph state, and workspace knowledge surfaces.",
+  },
+  {
+    href: "/files",
+    label: "Files",
+    detail:
+      "Review file context, safe patch previews, and approval-first file workflows.",
+  },
+  {
+    href: "/runs",
+    label: "Runs",
+    detail:
+      "Track operator run queues, approvals, safety gates, and execution state.",
+  },
+  {
+    href: "/capabilities",
+    label: "Capabilities",
+    detail:
+      "Open the capability cockpit for tool readiness, routing, and production workflows.",
+  },
+  {
+    href: "/creative",
+    label: "Creative",
+    detail:
+      "Plan creative production, preview artifacts, and approval-safe handoffs.",
   },
   {
     href: "/history",
@@ -91,10 +121,16 @@ export const SURFACE_LINKS: readonly SurfaceLink[] = [
       "Review local conversation and execution records from the workspace.",
   },
   {
-    href: "/brain",
-    label: "Brain",
+    href: "/clawd",
+    label: "Operator",
     detail:
-      "Inspect project memory, graph state, and workspace knowledge surfaces.",
+      "Use approval-driven snapshot, diff, apply, test, and checkpoint controls.",
+  },
+  {
+    href: "/entry",
+    label: "Quick launch",
+    detail:
+      "Prepare a structured draft and send it into the AI workspace with activity tracking.",
   },
 ];
 
