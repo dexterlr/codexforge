@@ -19,7 +19,7 @@ export function CodexForgeGlobalNav({ compact = false }: CodexForgeGlobalNavProp
       data-codexforge-global-nav
       style={{
         ...navShell,
-        padding: compact ? "10px 12px" : "12px 14px",
+        padding: compact ? "8px 10px" : "10px 12px",
       }}
     >
       <Link href="/" style={brandLink} aria-label="CodexForge home">
@@ -43,7 +43,7 @@ export function CodexForgeGlobalNav({ compact = false }: CodexForgeGlobalNavProp
               style={active ? activeRoutePill : routePill}
             >
               <span style={routeLabel}>{compact ? route.shortLabel : route.label}</span>
-              <span style={groupLabel}>{route.group}</span>
+              {compact ? null : <span style={groupLabel}>{route.group}</span>}
             </Link>
           );
         })}
@@ -68,9 +68,9 @@ const navShell: CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  gap: 12,
+  gap: 10,
   flexWrap: "wrap",
-  borderRadius: 14,
+  borderRadius: 12,
   border: "1px solid rgba(148,163,184,0.18)",
   background:
     "linear-gradient(135deg, rgba(8,13,28,0.86), rgba(15,23,42,0.62)), rgba(2,6,23,0.72)",
@@ -83,16 +83,16 @@ const navShell: CSSProperties = {
 const brandLink: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
-  gap: 10,
+  gap: 8,
   color: "white",
   textDecoration: "none",
   minWidth: 0,
 };
 
 const brandMark: CSSProperties = {
-  width: 30,
-  height: 30,
-  borderRadius: 10,
+  width: 26,
+  height: 26,
+  borderRadius: 9,
   flex: "0 0 auto",
   background:
     "linear-gradient(135deg, rgba(99,102,241,0.98), rgba(20,184,166,0.90))",
@@ -107,14 +107,14 @@ const brandText: CSSProperties = {
 };
 
 const brandTitle: CSSProperties = {
-  fontSize: 15,
+  fontSize: 14,
   fontWeight: 950,
   letterSpacing: 0,
   ...safeText,
 };
 
 const brandSubtitle: CSSProperties = {
-  fontSize: 11,
+  fontSize: 10,
   opacity: 0.72,
   ...safeText,
 };
@@ -123,9 +123,9 @@ const routeWrap: CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: 8,
+  gap: 6,
   flexWrap: "wrap",
-  flex: "1 1 520px",
+  flex: "1 1 460px",
   minWidth: 0,
   maxWidth: "100%",
 };
@@ -133,13 +133,13 @@ const routeWrap: CSSProperties = {
 const routePillBase: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
-  gap: 7,
+  gap: 6,
   minWidth: 0,
   maxWidth: "100%",
-  padding: "8px 10px",
+  padding: "6px 8px",
   borderRadius: 999,
   textDecoration: "none",
-  fontSize: 12,
+  fontSize: 11,
   fontWeight: 850,
   border: "1px solid rgba(255,255,255,0.12)",
   transition: "border-color 160ms ease, background 160ms ease, color 160ms ease",
@@ -166,11 +166,11 @@ const routeLabel: CSSProperties = {
 };
 
 const groupLabel: CSSProperties = {
-  padding: "2px 6px",
+  padding: "2px 5px",
   borderRadius: 999,
   background: "rgba(255,255,255,0.07)",
   color: "rgba(226,232,240,0.68)",
-  fontSize: 10,
+  fontSize: 9,
   fontWeight: 900,
   textTransform: "uppercase",
   letterSpacing: 0,
@@ -178,12 +178,12 @@ const groupLabel: CSSProperties = {
 };
 
 const statusPill: CSSProperties = {
-  padding: "7px 9px",
+  padding: "6px 8px",
   borderRadius: 999,
   border: "1px solid rgba(45,212,191,0.24)",
   background: "rgba(45,212,191,0.08)",
   color: "rgba(204,251,241,0.92)",
-  fontSize: 11,
+  fontSize: 10,
   fontWeight: 900,
   textTransform: "uppercase",
   letterSpacing: 0,

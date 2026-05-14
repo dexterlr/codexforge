@@ -13,6 +13,11 @@ $scripts = @(
     Required = $true
   },
   @{
+    Name = "Header Dedupe"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-header-dedupe.ps1"
+    Required = $true
+  },
+  @{
     Name = "Product surface UI"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-product-surface-ui.ps1"
     Required = $true

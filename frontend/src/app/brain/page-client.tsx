@@ -1,7 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import {
+  CodexForgeGlobalNav,
+  CodexForgeLocalActionBar,
+} from "@/lib/codexforge/navigation";
 import { BrainCommandCenter } from "@/lib/codexforge/brain/components/brain-command-center";
 import { BrainFirstRunOnboarding } from "@/lib/codexforge/brain/components/brain-first-run-onboarding";
 import { BrainGraphEmptyState } from "@/lib/codexforge/brain/components/brain-graph-empty-state";
@@ -1457,151 +1459,74 @@ export default function BrainPageClient() {
       >
         <CodexForgeGlobalNav compact />
 
-        <header
-          style={{
-            display: "grid",
-            gap: 14,
-            marginBottom: 20,
-          }}
+        <CodexForgeLocalActionBar
+          title="Brain Command Center"
+          subtitle="Graph memory, relationships, saved context, and workspace continuity"
+          status={
+            stats
+              ? `${stats.nodeCount} nodes / ${stats.edgeCount} links`
+              : graphLoadState.status
+          }
         >
+          <button type="button" onClick={refreshGraph} style={buttonStyle()}>
+            Refresh
+          </button>
+          <button
+            type="button"
+            onClick={handleIngestProjectMemory}
+            disabled={!graph}
+            style={buttonStyle()}
+            data-codexforge-brain-seed-real-memory
+          >
+            Seed real memory
+          </button>
+          <button type="button" onClick={handleCopyGraph} style={buttonStyle()}>
+            {copied === "graph" ? "Graph copied" : "Copy graph JSON"}
+          </button>
+          <button type="button" onClick={handleExportGraph} style={buttonStyle()}>
+            Export graph
+          </button>
+          <button type="button" onClick={handleResetGraph} style={buttonStyle(true)}>
+            Reset graph
+          </button>
+        </CodexForgeLocalActionBar>
+
+        {toast ? (
           <div
             style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "space-between",
-              gap: 16,
-              alignItems: "flex-start",
+              border:
+                toast.kind === "ok"
+                  ? "1px solid rgba(34,197,94,0.35)"
+                  : "1px solid rgba(239,68,68,0.35)",
+              background:
+                toast.kind === "ok"
+                  ? "rgba(34,197,94,0.12)"
+                  : "rgba(239,68,68,0.12)",
+              borderRadius: 16,
+              padding: "12px 14px",
+              fontSize: 14,
+              ...safeWrapStyle,
             }}
           >
-            <div style={{ display: "grid", gap: 10, minWidth: 0 }}>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                }}
-              >
-                <span
-                  style={{
-                    display: "inline-flex",
-                    width: "fit-content",
-                    padding: "6px 10px",
-                    borderRadius: 999,
-                    border: "1px solid rgba(127,127,127,0.2)",
-                    background: "linear-gradient(180deg, rgba(14,165,233,0.16), rgba(14,165,233,0.06))",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    letterSpacing: 0,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  CodexForge Brain
-                </span>
-
-                <Link href="/ai" style={buttonStyle()}>
-                  Open workspace
-                </Link>
-                <Link href="/history" style={buttonStyle()}>
-                  Activity
-                </Link>
-              </div>
-
-              <div style={{ display: "grid", gap: 6 }}>
-                <h1
-                  style={{
-                    fontSize: "clamp(1.8rem, 2.8vw, 3rem)",
-                    lineHeight: 1.05,
-                    ...safeWrapStyle,
-                  }}
-                >
-                  Neural memory command center
-                </h1>
-                <p
-                  style={{
-                    maxWidth: 980,
-                    opacity: 0.82,
-                    fontSize: 15,
-                    lineHeight: 1.6,
-                    ...safeWrapStyle,
-                  }}
-                >
-                  Inspect graph nodes and relationships, review saved context,
-                  promote useful memory, and route high-signal context back into
-                  the main workspace from a dense operator console.
-                </p>
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 10,
-                justifyContent: "flex-end",
-              }}
-            >
-              <button type="button" onClick={refreshGraph} style={buttonStyle()}>
-                Refresh
-              </button>
-              <button
-                type="button"
-                onClick={handleIngestProjectMemory}
-                disabled={!graph}
-                style={buttonStyle()}
-                data-codexforge-brain-seed-real-memory
-              >
-                Seed real memory
-              </button>
-              <button type="button" onClick={handleCopyGraph} style={buttonStyle()}>
-                {copied === "graph" ? "Graph copied" : "Copy graph JSON"}
-              </button>
-              <button type="button" onClick={handleExportGraph} style={buttonStyle()}>
-                Export graph
-              </button>
-              <button type="button" onClick={handleResetGraph} style={buttonStyle(true)}>
-                Reset graph
-              </button>
-            </div>
+            {toast.text}
           </div>
+        ) : null}
 
-          {toast ? (
-            <div
-              style={{
-                border:
-                  toast.kind === "ok"
-                    ? "1px solid rgba(34,197,94,0.35)"
-                    : "1px solid rgba(239,68,68,0.35)",
-                background:
-                  toast.kind === "ok"
-                    ? "rgba(34,197,94,0.12)"
-                    : "rgba(239,68,68,0.12)",
-                borderRadius: 16,
-                padding: "12px 14px",
-                fontSize: 14,
-                ...safeWrapStyle,
-              }}
-            >
-              {toast.text}
-            </div>
-          ) : null}
-
-          {error ? (
-            <div
-              style={{
-                border: "1px solid rgba(239,68,68,0.35)",
-                background: "rgba(239,68,68,0.12)",
-                color: "inherit",
-                borderRadius: 16,
-                padding: "12px 14px",
-                fontSize: 14,
-                ...safeWrapStyle,
-              }}
-            >
-              {error}
-            </div>
-          ) : null}
-        </header>
+        {error ? (
+          <div
+            style={{
+              border: "1px solid rgba(239,68,68,0.35)",
+              background: "rgba(239,68,68,0.12)",
+              color: "inherit",
+              borderRadius: 16,
+              padding: "12px 14px",
+              fontSize: 14,
+              ...safeWrapStyle,
+            }}
+          >
+            {error}
+          </div>
+        ) : null}
 
         <BrainQualityGateStrip
           loadState={graphLoadState}

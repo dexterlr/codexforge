@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import {
+  CodexForgeGlobalNav,
+  CodexForgeLocalActionBar,
+} from "@/lib/codexforge/navigation";
 import type { OperatorV3Plan } from "@/lib/operator/v3/plan";
 
 type Phase =
@@ -1470,29 +1472,11 @@ export default function OperatorPage() {
       <div style={shell}>
         <CodexForgeGlobalNav compact />
 
-        <div style={topRow}>
-          <div style={navCluster}>
-            <Link href="/" style={navLink}>
-              Back Home
-            </Link>
-            <div style={navDot}>{" / "}</div>
-            <Link href="/ai" style={navLink}>
-              Workspace
-            </Link>
-            <div style={navDot}>{" / "}</div>
-            <Link href="/history" style={navLink}>
-              History
-            </Link>
-            <div style={navDot}>{" / "}</div>
-            <Link href="/brain" style={navLink}>
-              Brain
-            </Link>
-            <div style={navDot}>{" / "}</div>
-            <Link href="/entry" style={navLink}>
-              Entry
-            </Link>
-          </div>
-
+        <CodexForgeLocalActionBar
+          title="Operator Control"
+          subtitle="Snapshot, plan, diff, apply, test, and checkpoint flow"
+          status={getPhaseLabel(run.phase)}
+        >
           <div style={{ ...phasePillBase, ...getPhasePillStyle(phaseTone) }}>
             <div style={phasePillLabel}>Phase</div>
             <div style={phasePillValue}>{getPhaseLabel(run.phase)}</div>
@@ -1502,7 +1486,7 @@ export default function OperatorPage() {
               <div style={phasePillSubline}>{runStatusMessage}</div>
             </div>
           </div>
-        </div>
+        </CodexForgeLocalActionBar>
 
         <section style={heroCard}>
           <div style={heroGrid}>
@@ -2182,31 +2166,6 @@ const shell: CSSProperties = {
   margin: "0 auto",
   display: "grid",
   gap: 16,
-};
-
-const topRow: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "flex-start",
-  gap: 12,
-  flexWrap: "wrap",
-};
-
-const navCluster: CSSProperties = {
-  display: "flex",
-  gap: 12,
-  alignItems: "center",
-  flexWrap: "wrap",
-};
-
-const navDot: CSSProperties = {
-  opacity: 0.55,
-};
-
-const navLink: CSSProperties = {
-  color: "rgba(255,255,255,0.9)",
-  textDecoration: "none",
-  fontWeight: 950,
 };
 
 const phasePillBase: CSSProperties = {

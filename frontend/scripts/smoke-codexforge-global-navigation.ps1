@@ -38,6 +38,7 @@ Write-Host "=== CodexForge global navigation smoke ==="
 $navDir = ".\src\lib\codexforge\navigation"
 $routeRegistryPath = Join-Path $navDir "codexforge-routes.ts"
 $globalNavPath = Join-Path $navDir "CodexForgeGlobalNav.tsx"
+$localActionBarPath = Join-Path $navDir "CodexForgeLocalActionBar.tsx"
 $pageShellPath = Join-Path $navDir "CodexForgePageShell.tsx"
 $indexPath = Join-Path $navDir "index.ts"
 $suitePath = ".\scripts\smoke-codexforge-all.ps1"
@@ -45,12 +46,14 @@ $suitePath = ".\scripts\smoke-codexforge-all.ps1"
 Assert-True (Test-Path $navDir) "shared navigation directory exists"
 Assert-True (Test-Path $routeRegistryPath) "route registry exists"
 Assert-True (Test-Path $globalNavPath) "CodexForgeGlobalNav exists"
+Assert-True (Test-Path $localActionBarPath) "CodexForgeLocalActionBar exists"
 Assert-True (Test-Path $pageShellPath) "CodexForgePageShell exists"
 Assert-True (Test-Path $indexPath) "navigation index exists"
 Assert-True (Test-Path $suitePath) "managed smoke suite exists"
 
 $routeRegistry = Get-Content -Raw $routeRegistryPath
 $globalNav = Get-Content -Raw $globalNavPath
+$localActionBar = Get-Content -Raw $localActionBarPath
 $pageShell = Get-Content -Raw $pageShellPath
 $indexSource = Get-Content -Raw $indexPath
 $suite = Get-Content -Raw $suitePath
@@ -109,6 +112,7 @@ $forbiddenMojibake = @(
 $sourcesToCheck = @(
   $routeRegistry,
   $globalNav,
+  $localActionBar,
   $pageShell,
   $indexSource,
   (Get-Content -Raw ".\src\app\page.tsx"),
@@ -151,6 +155,8 @@ if (Test-Path ".\package.json") {
   $packageBefore = Get-Content -Raw ".\package.json"
 }
 Assert-NotContains $packageBefore "codexforge-global-navigation-external-dependency" "no external dependencies added for global navigation"
+Assert-Contains $localActionBar "data-codexforge-local-action-bar" "shared local action bar marker exists"
+Assert-Contains $indexSource "CodexForgeLocalActionBar" "navigation index exports shared local action bar"
 
 $suiteCount = [regex]::Matches($suite, [regex]::Escape("smoke-codexforge-global-navigation.ps1")).Count
 Assert-True ($suiteCount -eq 1) "managed smoke suite includes Global Navigation exactly once"

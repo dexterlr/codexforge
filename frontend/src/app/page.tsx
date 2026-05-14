@@ -337,46 +337,6 @@ export default function Home() {
       <div style={shell}>
         <CodexForgeGlobalNav />
 
-        <header style={topBar}>
-          <div style={brand}>
-            <div aria-hidden="true" style={logo} />
-            <div style={brandTextWrap}>
-              <div style={brandTitle}>{PRODUCT_NAME}</div>
-              <div style={brandSubtitle}>Local-first AI developer workspace</div>
-            </div>
-          </div>
-
-          <nav aria-label="Primary navigation" style={topNav}>
-            <Link href="/ai" style={linkPillPrimary}>
-              Workspace
-            </Link>
-            <Link href="/brain" style={linkPillGhost}>
-              Brain
-            </Link>
-            <Link href="/files" style={linkPillGhost}>
-              Files
-            </Link>
-            <Link href="/runs" style={linkPillGhost}>
-              Runs
-            </Link>
-            <Link href="/capabilities" style={linkPillGhost}>
-              Capabilities
-            </Link>
-            <Link href="/creative" style={linkPillGhost}>
-              Creative
-            </Link>
-            <Link href="/history" style={linkPillGhost}>
-              History
-            </Link>
-            <Link href="/clawd" style={linkPillGhost}>
-              Operator
-            </Link>
-            <Link href="/entry" style={linkPillGhost}>
-              Quick launch
-            </Link>
-          </nav>
-        </header>
-
         <section style={heroCard}>
           <div style={heroInner}>
             <div style={heroStatusRow}>
@@ -601,60 +561,6 @@ const shell: CSSProperties = {
   gap: 18,
 };
 
-const topBar: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 12,
-  padding: "10px 12px",
-  borderRadius: 14,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-  backdropFilter: "blur(10px)",
-  flexWrap: "wrap",
-};
-
-const brand: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-  minWidth: 0,
-};
-
-const brandTextWrap: CSSProperties = {
-  display: "grid",
-  gap: 2,
-  lineHeight: 1.1,
-  minWidth: 0,
-};
-
-const brandTitle: CSSProperties = {
-  fontWeight: 800,
-  letterSpacing: 0,
-};
-
-const brandSubtitle: CSSProperties = {
-  fontSize: 12,
-  opacity: 0.75,
-};
-
-const logo: CSSProperties = {
-  width: 30,
-  height: 30,
-  borderRadius: 10,
-  background:
-    "linear-gradient(135deg, rgba(99,102,241,0.95), rgba(16,185,129,0.85))",
-  boxShadow: "0 10px 30px rgba(99,102,241,0.18)",
-};
-
-const topNav: CSSProperties = {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-  minWidth: 0,
-  justifyContent: "flex-end",
-};
-
 const heroCard: CSSProperties = {
   borderRadius: 22,
   border: "1px solid rgba(255,255,255,0.12)",
@@ -841,32 +747,6 @@ const ctaSupportText: CSSProperties = {
 const arrowIcon: CSSProperties = {
   opacity: 0.82,
   lineHeight: 1,
-};
-
-const linkPillBase: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 8,
-  padding: "9px 12px",
-  borderRadius: 12,
-  fontWeight: 800,
-  fontSize: 13,
-  textDecoration: "none",
-  userSelect: "none",
-};
-
-const linkPillPrimary: CSSProperties = {
-  ...linkPillBase,
-  background: "white",
-  color: "black",
-  border: "1px solid rgba(255,255,255,0.18)",
-};
-
-const linkPillGhost: CSSProperties = {
-  ...linkPillBase,
-  background: "transparent",
-  color: "white",
-  border: "1px solid rgba(255,255,255,0.18)",
 };
 
 const ctaBase: CSSProperties = {

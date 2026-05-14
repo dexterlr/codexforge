@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import {
+  CodexForgeGlobalNav,
+  CodexForgeLocalActionBar,
+} from "@/lib/codexforge/navigation";
 import {
   clearEntries,
   loadEntries,
@@ -722,26 +725,15 @@ export default function HistoryPage() {
       <div style={shell}>
         <CodexForgeGlobalNav compact />
 
-        <div style={topBar}>
-          <div style={navGroup}>
-            <Link href="/" style={navLink}>
-              Home
-            </Link>
-            <span style={dot}>/</span>
-            <Link href="/ai" style={navLink}>
-              AI workspace
-            </Link>
-            <span style={dot}>/</span>
-            <Link href="/entry" style={navLink}>
-              Launch task
-            </Link>
-            <span style={dot}>/</span>
+        <CodexForgeLocalActionBar
+          title="Activity Intelligence"
+          subtitle="Import, export, filter, and summarize the local workspace timeline"
+          status={`${formatNum(stats.visible)} visible / ${formatNum(stats.total)} total`}
+        >
+          <div style={actionGroup}>
             <button onClick={onReload} style={ghostBtn} title="Reload local activity">
               Reload
             </button>
-          </div>
-
-          <div style={actionGroup}>
             <select
               value={exportMode}
               onChange={(e) => setExportMode(e.target.value as ExportMode)}
@@ -771,7 +763,7 @@ export default function HistoryPage() {
               Clear data
             </button>
           </div>
-        </div>
+        </CodexForgeLocalActionBar>
 
         {toast ? (
           <div style={toast.kind === "err" ? toastErr : toastOk} role="status" aria-live="polite">
@@ -1204,44 +1196,11 @@ const shell: React.CSSProperties = {
   ...wrapSafe,
 };
 
-const topBar: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 12,
-  flexWrap: "wrap",
-  padding: 12,
-  borderRadius: 18,
-  border: "1px solid rgba(255,255,255,0.11)",
-  background: "rgba(4,8,18,0.72)",
-  boxShadow: "0 20px 80px rgba(0,0,0,0.34)",
-  backdropFilter: "blur(14px)",
-};
-
-const navGroup: React.CSSProperties = {
-  display: "flex",
-  gap: 12,
-  alignItems: "center",
-  flexWrap: "wrap",
-  ...wrapSafe,
-};
-
 const actionGroup: React.CSSProperties = {
   display: "flex",
   gap: 10,
   alignItems: "center",
   flexWrap: "wrap",
-  ...wrapSafe,
-};
-
-const dot: React.CSSProperties = {
-  opacity: 0.5,
-};
-
-const navLink: React.CSSProperties = {
-  color: "rgba(255,255,255,0.9)",
-  textDecoration: "none",
-  ...fw(950),
   ...wrapSafe,
 };
 

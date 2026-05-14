@@ -2,7 +2,6 @@
 
 
 import { SelfUpgradeConsole } from "@/lib/codexforge/chat/components/self-upgrade-console";
-import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getDefaultCodexForgeClientContext } from "@/lib/codexforge/chat/client-context";
 import {

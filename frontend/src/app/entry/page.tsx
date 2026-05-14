@@ -340,34 +340,6 @@ export default function EntryPage() {
       <div style={shell}>
         <CodexForgeGlobalNav compact />
 
-        <div style={topBar}>
-          <div style={brandWrap}>
-            <div aria-hidden="true" style={brandOrb} />
-            <div style={{ display: "grid", gap: 2 }}>
-              <div style={brandTitle}>CodexForge</div>
-              <div style={brandSubtitle}>Launchpad</div>
-            </div>
-          </div>
-
-          <div style={topNav}>
-            <Link href="/" style={navPillGhost}>
-              Home
-            </Link>
-            <Link href="/ai" style={navPillPrimary}>
-              AI workspace
-            </Link>
-            <Link href="/clawd" style={navPillGhost}>
-              Operator
-            </Link>
-            <Link href="/brain" style={navPillGhost}>
-              Brain
-            </Link>
-            <Link href="/history" style={navPillGhost}>
-              Activity
-            </Link>
-          </div>
-        </div>
-
         <section style={heroCard}>
           <div style={heroGrid}>
             <div style={{ display: "grid", gap: 12 }}>
@@ -636,76 +608,6 @@ const shell: React.CSSProperties = {
   margin: "0 auto",
   display: "grid",
   gap: 18,
-};
-
-const topBar: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 12,
-  padding: "10px 12px",
-  borderRadius: 14,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.04)",
-  backdropFilter: "blur(10px)",
-  flexWrap: "wrap",
-};
-
-const brandWrap: React.CSSProperties = {
-  display: "flex",
-  gap: 10,
-  alignItems: "center",
-};
-
-const brandOrb: React.CSSProperties = {
-  width: 30,
-  height: 30,
-  borderRadius: 10,
-  background:
-    "linear-gradient(135deg, rgba(99,102,241,0.95), rgba(16,185,129,0.85))",
-  boxShadow: "0 10px 30px rgba(99,102,241,0.18)",
-};
-
-const brandTitle: React.CSSProperties = {
-  fontWeight: 800,
-  letterSpacing: 0.2,
-};
-
-const brandSubtitle: React.CSSProperties = {
-  fontSize: 12,
-  opacity: 0.75,
-};
-
-const topNav: React.CSSProperties = {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-};
-
-const navPillBase: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 8,
-  padding: "9px 12px",
-  borderRadius: 12,
-  fontWeight: 800,
-  fontSize: 13,
-  textDecoration: "none",
-  userSelect: "none",
-};
-
-const navPillPrimary: React.CSSProperties = {
-  ...navPillBase,
-  background: "white",
-  color: "black",
-  border: "1px solid rgba(255,255,255,0.18)",
-};
-
-const navPillGhost: React.CSSProperties = {
-  ...navPillBase,
-  background: "transparent",
-  color: "white",
-  border: "1px solid rgba(255,255,255,0.18)",
 };
 
 const heroCard: React.CSSProperties = {
