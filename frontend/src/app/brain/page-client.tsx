@@ -652,6 +652,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
   const nextStep = predictiveReady
     ? "Inspect the selected focus node before routing context into files or chat."
     : "Add or refresh graph context before relying on predictive routing.";
+  const memoryPersistenceReadiness = "approved memory events available for future merge";
 
   return (
     <section
@@ -686,6 +687,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
 
       <div
         data-codexforge-brain-readiness-grid
+        data-codexforge-memory-persistence-readiness="approved memory events are available for future merge no automatic merge"
         data-codexforge-brain-overflow-guard
         style={{
           display: "grid",
@@ -698,6 +700,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         <MiniStat label="Runtime health" value={runtimeHealth} />
         <MiniStat label="Predictive context readiness" value={predictiveReady ? "ready" : "warming"} />
         <MiniStat label="Memory readiness" value={memoryReady ? "ready" : "warming"} />
+        <MiniStat label="Memory persistence" value={memoryPersistenceReadiness} />
         <MiniStat label="Agent readiness" value={taskKinds > 0 ? "context available" : "placeholder"} />
       </div>
 

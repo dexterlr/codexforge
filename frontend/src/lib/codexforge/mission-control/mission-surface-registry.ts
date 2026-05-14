@@ -36,14 +36,14 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
     }),
     buildMissionSurface({
       id: "memory",
-      label: "Memory Review",
+      label: "Memory Review and Persistence",
       href: "/memory",
       status: "review-needed",
-      role: "Candidate confidence, contradiction risk review, explicit approval, and promotion event previews.",
+      role: "Candidate confidence, contradiction risk review, explicit approval, local event persistence, and graph reduction previews.",
       riskPosture: "preview-only",
-      nextAction: "Review memory candidates.",
+      nextAction: "Review approved memory events.",
       readiness: "needs-review",
-      relatedPhase: "Memory Promotion Review Queue",
+      relatedPhase: "Memory Promotion Review Queue and Approved Memory Persistence",
     }),
     buildMissionSurface({
       id: "files",

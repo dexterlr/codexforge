@@ -54,6 +54,7 @@ export type MissionHealthDimensionId =
   | "runtime"
   | "memory"
   | "memory-review"
+  | "memory-persistence"
   | "files"
   | "capabilities"
   | "runs"

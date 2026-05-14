@@ -59,6 +59,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Memory promotion requires explicit review state and produces preview events only.",
     },
     {
+      id: "review-approved-memory-events",
+      label: "Review approved memory events",
+      href: "/memory",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Approved memory persistence writes only local event JSON and does not merge graph memory.",
+    },
+    {
       id: "inspect-bridge-readiness",
       label: "Inspect bridge readiness",
       href: "/bridge",
