@@ -207,6 +207,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Creative Production Studio"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-creative-production-studio.ps1"
+    Required = $true
+  }
+  @{
     Name = "Predictive context"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-predictive-context.ps1"
     Required = $true
