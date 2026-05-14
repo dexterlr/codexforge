@@ -22,7 +22,7 @@ export function CodexForgePageShell({
         maxWidth,
         margin: "0 auto",
         display: "grid",
-        gap: 16,
+        gap: 12,
         minWidth: 0,
         maxInlineSize: "100%",
         ...style,

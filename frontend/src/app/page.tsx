@@ -541,7 +541,7 @@ export default function Home() {
 
 const page: CSSProperties = {
   minHeight: "100vh",
-  padding: "clamp(16px, 4vw, 40px)",
+  padding: "clamp(12px, 3vw, 30px)",
   display: "grid",
   placeItems: "center",
   background:
@@ -558,7 +558,7 @@ const shell: CSSProperties = {
   width: "100%",
   maxWidth: 1160,
   display: "grid",
-  gap: 18,
+  gap: 12,
 };
 
 const heroCard: CSSProperties = {

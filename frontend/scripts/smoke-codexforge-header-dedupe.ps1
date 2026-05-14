@@ -102,13 +102,28 @@ $entry = Get-Content -Raw $entryPath
 $clawd = Get-Content -Raw $clawdPath
 
 Assert-Contains $globalNav "data-codexforge-global-nav" "global nav component marker exists"
-Assert-Contains $globalNav "CODEXFORGE_ROUTES.map" "global nav owns route link rendering"
+Assert-Contains $globalNav "primaryRoutes" "global nav owns primary route rendering"
+Assert-Contains $globalNav "secondaryRoutes" "global nav owns secondary route rendering"
+Assert-Contains $globalNav "href={route.path}" "global nav keeps registry-backed route hrefs"
+Assert-Contains $globalNav "aria-current={active ? `"page`" : undefined}" "global nav keeps active route aria-current"
 Assert-Contains $globalNav "local-first / preview-safe / approval-gated" "global nav keeps posture pill"
+Assert-NotContains $globalNav "groupLabel" "global nav does not render per-route group badge styles"
+Assert-NotContains $globalNav "route.group}</span>" "global nav does not render group badge on every route"
 Assert-Contains $localActionBar "data-codexforge-local-action-bar" "local action bar component marker exists"
 Assert-Contains $indexSource "CodexForgeLocalActionBar" "navigation index exports local action bar"
 
 foreach ($route in @("/ai", "/brain", "/files", "/runs", "/capabilities", "/creative", "/history", "/clawd", "/entry")) {
   Assert-Contains $routes "path: `"$route`"" "route registry keeps $route"
+}
+
+foreach ($primaryId in @("workspace", "brain", "files", "runs")) {
+  $pattern = 'id:\s+"' + [regex]::Escape($primaryId) + '"[\s\S]*?priority:\s+"primary"'
+  Assert-True ([regex]::IsMatch($routes, $pattern)) "route registry keeps $primaryId primary"
+}
+
+foreach ($secondaryId in @("home", "capabilities", "creative", "history", "entry", "operator")) {
+  $pattern = 'id:\s+"' + [regex]::Escape($secondaryId) + '"[\s\S]*?priority:\s+"secondary"'
+  Assert-True ([regex]::IsMatch($routes, $pattern)) "route registry keeps $secondaryId secondary"
 }
 
 Assert-Contains $aiTopBar "AI Workspace" "/ai compact local row keeps page title"

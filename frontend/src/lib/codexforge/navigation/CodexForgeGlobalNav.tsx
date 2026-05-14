@@ -12,6 +12,28 @@ type CodexForgeGlobalNavProps = {
 export function CodexForgeGlobalNav({ compact = false }: CodexForgeGlobalNavProps) {
   const pathname = usePathname() ?? "/";
   const activeRoute = getCodexForgeRoute(pathname);
+  const primaryRoutes = CODEXFORGE_ROUTES.filter(
+    (route) => route.showInGlobalNav && route.priority === "primary"
+  );
+  const secondaryRoutes = CODEXFORGE_ROUTES.filter(
+    (route) => route.showInGlobalNav && route.priority === "secondary"
+  );
+
+  function renderRoutePill(route: (typeof CODEXFORGE_ROUTES)[number]) {
+    const active = activeRoute?.path === route.path;
+
+    return (
+      <Link
+        key={route.path}
+        href={route.path}
+        title={route.description}
+        aria-current={active ? "page" : undefined}
+        style={active ? activeRoutePill : routePill}
+      >
+        <span style={routeLabel}>{compact ? route.shortLabel : route.label}</span>
+      </Link>
+    );
+  }
 
   return (
     <nav
@@ -31,22 +53,13 @@ export function CodexForgeGlobalNav({ compact = false }: CodexForgeGlobalNavProp
       </Link>
 
       <div style={routeWrap}>
-        {CODEXFORGE_ROUTES.map((route) => {
-          const active = activeRoute?.path === route.path;
-
-          return (
-            <Link
-              key={route.path}
-              href={route.path}
-              title={`${route.group}: ${route.description}`}
-              aria-current={active ? "page" : undefined}
-              style={active ? activeRoutePill : routePill}
-            >
-              <span style={routeLabel}>{compact ? route.shortLabel : route.label}</span>
-              {compact ? null : <span style={groupLabel}>{route.group}</span>}
-            </Link>
-          );
-        })}
+        <div aria-label="Primary CodexForge routes" style={primaryRouteGroup}>
+          {primaryRoutes.map(renderRoutePill)}
+        </div>
+        <span aria-hidden="true" style={routeDivider} />
+        <div aria-label="Secondary CodexForge routes" style={secondaryRouteGroup}>
+          {secondaryRoutes.map(renderRoutePill)}
+        </div>
       </div>
 
       <div style={statusPill}>local-first / preview-safe / approval-gated</div>
@@ -68,35 +81,38 @@ const navShell: CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  gap: 10,
+  gap: 8,
   flexWrap: "wrap",
-  borderRadius: 12,
-  border: "1px solid rgba(148,163,184,0.18)",
+  borderRadius: 10,
+  border: "1px solid rgba(148,163,184,0.16)",
   background:
-    "linear-gradient(135deg, rgba(8,13,28,0.86), rgba(15,23,42,0.62)), rgba(2,6,23,0.72)",
-  boxShadow: "0 18px 70px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.05)",
-  backdropFilter: "blur(14px)",
+    "linear-gradient(135deg, rgba(8,13,28,0.88), rgba(15,23,42,0.58)), rgba(2,6,23,0.72)",
+  boxShadow: "0 14px 58px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.045)",
+  backdropFilter: "blur(16px)",
   color: "white",
+  fontFamily:
+    'var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   ...safeText,
 };
 
 const brandLink: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
-  gap: 8,
+  gap: 7,
   color: "white",
   textDecoration: "none",
-  minWidth: 0,
+  minWidth: "max-content",
+  flex: "0 0 auto",
 };
 
 const brandMark: CSSProperties = {
-  width: 26,
-  height: 26,
-  borderRadius: 9,
+  width: 22,
+  height: 22,
+  borderRadius: 7,
   flex: "0 0 auto",
   background:
-    "linear-gradient(135deg, rgba(99,102,241,0.98), rgba(20,184,166,0.90))",
-  boxShadow: "0 10px 34px rgba(45,212,191,0.16)",
+    "linear-gradient(135deg, rgba(99,102,241,0.92), rgba(20,184,166,0.84))",
+  boxShadow: "0 8px 28px rgba(45,212,191,0.14)",
 };
 
 const brandText: CSSProperties = {
@@ -107,15 +123,15 @@ const brandText: CSSProperties = {
 };
 
 const brandTitle: CSSProperties = {
-  fontSize: 14,
-  fontWeight: 950,
+  fontSize: 13,
+  fontWeight: 760,
   letterSpacing: 0,
   ...safeText,
 };
 
 const brandSubtitle: CSSProperties = {
   fontSize: 10,
-  opacity: 0.72,
+  opacity: 0.58,
   ...safeText,
 };
 
@@ -123,69 +139,86 @@ const routeWrap: CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: 6,
+  gap: 8,
   flexWrap: "wrap",
-  flex: "1 1 460px",
+  flex: "1 1 520px",
   minWidth: 0,
   maxWidth: "100%",
+};
+
+const routeGroupBase: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 4,
+  flexWrap: "wrap",
+  minWidth: 0,
+  maxWidth: "100%",
+};
+
+const primaryRouteGroup: CSSProperties = {
+  ...routeGroupBase,
+  flex: "0 1 auto",
+};
+
+const secondaryRouteGroup: CSSProperties = {
+  ...routeGroupBase,
+  flex: "0 1 auto",
+};
+
+const routeDivider: CSSProperties = {
+  width: 1,
+  height: 18,
+  flex: "0 0 auto",
+  background: "rgba(148,163,184,0.16)",
 };
 
 const routePillBase: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
-  gap: 6,
   minWidth: 0,
   maxWidth: "100%",
-  padding: "6px 8px",
+  minHeight: 26,
+  padding: "4px 8px",
   borderRadius: 999,
   textDecoration: "none",
-  fontSize: 11,
-  fontWeight: 850,
-  border: "1px solid rgba(255,255,255,0.12)",
-  transition: "border-color 160ms ease, background 160ms ease, color 160ms ease",
+  fontSize: 12,
+  lineHeight: 1.15,
+  fontWeight: 620,
+  border: "1px solid transparent",
+  transition:
+    "border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease",
   ...safeText,
 };
 
 const routePill: CSSProperties = {
   ...routePillBase,
-  color: "rgba(226,232,240,0.88)",
-  background: "rgba(255,255,255,0.045)",
+  color: "rgba(226,232,240,0.74)",
+  background: "rgba(255,255,255,0.025)",
 };
 
 const activeRoutePill: CSSProperties = {
   ...routePillBase,
   color: "white",
-  border: "1px solid rgba(45,212,191,0.42)",
+  border: "1px solid rgba(45,212,191,0.38)",
   background:
-    "linear-gradient(135deg, rgba(99,102,241,0.34), rgba(20,184,166,0.22))",
-  boxShadow: "0 0 0 1px rgba(45,212,191,0.08), 0 12px 38px rgba(20,184,166,0.10)",
+    "linear-gradient(135deg, rgba(14,165,233,0.18), rgba(20,184,166,0.12))",
+  boxShadow: "0 0 0 1px rgba(45,212,191,0.06), 0 8px 28px rgba(20,184,166,0.10)",
 };
 
 const routeLabel: CSSProperties = {
   ...safeText,
 };
 
-const groupLabel: CSSProperties = {
-  padding: "2px 5px",
-  borderRadius: 999,
-  background: "rgba(255,255,255,0.07)",
-  color: "rgba(226,232,240,0.68)",
-  fontSize: 9,
-  fontWeight: 900,
-  textTransform: "uppercase",
-  letterSpacing: 0,
-  ...safeText,
-};
-
 const statusPill: CSSProperties = {
-  padding: "6px 8px",
+  padding: "4px 8px",
   borderRadius: 999,
-  border: "1px solid rgba(45,212,191,0.24)",
-  background: "rgba(45,212,191,0.08)",
-  color: "rgba(204,251,241,0.92)",
+  border: "1px solid rgba(45,212,191,0.18)",
+  background: "rgba(45,212,191,0.055)",
+  color: "rgba(204,251,241,0.76)",
   fontSize: 10,
-  fontWeight: 900,
-  textTransform: "uppercase",
+  fontWeight: 620,
   letterSpacing: 0,
+  flex: "0 1 auto",
   ...safeText,
 };

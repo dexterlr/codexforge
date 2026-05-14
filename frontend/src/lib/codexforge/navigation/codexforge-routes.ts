@@ -22,6 +22,8 @@ export type CodexForgeRoute = {
   path: string;
   label: string;
   shortLabel: string;
+  priority: "primary" | "secondary";
+  showInGlobalNav: boolean;
   group: CodexForgeRouteGroup;
   description: string;
   status?: "available" | "planned";
@@ -33,6 +35,8 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     path: "/",
     label: "Home",
     shortLabel: "Home",
+    priority: "secondary",
+    showInGlobalNav: true,
     group: "Core",
     description: "Launchpad for every CodexForge product surface.",
   },
@@ -41,6 +45,8 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     path: "/ai",
     label: "Workspace",
     shortLabel: "Workspace",
+    priority: "primary",
+    showInGlobalNav: true,
     group: "Core",
     description: "Main AI workspace for chat, planning, memory, and execution context.",
   },
@@ -49,6 +55,8 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     path: "/brain",
     label: "Brain",
     shortLabel: "Brain",
+    priority: "primary",
+    showInGlobalNav: true,
     group: "Intelligence",
     description: "Graph memory, predictive context, lineage, and workspace continuity.",
   },
@@ -57,6 +65,8 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     path: "/files",
     label: "Files",
     shortLabel: "Files",
+    priority: "primary",
+    showInGlobalNav: true,
     group: "Engineering",
     description: "File intelligence, dependency context, and safe patch preview handoffs.",
   },
@@ -65,6 +75,8 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     path: "/runs",
     label: "Runs",
     shortLabel: "Runs",
+    priority: "primary",
+    showInGlobalNav: true,
     group: "Execution",
     description: "Operator run queues, replay packets, approval gates, and artifacts.",
   },
@@ -73,6 +85,8 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     path: "/capabilities",
     label: "Capabilities",
     shortLabel: "Capabilities",
+    priority: "secondary",
+    showInGlobalNav: true,
     group: "Execution",
     description: "Tool readiness, policy boundaries, adapter health, and production routing.",
   },
@@ -81,6 +95,8 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     path: "/creative",
     label: "Creative",
     shortLabel: "Creative",
+    priority: "secondary",
+    showInGlobalNav: true,
     group: "Production",
     description: "Creative briefs, production plans, render previews, and artifact flow.",
   },
@@ -89,6 +105,8 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     path: "/history",
     label: "History",
     shortLabel: "History",
+    priority: "secondary",
+    showInGlobalNav: true,
     group: "Memory",
     description: "Activity intelligence, local timeline, notes, decisions, and exports.",
   },
@@ -97,6 +115,8 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     path: "/entry",
     label: "Quick Launch",
     shortLabel: "Entry",
+    priority: "secondary",
+    showInGlobalNav: true,
     group: "Utility",
     description: "Structured task launchpad that hands off directly into Workspace.",
   },
@@ -105,6 +125,8 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     path: "/clawd",
     label: "Operator",
     shortLabel: "Operator",
+    priority: "secondary",
+    showInGlobalNav: true,
     group: "Execution",
     description: "Approval-driven snapshot, plan, diff, apply, test, and checkpoint loop.",
   },
