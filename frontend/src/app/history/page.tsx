@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
 import {
   clearEntries,
   loadEntries,
@@ -47,6 +48,7 @@ type ActivitySignal = {
 
 const MAX_VISIBLE_ENTRIES = 100;
 const EMPTY = "-";
+let fallbackIdCounter = 0;
 
 function isNum(v: unknown): v is number {
   return typeof v === "number" && Number.isFinite(v);
@@ -92,7 +94,12 @@ function errorMessage(e: unknown, fallback: string) {
 }
 
 function safeId() {
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+
+  fallbackIdCounter += 1;
+  return `activity-${new Date().toISOString()}-${fallbackIdCounter}`;
 }
 
 function parseDateToMs(dateYYYYMMDD: string) {
@@ -112,7 +119,7 @@ function withinRange(dateYYYYMMDD: string, range: RangeMode) {
   if (!ms) return true;
 
   const days = range === "7d" ? 7 : range === "30d" ? 30 : 90;
-  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  const cutoff = new Date().getTime() - days * 24 * 60 * 60 * 1000;
   return ms >= cutoff;
 }
 
@@ -713,6 +720,8 @@ export default function HistoryPage() {
   return (
     <main style={page}>
       <div style={shell}>
+        <CodexForgeGlobalNav compact />
+
         <div style={topBar}>
           <div style={navGroup}>
             <Link href="/" style={navLink}>

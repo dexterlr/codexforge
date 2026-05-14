@@ -37,6 +37,7 @@ import { TopBar } from "@/lib/codexforge/chat/components/top-bar";
 import { EmptyState } from "@/lib/codexforge/chat/components/empty-state";
 import { WorkspaceInsightsPanel } from "@/lib/codexforge/chat/components/workspace-insights-panel";
 import { WorkspaceSectionStack } from "@/lib/codexforge/chat/components/workspace-section-stack";
+import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
 import type { WorkspaceCard } from "@/lib/codexforge/chat/components/workspace-hero";
 import WorkspaceSidebar from "@/lib/codexforge/chat/components/workspace-sidebar";
 import { WorkspaceSlider } from "@/lib/codexforge/chat/components/workspace-slider";
@@ -272,6 +273,8 @@ export default function AiPage() {
   return (
     <main style={styles.page}>
       <div style={styles.shell}>
+        <CodexForgeGlobalNav compact />
+
         <TopBar
           sliderOpen={sliderOpen}
           onOpenSlider={openSlider}

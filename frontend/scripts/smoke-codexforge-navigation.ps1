@@ -88,7 +88,8 @@ foreach ($route in $requiredRoutes) {
   Assert-True ($count -eq 1) "system surface map has one card for $route"
 }
 
-$suiteCount = [regex]::Matches($suite, [regex]::Escape("smoke-codexforge-navigation.ps1")).Count
-Assert-True ($suiteCount -eq 1) "managed smoke suite includes navigation smoke exactly once"
+$legacySuiteCount = [regex]::Matches($suite, [regex]::Escape("smoke-codexforge-navigation.ps1")).Count
+$globalSuiteCount = [regex]::Matches($suite, [regex]::Escape("smoke-codexforge-global-navigation.ps1")).Count
+Assert-True (($legacySuiteCount + $globalSuiteCount) -eq 1) "managed smoke suite includes canonical navigation smoke exactly once"
 
 Write-Host "[OK] CodexForge navigation smoke passed."

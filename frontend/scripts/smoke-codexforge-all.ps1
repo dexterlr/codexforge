@@ -8,8 +8,8 @@ $root = Split-Path -Parent $PSScriptRoot
 
 $scripts = @(
   @{
-    Name = "Navigation"
-    Path = Join-Path $PSScriptRoot "smoke-codexforge-navigation.ps1"
+    Name = "Global Navigation"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-global-navigation.ps1"
     Required = $true
   },
   @{

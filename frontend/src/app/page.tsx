@@ -1,5 +1,9 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import {
+  CODEXFORGE_ROUTES,
+  CodexForgeGlobalNav,
+} from "@/lib/codexforge/navigation";
 
 const PRODUCT_NAME = "CodexForge";
 
@@ -262,6 +266,10 @@ const SURFACE_MAP: readonly SurfaceCard[] = [
   },
 ] as const;
 
+const GLOBAL_ROUTE_SUMMARY = CODEXFORGE_ROUTES.map(
+  (route) => `${route.shortLabel}: ${route.description}`
+);
+
 function getQuickLinkStyle(variant: ActionVariant): CSSProperties {
   switch (variant) {
     case "primary":
@@ -327,6 +335,8 @@ export default function Home() {
   return (
     <main style={page}>
       <div style={shell}>
+        <CodexForgeGlobalNav />
+
         <header style={topBar}>
           <div style={brand}>
             <div aria-hidden="true" style={logo} />
@@ -475,7 +485,7 @@ export default function Home() {
 
             <SectionHeader
               label="System surfaces"
-              hint="Each route has a clear job inside one coherent operating system"
+              hint={GLOBAL_ROUTE_SUMMARY.slice(0, 3).join(" / ")}
             />
 
             <div style={surfaceGrid}>

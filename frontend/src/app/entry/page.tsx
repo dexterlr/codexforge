@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
+import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
 import { addEntry, type CodexForgeActivityEntry } from "@/lib/storage";
 
 type LaunchMode = "plan" | "debug" | "research" | "build";
@@ -30,6 +31,7 @@ type LaunchModeMeta = {
 const STORAGE = {
   draft: "codexforge_ai_draft_v12",
 } as const;
+let fallbackIdCounter = 0;
 
 const DEFAULT_REPO_PATH =
   "C:\\ai-lab\\projects\\openclaw-workspace\\repos\\codexforge\\frontend";
@@ -161,7 +163,12 @@ function safeWriteString(key: string, value: string) {
 }
 
 function safeId() {
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+
+  fallbackIdCounter += 1;
+  return `launch-${new Date().toISOString()}-${fallbackIdCounter}`;
 }
 
 function todayISO(): string {
@@ -331,6 +338,8 @@ export default function EntryPage() {
   return (
     <main style={page}>
       <div style={shell}>
+        <CodexForgeGlobalNav compact />
+
         <div style={topBar}>
           <div style={brandWrap}>
             <div aria-hidden="true" style={brandOrb} />
@@ -520,16 +529,16 @@ export default function EntryPage() {
           <div style={launchChecklist}>
             <div style={checklistTitle}>What gets created on launch</div>
             <div style={checklistGrid}>
-              <div style={checkItem}>Ã¢â‚¬Â¢ Structured AI draft in local storage</div>
-              <div style={checkItem}>Ã¢â‚¬Â¢ Matching activity entry in history</div>
-              <div style={checkItem}>Ã¢â‚¬Â¢ Clean handoff into /ai workspace</div>
-              <div style={checkItem}>Ã¢â‚¬Â¢ Better starting context for future operator flow</div>
+              <div style={checkItem}>- Structured AI draft in local storage</div>
+              <div style={checkItem}>- Matching activity entry in history</div>
+              <div style={checkItem}>- Clean handoff into /ai workspace</div>
+              <div style={checkItem}>- Better starting context for future operator flow</div>
             </div>
           </div>
 
           <div style={actionRow}>
             <button type="submit" disabled={launching || !isReady} style={btnPrimary}>
-              {launching ? "LaunchingÃ¢â‚¬Â¦" : "Open in AI workspace"}
+              {launching ? "Launching..." : "Open in AI workspace"}
             </button>
 
             <button type="button" onClick={resetForm} style={btnGhostButton}>
@@ -570,20 +579,20 @@ export default function EntryPage() {
           <div style={infoCard}>
             <div style={infoTitle}>Use this page when</div>
             <div style={infoList}>
-              <div style={infoItem}>Ã¢â‚¬Â¢ you want a fast structured launch into chat</div>
-              <div style={infoItem}>Ã¢â‚¬Â¢ you need the task captured in activity history</div>
-              <div style={infoItem}>Ã¢â‚¬Â¢ you want CodexForge briefed before entering the full workspace</div>
-              <div style={infoItem}>Ã¢â‚¬Â¢ you are starting a future Jarvis-style workflow from intent</div>
+              <div style={infoItem}>- you want a fast structured launch into chat</div>
+              <div style={infoItem}>- you need the task captured in activity history</div>
+              <div style={infoItem}>- you want CodexForge briefed before entering the full workspace</div>
+              <div style={infoItem}>- you are starting a future Jarvis-style workflow from intent</div>
             </div>
           </div>
 
           <div style={infoCard}>
             <div style={infoTitle}>Use other pages when</div>
             <div style={infoList}>
-              <div style={infoItem}>Ã¢â‚¬Â¢ go to <b>/ai</b> for the main working surface</div>
-              <div style={infoItem}>Ã¢â‚¬Â¢ go to <b>/clawd</b> for approvals, diffs, apply, tests, and checkpoints</div>
-              <div style={infoItem}>Ã¢â‚¬Â¢ go to <b>/brain</b> to inspect graph memory state</div>
-              <div style={infoItem}>Ã¢â‚¬Â¢ go to <b>/history</b> to review launches and workspace activity</div>
+              <div style={infoItem}>- go to <b>/ai</b> for the main working surface</div>
+              <div style={infoItem}>- go to <b>/clawd</b> for approvals, diffs, apply, tests, and checkpoints</div>
+              <div style={infoItem}>- go to <b>/brain</b> to inspect graph memory state</div>
+              <div style={infoItem}>- go to <b>/history</b> to review launches and workspace activity</div>
             </div>
           </div>
         </section>

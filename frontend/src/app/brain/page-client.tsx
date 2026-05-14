@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
 import { BrainCommandCenter } from "@/lib/codexforge/brain/components/brain-command-center";
 import { BrainFirstRunOnboarding } from "@/lib/codexforge/brain/components/brain-first-run-onboarding";
 import { BrainGraphEmptyState } from "@/lib/codexforge/brain/components/brain-graph-empty-state";
@@ -1454,6 +1455,8 @@ export default function BrainPageClient() {
           minWidth: 0,
         }}
       >
+        <CodexForgeGlobalNav compact />
+
         <header
           style={{
             display: "grid",
