@@ -212,6 +212,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Operator Run Center"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-operator-run-center.ps1"
+    Required = $true
+  }
+  @{
     Name = "Predictive context"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-predictive-context.ps1"
     Required = $true

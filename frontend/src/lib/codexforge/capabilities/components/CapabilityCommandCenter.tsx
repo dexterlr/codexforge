@@ -38,6 +38,7 @@ export function CapabilityCommandCenter({ initialData }: CapabilityCommandCenter
             A local-first control room for readiness, policy, preview plans, consent boundaries,
             and future adapter handoff. The cockpit prepares safe workflows and executes nothing.
           </p>
+          <a href="/runs" style={runLink}>Open Operator Run Center</a>
         </div>
         <div style={summaryGrid}>
           <Stat label="Capabilities" value={String(context.summary.capabilityCount)} />
@@ -102,6 +103,7 @@ const heroCopy: CSSProperties = { border: "1px solid rgba(255,255,255,0.12)", ba
 const eyebrow: CSSProperties = { fontSize: 11, fontWeight: 900, textTransform: "uppercase", opacity: 0.64 };
 const h1: CSSProperties = { margin: "6px 0 0", fontSize: 36, letterSpacing: 0 };
 const lede: CSSProperties = { margin: "8px 0 0", maxWidth: 840, fontSize: 14, lineHeight: 1.55, opacity: 0.78 };
+const runLink: CSSProperties = { display: "inline-block", width: "fit-content", marginTop: 12, border: "1px solid rgba(45,212,191,0.30)", background: "rgba(45,212,191,0.10)", borderRadius: 8, padding: "8px 10px", color: "#ccfbf1", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none" };
 const summaryGrid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8 };
 const stat: CSSProperties = { border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: 12, display: "grid", gap: 6, minWidth: 0 };
 const statusStrip: CSSProperties = { maxWidth: 1560, width: "100%", margin: "0 auto", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.045)", borderRadius: 8, padding: "10px 12px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 12, alignItems: "center", fontSize: 12 };
