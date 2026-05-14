@@ -192,6 +192,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "File Brain Chat workflow"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-file-brain-chat-workflow.ps1"
+    Required = $true
+  }
+  @{
     Name = "Predictive context"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-predictive-context.ps1"
     Required = $true

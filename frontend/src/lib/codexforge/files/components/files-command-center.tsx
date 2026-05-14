@@ -5,6 +5,17 @@ import {
   codexForgeFileDependencies,
   codexForgeFileFixtures,
 } from "../file-fixtures";
+import { buildFileBrainContext } from "../file-brain-context";
+import {
+  buildFileToChatPrompt,
+  buildFileWorkspacePrompt,
+  summarizeFileChatBridge,
+} from "../file-chat-bridge";
+import { buildFileReadinessBoard } from "../file-readiness";
+import {
+  buildFileSafeActionQueue,
+  selectFileSafeNextAction,
+} from "../file-safe-next-action";
 import { buildFileWorkflow, summarizeFileWorkflow } from "../file-workflow";
 import { calculateFileRisk } from "../file-risk";
 import { buildCodexForgeFileReactKey, searchFiles } from "../file-search";
@@ -20,10 +31,13 @@ import type {
 import { DependencyMap } from "./dependency-map";
 import { ExecutionHistory } from "./execution-history";
 import { FileActionBar } from "./file-action-bar";
+import { FileBrainContextPanel } from "./FileBrainContextPanel";
+import { FileChatHandoffPanel } from "./FileChatHandoffPanel";
 import { FileCognitiveContextPanel } from "./FileCognitiveContextPanel";
 import { FileInspector } from "./file-inspector";
 import { FileOpenInBrainLink } from "./FileOpenInBrainLink";
 import { FileReadinessBoard } from "./FileReadinessBoard";
+import { FileSafeNextActionPanel } from "./FileSafeNextActionPanel";
 import { FileSafePlanPanel } from "./FileSafePlanPanel";
 import { FileTimeline } from "./file-timeline";
 import { FileTree } from "./file-tree";
@@ -118,6 +132,66 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
       runtimeSignals: runtimeContextSignals,
     });
   }, [runtimeContextSignals, selectedFile, sourceDependencies, sourceFiles]);
+
+  const fileBrainContext = useMemo(() => {
+    return buildFileBrainContext({
+      file: selectedFile,
+      files: sourceFiles,
+      dependencies: sourceDependencies,
+    });
+  }, [selectedFile, sourceDependencies, sourceFiles]);
+
+  const fileReadinessBoard = useMemo(() => {
+    return buildFileReadinessBoard({
+      file: selectedFile,
+      cognitiveContext: fileWorkflow.cognitiveContext,
+      fileBrainContext,
+      safePlan: fileWorkflow.safeEditPlan,
+    });
+  }, [fileBrainContext, fileWorkflow.cognitiveContext, fileWorkflow.safeEditPlan, selectedFile]);
+
+  const fileSafeActionQueue = useMemo(() => {
+    return buildFileSafeActionQueue({
+      file: selectedFile,
+      brainContext: fileBrainContext,
+      readinessBoard: fileReadinessBoard,
+      suggestedSmokeTests: fileWorkflow.suggestedSmokeTests,
+    });
+  }, [fileBrainContext, fileReadinessBoard, fileWorkflow.suggestedSmokeTests, selectedFile]);
+
+  const fileSafeNextAction = useMemo(() => {
+    return selectFileSafeNextAction(fileSafeActionQueue);
+  }, [fileSafeActionQueue]);
+
+  const fileChatPrompt = useMemo(() => {
+    return buildFileToChatPrompt({
+      file: selectedFile,
+      brainContext: fileBrainContext,
+      readinessBoard: fileReadinessBoard,
+      safeNextAction: fileSafeNextAction,
+      suggestedSmokeTests: fileWorkflow.suggestedSmokeTests,
+    });
+  }, [fileBrainContext, fileReadinessBoard, fileSafeNextAction, fileWorkflow.suggestedSmokeTests, selectedFile]);
+
+  const fileWorkspacePrompt = useMemo(() => {
+    return buildFileWorkspacePrompt({
+      file: selectedFile,
+      brainContext: fileBrainContext,
+      readinessBoard: fileReadinessBoard,
+      safeNextAction: fileSafeNextAction,
+      suggestedSmokeTests: fileWorkflow.suggestedSmokeTests,
+    });
+  }, [fileBrainContext, fileReadinessBoard, fileSafeNextAction, fileWorkflow.suggestedSmokeTests, selectedFile]);
+
+  const fileChatBridgeSummary = useMemo(() => {
+    return summarizeFileChatBridge({
+      file: selectedFile,
+      brainContext: fileBrainContext,
+      readinessBoard: fileReadinessBoard,
+      safeNextAction: fileSafeNextAction,
+      suggestedSmokeTests: fileWorkflow.suggestedSmokeTests,
+    });
+  }, [fileBrainContext, fileReadinessBoard, fileSafeNextAction, fileWorkflow.suggestedSmokeTests, selectedFile]);
 
   const riskCounts = useMemo(() => {
     return sourceFiles.reduce<Record<CodexForgeFileRiskLevel, number>>(
@@ -266,13 +340,24 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
         <div style={middle}>
           <FileWorkflowRail workflow={fileWorkflow} />
           <FilesCommandPalette workflow={fileWorkflow} />
+          <FileBrainContextPanel context={fileBrainContext} />
+          <FileChatHandoffPanel
+            filePath={selectedFile.path}
+            prompt={fileChatPrompt}
+            workspacePrompt={fileWorkspacePrompt}
+            summary={fileChatBridgeSummary}
+          />
           <FileInspector file={selectedFile} />
           <FileActionBar
             file={selectedFile}
             activeAction={activeAction}
             onAction={setActiveAction}
           />
-          <FileReadinessBoard board={fileWorkflow.readinessBoard} />
+          <FileReadinessBoard board={fileReadinessBoard} />
+          <FileSafeNextActionPanel
+            action={fileSafeNextAction}
+            queue={fileSafeActionQueue}
+          />
           <FileSafePlanPanel plan={fileWorkflow.safeEditPlan} />
           <SafeEditPreview file={selectedFile} action={activeAction} />
           <section style={insightPanel}>

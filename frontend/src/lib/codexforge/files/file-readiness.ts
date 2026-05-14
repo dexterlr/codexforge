@@ -1,4 +1,5 @@
 import type { CodexForgeFileCognitiveContext } from "./file-cognitive-context";
+import type { CodexForgeFileBrainContext } from "./file-brain-context";
 import { calculateFileRisk } from "./file-risk";
 import type { CodexForgeSafeFilePlan } from "./file-safe-plan";
 import type { CodexForgeFileNode } from "./types";
@@ -43,12 +44,19 @@ export function scoreFileReadiness(board: Pick<CodexForgeFileReadinessBoard, "it
 export function buildFileReadinessBoard(args: {
   file: CodexForgeFileNode;
   cognitiveContext?: CodexForgeFileCognitiveContext;
+  fileBrainContext?: CodexForgeFileBrainContext;
   safePlan?: CodexForgeSafeFilePlan;
 }): CodexForgeFileReadinessBoard {
   const risk = calculateFileRisk(args.file);
   const tested = args.file.tags.includes("tested") || args.file.path.includes("smoke-");
   const contextSignalCount = args.cognitiveContext?.signals.length ?? 0;
-  const brainNodeCount = args.cognitiveContext?.relatedBrainNodes.length ?? 0;
+  const brainNodeCount =
+    args.fileBrainContext?.relatedNodes.length ??
+    args.cognitiveContext?.relatedBrainNodes.length ??
+    0;
+  const smokeCount =
+    args.fileBrainContext?.relatedSmokeScripts.length ??
+    (tested ? 1 : 0);
   const reviewRequired = risk.level === "high" || risk.level === "critical";
 
   const items: CodexForgeFileReadinessItem[] = [
@@ -61,12 +69,13 @@ export function buildFileReadinessBoard(args: {
     }),
     readinessItem({
       id: "test-readiness",
-      label: "Test readiness",
-      status: tested ? "ready" : "needs-context",
-      score: tested ? 86 : 54,
-      summary: tested
-        ? "Direct smoke or tested tag is attached."
-        : "Add targeted validation before any guarded apply.",
+      label: "Test/smoke readiness",
+      status: smokeCount > 0 || tested ? "ready" : "needs-context",
+      score: smokeCount > 0 || tested ? 86 : 54,
+      summary:
+        smokeCount > 0
+          ? `${smokeCount} related smoke or validation hints are attached.`
+          : "Add targeted validation before any guarded apply.",
     }),
     readinessItem({
       id: "context-readiness",
@@ -77,10 +86,17 @@ export function buildFileReadinessBoard(args: {
     }),
     readinessItem({
       id: "brain-readiness",
-      label: "Brain readiness",
+      label: "Brain memory readiness",
       status: brainNodeCount > 0 ? "ready" : "needs-context",
       score: brainNodeCount > 0 ? 76 : 48,
-      summary: `${brainNodeCount} related brain nodes found by path/name/type heuristics.`,
+      summary: `${brainNodeCount} related Brain memory nodes found by path/name/subsystem heuristics.`,
+    }),
+    readinessItem({
+      id: "risk-readiness",
+      label: "Risk readiness",
+      status: reviewRequired ? "review-required" : "ready",
+      score: reviewRequired ? 56 : 82,
+      summary: risk.summary,
     }),
     readinessItem({
       id: "review-readiness",
@@ -94,9 +110,10 @@ export function buildFileReadinessBoard(args: {
     readinessItem({
       id: "apply-readiness",
       label: "Apply readiness",
-      status: "preview-only",
+      status: "blocked",
       score: 0,
-      summary: "Apply readiness is blocked in Phase 4; apply must go through guarded tool approval later.",
+      summary:
+        "Apply readiness is blocked, preview-only, and approval required. Files UI does not mutate project files.",
     }),
   ];
 
@@ -127,5 +144,5 @@ export function buildFileReadinessBoard(args: {
 export function summarizeFileReadiness(
   board: Omit<CodexForgeFileReadinessBoard, "summary"> | CodexForgeFileReadinessBoard
 ): string {
-  return `${board.filePath} readiness is ${board.status} at ${board.score}/100; apply remains preview-only.`;
+  return `${board.filePath} readiness is ${board.status} at ${board.score}/100; apply remains blocked, preview-only, and approval required.`;
 }

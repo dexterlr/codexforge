@@ -41,6 +41,7 @@ const panel: CSSProperties = {
   padding: 12,
   display: "grid",
   gap: 10,
+  minWidth: 0,
 };
 
 const header: CSSProperties = {
@@ -48,6 +49,8 @@ const header: CSSProperties = {
   justifyContent: "space-between",
   gap: 12,
   alignItems: "flex-start",
+  minWidth: 0,
+  flexWrap: "wrap",
 };
 
 const eyebrow: CSSProperties = {
@@ -71,12 +74,17 @@ const body: CSSProperties = {
   fontSize: 12,
   lineHeight: 1.45,
   opacity: 0.78,
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const grid: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
   gap: 8,
+  minWidth: 0,
 };
 
 function itemCard(state: string): CSSProperties {
@@ -106,6 +114,9 @@ const itemTop: CSSProperties = {
   justifyContent: "space-between",
   gap: 8,
   fontSize: 12,
+  minWidth: 0,
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const status: CSSProperties = {
@@ -113,10 +124,17 @@ const status: CSSProperties = {
   fontWeight: 900,
   textTransform: "uppercase",
   opacity: 0.62,
+  minWidth: 0,
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
 
 const detail: CSSProperties = {
   fontSize: 11,
   lineHeight: 1.4,
   opacity: 0.76,
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 };
