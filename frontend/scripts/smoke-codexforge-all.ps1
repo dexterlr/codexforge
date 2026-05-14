@@ -252,6 +252,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Artifact Ingestion"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-artifact-ingestion.ps1"
+    Required = $true
+  }
+  @{
     Name = "Mission Control"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-mission-control.ps1"
     Required = $true

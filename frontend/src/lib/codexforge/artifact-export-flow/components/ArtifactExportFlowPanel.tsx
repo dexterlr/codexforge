@@ -8,6 +8,8 @@ import {
   reduceExportFlowState,
   buildInitialExportFlowState,
 } from "@/lib/codexforge/artifact-export-flow";
+import { buildArtifactIngestionSummary } from "@/lib/codexforge/artifact-ingestion";
+import { ArtifactIngestionPanel } from "@/lib/codexforge/artifact-ingestion/components";
 import { ExportApprovalChecklist } from "./ExportApprovalChecklist";
 import { ExportProgressPanel } from "./ExportProgressPanel";
 import { ExportRequestReviewPanel } from "./ExportRequestReviewPanel";
@@ -26,6 +28,10 @@ export function ArtifactExportFlowPanel({ pack }: { pack: ProductionPack }) {
     },
     buildInitialExportFlowState
   );
+  const ingestionBundle = buildArtifactIngestionSummary({
+    pack,
+    exportLedger: state.flow.resultsLedger,
+  });
 
   function prepareReview() {
     setApproved(false);
@@ -104,6 +110,7 @@ export function ArtifactExportFlowPanel({ pack }: { pack: ProductionPack }) {
           <ExportWorkspaceRefreshPanel onRefreshed={() => dispatch({ type: "workspace.refreshed" })} />
         </aside>
       </div>
+      <ArtifactIngestionPanel bundle={ingestionBundle} />
     </section>
   );
 }

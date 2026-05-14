@@ -10,6 +10,13 @@ import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
 import type { ArtifactExecutorModel } from "@/lib/codexforge/artifact-executor";
 import { buildArtifactWorkspaceContext } from "@/lib/codexforge/artifact-workspace";
 import {
+  buildArtifactIngestionSummary,
+} from "@/lib/codexforge/artifact-ingestion";
+import {
+  ArtifactIngestionPanel,
+  ArtifactIngestionSafetyNotice,
+} from "@/lib/codexforge/artifact-ingestion/components";
+import {
   ArtifactExportApprovalPanel,
   ArtifactExportLedgerPanel,
   ArtifactExportValidationPanel,
@@ -24,6 +31,9 @@ type ArtifactsPageClientProps = {
 
 export default function ArtifactsPageClient({ initialData }: ArtifactsPageClientProps) {
   const workspaceContext = buildArtifactWorkspaceContext();
+  const ingestionBundle = buildArtifactIngestionSummary({
+    exportRequests: [workspaceContext.sampleRequest],
+  });
 
   return (
     <>
@@ -43,7 +53,8 @@ export default function ArtifactsPageClient({ initialData }: ArtifactsPageClient
               Preview artifacts can become local review files only through explicit export approval.
               The export API writes only under .codexforge/artifacts, blocks source mutation paths,
               and never executes commands or external apps. Production packs are the recommended way
-              to bundle multiple artifacts for review before export.
+              to bundle multiple artifacts for review before export. Exported artifacts now also produce
+              read-only brain ingestion candidates for review before promotion with no direct graph mutation.
             </p>
             <a href="/production" style={productionLink}>Open Production Pack Builder</a>
           </div>
@@ -54,10 +65,12 @@ export default function ArtifactsPageClient({ initialData }: ArtifactsPageClient
           <div style={workspaceMain}>
             <ArtifactWorkspacePanel context={workspaceContext} />
             <ExportWorkspaceRefreshPanel />
+            <ArtifactIngestionPanel bundle={ingestionBundle} />
             <ArtifactExportApprovalPanel request={workspaceContext.sampleRequest} />
             <ArtifactExportLedgerPanel ledger={workspaceContext.ledger} />
           </div>
           <aside style={workspaceRail}>
+            <ArtifactIngestionSafetyNotice />
             <ExportSafetyBoundary />
             <ArtifactPathGuardPanel request={workspaceContext.sampleRequest} />
             <ArtifactExportValidationPanel report={workspaceContext.validation} />

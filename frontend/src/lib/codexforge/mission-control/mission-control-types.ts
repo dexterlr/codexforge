@@ -57,6 +57,7 @@ export type MissionHealthDimensionId =
   | "runs"
   | "bridge-consent"
   | "artifacts"
+  | "artifact-ingestion"
   | "production-pack"
   | "safety";
 

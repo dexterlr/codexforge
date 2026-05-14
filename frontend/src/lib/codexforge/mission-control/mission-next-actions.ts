@@ -43,6 +43,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Artifact workspace export requires explicit approval.",
     },
     {
+      id: "review-artifact-ingestion-candidates",
+      label: "Review artifact ingestion candidates",
+      href: "/artifacts",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Read-only memory candidates and brain signals require review before promotion.",
+    },
+    {
       id: "inspect-bridge-readiness",
       label: "Inspect bridge readiness",
       href: "/bridge",
