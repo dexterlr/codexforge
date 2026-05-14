@@ -30,6 +30,7 @@ export function OperatorRunCenter({ queue = buildRunQueue() }: { queue?: Operato
         status="preview-only"
       >
         <a href="/bridge" style={bridgeLink}>Open Jarvis Local Bridge</a>
+        <a href="/production" style={bridgeLink}>Production Pack</a>
         <a href="/artifacts" style={bridgeLink}>Open Artifact Executor</a>
         <span style={statusPill}>approval required before execution</span>
         <span style={statusPill}>broker execution blocked</span>

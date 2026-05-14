@@ -28,6 +28,7 @@ export function CreativeProductionStudio({ context }: { context: CreativeContext
         status="preview-only"
       >
         <a href="/runs" style={runLink}>Open Operator Run Center</a>
+        <a href="/production" style={runLink}>Production Pack</a>
         <a href="/bridge" style={runLink}>Bridge readiness</a>
         <a href="/artifacts" style={runLink}>Artifact Executor</a>
         <span style={statusPill}>approval required before execution</span>
