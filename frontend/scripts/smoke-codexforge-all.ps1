@@ -222,6 +222,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Local Bridge"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-local-bridge.ps1"
+    Required = $true
+  }
+  @{
     Name = "Predictive context"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-predictive-context.ps1"
     Required = $true
