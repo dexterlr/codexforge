@@ -773,12 +773,12 @@ function getLabelBox(entry: LayoutNode, label: string): { x: number; y: number; 
 function panelStyle(): CSSProperties {
   return {
     position: "relative",
-    border: "1px solid rgba(125, 211, 252, 0.28)",
+    border: "1px solid rgba(125, 211, 252, 0.30)",
     background:
-      "radial-gradient(circle at 50% 0%, rgba(14,165,233,0.34), transparent 36%), radial-gradient(circle at 8% 24%, rgba(45,212,191,0.18), transparent 28%), radial-gradient(circle at 94% 16%, rgba(244,114,182,0.13), transparent 25%), linear-gradient(135deg, rgba(2,6,23,0.98), rgba(8,13,30,0.88) 54%, rgba(2,6,23,0.96))",
-    borderRadius: 30,
-    padding: 22,
-    boxShadow: "0 38px 130px rgba(2, 6, 23, 0.58), 0 0 80px rgba(14,165,233,0.10), inset 0 1px 0 rgba(255,255,255,0.07)",
+      "radial-gradient(circle at 48% -10%, rgba(14,165,233,0.40), transparent 34%), radial-gradient(circle at 7% 28%, rgba(45,212,191,0.19), transparent 27%), radial-gradient(circle at 98% 18%, rgba(244,114,182,0.14), transparent 25%), linear-gradient(135deg, rgba(2,6,23,0.99), rgba(8,13,30,0.92) 48%, rgba(2,6,23,0.98))",
+    borderRadius: 28,
+    padding: 18,
+    boxShadow: "0 42px 140px rgba(2, 6, 23, 0.62), 0 0 92px rgba(14,165,233,0.13), inset 0 1px 0 rgba(255,255,255,0.08)",
     overflow: "hidden",
     minWidth: 0,
   };
@@ -786,16 +786,16 @@ function panelStyle(): CSSProperties {
 
 function statStyle(): CSSProperties {
   return {
-    border: "1px solid rgba(255,255,255,0.13)",
+    border: "1px solid rgba(125,211,252,0.16)",
     background:
-      "linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.035))",
-    borderRadius: 16,
-    padding: "12px 14px",
+      "linear-gradient(180deg, rgba(125,211,252,0.105), rgba(255,255,255,0.032))",
+    borderRadius: 12,
+    padding: "9px 11px",
     minWidth: 0,
     maxWidth: "100%",
     overflowWrap: "anywhere",
     wordBreak: "break-word",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 34px rgba(2,6,23,0.20)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.055), 0 10px 28px rgba(2,6,23,0.18)",
   };
 }
 
@@ -806,8 +806,8 @@ function chipStyle(color?: string): CSSProperties {
     gap: 7,
     border: `1px solid ${color ?? "rgba(255,255,255,0.14)"}`,
     borderRadius: 999,
-    padding: "7px 10px",
-    background: "linear-gradient(180deg, rgba(255,255,255,0.085), rgba(255,255,255,0.035))",
+    padding: "5px 9px",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.028))",
     color: "#e0f2fe",
     fontSize: 11,
     fontWeight: 800,
@@ -818,26 +818,26 @@ function chipStyle(color?: string): CSSProperties {
 
 function inspectorCardStyle(): CSSProperties {
   return {
-    border: "1px solid rgba(125,211,252,0.24)",
+    border: "1px solid rgba(125,211,252,0.18)",
     background:
-      "radial-gradient(circle at 0% 0%, rgba(14,165,233,0.20), transparent 30%), radial-gradient(circle at 100% 100%, rgba(45,212,191,0.10), transparent 26%), linear-gradient(180deg, rgba(15,23,42,0.90), rgba(2,6,23,0.72))",
-    borderRadius: 18,
-    padding: 14,
+      "radial-gradient(circle at 0% 0%, rgba(14,165,233,0.16), transparent 31%), linear-gradient(180deg, rgba(15,23,42,0.74), rgba(2,6,23,0.50))",
+    borderRadius: 16,
+    padding: 13,
     display: "grid",
-    gap: 12,
+    gap: 11,
     minWidth: 0,
-    boxShadow: "0 22px 76px rgba(2,6,23,0.34), inset 0 1px 0 rgba(255,255,255,0.06)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.055)",
   };
 }
 
 function metaRowStyle(): CSSProperties {
   return {
     display: "grid",
-    gridTemplateColumns: "minmax(0, 0.48fr) minmax(0, 1fr)",
+    gridTemplateColumns: "minmax(76px, 0.42fr) minmax(0, 1fr)",
     gap: 10,
     alignItems: "start",
-    borderTop: "1px solid rgba(255,255,255,0.08)",
-    paddingTop: 9,
+    borderTop: "1px solid rgba(255,255,255,0.07)",
+    paddingTop: 8,
     minWidth: 0,
   };
 }
@@ -891,28 +891,28 @@ export function BrainGraphView({
         {`
           .codexforge-brain-memory-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
-            gap: 18px;
+            grid-template-columns: minmax(0, 1.72fr) minmax(280px, 330px);
+            gap: 14px;
             align-items: start;
           }
 
           .codexforge-brain-graph-stage {
             position: relative;
             min-width: 0;
-            border: 1px solid rgba(125,211,252,0.18);
+            border: 1px solid rgba(125,211,252,0.22);
             background-image:
-              radial-gradient(circle at 50% 48%, rgba(14,165,233,0.26), transparent 35%),
-              radial-gradient(circle at 22% 30%, rgba(45,212,191,0.13), transparent 20%),
-              radial-gradient(circle at 78% 26%, rgba(244,114,182,0.10), transparent 23%),
-              linear-gradient(rgba(125,211,252,0.07) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(125,211,252,0.052) 1px, transparent 1px),
-              linear-gradient(rgba(45,212,191,0.035) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(45,212,191,0.03) 1px, transparent 1px),
-              repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 8px);
-            background-size: 100% 100%, 100% 100%, 100% 100%, 52px 52px, 52px 52px, 13px 13px, 13px 13px, 10px 10px;
-            border-radius: 24px;
+              radial-gradient(circle at 50% 48%, rgba(14,165,233,0.30), transparent 34%),
+              radial-gradient(circle at 22% 30%, rgba(45,212,191,0.15), transparent 20%),
+              radial-gradient(circle at 78% 25%, rgba(244,114,182,0.11), transparent 23%),
+              linear-gradient(rgba(125,211,252,0.078) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(125,211,252,0.058) 1px, transparent 1px),
+              linear-gradient(rgba(45,212,191,0.040) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(45,212,191,0.034) 1px, transparent 1px),
+              repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 8px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 46px 46px, 46px 46px, 11px 11px, 11px 11px, 10px 10px;
+            border-radius: 22px;
             overflow: hidden;
-            box-shadow: inset 0 0 140px rgba(14,165,233,0.14), inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 90px rgba(2,6,23,0.30);
+            box-shadow: inset 0 0 170px rgba(14,165,233,0.16), inset 0 1px 0 rgba(255,255,255,0.07), 0 26px 95px rgba(2,6,23,0.34);
           }
 
           .codexforge-brain-graph-stage::before {
@@ -926,6 +926,17 @@ export function BrainGraphView({
             mix-blend-mode: screen;
           }
 
+          .codexforge-brain-graph-stage::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+              linear-gradient(90deg, rgba(125,211,252,0.11), transparent 18%, transparent 82%, rgba(45,212,191,0.08)),
+              repeating-linear-gradient(180deg, transparent 0 9px, rgba(186,230,253,0.025) 10px, transparent 12px);
+            opacity: 0.46;
+          }
+
           .codexforge-brain-memory-svg {
             width: 100%;
             display: block;
@@ -937,7 +948,7 @@ export function BrainGraphView({
           }
 
           .codexforge-brain-graph-panel-hero .codexforge-brain-memory-svg {
-            min-height: 680px;
+            min-height: 720px;
           }
 
           .codexforge-brain-graph-panel-embedded .codexforge-brain-memory-svg {
@@ -960,7 +971,7 @@ export function BrainGraphView({
           }
 
           .brain-edge-flow {
-            stroke-dasharray: 3 12;
+            stroke-dasharray: 4 10;
             animation: brainEdgeFlow 3.8s linear infinite;
           }
 
@@ -992,20 +1003,20 @@ export function BrainGraphView({
           }
 
           .codexforge-brain-memory-inspector {
-            border: 1px solid rgba(255,255,255,0.13);
+            border: 1px solid rgba(125,211,252,0.16);
             background:
-              radial-gradient(circle at 16% 0%, rgba(14,165,233,0.18), transparent 32%),
-              radial-gradient(circle at 100% 20%, rgba(244,114,182,0.09), transparent 28%),
-              linear-gradient(180deg, rgba(15,23,42,0.90), rgba(2,6,23,0.76));
-            border-radius: 24px;
-            padding: 16px;
+              radial-gradient(circle at 16% 0%, rgba(14,165,233,0.16), transparent 31%),
+              radial-gradient(circle at 100% 20%, rgba(244,114,182,0.075), transparent 28%),
+              linear-gradient(180deg, rgba(15,23,42,0.78), rgba(2,6,23,0.58));
+            border-radius: 20px;
+            padding: 14px;
             color: #e0f2fe;
             min-width: 0;
             max-height: none;
             overflow: visible;
             position: sticky;
             top: 16px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 80px rgba(2,6,23,0.34);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.055), 0 22px 72px rgba(2,6,23,0.30);
           }
 
           @keyframes brainPulse {
@@ -1061,13 +1072,13 @@ export function BrainGraphView({
               display: "flex",
               flexWrap: "wrap",
               justifyContent: "space-between",
-              gap: 12,
-              marginBottom: 14,
+              gap: 10,
+              marginBottom: 12,
               color: "#e0f2fe",
               minWidth: 0,
             }}
           >
-            <div style={{ minWidth: 0, maxWidth: 760 }}>
+            <div style={{ minWidth: 0, maxWidth: 720 }}>
               <p
                 style={{
                   margin: 0,
@@ -1081,30 +1092,30 @@ export function BrainGraphView({
               >
                 Neural memory net
               </p>
-              <h2 style={{ margin: "6px 0 0", fontSize: variant === "hero" ? 30 : 24, lineHeight: 1.05, ...safeWrapStyle }}>
-                Visual Memory Graph
+              <h2 style={{ margin: "5px 0 0", fontSize: variant === "hero" ? 28 : 23, lineHeight: 1.05, ...safeWrapStyle }}>
+                Neural Topology Console
               </h2>
               <p
                 style={{
-                  margin: "8px 0 0",
+                  margin: "7px 0 0",
                   color: "rgba(224,242,254,0.78)",
                   fontSize: 13,
                   lineHeight: 1.55,
                   ...safeWrapStyle,
                 }}
               >
-                CodexForge neural constellation maps real graph nodes and edges while a deterministic signal field adds visual topology depth without changing graph storage, exports, or runtime counts.
+                CodexForge neural constellation keeps real nodes and edges dominant while deterministic signal layers reveal topology depth without changing storage, exports, or runtime counts.
               </p>
               {sparseGraph ? (
                 <p
                   style={{
-                    margin: "8px 0 0",
+                    margin: "7px 0 0",
                     display: "inline-flex",
                     width: "fit-content",
                     border: "1px solid rgba(45,212,191,0.22)",
                     background: "rgba(45,212,191,0.08)",
                     borderRadius: 999,
-                    padding: "7px 10px",
+                    padding: "6px 9px",
                     color: "rgba(204,251,241,0.86)",
                     fontSize: 12,
                     lineHeight: 1.35,
@@ -1113,7 +1124,7 @@ export function BrainGraphView({
                   data-codexforge-brain-sparse-graph-hint="true"
                   data-codexforge-brain-visual-topology-field="true"
                 >
-                  Sparse real graph: more memory nodes will make the topology denser. The signal field is visual-only.
+                  Sparse graph: memory ingestion will densify the real topology. Signal field is visual-only.
                 </p>
               ) : null}
             </div>
@@ -1121,10 +1132,11 @@ export function BrainGraphView({
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gap: 8,
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 84px), 1fr))",
+                gap: 7,
                 alignItems: "stretch",
-                minWidth: 240,
+                minWidth: 0,
+                width: "min(100%, 520px)",
                 maxWidth: "100%",
               }}
               data-codexforge-brain-graph-stats="true"
@@ -1132,19 +1144,19 @@ export function BrainGraphView({
             >
               <div style={statStyle()}>
                 <div style={labelStyle}>Real nodes</div>
-                <strong style={{ fontSize: 20, ...safeWrapStyle }}>{graph.nodes.length}</strong>
+                <strong style={{ fontSize: 18, ...safeWrapStyle }}>{graph.nodes.length}</strong>
               </div>
               <div style={statStyle()}>
                 <div style={labelStyle}>Real links</div>
-                <strong style={{ fontSize: 20, ...safeWrapStyle }}>{graph.edges.length}</strong>
+                <strong style={{ fontSize: 18, ...safeWrapStyle }}>{graph.edges.length}</strong>
               </div>
               <div style={statStyle()}>
                 <div style={labelStyle}>Clusters</div>
-                <strong style={{ fontSize: 20, ...safeWrapStyle }}>{clusters.length}</strong>
+                <strong style={{ fontSize: 18, ...safeWrapStyle }}>{clusters.length}</strong>
               </div>
               <div style={statStyle()}>
                 <div style={labelStyle}>Density</div>
-                <strong style={{ fontSize: 20, ...safeWrapStyle }}>{graphDensity}</strong>
+                <strong style={{ fontSize: 18, ...safeWrapStyle }}>{graphDensity}</strong>
               </div>
             </div>
           </div>
@@ -1231,9 +1243,9 @@ export function BrainGraphView({
                 cy={CENTER_Y}
                 r={OUTER_RADIUS + 88}
                 fill="none"
-                stroke="rgba(125,211,252,0.09)"
+                stroke="rgba(125,211,252,0.12)"
                 strokeWidth="1"
-                strokeDasharray="2 18"
+                strokeDasharray="2 14"
                 data-codexforge-brain-graph-orbit="outer"
               />
               <circle
@@ -1242,9 +1254,9 @@ export function BrainGraphView({
                 cy={CENTER_Y}
                 r={OUTER_RADIUS + 28}
                 fill="none"
-                stroke="rgba(45,212,191,0.14)"
-                strokeWidth="1"
-                strokeDasharray="1 14"
+                stroke="rgba(45,212,191,0.18)"
+                strokeWidth="1.15"
+                strokeDasharray="1 10"
                 data-codexforge-brain-graph-orbit="middle"
               />
               <circle
@@ -1265,20 +1277,30 @@ export function BrainGraphView({
                     cy={cluster.y}
                     r={cluster.radius}
                     fill={cluster.color}
-                    opacity={cluster.selected ? "0.095" : "0.055"}
+                    opacity={cluster.selected ? "0.11" : "0.062"}
                     stroke={cluster.color}
-                    strokeWidth={cluster.selected ? 1.4 : 0.9}
-                    strokeOpacity={cluster.selected ? 0.42 : 0.2}
-                    strokeDasharray={cluster.selected ? "5 12" : "2 14"}
+                    strokeWidth={cluster.selected ? 1.65 : 1}
+                    strokeOpacity={cluster.selected ? 0.48 : 0.22}
+                    strokeDasharray={cluster.selected ? "7 10" : "2 12"}
                   />
                   <circle
                     cx={cluster.x}
                     cy={cluster.y}
-                    r={Math.max(18, cluster.radius * 0.28)}
+                    r={Math.max(24, cluster.radius * 0.48)}
+                    fill="none"
+                    stroke={cluster.color}
+                    strokeWidth={cluster.selected ? "1.15" : "0.8"}
+                    strokeOpacity={cluster.selected ? 0.34 : 0.16}
+                    strokeDasharray="1 8"
+                  />
+                  <circle
+                    cx={cluster.x}
+                    cy={cluster.y}
+                    r={Math.max(16, cluster.radius * 0.18)}
                     fill="none"
                     stroke={cluster.color}
                     strokeWidth="0.75"
-                    strokeOpacity={cluster.selected ? 0.32 : 0.14}
+                    strokeOpacity={cluster.selected ? 0.42 : 0.18}
                   />
                 </g>
               ))}
@@ -1292,9 +1314,9 @@ export function BrainGraphView({
                 const selectedEdge = isSelectedEdge(edge, effectiveSelectedNodeId);
                 const relatedEdge = !selectedEdge && isRelatedEdge(edge, selectedNeighborIds);
                 const path = buildEdgePath(edge, from, to, index);
-                const stroke = selectedEdge ? "rgba(125,211,252,0.86)" : relatedEdge ? "rgba(45,212,191,0.48)" : "rgba(148,163,184,0.18)";
-                const opacity = selectedEdge ? 0.98 : relatedEdge ? 0.58 : 0.34;
-                const strokeWidth = selectedEdge ? 2.7 : relatedEdge ? 1.55 : 0.95;
+                const stroke = selectedEdge ? "rgba(186,230,253,0.94)" : relatedEdge ? "rgba(45,212,191,0.55)" : "rgba(148,163,184,0.20)";
+                const opacity = selectedEdge ? 1 : relatedEdge ? 0.64 : 0.36;
+                const strokeWidth = selectedEdge ? 3.15 : relatedEdge ? 1.7 : 0.95;
 
                 return (
                   <g key={buildStableReactKey("brain-edge", [edge.id], index)}>
@@ -1302,11 +1324,21 @@ export function BrainGraphView({
                       <path
                         d={path}
                         fill="none"
-                        stroke="rgba(125,211,252,0.32)"
-                        strokeWidth="8"
+                        stroke="rgba(125,211,252,0.36)"
+                        strokeWidth="10"
                         strokeLinecap="round"
-                        opacity="0.42"
+                        opacity="0.46"
                         filter={`url(#${edgeGlowId})`}
+                      />
+                    ) : null}
+                    {relatedEdge ? (
+                      <path
+                        d={path}
+                        fill="none"
+                        stroke="rgba(45,212,191,0.12)"
+                        strokeWidth="5"
+                        strokeLinecap="round"
+                        opacity="0.5"
                       />
                     ) : null}
                     <path
@@ -1375,9 +1407,9 @@ export function BrainGraphView({
                         <circle
                           cx={entry.x}
                           cy={entry.y}
-                          r={entry.radius + 64}
+                          r={entry.radius + 76}
                           fill={entry.color}
-                          opacity="0.12"
+                          opacity="0.13"
                           filter={`url(#${softGlowId})`}
                         />
                         <circle
@@ -1387,6 +1419,15 @@ export function BrainGraphView({
                           fill={entry.color}
                           opacity="0.22"
                           filter={`url(#${softGlowId})`}
+                        />
+                        <circle
+                          cx={entry.x}
+                          cy={entry.y}
+                          r={entry.radius + 30}
+                          fill="none"
+                          stroke={entry.color}
+                          strokeWidth="1.2"
+                          strokeOpacity="0.52"
                         />
                         <circle
                           cx={entry.x}
@@ -1417,6 +1458,13 @@ export function BrainGraphView({
                       strokeWidth={selected ? 2.8 : related ? 1.6 : 1}
                       filter={selected || entry.node.meta.pinned || entry.importanceRank >= 4 ? `url(#${softGlowId})` : undefined}
                     />
+                    <circle
+                      cx={entry.x - entry.radius * 0.18}
+                      cy={entry.y - entry.radius * 0.20}
+                      r={Math.max(2.8, entry.radius * 0.26)}
+                      fill={selected ? "rgba(255,255,255,0.78)" : "rgba(255,255,255,0.42)"}
+                      opacity={dimmed ? 0.2 : selected ? 0.74 : related ? 0.42 : 0.26}
+                    />
                     {entry.node.meta.pinned ? (
                       <circle
                         cx={entry.x + entry.radius * 0.48}
@@ -1434,9 +1482,9 @@ export function BrainGraphView({
                           y={labelBox.y}
                           width={labelBox.width}
                           height={labelBox.height}
-                          rx="9"
-                          fill="rgba(2,6,23,0.72)"
-                          stroke={selected ? "rgba(224,242,254,0.46)" : "rgba(125,211,252,0.20)"}
+                          rx="7"
+                          fill={selected ? "rgba(8,47,73,0.84)" : "rgba(2,6,23,0.74)"}
+                          stroke={selected ? "rgba(224,242,254,0.54)" : "rgba(125,211,252,0.22)"}
                         />
                         <text
                           x={labelBox.textX}
@@ -1463,10 +1511,20 @@ export function BrainGraphView({
           data-codexforge-brain-focus-node="true"
           data-codexforge-brain-overflow-guard
         >
-          <p style={labelStyle}>Focus HUD</p>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", minWidth: 0 }}>
+            <div style={{ minWidth: 0 }}>
+              <p style={labelStyle}>Focus inspector</p>
+              <strong style={{ display: "block", marginTop: 4, fontSize: 15, lineHeight: 1.2, ...safeWrapStyle }}>
+                Node telemetry
+              </strong>
+            </div>
+            <span style={chipStyle("rgba(125,211,252,0.22)")}>
+              <span style={pillTextStyle}>{selectedNeighborCount} links</span>
+            </span>
+          </div>
 
           {selectedNode ? (
-            <div style={{ display: "grid", gap: 14, marginTop: 10, minWidth: 0 }}>
+            <div style={{ display: "grid", gap: 11, marginTop: 12, minWidth: 0 }}>
               <div style={inspectorCardStyle()}>
                 <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8, minWidth: 0 }}>
@@ -1496,14 +1554,14 @@ export function BrainGraphView({
                     ) : null}
                   </div>
 
-                  <h3 style={{ margin: 0, fontSize: 22, lineHeight: 1.12, ...safeWrapStyle }}>
+                  <h3 style={{ margin: 0, fontSize: 20, lineHeight: 1.12, ...safeWrapStyle }}>
                     {getNodeLabel(selectedNode)}
                   </h3>
                   <p
                     style={{
                       margin: 0,
                       color: "rgba(224,242,254,0.72)",
-                      fontSize: 13,
+                      fontSize: 12,
                       lineHeight: 1.55,
                       ...safeWrapStyle,
                     }}
@@ -1512,7 +1570,7 @@ export function BrainGraphView({
                   </p>
                 </div>
 
-                <div style={{ display: "grid", gap: 9, minWidth: 0 }}>
+                <div style={{ display: "grid", gap: 7, minWidth: 0 }}>
                   <div style={metaRowStyle()} data-codexforge-brain-graph-focus-kind="true">
                     <span style={labelStyle}>Kind</span>
                     <strong style={safeWrapStyle}>{formatKindLabel(selectedNode.kind)}</strong>
@@ -1552,24 +1610,25 @@ export function BrainGraphView({
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 128px), 1fr))",
-                  gap: 10,
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: 8,
+                  minWidth: 0,
                 }}
               >
                 <div style={statStyle()}>
-                  <div style={labelStyle}>Visible nodes</div>
+                  <div style={labelStyle}>Visible</div>
                   <strong style={{ fontSize: 18, ...safeWrapStyle }}>{layoutNodes.length}</strong>
                 </div>
                 <div style={statStyle()}>
-                  <div style={labelStyle}>Visible links</div>
+                  <div style={labelStyle}>Links</div>
                   <strong style={{ fontSize: 18, ...safeWrapStyle }}>{visibleEdges.length}</strong>
                 </div>
                 <div style={statStyle()}>
-                  <div style={labelStyle}>Visible clusters</div>
+                  <div style={labelStyle}>Clusters</div>
                   <strong style={{ fontSize: 18, ...safeWrapStyle }}>{clusters.length}</strong>
                 </div>
                 <div style={statStyle()}>
-                  <div style={labelStyle}>Link density</div>
+                  <div style={labelStyle}>Density</div>
                   <strong style={{ fontSize: 18, ...safeWrapStyle }}>{graphDensity}</strong>
                 </div>
               </div>
@@ -1582,16 +1641,16 @@ export function BrainGraphView({
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "start", flexWrap: "wrap", minWidth: 0 }}>
                   <div style={{ minWidth: 0 }}>
                     <p style={labelStyle}>Memory legend</p>
-                    <strong style={{ display: "block", marginTop: 5, fontSize: 15, ...safeWrapStyle }}>
-                      Node kind clusters
+                    <strong style={{ display: "block", marginTop: 4, fontSize: 14, ...safeWrapStyle }}>
+                      Kind clusters
                     </strong>
                   </div>
                   <span style={chipStyle("rgba(45,212,191,0.24)")}>
-                    <span style={pillTextStyle}>{selectedNeighborCount} focus neighbors</span>
+                    <span style={pillTextStyle}>{visibleKinds.length} kinds</span>
                   </span>
                 </div>
 
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, minWidth: 0 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, minWidth: 0 }}>
                   {visibleKinds.map((entry, index) => (
                     <span
                       key={buildStableReactKey("visible-node-kind", [entry.kind], index)}
@@ -1615,16 +1674,16 @@ export function BrainGraphView({
 
                 <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
                   <div style={metaRowStyle()}>
-                    <span style={labelStyle}>Selected links</span>
-                    <span style={{ color: "rgba(224,242,254,0.84)", ...safeWrapStyle }}>High glow and flowing dash</span>
+                    <span style={labelStyle}>Focus path</span>
+                    <span style={{ color: "rgba(224,242,254,0.84)", ...safeWrapStyle }}>Bright flow</span>
                   </div>
                   <div style={metaRowStyle()}>
-                    <span style={labelStyle}>Related links</span>
-                    <span style={{ color: "rgba(224,242,254,0.84)", ...safeWrapStyle }}>Medium teal signal</span>
+                    <span style={labelStyle}>Neighbors</span>
+                    <span style={{ color: "rgba(224,242,254,0.84)", ...safeWrapStyle }}>Teal signal</span>
                   </div>
                   <div style={metaRowStyle()}>
-                    <span style={labelStyle}>Background</span>
-                    <span style={{ color: "rgba(224,242,254,0.84)", ...safeWrapStyle }}>Visual topology field, read-only</span>
+                    <span style={labelStyle}>Field</span>
+                    <span style={{ color: "rgba(224,242,254,0.84)", ...safeWrapStyle }}>Read-only depth</span>
                   </div>
                 </div>
               </div>
@@ -1634,18 +1693,18 @@ export function BrainGraphView({
                   margin: 0,
                   border: "1px solid rgba(125,211,252,0.20)",
                   background:
-                    "linear-gradient(180deg, rgba(14,165,233,0.13), rgba(14,165,233,0.06))",
-                  borderRadius: 16,
-                  padding: 12,
+                    "linear-gradient(90deg, rgba(14,165,233,0.16), rgba(45,212,191,0.07), rgba(255,255,255,0.035))",
+                  borderRadius: 14,
+                  padding: "10px 11px",
                   fontSize: 12,
                   color: "rgba(224,242,254,0.82)",
-                  lineHeight: 1.55,
+                  lineHeight: 1.5,
                   ...safeWrapStyle,
                 }}
                 data-codexforge-brain-graph-next-action="true"
                 data-codexforge-brain-action-queue="true"
               >
-                Next: use the existing inspector below for pin/archive/export actions, or copy the workspace prompt to route this node back into the AI workspace.
+                Next: inspect actions below for pin, archive, export, or workspace prompt routing.
               </p>
             </div>
           ) : (

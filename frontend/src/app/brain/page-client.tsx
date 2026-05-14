@@ -1453,7 +1453,7 @@ export default function BrainPageClient() {
         style={{
           maxWidth: 1680,
           margin: "0 auto",
-          padding: "20px 20px 48px",
+          padding: "16px 18px 48px",
           minWidth: 0,
         }}
       >
@@ -1577,8 +1577,9 @@ export default function BrainPageClient() {
               data-codexforge-brain-responsive-grid
               style={{
                 ...responsiveGridStyle,
-                marginBottom: 18,
-                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 190px), 1fr))",
+                marginBottom: 14,
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))",
+                gap: 10,
               }}
             >
               <StatCard label="Nodes" value={String(stats.nodeCount)} />
@@ -1602,7 +1603,7 @@ export default function BrainPageClient() {
               data-codexforge-brain-visual-memory-graph-hero
               data-codexforge-brain-graph-above-fold
               style={{
-                marginBottom: 18,
+                marginBottom: 16,
                 minWidth: 0,
               }}
             >
