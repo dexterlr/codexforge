@@ -19,6 +19,8 @@ import {
 import { buildFileWorkflow, summarizeFileWorkflow } from "../file-workflow";
 import { calculateFileRisk } from "../file-risk";
 import { buildCodexForgeFileReactKey, searchFiles } from "../file-search";
+import { buildPatchPreviewPlan } from "@/lib/codexforge/patch-preview";
+import { PatchPreviewCockpit } from "@/lib/codexforge/patch-preview/components";
 import type {
   CodexForgeFileAction,
   CodexForgeFileCommandCenterState,
@@ -150,6 +152,38 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
     });
   }, [fileBrainContext, fileWorkflow.cognitiveContext, fileWorkflow.safeEditPlan, selectedFile]);
 
+  const patchPreviewPlan = useMemo(() => {
+    const relatedPaths = sourceDependencies
+      .filter(
+        (dependency) =>
+          dependency.fromPath === selectedFile.path ||
+          dependency.toPath === selectedFile.path
+      )
+      .map((dependency) =>
+        dependency.fromPath === selectedFile.path ? dependency.toPath : dependency.fromPath
+      );
+
+    return buildPatchPreviewPlan({
+      selectedFilePath: selectedFile.path,
+      goal: `Prepare a safe preview-only patch plan for ${selectedFile.name}.`,
+      fileRole: selectedFile.architectureRole,
+      relatedBrainContextSummary: fileBrainContext.summary,
+      relatedBrainMemoryCount: fileBrainContext.relatedNodes.length,
+      capabilityPolicyPosture:
+        "Files command center allows deterministic preview planning only; apply and mutation remain approval-gated and blocked in Phase 6.",
+      expectedTouchedFiles: relatedPaths,
+      hasTestsOrSmokeScripts:
+        fileBrainContext.relatedSmokeScripts.length > 0 ||
+        fileWorkflow.suggestedSmokeTests.length > 0,
+      appearsSafetyCritical:
+        selectedFile.tags.includes("safety") ||
+        selectedFile.tags.includes("policy") ||
+        selectedFile.path.includes("/tools/") ||
+        selectedFile.path.includes("/capabilities/"),
+      requiresApproval: true,
+    });
+  }, [fileBrainContext, fileWorkflow.suggestedSmokeTests, selectedFile, sourceDependencies]);
+
   const fileSafeActionQueue = useMemo(() => {
     return buildFileSafeActionQueue({
       file: selectedFile,
@@ -170,8 +204,9 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
       readinessBoard: fileReadinessBoard,
       safeNextAction: fileSafeNextAction,
       suggestedSmokeTests: fileWorkflow.suggestedSmokeTests,
+      patchPreviewPlan,
     });
-  }, [fileBrainContext, fileReadinessBoard, fileSafeNextAction, fileWorkflow.suggestedSmokeTests, selectedFile]);
+  }, [fileBrainContext, fileReadinessBoard, fileSafeNextAction, fileWorkflow.suggestedSmokeTests, patchPreviewPlan, selectedFile]);
 
   const fileWorkspacePrompt = useMemo(() => {
     return buildFileWorkspacePrompt({
@@ -180,8 +215,9 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
       readinessBoard: fileReadinessBoard,
       safeNextAction: fileSafeNextAction,
       suggestedSmokeTests: fileWorkflow.suggestedSmokeTests,
+      patchPreviewPlan,
     });
-  }, [fileBrainContext, fileReadinessBoard, fileSafeNextAction, fileWorkflow.suggestedSmokeTests, selectedFile]);
+  }, [fileBrainContext, fileReadinessBoard, fileSafeNextAction, fileWorkflow.suggestedSmokeTests, patchPreviewPlan, selectedFile]);
 
   const fileChatBridgeSummary = useMemo(() => {
     return summarizeFileChatBridge({
@@ -190,8 +226,34 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
       readinessBoard: fileReadinessBoard,
       safeNextAction: fileSafeNextAction,
       suggestedSmokeTests: fileWorkflow.suggestedSmokeTests,
+      patchPreviewPlan,
     });
-  }, [fileBrainContext, fileReadinessBoard, fileSafeNextAction, fileWorkflow.suggestedSmokeTests, selectedFile]);
+  }, [fileBrainContext, fileReadinessBoard, fileSafeNextAction, fileWorkflow.suggestedSmokeTests, patchPreviewPlan, selectedFile]);
+
+  const patchPreviewPrompt = useMemo(() => {
+    return [
+      "CodexForge Safe Patch Preview handoff",
+      "",
+      `Selected file: ${patchPreviewPlan.selectedFilePath}`,
+      `Goal: ${patchPreviewPlan.goal}`,
+      `Risk: ${patchPreviewPlan.riskLevel}`,
+      `Brain context: ${patchPreviewPlan.relatedBrainContextSummary}`,
+      `Policy posture: ${patchPreviewPlan.capabilityPolicyPosture}`,
+      "",
+      "Instructions",
+      "- Inspect first.",
+      "- Produce preview diff only.",
+      "- Do not write files without approval.",
+      "- Do not run commands without approval.",
+      "- Keep apply blocked in Phase 6.",
+      "",
+      "Suggested tests",
+      ...patchPreviewPlan.suggestedTests.map((test) => `- ${test}`),
+      "",
+      "Rollback",
+      ...patchPreviewPlan.rollbackNotes.map((note) => `- ${note}`),
+    ].join("\n");
+  }, [patchPreviewPlan]);
 
   const riskCounts = useMemo(() => {
     return sourceFiles.reduce<Record<CodexForgeFileRiskLevel, number>>(
@@ -346,6 +408,10 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
             prompt={fileChatPrompt}
             workspacePrompt={fileWorkspacePrompt}
             summary={fileChatBridgeSummary}
+          />
+          <PatchPreviewCockpit
+            plan={selectedFile ? patchPreviewPlan : null}
+            patchPrompt={patchPreviewPrompt}
           />
           <FileInspector file={selectedFile} />
           <FileActionBar

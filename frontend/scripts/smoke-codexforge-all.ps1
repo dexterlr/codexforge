@@ -202,6 +202,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Patch Preview"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-patch-preview.ps1"
+    Required = $true
+  }
+  @{
     Name = "Predictive context"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-predictive-context.ps1"
     Required = $true

@@ -2,6 +2,7 @@ import type { CodexForgeFileBrainContext } from "./file-brain-context";
 import type { CodexForgeFileReadinessBoard } from "./file-readiness";
 import type { CodexForgeFileSafeNextAction } from "./file-safe-next-action";
 import type { CodexForgeFileNode } from "./types";
+import type { CodexForgePatchPreviewPlan } from "@/lib/codexforge/patch-preview";
 
 export type CodexForgeFileChatBridgeInput = {
   file: CodexForgeFileNode;
@@ -9,6 +10,7 @@ export type CodexForgeFileChatBridgeInput = {
   readinessBoard: CodexForgeFileReadinessBoard;
   safeNextAction: CodexForgeFileSafeNextAction;
   suggestedSmokeTests?: string[];
+  patchPreviewPlan?: CodexForgePatchPreviewPlan;
 };
 
 function listLines(values: string[], fallback: string): string[] {
@@ -29,6 +31,22 @@ function relatedMemoryLines(context: CodexForgeFileBrainContext): string[] {
 
 function readinessLines(board: CodexForgeFileReadinessBoard): string[] {
   return board.items.map((item) => `- ${item.label}: ${item.status} (${item.score}/100). ${item.summary}`);
+}
+
+function patchPreviewLines(plan?: CodexForgePatchPreviewPlan): string[] {
+  if (!plan) {
+    return ["- No patch preview plan is attached yet."];
+  }
+
+  return [
+    `- Goal: ${plan.goal}`,
+    `- Risk: ${plan.riskLevel}`,
+    `- Expected touched files: ${plan.expectedTouchedFiles.join(", ")}`,
+    `- Approval boundary: ${plan.approvalBoundary.summary}`,
+    `- Rollback: ${plan.rollbackPlan.summary}`,
+    `- Test plan: ${plan.testPlan.summary}`,
+    `- No-mutation guarantee: ${plan.noMutationGuarantee}`,
+  ];
 }
 
 export function buildFileBrainPromptContext(input: CodexForgeFileChatBridgeInput): string {
@@ -59,6 +77,9 @@ export function buildFileBrainPromptContext(input: CodexForgeFileChatBridgeInput
     "",
     "Safe next action",
     `- ${input.safeNextAction.label}: ${input.safeNextAction.detail}`,
+    "",
+    "Patch preview plan",
+    ...patchPreviewLines(input.patchPreviewPlan),
   ].join("\n");
 }
 
@@ -70,7 +91,8 @@ export function buildFileToChatPrompt(input: CodexForgeFileChatBridgeInput): str
     "",
     "Instructions",
     "- Inspect the selected file and related context first.",
-    "- Propose a short plan before editing.",
+    "- Produce a preview diff only after inspection.",
+    "- Propose a short safe edit plan before any future editing.",
     "- Do not mutate files, apply patches, run commands, or change Brain memory without explicit operator approval.",
     "- Keep the workflow local-first, deterministic, and preview-only until approval is granted.",
   ].join("\n");
@@ -83,7 +105,7 @@ export function buildFileWorkspacePrompt(input: CodexForgeFileChatBridgeInput): 
     buildFileBrainPromptContext(input),
     "",
     "Workspace request",
-    "Inspect first, explain the likely impact, identify missing context, and recommend the safest next step. Do not mutate anything without approval.",
+    "Inspect first, explain the likely impact, identify missing context, and produce preview diff guidance only. Do not write files without approval.",
   ].join("\n");
 }
 
