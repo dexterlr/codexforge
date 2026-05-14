@@ -142,6 +142,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Brain memory ingestion"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-memory-ingestion.ps1"
+    Required = $true
+  }
+  @{
     Name = "Brain runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-runtime.ps1"
     Required = $true

@@ -13,13 +13,17 @@ import {
   buildBrainPanelDataAdapters,
   buildBrainPanelIntegrationFixtureAdapters,
   buildBrainPanelIntegrationReadinessMap,
+  buildBrainMemoryIngestionPlan,
   buildBrainFirstRunOnboardingPlan,
   buildCodexForgeBrainRuntimeSnapshot,
   evaluateBrainEmptyState,
   evaluateBrainGraphLoadState,
   evaluateBrainSeedQuality,
+  mergeBrainMemoryIngestion,
   evaluateBrainSnapshotPanelGates,
   summarizeBrainPanelIntegrationReadiness,
+  type CodexForgeBrainMemoryActivityEntry,
+  type CodexForgeBrainMemoryIngestionSummary,
   type CodexForgeBrainLoadPhase,
 } from "@/lib/codexforge/brain/runtime";
 import {
@@ -79,6 +83,8 @@ const MAX_DETAIL_LENGTH = 220;
 const MAX_NEIGHBOR_PREVIEW = 8;
 const MAX_EDGE_PREVIEW = 12;
 const BRAIN_GRAPH_LOADING_LABEL = "Loading brain graph";
+const BRAIN_MEMORY_ROOT_NODE_ID = "workspace:codexforge";
+const BRAIN_MEMORY_ACTIVITY_STORAGE_KEY = "codexforge_activity_entries_v1";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -276,6 +282,82 @@ function downloadJson(filename: string, value: unknown): void {
   anchor.click();
   anchor.remove();
   URL.revokeObjectURL(url);
+}
+
+function readBrainMemoryActivityEntries(): CodexForgeBrainMemoryActivityEntry[] {
+  try {
+    if (typeof window === "undefined") return [];
+
+    const raw = window.localStorage.getItem(BRAIN_MEMORY_ACTIVITY_STORAGE_KEY);
+    if (!raw) return [];
+
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    const entries: CodexForgeBrainMemoryActivityEntry[] = [];
+
+    for (const rawEntry of parsed) {
+      if (!isRecord(rawEntry)) continue;
+
+      const id = typeof rawEntry.id === "string" ? rawEntry.id.trim() : "";
+      const date = typeof rawEntry.date === "string" ? rawEntry.date.trim() : "";
+      const title = typeof rawEntry.title === "string" ? rawEntry.title.trim() : "";
+      const category = rawEntry.category;
+
+      if (!id || !date || !title) continue;
+      if (
+        category !== "note" &&
+        category !== "plan" &&
+        category !== "task" &&
+        category !== "research" &&
+        category !== "decision" &&
+        category !== "execution" &&
+        category !== "memory" &&
+        category !== "legacy-metric"
+      ) {
+        continue;
+      }
+
+      const status = rawEntry.status;
+      const tags = Array.isArray(rawEntry.tags)
+        ? Array.from(
+            new Set(
+              rawEntry.tags
+                .filter((item): item is string => typeof item === "string")
+                .map((item) => item.trim())
+                .filter(Boolean)
+            )
+          )
+        : undefined;
+
+      entries.push({
+        id,
+        date,
+        title,
+        category,
+        summary:
+          typeof rawEntry.summary === "string" && rawEntry.summary.trim()
+            ? rawEntry.summary.trim()
+            : undefined,
+        status:
+          status === "idea" ||
+          status === "active" ||
+          status === "done" ||
+          status === "blocked"
+            ? status
+            : undefined,
+        tags,
+        notes:
+          typeof rawEntry.notes === "string" && rawEntry.notes.trim()
+            ? rawEntry.notes.trim()
+            : undefined,
+      });
+    }
+
+    return entries;
+  } catch {
+    return [];
+  }
 }
 
 function summarizeEdge(
@@ -634,6 +716,112 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
   );
 }
 
+function BrainMemoryIngestionPanel({
+  summary,
+  lastSummary,
+  sparse,
+  onIngest,
+}: {
+  summary: CodexForgeBrainMemoryIngestionSummary;
+  lastSummary: CodexForgeBrainMemoryIngestionSummary | null;
+  sparse: boolean;
+  onIngest: () => void;
+}) {
+  const skipped = lastSummary
+    ? lastSummary.skippedNodes + lastSummary.skippedEdges
+    : 0;
+  const lastResult = lastSummary
+    ? `Added ${lastSummary.addedNodes} nodes and ${lastSummary.addedEdges} links. Skipped ${skipped} existing memories.`
+    : "No ingestion run in this view yet.";
+
+  return (
+    <section
+      data-codexforge-brain-memory-ingestion-panel
+      data-codexforge-brain-readonly-source-safe
+      data-codexforge-brain-repeat-safe-ingestion
+      style={{
+        ...panelStyle(),
+        display: "grid",
+        gap: 14,
+        marginBottom: 18,
+        background:
+          "radial-gradient(circle at 8% 0%, rgba(45,212,191,0.13), transparent 36%), linear-gradient(145deg, rgba(15,23,42,0.88), rgba(2,6,23,0.72))",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 14,
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ display: "grid", gap: 6, minWidth: 0 }}>
+          <span style={labelStyle}>Memory sources</span>
+          <h2 style={{ margin: 0, fontSize: 20, ...safeWrapStyle }}>
+            Deterministic project memory
+          </h2>
+          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.55, opacity: 0.78, ...safeWrapStyle }}>
+            {sparse
+              ? "This graph is sparse. Real memory density comes from local project sources: routes, files, subsystems, decisions, plans, smokes, and activity entries."
+              : "Project memory sources are ready to merge again. Stable IDs make repeated ingestion idempotent and skip existing memories."}
+          </p>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
+          <span style={kindPillStyle}>read-only sources</span>
+          <button
+            type="button"
+            onClick={onIngest}
+            style={buttonStyle()}
+            data-codexforge-brain-seed-real-memory
+          >
+            Seed real memory
+          </button>
+        </div>
+      </div>
+
+      <div
+        data-codexforge-brain-readiness-grid
+        data-codexforge-brain-overflow-guard
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 190px), 1fr))",
+          gap: 10,
+          ...densePanelOverflowGuardStyle,
+          maxHeight: 260,
+        }}
+      >
+        <MiniStat label="Sources" value={String(summary.sourceCount)} />
+        <MiniStat label="Projected nodes" value={String(summary.projectedNodeAdditions)} />
+        <MiniStat label="Projected links" value={String(summary.projectedEdgeAdditions)} />
+        <MiniStat
+          label="Existing graph"
+          value={`${summary.existingNodeCount} nodes / ${summary.existingEdgeCount} links`}
+        />
+        <MiniStat label="Source-safe" value="local read-only" />
+        <MiniStat label="Last result" value={lastResult} />
+      </div>
+
+      <div
+        style={{
+          border: "1px solid rgba(127,127,127,0.14)",
+          background: "rgba(2,6,23,0.28)",
+          borderRadius: 16,
+          padding: 12,
+          fontSize: 13,
+          lineHeight: 1.5,
+          ...safeWrapStyle,
+        }}
+      >
+        <strong>Idempotent merge: </strong>
+        stable source IDs preserve existing graph data and skip duplicates on repeated ingestion.
+      </div>
+    </section>
+  );
+}
+
 export default function BrainPageClient() {
   const [graph, setGraph] = useState<CodexForgeBrainGraph | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -652,6 +840,9 @@ export default function BrainPageClient() {
   const [error, setError] = useState<string>("");
   const [toast, setToast] = useState<ToastState>(null);
   const [keptEmptyGraph, setKeptEmptyGraph] = useState(false);
+  const [activityEntries, setActivityEntries] = useState<CodexForgeBrainMemoryActivityEntry[]>([]);
+  const [lastIngestionSummary, setLastIngestionSummary] =
+    useState<CodexForgeBrainMemoryIngestionSummary | null>(null);
 
   const showToast = useCallback((kind: "ok" | "err", text: string) => {
     setToast({ kind, text });
@@ -665,6 +856,7 @@ export default function BrainPageClient() {
     try {
       const next = loadBrainGraph();
       setGraph(next);
+      setActivityEntries(readBrainMemoryActivityEntries());
 
       setSelectedNodeId((current) => {
         if (!current) {
@@ -946,6 +1138,14 @@ export default function BrainPageClient() {
     [graph, keptEmptyGraph]
   );
 
+  const memoryIngestionPlan = useMemo(() => {
+    if (!graph) return null;
+    return buildBrainMemoryIngestionPlan({
+      existingGraph: graph,
+      activityEntries,
+    });
+  }, [activityEntries, graph]);
+
   const handleCopyNode = useCallback(async () => {
     if (!selectedNodeRawJson) return;
 
@@ -1185,6 +1385,51 @@ export default function BrainPageClient() {
     }
   }, [firstRunSeedPlan, graph, showToast]);
 
+  const handleIngestProjectMemory = useCallback(() => {
+    if (!graph) return;
+
+    try {
+      const nextActivityEntries = readBrainMemoryActivityEntries();
+      setActivityEntries(nextActivityEntries);
+
+      const result = mergeBrainMemoryIngestion({
+        existingGraph: graph,
+        activityEntries: nextActivityEntries,
+      });
+      const saved = saveBrainGraph(result.graph);
+      const skipped = result.summary.skippedNodes + result.summary.skippedEdges;
+
+      setGraph(saved);
+      setLastIngestionSummary(result.summary);
+      setSelectedNodeId((current) => {
+        if (current && saved.nodes.some((node) => node.id === current)) {
+          return current;
+        }
+
+        return (
+          saved.nodes.find((node) => node.id === BRAIN_MEMORY_ROOT_NODE_ID)?.id ??
+          saved.nodes.find((node) => node.id === "route:/brain")?.id ??
+          saved.nodes[0]?.id ??
+          null
+        );
+      });
+      setError("");
+      setLoadComplete(true);
+      setLoadPhase(saved.nodes.length === 0 && saved.edges.length === 0 ? "empty" : "loaded");
+      showToast(
+        "ok",
+        `Added ${result.summary.addedNodes} nodes and ${result.summary.addedEdges} links. Skipped ${skipped} existing memories.`
+      );
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message.trim()
+          ? err.message.trim()
+          : "Could not ingest project memory.";
+      setError(message);
+      showToast("err", message);
+    }
+  }, [graph, showToast]);
+
   const handleKeepEmptyGraph = useCallback(() => {
     setKeptEmptyGraph(true);
     showToast("ok", "Brain graph left empty");
@@ -1296,6 +1541,15 @@ export default function BrainPageClient() {
               <button type="button" onClick={refreshGraph} style={buttonStyle()}>
                 Refresh
               </button>
+              <button
+                type="button"
+                onClick={handleIngestProjectMemory}
+                disabled={!graph}
+                style={buttonStyle()}
+                data-codexforge-brain-seed-real-memory
+              >
+                Seed real memory
+              </button>
               <button type="button" onClick={handleCopyGraph} style={buttonStyle()}>
                 {copied === "graph" ? "Graph copied" : "Copy graph JSON"}
               </button>
@@ -1406,6 +1660,15 @@ export default function BrainPageClient() {
               <StatCard label="Archived" value={String(stats.archivedCount)} />
               <StatCard label="Last updated" value={stats.updatedAtLabel} />
             </section>
+
+            {memoryIngestionPlan ? (
+              <BrainMemoryIngestionPanel
+                summary={memoryIngestionPlan.summary}
+                lastSummary={lastIngestionSummary}
+                sparse={graph.nodes.length < 12}
+                onIngest={handleIngestProjectMemory}
+              />
+            ) : null}
 
             <section
               data-codexforge-brain-visual-memory-graph-hero
