@@ -12,6 +12,7 @@ type BrainGraphViewProps = {
   graph: CodexForgeBrainGraph;
   selectedNodeId: string | null;
   onSelectNode: (nodeId: string) => void;
+  variant?: "embedded" | "hero";
 };
 
 type LayoutNode = {
@@ -53,27 +54,52 @@ type VisibleKind = {
   color: string;
 };
 
-const WIDTH = 1040;
-const HEIGHT = 600;
+type TopologySignalPoint = {
+  id: string;
+  x: number;
+  y: number;
+  radius: number;
+  color: string;
+  opacity: number;
+  delay: number;
+};
+
+type TopologySignalRay = {
+  id: string;
+  path: string;
+  color: string;
+  opacity: number;
+  strokeWidth: number;
+  dashArray: string;
+  delay: number;
+};
+
+type VisualTopologyField = {
+  points: TopologySignalPoint[];
+  rays: TopologySignalRay[];
+};
+
+const WIDTH = 1280;
+const HEIGHT = 720;
 const CENTER_X = WIDTH / 2;
 const CENTER_Y = HEIGHT / 2;
-const OUTER_RADIUS = 264;
-const INNER_RADIUS = 92;
+const OUTER_RADIUS = 324;
+const INNER_RADIUS = 112;
 const MAX_VISIBLE_NODES = 96;
 const MAX_VISIBLE_EDGES = 220;
-const MAX_VISIBLE_LABELS = 22;
+const MAX_VISIBLE_LABELS = 28;
 const TAU = Math.PI * 2;
 
 const CLUSTER_ANCHORS = [
-  { x: CENTER_X, y: CENTER_Y, radius: 148 },
-  { x: CENTER_X + 252, y: CENTER_Y - 132, radius: 118 },
-  { x: CENTER_X - 250, y: CENTER_Y - 138, radius: 118 },
-  { x: CENTER_X + 270, y: CENTER_Y + 126, radius: 116 },
-  { x: CENTER_X - 262, y: CENTER_Y + 132, radius: 116 },
-  { x: CENTER_X, y: CENTER_Y - 214, radius: 96 },
-  { x: CENTER_X, y: CENTER_Y + 214, radius: 96 },
-  { x: CENTER_X + 398, y: CENTER_Y, radius: 82 },
-  { x: CENTER_X - 398, y: CENTER_Y, radius: 82 },
+  { x: CENTER_X, y: CENTER_Y, radius: 176 },
+  { x: CENTER_X + 314, y: CENTER_Y - 164, radius: 136 },
+  { x: CENTER_X - 316, y: CENTER_Y - 168, radius: 136 },
+  { x: CENTER_X + 338, y: CENTER_Y + 154, radius: 132 },
+  { x: CENTER_X - 330, y: CENTER_Y + 162, radius: 132 },
+  { x: CENTER_X, y: CENTER_Y - 258, radius: 112 },
+  { x: CENTER_X, y: CENTER_Y + 258, radius: 112 },
+  { x: CENTER_X + 494, y: CENTER_Y - 10, radius: 96 },
+  { x: CENTER_X - 494, y: CENTER_Y + 8, radius: 96 },
 ] as const;
 
 const NODE_KIND_COLORS: Record<string, string> = {
@@ -120,7 +146,7 @@ const labelStyle: CSSProperties = {
   margin: 0,
   fontSize: 11,
   fontWeight: 900,
-  letterSpacing: "0.14em",
+  letterSpacing: 0,
   textTransform: "uppercase",
   color: "rgba(186,230,253,0.72)",
   ...safeWrapStyle,
@@ -151,6 +177,10 @@ function clamp(value: number, min: number, max: number): number {
 
 function toSvgNumber(value: number): number {
   return Number(value.toFixed(2));
+}
+
+function sanitizeSvgIdPart(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]/g, "-");
 }
 
 function formatKindLabel(kind: string): string {
@@ -296,9 +326,9 @@ function getClusterAnchor(index: number, key: string, total: number): { x: numbe
   const angle = -Math.PI / 2 + (overflowIndex / overflowTotal) * TAU + seedOffset;
 
   return {
-    x: CENTER_X + Math.cos(angle) * 356,
-    y: CENTER_Y + Math.sin(angle) * 222,
-    radius: 76,
+    x: CENTER_X + Math.cos(angle) * 448,
+    y: CENTER_Y + Math.sin(angle) * 266,
+    radius: 90,
   };
 }
 
@@ -599,6 +629,111 @@ function buildEdgePath(edge: CodexForgeBrainEdge, from: LayoutNode, to: LayoutNo
   ].join(" ");
 }
 
+function buildSignalCurvePath(
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  seed: number
+): string {
+  const dx = toX - fromX;
+  const dy = toY - fromY;
+  const distance = Math.max(1, Math.sqrt(dx * dx + dy * dy));
+  const normalX = -dy / distance;
+  const normalY = dx / distance;
+  const direction = seed % 2 === 0 ? 1 : -1;
+  const bend = direction * clamp(distance * (0.12 + (seed % 17) / 150), 22, 92);
+  const pull = ((seed >>> 8) % 100) / 100;
+  const controlX = (fromX + toX) / 2 + normalX * bend + (CENTER_X - (fromX + toX) / 2) * (0.04 + pull * 0.05);
+  const controlY = (fromY + toY) / 2 + normalY * bend + (CENTER_Y - (fromY + toY) / 2) * (0.03 + pull * 0.04);
+
+  return [
+    "M",
+    toSvgNumber(fromX),
+    toSvgNumber(fromY),
+    "Q",
+    toSvgNumber(controlX),
+    toSvgNumber(controlY),
+    toSvgNumber(toX),
+    toSvgNumber(toY),
+  ].join(" ");
+}
+
+function buildVisualTopologyField(
+  graph: CodexForgeBrainGraph,
+  layoutNodes: LayoutNode[],
+  clusters: LayoutCluster[],
+  selectedNodeId: string | null
+): VisualTopologyField {
+  const nodeSeeds = graph.nodes.map((node) => `${node.id}:${node.kind}`);
+  const edgeSeeds = graph.edges.map((edge) => `${edge.id}:${edge.kind}:${edge.from}:${edge.to}`);
+  const seeds =
+    nodeSeeds.length > 0
+      ? [...nodeSeeds, ...edgeSeeds]
+      : [`empty:${graph.version}:${graph.meta.createdAt}:${graph.meta.workspaceId ?? ""}:${graph.meta.projectId ?? ""}`];
+  const sparseBoost = graph.nodes.length < 12 ? 38 : 0;
+  const pointCount = Math.round(clamp(42 + graph.nodes.length * 7 + graph.edges.length * 5 + sparseBoost, 48, 156));
+  const rayCount = Math.round(clamp(22 + graph.nodes.length * 3 + graph.edges.length * 4 + sparseBoost / 2, 22, 96));
+  const selectedAnchor = selectedNodeId ? layoutNodes.find((entry) => entry.node.id === selectedNodeId) : undefined;
+  const points: TopologySignalPoint[] = [];
+
+  for (let index = 0; index < pointCount; index += 1) {
+    const seedText = seeds[index % seeds.length];
+    const hash = stableHash(`${seedText}:signal-point:${index}`);
+    const anchor = layoutNodes.length > 0 ? layoutNodes[hash % layoutNodes.length] : undefined;
+    const cluster = clusters.length > 0 ? clusters[(hash >>> 5) % clusters.length] : undefined;
+    const baseX = anchor?.x ?? cluster?.x ?? CENTER_X;
+    const baseY = anchor?.y ?? cluster?.y ?? CENTER_Y;
+    const angle = ((hash % 10000) / 10000) * TAU;
+    const orbitalBand = 34 + ((hash >>> 10) % 7) * 24 + ((hash >>> 19) % 100) / 100 * 22;
+    const sparseSpread = graph.nodes.length < 12 ? 44 + ((hash >>> 14) % 40) : 0;
+    const x = clamp(baseX + Math.cos(angle) * (orbitalBand + sparseSpread), 18, WIDTH - 18);
+    const y = clamp(baseY + Math.sin(angle) * (orbitalBand * 0.74 + sparseSpread * 0.58), 18, HEIGHT - 18);
+    const color = anchor?.color ?? cluster?.color ?? getNodeKindColor(seedText.split(":")[1] ?? "memory");
+
+    points.push({
+      id: `signal-point-${index}-${hash}`,
+      x,
+      y,
+      radius: 0.9 + ((hash >>> 22) % 28) / 10,
+      color,
+      opacity: 0.12 + ((hash >>> 16) % 42) / 100,
+      delay: ((hash >>> 24) % 28) / 10,
+    });
+  }
+
+  const rays: TopologySignalRay[] = [];
+
+  for (let index = 0; index < rayCount; index += 1) {
+    const seedText = seeds[(index * 3 + 1) % seeds.length];
+    const hash = stableHash(`${seedText}:signal-ray:${index}`);
+    const from = points[index % points.length];
+    const to = selectedAnchor && index % 5 === 0
+      ? {
+          x: selectedAnchor.x,
+          y: selectedAnchor.y,
+          color: selectedAnchor.color,
+        }
+      : points[(index * 7 + 5) % points.length];
+    const color = index % 5 === 0 && selectedAnchor ? selectedAnchor.color : from.color;
+
+    rays.push({
+      id: `signal-ray-${index}-${hash}`,
+      path: buildSignalCurvePath(from.x, from.y, to.x, to.y, hash),
+      color,
+      opacity: 0.08 + ((hash >>> 12) % 30) / 100,
+      strokeWidth: 0.35 + ((hash >>> 20) % 18) / 10,
+      dashArray: index % 3 === 0 ? "1 18" : index % 3 === 1 ? "2 22" : "1 11",
+      delay: ((hash >>> 25) % 36) / 10,
+    });
+  }
+
+  return {
+    points,
+    rays,
+  };
+}
+
 function buildVisibleKinds(clusters: LayoutCluster[]): VisibleKind[] {
   return clusters
     .map((cluster) => ({
@@ -638,12 +773,12 @@ function getLabelBox(entry: LayoutNode, label: string): { x: number; y: number; 
 function panelStyle(): CSSProperties {
   return {
     position: "relative",
-    border: "1px solid rgba(125, 211, 252, 0.22)",
+    border: "1px solid rgba(125, 211, 252, 0.28)",
     background:
-      "radial-gradient(circle at 50% 0%, rgba(14,165,233,0.28), transparent 34%), radial-gradient(circle at 8% 24%, rgba(45,212,191,0.15), transparent 26%), radial-gradient(circle at 94% 16%, rgba(244,114,182,0.12), transparent 24%), linear-gradient(135deg, rgba(2,6,23,0.97), rgba(15,23,42,0.76))",
-    borderRadius: 28,
-    padding: 20,
-    boxShadow: "0 34px 110px rgba(2, 6, 23, 0.52), inset 0 1px 0 rgba(255,255,255,0.06)",
+      "radial-gradient(circle at 50% 0%, rgba(14,165,233,0.34), transparent 36%), radial-gradient(circle at 8% 24%, rgba(45,212,191,0.18), transparent 28%), radial-gradient(circle at 94% 16%, rgba(244,114,182,0.13), transparent 25%), linear-gradient(135deg, rgba(2,6,23,0.98), rgba(8,13,30,0.88) 54%, rgba(2,6,23,0.96))",
+    borderRadius: 30,
+    padding: 22,
+    boxShadow: "0 38px 130px rgba(2, 6, 23, 0.58), 0 0 80px rgba(14,165,233,0.10), inset 0 1px 0 rgba(255,255,255,0.07)",
     overflow: "hidden",
     minWidth: 0,
   };
@@ -683,15 +818,15 @@ function chipStyle(color?: string): CSSProperties {
 
 function inspectorCardStyle(): CSSProperties {
   return {
-    border: "1px solid rgba(125,211,252,0.2)",
+    border: "1px solid rgba(125,211,252,0.24)",
     background:
-      "radial-gradient(circle at 0% 0%, rgba(14,165,233,0.18), transparent 28%), linear-gradient(180deg, rgba(15,23,42,0.88), rgba(2,6,23,0.68))",
+      "radial-gradient(circle at 0% 0%, rgba(14,165,233,0.20), transparent 30%), radial-gradient(circle at 100% 100%, rgba(45,212,191,0.10), transparent 26%), linear-gradient(180deg, rgba(15,23,42,0.90), rgba(2,6,23,0.72))",
     borderRadius: 18,
     padding: 14,
     display: "grid",
     gap: 12,
     minWidth: 0,
-    boxShadow: "0 20px 70px rgba(2,6,23,0.28), inset 0 1px 0 rgba(255,255,255,0.05)",
+    boxShadow: "0 22px 76px rgba(2,6,23,0.34), inset 0 1px 0 rgba(255,255,255,0.06)",
   };
 }
 
@@ -707,7 +842,12 @@ function metaRowStyle(): CSSProperties {
   };
 }
 
-export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGraphViewProps) {
+export function BrainGraphView({
+  graph,
+  selectedNodeId,
+  onSelectNode,
+  variant = "embedded",
+}: BrainGraphViewProps) {
   const selectedNode = useMemo(() => getSelectedNode(graph, selectedNodeId), [graph, selectedNodeId]);
   const effectiveSelectedNodeId = selectedNode?.id ?? selectedNodeId;
   const layout = useMemo(() => buildLayout(graph, effectiveSelectedNodeId), [graph, effectiveSelectedNodeId]);
@@ -720,17 +860,28 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
   const selectedLayoutNode = selectedNode ? layoutLookup[selectedNode.id] : undefined;
   const selectedSummary = selectedNode ? getNodeSummary(selectedNode) : "";
   const visibleKinds = useMemo(() => buildVisibleKinds(clusters), [clusters]);
-  const graphDensity = formatDensity(layoutNodes.length, visibleEdges.length);
+  const signalField = useMemo(
+    () => buildVisualTopologyField(graph, layoutNodes, clusters, effectiveSelectedNodeId),
+    [graph, layoutNodes, clusters, effectiveSelectedNodeId]
+  );
+  const graphDensity = formatDensity(graph.nodes.length, graph.edges.length);
   const selectedNeighborCount = selectedNode ? selectedNeighborIds.size : 0;
+  const sparseGraph = graph.nodes.length < 12;
   const selectedCluster = selectedLayoutNode
     ? clusters.find((cluster) => cluster.key === selectedLayoutNode.clusterKey)
     : undefined;
+  const svgIdPrefix = sanitizeSvgIdPart(`codexforge-brain-${variant}`);
+  const nodeGlowId = `${svgIdPrefix}-node-glow`;
+  const focusCoreId = `${svgIdPrefix}-focus-core`;
+  const softGlowId = `${svgIdPrefix}-soft-glow`;
+  const edgeGlowId = `${svgIdPrefix}-edge-glow`;
 
   return (
     <section
-      className="codexforge-brain-graph-panel"
+      className={`codexforge-brain-graph-panel codexforge-brain-graph-panel-${variant}`}
       style={panelStyle()}
       data-codexforge-brain-graph-view="true"
+      data-codexforge-brain-graph-variant={variant}
       data-codexforge-brain-neural-canvas="true"
       data-codexforge-brain-graph-node-count={graph.nodes.length}
       data-codexforge-brain-graph-edge-count={graph.edges.length}
@@ -740,9 +891,9 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
         {`
           .codexforge-brain-memory-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.62fr) minmax(280px, 0.82fr);
-            gap: 20px;
-            align-items: stretch;
+            grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+            gap: 18px;
+            align-items: start;
           }
 
           .codexforge-brain-graph-stage {
@@ -750,16 +901,18 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
             min-width: 0;
             border: 1px solid rgba(125,211,252,0.18);
             background-image:
-              radial-gradient(circle at 50% 48%, rgba(14,165,233,0.20), transparent 32%),
+              radial-gradient(circle at 50% 48%, rgba(14,165,233,0.26), transparent 35%),
               radial-gradient(circle at 22% 30%, rgba(45,212,191,0.13), transparent 20%),
               radial-gradient(circle at 78% 26%, rgba(244,114,182,0.10), transparent 23%),
-              linear-gradient(rgba(125,211,252,0.048) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(125,211,252,0.04) 1px, transparent 1px),
-              repeating-linear-gradient(135deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 7px);
-            background-size: 100% 100%, 100% 100%, 100% 100%, 44px 44px, 44px 44px, 10px 10px;
+              linear-gradient(rgba(125,211,252,0.07) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(125,211,252,0.052) 1px, transparent 1px),
+              linear-gradient(rgba(45,212,191,0.035) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(45,212,191,0.03) 1px, transparent 1px),
+              repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 8px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 52px 52px, 52px 52px, 13px 13px, 13px 13px, 10px 10px;
             border-radius: 24px;
             overflow: hidden;
-            box-shadow: inset 0 0 110px rgba(14,165,233,0.11), inset 0 1px 0 rgba(255,255,255,0.05), 0 24px 80px rgba(2,6,23,0.26);
+            box-shadow: inset 0 0 140px rgba(14,165,233,0.14), inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 90px rgba(2,6,23,0.30);
           }
 
           .codexforge-brain-graph-stage::before {
@@ -775,8 +928,20 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
 
           .codexforge-brain-memory-svg {
             width: 100%;
-            min-height: 440px;
             display: block;
+          }
+
+          .codexforge-brain-memory-svg text {
+            font-family: var(--font-geist-sans), Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            letter-spacing: 0;
+          }
+
+          .codexforge-brain-graph-panel-hero .codexforge-brain-memory-svg {
+            min-height: 680px;
+          }
+
+          .codexforge-brain-graph-panel-embedded .codexforge-brain-memory-svg {
+            min-height: 540px;
           }
 
           .brain-orbit-ring {
@@ -799,6 +964,17 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
             animation: brainEdgeFlow 3.8s linear infinite;
           }
 
+          .brain-signal-ray {
+            stroke-dashoffset: 0;
+            animation: brainSignalFlow 9s linear infinite;
+          }
+
+          .brain-signal-point {
+            animation: brainSignalPulse 5.8s ease-in-out infinite;
+            transform-box: fill-box;
+            transform-origin: center;
+          }
+
           .codexforge-brain-graph-node .brain-node-hover-ring,
           .codexforge-brain-graph-node .brain-node-focus-ring {
             opacity: 0;
@@ -818,17 +994,18 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
           .codexforge-brain-memory-inspector {
             border: 1px solid rgba(255,255,255,0.13);
             background:
-              radial-gradient(circle at 16% 0%, rgba(14,165,233,0.14), transparent 30%),
-              radial-gradient(circle at 100% 20%, rgba(244,114,182,0.08), transparent 26%),
-              linear-gradient(180deg, rgba(15,23,42,0.84), rgba(2,6,23,0.68));
+              radial-gradient(circle at 16% 0%, rgba(14,165,233,0.18), transparent 32%),
+              radial-gradient(circle at 100% 20%, rgba(244,114,182,0.09), transparent 28%),
+              linear-gradient(180deg, rgba(15,23,42,0.90), rgba(2,6,23,0.76));
             border-radius: 24px;
             padding: 16px;
             color: #e0f2fe;
             min-width: 0;
-            max-height: 618px;
-            overflow: auto;
-            overflow-x: hidden;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 24px 70px rgba(2,6,23,0.28);
+            max-height: none;
+            overflow: visible;
+            position: sticky;
+            top: 16px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 80px rgba(2,6,23,0.34);
           }
 
           @keyframes brainPulse {
@@ -844,12 +1021,22 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
             to { stroke-dashoffset: -60; }
           }
 
-          @media (max-width: 960px) {
+          @keyframes brainSignalFlow {
+            to { stroke-dashoffset: -88; }
+          }
+
+          @keyframes brainSignalPulse {
+            0%, 100% { transform: scale(0.92); }
+            50% { transform: scale(1.35); }
+          }
+
+          @media (max-width: 1120px) {
             .codexforge-brain-memory-grid {
               grid-template-columns: minmax(0, 1fr);
             }
 
             .codexforge-brain-memory-inspector {
+              position: static;
               max-height: none;
             }
           }
@@ -861,7 +1048,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
             }
 
             .codexforge-brain-memory-svg {
-              min-height: 330px;
+              min-height: 390px;
             }
           }
         `}
@@ -886,7 +1073,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                   margin: 0,
                   fontSize: 12,
                   fontWeight: 900,
-                  letterSpacing: "0.16em",
+                  letterSpacing: 0,
                   textTransform: "uppercase",
                   color: "#7dd3fc",
                   ...safeWrapStyle,
@@ -894,8 +1081,8 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
               >
                 Neural memory net
               </p>
-              <h2 style={{ margin: "6px 0 0", fontSize: 24, lineHeight: 1.1, ...safeWrapStyle }}>
-                CodexForge neural constellation
+              <h2 style={{ margin: "6px 0 0", fontSize: variant === "hero" ? 30 : 24, lineHeight: 1.05, ...safeWrapStyle }}>
+                Visual Memory Graph
               </h2>
               <p
                 style={{
@@ -906,8 +1093,29 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                   ...safeWrapStyle,
                 }}
               >
-                Kind clusters are positioned deterministically around the focused memory. Curved links, focus glow, and label priority expose the strongest topology without changing graph storage or runtime contracts.
+                CodexForge neural constellation maps real graph nodes and edges while a deterministic signal field adds visual topology depth without changing graph storage, exports, or runtime counts.
               </p>
+              {sparseGraph ? (
+                <p
+                  style={{
+                    margin: "8px 0 0",
+                    display: "inline-flex",
+                    width: "fit-content",
+                    border: "1px solid rgba(45,212,191,0.22)",
+                    background: "rgba(45,212,191,0.08)",
+                    borderRadius: 999,
+                    padding: "7px 10px",
+                    color: "rgba(204,251,241,0.86)",
+                    fontSize: 12,
+                    lineHeight: 1.35,
+                    ...safeWrapStyle,
+                  }}
+                  data-codexforge-brain-sparse-graph-hint="true"
+                  data-codexforge-brain-visual-topology-field="true"
+                >
+                  Sparse real graph: more memory nodes will make the topology denser. The signal field is visual-only.
+                </p>
+              ) : null}
             </div>
 
             <div
@@ -923,12 +1131,12 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
               data-codexforge-brain-signal-panel="true"
             >
               <div style={statStyle()}>
-                <div style={labelStyle}>Synaptic nodes</div>
-                <strong style={{ fontSize: 20, ...safeWrapStyle }}>{layoutNodes.length}</strong>
+                <div style={labelStyle}>Real nodes</div>
+                <strong style={{ fontSize: 20, ...safeWrapStyle }}>{graph.nodes.length}</strong>
               </div>
               <div style={statStyle()}>
-                <div style={labelStyle}>Synaptic links</div>
-                <strong style={{ fontSize: 20, ...safeWrapStyle }}>{visibleEdges.length}</strong>
+                <div style={labelStyle}>Real links</div>
+                <strong style={{ fontSize: 20, ...safeWrapStyle }}>{graph.edges.length}</strong>
               </div>
               <div style={statStyle()}>
                 <div style={labelStyle}>Clusters</div>
@@ -950,17 +1158,17 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
               data-codexforge-brain-graph-svg="true"
             >
               <defs>
-                <radialGradient id="brain-node-glow" cx="50%" cy="50%" r="50%">
+                <radialGradient id={nodeGlowId} cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor="#ffffff" stopOpacity="0.98" />
                   <stop offset="45%" stopColor="#bae6fd" stopOpacity="0.82" />
                   <stop offset="100%" stopColor="#7dd3fc" stopOpacity="0.34" />
                 </radialGradient>
-                <radialGradient id="brain-focus-core" cx="50%" cy="50%" r="50%">
+                <radialGradient id={focusCoreId} cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor="#e0f2fe" stopOpacity="0.52" />
                   <stop offset="48%" stopColor="#38bdf8" stopOpacity="0.16" />
                   <stop offset="100%" stopColor="#2dd4bf" stopOpacity="0" />
                 </radialGradient>
-                <filter id="brain-soft-glow" x="-80%" y="-80%" width="260%" height="260%">
+                <filter id={softGlowId} x="-80%" y="-80%" width="260%" height="260%">
                   <feGaussianBlur stdDeviation="7" result="blur" />
                   <feColorMatrix
                     in="blur"
@@ -973,7 +1181,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
-                <filter id="brain-edge-glow" x="-35%" y="-35%" width="170%" height="170%">
+                <filter id={edgeGlowId} x="-35%" y="-35%" width="170%" height="170%">
                   <feGaussianBlur stdDeviation="3.2" result="blur" />
                   <feMerge>
                     <feMergeNode in="blur" />
@@ -983,6 +1191,39 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
               </defs>
 
               <rect x="0" y="0" width={WIDTH} height={HEIGHT} fill="rgba(2,6,23,0.18)" />
+
+              <g
+                pointerEvents="none"
+                data-codexforge-brain-visual-topology-field="true"
+                data-codexforge-brain-signal-field="true"
+              >
+                {signalField.rays.map((ray, index) => (
+                  <path
+                    key={buildStableReactKey("brain-signal-ray", [ray.id], index)}
+                    d={ray.path}
+                    fill="none"
+                    stroke={ray.color}
+                    strokeWidth={ray.strokeWidth}
+                    strokeLinecap="round"
+                    strokeDasharray={ray.dashArray}
+                    opacity={ray.opacity}
+                    className="brain-signal-ray"
+                    style={{ animationDelay: `${ray.delay}s` }}
+                  />
+                ))}
+                {signalField.points.map((point, index) => (
+                  <circle
+                    key={buildStableReactKey("brain-signal-point", [point.id], index)}
+                    cx={point.x}
+                    cy={point.y}
+                    r={point.radius}
+                    fill={point.color}
+                    opacity={point.opacity}
+                    className="brain-signal-point"
+                    style={{ animationDelay: `${point.delay}s` }}
+                  />
+                ))}
+              </g>
 
               <circle
                 className="brain-orbit-ring-slow"
@@ -1011,7 +1252,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                 cx={CENTER_X}
                 cy={CENTER_Y}
                 r={INNER_RADIUS + 22}
-                fill="url(#brain-focus-core)"
+                fill={`url(#${focusCoreId})`}
                 stroke="rgba(125,211,252,0.16)"
                 strokeWidth="1.2"
                 data-codexforge-brain-graph-focus="true"
@@ -1065,7 +1306,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                         strokeWidth="8"
                         strokeLinecap="round"
                         opacity="0.42"
-                        filter="url(#brain-edge-glow)"
+                        filter={`url(#${edgeGlowId})`}
                       />
                     ) : null}
                     <path
@@ -1134,19 +1375,27 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                         <circle
                           cx={entry.x}
                           cy={entry.y}
-                          r={entry.radius + 34}
+                          r={entry.radius + 64}
                           fill={entry.color}
-                          opacity="0.16"
-                          filter="url(#brain-soft-glow)"
+                          opacity="0.12"
+                          filter={`url(#${softGlowId})`}
                         />
                         <circle
                           cx={entry.x}
                           cy={entry.y}
-                          r={entry.radius + 19}
+                          r={entry.radius + 38}
+                          fill={entry.color}
+                          opacity="0.22"
+                          filter={`url(#${softGlowId})`}
+                        />
+                        <circle
+                          cx={entry.x}
+                          cy={entry.y}
+                          r={entry.radius + 22}
                           fill="none"
                           stroke="rgba(224,242,254,0.92)"
-                          strokeWidth="2.2"
-                          strokeDasharray="4 9"
+                          strokeWidth="2.6"
+                          strokeDasharray="4 10"
                         />
                       </>
                     ) : null}
@@ -1162,11 +1411,11 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                       cx={entry.x}
                       cy={entry.y}
                       r={entry.radius}
-                      fill={selected ? "url(#brain-node-glow)" : entry.color}
+                      fill={selected ? `url(#${nodeGlowId})` : entry.color}
                       opacity={coreOpacity}
                       stroke={selected ? "#e0f2fe" : related ? "rgba(224,242,254,0.72)" : "rgba(255,255,255,0.44)"}
                       strokeWidth={selected ? 2.8 : related ? 1.6 : 1}
-                      filter={selected || entry.node.meta.pinned || entry.importanceRank >= 4 ? "url(#brain-soft-glow)" : undefined}
+                      filter={selected || entry.node.meta.pinned || entry.importanceRank >= 4 ? `url(#${softGlowId})` : undefined}
                     />
                     {entry.node.meta.pinned ? (
                       <circle
@@ -1214,7 +1463,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
           data-codexforge-brain-focus-node="true"
           data-codexforge-brain-overflow-guard
         >
-          <p style={labelStyle}>Focus node</p>
+          <p style={labelStyle}>Focus HUD</p>
 
           {selectedNode ? (
             <div style={{ display: "grid", gap: 14, marginTop: 10, minWidth: 0 }}>
@@ -1375,7 +1624,7 @@ export function BrainGraphView({ graph, selectedNodeId, onSelectNode }: BrainGra
                   </div>
                   <div style={metaRowStyle()}>
                     <span style={labelStyle}>Background</span>
-                    <span style={{ color: "rgba(224,242,254,0.84)", ...safeWrapStyle }}>Dimmed structural context</span>
+                    <span style={{ color: "rgba(224,242,254,0.84)", ...safeWrapStyle }}>Visual topology field, read-only</span>
                   </div>
                 </div>
               </div>

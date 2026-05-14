@@ -6,6 +6,7 @@ import { BrainFirstRunOnboarding } from "@/lib/codexforge/brain/components/brain
 import { BrainGraphEmptyState } from "@/lib/codexforge/brain/components/brain-graph-empty-state";
 import { BrainGraphErrorState } from "@/lib/codexforge/brain/components/brain-graph-error-state";
 import { BrainGraphLoadingState } from "@/lib/codexforge/brain/components/brain-graph-loading-state";
+import { BrainGraphView } from "@/lib/codexforge/brain/components/brain-graph-view";
 import { BrainQualityGateStrip } from "@/lib/codexforge/brain/components/brain-quality-gate-strip";
 import { buildStableReactKey } from "@/lib/codexforge/brain/components/brain-react-key";
 import {
@@ -425,7 +426,7 @@ const labelStyle: CSSProperties = {
   fontSize: 12,
   fontWeight: 800,
   opacity: 0.78,
-  letterSpacing: "0.03em",
+  letterSpacing: 0,
   textTransform: "uppercase",
 };
 
@@ -1196,13 +1197,15 @@ export default function BrainPageClient() {
         background:
           "radial-gradient(circle at 50% -12%, rgba(14,165,233,0.22), transparent 34%), radial-gradient(circle at 4% 18%, rgba(99,102,241,0.14), transparent 28%), linear-gradient(180deg, rgba(2,6,23,0.96), rgba(15,23,42,0.86) 54%, rgba(2,6,23,0.98)), var(--background)",
         color: "var(--foreground)",
+        fontFamily:
+          "var(--font-geist-sans), Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     >
       <div
         style={{
-          maxWidth: 1500,
+          maxWidth: 1680,
           margin: "0 auto",
-          padding: "24px 20px 48px",
+          padding: "20px 20px 48px",
           minWidth: 0,
         }}
       >
@@ -1241,7 +1244,7 @@ export default function BrainPageClient() {
                     background: "linear-gradient(180deg, rgba(14,165,233,0.16), rgba(14,165,233,0.06))",
                     fontSize: 12,
                     fontWeight: 700,
-                    letterSpacing: "0.04em",
+                    letterSpacing: 0,
                     textTransform: "uppercase",
                   }}
                 >
@@ -1403,6 +1406,23 @@ export default function BrainPageClient() {
               <StatCard label="Archived" value={String(stats.archivedCount)} />
               <StatCard label="Last updated" value={stats.updatedAtLabel} />
             </section>
+
+            <section
+              data-codexforge-brain-visual-memory-graph-hero
+              data-codexforge-brain-graph-above-fold
+              style={{
+                marginBottom: 18,
+                minWidth: 0,
+              }}
+            >
+              <BrainGraphView
+                graph={graph}
+                selectedNodeId={selectedNodeId}
+                onSelectNode={setSelectedNodeId}
+                variant="hero"
+              />
+            </section>
+
             <RuntimeReadinessPanel stats={stats} />
             <BrainCommandCenter
               graph={graph}
