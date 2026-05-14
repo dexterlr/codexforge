@@ -181,7 +181,18 @@ function formatNumber(n: number) {
 }
 
 function safeTrim(s: string, max: number) {
-  return s.length <= max ? s : `${s.slice(0, max - 1)}â€¦`;
+  return s.length <= max ? s : `${s.slice(0, max - 1)}...`;
+}
+
+function formatCategoryLabel(category: ActivityCategory) {
+  if (category === "legacy-metric") return "Archived import";
+  if (category === "plan") return "Plan";
+  if (category === "task") return "Task";
+  if (category === "research") return "Research";
+  if (category === "decision") return "Decision";
+  if (category === "execution") return "Execution";
+  if (category === "memory") return "Memory";
+  return "Note";
 }
 
 function makeStableId(idx: number) {
@@ -263,7 +274,7 @@ function normalizeEntry(raw: unknown, idx: number): CodexForgeActivityEntry {
 
   const title =
     parseOptionalString(raw.title) ??
-    (hasLegacyMetrics ? "Legacy metric entry" : "Workspace entry");
+    (hasLegacyMetrics ? "Archived import" : "Workspace entry");
 
   return {
     id,
@@ -400,9 +411,9 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
         "",
         "Suggested next actions",
         "----------------------",
-        "â€¢ Use /entry to launch a real CodexForge task into the AI workspace.",
-        "â€¢ Keep this route deterministic, instant, and useful without a model call.",
-        "â€¢ Preserve this path as a local fallback even after richer AI analysis exists.",
+        "- Use /entry to launch a real CodexForge task into the AI workspace.",
+        "- Keep this route deterministic, instant, and useful without a model call.",
+        "- Preserve this path as a local fallback even after richer AI analysis exists.",
         "",
         "Mode: LOCAL (no model call, offline-safe fallback)",
       ].join("\n"),
@@ -443,10 +454,10 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
   const legacySignals = buildLegacySignals(sorted);
 
   if (activitySignals.legacyHealthCount > 0) {
-    warnings.push("Legacy metric data is still present in workspace history.");
+    warnings.push("Archived imports are still present in workspace history.");
   }
   if (legacySignals.completeEntryCount === 0 && activitySignals.legacyHealthCount > 0) {
-    warnings.push("Legacy metric entries are present but few are complete.");
+    warnings.push("Archived imports are present with partial migration metadata.");
   }
   if (activitySignals.executionCount === 0) {
     warnings.push("No execution events recorded yet.");
@@ -458,104 +469,64 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
     warnings.push("No memory entries recorded yet.");
   }
 
+  const latest = sorted[0];
   const lines: string[] = [];
   lines.push("CodexForge Local Activity Analysis");
   lines.push("=================================");
-  lines.push("Scope: Workspace activity history");
-  lines.push("Purpose: Review local activity, migration progress, and legacy compatibility data.");
+  lines.push("Scope: Workspace activity timeline");
+  lines.push("Purpose: Review local activity, operator state, and migration-safe imports.");
   lines.push("");
 
   lines.push("Dataset");
   lines.push("-------");
   lines.push(`Entries received: ${sorted.length}`);
   lines.push(`Entries analyzed: ${sorted.length}`);
-  lines.push(`Latest entry: ${latestEntryDate ?? "â€”"}`);
-  lines.push(`Oldest analyzed entry: ${oldestAnalyzedDate ?? "â€”"}`);
+  lines.push(`Latest entry: ${latestEntryDate ?? "-"}`);
+  lines.push(`Oldest analyzed entry: ${oldestAnalyzedDate ?? "-"}`);
   lines.push("");
 
   lines.push("Workspace activity");
   lines.push("------------------");
-  lines.push(`â€¢ Plans: ${activitySignals.planCount}`);
-  lines.push(`â€¢ Tasks: ${activitySignals.taskCount}`);
-  lines.push(`â€¢ Research items: ${activitySignals.researchCount}`);
-  lines.push(`â€¢ Decisions: ${activitySignals.decisionCount}`);
-  lines.push(`â€¢ Execution events: ${activitySignals.executionCount}`);
-  lines.push(`â€¢ Memory items: ${activitySignals.memoryCount}`);
-  lines.push(`â€¢ Notes: ${activitySignals.noteCount}`);
-  lines.push(`â€¢ Tagged entries: ${activitySignals.taggedEntryCount}`);
-  lines.push(`â€¢ Active items: ${activitySignals.activeCount}`);
-  lines.push(`â€¢ Done items: ${activitySignals.doneCount}`);
-  lines.push(`â€¢ Blocked items: ${activitySignals.blockedCount}`);
+  lines.push(`- Plans: ${activitySignals.planCount}`);
+  lines.push(`- Tasks: ${activitySignals.taskCount}`);
+  lines.push(`- Research items: ${activitySignals.researchCount}`);
+  lines.push(`- Decisions: ${activitySignals.decisionCount}`);
+  lines.push(`- Execution events: ${activitySignals.executionCount}`);
+  lines.push(`- Memory items: ${activitySignals.memoryCount}`);
+  lines.push(`- Notes: ${activitySignals.noteCount}`);
+  lines.push(`- Tagged entries: ${activitySignals.taggedEntryCount}`);
+  lines.push(`- Active items: ${activitySignals.activeCount}`);
+  lines.push(`- Done items: ${activitySignals.doneCount}`);
+  lines.push(`- Blocked items: ${activitySignals.blockedCount}`);
   lines.push("");
 
-  const latest = sorted[0];
   lines.push("Latest entry");
   lines.push("------------");
   lines.push(`Title: ${latest.title}`);
-  lines.push(`Category: ${latest.category}`);
+  lines.push(`Category: ${formatCategoryLabel(latest.category)}`);
   lines.push(`Date: ${latest.date}`);
   if (latest.status) lines.push(`Status: ${latest.status}`);
   if (latest.summary) lines.push(`Summary: ${latest.summary}`);
   if (latest.tags?.length) lines.push(`Tags: ${latest.tags.join(", ")}`);
   lines.push("");
 
-  lines.push("Migration readout");
-  lines.push("-----------------");
+  lines.push("Import readout");
+  lines.push("--------------");
   if (activitySignals.legacyHealthCount > 0) {
-    lines.push(`â€¢ Legacy metric entries still present: ${activitySignals.legacyHealthCount}.`);
-    lines.push("â€¢ History is successfully handling migration-era data alongside CodexForge-native activity.");
+    lines.push(`- Archived imports still present: ${activitySignals.legacyHealthCount}.`);
+    lines.push("- History is handling imported data alongside CodexForge-native activity.");
   } else {
-    lines.push("â€¢ No legacy health data detected.");
-    lines.push("â€¢ History is operating in CodexForge-first mode.");
-  }
-  lines.push("");
-
-  lines.push("Legacy metric snapshot");
-  lines.push("----------------------");
-  if (legacySignals.legacyEntryCount === 0) {
-    lines.push("â€¢ No legacy metric entries found.");
-  } else {
-    if (typeof legacySignals.avgWeight === "number") {
-      lines.push(`â€¢ Avg weight: ${legacySignals.avgWeight.toFixed(1)} kg`);
-    }
-    if (typeof legacySignals.avgSteps === "number") {
-      lines.push(`â€¢ Avg steps: ${formatNumber(legacySignals.avgSteps)}`);
-    }
-    if (typeof legacySignals.avgWater === "number") {
-      lines.push(`â€¢ Avg water: ${legacySignals.avgWater.toFixed(1)} L`);
-    }
-    if (typeof legacySignals.avgSleep === "number") {
-      lines.push(`â€¢ Avg sleep: ${legacySignals.avgSleep.toFixed(1)} hrs`);
-    }
-
-    if (typeof legacySignals.weightDelta === "number") {
-      if (Math.abs(legacySignals.weightDelta) < 0.3) {
-        lines.push("â€¢ Weight is broadly stable across recent legacy entries.");
-      } else if (legacySignals.weightDelta > 0) {
-        lines.push(`â€¢ Weight is trending upward by about ${legacySignals.weightDelta.toFixed(1)} kg.`);
-      } else {
-        lines.push(`â€¢ Weight is trending downward by about ${Math.abs(legacySignals.weightDelta).toFixed(1)} kg.`);
-      }
-    }
-
-    if (typeof legacySignals.stepsDelta === "number") {
-      if (Math.abs(legacySignals.stepsDelta) < 500) {
-        lines.push("â€¢ Activity level is broadly steady.");
-      } else if (legacySignals.stepsDelta > 0) {
-        lines.push("â€¢ Steps are trending upward.");
-      } else {
-        lines.push("â€¢ Steps are trending downward.");
-      }
-    }
+    lines.push("- No archived imports detected.");
+    lines.push("- History is operating in CodexForge-first mode.");
   }
   lines.push("");
 
   lines.push("Suggested next actions");
   lines.push("----------------------");
-  lines.push("â€¢ Keep using /entry as a CodexForge launchpad so history fills with real workspace activity.");
-  lines.push("â€¢ Add more execution and memory events so /history becomes a true operational timeline.");
-  lines.push("â€¢ Preserve legacy health data only as migration-safe historical content.");
-  lines.push("â€¢ Keep this route fast and deterministic as the offline-safe local fallback.");
+  lines.push("- Keep using /entry as a CodexForge launchpad so history fills with real workspace activity.");
+  lines.push("- Add more execution and memory events so /history becomes a true operational timeline.");
+  lines.push("- Convert durable outcomes into decisions or memory items.");
+  lines.push("- Keep this route fast and deterministic as the offline-safe local fallback.");
   lines.push("");
   lines.push("Mode: LOCAL (no model call, offline-safe fallback)");
 

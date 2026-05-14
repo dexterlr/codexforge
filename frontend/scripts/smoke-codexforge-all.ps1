@@ -28,6 +28,11 @@ $scripts = @(
     Required = $true
   },
   @{
+    Name = "Capability Cockpit"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-capability-cockpit.ps1"
+    Required = $true
+  },
+  @{
     Name = "Web research executor"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-web-research.ps1"
     Required = $true

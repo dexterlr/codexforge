@@ -19,7 +19,7 @@ import type {
 const SOURCE_LABEL = "Brain memory ingestion phase 1";
 const WORKSPACE_ID = createStableBrainMemoryId("workspace", "codexforge");
 const PROJECT_ID = createStableBrainMemoryId("project", "codexforge-foundation");
-const REPO_ID = createStableBrainMemoryId("repo", "health-tracker-frontend");
+const REPO_ID = createStableBrainMemoryId("repo", "codexforge-foundation");
 const HISTORY_ROUTE_ID = createStableBrainMemoryId("route", "/history");
 const HISTORY_SUBSYSTEM_ID = createStableBrainMemoryId(
   "subsystem",
@@ -258,7 +258,7 @@ function buildStaticSourceNodeFacts(): CodexForgeBrainMemorySourceNode[] {
       description: "Local-first CodexForge operator workspace for Brain, Files, History, Entry, and chat.",
       summary: "Root memory anchor for the CodexForge project surface.",
       whyItMatters: "The workspace root keeps seeded memory connected to the operator's actual product context.",
-      repoPath: "repos/health-tracker/frontend",
+      repoPath: "repos/codexforge/foundation",
       workspaceRoot: "openclaw-workspace",
       tags: tags("workspace", "codexforge", "local-first"),
       status: "active",
@@ -274,7 +274,7 @@ function buildStaticSourceNodeFacts(): CodexForgeBrainMemorySourceNode[] {
       description: "Foundation branch carrying CodexForge Brain graph, Files, History, and runtime work.",
       summary: "Project node for the current CodexForge foundation branch.",
       whyItMatters: "Project identity lets graph memory attach to the branch-level implementation effort.",
-      repoPath: "repos/health-tracker/frontend",
+      repoPath: "repos/codexforge/foundation",
       workspaceRoot: "openclaw-workspace",
       tags: tags("project", "foundation"),
       status: "active",
@@ -286,7 +286,7 @@ function buildStaticSourceNodeFacts(): CodexForgeBrainMemorySourceNode[] {
       id: REPO_ID,
       category: "workspace/root",
       nodeKind: "repo",
-      label: "health-tracker/frontend",
+      label: "codexforge/foundation",
       description: "Frontend repo hosting the CodexForge application surfaces and runtime modules.",
       summary: "Repository node for local CodexForge implementation.",
       whyItMatters: "Repo identity ties file, smoke, and route memory to the implementation boundary.",
@@ -822,7 +822,7 @@ export function buildBrainMemorySourceGraph(
       updatedAt: now,
       workspaceId: "codexforge",
       projectId: "codexforge-foundation",
-      repoPath: "repos/health-tracker/frontend",
+      repoPath: "repos/codexforge/foundation",
     },
   };
 }

@@ -38,7 +38,7 @@ function createEmptySeedBase(now: number): CodexForgeBrainGraph {
       updatedAt: now,
       workspaceId: "codexforge",
       projectId: "codexforge-foundation",
-      repoPath: "repos/health-tracker/frontend",
+      repoPath: "repos/codexforge/foundation",
     },
   };
 }
@@ -340,7 +340,7 @@ export function mergeBrainMemoryIngestion(
     ...next.meta,
     workspaceId: next.meta.workspaceId ?? "codexforge",
     projectId: next.meta.projectId ?? "codexforge-foundation",
-    repoPath: next.meta.repoPath ?? "repos/health-tracker/frontend",
+    repoPath: next.meta.repoPath ?? "repos/codexforge/foundation",
     updatedAt: changed
       ? Math.max(next.meta.updatedAt, plan.graph.meta.updatedAt)
       : next.meta.updatedAt,

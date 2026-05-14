@@ -273,6 +273,19 @@ export {
   buildBrainSeedFixtureQualityGates,
 } from "./seeding";
 
+export {
+  CODEXFORGE_BRAIN_MEMORY_INGESTION_FIXED_TS,
+  buildBrainMemoryIngestionPlan,
+  buildBrainMemorySeedGraph,
+  buildBrainMemorySourceEdges,
+  buildBrainMemorySourceNodes,
+  createStableBrainMemoryEdgeId,
+  createStableBrainMemoryId,
+  dedupeBrainMemoryGraph,
+  mergeBrainMemoryIngestion,
+  summarizeBrainMemoryIngestion,
+} from "./ingestion";
+
 export type {
   CodexForgeBrainRuntimeContract,
   CodexForgeBrainRuntimeCognitiveMemoryApi,
@@ -454,6 +467,20 @@ export type {
   CodexForgeBrainSeedStatus,
   CodexForgeBrainSeedSummary,
 } from "./seeding";
+
+export type {
+  CodexForgeBrainMemoryActivityEntry,
+  CodexForgeBrainMemoryDedupeResult,
+  CodexForgeBrainMemoryGraphEntity,
+  CodexForgeBrainMemoryIngestionInput,
+  CodexForgeBrainMemoryIngestionPlan,
+  CodexForgeBrainMemoryIngestionResult,
+  CodexForgeBrainMemoryIngestionSummary,
+  CodexForgeBrainMemorySourceBuildInput,
+  CodexForgeBrainMemorySourceCategory,
+  CodexForgeBrainMemorySourceEdge,
+  CodexForgeBrainMemorySourceNode,
+} from "./ingestion";
 
 export type {
   CodexForgeBrainAppendEventResult,
