@@ -32,6 +32,7 @@ export function JarvisBridgeCenter({ model }: { model: BridgeCenterModel }) {
           <div style={links}>
             <a href="/runs" style={link}>Open Operator Run Center</a>
             <a href="/capabilities" style={link}>Open Capability Cockpit</a>
+            <a href="/artifacts" style={link}>Open Artifact Executor</a>
           </div>
         </div>
         <div style={statusGrid}>

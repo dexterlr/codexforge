@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: "CodexForge",
-    template: "%s • CodexForge",
+    template: "%s - CodexForge",
   },
   description:
     "CodexForge is a local-first AI developer workspace for planning, memory, research, and safe execution.",

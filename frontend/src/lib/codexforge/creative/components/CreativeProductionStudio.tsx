@@ -31,6 +31,7 @@ export function CreativeProductionStudio({ context }: { context: CreativeContext
           <div style={linkRow}>
             <a href="/runs" style={runLink}>Open Operator Run Center</a>
             <a href="/bridge" style={runLink}>Bridge readiness</a>
+            <a href="/artifacts" style={runLink}>Artifact Executor</a>
           </div>
         </div>
         <div style={statusGrid}>
