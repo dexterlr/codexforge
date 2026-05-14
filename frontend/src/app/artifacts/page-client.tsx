@@ -2,6 +2,10 @@
 
 import type { CSSProperties } from "react";
 import { ArtifactExecutorCenter } from "@/lib/codexforge/artifact-executor/components/ArtifactExecutorCenter";
+import {
+  ExportSafetyBoundary,
+  ExportWorkspaceRefreshPanel,
+} from "@/lib/codexforge/artifact-export-flow/components";
 import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
 import type { ArtifactExecutorModel } from "@/lib/codexforge/artifact-executor";
 import { buildArtifactWorkspaceContext } from "@/lib/codexforge/artifact-workspace";
@@ -49,10 +53,12 @@ export default function ArtifactsPageClient({ initialData }: ArtifactsPageClient
         <div style={workspaceLayout}>
           <div style={workspaceMain}>
             <ArtifactWorkspacePanel context={workspaceContext} />
+            <ExportWorkspaceRefreshPanel />
             <ArtifactExportApprovalPanel request={workspaceContext.sampleRequest} />
             <ArtifactExportLedgerPanel ledger={workspaceContext.ledger} />
           </div>
           <aside style={workspaceRail}>
+            <ExportSafetyBoundary />
             <ArtifactPathGuardPanel request={workspaceContext.sampleRequest} />
             <ArtifactExportValidationPanel report={workspaceContext.validation} />
           </aside>

@@ -31,6 +31,22 @@ export async function POST(request: Request) {
     return failure("Artifact export requires approved true.", 403, validation.summary);
   }
 
+  if (validation.pathValidation.traversal) {
+    return failure("Artifact export blocks path traversal.", 403, validation.summary);
+  }
+
+  if (validation.pathValidation.absolutePath) {
+    return failure("Artifact export blocks absolute target paths.", 403, validation.summary);
+  }
+
+  if (!validation.pathValidation.extensionAllowed) {
+    return failure("Artifact export blocks unsupported extensions.", 403, validation.summary);
+  }
+
+  if (validation.pathValidation.sourceMutationAttempt) {
+    return failure("Artifact export blocks source mutation paths.", 403, validation.summary);
+  }
+
   if (requestIssues.length > 0 || validation.state === "blocked") {
     return failure("Artifact export blocked by validation.", 403, [
       ...validation.summary,

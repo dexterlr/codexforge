@@ -247,6 +247,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Artifact Export Flow"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-artifact-export-flow.ps1"
+    Required = $true
+  }
+  @{
     Name = "Mission Control"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-mission-control.ps1"
     Required = $true
