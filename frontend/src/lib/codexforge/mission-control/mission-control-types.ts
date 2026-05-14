@@ -7,6 +7,7 @@ export type MissionReadinessLevel =
 
 export type MissionSurfaceId =
   | "brain"
+  | "memory"
   | "files"
   | "capabilities"
   | "runs"
@@ -52,6 +53,7 @@ export type MissionSurfaceRegistry = {
 export type MissionHealthDimensionId =
   | "runtime"
   | "memory"
+  | "memory-review"
   | "files"
   | "capabilities"
   | "runs"

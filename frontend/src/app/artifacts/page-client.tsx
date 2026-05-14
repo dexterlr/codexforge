@@ -56,7 +56,10 @@ export default function ArtifactsPageClient({ initialData }: ArtifactsPageClient
               to bundle multiple artifacts for review before export. Exported artifacts now also produce
               read-only brain ingestion candidates for review before promotion with no direct graph mutation.
             </p>
-            <a href="/production" style={productionLink}>Open Production Pack Builder</a>
+            <div style={heroActions}>
+              <a href="/production" style={productionLink}>Open Production Pack Builder</a>
+              <a href="/memory" style={memoryLink}>Review memory candidates</a>
+            </div>
           </div>
           <ArtifactWorkspaceSafetyNotice context={workspaceContext} />
         </section>
@@ -102,7 +105,9 @@ const heroCopy: CSSProperties = { display: "grid", gap: 10, minWidth: 0, alignCo
 const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 12, fontWeight: 900, textTransform: "uppercase" };
 const headline: CSSProperties = { margin: 0, fontSize: 40, lineHeight: 1.06, letterSpacing: 0 };
 const lede: CSSProperties = { margin: 0, color: "#cbd5e1", fontSize: 15, lineHeight: 1.55, maxWidth: 980 };
+const heroActions: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8, minWidth: 0 };
 const productionLink: CSSProperties = { width: "fit-content", border: "1px solid rgba(45,212,191,0.26)", background: "rgba(20,184,166,0.14)", borderRadius: 8, padding: "8px 10px", color: "#ccfbf1", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none" };
+const memoryLink: CSSProperties = { width: "fit-content", border: "1px solid rgba(125,211,252,0.26)", background: "rgba(14,165,233,0.12)", borderRadius: 8, padding: "8px 10px", color: "#e0f2fe", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none" };
 const workspaceLayout: CSSProperties = { maxWidth: 1640, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0, 1.35fr) minmax(min(100%, 430px), 0.72fr)", gap: 16, alignItems: "start" };
 const workspaceMain: CSSProperties = { display: "grid", gap: 16, minWidth: 0 };
 const workspaceRail: CSSProperties = { display: "grid", gap: 16, minWidth: 0 };

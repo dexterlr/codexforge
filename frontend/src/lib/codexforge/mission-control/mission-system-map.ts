@@ -23,6 +23,7 @@ export function buildMissionSystemEdge(
 export function buildMissionSystemMap(): MissionSystemMap {
   const nodes: MissionSystemNode[] = [
     { id: "brain", label: "Brain", detail: "Memory and signals" },
+    { id: "memory", label: "Memory Review", detail: "Promotion approval queue" },
     { id: "files", label: "Files", detail: "File context" },
     { id: "patch-preview", label: "Patch Preview", detail: "Preview handoff" },
     { id: "runs", label: "Runs", detail: "Approval-gated operations" },
@@ -36,6 +37,8 @@ export function buildMissionSystemMap(): MissionSystemMap {
 
   const edges: MissionSystemEdge[] = [
     buildMissionSystemEdge("brain", "files", "Context informs file review", "readonly"),
+    buildMissionSystemEdge("artifacts", "memory", "Memory candidates enter review queue", "preview-only"),
+    buildMissionSystemEdge("memory", "future-memory", "Approved candidates preview memory promotion events", "preview-only"),
     buildMissionSystemEdge("files", "patch-preview", "File workflow prepares previews", "preview-only"),
     buildMissionSystemEdge("patch-preview", "runs", "Preview may become run packet after approval", "approval-required"),
     buildMissionSystemEdge("creative", "artifacts", "Creative plans produce review artifacts", "preview-only"),

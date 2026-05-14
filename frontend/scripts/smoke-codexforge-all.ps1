@@ -257,6 +257,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Memory Review"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-memory-review.ps1"
+    Required = $true
+  }
+  @{
     Name = "Mission Control"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-mission-control.ps1"
     Required = $true

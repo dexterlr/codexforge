@@ -45,10 +45,18 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "review-artifact-ingestion-candidates",
       label: "Review artifact ingestion candidates",
-      href: "/artifacts",
+      href: "/memory",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Read-only memory candidates and brain signals require review before promotion.",
+    },
+    {
+      id: "review-memory-candidates",
+      label: "Review memory candidates",
+      href: "/memory",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Memory promotion requires explicit review state and produces preview events only.",
     },
     {
       id: "inspect-bridge-readiness",

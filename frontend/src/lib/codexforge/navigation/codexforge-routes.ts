@@ -13,6 +13,7 @@ export type CodexForgeRoute = {
     | "mission"
     | "workspace"
     | "brain"
+    | "memory"
     | "files"
     | "runs"
     | "capabilities"
@@ -70,6 +71,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Intelligence",
     description: "Graph memory, predictive context, lineage, and workspace continuity.",
+  },
+  {
+    id: "memory",
+    path: "/memory",
+    label: "Memory Review",
+    shortLabel: "Memory",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Memory",
+    description: "Deterministic memory candidate review, approval, and promotion event preview queue.",
   },
   {
     id: "files",

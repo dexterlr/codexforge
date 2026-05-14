@@ -35,6 +35,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Brain Command Center",
     }),
     buildMissionSurface({
+      id: "memory",
+      label: "Memory Review",
+      href: "/memory",
+      status: "review-needed",
+      role: "Candidate confidence, contradiction risk review, explicit approval, and promotion event previews.",
+      riskPosture: "preview-only",
+      nextAction: "Review memory candidates.",
+      readiness: "needs-review",
+      relatedPhase: "Memory Promotion Review Queue",
+    }),
+    buildMissionSurface({
       id: "files",
       label: "Files",
       href: "/files",
