@@ -1,64 +1,45 @@
-\# Data Flow
+# Data Flow
 
+CodexForge data flow is preview-first and approval-aware.
 
+## Product Flow
 
-\## Pipeline
+1. User opens a route such as `/brain`, `/files`, `/capabilities`, `/creative`, `/history`, `/ai`, or `/clawd`.
+2. The route loads deterministic local domain data or fixtures.
+3. The relevant domain prepares context, plans, risks, readiness, previews, or graph state.
+4. Policy and approval boundaries are shown before any mutation-capable path.
+5. Preview output is rendered in the UI.
+6. Approved operator paths may use plan, diff, apply, checkpoint, snapshot, and test APIs.
+7. Memory, history, or artifact preview state can be used by later workflows.
 
+## File to Brain to Chat Flow
 
+```text
+File selection
+  -> file context, risk, dependencies, safe next action
+  -> Brain context bridge
+  -> chat handoff context
+  -> structured response or preview plan
+```
 
-1\. User sends message
+This flow enriches reasoning context. It does not imply automatic file writes.
 
-2\. Brain generates structured plan
+## Creative Artifact Preview Flow
 
-3\. Execution engine processes plan
+```text
+Creative brief
+  -> Blender/ComfyUI/Unreal/storyboard/render plan
+  -> safety boundary
+  -> artifact handoff preview
+  -> future ledger persistence
+```
 
-4\. Operator produces diffs
+This is preview-only. No Blender, Unreal, ComfyUI, render, or broker execution occurs.
 
-5\. User approves changes
+## Safety Properties
 
-6\. Files are updated
-
-7\. Results stored in memory graph
-
-
-
-\---
-
-
-
-\## Key Property
-
-
-
-Every step produces structured output:
-
-
-
-\* Chat → Plan
-
-\* Plan → Steps
-
-\* Steps → Execution
-
-\* Execution → Graph
-
-
-
-\---
-
-
-
-\## Safety Model
-
-
-
-\* No direct writes
-
-\* All changes go through Operator
-
-\* Dry-run is default
-
-\* User approval required before apply
-
-
-
+- No direct hidden writes.
+- Patch Preview is preview-only.
+- Creative Studio is preview-only.
+- File mutation requires explicit approval.
+- PC/camera control is not active and would require explicit future session consent.

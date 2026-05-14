@@ -1,326 +1,206 @@
 # CodexForge
 
-> Local-first AI developer workspace with structured reasoning, execution flow, memory graph, and safe code operations.
+CodexForge is a local-first AI developer workspace for planning, memory, file inspection, safe patch previews, and operator-controlled execution workflows. It is built as a Next.js app with deterministic local fallbacks and smoke-backed feature slices.
 
----
+The product is currently a foundation-stage engineering runtime. It documents and previews several execution paths, but it does not silently mutate files or run external creative tools.
 
-## Overview
+## Current Product
 
-CodexForge is an AI-powered developer workspace built to move beyond simple chat.
+CodexForge includes:
 
-It combines structured planning, execution-aware workflows, persistent local memory, and a safe operator-style code pipeline into one system. The goal is to create a serious working environment for building, debugging, researching, and evolving real software with AI.
+- Brain runtime with canonical graph types, runtime events, context assembly, memory ranking, episodes, concept candidates, lineage, and semantic link helpers.
+- Cognitive memory and deterministic Brain memory ingestion.
+- Visual Brain graph and `/brain` command center for memory, topology, lineage, runtime health, focus, recommendations, and graph inspection.
+- `/files` command center for file tree browsing, file intelligence, safe next actions, file risk, and File to Brain to Chat workflow context.
+- Safe Patch Preview system for preview-only patch planning, diff review, risk review, rollback notes, and test planning.
+- Capability Cockpit at `/capabilities` for adapter readiness, policy boundaries, artifact ledger previews, and blocked execution visibility.
+- Creative Production Studio at `/creative` for preview-only Blender, ComfyUI, Unreal, storyboard, render queue, and artifact planning.
+- History and activity intelligence at `/history`.
+- Tool adapter registry, capability bridge, tool policy guard, approval lifecycle, and retry visibility.
+- Smoke scripts that guard product surfaces, safety posture, Brain runtime, files, capabilities, patch preview, creative planning, and brand cleanup.
 
-CodexForge is not positioned as a generic chatbot.
+## Architecture
 
-It is a local-first AI development system.
+CodexForge is organized around local deterministic domains:
 
----
+- `src/lib/codexforge/brain`: provider routing, graph memory, Brain UI components, runtime, ingestion, health, topology, replay, recommendations, and predictive context.
+- `src/lib/codexforge/files`: file command center, file preview, dependency tracing, file risk, file safe planning, and File to Brain to Chat bridge data.
+- `src/lib/codexforge/patch-preview`: preview-only patch planning, approval boundary display, risk board, rollback plan, and test plan.
+- `src/lib/codexforge/capabilities`: capability cockpit, adapter readiness, artifact ledger preview, approval boundary, and blocked execution panels.
+- `src/lib/codexforge/creative`: preview-only creative production planning for Blender, ComfyUI, Unreal, storyboards, render queues, and artifact handoff.
+- `src/lib/codexforge/tools`: tool contracts, adapter registry, policy guard, approval lifecycle, and safe local tool implementations.
+- `src/app/api/operator`: operator plan, diff, apply, snapshot, checkpoint, test, and run-state routes.
 
-## What makes it different
+Core planning prefers deterministic local logic. AI/provider integrations are optional and must remain subordinate to the product safety model.
 
-- **Local-first by design**
-  Core state, task flow, history, and memory remain useful even when backend services fail.
+## Routes
 
-- **Structured responses instead of loose chat**
-  Plans, steps, risks, commands, context, and execution state are treated as first-class outputs.
+- `/`: CodexForge home and product surface launcher.
+- `/ai`: main workspace for chat, structured replies, planning, memory context, and execution-state visibility.
+- `/brain`: Brain command center and visual memory graph.
+- `/files`: Files command center and file intelligence workflow.
+- `/history`: local activity and history intelligence.
+- `/capabilities`: Capability Cockpit and adapter readiness surface.
+- `/creative`: Creative Production Studio, preview-only.
+- `/entry`: quick launch surface, still present.
+- `/clawd`: operator surface, still present.
 
-- **Execution-aware architecture**
-  The system is designed around real workflow phases such as planning, approval, diffing, applying, and testing.
+## Feature Overview
 
-- **Persistent graph memory**
-  Messages, tasks, steps, memory items, runs, diffs, and snapshots can be represented in a growing graph model.
+### Brain Command Center
 
-- **Safe operator mindset**
-  Code modification is treated as a controlled pipeline, not a blind write.
+The Brain surface presents graph memory, memory clusters, runtime health, topology, lineage, recommendations, replay, focus drilldown, and command-oriented navigation.
 
----
+### Visual Brain Graph
 
-## Core systems
+The graph view displays local memory nodes, edges, metadata, semantic topology, and relationships. It is an inspection and reasoning surface, not an autonomous executor.
 
-### 1. CodexForge Brain
+### Brain Memory Ingestion
 
-The Brain layer is the structured reasoning system behind CodexForge.
+Memory ingestion normalizes real local inputs into Brain memory structures with deterministic IDs, source metadata, dedupe logic, and smoke coverage.
 
-It currently supports:
+### Files Command Center
 
-- Multi-provider routing
-- Local engine fallback
-- Ollama integration
-- Structured replies for plans, execution, and context
-- Memory-aware reasoning using active plan and stored workspace memory
+The files surface provides a project file tree, file inspector, dependency context, file risk, safe next actions, workflow rail, and preview-oriented actions.
 
-### 2. Execution Engine
+### File to Brain to Chat Workflow
 
-The execution engine turns requests into a workflow-oriented response model instead of plain text answers.
+File intelligence can be bridged into Brain context and chat handoff panels so file-specific facts, risks, and next actions can inform later reasoning without direct mutation.
 
-Current responsibilities include:
+### Safe Patch Preview
 
-- Planning
-- Diff generation
-- Execution phase tracking
-- Test/result reporting
-- Task-step execution support
-- Engine state summaries for the UI
+Patch Preview shows candidate changes, risks, approval boundary, rollback notes, and test planning. It is preview-only and does not apply changes by itself.
 
-### 3. Operator Pipeline
+### Capability Cockpit
 
-The operator pipeline is the safe modification layer for repository work.
+The cockpit shows adapter readiness, policy gates, artifact ledger previews, blocked execution status, and future capability workflow posture.
 
-Current capabilities include:
+### Creative Production Studio
 
-- Diff generation
-- Dry-run support
-- Atomic apply flow
-- Checkpoint and restore routes
-- Snapshot support
-- Multi-route operator API structure
+Creative Studio plans Blender scenes, ComfyUI workflows, Unreal levels, storyboards, render queues, and artifact handoff. It is preview-only planning and does not execute external tools.
 
-### 4. Brain Graph / Memory System
+### History / Activity Intelligence
 
-The graph system is the foundation for long-term reasoning and workspace memory.
+The history surface tracks local activity and review context so plans, launches, and workspace continuity can be inspected without depending on a remote service.
 
-Current graph concepts include:
+### Tool Adapter Registry
 
-- Workspace
-- Project
-- Repo
-- Conversation
-- Message
-- Task
-- Plan
-- Step
-- Memory
-- Run
-- Diff
-- Snapshot
-- Tag
-- Note
-- Decision
-- Research
-- Artifact
-- Person
+The registry describes available or planned tools, readiness, policy constraints, and blocked execution posture. Registry presence is not permission to execute a tool.
 
-This system is intended to power:
+### Policy Guard / Approval Boundary
 
-- Persistent local memory
-- Better reasoning context
-- Relationship tracing
-- Future visual graph workflows
-- Future Obsidian-style navigation
+Tool execution decisions are routed through policy checks and visible approval state. File mutation and external execution require explicit future approval paths.
 
-### 5. Tooling Layer
+### Smoke Suite
 
-CodexForge exposes a local tool layer that the broader system can use for structured repo operations.
+The smoke suite checks product surfaces, Brain runtime, files, file workflows, capability cockpit, patch preview, creative planning, policy boundaries, and brand cleanup.
 
-Current tool surfaces include:
+## Safety Model
 
-- File read
-- File write
-- Diff generation
-- Diff apply
-- Command execution
-- Test execution
-- Project search
-- File listing
-- Snapshot creation
+CodexForge is intentionally conservative:
 
----
+- File mutation is approval-gated and not automatic.
+- Patch Preview is preview-only.
+- Creative Studio is preview-only.
+- Capability Cockpit does not execute Blender, Unreal, ComfyUI, broker jobs, render jobs, or PC/camera control.
+- Broker execution is blocked.
+- There is no Blender execution.
+- There is no Unreal execution.
+- There is no ComfyUI execution.
+- There is no render execution.
+- There is no PC/camera automation.
+- PC/camera features require explicit future session consent and are not active automation.
+- There is no unapproved file mutation.
+- Local deterministic logic is preferred for core planning and safety decisions.
 
-## Current UI surfaces
+## Development
 
-### `/ai`
-Primary CodexForge workspace.
+From the frontend directory:
 
-This is the main interface for:
-- chat
-- structured responses
-- active task management
-- memory interaction
-- execution flow
-- engine status
-
-### `/brain`
-Local graph memory inspector.
-
-This currently lets you inspect:
-- graph nodes
-- graph edges
-- node metadata
-- stored graph JSON
-- graph structure as a foundation for future visual memory tooling
-
-### `/history`
-Local-first history interface for saved activity and review.
-
-### `/entry` and `/clawd`
-Supporting interfaces connected to the broader workspace/test harness environment.
-
----
-
-## Execution model
-
-CodexForge is built around explicit execution phases rather than vague assistant behavior.
-
-Current phase model:
-
-```text
-idle → planning → awaiting_plan_approval → diffing → awaiting_diff_approval → applying → testing → done
-
-Error and fallback states are also supported.
-
-This is important because it lets the UI, the engine, and future automation layers all reason about the same workflow state.
-
-Project structure
-src/
-  app/
-    api/
-      codexforge/
-        chat/               # Brain-backed chat route
-        run/                # Execution engine route
-        tools/              # Tool execution routes
-      operator/
-        apply/
-        checkpoint/
-        diff/
-        plan/
-        read/
-        run/
-        snapshot/
-        test/
-    ai/                     # Main CodexForge workspace
-    brain/                  # Brain graph inspector
-    clawd/                  # Supporting interface
-    entry/                  # Supporting entry surface
-    history/                # Local-first history UI
-
-  lib/
-    codexforge/
-      brain/                # Brain provider system, routing, graph, sync
-      chat/                 # Client hook, renderers, engine, components
-      tools/                # Tool contracts and implementations
-    operator/
-      v3/                   # Next-generation planner/shadow-mode work
-Running locally
-
-Install dependencies:
-
+```powershell
+cd .\frontend
 npm install
-
-Start the development server:
-
 npm run dev
+```
 
 Open:
 
-http://localhost:3000/ai
+```text
+http://localhost:3000/
+```
 
-You can also explore:
+## Build And Smoke Commands
 
-http://localhost:3000/brain
-http://localhost:3000/history
-Optional Ollama configuration
-
-Create a .env.local file if you want to enable Ollama-backed brain routing:
-
-CODEXFORGE_BRAIN_OLLAMA_ENABLED=true
-CODEXFORGE_BRAIN_OLLAMA_MODEL=qwen3:14b
-CODEXFORGE_BRAIN_OLLAMA_BASE_URL=http://127.0.0.1:11434
-
-If Ollama is unavailable, CodexForge is designed to continue through local structured fallback behavior.
-
-Current status
-
-Working now:
-
-Stable chat workflow
-Structured reply pipeline
-Local-first memory handling
-Active task model
-Execution state model
-Operator route structure
-Brain graph persistence
-Brain graph inspector page
-CodexForge API route split
-Local engine brain path
-Ollama brain path
-Tooling layer foundation
-
-Still evolving:
-
-Full multi-file execution loop
-Stronger apply pipeline
-Better graph-driven reasoning
-More complete automation story
-Public-facing docs and examples
-More polished repo workflows
-Important context
-
-This repository is currently:
-
-CodexForge as the real product, developed inside a Health Tracker test harness/repo lineage
-
-Some legacy naming and historical structure still exist and are being cleaned up as CodexForge becomes the primary system identity.
-
-Roadmap
-
-High-level next directions:
-
-Multi-file diff execution
-Stronger planning and file clustering
-Full graph-aware reasoning
-Better execution resumability
-Memory-driven workflow planning
-Safer apply/test loops
-More explicit tool orchestration
-Obsidian-style graph UI
-More polished public documentation
-Philosophy
-
-CodexForge is being built around a few core ideas:
-
-Local-first over fragile cloud dependence
-Structured systems over vague prompting
-Safe execution over blind file mutation
-Deterministic behavior where possible
-Real workflow state over fake assistant confidence
-Tooling and architecture over prompt tricks
-Who this is for
-
-CodexForge is being shaped for people who want AI to operate more like a serious development system and less like a chat toy.
-
-That includes workflows around:
-
-application development
-debugging
-research
-operator-style repo changes
-game server work
-movie/video pipeline planning
-Unreal workflows
-ComfyUI workflows
-automation systems
-Repository status
-
-Active development.
-
-CodexForge is currently a foundation-stage system moving toward a fuller AI developer platform.
-
-Author
-
-Built by Dexter
-Workspace: OpenClaw AI Lab
-
-TL;DR
-
-CodexForge is:
-
-structured AI reasoning + execution flow + safe code operations + persistent memory graph
-running in a local-first developer workspace
-
-
-After saving it, run:
+Core validation:
 
 ```powershell
-git add ../README.md
-git commit -m "Rewrite README for public-facing CodexForge repo"
-git push
+npm run build
+npm run smoke:codexforge:server
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
+```
+
+Individual smoke scripts present in this repo include:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-runtime.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-graph-ui.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-memory-ingestion.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-files-command-center.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-file-workflow.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-file-brain-chat-workflow.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-capability-cockpit.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-patch-preview.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-creative-production-studio.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brand-clean.ps1
+```
+
+Useful local checks:
+
+```powershell
+npm run lint
+npm run typecheck
+git diff --check
+```
+
+## Current Phase Status
+
+Working foundation:
+
+- Brain runtime and cognitive memory foundations.
+- Real deterministic Brain memory ingestion.
+- Visual Brain graph and `/brain` command center.
+- `/files`, `/capabilities`, and `/creative` command centers.
+- File to Brain to Chat bridge.
+- Safe Patch Preview.
+- Preview-only artifact planning.
+- Tool policy guard and approval-boundary visibility.
+- Local-first smoke-backed architecture.
+
+Not production-ready:
+
+- Approval-gated apply pipeline still needs stronger end-to-end UX and persistence.
+- External adapter execution is intentionally blocked or preview-only.
+- Artifact ledger persistence is not a complete production ledger.
+- Creative workflows are plans, not render jobs.
+- Broker execution and PC/camera control are not active.
+
+## Known Limitations
+
+- Some paths still reflect repo lineage and local test-harness history.
+- `/entry` and `/clawd` remain as supporting surfaces while navigation continues to consolidate.
+- Several adapter capabilities are readiness or planning surfaces only.
+- Local storage compatibility may include migrated local entries from older app states; this is legacy import compatibility, not active old-product branding.
+
+## Near-Term Roadmap
+
+- Operator Runs Timeline.
+- Approval-gated apply pipeline.
+- Real adapter execution behind policies.
+- Artifact ledger persistence.
+- Better navigation and global command palette.
+- More real memory sources.
+- Project onboarding and import.
+
+## Product Posture
+
+CodexForge should stay grounded: local-first, deterministic where possible, explicit about approval, and honest about preview-only capabilities.

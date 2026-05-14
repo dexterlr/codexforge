@@ -1,77 +1,49 @@
-Do PHASES 1-6 for CodexForge, but do them safely as a staged implementation.
+# CodexForge Phase Status
 
-FIRST:
-Inspect the repo. Do not blindly create massive new systems. Identify current architecture and build constraints.
+This file records the current phase posture after the latest foundation work. It is documentation only.
 
-MISSION:
-Turn CodexForge into a clean AI-native cognitive engineering runtime.
+## Completed Foundation Slices
 
-PHASE 1:
-Create a canonical brain runtime layer.
-- Remove schema drift.
-- Make src/lib/codexforge/brain/graph/types.ts the canonical graph schema.
-- Quarantine or replace older graph model remnants.
-- Add src/lib/codexforge/brain/runtime/
-- Add runtime-types.ts, event-store.ts, graph-reducer.ts, context-assembler.ts, memory-ranker.ts, episode-manager.ts, concept-synthesizer.ts, execution-lineage.ts, semantic-links.ts, runtime.ts.
-- Move cognition logic toward runtime boundaries.
-- Preserve /brain and chat behavior.
+- Canonical Brain runtime foundation.
+- Cognitive memory scoring and memory helpers.
+- Brain command center improvements.
+- Real deterministic Brain memory ingestion.
+- Files UX vertical slice.
+- File workflow and File to Brain to Chat bridge.
+- Capability Cockpit.
+- Safe Patch Preview.
+- Creative Production Studio, preview-only.
+- Predictive context foundations.
+- Tool policy guard and approval boundary visibility.
+- Smoke coverage for the major surfaces.
 
-PHASE 2:
-Upgrade memory.
-- confidence scoring
-- importance scoring
-- recency scoring
-- memory ranking
-- semantic dedupe stubs
-- contradiction detection stubs
-- concept promotion stubs
+## Preview-Only Slices
 
-PHASE 3:
-Build Files UX vertical slice.
-- FilesCommandCenter
-- FileTree
-- FileInspector
-- FileActionBar
-- SafeEditPreview
-- FileRiskBadge
-- Search/filter files
-- Premium dark UI
-- No overwrite without preview
+- Patch Preview.
+- Creative Production Studio.
+- Blender scene planning.
+- ComfyUI workflow planning.
+- Unreal level planning.
+- Render queue planning.
+- Artifact pipeline preview.
+- Capability adapter execution previews.
 
-PHASE 4:
-Add autonomous context engine stubs.
-- predictive context
-- relevance engine
-- architectural retrieval
-- risk prioritizer
+## Not Active Execution
 
-PHASE 5:
-Add multi-agent runtime stubs.
-- PlannerAgent
-- ExecutionAgent
-- VerificationAgent
-- RefactorAgent
-- ResearchAgent
-- MemoryCuratorAgent
-- GraphOptimizerAgent
-- RiskAnalysisAgent
+- No Blender execution.
+- No Unreal execution.
+- No ComfyUI execution.
+- No render execution.
+- No broker execution.
+- No PC/camera control.
+- No unapproved file mutation.
 
-PHASE 6:
-Improve /brain command center.
-- Keep existing inspector working.
-- Add sections for memory, tasks, concepts, executions, risks, runtime health, agent activity.
-- Do not break build.
+## Next Roadmap
 
-STRICT RULES:
-- Keep changes incremental and buildable.
-- Prefer useful foundations over huge fake complexity.
-- Do not delete working behavior unless replaced.
-- Avoid overengineering UI before runtime is stable.
-- npm run build must pass.
-- If all six phases are too much, complete Phase 1 fully and scaffold Phases 2-6 cleanly.
-
-Final output:
-- summarize files changed
-- summarize architecture changes
-- list follow-up tasks
-- report build result
+- Operator Runs Timeline.
+- Approval-gated apply pipeline.
+- Real adapter execution behind policies.
+- Artifact ledger persistence.
+- Better navigation and global command palette.
+- More real memory sources.
+- Project onboarding and import.

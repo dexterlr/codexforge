@@ -1,154 +1,110 @@
-\# Subsystems
+# Subsystems
 
-
-
-\## Brain
-
-
+## Brain
 
 Location:
 
-
-
-```
-
+```text
 src/lib/codexforge/brain
-
 ```
-
-
 
 Responsibilities:
 
+- Brain runtime.
+- Cognitive memory.
+- Graph schema and storage.
+- Real deterministic memory ingestion.
+- Context assembly and memory ranking.
+- Runtime health, topology, lineage, replay, recommendations, and focus panels.
 
-
-\* Provider routing (local / Ollama)
-
-\* Structured response generation
-
-\* Context handling
-
-
-
-\---
-
-
-
-\## Execution Engine
-
-
-
-Triggered via:
-
-
-
-```
-
-/api/codexforge/run
-
-```
-
-
-
-Phases:
-
-
-
-\* planning
-
-\* awaiting\_plan\_approval
-
-\* diffing
-
-\* awaiting\_diff\_approval
-
-\* applying
-
-\* testing
-
-\* done / error
-
-
-
-\---
-
-
-
-\## Operator Pipeline
-
-
+## Files
 
 Location:
 
-
-
+```text
+src/lib/codexforge/files
 ```
-
-src/app/api/operator/\*
-
-```
-
-
 
 Responsibilities:
 
+- Files Command Center.
+- File inspector and file tree.
+- File risk and safe next action.
+- Dependency and predictive context.
+- File to Brain to Chat bridge.
 
-
-\* Diff generation
-
-\* Safe file writes
-
-\* Snapshots and checkpoints
-
-\* Restore operations
-
-
-
-\---
-
-
-
-\## Memory Graph
-
-
+## Patch Preview
 
 Location:
 
-
-
+```text
+src/lib/codexforge/patch-preview
 ```
 
-src/lib/codexforge/brain/graph
+Responsibilities:
 
+- Patch plan preview.
+- Diff preview.
+- Risk review.
+- Approval boundary.
+- Rollback and test plan preview.
+
+This subsystem is preview-only and does not apply changes by itself.
+
+## Capabilities
+
+Location:
+
+```text
+src/lib/codexforge/capabilities
 ```
 
+Responsibilities:
 
+- Capability Cockpit.
+- Adapter readiness.
+- Artifact ledger preview.
+- Approval boundary and blocked execution status.
+- Future execution roadmap.
 
-Stores:
+It does not execute Blender, Unreal, ComfyUI, render jobs, broker jobs, or PC/camera control.
 
+## Creative
 
+Location:
 
-\* messages
+```text
+src/lib/codexforge/creative
+```
 
-\* plans
+Responsibilities:
 
-\* steps
+- Creative Production Studio.
+- Creative brief planning.
+- Blender scene plan preview.
+- ComfyUI workflow plan preview.
+- Unreal level plan preview.
+- Storyboard and render queue preview.
+- Artifact handoff preview.
 
-\* runs
+Creative production is preview-only.
 
-\* diffs
+## Tools And Operator
 
+Locations:
 
+```text
+src/lib/codexforge/tools
+src/app/api/codexforge/tools
+src/app/api/operator
+```
 
-Used for:
+Responsibilities:
 
+- Tool adapter registry.
+- Policy guard.
+- Approval lifecycle.
+- Safe read/search/test helpers.
+- Operator plan, diff, apply, snapshot, checkpoint, and test APIs.
 
-
-\* context injection
-
-\* reasoning history
-
-\* future graph UI
-
-
-
+Mutation-capable actions must remain approval-gated.

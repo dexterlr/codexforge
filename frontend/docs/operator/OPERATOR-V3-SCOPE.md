@@ -1,64 +1,60 @@
-# Operator v3 – Scope & Intent
+# Operator V3 Scope And Intent
 
-## What v2 already guarantees (do NOT break)
-- Build passes: `npm run build`
-- Dev works: `npm run dev`
-- Operator loop works end-to-end:
-  snapshot → plan → approve → diff → approve → apply → test
-- Checkpoints:
-  - list
-  - restore (dry-run + apply)
-- History page is fully local-first and stable
-- No writes outside repoPath allowlist
-- Atomic apply with before-files saved
+## Existing Safety Guarantees To Preserve
 
-## Operator v3 goals (NEW work only)
+- Build passes with `npm run build`.
+- Dev server works with `npm run dev`.
+- Operator loop remains approval-oriented.
+- Checkpoint and snapshot routes remain available.
+- No writes outside repo path allowlists.
+- Mutation-capable operations require explicit approval.
+- Local deterministic logic remains available without AI.
 
-### 1. Multi-file diffs (real)
-- One plan → many diffs
-- Diffs must be:
-  - explicit
-  - repo-relative
-  - allowlisted
-- UI shows per-file approval (not all-or-nothing)
+## Current CodexForge Surface Area
 
-### 2. Deterministic planning upgrades
-- Plan must include:
-  - target files
-  - intent per file
-- No AI required yet (rules-based OK)
+- Brain runtime and cognitive memory.
+- Brain memory ingestion.
+- Visual Brain graph.
+- Files Command Center and File to Brain to Chat workflow.
+- Safe Patch Preview.
+- Capability Cockpit.
+- Creative Production Studio, preview-only.
+- History/activity intelligence.
+- Tool adapter registry and policy guard.
 
-### 3. Safer apply UX
-- Show:
-  - before / after preview
-  - bytes changed
-- Enforce:
-  - dryRun default = true
-  - explicit human confirmation
+## Goals
 
-### 4. Operator UI hardening
-- No state desync if:
-  - refresh
-  - API error
-  - partial failure
-- Resume run from disk state
+### 1. Operator Runs Timeline
 
-### 5. Audit trail
-- Persist:
-  - last plan
-  - last diff(s)
-  - last apply
-  - last test output
-- Viewable in UI
-- Exportable as JSON
+Persist and display plan, diff, approval, apply, test, failure, and recovery events.
 
-## Explicit non-goals (for v3)
-- No LLM dependency
-- No background jobs
-- No repo mutation outside allowlist
-- No UI redesign for beauty
+### 2. Approval-Gated Apply Pipeline
 
-## Success definition
-- Can stop mid-run, reload page, and continue safely
-- Can apply multi-file changes with confidence
-- Can explain every write the operator makes
+Connect previewed patches to a clear approval workflow without automatic mutation.
+
+### 3. Real Adapter Execution Behind Policies
+
+Keep adapters blocked until policy, approval, audit, and operator state are ready.
+
+### 4. Artifact Ledger Persistence
+
+Promote current artifact previews into persisted records without implying execution.
+
+### 5. Resumability
+
+Support reload, retry, and partial-failure recovery with visible state.
+
+## Explicit Non-Goals
+
+- No unapproved file mutation.
+- No LLM dependency for core safety.
+- No background broker execution.
+- No Blender execution.
+- No Unreal execution.
+- No ComfyUI execution.
+- No render execution.
+- No PC/camera control.
+
+## Success Definition
+
+CodexForge can explain every proposed write, show every risk and approval boundary, resume interrupted operator work, and keep preview-only systems clearly separated from execution systems.

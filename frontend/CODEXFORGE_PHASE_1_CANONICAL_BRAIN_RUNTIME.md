@@ -1,110 +1,50 @@
-You are working on CodexForge.
+# CodexForge Brain Runtime
 
-MISSION:
-Add the canonical brain runtime foundation safely.
+## Current State
 
-IMPORTANT:
-Do not attempt all phases.
-Do not build Files UX yet.
-Do not rewrite /brain UI yet.
-Do not delete working behavior.
-Preserve build and smoke suite.
+The Brain runtime foundation exists under:
 
-FIRST:
-Inspect these areas before patching:
-- src/lib/codexforge/brain
-- src/lib/codexforge/brain/graph
-- src/lib/codexforge/chat
-- src/lib/codexforge/tools
-- scripts/smoke-codexforge-all.ps1
+```text
+src/lib/codexforge/brain/runtime
+```
 
-GOAL:
-Create a canonical brain runtime layer that moves CodexForge toward a cognitive engineering runtime while preserving existing behavior.
+It uses canonical graph types from:
 
-CREATE:
-src/lib/codexforge/brain/runtime/
-  runtime-types.ts
-  event-store.ts
-  graph-reducer.ts
-  context-assembler.ts
-  memory-ranker.ts
-  episode-manager.ts
-  concept-synthesizer.ts
-  execution-lineage.ts
-  semantic-links.ts
-  runtime.ts
-  index.ts
+```text
+src/lib/codexforge/brain/graph/types.ts
+```
 
-REQUIREMENTS:
-1. Use src/lib/codexforge/brain/graph/types.ts as the canonical graph schema.
-2. Runtime must import canonical graph types from brain/graph/types.ts.
-3. Do not introduce a second graph schema.
-4. Do not remove existing graph/storage behavior yet.
-5. Add typed append-only events:
-   - message.created
-   - task.created
-   - task.updated
-   - execution.started
-   - execution.completed
-   - diff.generated
-   - memory.promoted
-   - concept.synthesized
-   - failure.detected
-   - recovery.detected
-6. Add episode model:
-   - goal
-   - context
-   - actions
-   - failures
-   - recovery
-   - outputs
-   - learnedConcepts
-7. Export public runtime APIs:
-   - appendEvent
-   - reduceGraph
-   - assembleContext
-   - rankMemory
-   - createEpisode
-   - synthesizeConcepts
-8. Keep implementations useful but conservative:
-   - event-store should support append/list/filter
-   - graph-reducer should accept graph + events and return graph
-   - context-assembler should produce a compact runtime context from graph/events/focus IDs
-   - memory-ranker should score by importance/status/recency/pinned
-   - episode-manager should create typed episodes from runtime inputs
-   - concept-synthesizer should produce safe candidate concepts from repeated memory/task/event signals
-   - execution-lineage should extract execution/diff/snapshot links
-   - semantic-links should define/score semantic relation candidates
-9. Add smoke coverage:
-   Create scripts/smoke-codexforge-brain-runtime.ps1
+## Runtime Responsibilities
 
-Smoke should assert:
-- runtime directory exists
-- all required runtime files exist
-- index exports appendEvent
-- index exports reduceGraph
-- index exports assembleContext
-- index exports rankMemory
-- index exports createEpisode
-- index exports synthesizeConcepts
-- runtime imports canonical graph types from brain/graph/types
-- runtime does not import brain-graph.ts
-- no random layout dependency
-- no external force simulation dependency
-- /brain page still imports/renders brain graph view
+- Append and list runtime events.
+- Reduce graph state from runtime signals.
+- Assemble compact runtime context.
+- Rank memory by useful deterministic signals.
+- Create episodes.
+- Synthesize candidate concepts.
+- Extract execution lineage.
+- Score semantic relationship candidates.
+- Support deterministic Brain memory ingestion.
 
-10. Wire the new smoke into scripts/smoke-codexforge-all.ps1.
+## Related Brain Surfaces
 
-VALIDATION:
-Run:
+- `/brain` command center.
+- Visual Brain graph.
+- Memory clusters.
+- Runtime health.
+- Topology and semantic heatmap.
+- Replay and lineage.
+- Recommendations and focus drilldown.
+
+## Safety Notes
+
+The Brain runtime informs planning and memory. It is not an autonomous executor and does not mutate files without an approved operator path.
+
+## Validation
+
+```powershell
 npm run build
-npm run smoke:codexforge:server
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-runtime.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-memory-ingestion.ps1
 git diff --check
-
-Only finish if all pass.
-
-FINAL OUTPUT:
-- files changed
-- architecture changes
-- validation results
-- recommended next step
+```

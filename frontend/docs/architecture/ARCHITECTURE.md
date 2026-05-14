@@ -1,234 +1,158 @@
-\# CodexForge Architecture
+# CodexForge Architecture
 
+## Overview
 
+CodexForge is organized as a Next.js app with local-first runtime domains. The app favors deterministic planning, explicit approval gates, and preview surfaces over hidden automation.
 
-\## Overview
+## Frontend Routes
 
+- `/`: product launcher.
+- `/ai`: main chat/workspace surface.
+- `/brain`: Brain command center and visual graph.
+- `/files`: file command center.
+- `/history`: activity and history intelligence.
+- `/capabilities`: Capability Cockpit.
+- `/creative`: Creative Production Studio, preview-only.
+- `/entry`: quick launch surface.
+- `/clawd`: operator surface.
 
+## Brain Runtime
 
-CodexForge is composed of four major subsystems:
+Location:
 
-
-
-1\. Brain (reasoning)
-
-2\. Execution Engine
-
-3\. Operator Pipeline
-
-4\. Memory Graph
-
-
-
-\---
-
-
-
-\## Brain System
-
-
-
-Located in:
-
-
-
-```
-
+```text
 src/lib/codexforge/brain
-
 ```
-
-
 
 Responsibilities:
 
+- Canonical graph schema.
+- Append-only runtime event helpers.
+- Context assembly.
+- Memory ranking and cognitive memory scoring.
+- Episode creation.
+- Concept synthesis candidates.
+- Execution lineage and semantic link helpers.
+- Real deterministic Brain memory ingestion.
+- Visual graph and Brain command center panels.
 
+## Files Domain
 
-\* Route between providers (local / Ollama)
+Location:
 
-\* Generate structured responses
-
-\* Maintain context awareness
-
-
-
-\---
-
-
-
-\## Execution Engine
-
-
-
-Triggered via:
-
-
-
+```text
+src/lib/codexforge/files
 ```
 
-/api/codexforge/run
+Responsibilities:
 
+- File tree and file inspector.
+- File risk and safe next action planning.
+- Dependency context and predictive file context.
+- File workflow rail.
+- File to Brain to Chat bridge.
+- Preview-oriented file actions.
+
+## Patch Preview Domain
+
+Location:
+
+```text
+src/lib/codexforge/patch-preview
 ```
 
+Responsibilities:
 
+- Preview-only patch planning.
+- Diff preview panels.
+- Risk board.
+- Approval boundary display.
+- Rollback notes.
+- Test plan preview.
 
-Phases:
+Patch Preview does not apply changes by itself.
 
+## Capabilities Domain
 
+Location:
 
-\* planning
-
-\* awaiting\_plan\_approval
-
-\* diffing
-
-\* awaiting\_diff\_approval
-
-\* applying
-
-\* testing
-
-\* done / error
-
-
-
-\---
-
-
-
-\## Operator Pipeline
-
-
-
-Located in:
-
-
-
+```text
+src/lib/codexforge/capabilities
 ```
 
-src/app/api/operator/\*
+Responsibilities:
 
+- Adapter readiness and health.
+- Tool/capability policy status.
+- Artifact ledger preview.
+- Blocked execution visibility.
+- Capability roadmap and workflow preview.
+
+The Capability Cockpit does not execute Blender, Unreal, ComfyUI, render jobs, broker jobs, or PC/camera automation.
+
+## Creative Domain
+
+Location:
+
+```text
+src/lib/codexforge/creative
 ```
 
+Responsibilities:
 
+- Creative brief planning.
+- Blender scene plan preview.
+- ComfyUI workflow plan preview.
+- Unreal level plan preview.
+- Storyboard planning.
+- Render queue preview.
+- Artifact handoff preview.
 
-Handles:
+Creative Studio is preview-only.
 
+## Tooling And Policy
 
+Locations:
 
-\* diff generation
-
-\* safe file writes
-
-\* snapshots
-
-\* checkpoints
-
-\* restore
-
-
-
-\---
-
-
-
-\## Memory Graph
-
-
-
-Located in:
-
-
-
+```text
+src/lib/codexforge/tools
+src/app/api/codexforge/tools
+src/app/api/operator
 ```
 
-src/lib/codexforge/brain/graph
+Responsibilities:
 
+- Tool contracts and adapter registry.
+- Policy guard and approval lifecycle.
+- Safe local file/read/search/test helpers.
+- Operator plan, diff, apply, snapshot, checkpoint, and test routes.
+
+Execution posture:
+
+- No unapproved file mutation.
+- File mutation is approval-gated.
+- Broker execution is blocked.
+- External adapter execution remains blocked or preview-only until future policy-backed execution is implemented.
+
+## Data Flow
+
+```text
+Page or API request
+  -> domain model
+  -> deterministic planner/context builder
+  -> Brain memory or file context where needed
+  -> policy/approval boundary
+  -> preview output or approved operator path
+  -> local history, graph, or artifact preview
 ```
 
+## Validation
 
+Primary checks:
 
-Stores:
-
-
-
-\* messages
-
-\* tasks
-
-\* plans
-
-\* steps
-
-\* runs
-
-\* diffs
-
-
-
-Used for:
-
-
-
-\* context injection
-
-\* reasoning history
-
-\* future graph UI
-
-
-
-\---
-
-
-
-\## Data Flow
-
-
-
+```powershell
+npm run build
+npm run smoke:codexforge:server
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
+git diff --check
 ```
-
-User → Chat → Brain → Plan
-
-&#x20;                ↓
-
-&#x20;           Execution Engine
-
-&#x20;                ↓
-
-&#x20;             Operator
-
-&#x20;                ↓
-
-&#x20;           File System
-
-&#x20;                ↓
-
-&#x20;          Graph Memory
-
-```
-
-
-
-\---
-
-
-
-\## Key Principle
-
-
-
-Everything becomes structured data:
-
-
-
-\* chat → plan
-
-\* plan → steps
-
-\* steps → execution
-
-\* execution → graph
-
-
-
