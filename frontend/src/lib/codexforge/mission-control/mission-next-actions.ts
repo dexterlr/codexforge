@@ -67,6 +67,22 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Approved memory persistence writes only local event JSON and does not merge graph memory.",
     },
     {
+      id: "review-brain-event-merge",
+      label: "Review Brain event merge",
+      href: "/memory",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Brain merge review is preview-only; explicit merge approval required before any future graph mutation.",
+    },
+    {
+      id: "apply-approved-brain-merge",
+      label: "Apply approved Brain merge",
+      href: "/memory",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Approved Brain merge updates the local graph only after explicit approval, policy validation, and graph diff review.",
+    },
+    {
       id: "inspect-bridge-readiness",
       label: "Inspect bridge readiness",
       href: "/bridge",

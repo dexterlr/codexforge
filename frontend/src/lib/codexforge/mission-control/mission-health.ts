@@ -20,6 +20,7 @@ export function buildMissionHealthReport(): MissionHealthReport {
     buildHealthDimension("memory", "Memory readiness", "ready", "Context ready", "Memory foundations are present without direct graph mutation from Mission Control."),
     buildHealthDimension("memory-review", "Memory review readiness", "needs-review", "Review queue ready", "Memory candidates require confidence, contradiction risk, and explicit approval review before promotion event preview."),
     buildHealthDimension("memory-persistence", "Memory persistence readiness", "needs-review", "Approved event ledger", "Approved memory events persist only under .codexforge/memory-events and remain future graph merge previews."),
+    buildHealthDimension("brain-merge", "Brain merge readiness", "needs-review", "Approved graph merge", "Brain event merge review can produce an approved local graph merge only after explicit approval, policy validation, and rollback summary review."),
     buildHealthDimension("files", "File workflow readiness", "needs-review", "Preview-first", "File context and patch preview are available through the Files surface."),
     buildHealthDimension("capabilities", "Capability readiness", "needs-review", "Policy visible", "Capability routing remains reviewable before any guarded handoff."),
     buildHealthDimension("runs", "Run center readiness", "preview-only", "Approval gated", "Run orchestration is visible but execution is outside this dashboard."),

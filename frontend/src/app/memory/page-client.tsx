@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
 import {
   buildMemoryPromotionEventPreview,
@@ -30,6 +30,19 @@ import {
   validateMemoryEventContent,
 } from "@/lib/codexforge/memory-persistence";
 import { MemoryPersistencePanel } from "@/lib/codexforge/memory-persistence/components";
+import { buildBrainMergeReviewModel } from "@/lib/codexforge/brain-merge";
+import { BrainMergeReviewPanel } from "@/lib/codexforge/brain-merge/components";
+import {
+  applyApprovedBrainGraphMerge,
+  buildApprovedBrainMergePolicy,
+  buildApprovedBrainMergeRequest,
+  buildApprovedMergeLedger,
+  buildApprovedMergeRollbackPlan,
+  validateApprovedBrainMergeRequest,
+  type ApprovedBrainMergeResult,
+} from "@/lib/codexforge/approved-brain-merge";
+import { ApprovedBrainMergePanel } from "@/lib/codexforge/approved-brain-merge/components";
+import { loadBrainGraph, saveBrainGraph } from "@/lib/codexforge/brain/graph/storage";
 import { CODEXFORGE_BRAIN_GRAPH_VERSION, type CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph/types";
 
 type MemoryPageClientProps = {
@@ -47,6 +60,16 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
   const [contradictionAcknowledged, setContradictionAcknowledged] = useState(false);
   const [appendState, setAppendState] = useState<"idle" | "pending" | "persisted" | "blocked" | "failed">("idle");
   const [appendMessage, setAppendMessage] = useState("");
+  const [brainGraph, setBrainGraph] = useState<CodexForgeBrainGraph>(emptyPreviewGraph);
+  const [mergeApproved, setMergeApproved] = useState(false);
+  const [mergeApprovalNote, setMergeApprovalNote] = useState("");
+  const [mergeApplyState, setMergeApplyState] = useState<"idle" | "blocked" | "applied" | "failed">("idle");
+  const [mergeApplyMessage, setMergeApplyMessage] = useState("");
+  const [mergeResult, setMergeResult] = useState<ApprovedBrainMergeResult | null>(null);
+
+  useEffect(() => {
+    setBrainGraph(loadBrainGraph());
+  }, []);
 
   const selectedItem = useMemo(
     () => queue.items.find((item) => item.id === selectedItemId) ?? queue.items[0],
@@ -86,6 +109,75 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
         validation: persistenceValidation,
       }),
     [persistenceRequest, persistenceValidation]
+  );
+  const brainMergeReview = useMemo(
+    () =>
+      buildBrainMergeReviewModel({
+        graph: brainGraph,
+        events: [persistenceRequest],
+        contradictionRiskAcknowledged: contradictionAcknowledged,
+      }),
+    [brainGraph, contradictionAcknowledged, persistenceRequest]
+  );
+  const approvedMergeRequest = useMemo(
+    () =>
+      buildApprovedBrainMergeRequest({
+        graph: brainGraph,
+        diff: brainMergeReview.diff,
+        events: brainMergeReview.queue.events,
+        mergeValidation: brainMergeReview.validation,
+        approved: mergeApproved,
+        approvalNote: mergeApprovalNote,
+        conflictAcknowledgements: contradictionAcknowledged
+          ? ["high-contradiction-risk"]
+          : [],
+      }),
+    [brainGraph, brainMergeReview.diff, brainMergeReview.queue.events, brainMergeReview.validation, contradictionAcknowledged, mergeApprovalNote, mergeApproved]
+  );
+  const approvedMergeValidation = useMemo(
+    () => validateApprovedBrainMergeRequest(approvedMergeRequest),
+    [approvedMergeRequest]
+  );
+  const approvedMergePolicy = useMemo(
+    () =>
+      buildApprovedBrainMergePolicy({
+        request: approvedMergeRequest,
+        validation: approvedMergeValidation,
+        unknownEventCount: brainMergeReview.queue.unknownEventCount,
+        highContradictionRisk: brainMergeReview.queue.events.some((event) => event.contradictionRisk >= 0.75),
+      }),
+    [approvedMergeRequest, approvedMergeValidation, brainMergeReview.queue.events, brainMergeReview.queue.unknownEventCount]
+  );
+  const rollbackPlan = useMemo(
+    () =>
+      mergeResult
+        ? buildApprovedMergeRollbackPlan({
+            request: approvedMergeRequest,
+            result: mergeResult,
+          })
+        : null,
+    [approvedMergeRequest, mergeResult]
+  );
+  const approvedMergeLedger = useMemo(
+    () =>
+      buildApprovedMergeLedger({
+        request: approvedMergeRequest,
+        policy: approvedMergePolicy,
+        validation: approvedMergeValidation,
+        result: mergeResult,
+      }),
+    [approvedMergePolicy, approvedMergeRequest, approvedMergeValidation, mergeResult]
+  );
+  const approvedMergeModel = useMemo(
+    () => ({
+      policy: approvedMergePolicy,
+      request: approvedMergeRequest,
+      validation: approvedMergeValidation,
+      result: mergeResult,
+      rollbackPlan,
+      ledger: approvedMergeLedger,
+    }),
+    [approvedMergeLedger, approvedMergePolicy, approvedMergeRequest, approvedMergeValidation, mergeResult, rollbackPlan]
   );
 
   function handleAction(type: MemoryReviewActionType) {
@@ -129,6 +221,37 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
     } catch {
       setAppendState("failed");
       setAppendMessage("Memory event append failed before persistence.");
+    }
+  }
+
+  function handleApplyApprovedMerge() {
+    if (!approvedMergePolicy.allowed || approvedMergeValidation.state === "blocked") {
+      setMergeApplyState("blocked");
+      setMergeApplyMessage("Approved Brain merge is blocked until explicit approval, graph diff preview, canonical graph schema, and validation requirements pass.");
+      return;
+    }
+
+    try {
+      const applied = applyApprovedBrainGraphMerge({
+        graph: brainGraph,
+        request: approvedMergeRequest,
+      });
+
+      if (applied.result.state !== "applied") {
+        setMergeApplyState("blocked");
+        setMergeResult(applied.result);
+        setMergeApplyMessage("Pure executor blocked the merge; local Brain graph was not saved.");
+        return;
+      }
+
+      const saved = saveBrainGraph(applied.graph);
+      setBrainGraph(saved);
+      setMergeResult(applied.result);
+      setMergeApplyState("applied");
+      setMergeApplyMessage("/brain refresh signal ready: local Brain graph updated through guarded approved merge.");
+    } catch {
+      setMergeApplyState("failed");
+      setMergeApplyMessage("Approved Brain merge failed before local graph storage.");
     }
   }
 
@@ -184,6 +307,17 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
               appendState={appendState}
               appendMessage={appendMessage}
               onAppend={handleAppendMemoryEvent}
+            />
+            <BrainMergeReviewPanel model={brainMergeReview} />
+            <ApprovedBrainMergePanel
+              model={approvedMergeModel}
+              approvalNote={mergeApprovalNote}
+              approved={mergeApproved}
+              applyState={mergeApplyState}
+              applyMessage={mergeApplyMessage}
+              onApprovalNoteChange={setMergeApprovalNote}
+              onApprovedChange={setMergeApproved}
+              onApply={handleApplyApprovedMerge}
             />
             <MemoryReviewLedgerPanel ledger={ledger} />
           </aside>

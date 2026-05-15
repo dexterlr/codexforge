@@ -653,10 +653,13 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
     ? "Inspect the selected focus node before routing context into files or chat."
     : "Add or refresh graph context before relying on predictive routing.";
   const memoryPersistenceReadiness = "approved memory events available for future merge";
+  const brainMergeReadiness = "Brain merge review available: Preview only. No Brain graph mutation.";
+  const approvedBrainMergeReadiness = "Approved Brain merge available in /memory: explicit approval updates local graph, then refresh /brain.";
 
   return (
     <section
       data-codexforge-brain-runtime-readiness
+      data-codexforge-brain-overflow-guard
       data-codexforge-predictive-context-readiness={predictiveReady ? "ready" : "warming"}
       style={{
         ...panelStyle(),
@@ -688,6 +691,8 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
       <div
         data-codexforge-brain-readiness-grid
         data-codexforge-memory-persistence-readiness="approved memory events are available for future merge no automatic merge"
+        data-codexforge-brain-merge-review="Review Brain event merge in /memory; explicit merge approval required"
+        data-codexforge-approved-brain-merge-notice="Approved Brain merge applies only after explicit approval; use refresh to reload /brain graph"
         data-codexforge-brain-overflow-guard
         style={{
           display: "grid",
@@ -701,8 +706,14 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         <MiniStat label="Predictive context readiness" value={predictiveReady ? "ready" : "warming"} />
         <MiniStat label="Memory readiness" value={memoryReady ? "ready" : "warming"} />
         <MiniStat label="Memory persistence" value={memoryPersistenceReadiness} />
+        <MiniStat label="Brain merge readiness" value={brainMergeReadiness} />
+        <MiniStat label="Approved merge" value={approvedBrainMergeReadiness} />
         <MiniStat label="Agent readiness" value={taskKinds > 0 ? "context available" : "placeholder"} />
       </div>
+
+      <a href="/memory" style={buttonStyle()}>
+        Review Brain event merge
+      </a>
 
       <div
         style={{
