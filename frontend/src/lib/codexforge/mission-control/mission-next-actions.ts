@@ -3,10 +3,18 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "execute-approved-read-only-step",
+      label: "Execute approved read-only step",
+      href: "/tasks",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Read-Only Step Execution runs only approved local read-only tools, captures visible evidence, and keeps mutation tools blocked.",
+    },
+    {
       id: "preview-task-step-run",
       label: "Preview a task step run",
       href: "/tasks",
-      priority: "primary",
+      priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Step Runner Preview prepares policy posture, approval packet, dry run plan, and result preview only; No step execution in Phase 25 and Future run requires approval.",
     },

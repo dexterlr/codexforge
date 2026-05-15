@@ -403,6 +403,9 @@ export default function AiPage() {
         <Link href="/tasks" style={missionLink}>
           Step Runner Preview: prepare a selected step run preview, tool policy posture, approval packet, and dry run plan in /tasks; No step execution in Phase 25 and Future run requires approval
         </Link>
+        <Link href="/tasks" style={missionLink}>
+          Read-Only Step Execution: use /tasks to approve and execute only read-file, list-files, search-project, or snapshot-project; Mutation tools remain blocked and no file mutation is allowed
+        </Link>
 
         <TopBar
           sliderOpen={sliderOpen}

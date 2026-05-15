@@ -30,6 +30,7 @@ export function buildMissionActivityTimeline(): MissionActivityTimeline {
     buildMissionActivityItem("reviewed-task-activation-added", "Reviewed Task Activation added", "Phase 23", "Accepted suggestions can become reviewed active plan previews and copy-only /ai handoffs.", "needs-review"),
     buildMissionActivityItem("execution-readiness-added", "Execution Readiness added", "Phase 24", "Activated task plans gain readiness input, step preflight, tool posture, risk, tests, and approval readiness while execution remains blocked.", "needs-review"),
     buildMissionActivityItem("step-runner-preview-added", "Step Runner Preview added", "Phase 25", "Active task steps gain policy posture, approval packet, dry run plan, result preview, and local ledger without execution.", "needs-review"),
+    buildMissionActivityItem("read-only-step-execution-added", "Read-Only Step Execution added", "Phase 26", "Approved task steps can run only guarded read-only tools and capture visible evidence while mutation tools remain blocked.", "needs-review"),
   ];
 
   return {

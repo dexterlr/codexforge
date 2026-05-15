@@ -217,6 +217,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Read-Only Step Execution"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-read-only-step-execution.ps1"
+    Required = $true
+  }
+  @{
     Name = "Agent runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-agent-runtime.ps1"
     Required = $true

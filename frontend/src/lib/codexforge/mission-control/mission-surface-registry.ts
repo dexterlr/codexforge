@@ -25,14 +25,14 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
   const surfaces: MissionSurface[] = [
     buildMissionSurface({
       id: "tasks",
-      label: "Task Autopilot, Reviewed Task Activation, Execution Readiness, and Step Runner Preview",
+      label: "Task Autopilot, Reviewed Task Activation, Execution Readiness, Step Runner Preview, and Read-Only Step Execution",
       href: "/tasks",
       status: "review-needed",
-      role: "Task suggestions from recalled memory, active context, file risk, patch preview posture, mission readiness, reviewed activation requests, execution readiness review, and approval-ready Step Runner Preview packets.",
+      role: "Task suggestions from recalled memory, active context, file risk, patch preview posture, mission readiness, reviewed activation requests, execution readiness review, approval-ready Step Runner Preview packets, and approved Read-Only Step Execution evidence capture.",
       riskPosture: "preview-only",
-      nextAction: "Preview a task step run.",
+      nextAction: "Execute approved read-only step.",
       readiness: "needs-review",
-      relatedPhase: "Task Memory Autopilot, Reviewed Task Activation, Active Task Execution Readiness, and Approved Step Runner Preview",
+      relatedPhase: "Task Memory Autopilot, Reviewed Task Activation, Active Task Execution Readiness, Approved Step Runner Preview, and Read-Only Step Execution",
     }),
     buildMissionSurface({
       id: "brain",
