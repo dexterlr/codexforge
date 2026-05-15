@@ -1899,8 +1899,8 @@ export function BrainGraphView({
                 ) : null}
                 <button
                   type="button"
-                  title="Search and focus node"
-                  aria-label="Search and focus node"
+                  title="Focus selected search node"
+                  aria-label="Focus selected search node"
                   onClick={handleFocusSearch}
                   style={commandButtonStyle()}
                 >

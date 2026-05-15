@@ -42,6 +42,7 @@ import {
   type ApprovedBrainMergeResult,
 } from "@/lib/codexforge/approved-brain-merge";
 import { ApprovedBrainMergePanel } from "@/lib/codexforge/approved-brain-merge/components";
+import { BrainRecallPanel } from "@/lib/codexforge/brain-recall/components";
 import { loadBrainGraph, saveBrainGraph } from "@/lib/codexforge/brain/graph/storage";
 import { CODEXFORGE_BRAIN_GRAPH_VERSION, type CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph/types";
 
@@ -318,6 +319,11 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
               onApprovalNoteChange={setMergeApprovalNote}
               onApprovedChange={setMergeApproved}
               onApply={handleApplyApprovedMerge}
+            />
+            <BrainRecallPanel
+              graph={brainGraph}
+              initialQuery="kind:memory approval"
+              compact
             />
             <MemoryReviewLedgerPanel ledger={ledger} />
           </aside>

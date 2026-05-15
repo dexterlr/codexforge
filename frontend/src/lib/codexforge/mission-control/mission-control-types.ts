@@ -53,6 +53,7 @@ export type MissionSurfaceRegistry = {
 export type MissionHealthDimensionId =
   | "runtime"
   | "memory"
+  | "brain-recall"
   | "memory-review"
   | "memory-persistence"
   | "brain-merge"

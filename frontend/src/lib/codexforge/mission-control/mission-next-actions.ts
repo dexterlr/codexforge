@@ -19,6 +19,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Preview file context before any external action.",
     },
     {
+      id: "search-brain-memory",
+      label: "Search Brain memory",
+      href: "/brain",
+      priority: "secondary",
+      readiness: "ready",
+      safetyNote: "Deterministic local recall only; no graph mutation and inspect before editing.",
+    },
+    {
       id: "prepare-patch-preview",
       label: "Prepare patch preview",
       href: "/files",

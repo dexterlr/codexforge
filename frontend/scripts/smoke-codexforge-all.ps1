@@ -187,6 +187,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Brain Recall"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-recall.ps1"
+    Required = $true
+  }
+  @{
     Name = "Agent runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-agent-runtime.ps1"
     Required = $true

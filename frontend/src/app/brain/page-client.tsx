@@ -12,6 +12,7 @@ import { BrainGraphLoadingState } from "@/lib/codexforge/brain/components/brain-
 import { BrainGraphView } from "@/lib/codexforge/brain/components/brain-graph-view";
 import { BrainQualityGateStrip } from "@/lib/codexforge/brain/components/brain-quality-gate-strip";
 import { buildStableReactKey } from "@/lib/codexforge/brain/components/brain-react-key";
+import { BrainRecallPanel } from "@/lib/codexforge/brain-recall/components";
 import {
   buildBrainPanelDataAdapters,
   buildBrainPanelIntegrationFixtureAdapters,
@@ -1630,6 +1631,9 @@ export default function BrainPageClient() {
             </section>
 
             <RuntimeReadinessPanel stats={stats} />
+            <section style={{ marginBottom: 18, minWidth: 0 }}>
+              <BrainRecallPanel graph={graph} />
+            </section>
             <BrainCommandCenter
               graph={graph}
               selectedNode={selectedNode}
