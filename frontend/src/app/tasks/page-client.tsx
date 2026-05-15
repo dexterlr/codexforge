@@ -2,6 +2,7 @@
 
 import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
 import { ExecutionReadinessPanel } from "@/lib/codexforge/execution-readiness/components";
+import { EvidenceMemoryPanel } from "@/lib/codexforge/evidence-memory/components";
 import { ReadOnlyStepExecutionPanel } from "@/lib/codexforge/read-only-step-execution/components";
 import { StepRunnerPreviewPanel } from "@/lib/codexforge/step-runner-preview/components";
 import { TaskActivationPanel } from "@/lib/codexforge/task-activation/components";
@@ -18,6 +19,9 @@ export default function TasksPageClient() {
       <ExecutionReadinessPanel />
       <StepRunnerPreviewPanel />
       <ReadOnlyStepExecutionPanel />
+      <div style={{ background: "#020617", padding: "0 min(4vw, 44px) 36px" }}>
+        <EvidenceMemoryPanel />
+      </div>
     </>
   );
 }

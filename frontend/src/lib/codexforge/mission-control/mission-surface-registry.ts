@@ -25,14 +25,14 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
   const surfaces: MissionSurface[] = [
     buildMissionSurface({
       id: "tasks",
-      label: "Task Autopilot, Reviewed Task Activation, Execution Readiness, Step Runner Preview, and Read-Only Step Execution",
+      label: "Task Autopilot, Reviewed Task Activation, Execution Readiness, Step Runner Preview, Read-Only Step Execution, and Evidence Memory",
       href: "/tasks",
       status: "review-needed",
-      role: "Task suggestions from recalled memory, active context, file risk, patch preview posture, mission readiness, reviewed activation requests, execution readiness review, approval-ready Step Runner Preview packets, and approved Read-Only Step Execution evidence capture.",
+      role: "Task suggestions from recalled memory, active context, file risk, patch preview posture, mission readiness, reviewed activation requests, execution readiness review, approval-ready Step Runner Preview packets, approved Read-Only Step Execution evidence capture, and Evidence Memory candidate previews.",
       riskPosture: "preview-only",
-      nextAction: "Execute approved read-only step.",
+      nextAction: "Review read-only evidence memory.",
       readiness: "needs-review",
-      relatedPhase: "Task Memory Autopilot, Reviewed Task Activation, Active Task Execution Readiness, Approved Step Runner Preview, and Read-Only Step Execution",
+      relatedPhase: "Task Memory Autopilot, Reviewed Task Activation, Active Task Execution Readiness, Approved Step Runner Preview, Read-Only Step Execution, and Evidence Memory",
     }),
     buildMissionSurface({
       id: "brain",
@@ -47,14 +47,14 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
     }),
     buildMissionSurface({
       id: "memory",
-      label: "Memory Review and Persistence",
+      label: "Evidence Memory, Memory Review, and Persistence",
       href: "/memory",
       status: "review-needed",
-      role: "Candidate confidence, contradiction risk review, explicit approval, local event persistence, Brain merge readiness, graph diff previews, and approved local graph merge.",
+      role: "Read-only evidence memory candidates, confidence, contradiction risk review, explicit approval, local event persistence, Brain merge readiness, graph diff previews, and approved local graph merge.",
       riskPosture: "preview-only",
-      nextAction: "Apply approved Brain merge.",
+      nextAction: "Review read-only evidence memory.",
       readiness: "needs-review",
-      relatedPhase: "Memory Promotion Review Queue, Approved Memory Persistence, Brain Event Merge Review, and Approved Brain Graph Merge",
+      relatedPhase: "Evidence Memory, Memory Promotion Review Queue, Approved Memory Persistence, Brain Event Merge Review, and Approved Brain Graph Merge",
     }),
     buildMissionSurface({
       id: "files",

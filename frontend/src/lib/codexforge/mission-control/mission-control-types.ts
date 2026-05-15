@@ -55,6 +55,7 @@ export type MissionHealthDimensionId =
   | "runtime"
   | "memory"
   | "brain-recall"
+  | "evidence-memory"
   | "memory-review"
   | "memory-persistence"
   | "brain-merge"

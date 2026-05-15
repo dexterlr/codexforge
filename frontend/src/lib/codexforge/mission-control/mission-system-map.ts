@@ -42,6 +42,7 @@ export function buildMissionSystemMap(): MissionSystemMap {
     buildMissionSystemEdge("brain", "chat", "Selected recall cards become visible chat context", "readonly"),
     buildMissionSystemEdge("brain", "tasks", "Recall signals inform reviewed task suggestions", "readonly"),
     buildMissionSystemEdge("tasks", "chat", "Reviewed Task Activation hands off to /ai", "preview-only"),
+    buildMissionSystemEdge("tasks", "memory", "Read-only execution evidence becomes reviewable memory candidates", "preview-only"),
     buildMissionSystemEdge("artifacts", "memory", "Memory candidates enter review queue", "preview-only"),
     buildMissionSystemEdge("memory", "future-memory", "Approved candidates preview memory promotion events", "preview-only"),
     buildMissionSystemEdge("files", "patch-preview", "File workflow prepares previews", "preview-only"),

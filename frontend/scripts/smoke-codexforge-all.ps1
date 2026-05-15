@@ -222,6 +222,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Evidence Memory"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-evidence-memory.ps1"
+    Required = $true
+  }
+  @{
     Name = "Agent runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-agent-runtime.ps1"
     Required = $true

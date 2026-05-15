@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import { EvidenceMemoryPanel } from "@/lib/codexforge/evidence-memory/components";
 import {
   buildMemoryPromotionEventPreview,
   buildMemoryReviewAction,
@@ -293,6 +294,7 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
           <div style={mainColumn}>
             <MemoryReviewQueue queue={queue} selectedItemId={selectedItem?.id ?? selectedItemId} onSelectItem={setSelectedItemId} />
             {selectedItem ? <MemoryReviewScorePanel item={selectedItem} /> : null}
+            <EvidenceMemoryPanel compact />
           </div>
           <aside style={sideColumn}>
             <MemoryReviewSafetyNotice />
