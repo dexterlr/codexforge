@@ -9,6 +9,7 @@ import { TaskActivationPanel } from "@/lib/codexforge/task-activation/components
 import { TaskAutopilotPanel } from "@/lib/codexforge/task-autopilot/components";
 import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
 import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/components";
+import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
 
 export default function TasksPageClient() {
   return (
@@ -28,6 +29,9 @@ export default function TasksPageClient() {
         />
         <div style={{ marginTop: 16 }}>
           <PatchPreviewQueuePanel compact />
+        </div>
+        <div style={{ marginTop: 16 }}>
+          <PreviewDiffComposerPanel compact />
         </div>
       </div>
       <div style={{ background: "#020617", padding: "0 min(4vw, 44px) 36px" }}>
@@ -50,7 +54,8 @@ export default function TasksPageClient() {
             Read-only execution evidence can be used in Evidence-Grounded Chat after review. This does not execute
             steps, mutate files, promote memory, or merge graph events. Recommend grounded fix prepares Safe Patch
             Preview handoff only. Patch Preview Queue can show queued preview item handoff when safe, with no
-            execution and no mutation.
+            execution and no mutation. Preview Diff Composer can compose preview diff packages from task or fix queue
+            items without execution, file writes, or mutation.
           </span>
         </section>
         <EvidenceMemoryPanel />

@@ -27,6 +27,14 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
         <Link href="/ai" style={chatRecallLink}>
           Patch Preview Queue: Queue for Safe Patch Preview from reviewed recommendations; preview diff only, evidence is context, not proof, verify current files, no file writes without approval, and no command execution without approval.
         </Link>
+        <Link
+          href="/ai"
+          style={chatRecallLink}
+          data-codexforge-files-preview-diff-composer="Preview Diff Composer Compose preview diff non-applyable preview-only current file content is authority"
+        >
+          Preview Diff Composer: Compose preview diff for selected file context when safe; show pseudo diff as
+          non-applyable, current file content is authority, and no files are mutated.
+        </Link>
       </div>
       <FilesCommandCenter initialData={initialData} />
     </>

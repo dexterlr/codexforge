@@ -38,6 +38,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
     detail:
       "Queue reviewed patch previews for Safe Patch Preview handoff only; evidence is context, not proof, and current files must be verified.",
   });
+  checks.push({
+    id: "preview-diff-composer-readiness",
+    label: "Preview Diff Composer readiness",
+    level: "needs-review",
+    detail:
+      "Compose preview diff packages from queued patch preview items; pseudo diff only, not an applyable patch, current file content is authority, and no file writes without approval.",
+  });
   const score = scoreMissionReadiness(checks.map((check) => check.level));
 
   return {

@@ -3,10 +3,18 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "compose-preview-diff",
+      label: "Compose preview diff",
+      href: "/ai",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Preview Diff Composer readiness packages queued patch preview items into human-reviewable pseudo-diffs; preview-only, not an applyable patch, current file content is authority, evidence is context not proof, and no file writes without approval.",
+    },
+    {
       id: "review-patch-preview-queue",
       label: "Review queued patch preview",
       href: "/ai",
-      priority: "primary",
+      priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Patch Preview Queue readiness packages reviewed fix recommendations for Safe Patch Preview; preview diff only, verify current files, no file writes without approval, no command execution without approval, and preserve latest-message authority.",
     },

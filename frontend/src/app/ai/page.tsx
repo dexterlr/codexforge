@@ -67,6 +67,7 @@ import {
 import { EvidenceGroundedChatPanel } from "@/lib/codexforge/evidence-grounded-chat";
 import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
 import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/components";
+import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
 
 /* ---------------- page ---------------- */
 
@@ -286,6 +287,10 @@ export default function AiPage() {
   }, []);
 
   const handleCopyPatchPreviewQueuePrompt = useCallback((prompt: string) => {
+    void navigator.clipboard?.writeText(prompt).catch(() => undefined);
+  }, []);
+
+  const handleCopyPreviewDiffComposerPrompt = useCallback((prompt: string) => {
     void navigator.clipboard?.writeText(prompt).catch(() => undefined);
   }, []);
 
@@ -558,6 +563,7 @@ export default function AiPage() {
                 onUsePrompt={handleUseGroundedFixPrompt}
               />
               <PatchPreviewQueuePanel onCopyPrompt={handleCopyPatchPreviewQueuePrompt} />
+              <PreviewDiffComposerPanel onCopyPrompt={handleCopyPreviewDiffComposerPrompt} />
               <section
                 style={reviewedActivationPanel}
                 data-codexforge-ai-reviewed-task-activation="Reviewed Task Activation /tasks copy activation prompt preserve latest-message authority"

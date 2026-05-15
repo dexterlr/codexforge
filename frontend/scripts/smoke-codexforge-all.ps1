@@ -287,6 +287,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Preview Diff Composer"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-preview-diff-composer.ps1"
+    Required = $true
+  }
+  @{
     Name = "Grounded Fix Recommendation"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-grounded-fix-recommendation.ps1"
     Required = $true
