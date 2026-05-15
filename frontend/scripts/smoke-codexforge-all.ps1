@@ -102,6 +102,16 @@ $scripts = @(
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-graph-ui.ps1"
   }
   @{
+    Name = "Brain Graph 3D Navigation"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-graph-3d-navigation.ps1"
+    Required = $true
+  }
+  @{
+    Name = "Brain Graph Real 3D"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-graph-real-3d.ps1"
+    Required = $true
+  }
+  @{
     Name = "Brain command center"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-brain-command-center.ps1"
     Required = $true

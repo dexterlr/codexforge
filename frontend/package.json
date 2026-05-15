@@ -1,32 +1,35 @@
 {
-    "name":  "frontend",
-    "version":  "0.1.0",
-    "private":  true,
-    "scripts":  {
-                    "dev":  "next dev",
-                    "build":  "next build",
-                    "start":  "next start",
-                    "lint":  "eslint .",
-                    "typecheck":  "tsc --noEmit",
-                    "test":  "echo Operator test OK",
-                    "check":  "npm run lint \u0026\u0026 npm run typecheck",
-                    "clean":  "rimraf .next",
-                    "rebuild":  "npm run clean \u0026\u0026 npm run build",
-                    "smoke:codexforge":  "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-all.ps1",
-                    "smoke:codexforge:server":  "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-with-server.ps1"
-                },
-    "dependencies":  {
-                         "next":  "16.1.6",
-                         "react":  "19.2.3",
-                         "react-dom":  "19.2.3"
-                     },
-    "devDependencies":  {
-                            "@types/node":  "^20",
-                            "@types/react":  "^19",
-                            "@types/react-dom":  "^19",
-                            "eslint":  "^9",
-                            "eslint-config-next":  "16.1.6",
-                            "typescript":  "^5",
-                            "rimraf":  "^5"
-                        }
+    "name": "frontend",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "eslint .",
+        "typecheck": "tsc --noEmit",
+        "test": "echo Operator test OK",
+        "check": "npm run lint && npm run typecheck",
+        "clean": "rimraf .next",
+        "rebuild": "npm run clean && npm run build",
+        "smoke:codexforge": "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-all.ps1",
+        "smoke:codexforge:server": "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-with-server.ps1"
+    },
+    "dependencies": {
+        "@react-three/drei": "^10.7.7",
+        "@react-three/fiber": "^9.6.1",
+        "next": "16.1.6",
+        "react": "19.2.3",
+        "react-dom": "19.2.3",
+        "three": "^0.184.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "eslint": "^9",
+        "eslint-config-next": "16.1.6",
+        "rimraf": "^5",
+        "typescript": "^5"
+    }
 }
