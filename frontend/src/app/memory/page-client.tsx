@@ -278,6 +278,9 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
         <Link href="/ai" style={taskActivationLink}>
           Use in fix recommendation: Grounded Fix Recommendation treats evidence memory as context only, requires current file verification, and routes edits through Safe Patch Preview.
         </Link>
+        <Link href="/ai" style={taskActivationLink}>
+          Patch Preview Queue: reviewed evidence memory candidates can provide related handoff context only; no auto-promotion, no graph mutation, preview diff only, and no file writes without approval.
+        </Link>
         <section style={hero}>
           <div style={heroCopy}>
             <span style={eyebrow}>CodexForge Phase 16</span>
@@ -309,7 +312,8 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
               <p>
                 Reviewed evidence memory candidates can be copied into /ai as visible grounding context. This page does
                 not silently inject chat context and does not promote memory without review. Use in fix recommendation
-                is a Safe Patch Preview handoff only and does not mutate the Brain graph.
+                is a Safe Patch Preview handoff only and does not mutate the Brain graph. Patch Preview Queue handoff
+                can be related context for Safe Patch Preview while preserving latest-message authority.
               </p>
             </section>
           </div>

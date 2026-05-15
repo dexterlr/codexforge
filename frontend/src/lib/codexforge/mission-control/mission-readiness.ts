@@ -25,12 +25,19 @@ function levelFromScore(score: number): MissionReadinessLevel {
 
 export function buildMissionReadiness(): MissionReadinessReport {
   const health = buildMissionHealthReport();
-  const checks = health.dimensions.map((dimension) => ({
+  const checks: MissionReadinessReport["checks"] = health.dimensions.map((dimension) => ({
     id: dimension.id,
     label: dimension.label,
     level: dimension.readiness,
     detail: dimension.detail,
   }));
+  checks.push({
+    id: "patch-preview-queue-readiness",
+    label: "Patch Preview Queue readiness",
+    level: "needs-review",
+    detail:
+      "Queue reviewed patch previews for Safe Patch Preview handoff only; evidence is context, not proof, and current files must be verified.",
+  });
   const score = scoreMissionReadiness(checks.map((check) => check.level));
 
   return {

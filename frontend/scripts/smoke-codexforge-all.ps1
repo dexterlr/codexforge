@@ -282,6 +282,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Patch Preview Queue"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-patch-preview-queue.ps1"
+    Required = $true
+  }
+  @{
     Name = "Grounded Fix Recommendation"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-grounded-fix-recommendation.ps1"
     Required = $true

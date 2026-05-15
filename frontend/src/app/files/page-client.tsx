@@ -24,6 +24,9 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
         <Link href="/ai" style={chatRecallLink}>
           Grounded Fix Recommendation: selected file context can prepare Safe Patch Preview handoff only; verify current files and no mutation.
         </Link>
+        <Link href="/ai" style={chatRecallLink}>
+          Patch Preview Queue: Queue for Safe Patch Preview from reviewed recommendations; preview diff only, evidence is context, not proof, verify current files, no file writes without approval, and no command execution without approval.
+        </Link>
       </div>
       <FilesCommandCenter initialData={initialData} />
     </>
