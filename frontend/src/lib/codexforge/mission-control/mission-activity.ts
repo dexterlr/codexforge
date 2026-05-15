@@ -28,6 +28,7 @@ export function buildMissionActivityTimeline(): MissionActivityTimeline {
     buildMissionActivityItem("production-pack-builder-added", "Production pack builder added", "Production", "Packs, manifests, validation, and replay prompts became reviewable.", "needs-review"),
     buildMissionActivityItem("mission-control-added", "Mission control added", "Phase 13", "Unified cockpit brings health, surfaces, actions, readiness, and safety into one readonly view.", "ready"),
     buildMissionActivityItem("reviewed-task-activation-added", "Reviewed Task Activation added", "Phase 23", "Accepted suggestions can become reviewed active plan previews and copy-only /ai handoffs.", "needs-review"),
+    buildMissionActivityItem("execution-readiness-added", "Execution Readiness added", "Phase 24", "Activated task plans gain readiness input, step preflight, tool posture, risk, tests, and approval readiness while execution remains blocked.", "needs-review"),
   ];
 
   return {

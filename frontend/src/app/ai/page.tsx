@@ -397,6 +397,9 @@ export default function AiPage() {
         <Link href="/tasks" style={missionLink}>
           Task Autopilot and Reviewed Task Activation: use /tasks to review suggestions, preview plans, then copy a no auto-run handoff
         </Link>
+        <Link href="/tasks" style={missionLink}>
+          Execution Readiness: review step preflight, tool readiness, risk, tests, and approval gates in /tasks; execution blocked until approval
+        </Link>
 
         <TopBar
           sliderOpen={sliderOpen}

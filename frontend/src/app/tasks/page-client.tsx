@@ -1,6 +1,7 @@
 "use client";
 
 import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import { ExecutionReadinessPanel } from "@/lib/codexforge/execution-readiness/components";
 import { TaskActivationPanel } from "@/lib/codexforge/task-activation/components";
 import { TaskAutopilotPanel } from "@/lib/codexforge/task-autopilot/components";
 
@@ -12,6 +13,7 @@ export default function TasksPageClient() {
       </div>
       <TaskAutopilotPanel />
       <TaskActivationPanel />
+      <ExecutionReadinessPanel />
     </>
   );
 }

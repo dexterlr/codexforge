@@ -207,6 +207,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Execution Readiness"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-execution-readiness.ps1"
+    Required = $true
+  }
+  @{
     Name = "Agent runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-agent-runtime.ps1"
     Required = $true

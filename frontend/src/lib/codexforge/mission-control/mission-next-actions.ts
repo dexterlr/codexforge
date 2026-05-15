@@ -3,10 +3,18 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "review-execution-readiness",
+      label: "Review execution readiness",
+      href: "/tasks",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Execution Readiness reviews step preflight, tool posture, risk, tests, and approval gates; execution blocked until approval.",
+    },
+    {
       id: "activate-reviewed-task",
       label: "Activate reviewed task",
       href: "/tasks",
-      priority: "primary",
+      priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Reviewed Task Activation creates a plan preview and /ai handoff only; no auto-run and no file mutation.",
     },
