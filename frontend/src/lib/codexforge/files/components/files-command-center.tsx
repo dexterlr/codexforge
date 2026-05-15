@@ -404,6 +404,13 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
             workspacePrompt={fileWorkspacePrompt}
             summary={fileChatBridgeSummary}
           />
+          <section style={insightPanel} data-codexforge-files-task-suggestions>
+            <div style={eyebrow}>Task Autopilot signal</div>
+            <p style={railBody}>
+              Selected file can contribute task signals for review-gated task suggestions in /tasks. This panel is
+              preview-only and performs no file mutation.
+            </p>
+          </section>
           <PatchPreviewCockpit
             plan={selectedFile ? patchPreviewPlan : null}
             patchPrompt={patchPreviewPrompt}

@@ -24,6 +24,17 @@ export function buildMissionSurface(args: {
 export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
   const surfaces: MissionSurface[] = [
     buildMissionSurface({
+      id: "tasks",
+      label: "Task Autopilot",
+      href: "/tasks",
+      status: "review-needed",
+      role: "Task suggestions from recalled memory, active context, file risk, patch preview posture, and mission readiness.",
+      riskPosture: "preview-only",
+      nextAction: "Review task suggestions.",
+      readiness: "needs-review",
+      relatedPhase: "Task Memory Autopilot",
+    }),
+    buildMissionSurface({
       id: "brain",
       label: "Brain",
       href: "/brain",

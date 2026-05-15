@@ -3,10 +3,18 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "review-task-suggestions",
+      label: "Review task suggestions",
+      href: "/tasks",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Task Autopilot is review required, preview-only, and never auto-runs tasks.",
+    },
+    {
       id: "review-system-health",
       label: "Review system health",
       href: "/mission",
-      priority: "primary",
+      priority: "secondary",
       readiness: "ready",
       safetyNote: "Readonly review inside Mission Control.",
     },

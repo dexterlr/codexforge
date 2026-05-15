@@ -28,6 +28,7 @@ export function buildMissionHealthReport(): MissionHealthReport {
     buildHealthDimension("bridge-consent", "Bridge consent readiness", "future-gated", "Consent required", "Local bridge activity requires explicit guarded approval."),
     buildHealthDimension("artifacts", "Artifact readiness", "needs-review", "Workspace guarded", "Artifact review and export approval posture are visible."),
     buildHealthDimension("artifact-ingestion", "Artifact ingestion readiness", "needs-review", "Candidates visible", "Exported artifacts produce read-only memory candidates and brain signals for review before promotion."),
+    buildHealthDimension("task-autopilot", "Task Autopilot readiness", "needs-review", "Review task suggestions", "Recalled memory, active context, file risk, and mission state can produce review-gated suggestions and preview-only handoff prompts."),
     buildHealthDimension("production-pack", "Production pack readiness", "needs-review", "Pack review", "Production packs are available for preview bundling and validation."),
     buildHealthDimension("safety", "Safety posture", "ready", "Readonly", "Mission Control does not mutate source, run commands, control desktop, or place trades."),
   ];

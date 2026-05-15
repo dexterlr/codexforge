@@ -339,6 +339,9 @@ export default function AiPage() {
         <Link href="/mission" style={missionLink}>
           Mission Control: health, readiness, safe next actions, and approval gated surfaces
         </Link>
+        <Link href="/tasks" style={missionLink}>
+          Task Autopilot: Suggested next tasks from memory, review required, no auto-run, copy handoff only
+        </Link>
 
         <TopBar
           sliderOpen={sliderOpen}

@@ -12,6 +12,7 @@ export type CodexForgeRoute = {
     | "home"
     | "mission"
     | "workspace"
+    | "tasks"
     | "brain"
     | "memory"
     | "files"
@@ -61,6 +62,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Core",
     description: "Main AI workspace for chat, planning, memory, and execution context.",
+  },
+  {
+    id: "tasks",
+    path: "/tasks",
+    label: "Tasks",
+    shortLabel: "Tasks",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Core",
+    description: "Task Memory Autopilot for review-gated suggestions, safe plan previews, and handoff prompts.",
   },
   {
     id: "brain",

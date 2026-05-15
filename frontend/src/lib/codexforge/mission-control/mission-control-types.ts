@@ -16,6 +16,7 @@ export type MissionSurfaceId =
   | "artifacts"
   | "production"
   | "patch-preview"
+  | "tasks"
   | "chat";
 
 export type MissionSurfaceStatus =
@@ -63,6 +64,7 @@ export type MissionHealthDimensionId =
   | "bridge-consent"
   | "artifacts"
   | "artifact-ingestion"
+  | "task-autopilot"
   | "production-pack"
   | "safety";
 

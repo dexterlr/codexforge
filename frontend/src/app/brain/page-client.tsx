@@ -4,6 +4,7 @@ import {
   CodexForgeGlobalNav,
   CodexForgeLocalActionBar,
 } from "@/lib/codexforge/navigation";
+import Link from "next/link";
 import { BrainCommandCenter } from "@/lib/codexforge/brain/components/brain-command-center";
 import { BrainFirstRunOnboarding } from "@/lib/codexforge/brain/components/brain-first-run-onboarding";
 import { BrainGraphEmptyState } from "@/lib/codexforge/brain/components/brain-graph-empty-state";
@@ -1473,6 +1474,9 @@ export default function BrainPageClient() {
         }}
       >
         <CodexForgeGlobalNav compact />
+        <Link href="/tasks" style={taskAutopilotLink}>
+          Task Autopilot: Generate task suggestions from recalled memory for visible review only; no graph mutation.
+        </Link>
 
         <CodexForgeLocalActionBar
           title="Brain Command Center"
@@ -2294,3 +2298,18 @@ export default function BrainPageClient() {
     </main>
   );
 }
+
+const taskAutopilotLink: CSSProperties = {
+  border: "1px solid rgba(45,212,191,0.18)",
+  background: "rgba(20,184,166,0.08)",
+  borderRadius: 8,
+  color: "#dbeafe",
+  display: "block",
+  fontSize: 12,
+  fontWeight: 850,
+  lineHeight: 1.4,
+  margin: "12px 0",
+  padding: "9px 11px",
+  textDecoration: "none",
+  overflowWrap: "anywhere",
+};
