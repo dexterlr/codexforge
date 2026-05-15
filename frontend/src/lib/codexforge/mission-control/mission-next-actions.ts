@@ -3,10 +3,18 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "review-grounded-fix-recommendation",
+      label: "Review grounded fix recommendation",
+      href: "/ai",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Grounded Fix Recommendation reviews evidence and file context, then prepares Safe Patch Preview handoff only; no command execution, no apply, and no file mutation.",
+    },
+    {
       id: "use-reviewed-evidence-in-chat",
       label: "Use reviewed evidence in chat",
       href: "/ai",
-      priority: "primary",
+      priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Evidence-Grounded Chat uses selected evidence only, shows local citations and stale or weak warnings, and allows copy/use prompt handoff without hidden context injection.",
     },

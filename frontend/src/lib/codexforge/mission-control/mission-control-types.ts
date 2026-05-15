@@ -71,6 +71,7 @@ export type MissionHealthDimensionId =
   | "execution-readiness"
   | "step-runner-preview"
   | "read-only-step-execution"
+  | "grounded-fix-recommendation"
   | "production-pack"
   | "safety";
 

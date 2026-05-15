@@ -7,6 +7,7 @@ import { ReadOnlyStepExecutionPanel } from "@/lib/codexforge/read-only-step-exec
 import { StepRunnerPreviewPanel } from "@/lib/codexforge/step-runner-preview/components";
 import { TaskActivationPanel } from "@/lib/codexforge/task-activation/components";
 import { TaskAutopilotPanel } from "@/lib/codexforge/task-autopilot/components";
+import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
 
 export default function TasksPageClient() {
   return (
@@ -19,9 +20,15 @@ export default function TasksPageClient() {
       <ExecutionReadinessPanel />
       <StepRunnerPreviewPanel />
       <ReadOnlyStepExecutionPanel />
+      <div style={{ background: "#020617", padding: "0 min(4vw, 44px) 16px" }}>
+        <GroundedFixRecommendationPanel
+          manualGoal="Recommend grounded fix from reviewed task evidence; no execution and no mutation."
+          compact
+        />
+      </div>
       <div style={{ background: "#020617", padding: "0 min(4vw, 44px) 36px" }}>
         <section
-          data-codexforge-tasks-evidence-grounded-chat="Evidence-Grounded Chat Use evidence in chat selected evidence only no execution no mutation"
+          data-codexforge-tasks-evidence-grounded-chat="Evidence-Grounded Chat Use evidence in chat selected evidence only no execution no mutation Recommend grounded fix Grounded Fix Recommendation"
           style={{
             border: "1px solid rgba(125,211,252,0.16)",
             background: "rgba(14,165,233,0.08)",
@@ -37,7 +44,8 @@ export default function TasksPageClient() {
           <strong>Use evidence in chat</strong>
           <span>
             Read-only execution evidence can be used in Evidence-Grounded Chat after review. This does not execute
-            steps, mutate files, promote memory, or merge graph events.
+            steps, mutate files, promote memory, or merge graph events. Recommend grounded fix prepares Safe Patch
+            Preview handoff only.
           </span>
         </section>
         <EvidenceMemoryPanel />

@@ -21,6 +21,7 @@ import { calculateFileRisk } from "../file-risk";
 import { buildCodexForgeFileReactKey, searchFiles } from "../file-search";
 import { buildPatchPreviewPlan } from "@/lib/codexforge/patch-preview";
 import { PatchPreviewCockpit } from "@/lib/codexforge/patch-preview/components";
+import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
 import { CodexForgeLocalActionBar } from "@/lib/codexforge/navigation";
 import type {
   CodexForgeFileAction,
@@ -256,6 +257,24 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
     ].join("\n");
   }, [patchPreviewPlan]);
 
+  const groundedFixSignals = useMemo(
+    () => [
+      {
+        id: `grounded-fix:${selectedFile.path}`,
+        type: "file-intelligence" as const,
+        title: `Selected file recommendation context: ${selectedFile.name}`,
+        summary: selectedFile.summary,
+        sourceType: "files" as const,
+        sourceId: selectedFile.path,
+        filePath: selectedFile.path,
+        confidence: 0.72,
+        importance: selectedFile.tags.includes("safety") ? "critical" as const : "high" as const,
+        riskHints: [selectedFile.kind, selectedFile.architectureRole],
+      },
+    ],
+    [selectedFile]
+  );
+
   const riskCounts = useMemo(() => {
     return sourceFiles.reduce<Record<CodexForgeFileRiskLevel, number>>(
       (counts, file) => {
@@ -414,6 +433,11 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
           <PatchPreviewCockpit
             plan={selectedFile ? patchPreviewPlan : null}
             patchPrompt={patchPreviewPrompt}
+          />
+          <GroundedFixRecommendationPanel
+            signals={groundedFixSignals}
+            manualGoal={`Prepare Safe Patch Preview handoff for ${selectedFile.path}.`}
+            compact
           />
           <FileInspector file={selectedFile} />
           <FileActionBar

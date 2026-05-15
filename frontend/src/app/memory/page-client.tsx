@@ -275,6 +275,9 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
         <Link href="/ai" style={taskActivationLink}>
           Evidence-Grounded Chat: Use as chat evidence only after review; selected evidence only, no hidden context injection, no auto-promotion, and no graph mutation.
         </Link>
+        <Link href="/ai" style={taskActivationLink}>
+          Use in fix recommendation: Grounded Fix Recommendation treats evidence memory as context only, requires current file verification, and routes edits through Safe Patch Preview.
+        </Link>
         <section style={hero}>
           <div style={heroCopy}>
             <span style={eyebrow}>CodexForge Phase 16</span>
@@ -300,12 +303,13 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
             <EvidenceMemoryPanel compact />
             <section
               style={chatEvidenceNotice}
-              data-codexforge-memory-evidence-grounded-chat="Evidence-Grounded Chat Use as chat evidence selected evidence only no auto-promotion no graph mutation"
+              data-codexforge-memory-evidence-grounded-chat="Evidence-Grounded Chat Use as chat evidence selected evidence only no auto-promotion no graph mutation Use in fix recommendation Grounded Fix Recommendation"
             >
               <strong>Use as chat evidence</strong>
               <p>
                 Reviewed evidence memory candidates can be copied into /ai as visible grounding context. This page does
-                not silently inject chat context and does not promote memory without review.
+                not silently inject chat context and does not promote memory without review. Use in fix recommendation
+                is a Safe Patch Preview handoff only and does not mutate the Brain graph.
               </p>
             </section>
           </div>

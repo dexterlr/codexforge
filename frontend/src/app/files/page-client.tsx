@@ -21,6 +21,9 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
         <Link href="/tasks" style={chatRecallLink}>
           Task Autopilot: selected file intelligence can contribute task suggestions, review required and no file mutation.
         </Link>
+        <Link href="/ai" style={chatRecallLink}>
+          Grounded Fix Recommendation: selected file context can prepare Safe Patch Preview handoff only; verify current files and no mutation.
+        </Link>
       </div>
       <FilesCommandCenter initialData={initialData} />
     </>

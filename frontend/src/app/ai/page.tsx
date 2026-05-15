@@ -65,6 +65,7 @@ import {
   type ChatRecallPreparedContext,
 } from "@/lib/codexforge/chat-recall";
 import { EvidenceGroundedChatPanel } from "@/lib/codexforge/evidence-grounded-chat";
+import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
 
 /* ---------------- page ---------------- */
 
@@ -269,6 +270,21 @@ export default function AiPage() {
   }, []);
 
   const handleUseEvidenceGroundedPrompt = useCallback(
+    (prompt: string) => {
+      setInput((current) => {
+        const trimmed = current.trim();
+        return trimmed ? `${prompt}\n\n${trimmed}` : prompt;
+      });
+      inputRef.current?.focus();
+    },
+    [setInput]
+  );
+
+  const handleCopyGroundedFixPrompt = useCallback((prompt: string) => {
+    void navigator.clipboard?.writeText(prompt).catch(() => undefined);
+  }, []);
+
+  const handleUseGroundedFixPrompt = useCallback(
     (prompt: string) => {
       setInput((current) => {
         const trimmed = current.trim();
@@ -531,6 +547,10 @@ export default function AiPage() {
               <EvidenceGroundedChatPanel
                 onCopyPrompt={handleCopyEvidenceGroundedPrompt}
                 onUsePrompt={handleUseEvidenceGroundedPrompt}
+              />
+              <GroundedFixRecommendationPanel
+                onCopyPrompt={handleCopyGroundedFixPrompt}
+                onUsePrompt={handleUseGroundedFixPrompt}
               />
               <section
                 style={reviewedActivationPanel}

@@ -282,6 +282,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Grounded Fix Recommendation"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-grounded-fix-recommendation.ps1"
+    Required = $true
+  }
+  @{
     Name = "Creative Production Studio"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-creative-production-studio.ps1"
     Required = $true
