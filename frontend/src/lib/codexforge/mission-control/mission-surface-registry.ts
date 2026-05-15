@@ -146,14 +146,14 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
     }),
     buildMissionSurface({
       id: "chat",
-      label: "Chat",
+      label: "Chat and Evidence-Grounded Chat",
       href: "/ai",
       status: "online",
-      role: "Primary workspace for planning, operator context, replies, and visible chat recall context cards.",
+      role: "Primary workspace for planning, operator context, replies, visible chat recall context cards, and Evidence-Grounded Chat readiness with selected evidence only.",
       riskPosture: "readonly",
-      nextAction: "Use recalled memory in chat.",
+      nextAction: "Use reviewed evidence in chat.",
       readiness: "ready",
-      relatedPhase: "Chat Context Injection from Brain Recall",
+      relatedPhase: "Chat Context Injection from Brain Recall and Evidence-Grounded Chat",
     }),
   ];
 

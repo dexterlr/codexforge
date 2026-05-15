@@ -20,6 +20,26 @@ export default function TasksPageClient() {
       <StepRunnerPreviewPanel />
       <ReadOnlyStepExecutionPanel />
       <div style={{ background: "#020617", padding: "0 min(4vw, 44px) 36px" }}>
+        <section
+          data-codexforge-tasks-evidence-grounded-chat="Evidence-Grounded Chat Use evidence in chat selected evidence only no execution no mutation"
+          style={{
+            border: "1px solid rgba(125,211,252,0.16)",
+            background: "rgba(14,165,233,0.08)",
+            borderRadius: 8,
+            color: "#e0f2fe",
+            padding: 14,
+            marginBottom: 16,
+            display: "grid",
+            gap: 6,
+            overflowWrap: "anywhere",
+          }}
+        >
+          <strong>Use evidence in chat</strong>
+          <span>
+            Read-only execution evidence can be used in Evidence-Grounded Chat after review. This does not execute
+            steps, mutate files, promote memory, or merge graph events.
+          </span>
+        </section>
         <EvidenceMemoryPanel />
       </div>
     </>

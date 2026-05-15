@@ -656,6 +656,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
     : "Add or refresh graph context before relying on predictive routing.";
   const memoryPersistenceReadiness = "approved memory events available for future merge";
   const evidenceMemoryReadiness = "Evidence Memory waits for review before Brain merge; no graph mutation.";
+  const evidenceGroundedChatReadiness = "Evidence-grounded chat uses selected evidence only; open /ai or /memory for visible grounding, no graph mutation.";
   const brainMergeReadiness = "Brain merge review available: Preview only. No Brain graph mutation.";
   const approvedBrainMergeReadiness = "Approved Brain merge available in /memory: explicit approval updates local graph, then refresh /brain.";
 
@@ -711,6 +712,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         <MiniStat label="Memory readiness" value={memoryReady ? "ready" : "warming"} />
         <MiniStat label="Memory persistence" value={memoryPersistenceReadiness} />
         <MiniStat label="Evidence Memory" value={evidenceMemoryReadiness} />
+        <MiniStat label="Evidence-Grounded Chat" value={evidenceGroundedChatReadiness} />
         <MiniStat label="Brain merge readiness" value={brainMergeReadiness} />
         <MiniStat label="Approved merge" value={approvedBrainMergeReadiness} />
         <MiniStat label="Agent readiness" value={taskKinds > 0 ? "context available" : "placeholder"} />

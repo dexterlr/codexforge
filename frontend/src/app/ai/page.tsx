@@ -64,6 +64,7 @@ import {
   buildChatRecallSelection,
   type ChatRecallPreparedContext,
 } from "@/lib/codexforge/chat-recall";
+import { EvidenceGroundedChatPanel } from "@/lib/codexforge/evidence-grounded-chat";
 
 /* ---------------- page ---------------- */
 
@@ -253,6 +254,21 @@ export default function AiPage() {
   }, []);
 
   const handleUseChatRecallPrompt = useCallback(
+    (prompt: string) => {
+      setInput((current) => {
+        const trimmed = current.trim();
+        return trimmed ? `${prompt}\n\n${trimmed}` : prompt;
+      });
+      inputRef.current?.focus();
+    },
+    [setInput]
+  );
+
+  const handleCopyEvidenceGroundedPrompt = useCallback((prompt: string) => {
+    void navigator.clipboard?.writeText(prompt).catch(() => undefined);
+  }, []);
+
+  const handleUseEvidenceGroundedPrompt = useCallback(
     (prompt: string) => {
       setInput((current) => {
         const trimmed = current.trim();
@@ -511,6 +527,10 @@ export default function AiPage() {
                 handoff={visibleChatRecallContext.handoff}
                 onCopyPrompt={handleCopyChatRecallPrompt}
                 onUsePrompt={handleUseChatRecallPrompt}
+              />
+              <EvidenceGroundedChatPanel
+                onCopyPrompt={handleCopyEvidenceGroundedPrompt}
+                onUsePrompt={handleUseEvidenceGroundedPrompt}
               />
               <section
                 style={reviewedActivationPanel}

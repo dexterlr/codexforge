@@ -272,6 +272,9 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
         <Link href="/tasks" style={taskActivationLink}>
           Activate reviewed task: accepted memory-review signals can become reviewed task activation plan previews; no memory mutation from task UI.
         </Link>
+        <Link href="/ai" style={taskActivationLink}>
+          Evidence-Grounded Chat: Use as chat evidence only after review; selected evidence only, no hidden context injection, no auto-promotion, and no graph mutation.
+        </Link>
         <section style={hero}>
           <div style={heroCopy}>
             <span style={eyebrow}>CodexForge Phase 16</span>
@@ -295,6 +298,16 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
             <MemoryReviewQueue queue={queue} selectedItemId={selectedItem?.id ?? selectedItemId} onSelectItem={setSelectedItemId} />
             {selectedItem ? <MemoryReviewScorePanel item={selectedItem} /> : null}
             <EvidenceMemoryPanel compact />
+            <section
+              style={chatEvidenceNotice}
+              data-codexforge-memory-evidence-grounded-chat="Evidence-Grounded Chat Use as chat evidence selected evidence only no auto-promotion no graph mutation"
+            >
+              <strong>Use as chat evidence</strong>
+              <p>
+                Reviewed evidence memory candidates can be copied into /ai as visible grounding context. This page does
+                not silently inject chat context and does not promote memory without review.
+              </p>
+            </section>
           </div>
           <aside style={sideColumn}>
             <MemoryReviewSafetyNotice />
@@ -385,6 +398,7 @@ const layout: CSSProperties = { display: "grid", gridTemplateColumns: "minmax(0,
 const mainColumn: CSSProperties = { display: "grid", gap: 16, minWidth: 0 };
 const sideColumn: CSSProperties = { display: "grid", gap: 16, minWidth: 0 };
 const taskActivationLink: CSSProperties = { color: "#dbeafe", border: "1px solid rgba(125,211,252,0.18)", background: "rgba(14,165,233,0.08)", borderRadius: 8, padding: "10px 12px", textDecoration: "none", fontSize: 12, fontWeight: 850, overflowWrap: "anywhere" };
+const chatEvidenceNotice: CSSProperties = { border: "1px solid rgba(125,211,252,0.16)", background: "rgba(14,165,233,0.08)", borderRadius: 8, padding: 14, display: "grid", gap: 8, fontSize: 13, lineHeight: 1.5, overflowWrap: "anywhere" };
 
 const emptyPreviewGraph: CodexForgeBrainGraph = {
   version: CODEXFORGE_BRAIN_GRAPH_VERSION,

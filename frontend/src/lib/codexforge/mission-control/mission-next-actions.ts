@@ -3,10 +3,18 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "use-reviewed-evidence-in-chat",
+      label: "Use reviewed evidence in chat",
+      href: "/ai",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Evidence-Grounded Chat uses selected evidence only, shows local citations and stale or weak warnings, and allows copy/use prompt handoff without hidden context injection.",
+    },
+    {
       id: "review-read-only-evidence-memory",
       label: "Review read-only evidence memory",
       href: "/memory",
-      priority: "primary",
+      priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Evidence Memory converts read-only execution evidence into reviewable candidates only; Review required before memory promotion, Brain merge review required, and no graph mutation.",
     },
