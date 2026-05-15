@@ -1,0 +1,25 @@
+warning: in the working copy of 'frontend/scripts/smoke-codexforge-all.ps1', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/ai/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/brain/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/memory/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/tasks/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/tasks/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/mission-control/mission-activity.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/mission-control/mission-control-types.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/mission-control/mission-health.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/mission-control/mission-next-actions.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/mission-control/mission-surface-registry.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/mission-control/mission-system-map.ts', LF will be replaced by CRLF the next time Git touches it
+ frontend/scripts/smoke-codexforge-all.ps1          |   5 [32m+[m
+ frontend/src/app/ai/page.tsx                       | 166 [32m++++++++++++++++++++[m[31m-[m
+ frontend/src/app/brain/page-client.tsx             |   2 [32m+[m[31m-[m
+ frontend/src/app/memory/page-client.tsx            |   5 [32m+[m
+ frontend/src/app/tasks/page-client.tsx             |   2 [32m+[m
+ frontend/src/app/tasks/page.tsx                    |   4 [32m+[m[31m-[m
+ .../codexforge/mission-control/mission-activity.ts |   1 [32m+[m
+ .../mission-control/mission-control-types.ts       |   1 [32m+[m
+ .../codexforge/mission-control/mission-health.ts   |   1 [32m+[m
+ .../mission-control/mission-next-actions.ts        |  10 [32m+[m[31m-[m
+ .../mission-control/mission-surface-registry.ts    |   8 [32m+[m[31m-[m
+ .../mission-control/mission-system-map.ts          |   3 [32m+[m
+ 12 files changed, 199 insertions(+), 9 deletions(-)

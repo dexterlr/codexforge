@@ -39,6 +39,15 @@ import { EmptyState } from "@/lib/codexforge/chat/components/empty-state";
 import { WorkspaceInsightsPanel } from "@/lib/codexforge/chat/components/workspace-insights-panel";
 import { WorkspaceSectionStack } from "@/lib/codexforge/chat/components/workspace-section-stack";
 import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import { codexForgeFileFixtures } from "@/lib/codexforge/files/file-fixtures";
+import { buildMissionControlSummary } from "@/lib/codexforge/mission-control";
+import { buildTaskAutopilotSummary } from "@/lib/codexforge/task-autopilot";
+import {
+  buildActivatedTaskPlan,
+  buildTaskActivationHandoff,
+  buildTaskActivationPolicy,
+  buildTaskActivationRequest,
+} from "@/lib/codexforge/task-activation";
 import type { WorkspaceCard } from "@/lib/codexforge/chat/components/workspace-hero";
 import WorkspaceSidebar from "@/lib/codexforge/chat/components/workspace-sidebar";
 import { WorkspaceSlider } from "@/lib/codexforge/chat/components/workspace-slider";
@@ -308,6 +317,52 @@ export default function AiPage() {
   }, []);
 
   const visibleChatRecallContext = chatRecallContext ?? emptyChatRecallContext;
+  const reviewedTaskActivationHandoff = useMemo(() => {
+    const activationBundle = buildTaskAutopilotSummary({
+      selectedFile: codexForgeFileFixtures[0],
+      missionControl: buildMissionControlSummary(),
+      artifactHints: [
+        {
+          sourceType: "artifact-hint",
+          sourceId: "ai-reviewed-task-activation",
+          title: "Copy reviewed task activation prompt into composer",
+          summary: "AI workspace supports reviewed task activation handoff without silently setting activeTask.",
+          tags: ["reviewed-task-activation", "latest-message-authority"],
+          confidence: 0.68,
+        },
+      ],
+    });
+    const suggestion = activationBundle.suggestions[0];
+    if (!suggestion) return null;
+    const request = buildTaskActivationRequest({
+      suggestion: {
+        ...suggestion,
+        reviewState: "accepted-for-planning",
+      },
+      approved: true,
+      approvalNote: "AI workspace copy-to-composer handoff.",
+    });
+    const policy = buildTaskActivationPolicy({ request });
+    if (!policy.allowed) return null;
+    const plan = buildActivatedTaskPlan({ request, policy });
+    return buildTaskActivationHandoff({ request, policy, plan });
+  }, []);
+
+  const handleCopyReviewedTaskActivationPrompt = useCallback(() => {
+    const prompt = reviewedTaskActivationHandoff?.prompt;
+    if (!prompt) return;
+    void navigator.clipboard?.writeText(prompt).catch(() => undefined);
+  }, [reviewedTaskActivationHandoff]);
+
+  const handleUseReviewedTaskActivationPrompt = useCallback(() => {
+    const prompt = reviewedTaskActivationHandoff?.prompt;
+    if (!prompt) return;
+    setInput((current) => {
+      const trimmed = current.trim();
+      return trimmed ? `${prompt}\n\n${trimmed}` : prompt;
+    });
+    inputRef.current?.focus();
+  }, [reviewedTaskActivationHandoff, setInput]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -340,7 +395,7 @@ export default function AiPage() {
           Mission Control: health, readiness, safe next actions, and approval gated surfaces
         </Link>
         <Link href="/tasks" style={missionLink}>
-          Task Autopilot: Suggested next tasks from memory, review required, no auto-run, copy handoff only
+          Task Autopilot and Reviewed Task Activation: use /tasks to review suggestions, preview plans, then copy a no auto-run handoff
         </Link>
 
         <TopBar
@@ -448,6 +503,42 @@ export default function AiPage() {
                 onCopyPrompt={handleCopyChatRecallPrompt}
                 onUsePrompt={handleUseChatRecallPrompt}
               />
+              <section
+                style={reviewedActivationPanel}
+                data-codexforge-ai-reviewed-task-activation="Reviewed Task Activation /tasks copy activation prompt preserve latest-message authority"
+              >
+                <div style={reviewedActivationTop}>
+                  <div style={{ minWidth: 0 }}>
+                    <span style={reviewedActivationEyebrow}>Reviewed Task Activation</span>
+                    <h2 style={reviewedActivationTitle}>Copy activation prompt into composer</h2>
+                    <p style={reviewedActivationBody}>
+                      Use /tasks to approve suggestions and preview active plans. This helper only inserts a reviewed
+                      activation handoff; it does not silently set activeTask and preserves latest-message authority.
+                    </p>
+                  </div>
+                  <Link href="/tasks" style={reviewedActivationLink}>
+                    Open /tasks
+                  </Link>
+                </div>
+                <div style={reviewedActivationButtons}>
+                  <button
+                    type="button"
+                    onClick={handleUseReviewedTaskActivationPrompt}
+                    disabled={!reviewedTaskActivationHandoff}
+                    style={reviewedActivationButton}
+                  >
+                    Use activation prompt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCopyReviewedTaskActivationPrompt}
+                    disabled={!reviewedTaskActivationHandoff}
+                    style={reviewedActivationSecondaryButton}
+                  >
+                    Copy activation prompt
+                  </button>
+                </div>
+              </section>
               <WorkspaceSectionStack>
                 <WorkspaceOverviewCard
                   hasMessages={hasMessages}
@@ -599,4 +690,77 @@ const missionLink: CSSProperties = {
   padding: "10px 12px",
   textDecoration: "none",
   overflowWrap: "anywhere",
+};
+const reviewedActivationPanel: CSSProperties = {
+  border: "1px solid rgba(125,211,252,0.18)",
+  background: "linear-gradient(145deg, rgba(15,23,42,0.82), rgba(2,6,23,0.68))",
+  borderRadius: 8,
+  padding: 14,
+  display: "grid",
+  gap: 12,
+  minWidth: 0,
+};
+const reviewedActivationTop: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 12,
+  alignItems: "flex-start",
+  flexWrap: "wrap",
+  minWidth: 0,
+};
+const reviewedActivationEyebrow: CSSProperties = {
+  fontSize: 11,
+  textTransform: "uppercase",
+  color: "#93c5fd",
+  fontWeight: 900,
+  overflowWrap: "anywhere",
+};
+const reviewedActivationTitle: CSSProperties = {
+  margin: "4px 0",
+  fontSize: 18,
+  letterSpacing: 0,
+  overflowWrap: "anywhere",
+};
+const reviewedActivationBody: CSSProperties = {
+  margin: 0,
+  fontSize: 12,
+  lineHeight: 1.5,
+  opacity: 0.76,
+  overflowWrap: "anywhere",
+};
+const reviewedActivationButtons: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+  minWidth: 0,
+};
+const reviewedActivationButton: CSSProperties = {
+  color: "#021014",
+  border: "1px solid rgba(94,234,212,0.42)",
+  background: "#5eead4",
+  borderRadius: 8,
+  padding: "9px 11px",
+  fontSize: 12,
+  fontWeight: 900,
+  cursor: "pointer",
+};
+const reviewedActivationSecondaryButton: CSSProperties = {
+  color: "#f8fafc",
+  border: "1px solid rgba(45,212,191,0.26)",
+  background: "rgba(20,184,166,0.12)",
+  borderRadius: 8,
+  padding: "9px 11px",
+  fontSize: 12,
+  fontWeight: 850,
+  cursor: "pointer",
+};
+const reviewedActivationLink: CSSProperties = {
+  color: "#dbeafe",
+  border: "1px solid rgba(125,211,252,0.18)",
+  background: "rgba(14,165,233,0.08)",
+  borderRadius: 8,
+  padding: "8px 10px",
+  textDecoration: "none",
+  fontSize: 12,
+  fontWeight: 850,
 };

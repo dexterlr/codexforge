@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
@@ -267,6 +268,9 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
     >
       <div style={shell}>
         <CodexForgeGlobalNav compact />
+        <Link href="/tasks" style={taskActivationLink}>
+          Activate reviewed task: accepted memory-review signals can become reviewed task activation plan previews; no memory mutation from task UI.
+        </Link>
         <section style={hero}>
           <div style={heroCopy}>
             <span style={eyebrow}>CodexForge Phase 16</span>
@@ -378,6 +382,7 @@ const statValue: CSSProperties = { color: "#ccfbf1", fontSize: 28, lineHeight: 1
 const layout: CSSProperties = { display: "grid", gridTemplateColumns: "minmax(0, 1.15fr) minmax(min(100%, 470px), 0.85fr)", gap: 16, alignItems: "start", minWidth: 0 };
 const mainColumn: CSSProperties = { display: "grid", gap: 16, minWidth: 0 };
 const sideColumn: CSSProperties = { display: "grid", gap: 16, minWidth: 0 };
+const taskActivationLink: CSSProperties = { color: "#dbeafe", border: "1px solid rgba(125,211,252,0.18)", background: "rgba(14,165,233,0.08)", borderRadius: 8, padding: "10px 12px", textDecoration: "none", fontSize: 12, fontWeight: 850, overflowWrap: "anywhere" };
 
 const emptyPreviewGraph: CodexForgeBrainGraph = {
   version: CODEXFORGE_BRAIN_GRAPH_VERSION,

@@ -65,6 +65,7 @@ export type MissionHealthDimensionId =
   | "artifacts"
   | "artifact-ingestion"
   | "task-autopilot"
+  | "task-activation"
   | "production-pack"
   | "safety";
 

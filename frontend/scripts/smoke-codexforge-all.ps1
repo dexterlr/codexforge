@@ -202,6 +202,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Reviewed Task Activation"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-task-activation.ps1"
+    Required = $true
+  }
+  @{
     Name = "Agent runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-agent-runtime.ps1"
     Required = $true

@@ -3,10 +3,18 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "activate-reviewed-task",
+      label: "Activate reviewed task",
+      href: "/tasks",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Reviewed Task Activation creates a plan preview and /ai handoff only; no auto-run and no file mutation.",
+    },
+    {
       id: "review-task-suggestions",
       label: "Review task suggestions",
       href: "/tasks",
-      priority: "primary",
+      priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Task Autopilot is review required, preview-only, and never auto-runs tasks.",
     },

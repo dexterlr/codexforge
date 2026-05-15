@@ -1475,7 +1475,7 @@ export default function BrainPageClient() {
       >
         <CodexForgeGlobalNav compact />
         <Link href="/tasks" style={taskAutopilotLink}>
-          Task Autopilot: Generate task suggestions from recalled memory for visible review only; no graph mutation.
+          Task Autopilot and Activate reviewed task: open /tasks to turn accepted memory-backed suggestions into reviewed plan previews; no graph mutation.
         </Link>
 
         <CodexForgeLocalActionBar
