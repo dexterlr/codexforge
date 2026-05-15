@@ -45,7 +45,16 @@ import { WorkspaceSlider } from "@/lib/codexforge/chat/components/workspace-slid
 import { ToolbarStatus } from "@/lib/codexforge/chat/components/toolbar-status";
 import * as styles from "@/lib/codexforge/chat/client-styles";
 import { useCodexForgeChat } from "@/lib/codexforge/chat/use-codexforge-chat";
-import type { CodexForgeExecutionPhase } from "@/lib/codexforge/types";
+import {
+  CHAT_RECALL_CONTEXT_STORAGE_KEY,
+  ChatRecallContextPanel,
+  buildChatRecallContext,
+  buildChatRecallGroundingPolicy,
+  buildChatRecallHandoff,
+  buildChatRecallSafetyBoundary,
+  buildChatRecallSelection,
+  type ChatRecallPreparedContext,
+} from "@/lib/codexforge/chat-recall";
 
 /* ---------------- page ---------------- */
 
@@ -54,6 +63,8 @@ export default function AiPage() {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [sliderOpen, setSliderOpen] = useState(false);
+  const [chatRecallContext, setChatRecallContext] =
+    useState<ChatRecallPreparedContext | null>(null);
 
   const systemGuide = useMemo(() => buildSystemGuide(), []);
   const defaultContext = useMemo(
@@ -228,6 +239,21 @@ export default function AiPage() {
     setInput("");
   }, [setInput]);
 
+  const handleCopyChatRecallPrompt = useCallback((prompt: string) => {
+    void navigator.clipboard?.writeText(prompt).catch(() => undefined);
+  }, []);
+
+  const handleUseChatRecallPrompt = useCallback(
+    (prompt: string) => {
+      setInput((current) => {
+        const trimmed = current.trim();
+        return trimmed ? `${prompt}\n\n${trimmed}` : prompt;
+      });
+      inputRef.current?.focus();
+    },
+    [setInput]
+  );
+
   const handleRunCurrentTaskStep = useCallback(() => {
     void runCurrentTaskStep();
   }, [runCurrentTaskStep]);
@@ -248,6 +274,40 @@ export default function AiPage() {
       behavior: "smooth",
     });
   }, [messages.length]);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(CHAT_RECALL_CONTEXT_STORAGE_KEY);
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw) as Partial<ChatRecallPreparedContext>;
+      if (
+        parsed.selection?.id !== "chat-recall-selection" ||
+        parsed.context?.id !== "chat-recall-context" ||
+        parsed.policy?.id !== "chat-recall-grounding-policy" ||
+        parsed.safety?.id !== "chat-recall-safety-boundary" ||
+        parsed.handoff?.id !== "chat-recall-handoff"
+      ) {
+        return;
+      }
+
+      setChatRecallContext(parsed as ChatRecallPreparedContext);
+    } catch {
+      setChatRecallContext(null);
+    }
+  }, []);
+
+  const emptyChatRecallContext = useMemo<ChatRecallPreparedContext>(() => {
+    const selection = buildChatRecallSelection({ results: [] });
+    const context = buildChatRecallContext({ selection });
+    const policy = buildChatRecallGroundingPolicy({ selection, context });
+    const safety = buildChatRecallSafetyBoundary();
+    const handoff = buildChatRecallHandoff({ context, policy, safety });
+
+    return { selection, context, policy, safety, handoff };
+  }, []);
+
+  const visibleChatRecallContext = chatRecallContext ?? emptyChatRecallContext;
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -375,6 +435,15 @@ export default function AiPage() {
                 onChange={setInput}
                 onClearDraft={handleClearDraft}
                 onSend={handleSend}
+              />
+              <ChatRecallContextPanel
+                selection={visibleChatRecallContext.selection}
+                context={visibleChatRecallContext.context}
+                policy={visibleChatRecallContext.policy}
+                safety={visibleChatRecallContext.safety}
+                handoff={visibleChatRecallContext.handoff}
+                onCopyPrompt={handleCopyChatRecallPrompt}
+                onUsePrompt={handleUseChatRecallPrompt}
               />
               <WorkspaceSectionStack>
                 <WorkspaceOverviewCard

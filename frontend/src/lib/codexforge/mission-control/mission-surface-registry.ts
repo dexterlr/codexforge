@@ -138,11 +138,11 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       label: "Chat",
       href: "/ai",
       status: "online",
-      role: "Primary workspace for planning, operator context, and replies.",
+      role: "Primary workspace for planning, operator context, replies, and visible chat recall context cards.",
       riskPosture: "readonly",
-      nextAction: "Open Brain Command Center from workspace context.",
+      nextAction: "Use recalled memory in chat.",
       readiness: "ready",
-      relatedPhase: "Brain Command Center",
+      relatedPhase: "Chat Context Injection from Brain Recall",
     }),
   ];
 

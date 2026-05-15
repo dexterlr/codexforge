@@ -192,6 +192,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Chat Recall Context"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-chat-recall-context.ps1"
+    Required = $true
+  }
+  @{
     Name = "Agent runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-agent-runtime.ps1"
     Required = $true

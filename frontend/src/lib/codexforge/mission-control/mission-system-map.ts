@@ -32,11 +32,13 @@ export function buildMissionSystemMap(): MissionSystemMap {
     { id: "production", label: "Production Pack", detail: "Bundle and validate" },
     { id: "bridge", label: "Bridge", detail: "Consent handoff" },
     { id: "capabilities", label: "Capabilities", detail: "Tool posture" },
+    { id: "chat", label: "Chat", detail: "Visible recall context" },
     { id: "future-memory", label: "Brain future memory", detail: "Planned recall feedback" },
   ];
 
   const edges: MissionSystemEdge[] = [
     buildMissionSystemEdge("brain", "files", "Context informs file review", "readonly"),
+    buildMissionSystemEdge("brain", "chat", "Selected recall cards become visible chat context", "readonly"),
     buildMissionSystemEdge("artifacts", "memory", "Memory candidates enter review queue", "preview-only"),
     buildMissionSystemEdge("memory", "future-memory", "Approved candidates preview memory promotion events", "preview-only"),
     buildMissionSystemEdge("files", "patch-preview", "File workflow prepares previews", "preview-only"),

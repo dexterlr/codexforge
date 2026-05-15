@@ -27,6 +27,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Deterministic local recall only; no graph mutation and inspect before editing.",
     },
     {
+      id: "use-recalled-memory-in-chat",
+      label: "Use recalled memory in chat",
+      href: "/ai",
+      priority: "secondary",
+      readiness: "ready",
+      safetyNote: "Chat recall context is opt-in, visible, and no hidden context injection is allowed.",
+    },
+    {
       id: "prepare-patch-preview",
       label: "Prepare patch preview",
       href: "/files",

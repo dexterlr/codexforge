@@ -8,6 +8,14 @@ import {
   buildBrainRecallResults,
   buildBrainRecallSummary,
 } from "../index";
+import {
+  buildChatRecallContext,
+  buildChatRecallGroundingPolicy,
+  buildChatRecallHandoff,
+  buildChatRecallSafetyBoundary,
+  buildChatRecallSelection,
+  type ChatRecallPreparedContext,
+} from "@/lib/codexforge/chat-recall";
 import { BrainRecallHandoffPanel } from "./BrainRecallHandoffPanel";
 import { BrainRecallResultsPanel } from "./BrainRecallResultsPanel";
 import { BrainRecallSafetyNotice } from "./BrainRecallSafetyNotice";
@@ -29,6 +37,28 @@ export function BrainRecallPanel({ graph, initialQuery = "memory safety", compac
   );
   const summary = useMemo(() => buildBrainRecallSummary(recallResults), [recallResults]);
   const handoff = useMemo(() => buildBrainRecallHandoff(recallResults.results, summary), [recallResults.results, summary]);
+  const chatRecallPayload = useMemo(() => {
+    const selection = buildChatRecallSelection({
+      results: recallResults.results,
+      selectedResultIds: handoff.selectedResultIds,
+    });
+    const context = buildChatRecallContext({
+      selection,
+      results: recallResults.results,
+    });
+    const policy = buildChatRecallGroundingPolicy({ selection, context });
+    const safety = buildChatRecallSafetyBoundary();
+    const chatHandoff = buildChatRecallHandoff({ context, policy, safety });
+    const payload: ChatRecallPreparedContext = {
+      selection,
+      context,
+      policy,
+      safety,
+      handoff: chatHandoff,
+    };
+
+    return JSON.stringify(payload);
+  }, [handoff.selectedResultIds, recallResults.results]);
   const index = useMemo(() => buildBrainMemoryIndex(graph), [graph]);
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   const selectedResult =
@@ -63,7 +93,12 @@ export function BrainRecallPanel({ graph, initialQuery = "memory safety", compac
         />
         <div style={side}>
           <BrainRelatedContextPanel context={selectedResult?.relatedContext ?? null} />
-          {!compact ? <BrainRecallHandoffPanel handoff={handoff} /> : null}
+          {!compact ? (
+            <BrainRecallHandoffPanel
+              handoff={handoff}
+              chatRecallPayload={chatRecallPayload}
+            />
+          ) : null}
         </div>
       </div>
     </section>
