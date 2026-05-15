@@ -67,6 +67,7 @@ export type MissionHealthDimensionId =
   | "task-autopilot"
   | "task-activation"
   | "execution-readiness"
+  | "step-runner-preview"
   | "production-pack"
   | "safety";
 

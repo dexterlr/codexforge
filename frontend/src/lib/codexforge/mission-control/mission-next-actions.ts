@@ -3,10 +3,18 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "preview-task-step-run",
+      label: "Preview a task step run",
+      href: "/tasks",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Step Runner Preview prepares policy posture, approval packet, dry run plan, and result preview only; No step execution in Phase 25 and Future run requires approval.",
+    },
+    {
       id: "review-execution-readiness",
       label: "Review execution readiness",
       href: "/tasks",
-      priority: "primary",
+      priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Execution Readiness reviews step preflight, tool posture, risk, tests, and approval gates; execution blocked until approval.",
     },

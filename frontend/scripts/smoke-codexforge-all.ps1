@@ -212,6 +212,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Step Runner Preview"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-step-runner-preview.ps1"
+    Required = $true
+  }
+  @{
     Name = "Agent runtime"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-agent-runtime.ps1"
     Required = $true

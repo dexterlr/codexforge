@@ -2,6 +2,7 @@
 
 import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
 import { ExecutionReadinessPanel } from "@/lib/codexforge/execution-readiness/components";
+import { StepRunnerPreviewPanel } from "@/lib/codexforge/step-runner-preview/components";
 import { TaskActivationPanel } from "@/lib/codexforge/task-activation/components";
 import { TaskAutopilotPanel } from "@/lib/codexforge/task-autopilot/components";
 
@@ -14,6 +15,7 @@ export default function TasksPageClient() {
       <TaskAutopilotPanel />
       <TaskActivationPanel />
       <ExecutionReadinessPanel />
+      <StepRunnerPreviewPanel />
     </>
   );
 }

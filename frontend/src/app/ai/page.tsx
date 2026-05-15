@@ -400,6 +400,9 @@ export default function AiPage() {
         <Link href="/tasks" style={missionLink}>
           Execution Readiness: review step preflight, tool readiness, risk, tests, and approval gates in /tasks; execution blocked until approval
         </Link>
+        <Link href="/tasks" style={missionLink}>
+          Step Runner Preview: prepare a selected step run preview, tool policy posture, approval packet, and dry run plan in /tasks; No step execution in Phase 25 and Future run requires approval
+        </Link>
 
         <TopBar
           sliderOpen={sliderOpen}

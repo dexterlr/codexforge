@@ -31,6 +31,7 @@ export function buildMissionHealthReport(): MissionHealthReport {
     buildHealthDimension("task-autopilot", "Task Autopilot readiness", "needs-review", "Review task suggestions", "Recalled memory, active context, file risk, and mission state can produce review-gated suggestions and preview-only handoff prompts."),
     buildHealthDimension("task-activation", "Reviewed Task Activation readiness", "needs-review", "Activate reviewed task", "Accepted suggestions can become activation requests, policy-reviewed active plan previews, and /ai handoffs without auto-run or file mutation."),
     buildHealthDimension("execution-readiness", "Execution Readiness", "needs-review", "Review execution readiness", "Activated task plans can be reviewed for step preflight, tool posture, risk, tests, and approval readiness while execution remains blocked until approval."),
+    buildHealthDimension("step-runner-preview", "Step Runner Preview readiness", "needs-review", "Preview a task step run", "Approved Step Runner Preview prepares tool policy posture, approval packet, dry run plan, result preview, and ledger only; No step execution in Phase 25."),
     buildHealthDimension("production-pack", "Production pack readiness", "needs-review", "Pack review", "Production packs are available for preview bundling and validation."),
     buildHealthDimension("safety", "Safety posture", "ready", "Readonly", "Mission Control does not mutate source, run commands, control desktop, or place trades."),
   ];
