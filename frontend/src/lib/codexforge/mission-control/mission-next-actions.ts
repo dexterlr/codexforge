@@ -11,6 +11,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Preview Diff Composer readiness packages queued patch preview items into human-reviewable pseudo-diffs; preview-only, not an applyable patch, current file content is authority, evidence is context not proof, and no file writes without approval.",
     },
     {
+      id: "review-apply-gate",
+      label: "Review apply gate",
+      href: "/ai",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Patch Application Gate readiness prepares explicit human approval packets and display-only apply request previews; actual mutation remains blocked, apply-diff requires tool-policy approval, current files must be verified, rollback plan required, and preserve latest-message authority.",
+    },
+    {
       id: "review-patch-preview-queue",
       label: "Review queued patch preview",
       href: "/ai",

@@ -35,6 +35,15 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
           Preview Diff Composer: Compose preview diff for selected file context when safe; show pseudo diff as
           non-applyable, current file content is authority, and no files are mutated.
         </Link>
+        <Link
+          href="/ai"
+          style={chatRecallLink}
+          data-codexforge-files-patch-application-gate="Patch Application Gate Prepare human-approved apply gate explicit human approval required actual mutation remains blocked"
+        >
+          Patch Application Gate: Prepare human-approved apply gate for selected file context when safe; explicit
+          human approval required, actual mutation remains blocked, pseudo diff alone is not applyable, apply-diff
+          requires tool-policy approval, current files must be verified, rollback plan required, and no mutation.
+        </Link>
       </div>
       <FilesCommandCenter initialData={initialData} />
     </>

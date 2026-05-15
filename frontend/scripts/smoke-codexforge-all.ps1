@@ -292,6 +292,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Patch Application Gate"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-patch-application-gate.ps1"
+    Required = $true
+  }
+  @{
     Name = "Grounded Fix Recommendation"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-grounded-fix-recommendation.ps1"
     Required = $true

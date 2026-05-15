@@ -45,6 +45,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
     detail:
       "Compose preview diff packages from queued patch preview items; pseudo diff only, not an applyable patch, current file content is authority, and no file writes without approval.",
   });
+  checks.push({
+    id: "patch-application-gate-readiness",
+    label: "Patch Application Gate readiness",
+    level: "needs-review",
+    detail:
+      "Prepare human-approved apply gate packets from preview diff packages; explicit human approval required, actual mutation remains blocked, apply-diff requires tool-policy approval, current files must be verified, rollback plan required, and preserve latest-message authority.",
+  });
   const score = scoreMissionReadiness(checks.map((check) => check.level));
 
   return {
