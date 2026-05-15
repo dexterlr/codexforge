@@ -200,9 +200,9 @@ export function projectBrainGraphNode3D(args: {
   const hash = createStableBrainGraph3DHash(`${node.kind}:${node.id}:${importanceRank}`);
   const layer = Math.floor(localIndex / 16);
   const angle = (localIndex / Math.max(1, Math.min(16, localCount))) * TAU + normalizeHash(hash, 2) * 0.34;
-  const radius = selected ? 0 : 34 + layer * 26 + Math.min(52, localCount * 2.7);
-  const height = selected ? 0 : normalizeHash(hash, 8) * (42 + importanceRank * 4);
-  const depth = selected ? 0 : normalizeHash(hash, 13) * 38;
+  const radius = selected ? 0 : (related ? 50 : 38) + layer * 31 + Math.min(68, localCount * 3.1);
+  const height = selected ? 0 : normalizeHash(hash, 8) * (64 + importanceRank * 5);
+  const depth = selected ? 0 : normalizeHash(hash, 13) * 84 + (related ? 28 : 0);
 
   return {
     id: node.id,
@@ -222,6 +222,7 @@ export function projectBrainGraphNode3D(args: {
     related,
     dimmed: Boolean(selectedNodeId && !selected && !related && !node.meta.pinned && importanceRank < 4),
     importanceRank,
+    labelVisible: selected || related || node.meta.pinned === true || importanceRank >= 4 || neighborCount >= 4,
   };
 }
 
@@ -245,8 +246,8 @@ export function buildBrainGraph3DEdge(
     from,
     to,
     color: selected ? "#e0f2fe" : related ? "#2dd4bf" : "#64748b",
-    opacity: selected ? 0.96 : related ? 0.62 : 0.22,
-    width: selected ? 2.8 : related ? 1.65 : clamp(0.75 + weight * 0.12, 0.75, 1.4),
+    opacity: selected ? 0.98 : related ? 0.68 : 0.18,
+    width: selected ? 3.4 : related ? 1.85 : clamp(0.68 + weight * 0.12, 0.68, 1.28),
     selected,
     related,
   };

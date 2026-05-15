@@ -62,6 +62,12 @@ export function BrainGraph3DView(props: BrainGraph3DViewProps) {
           onResetCamera={() => sendCommand("reset")}
           onFocusSelected={() => sendCommand("focus-selected")}
           onFitGraph={() => sendCommand("fit-graph")}
+          onZoomIn={() => sendCommand("zoom-in")}
+          onZoomOut={() => sendCommand("zoom-out")}
+          onRotateLeft={() => sendCommand("rotate-left")}
+          onRotateRight={() => sendCommand("rotate-right")}
+          onTiltUp={() => sendCommand("tilt-up")}
+          onTiltDown={() => sendCommand("tilt-down")}
           onPreviousNode={props.onPreviousNode}
           onNextNode={props.onNextNode}
           onPreviousNeighbor={props.onPreviousNeighbor}

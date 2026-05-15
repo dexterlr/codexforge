@@ -106,6 +106,7 @@ type VisualTopologyField = {
 
 type BrainGraphViewMode = "3d" | "flat";
 type BrainGraphRenderMode = "real3d" | "svg2d";
+type BrainGraphLabelMode = "focus" | "all" | "none";
 
 type BrainGraphCamera = {
   yaw: number;
@@ -866,20 +867,20 @@ function toRadians(degrees: number): number {
 
 function getDeterministicNodeDepth(entry: LayoutNode, selectedNodeId: string | null): number {
   const hash = stableHash(`${entry.node.id}:${entry.node.kind}:projection-depth`);
-  const ringDepth = ((hash % 101) - 50) * 2.25;
-  const clusterDepth = (entry.clusterIndex - 3) * 14;
-  const importanceDepth = (entry.importanceRank - 3) * 16;
-  const focusDepth = entry.node.id === selectedNodeId ? 220 : 0;
-  const pinnedDepth = entry.node.meta.pinned ? 28 : 0;
+  const ringDepth = ((hash % 101) - 50) * 3.15;
+  const clusterDepth = (entry.clusterIndex - 3) * 20;
+  const importanceDepth = (entry.importanceRank - 3) * 22;
+  const focusDepth = entry.node.id === selectedNodeId ? 270 : 0;
+  const pinnedDepth = entry.node.meta.pinned ? 38 : 0;
 
-  return clamp(ringDepth + clusterDepth + importanceDepth + focusDepth + pinnedDepth, -210, 260);
+  return clamp(ringDepth + clusterDepth + importanceDepth + focusDepth + pinnedDepth, -280, 330);
 }
 
 function getDeterministicClusterDepth(cluster: LayoutCluster, index: number): number {
   const hash = stableHash(`${cluster.key}:cluster-projection-depth`);
-  const depth = ((hash % 91) - 45) * 1.8 + (cluster.selected ? 120 : 0) - index * 4;
+  const depth = ((hash % 91) - 45) * 2.4 + (cluster.selected ? 160 : 0) - index * 6;
 
-  return clamp(depth, -180, 170);
+  return clamp(depth, -230, 220);
 }
 
 function projectPoint3d(
@@ -906,9 +907,9 @@ function projectPoint3d(
   const yawZ = localX * Math.sin(yaw) + z * Math.cos(yaw);
   const pitchY = localY * Math.cos(pitch) - yawZ * Math.sin(pitch);
   const pitchZ = localY * Math.sin(pitch) + yawZ * Math.cos(pitch);
-  const perspective = PERSPECTIVE_DEPTH / Math.max(220, PERSPECTIVE_DEPTH - pitchZ);
-  const scale = clamp(perspective * camera.zoom, 0.46, 1.72);
-  const opacity = clamp(0.34 + scale * 0.46 + (pitchZ + 220) / 1400, 0.26, 1);
+  const perspective = PERSPECTIVE_DEPTH / Math.max(190, PERSPECTIVE_DEPTH - pitchZ);
+  const scale = clamp(perspective * camera.zoom, 0.38, 1.96);
+  const opacity = clamp(0.22 + scale * 0.48 + (pitchZ + 260) / 1300, 0.16, 1);
 
   return {
     x: toSvgNumber(CENTER_X + yawX * scale + camera.panX),
@@ -1016,16 +1017,17 @@ function getNeighborNodeIds(edges: CodexForgeBrainEdge[], selectedNodeId: string
 function commandButtonStyle(active = false): CSSProperties {
   return {
     appearance: "none",
-    border: active ? "1px solid rgba(224,242,254,0.58)" : "1px solid rgba(125,211,252,0.22)",
+    border: active ? "1px solid rgba(224,242,254,0.54)" : "1px solid rgba(125,211,252,0.18)",
     background: active
-      ? "linear-gradient(180deg, rgba(14,165,233,0.30), rgba(45,212,191,0.13))"
-      : "linear-gradient(180deg, rgba(15,23,42,0.82), rgba(2,6,23,0.58))",
+      ? "linear-gradient(180deg, rgba(224,242,254,0.18), rgba(14,165,233,0.12))"
+      : "linear-gradient(180deg, rgba(15,23,42,0.72), rgba(2,6,23,0.50))",
     color: "#e0f2fe",
-    borderRadius: 10,
-    padding: "7px 9px",
-    fontSize: 11,
+    borderRadius: 9,
+    padding: "6px 8px",
+    fontSize: 10.5,
     fontWeight: 820,
     cursor: "pointer",
+    minHeight: 28,
     minWidth: 0,
     maxWidth: "100%",
     overflowWrap: "anywhere",
@@ -1051,6 +1053,24 @@ function compactInputStyle(): CSSProperties {
     overflowWrap: "anywhere",
     wordBreak: "break-word",
   };
+}
+
+function shouldRenderNodeLabel(
+  entry: ProjectedLayoutNode,
+  selectedNodeId: string | null | undefined,
+  selectedNeighborIds: Set<string>,
+  labelMode: BrainGraphLabelMode
+): boolean {
+  if (labelMode === "none") return entry.node.id === selectedNodeId;
+  if (labelMode === "all") return true;
+  return (
+    entry.node.id === selectedNodeId ||
+    selectedNeighborIds.has(entry.node.id) ||
+    entry.node.meta.pinned === true ||
+    entry.importanceRank >= 4 ||
+    entry.neighborCount >= 4 ||
+    entry.labelVisible
+  );
 }
 
 function getClusterGradientId(prefix: string, clusterKey: string): string {
@@ -1135,7 +1155,9 @@ export function BrainGraphView({
   variant = "embedded",
 }: BrainGraphViewProps) {
   const [camera, setCamera] = useState<BrainGraphCamera>(DEFAULT_CAMERA);
-  const [renderMode, setRenderMode] = useState<BrainGraphRenderMode>("svg2d");
+  const [renderMode, setRenderMode] = useState<BrainGraphRenderMode>("real3d");
+  const [labelMode, setLabelMode] = useState<BrainGraphLabelMode>("focus");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [neighborCursor, setNeighborCursor] = useState(0);
   const selectedNode = useMemo(() => getSelectedNode(graph, selectedNodeId), [graph, selectedNodeId]);
@@ -1331,13 +1353,10 @@ export function BrainGraphView({
           .codexforge-brain-graph-navigation-hud {
             position: absolute;
             z-index: 4;
-            top: 12px;
-            left: 12px;
-            right: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
+            inset: 10px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            grid-template-rows: auto 1fr auto;
             gap: 8px;
             min-width: 0;
             pointer-events: none;
@@ -1350,16 +1369,45 @@ export function BrainGraphView({
           .codexforge-brain-graph-hud-panel {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 5px;
             align-items: center;
             max-width: 100%;
             min-width: 0;
-            padding: 8px;
-            border: 1px solid rgba(125,211,252,0.20);
+            padding: 6px;
+            border: 1px solid rgba(125,211,252,0.16);
             border-radius: 14px;
-            background: linear-gradient(135deg, rgba(2,6,23,0.82), rgba(15,23,42,0.58));
-            box-shadow: 0 16px 48px rgba(2,6,23,0.30), inset 0 1px 0 rgba(255,255,255,0.06);
+            background: linear-gradient(135deg, rgba(2,6,23,0.72), rgba(15,23,42,0.48));
+            box-shadow: 0 16px 48px rgba(2,6,23,0.26), inset 0 1px 0 rgba(255,255,255,0.055);
             backdrop-filter: blur(14px);
+          }
+
+          .codexforge-brain-graph-hud-mode {
+            grid-column: 1;
+            grid-row: 1;
+            align-self: start;
+            justify-self: start;
+          }
+
+          .codexforge-brain-graph-hud-camera {
+            grid-column: 3;
+            grid-row: 1;
+            align-self: start;
+            justify-self: end;
+          }
+
+          .codexforge-brain-graph-hud-nav {
+            grid-column: 1;
+            grid-row: 3;
+            align-self: end;
+            justify-self: start;
+          }
+
+          .codexforge-brain-graph-hud-search {
+            grid-column: 2 / 4;
+            grid-row: 3;
+            align-self: end;
+            justify-self: end;
+            max-width: min(520px, 100%);
           }
 
           .codexforge-brain-graph-radar {
@@ -1510,11 +1558,23 @@ export function BrainGraphView({
               top: auto;
               left: auto;
               right: auto;
+              inset: auto;
               padding: 8px;
+              grid-template-columns: minmax(0, 1fr);
+              grid-template-rows: auto;
             }
 
             .codexforge-brain-graph-hud-panel {
               width: 100%;
+            }
+
+            .codexforge-brain-graph-hud-mode,
+            .codexforge-brain-graph-hud-camera,
+            .codexforge-brain-graph-hud-nav,
+            .codexforge-brain-graph-hud-search {
+              grid-column: 1;
+              grid-row: auto;
+              justify-self: stretch;
             }
 
             .codexforge-brain-graph-radar {
@@ -1605,38 +1665,6 @@ export function BrainGraphView({
               data-codexforge-brain-graph-stats="true"
               data-codexforge-brain-signal-panel="true"
             >
-              <div
-                style={{
-                  ...statStyle(),
-                  display: "flex",
-                  gap: 6,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gridColumn: "1 / -1",
-                  flexWrap: "wrap",
-                }}
-                data-codexforge-brain-graph-3d-toggle="true"
-              >
-                <span style={{ ...labelStyle, width: "100%" }}>3D / 2D toggle</span>
-                <button
-                  type="button"
-                  title="Open real WebGL 3D graph"
-                  aria-label="3D / 2D toggle: open real 3D graph"
-                  onClick={() => setRenderMode("real3d")}
-                  style={commandButtonStyle(renderMode === "real3d")}
-                >
-                  3D
-                </button>
-                <button
-                  type="button"
-                  title="Open existing 2D graph"
-                  aria-label="3D / 2D toggle: open existing 2D graph"
-                  onClick={() => setRenderMode("svg2d")}
-                  style={commandButtonStyle(renderMode === "svg2d")}
-                >
-                  2D
-                </button>
-              </div>
               <div style={statStyle()}>
                 <div style={labelStyle}>Real nodes</div>
                 <strong style={{ fontSize: 18, ...safeWrapStyle }}>{graph.nodes.length}</strong>
@@ -1679,24 +1707,34 @@ export function BrainGraphView({
               data-codexforge-brain-graph-3d-mode={camera.mode === "3d" ? "true" : "false"}
               data-codexforge-brain-graph-perspective-projection="true"
             >
-              <div className="codexforge-brain-graph-hud-panel">
+              <div className="codexforge-brain-graph-hud-panel codexforge-brain-graph-hud-mode">
                 <button
                   type="button"
-                  title="Switch to 3D projection"
-                  aria-label="Switch to 3D graph projection"
-                  onClick={() => updateCamera({ mode: "3d" })}
-                  style={commandButtonStyle(camera.mode === "3d")}
+                  title="Open real WebGL 3D graph"
+                  aria-label="3D / 2D toggle: open real 3D graph"
+                  onClick={() => setRenderMode("real3d")}
+                  style={commandButtonStyle(false)}
+                  data-codexforge-brain-graph-3d-toggle="true"
                 >
                   3D
                 </button>
                 <button
                   type="button"
-                  title="Switch to flat graph projection"
-                  aria-label="Switch to flat graph projection"
+                  title="Use existing 2D graph fallback"
+                  aria-label="3D / 2D toggle: use existing 2D graph fallback"
                   onClick={() => updateCamera({ mode: "flat" })}
                   style={commandButtonStyle(camera.mode === "flat")}
                 >
-                  Flat
+                  2D
+                </button>
+                <button
+                  type="button"
+                  title="Use projected depth inside 2D fallback"
+                  aria-label="Use projected depth inside 2D fallback"
+                  onClick={() => updateCamera({ mode: "3d" })}
+                  style={commandButtonStyle(camera.mode === "3d")}
+                >
+                  Depth
                 </button>
                 <button
                   type="button"
@@ -1705,7 +1743,28 @@ export function BrainGraphView({
                   onClick={() => setCamera(DEFAULT_CAMERA)}
                   style={commandButtonStyle()}
                 >
-                  Reset view
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  title="Fit graph"
+                  aria-label="Fit graph to view"
+                  onClick={() => updateCamera({ zoom: 0.92, panX: 0, panY: 0 })}
+                  style={commandButtonStyle()}
+                >
+                  Fit
+                </button>
+              </div>
+
+              <div className="codexforge-brain-graph-hud-panel codexforge-brain-graph-hud-camera">
+                <button
+                  type="button"
+                  title="Zoom out"
+                  aria-label="Zoom out"
+                  onClick={() => updateCamera({ zoom: camera.zoom - ZOOM_STEP })}
+                  style={commandButtonStyle()}
+                >
+                  -
                 </button>
                 <button
                   type="button"
@@ -1714,16 +1773,7 @@ export function BrainGraphView({
                   onClick={() => updateCamera({ zoom: camera.zoom + ZOOM_STEP })}
                   style={commandButtonStyle()}
                 >
-                  Zoom in
-                </button>
-                <button
-                  type="button"
-                  title="Zoom out"
-                  aria-label="Zoom out"
-                  onClick={() => updateCamera({ zoom: camera.zoom - ZOOM_STEP })}
-                  style={commandButtonStyle()}
-                >
-                  Zoom out
+                  +
                 </button>
                 <button
                   type="button"
@@ -1732,7 +1782,7 @@ export function BrainGraphView({
                   onClick={() => updateCamera({ yaw: camera.yaw - CAMERA_STEP })}
                   style={commandButtonStyle()}
                 >
-                  Rotate left
+                  Rotate -
                 </button>
                 <button
                   type="button"
@@ -1741,7 +1791,7 @@ export function BrainGraphView({
                   onClick={() => updateCamera({ yaw: camera.yaw + CAMERA_STEP })}
                   style={commandButtonStyle()}
                 >
-                  Rotate right
+                  Rotate +
                 </button>
                 <button
                   type="button"
@@ -1750,7 +1800,7 @@ export function BrainGraphView({
                   onClick={() => updateCamera({ pitch: camera.pitch + TILT_STEP })}
                   style={commandButtonStyle()}
                 >
-                  Tilt up
+                  Tilt +
                 </button>
                 <button
                   type="button"
@@ -1759,11 +1809,11 @@ export function BrainGraphView({
                   onClick={() => updateCamera({ pitch: camera.pitch - TILT_STEP })}
                   style={commandButtonStyle()}
                 >
-                  Tilt down
+                  Tilt -
                 </button>
               </div>
 
-              <div className="codexforge-brain-graph-hud-panel">
+              <div className="codexforge-brain-graph-hud-panel codexforge-brain-graph-hud-nav">
                 <button
                   type="button"
                   title="Previous node"
@@ -1781,25 +1831,6 @@ export function BrainGraphView({
                   style={commandButtonStyle()}
                 >
                   Next node
-                </button>
-                <button
-                  type="button"
-                  title="Focus selected"
-                  aria-label="Focus selected node"
-                  onClick={() => updateCamera({ zoom: 1.18, panX: 0, panY: 0 })}
-                  disabled={!selectedNode}
-                  style={{ ...commandButtonStyle(Boolean(selectedNode)), opacity: selectedNode ? 1 : 0.54 }}
-                >
-                  Focus selected
-                </button>
-                <button
-                  type="button"
-                  title="Fit graph"
-                  aria-label="Fit graph to view"
-                  onClick={() => updateCamera({ zoom: 0.92, panX: 0, panY: 0 })}
-                  style={commandButtonStyle()}
-                >
-                  Fit graph
                 </button>
                 <button
                   type="button"
@@ -1823,21 +1854,49 @@ export function BrainGraphView({
                 </button>
               </div>
 
-              <div className="codexforge-brain-graph-hud-panel">
-                <input
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      handleFocusSearch();
-                    }
-                  }}
-                  placeholder="Search focus node"
-                  aria-label="Search and focus graph node"
-                  style={compactInputStyle()}
-                  data-codexforge-brain-graph-search="true"
-                />
+              <div
+                className="codexforge-brain-graph-hud-panel codexforge-brain-graph-hud-search"
+                data-codexforge-brain-graph-search-drawer="true"
+                data-codexforge-brain-graph-label-mode="true"
+              >
+                <button
+                  type="button"
+                  title="Open compact search"
+                  aria-label={searchOpen ? "Collapse graph search" : "Open compact graph search"}
+                  onClick={() => setSearchOpen((current) => !current)}
+                  style={commandButtonStyle(searchOpen || searchQuery.trim().length > 0)}
+                >
+                  Search
+                </button>
+                {(["focus", "all", "none"] as BrainGraphLabelMode[]).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    title={`Labels: ${formatKindLabel(mode)}`}
+                    aria-label={`Labels: ${formatKindLabel(mode)}`}
+                    onClick={() => setLabelMode(mode)}
+                    style={commandButtonStyle(labelMode === mode)}
+                    data-codexforge-brain-graph-label-mode-option={mode}
+                  >
+                    {mode === "focus" ? "Labels Focus" : mode === "all" ? "Labels All" : "Labels None"}
+                  </button>
+                ))}
+                {searchOpen ? (
+                  <input
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        handleFocusSearch();
+                      }
+                    }}
+                    placeholder="Search node"
+                    aria-label="Search and focus graph node"
+                    style={compactInputStyle()}
+                    data-codexforge-brain-graph-search="true"
+                  />
+                ) : null}
                 <button
                   type="button"
                   title="Search and focus node"
@@ -1847,7 +1906,7 @@ export function BrainGraphView({
                 >
                   Focus
                 </button>
-                {visibleKinds.slice(0, 4).map((entry, index) => (
+                {searchOpen ? visibleKinds.slice(0, 4).map((entry, index) => (
                   <button
                     key={buildStableReactKey("brain-cluster-jump", [entry.kind], index)}
                     type="button"
@@ -1859,10 +1918,7 @@ export function BrainGraphView({
                   >
                     {formatKindLabel(entry.kind)}
                   </button>
-                ))}
-                <span style={{ fontSize: 10.5, color: "rgba(224,242,254,0.60)", ...safeWrapStyle }}>
-                  Keyboard: Tab to controls, Enter/Space on nodes.
-                </span>
+                )) : null}
               </div>
             </div>
 
@@ -2084,6 +2140,7 @@ export function BrainGraphView({
                 const label = getNodeLabel(entry.node);
                 const visibleLabel = truncateText(label, selected ? 34 : 24);
                 const labelBox = getLabelBox(entry, visibleLabel);
+                const showLabel = shouldRenderNodeLabel(entry, effectiveSelectedNodeId, selectedNeighborIds, labelMode);
                 const dimmed = selectedNode ? !selected && !related && !entry.node.meta.pinned && entry.importanceRank < 4 : false;
                 const coreOpacity = dimmed ? 0.38 * entry.opacity : selected ? 1 : related ? Math.max(0.84, entry.opacity) : Math.max(0.48, entry.opacity * 0.88);
 
@@ -2198,16 +2255,16 @@ export function BrainGraphView({
                         strokeWidth="1.4"
                       />
                     ) : null}
-                    {entry.labelVisible ? (
-                      <g opacity={dimmed ? 0.72 : 1}>
+                    {showLabel ? (
+                      <g opacity={labelMode === "focus" && !selected && !related ? 0.74 : dimmed ? 0.62 : 1}>
                         <rect
                           x={labelBox.x}
                           y={labelBox.y}
                           width={labelBox.width}
                           height={labelBox.height}
                           rx="7"
-                          fill={selected ? "rgba(8,47,73,0.78)" : "rgba(2,6,23,0.62)"}
-                          stroke={selected ? "rgba(224,242,254,0.46)" : "rgba(125,211,252,0.16)"}
+                          fill={selected ? "rgba(8,47,73,0.78)" : related ? "rgba(2,44,47,0.58)" : "rgba(2,6,23,0.48)"}
+                          stroke={selected ? "rgba(224,242,254,0.46)" : related ? "rgba(45,212,191,0.26)" : "rgba(125,211,252,0.12)"}
                         />
                         <text
                           x={labelBox.textX}
@@ -2226,6 +2283,48 @@ export function BrainGraphView({
               })}
             </svg>
 
+            {selectedNode ? (
+              <div
+                style={{
+                  position: "absolute",
+                  zIndex: 3,
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(18px, -112px)",
+                  width: "min(280px, calc(100% - 48px))",
+                  border: "1px solid rgba(224,242,254,0.18)",
+                  borderRadius: 14,
+                  padding: 10,
+                  background: "linear-gradient(145deg, rgba(2,6,23,0.70), rgba(15,23,42,0.42))",
+                  boxShadow: "0 22px 70px rgba(2,6,23,0.34), 0 0 34px rgba(125,211,252,0.12), inset 0 1px 0 rgba(255,255,255,0.06)",
+                  backdropFilter: "blur(14px)",
+                  color: "#e0f2fe",
+                  pointerEvents: "none",
+                  minWidth: 0,
+                }}
+                data-codexforge-brain-graph-focus-callout="true"
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 999,
+                      background: getNodeKindColor(selectedNode.kind),
+                      boxShadow: `0 0 18px ${getNodeKindColor(selectedNode.kind)}`,
+                      flex: "0 0 auto",
+                    }}
+                  />
+                  <strong style={{ fontSize: 12.5, lineHeight: 1.25, ...safeWrapStyle }}>
+                    {truncateText(getNodeLabel(selectedNode), 44)}
+                  </strong>
+                </div>
+                <div style={{ marginTop: 5, fontSize: 10.5, color: "rgba(224,242,254,0.62)", lineHeight: 1.35, ...safeWrapStyle }}>
+                  {formatKindLabel(selectedNode.kind)} / {selectedNeighborCount} links / {selectedNode.meta.importance ?? "low"}
+                </div>
+              </div>
+            ) : null}
+
             <div
               className="codexforge-brain-graph-radar"
               data-codexforge-brain-graph-mini-map="true"
@@ -2233,24 +2332,39 @@ export function BrainGraphView({
               data-codexforge-brain-graph-orientation-aid="true"
             >
               <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center", minWidth: 0 }}>
-                <span style={{ ...labelStyle, fontSize: 9.5 }}>Orientation radar</span>
+                <span style={{ ...labelStyle, fontSize: 9.5 }}>Radar</span>
                 <span
                   style={{
                     fontFamily: "var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace",
-                    fontSize: 10,
-                    color: "rgba(224,242,254,0.62)",
+                    fontSize: 9,
+                    color: "rgba(224,242,254,0.52)",
                     ...safeWrapStyle,
                   }}
                 >
-                  yaw {camera.yaw} / pitch {camera.pitch} / zoom {camera.zoom.toFixed(2)}
+                  {camera.yaw}/{camera.pitch}/{camera.zoom.toFixed(2)}
                 </span>
               </div>
-              <svg viewBox="0 0 140 100" role="img" aria-label="Graph radar mini-map" style={{ width: "100%", display: "block", marginTop: 6 }}>
-                <rect x="6" y="6" width="128" height="88" rx="8" fill="rgba(2,6,23,0.42)" stroke="rgba(125,211,252,0.22)" />
+              <svg viewBox="0 0 140 100" role="img" aria-label="Graph radar mini-map" style={{ width: "100%", display: "block", marginTop: 5 }}>
+                <defs>
+                  <radialGradient id={`${svgIdPrefix}-radar-core`} cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.20" />
+                    <stop offset="70%" stopColor="#0f172a" stopOpacity="0.10" />
+                    <stop offset="100%" stopColor="#020617" stopOpacity="0.48" />
+                  </radialGradient>
+                </defs>
+                <rect x="6" y="6" width="128" height="88" rx="8" fill={`url(#${svgIdPrefix}-radar-core)`} stroke="rgba(125,211,252,0.22)" />
+                <circle cx="70" cy="50" r="34" fill="none" stroke="rgba(125,211,252,0.14)" strokeWidth="0.8" strokeDasharray="2 7" />
+                <circle cx="70" cy="50" r="18" fill="none" stroke="rgba(45,212,191,0.13)" strokeWidth="0.8" />
                 <path
                   d={`M70 50 l${toSvgNumber(Math.sin(toRadians(camera.yaw)) * 22)} ${toSvgNumber(-Math.cos(toRadians(camera.yaw)) * 22)}`}
                   stroke="rgba(224,242,254,0.82)"
                   strokeWidth="1.4"
+                  strokeLinecap="round"
+                />
+                <path
+                  d={`M70 50 l${toSvgNumber(Math.sin(toRadians(camera.yaw + 72)) * 16)} ${toSvgNumber(-Math.cos(toRadians(camera.yaw + 72)) * 16)}`}
+                  stroke="rgba(45,212,191,0.54)"
+                  strokeWidth="0.9"
                   strokeLinecap="round"
                 />
                 <circle cx="70" cy="50" r="4.5" fill="rgba(224,242,254,0.20)" stroke="rgba(224,242,254,0.44)" />
@@ -2265,8 +2379,8 @@ export function BrainGraphView({
                   />
                 ))}
               </svg>
-              <div style={{ marginTop: 4, fontSize: 10.5, color: "rgba(224,242,254,0.58)", lineHeight: 1.35, ...safeWrapStyle }}>
-                Bright marker is selected. Larger colored markers are connected neighbors.
+              <div style={{ marginTop: 3, fontSize: 9.5, color: "rgba(224,242,254,0.50)", lineHeight: 1.25, ...safeWrapStyle }}>
+                Selected bright. Neighbors enlarged.
               </div>
             </div>
               </>

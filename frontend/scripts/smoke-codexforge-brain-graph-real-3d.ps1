@@ -98,9 +98,18 @@ foreach ($export in @(
 
 Assert-Contains $graphViewSource "BrainGraph3DView" "Brain graph view references BrainGraph3DView"
 Assert-Contains $sceneSource "OrbitControls" "OrbitControls or equivalent"
+Assert-Contains $sceneSource "Canvas" "real 3D Canvas exists"
+Assert-Contains $sceneSource "fog" "3D fog/depth fade exists"
+Assert-Contains $sceneSource "Sparkles" "3D signal star field exists"
+Assert-Contains $sceneSource "torusGeometry" "selected node orbital rings exist"
+Assert-Contains $sceneSource "labelVisible" "3D label priority exists"
 Assert-Contains $combinedSource "3D / 2D toggle" "3D / 2D toggle"
 Assert-Contains $combinedSource "Reset camera" "Reset camera"
 Assert-Contains $combinedSource "Focus selected" "Focus selected"
+Assert-Contains $hudSource "Zoom in" "3D HUD zoom control"
+Assert-Contains $hudSource "Rotate camera" "3D HUD rotate control"
+Assert-Contains $hudSource "Tilt camera" "3D HUD tilt control"
+Assert-Contains $hudSource "Previous neighbor" "3D HUD neighbor navigation"
 Assert-Contains $combinedSource "createStableBrainGraph3DHash" "deterministic hash/layout"
 
 Assert-NotContains $combinedSource "d3-force" "d3-force absent"

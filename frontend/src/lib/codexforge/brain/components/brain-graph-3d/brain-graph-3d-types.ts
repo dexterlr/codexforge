@@ -25,6 +25,7 @@ export type BrainGraph3DLayoutNode = {
   related: boolean;
   dimmed: boolean;
   importanceRank: number;
+  labelVisible: boolean;
 };
 
 export type BrainGraph3DLayoutEdge = {
@@ -83,6 +84,6 @@ export type BrainGraph3DViewProps = {
 };
 
 export type BrainGraph3DSceneCommand = {
-  kind: "reset" | "focus-selected" | "fit-graph";
+  kind: "reset" | "focus-selected" | "fit-graph" | "zoom-in" | "zoom-out" | "rotate-left" | "rotate-right" | "tilt-up" | "tilt-down";
   sequence: number;
 };

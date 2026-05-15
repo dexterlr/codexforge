@@ -1,6 +1,6 @@
 "use client";
 
-import { Line, OrbitControls, Sparkles } from "@react-three/drei";
+import { Billboard, Line, OrbitControls, Sparkles, Text } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState, type ComponentRef, type CSSProperties } from "react";
 import * as THREE from "three";
@@ -21,6 +21,21 @@ function vectorToArray(position: { x: number; y: number; z: number }): [number, 
   return [position.x, position.y, position.z];
 }
 
+function getNodeLabel(entry: BrainGraph3DLayoutNode): string {
+  const data = entry.node.data;
+  if (data && typeof data === "object" && !Array.isArray(data)) {
+    const label = (data as Record<string, unknown>).label;
+    if (typeof label === "string" && label.trim()) return label.trim();
+  }
+
+  return `${entry.node.kind} ${entry.id}`;
+}
+
+function truncateText(value: string, maxLength: number): string {
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, Math.max(0, maxLength - 3))}...`;
+}
+
 function SceneCameraController(props: { layout: BrainGraph3DLayout; command: BrainGraph3DSceneCommand }) {
   const { camera } = useThree();
   const controlsRef = useRef<ComponentRef<typeof OrbitControls> | null>(null);
@@ -29,9 +44,24 @@ function SceneCameraController(props: { layout: BrainGraph3DLayout; command: Bra
     const target = props.command.kind === "focus-selected" && props.layout.selectedNode
       ? props.layout.selectedNode.position
       : { x: 0, y: 0, z: 0 };
-    const distance = props.command.kind === "fit-graph" ? props.layout.boundsRadius * 2.35 : props.layout.boundsRadius * 1.52;
+    const baseDistance = props.command.kind === "fit-graph" ? props.layout.boundsRadius * 2.18 : props.layout.boundsRadius * 1.34;
+    const currentDistance = Math.max(80, camera.position.distanceTo(new THREE.Vector3(target.x, target.y, target.z)));
+    const distance = props.command.kind === "zoom-in"
+      ? currentDistance * 0.78
+      : props.command.kind === "zoom-out"
+        ? currentDistance * 1.22
+        : baseDistance;
+    const yawShift = props.command.kind === "rotate-left" ? -0.34 : props.command.kind === "rotate-right" ? 0.34 : 0;
+    const tiltShift = props.command.kind === "tilt-up" ? 0.24 : props.command.kind === "tilt-down" ? -0.24 : 0;
+    const currentYaw = Math.atan2(camera.position.x - target.x, camera.position.z - target.z) + yawShift;
+    const currentTilt = Math.asin(clamp((camera.position.y - target.y) / currentDistance, -0.7, 0.7)) + tiltShift;
+    const clampedTilt = clamp(currentTilt, -0.42, 0.82);
 
-    camera.position.set(target.x + distance * 0.72, target.y + distance * 0.36, target.z + distance);
+    camera.position.set(
+      target.x + Math.sin(currentYaw) * Math.cos(clampedTilt) * distance,
+      target.y + Math.sin(clampedTilt) * distance,
+      target.z + Math.cos(currentYaw) * Math.cos(clampedTilt) * distance
+    );
     camera.lookAt(target.x, target.y, target.z);
 
     if (controlsRef.current) {
@@ -57,6 +87,10 @@ function SceneCameraController(props: { layout: BrainGraph3DLayout; command: Bra
   );
 }
 
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
 function BrainNodeMesh(props: {
   entry: BrainGraph3DLayoutNode;
   onSelectNode: (nodeId: string) => void;
@@ -74,6 +108,18 @@ function BrainNodeMesh(props: {
 
   return (
     <group position={vectorToArray(props.entry.position)}>
+      {props.entry.selected ? (
+        <>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[props.entry.radius * 4.2, 0.24, 10, 96]} />
+            <meshBasicMaterial color={props.entry.color} opacity={0.42} transparent depthWrite={false} />
+          </mesh>
+          <mesh rotation={[0.72, 0.18, 0.32]}>
+            <torusGeometry args={[props.entry.radius * 5.8, 0.18, 10, 112]} />
+            <meshBasicMaterial color="#e0f2fe" opacity={0.30} transparent depthWrite={false} />
+          </mesh>
+        </>
+      ) : null}
       <mesh
         ref={meshRef}
         onClick={(event) => {
@@ -110,6 +156,21 @@ function BrainNodeMesh(props: {
           depthWrite={false}
         />
       </mesh>
+      {props.entry.labelVisible ? (
+        <Billboard position={[0, props.entry.radius * (props.entry.selected ? 2.85 : 2.2), 0]}>
+          <Text
+            color={props.entry.selected ? "#f0f9ff" : "#bae6fd"}
+            fontSize={props.entry.selected ? 8.2 : 5.2}
+            anchorX="center"
+            anchorY="middle"
+            outlineColor="rgba(2,6,23,0.82)"
+            outlineWidth={0.18}
+            maxWidth={86}
+          >
+            {truncateText(getNodeLabel(props.entry), props.entry.selected ? 34 : 22)}
+          </Text>
+        </Billboard>
+      ) : null}
     </group>
   );
 }
@@ -147,16 +208,26 @@ function ClusterShells(props: { layout: BrainGraph3DLayout }) {
     <>
       {props.layout.clusters.map((cluster) => (
         <group key={cluster.key} position={vectorToArray(cluster.center)}>
-          <mesh>
-            <sphereGeometry args={[cluster.radius, 36, 18]} />
-            <meshBasicMaterial
-              color={cluster.color}
-              opacity={cluster.selected ? 0.055 : 0.026}
-              transparent
-              wireframe
-              depthWrite={false}
-            />
-          </mesh>
+      <mesh>
+        <sphereGeometry args={[cluster.radius, 36, 18]} />
+        <meshBasicMaterial
+          color={cluster.color}
+          opacity={cluster.selected ? 0.078 : 0.022}
+          transparent
+          wireframe
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh scale={[1.08, 0.58, 1.18]}>
+        <sphereGeometry args={[cluster.radius * 1.08, 36, 18]} />
+        <meshBasicMaterial
+          color={cluster.color}
+          opacity={cluster.selected ? 0.052 : 0.018}
+          transparent
+          depthWrite={false}
+          side={THREE.BackSide}
+        />
+      </mesh>
         </group>
       ))}
     </>
@@ -184,7 +255,7 @@ function SignalField(props: { layout: BrainGraph3DLayout }) {
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
-      <pointsMaterial size={1.6} vertexColors opacity={0.38} transparent depthWrite={false} />
+      <pointsMaterial size={1.9} vertexColors opacity={0.42} transparent depthWrite={false} sizeAttenuation />
     </points>
   );
 }
@@ -193,11 +264,12 @@ function BrainSceneContents(props: BrainGraph3DSceneProps) {
   return (
     <>
       <color attach="background" args={["#020617"]} />
-      <fog attach="fog" args={["#020617", 160, Math.max(540, props.layout.boundsRadius * 3)]} />
-      <ambientLight intensity={0.46} />
-      <pointLight position={[120, 160, 180]} intensity={2.4} color="#7dd3fc" />
-      <pointLight position={[-180, -40, -140]} intensity={1.5} color="#2dd4bf" />
-      <Sparkles count={52} scale={Math.max(240, props.layout.boundsRadius * 1.45)} size={1.3} speed={0.18} opacity={0.26} color="#7dd3fc" />
+      <fog attach="fog" args={["#020617", 120, Math.max(500, props.layout.boundsRadius * 2.7)]} />
+      <ambientLight intensity={0.34} />
+      <pointLight position={[140, 180, 240]} intensity={3.2} color="#7dd3fc" />
+      <pointLight position={[-220, -60, -170]} intensity={2.1} color="#2dd4bf" />
+      <pointLight position={[0, 90, -260]} intensity={1.4} color="#f472b6" />
+      <Sparkles count={88} scale={Math.max(310, props.layout.boundsRadius * 1.72)} size={1.55} speed={0.12} opacity={0.32} color="#7dd3fc" />
       <SignalField layout={props.layout} />
       <ClusterShells layout={props.layout} />
       {props.layout.edges.map((edge) => (
@@ -220,7 +292,7 @@ export function BrainGraph3DScene(props: BrainGraph3DSceneProps) {
   return (
     <div style={canvasWrapStyle} data-codexforge-brain-graph-real-3d-scene="true">
       <Canvas
-        camera={{ position: [220, 150, 320], fov: 48, near: 0.1, far: 2200 }}
+        camera={{ position: [260, 170, 360], fov: 42, near: 0.1, far: 2400 }}
         dpr={[1, 1.65]}
         gl={{
           antialias: true,

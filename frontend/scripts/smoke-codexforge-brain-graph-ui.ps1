@@ -101,6 +101,16 @@ Assert-Contains $graphSource 'data-codexforge-brain-graph-node' "graph node mark
 Assert-Contains $graphSource 'data-codexforge-brain-graph-edge' "graph edge marker"
 Assert-Contains $graphSource 'data-codexforge-brain-graph-insight-panel' "insight panel marker"
 Assert-Contains $graphSource 'data-codexforge-brain-graph-next-action' "next action marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-3d-toggle' "compact 3D/2D HUD toggle marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-search-drawer' "compact search drawer marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-label-mode' "label mode marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-label-mode-option' "label mode options"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-mini-map' "minimap marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-radar' "radar marker"
+Assert-Contains $graphSource 'data-codexforge-brain-graph-focus-callout' "floating focus callout marker"
+Assert-Contains $graphSource 'Prev neighbor' "neighbor navigation control"
+Assert-Contains $graphSource 'Fit' "fit graph control"
+Assert-Contains $graphSource 'Search' "compact search pill"
 
 Assert-Contains $graphSource 'data-codexforge-brain-neural-canvas' "neural canvas marker"
 Assert-Contains $graphSource 'data-codexforge-brain-focus-node' "focus node marker"
@@ -137,6 +147,7 @@ foreach ($densePanelMarker in @(
 }
 
 Assert-NotContains $brainUiSource 'Math.random' "random layout absent"
+Assert-NotContains $graphSource 'Date.now' "Date.now layout and IDs absent from graph"
 Assert-NotContains $brainUiSource 'd3-force' "external force simulation dependency absent"
 Assert-Contains $brainUiSource 'buildStableReactKey' "stable React key helper used"
 
