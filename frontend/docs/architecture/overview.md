@@ -4,14 +4,15 @@ CodexForge is a local-first cognitive engineering workspace built from determini
 
 ## Core Domains
 
-1. Brain runtime and cognitive memory.
-2. Visual Brain graph and command center.
-3. Files command center and File to Brain to Chat bridge.
-4. Safe Patch Preview.
-5. Capability Cockpit and adapter registry.
-6. Creative Production Studio, preview-only.
-7. Operator policy and approval boundary.
-8. Smoke-backed validation.
+1. Brain runtime, cognitive memory, deterministic ingestion, recall, approved memory persistence, and graph merge review.
+2. Real 3D Brain graph with WebGL/Three/Fiber/Drei and 2D fallback.
+3. Files Command Center and File to Brain to Chat bridge.
+4. Safe Patch Preview, Patch Preview Queue, Preview Diff Composer, Patch Application Gate, Apply Evidence Pack, and Apply-Diff Dry Run.
+5. Task Autopilot, reviewed task activation, Execution Readiness, Step Runner Preview, and read-only step execution.
+6. Evidence memory review and Evidence-Grounded Chat.
+7. Operator Run Center, Capability Cockpit, Local Bridge, and policy/approval boundary.
+8. Creative Production Studio, artifact workspace/executor/export/ingestion, and Production Pack Builder.
+9. Mission Control, global navigation shell, and smoke-backed validation.
 
 ## High-Level Flow
 
@@ -19,10 +20,10 @@ CodexForge is a local-first cognitive engineering workspace built from determini
 User request
   -> route/page surface
   -> deterministic domain planner
-  -> Brain memory/context where relevant
-  -> preview, risk, policy, or approval boundary
-  -> optional operator/apply path only after explicit approval
-  -> history, graph, or artifact preview state
+  -> Brain memory, file context, task context, or evidence context where relevant
+  -> preview, risk, policy, approval boundary, or evidence pack
+  -> optional future guarded executor only after explicit approval and policy
+  -> history, graph, memory, run, or artifact review state
 ```
 
 ## Design Philosophy
@@ -30,9 +31,9 @@ User request
 - Keep core planning local and deterministic where possible.
 - Make hidden execution impossible by design.
 - Treat file mutation as approval-gated.
-- Prefer previews, risk summaries, and policy state before any execution.
+- Prefer previews, evidence packs, risk summaries, rollback plans, test plans, and policy state before any execution.
 - Keep external adapters blocked or preview-only until policy-backed execution exists.
 
 ## Current Boundaries
 
-CodexForge does not currently execute Blender, Unreal, ComfyUI, render jobs, broker jobs, or PC/camera automation. Creative and capability surfaces are planning/readiness surfaces unless a future approved execution path is explicitly added.
+CodexForge does not currently execute Blender, Unreal, ComfyUI, render jobs, broker jobs, or PC/camera automation from preview UI. Creative, capability, artifact, operator, patch, and apply-gate surfaces are planning/readiness/review surfaces unless a future approved execution path is explicitly added.

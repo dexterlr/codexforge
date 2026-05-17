@@ -53,6 +53,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Prepare human-approved apply gate packets from preview diff packages; explicit human approval required, actual mutation remains blocked, apply-diff requires tool-policy approval, current files must be verified, rollback plan required, and preserve latest-message authority.",
   });
   checks.push({
+    id: "apply-evidence-pack-readiness",
+    label: "Apply Evidence Pack readiness",
+    level: "needs-review",
+    detail:
+      "Bundle preview diff package, current file verification, target files, risk, rollback plan, test plan, approval packet, operator approval note, evidence refs, smoke placeholders, mutation firewall, and final readiness; evidence pack does not apply changes and is future guarded apply only.",
+  });
+  checks.push({
     id: "apply-diff-dry-run-readiness",
     label: "Apply-Diff Dry Run readiness",
     level: "needs-review",

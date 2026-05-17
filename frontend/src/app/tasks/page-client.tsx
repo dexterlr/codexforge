@@ -12,6 +12,7 @@ import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/com
 import { PatchApplicationGatePanel } from "@/lib/codexforge/patch-application-gate/components";
 import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
 import { ApplyDiffDryRunPanel } from "@/lib/codexforge/apply-diff-dry-run/components";
+import { ApplyEvidencePackPanel } from "@/lib/codexforge/apply-evidence-pack/components";
 
 export default function TasksPageClient() {
   return (
@@ -39,6 +40,9 @@ export default function TasksPageClient() {
           <PatchApplicationGatePanel compact />
         </div>
         <div style={{ marginTop: 16 }}>
+          <ApplyEvidencePackPanel compact />
+        </div>
+        <div style={{ marginTop: 16 }}>
           <ApplyDiffDryRunPanel compact />
         </div>
       </div>
@@ -64,7 +68,9 @@ export default function TasksPageClient() {
             Preview handoff only. Patch Preview Queue can show queued preview item handoff when safe, with no
             execution and no mutation. Preview Diff Composer can compose preview diff packages from task or fix queue
             items without execution, file writes, or mutation. Patch Application Gate can prepare a human-approved
-            apply gate from task/fix queue context; actual mutation remains blocked. Apply-Diff Dry Run can show
+            apply gate from task/fix queue context; actual mutation remains blocked. Apply Evidence Pack can bundle
+            current file verification, rollback plan, test plan, operator approval note, evidence refs, and mutation
+            firewall for future guarded apply only; it does not apply changes. Apply-Diff Dry Run can show
             dry-run status for task/fix queue handoff when safe; simulation only, no execution, no mutation, and
             actual apply-diff remains blocked.
           </span>

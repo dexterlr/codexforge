@@ -93,6 +93,7 @@ export type OperatorRunContext = {
   capabilityReadiness: string;
   creativePlan: string;
   patchPreviewPlan: string;
+  applyEvidencePackContext: string;
   brainRuntimeContext: string;
   notes: string[];
 };

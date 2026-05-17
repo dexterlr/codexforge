@@ -54,6 +54,15 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
           pseudo diff alone is not applyable, current file verification required, rollback plan required, and preserve
           latest-message authority.
         </Link>
+        <Link
+          href="/ai"
+          style={chatRecallLink}
+          data-codexforge-files-apply-evidence-pack="Apply Evidence Pack selected file context evidence pack does not apply changes future guarded apply only current file verification required rollback plan required test plan required operator approval note required mutation firewall active"
+        >
+          Apply Evidence Pack: Bundle selected file context, preview diff package, current file verification, rollback
+          plan, test plan, operator approval note, evidence refs, and mutation firewall before any future guarded apply.
+          Evidence pack does not apply changes.
+        </Link>
       </div>
       <FilesCommandCenter initialData={initialData} />
     </>

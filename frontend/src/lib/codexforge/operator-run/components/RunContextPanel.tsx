@@ -13,6 +13,7 @@ export function RunContextPanel({ run }: { run: OperatorRun }) {
         <p>{run.context.capabilityReadiness}</p>
         <p>{run.context.creativePlan}</p>
         <p>{run.context.patchPreviewPlan}</p>
+        <p>{run.context.applyEvidencePackContext}</p>
         <p>{run.context.brainRuntimeContext}</p>
       </div>
       <div style={notes}>

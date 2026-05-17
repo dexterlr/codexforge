@@ -19,6 +19,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Patch Application Gate readiness prepares explicit human approval packets and display-only apply request previews; actual mutation remains blocked, apply-diff requires tool-policy approval, current files must be verified, rollback plan required, and preserve latest-message authority.",
     },
     {
+      id: "build-apply-evidence-pack",
+      label: "Build apply evidence pack",
+      href: "/ai",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Apply Evidence Pack readiness bundles current file verification, rollback plan, test plan, operator approval note, evidence refs, smoke placeholders, mutation firewall, and final readiness; it does not apply changes and is future guarded apply only.",
+    },
+    {
       id: "review-apply-diff-dry-run-result",
       label: "Review dry-run result",
       href: "/ai",

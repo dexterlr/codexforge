@@ -72,6 +72,7 @@ export type MissionHealthDimensionId =
   | "step-runner-preview"
   | "read-only-step-execution"
   | "grounded-fix-recommendation"
+  | "apply-evidence-pack"
   | "apply-diff-dry-run"
   | "production-pack"
   | "safety";

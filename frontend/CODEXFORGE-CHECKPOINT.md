@@ -6,28 +6,26 @@ Branch: `codexforge-foundation`
 
 CodexForge now includes:
 
-- Brain runtime and cognitive memory.
-- Real deterministic Brain memory ingestion.
-- Visual Brain graph and `/brain` command center.
-- `/files` command center.
-- File to Brain to Chat workflow.
-- Capability Cockpit at `/capabilities`.
-- Safe Patch Preview.
-- Creative Production Studio at `/creative`.
-- Preview-only artifact pipeline planning.
-- Tool adapter registry.
-- Policy guard and approval boundary visibility.
-- Local-first deterministic smoke-backed architecture.
+- Brain runtime, cognitive memory, deterministic Brain memory ingestion, Brain memory recall, and chat recall context.
+- Real 3D Brain graph with WebGL/Three/Fiber/Drei and a 2D fallback.
+- Approved memory persistence, memory review and promotion queue, evidence memory review, approved Brain graph merge, and Brain merge review.
+- Files Command Center and File to Brain to Chat workflow.
+- Safe Patch Preview, Patch Preview Queue, Preview Diff Composer, Patch Application Gate, and Apply-Diff Dry Run simulation.
+- Task Autopilot, reviewed task activation, Execution Readiness, Approved Step Runner Preview, and approved read-only step execution.
+- Operator Run Center, Capability Cockpit, Creative Production Studio, artifact workspace/executor/export/ingestion, Production Pack Builder, Local Bridge, Mission Control, global navigation shell, and product surface planning.
+- Policy guard, approval boundary visibility, and local-first deterministic smoke-backed architecture.
 
 ## Safety Boundary
 
+- No silent mutation.
 - File mutation is approval-gated and not automatic.
-- Patch Preview is preview-only.
-- Creative Studio is preview-only.
-- Capability Cockpit does not execute Blender, Unreal, ComfyUI, render jobs, broker jobs, or PC/camera control.
+- `apply-diff` requires explicit tool-policy approval.
+- `write-file` and `run-command` remain blocked unless a future explicit approval path exists.
+- Patch Preview, Preview Diff Composer, Patch Application Gate, Apply Evidence Pack, and Apply-Diff Dry Run are review or simulation surfaces, not uncontrolled apply executors.
+- Creative Studio and Capability Cockpit do not execute Blender, Unreal, ComfyUI, render jobs, broker jobs, or PC/camera control.
 - Broker execution is blocked.
-- No unapproved file mutation is allowed.
-- PC/camera features require explicit future session consent and are not active automation.
+- PC/camera features require explicit future session consent.
+- Brain graph visual layers do not mutate graph state, and the 3D graph keeps a 2D fallback.
 
 ## Validation Baseline
 
@@ -37,6 +35,7 @@ Use these checks after documentation or product changes:
 npm run build
 npm run smoke:codexforge:server
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-smoke-groups.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brand-clean.ps1
 git diff --check
 git status --short
@@ -44,10 +43,10 @@ git status --short
 
 ## Near-Term Roadmap
 
-- Operator Runs Timeline.
-- Approval-gated apply pipeline.
-- Real adapter execution behind policies.
-- Artifact ledger persistence.
-- Better navigation and global command palette.
-- More real memory sources.
-- Project onboarding and import.
+- Apply Gate Evidence Pack.
+- Guarded apply executor behind policy.
+- Persistent artifact ledger.
+- Full memory replay/merge audit.
+- Adapter execution behind local bridge and explicit policies.
+- Project onboarding/import.
+- Better graph data volume and clustering.

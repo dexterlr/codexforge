@@ -29,16 +29,18 @@ src/lib/codexforge/brain/graph/types.ts
 ## Related Brain Surfaces
 
 - `/brain` command center.
-- Visual Brain graph.
+- Real 3D Brain graph with WebGL/Three/Fiber/Drei.
+- 2D Brain graph fallback.
 - Memory clusters.
 - Runtime health.
 - Topology and semantic heatmap.
 - Replay and lineage.
 - Recommendations and focus drilldown.
+- Brain memory recall and chat recall handoff.
 
 ## Safety Notes
 
-The Brain runtime informs planning and memory. It is not an autonomous executor and does not mutate files without an approved operator path.
+The Brain runtime informs planning and memory. The graph visual layer does not mutate graph state, and the runtime is not an autonomous executor. File mutation remains behind explicit policy and approval boundaries.
 
 ## Validation
 

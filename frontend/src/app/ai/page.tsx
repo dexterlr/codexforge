@@ -70,6 +70,7 @@ import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/com
 import { PatchApplicationGatePanel } from "@/lib/codexforge/patch-application-gate/components";
 import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
 import { ApplyDiffDryRunPanel } from "@/lib/codexforge/apply-diff-dry-run/components";
+import { ApplyEvidencePackPanel } from "@/lib/codexforge/apply-evidence-pack/components";
 
 /* ---------------- page ---------------- */
 
@@ -298,6 +299,10 @@ export default function AiPage() {
 
   const handleCopyPatchApplicationGatePrompt = useCallback((prompt: string) => {
     void navigator.clipboard?.writeText(prompt).catch(() => undefined);
+  }, []);
+
+  const handleCopyApplyEvidenceReport = useCallback((report: string) => {
+    void navigator.clipboard?.writeText(report).catch(() => undefined);
   }, []);
 
   const handleCopyApplyDiffDryRunReport = useCallback((report: string) => {
@@ -575,6 +580,7 @@ export default function AiPage() {
               <PatchPreviewQueuePanel onCopyPrompt={handleCopyPatchPreviewQueuePrompt} />
               <PreviewDiffComposerPanel onCopyPrompt={handleCopyPreviewDiffComposerPrompt} />
               <PatchApplicationGatePanel onCopyPrompt={handleCopyPatchApplicationGatePrompt} />
+              <ApplyEvidencePackPanel onCopyReport={handleCopyApplyEvidenceReport} />
               <ApplyDiffDryRunPanel onCopyReport={handleCopyApplyDiffDryRunReport} />
               <section
                 style={reviewedActivationPanel}

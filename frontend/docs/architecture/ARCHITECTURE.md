@@ -2,17 +2,22 @@
 
 ## Overview
 
-CodexForge is organized as a Next.js app with local-first runtime domains. The app favors deterministic planning, explicit approval gates, and preview surfaces over hidden automation.
+CodexForge is organized as a Next.js app with local-first runtime domains. The app favors deterministic planning, explicit approval gates, and preview or review surfaces over hidden automation.
 
 ## Frontend Routes
 
 - `/`: product launcher.
-- `/ai`: main chat/workspace surface.
-- `/brain`: Brain command center and visual graph.
-- `/files`: file command center.
-- `/history`: activity and history intelligence.
+- `/ai`: main workspace for chat, evidence-grounded chat, preview diff composition, apply gate review, and dry-run review.
+- `/brain`: Brain command center with real 3D graph and 2D fallback.
+- `/files`: Files Command Center.
+- `/runs`: Operator Run Center.
+- `/memory`: memory review, persistence, evidence memory, and Brain merge review.
+- `/tasks`: task autopilot, reviewed activation, execution readiness, step runner preview, and read-only step execution.
 - `/capabilities`: Capability Cockpit.
 - `/creative`: Creative Production Studio, preview-only.
+- `/history`: activity and history intelligence.
+- `/mission`: Mission Control.
+- `/artifacts`: artifact executor, workspace, export, and ingestion review.
 - `/entry`: quick launch surface.
 - `/clawd`: operator surface.
 
@@ -33,106 +38,145 @@ Responsibilities:
 - Episode creation.
 - Concept synthesis candidates.
 - Execution lineage and semantic link helpers.
-- Real deterministic Brain memory ingestion.
-- Visual graph and Brain command center panels.
+- Deterministic Brain memory ingestion.
+- Brain memory recall and chat recall handoff.
+- Real 3D Brain graph plus fallback-safe 2D graph.
 
-## Files Domain
+## Memory Domains
 
-Location:
+Locations:
+
+```text
+src/lib/codexforge/memory-review
+src/lib/codexforge/memory-persistence
+src/lib/codexforge/evidence-memory
+src/lib/codexforge/brain-merge
+src/lib/codexforge/approved-brain-merge
+```
+
+Responsibilities:
+
+- Review memory candidates before promotion.
+- Persist approved memory events.
+- Convert read-only evidence into review candidates.
+- Review graph merge plans.
+- Apply approved Brain graph merge only through the existing explicit merge flow.
+
+`src/lib/codexforge/memory-replay` is not present in this checkout.
+
+## Files And Patch Review
+
+Locations:
 
 ```text
 src/lib/codexforge/files
+src/lib/codexforge/patch-preview
+src/lib/codexforge/patch-preview-queue
+src/lib/codexforge/preview-diff-composer
+src/lib/codexforge/patch-application-gate
+src/lib/codexforge/apply-evidence-pack
+src/lib/codexforge/apply-diff-dry-run
 ```
 
 Responsibilities:
 
 - File tree and file inspector.
 - File risk and safe next action planning.
-- Dependency context and predictive file context.
-- File workflow rail.
-- File to Brain to Chat bridge.
-- Preview-oriented file actions.
-
-## Patch Preview Domain
-
-Location:
-
-```text
-src/lib/codexforge/patch-preview
-```
-
-Responsibilities:
-
+- Dependency context and File to Brain to Chat bridge.
 - Preview-only patch planning.
-- Diff preview panels.
-- Risk board.
-- Approval boundary display.
-- Rollback notes.
-- Test plan preview.
+- Queue reviewed preview items.
+- Compose pseudo-diff packages.
+- Build apply gate approval packets.
+- Build Apply Gate Evidence Packs before any future guarded apply executor.
+- Simulate apply-diff readiness without mutation.
 
-Patch Preview does not apply changes by itself.
+Patch review domains do not apply changes by themselves.
 
-## Capabilities Domain
+## Tasks And Execution Readiness
 
-Location:
+Locations:
 
 ```text
-src/lib/codexforge/capabilities
+src/lib/codexforge/task-autopilot
+src/lib/codexforge/task-activation
+src/lib/codexforge/execution-readiness
+src/lib/codexforge/step-runner-preview
+src/lib/codexforge/read-only-step-execution
 ```
 
 Responsibilities:
 
+- Review-gated task suggestions.
+- Reviewed task activation with no auto-run.
+- Step preflight, tool readiness, risk, tests, and approvals.
+- Preview approved step runner packets.
+- Execute only approved read-only tool steps.
+
+## Operator, Capabilities, And Bridge
+
+Locations:
+
+```text
+src/lib/codexforge/operator-run
+src/lib/codexforge/capabilities
+src/lib/codexforge/local-bridge
+src/lib/codexforge/tools
+```
+
+Responsibilities:
+
+- Operator run queues, replay packets, artifacts, policy boundaries, and context.
 - Adapter readiness and health.
 - Tool/capability policy status.
-- Artifact ledger preview.
-- Blocked execution visibility.
-- Capability roadmap and workflow preview.
+- Local bridge consent and blocked action visibility.
+- Tool contracts, adapter registry, policy guard, and approval lifecycle.
 
-The Capability Cockpit does not execute Blender, Unreal, ComfyUI, render jobs, broker jobs, or PC/camera automation.
+Execution posture:
 
-## Creative Domain
+- No unapproved file mutation.
+- `apply-diff` requires explicit tool-policy approval.
+- `write-file` and `run-command` remain blocked unless future approval paths exist.
+- Broker execution is blocked.
+- PC/camera control requires explicit future session consent.
+- External adapter execution remains blocked or preview-only until future policy-backed execution is implemented.
 
-Location:
+## Creative And Artifacts
+
+Locations:
 
 ```text
 src/lib/codexforge/creative
+src/lib/codexforge/artifact-executor
+src/lib/codexforge/artifact-workspace
+src/lib/codexforge/artifact-export-flow
+src/lib/codexforge/artifact-ingestion
+src/lib/codexforge/production-pack
 ```
 
 Responsibilities:
 
 - Creative brief planning.
-- Blender scene plan preview.
-- ComfyUI workflow plan preview.
-- Unreal level plan preview.
-- Storyboard planning.
-- Render queue preview.
-- Artifact handoff preview.
+- Blender, ComfyUI, Unreal, storyboard, render queue, and artifact handoff previews.
+- Artifact execution preview and workspace review.
+- Export approval and path guard.
+- Read-only artifact ingestion candidates.
+- Production pack manifest, validation, export, replay, and ledger preview.
 
-Creative Studio is preview-only.
+Creative and artifact surfaces are approval-gated review surfaces, not external tool launchers.
 
-## Tooling And Policy
+## Navigation And Mission Control
 
 Locations:
 
 ```text
-src/lib/codexforge/tools
-src/app/api/codexforge/tools
-src/app/api/operator
+src/lib/codexforge/mission-control
+src/lib/codexforge/navigation
 ```
 
 Responsibilities:
 
-- Tool contracts and adapter registry.
-- Policy guard and approval lifecycle.
-- Safe local file/read/search/test helpers.
-- Operator plan, diff, apply, snapshot, checkpoint, and test routes.
-
-Execution posture:
-
-- No unapproved file mutation.
-- File mutation is approval-gated.
-- Broker execution is blocked.
-- External adapter execution remains blocked or preview-only until future policy-backed execution is implemented.
+- Mission health, readiness, system map, safe next actions, and safety boundary.
+- Global navigation shell and local action bar.
 
 ## Data Flow
 
@@ -140,10 +184,10 @@ Execution posture:
 Page or API request
   -> domain model
   -> deterministic planner/context builder
-  -> Brain memory or file context where needed
-  -> policy/approval boundary
-  -> preview output or approved operator path
-  -> local history, graph, or artifact preview
+  -> Brain memory, file context, task context, artifact context, or evidence context where needed
+  -> policy/approval/evidence boundary
+  -> preview output, review packet, or approved read-only path
+  -> local history, graph, memory, run, or artifact review state
 ```
 
 ## Validation
@@ -154,5 +198,6 @@ Primary checks:
 npm run build
 npm run smoke:codexforge:server
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-smoke-groups.ps1
 git diff --check
 ```
