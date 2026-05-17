@@ -70,6 +70,7 @@ import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/com
 import { PatchApplicationGatePanel } from "@/lib/codexforge/patch-application-gate/components";
 import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
 import { ApplyDiffDryRunPanel } from "@/lib/codexforge/apply-diff-dry-run/components";
+import { ApplyDiffExecutionGatePanel } from "@/lib/codexforge/apply-diff-execution-gate/components";
 import { ApplyEvidencePackPanel } from "@/lib/codexforge/apply-evidence-pack/components";
 
 /* ---------------- page ---------------- */
@@ -307,6 +308,10 @@ export default function AiPage() {
 
   const handleCopyApplyDiffDryRunReport = useCallback((report: string) => {
     void navigator.clipboard?.writeText(report).catch(() => undefined);
+  }, []);
+
+  const handleCopyApplyDiffExecutionPacket = useCallback((packet: string) => {
+    void navigator.clipboard?.writeText(packet).catch(() => undefined);
   }, []);
 
   const handleUseGroundedFixPrompt = useCallback(
@@ -582,6 +587,7 @@ export default function AiPage() {
               <PatchApplicationGatePanel onCopyPrompt={handleCopyPatchApplicationGatePrompt} />
               <ApplyEvidencePackPanel onCopyReport={handleCopyApplyEvidenceReport} />
               <ApplyDiffDryRunPanel onCopyReport={handleCopyApplyDiffDryRunReport} />
+              <ApplyDiffExecutionGatePanel onCopyPacket={handleCopyApplyDiffExecutionPacket} />
               <section
                 style={reviewedActivationPanel}
                 data-codexforge-ai-reviewed-task-activation="Reviewed Task Activation /tasks copy activation prompt preserve latest-message authority"

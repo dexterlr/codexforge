@@ -12,6 +12,7 @@ import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/com
 import { PatchApplicationGatePanel } from "@/lib/codexforge/patch-application-gate/components";
 import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
 import { ApplyDiffDryRunPanel } from "@/lib/codexforge/apply-diff-dry-run/components";
+import { ApplyDiffExecutionGatePanel } from "@/lib/codexforge/apply-diff-execution-gate/components";
 import { ApplyEvidencePackPanel } from "@/lib/codexforge/apply-evidence-pack/components";
 
 export default function TasksPageClient() {
@@ -45,6 +46,9 @@ export default function TasksPageClient() {
         <div style={{ marginTop: 16 }}>
           <ApplyDiffDryRunPanel compact />
         </div>
+        <div style={{ marginTop: 16 }}>
+          <ApplyDiffExecutionGatePanel compact />
+        </div>
       </div>
       <div style={{ background: "#020617", padding: "0 min(4vw, 44px) 36px" }}>
         <section
@@ -72,7 +76,8 @@ export default function TasksPageClient() {
             current file verification, rollback plan, test plan, operator approval note, evidence refs, and mutation
             firewall for future guarded apply only; it does not apply changes. Apply-Diff Dry Run can show
             dry-run status for task/fix queue handoff when safe; simulation only, no execution, no mutation, and
-            actual apply-diff remains blocked.
+            actual apply-diff remains blocked. Apply-Diff Execution Gate can show task/fix queue apply execution gate
+            status, request readiness, and guarded execute route posture; no auto execution and no direct mutation.
           </span>
         </section>
         <EvidenceMemoryPanel />

@@ -34,6 +34,7 @@ export function buildMissionActivityTimeline(): MissionActivityTimeline {
     buildMissionActivityItem("evidence-memory-added", "Evidence Memory added", "Phase 27", "Read-only execution evidence becomes reviewable memory candidates with source trace and preview-only Brain merge handoff; no auto-promotion and no graph mutation.", "needs-review"),
     buildMissionActivityItem("evidence-grounded-chat-added", "Evidence-Grounded Chat added", "Phase 28", "Selected reviewed evidence becomes visible chat grounding with local citations, prompt preview, stale or weak warnings, and no hidden context injection.", "needs-review"),
     buildMissionActivityItem("apply-diff-dry-run-added", "Apply-Diff Dry Run added", "Phase 33", "Human-approved apply packets gain deterministic dry-run simulation, affected file validation, conflict checks, result ledger, and no mutation.", "needs-review"),
+    buildMissionActivityItem("apply-diff-execution-gate-added", "Apply-Diff Execution Gate added", "Phase 34", "Clean dry-run packages gain explicit human approval state, policy confirmation, guarded execute route bridge readiness, result contract, and local audit ledger.", "needs-review"),
   ];
 
   return {

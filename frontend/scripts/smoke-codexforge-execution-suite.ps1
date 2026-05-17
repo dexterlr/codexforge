@@ -13,6 +13,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "Execution Suite" -BaseUrl $BaseUrl -Scri
   @{ Name = "Read-Only Step Execution"; File = "smoke-codexforge-read-only-step-execution.ps1"; Required = $true },
   @{ Name = "Patch Application Gate"; File = "smoke-codexforge-patch-application-gate.ps1"; Required = $true },
   @{ Name = "Apply-Diff Dry Run"; File = "smoke-codexforge-apply-diff-dry-run.ps1"; Required = $true },
+  @{ Name = "Apply-Diff Execution Gate"; File = "smoke-codexforge-apply-diff-execution-gate.ps1"; Required = $true },
   @{ Name = "Tool Policy UI"; File = "smoke-codexforge-tool-policy-ui.ps1"; Required = $true },
   @{ Name = "Tool Approval Retry API"; File = "smoke-codexforge-tool-approval-retry-api.ps1"; Required = $true },
   @{ Name = "Capability Cockpit"; File = "smoke-codexforge-capability-cockpit.ps1"; Required = $true },

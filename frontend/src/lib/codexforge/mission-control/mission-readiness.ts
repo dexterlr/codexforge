@@ -66,6 +66,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
     detail:
       "Review dry-run result from a human-approved apply packet; simulation only, no mutation, actual apply-diff remains blocked, pseudo diff alone is not applyable, current file verification required, rollback plan required, and preserve latest-message authority.",
   });
+  checks.push({
+    id: "apply-diff-execution-gate-readiness",
+    label: "Apply-Diff Execution Gate readiness",
+    level: "needs-review",
+    detail:
+      "Review approved apply request after a clean dry run; explicit operator approval required, apply-diff is approval-required, execute route is the guarded boundary, rollback plan required, verification required after dispatch, no silent execution, and preserve latest-message authority.",
+  });
   const score = scoreMissionReadiness(checks.map((check) => check.level));
 
   return {

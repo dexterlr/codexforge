@@ -35,6 +35,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Apply-Diff Dry Run readiness simulates apply-diff policy, affected file validation, conflict checks, result, and ledger only; simulation only, no mutation, actual apply-diff remains blocked, current file verification required, rollback plan required, and preserve latest-message authority.",
     },
     {
+      id: "review-approved-apply-request",
+      label: "Review approved apply request",
+      href: "/ai",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Apply-Diff Execution Gate readiness prepares an approval-gated apply-diff request packet and guarded execute route bridge; explicit operator approval required, no silent execution, rollback plan required, verification required after dispatch, and preserve latest-message authority.",
+    },
+    {
       id: "review-patch-preview-queue",
       label: "Review queued patch preview",
       href: "/ai",

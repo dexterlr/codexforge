@@ -74,6 +74,7 @@ export type MissionHealthDimensionId =
   | "grounded-fix-recommendation"
   | "apply-evidence-pack"
   | "apply-diff-dry-run"
+  | "apply-diff-execution-gate"
   | "production-pack"
   | "safety";
 

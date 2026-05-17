@@ -57,6 +57,15 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
         <Link
           href="/ai"
           style={chatRecallLink}
+          data-codexforge-files-apply-diff-execution-gate="Apply-Diff Execution Gate status explicit operator approval required no silent execution execute route is the guarded boundary"
+        >
+          Apply-Diff Execution Gate: selected file context can show guarded apply request status after a clean dry run,
+          explicit operator approval, policy confirmation, rollback plan, and verification plan. No direct mutation button
+          is exposed here; dispatch stays in /ai through the guarded execute route and remains disabled until ready.
+        </Link>
+        <Link
+          href="/ai"
+          style={chatRecallLink}
           data-codexforge-files-apply-evidence-pack="Apply Evidence Pack selected file context evidence pack does not apply changes future guarded apply only current file verification required rollback plan required test plan required operator approval note required mutation firewall active"
         >
           Apply Evidence Pack: Bundle selected file context, preview diff package, current file verification, rollback

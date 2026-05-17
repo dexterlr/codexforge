@@ -68,6 +68,7 @@ $scriptRoot = $PSScriptRoot
 # Name = "Preview Diff Composer"; Path = "smoke-codexforge-preview-diff-composer.ps1"
 # Name = "Patch Application Gate"; Path = "smoke-codexforge-patch-application-gate.ps1"
 # Name = "Apply-Diff Dry Run"; Path = "smoke-codexforge-apply-diff-dry-run.ps1"
+# Name = "Apply-Diff Execution Gate"; Path = "smoke-codexforge-apply-diff-execution-gate.ps1"
 # Name = "Apply Evidence Pack"; Path = "smoke-codexforge-apply-evidence-pack.ps1"
 # Name = "Grounded Fix Recommendation"; Path = "smoke-codexforge-grounded-fix-recommendation.ps1"
 # Name = "Creative Production Studio"; Path = "smoke-codexforge-creative-production-studio.ps1"
