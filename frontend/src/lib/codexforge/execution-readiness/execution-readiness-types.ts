@@ -198,7 +198,10 @@ export type ExecutionRiskFactorId =
   | "missing-test-plan"
   | "stale-memory-context"
   | "unresolved-contradiction"
-  | "broad-impact";
+  | "broad-impact"
+  | "regression-triage-signal"
+  | "rollback-sensitive-change"
+  | "self-improvement-surface";
 
 export type ExecutionRiskFactor = {
   id: ExecutionRiskFactorId;
