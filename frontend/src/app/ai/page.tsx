@@ -69,6 +69,7 @@ import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
 import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/components";
 import { PatchApplicationGatePanel } from "@/lib/codexforge/patch-application-gate/components";
 import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
+import { ApplyDiffDryRunPanel } from "@/lib/codexforge/apply-diff-dry-run/components";
 
 /* ---------------- page ---------------- */
 
@@ -297,6 +298,10 @@ export default function AiPage() {
 
   const handleCopyPatchApplicationGatePrompt = useCallback((prompt: string) => {
     void navigator.clipboard?.writeText(prompt).catch(() => undefined);
+  }, []);
+
+  const handleCopyApplyDiffDryRunReport = useCallback((report: string) => {
+    void navigator.clipboard?.writeText(report).catch(() => undefined);
   }, []);
 
   const handleUseGroundedFixPrompt = useCallback(
@@ -570,6 +575,7 @@ export default function AiPage() {
               <PatchPreviewQueuePanel onCopyPrompt={handleCopyPatchPreviewQueuePrompt} />
               <PreviewDiffComposerPanel onCopyPrompt={handleCopyPreviewDiffComposerPrompt} />
               <PatchApplicationGatePanel onCopyPrompt={handleCopyPatchApplicationGatePrompt} />
+              <ApplyDiffDryRunPanel onCopyReport={handleCopyApplyDiffDryRunReport} />
               <section
                 style={reviewedActivationPanel}
                 data-codexforge-ai-reviewed-task-activation="Reviewed Task Activation /tasks copy activation prompt preserve latest-message authority"

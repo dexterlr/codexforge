@@ -19,6 +19,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Patch Application Gate readiness prepares explicit human approval packets and display-only apply request previews; actual mutation remains blocked, apply-diff requires tool-policy approval, current files must be verified, rollback plan required, and preserve latest-message authority.",
     },
     {
+      id: "review-apply-diff-dry-run-result",
+      label: "Review dry-run result",
+      href: "/ai",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Apply-Diff Dry Run readiness simulates apply-diff policy, affected file validation, conflict checks, result, and ledger only; simulation only, no mutation, actual apply-diff remains blocked, current file verification required, rollback plan required, and preserve latest-message authority.",
+    },
+    {
       id: "review-patch-preview-queue",
       label: "Review queued patch preview",
       href: "/ai",

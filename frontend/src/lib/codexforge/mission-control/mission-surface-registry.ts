@@ -135,14 +135,14 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
     }),
     buildMissionSurface({
       id: "patch-preview",
-      label: "Patch Preview, Patch Preview Queue, Preview Diff Composer, and Grounded Fix Recommendation",
+      label: "Patch Preview, Patch Preview Queue, Preview Diff Composer, Patch Application Gate, Apply-Diff Dry Run, and Grounded Fix Recommendation",
       href: "/ai",
       status: "preview-ready",
-      role: "Safe patch preview before any file mutation path, grounded fix recommendations that route edits to preview-only handoff, queued patch preview items, and Preview Diff Composer pseudo-diff packages.",
+      role: "Safe patch preview before any file mutation path, grounded fix recommendations that route edits to preview-only handoff, queued patch preview items, Preview Diff Composer pseudo-diff packages, Patch Application Gate approval packets, and Apply-Diff Dry Run result ledgers.",
       riskPosture: "preview-only",
-      nextAction: "Compose preview diff.",
+      nextAction: "Review dry-run result.",
       readiness: "preview-only",
-      relatedPhase: "Safe Patch Preview, Patch Preview Queue, Preview Diff Composer, and Grounded Fix Recommendation",
+      relatedPhase: "Safe Patch Preview, Patch Preview Queue, Preview Diff Composer, Patch Application Gate, Apply-Diff Dry Run, and Grounded Fix Recommendation",
     }),
     buildMissionSurface({
       id: "chat",

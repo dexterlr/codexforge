@@ -52,6 +52,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
     detail:
       "Prepare human-approved apply gate packets from preview diff packages; explicit human approval required, actual mutation remains blocked, apply-diff requires tool-policy approval, current files must be verified, rollback plan required, and preserve latest-message authority.",
   });
+  checks.push({
+    id: "apply-diff-dry-run-readiness",
+    label: "Apply-Diff Dry Run readiness",
+    level: "needs-review",
+    detail:
+      "Review dry-run result from a human-approved apply packet; simulation only, no mutation, actual apply-diff remains blocked, pseudo diff alone is not applyable, current file verification required, rollback plan required, and preserve latest-message authority.",
+  });
   const score = scoreMissionReadiness(checks.map((check) => check.level));
 
   return {

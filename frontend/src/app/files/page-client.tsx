@@ -44,6 +44,16 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
           human approval required, actual mutation remains blocked, pseudo diff alone is not applyable, apply-diff
           requires tool-policy approval, current files must be verified, rollback plan required, and no mutation.
         </Link>
+        <Link
+          href="/ai"
+          style={chatRecallLink}
+          data-codexforge-files-apply-diff-dry-run="Apply-Diff Dry Run Simulate apply-diff dry run simulation only no mutation actual apply-diff remains blocked"
+        >
+          Apply-Diff Dry Run: Simulate apply-diff dry run for selected file context when safe; show dry-run impact,
+          conflict checks, and result ledger only. Simulation only, no mutation, actual apply-diff remains blocked,
+          pseudo diff alone is not applyable, current file verification required, rollback plan required, and preserve
+          latest-message authority.
+        </Link>
       </div>
       <FilesCommandCenter initialData={initialData} />
     </>

@@ -297,6 +297,11 @@ $scripts = @(
     Required = $true
   }
   @{
+    Name = "Apply-Diff Dry Run"
+    Path = Join-Path $PSScriptRoot "smoke-codexforge-apply-diff-dry-run.ps1"
+    Required = $true
+  }
+  @{
     Name = "Grounded Fix Recommendation"
     Path = Join-Path $PSScriptRoot "smoke-codexforge-grounded-fix-recommendation.ps1"
     Required = $true

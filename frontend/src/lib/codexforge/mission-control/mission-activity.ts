@@ -33,6 +33,7 @@ export function buildMissionActivityTimeline(): MissionActivityTimeline {
     buildMissionActivityItem("read-only-step-execution-added", "Read-Only Step Execution added", "Phase 26", "Approved task steps can run only guarded read-only tools and capture visible evidence while mutation tools remain blocked.", "needs-review"),
     buildMissionActivityItem("evidence-memory-added", "Evidence Memory added", "Phase 27", "Read-only execution evidence becomes reviewable memory candidates with source trace and preview-only Brain merge handoff; no auto-promotion and no graph mutation.", "needs-review"),
     buildMissionActivityItem("evidence-grounded-chat-added", "Evidence-Grounded Chat added", "Phase 28", "Selected reviewed evidence becomes visible chat grounding with local citations, prompt preview, stale or weak warnings, and no hidden context injection.", "needs-review"),
+    buildMissionActivityItem("apply-diff-dry-run-added", "Apply-Diff Dry Run added", "Phase 33", "Human-approved apply packets gain deterministic dry-run simulation, affected file validation, conflict checks, result ledger, and no mutation.", "needs-review"),
   ];
 
   return {

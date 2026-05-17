@@ -11,6 +11,7 @@ import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
 import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/components";
 import { PatchApplicationGatePanel } from "@/lib/codexforge/patch-application-gate/components";
 import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
+import { ApplyDiffDryRunPanel } from "@/lib/codexforge/apply-diff-dry-run/components";
 
 export default function TasksPageClient() {
   return (
@@ -37,6 +38,9 @@ export default function TasksPageClient() {
         <div style={{ marginTop: 16 }}>
           <PatchApplicationGatePanel compact />
         </div>
+        <div style={{ marginTop: 16 }}>
+          <ApplyDiffDryRunPanel compact />
+        </div>
       </div>
       <div style={{ background: "#020617", padding: "0 min(4vw, 44px) 36px" }}>
         <section
@@ -60,7 +64,9 @@ export default function TasksPageClient() {
             Preview handoff only. Patch Preview Queue can show queued preview item handoff when safe, with no
             execution and no mutation. Preview Diff Composer can compose preview diff packages from task or fix queue
             items without execution, file writes, or mutation. Patch Application Gate can prepare a human-approved
-            apply gate from task/fix queue context; actual mutation remains blocked.
+            apply gate from task/fix queue context; actual mutation remains blocked. Apply-Diff Dry Run can show
+            dry-run status for task/fix queue handoff when safe; simulation only, no execution, no mutation, and
+            actual apply-diff remains blocked.
           </span>
         </section>
         <EvidenceMemoryPanel />
