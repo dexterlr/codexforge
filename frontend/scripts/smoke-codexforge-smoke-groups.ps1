@@ -81,7 +81,8 @@ $keyScripts = @(
   "smoke-codexforge-operator-run-center.ps1",
   "smoke-codexforge-capability-cockpit.ps1",
   "smoke-codexforge-creative-production-studio.ps1",
-  "smoke-codexforge-brand-clean.ps1"
+  "smoke-codexforge-brand-clean.ps1",
+  "smoke-codexforge-no-health-harness.ps1"
 )
 
 foreach ($optionalScript in @(

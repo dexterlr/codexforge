@@ -16,7 +16,3 @@ CodexForge helps users plan, inspect, understand, review, and safely evolve soft
 ## Product Boundary
 
 CodexForge currently previews and reviews many workflows that do not execute yet. Blender, Unreal, ComfyUI, render jobs, broker jobs, PC/camera control, uncontrolled apply, and unapproved file mutation are not active capabilities.
-
-## Legacy Compatibility
-
-Some local storage or repo paths may reflect migrated local entries from older app states. Treat that as legacy import compatibility, not current product branding.

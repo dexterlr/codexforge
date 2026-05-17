@@ -12,6 +12,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "Core" -BaseUrl $BaseUrl -ScriptRoot $scr
   @{ Name = "Product Surface UI"; File = "smoke-codexforge-product-surface-ui.ps1"; Required = $true },
   @{ Name = "Product Surface Planning"; File = "smoke-codexforge-product-surface-planning.ps1"; Required = $true },
   @{ Name = "Brand Cleanup"; File = "smoke-codexforge-brand-clean.ps1"; Required = $true },
+  @{ Name = "No Health Harness"; File = "smoke-codexforge-no-health-harness.ps1"; Required = $true },
   @{ Name = "Domain Alignment"; File = "smoke-codexforge-domain-alignment.ps1"; Required = $true },
   @{ Name = "Model Router"; File = "smoke-codexforge-model-router.ps1"; Required = $false },
   @{ Name = "Tool Adapter Registry"; File = "smoke-codexforge-tool-adapter-registry.ps1"; Required = $true },

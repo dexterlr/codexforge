@@ -325,7 +325,7 @@ function buildStaticSourceNodeFacts(): CodexForgeBrainMemorySourceNode[] {
     fileNode("src/app/brain/page-client.tsx", "Brain page client", "Operator UI for loading, saving, inspecting, exporting, resetting, and now ingesting Brain memory.", "critical"),
     fileNode("src/lib/codexforge/brain/components/brain-graph-view.tsx", "Brain graph view", "Deterministic visual graph renderer for real nodes and edges.", "critical"),
     fileNode("src/app/history/page.tsx", "History page", "Local activity intelligence UI and import/export surface.", "high"),
-    fileNode("src/lib/storage.ts", "Local activity storage", "Local activity entry normalization, migration, load, save, and clearing helpers.", "high"),
+    fileNode("src/lib/storage.ts", "Local activity storage", "Local activity entry normalization, load, save, and clearing helpers.", "high"),
     fileNode("src/lib/codexforge/chat/use-codexforge-chat.ts", "CodexForge chat hook", "Client chat state, task execution, memory, runtime, and Brain graph sync.", "high"),
     fileNode("src/lib/codexforge/files/components/files-command-center.tsx", "Files command center component", "Read-only Files UX for project intelligence and safe edit planning.", "high"),
     fileNode("src/lib/codexforge/files/server/project-files.ts", "Project files scanner", "Bounded server-side file scan for local read-only Files intelligence.", "high"),
@@ -601,7 +601,6 @@ function activityData(entry: CodexForgeBrainMemoryActivityEntry): Record<string,
         memoryType: "fact",
         content: summary,
       };
-    case "legacy-metric":
     case "note":
     default:
       return {

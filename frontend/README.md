@@ -93,5 +93,3 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brand-clean.
 - Adapter execution behind local bridge and explicit policies.
 - Project onboarding/import.
 - Better graph data volume and clustering.
-
-Legacy storage is described only as import compatibility for older local entries, not current product branding.

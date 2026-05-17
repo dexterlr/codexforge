@@ -143,8 +143,7 @@ function normalizeCategory(value: unknown): ActivityEntry["category"] {
     value === "research" ||
     value === "decision" ||
     value === "execution" ||
-    value === "memory" ||
-    value === "legacy-metric"
+    value === "memory"
     ? value
     : "note";
 }
@@ -170,10 +169,9 @@ function normalizeEntry(x: unknown, idx: number): ActivityEntry {
   const idRaw = typeof record.id === "string" ? record.id : "";
 
   return {
-    ...(record as ActivityEntry),
     id: idRaw || safeId(),
     date,
-    title: parseOptionalString(record.title) ?? "Archived import",
+    title: parseOptionalString(record.title) ?? "Workspace entry",
     summary: parseOptionalString(record.summary),
     category: normalizeCategory(record.category),
     status: normalizeStatus(record.status),
@@ -369,7 +367,6 @@ function buildLocalSummary(entriesNewestFirst: ActivityEntry[]) {
     `Decisions: ${categoryCounts.Decision ?? 0}`,
     `Memory: ${categoryCounts.Memory ?? 0}`,
     `Notes: ${categoryCounts.Note ?? 0}`,
-    `Archived imports: ${categoryCounts["Archived import"] ?? 0}`,
     "",
     "Operator state",
     "--------------",
@@ -430,8 +427,6 @@ function formatCategoryLabel(category: ActivityEntry["category"]) {
       return "Execution";
     case "memory":
       return "Memory";
-    case "legacy-metric":
-      return "Archived import";
     case "note":
     default:
       return "Note";
@@ -867,7 +862,6 @@ export default function HistoryPage() {
               <option value="execution">Execution</option>
               <option value="memory">Memory</option>
               <option value="note">Note</option>
-              <option value="legacy-metric">Archived import</option>
             </select>
 
             <button onClick={onResetFilters} style={ghostBtn}>

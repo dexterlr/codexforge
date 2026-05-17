@@ -7,8 +7,7 @@ type ActivityCategory =
   | "research"
   | "decision"
   | "execution"
-  | "memory"
-  | "legacy-metric";
+  | "memory";
 
 type ActivityStatus = "idea" | "active" | "done" | "blocked";
 
@@ -21,44 +20,11 @@ type CodexForgeActivityEntry = {
   status?: ActivityStatus;
   tags?: string[];
   notes?: string;
-
-  // legacy compatibility
-  weight?: number;
-  steps?: number;
-  water?: number;
-  sleep?: number;
 };
 
 type CapabilityMode = "analyze";
 
 type CategoryCounts = Record<ActivityCategory, number>;
-
-type LegacySignals = {
-  avgWeight?: number;
-  avgSteps?: number;
-  avgWater?: number;
-  avgSleep?: number;
-  medianWeight?: number;
-  medianSteps?: number;
-  medianWater?: number;
-  medianSleep?: number;
-  minWeight?: number;
-  maxWeight?: number;
-  minSteps?: number;
-  maxSteps?: number;
-  minWater?: number;
-  maxWater?: number;
-  minSleep?: number;
-  maxSleep?: number;
-  weightDelta?: number;
-  stepsDelta?: number;
-  waterDelta?: number;
-  sleepDelta?: number;
-  legacyEntryCount: number;
-  noteCount: number;
-  completeEntryCount: number;
-  partialEntryCount: number;
-};
 
 type ActivitySignals = {
   planCount: number;
@@ -68,7 +34,6 @@ type ActivitySignals = {
   executionCount: number;
   memoryCount: number;
   noteCount: number;
-  legacyHealthCount: number;
   taggedEntryCount: number;
   activeCount: number;
   doneCount: number;
@@ -77,7 +42,6 @@ type ActivitySignals = {
 
 type InsightSignals = {
   activity: ActivitySignals;
-  legacy: LegacySignals;
 };
 
 type InsightMeta = {
@@ -119,14 +83,6 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
 
-function isFiniteNumber(v: unknown): v is number {
-  return typeof v === "number" && Number.isFinite(v);
-}
-
-function parseOptionalNumber(v: unknown): number | undefined {
-  return isFiniteNumber(v) ? v : undefined;
-}
-
 function parseOptionalString(v: unknown): string | undefined {
   return typeof v === "string" && v.trim() ? v.trim() : undefined;
 }
@@ -160,32 +116,7 @@ function compareByDateDesc(a: CodexForgeActivityEntry, b: CodexForgeActivityEntr
   return (b.date ? parseDateToMs(b.date) : 0) - (a.date ? parseDateToMs(a.date) : 0);
 }
 
-function round1(n: number) {
-  return Math.round(n * 10) / 10;
-}
-
-function avg(nums: number[]) {
-  if (nums.length === 0) return 0;
-  return nums.reduce((a, b) => a + b, 0) / nums.length;
-}
-
-function median(nums: number[]) {
-  if (nums.length === 0) return 0;
-  const sorted = [...nums].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-}
-
-function formatNumber(n: number) {
-  return n.toLocaleString();
-}
-
-function safeTrim(s: string, max: number) {
-  return s.length <= max ? s : `${s.slice(0, max - 1)}...`;
-}
-
 function formatCategoryLabel(category: ActivityCategory) {
-  if (category === "legacy-metric") return "Archived import";
   if (category === "plan") return "Plan";
   if (category === "task") return "Task";
   if (category === "research") return "Research";
@@ -199,29 +130,11 @@ function makeStableId(idx: number) {
   return `generated-${Date.now()}-${idx}-${Math.random().toString(16).slice(2)}`;
 }
 
-function nums(values: Array<number | undefined>) {
-  return values.filter((v): v is number => typeof v === "number" && Number.isFinite(v));
+function safeTrim(s: string, max: number) {
+  return s.length <= max ? s : `${s.slice(0, max - 1)}...`;
 }
 
-function hasAnyLegacyMetric(entry: CodexForgeActivityEntry) {
-  return (
-    isFiniteNumber(entry.weight) ||
-    isFiniteNumber(entry.steps) ||
-    isFiniteNumber(entry.water) ||
-    isFiniteNumber(entry.sleep)
-  );
-}
-
-function hasAllCoreLegacyMetrics(entry: CodexForgeActivityEntry) {
-  return (
-    isFiniteNumber(entry.weight) &&
-    isFiniteNumber(entry.steps) &&
-    isFiniteNumber(entry.water) &&
-    isFiniteNumber(entry.sleep)
-  );
-}
-
-function normalizeCategory(raw: unknown, hasLegacyMetrics: boolean): ActivityCategory {
+function normalizeCategory(raw: unknown): ActivityCategory {
   if (
     raw === "note" ||
     raw === "plan" ||
@@ -229,13 +142,12 @@ function normalizeCategory(raw: unknown, hasLegacyMetrics: boolean): ActivityCat
     raw === "research" ||
     raw === "decision" ||
     raw === "execution" ||
-    raw === "memory" ||
-    raw === "legacy-metric"
+    raw === "memory"
   ) {
     return raw;
   }
 
-  return hasLegacyMetrics ? "legacy-metric" : "note";
+  return "note";
 }
 
 function normalizeStatus(raw: unknown): ActivityStatus | undefined {
@@ -261,34 +173,15 @@ function normalizeEntry(raw: unknown, idx: number): CodexForgeActivityEntry {
       ? raw.id.trim()
       : makeStableId(idx);
 
-  const weight = parseOptionalNumber(raw.weight);
-  const steps = parseOptionalNumber(raw.steps);
-  const water = parseOptionalNumber(raw.water);
-  const sleep = parseOptionalNumber(raw.sleep);
-
-  const hasLegacyMetrics =
-    weight !== undefined ||
-    steps !== undefined ||
-    water !== undefined ||
-    sleep !== undefined;
-
-  const title =
-    parseOptionalString(raw.title) ??
-    (hasLegacyMetrics ? "Archived import" : "Workspace entry");
-
   return {
     id,
     date,
-    title,
+    title: parseOptionalString(raw.title) ?? "Workspace entry",
     summary: parseOptionalString(raw.summary),
-    category: normalizeCategory(raw.category, hasLegacyMetrics),
+    category: normalizeCategory(raw.category),
     status: normalizeStatus(raw.status),
     tags: parseOptionalStringArray(raw.tags),
     notes: parseOptionalString(raw.notes),
-    weight,
-    steps,
-    water,
-    sleep,
   };
 }
 
@@ -306,7 +199,6 @@ function buildCategoryCounts(entries: CodexForgeActivityEntry[]): CategoryCounts
       decision: 0,
       execution: 0,
       memory: 0,
-      "legacy-metric": 0,
     }
   );
 }
@@ -322,7 +214,6 @@ function buildActivitySignals(entriesNewestFirst: CodexForgeActivityEntry[]): Ac
     executionCount: counts.execution,
     memoryCount: counts.memory,
     noteCount: counts.note,
-    legacyHealthCount: counts["legacy-metric"],
     taggedEntryCount: entriesNewestFirst.filter((entry) => (entry.tags?.length ?? 0) > 0).length,
     activeCount: entriesNewestFirst.filter((entry) => entry.status === "active").length,
     doneCount: entriesNewestFirst.filter((entry) => entry.status === "done").length,
@@ -330,69 +221,19 @@ function buildActivitySignals(entriesNewestFirst: CodexForgeActivityEntry[]): Ac
   };
 }
 
-function buildLegacySignals(entriesNewestFirst: CodexForgeActivityEntry[]): LegacySignals {
-  const legacyEntries = entriesNewestFirst.filter(
-    (entry) => entry.category === "legacy-metric" || hasAnyLegacyMetric(entry)
-  );
-
-  const last7 = legacyEntries.slice(0, 7);
-
-  const weights = nums(last7.map((e) => e.weight));
-  const steps = nums(last7.map((e) => e.steps));
-  const water = nums(last7.map((e) => e.water));
-  const sleep = nums(last7.map((e) => e.sleep));
-
-  let weightDelta: number | undefined;
-  if (weights.length >= 2) {
-    weightDelta = round1(weights[0] - weights[weights.length - 1]);
-  }
-
-  let stepsDelta: number | undefined;
-  if (steps.length >= 2) {
-    stepsDelta = Math.round(steps[0] - steps[steps.length - 1]);
-  }
-
-  let waterDelta: number | undefined;
-  if (water.length >= 2) {
-    waterDelta = round1(water[0] - water[water.length - 1]);
-  }
-
-  let sleepDelta: number | undefined;
-  if (sleep.length >= 2) {
-    sleepDelta = round1(sleep[0] - sleep[sleep.length - 1]);
-  }
-
+function emptyActivitySignals(): ActivitySignals {
   return {
-    avgWeight: weights.length ? round1(avg(weights)) : undefined,
-    avgSteps: steps.length ? Math.round(avg(steps)) : undefined,
-    avgWater: water.length ? round1(avg(water)) : undefined,
-    avgSleep: sleep.length ? round1(avg(sleep)) : undefined,
-
-    medianWeight: weights.length ? round1(median(weights)) : undefined,
-    medianSteps: steps.length ? Math.round(median(steps)) : undefined,
-    medianWater: water.length ? round1(median(water)) : undefined,
-    medianSleep: sleep.length ? round1(median(sleep)) : undefined,
-
-    minWeight: weights.length ? Math.min(...weights) : undefined,
-    maxWeight: weights.length ? Math.max(...weights) : undefined,
-    minSteps: steps.length ? Math.min(...steps) : undefined,
-    maxSteps: steps.length ? Math.max(...steps) : undefined,
-    minWater: water.length ? Math.min(...water) : undefined,
-    maxWater: water.length ? Math.max(...water) : undefined,
-    minSleep: sleep.length ? Math.min(...sleep) : undefined,
-    maxSleep: sleep.length ? Math.max(...sleep) : undefined,
-
-    weightDelta,
-    stepsDelta,
-    waterDelta,
-    sleepDelta,
-
-    legacyEntryCount: legacyEntries.length,
-    noteCount: last7.filter((e) => !!e.notes).length,
-    completeEntryCount: last7.filter(hasAllCoreLegacyMetrics).length,
-    partialEntryCount: last7.filter(
-      (e) => hasAnyLegacyMetric(e) && !hasAllCoreLegacyMetrics(e)
-    ).length,
+    planCount: 0,
+    taskCount: 0,
+    researchCount: 0,
+    decisionCount: 0,
+    executionCount: 0,
+    memoryCount: 0,
+    noteCount: 0,
+    taggedEntryCount: 0,
+    activeCount: 0,
+    doneCount: 0,
+    blockedCount: 0,
   };
 }
 
@@ -422,26 +263,7 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
       latestEntryDate: undefined,
       oldestAnalyzedDate: undefined,
       signals: {
-        activity: {
-          planCount: 0,
-          taskCount: 0,
-          researchCount: 0,
-          decisionCount: 0,
-          executionCount: 0,
-          memoryCount: 0,
-          noteCount: 0,
-          legacyHealthCount: 0,
-          taggedEntryCount: 0,
-          activeCount: 0,
-          doneCount: 0,
-          blockedCount: 0,
-        },
-        legacy: {
-          legacyEntryCount: 0,
-          noteCount: 0,
-          completeEntryCount: 0,
-          partialEntryCount: 0,
-        },
+        activity: emptyActivitySignals(),
       },
     };
   }
@@ -449,16 +271,8 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
   const sorted = entries.slice().sort(compareByDateDesc);
   const latestEntryDate = sorted[0]?.date;
   const oldestAnalyzedDate = sorted[sorted.length - 1]?.date;
-
   const activitySignals = buildActivitySignals(sorted);
-  const legacySignals = buildLegacySignals(sorted);
 
-  if (activitySignals.legacyHealthCount > 0) {
-    warnings.push("Archived imports are still present in workspace history.");
-  }
-  if (legacySignals.completeEntryCount === 0 && activitySignals.legacyHealthCount > 0) {
-    warnings.push("Archived imports are present with partial migration metadata.");
-  }
   if (activitySignals.executionCount === 0) {
     warnings.push("No execution events recorded yet.");
   }
@@ -474,7 +288,7 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
   lines.push("CodexForge Local Activity Analysis");
   lines.push("=================================");
   lines.push("Scope: Workspace activity timeline");
-  lines.push("Purpose: Review local activity, operator state, and migration-safe imports.");
+  lines.push("Purpose: Review local activity, operator state, and workspace continuity.");
   lines.push("");
 
   lines.push("Dataset");
@@ -510,15 +324,10 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
   if (latest.tags?.length) lines.push(`Tags: ${latest.tags.join(", ")}`);
   lines.push("");
 
-  lines.push("Import readout");
-  lines.push("--------------");
-  if (activitySignals.legacyHealthCount > 0) {
-    lines.push(`- Archived imports still present: ${activitySignals.legacyHealthCount}.`);
-    lines.push("- History is handling imported data alongside CodexForge-native activity.");
-  } else {
-    lines.push("- No archived imports detected.");
-    lines.push("- History is operating in CodexForge-first mode.");
-  }
+  lines.push("Continuity");
+  lines.push("----------");
+  lines.push("- History is operating in CodexForge activity mode.");
+  lines.push("- Activity entries remain local, deterministic, and exportable.");
   lines.push("");
 
   lines.push("Suggested next actions");
@@ -538,7 +347,6 @@ function summarize(entries: CodexForgeActivityEntry[]): SummaryResult {
     oldestAnalyzedDate,
     signals: {
       activity: activitySignals,
-      legacy: legacySignals,
     },
   };
 }

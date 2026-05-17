@@ -196,10 +196,8 @@ Not production-ready:
 
 ## Known Limitations
 
-- Some local paths still reflect repository lineage or test-harness history.
 - `/entry` and `/clawd` remain supporting surfaces while navigation continues to consolidate.
 - Several adapter capabilities are readiness or planning surfaces only.
-- Legacy local storage compatibility may include migrated local entries from older app states; this is import compatibility, not active old-product branding.
 
 ## Near-Term Roadmap
 

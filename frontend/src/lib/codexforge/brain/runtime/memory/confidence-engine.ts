@@ -56,7 +56,7 @@ export type CodexForgeCognitiveMemoryScoreBreakdown = {
   repeatedEventSignals: number;
   sourceDiversity: number;
   contradictionRisk: number;
-  legacyRankSignal: number;
+  baselineRankSignal: number;
   reasons: string[];
 };
 
@@ -116,7 +116,7 @@ function getSourceDiversityScore(node: CodexForgeBrainNode): number {
   return clamp01(0.2 + uniqueCount(refs.map((ref) => ref.type)) * 0.18);
 }
 
-function getLegacyRankSignals(
+function getBaselineRankSignals(
   input: CodexForgeRankCognitiveMemoryInput
 ): Map<string, number> {
   const ranked = rankMemory({
@@ -155,7 +155,7 @@ export function calculateMemoryImportance(
 
 export function buildCognitiveMemoryScoreBreakdown(
   input: CodexForgeCognitiveMemoryConfidenceInput & {
-    legacyRankSignal?: number;
+    baselineRankSignal?: number;
   }
 ): CodexForgeCognitiveMemoryScoreBreakdown {
   const node = input.node;
@@ -178,7 +178,7 @@ export function buildCognitiveMemoryScoreBreakdown(
   const sourceDiversity = getSourceDiversityScore(node);
   const repeatedEventSignals = clamp01(getEventSignalCount(node, events) / 5);
   const contradictionRisk = clamp01(input.contradictionRisk ?? 0);
-  const legacyRankSignal = clamp01(input.legacyRankSignal ?? 0);
+  const baselineRankSignal = clamp01(input.baselineRankSignal ?? 0);
   const confidence = clamp01(
     importance * 0.2 +
       age.score * 0.18 +
@@ -186,7 +186,7 @@ export function buildCognitiveMemoryScoreBreakdown(
       sourceRefs * 0.12 +
       sourceDiversity * 0.1 +
       repeatedEventSignals * 0.12 +
-      legacyRankSignal * 0.08 +
+      baselineRankSignal * 0.08 +
       pinned * 0.08 -
       archived * 0.22 -
       contradictionRisk * 0.18
@@ -206,7 +206,7 @@ export function buildCognitiveMemoryScoreBreakdown(
     sourceRefs > 0.2 ? "source-refs-present" : "source-refs-sparse",
     sourceDiversity > 0.38 ? "source-diversity-present" : "source-diversity-low",
     repeatedEventSignals > 0 ? "repeated-runtime-signal" : "no-runtime-repeat",
-    legacyRankSignal > 0 ? "phase-1-rank-signal" : "no-phase-1-rank-signal",
+    baselineRankSignal > 0 ? "phase-1-rank-signal" : "no-phase-1-rank-signal",
     contradictionRisk > 0 ? "contradiction-risk-candidate" : "no-contradiction-risk",
     ...(node.meta.pinned ? ["pinned"] : []),
     ...(archived ? ["archived-lowered"] : []),
@@ -224,7 +224,7 @@ export function buildCognitiveMemoryScoreBreakdown(
     repeatedEventSignals,
     sourceDiversity,
     contradictionRisk,
-    legacyRankSignal,
+    baselineRankSignal,
     reasons,
   };
 }
@@ -250,7 +250,7 @@ export function rankCognitiveMemory(
   input: CodexForgeRankCognitiveMemoryInput
 ): CodexForgeCognitiveMemoryScore[] {
   const includeKinds = new Set(input.includeKinds ?? DEFAULT_MEMORY_KINDS);
-  const legacySignals = getLegacyRankSignals(input);
+  const baselineRankSignals = getBaselineRankSignals(input);
 
   return input.graph.nodes
     .filter((node) => includeKinds.has(node.kind))
@@ -261,7 +261,7 @@ export function rankCognitiveMemory(
         now: input.now,
         contradictionRisk: input.contradictionRisks?.[node.id],
         focusNodeIds: input.focusNodeIds,
-        legacyRankSignal: legacySignals.get(node.id) ?? 0,
+        baselineRankSignal: baselineRankSignals.get(node.id) ?? 0,
       });
 
       return {

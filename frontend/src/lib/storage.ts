@@ -10,29 +10,15 @@ export type CodexForgeActivityEntry = {
     | "research"
     | "decision"
     | "execution"
-    | "memory"
-    | "legacy-metric";
+    | "memory";
   status?: "idea" | "active" | "done" | "blocked";
   tags?: string[];
   notes?: string;
-
-  // Migration-only numeric fields retained so older local exports keep round-tripping.
-  weight?: number;
-  steps?: number;
-  water?: number;
-  sleep?: number;
 };
 
 export type CodexForgeEntry = CodexForgeActivityEntry;
 
 const PRIMARY_KEY = "codexforge_activity_entries_v1";
-const LEGACY_KEYS = [
-  "codexforge_activity_entries_v1",
-  ["health", "tracker", "entries", "v1"].join("_"),
-  ["health", "tracker", "entries"].join("-"),
-  "entries",
-  "healthEntries",
-] as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -53,10 +39,6 @@ function asTrimmedString(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
-function asFiniteNumber(value: unknown): number | undefined {
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
 function normalizeTags(value: unknown): string[] | undefined {
   if (!Array.isArray(value)) return undefined;
 
@@ -72,10 +54,7 @@ function normalizeTags(value: unknown): string[] | undefined {
   return tags.length > 0 ? tags : undefined;
 }
 
-function normalizeCategory(
-  raw: unknown,
-  hasLegacyMetrics: boolean
-): CodexForgeActivityEntry["category"] {
+function normalizeCategory(raw: unknown): CodexForgeActivityEntry["category"] {
   if (
     raw === "note" ||
     raw === "plan" ||
@@ -83,13 +62,12 @@ function normalizeCategory(
     raw === "research" ||
     raw === "decision" ||
     raw === "execution" ||
-    raw === "memory" ||
-    raw === "legacy-metric"
+    raw === "memory"
   ) {
     return raw;
   }
 
-  return hasLegacyMetrics ? "legacy-metric" : "note";
+  return "note";
 }
 
 function normalizeStatus(
@@ -117,34 +95,17 @@ function normalizeEntry(raw: unknown, index = 0): CodexForgeActivityEntry | null
   const date = asTrimmedString(raw.date);
   if (!date) return null;
 
-  const weight = asFiniteNumber(raw.weight);
-  const steps = asFiniteNumber(raw.steps);
-  const water = asFiniteNumber(raw.water);
-  const sleep = asFiniteNumber(raw.sleep);
-
-  const hasLegacyMetrics =
-    weight !== undefined ||
-    steps !== undefined ||
-    water !== undefined ||
-    sleep !== undefined;
-
-  const title =
-    asTrimmedString(raw.title) ??
-    (hasLegacyMetrics ? "Archived import" : "Workspace entry");
+  const title = asTrimmedString(raw.title) ?? "Workspace entry";
 
   return {
     id,
     date,
     title,
     summary: asTrimmedString(raw.summary),
-    category: normalizeCategory(raw.category, hasLegacyMetrics),
+    category: normalizeCategory(raw.category),
     status: normalizeStatus(raw.status),
     tags: normalizeTags(raw.tags),
     notes: asTrimmedString(raw.notes),
-    weight,
-    steps,
-    water,
-    sleep,
   };
 }
 
@@ -161,25 +122,14 @@ function normalizeEntries(raw: unknown): CodexForgeActivityEntry[] {
     });
 }
 
-function readFromFirstAvailableKey(): CodexForgeActivityEntry[] {
-  for (const key of LEGACY_KEYS) {
-    const parsed = safeParse<unknown>(localStorage.getItem(key), []);
-    const normalized = normalizeEntries(parsed);
-
-    if (normalized.length > 0) {
-      if (key !== PRIMARY_KEY) {
-        localStorage.setItem(PRIMARY_KEY, JSON.stringify(normalized));
-      }
-      return normalized;
-    }
-  }
-
-  return [];
+function readCurrentEntries(): CodexForgeActivityEntry[] {
+  const parsed = safeParse<unknown>(localStorage.getItem(PRIMARY_KEY), []);
+  return normalizeEntries(parsed);
 }
 
 export function loadEntries(): CodexForgeEntry[] {
   if (typeof window === "undefined") return [];
-  return readFromFirstAvailableKey();
+  return readCurrentEntries();
 }
 
 export function saveEntries(entries: CodexForgeEntry[]) {
@@ -200,8 +150,5 @@ export function addEntry(entry: CodexForgeEntry) {
 
 export function clearEntries() {
   if (typeof window === "undefined") return;
-
-  for (const key of LEGACY_KEYS) {
-    localStorage.removeItem(key);
-  }
+  localStorage.removeItem(PRIMARY_KEY);
 }

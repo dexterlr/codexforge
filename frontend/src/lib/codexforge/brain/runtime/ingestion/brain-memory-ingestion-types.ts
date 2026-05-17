@@ -35,8 +35,7 @@ export type CodexForgeBrainMemoryActivityEntry = {
     | "research"
     | "decision"
     | "execution"
-    | "memory"
-    | "legacy-metric";
+    | "memory";
   status?: "idea" | "active" | "done" | "blocked";
   tags?: string[];
   notes?: string;

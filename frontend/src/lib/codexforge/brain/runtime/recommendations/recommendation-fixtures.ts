@@ -117,7 +117,7 @@ export function buildRecommendationFixtureMemory(): CodexForgeCognitiveMemorySco
         repeatedEventSignals: 0.72,
         sourceDiversity: 0.42,
         contradictionRisk: node.id.includes("contradiction") ? 0.82 : 0.08,
-        legacyRankSignal: 0.64,
+        baselineRankSignal: 0.64,
         reasons: ["fixture-memory"],
       },
     }));

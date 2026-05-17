@@ -218,7 +218,7 @@ export function buildSemanticTopologyFixtureMemory(): CodexForgeCognitiveMemoryS
         repeatedEventSignals: 0.5,
         sourceDiversity: 0.4,
         contradictionRisk: node.id.includes("contradiction") ? 0.76 : 0.1,
-        legacyRankSignal: 0.6,
+        baselineRankSignal: 0.6,
         reasons: ["fixture-memory"],
       },
     }));

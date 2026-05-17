@@ -317,8 +317,7 @@ function readBrainMemoryActivityEntries(): CodexForgeBrainMemoryActivityEntry[] 
         category !== "research" &&
         category !== "decision" &&
         category !== "execution" &&
-        category !== "memory" &&
-        category !== "legacy-metric"
+        category !== "memory"
       ) {
         continue;
       }

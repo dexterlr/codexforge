@@ -75,6 +75,7 @@ $brainPage = Get-Content -Raw "src\app\brain\page-client.tsx"
 $chatHook = Get-Content -Raw "src\lib\codexforge\chat\use-codexforge-chat.ts"
 $storage = Get-Content -Raw "src\lib\storage.ts"
 $history = Get-Content -Raw "src\app\history\page.tsx"
+$insights = Get-Content -Raw "src\app\api\insights\route.ts"
 
 $forbiddenMojibake = @(
   [string][char]0x00C3,
@@ -88,8 +89,27 @@ foreach ($needle in $forbiddenMojibake) {
 }
 
 Assert-NotContains $chatHook ([string][char]0x00C3) "chat hook mojibake join"
-Assert-NotContains $storage "legacy-health" "storage legacy health category"
-Assert-NotContains $history "legacy-health" "history legacy health category"
-Assert-NotContains $history "Legacy health" "history legacy health label"
+
+$hardForbidden = @(
+  ("Health" + " Tracker"),
+  ("health" + "-tracker"),
+  ("health" + "_tracker"),
+  ("health" + "Entries"),
+  ("health" + "_tracker_entries_v1"),
+  ("health" + "-tracker-entries"),
+  ("legacy" + "-metric"),
+  ("legacy" + " metric"),
+  ("Legacy" + "Signals"),
+  ("Legacy" + "Stats"),
+  ("compute" + "Legacy" + "Stats"),
+  ("get" + "Legacy" + "Signals"),
+  ("health" + " metric")
+)
+
+foreach ($needle in $hardForbidden) {
+  Assert-NotContains $storage $needle "storage excludes retired harness marker"
+  Assert-NotContains $history $needle "history excludes retired harness marker"
+  Assert-NotContains $insights $needle "insights excludes retired harness marker"
+}
 
 Write-Host "[OK] CodexForge brand cleanup smoke passed."

@@ -192,7 +192,7 @@ export function buildBrainFocusFixtureMemory(): CodexForgeCognitiveMemoryScore[]
         repeatedEventSignals: 0.74,
         sourceDiversity: 0.66,
         contradictionRisk: node.id.includes("failure") ? 0.72 : 0.1,
-        legacyRankSignal: 0.64,
+        baselineRankSignal: 0.64,
         reasons: ["focus-fixture-memory", "deterministic"],
       },
     }));
