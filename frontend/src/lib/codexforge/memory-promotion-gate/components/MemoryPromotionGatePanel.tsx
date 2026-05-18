@@ -22,6 +22,7 @@ import { PromotionExecutionBridgePanel } from "./PromotionExecutionBridgePanel";
 import { PromotionGateInputPanel } from "./PromotionGateInputPanel";
 import { PromotionPolicyPanel } from "./PromotionPolicyPanel";
 import { PromotionRequestPacketPanel } from "./PromotionRequestPacketPanel";
+import { RuntimeEventExecutorPanel } from "@/lib/codexforge/runtime-event-executor/components";
 
 export function MemoryPromotionGatePanel({ card, compact = false }: { card?: OperatorMemoryInboxCard | null; compact?: boolean }) {
   const [approved, setApproved] = useState(false);
@@ -100,6 +101,7 @@ export function MemoryPromotionGatePanel({ card, compact = false }: { card?: Ope
       <PromotionPolicyPanel policy={policy} />
       {!compact ? <PromotionEventPreviewPanel preview={eventPreview} /> : null}
       {!compact ? <PromotionRequestPacketPanel request={requestPacket} /> : null}
+      <RuntimeEventExecutorPanel card={card} compact />
       <PromotionExecutionBridgePanel bridge={bridge} />
       {!compact ? <PromotionAuditLedgerPanel ledger={ledger} /> : null}
     </section>

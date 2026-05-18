@@ -26,6 +26,7 @@ import { MemoryInboxReviewPolicyPanel } from "./MemoryInboxReviewPolicyPanel";
 import { MemoryInboxSafetyNotice } from "./MemoryInboxSafetyNotice";
 import { MemoryInboxSourcePanel } from "./MemoryInboxSourcePanel";
 import { MemoryPromotionGatePanel } from "@/lib/codexforge/memory-promotion-gate/components";
+import { RuntimeEventExecutorPanel } from "@/lib/codexforge/runtime-event-executor/components";
 
 export function OperatorMemoryInbox({ session: providedSession }: { session?: OperatorMemoryInboxSession }) {
   const session = useMemo(() => providedSession ?? buildDefaultSession(), [providedSession]);
@@ -66,6 +67,7 @@ export function OperatorMemoryInbox({ session: providedSession }: { session?: Op
               Activity, evidence, regression, patch, stabilization, creative, and manual notes become reviewed memory
               inbox cards with confidence, importance, risk, dedupe, and promotion preview. This phase does not
               auto-promote memory and does not mutate the Brain graph.
+              Runtime Event Executor review is available for approved memory.promoted requests only and never auto-executes.
             </p>
             <div style={heroActions}>
               <button type="button" onClick={copyReviewPrompt} style={actionButton}>Copy memory review prompt</button>
@@ -94,6 +96,7 @@ export function OperatorMemoryInbox({ session: providedSession }: { session?: Op
             <MemoryInboxSourcePanel sources={session.sourceSummary} />
             <MemoryInboxReviewPolicyPanel policy={policy} />
             {preview ? <MemoryInboxPromotionPreviewPanel preview={preview} onCopyPreview={copyPromotionPreview} /> : null}
+            <RuntimeEventExecutorPanel card={selectedCard} compact />
             <MemoryPromotionGatePanel card={selectedCard} />
           </aside>
         </div>

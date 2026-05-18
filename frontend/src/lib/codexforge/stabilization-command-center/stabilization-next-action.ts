@@ -59,6 +59,11 @@ const ACTION_DETAIL: Record<StabilizationNextActionKind, { title: string; detail
     detail: "Review Patch Application Gate, dry run, and execution gate posture; no direct dispatch here.",
     targetRoute: "/ai",
   },
+  "review runtime event executor": {
+    title: "Review runtime event executor",
+    detail: "Review Guarded Runtime Event Executor request, policy, validation, approval, reducer preview, audit ledger, and result before append-only execution.",
+    targetRoute: "/memory-inbox",
+  },
   "prepare rollback": {
     title: "Prepare rollback",
     detail: "Make rollback notes visible before any future guarded apply path.",
@@ -157,6 +162,10 @@ export function selectStabilizationNextAction(args: {
     return makeAction("prepare rollback", "primary");
   }
 
+  if (readiness?.checks.some((check) => check.label === "Guarded Runtime Event Executor readiness" && check.reviewRequired)) {
+    return makeAction("review runtime event executor", "primary");
+  }
+
   if (readiness && readiness.readyCount === readiness.checks.length && riskBoard?.blockerCount === 0 && riskBoard.warningCount === 0) {
     return makeAction("commit clean checkpoint", "primary");
   }
@@ -179,6 +188,7 @@ export function buildStabilizationNextActionPlan(input: StabilizationCommandCent
     makeAction("prepare Safe Patch Preview"),
     makeAction("compose preview diff"),
     makeAction("review apply gate"),
+    makeAction("review runtime event executor"),
     makeAction("prepare rollback"),
     makeAction("run targeted smoke manually"),
     makeAction("commit clean checkpoint"),

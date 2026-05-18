@@ -85,6 +85,11 @@ export function buildStabilizationReadiness(input: StabilizationCommandCenterInp
       detail: "Review memory promotion gate approval, policy, event preview, request packet, and blocked execution bridge before any future guarded runtime promotion.",
     }),
     buildStabilizationReadinessCheck({
+      label: "Guarded Runtime Event Executor readiness",
+      status: "needs-review",
+      detail: "Runtime Event Executor readiness requires request, policy, validation, explicit approval, reducer preview, audit ledger, and result review; Review runtime event executor before any append-only runtime event execution.",
+    }),
+    buildStabilizationReadinessCheck({
       label: "latest-message authority preserved",
       status: input.latestMessageAuthorityPreserved === false ? "blocked" : "ready",
       detail: "Handoffs must preserve latest-message authority and visible operator context.",

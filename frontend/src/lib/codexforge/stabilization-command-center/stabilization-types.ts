@@ -41,6 +41,7 @@ export type StabilizationRelatedSurface =
   | "/files"
   | "/tasks"
   | "/memory"
+  | "/memory-inbox"
   | "/brain"
   | "/runs"
   | "domain"
@@ -226,6 +227,7 @@ export type StabilizationNextActionKind =
   | "prepare Safe Patch Preview"
   | "compose preview diff"
   | "review apply gate"
+  | "review runtime event executor"
   | "prepare rollback"
   | "stop and stabilize"
   | "continue next phase";

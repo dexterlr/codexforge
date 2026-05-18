@@ -53,6 +53,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Review Memory Promotion Gate approval packet, policy confirmation, memory.promoted event preview, request packet, and execution bridge; explicit approval required, appendEvent is not called from UI, execution remains blocked until a guarded runtime event executor exists, and no graph mutation occurs.",
   });
   checks.push({
+    id: "guarded-runtime-event-executor-readiness",
+    label: "Guarded Runtime Event Executor readiness",
+    level: "needs-review",
+    detail:
+      "Review Runtime Event Executor request, policy, validation, explicit approval, reducer preview, audit ledger, and result; memory.promoted is the first allowed event type, direct UI graph mutation is blocked, appendEvent is only allowed inside executor boundary, no auto-promotion, evidence is context not authority, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "regression-triage-readiness",
     label: "Self-Healing Regression Triage readiness",
     level: "needs-review",

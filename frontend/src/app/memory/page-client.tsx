@@ -47,6 +47,7 @@ import { ApprovedBrainMergePanel } from "@/lib/codexforge/approved-brain-merge/c
 import { BrainRecallPanel } from "@/lib/codexforge/brain-recall/components";
 import { RegressionTriagePanel } from "@/lib/codexforge/regression-triage";
 import { RegressionFixQueuePanel } from "@/lib/codexforge/regression-fix-queue/components";
+import { RuntimeEventExecutorPanel } from "@/lib/codexforge/runtime-event-executor/components";
 import { loadBrainGraph, saveBrainGraph } from "@/lib/codexforge/brain/graph/storage";
 import { CODEXFORGE_BRAIN_GRAPH_VERSION, type CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph/types";
 
@@ -286,6 +287,11 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
           Memory Promotion Gate: reviewed inbox cards require explicit approval before a memory.promoted runtime event
           preview becomes a request packet; no auto-promotion, no appendEvent from UI, and no graph mutation.
         </Link>
+        <Link href="/memory-inbox" style={taskActivationLink}>
+          Runtime Event Executor: compact readiness is review-only; explicit approval required, no direct UI graph
+          mutation, appendEvent is only allowed inside executor boundary, no auto-promotion, and evidence is context,
+          not authority.
+        </Link>
         <Link href="/ai" style={taskActivationLink}>
           Evidence-Grounded Chat: Use as chat evidence only after review; selected evidence only, no hidden context injection, no auto-promotion, and no graph mutation.
         </Link>
@@ -366,6 +372,7 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
               appendMessage={appendMessage}
               onAppend={handleAppendMemoryEvent}
             />
+            <RuntimeEventExecutorPanel compact />
             <BrainMergeReviewPanel model={brainMergeReview} />
             <ApprovedBrainMergePanel
               model={approvedMergeModel}

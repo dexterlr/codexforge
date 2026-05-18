@@ -19,6 +19,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Global Activity Feed is read-only and deterministic; no command execution, no file writes, no Brain graph mutation, no auto-persistence, and preserve latest-message authority.",
     },
     {
+      id: "review-runtime-event-executor",
+      label: "Review runtime event executor",
+      href: "/memory-inbox",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Guarded Runtime Event Executor readiness requires request, policy, validation, explicit approval, reducer preview, audit ledger, and result review; no mutation command and no auto-promotion.",
+    },
+    {
       id: "review-memory-inbox",
       label: "Review memory inbox",
       href: "/memory-inbox",
