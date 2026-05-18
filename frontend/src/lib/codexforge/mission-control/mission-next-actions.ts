@@ -3,10 +3,18 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "review-regression-triage",
+      label: "Review regression triage",
+      href: "/ai",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Self-Healing Regression Triage turns failed or warning verification signals into reviewed regression cards, suspected causes, impacted files, rollback advice, fix recommendations, and Safe Patch Preview handoff only; no auto-fix, no auto-rollback, no command execution, no file writes, and preserve latest-message authority.",
+    },
+    {
       id: "compose-preview-diff",
       label: "Compose preview diff",
       href: "/ai",
-      priority: "primary",
+      priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Preview Diff Composer readiness packages queued patch preview items into human-reviewable pseudo-diffs; preview-only, not an applyable patch, current file content is authority, evidence is context not proof, and no file writes without approval.",
     },

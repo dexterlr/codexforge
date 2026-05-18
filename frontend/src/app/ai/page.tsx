@@ -66,6 +66,7 @@ import {
 } from "@/lib/codexforge/chat-recall";
 import { EvidenceGroundedChatPanel } from "@/lib/codexforge/evidence-grounded-chat";
 import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
+import { RegressionTriagePanel } from "@/lib/codexforge/regression-triage";
 import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/components";
 import { PatchApplicationGatePanel } from "@/lib/codexforge/patch-application-gate/components";
 import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
@@ -290,6 +291,10 @@ export default function AiPage() {
     void navigator.clipboard?.writeText(prompt).catch(() => undefined);
   }, []);
 
+  const handleCopyRegressionTriagePrompt = useCallback((prompt: string) => {
+    void navigator.clipboard?.writeText(prompt).catch(() => undefined);
+  }, []);
+
   const handleCopyPatchPreviewQueuePrompt = useCallback((prompt: string) => {
     void navigator.clipboard?.writeText(prompt).catch(() => undefined);
   }, []);
@@ -315,6 +320,17 @@ export default function AiPage() {
   }, []);
 
   const handleUseGroundedFixPrompt = useCallback(
+    (prompt: string) => {
+      setInput((current) => {
+        const trimmed = current.trim();
+        return trimmed ? `${prompt}\n\n${trimmed}` : prompt;
+      });
+      inputRef.current?.focus();
+    },
+    [setInput]
+  );
+
+  const handleUseRegressionTriagePrompt = useCallback(
     (prompt: string) => {
       setInput((current) => {
         const trimmed = current.trim();
@@ -581,6 +597,10 @@ export default function AiPage() {
               <GroundedFixRecommendationPanel
                 onCopyPrompt={handleCopyGroundedFixPrompt}
                 onUsePrompt={handleUseGroundedFixPrompt}
+              />
+              <RegressionTriagePanel
+                onCopyPrompt={handleCopyRegressionTriagePrompt}
+                onUsePrompt={handleUseRegressionTriagePrompt}
               />
               <PatchPreviewQueuePanel onCopyPrompt={handleCopyPatchPreviewQueuePrompt} />
               <PreviewDiffComposerPanel onCopyPrompt={handleCopyPreviewDiffComposerPrompt} />

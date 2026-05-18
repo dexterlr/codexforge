@@ -658,6 +658,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
   const evidenceGroundedChatReadiness = "Evidence-grounded chat uses selected evidence only; open /ai or /memory for visible grounding, no graph mutation.";
   const brainMergeReadiness = "Brain merge review available: Preview only. No Brain graph mutation.";
   const approvedBrainMergeReadiness = "Approved Brain merge available in /memory: explicit approval updates local graph, then refresh /brain.";
+  const regressionTriageReadiness = "Regression Triage waits for review before Brain merge; no graph mutation.";
 
   return (
     <section
@@ -695,6 +696,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         data-codexforge-brain-readiness-grid
         data-codexforge-memory-persistence-readiness="approved memory events are available for future merge no automatic merge"
         data-codexforge-evidence-memory-flow="Evidence Memory waits for review before Brain merge; Review required before memory promotion; no graph mutation"
+        data-codexforge-regression-triage-review="Regression Triage waits for review before Brain merge; no graph mutation"
         data-codexforge-brain-merge-review="Review Brain event merge in /memory; explicit merge approval required"
         data-codexforge-approved-brain-merge-notice="Approved Brain merge applies only after explicit approval; use refresh to reload /brain graph"
         data-codexforge-brain-overflow-guard
@@ -714,6 +716,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         <MiniStat label="Evidence-Grounded Chat" value={evidenceGroundedChatReadiness} />
         <MiniStat label="Brain merge readiness" value={brainMergeReadiness} />
         <MiniStat label="Approved merge" value={approvedBrainMergeReadiness} />
+        <MiniStat label="Regression Triage" value={regressionTriageReadiness} />
         <MiniStat label="Agent readiness" value={taskKinds > 0 ? "context available" : "placeholder"} />
       </div>
 

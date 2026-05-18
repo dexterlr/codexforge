@@ -22,6 +22,7 @@ import { buildCodexForgeFileReactKey, searchFiles } from "../file-search";
 import { buildPatchPreviewPlan } from "@/lib/codexforge/patch-preview";
 import { PatchPreviewCockpit } from "@/lib/codexforge/patch-preview/components";
 import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
+import { RegressionTriagePanel } from "@/lib/codexforge/regression-triage";
 import { CodexForgeLocalActionBar } from "@/lib/codexforge/navigation";
 import type {
   CodexForgeFileAction,
@@ -275,6 +276,25 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
     [selectedFile]
   );
 
+  const selectedRiskLevel = useMemo(() => calculateFileRisk(selectedFile).level, [selectedFile]);
+
+  const regressionTriageSignals = useMemo(
+    () => [
+      {
+        id: `regression-triage:${selectedFile.path}`,
+        type: "unknown-regression" as const,
+        severity: selectedRiskLevel === "critical" ? "error" as const : "warning" as const,
+        title: `Regression impact context: ${selectedFile.name}`,
+        snippet: `${selectedFile.summary} Selected file can be reviewed as impacted context only; no mutation.`,
+        sourceKind: "changed-files" as const,
+        relatedFiles: [selectedFile.path],
+        confidence: 0.62,
+        regressionLikelihood: selectedRiskLevel === "critical" ? 0.72 : 0.5,
+      },
+    ],
+    [selectedFile, selectedRiskLevel]
+  );
+
   const riskCounts = useMemo(() => {
     return sourceFiles.reduce<Record<CodexForgeFileRiskLevel, number>>(
       (counts, file) => {
@@ -437,6 +457,13 @@ export function FilesCommandCenter({ initialData }: FilesCommandCenterProps) {
           <GroundedFixRecommendationPanel
             signals={groundedFixSignals}
             manualGoal={`Prepare Safe Patch Preview handoff for ${selectedFile.path}.`}
+            compact
+          />
+          <RegressionTriagePanel
+            signals={regressionTriageSignals}
+            manualOperatorNote="Regression Triage impact review for the selected file; no file mutation and no execution."
+            changedFiles={[selectedFile.path]}
+            targetFiles={[selectedFile.path]}
             compact
           />
           <FileInspector file={selectedFile} />

@@ -8,6 +8,7 @@ import { StepRunnerPreviewPanel } from "@/lib/codexforge/step-runner-preview/com
 import { TaskActivationPanel } from "@/lib/codexforge/task-activation/components";
 import { TaskAutopilotPanel } from "@/lib/codexforge/task-autopilot/components";
 import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
+import { RegressionTriagePanel } from "@/lib/codexforge/regression-triage";
 import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/components";
 import { PatchApplicationGatePanel } from "@/lib/codexforge/patch-application-gate/components";
 import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
@@ -31,6 +32,12 @@ export default function TasksPageClient() {
           manualGoal="Recommend grounded fix from reviewed task evidence; no execution and no mutation."
           compact
         />
+        <div style={{ marginTop: 16 }}>
+          <RegressionTriagePanel
+            manualOperatorNote="Task Regression Triage status is review-only; no execution, no auto-fix, and no mutation."
+            compact
+          />
+        </div>
         <div style={{ marginTop: 16 }}>
           <PatchPreviewQueuePanel compact />
         </div>
@@ -78,6 +85,8 @@ export default function TasksPageClient() {
             dry-run status for task/fix queue handoff when safe; simulation only, no execution, no mutation, and
             actual apply-diff remains blocked. Apply-Diff Execution Gate can show task/fix queue apply execution gate
             status, request readiness, and guarded execute route posture; no auto execution and no direct mutation.
+            Regression Triage status can show failed verification review, suspected causes, and Safe Patch Preview
+            handoff only; it never executes, auto-fixes, or auto-rolls back.
           </span>
         </section>
         <EvidenceMemoryPanel />

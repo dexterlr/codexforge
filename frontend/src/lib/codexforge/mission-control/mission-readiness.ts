@@ -32,6 +32,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
     detail: dimension.detail,
   }));
   checks.push({
+    id: "regression-triage-readiness",
+    label: "Self-Healing Regression Triage readiness",
+    level: "needs-review",
+    detail:
+      "Review regression triage cards for failed or warning verification signals; suspected causes, impacted files, rollback advice, fix recommendations, and Safe Patch Preview handoff are visible with no auto-fix, no auto-rollback, and no mutation.",
+  });
+  checks.push({
     id: "patch-preview-queue-readiness",
     label: "Patch Preview Queue readiness",
     level: "needs-review",
