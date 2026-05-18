@@ -66,6 +66,7 @@ export type GlobalActivityRoute =
   | "/files"
   | "/tasks"
   | "/memory"
+  | "/memory-inbox"
   | "/creative"
   | "/capabilities"
   | "/stabilization"

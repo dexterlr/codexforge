@@ -278,6 +278,10 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
           Stabilization Command Center: review memory-review posture as context only; no auto-promotion, no Brain graph
           mutation, no auto-fix, and no auto-rollback.
         </Link>
+        <Link href="/memory-inbox" style={taskActivationLink}>
+          Operator Memory Inbox: review memory candidates before Memory Review promotion preview; no auto-promotion,
+          no Brain graph mutation, no auto-merge, and evidence is context, not authority.
+        </Link>
         <Link href="/ai" style={taskActivationLink}>
           Evidence-Grounded Chat: Use as chat evidence only after review; selected evidence only, no hidden context injection, no auto-promotion, and no graph mutation.
         </Link>

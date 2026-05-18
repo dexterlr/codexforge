@@ -94,6 +94,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Navigation Shell"; File = "smoke-codexforge-navigation-shell.ps1"; Required = $true },
   @{ Name = "Stabilization Command Center"; File = "smoke-codexforge-stabilization-command-center.ps1"; Required = $true },
   @{ Name = "Global Activity Feed"; File = "smoke-codexforge-global-activity-feed.ps1"; Required = $true },
+  @{ Name = "Operator Memory Inbox"; File = "smoke-codexforge-operator-memory-inbox.ps1"; Required = $true },
   @{ Name = "Command Palette"; File = "smoke-codexforge-command-palette.ps1"; Required = $true },
   @{ Name = "Regression Triage"; File = "smoke-codexforge-regression-triage.ps1"; Required = $true },
   @{ Name = "Regression Fix Queue"; File = "smoke-codexforge-regression-fix-queue.ps1"; Required = $true },

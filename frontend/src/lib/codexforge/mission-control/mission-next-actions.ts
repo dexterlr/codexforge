@@ -19,6 +19,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Global Activity Feed is read-only and deterministic; no command execution, no file writes, no Brain graph mutation, no auto-persistence, and preserve latest-message authority.",
     },
     {
+      id: "review-memory-inbox",
+      label: "Review memory inbox",
+      href: "/memory-inbox",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Personal Operator Memory Inbox is review-first and preview-only; no auto-promotion, no Brain graph mutation, no auto-merge, no file writes, no command execution, and preserve latest-message authority.",
+    },
+    {
       id: "return-to-operator-home",
       label: "Return to Operator Home",
       href: "/",

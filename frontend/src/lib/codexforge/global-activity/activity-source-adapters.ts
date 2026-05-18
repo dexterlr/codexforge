@@ -114,7 +114,7 @@ export function buildActivityEventsFromMemoryReview(inputs?: readonly GlobalActi
     status: "review-required",
     reviewRequired: true,
     nextActionLabel: "review memory candidate",
-    route: "/memory",
+    route: "/memory-inbox",
   });
 }
 

@@ -39,6 +39,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Review activity feed for verification events, regression triage, fix queue, patch preview, apply gates, memory review, creative planning, stabilization, and next safe action; read-only, no auto-persistence, no command execution, no file writes, no Brain graph mutation, evidence is context not proof, and preserve latest-message authority.",
   });
   checks.push({
+    id: "operator-memory-inbox-readiness",
+    label: "Personal Operator Memory Inbox readiness",
+    level: "needs-review",
+    detail:
+      "Review Memory Inbox candidates for confidence, importance, risk, dedupe, contradiction, and promotion preview; review required before promotion, no auto-promotion, no Brain graph mutation, no auto-merge, no auto-persistence, evidence is context not authority, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "regression-triage-readiness",
     label: "Self-Healing Regression Triage readiness",
     level: "needs-review",

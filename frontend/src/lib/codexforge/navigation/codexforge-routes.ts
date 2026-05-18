@@ -16,6 +16,7 @@ export type CodexForgeRoute = {
     | "tasks"
     | "brain"
     | "memory"
+    | "memory-inbox"
     | "files"
     | "runs"
     | "capabilities"
@@ -103,6 +104,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Memory",
     description: "Deterministic memory candidate review, approval, and promotion event preview queue.",
+  },
+  {
+    id: "memory-inbox",
+    path: "/memory-inbox",
+    label: "Memory Inbox",
+    shortLabel: "Inbox",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Memory",
+    description: "Personal Operator Memory Inbox for review-first memory capture and promotion preview.",
   },
   {
     id: "files",

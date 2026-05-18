@@ -37,6 +37,7 @@ export function buildMissionActivityTimeline(): MissionActivityTimeline {
     buildMissionActivityItem("apply-diff-execution-gate-added", "Apply-Diff Execution Gate added", "Phase 34", "Clean dry-run packages gain explicit human approval state, policy confirmation, guarded execute route bridge readiness, result contract, and local audit ledger.", "needs-review"),
     buildMissionActivityItem("stabilization-command-center-added", "Stabilization Command Center added", "Phase 39", "Build, smoke, verification, regression, fix queue, patch queue, apply gates, post-apply verification, and next safest action are visible in a read-only operator dashboard.", "needs-review"),
     buildMissionActivityItem("operator-home-dashboard-added", "Operator Home Dashboard added", "Phase 40", "Root route becomes a local-first read-only operator launch deck for routes, status, safety posture, validation checklist copy, and next safe action handoff.", "ready"),
+    buildMissionActivityItem("operator-memory-inbox-added", "Personal Operator Memory Inbox added", "Phase 44", "Signals become reviewed memory inbox cards with confidence, importance, risk, dedupe, and promotion preview only; no auto-promotion and no Brain graph mutation.", "needs-review"),
   ];
 
   return {

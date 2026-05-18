@@ -90,6 +90,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Evidence Memory, Memory Promotion Review Queue, Approved Memory Persistence, Brain Event Merge Review, and Approved Brain Graph Merge",
     }),
     buildMissionSurface({
+      id: "memory-inbox",
+      label: "Personal Operator Memory Inbox",
+      href: "/memory-inbox",
+      status: "review-needed",
+      role: "Review-first inbox for activity, evidence, regression, patch, stabilization, creative, and manual operator notes before any memory promotion preview.",
+      riskPosture: "preview-only",
+      nextAction: "Review memory inbox.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 44 Personal Operator Memory Inbox",
+    }),
+    buildMissionSurface({
       id: "files",
       label: "Files",
       href: "/files",

@@ -1491,6 +1491,9 @@ export default function BrainPageClient() {
           Stabilization Command Center: operator stabilization review for Brain-adjacent evidence; no graph mutation,
           no auto-merge graph events, no auto-fix, and no auto-rollback.
         </Link>
+        <Link href="/memory-inbox" style={taskAutopilotLink}>
+          Memory Inbox: review boundary before memory or Brain merge; no graph mutation, no auto-promotion, and no auto-merge.
+        </Link>
 
         <CodexForgeLocalActionBar
           title="Brain Command Center"
