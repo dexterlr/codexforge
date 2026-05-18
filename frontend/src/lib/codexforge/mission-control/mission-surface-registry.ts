@@ -101,6 +101,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 44 Personal Operator Memory Inbox",
     }),
     buildMissionSurface({
+      id: "runtime-journal",
+      label: "Runtime Event Journal",
+      href: "/runtime-journal",
+      status: "review-needed",
+      role: "Read-only journal for runtime event requests, approvals, policy checks, validation, dry-runs, reducer previews, blocked or ready results, append-only audit refs, and source handoffs.",
+      riskPosture: "readonly",
+      nextAction: "Review runtime event journal.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 47 Runtime Event Journal",
+    }),
+    buildMissionSurface({
       id: "files",
       label: "Files",
       href: "/files",

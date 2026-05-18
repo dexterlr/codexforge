@@ -27,6 +27,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Guarded Runtime Event Executor readiness requires request, policy, validation, explicit approval, reducer preview, audit ledger, and result review; no mutation command and no auto-promotion.",
     },
     {
+      id: "review-runtime-event-journal",
+      label: "Review runtime event journal",
+      href: "/runtime-journal",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Runtime Event Journal is read-only lifecycle visibility for requests, approvals, policy, validation, reducer previews, blocked or ready results, and append-only audit handoff; no graph mutation and no event append from UI.",
+    },
+    {
       id: "review-memory-inbox",
       label: "Review memory inbox",
       href: "/memory-inbox",

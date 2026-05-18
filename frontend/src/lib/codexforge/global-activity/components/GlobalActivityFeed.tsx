@@ -58,6 +58,7 @@ export function GlobalActivityFeed({ feed: providedFeed }: { feed?: GlobalActivi
               <button type="button" style={copyButton} onClick={() => copyText("summary", summary.summary.join("\n"))}>Copy summary</button>
               <button type="button" style={copyButton} onClick={() => copyText("handoff prompt", handoffPrompt)}>Copy handoff prompt</button>
               <Link href="/memory-inbox" style={heroLink}>Review memory candidates</Link>
+              <Link href="/runtime-journal" style={heroLink}>Runtime Event Journal</Link>
               <Link href="/stabilization" style={heroLink}>Stabilization</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>

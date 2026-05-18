@@ -659,6 +659,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
   const brainMergeReadiness = "Brain merge review available: Preview only. No Brain graph mutation.";
   const approvedBrainMergeReadiness = "Approved Brain merge available in /memory: explicit approval updates local graph, then refresh /brain.";
   const runtimeEventExecutorReadiness = "Runtime Event Executor is the only approved mutation boundary for runtime events; review request, policy, validation, approval, reducer preview, and result before graph refresh.";
+  const runtimeEventJournalReadiness = "Runtime Event Journal is the read-only mutation audit surface for runtime event lifecycle visibility; no graph mutation and no appendEvent from UI.";
   const regressionTriageReadiness = "Regression Triage waits for review before Brain merge; no graph mutation.";
   const regressionFixQueueReadiness = "Regression Fix Queue waits for review before Brain merge; no graph mutation.";
 
@@ -703,6 +704,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         data-codexforge-brain-merge-review="Review Brain event merge in /memory; explicit merge approval required"
         data-codexforge-approved-brain-merge-notice="Approved Brain merge applies only after explicit approval; use refresh to reload /brain graph"
         data-codexforge-runtime-event-executor-notice="Runtime Event Executor is the only approved mutation boundary; no direct UI graph mutation and no auto-promotion."
+        data-codexforge-runtime-event-journal-notice="Runtime Event Journal links Brain to a read-only mutation audit surface; no graph mutation and no appendEvent from UI."
         data-codexforge-brain-overflow-guard
         style={{
           display: "grid",
@@ -721,6 +723,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         <MiniStat label="Brain merge readiness" value={brainMergeReadiness} />
         <MiniStat label="Approved merge" value={approvedBrainMergeReadiness} />
         <MiniStat label="Runtime Event Executor" value={runtimeEventExecutorReadiness} />
+        <MiniStat label="Runtime Event Journal" value={runtimeEventJournalReadiness} />
         <MiniStat label="Regression Triage" value={regressionTriageReadiness} />
         <MiniStat label="Regression Fix Queue" value={regressionFixQueueReadiness} />
         <MiniStat label="Agent readiness" value={taskKinds > 0 ? "context available" : "placeholder"} />
@@ -729,6 +732,10 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
       <a href="/memory" style={buttonStyle()}>
         Review Evidence Memory, Memory Promotion Gate approval/runtime gate, and Brain event merge
       </a>
+
+      <Link href="/runtime-journal" style={buttonStyle()}>
+        Review Runtime Event Journal as mutation audit surface
+      </Link>
 
       <div
         style={{

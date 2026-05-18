@@ -19,6 +19,7 @@ export type CodexForgeCommandGroup =
   | "Patch workflow"
   | "Verification"
   | "Memory"
+  | "Runtime"
   | "Creative"
   | "Validation"
   | "Safety"

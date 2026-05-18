@@ -90,6 +90,11 @@ export function buildStabilizationReadiness(input: StabilizationCommandCenterInp
       detail: "Runtime Event Executor readiness requires request, policy, validation, explicit approval, reducer preview, audit ledger, and result review; Review runtime event executor before any append-only runtime event execution.",
     }),
     buildStabilizationReadinessCheck({
+      label: "Runtime Event Journal readiness",
+      status: "needs-review",
+      detail: "Review runtime event journal for requests, approvals, policy, validation, dry-runs, reducer previews, blocked or ready results, append-only audit refs, and source handoffs before any guarded runtime event decision.",
+    }),
+    buildStabilizationReadinessCheck({
       label: "latest-message authority preserved",
       status: input.latestMessageAuthorityPreserved === false ? "blocked" : "ready",
       detail: "Handoffs must preserve latest-message authority and visible operator context.",

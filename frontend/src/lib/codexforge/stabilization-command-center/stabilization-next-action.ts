@@ -64,6 +64,11 @@ const ACTION_DETAIL: Record<StabilizationNextActionKind, { title: string; detail
     detail: "Review Guarded Runtime Event Executor request, policy, validation, approval, reducer preview, audit ledger, and result before append-only execution.",
     targetRoute: "/memory-inbox",
   },
+  "review runtime event journal": {
+    title: "Review runtime event journal",
+    detail: "Review Runtime Event Journal lifecycle visibility before deciding on any guarded runtime event handoff.",
+    targetRoute: "/runtime-journal",
+  },
   "prepare rollback": {
     title: "Prepare rollback",
     detail: "Make rollback notes visible before any future guarded apply path.",
@@ -166,6 +171,10 @@ export function selectStabilizationNextAction(args: {
     return makeAction("review runtime event executor", "primary");
   }
 
+  if (readiness?.checks.some((check) => check.label === "Runtime Event Journal readiness" && check.reviewRequired)) {
+    return makeAction("review runtime event journal", "primary");
+  }
+
   if (readiness && readiness.readyCount === readiness.checks.length && riskBoard?.blockerCount === 0 && riskBoard.warningCount === 0) {
     return makeAction("commit clean checkpoint", "primary");
   }
@@ -189,6 +198,7 @@ export function buildStabilizationNextActionPlan(input: StabilizationCommandCent
     makeAction("compose preview diff"),
     makeAction("review apply gate"),
     makeAction("review runtime event executor"),
+    makeAction("review runtime event journal"),
     makeAction("prepare rollback"),
     makeAction("run targeted smoke manually"),
     makeAction("commit clean checkpoint"),

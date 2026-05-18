@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import { CODEXFORGE_BRAIN_GRAPH_VERSION, type CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph/types";
 import type { OperatorMemoryInboxCard } from "@/lib/codexforge/operator-memory-inbox";
+import { buildJournalEntriesFromRuntimeExecutor } from "@/lib/codexforge/runtime-event-journal";
 import {
   buildRuntimeEventApproval,
   buildRuntimeEventAuditLedger,
@@ -58,6 +60,10 @@ export function RuntimeEventExecutorPanel({
   const dryRunResult = useMemo(() => executeRuntimeEventDryRun({ request, approval, policy, validation, reducerPreview }), [approval, policy, reducerPreview, request, validation]);
   const ledger = useMemo(() => buildRuntimeEventAuditLedger({ request, policy, validation, approval, reducerPreview, result: dryRunResult }), [approval, dryRunResult, policy, reducerPreview, request, validation]);
   const summary = useMemo(() => buildRuntimeEventExecutorSummary({ request, policy, validation, approval, reducerPreview, result: dryRunResult }), [approval, dryRunResult, policy, reducerPreview, request, validation]);
+  const journalPreview = useMemo(
+    () => buildJournalEntriesFromRuntimeExecutor({ request, policy, validation, approval, reducerPreview, result: dryRunResult, auditLedger: ledger, summary }),
+    [approval, dryRunResult, ledger, policy, reducerPreview, request, summary, validation]
+  );
 
   return (
     <section
@@ -69,6 +75,14 @@ export function RuntimeEventExecutorPanel({
         <Mini label="Request" value={summary.requestReady ? "ready" : "review"} />
         <Mini label="Policy" value={summary.policyReady ? "ready" : "blocked"} />
         <Mini label="Execution" value={summary.executionStatus} />
+      </div>
+      <div
+        style={journalBox}
+        data-codexforge-runtime-event-journal-preview="Runtime Event Journal preview is read-only, no graph mutation, no appendEvent from UI, append-only audit handoff."
+      >
+        <strong>Runtime Event Journal preview</strong>
+        <span>{journalPreview.length} lifecycle entries prepared for read-only audit visibility.</span>
+        <Link href="/runtime-journal" style={journalLink}>Open Runtime Event Journal</Link>
       </div>
       <RuntimeEventApprovalPanel approval={approval} approved={approved} approvalNote={approvalNote} onApprovedChange={setApproved} onApprovalNoteChange={setApprovalNote} />
       {!compact ? <RuntimeEventRequestPanel request={request} validation={requestValidation} /> : null}
@@ -116,3 +130,5 @@ const emptyGraph: CodexForgeBrainGraph = { version: CODEXFORGE_BRAIN_GRAPH_VERSI
 const panel: CSSProperties = { border: "1px solid rgba(45,212,191,0.2)", background: "rgba(2,6,23,0.5)", borderRadius: 8, padding: 12, display: "grid", gap: 12, minWidth: 0 };
 const stats: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, minWidth: 0 };
 const mini: CSSProperties = { border: "1px solid rgba(148,163,184,0.14)", borderRadius: 8, padding: 8, display: "grid", gap: 4, color: "#cbd5e1", fontSize: 11, minWidth: 0, overflowWrap: "anywhere" };
+const journalBox: CSSProperties = { border: "1px solid rgba(45,212,191,0.18)", background: "rgba(20,184,166,0.08)", borderRadius: 8, padding: 10, display: "grid", gap: 6, color: "#cbd5e1", fontSize: 12, minWidth: 0, overflowWrap: "anywhere" };
+const journalLink: CSSProperties = { border: "1px solid rgba(125,211,252,0.2)", background: "rgba(14,165,233,0.1)", borderRadius: 8, color: "#e0f2fe", fontSize: 12, fontWeight: 900, padding: "8px 10px", textDecoration: "none", width: "fit-content", maxWidth: "100%", overflowWrap: "anywhere" };

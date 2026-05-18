@@ -60,6 +60,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Review Runtime Event Executor request, policy, validation, explicit approval, reducer preview, audit ledger, and result; memory.promoted is the first allowed event type, direct UI graph mutation is blocked, appendEvent is only allowed inside executor boundary, no auto-promotion, evidence is context not authority, and preserve latest-message authority.",
   });
   checks.push({
+    id: "runtime-event-journal-readiness",
+    label: "Runtime Event Journal readiness",
+    level: "needs-review",
+    detail:
+      "Review Runtime Event Journal for requests, approvals, policy, validation, dry-runs, reducer previews, blocked or ready results, append-only audit refs, and source handoffs; read-only, no graph mutation, no appendEvent from UI, evidence is context not authority, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "regression-triage-readiness",
     label: "Self-Healing Regression Triage readiness",
     level: "needs-review",

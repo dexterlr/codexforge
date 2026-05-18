@@ -73,6 +73,7 @@ export function OperatorMemoryInbox({ session: providedSession }: { session?: Op
               <button type="button" onClick={copyReviewPrompt} style={actionButton}>Copy memory review prompt</button>
               <Link href="/memory" style={heroLink}>Memory Review boundary</Link>
               <Link href="/activity" style={heroLink}>Activity Feed candidates</Link>
+              <Link href="/runtime-journal" style={heroLink}>Runtime Event Journal</Link>
             </div>
           </div>
           <div style={heroStats}>

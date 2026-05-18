@@ -17,6 +17,7 @@ export type CodexForgeRoute = {
     | "brain"
     | "memory"
     | "memory-inbox"
+    | "runtime-journal"
     | "files"
     | "runs"
     | "capabilities"
@@ -114,6 +115,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Memory",
     description: "Personal Operator Memory Inbox for review-first memory capture and promotion preview.",
+  },
+  {
+    id: "runtime-journal",
+    path: "/runtime-journal",
+    label: "Runtime Journal",
+    shortLabel: "Journal",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Memory",
+    description: "Read-only runtime event lifecycle journal for audit, policy, validation, reducer preview, and result visibility.",
   },
   {
     id: "files",
