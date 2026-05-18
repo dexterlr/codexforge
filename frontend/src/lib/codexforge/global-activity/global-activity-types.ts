@@ -13,6 +13,7 @@ export type GlobalActivityEventType =
   | "postApply.verificationPrepared"
   | "memory.candidateCreated"
   | "brain.mergePreviewed"
+  | "brain.governanceReviewed"
   | "creative.planCreated"
   | "stabilization.reviewed"
   | "command.copied"
@@ -32,6 +33,7 @@ export type GlobalActivitySource =
   | "post-apply-verification"
   | "memory-review"
   | "brain-review"
+  | "brain-governance"
   | "creative"
   | "stabilization"
   | "command-palette"
@@ -51,6 +53,7 @@ export type GlobalActivitySurface =
   | "Post-Apply Verification"
   | "Memory Review"
   | "Brain Merge Review"
+  | "Brain Mutation Governance"
   | "Creative Production Studio"
   | "Stabilization Command Center"
   | "Command Palette"
@@ -67,6 +70,8 @@ export type GlobalActivityRoute =
   | "/tasks"
   | "/memory"
   | "/memory-inbox"
+  | "/runtime-journal"
+  | "/brain-governance"
   | "/creative"
   | "/capabilities"
   | "/stabilization"
@@ -145,6 +150,7 @@ export type GlobalActivityFeedInput = {
   patchQueue?: readonly GlobalActivitySourceSummaryInput[];
   applyGate?: readonly GlobalActivitySourceSummaryInput[];
   memoryReview?: readonly GlobalActivitySourceSummaryInput[];
+  brainGovernance?: readonly GlobalActivitySourceSummaryInput[];
   creative?: readonly GlobalActivitySourceSummaryInput[];
   stabilization?: readonly GlobalActivitySourceSummaryInput[];
 };
@@ -204,6 +210,7 @@ export type GlobalActivityNextActionKind =
   | "review apply gate"
   | "paste verification output"
   | "review memory candidate"
+  | "review brain mutation governance"
   | "review stabilization"
   | "commit clean checkpoint"
   | "continue next phase";

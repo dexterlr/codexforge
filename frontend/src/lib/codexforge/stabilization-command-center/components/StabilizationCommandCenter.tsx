@@ -49,6 +49,7 @@ export function StabilizationCommandCenter({ summary: providedSummary }: { summa
               <Link href="/activity" style={heroLink}>Activity Feed</Link>
               <Link href="/memory-inbox" style={heroLink}>Memory Inbox readiness</Link>
               <Link href="/runtime-journal" style={heroLink}>Runtime Event Journal</Link>
+              <Link href="/brain-governance" style={heroLink}>Brain Mutation Governance</Link>
               <Link href="/ai" style={heroLink}>Review pipeline</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>

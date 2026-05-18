@@ -35,7 +35,7 @@ function matchesFilter(event: GlobalActivityEvent, filter: GlobalActivityFeedFil
   if (filter.id === "regression" && !event.source.startsWith("regression")) return false;
   if (filter.id === "patch workflow" && !["patch-preview", "preview-diff"].includes(event.source)) return false;
   if (filter.id === "apply gates" && event.source !== "apply-gate") return false;
-  if (filter.id === "memory" && !["memory-review", "brain-review"].includes(event.source)) return false;
+  if (filter.id === "memory" && !["memory-review", "brain-review", "brain-governance"].includes(event.source)) return false;
   if (filter.id === "creative" && event.source !== "creative") return false;
   if (filter.id === "stabilization" && event.source !== "stabilization") return false;
   if (filter.id === "safety" && event.source !== "safety" && event.type !== "safety.blocked") return false;

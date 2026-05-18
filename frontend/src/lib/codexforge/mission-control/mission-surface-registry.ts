@@ -112,6 +112,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 47 Runtime Event Journal",
     }),
     buildMissionSurface({
+      id: "brain-governance",
+      label: "Brain Mutation Governance",
+      href: "/brain-governance",
+      status: "review-needed",
+      role: "Read-only governance console for approved mutation boundaries, blocked direct mutation visibility, reducer impact governance, runtime journal integrity posture, risk board, and next safe action.",
+      riskPosture: "readonly",
+      nextAction: "Review brain mutation governance.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 48 Brain Mutation Governance Console",
+    }),
+    buildMissionSurface({
       id: "files",
       label: "Files",
       href: "/files",

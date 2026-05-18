@@ -35,6 +35,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Runtime Event Journal is read-only lifecycle visibility for requests, approvals, policy, validation, reducer previews, blocked or ready results, and append-only audit handoff; no graph mutation and no event append from UI.",
     },
     {
+      id: "review-brain-mutation-governance",
+      label: "Review brain mutation governance",
+      href: "/brain-governance",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Brain Mutation Governance is read-only mutation boundary visibility for direct mutation signals, reducer impact, runtime journal integrity, and risk review; no graph mutation from UI and no auto-promotion.",
+    },
+    {
       id: "review-memory-inbox",
       label: "Review memory inbox",
       href: "/memory-inbox",

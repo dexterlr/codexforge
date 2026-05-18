@@ -38,6 +38,7 @@ export function buildMissionActivityTimeline(): MissionActivityTimeline {
     buildMissionActivityItem("stabilization-command-center-added", "Stabilization Command Center added", "Phase 39", "Build, smoke, verification, regression, fix queue, patch queue, apply gates, post-apply verification, and next safest action are visible in a read-only operator dashboard.", "needs-review"),
     buildMissionActivityItem("operator-home-dashboard-added", "Operator Home Dashboard added", "Phase 40", "Root route becomes a local-first read-only operator launch deck for routes, status, safety posture, validation checklist copy, and next safe action handoff.", "ready"),
     buildMissionActivityItem("operator-memory-inbox-added", "Personal Operator Memory Inbox added", "Phase 44", "Signals become reviewed memory inbox cards with confidence, importance, risk, dedupe, and promotion preview only; no auto-promotion and no Brain graph mutation.", "needs-review"),
+    buildMissionActivityItem("brain-mutation-governance-added", "Brain Mutation Governance added", "Phase 48", "Approved mutation boundaries, blocked direct mutation visibility, reducer impact governance, runtime journal integrity posture, and next safe action became reviewable in a read-only console.", "needs-review"),
   ];
 
   return {

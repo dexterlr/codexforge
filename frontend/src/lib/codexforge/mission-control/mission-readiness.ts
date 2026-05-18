@@ -67,6 +67,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Review Runtime Event Journal for requests, approvals, policy, validation, dry-runs, reducer previews, blocked or ready results, append-only audit refs, and source handoffs; read-only, no graph mutation, no appendEvent from UI, evidence is context not authority, and preserve latest-message authority.",
   });
   checks.push({
+    id: "brain-mutation-governance-readiness",
+    label: "Brain Mutation Governance readiness",
+    level: "needs-review",
+    detail:
+      "Review Brain Mutation Governance for approved mutation boundaries, blocked direct mutation signals, reducer impact governance, runtime journal integrity posture, risk board, and next safe action; read-only, no graph mutation from UI, no auto-promotion, evidence is context not authority, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "regression-triage-readiness",
     label: "Self-Healing Regression Triage readiness",
     level: "needs-review",

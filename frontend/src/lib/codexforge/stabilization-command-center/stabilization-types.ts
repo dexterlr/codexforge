@@ -30,6 +30,7 @@ export type StabilizationSource =
   | "mission-control"
   | "memory-review"
   | "brain-merge-review"
+  | "brain-mutation-governance"
   | "operator-note"
   | "stabilization-command-center"
   | "unknown";
@@ -43,6 +44,7 @@ export type StabilizationRelatedSurface =
   | "/memory"
   | "/memory-inbox"
   | "/runtime-journal"
+  | "/brain-governance"
   | "/brain"
   | "/runs"
   | "domain"
@@ -230,6 +232,7 @@ export type StabilizationNextActionKind =
   | "review apply gate"
   | "review runtime event executor"
   | "review runtime event journal"
+  | "review brain mutation governance"
   | "prepare rollback"
   | "stop and stabilize"
   | "continue next phase";

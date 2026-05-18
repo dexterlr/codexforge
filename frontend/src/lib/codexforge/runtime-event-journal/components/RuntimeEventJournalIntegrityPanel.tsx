@@ -6,10 +6,10 @@ import { RuntimeEventJournalPanel } from "./RuntimeEventJournalPanel";
 
 export function RuntimeEventJournalIntegrityPanel({ report }: { report: RuntimeEventJournalIntegrityReport }) {
   return (
-    <RuntimeEventJournalPanel title="Integrity" subtitle="Checks request, approval, policy, validation, reducer preview, evidence, append-only semantics, source routes, and direct UI mutation absence.">
+    <RuntimeEventJournalPanel title="Integrity" subtitle="Checks request, approval, policy, validation, reducer preview, evidence, append-only semantics, source routes, direct UI mutation absence, and Brain Mutation Governance posture.">
       <div
         style={list}
-        data-codexforge-runtime-event-journal-integrity-panel="RuntimeEventJournalIntegrityPanel renders integrity report checks append-only semantics direct UI mutation absent"
+        data-codexforge-runtime-event-journal-integrity-panel="RuntimeEventJournalIntegrityPanel renders integrity report checks append-only semantics direct UI mutation absent Brain Mutation Governance"
       >
         <div style={stats}>
           <Mini label="Pass" value={String(report.passCount)} />

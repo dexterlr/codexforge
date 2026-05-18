@@ -52,12 +52,13 @@ export function GlobalActivityFeed({ feed: providedFeed }: { feed?: GlobalActivi
             <h1 style={headline}>Global Activity Feed</h1>
             <p style={lede}>
               Read-only workflow feed from verification, regression triage, fix queue, patch preview, apply gates,
-              memory review, creative planning, stabilization, and next safe action.
+              memory review, Brain Mutation Governance, creative planning, stabilization, and next safe action.
             </p>
             <div style={heroActions}>
               <button type="button" style={copyButton} onClick={() => copyText("summary", summary.summary.join("\n"))}>Copy summary</button>
               <button type="button" style={copyButton} onClick={() => copyText("handoff prompt", handoffPrompt)}>Copy handoff prompt</button>
               <Link href="/memory-inbox" style={heroLink}>Review memory candidates</Link>
+              <Link href="/brain-governance" style={heroLink}>Brain Mutation Governance</Link>
               <Link href="/runtime-journal" style={heroLink}>Runtime Event Journal</Link>
               <Link href="/stabilization" style={heroLink}>Stabilization</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>

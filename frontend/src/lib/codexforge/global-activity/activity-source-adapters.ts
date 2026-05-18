@@ -118,6 +118,21 @@ export function buildActivityEventsFromMemoryReview(inputs?: readonly GlobalActi
   });
 }
 
+export function buildActivityEventsFromBrainGovernance(inputs?: readonly GlobalActivitySourceSummaryInput[]): GlobalActivityEvent[] {
+  return buildEvents(inputs, {
+    type: "brain.governanceReviewed",
+    source: "brain-governance",
+    surface: "Brain Mutation Governance",
+    title: "Brain Mutation Governance review ready",
+    detail: "Review mutation boundaries, direct mutation signals, reducer impact, integrity posture, and risk board; read-only and no auto-persistence.",
+    severity: "info",
+    status: "review-required",
+    reviewRequired: true,
+    nextActionLabel: "review brain mutation governance",
+    route: "/brain-governance",
+  });
+}
+
 export function buildActivityEventsFromCreative(inputs?: readonly GlobalActivitySourceSummaryInput[]): GlobalActivityEvent[] {
   return buildEvents(inputs, {
     type: "creative.planCreated",

@@ -104,11 +104,12 @@ export function MemoryPromotionGatePanel({ card, compact = false }: { card?: Ope
       </div>
       <div
         style={journalBox}
-        data-codexforge-memory-promotion-runtime-journal="Runtime Event Journal handoff/status is read-only; no auto-promotion, no graph mutation, and no appendEvent from UI."
+        data-codexforge-memory-promotion-runtime-journal="Runtime Event Journal handoff/status and Brain Mutation Governance status are read-only; no auto-promotion, no graph mutation, and no appendEvent from UI."
       >
         <strong>Runtime Event Journal handoff</strong>
-        <span>{journalPreview.length} memory promotion lifecycle entries visible for audit review.</span>
+        <span>{journalPreview.length} memory promotion lifecycle entries visible for audit review. Brain Mutation Governance confirms Memory Promotion Gate remains review-gated.</span>
         <Link href="/runtime-journal" style={journalLink}>Open Runtime Event Journal</Link>
+        <Link href="/brain-governance" style={journalLink}>Review Brain Mutation Governance</Link>
       </div>
       <PromotionGateInputPanel input={gateInput} validation={inputValidation} />
       {!compact ? <PromotionApprovalPacketPanel packet={approvalPacket} /> : null}

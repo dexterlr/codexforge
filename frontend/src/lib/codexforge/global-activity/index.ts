@@ -20,6 +20,7 @@ export {
   buildActivityEventsFromPatchQueue,
   buildActivityEventsFromApplyGate,
   buildActivityEventsFromMemoryReview,
+  buildActivityEventsFromBrainGovernance,
   buildActivityEventsFromCreative,
   buildActivityEventsFromStabilization,
   summarizeActivitySources,

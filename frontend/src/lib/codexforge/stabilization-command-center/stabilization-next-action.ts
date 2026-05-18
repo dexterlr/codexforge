@@ -69,6 +69,11 @@ const ACTION_DETAIL: Record<StabilizationNextActionKind, { title: string; detail
     detail: "Review Runtime Event Journal lifecycle visibility before deciding on any guarded runtime event handoff.",
     targetRoute: "/runtime-journal",
   },
+  "review brain mutation governance": {
+    title: "Review brain mutation governance",
+    detail: "Review Brain Mutation Governance readiness for boundaries, direct mutation signals, reducer impact, journal integrity, and risk before any mutation path.",
+    targetRoute: "/brain-governance",
+  },
   "prepare rollback": {
     title: "Prepare rollback",
     detail: "Make rollback notes visible before any future guarded apply path.",
@@ -175,6 +180,10 @@ export function selectStabilizationNextAction(args: {
     return makeAction("review runtime event journal", "primary");
   }
 
+  if (readiness?.checks.some((check) => check.label === "Brain Mutation Governance readiness" && check.reviewRequired)) {
+    return makeAction("review brain mutation governance", "primary");
+  }
+
   if (readiness && readiness.readyCount === readiness.checks.length && riskBoard?.blockerCount === 0 && riskBoard.warningCount === 0) {
     return makeAction("commit clean checkpoint", "primary");
   }
@@ -199,6 +208,7 @@ export function buildStabilizationNextActionPlan(input: StabilizationCommandCent
     makeAction("review apply gate"),
     makeAction("review runtime event executor"),
     makeAction("review runtime event journal"),
+    makeAction("review brain mutation governance"),
     makeAction("prepare rollback"),
     makeAction("run targeted smoke manually"),
     makeAction("commit clean checkpoint"),

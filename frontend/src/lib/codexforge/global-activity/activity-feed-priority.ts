@@ -22,6 +22,7 @@ const TYPE_SCORE: Record<GlobalActivityEventType, number> = {
   "postApply.verificationPrepared": 600,
   "memory.candidateCreated": 540,
   "brain.mergePreviewed": 520,
+  "brain.governanceReviewed": 510,
   "stabilization.reviewed": 500,
   "verification.ingested": 460,
   "verification.passed": 300,
