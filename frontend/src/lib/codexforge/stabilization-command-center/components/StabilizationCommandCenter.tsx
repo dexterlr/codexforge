@@ -34,7 +34,7 @@ export function StabilizationCommandCenter({ summary: providedSummary }: { summa
     >
       <div
         style={contentShell}
-        data-codexforge-stabilization-command-center="StabilizationCommandCenter renders CodexForgeAppShell no auto-fix no auto-rollback no command execution without approval no file writes without approval Safe Patch Preview Preview Diff Composer evidence is context, not proof preserve latest-message authority"
+        data-codexforge-stabilization-command-center="StabilizationCommandCenter renders CodexForgeAppShell Command Palette no auto-fix no auto-rollback no command execution without approval no file writes without approval Safe Patch Preview Preview Diff Composer evidence is context, not proof preserve latest-message authority"
       >
         <section style={hero}>
           <div style={heroCopy}>

@@ -42,7 +42,7 @@ export function OperatorHomeDashboard({ summary: providedSummary }: OperatorHome
     >
       <div
         style={contentShell}
-        data-codexforge-operator-home-dashboard="OperatorHomeDashboard renders CodexForgeAppShell local-first operator-safe no auto-fix no command execution without approval no file writes without approval preserve latest-message authority"
+        data-codexforge-operator-home-dashboard="OperatorHomeDashboard renders CodexForgeAppShell Command Palette local-first operator-safe no auto-fix no command execution without approval no file writes without approval preserve latest-message authority"
       >
         <OperatorHomeHero
           surface={summary.surface}

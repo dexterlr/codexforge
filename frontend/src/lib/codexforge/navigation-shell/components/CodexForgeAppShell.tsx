@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
+import { CodexForgeCommandPalette } from "@/lib/codexforge/command-palette";
 import { buildCodexForgeNavigationRoutes } from "../navigation-route-registry";
 import { buildCodexForgeNavigationSections } from "../navigation-section-model";
 import { buildCodexForgeNavigationSafetyPosture } from "../navigation-safety-posture";
@@ -81,6 +82,9 @@ export function CodexForgeAppShell({
         <CodexForgeSidebar sections={sections} activeHref={routeState.activeRoute.href} />
         <div style={mainColumn}>
           <CodexForgeShellMobileNav routes={routes} activeHref={routeState.activeRoute.href} />
+          <div style={paletteDock}>
+            <CodexForgeCommandPalette routeAvailability={routeAvailability} />
+          </div>
           <CodexForgeTopbar routeState={routeState} routes={routes} />
           <CodexForgeSafetyPostureStrip posture={safetyPosture} />
           <div style={deck}>
@@ -134,6 +138,12 @@ const shell: CSSProperties = {
 const mainColumn: CSSProperties = {
   display: "grid",
   gap: 12,
+  minWidth: 0,
+};
+
+const paletteDock: CSSProperties = {
+  display: "flex",
+  justifyContent: "flex-end",
   minWidth: 0,
 };
 
