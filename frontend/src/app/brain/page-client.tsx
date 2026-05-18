@@ -1487,6 +1487,10 @@ export default function BrainPageClient() {
         <Link href="/tasks" style={taskAutopilotLink}>
           Task Autopilot and Activate reviewed task: open /tasks to turn accepted memory-backed suggestions into reviewed plan previews; no graph mutation.
         </Link>
+        <Link href="/stabilization" style={taskAutopilotLink}>
+          Stabilization Command Center: operator stabilization review for Brain-adjacent evidence; no graph mutation,
+          no auto-merge graph events, no auto-fix, and no auto-rollback.
+        </Link>
 
         <CodexForgeLocalActionBar
           title="Brain Command Center"

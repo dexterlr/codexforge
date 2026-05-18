@@ -18,6 +18,10 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
         <Link href="/brain" style={chatRecallLink}>
           Use file-related Brain recall as chat context: review visible cards first, then use in chat.
         </Link>
+        <Link href="/stabilization" style={chatRecallLink}>
+          Stabilization Command Center: review selected file risk in the build, smoke, regression, fix queue, patch
+          queue, apply gate, and verification posture; no mutation, no auto-fix, and no command execution.
+        </Link>
         <Link href="/tasks" style={chatRecallLink}>
           Task Autopilot: selected file intelligence can contribute task suggestions, review required and no file mutation.
         </Link>

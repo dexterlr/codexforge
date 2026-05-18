@@ -9,6 +9,7 @@ export type MissionSurfaceId =
   | "brain"
   | "memory"
   | "files"
+  | "stabilization"
   | "capabilities"
   | "runs"
   | "bridge"
@@ -77,6 +78,7 @@ export type MissionHealthDimensionId =
   | "apply-evidence-pack"
   | "apply-diff-dry-run"
   | "apply-diff-execution-gate"
+  | "stabilization-command-center"
   | "production-pack"
   | "safety";
 

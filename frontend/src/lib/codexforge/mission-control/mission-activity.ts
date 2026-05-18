@@ -35,6 +35,7 @@ export function buildMissionActivityTimeline(): MissionActivityTimeline {
     buildMissionActivityItem("evidence-grounded-chat-added", "Evidence-Grounded Chat added", "Phase 28", "Selected reviewed evidence becomes visible chat grounding with local citations, prompt preview, stale or weak warnings, and no hidden context injection.", "needs-review"),
     buildMissionActivityItem("apply-diff-dry-run-added", "Apply-Diff Dry Run added", "Phase 33", "Human-approved apply packets gain deterministic dry-run simulation, affected file validation, conflict checks, result ledger, and no mutation.", "needs-review"),
     buildMissionActivityItem("apply-diff-execution-gate-added", "Apply-Diff Execution Gate added", "Phase 34", "Clean dry-run packages gain explicit human approval state, policy confirmation, guarded execute route bridge readiness, result contract, and local audit ledger.", "needs-review"),
+    buildMissionActivityItem("stabilization-command-center-added", "Stabilization Command Center added", "Phase 39", "Build, smoke, verification, regression, fix queue, patch queue, apply gates, post-apply verification, and next safest action are visible in a read-only operator dashboard.", "needs-review"),
   ];
 
   return {

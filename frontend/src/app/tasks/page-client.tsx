@@ -1,6 +1,8 @@
 "use client";
 
 import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import Link from "next/link";
+import type { CSSProperties } from "react";
 import { ExecutionReadinessPanel } from "@/lib/codexforge/execution-readiness/components";
 import { EvidenceMemoryPanel } from "@/lib/codexforge/evidence-memory/components";
 import { ReadOnlyStepExecutionPanel } from "@/lib/codexforge/read-only-step-execution/components";
@@ -22,6 +24,10 @@ export default function TasksPageClient() {
     <>
       <div style={{ background: "#020617", padding: "18px min(4vw, 44px) 0" }}>
         <CodexForgeGlobalNav compact />
+        <Link href="/stabilization" style={stabilizationLink}>
+          Stabilization Command Center: review task-related regression, fix queue, patch queue, apply gate, smoke, and
+          next action posture; no execution, no mutation, and no auto-run.
+        </Link>
       </div>
       <TaskAutopilotPanel />
       <TaskActivationPanel />
@@ -99,3 +105,18 @@ export default function TasksPageClient() {
     </>
   );
 }
+
+const stabilizationLink: CSSProperties = {
+  border: "1px solid rgba(45,212,191,0.18)",
+  background: "rgba(20,184,166,0.08)",
+  borderRadius: 8,
+  color: "#ccfbf1",
+  display: "block",
+  fontSize: 12,
+  fontWeight: 850,
+  lineHeight: 1.4,
+  marginTop: 12,
+  padding: "9px 11px",
+  textDecoration: "none",
+  overflowWrap: "anywhere",
+};

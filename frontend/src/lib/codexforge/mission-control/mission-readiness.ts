@@ -46,6 +46,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Review regression fix queue items before Safe Patch Preview and Preview Diff Composer handoff; queue is deterministic, local-first, review-gated, no auto-fix, no auto-rollback, no file writes, no command execution, and no Brain graph mutation.",
   });
   checks.push({
+    id: "stabilization-command-center-readiness",
+    label: "Stabilization Command Center readiness",
+    level: "needs-review",
+    detail:
+      "Review Stabilization Command Center for build and smoke posture, verification signals, regression triage, fix queue, patch queue, apply gates, post-apply verification, next safest action, and copy-only handoff; no auto-fix, no auto-rollback, no command execution, no file writes, and no Brain graph mutation.",
+  });
+  checks.push({
     id: "patch-preview-queue-readiness",
     label: "Patch Preview Queue readiness",
     level: "needs-review",

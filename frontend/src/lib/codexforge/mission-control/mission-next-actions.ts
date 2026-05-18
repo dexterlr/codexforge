@@ -3,10 +3,18 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "review-stabilization-command-center",
+      label: "Review stabilization command center",
+      href: "/stabilization",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Stabilization Command Center rolls build and smoke posture, verification signals, regression triage, fix queue, patch queue, apply gates, post-apply verification, and next safest action into a read-only operator review; no auto-fix, no auto-rollback, no command execution, no file writes, and preserve latest-message authority.",
+    },
+    {
       id: "review-regression-triage",
       label: "Review regression triage",
       href: "/ai",
-      priority: "primary",
+      priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Self-Healing Regression Triage turns failed or warning verification signals into reviewed regression cards, suspected causes, impacted files, rollback advice, fix recommendations, and Safe Patch Preview handoff only; no auto-fix, no auto-rollback, no command execution, no file writes, and preserve latest-message authority.",
     },

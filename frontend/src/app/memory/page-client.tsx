@@ -274,6 +274,10 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
         <Link href="/tasks" style={taskActivationLink}>
           Activate reviewed task: accepted memory-review signals can become reviewed task activation plan previews; no memory mutation from task UI.
         </Link>
+        <Link href="/stabilization" style={taskActivationLink}>
+          Stabilization Command Center: review memory-review posture as context only; no auto-promotion, no Brain graph
+          mutation, no auto-fix, and no auto-rollback.
+        </Link>
         <Link href="/ai" style={taskActivationLink}>
           Evidence-Grounded Chat: Use as chat evidence only after review; selected evidence only, no hidden context injection, no auto-promotion, and no graph mutation.
         </Link>

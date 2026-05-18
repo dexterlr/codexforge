@@ -477,6 +477,11 @@ export default function AiPage() {
         <Link href="/mission" style={missionLink}>
           Mission Control: health, readiness, safe next actions, and approval gated surfaces
         </Link>
+        <Link href="/stabilization" style={missionLink}>
+          Stabilization Command Center: review build and smoke posture, verification signals, regression triage, fix
+          queue, patch queue, apply gates, post-apply verification, and next safest action; no auto-fix, no
+          auto-rollback, no command execution without approval, and no file writes without approval.
+        </Link>
         <Link href="/tasks" style={missionLink}>
           Task Autopilot and Reviewed Task Activation: use /tasks to review suggestions, preview plans, then copy a no auto-run handoff
         </Link>

@@ -11,6 +11,7 @@ export type CodexForgeRoute = {
   id:
     | "home"
     | "mission"
+    | "stabilization"
     | "workspace"
     | "tasks"
     | "brain"
@@ -52,6 +53,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Core",
     description: "Unified readonly cockpit for health, surfaces, readiness, and safe next actions.",
+  },
+  {
+    id: "stabilization",
+    path: "/stabilization",
+    label: "Stabilization",
+    shortLabel: "Stabilize",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Core",
+    description: "Read-only stabilization command center for build, smoke, verification, regression, queues, gates, and next safe action.",
   },
   {
     id: "workspace",

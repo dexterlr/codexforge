@@ -24,6 +24,17 @@ export function buildMissionSurface(args: {
 export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
   const surfaces: MissionSurface[] = [
     buildMissionSurface({
+      id: "stabilization",
+      label: "Stabilization Command Center",
+      href: "/stabilization",
+      status: "review-needed",
+      role: "Read-only operator stabilization dashboard for build and smoke posture, verification signals, regression triage, fix queue, patch queue, apply gates, post-apply verification, next safest action, and copy-only handoff.",
+      riskPosture: "readonly",
+      nextAction: "Review stabilization command center.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 39 Stabilization Command Center",
+    }),
+    buildMissionSurface({
       id: "tasks",
       label: "Task Autopilot, Reviewed Task Activation, Execution Readiness, Step Runner Preview, Read-Only Step Execution, and Evidence Memory",
       href: "/tasks",

@@ -24,6 +24,7 @@ export function buildMissionSystemMap(): MissionSystemMap {
   const nodes: MissionSystemNode[] = [
     { id: "brain", label: "Brain", detail: "Memory and signals" },
     { id: "memory", label: "Memory Review", detail: "Promotion approval queue" },
+    { id: "stabilization", label: "Stabilization", detail: "Read-only stabilization command center" },
     { id: "tasks", label: "Reviewed Tasks", detail: "Suggestions and activation previews" },
     { id: "files", label: "Files", detail: "File context" },
     { id: "patch-preview", label: "Patch Preview", detail: "Preview handoff" },
@@ -39,6 +40,9 @@ export function buildMissionSystemMap(): MissionSystemMap {
 
   const edges: MissionSystemEdge[] = [
     buildMissionSystemEdge("brain", "files", "Context informs file review", "readonly"),
+    buildMissionSystemEdge("stabilization", "chat", "Stabilization handoff routes operator review into /ai", "readonly"),
+    buildMissionSystemEdge("stabilization", "patch-preview", "Safe Patch Preview remains required before edits", "preview-only"),
+    buildMissionSystemEdge("stabilization", "memory", "Memory review posture is context only", "readonly"),
     buildMissionSystemEdge("brain", "chat", "Selected recall cards become visible chat context", "readonly"),
     buildMissionSystemEdge("memory", "chat", "Selected reviewed evidence becomes visible chat grounding", "readonly"),
     buildMissionSystemEdge("brain", "tasks", "Recall signals inform reviewed task suggestions", "readonly"),
