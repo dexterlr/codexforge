@@ -6,6 +6,7 @@ export type MissionReadinessLevel =
   | "future-gated";
 
 export type MissionSurfaceId =
+  | "operator-home"
   | "brain"
   | "memory"
   | "files"
@@ -53,6 +54,7 @@ export type MissionSurfaceRegistry = {
 };
 
 export type MissionHealthDimensionId =
+  | "operator-home-dashboard"
   | "runtime"
   | "memory"
   | "brain-recall"

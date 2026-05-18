@@ -22,6 +22,7 @@ export function buildMissionSystemEdge(
 
 export function buildMissionSystemMap(): MissionSystemMap {
   const nodes: MissionSystemNode[] = [
+    { id: "operator-home", label: "Operator Home", detail: "Launch deck and safe next action" },
     { id: "brain", label: "Brain", detail: "Memory and signals" },
     { id: "memory", label: "Memory Review", detail: "Promotion approval queue" },
     { id: "stabilization", label: "Stabilization", detail: "Read-only stabilization command center" },
@@ -39,6 +40,9 @@ export function buildMissionSystemMap(): MissionSystemMap {
   ];
 
   const edges: MissionSystemEdge[] = [
+    buildMissionSystemEdge("operator-home", "stabilization", "Home routes blockers to stabilization", "readonly"),
+    buildMissionSystemEdge("operator-home", "chat", "Home routes reviewed handoffs to AI Workspace", "readonly"),
+    buildMissionSystemEdge("operator-home", "files", "Home routes file attention to Files", "preview-only"),
     buildMissionSystemEdge("brain", "files", "Context informs file review", "readonly"),
     buildMissionSystemEdge("stabilization", "chat", "Stabilization handoff routes operator review into /ai", "readonly"),
     buildMissionSystemEdge("stabilization", "patch-preview", "Safe Patch Preview remains required before edits", "preview-only"),

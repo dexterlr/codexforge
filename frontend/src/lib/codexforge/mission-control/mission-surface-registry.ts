@@ -24,6 +24,17 @@ export function buildMissionSurface(args: {
 export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
   const surfaces: MissionSurface[] = [
     buildMissionSurface({
+      id: "operator-home",
+      label: "Operator Home Dashboard",
+      href: "/",
+      status: "online",
+      role: "Read-only CodexForge operator launch dashboard for route status, local-first safety posture, launch grid, system map, validation checklist, and next safe action handoff.",
+      riskPosture: "readonly",
+      nextAction: "Return to Operator Home Dashboard for launch and status review.",
+      readiness: "ready",
+      relatedPhase: "Phase 40 Operator Home Dashboard",
+    }),
+    buildMissionSurface({
       id: "stabilization",
       label: "Stabilization Command Center",
       href: "/stabilization",

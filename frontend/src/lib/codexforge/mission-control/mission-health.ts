@@ -16,6 +16,7 @@ function buildHealthDimension(
 
 export function buildMissionHealthReport(): MissionHealthReport {
   const dimensions: MissionHealthDimension[] = [
+    buildHealthDimension("operator-home-dashboard", "Operator Home Dashboard readiness", "ready", "Launch deck ready", "Operator Home provides a read-only local-first command deck for launch, status, safety posture, validation checklist copy, and next safe action routing."),
     buildHealthDimension("runtime", "Runtime health", "ready", "Established", "Brain runtime foundations are available for inspection."),
     buildHealthDimension("memory", "Memory readiness", "ready", "Context ready", "Memory foundations are present without direct graph mutation from Mission Control."),
     buildHealthDimension("brain-recall", "Brain recall readiness", "ready", "Search Brain memory", "Approved Brain graph search is deterministic local recall with visible chat recall handoff, no graph mutation, and inspect before editing guidance."),

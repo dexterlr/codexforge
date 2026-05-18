@@ -11,6 +11,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Stabilization Command Center rolls build and smoke posture, verification signals, regression triage, fix queue, patch queue, apply gates, post-apply verification, and next safest action into a read-only operator review; no auto-fix, no auto-rollback, no command execution, no file writes, and preserve latest-message authority.",
     },
     {
+      id: "return-to-operator-home",
+      label: "Return to Operator Home",
+      href: "/",
+      priority: "secondary",
+      readiness: "ready",
+      safetyNote: "Operator Home Dashboard readiness gives the full launch deck, route status, local-first safety posture, validation checklist, and next safe action without command execution or file writes.",
+    },
+    {
       id: "review-regression-triage",
       label: "Review regression triage",
       href: "/ai",
