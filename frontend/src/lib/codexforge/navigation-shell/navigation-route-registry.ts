@@ -1,0 +1,210 @@
+import type {
+  CodexForgeNavigationRoute,
+  CodexForgeNavigationRouteAvailability,
+  CodexForgeNavigationRouteHref,
+  CodexForgeNavigationRouteId,
+  CodexForgeNavigationRouteInput,
+} from "./navigation-shell-types";
+
+const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
+  "/",
+  "/ai",
+  "/brain",
+  "/files",
+  "/tasks",
+  "/memory",
+  "/creative",
+  "/capabilities",
+  "/stabilization",
+  "/history",
+] as const;
+
+const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute> = {
+  "/": {
+    id: "home",
+    href: "/",
+    label: "Operator Home Dashboard",
+    shortLabel: "Home",
+    description: "Command overview for CodexForge readiness, launch surfaces, and next safe action.",
+    group: "Command",
+    readiness: "available",
+    safetyPosture: "local-first",
+    badge: "Command",
+    priority: 10,
+    requiresReview: false,
+    noMutation: true,
+    commandDeckRole: "overview",
+  },
+  "/ai": {
+    id: "ai",
+    href: "/ai",
+    label: "AI Workspace",
+    shortLabel: "AI",
+    description: "Conversation, planning, memory context, and reviewed execution handoffs.",
+    group: "Command",
+    readiness: "review-required",
+    safetyPosture: "approval-gated",
+    badge: "Workspace",
+    priority: 20,
+    requiresReview: true,
+    noMutation: true,
+    commandDeckRole: "workspace",
+  },
+  "/brain": {
+    id: "brain",
+    href: "/brain",
+    label: "Brain Command Center",
+    shortLabel: "Brain",
+    description: "Graph inspection, recall context, topology, and mutation-review boundaries.",
+    group: "Cognition",
+    readiness: "review-required",
+    safetyPosture: "review-gated",
+    badge: "Cognition",
+    priority: 30,
+    requiresReview: true,
+    noMutation: true,
+    commandDeckRole: "graph",
+  },
+  "/files": {
+    id: "files",
+    href: "/files",
+    label: "Files Command Center",
+    shortLabel: "Files",
+    description: "File intelligence, dependency posture, and preview-only patch planning.",
+    group: "Engineering",
+    readiness: "preview-only",
+    safetyPosture: "read-only",
+    badge: "Files",
+    priority: 40,
+    requiresReview: true,
+    noMutation: true,
+    commandDeckRole: "file-work",
+  },
+  "/tasks": {
+    id: "tasks",
+    href: "/tasks",
+    label: "Tasks Workflow",
+    shortLabel: "Tasks",
+    description: "Reviewed task activation, readiness previews, and copy-only handoffs.",
+    group: "Engineering",
+    readiness: "review-required",
+    safetyPosture: "approval-gated",
+    badge: "Tasks",
+    priority: 50,
+    requiresReview: true,
+    noMutation: true,
+    commandDeckRole: "task-flow",
+  },
+  "/memory": {
+    id: "memory",
+    href: "/memory",
+    label: "Memory Review",
+    shortLabel: "Memory",
+    description: "Deterministic memory candidate review with explicit promotion boundaries.",
+    group: "Memory",
+    readiness: "review-required",
+    safetyPosture: "review-gated",
+    badge: "Memory",
+    priority: 60,
+    requiresReview: true,
+    noMutation: true,
+    commandDeckRole: "memory-review",
+  },
+  "/creative": {
+    id: "creative",
+    href: "/creative",
+    label: "Creative Production Studio",
+    shortLabel: "Creative",
+    description: "Preview-only creative briefs, production planning, render queues, and artifact handoffs.",
+    group: "Creative",
+    readiness: "preview-only",
+    safetyPosture: "operator-safe",
+    badge: "Creative",
+    priority: 70,
+    requiresReview: true,
+    noMutation: true,
+    commandDeckRole: "production",
+  },
+  "/capabilities": {
+    id: "capabilities",
+    href: "/capabilities",
+    label: "Capability Cockpit",
+    shortLabel: "Capabilities",
+    description: "Tool readiness, policy boundaries, consent posture, and blocked execution visibility.",
+    group: "Command",
+    readiness: "available",
+    safetyPosture: "operator-safe",
+    badge: "Capability",
+    priority: 80,
+    requiresReview: false,
+    noMutation: true,
+    commandDeckRole: "capability",
+  },
+  "/stabilization": {
+    id: "stabilization",
+    href: "/stabilization",
+    label: "Stabilization Command Center",
+    shortLabel: "Stabilize",
+    description: "Build posture, smoke posture, regression queues, apply gates, and next safest action.",
+    group: "Stabilization",
+    readiness: "available",
+    safetyPosture: "operator-safe",
+    badge: "Safety",
+    priority: 90,
+    requiresReview: false,
+    noMutation: true,
+    commandDeckRole: "stabilization",
+  },
+  "/history": {
+    id: "history",
+    href: "/history",
+    label: "History",
+    shortLabel: "History",
+    description: "Local timeline for activity, notes, decisions, and export context.",
+    group: "History",
+    readiness: "available",
+    safetyPosture: "local-first",
+    badge: "History",
+    priority: 100,
+    requiresReview: false,
+    noMutation: true,
+    commandDeckRole: "timeline",
+  },
+};
+
+export function buildCodexForgeNavigationRoute(
+  input: CodexForgeNavigationRouteInput
+): CodexForgeNavigationRoute {
+  const fallback = ROUTE_DEFAULTS[input.href];
+  return {
+    ...fallback,
+    ...input,
+    id: (input.id ?? fallback.id) as CodexForgeNavigationRouteId,
+    href: input.href,
+    noMutation: input.noMutation ?? true,
+  };
+}
+
+export function buildCodexForgeNavigationRoutes(
+  availability: CodexForgeNavigationRouteAvailability = Object.fromEntries(
+    ROUTE_ORDER.map((href) => [href, true])
+  ) as CodexForgeNavigationRouteAvailability,
+  suppliedRoutes: readonly CodexForgeNavigationRouteInput[] = []
+): CodexForgeNavigationRoute[] {
+  const suppliedByHref = new Map(suppliedRoutes.map((route) => [route.href, route]));
+  const knownRoutes = ROUTE_ORDER.filter((href) => availability[href] === true).map((href) =>
+    buildCodexForgeNavigationRoute(suppliedByHref.get(href) ?? { href })
+  );
+  const explicitUnknown = suppliedRoutes
+    .filter((route) => !ROUTE_ORDER.includes(route.href) && availability[route.href] === true)
+    .map(buildCodexForgeNavigationRoute);
+
+  return [...knownRoutes, ...explicitUnknown].sort((a, b) => a.priority - b.priority || a.href.localeCompare(b.href));
+}
+
+export function summarizeCodexForgeNavigationRoutes(
+  routes: readonly CodexForgeNavigationRoute[]
+): string {
+  return `${routes.length} routes: ${routes.map((route) => `${route.label} (${route.href})`).join(", ")}`;
+}
+

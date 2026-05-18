@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
-import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import {
   buildOperatorHomeSummary,
   type OperatorHomeSummary,
@@ -35,13 +35,15 @@ export function OperatorHomeDashboard({ summary: providedSummary }: OperatorHome
   }
 
   return (
-    <main
-      style={page}
-      data-codexforge-operator-home-dashboard="OperatorHomeDashboard renders local-first operator-safe no auto-fix no command execution without approval no file writes without approval preserve latest-message authority"
+    <CodexForgeAppShell
+      activePath="/"
+      workspaceLabel="Operator Home Dashboard"
+      nextActionContext={{ wantsOperatorOverview: true }}
     >
-      <div style={shell}>
-        <CodexForgeGlobalNav compact />
-
+      <div
+        style={contentShell}
+        data-codexforge-operator-home-dashboard="OperatorHomeDashboard renders CodexForgeAppShell local-first operator-safe no auto-fix no command execution without approval no file writes without approval preserve latest-message authority"
+      >
         <OperatorHomeHero
           surface={summary.surface}
           sessionSummary={summary.sessionSummary}
@@ -76,7 +78,7 @@ export function OperatorHomeDashboard({ summary: providedSummary }: OperatorHome
           </aside>
         </div>
       </div>
-    </main>
+    </CodexForgeAppShell>
   );
 }
 
@@ -87,27 +89,12 @@ const safeText: CSSProperties = {
   wordBreak: "break-word",
 };
 
-const page: CSSProperties = {
-  minHeight: "100vh",
-  color: "#f8fafc",
-  background:
-    "radial-gradient(760px 460px at 10% 5%, rgba(20,184,166,0.17), transparent 58%)," +
-    "radial-gradient(860px 520px at 82% 10%, rgba(99,102,241,0.16), transparent 58%)," +
-    "radial-gradient(720px 440px at 54% 92%, rgba(14,165,233,0.12), transparent 60%)," +
-    "linear-gradient(180deg, #02040a 0%, #050814 100%)",
-  padding: "18px min(4vw, 44px) 30px",
-  fontFamily:
-    "var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif",
-  ...safeText,
-};
-
-const shell: CSSProperties = {
+const contentShell: CSSProperties = {
   display: "grid",
   gap: 16,
-  margin: "0 auto",
-  maxWidth: 1680,
   minWidth: 0,
   width: "100%",
+  ...safeText,
 };
 
 const layout: CSSProperties = {

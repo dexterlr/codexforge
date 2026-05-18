@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
+import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import {
   buildStabilizationCommandCenterSummary,
   type StabilizationCommandCenterSummary,
@@ -26,11 +27,15 @@ export function StabilizationCommandCenter({ summary: providedSummary }: { summa
   }
 
   return (
-    <main
-      style={page}
-      data-codexforge-stabilization-command-center="StabilizationCommandCenter renders no auto-fix no auto-rollback no command execution without approval no file writes without approval Safe Patch Preview Preview Diff Composer evidence is context, not proof preserve latest-message authority"
+    <CodexForgeAppShell
+      activePath="/stabilization"
+      workspaceLabel="Stabilization Command Center"
+      nextActionContext={{ hasStabilizationBlockers: summary.sessionSummary.blockerCount > 0 }}
     >
-      <div style={shell}>
+      <div
+        style={contentShell}
+        data-codexforge-stabilization-command-center="StabilizationCommandCenter renders CodexForgeAppShell no auto-fix no auto-rollback no command execution without approval no file writes without approval Safe Patch Preview Preview Diff Composer evidence is context, not proof preserve latest-message authority"
+      >
         <section style={hero}>
           <div style={heroCopy}>
             <span style={eyebrow}>CodexForge Phase 39</span>
@@ -74,7 +79,7 @@ export function StabilizationCommandCenter({ summary: providedSummary }: { summa
           </aside>
         </div>
       </div>
-    </main>
+    </CodexForgeAppShell>
   );
 }
 
@@ -87,17 +92,7 @@ function HeroStat({ label, value }: { label: string; value: string }) {
   );
 }
 
-const page: CSSProperties = {
-  minHeight: "100vh",
-  color: "#f8fafc",
-  background:
-    "radial-gradient(760px 460px at 12% 6%, rgba(20,184,166,0.18), transparent 58%)," +
-    "radial-gradient(780px 460px at 88% 16%, rgba(14,165,233,0.16), transparent 58%)," +
-    "linear-gradient(180deg, #02040a 0%, #050814 100%)",
-  padding: "18px min(4vw, 44px) 30px",
-  fontFamily: "var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif",
-};
-const shell: CSSProperties = { maxWidth: 1680, width: "100%", margin: "0 auto", display: "grid", gap: 16, minWidth: 0 };
+const contentShell: CSSProperties = { width: "100%", display: "grid", gap: 16, minWidth: 0 };
 const hero: CSSProperties = { border: "1px solid rgba(45,212,191,0.2)", background: "linear-gradient(135deg, rgba(5,13,29,0.96), rgba(15,23,42,0.8))", borderRadius: 8, padding: 20, display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(min(100%, 440px), 0.8fr)", gap: 18, alignItems: "center", minWidth: 0 };
 const heroCopy: CSSProperties = { display: "grid", gap: 10, minWidth: 0 };
 const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 12, fontWeight: 900, textTransform: "uppercase", overflowWrap: "anywhere" };
