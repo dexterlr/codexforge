@@ -11,6 +11,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Self-Healing Regression Triage turns failed or warning verification signals into reviewed regression cards, suspected causes, impacted files, rollback advice, fix recommendations, and Safe Patch Preview handoff only; no auto-fix, no auto-rollback, no command execution, no file writes, and preserve latest-message authority.",
     },
     {
+      id: "review-regression-fix-queue",
+      label: "Review regression fix queue",
+      href: "/ai",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Regression Fix Queue turns reviewed regression triage cards into prioritized repair queue handoffs for Safe Patch Preview and Preview Diff Composer only; no auto-fix, no auto-rollback, no command execution, no file writes, and preserve latest-message authority.",
+    },
+    {
       id: "compose-preview-diff",
       label: "Compose preview diff",
       href: "/ai",

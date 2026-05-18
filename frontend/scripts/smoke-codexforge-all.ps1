@@ -91,6 +91,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Core"; File = "smoke-codexforge-core.ps1"; Required = $true },
   @{ Name = "UI"; File = "smoke-codexforge-ui.ps1"; Required = $true },
   @{ Name = "Regression Triage"; File = "smoke-codexforge-regression-triage.ps1"; Required = $true },
+  @{ Name = "Regression Fix Queue"; File = "smoke-codexforge-regression-fix-queue.ps1"; Required = $true },
   @{ Name = "Brain Suite"; File = "smoke-codexforge-brain-suite.ps1"; Required = $true },
   @{ Name = "Memory Suite"; File = "smoke-codexforge-memory-suite.ps1"; Required = $true },
   @{ Name = "Files Suite"; File = "smoke-codexforge-files-suite.ps1"; Required = $true },

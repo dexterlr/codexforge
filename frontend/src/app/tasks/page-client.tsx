@@ -9,6 +9,7 @@ import { TaskActivationPanel } from "@/lib/codexforge/task-activation/components
 import { TaskAutopilotPanel } from "@/lib/codexforge/task-autopilot/components";
 import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
 import { RegressionTriagePanel } from "@/lib/codexforge/regression-triage";
+import { RegressionFixQueuePanel } from "@/lib/codexforge/regression-fix-queue/components";
 import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/components";
 import { PatchApplicationGatePanel } from "@/lib/codexforge/patch-application-gate/components";
 import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
@@ -39,6 +40,9 @@ export default function TasksPageClient() {
           />
         </div>
         <div style={{ marginTop: 16 }}>
+          <RegressionFixQueuePanel compact />
+        </div>
+        <div style={{ marginTop: 16 }}>
           <PatchPreviewQueuePanel compact />
         </div>
         <div style={{ marginTop: 16 }}>
@@ -59,7 +63,7 @@ export default function TasksPageClient() {
       </div>
       <div style={{ background: "#020617", padding: "0 min(4vw, 44px) 36px" }}>
         <section
-          data-codexforge-tasks-evidence-grounded-chat="Evidence-Grounded Chat Use evidence in chat selected evidence only no execution no mutation Recommend grounded fix Grounded Fix Recommendation Patch Preview Queue Queue for Safe Patch Preview"
+          data-codexforge-tasks-evidence-grounded-chat="Evidence-Grounded Chat Use evidence in chat selected evidence only no execution no mutation Recommend grounded fix Grounded Fix Recommendation Regression Fix Queue status Patch Preview Queue Queue for Safe Patch Preview"
           style={{
             border: "1px solid rgba(125,211,252,0.16)",
             background: "rgba(14,165,233,0.08)",
@@ -77,8 +81,9 @@ export default function TasksPageClient() {
             Read-only execution evidence can be used in Evidence-Grounded Chat after review. This does not execute
             steps, mutate files, promote memory, or merge graph events. Recommend grounded fix prepares Safe Patch
             Preview handoff only. Patch Preview Queue can show queued preview item handoff when safe, with no
-            execution and no mutation. Preview Diff Composer can compose preview diff packages from task or fix queue
-            items without execution, file writes, or mutation. Patch Application Gate can prepare a human-approved
+            execution and no mutation. Regression Fix Queue status can show reviewed regression repair queue state,
+            readiness, route, and handoff without execution or mutation. Preview Diff Composer can compose preview diff
+            packages from task or fix queue items without execution, file writes, or mutation. Patch Application Gate can prepare a human-approved
             apply gate from task/fix queue context; actual mutation remains blocked. Apply Evidence Pack can bundle
             current file verification, rollback plan, test plan, operator approval note, evidence refs, and mutation
             firewall for future guarded apply only; it does not apply changes. Apply-Diff Dry Run can show

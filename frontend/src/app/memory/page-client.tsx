@@ -46,6 +46,7 @@ import {
 import { ApprovedBrainMergePanel } from "@/lib/codexforge/approved-brain-merge/components";
 import { BrainRecallPanel } from "@/lib/codexforge/brain-recall/components";
 import { RegressionTriagePanel } from "@/lib/codexforge/regression-triage";
+import { RegressionFixQueuePanel } from "@/lib/codexforge/regression-fix-queue/components";
 import { loadBrainGraph, saveBrainGraph } from "@/lib/codexforge/brain/graph/storage";
 import { CODEXFORGE_BRAIN_GRAPH_VERSION, type CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph/types";
 
@@ -286,6 +287,11 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
           Regression Triage: regression memory candidates are context only and review required; no auto-promotion,
           no graph mutation, no auto-fix, and Safe Patch Preview handoff only.
         </Link>
+        <Link href="/ai" style={taskActivationLink}>
+          Regression Fix Queue: memory candidate connection is safe context only; review required, no auto-promotion,
+          no graph mutation, no auto-fix, no auto-rollback, Safe Patch Preview required, and Preview Diff Composer
+          required.
+        </Link>
         <section style={hero}>
           <div style={heroCopy}>
             <span style={eyebrow}>CodexForge Phase 16</span>
@@ -313,16 +319,18 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
               manualOperatorNote="Regression memory candidates remain review required context only; no auto-promotion and no Brain graph mutation."
               compact
             />
+            <RegressionFixQueuePanel compact />
             <section
               style={chatEvidenceNotice}
-              data-codexforge-memory-evidence-grounded-chat="Evidence-Grounded Chat Use as chat evidence selected evidence only no auto-promotion no graph mutation Use in fix recommendation Grounded Fix Recommendation regression memory candidates review required Regression Triage"
+              data-codexforge-memory-evidence-grounded-chat="Evidence-Grounded Chat Use as chat evidence selected evidence only no auto-promotion no graph mutation Use in fix recommendation Grounded Fix Recommendation regression memory candidates review required Regression Triage Regression Fix Queue"
             >
               <strong>Use as chat evidence</strong>
               <p>
                 Reviewed evidence memory candidates can be copied into /ai as visible grounding context. This page does
                 not silently inject chat context and does not promote memory without review. Use in fix recommendation
                 is a Safe Patch Preview handoff only and does not mutate the Brain graph. Patch Preview Queue handoff
-                can be related context for Safe Patch Preview while preserving latest-message authority.
+                can be related context for Safe Patch Preview while preserving latest-message authority. Regression Fix
+                Queue memory candidate connection remains review required and does not auto-promote or mutate the graph.
               </p>
             </section>
           </div>

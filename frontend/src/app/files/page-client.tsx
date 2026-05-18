@@ -29,6 +29,11 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
           no auto-fix, no auto-rollback, and Safe Patch Preview handoff only.
         </Link>
         <Link href="/ai" style={chatRecallLink}>
+          Regression Fix Queue: selected file can show related reviewed regression fix queue items when safe; no
+          mutation, no auto-fix, no auto-rollback, Safe Patch Preview required, Preview Diff Composer required, and
+          evidence is context, not proof.
+        </Link>
+        <Link href="/ai" style={chatRecallLink}>
           Patch Preview Queue: Queue for Safe Patch Preview from reviewed recommendations; preview diff only, evidence is context, not proof, verify current files, no file writes without approval, and no command execution without approval.
         </Link>
         <Link

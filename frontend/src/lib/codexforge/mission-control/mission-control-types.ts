@@ -73,6 +73,7 @@ export type MissionHealthDimensionId =
   | "read-only-step-execution"
   | "grounded-fix-recommendation"
   | "regression-triage"
+  | "regression-fix-queue"
   | "apply-evidence-pack"
   | "apply-diff-dry-run"
   | "apply-diff-execution-gate"

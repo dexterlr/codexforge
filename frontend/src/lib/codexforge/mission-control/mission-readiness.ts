@@ -39,6 +39,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Review regression triage cards for failed or warning verification signals; suspected causes, impacted files, rollback advice, fix recommendations, and Safe Patch Preview handoff are visible with no auto-fix, no auto-rollback, and no mutation.",
   });
   checks.push({
+    id: "regression-fix-queue-readiness",
+    label: "Regression Fix Queue readiness",
+    level: "needs-review",
+    detail:
+      "Review regression fix queue items before Safe Patch Preview and Preview Diff Composer handoff; queue is deterministic, local-first, review-gated, no auto-fix, no auto-rollback, no file writes, no command execution, and no Brain graph mutation.",
+  });
+  checks.push({
     id: "patch-preview-queue-readiness",
     label: "Patch Preview Queue readiness",
     level: "needs-review",

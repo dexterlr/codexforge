@@ -67,6 +67,7 @@ import {
 import { EvidenceGroundedChatPanel } from "@/lib/codexforge/evidence-grounded-chat";
 import { GroundedFixRecommendationPanel } from "@/lib/codexforge/grounded-fix";
 import { RegressionTriagePanel } from "@/lib/codexforge/regression-triage";
+import { RegressionFixQueuePanel } from "@/lib/codexforge/regression-fix-queue/components";
 import { PatchPreviewQueuePanel } from "@/lib/codexforge/patch-preview-queue/components";
 import { PatchApplicationGatePanel } from "@/lib/codexforge/patch-application-gate/components";
 import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer/components";
@@ -292,6 +293,10 @@ export default function AiPage() {
   }, []);
 
   const handleCopyRegressionTriagePrompt = useCallback((prompt: string) => {
+    void navigator.clipboard?.writeText(prompt).catch(() => undefined);
+  }, []);
+
+  const handleCopyRegressionFixQueuePrompt = useCallback((prompt: string) => {
     void navigator.clipboard?.writeText(prompt).catch(() => undefined);
   }, []);
 
@@ -602,6 +607,7 @@ export default function AiPage() {
                 onCopyPrompt={handleCopyRegressionTriagePrompt}
                 onUsePrompt={handleUseRegressionTriagePrompt}
               />
+              <RegressionFixQueuePanel onCopyPrompt={handleCopyRegressionFixQueuePrompt} />
               <PatchPreviewQueuePanel onCopyPrompt={handleCopyPatchPreviewQueuePrompt} />
               <PreviewDiffComposerPanel onCopyPrompt={handleCopyPreviewDiffComposerPrompt} />
               <PatchApplicationGatePanel onCopyPrompt={handleCopyPatchApplicationGatePrompt} />
