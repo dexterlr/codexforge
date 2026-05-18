@@ -117,7 +117,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     href: "/memory-inbox",
     label: "Memory Inbox",
     shortLabel: "Inbox",
-    description: "Review-first Personal Operator Memory Inbox for confidence, importance, risk, dedupe, and promotion preview.",
+    description: "Review-first Personal Operator Memory Inbox with Memory Promotion Gate approval, policy, memory.promoted event preview, and blocked execution bridge.",
     group: "Memory",
     readiness: "review-required",
     safetyPosture: "review-gated",

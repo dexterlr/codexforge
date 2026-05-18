@@ -696,7 +696,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
       <div
         data-codexforge-brain-readiness-grid
         data-codexforge-memory-persistence-readiness="approved memory events are available for future merge no automatic merge"
-        data-codexforge-evidence-memory-flow="Evidence Memory waits for review before Brain merge; Review required before memory promotion; no graph mutation"
+        data-codexforge-evidence-memory-flow="Evidence Memory waits for review before Brain merge; Review required before memory promotion; Memory Promotion Gate waits for approval/runtime gate; no graph mutation"
         data-codexforge-regression-triage-review="Regression Triage waits for review before Brain merge; no graph mutation"
         data-codexforge-regression-fix-queue-review="Regression Fix Queue waits for review before Brain merge; no graph mutation"
         data-codexforge-brain-merge-review="Review Brain event merge in /memory; explicit merge approval required"
@@ -724,7 +724,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
       </div>
 
       <a href="/memory" style={buttonStyle()}>
-        Review Evidence Memory and Brain event merge
+        Review Evidence Memory, Memory Promotion Gate approval/runtime gate, and Brain event merge
       </a>
 
       <div

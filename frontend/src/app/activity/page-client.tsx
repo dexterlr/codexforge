@@ -8,5 +8,9 @@ type ActivityPageClientProps = {
 };
 
 export default function ActivityPageClient({ initialData }: ActivityPageClientProps) {
-  return <GlobalActivityFeed feed={initialData} />;
+  return (
+    <div data-codexforge-activity-memory-promotion-gate="Memory Promotion Gate link: memory.candidateCreated events can be reviewed in /memory-inbox; no persistence, no auto-promotion, no graph mutation.">
+      <GlobalActivityFeed feed={initialData} />
+    </div>
+  );
 }

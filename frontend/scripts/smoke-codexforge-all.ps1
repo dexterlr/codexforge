@@ -80,6 +80,7 @@ $scriptRoot = $PSScriptRoot
 # Name = "Artifact Export Flow"; Path = "smoke-codexforge-artifact-export-flow.ps1"
 # Name = "Artifact Ingestion"; Path = "smoke-codexforge-artifact-ingestion.ps1"
 # Name = "Memory Review"; Path = "smoke-codexforge-memory-review.ps1"
+# Name = "Memory Promotion Gate"; Path = "smoke-codexforge-memory-promotion-gate.ps1"
 # Name = "Memory Persistence"; Path = "smoke-codexforge-memory-persistence.ps1"
 # Name = "Mission Control"; Path = "smoke-codexforge-mission-control.ps1"
 # Name = "Predictive context"; Path = "smoke-codexforge-predictive-context.ps1"

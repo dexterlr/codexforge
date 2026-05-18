@@ -25,6 +25,7 @@ import { MemoryInboxPromotionPreviewPanel } from "./MemoryInboxPromotionPreviewP
 import { MemoryInboxReviewPolicyPanel } from "./MemoryInboxReviewPolicyPanel";
 import { MemoryInboxSafetyNotice } from "./MemoryInboxSafetyNotice";
 import { MemoryInboxSourcePanel } from "./MemoryInboxSourcePanel";
+import { MemoryPromotionGatePanel } from "@/lib/codexforge/memory-promotion-gate/components";
 
 export function OperatorMemoryInbox({ session: providedSession }: { session?: OperatorMemoryInboxSession }) {
   const session = useMemo(() => providedSession ?? buildDefaultSession(), [providedSession]);
@@ -93,6 +94,7 @@ export function OperatorMemoryInbox({ session: providedSession }: { session?: Op
             <MemoryInboxSourcePanel sources={session.sourceSummary} />
             <MemoryInboxReviewPolicyPanel policy={policy} />
             {preview ? <MemoryInboxPromotionPreviewPanel preview={preview} onCopyPreview={copyPromotionPreview} /> : null}
+            <MemoryPromotionGatePanel card={selectedCard} />
           </aside>
         </div>
       </div>

@@ -80,6 +80,11 @@ export function buildStabilizationReadiness(input: StabilizationCommandCenterInp
       detail: "Memory candidates remain review-required; no auto-promotion.",
     }),
     buildStabilizationReadinessCheck({
+      label: "Memory Promotion Gate readiness",
+      status: "needs-review",
+      detail: "Review memory promotion gate approval, policy, event preview, request packet, and blocked execution bridge before any future guarded runtime promotion.",
+    }),
+    buildStabilizationReadinessCheck({
       label: "latest-message authority preserved",
       status: input.latestMessageAuthorityPreserved === false ? "blocked" : "ready",
       detail: "Handoffs must preserve latest-message authority and visible operator context.",

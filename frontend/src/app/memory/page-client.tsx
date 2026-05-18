@@ -282,6 +282,10 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
           Operator Memory Inbox: review memory candidates before Memory Review promotion preview; no auto-promotion,
           no Brain graph mutation, no auto-merge, and evidence is context, not authority.
         </Link>
+        <Link href="/memory-inbox" style={taskActivationLink}>
+          Memory Promotion Gate: reviewed inbox cards require explicit approval before a memory.promoted runtime event
+          preview becomes a request packet; no auto-promotion, no appendEvent from UI, and no graph mutation.
+        </Link>
         <Link href="/ai" style={taskActivationLink}>
           Evidence-Grounded Chat: Use as chat evidence only after review; selected evidence only, no hidden context injection, no auto-promotion, and no graph mutation.
         </Link>
@@ -330,7 +334,7 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
             <RegressionFixQueuePanel compact />
             <section
               style={chatEvidenceNotice}
-              data-codexforge-memory-evidence-grounded-chat="Evidence-Grounded Chat Use as chat evidence selected evidence only no auto-promotion no graph mutation Use in fix recommendation Grounded Fix Recommendation regression memory candidates review required Regression Triage Regression Fix Queue"
+              data-codexforge-memory-evidence-grounded-chat="Evidence-Grounded Chat Use as chat evidence selected evidence only no auto-promotion no graph mutation Use in fix recommendation Grounded Fix Recommendation regression memory candidates review required Regression Triage Regression Fix Queue Memory Promotion Gate"
             >
               <strong>Use as chat evidence</strong>
               <p>
@@ -339,6 +343,7 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
                 is a Safe Patch Preview handoff only and does not mutate the Brain graph. Patch Preview Queue handoff
                 can be related context for Safe Patch Preview while preserving latest-message authority. Regression Fix
                 Queue memory candidate connection remains review required and does not auto-promote or mutate the graph.
+                Memory Promotion Gate review starts from /memory-inbox and stays approval-gated.
               </p>
             </section>
           </div>
