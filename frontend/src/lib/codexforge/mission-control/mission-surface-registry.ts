@@ -46,6 +46,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 39 Stabilization Command Center",
     }),
     buildMissionSurface({
+      id: "activity",
+      label: "Global Activity Feed",
+      href: "/activity",
+      status: "online",
+      role: "Read-only Global Activity Feed for verification events, regression triage, fix queue, patch preview, apply gates, memory review, creative planning, stabilization, and next safe action.",
+      riskPosture: "readonly",
+      nextAction: "Review activity feed.",
+      readiness: "ready",
+      relatedPhase: "Phase 43 Global Activity Feed",
+    }),
+    buildMissionSurface({
       id: "tasks",
       label: "Task Autopilot, Reviewed Task Activation, Execution Readiness, Step Runner Preview, Read-Only Step Execution, and Evidence Memory",
       href: "/tasks",

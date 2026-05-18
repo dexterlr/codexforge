@@ -32,6 +32,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
     detail: dimension.detail,
   }));
   checks.push({
+    id: "global-activity-feed-readiness",
+    label: "Global Activity Feed readiness",
+    level: "ready",
+    detail:
+      "Review activity feed for verification events, regression triage, fix queue, patch preview, apply gates, memory review, creative planning, stabilization, and next safe action; read-only, no auto-persistence, no command execution, no file writes, no Brain graph mutation, evidence is context not proof, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "regression-triage-readiness",
     label: "Self-Healing Regression Triage readiness",
     level: "needs-review",

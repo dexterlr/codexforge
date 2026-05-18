@@ -30,8 +30,14 @@ const GROUP_ORDER: Array<{
   {
     id: "stabilization-and-safety",
     label: "Stabilization and safety",
-    description: "Stabilization, verification, regression, and apply-gate posture.",
-    routeHrefs: ["/stabilization"],
+    description: "Stabilization, verification, regression, global activity, and apply-gate posture.",
+    routeHrefs: ["/stabilization", "/activity"],
+  },
+  {
+    id: "activity-and-handoff",
+    label: "Activity and handoff",
+    description: "Activity Feed and operator history for local workflow continuity.",
+    routeHrefs: ["/activity", "/history"],
   },
   {
     id: "creative-production",

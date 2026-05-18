@@ -23,6 +23,7 @@ export function OperatorHomeRecentWorkflowPanel({
     `Route registry: ${routes.routes.length} existing launch routes.`,
     `Capability posture: ${surface.capabilities.length} command-deck capabilities.`,
     `Primary handoff: ${nextActionPlan.selected.title}.`,
+    "Activity Feed is available for read-only workflow review before mutation gates.",
     "Recent workflow stays read-only until an operator opens a review surface.",
   ];
 

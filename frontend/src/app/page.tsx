@@ -13,6 +13,7 @@ const OPERATOR_HOME_ROUTES = [
   "/memory",
   "/creative",
   "/capabilities",
+  "/activity",
   "/stabilization",
   "/history",
 ] as const;
@@ -28,6 +29,7 @@ const SURFACE_MAP: readonly HomeSurfaceMapItem[] = [
   { path: "/runs", label: "Operator Run Center" },
   { path: "/capabilities", label: "Capability Cockpit" },
   { path: "/creative", label: "Creative Production Studio" },
+  { path: "/activity", label: "Activity Feed" },
   { path: "/brain", label: "Brain Command Center" },
   { path: "/history", label: "History" },
   { path: "/ai", label: "AI Workspace" },

@@ -46,6 +46,7 @@ export function StabilizationCommandCenter({ summary: providedSummary }: { summa
             </p>
             <div style={heroActions}>
               <Link href="/mission" style={heroLink}>Mission Control</Link>
+              <Link href="/activity" style={heroLink}>Activity Feed</Link>
               <Link href="/ai" style={heroLink}>Review pipeline</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>

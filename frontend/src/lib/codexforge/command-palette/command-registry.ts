@@ -20,6 +20,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/memory": true,
   "/creative": true,
   "/capabilities": true,
+  "/activity": true,
   "/stabilization": true,
 };
 
@@ -133,6 +134,14 @@ export function buildCodexForgeCommands(
       href: "/capabilities",
       keywords: ["capabilities", "tools", "policy", "route"],
       priority: 80,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-activity-feed",
+      label: "Go to Activity Feed",
+      description: "Navigate to the read-only Global Activity Feed.",
+      href: "/activity",
+      keywords: ["activity", "feed", "global", "route"],
+      priority: 85,
     }),
     buildRouteCommand(availability, {
       id: "go-stabilization",
@@ -301,6 +310,18 @@ export function buildCodexForgeCommands(
       requiresReview: true,
       keywords: ["next phase", "handoff", "safe"],
       priority: 230,
+    }),
+    buildCodexForgeCommand({
+      id: "copy-activity-handoff-prompt",
+      label: "Copy activity handoff prompt",
+      description: "Copy a read-only activity feed handoff prompt without persisting events.",
+      group: "Next action",
+      kind: "copy-prompt",
+      copyPayload: "Review the Global Activity Feed. Keep it read-only, do not execute commands, do not write files, do not mutate the Brain graph, treat evidence as context not proof, and preserve latest-message authority.",
+      safetyLevel: "copy-only",
+      requiresReview: false,
+      keywords: ["activity", "handoff", "read-only", "latest-message authority"],
+      priority: 235,
     }),
     buildCodexForgeCommand({
       id: "commit-clean-checkpoint",

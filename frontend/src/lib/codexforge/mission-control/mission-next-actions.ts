@@ -11,6 +11,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Stabilization Command Center rolls build and smoke posture, verification signals, regression triage, fix queue, patch queue, apply gates, post-apply verification, and next safest action into a read-only operator review; no auto-fix, no auto-rollback, no command execution, no file writes, and preserve latest-message authority.",
     },
     {
+      id: "review-activity-feed",
+      label: "Review activity feed",
+      href: "/activity",
+      priority: "secondary",
+      readiness: "ready",
+      safetyNote: "Global Activity Feed is read-only and deterministic; no command execution, no file writes, no Brain graph mutation, no auto-persistence, and preserve latest-message authority.",
+    },
+    {
       id: "return-to-operator-home",
       label: "Return to Operator Home",
       href: "/",

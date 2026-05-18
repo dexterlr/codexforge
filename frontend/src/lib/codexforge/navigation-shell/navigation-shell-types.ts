@@ -9,6 +9,7 @@ export type CodexForgeNavigationRouteId =
   | "memory"
   | "creative"
   | "capabilities"
+  | "activity"
   | "stabilization"
   | "history";
 
@@ -21,6 +22,7 @@ export type CodexForgeNavigationRouteHref =
   | "/memory"
   | "/creative"
   | "/capabilities"
+  | "/activity"
   | "/stabilization"
   | "/history";
 
@@ -55,6 +57,7 @@ export type CodexForgeCommandDeckRole =
   | "memory-review"
   | "production"
   | "capability"
+  | "activity-feed"
   | "stabilization"
   | "timeline";
 
@@ -183,4 +186,3 @@ export type CodexForgeAppShellProps = {
   nextActionContext?: CodexForgeShellNextActionContext;
   contentMaxWidth?: number;
 };
-

@@ -26,6 +26,7 @@ const ROUTE_ORDER: OperatorHomeRoutePath[] = [
   "/memory",
   "/creative",
   "/capabilities",
+  "/activity",
   "/stabilization",
   "/history",
 ];
@@ -138,6 +139,18 @@ const ROUTE_DEFINITIONS: Record<OperatorHomeRoutePath, RouteDefinition> = {
     nextAction: "Review capability policy before guarded handoff.",
     badge: "Policy",
     requiredReview: true,
+  },
+  "/activity": {
+    href: "/activity",
+    label: "Activity Feed",
+    description:
+      "Global Activity Feed for read-only verification, regression, patch workflow, apply gates, memory review, creative planning, stabilization, and next safe action.",
+    domain: "activity",
+    readiness: "ready",
+    riskPosture: "readonly",
+    nextAction: "Review Activity Feed before moving from evidence to mutation-capable gates.",
+    badge: "Activity",
+    requiredReview: false,
   },
   "/stabilization": {
     href: "/stabilization",

@@ -15,6 +15,7 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/memory",
   "/creative",
   "/capabilities",
+  "/activity",
   "/stabilization",
   "/history",
 ] as const;
@@ -140,6 +141,21 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     noMutation: true,
     commandDeckRole: "capability",
   },
+  "/activity": {
+    id: "activity",
+    href: "/activity",
+    label: "Global Activity Feed",
+    shortLabel: "Activity",
+    description: "Read-only activity feed for verification, regression, patch workflow, apply gates, memory review, creative planning, stabilization, and next safe action.",
+    group: "Command",
+    readiness: "available",
+    safetyPosture: "read-only",
+    badge: "Activity",
+    priority: 85,
+    requiresReview: false,
+    noMutation: true,
+    commandDeckRole: "activity-feed",
+  },
   "/stabilization": {
     id: "stabilization",
     href: "/stabilization",
@@ -207,4 +223,3 @@ export function summarizeCodexForgeNavigationRoutes(
 ): string {
   return `${routes.length} routes: ${routes.map((route) => `${route.label} (${route.href})`).join(", ")}`;
 }
-

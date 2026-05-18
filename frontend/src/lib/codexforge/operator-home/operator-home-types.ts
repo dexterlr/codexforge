@@ -21,6 +21,7 @@ export type OperatorHomeRoutePath =
   | "/memory"
   | "/creative"
   | "/capabilities"
+  | "/activity"
   | "/stabilization"
   | "/history";
 
@@ -32,6 +33,7 @@ export type OperatorHomeRouteDomain =
   | "memory"
   | "creative"
   | "capabilities"
+  | "activity"
   | "stabilization"
   | "history";
 
@@ -156,6 +158,7 @@ export type OperatorHomeLauncherGroupId =
   | "core-cognition"
   | "engineering-workflow"
   | "stabilization-and-safety"
+  | "activity-and-handoff"
   | "creative-production"
   | "memory-and-evidence"
   | "operator-history";

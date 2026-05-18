@@ -124,6 +124,13 @@ export function buildStabilizationQueueRollup(input: StabilizationCommandCenterI
       targetRoute: "/ai",
     }),
     buildStabilizationQueueRollupItem({
+      label: "Global Activity Feed",
+      count: 1,
+      readyCount: 1,
+      nextAction: "Review Activity Feed before mutation-capable gates.",
+      targetRoute: "/stabilization",
+    }),
+    buildStabilizationQueueRollupItem({
       label: "Memory Review",
       summary: input.memoryReviewSummary,
       nextAction: "Review memory candidates; no auto-promotion.",

@@ -11,6 +11,7 @@ export type MissionSurfaceId =
   | "memory"
   | "files"
   | "stabilization"
+  | "activity"
   | "capabilities"
   | "runs"
   | "bridge"
@@ -81,6 +82,7 @@ export type MissionHealthDimensionId =
   | "apply-diff-dry-run"
   | "apply-diff-execution-gate"
   | "stabilization-command-center"
+  | "global-activity-feed"
   | "production-pack"
   | "safety";
 
