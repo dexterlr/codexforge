@@ -95,6 +95,11 @@ export function buildStabilizationReadiness(input: StabilizationCommandCenterInp
       detail: "Review runtime event journal for requests, approvals, policy, validation, dry-runs, reducer previews, blocked or ready results, append-only audit refs, and source handoffs before any guarded runtime event decision.",
     }),
     buildStabilizationReadinessCheck({
+      label: "Runtime Event Replay readiness",
+      status: "needs-review",
+      detail: "Review Runtime Event Replay Simulator for selected journal events, graph snapshot reducer preview, impact analysis, risk detection, and rollback guidance; preview-only, no graph mutation, no appendEvent, no event execution, and no auto-persistence.",
+    }),
+    buildStabilizationReadinessCheck({
       label: "Brain Mutation Governance readiness",
       status: "needs-review",
       detail: "Review Brain Mutation Governance for approved mutation boundaries, blocked direct mutation signals, reducer impact governance, runtime journal integrity posture, risk board, and next safe action before any Brain or memory mutation path.",

@@ -18,6 +18,7 @@ export type CodexForgeRoute = {
     | "memory"
     | "memory-inbox"
     | "runtime-journal"
+    | "runtime-replay"
     | "files"
     | "runs"
     | "capabilities"
@@ -125,6 +126,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Memory",
     description: "Read-only runtime event lifecycle journal for audit, policy, validation, reducer preview, and result visibility.",
+  },
+  {
+    id: "runtime-replay",
+    path: "/runtime-replay",
+    label: "Runtime Replay",
+    shortLabel: "Replay",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Memory",
+    description: "Preview-only Runtime Event Replay Simulator for reducer-backed graph impact, risk, and rollback guidance.",
   },
   {
     id: "files",

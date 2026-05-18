@@ -112,6 +112,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 47 Runtime Event Journal",
     }),
     buildMissionSurface({
+      id: "runtime-replay",
+      label: "Runtime Event Replay Simulator",
+      href: "/runtime-replay",
+      status: "preview-ready",
+      role: "Preview-only replay simulator for selected runtime journal events against a selected graph snapshot with reducer preview, impact analysis, risk detection, and rollback guidance.",
+      riskPosture: "preview-only",
+      nextAction: "Review runtime event replay.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 49 Runtime Event Replay Simulator",
+    }),
+    buildMissionSurface({
       id: "brain-governance",
       label: "Brain Mutation Governance",
       href: "/brain-governance",

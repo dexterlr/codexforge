@@ -39,6 +39,7 @@ export function buildMissionActivityTimeline(): MissionActivityTimeline {
     buildMissionActivityItem("operator-home-dashboard-added", "Operator Home Dashboard added", "Phase 40", "Root route becomes a local-first read-only operator launch deck for routes, status, safety posture, validation checklist copy, and next safe action handoff.", "ready"),
     buildMissionActivityItem("operator-memory-inbox-added", "Personal Operator Memory Inbox added", "Phase 44", "Signals become reviewed memory inbox cards with confidence, importance, risk, dedupe, and promotion preview only; no auto-promotion and no Brain graph mutation.", "needs-review"),
     buildMissionActivityItem("brain-mutation-governance-added", "Brain Mutation Governance added", "Phase 48", "Approved mutation boundaries, blocked direct mutation visibility, reducer impact governance, runtime journal integrity posture, and next safe action became reviewable in a read-only console.", "needs-review"),
+    buildMissionActivityItem("runtime-event-replay-added", "Runtime Event Replay Simulator added", "Phase 49", "Selected runtime journal events can be replayed against a graph snapshot in reducer preview mode with impact analysis, risk detection, and rollback guidance; preview-only and no graph mutation.", "needs-review"),
   ];
 
   return {

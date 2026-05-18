@@ -45,7 +45,7 @@ const RISK_DEFAULTS: Record<BrainMutationRiskId, Omit<BrainMutationRiskItem, "id
     title: "Missing reducer preview",
     severity: "risk",
     source: "Graph reducer",
-    mitigation: "Inspect reducer impact preview before mutation readiness.",
+    mitigation: "Review Runtime Event Replay Simulator reducer preview before mutation readiness.",
     requiredBoundary: "graph-reducer-preview",
     reviewRequired: true,
     blocked: true,

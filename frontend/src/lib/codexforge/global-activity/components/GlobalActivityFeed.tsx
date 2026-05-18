@@ -60,6 +60,7 @@ export function GlobalActivityFeed({ feed: providedFeed }: { feed?: GlobalActivi
               <Link href="/memory-inbox" style={heroLink}>Review memory candidates</Link>
               <Link href="/brain-governance" style={heroLink}>Brain Mutation Governance</Link>
               <Link href="/runtime-journal" style={heroLink}>Runtime Event Journal</Link>
+              <Link href="/runtime-replay" style={heroLink}>Runtime Event Replay</Link>
               <Link href="/stabilization" style={heroLink}>Stabilization</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>

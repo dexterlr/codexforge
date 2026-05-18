@@ -20,7 +20,7 @@ function groupFor(event: GlobalActivityEvent): GlobalActivityTimelineGroupLabel 
   if (event.source.startsWith("regression")) return "Regression workflow";
   if (event.source === "patch-preview" || event.source === "preview-diff") return "Patch workflow";
   if (event.source === "apply-gate" || event.source === "post-apply-verification") return "Apply workflow";
-  if (event.source === "memory-review" || event.source === "brain-review" || event.source === "brain-governance") return "Memory and Brain review";
+  if (event.source === "memory-review" || event.source === "brain-review" || event.source === "brain-governance" || event.source === "runtime-replay") return "Memory and Brain review";
   if (event.source === "creative") return "Creative production";
   if (event.source === "stabilization") return "Stabilization";
   return "Navigation and commands";

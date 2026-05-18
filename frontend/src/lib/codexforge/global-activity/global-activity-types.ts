@@ -14,6 +14,7 @@ export type GlobalActivityEventType =
   | "memory.candidateCreated"
   | "brain.mergePreviewed"
   | "brain.governanceReviewed"
+  | "runtime.replayPreviewed"
   | "creative.planCreated"
   | "stabilization.reviewed"
   | "command.copied"
@@ -34,6 +35,7 @@ export type GlobalActivitySource =
   | "memory-review"
   | "brain-review"
   | "brain-governance"
+  | "runtime-replay"
   | "creative"
   | "stabilization"
   | "command-palette"
@@ -54,6 +56,7 @@ export type GlobalActivitySurface =
   | "Memory Review"
   | "Brain Merge Review"
   | "Brain Mutation Governance"
+  | "Runtime Event Replay Simulator"
   | "Creative Production Studio"
   | "Stabilization Command Center"
   | "Command Palette"
@@ -71,6 +74,7 @@ export type GlobalActivityRoute =
   | "/memory"
   | "/memory-inbox"
   | "/runtime-journal"
+  | "/runtime-replay"
   | "/brain-governance"
   | "/creative"
   | "/capabilities"
@@ -151,6 +155,7 @@ export type GlobalActivityFeedInput = {
   applyGate?: readonly GlobalActivitySourceSummaryInput[];
   memoryReview?: readonly GlobalActivitySourceSummaryInput[];
   brainGovernance?: readonly GlobalActivitySourceSummaryInput[];
+  runtimeReplay?: readonly GlobalActivitySourceSummaryInput[];
   creative?: readonly GlobalActivitySourceSummaryInput[];
   stabilization?: readonly GlobalActivitySourceSummaryInput[];
 };
@@ -210,6 +215,7 @@ export type GlobalActivityNextActionKind =
   | "review apply gate"
   | "paste verification output"
   | "review memory candidate"
+  | "review runtime event replay"
   | "review brain mutation governance"
   | "review stabilization"
   | "commit clean checkpoint"

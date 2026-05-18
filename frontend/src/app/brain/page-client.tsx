@@ -660,6 +660,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
   const approvedBrainMergeReadiness = "Approved Brain merge available in /memory: explicit approval updates local graph, then refresh /brain.";
   const runtimeEventExecutorReadiness = "Runtime Event Executor is the only approved mutation boundary for runtime events; review request, policy, validation, approval, reducer preview, and result before graph refresh.";
   const runtimeEventJournalReadiness = "Runtime Event Journal is the read-only mutation audit surface for runtime event lifecycle visibility; no graph mutation and no appendEvent from UI.";
+  const runtimeEventReplayReadiness = "Runtime Event Replay Simulator is the preview-only reducer preview surface for selected journal events and graph snapshots; no graph mutation, no appendEvent, and no event execution.";
   const brainMutationGovernanceReadiness = "Brain Mutation Governance is the read-only mutation audit surface for approved boundaries, blocked direct mutation signals, reducer impact, integrity posture, and no graph mutation from UI.";
   const regressionTriageReadiness = "Regression Triage waits for review before Brain merge; no graph mutation.";
   const regressionFixQueueReadiness = "Regression Fix Queue waits for review before Brain merge; no graph mutation.";
@@ -706,6 +707,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         data-codexforge-approved-brain-merge-notice="Approved Brain merge applies only after explicit approval; use refresh to reload /brain graph"
         data-codexforge-runtime-event-executor-notice="Runtime Event Executor is the only approved mutation boundary; no direct UI graph mutation and no auto-promotion."
         data-codexforge-runtime-event-journal-notice="Runtime Event Journal links Brain to a read-only mutation audit surface; no graph mutation and no appendEvent from UI."
+        data-codexforge-runtime-event-replay-notice="Runtime Event Replay Simulator links Brain to a preview-only reducer preview surface; no graph mutation, no appendEvent, no event execution."
         data-codexforge-brain-mutation-governance-notice="Brain Mutation Governance links Brain to a read-only mutation audit surface; no direct UI graph mutation, no auto-promotion, no graph mutation from UI."
         data-codexforge-brain-overflow-guard
         style={{
@@ -726,6 +728,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         <MiniStat label="Approved merge" value={approvedBrainMergeReadiness} />
         <MiniStat label="Runtime Event Executor" value={runtimeEventExecutorReadiness} />
         <MiniStat label="Runtime Event Journal" value={runtimeEventJournalReadiness} />
+        <MiniStat label="Runtime Event Replay" value={runtimeEventReplayReadiness} />
         <MiniStat label="Brain Mutation Governance" value={brainMutationGovernanceReadiness} />
         <MiniStat label="Regression Triage" value={regressionTriageReadiness} />
         <MiniStat label="Regression Fix Queue" value={regressionFixQueueReadiness} />
@@ -738,6 +741,10 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
 
       <Link href="/runtime-journal" style={buttonStyle()}>
         Review Runtime Event Journal as mutation audit surface
+      </Link>
+
+      <Link href="/runtime-replay" style={buttonStyle()}>
+        Runtime Event Replay Simulator as reducer preview surface
       </Link>
 
       <Link href="/brain-governance" style={buttonStyle()}>
@@ -1510,6 +1517,9 @@ export default function BrainPageClient() {
         </Link>
         <Link href="/memory-inbox" style={taskAutopilotLink}>
           Memory Inbox: review boundary before memory or Brain merge; no graph mutation, no auto-promotion, and no auto-merge.
+        </Link>
+        <Link href="/runtime-replay" style={taskAutopilotLink}>
+          Runtime Event Replay Simulator: preview selected journal events against a graph snapshot; no graph mutation, no appendEvent, and no event execution.
         </Link>
         <Link href="/brain-governance" style={taskAutopilotLink}>
           Brain Mutation Governance: read-only mutation audit surface for blocked direct mutation visibility, reducer impact, and runtime journal integrity.

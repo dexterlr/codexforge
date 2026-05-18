@@ -25,6 +25,7 @@ export function buildMissionSystemMap(): MissionSystemMap {
     { id: "operator-home", label: "Operator Home", detail: "Launch deck and safe next action" },
     { id: "brain", label: "Brain", detail: "Memory and signals" },
     { id: "brain-governance", label: "Brain Governance", detail: "Mutation boundary review" },
+    { id: "runtime-replay", label: "Runtime Replay", detail: "Preview-only reducer simulation" },
     { id: "memory", label: "Memory Review", detail: "Promotion approval queue" },
     { id: "stabilization", label: "Stabilization", detail: "Read-only stabilization command center" },
     { id: "tasks", label: "Reviewed Tasks", detail: "Suggestions and activation previews" },
@@ -43,6 +44,8 @@ export function buildMissionSystemMap(): MissionSystemMap {
   const edges: MissionSystemEdge[] = [
     buildMissionSystemEdge("operator-home", "stabilization", "Home routes blockers to stabilization", "readonly"),
     buildMissionSystemEdge("brain", "brain-governance", "Brain routes mutation review to governance", "readonly"),
+    buildMissionSystemEdge("brain-governance", "runtime-replay", "Governance routes reducer preview to Runtime Replay", "preview-only"),
+    buildMissionSystemEdge("runtime-replay", "memory", "Replay risk can route memory promotion review", "readonly"),
     buildMissionSystemEdge("brain-governance", "memory", "Governance reviews memory promotion boundaries", "readonly"),
     buildMissionSystemEdge("operator-home", "chat", "Home routes reviewed handoffs to AI Workspace", "readonly"),
     buildMissionSystemEdge("operator-home", "files", "Home routes file attention to Files", "preview-only"),

@@ -43,6 +43,9 @@ export function selectGlobalActivityNextAction(events: readonly GlobalActivityEv
   if (ranked.some((event) => event.type === "memory.candidateCreated" || event.type === "brain.mergePreviewed")) {
     return action("review memory candidate", "Review memory candidate without auto-promote or graph merge.", "/memory", 90);
   }
+  if (ranked.some((event) => event.type === "runtime.replayPreviewed" || event.source === "runtime-replay")) {
+    return action("review runtime event replay", "Review runtime event replay preview before any guarded runtime event decision.", "/runtime-replay", 92);
+  }
   if (ranked.some((event) => event.type === "brain.governanceReviewed" || event.source === "brain-governance")) {
     return action("review brain mutation governance", "Review mutation boundaries and direct mutation signals without persistence.", "/brain-governance", 95);
   }

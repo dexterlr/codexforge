@@ -19,6 +19,11 @@ const ACTION_DETAIL: Record<BrainMutationGovernanceNextActionKind, {
     detail: "Review Runtime Event Journal integrity before any guarded runtime event execution decision.",
     targetRoute: "/runtime-journal",
   },
+  "review runtime event replay": {
+    title: "Review runtime event replay",
+    detail: "Review Runtime Event Replay Simulator reducer preview, impact, risk, and rollback guidance before any guarded runtime event decision.",
+    targetRoute: "/runtime-replay",
+  },
   "review runtime event executor": {
     title: "Review runtime event executor",
     detail: "Review request, policy, validation, approval, reducer preview, audit ledger, and result before append-only event execution.",
@@ -111,7 +116,7 @@ export function selectBrainMutationGovernanceNextAction(input: {
   }
 
   if (integrityReport?.checks.some((check) => check.label === "reducer preview available" && check.status !== "pass")) {
-    return action("inspect reducer preview", "primary");
+    return action("review runtime event replay", "primary");
   }
 
   if (riskBoard?.items.some((item) => item.id === "silent-memory-promotion" && item.reviewRequired)) {
@@ -145,6 +150,7 @@ export function buildBrainMutationGovernanceNextActionPlan(input: {
     action("stop and stabilize"),
     action("inspect direct mutation signal"),
     action("review runtime event journal"),
+    action("review runtime event replay"),
     action("inspect reducer preview"),
     action("review memory promotion gate"),
     action("review runtime event executor"),

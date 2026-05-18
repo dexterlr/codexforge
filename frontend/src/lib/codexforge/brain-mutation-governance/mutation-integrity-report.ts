@@ -76,8 +76,8 @@ export function buildBrainMutationIntegrityReport(
     buildBrainMutationIntegrityCheck({
       label: "reducer preview available",
       status: statusFrom(input.reducerPreviewAvailable, "risk"),
-      detail: "Reducer preview must be available before mutation readiness.",
-      nextSafeAction: "Inspect reducer preview.",
+      detail: "Runtime Event Replay Simulator readiness makes reducer preview, impact analysis, risk detection, and rollback guidance visible before mutation readiness.",
+      nextSafeAction: "Review runtime event replay.",
     }),
     buildBrainMutationIntegrityCheck({
       label: "policy confirmation visible",

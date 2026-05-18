@@ -133,6 +133,21 @@ export function buildActivityEventsFromBrainGovernance(inputs?: readonly GlobalA
   });
 }
 
+export function buildActivityEventsFromRuntimeReplay(inputs?: readonly GlobalActivitySourceSummaryInput[]): GlobalActivityEvent[] {
+  return buildEvents(inputs, {
+    type: "runtime.replayPreviewed",
+    source: "runtime-replay",
+    surface: "Runtime Event Replay Simulator",
+    title: "Runtime Event Replay preview ready",
+    detail: "Review selected runtime journal events against a graph snapshot; preview-only, no graph mutation, no appendEvent, no event execution, and no auto-persistence.",
+    severity: "info",
+    status: "review-required",
+    reviewRequired: true,
+    nextActionLabel: "review runtime event replay",
+    route: "/runtime-replay",
+  });
+}
+
 export function buildActivityEventsFromCreative(inputs?: readonly GlobalActivitySourceSummaryInput[]): GlobalActivityEvent[] {
   return buildEvents(inputs, {
     type: "creative.planCreated",

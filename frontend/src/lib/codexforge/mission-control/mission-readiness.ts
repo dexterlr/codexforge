@@ -67,6 +67,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Review Runtime Event Journal for requests, approvals, policy, validation, dry-runs, reducer previews, blocked or ready results, append-only audit refs, and source handoffs; read-only, no graph mutation, no appendEvent from UI, evidence is context not authority, and preserve latest-message authority.",
   });
   checks.push({
+    id: "runtime-event-replay-readiness",
+    label: "Runtime Event Replay Simulator readiness",
+    level: "needs-review",
+    detail:
+      "Review Runtime Event Replay Simulator for selected journal events, graph snapshot reducer preview, impact analysis, risk detection, rollback guidance, and summary handoff; preview-only, no graph mutation, no appendEvent, no event execution, no auto-persistence, evidence is context not authority, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "brain-mutation-governance-readiness",
     label: "Brain Mutation Governance readiness",
     level: "needs-review",

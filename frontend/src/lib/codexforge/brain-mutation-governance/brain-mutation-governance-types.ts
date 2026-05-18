@@ -268,6 +268,7 @@ export type BrainMutationRiskBoard = {
 
 export type BrainMutationGovernanceNextActionKind =
   | "review runtime event journal"
+  | "review runtime event replay"
   | "review runtime event executor"
   | "review memory promotion gate"
   | "review operator memory inbox"

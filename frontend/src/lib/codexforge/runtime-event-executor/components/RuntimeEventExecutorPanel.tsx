@@ -78,11 +78,12 @@ export function RuntimeEventExecutorPanel({
       </div>
       <div
         style={journalBox}
-        data-codexforge-runtime-event-journal-preview="Runtime Event Journal preview is read-only, no graph mutation, no appendEvent from UI, append-only audit handoff. Brain Mutation Governance boundary status is review-only."
+        data-codexforge-runtime-event-journal-preview="Runtime Event Journal preview is read-only, no graph mutation, no appendEvent from UI, append-only audit handoff. Runtime Event Replay Simulator is preview-only and no event execution. Brain Mutation Governance boundary status is review-only."
       >
         <strong>Runtime Event Journal preview</strong>
-        <span>{journalPreview.length} lifecycle entries prepared for read-only audit visibility. Brain Mutation Governance confirms Runtime Event Executor is the guarded boundary.</span>
+        <span>{journalPreview.length} lifecycle entries prepared for read-only audit visibility. Runtime Event Replay Simulator can inspect reducer impact before any future guarded action. Brain Mutation Governance confirms Runtime Event Executor is the guarded boundary.</span>
         <Link href="/runtime-journal" style={journalLink}>Open Runtime Event Journal</Link>
+        <Link href="/runtime-replay" style={journalLink}>Open Runtime Event Replay</Link>
         <Link href="/brain-governance" style={journalLink}>Review Brain Mutation Governance</Link>
       </div>
       <RuntimeEventApprovalPanel approval={approval} approved={approved} approvalNote={approvalNote} onApprovedChange={setApproved} onApprovalNoteChange={setApprovalNote} />

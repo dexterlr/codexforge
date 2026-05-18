@@ -35,6 +35,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Runtime Event Journal is read-only lifecycle visibility for requests, approvals, policy, validation, reducer previews, blocked or ready results, and append-only audit handoff; no graph mutation and no event append from UI.",
     },
     {
+      id: "review-runtime-event-replay",
+      label: "Review runtime event replay",
+      href: "/runtime-replay",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Runtime Event Replay Simulator is preview-only reducer-backed simulation for selected journal events and graph snapshots; no graph mutation, no appendEvent, no event execution, no auto-persistence, and preserve latest-message authority.",
+    },
+    {
       id: "review-brain-mutation-governance",
       label: "Review brain mutation governance",
       href: "/brain-governance",

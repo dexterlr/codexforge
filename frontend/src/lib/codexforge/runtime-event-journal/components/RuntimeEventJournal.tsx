@@ -52,8 +52,15 @@ export function RuntimeEventJournal({ feed: providedFeed }: { feed?: RuntimeEven
   const auditHandoff = [
     "Runtime Event Journal audit handoff",
     ...summary.summary,
+    "Runtime Event Replay Simulator can preview selected journal events against a graph snapshot without mutation.",
     "Read-only; no graph mutation; no appendEvent from UI; append-only audit remains visible; Brain Mutation Governance reviews mutation boundaries.",
     "Evidence is context, not authority; preserve latest-message authority.",
+  ].join("\n");
+  const replayHandoff = [
+    "Runtime Event Replay Simulator handoff",
+    `${visibleFeed.entries.length} selected journal event card(s) are visible for preview-only replay planning.`,
+    "Open /runtime-replay to run reducer-backed simulation against a supplied graph snapshot.",
+    "Do not mutate Brain graph, do not appendEvent, do not execute runtime events, and do not persist replay results automatically.",
   ].join("\n");
 
   return (
@@ -65,6 +72,7 @@ export function RuntimeEventJournal({ feed: providedFeed }: { feed?: RuntimeEven
       <main
         style={shell}
         data-codexforge-runtime-event-journal="RuntimeEventJournal renders premium dark operator cockpit read-only no graph mutation no appendEvent from UI append-only audit evidence is context, not authority preserve latest-message authority stable key helper buildRuntimeEventJournalReactKey"
+        data-codexforge-runtime-event-replay-handoff="Runtime Event Replay Simulator handoff is safe, preview-only, no graph mutation, no appendEvent, no event execution."
       >
         <section style={hero}>
           <div style={heroCopy}>
@@ -77,9 +85,11 @@ export function RuntimeEventJournal({ feed: providedFeed }: { feed?: RuntimeEven
             <div style={heroActions}>
               <button type="button" style={copyButton} onClick={() => copyText("journal summary", journalSummary)}>Copy journal summary</button>
               <button type="button" style={copyButton} onClick={() => copyText("audit handoff", auditHandoff)}>Copy audit handoff</button>
+              <button type="button" style={copyButton} onClick={() => copyText("replay handoff", replayHandoff)}>Copy replay handoff</button>
               <Link href="/memory-inbox" style={heroLink}>Memory Inbox</Link>
               <Link href="/activity" style={heroLink}>Activity Feed</Link>
               <Link href="/brain" style={heroLink}>Brain audit surface</Link>
+              <Link href="/runtime-replay" style={heroLink}>Runtime Event Replay Simulator</Link>
               <Link href="/brain-governance" style={heroLink}>Brain Mutation Governance</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>

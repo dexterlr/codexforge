@@ -9,7 +9,7 @@ type ActivityPageClientProps = {
 
 export default function ActivityPageClient({ initialData }: ActivityPageClientProps) {
   return (
-    <div data-codexforge-activity-memory-promotion-gate="Memory Promotion Gate link: memory.candidateCreated events can be reviewed in /memory-inbox; Runtime Event Executor status/events, Runtime Event Journal activity source/link, and Brain Mutation Governance activity/source are review-only and no auto-persistence; no persistence, no auto-promotion, no graph mutation.">
+    <div data-codexforge-activity-memory-promotion-gate="Memory Promotion Gate link: memory.candidateCreated events can be reviewed in /memory-inbox; Runtime Event Executor status/events, Runtime Event Journal activity source/link, Runtime Event Replay source/link, and Brain Mutation Governance activity/source are review-only and no auto-persistence; no persistence, no auto-promotion, no graph mutation.">
       <GlobalActivityFeed feed={initialData} />
     </div>
   );
