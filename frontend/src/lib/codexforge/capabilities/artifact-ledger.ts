@@ -43,8 +43,22 @@ export function buildArtifactLedger(): CodexForgeCapabilityArtifact[] {
       buildArtifactPreview(capabilityId, label, index === 0 ? "plan" : "render-preview", index + 1)
     );
   });
+  const blenderPreviewArtifacts = [
+    buildArtifactPreview(
+      "blender-adapter-preview",
+      "blender-python-preview placeholder",
+      "scene",
+      1
+    ),
+    buildArtifactPreview(
+      "blender-adapter-preview",
+      "blender-scene-plan placeholder",
+      "plan",
+      2
+    ),
+  ];
 
-  return [...capabilityArtifacts, ...creativeArtifacts];
+  return [...capabilityArtifacts, ...creativeArtifacts, ...blenderPreviewArtifacts];
 }
 
 export function summarizeArtifactLedger(artifacts = buildArtifactLedger()): string {

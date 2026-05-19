@@ -10,6 +10,7 @@ export type CodexForgeCapabilityBridgeId =
   | "web-research"
   | "pc-bridge"
   | "camera-inspection"
+  | "blender-adapter-preview"
   | "blender-production"
   | "unreal-production"
   | "comfyui-production"
@@ -165,6 +166,27 @@ export const codexForgeCapabilityBridgeManifest = [
     nextMilestones: [
       "Add camera permission state UI.",
       "Add local-only snapshot inspection with no persistent storage by default.",
+    ],
+  },
+  {
+    id: "blender-adapter-preview",
+    label: "Blender Adapter Preview",
+    summary:
+      "Generate deterministic Blender scene models, object/material/light/camera/render plans, Python script previews, and future executor packets without execution.",
+    status: "planned",
+    consent: "approval-required",
+    riskLevel: "medium",
+    adapterToolNames: [],
+    allowedSideEffects: ["none"],
+    operatorMode: "creative-production",
+    safetyInvariants: [
+      "Blender Adapter Preview capability is preview-only in Phase 62.",
+      "Blender execution is blocked.",
+      "Render execution and file writes are blocked.",
+    ],
+    nextMilestones: [
+      "Review Blender Adapter Preview v1 at /blender.",
+      "Prepare a future guarded creative executor after explicit approval design.",
     ],
   },
   {
@@ -344,6 +366,7 @@ export const CODEXFORGE_GOD_TIER_FEATURE_SEQUENCE = [
   "self-inspection",
   "ai-router",
   "web-research",
+  "blender-adapter-preview",
   "blender-production",
   "comfyui-production",
   "unreal-production",

@@ -42,6 +42,8 @@ export type CreativeArtifactCaptureType =
   | "image"
   | "video"
   | "blender-file"
+  | "blender-python-preview"
+  | "blender-scene-plan"
   | "comfyui-workflow"
   | "unreal-sequence"
   | "render-log"

@@ -120,5 +120,6 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Execution Suite"; File = "smoke-codexforge-execution-suite.ps1"; Required = $true },
   @{ Name = "Artifacts Suite"; File = "smoke-codexforge-artifacts-suite.ps1"; Required = $true },
   @{ Name = "Creative Suite"; File = "smoke-codexforge-creative-suite.ps1"; Required = $true },
-  @{ Name = "Creative Local Bridge"; File = "smoke-codexforge-creative-local-bridge.ps1"; Required = $true }
+  @{ Name = "Creative Local Bridge"; File = "smoke-codexforge-creative-local-bridge.ps1"; Required = $true },
+  @{ Name = "Blender Adapter Preview"; File = "smoke-codexforge-blender-adapter-preview.ps1"; Required = $true }
 )

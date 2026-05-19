@@ -114,6 +114,7 @@ export function buildCodexForgeBlenderAdapterPreviewPromptPayload(): string {
     "Inspect first.",
     "Use Creative Local Bridge v1 metadata only.",
     "Prepare a Blender scene adapter preview without launching Blender.",
+    "Review typed scene model, object plan, material plan, lighting plan, camera plan, render settings, Python preview, and future executor packet.",
     "Do not render, run commands, write artifact files, call providers, or mutate source files from UI.",
     "Require future guarded executor before any local app execution.",
     "Preserve latest-message authority.",
@@ -160,4 +161,17 @@ export function buildCodexForgeContinuityValidationChecklistPayload(): string {
 
 export function summarizeCodexForgeCopyPayloads(): string {
   return "Copy payloads cover validation checklist, Validation Runner v1 checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, Approved Patch Apply review prompt, Creative Local Bridge handoff, Blender Adapter Preview prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
+}
+
+export function buildCodexForgeBlenderFutureExecutorPacketPayload(): string {
+  return [
+    "Blender future executor packet review",
+    "",
+    "Copy packet metadata only.",
+    "No Blender execution.",
+    "No render execution.",
+    "No file writes.",
+    "Future executor boundary required before any local app action.",
+    "Preserve latest-message authority.",
+  ].join("\n");
 }

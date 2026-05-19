@@ -27,7 +27,7 @@ export function AiRouterCockpit() {
   const tiers = buildDefaultAiSubscriptionTiers();
   const policy = buildAiRoutingPolicy();
   const promptText =
-    "Plan storyboard planning, ComfyUI workflow planning, Blender scene planning, Unreal cinematic planning, and render review with private local context, then escalate only if the review needs stronger reasoning.";
+    "Plan storyboard planning, ComfyUI workflow planning, Blender scene planning, Blender Adapter Preview scene plan drafting, Unreal cinematic planning, and render review with private local context, then use local or cheap models for drafting scene plans and premium only for complex cinematic planning.";
   const task = classifyAiTask(promptText);
   const recommendation = buildAiRouteRecommendation({
     task,
@@ -56,7 +56,8 @@ export function AiRouterCockpit() {
             Register provider, model, and subscription metadata, classify tasks, estimate approximate tokens, then
             recommend a deterministic route with a visible fallback route. No API keys stored and no provider calls.
             Creative planning examples include storyboard planning, ComfyUI workflow planning, Blender scene
-            planning, Unreal cinematic planning, and render review.
+            planning, Blender Adapter Preview scene plan drafting, Unreal cinematic planning, and render review. Use
+            local or cheap routing for draft scene plans and premium only for complex cinematic planning.
           </p>
         </div>
         <Link href="/ai" style={workspaceLink}>Open workspace</Link>

@@ -43,12 +43,13 @@ export function buildCreativeAdapterCatalog(): CreativeAdapterCatalogItem[] {
   return [
     buildCreativeAdapterCatalogItem({
       id: "blender-python-preview",
-      label: "Blender Python Preview",
+      label: "Blender Adapter Preview v1",
       bridgeKind: "blender",
-      capability: "scene script preview",
-      expectedArtifacts: ["prompt", "scene-plan", "blender-file"],
-      sideEffects: ["No Blender execution.", "No file writes."],
+      capability: "scene script preview and future executor packet",
+      expectedArtifacts: ["prompt", "scene-plan", "blender-python-preview", "blender-scene-plan"],
+      sideEffects: ["No Blender execution.", "No render execution.", "No file writes."],
       riskLevel: "high",
+      outputRoute: "/blender",
     }),
     buildCreativeAdapterCatalogItem({
       id: "blender-render-job",

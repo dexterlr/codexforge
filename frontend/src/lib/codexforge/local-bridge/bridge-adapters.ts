@@ -18,6 +18,7 @@ const familyByBridgeId: Record<CodexForgeCapabilityBridgeId, BridgeCapabilityFam
   "web-research": "web research",
   "pc-bridge": "PC bridge",
   "camera-inspection": "camera",
+  "blender-adapter-preview": "Blender",
   "blender-production": "Blender",
   "unreal-production": "Unreal",
   "comfyui-production": "ComfyUI",

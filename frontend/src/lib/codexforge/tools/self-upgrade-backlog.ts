@@ -129,6 +129,34 @@ function buildCandidateForCapability(
         blockedBy: ["Approved web access executor not implemented yet."],
       });
 
+    case "blender-adapter-preview":
+      return candidate({
+        id: "blender-adapter-preview-v1",
+        title: "Blender Adapter Preview v1",
+        capabilityId,
+        priority: "p1",
+        status: "approval-gated",
+        riskLevel: "medium",
+        rationale:
+          "Blender scene planning can become tangible through typed scene models, Python previews, and future executor packets before any local app execution.",
+        nextAction:
+          "Review /blender and keep Blender execution, render execution, and file writes blocked until a future guarded creative executor exists.",
+        deliverables: [
+          "Blender scene input and model.",
+          "Object, material, lighting, camera, and render settings preview.",
+          "Python script preview.",
+          "Future executor packet.",
+        ],
+        validationCommands: [...BASE_VALIDATION_COMMANDS],
+        safetyGates: [
+          "No Blender execution.",
+          "No render execution.",
+          "No file writes.",
+          "Future executor boundary required.",
+        ],
+        blockedBy: ["Future guarded creative executor not implemented yet."],
+      });
+
     case "blender-production":
       return candidate({
         id: "blender-scene-plan-schema-v1",

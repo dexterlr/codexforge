@@ -2,6 +2,8 @@ export type ArtifactType =
   | "patch-plan-markdown"
   | "storyboard-markdown"
   | "blender-script-preview"
+  | "blender-python-preview"
+  | "blender-scene-plan"
   | "comfyui-workflow-json"
   | "unreal-command-preview"
   | "render-queue-manifest"

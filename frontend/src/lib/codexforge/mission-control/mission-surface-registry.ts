@@ -277,6 +277,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Creative Production Studio",
     }),
     buildMissionSurface({
+      id: "blender",
+      label: "Blender Adapter Preview",
+      href: "/blender",
+      status: "preview-ready",
+      role: "Blender Adapter Preview v1 readiness for scene input, typed scene model, object/material/light/camera/render plans, Python script preview, safety policy, and future executor packet.",
+      riskPosture: "preview-only",
+      nextAction: "Review Blender adapter preview.",
+      readiness: "preview-only",
+      relatedPhase: "Phase 62 Blender Adapter Preview v1",
+    }),
+    buildMissionSurface({
       id: "creative-bridge",
       label: "Creative Local Bridge",
       href: "/creative-bridge",
