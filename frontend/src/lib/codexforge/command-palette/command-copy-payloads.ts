@@ -94,6 +94,32 @@ export function buildCodexForgeApprovedPatchApplyReviewPromptPayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeCreativeBridgeHandoffPayload(): string {
+  return [
+    "Creative Local Bridge v1 handoff",
+    "",
+    "Inspect first.",
+    "Preview-only in Phase 61.",
+    "No render execution without future guarded executor.",
+    "No Blender, ComfyUI, Unreal, video render, provider, command, or artifact file execution from UI.",
+    "Review bridge profile, adapter, job request, approval packet, artifact capture plan, and safety policy.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeBlenderAdapterPreviewPromptPayload(): string {
+  return [
+    "Blender Adapter Preview v1 prompt",
+    "",
+    "Inspect first.",
+    "Use Creative Local Bridge v1 metadata only.",
+    "Prepare a Blender scene adapter preview without launching Blender.",
+    "Do not render, run commands, write artifact files, call providers, or mutate source files from UI.",
+    "Require future guarded executor before any local app execution.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
 export function buildCodexForgeStabilizationHandoffPayload(): string {
   return [
     "CodexForge stabilization handoff",
@@ -133,5 +159,5 @@ export function buildCodexForgeContinuityValidationChecklistPayload(): string {
 }
 
 export function summarizeCodexForgeCopyPayloads(): string {
-  return "Copy payloads cover validation checklist, Validation Runner v1 checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, Approved Patch Apply review prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
+  return "Copy payloads cover validation checklist, Validation Runner v1 checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, Approved Patch Apply review prompt, Creative Local Bridge handoff, Blender Adapter Preview prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
 }

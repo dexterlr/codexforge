@@ -30,6 +30,7 @@ export function ArtifactWorkspacePanel({ context }: { context: ArtifactWorkspace
       <div style={links}>
         <a href="/runs" style={link}>Operator Run Center</a>
         <a href="/creative" style={link}>Creative Production Studio</a>
+        <a href="/creative-bridge" style={link}>artifact capture plan placeholders</a>
       </div>
     </section>
   );

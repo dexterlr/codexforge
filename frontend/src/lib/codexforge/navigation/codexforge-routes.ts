@@ -26,6 +26,7 @@ export type CodexForgeRoute = {
     | "ai-router"
     | "capabilities"
     | "creative"
+    | "creative-bridge"
     | "history"
     | "entry"
     | "operator";
@@ -209,6 +210,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Production",
     description: "Creative briefs, production plans, render previews, and artifact flow.",
+  },
+  {
+    id: "creative-bridge",
+    path: "/creative-bridge",
+    label: "Creative Bridge",
+    shortLabel: "Creative Bridge",
+    priority: "secondary",
+    showInGlobalNav: true,
+    group: "Production",
+    description: "Creative Local Bridge profile, adapter readiness, approval packet, and artifact capture plan.",
   },
   {
     id: "history",

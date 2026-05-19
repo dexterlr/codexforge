@@ -12,6 +12,7 @@ export type ProductRoutePath =
   | "/memory"
   | "/memory-inbox"
   | "/creative"
+  | "/creative-bridge"
   | "/capabilities"
   | "/activity"
   | "/readiness"

@@ -371,6 +371,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Bridge consent remains guarded.",
     },
     {
+      id: "review-creative-bridge",
+      label: "Review creative bridge",
+      href: "/creative-bridge",
+      priority: "secondary",
+      readiness: "preview-only",
+      safetyNote: "Creative Local Bridge is preview-only/request-ready; no local render app, command, provider, or artifact file execution is launched from Mission Control.",
+    },
+    {
       id: "open-operator-run-center",
       label: "Open Operator Run Center",
       href: "/runs",

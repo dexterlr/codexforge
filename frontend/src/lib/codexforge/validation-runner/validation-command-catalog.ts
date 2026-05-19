@@ -16,6 +16,7 @@ const DEFAULT_COMMANDS = [
   "powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-codexforge-real-patch-preview.ps1",
   "powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-codexforge-approved-patch-apply.ps1",
   "powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-codexforge-validation-runner.ps1",
+  "powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-codexforge-creative-local-bridge.ps1",
 ] as const;
 
 function normalizeCommand(command: string): string {

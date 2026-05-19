@@ -277,6 +277,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Creative Production Studio",
     }),
     buildMissionSurface({
+      id: "creative-bridge",
+      label: "Creative Local Bridge",
+      href: "/creative-bridge",
+      status: "preview-ready",
+      role: "Creative bridge profiles, adapter readiness, job request preview, approval packet, artifact capture plan, and future executor handoff.",
+      riskPosture: "preview-only",
+      nextAction: "Review creative bridge readiness.",
+      readiness: "preview-only",
+      relatedPhase: "Creative Local Bridge v1",
+    }),
+    buildMissionSurface({
       id: "artifacts",
       label: "Artifacts",
       href: "/artifacts",

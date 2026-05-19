@@ -38,6 +38,7 @@ export function CapabilityCommandCenter({ initialData }: CapabilityCommandCenter
       >
         <a href="/runs" style={runLink}>Open Operator Run Center</a>
         <a href="/bridge" style={runLink}>Open Jarvis Local Bridge</a>
+        <a href="/creative-bridge" style={runLink}>Creative Local Bridge</a>
         <Stat label="Capabilities" value={String(context.summary.capabilityCount)} />
         <Stat label="Available" value={String(availableCount)} />
         <Stat label="Approval gates" value={String(approvalCount)} />
@@ -51,6 +52,7 @@ export function CapabilityCommandCenter({ initialData }: CapabilityCommandCenter
           <span style={statusText}>{context.summary.adapterHealth}</span>
         </div>
         <span style={previewPill}>preview-only</span>
+        <span style={previewPill}>Creative Local Bridge: Blender local bridge, ComfyUI local bridge, Unreal local bridge, Video render bridge, Artifact capture execution blocked in Phase 61</span>
       </section>
 
       <div style={layout}>

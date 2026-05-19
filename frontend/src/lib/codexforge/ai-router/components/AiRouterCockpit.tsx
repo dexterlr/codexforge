@@ -27,7 +27,7 @@ export function AiRouterCockpit() {
   const tiers = buildDefaultAiSubscriptionTiers();
   const policy = buildAiRoutingPolicy();
   const promptText =
-    "Plan a CodexForge chat task with private local context, then escalate only if the review needs stronger reasoning.";
+    "Plan storyboard planning, ComfyUI workflow planning, Blender scene planning, Unreal cinematic planning, and render review with private local context, then escalate only if the review needs stronger reasoning.";
   const task = classifyAiTask(promptText);
   const recommendation = buildAiRouteRecommendation({
     task,
@@ -55,6 +55,8 @@ export function AiRouterCockpit() {
           <p style={lede}>
             Register provider, model, and subscription metadata, classify tasks, estimate approximate tokens, then
             recommend a deterministic route with a visible fallback route. No API keys stored and no provider calls.
+            Creative planning examples include storyboard planning, ComfyUI workflow planning, Blender scene
+            planning, Unreal cinematic planning, and render review.
           </p>
         </div>
         <Link href="/ai" style={workspaceLink}>Open workspace</Link>
