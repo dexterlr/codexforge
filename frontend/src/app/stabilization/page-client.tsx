@@ -9,7 +9,7 @@ type StabilizationPageClientProps = {
 
 export default function StabilizationPageClient({ initialData }: StabilizationPageClientProps) {
   return (
-    <div data-codexforge-stabilization-brain-continuity="Brain Continuity Dashboard readiness: review Brain continuity can be the next safe action; /brain-continuity is read-only.">
+    <div data-codexforge-stabilization-brain-continuity="Brain Continuity Dashboard readiness: review Brain continuity can be the next safe action; /brain-continuity is read-only. Continuity Handoff readiness: create continuity handoff at /handoff; copy-only, no auto-persistence.">
       <StabilizationCommandCenter summary={initialData} />
     </div>
   );

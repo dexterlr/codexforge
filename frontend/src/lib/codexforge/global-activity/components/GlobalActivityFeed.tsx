@@ -64,6 +64,7 @@ export function GlobalActivityFeed({ feed: providedFeed }: { feed?: GlobalActivi
               <Link href="/runtime-replay" style={heroLink}>Runtime Event Replay</Link>
               <Link href="/brain-snapshots" style={heroLink}>Brain Snapshot Manager</Link>
               <Link href="/stabilization" style={heroLink}>Stabilization</Link>
+              <Link href="/handoff" style={heroLink}>Continuity Handoff</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>
           </div>

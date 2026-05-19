@@ -53,6 +53,7 @@ export function StabilizationCommandCenter({ summary: providedSummary }: { summa
               <Link href="/runtime-replay" style={heroLink}>Runtime Event Replay</Link>
               <Link href="/brain-snapshots" style={heroLink}>Brain Snapshot Manager</Link>
               <Link href="/brain-governance" style={heroLink}>Brain Mutation Governance</Link>
+              <Link href="/handoff" style={heroLink}>Continuity Handoff</Link>
               <Link href="/ai" style={heroLink}>Review pipeline</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>

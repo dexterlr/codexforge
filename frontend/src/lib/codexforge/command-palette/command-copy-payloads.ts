@@ -36,6 +36,33 @@ export function buildCodexForgeStabilizationHandoffPayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeContinuityHandoffPromptPayload(): string {
+  return [
+    "CodexForge Continuity Handoff Packet",
+    "",
+    "Review current state, known risks, validation posture, rollback posture, memory posture, Brain continuity posture, runtime event posture, snapshot restore posture, and next safe actions.",
+    "Keep this copy-only and read-only: no graph mutation, no snapshot restore, no appendEvent, no saveBrainGraph from UI, no command execution, no file writes, no auto-promotion, and no auto-persistence.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeContinuityValidationChecklistPayload(): string {
+  return [
+    "Continuity Handoff validation checklist",
+    "",
+    "[ ] npm run build",
+    "[ ] powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-codexforge-continuity-handoff.ps1",
+    "[ ] powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-codexforge-brain-continuity.ps1",
+    "[ ] powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-codexforge-stabilization-command-center.ps1",
+    "[ ] powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-codexforge-global-activity-feed.ps1",
+    "[ ] powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-codexforge-command-palette.ps1",
+    "[ ] npm run smoke:codexforge:server",
+    "[ ] git diff --check",
+    "[ ] git status --short",
+    "[ ] git diff --stat",
+  ].join("\n");
+}
+
 export function summarizeCodexForgeCopyPayloads(): string {
-  return "Copy payloads cover validation checklist, safe patch prompt, and stabilization handoff with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
+  return "Copy payloads cover validation checklist, safe patch prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
 }

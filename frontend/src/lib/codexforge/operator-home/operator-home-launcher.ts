@@ -36,8 +36,8 @@ const GROUP_ORDER: Array<{
   {
     id: "activity-and-handoff",
     label: "Activity and handoff",
-    description: "Activity Feed and operator history for local workflow continuity.",
-    routeHrefs: ["/activity", "/history"],
+    description: "Activity Feed, Continuity Handoff, and operator history for local workflow continuity.",
+    routeHrefs: ["/activity", "/handoff", "/history"],
   },
   {
     id: "creative-production",

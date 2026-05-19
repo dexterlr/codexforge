@@ -44,6 +44,7 @@ export function BrainContinuityDashboard({ session: providedSession }: { session
               <Link href="/brain-snapshots" style={link}>Brain Snapshots</Link>
               <Link href="/snapshot-restore" style={link}>Snapshot Restore Gate</Link>
               <Link href="/brain-governance" style={link}>Brain Governance</Link>
+              <Link href="/handoff" style={link}>Continuity Handoff</Link>
               <button type="button" style={button} onClick={() => copyText("summary", compactSummary)}>Copy continuity summary</button>
               <button type="button" style={button} onClick={() => copyText("handoff", session.handoff)}>Copy continuity handoff</button>
               <span style={pill}>{copied ? `${copied} copied` : "copy-only controls"}</span>

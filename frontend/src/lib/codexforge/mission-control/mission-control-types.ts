@@ -15,6 +15,7 @@ export type MissionSurfaceId =
   | "brain-snapshots"
   | "snapshot-restore"
   | "brain-continuity"
+  | "handoff"
   | "brain-governance"
   | "files"
   | "stabilization"

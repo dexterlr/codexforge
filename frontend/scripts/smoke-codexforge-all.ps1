@@ -102,6 +102,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Brain Snapshot Manager"; File = "smoke-codexforge-brain-snapshot-manager.ps1"; Required = $true },
   @{ Name = "Snapshot Restore Gate"; File = "smoke-codexforge-snapshot-restore-gate.ps1"; Required = $true },
   @{ Name = "Brain Continuity"; File = "smoke-codexforge-brain-continuity.ps1"; Required = $true },
+  @{ Name = "Continuity Handoff"; File = "smoke-codexforge-continuity-handoff.ps1"; Required = $true },
   @{ Name = "Brain Mutation Governance"; File = "smoke-codexforge-brain-mutation-governance.ps1"; Required = $true },
   @{ Name = "Command Palette"; File = "smoke-codexforge-command-palette.ps1"; Required = $true },
   @{ Name = "Regression Triage"; File = "smoke-codexforge-regression-triage.ps1"; Required = $true },

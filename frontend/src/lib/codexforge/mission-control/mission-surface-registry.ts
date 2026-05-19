@@ -156,6 +156,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 52 Brain Continuity Dashboard",
     }),
     buildMissionSurface({
+      id: "handoff",
+      label: "Continuity Handoff Packet",
+      href: "/handoff",
+      status: "review-needed",
+      role: "Read-only Continuity Handoff Packet readiness for current state, risks, validation, rollback posture, memory posture, Brain continuity posture, runtime event posture, snapshot restore posture, commands to run manually, do-not-do rules, and next safe actions.",
+      riskPosture: "readonly",
+      nextAction: "Create continuity handoff.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 53 Continuity Handoff Packet",
+    }),
+    buildMissionSurface({
       id: "brain-governance",
       label: "Brain Mutation Governance",
       href: "/brain-governance",

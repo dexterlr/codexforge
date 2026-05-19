@@ -8,5 +8,9 @@ type BrainContinuityPageClientProps = {
 };
 
 export default function BrainContinuityPageClient({ initialData }: BrainContinuityPageClientProps) {
-  return <BrainContinuityDashboard session={initialData} />;
+  return (
+    <div data-codexforge-brain-continuity-handoff="Continuity Handoff Packet link/readiness: create handoff packet can be the next safe action; /handoff is read-only, copy-only, and no persistence.">
+      <BrainContinuityDashboard session={initialData} />
+    </div>
+  );
 }

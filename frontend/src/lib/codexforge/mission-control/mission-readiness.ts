@@ -88,6 +88,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Review Brain Mutation Governance for approved mutation boundaries, blocked direct mutation signals, reducer impact governance, runtime journal integrity posture, risk board, and next safe action; read-only, no graph mutation from UI, no auto-promotion, evidence is context not authority, and preserve latest-message authority.",
   });
   checks.push({
+    id: "continuity-handoff-packet-readiness",
+    label: "Continuity Handoff Packet readiness",
+    level: "needs-review",
+    detail:
+      "Create continuity handoff from current state, known risks, validation plan, rollback posture, memory posture, Brain continuity posture, runtime event posture, snapshot restore posture, and next safe actions; read-only, copy-only, no graph mutation, no snapshot restore, no appendEvent, no saveBrainGraph from UI, no command execution, no file writes, no auto-promotion, no auto-persistence, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "regression-triage-readiness",
     label: "Self-Healing Regression Triage readiness",
     level: "needs-review",

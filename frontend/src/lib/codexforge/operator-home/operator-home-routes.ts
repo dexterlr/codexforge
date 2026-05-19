@@ -14,6 +14,7 @@ const DEFAULT_ROUTE_AVAILABILITY: OperatorHomeRouteAvailability = {
   "/ai": true,
   "/brain": true,
   "/files": true,
+  "/handoff": true,
   "/stabilization": true,
 };
 
@@ -27,6 +28,7 @@ const ROUTE_ORDER: OperatorHomeRoutePath[] = [
   "/creative",
   "/capabilities",
   "/activity",
+  "/handoff",
   "/stabilization",
   "/history",
 ];
@@ -151,6 +153,18 @@ const ROUTE_DEFINITIONS: Record<OperatorHomeRoutePath, RouteDefinition> = {
     nextAction: "Review Activity Feed before moving from evidence to mutation-capable gates.",
     badge: "Activity",
     requiredReview: false,
+  },
+  "/handoff": {
+    href: "/handoff",
+    label: "Continuity Handoff",
+    description:
+      "Continuity Handoff Packet for current state, risks, validation, rollback posture, memory posture, Brain continuity posture, and next safe actions.",
+    domain: "handoff",
+    readiness: "needs-review",
+    riskPosture: "readonly",
+    nextAction: "Create continuity handoff before continuing the next phase.",
+    badge: "Handoff",
+    requiredReview: true,
   },
   "/stabilization": {
     href: "/stabilization",

@@ -75,6 +75,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Brain Continuity Dashboard readiness covers memory growth, runtime event journal health, snapshot posture, replay readiness, restore risk, governance posture, and next safe action; read-only, no graph mutation, no snapshot restore, no appendEvent, and no saveBrainGraph from UI.",
     },
     {
+      id: "create-continuity-handoff",
+      label: "Create continuity handoff",
+      href: "/handoff",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Continuity Handoff Packet readiness combines current state, risks, validation, rollback, memory, Brain continuity, runtime event, snapshot restore posture, and next safe actions; copy-only, no graph mutation, no command execution, no file writes, and preserve latest-message authority.",
+    },
+    {
       id: "review-memory-inbox",
       label: "Review memory inbox",
       href: "/memory-inbox",

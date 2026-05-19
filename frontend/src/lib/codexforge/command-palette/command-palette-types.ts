@@ -20,6 +20,7 @@ export type CodexForgeCommandGroup =
   | "Verification"
   | "Memory"
   | "Runtime"
+  | "Handoff"
   | "Creative"
   | "Validation"
   | "Safety"

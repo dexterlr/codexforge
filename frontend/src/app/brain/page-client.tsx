@@ -664,6 +664,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
   const brainSnapshotManagerReadiness = "Brain Snapshot Manager is the read-only snapshot summary, comparison, replay source selection, rollback planning, and memory governance review surface; no graph mutation, no appendEvent, no saveBrainGraph from UI, and no snapshot restore in Phase 50.";
   const snapshotRestoreGateReadiness = "Snapshot Restore Gate is the governance-only approval surface for restore candidate review, evidence, policy, approval packet, and request preview; restore blocked by default, no graph mutation, no appendEvent, and no saveBrainGraph from UI.";
   const brainContinuityReadiness = "Brain Continuity Dashboard links Brain health, memory growth, journal health, snapshots, replay, restore risk, governance posture, and next safe action; read-only and no graph mutation.";
+  const continuityHandoffReadiness = "Continuity Handoff Packet links Brain to continuity export with current state, risks, validation, rollback posture, memory posture, and Brain continuity posture; read-only, copy-only, no graph mutation.";
   const brainMutationGovernanceReadiness = "Brain Mutation Governance is the read-only mutation audit surface for approved boundaries, blocked direct mutation signals, reducer impact, integrity posture, and no graph mutation from UI.";
   const regressionTriageReadiness = "Regression Triage waits for review before Brain merge; no graph mutation.";
   const regressionFixQueueReadiness = "Regression Fix Queue waits for review before Brain merge; no graph mutation.";
@@ -714,6 +715,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         data-codexforge-brain-snapshot-manager-notice="Brain Snapshot Manager links Brain to read-only snapshot comparison and replay source selection; no graph mutation, no appendEvent, no saveBrainGraph from UI, no snapshot restore in Phase 50."
         data-codexforge-snapshot-restore-gate-notice="Snapshot Restore Gate links Brain to governance-only restore request preview; restore blocked by default, no graph mutation, no appendEvent, no saveBrainGraph from UI."
         data-codexforge-brain-continuity-dashboard-notice="Brain Continuity Dashboard links Brain to memory growth, runtime event journal health, snapshot posture, replay readiness, restore risk, governance posture, and next safe action; read-only and no graph mutation."
+        data-codexforge-continuity-handoff-notice="Continuity Handoff Packet links Brain to continuity export; no graph mutation, no snapshot restore, no appendEvent, no saveBrainGraph from UI, copy only."
         data-codexforge-brain-mutation-governance-notice="Brain Mutation Governance links Brain to a read-only mutation audit surface; no direct UI graph mutation, no auto-promotion, no graph mutation from UI."
         data-codexforge-brain-overflow-guard
         style={{
@@ -738,6 +740,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         <MiniStat label="Brain Snapshot Manager" value={brainSnapshotManagerReadiness} />
         <MiniStat label="Snapshot Restore Gate" value={snapshotRestoreGateReadiness} />
         <MiniStat label="Brain Continuity Dashboard" value={brainContinuityReadiness} />
+        <MiniStat label="Continuity Handoff" value={continuityHandoffReadiness} />
         <MiniStat label="Brain Mutation Governance" value={brainMutationGovernanceReadiness} />
         <MiniStat label="Regression Triage" value={regressionTriageReadiness} />
         <MiniStat label="Regression Fix Queue" value={regressionFixQueueReadiness} />
@@ -766,6 +769,10 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
 
       <Link href="/brain-continuity" style={buttonStyle()}>
         Review Brain Continuity Dashboard as read-only continuity cockpit
+      </Link>
+
+      <Link href="/handoff" style={buttonStyle()}>
+        Create Continuity Handoff Packet as copy-only continuity export
       </Link>
 
       <Link href="/brain-governance" style={buttonStyle()}>
