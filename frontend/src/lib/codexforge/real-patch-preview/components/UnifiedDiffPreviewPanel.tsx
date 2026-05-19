@@ -16,7 +16,7 @@ export function UnifiedDiffPreviewPanel({ diffPreview }: { diffPreview: UnifiedD
             <span>+{diffPreview.additions}</span>
             <span>-{diffPreview.removals}</span>
           </div>
-          <pre style={pre}>{diffPreview.diffText}</pre>
+          <pre style={pre} data-codexforge-unified-diff-overflow="overflowX auto preview-only no apply no file writes">{diffPreview.diffText}</pre>
           <p style={copy}>{diffPreview.notAppliedGuarantee}</p>
         </>
       ) : (
@@ -30,5 +30,5 @@ const panel: CSSProperties = { border: "1px solid rgba(251,191,36,0.22)", backgr
 const eyebrow: CSSProperties = { color: "#fde68a", fontSize: 11, fontWeight: 900, textTransform: "uppercase" };
 const title: CSSProperties = { color: "#fef3c7", fontSize: 13, lineHeight: 1.35, overflowWrap: "anywhere" };
 const meta: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 6, color: "#fde68a", fontSize: 11, fontWeight: 800 };
-const pre: CSSProperties = { background: "rgba(0,0,0,0.32)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 8, color: "#f8fafc", fontSize: 11, lineHeight: 1.45, margin: 0, maxHeight: 320, overflow: "auto", overflowWrap: "anywhere", padding: 10, whiteSpace: "pre-wrap" };
+const pre: CSSProperties = { background: "rgba(0,0,0,0.32)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 8, color: "#f8fafc", fontSize: 11, lineHeight: 1.45, margin: 0, maxHeight: 320, maxWidth: "100%", minWidth: 0, overflowX: "auto", overflowY: "auto", overflowWrap: "anywhere", wordBreak: "break-word", padding: 10, whiteSpace: "pre-wrap" };
 const copy: CSSProperties = { color: "#fef3c7", fontSize: 12, lineHeight: 1.45, margin: 0, overflowWrap: "anywhere" };

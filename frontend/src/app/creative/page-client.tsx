@@ -1,9 +1,8 @@
 "use client";
 
 import { CreativeProductionStudio } from "@/lib/codexforge/creative/components/CreativeProductionStudio";
-import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import type { CreativeContext } from "@/lib/codexforge/creative";
-import type { CSSProperties } from "react";
 
 type CreativePageClientProps = {
   initialData: CreativeContext;
@@ -11,19 +10,8 @@ type CreativePageClientProps = {
 
 export default function CreativePageClient({ initialData }: CreativePageClientProps) {
   return (
-    <>
-      <div style={navBand}>
-        <CodexForgeGlobalNav compact />
-      </div>
+    <CodexForgeAppShell activePath="/creative" workspaceLabel="Creative Production Studio" nextActionContext={{ hasCreativeWork: true }}>
       <CreativeProductionStudio context={initialData} />
-    </>
+    </CodexForgeAppShell>
   );
 }
-
-const navBand: CSSProperties = {
-  background: "#030712",
-  padding: "18px min(4vw, 44px) 0",
-  minWidth: 0,
-  maxWidth: "100%",
-  overflowX: "clip",
-};

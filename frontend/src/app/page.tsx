@@ -7,9 +7,11 @@ import OperatorHomePageClient from "./page-client";
 const OPERATOR_HOME_ROUTES = [
   "/",
   "/ai",
+  "/ai-router",
   "/brain",
   "/files",
   "/tasks",
+  "/closed-loop",
   "/memory",
   "/creative",
   "/capabilities",
@@ -27,11 +29,16 @@ type HomeSurfaceMapItem = {
 
 const SURFACE_MAP: readonly HomeSurfaceMapItem[] = [
   { path: "/files", label: "Files Command Center" },
+  { path: "/validation", label: "Validation Runner" },
+  { path: "/closed-loop", label: "Closed Loop Fix" },
+  { path: "/ai-router", label: "AI Router" },
   { path: "/runs", label: "Operator Run Center" },
   { path: "/capabilities", label: "Capability Cockpit" },
   { path: "/creative", label: "Creative Production Studio" },
   { path: "/activity", label: "Activity Feed" },
   { path: "/readiness", label: "Product Readiness Audit" },
+  { path: "/consolidation", label: "Consolidation" },
+  { path: "/handoff", label: "Handoff" },
   { path: "/brain", label: "Brain Command Center" },
   { path: "/history", label: "History" },
   { path: "/ai", label: "AI Workspace" },

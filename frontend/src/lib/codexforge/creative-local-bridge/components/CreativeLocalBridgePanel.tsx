@@ -53,7 +53,7 @@ export function CreativeLocalBridgePanel({ model }: { model: CreativeLocalBridge
 
       <section style={summaryStrip}>
         {summarizeCreativeLocalBridgeSession(model.summary).map((line) => (
-          <span key={line}>{line}</span>
+          <span key={`creative-bridge-summary-${line.slice(0, 32)}`}>{line}</span>
         ))}
       </section>
 
@@ -79,17 +79,17 @@ function Status({ label, value }: { label: string; value: string }) {
   return <div style={statusCard}><span>{label}</span><strong>{value}</strong></div>;
 }
 
-const page: CSSProperties = { minHeight: "100vh", color: "#f8fafc", background: "linear-gradient(180deg, #030712 0%, #050814 50%, #020617 100%)", padding: "24px min(4vw, 44px)", display: "grid", gap: 16, fontFamily: "var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" };
+const page: CSSProperties = { minHeight: 0, color: "#f8fafc", background: "transparent", padding: 0, display: "grid", gap: 16, minWidth: 0, maxWidth: "100%", fontFamily: "var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" };
 const hero: CSSProperties = { maxWidth: 1640, width: "100%", margin: "0 auto", border: "1px solid rgba(56,189,248,0.2)", background: "linear-gradient(135deg, rgba(8,13,28,0.98), rgba(15,23,42,0.86))", borderRadius: 8, padding: 20, display: "grid", gridTemplateColumns: "minmax(0, 1.35fr) minmax(min(100%, 420px), 0.65fr)", gap: 18, alignItems: "end" };
 const heroCopy: CSSProperties = { display: "grid", gap: 10, minWidth: 0 };
 const eyebrow: CSSProperties = { color: "#67e8f9", fontSize: 12, fontWeight: 900, textTransform: "uppercase" };
 const headline: CSSProperties = { margin: 0, fontSize: 44, lineHeight: 1.05, letterSpacing: 0 };
 const lede: CSSProperties = { margin: 0, color: "#cbd5e1", fontSize: 15, lineHeight: 1.55, maxWidth: 980 };
 const links: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8 };
-const link: CSSProperties = { border: "1px solid rgba(125,211,252,0.24)", background: "rgba(14,165,233,0.12)", borderRadius: 8, padding: "8px 10px", color: "#e0f2fe", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none" };
+const link: CSSProperties = { border: "1px solid rgba(125,211,252,0.24)", background: "rgba(14,165,233,0.12)", borderRadius: 8, padding: "8px 10px", color: "#e0f2fe", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none", maxWidth: "100%", overflowWrap: "anywhere" };
 const statusGrid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 145px), 1fr))", gap: 8 };
-const statusCard: CSSProperties = { border: "1px solid rgba(148,163,184,0.18)", background: "rgba(2,6,23,0.62)", borderRadius: 8, padding: 12, display: "grid", gap: 6, overflowWrap: "anywhere" };
-const summaryStrip: CSSProperties = { maxWidth: 1640, width: "100%", margin: "0 auto", border: "1px solid rgba(148,163,184,0.16)", background: "rgba(15,23,42,0.66)", borderRadius: 8, padding: 12, display: "flex", flexWrap: "wrap", gap: 10, color: "#cbd5e1", fontSize: 12, fontWeight: 800 };
-const layout: CSSProperties = { maxWidth: 1640, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0, 1.35fr) minmax(min(100%, 430px), 0.65fr)", gap: 16, alignItems: "start" };
+const statusCard: CSSProperties = { border: "1px solid rgba(148,163,184,0.18)", background: "rgba(2,6,23,0.62)", borderRadius: 8, padding: 12, display: "grid", gap: 6, minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere" };
+const summaryStrip: CSSProperties = { maxWidth: 1640, width: "100%", margin: "0 auto", border: "1px solid rgba(148,163,184,0.16)", background: "rgba(15,23,42,0.66)", borderRadius: 8, padding: 12, display: "flex", flexWrap: "wrap", gap: 10, color: "#cbd5e1", fontSize: 12, fontWeight: 800, minWidth: 0, overflowWrap: "anywhere" };
+const layout: CSSProperties = { maxWidth: 1640, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 16, alignItems: "start", minWidth: 0 };
 const mainColumn: CSSProperties = { display: "grid", gap: 16, minWidth: 0 };
 const rail: CSSProperties = { display: "grid", gap: 16, minWidth: 0 };

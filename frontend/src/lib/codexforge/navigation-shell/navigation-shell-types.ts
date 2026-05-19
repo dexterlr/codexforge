@@ -3,9 +3,11 @@ import type { ReactNode } from "react";
 export type CodexForgeNavigationRouteId =
   | "home"
   | "ai"
+  | "ai-router"
   | "brain"
   | "files"
   | "tasks"
+  | "closed-loop"
   | "memory"
   | "memory-inbox"
   | "runtime-journal"
@@ -29,9 +31,11 @@ export type CodexForgeNavigationRouteId =
 export type CodexForgeNavigationRouteHref =
   | "/"
   | "/ai"
+  | "/ai-router"
   | "/brain"
   | "/files"
   | "/tasks"
+  | "/closed-loop"
   | "/memory"
   | "/memory-inbox"
   | "/runtime-journal"
@@ -53,13 +57,14 @@ export type CodexForgeNavigationRouteHref =
   | "/history";
 
 export type CodexForgeNavigationGroup =
-  | "Command"
-  | "Cognition"
-  | "Engineering"
-  | "Stabilization"
-  | "Creative"
+  | "Start"
+  | "Build"
+  | "Fix"
+  | "Brain"
   | "Memory"
-  | "History";
+  | "Creative"
+  | "Audit"
+  | "Advanced";
 
 export type CodexForgeNavigationReadiness =
   | "available"
@@ -77,9 +82,11 @@ export type CodexForgeNavigationSafetyPosture =
 export type CodexForgeCommandDeckRole =
   | "overview"
   | "workspace"
+  | "ai-router"
   | "graph"
   | "file-work"
   | "task-flow"
+  | "closed-loop"
   | "memory-review"
   | "memory-inbox"
   | "runtime-journal"

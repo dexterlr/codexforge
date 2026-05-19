@@ -42,7 +42,7 @@ const topbar: CSSProperties = {
   borderRadius: 8,
   display: "grid",
   gap: 12,
-  gridTemplateColumns: "minmax(0, 1fr) minmax(min(100%, 520px), auto)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
   minWidth: 0,
   padding: 14,
 };
@@ -88,4 +88,3 @@ const pill: CSSProperties = {
   lineHeight: 1.2,
   padding: "5px 7px",
 };
-

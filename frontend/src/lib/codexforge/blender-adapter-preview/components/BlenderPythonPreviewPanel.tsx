@@ -21,7 +21,7 @@ export function BlenderPythonPreviewPanel({ preview }: { preview: BlenderPythonP
         <span>create lights</span>
         <span>configure render settings</span>
       </div>
-      <pre style={code}>{preview.scriptText}</pre>
+      <pre style={code} data-codexforge-blender-python-preview-overflow="overflowX auto safe wrapping no Blender execution no file writes">{preview.scriptText}</pre>
       <ul style={list}>{preview.safetySummary.map((item, index) => <li key={buildBlenderAdapterReactKey("python", item, index)}>{item}</li>)}</ul>
     </section>
   );
@@ -32,5 +32,5 @@ const header: CSSProperties = { display: "flex", justifyContent: "space-between"
 const title: CSSProperties = { margin: 0, fontSize: 20, letterSpacing: 0 };
 const button: CSSProperties = { border: "1px solid rgba(94,234,212,0.32)", background: "rgba(20,184,166,0.16)", color: "#ccfbf1", borderRadius: 8, padding: "8px 10px", fontSize: 12, fontWeight: 900, cursor: "pointer" };
 const badgeRow: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8, color: "#a7f3d0", fontSize: 11, fontWeight: 800, textTransform: "uppercase" };
-const code: CSSProperties = { margin: 0, maxHeight: 420, overflow: "auto", whiteSpace: "pre-wrap", overflowWrap: "anywhere", border: "1px solid rgba(148,163,184,0.18)", background: "#020617", borderRadius: 8, padding: 12, color: "#dbeafe", fontSize: 12, lineHeight: 1.45 };
+const code: CSSProperties = { margin: 0, maxHeight: 420, overflowX: "auto", overflowY: "auto", whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word", maxWidth: "100%", minWidth: 0, border: "1px solid rgba(148,163,184,0.18)", background: "#020617", borderRadius: 8, padding: 12, color: "#dbeafe", fontSize: 12, lineHeight: 1.45 };
 const list: CSSProperties = { margin: 0, paddingLeft: 18, color: "#cbd5e1", lineHeight: 1.5 };

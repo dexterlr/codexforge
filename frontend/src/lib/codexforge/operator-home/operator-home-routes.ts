@@ -12,8 +12,10 @@ import { buildOperatorHomeStableKey } from "./operator-home-types";
 const DEFAULT_ROUTE_AVAILABILITY: OperatorHomeRouteAvailability = {
   "/": true,
   "/ai": true,
+  "/ai-router": true,
   "/brain": true,
   "/files": true,
+  "/closed-loop": true,
   "/readiness": true,
   "/consolidation": true,
   "/handoff": true,
@@ -23,9 +25,11 @@ const DEFAULT_ROUTE_AVAILABILITY: OperatorHomeRouteAvailability = {
 const ROUTE_ORDER: OperatorHomeRoutePath[] = [
   "/",
   "/ai",
+  "/ai-router",
   "/brain",
   "/files",
   "/tasks",
+  "/closed-loop",
   "/memory",
   "/creative",
   "/capabilities",
@@ -74,6 +78,18 @@ const ROUTE_DEFINITIONS: Record<OperatorHomeRoutePath, RouteDefinition> = {
     badge: "Workspace",
     requiredReview: true,
   },
+  "/ai-router": {
+    href: "/ai-router",
+    label: "AI Router",
+    description:
+      "Preview-only model routing cockpit for provider metadata, task classification, and fallback route review.",
+    domain: "ai-router",
+    readiness: "needs-review",
+    riskPosture: "preview-only",
+    nextAction: "Review model route recommendations without storing API keys or calling providers.",
+    badge: "Router",
+    requiredReview: true,
+  },
   "/brain": {
     href: "/brain",
     label: "Brain",
@@ -108,6 +124,18 @@ const ROUTE_DEFINITIONS: Record<OperatorHomeRoutePath, RouteDefinition> = {
     riskPosture: "preview-only",
     nextAction: "Review task suggestions and execution readiness before any run.",
     badge: "Tasks",
+    requiredReview: true,
+  },
+  "/closed-loop": {
+    href: "/closed-loop",
+    label: "Closed Loop Fix",
+    description:
+      "Preview-only regression-to-fix workflow map for triage, patch preview, approval, validation output, and handoff.",
+    domain: "fix",
+    readiness: "needs-review",
+    riskPosture: "approval-required",
+    nextAction: "Review the closed-loop path before patch application or validation execution.",
+    badge: "Fix",
     requiredReview: true,
   },
   "/memory": {

@@ -67,12 +67,12 @@ function Metric({ label, value }: { label: string; value: string }) {
   return <div style={metric}><span>{label}</span><strong>{value}</strong></div>;
 }
 
-const page: CSSProperties = { minHeight: "100vh", background: "#030712", color: "#f8fafc", padding: "28px min(4vw, 44px)", display: "grid", gap: 16, minWidth: 0, overflowX: "clip" };
+const page: CSSProperties = { minHeight: 0, background: "transparent", color: "#f8fafc", padding: 0, display: "grid", gap: 16, minWidth: 0, maxWidth: "100%", overflowX: "clip" };
 const hero: CSSProperties = { display: "grid", gridTemplateColumns: "minmax(0, 1.35fr) minmax(min(100%, 320px), 0.65fr)", gap: 16, alignItems: "end", border: "1px solid rgba(45,212,191,0.22)", background: "linear-gradient(135deg, rgba(8,13,28,0.98), rgba(20,47,60,0.72))", borderRadius: 8, padding: 20, minWidth: 0 };
 const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 12, fontWeight: 900, textTransform: "uppercase" };
 const headline: CSSProperties = { margin: "8px 0", fontSize: "clamp(30px, 5vw, 56px)", lineHeight: 1, letterSpacing: 0, overflowWrap: "anywhere" };
 const lede: CSSProperties = { margin: 0, color: "#cbd5e1", lineHeight: 1.55, maxWidth: 820, overflowWrap: "anywhere" };
-const summaryGrid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 };
-const metric: CSSProperties = { border: "1px solid rgba(125,211,252,0.18)", background: "rgba(2,6,23,0.52)", borderRadius: 8, padding: 10, display: "grid", gap: 4, minWidth: 0 };
-const summaryBand: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 8, color: "#dbeafe", fontSize: 13 };
+const summaryGrid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 130px), 1fr))", gap: 8, minWidth: 0 };
+const metric: CSSProperties = { border: "1px solid rgba(125,211,252,0.18)", background: "rgba(2,6,23,0.52)", borderRadius: 8, padding: 10, display: "grid", gap: 4, minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere" };
+const summaryBand: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 8, color: "#dbeafe", fontSize: 13, minWidth: 0, overflowWrap: "anywhere" };
 const twoColumn: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))", gap: 16, minWidth: 0 };

@@ -66,6 +66,8 @@ const sidebar: CSSProperties = {
   padding: 12,
   position: "sticky",
   top: 12,
+  maxHeight: "calc(100vh - 24px)",
+  overflowY: "auto",
 };
 
 const brand: CSSProperties = {
@@ -163,5 +165,7 @@ const badge: CSSProperties = {
   fontSize: 10,
   fontWeight: 850,
   lineHeight: 1.2,
+  maxWidth: 92,
+  overflowWrap: "anywhere",
+  textAlign: "right",
 };
-

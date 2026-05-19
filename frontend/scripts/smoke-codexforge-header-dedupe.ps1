@@ -139,7 +139,7 @@ Assert-Contains $brain "Export graph" "/brain keeps Export graph action"
 Assert-Contains $brain "Reset graph" "/brain keeps Reset graph action"
 Assert-NotContains $brain "CodexForge Brain" "/brain removed duplicate CodexForge route header"
 
-Assert-Contains $filesPage "CodexForgeGlobalNav" "/files keeps global nav"
+Assert-True (($filesPage.Contains("CodexForgeGlobalNav")) -or ($filesPage.Contains("CodexForgeAppShell"))) "/files keeps global nav or canonical shell"
 Assert-Contains $filesCenter "Files Command Center" "/files keeps Files Command Center identity"
 Assert-Contains $filesCenter "Command search" "/files keeps command search control"
 Assert-NotContains $filesCenter "CodexForge Files" "/files removed duplicate CodexForge files eyebrow"

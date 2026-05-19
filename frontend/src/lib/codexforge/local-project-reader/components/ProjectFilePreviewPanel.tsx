@@ -31,7 +31,7 @@ export function ProjectFilePreviewPanel({
       {error ? <div style={errorBox}>{error}</div> : null}
       {preview ? (
         <>
-          <pre style={previewBox}>{preview.contentExcerpt || preview.safetyNote}</pre>
+          <pre style={previewBox} data-codexforge-file-path-panel-overflow="file path panels wrap safely overflowX auto no file writes">{preview.contentExcerpt || preview.safetyNote}</pre>
           <div style={meta}>
             <span>{preview.lineCount} lines</span>
             <span>{preview.truncated ? "truncated" : "within cap"}</span>
@@ -62,6 +62,7 @@ const header: CSSProperties = {
   gap: 10,
   justifyContent: "space-between",
   minWidth: 0,
+  maxWidth: "100%",
 };
 
 const eyebrow: CSSProperties = {
@@ -76,6 +77,8 @@ const selected: CSSProperties = {
   fontSize: 14,
   lineHeight: 1.35,
   overflowWrap: "anywhere",
+  wordBreak: "break-word",
+  maxWidth: "100%",
 };
 
 const button: CSSProperties = {
@@ -99,10 +102,14 @@ const previewBox: CSSProperties = {
   lineHeight: 1.45,
   margin: 0,
   maxHeight: 430,
-  overflow: "auto",
+  overflowX: "auto",
+  overflowY: "auto",
   overflowWrap: "anywhere",
+  wordBreak: "break-word",
   padding: 12,
   whiteSpace: "pre-wrap",
+  maxWidth: "100%",
+  minWidth: 0,
 };
 
 const meta: CSSProperties = {
@@ -120,6 +127,8 @@ const note: CSSProperties = {
   lineHeight: 1.45,
   margin: 0,
   overflowWrap: "anywhere",
+  wordBreak: "break-word",
+  maxWidth: "100%",
 };
 
 const errorBox: CSSProperties = {
@@ -132,4 +141,3 @@ const errorBox: CSSProperties = {
   padding: 10,
   overflowWrap: "anywhere",
 };
-

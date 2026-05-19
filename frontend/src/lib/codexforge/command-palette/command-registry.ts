@@ -24,9 +24,11 @@ import { isCodexForgeCommandMutationBlocked } from "./command-safety";
 const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/": true,
   "/ai": true,
+  "/ai-router": true,
   "/brain": true,
   "/files": true,
   "/tasks": true,
+  "/closed-loop": true,
   "/memory": true,
   "/memory-inbox": true,
   "/runtime-journal": true,
@@ -111,6 +113,14 @@ export function buildCodexForgeCommands(
       priority: 20,
     }),
     buildRouteCommand(availability, {
+      id: "go-ai-router",
+      label: "Go to AI Router",
+      description: "Navigate to preview-only model routing guidance.",
+      href: "/ai-router",
+      keywords: ["ai", "router", "model routing", "route"],
+      priority: 25,
+    }),
+    buildRouteCommand(availability, {
       id: "go-brain",
       label: "Go to Brain",
       description: "Navigate to Brain graph inspection without mutation.",
@@ -149,6 +159,14 @@ export function buildCodexForgeCommands(
       href: "/tasks",
       keywords: ["tasks", "activation", "route"],
       priority: 50,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-closed-loop",
+      label: "Go to Closed Loop Fix",
+      description: "Navigate to preview-only closed-loop fix workflow guidance.",
+      href: "/closed-loop",
+      keywords: ["closed loop", "fix", "regression", "validation", "route"],
+      priority: 55,
     }),
     buildRouteCommand(availability, {
       id: "go-memory",

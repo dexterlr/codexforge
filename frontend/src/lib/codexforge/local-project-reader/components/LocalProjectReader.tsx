@@ -315,16 +315,15 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 const page: CSSProperties = {
-  background:
-    "linear-gradient(180deg, #020617 0%, #050816 52%, #020617 100%)",
+  background: "transparent",
   color: "#f8fafc",
   display: "grid",
   fontFamily:
     "var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif",
   gap: 14,
-  minHeight: "100vh",
+  minHeight: 0,
   minWidth: 0,
-  padding: "24px min(4vw, 44px)",
+  padding: 0,
 };
 
 const hero: CSSProperties = {

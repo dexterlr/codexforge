@@ -68,10 +68,10 @@ $pagePaths = [ordered]@{
   "home page references global nav or route registry" = ".\src\app\page.tsx"
   "/ai references global nav" = ".\src\app\ai\page.tsx"
   "/brain references global nav" = ".\src\app\brain\page-client.tsx"
-  "/files references global nav" = ".\src\app\files\page-client.tsx"
+  "/files references global nav or canonical shell" = ".\src\app\files\page-client.tsx"
   "/history references global nav" = ".\src\app\history\page.tsx"
-  "/capabilities references global nav" = ".\src\app\capabilities\page-client.tsx"
-  "/creative references global nav" = ".\src\app\creative\page-client.tsx"
+  "/capabilities references global nav or canonical shell" = ".\src\app\capabilities\page-client.tsx"
+  "/creative references global nav or canonical shell" = ".\src\app\creative\page-client.tsx"
   "/entry references global nav" = ".\src\app\entry\page.tsx"
   "/clawd references global nav" = ".\src\app\clawd\page.tsx"
 }
@@ -79,7 +79,7 @@ $pagePaths = [ordered]@{
 foreach ($entry in $pagePaths.GetEnumerator()) {
   Assert-True (Test-Path $entry.Value) "$($entry.Value) exists"
   $source = Get-Content -Raw $entry.Value
-  Assert-True (($source.Contains("CodexForgeGlobalNav")) -or ($source.Contains("CODEXFORGE_ROUTES"))) $entry.Key
+  Assert-True (($source.Contains("CodexForgeGlobalNav")) -or ($source.Contains("CodexForgeAppShell")) -or ($source.Contains("CODEXFORGE_ROUTES"))) $entry.Key
 }
 
 $runsRoutePath = ".\src\app\runs\page-client.tsx"

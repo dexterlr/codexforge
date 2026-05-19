@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-export const vrTextGuard: CSSProperties = { minWidth: 0, overflowWrap: "anywhere" };
+export const vrTextGuard: CSSProperties = { minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere", wordBreak: "break-word" };
 export const vrCard: CSSProperties = {
   border: "1px solid rgba(125,211,252,0.22)",
   background: "rgba(8,13,28,0.78)",
@@ -44,4 +44,7 @@ export const vrInput: CSSProperties = {
   minWidth: 0,
   padding: 9,
   width: "100%",
+  maxWidth: "100%",
+  overflowX: "auto",
+  wordBreak: "break-word",
 };

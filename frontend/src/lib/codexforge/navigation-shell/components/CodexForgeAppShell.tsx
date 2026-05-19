@@ -129,7 +129,7 @@ const shell: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 16,
-  gridTemplateColumns: "minmax(240px, 280px) minmax(0, 1fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
   margin: "0 auto",
   minWidth: 0,
   width: "100%",
@@ -151,7 +151,7 @@ const deck: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 16,
-  gridTemplateColumns: "minmax(0, 1fr) minmax(min(100%, 340px), 0.32fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
   minWidth: 0,
 };
 

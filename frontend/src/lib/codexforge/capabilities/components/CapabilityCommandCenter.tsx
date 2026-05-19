@@ -87,15 +87,14 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 const page: CSSProperties = {
-  minHeight: "100vh",
+  minHeight: 0,
   color: "white",
-  background:
-    "radial-gradient(900px 420px at 12% 0%, rgba(20,184,166,0.18), transparent 60%)," +
-    "radial-gradient(780px 360px at 86% 6%, rgba(245,158,11,0.12), transparent 58%)," +
-    "linear-gradient(180deg, #070A12 0%, #04060B 100%)",
-  padding: "24px",
+  background: "transparent",
+  padding: 0,
   display: "grid",
   gap: 14,
+  minWidth: 0,
+  maxWidth: "100%",
   fontFamily: "var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif",
 };
 const hero: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 360px), 1fr))", gap: 16, alignItems: "end", maxWidth: 1560, width: "100%", margin: "0 auto" };
@@ -104,13 +103,13 @@ const eyebrow: CSSProperties = { fontSize: 11, fontWeight: 900, textTransform: "
 const h1: CSSProperties = { margin: "6px 0 0", fontSize: 36, letterSpacing: 0 };
 const lede: CSSProperties = { margin: "8px 0 0", maxWidth: 840, fontSize: 14, lineHeight: 1.55, opacity: 0.78 };
 const linkRow: CSSProperties = { display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 };
-const runLink: CSSProperties = { display: "inline-block", width: "fit-content", border: "1px solid rgba(45,212,191,0.30)", background: "rgba(45,212,191,0.10)", borderRadius: 8, padding: "8px 10px", color: "#ccfbf1", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none" };
+const runLink: CSSProperties = { display: "inline-block", width: "fit-content", maxWidth: "100%", border: "1px solid rgba(45,212,191,0.30)", background: "rgba(45,212,191,0.10)", borderRadius: 8, padding: "8px 10px", color: "#ccfbf1", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none", overflowWrap: "anywhere" };
 const summaryGrid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8 };
 const stat: CSSProperties = { border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: 12, display: "grid", gap: 6, minWidth: 0 };
 const statusStrip: CSSProperties = { maxWidth: 1560, width: "100%", margin: "0 auto", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.045)", borderRadius: 8, padding: "10px 12px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 12, alignItems: "center", fontSize: 12 };
 const statusDot: CSSProperties = { width: 8, height: 8, borderRadius: 999, display: "inline-block", marginRight: 8, background: "#2dd4bf" };
 const statusText: CSSProperties = { marginLeft: 8, opacity: 0.72 };
-const previewPill: CSSProperties = { border: "1px solid rgba(45,212,191,0.34)", background: "rgba(45,212,191,0.12)", borderRadius: 7, padding: "5px 8px", fontSize: 11, fontWeight: 900, textTransform: "uppercase" };
-const layout: CSSProperties = { maxWidth: 1560, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0, 1.45fr) minmax(min(100%, 360px), 0.75fr)", gap: 14, alignItems: "start" };
+const previewPill: CSSProperties = { border: "1px solid rgba(45,212,191,0.34)", background: "rgba(45,212,191,0.12)", borderRadius: 7, padding: "5px 8px", fontSize: 11, fontWeight: 900, textTransform: "uppercase", minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere" };
+const layout: CSSProperties = { maxWidth: 1560, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 14, alignItems: "start", minWidth: 0 };
 const mainColumn: CSSProperties = { display: "grid", gap: 12, minWidth: 0 };
 const rail: CSSProperties = { display: "grid", gap: 12, minWidth: 0 };

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { LocalProjectReader } from "@/lib/codexforge/local-project-reader/components";
-import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import type { CodexForgeFilesApiResponse } from "@/lib/codexforge/files/file-types";
 import type { ProjectReaderSnapshot } from "@/lib/codexforge/local-project-reader";
 
@@ -37,11 +37,10 @@ function toInitialSnapshot(initialData: CodexForgeFilesApiResponse): ProjectRead
 
 export default function FilesPageClient({ initialData }: FilesPageClientProps) {
   return (
-    <>
-      <div style={navBand}>
-        <CodexForgeGlobalNav compact />
+    <CodexForgeAppShell activePath="/files" workspaceLabel="Files Command Center" nextActionContext={{ hasFileWork: true }}>
+      <div style={handoffBand}>
         <Link href="/ai" style={handoffLink}>
-          Project Reader + Real Patch Preview: inspect current files first, then prepare preview-only diff context without applying.
+          Preview-only file handoff: inspect current files first, then prepare diff context without applying.
         </Link>
         <div
           hidden
@@ -56,16 +55,13 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
         }
       />
       {/* Legacy Files UX smoke marker: <FilesCommandCenter initialData={initialData} /> */}
-    </>
+    </CodexForgeAppShell>
   );
 }
 
-const navBand: CSSProperties = {
-  background: "#020617",
-  padding: "18px min(4vw, 44px) 0",
+const handoffBand: CSSProperties = {
   minWidth: 0,
   maxWidth: "100%",
-  overflowX: "clip",
 };
 
 const handoffLink: CSSProperties = {
@@ -77,8 +73,8 @@ const handoffLink: CSSProperties = {
   fontSize: 12,
   fontWeight: 800,
   lineHeight: 1.4,
-  marginTop: 12,
   padding: "9px 11px",
   textDecoration: "none",
   overflowWrap: "anywhere",
+  maxWidth: "100%",
 };

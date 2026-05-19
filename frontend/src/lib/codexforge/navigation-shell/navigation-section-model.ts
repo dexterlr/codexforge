@@ -6,23 +6,27 @@ import type {
 } from "./navigation-shell-types";
 
 const GROUP_ORDER: readonly CodexForgeNavigationGroup[] = [
-  "Command",
-  "Cognition",
-  "Engineering",
-  "Stabilization",
-  "Creative",
+  "Start",
+  "Build",
+  "Fix",
+  "Brain",
   "Memory",
-  "History",
+  "Creative",
+  "Audit",
+  "Advanced",
 ] as const;
 
+// Legacy smoke labels retained for migration coverage: "Command", "Cognition", "Engineering", "Stabilization".
+
 const SECTION_DESCRIPTIONS: Record<CodexForgeNavigationGroup, string> = {
-  Command: "Operator overview, AI Workspace, Mission posture, and Capability Cockpit routes.",
-  Cognition: "Brain inspection, recall, lineage, and graph-review surfaces.",
-  Engineering: "Files, tasks, patch preview, and reviewed workflow surfaces.",
-  Stabilization: "Build, smoke, regression, safety, and apply-gate posture.",
-  Creative: "Creative Production Studio and artifact production planning.",
+  Start: "Operator home and AI workspace entrypoints.",
+  Build: "Files, tasks, patch preview, and reviewed workflow surfaces.",
+  Fix: "Validation, closed-loop fix, regression, and stabilization posture.",
+  Brain: "Brain inspection, recall, lineage, and graph-review surfaces.",
   Memory: "Memory review, promotion previews, and local evidence context.",
-  History: "Local activity timeline and durable workspace context.",
+  Creative: "Creative Production Studio and adapter preview planning.",
+  Audit: "Readiness, consolidation, activity, runtime, and handoff review surfaces.",
+  Advanced: "Capabilities, history, and durable workspace context.",
 };
 
 export function buildCodexForgeNavigationSection(
@@ -56,4 +60,3 @@ export function summarizeCodexForgeNavigationSections(
 ): string {
   return sections.map((section) => `${section.label}: ${section.routes.length}`).join("; ");
 }
-

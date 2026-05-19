@@ -119,7 +119,7 @@ export function ValidationRunnerPanel({ onCopy }: Props) {
         </div>
       </div>
       <ValidationRunnerSafetyNotice />
-      <section style={summaryStrip}>{summary.summary.map((item) => <span key={item}>{item}</span>)}</section>
+      <section style={summaryStrip}>{summary.summary.map((item, index) => <span key={`validation-summary-${index}-${item.slice(0, 24)}`}>{item}</span>)}</section>
       {!prepared ? <ValidationRunnerEmptyState /> : null}
       <div style={grid}>
         <ValidationCommandCatalogPanel catalog={catalog} selectedIds={selectedIds} onToggle={toggleCommand} onCopy={copyText} />
@@ -135,7 +135,7 @@ export function ValidationRunnerPanel({ onCopy }: Props) {
   );
 }
 
-const panel: CSSProperties = { background: "#020617", color: "#f8fafc", display: "grid", gap: 14, minHeight: "100vh", minWidth: 0, overflowX: "clip", padding: "24px min(4vw, 44px)" };
+const panel: CSSProperties = { background: "transparent", color: "#f8fafc", display: "grid", gap: 14, minHeight: 0, minWidth: 0, maxWidth: "100%", overflowX: "clip", padding: 0 };
 const header: CSSProperties = { alignItems: "start", display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "space-between", minWidth: 0 };
 const eyebrow: CSSProperties = { color: "#7dd3fc", fontSize: 12, fontWeight: 900, textTransform: "uppercase" };
 const title: CSSProperties = { fontSize: 28, lineHeight: 1.1, margin: "4px 0 8px", ...vrTextGuard };

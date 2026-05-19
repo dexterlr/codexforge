@@ -26,7 +26,7 @@ export function detectCodexForgeActiveRoute(
     label: "Operator Home Dashboard",
     shortLabel: "Home",
     description: "Command overview.",
-    group: "Command",
+    group: "Start",
     readiness: "available",
     safetyPosture: "local-first",
     badge: "Command",
@@ -68,4 +68,3 @@ export function buildCodexForgeRouteState(input: {
 export function summarizeCodexForgeRouteState(state: CodexForgeRouteState): string {
   return `${state.workspaceLabel}: ${state.activeRoute.href} in ${state.activeGroup}`;
 }
-
