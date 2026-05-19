@@ -38,6 +38,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/activity": true,
   "/readiness": true,
   "/consolidation": true,
+  "/validation": true,
   "/stabilization": true,
 };
 
@@ -257,6 +258,14 @@ export function buildCodexForgeCommands(
       priority: 88,
     }),
     buildRouteCommand(availability, {
+      id: "go-validation-runner",
+      label: "Go to Validation Runner",
+      description: "Go to /validation for approval-gated Validation Runner v1 request-ready/manual-only review.",
+      href: "/validation",
+      keywords: ["validation runner", "approval", "allowlist", "build", "smoke", "route"],
+      priority: 89,
+    }),
+    buildRouteCommand(availability, {
       id: "go-stabilization",
       label: "Go to Stabilization",
       description: "Navigate to Stabilization Command Center.",
@@ -282,7 +291,7 @@ export function buildCodexForgeCommands(
     }),
     buildCodexForgeCommand({
       id: "copy-build-command",
-      label: "Copy build command",
+      label: "Copy build validation command",
       description: "Copy npm run build.",
       group: "Validation",
       kind: "copy-command",

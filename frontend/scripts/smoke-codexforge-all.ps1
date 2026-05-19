@@ -108,6 +108,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Consolidation Pass"; File = "smoke-codexforge-consolidation-pass.ps1"; Required = $true },
   @{ Name = "Real Patch Preview"; File = "smoke-codexforge-real-patch-preview.ps1"; Required = $true },
   @{ Name = "Approved Patch Apply"; File = "smoke-codexforge-approved-patch-apply.ps1"; Required = $true },
+  @{ Name = "Validation Runner"; File = "smoke-codexforge-validation-runner.ps1"; Required = $true },
   @{ Name = "Brain Mutation Governance"; File = "smoke-codexforge-brain-mutation-governance.ps1"; Required = $true },
   @{ Name = "Command Palette"; File = "smoke-codexforge-command-palette.ps1"; Required = $true },
   @{ Name = "Regression Triage"; File = "smoke-codexforge-regression-triage.ps1"; Required = $true },

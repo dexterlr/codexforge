@@ -15,6 +15,7 @@ export type RegressionSignalType =
 export type RegressionSeverity = "info" | "warning" | "error" | "blocker";
 export type RegressionReviewState = "new" | "needs-review" | "reviewed" | "stale" | "blocked";
 export type RegressionSignalSourceKind =
+  | "validation-runner"
   | "verification-ingestion"
   | "post-apply-verification"
   | "browser-warning"
@@ -309,6 +310,7 @@ export const REGRESSION_REVIEW_STATES: readonly RegressionReviewState[] = [
 ];
 
 export const REGRESSION_SOURCE_KINDS: readonly RegressionSignalSourceKind[] = [
+  "validation-runner",
   "verification-ingestion",
   "post-apply-verification",
   "browser-warning",

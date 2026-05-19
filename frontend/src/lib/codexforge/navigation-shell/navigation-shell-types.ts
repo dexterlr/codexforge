@@ -20,6 +20,7 @@ export type CodexForgeNavigationRouteId =
   | "activity"
   | "readiness"
   | "consolidation"
+  | "validation"
   | "stabilization"
   | "history";
 
@@ -43,6 +44,7 @@ export type CodexForgeNavigationRouteHref =
   | "/activity"
   | "/readiness"
   | "/consolidation"
+  | "/validation"
   | "/stabilization"
   | "/history";
 
@@ -88,6 +90,7 @@ export type CodexForgeCommandDeckRole =
   | "activity-feed"
   | "readiness-audit"
   | "consolidation-pass"
+  | "validation-runner"
   | "stabilization"
   | "timeline";
 

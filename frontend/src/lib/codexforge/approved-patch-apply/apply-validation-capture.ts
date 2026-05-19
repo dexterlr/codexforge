@@ -101,5 +101,6 @@ export function summarizeApprovedPatchApplyValidationCapture(
       ? "Manual validation result text has been captured as operator-supplied context."
       : "Manual validation result text is empty until supplied by the operator.",
     "Validation includes npm run build, targeted smoke, npm run smoke:codexforge:server, git diff --check, git status --short, and git diff --stat.",
+    "Validation Runner can prepare these selected validation commands at /validation without direct command execution from apply UI.",
   ];
 }

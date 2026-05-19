@@ -27,6 +27,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Approved Patch Apply readiness converts preview diff into approval packet, preflight, dry-run preview, rollback, validation checklist, and request-ready/blocked bridge state; no command execution, no direct apply-diff from UI, no file writes without approval, and Phase 59 Validation Runner v1 is next.",
     },
     {
+      id: "run-approved-validation",
+      label: "Run approved validation",
+      href: "/validation",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Validation Runner readiness is approval-gated/request-ready/manual-only: copy allowlisted commands or use guarded bridge only after approval, policy, and preflight; no arbitrary shell, no file writes, no Brain graph mutation, and preserve latest-message authority.",
+    },
+    {
       id: "review-stabilization-command-center",
       label: "Review stabilization command center",
       href: "/stabilization",

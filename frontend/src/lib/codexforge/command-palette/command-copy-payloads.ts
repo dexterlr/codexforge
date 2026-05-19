@@ -9,6 +9,7 @@ export function buildCodexForgeValidationChecklistPayload(): string {
     "5. Run: git diff --check",
     "6. Run: git status --short",
     "7. Confirm no file writes without approval and no command execution without approval.",
+    "8. Validation Runner v1 route: /validation; approval-gated, allowlisted, request-ready/manual-only.",
   ].join("\n");
 }
 
@@ -132,5 +133,5 @@ export function buildCodexForgeContinuityValidationChecklistPayload(): string {
 }
 
 export function summarizeCodexForgeCopyPayloads(): string {
-  return "Copy payloads cover validation checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, Approved Patch Apply review prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
+  return "Copy payloads cover validation checklist, Validation Runner v1 checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, Approved Patch Apply review prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
 }

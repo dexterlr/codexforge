@@ -70,6 +70,11 @@ export function buildStabilizationReadiness(input: StabilizationCommandCenterInp
       detail: "Review Approved Patch Apply v1 request-ready state for approval packet, policy, preflight, dry-run preview, rollback, validation commands, and guarded bridge status; review apply request / run validation manually.",
     }),
     buildStabilizationReadinessCheck({
+      label: "Validation Runner readiness",
+      status: "needs-review",
+      detail: "Review Validation Runner readiness at /validation for approval-gated/request-ready commands, allowlist policy, preflight, output capture, and result routing; next action can mention run approved validation without direct UI command execution.",
+    }),
+    buildStabilizationReadinessCheck({
       label: "rollback plan visible",
       status: statusFromSummary(input.rollbackSummary ?? input.postApplyVerificationSummary),
       detail: "Rollback plan must be visible before any future guarded apply.",

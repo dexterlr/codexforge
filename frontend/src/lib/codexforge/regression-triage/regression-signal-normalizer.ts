@@ -148,6 +148,7 @@ function collectRawSignals(input: RegressionSignalNormalizerInput | readonly Reg
 
   const raw: RegressionRawSignal[] = [];
   raw.push(...(input.verificationSignals ?? []).map((signal) => ({ ...signal, sourceKind: signal.sourceKind ?? "verification-ingestion" })));
+  // Validation Runner output capture handoff is accepted when supplied as reviewed verificationSignals; no auto-ingestion.
   if (input.postApplyResult) raw.push(...rawPostApplySignals(input.postApplyResult));
   raw.push(
     ...(input.browserWarnings ?? []).map((warning, index) =>

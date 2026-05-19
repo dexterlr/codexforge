@@ -185,6 +185,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
     detail:
       "Review Approved Patch Apply v1 in /files for apply request, approval packet, policy, preflight, dry-run preview, rollback plan, validation capture, and request-ready/blocked bridge state; no command execution, no direct apply-diff from UI, no file writes without approval, preserve latest-message authority, and recommend Phase 59 Validation Runner v1.",
   });
+  checks.push({
+    id: "validation-runner-readiness",
+    label: "Validation Runner readiness",
+    level: "needs-review",
+    detail:
+      "Review Validation Runner v1 at /validation for allowlisted command catalog, explicit approval, policy, preflight, guarded bridge request-ready/manual-only status, output capture, and result router; no arbitrary shell, no command execution without approval, no file writes, no Brain graph mutation, and run approved validation only through the guarded boundary if one exists.",
+  });
   const score = scoreMissionReadiness(checks.map((check) => check.level));
 
   return {

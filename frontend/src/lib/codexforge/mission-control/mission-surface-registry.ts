@@ -222,6 +222,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 58 Approved Patch Apply v1",
     }),
     buildMissionSurface({
+      id: "validation-runner",
+      label: "Validation Runner",
+      href: "/validation",
+      status: "approval-gated",
+      role: "Validation Runner readiness for allowlisted build, smoke, and git-check commands with explicit approval, policy checks, preflight, guarded bridge request-ready/manual-only status, output capture, and result routing.",
+      riskPosture: "approval-required",
+      nextAction: "Run approved validation.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 59 Validation Runner v1",
+    }),
+    buildMissionSurface({
       id: "capabilities",
       label: "Capabilities",
       href: "/capabilities",

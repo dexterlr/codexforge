@@ -30,6 +30,7 @@ export type MissionSurfaceId =
   | "production"
   | "patch-preview"
   | "approved-patch-apply"
+  | "validation-runner"
   | "tasks"
   | "chat";
 
@@ -100,6 +101,7 @@ export type MissionHealthDimensionId =
   | "apply-diff-dry-run"
   | "apply-diff-execution-gate"
   | "approved-patch-apply"
+  | "validation-runner"
   | "stabilization-command-center"
   | "global-activity-feed"
   | "production-pack"
