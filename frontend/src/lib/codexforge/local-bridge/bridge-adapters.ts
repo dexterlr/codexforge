@@ -14,6 +14,7 @@ import type {
 
 const familyByBridgeId: Record<CodexForgeCapabilityBridgeId, BridgeCapabilityFamily> = {
   "self-inspection": "self-inspection",
+  "ai-router": "AI router",
   "web-research": "web research",
   "pc-bridge": "PC bridge",
   "camera-inspection": "camera",
@@ -85,6 +86,7 @@ export function buildBridgeAdapterMatrix(): BridgeAdapterMatrix {
 export function groupBridgeAdapters(items: BridgeAdapterMatrixItem[]): BridgeAdapterGroup[] {
   const families: BridgeCapabilityFamily[] = [
     "self-inspection",
+    "AI router",
     "web research",
     "render-job",
     "Blender",

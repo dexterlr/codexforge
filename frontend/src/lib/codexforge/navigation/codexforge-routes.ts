@@ -23,6 +23,7 @@ export type CodexForgeRoute = {
     | "snapshot-restore"
     | "files"
     | "runs"
+    | "ai-router"
     | "capabilities"
     | "creative"
     | "history"
@@ -178,6 +179,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Execution",
     description: "Operator run queues, replay packets, approval gates, and artifacts.",
+  },
+  {
+    id: "ai-router",
+    path: "/ai-router",
+    label: "AI Router",
+    shortLabel: "Router",
+    priority: "secondary",
+    showInGlobalNav: true,
+    group: "Execution",
+    description: "Local deterministic AI subscription router, token budget, model catalog, and fallback route cockpit.",
   },
   {
     id: "capabilities",

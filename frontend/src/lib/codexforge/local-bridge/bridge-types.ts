@@ -25,6 +25,7 @@ export type BridgeOperatorPresence = {
 
 export type BridgeCapabilityFamily =
   | "self-inspection"
+  | "AI router"
   | "web research"
   | "render-job"
   | "Blender"

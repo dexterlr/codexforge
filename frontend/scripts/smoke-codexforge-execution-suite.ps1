@@ -8,6 +8,7 @@ $scriptRoot = $PSScriptRoot
 
 Invoke-CodexForgeSmokeGroup -GroupName "Execution Suite" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Scripts @(
   @{ Name = "Operator Run Center"; File = "smoke-codexforge-operator-run-center.ps1"; Required = $true },
+  @{ Name = "AI Router"; File = "smoke-codexforge-ai-router.ps1"; Required = $true },
   @{ Name = "Execution Readiness"; File = "smoke-codexforge-execution-readiness.ps1"; Required = $true },
   @{ Name = "Step Runner Preview"; File = "smoke-codexforge-step-runner-preview.ps1"; Required = $true },
   @{ Name = "Read-Only Step Execution"; File = "smoke-codexforge-read-only-step-execution.ps1"; Required = $true },

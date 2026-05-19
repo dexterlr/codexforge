@@ -7,6 +7,8 @@ export function buildMissionSafetyBoundary(): MissionSafetyBoundary {
     "No broker execution; broker execution blocked.",
     "No command execution from dashboard.",
     "No source mutation from dashboard.",
+    "No AI provider secrets stored in browser or mission surfaces.",
+    "AI route recommendations are deterministic metadata and do not execute external providers.",
     "All real execution routes through future guarded approval.",
   ];
 

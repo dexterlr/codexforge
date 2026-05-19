@@ -85,12 +85,39 @@ function normalizeStatus(
   return undefined;
 }
 
+function stableHash(value: unknown): string {
+  const input = JSON.stringify(value);
+  let hash = 2166136261;
+
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+export function createCodexForgeActivityEntryId(raw: unknown, index = 0): string {
+  if (!isRecord(raw)) return `activity:${stableHash(["invalid", index])}`;
+
+  const existingId = asTrimmedString(raw.id);
+  if (existingId) return existingId;
+
+  return `activity:${stableHash([
+    asTrimmedString(raw.id),
+    asTrimmedString(raw.date),
+    asTrimmedString(raw.title),
+    normalizeCategory(raw.category),
+    normalizeStatus(raw.status),
+    asTrimmedString(raw.summary),
+    asTrimmedString(raw.notes),
+    normalizeTags(raw.tags),
+    index,
+  ])}`;
+}
+
 function normalizeEntry(raw: unknown, index = 0): CodexForgeActivityEntry | null {
   if (!isRecord(raw)) return null;
-
-  const id =
-    asTrimmedString(raw.id) ??
-    `${Date.now()}-${index}-${Math.random().toString(16).slice(2)}`;
 
   const date = asTrimmedString(raw.date);
   if (!date) return null;
@@ -98,7 +125,7 @@ function normalizeEntry(raw: unknown, index = 0): CodexForgeActivityEntry | null
   const title = asTrimmedString(raw.title) ?? "Workspace entry";
 
   return {
-    id,
+    id: createCodexForgeActivityEntryId(raw, index),
     date,
     title,
     summary: asTrimmedString(raw.summary),

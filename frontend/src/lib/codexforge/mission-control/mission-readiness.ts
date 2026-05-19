@@ -32,6 +32,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
     detail: dimension.detail,
   }));
   checks.push({
+    id: "ai-router-readiness",
+    label: "AI Router readiness",
+    level: "needs-review",
+    detail:
+      "AI Router readiness is deterministic/control-plane only: provider profiles, model catalog, subscription tiers, task classification, approximate token budget, fallback route, and usage ledger preview; no secrets stored, no provider API calls, no billing integration, and no external execution.",
+  });
+  checks.push({
     id: "real-local-project-reader-readiness",
     label: "Real Local Project Reader readiness",
     level: "ready",

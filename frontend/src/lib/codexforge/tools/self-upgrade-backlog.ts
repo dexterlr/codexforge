@@ -48,6 +48,33 @@ function buildCandidateForCapability(
   capabilityId: CodexForgeCapabilityBridgeId
 ): CodexForgeSelfUpgradeCandidate {
   switch (capabilityId) {
+    case "ai-router":
+      return candidate({
+        id: "ai-router-provider-configuration-v1",
+        title: "AI Router provider configuration v1",
+        capabilityId,
+        priority: "p1",
+        status: "planned",
+        riskLevel: "low",
+        rationale:
+          "CodexForge can now model provider profiles, subscriptions, token budgets, and deterministic route recommendations before any provider execution.",
+        nextAction:
+          "Add reviewed provider configuration UX and keep secrets in server-side env configuration only.",
+        deliverables: [
+          "Provider profile configuration review.",
+          "Subscription metadata editor.",
+          "Route recommendation smoke coverage.",
+          "No-secret storage verification.",
+        ],
+        validationCommands: [...BASE_VALIDATION_COMMANDS],
+        safetyGates: [
+          "No API keys in browser storage.",
+          "No provider API calls from deterministic routing.",
+          "Blocked when no usable provider profile is configured.",
+        ],
+        blockedBy: ["Server-side provider adapter configuration not implemented yet."],
+      });
+
     case "self-inspection":
       return candidate({
         id: "self-upgrade-console-v1",

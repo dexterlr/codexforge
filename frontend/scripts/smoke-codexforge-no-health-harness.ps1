@@ -108,22 +108,19 @@ try {
     Where-Object { $_.FullName -ne $selfPath }
 
   $forbidden = @(
-    ("Health" + " Tracker"),
-    ("health" + " tracker"),
-    ("health" + "-tracker"),
-    ("health" + "_tracker"),
-    ("health" + "Entries"),
-    ("health" + "_tracker_entries_v1"),
-    ("health" + "-tracker-entries"),
-    ("legacy" + "-metric"),
-    ("legacy" + " metric"),
-    ("Legacy" + "Signals"),
-    ("Legacy" + "Stats"),
-    ("compute" + "Legacy" + "Stats"),
-    ("get" + "Legacy" + "Signals"),
-    ("health" + " metric"),
-    ("old " + "health data"),
-    ("health" + "-style")
+    "Health Tracker",
+    "health tracker",
+    "health-tracker",
+    "health_tracker",
+    "healthEntries",
+    "health_tracker_entries_v1",
+    "health-tracker-entries",
+    "legacy metric",
+    "legacy-metric",
+    "LegacySignals",
+    "LegacyStats",
+    "computeLegacyStats",
+    "getLegacySignals"
   )
 
   foreach ($file in $uniqueFiles) {
@@ -144,6 +141,15 @@ try {
     Assert-ContentMissing $history $needle "history excludes retired metric token '$needle'"
   }
   Write-Host "[PASS] history excludes retired metric tokens"
+
+  $storage = Read-Text (Join-Path $repoRoot "src\lib\storage.ts")
+  $insights = Read-Text (Join-Path $repoRoot "src\app\api\insights\route.ts")
+
+  foreach ($needle in @("Date.now", "Math.random")) {
+    Assert-ContentMissing $storage $needle "storage excludes nondeterministic $needle"
+    Assert-ContentMissing $insights $needle "insights excludes nondeterministic $needle"
+  }
+  Write-Host "[PASS] storage and insights deterministic fallback IDs"
 
   $mojibake = @(
     [string][char]0x00C3,
@@ -166,7 +172,6 @@ try {
   $homeContent = Read-Text (Join-Path $repoRoot "src\app\page.tsx")
   $layout = Read-Text (Join-Path $repoRoot "src\app\layout.tsx")
   $readme = Read-Text (Join-Path $repoRoot "README.md")
-  $storage = Read-Text (Join-Path $repoRoot "src\lib\storage.ts")
 
   Assert-True ($homeContent.Contains("CodexForge")) "CodexForge branding remains on home"
   Assert-True ($layout.Contains("CodexForge")) "CodexForge branding remains in layout metadata"

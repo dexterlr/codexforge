@@ -126,8 +126,32 @@ function formatCategoryLabel(category: ActivityCategory) {
   return "Note";
 }
 
-function makeStableId(idx: number) {
-  return `generated-${Date.now()}-${idx}-${Math.random().toString(16).slice(2)}`;
+function stableHash(value: unknown): string {
+  const input = JSON.stringify(value);
+  let hash = 2166136261;
+
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+function makeStableId(
+  idx: number,
+  entry: Omit<CodexForgeActivityEntry, "id">
+) {
+  return `insight-entry:${stableHash([
+    idx,
+    entry.date,
+    entry.title,
+    entry.category,
+    entry.status,
+    entry.tags,
+    entry.summary,
+    entry.notes,
+  ])}`;
 }
 
 function safeTrim(s: string, max: number) {
@@ -168,20 +192,34 @@ function normalizeEntry(raw: unknown, idx: number): CodexForgeActivityEntry {
     throw new Error(`Entry #${idx + 1} is missing a valid date (YYYY-MM-DD).`);
   }
 
+  const title = parseOptionalString(raw.title) ?? "Workspace entry";
+  const summary = parseOptionalString(raw.summary);
+  const category = normalizeCategory(raw.category);
+  const status = normalizeStatus(raw.status);
+  const tags = parseOptionalStringArray(raw.tags);
+  const notes = parseOptionalString(raw.notes);
   const id =
     typeof raw.id === "string" && raw.id.trim()
       ? raw.id.trim()
-      : makeStableId(idx);
+      : makeStableId(idx, {
+          date,
+          title,
+          summary,
+          category,
+          status,
+          tags,
+          notes,
+        });
 
   return {
     id,
     date,
-    title: parseOptionalString(raw.title) ?? "Workspace entry",
-    summary: parseOptionalString(raw.summary),
-    category: normalizeCategory(raw.category),
-    status: normalizeStatus(raw.status),
-    tags: parseOptionalStringArray(raw.tags),
-    notes: parseOptionalString(raw.notes),
+    title,
+    summary,
+    category,
+    status,
+    tags,
+    notes,
   };
 }
 

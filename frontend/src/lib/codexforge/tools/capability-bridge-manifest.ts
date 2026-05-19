@@ -6,6 +6,7 @@ import {
 
 export type CodexForgeCapabilityBridgeId =
   | "self-inspection"
+  | "ai-router"
   | "web-research"
   | "pc-bridge"
   | "camera-inspection"
@@ -61,6 +62,27 @@ export const CODEXFORGE_CAPABILITY_BRIDGE_MANIFEST_VERSION =
   "2026-05-08.capability-bridge.v1";
 
 export const codexForgeCapabilityBridgeManifest = [
+  {
+    id: "ai-router",
+    label: "AI Router",
+    summary:
+      "Route AI tasks across local models, subscription profiles, and provider metadata with deterministic token efficiency and fallback recommendations.",
+    status: "planned",
+    consent: "none",
+    riskLevel: "low",
+    adapterToolNames: [],
+    allowedSideEffects: ["none"],
+    operatorMode: "self-audit",
+    safetyInvariants: [
+      "Model routing does not execute external tools by itself.",
+      "No provider API keys are stored in browser storage.",
+      "Blocked when no usable provider profile is configured.",
+    ],
+    nextMilestones: [
+      "Configure local model and subscription profiles.",
+      "Connect approved server-side provider adapters after policy review.",
+    ],
+  },
   {
     id: "self-inspection",
     label: "Self inspection",
@@ -320,6 +342,7 @@ export function buildCodexForgeCapabilityBridgeSummary() {
 
 export const CODEXFORGE_GOD_TIER_FEATURE_SEQUENCE = [
   "self-inspection",
+  "ai-router",
   "web-research",
   "blender-production",
   "comfyui-production",

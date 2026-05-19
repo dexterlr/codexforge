@@ -103,6 +103,12 @@ export const SURFACE_LINKS: readonly SurfaceLink[] = [
       "Track operator run queues, approvals, safety gates, and execution state.",
   },
   {
+    href: "/ai-router",
+    label: "AI Router",
+    detail:
+      "Review deterministic local-first route recommendation, subscription efficiency, token budget, and fallback model posture.",
+  },
+  {
     href: "/capabilities",
     label: "Capabilities",
     detail:

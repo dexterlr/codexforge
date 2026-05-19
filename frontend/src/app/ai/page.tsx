@@ -74,6 +74,7 @@ import { PreviewDiffComposerPanel } from "@/lib/codexforge/preview-diff-composer
 import { ApplyDiffDryRunPanel } from "@/lib/codexforge/apply-diff-dry-run/components";
 import { ApplyDiffExecutionGatePanel } from "@/lib/codexforge/apply-diff-execution-gate/components";
 import { ApplyEvidencePackPanel } from "@/lib/codexforge/apply-evidence-pack/components";
+import { buildAiRouterSummary } from "@/lib/codexforge/ai-router";
 
 /* ---------------- page ---------------- */
 
@@ -431,6 +432,11 @@ export default function AiPage() {
     return buildTaskActivationHandoff({ request, policy, plan });
   }, []);
 
+  const aiRouterSummary = useMemo(
+    () => buildAiRouterSummary("Generic CodexForge chat request: use local/cheap first, escalate when needed."),
+    []
+  );
+
   const handleCopyReviewedTaskActivationPrompt = useCallback(() => {
     const prompt = reviewedTaskActivationHandoff?.prompt;
     if (!prompt) return;
@@ -591,6 +597,22 @@ export default function AiPage() {
                 onClearDraft={handleClearDraft}
                 onSend={handleSend}
               />
+              <section
+                style={aiRouterPanel}
+                data-codexforge-ai-router="AI Router route recommendation local-first subscription-efficient fallback route"
+              >
+                <div style={{ minWidth: 0 }}>
+                  <span style={aiRouterEyebrow}>AI Router</span>
+                  <h2 style={aiRouterTitle}>Use local/cheap first, escalate when needed</h2>
+                  <p style={aiRouterBody}>
+                    Current recommended route for generic chat: {aiRouterSummary.recommendation.model?.label ?? "manual review"} via {aiRouterSummary.recommendation.provider?.label ?? "blocked"}.
+                    Token estimates are approximate, no API keys are stored, and fallback route remains visible before execution.
+                  </p>
+                </div>
+                <Link href="/ai-router" style={aiRouterLink}>
+                  Open router
+                </Link>
+              </section>
               <ChatRecallContextPanel
                 selection={visibleChatRecallContext.selection}
                 context={visibleChatRecallContext.context}
@@ -879,4 +901,45 @@ const reviewedActivationLink: CSSProperties = {
   textDecoration: "none",
   fontSize: 12,
   fontWeight: 850,
+};
+const aiRouterPanel: CSSProperties = {
+  border: "1px solid rgba(45,212,191,0.2)",
+  background: "rgba(20,184,166,0.08)",
+  borderRadius: 8,
+  padding: 14,
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 12,
+  alignItems: "flex-start",
+  flexWrap: "wrap",
+  minWidth: 0,
+};
+const aiRouterEyebrow: CSSProperties = {
+  fontSize: 11,
+  textTransform: "uppercase",
+  color: "#5eead4",
+  fontWeight: 900,
+};
+const aiRouterTitle: CSSProperties = {
+  margin: "4px 0",
+  fontSize: 18,
+  letterSpacing: 0,
+  overflowWrap: "anywhere",
+};
+const aiRouterBody: CSSProperties = {
+  margin: 0,
+  fontSize: 12,
+  lineHeight: 1.5,
+  opacity: 0.78,
+  overflowWrap: "anywhere",
+};
+const aiRouterLink: CSSProperties = {
+  color: "#021014",
+  border: "1px solid rgba(94,234,212,0.42)",
+  background: "#5eead4",
+  borderRadius: 8,
+  padding: "9px 11px",
+  fontSize: 12,
+  fontWeight: 900,
+  textDecoration: "none",
 };

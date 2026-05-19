@@ -3,6 +3,14 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "configure-ai-router",
+      label: "Configure AI subscriptions/local models",
+      href: "/ai-router",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "AI Router stores metadata only: no secrets stored, route recommendations are deterministic, token estimates are approximate, and provider execution remains outside this control plane.",
+    },
+    {
       id: "inspect-project-files",
       label: "Inspect project files",
       href: "/files",

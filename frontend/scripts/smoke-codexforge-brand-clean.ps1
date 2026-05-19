@@ -70,6 +70,7 @@ Assert-FileExists "src\app\brain\page-client.tsx"
 Assert-FileExists "src\lib\codexforge\brain\components\brain-graph-view.tsx"
 Assert-FileExists "src\lib\storage.ts"
 Assert-FileExists "src\app\history\page.tsx"
+Assert-FileExists "scripts\smoke-codexforge-no-health-harness.ps1"
 
 $brainPage = Get-Content -Raw "src\app\brain\page-client.tsx"
 $chatHook = Get-Content -Raw "src\lib\codexforge\chat\use-codexforge-chat.ts"
@@ -111,5 +112,10 @@ foreach ($needle in $hardForbidden) {
   Assert-NotContains $history $needle "history excludes retired harness marker"
   Assert-NotContains $insights $needle "insights excludes retired harness marker"
 }
+
+Assert-NotContains $storage "Date.now" "storage excludes nondeterministic Date.now fallback"
+Assert-NotContains $storage "Math.random" "storage excludes nondeterministic Math.random fallback"
+Assert-NotContains $insights "Date.now" "insights excludes nondeterministic Date.now fallback"
+Assert-NotContains $insights "Math.random" "insights excludes nondeterministic Math.random fallback"
 
 Write-Host "[OK] CodexForge brand cleanup smoke passed."

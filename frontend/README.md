@@ -9,6 +9,7 @@ For the full product overview, see `../README.md`.
 CodexForge currently includes:
 
 - Brain runtime, cognitive memory, deterministic Brain memory ingestion, Brain memory recall, and chat recall context.
+- AI Subscription Router for local/API/provider profiles, model catalog metadata, subscription tiers, deterministic task classification, approximate token budgets, route recommendations, fallback route visibility, and usage ledger preview.
 - Real 3D Brain graph powered by Three.js, React Three Fiber, and Drei, with a fallback-safe 2D graph view.
 - Approved memory persistence, memory review and promotion queue, approved Brain graph merge, and evidence memory review.
 - Task Memory Autopilot, reviewed task activation, Execution Readiness, Approved Step Runner Preview, and approved read-only step execution.
@@ -22,6 +23,7 @@ CodexForge currently includes:
 
 - `/`: product launcher.
 - `/ai`: main chat/workspace surface.
+- `/ai-router`: AI Subscription Router cockpit for local-first, subscription-efficient model routing metadata.
 - `/brain`: Brain command center with real 3D graph and 2D fallback.
 - `/files`: Files Command Center and File to Brain to Chat workflow.
 - `/runs`: Operator Run Center.
@@ -41,9 +43,17 @@ The real 3D Brain graph uses `three`, `@react-three/fiber`, and `@react-three/dr
 
 ## Architecture
 
-Key frontend domains live under `src/lib/codexforge/`: `brain`, `memory-review`, `memory-persistence`, `evidence-memory`, `evidence-grounded-chat`, `files`, `patch-preview`, `patch-preview-queue`, `preview-diff-composer`, `patch-application-gate`, `apply-evidence-pack`, `task-autopilot`, `task-activation`, `execution-readiness`, `operator-run`, `capabilities`, `local-bridge`, `creative`, `artifact-executor`, `artifact-workspace`, `artifact-export-flow`, `artifact-ingestion`, `production-pack`, `mission-control`, and `navigation`.
+Key frontend domains live under `src/lib/codexforge/`: `brain`, `ai-router`, `memory-review`, `memory-persistence`, `evidence-memory`, `evidence-grounded-chat`, `files`, `patch-preview`, `patch-preview-queue`, `preview-diff-composer`, `patch-application-gate`, `apply-evidence-pack`, `task-autopilot`, `task-activation`, `execution-readiness`, `operator-run`, `capabilities`, `local-bridge`, `creative`, `artifact-executor`, `artifact-workspace`, `artifact-export-flow`, `artifact-ingestion`, `production-pack`, `mission-control`, and `navigation`.
 
 `src/lib/codexforge/memory-replay` is not present in this checkout.
+
+## AI Subscription Router
+
+The AI Router is a local deterministic control plane. Operators can describe local model servers, OpenAI-compatible APIs, Anthropic-compatible APIs, Google/Gemini-compatible APIs, OpenRouter-compatible APIs, custom HTTP providers, and manual subscription profiles without storing secrets in the browser.
+
+Routing uses provider metadata, model capability metadata, manual subscription tiers, task classification, approximate token estimates, privacy posture, context fit, and fallback reliability to recommend the best provider/model/tier for a task. It does not call external providers, does not query live pricing, and does not create real billing records. Token estimates are approximate chars/4 planning signals only.
+
+Provider configuration remains operator-controlled. API keys must stay in approved server-side environment configuration, while local profiles such as Ollama or LM Studio are represented as metadata until a future approved adapter is connected.
 
 ## Safety Posture
 
@@ -51,6 +61,8 @@ Key frontend domains live under `src/lib/codexforge/`: `brain`, `memory-review`,
 - Patch Preview, Preview Diff Composer, Apply Evidence Pack, Patch Application Gate, and Apply-Diff Dry Run are review/preview artifacts, not uncontrolled apply executors.
 - `apply-diff` requires explicit tool-policy approval and is not called by UI review panels.
 - `write-file` and `run-command` remain blocked unless a future explicit approval path is implemented.
+- No AI provider secrets stored in browser storage; router profiles are metadata/control-plane only.
+- AI Router token and cost estimates are approximate and never treated as billing truth.
 - Broker execution is blocked.
 - PC/camera features require explicit future session consent.
 - Creative external tools remain approval-gated and preview-only from the frontend.
@@ -80,6 +92,7 @@ Focused examples:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-smoke-groups.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-ai-router.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-apply-evidence-pack.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brand-clean.ps1
 ```

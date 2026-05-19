@@ -87,6 +87,7 @@ $scriptRoot = $PSScriptRoot
 # Name = "Predictive context"; Path = "smoke-codexforge-predictive-context.ps1"
 # Name = "Predictive context UX"; Path = "smoke-codexforge-predictive-context-ux.ps1"
 # Name = "Model router"; Path = "smoke-codexforge-model-router.ps1"
+# Name = "AI Router"; Path = "smoke-codexforge-ai-router.ps1"
 # Name = "Brand cleanup"; Path = "smoke-codexforge-brand-clean.ps1"
 
 Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Scripts @(
