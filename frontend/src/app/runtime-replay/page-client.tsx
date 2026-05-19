@@ -4,5 +4,9 @@ import { RuntimeEventReplaySimulator } from "@/lib/codexforge/runtime-event-repl
 import type { RuntimeEventReplaySession } from "@/lib/codexforge/runtime-event-replay";
 
 export default function RuntimeReplayPageClient({ initialData }: { initialData?: RuntimeEventReplaySession }) {
-  return <RuntimeEventReplaySimulator session={initialData} />;
+  return (
+    <div data-codexforge-runtime-replay-brain-continuity="Brain Continuity Dashboard link/readiness: /brain-continuity; no replay persistence.">
+      <RuntimeEventReplaySimulator session={initialData} />
+    </div>
+  );
 }

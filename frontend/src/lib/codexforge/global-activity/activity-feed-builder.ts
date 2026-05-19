@@ -1,6 +1,7 @@
 import { normalizeGlobalActivityEvent } from "./activity-event-model";
 import {
   buildActivityEventsFromApplyGate,
+  buildActivityEventsFromBrainContinuity,
   buildActivityEventsFromBrainGovernance,
   buildActivityEventsFromCreative,
   buildActivityEventsFromMemoryReview,
@@ -45,6 +46,7 @@ export function buildGlobalActivityFeed(input: GlobalActivityFeedInput = {}): Gl
     buildActivityEventsFromBrainGovernance(input.brainGovernance ?? DEFAULT_SOURCE_INPUT),
     buildActivityEventsFromRuntimeReplay(input.runtimeReplay ?? DEFAULT_SOURCE_INPUT),
     buildActivityEventsFromSnapshotRestore(input.snapshotRestore ?? DEFAULT_SOURCE_INPUT),
+    buildActivityEventsFromBrainContinuity(input.brainContinuity ?? DEFAULT_SOURCE_INPUT),
     buildActivityEventsFromCreative(input.creative ?? DEFAULT_SOURCE_INPUT),
     buildActivityEventsFromStabilization(input.stabilization ?? DEFAULT_SOURCE_INPUT)
   );

@@ -8,5 +8,9 @@ type SnapshotRestorePageClientProps = {
 };
 
 export default function SnapshotRestorePageClient({ initialData }: SnapshotRestorePageClientProps) {
-  return <SnapshotRestoreGatePanel session={initialData} />;
+  return (
+    <div data-codexforge-snapshot-restore-brain-continuity="Brain Continuity Dashboard link/readiness: /brain-continuity; continuity posture is review-only and no restore execution.">
+      <SnapshotRestoreGatePanel session={initialData} />
+    </div>
+  );
 }

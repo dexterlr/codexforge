@@ -25,6 +25,7 @@ const TYPE_SCORE: Record<GlobalActivityEventType, number> = {
   "brain.governanceReviewed": 510,
   "runtime.replayPreviewed": 505,
   "snapshot.restoreReviewed": 503,
+  "brain.continuityReviewed": 502,
   "stabilization.reviewed": 500,
   "verification.ingested": 460,
   "verification.passed": 300,

@@ -145,6 +145,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 51 Snapshot Restore Approval Gate",
     }),
     buildMissionSurface({
+      id: "brain-continuity",
+      label: "Brain Continuity Dashboard",
+      href: "/brain-continuity",
+      status: "review-needed",
+      role: "Read-only Brain Continuity Dashboard readiness for memory growth, runtime event journal health, snapshot posture, replay readiness, restore risk, governance posture, and next safe action.",
+      riskPosture: "readonly",
+      nextAction: "Review Brain continuity.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 52 Brain Continuity Dashboard",
+    }),
+    buildMissionSurface({
       id: "brain-governance",
       label: "Brain Mutation Governance",
       href: "/brain-governance",

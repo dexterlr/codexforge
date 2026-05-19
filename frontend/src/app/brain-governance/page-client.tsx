@@ -8,5 +8,9 @@ type BrainGovernancePageClientProps = {
 };
 
 export default function BrainGovernancePageClient({ initialData }: BrainGovernancePageClientProps) {
-  return <BrainMutationGovernanceConsole session={initialData} />;
+  return (
+    <div data-codexforge-brain-governance-brain-continuity="Brain Continuity Dashboard readiness: review Brain continuity before mutation-governance next action; read-only.">
+      <BrainMutationGovernanceConsole session={initialData} />
+    </div>
+  );
 }

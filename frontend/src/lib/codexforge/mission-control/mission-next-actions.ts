@@ -67,6 +67,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Snapshot Restore Approval Gate readiness covers restore candidate, comparison evidence, replay evidence, governance review, runtime journal review, approval packet, and request preview; restore blocked by default, no graph mutation, no appendEvent, no saveBrainGraph from UI, and future guarded snapshot executor required.",
     },
     {
+      id: "review-brain-continuity",
+      label: "Review Brain continuity",
+      href: "/brain-continuity",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Brain Continuity Dashboard readiness covers memory growth, runtime event journal health, snapshot posture, replay readiness, restore risk, governance posture, and next safe action; read-only, no graph mutation, no snapshot restore, no appendEvent, and no saveBrainGraph from UI.",
+    },
+    {
       id: "review-memory-inbox",
       label: "Review memory inbox",
       href: "/memory-inbox",

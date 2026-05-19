@@ -163,6 +163,21 @@ export function buildActivityEventsFromSnapshotRestore(inputs?: readonly GlobalA
   });
 }
 
+export function buildActivityEventsFromBrainContinuity(inputs?: readonly GlobalActivitySourceSummaryInput[]): GlobalActivityEvent[] {
+  return buildEvents(inputs, {
+    type: "brain.continuityReviewed",
+    source: "brain-continuity",
+    surface: "Brain Continuity Dashboard",
+    title: "Brain Continuity Dashboard review ready",
+    detail: "Review memory growth, runtime event journal health, snapshot posture, replay readiness, restore risk, governance posture, and next safe action; read-only, no auto-persistence, no graph mutation, no appendEvent, no snapshot restore, and no saveBrainGraph from UI.",
+    severity: "info",
+    status: "review-required",
+    reviewRequired: true,
+    nextActionLabel: "review Brain continuity",
+    route: "/brain-continuity",
+  });
+}
+
 export function buildActivityEventsFromCreative(inputs?: readonly GlobalActivitySourceSummaryInput[]): GlobalActivityEvent[] {
   return buildEvents(inputs, {
     type: "creative.planCreated",
