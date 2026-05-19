@@ -12,6 +12,14 @@ export const card: CSSProperties = {
   ...safeText,
 };
 
+export const cockpitCard = card;
+
+export const compactCard: CSSProperties = {
+  ...card,
+  gap: 8,
+  padding: 10,
+};
+
 export const cardHeader: CSSProperties = {
   alignItems: "start",
   display: "flex",

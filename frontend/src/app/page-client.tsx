@@ -10,5 +10,9 @@ type OperatorHomePageClientProps = {
 export default function OperatorHomePageClient({
   initialData,
 }: OperatorHomePageClientProps) {
-  return <OperatorHomeDashboard summary={initialData} />;
+  return (
+    <div style={{ minWidth: 0, width: "100%" }}>
+      <OperatorHomeDashboard summary={initialData} />
+    </div>
+  );
 }

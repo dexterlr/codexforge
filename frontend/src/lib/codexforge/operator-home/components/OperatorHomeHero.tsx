@@ -70,6 +70,13 @@ const safeText: CSSProperties = {
   wordBreak: "break-word",
 };
 
+const displayText: CSSProperties = {
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "normal",
+  wordBreak: "normal",
+};
+
 const hero: CSSProperties = {
   alignItems: "center",
   border: "1px solid rgba(45,212,191,0.22)",
@@ -78,10 +85,10 @@ const hero: CSSProperties = {
   borderRadius: 8,
   display: "grid",
   gap: 18,
-  gridTemplateColumns: "minmax(0, 1.2fr) minmax(min(100%, 430px), 0.8fr)",
+  gridTemplateColumns: "minmax(0, 1fr)",
   minWidth: 0,
   padding: 22,
-  ...safeText,
+  width: "100%",
 };
 
 const copy: CSSProperties = {
@@ -103,7 +110,8 @@ const headline: CSSProperties = {
   letterSpacing: 0,
   lineHeight: 1.04,
   margin: 0,
-  ...safeText,
+  maxWidth: 980,
+  ...displayText,
 };
 
 const lede: CSSProperties = {
@@ -164,7 +172,7 @@ const copyPill: CSSProperties = {
 const stats: CSSProperties = {
   display: "grid",
   gap: 10,
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))",
   minWidth: 0,
 };
 

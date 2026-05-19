@@ -146,19 +146,20 @@ function HeroStat({ label, value }: { label: string; value: string }) {
 }
 
 const safe: CSSProperties = { minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere", wordBreak: "break-word" };
+const displaySafe: CSSProperties = { minWidth: 0, maxWidth: "100%", overflowWrap: "normal", wordBreak: "normal" };
 const contentShell: CSSProperties = { width: "100%", display: "grid", gap: 16, minWidth: 0 };
-const hero: CSSProperties = { border: "1px solid rgba(45,212,191,0.2)", background: "linear-gradient(135deg, rgba(5,13,29,0.96), rgba(15,23,42,0.8))", borderRadius: 8, padding: 20, display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(min(100%, 430px), 0.8fr)", gap: 18, alignItems: "center", minWidth: 0 };
+const hero: CSSProperties = { border: "1px solid rgba(45,212,191,0.2)", background: "linear-gradient(135deg, rgba(5,13,29,0.96), rgba(15,23,42,0.8))", borderRadius: 8, padding: 20, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 18, alignItems: "center", minWidth: 0, width: "100%" };
 const heroCopy: CSSProperties = { display: "grid", gap: 10, minWidth: 0 };
 const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 12, fontWeight: 900, textTransform: "uppercase", ...safe };
-const headline: CSSProperties = { margin: 0, fontSize: 40, lineHeight: 1.06, letterSpacing: 0, ...safe };
+const headline: CSSProperties = { margin: 0, fontSize: 40, lineHeight: 1.06, letterSpacing: 0, maxWidth: 980, ...displaySafe };
 const lede: CSSProperties = { margin: 0, color: "#cbd5e1", fontSize: 15, lineHeight: 1.55, maxWidth: 980, ...safe };
 const heroActions: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8, minWidth: 0 };
 const heroLink: CSSProperties = { border: "1px solid rgba(125,211,252,0.2)", background: "rgba(14,165,233,0.1)", borderRadius: 8, color: "#e0f2fe", fontSize: 12, fontWeight: 900, padding: "9px 11px", textDecoration: "none", ...safe };
 const actionButton: CSSProperties = { border: "1px solid rgba(45,212,191,0.24)", background: "rgba(20,184,166,0.12)", color: "#ccfbf1", borderRadius: 8, fontSize: 12, fontWeight: 900, padding: "9px 11px", cursor: "pointer", ...safe };
-const heroStats: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, minWidth: 0 };
+const heroStats: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))", gap: 10, minWidth: 0 };
 const stat: CSSProperties = { border: "1px solid rgba(148,163,184,0.16)", background: "rgba(2,6,23,0.42)", borderRadius: 8, padding: 14, display: "grid", gap: 5, minWidth: 0 };
 const statLabel: CSSProperties = { color: "#94a3b8", fontSize: 11, textTransform: "uppercase", fontWeight: 850, ...safe };
 const statValue: CSSProperties = { color: "#ccfbf1", fontSize: 24, lineHeight: 1.1, ...safe };
-const layout: CSSProperties = { display: "grid", gridTemplateColumns: "minmax(0, 1.25fr) minmax(min(100%, 430px), 0.75fr)", gap: 16, alignItems: "start", minWidth: 0 };
+const layout: CSSProperties = { display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(280px, 420px)", gap: 16, alignItems: "start", minWidth: 0, width: "100%" };
 const mainColumn: CSSProperties = { display: "grid", gap: 16, minWidth: 0 };
 const sideColumn: CSSProperties = { display: "grid", gap: 12, minWidth: 0 };

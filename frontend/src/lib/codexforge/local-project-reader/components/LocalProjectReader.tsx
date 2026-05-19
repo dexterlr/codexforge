@@ -330,7 +330,7 @@ const hero: CSSProperties = {
   alignItems: "end",
   display: "grid",
   gap: 16,
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
+  gridTemplateColumns: "minmax(0, 1fr)",
   margin: "0 auto",
   maxWidth: 1560,
   minWidth: 0,
@@ -356,7 +356,9 @@ const title: CSSProperties = {
   letterSpacing: 0,
   lineHeight: 1.05,
   margin: 0,
-  overflowWrap: "anywhere",
+  maxWidth: 860,
+  overflowWrap: "normal",
+  wordBreak: "normal",
 };
 
 const lede: CSSProperties = {
@@ -407,7 +409,7 @@ const layout: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 14,
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
+  gridTemplateColumns: "minmax(260px, 0.75fr) minmax(0, 1.35fr) minmax(260px, 0.75fr)",
   margin: "0 auto",
   maxWidth: 1560,
   minWidth: 0,

@@ -38,7 +38,7 @@ import { TopBar } from "@/lib/codexforge/chat/components/top-bar";
 import { EmptyState } from "@/lib/codexforge/chat/components/empty-state";
 import { WorkspaceInsightsPanel } from "@/lib/codexforge/chat/components/workspace-insights-panel";
 import { WorkspaceSectionStack } from "@/lib/codexforge/chat/components/workspace-section-stack";
-import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { codexForgeFileFixtures } from "@/lib/codexforge/files/file-fixtures";
 import { buildMissionControlSummary } from "@/lib/codexforge/mission-control";
 import { buildTaskAutopilotSummary } from "@/lib/codexforge/task-autopilot";
@@ -476,10 +476,9 @@ export default function AiPage() {
   }, [sliderOpen]);
 
   return (
-    <main style={styles.page}>
+    <CodexForgeAppShell activePath="/ai" workspaceLabel="AI Workspace" nextActionContext={{ hasRegressionOrFixWork: true }}>
+    <div style={styles.page}>
       <div style={styles.shell}>
-        <CodexForgeGlobalNav compact />
-
         <Link href="/mission" style={missionLink}>
           Mission Control: health, readiness, safe next actions, and approval gated surfaces
         </Link>
@@ -810,7 +809,8 @@ export default function AiPage() {
         onRejectDiffs={rejectDiffs}
         onResetEngine={resetEngine}
       />
-    </main>
+    </div>
+    </CodexForgeAppShell>
   );
 }
 

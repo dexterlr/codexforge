@@ -6,3 +6,4 @@ export * from "./codexforge-typography";
 export * from "./codexforge-card";
 export * from "./codexforge-button";
 export * from "./codexforge-text";
+export * from "./codexforge-scroll";

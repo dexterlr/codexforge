@@ -28,10 +28,10 @@ function Metric({ label, value }: { label: string; value: string }) {
   return <div style={metric}><span>{label}</span><strong>{value}</strong></div>;
 }
 
-const card: CSSProperties = { border: "1px solid rgba(248,113,113,0.22)", background: "rgba(30,8,13,0.74)", borderRadius: 8, padding: 16, display: "grid", gap: 10 };
+const card: CSSProperties = { border: "1px solid rgba(248,113,113,0.22)", background: "rgba(30,8,13,0.74)", borderRadius: 8, padding: 16, display: "grid", gap: 10, minWidth: 0 };
 const eyebrow: CSSProperties = { color: "#fca5a5", fontSize: 11, fontWeight: 900, textTransform: "uppercase" };
-const grid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 120px), 1fr))", gap: 8 };
-const metric: CSSProperties = { border: "1px solid rgba(248,113,113,0.18)", borderRadius: 8, padding: 9, display: "grid", gap: 4 };
-const list: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 6 };
-const block: CSSProperties = { border: "1px solid rgba(248,113,113,0.18)", borderRadius: 8, padding: "5px 7px", color: "#fecaca", fontSize: 12, overflowWrap: "anywhere" };
+const grid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 120px), 1fr))", gap: 8, minWidth: 0 };
+const metric: CSSProperties = { border: "1px solid rgba(248,113,113,0.18)", borderRadius: 8, padding: 9, display: "grid", gap: 4, minWidth: 0 };
+const list: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 6, minWidth: 0 };
+const block: CSSProperties = { border: "1px solid rgba(248,113,113,0.18)", borderRadius: 8, padding: "5px 7px", color: "#fecaca", fontSize: 12, minWidth: 0, overflowWrap: "anywhere" };
 const copy: CSSProperties = { margin: 0, color: "#fecaca", lineHeight: 1.5 };

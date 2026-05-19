@@ -26,3 +26,10 @@ export const safeCodeText: CSSProperties = {
   overflowX: "auto",
   whiteSpace: "pre-wrap",
 };
+
+export const normalTextWrap: CSSProperties = {
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "normal",
+  wordBreak: "normal",
+};

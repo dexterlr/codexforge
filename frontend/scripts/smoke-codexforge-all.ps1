@@ -96,6 +96,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Operator Home Dashboard"; File = "smoke-codexforge-operator-home-dashboard.ps1"; Required = $true },
   @{ Name = "Navigation Shell"; File = "smoke-codexforge-navigation-shell.ps1"; Required = $true },
   @{ Name = "UX Unification"; File = "smoke-codexforge-ux-unification.ps1"; Required = $true },
+  @{ Name = "UX Layout Rescue"; File = "smoke-codexforge-ux-layout-rescue.ps1"; Required = $true },
   @{ Name = "Stabilization Command Center"; File = "smoke-codexforge-stabilization-command-center.ps1"; Required = $true },
   @{ Name = "Global Activity Feed"; File = "smoke-codexforge-global-activity-feed.ps1"; Required = $true },
   @{ Name = "Operator Memory Inbox"; File = "smoke-codexforge-operator-memory-inbox.ps1"; Required = $true },

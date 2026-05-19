@@ -43,10 +43,11 @@ const wrap: CSSProperties = {
   alignItems: "center",
   display: "flex",
   flexWrap: "wrap",
-  gap: 6,
+  gap: 5,
   justifyContent: "flex-end",
-  maxHeight: 112,
+  maxHeight: 76,
   minWidth: 0,
+  width: "100%",
   overflowY: "auto",
 };
 
@@ -57,9 +58,9 @@ const baseLink: CSSProperties = {
   fontSize: 12,
   fontWeight: 850,
   lineHeight: 1.2,
-  minHeight: 30,
-  maxWidth: 156,
-  padding: "6px 9px",
+  minHeight: 28,
+  maxWidth: 96,
+  padding: "5px 8px",
   textDecoration: "none",
   ...safeText,
 };
@@ -79,5 +80,8 @@ const activeLink: CSSProperties = {
 };
 
 const label: CSSProperties = {
-  ...safeText,
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
 };

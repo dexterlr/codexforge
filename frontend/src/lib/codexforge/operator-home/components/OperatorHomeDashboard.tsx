@@ -101,8 +101,9 @@ const layout: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 16,
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 520px), 1fr))",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(280px, 420px)",
   minWidth: 0,
+  width: "100%",
 };
 
 const mainColumn: CSSProperties = {

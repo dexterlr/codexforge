@@ -8,5 +8,9 @@ type ConsolidationPageClientProps = {
 };
 
 export default function ConsolidationPageClient({ initialData }: ConsolidationPageClientProps) {
-  return <ConsolidationOverview summary={initialData} />;
+  return (
+    <div style={{ minWidth: 0, width: "100%" }}>
+      <ConsolidationOverview summary={initialData} />
+    </div>
+  );
 }

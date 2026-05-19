@@ -8,5 +8,9 @@ type ReadinessPageClientProps = {
 };
 
 export default function ReadinessPageClient({ initialData }: ReadinessPageClientProps) {
-  return <ProductReadinessAudit summary={initialData} />;
+  return (
+    <div style={{ minWidth: 0, width: "100%" }}>
+      <ProductReadinessAudit summary={initialData} />
+    </div>
+  );
 }

@@ -31,6 +31,12 @@ export function CodexForgeTopbar({
 
 const safeText: CSSProperties = {
   minWidth: 0,
+  overflowWrap: "normal",
+  wordBreak: "normal",
+};
+
+const safeBodyText: CSSProperties = {
+  minWidth: 0,
   overflowWrap: "anywhere",
   wordBreak: "break-word",
 };
@@ -42,9 +48,9 @@ const topbar: CSSProperties = {
   borderRadius: 8,
   display: "grid",
   gap: 12,
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(280px, 560px)",
   minWidth: 0,
-  padding: 14,
+  padding: 12,
 };
 
 const copy: CSSProperties = {
@@ -75,7 +81,7 @@ const subtitle: CSSProperties = {
   fontSize: 13,
   lineHeight: 1.45,
   margin: 0,
-  ...safeText,
+  ...safeBodyText,
 };
 
 const pill: CSSProperties = {

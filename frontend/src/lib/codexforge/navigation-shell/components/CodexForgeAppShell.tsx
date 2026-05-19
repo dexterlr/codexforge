@@ -109,6 +109,13 @@ export function CodexForgeAppShell({
 const safeText: CSSProperties = {
   minWidth: 0,
   maxWidth: "100%",
+  overflowWrap: "normal",
+  wordBreak: "normal",
+};
+
+const safeBodyText: CSSProperties = {
+  minWidth: 0,
+  maxWidth: "100%",
   overflowWrap: "anywhere",
   wordBreak: "break-word",
 };
@@ -121,7 +128,7 @@ const page: CSSProperties = {
   color: "#f8fafc",
   fontFamily: "var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif",
   minHeight: "100vh",
-  padding: "18px min(4vw, 44px) 30px",
+  padding: "16px min(2.5vw, 28px) 24px",
   ...safeText,
 };
 
@@ -129,7 +136,7 @@ const shell: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 16,
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+  gridTemplateColumns: "clamp(260px, 20vw, 320px) minmax(0, 1fr)",
   margin: "0 auto",
   minWidth: 0,
   width: "100%",
@@ -151,14 +158,16 @@ const deck: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 16,
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
+  gridTemplateColumns: "minmax(0, 1fr) clamp(260px, 19vw, 320px)",
   minWidth: 0,
+  width: "100%",
 };
 
 const content: CSSProperties = {
   display: "grid",
   gap: 16,
   minWidth: 0,
+  width: "100%",
 };
 
 const sideRail: CSSProperties = {
@@ -190,5 +199,5 @@ const sessionText: CSSProperties = {
   fontSize: 12,
   lineHeight: 1.45,
   margin: 0,
-  ...safeText,
+  ...safeBodyText,
 };

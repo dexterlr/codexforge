@@ -1,13 +1,9 @@
 import React from "react";
 
 export const page: React.CSSProperties = {
-  minHeight: "100vh",
-  padding: "clamp(16px, 4vw, 40px)",
-  background:
-    "radial-gradient(1200px 600px at 20% 10%, rgba(99,102,241,0.22), transparent 60%)," +
-    "radial-gradient(900px 500px at 80% 20%, rgba(16,185,129,0.18), transparent 55%)," +
-    "radial-gradient(700px 400px at 50% 90%, rgba(236,72,153,0.12), transparent 55%)," +
-    "linear-gradient(180deg, #070A12 0%, #050710 100%)",
+  minHeight: 0,
+  padding: 0,
+  background: "transparent",
   color: "white",
   fontFamily:
     'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
@@ -15,10 +11,11 @@ export const page: React.CSSProperties = {
 
 export const shell: React.CSSProperties = {
   width: "100%",
-  maxWidth: 1220,
+  maxWidth: 1560,
   margin: "0 auto",
   display: "grid",
   gap: 14,
+  minWidth: 0,
 };
 
 export const topBar: React.CSSProperties = {
@@ -91,7 +88,11 @@ export const heroTitle: React.CSSProperties = {
   margin: 0,
   fontSize: "clamp(28px, 4vw, 44px)",
   lineHeight: 1.05,
-  letterSpacing: -0.8,
+  letterSpacing: 0,
+  maxWidth: 940,
+  minWidth: 0,
+  overflowWrap: "normal",
+  wordBreak: "normal",
 };
 
 export const heroText: React.CSSProperties = {
@@ -148,9 +149,10 @@ export const toolbar: React.CSSProperties = {
 
 export const workspaceLayout: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "320px minmax(0, 1fr)",
+  gridTemplateColumns: "minmax(260px, 300px) minmax(0, 1fr)",
   gap: 14,
   padding: 18,
+  minWidth: 0,
 };
 
 export const leftPanel: React.CSSProperties = {
@@ -166,6 +168,7 @@ export const leftPanel: React.CSSProperties = {
 export const chatPanel: React.CSSProperties = {
   display: "grid",
   gap: 12,
+  minWidth: 0,
 };
 
 export const panelTitle: React.CSSProperties = {
@@ -227,6 +230,7 @@ export const messagesBox: React.CSSProperties = {
   borderRadius: 16,
   border: "1px solid rgba(255,255,255,0.10)",
   background: "rgba(0,0,0,0.22)",
+  minWidth: 0,
 };
 
 export const emptyState: React.CSSProperties = {
