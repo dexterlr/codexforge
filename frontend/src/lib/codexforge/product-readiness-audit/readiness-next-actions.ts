@@ -13,7 +13,7 @@ const ACTIONS: readonly ProductReadinessNextAction[] = [
   { id: "implement-validation-runner", label: "implement validation runner", reason: "Validation-to-regression loop needs a guarded runner.", priority: 90, route: "/stabilization", copyPrompt: "Design an approved validation runner with no automatic command execution from audit UI." },
   { id: "close-loop-regression-repair", label: "close loop regression repair", reason: "Validation-to-regression-triage and regression-to-fix-queue remain preview-only.", priority: 100, route: "/stabilization", copyPrompt: "Close the regression repair loop with evidence review, fix queue, and patch preview handoff." },
   { id: "commit-clean-checkpoint", label: "commit clean checkpoint", reason: "Only after validation passes and user approval.", priority: 110, route: "/readiness", copyPrompt: "After validation passes, recommend a commit clean checkpoint. Do not commit without explicit approval." },
-  { id: "phase-55-consolidation-pass", label: "Phase 55 Consolidation Pass", reason: "If clean, recommend Phase 55 Consolidation Pass.", priority: 120, route: "/readiness", copyPrompt: "Proceed to Phase 55 Consolidation Pass: reduce dashboard sprawl, unify registries, and prioritize real workflows." },
+  { id: "phase-55-consolidation-complete", label: "Consolidation Pass complete", reason: "If clean, recommend Phase 56 Real Local Project Reader.", priority: 120, route: "/consolidation", copyPrompt: "Consolidation Pass complete. Proceed to Phase 56 Real Local Project Reader with read-only local file discovery, file preview, and safe context handoff." },
 ] as const;
 
 export function selectProductReadinessNextAction(input: {

@@ -14,6 +14,8 @@ const DEFAULT_ROUTE_AVAILABILITY: OperatorHomeRouteAvailability = {
   "/ai": true,
   "/brain": true,
   "/files": true,
+  "/readiness": true,
+  "/consolidation": true,
   "/handoff": true,
   "/stabilization": true,
 };
@@ -29,6 +31,7 @@ const ROUTE_ORDER: OperatorHomeRoutePath[] = [
   "/capabilities",
   "/activity",
   "/readiness",
+  "/consolidation",
   "/handoff",
   "/stabilization",
   "/history",
@@ -165,6 +168,18 @@ const ROUTE_DEFINITIONS: Record<OperatorHomeRoutePath, RouteDefinition> = {
     riskPosture: "readonly",
     nextAction: "Review Product Readiness Audit before adding new feature surfaces.",
     badge: "Readiness",
+    requiredReview: true,
+  },
+  "/consolidation": {
+    href: "/consolidation",
+    label: "Consolidation Pass",
+    description:
+      "Read-only Phase 55 cockpit for surface map, route consolidation, shared readiness, safety copy, workflow entrypoints, and Phase 56 file reader planning.",
+    domain: "consolidation",
+    readiness: "needs-review",
+    riskPosture: "readonly",
+    nextAction: "Review Consolidation Pass before moving to Phase 56 Real Local Project Reader.",
+    badge: "Phase 55",
     requiredReview: true,
   },
   "/handoff": {

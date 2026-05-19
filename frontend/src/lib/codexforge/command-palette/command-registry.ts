@@ -32,6 +32,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/capabilities": true,
   "/activity": true,
   "/readiness": true,
+  "/consolidation": true,
   "/stabilization": true,
 };
 
@@ -225,6 +226,14 @@ export function buildCodexForgeCommands(
       href: "/readiness",
       keywords: ["product readiness", "readiness", "audit", "route", "Phase 54"],
       priority: 87,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-consolidation",
+      label: "Go to Consolidation",
+      description: "Navigate to the read-only Phase 55 Consolidation Pass cockpit.",
+      href: "/consolidation",
+      keywords: ["consolidation", "phase 55", "route", "surface map", "workflow entrypoints"],
+      priority: 88,
     }),
     buildRouteCommand(availability, {
       id: "go-stabilization",
@@ -525,6 +534,30 @@ export function buildCodexForgeCommands(
       requiresReview: true,
       keywords: ["product readiness", "consolidation", "dashboard sprawl", "duplicate panels"],
       priority: 233,
+    }),
+    buildCodexForgeCommand({
+      id: "copy-consolidation-plan",
+      label: "Copy consolidation plan",
+      description: "Copy Phase 55 consolidation plan without mutation.",
+      group: "Next action",
+      kind: "copy-prompt",
+      copyPayload: "Review Consolidation Pass. Promote primary routes, demote deep governance routes to Advanced / Audit links, add Start here workflow cards, keep /readiness and /handoff as checkpoints, use /stabilization as operations hub, prepare /files for real read-only workflow next, keep deep surfaces accessible via command palette, reduce duplicated next-action copy over time, and keep all smoke coverage intact.",
+      safetyLevel: "copy-only",
+      requiresReview: true,
+      keywords: ["consolidation", "plan", "phase 55", "copy"],
+      priority: 234,
+    }),
+    buildCodexForgeCommand({
+      id: "copy-phase-56-file-reader-prompt",
+      label: "Copy Phase 56 file reader prompt",
+      description: "Copy a read-only Phase 56 Real Local Project Reader prompt.",
+      group: "Next action",
+      kind: "copy-prompt",
+      copyPayload: "Proceed to Phase 56 Real Local Project Reader. Build read-only local project discovery, stable project tree, file preview, selected file context handoff, and safety copy. Do not execute commands from UI, do not write files without approval, do not mutate Brain graph, do not call appendEvent from UI, do not call saveBrainGraph from UI, preserve latest-message authority, and keep validation manual.",
+      safetyLevel: "copy-only",
+      requiresReview: true,
+      keywords: ["phase 56", "file reader", "files", "read-only", "copy"],
+      priority: 234.5,
     }),
     buildCodexForgeCommand({
       id: "copy-activity-handoff-prompt",

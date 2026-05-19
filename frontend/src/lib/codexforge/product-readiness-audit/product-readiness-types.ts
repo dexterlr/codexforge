@@ -15,6 +15,7 @@ export type ProductRoutePath =
   | "/capabilities"
   | "/activity"
   | "/readiness"
+  | "/consolidation"
   | "/stabilization"
   | "/handoff"
   | "/brain-continuity"

@@ -41,6 +41,7 @@ export type StabilizationRelatedSurface =
   | "/mission"
   | "/ai"
   | "/files"
+  | "/consolidation"
   | "/tasks"
   | "/memory"
   | "/memory-inbox"

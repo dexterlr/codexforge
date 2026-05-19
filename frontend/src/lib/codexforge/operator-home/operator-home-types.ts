@@ -23,6 +23,7 @@ export type OperatorHomeRoutePath =
   | "/capabilities"
   | "/activity"
   | "/readiness"
+  | "/consolidation"
   | "/handoff"
   | "/stabilization"
   | "/history";
@@ -37,6 +38,7 @@ export type OperatorHomeRouteDomain =
   | "capabilities"
   | "activity"
   | "readiness"
+  | "consolidation"
   | "handoff"
   | "stabilization"
   | "history";
@@ -159,6 +161,7 @@ export type OperatorHomeLaunchCard = {
 };
 
 export type OperatorHomeLauncherGroupId =
+  | "start-here"
   | "core-cognition"
   | "engineering-workflow"
   | "stabilization-and-safety"

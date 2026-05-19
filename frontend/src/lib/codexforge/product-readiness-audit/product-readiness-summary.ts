@@ -41,7 +41,7 @@ export function buildProductReadinessSummary(): ProductReadinessSummary {
           : "No top blocker detected.";
   const recommendedNextPhase =
     safetyAudit.blockerCount === 0 && smokeAudit.missingCount === 0
-      ? "Phase 55 Consolidation Pass"
+      ? "Consolidation Pass complete / Phase 56 Real Local Project Reader"
       : "Stop and stabilize";
   const summary = {
     id: "product-readiness-summary",

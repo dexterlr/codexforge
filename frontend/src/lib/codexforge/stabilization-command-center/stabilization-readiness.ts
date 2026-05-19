@@ -110,6 +110,11 @@ export function buildStabilizationReadiness(input: StabilizationCommandCenterInp
       detail: "Review Brain Mutation Governance for approved mutation boundaries, blocked direct mutation signals, reducer impact governance, runtime journal integrity posture, risk board, and next safe action before any Brain or memory mutation path.",
     }),
     buildStabilizationReadinessCheck({
+      label: "Consolidation Pass readiness",
+      status: "needs-review",
+      detail: "Review Consolidation Pass for primary route prominence, Advanced / Audit deep route access, shared readiness, safety copy, workflow entrypoints, and Phase 56 Real Local Project Reader readiness.",
+    }),
+    buildStabilizationReadinessCheck({
       label: "latest-message authority preserved",
       status: input.latestMessageAuthorityPreserved === false ? "blocked" : "ready",
       detail: "Handoffs must preserve latest-message authority and visible operator context.",

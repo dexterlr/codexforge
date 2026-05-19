@@ -27,11 +27,12 @@ export function buildContinuityHandoffPacket(input: {
     buildContinuityHandoffSection("Brain Continuity Posture", input.brainPosture.summary),
     buildContinuityHandoffSection("Runtime Event Posture", ["Runtime Event Journal is review-only.", "No appendEvent from UI.", "No runtime event execution from handoff UI."]),
     buildContinuityHandoffSection("Snapshot / Restore Posture", ["Snapshot Manager remains inspect-only.", "Snapshot Restore Gate preview only.", "Brain graph restore blocked by default."]),
+    buildContinuityHandoffSection("Consolidation Posture", ["Phase 55 Consolidation Pass is read-only and keeps all routes accessible.", "Primary routes are /, /ai, /files, /stabilization, /readiness, and /handoff.", "Recommended next phase is Phase 56 Real Local Project Reader."]),
     buildContinuityHandoffSection("Rollback Posture", input.rollbackPosture.summary),
     buildContinuityHandoffSection("Next Safe Actions", input.nextActions.summary),
     buildContinuityHandoffSection("Commands To Run Manually", input.validationPlan.commands.map((command) => command.command)),
     buildContinuityHandoffSection("Do Not Do", ["Do not mutate Brain graph.", "Do not restore snapshots.", "Do not append runtime events.", "Do not promote memory.", "Do not execute tools.", "Do not persist handoff packets automatically.", "Do not call broker-execution, apply-diff, write-file, or run-command from handoff UI.", "Preserve latest-message authority."]),
-    buildContinuityHandoffSection("Recommended Next Phase", ["After all validation passes, recommend commit clean checkpoint, tag smoke-suite clean if appropriate, then create the next phase prompt from this packet."]),
+    buildContinuityHandoffSection("Recommended Next Phase", ["After all validation passes, recommend commit clean checkpoint, tag smoke-suite clean if appropriate, then proceed to Phase 56 Real Local Project Reader from this packet."]),
   ];
   const text = sections.map((section) => [`## ${section.title}`, ...section.lines.map((line) => `- ${line}`)].join("\n")).join("\n\n");
   return {

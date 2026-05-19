@@ -39,6 +39,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Review activity feed for verification events, regression triage, fix queue, patch preview, apply gates, memory review, creative planning, stabilization, and next safe action; read-only, no auto-persistence, no command execution, no file writes, no Brain graph mutation, evidence is context not proof, and preserve latest-message authority.",
   });
   checks.push({
+    id: "consolidation-pass-readiness",
+    label: "Consolidation Pass readiness",
+    level: "needs-review",
+    detail:
+      "Review Consolidation Pass for surface map, route prominence, cockpit overlap, shared readiness, shared next action, safety copy, workflow entrypoints, and Phase 56 Real Local Project Reader planning; read-only, no command execution, no file writes, no graph mutation, no appendEvent from UI, no saveBrainGraph from UI, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "operator-memory-inbox-readiness",
     label: "Personal Operator Memory Inbox readiness",
     level: "needs-review",

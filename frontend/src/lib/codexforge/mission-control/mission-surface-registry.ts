@@ -68,6 +68,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 54 Product Readiness Audit",
     }),
     buildMissionSurface({
+      id: "consolidation",
+      label: "Consolidation Pass",
+      href: "/consolidation",
+      status: "review-needed",
+      role: "Read-only Phase 55 Consolidation Pass readiness for surface map, route consolidation, cockpit overlap audit, shared readiness, shared next action, shared safety copy, workflow entrypoints, and Phase 56 file reader planning.",
+      riskPosture: "readonly",
+      nextAction: "Review consolidation before Phase 56 Real Local Project Reader.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 55 Consolidation Pass",
+    }),
+    buildMissionSurface({
       id: "tasks",
       label: "Task Autopilot, Reviewed Task Activation, Execution Readiness, Step Runner Preview, Read-Only Step Execution, and Evidence Memory",
       href: "/tasks",

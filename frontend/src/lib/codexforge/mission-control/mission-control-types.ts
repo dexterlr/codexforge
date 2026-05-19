@@ -21,6 +21,7 @@ export type MissionSurfaceId =
   | "stabilization"
   | "activity"
   | "readiness"
+  | "consolidation"
   | "capabilities"
   | "runs"
   | "bridge"
