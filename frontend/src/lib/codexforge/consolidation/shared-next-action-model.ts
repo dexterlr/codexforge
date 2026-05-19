@@ -9,7 +9,7 @@ const ACTIONS: readonly Omit<SharedNextAction, "id">[] = [
   { label: "Review Product Readiness", reason: "Readiness before consolidation.", priority: 40, routeHref: "/readiness", copyPrompt: "Review Product Readiness and confirm Consolidation Pass is complete before Phase 56." },
   { label: "Inspect Files", reason: "File Reader v1 functional/read-only is available before Patch Preview v1.", priority: 50, routeHref: "/files", copyPrompt: "Inspect project files in File Reader v1 functional/read-only. Keep file workflow read-only until approval boundaries exist." },
   { label: "Commit clean checkpoint", reason: "Clean state can recommend checkpoint.", priority: 60, routeHref: "/handoff", copyPrompt: "After validation passes, recommend a commit checkpoint. Do not commit without explicit approval." },
-  { label: "Phase 58 Approved Patch Apply v1", reason: "If clean, Patch Preview v1 functional/preview-only can recommend approved apply work.", priority: 70, routeHref: "/files", copyPrompt: "Review Phase 57 Real Patch Preview v1 in /files, then proceed to Phase 58 Approved Patch Apply v1 only behind Patch Application Gate and explicit approval." },
+  { label: "Phase 59 Validation Runner v1", reason: "Approved Patch Apply v1 is approval-gated/request-ready and can recommend validation runner work.", priority: 70, routeHref: "/files", copyPrompt: "Review Approved Patch Apply v1 in /files, then proceed to Phase 59 Validation Runner v1 only with copy-only commands and no automatic command execution from UI." },
 ];
 
 function buildSharedNextAction(input: Omit<SharedNextAction, "id">): SharedNextAction {
@@ -41,6 +41,6 @@ export function summarizeSharedNextActionModel(model: Pick<SharedNextActionModel
   return [
     `Selected next action: ${model.selected.label}.`,
     `${model.candidates.length} actions are ordered by blockers first, validation failures before new features, stabilization before execution, readiness before consolidation, and file workflow before abstract dashboards.`,
-    "If clean, recommend commit checkpoint or Phase 58 Approved Patch Apply v1.",
+    "If clean, recommend commit checkpoint or Phase 59 Validation Runner v1 after Approved Patch Apply review.",
   ];
 }

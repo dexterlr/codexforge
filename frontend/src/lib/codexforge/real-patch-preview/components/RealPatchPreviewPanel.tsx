@@ -27,6 +27,7 @@ import type {
   ProjectFilePurpose,
   ProjectFileRiskReport,
 } from "../../local-project-reader";
+import { ApprovedPatchApplyPanel } from "../../approved-patch-apply/components";
 import { PatchChangeRequestPanel } from "./PatchChangeRequestPanel";
 import { PatchContextPanel } from "./PatchContextPanel";
 import { PatchPlanPanel } from "./PatchPlanPanel";
@@ -175,6 +176,17 @@ export function RealPatchPreviewPanel({
               handoff={session?.handoff ?? null}
               onCopyReviewPrompt={() => session ? copyText("patch review prompt", session.handoff.reviewPrompt) : undefined}
               onCopyApplyGatePrompt={() => session ? copyText("apply-gate handoff", session.handoff.applyGatePromptPreview) : undefined}
+            />
+            <ApprovedPatchApplyPanel
+              sourcePreviewId={session?.diffPreview.id ?? null}
+              selectedFilePath={selectedFilePath}
+              previewDiff={session?.diffPreview.diffText ?? null}
+              patchPlanSummary={session?.plan.summary ?? null}
+              riskLevel={session?.riskReport.level ?? "blocked"}
+              expectedTouchedFiles={session?.plan.expectedTouchedFiles ?? [selectedFilePath]}
+              operatorIntent="Prepare approved patch apply request from Real Patch Preview v1."
+              requestedApplyMode="request-ready"
+              onCopy={copyText}
             />
           </div>
         </>

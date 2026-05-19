@@ -19,6 +19,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Real Patch Preview readiness is functional/preview-only: prepare preview diff from selected read file context and requested change; no file writes, no apply, no command execution, and use Patch Application Gate before apply.",
     },
     {
+      id: "review-approved-patch-apply",
+      label: "Review approved patch apply",
+      href: "/files",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Approved Patch Apply readiness converts preview diff into approval packet, preflight, dry-run preview, rollback, validation checklist, and request-ready/blocked bridge state; no command execution, no direct apply-diff from UI, no file writes without approval, and Phase 59 Validation Runner v1 is next.",
+    },
+    {
       id: "review-stabilization-command-center",
       label: "Review stabilization command center",
       href: "/stabilization",

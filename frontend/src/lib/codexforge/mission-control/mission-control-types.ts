@@ -29,6 +29,7 @@ export type MissionSurfaceId =
   | "artifacts"
   | "production"
   | "patch-preview"
+  | "approved-patch-apply"
   | "tasks"
   | "chat";
 
@@ -98,6 +99,7 @@ export type MissionHealthDimensionId =
   | "apply-evidence-pack"
   | "apply-diff-dry-run"
   | "apply-diff-execution-gate"
+  | "approved-patch-apply"
   | "stabilization-command-center"
   | "global-activity-feed"
   | "production-pack"

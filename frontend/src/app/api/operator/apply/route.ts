@@ -12,6 +12,20 @@ type ApplyBody = {
   repoPath?: string;
   diffs?: Diff[];
   dryRun?: boolean; // default true
+  approved?: boolean;
+  approvalPacket?: Record<string, unknown>;
+  acknowledgements?: Record<string, unknown>;
+  policyAllowed?: boolean;
+  preflightPassed?: boolean;
+  dryRunPassed?: boolean;
+  rollbackPlanAcknowledged?: boolean;
+  validationPlanAcknowledged?: boolean;
+  noCommandExecutionAcknowledged?: boolean;
+  fileWriteBoundaryAcknowledged?: boolean;
+  latestMessageAuthorityAcknowledged?: boolean;
+  highRiskExtraAcknowledged?: boolean;
+  riskLevel?: string;
+  touchedFiles?: string[];
 };
 
 type ApplyResult = {
@@ -28,7 +42,22 @@ type ApplyResult = {
 type ErrResult = { ok: false; error: string };
 
 const MAX_FILE_BYTES = 500_000; // safety cap per file
-const MAX_DIFFS = 25; // safety cap per request
+const MAX_PATCH_CHARS = 120_000; // patch size cap text
+const MAX_DIFFS = 8; // touched file cap text
+
+const BINARY_EXTENSIONS = new Set([
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".ico",
+  ".pdf",
+  ".zip",
+  ".gz",
+  ".exe",
+  ".dll",
+]);
 
 const ALLOWED_TARGETS = new Set<string>([
   "src/app/history/page.tsx",
@@ -53,6 +82,20 @@ function asRecord(v: unknown): Record<string, unknown> | null {
   return v && typeof v === "object" ? (v as Record<string, unknown>) : null;
 }
 
+function asBoolean(value: unknown) {
+  return value === true;
+}
+
+function readApprovalBoolean(body: ApplyBody | null, key: string) {
+  const approvalPacket = asRecord(body?.approvalPacket);
+  const acknowledgements = asRecord(body?.acknowledgements);
+  return (
+    asBoolean((body as Record<string, unknown> | null)?.[key]) ||
+    asBoolean(approvalPacket?.[key]) ||
+    asBoolean(acknowledgements?.[key])
+  );
+}
+
 function errorMessage(e: unknown, fallback: string) {
   if (e instanceof Error && typeof e.message === "string" && e.message.trim()) return e.message;
   if (typeof e === "string" && e.trim()) return e;
@@ -69,6 +112,62 @@ function json400(msg: string) {
 
 function allowedTargetsList() {
   return Array.from(ALLOWED_TARGETS).sort().join(", ");
+}
+
+function hasPathTraversal(relPosix: string) {
+  const normalized = toPosix(relPosix).trim();
+  return (
+    !normalized ||
+    normalized.startsWith("/") ||
+    /^[a-z]:/i.test(normalized) ||
+    normalized.split("/").some((part) => part === "..")
+  );
+}
+
+function hasBinaryExtension(relPosix: string) {
+  const normalized = toPosix(relPosix).toLowerCase();
+  const dot = normalized.lastIndexOf(".");
+  const extension = dot >= 0 ? normalized.slice(dot) : "";
+  return BINARY_EXTENSIONS.has(extension);
+}
+
+function validateExplicitApprovalChecks(body: ApplyBody | null, diffs: readonly Diff[]) {
+  // explicit approval checks: no patch may apply unless approval, policy, preflight, dry-run,
+  // rollback, validation, no command execution, file write boundary, and latest-message authority pass.
+  const blocked: string[] = [];
+  const approvalPacket = asRecord(body?.approvalPacket);
+  const approved = body?.approved === true || approvalPacket?.approved === true;
+  const riskLevel = String(body?.riskLevel ?? approvalPacket?.riskLevel ?? "").trim().toLowerCase();
+  const highRisk = riskLevel === "high" || riskLevel === "critical" || riskLevel === "blocked";
+
+  if (!approved) blocked.push("explicit approved flag is required");
+  if (!readApprovalBoolean(body, "acknowledgedPreviewDiff")) blocked.push("preview diff acknowledgement is required");
+  if (!readApprovalBoolean(body, "acknowledgedTouchedFiles")) blocked.push("touched files acknowledgement is required");
+  if (!readApprovalBoolean(body, "acknowledgedRiskLevel")) blocked.push("risk level acknowledgement is required");
+  if (!readApprovalBoolean(body, "acknowledgedRollbackPlan") && body?.rollbackPlanAcknowledged !== true) {
+    blocked.push("rollback plan acknowledgement is required");
+  }
+  if (!readApprovalBoolean(body, "acknowledgedValidationPlan") && body?.validationPlanAcknowledged !== true) {
+    blocked.push("validation plan acknowledgement is required");
+  }
+  if (!readApprovalBoolean(body, "acknowledgedNoCommandExecutionFromUi") && body?.noCommandExecutionAcknowledged !== true) {
+    blocked.push("no command execution acknowledgement is required");
+  }
+  if (!readApprovalBoolean(body, "acknowledgedFileWriteBoundary") && body?.fileWriteBoundaryAcknowledged !== true) {
+    blocked.push("file write boundary acknowledgement is required");
+  }
+  if (!readApprovalBoolean(body, "acknowledgedLatestMessageAuthority") && body?.latestMessageAuthorityAcknowledged !== true) {
+    blocked.push("latest-message authority acknowledgement is required");
+  }
+  if (highRisk && !readApprovalBoolean(body, "highRiskExtraAcknowledged") && body?.highRiskExtraAcknowledged !== true) {
+    blocked.push("high/critical risk extra acknowledgement is required");
+  }
+  if (body?.policyAllowed !== true) blocked.push("policyAllowed=true is required");
+  if (body?.preflightPassed !== true) blocked.push("preflightPassed=true is required");
+  if (body?.dryRunPassed !== true) blocked.push("dryRunPassed=true is required");
+  if (diffs.length > MAX_DIFFS) blocked.push(`touched file cap exceeded (max ${MAX_DIFFS})`);
+
+  return blocked;
 }
 
 /**
@@ -165,6 +264,10 @@ export async function POST(req: Request) {
     for (const d of diffs) {
       if (!d.filePath) return json400("diff.filePath is required");
       if (!d.patch) return json400("diff.patch is required");
+      if (d.patch.length > MAX_PATCH_CHARS) return json400(`Patch too large (max ${MAX_PATCH_CHARS} chars).`);
+      // path traversal guard: reject absolute paths, drive paths, and any '..' segment before resolving.
+      if (hasPathTraversal(d.filePath)) return json400(`Path traversal guard rejected: ${d.filePath}`);
+      if (hasBinaryExtension(d.filePath)) return json400(`Binary files are not accepted by apply route: ${d.filePath}`);
       if (!ALLOWED_TARGETS.has(d.filePath)) {
         return json400(`Target not allowed: ${d.filePath}. Allowed: ${allowedTargetsList()}`);
       }
@@ -196,6 +299,14 @@ export async function POST(req: Request) {
       const out: ApplyResult = { ok: true, dryRun: true, appliedFiles };
       return NextResponse.json(out);
     }
+
+    const approvalBlockers = validateExplicitApprovalChecks(body, diffs);
+    if (approvalBlockers.length > 0) {
+      return json400(`Approved apply blocked: ${approvalBlockers.join("; ")}`);
+    }
+
+    // no command execution, no tests/builds, no broker execution, no Brain mutation,
+    // no external network: this route only performs guarded local file writes after approval.
 
     // ---- CHECKPOINT BEFORE WRITES ----
     const checkpointId = safeCheckpointId();

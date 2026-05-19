@@ -26,6 +26,7 @@ export type StabilizationSource =
   | "patch-application-gate"
   | "apply-diff-dry-run"
   | "apply-diff-execution-gate"
+  | "approved-patch-apply"
   | "post-apply-verification"
   | "mission-control"
   | "memory-review"
@@ -233,6 +234,7 @@ export type StabilizationNextActionKind =
   | "prepare Safe Patch Preview"
   | "compose preview diff"
   | "review apply gate"
+  | "review approved patch apply"
   | "review runtime event executor"
   | "review runtime event journal"
   | "review runtime event replay"
@@ -327,6 +329,7 @@ export type StabilizationCommandCenterInput = {
   applyGateSummary?: StabilizationSummaryLike | null;
   applyDiffDryRunSummary?: StabilizationSummaryLike | null;
   applyDiffExecutionGateSummary?: StabilizationSummaryLike | null;
+  approvedPatchApplySummary?: StabilizationSummaryLike | null;
   postApplyVerificationSummary?: StabilizationSummaryLike | null;
   missionReadinessSummary?: StabilizationSummaryLike | null;
   memoryReviewSummary?: StabilizationSummaryLike | null;

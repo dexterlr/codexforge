@@ -79,6 +79,20 @@ export function buildCodexForgeApplyGateHandoffPromptPayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeApprovedPatchApplyReviewPromptPayload(): string {
+  return [
+    "Review Approved Patch Apply v1.",
+    "",
+    "Inspect first.",
+    "Approval required.",
+    "No command execution from UI.",
+    "No direct apply-diff from UI.",
+    "No file writes without approval.",
+    "Require preview diff, policy pass, preflight, dry-run preview, rollback plan, validation plan, and latest-message authority.",
+    "If request-ready/blocked, proceed to Phase 59 Validation Runner v1 planning; do not apply automatically.",
+  ].join("\n");
+}
+
 export function buildCodexForgeStabilizationHandoffPayload(): string {
   return [
     "CodexForge stabilization handoff",
@@ -118,5 +132,5 @@ export function buildCodexForgeContinuityValidationChecklistPayload(): string {
 }
 
 export function summarizeCodexForgeCopyPayloads(): string {
-  return "Copy payloads cover validation checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
+  return "Copy payloads cover validation checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, Approved Patch Apply review prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
 }

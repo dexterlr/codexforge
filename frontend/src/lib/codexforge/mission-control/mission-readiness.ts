@@ -178,6 +178,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
     detail:
       "Review approved apply request after a clean dry run; explicit operator approval required, apply-diff is approval-required, execute route is the guarded boundary, rollback plan required, verification required after dispatch, no silent execution, and preserve latest-message authority.",
   });
+  checks.push({
+    id: "approved-patch-apply-readiness",
+    label: "Approved Patch Apply readiness",
+    level: "needs-review",
+    detail:
+      "Review Approved Patch Apply v1 in /files for apply request, approval packet, policy, preflight, dry-run preview, rollback plan, validation capture, and request-ready/blocked bridge state; no command execution, no direct apply-diff from UI, no file writes without approval, preserve latest-message authority, and recommend Phase 59 Validation Runner v1.",
+  });
   const score = scoreMissionReadiness(checks.map((check) => check.level));
 
   return {

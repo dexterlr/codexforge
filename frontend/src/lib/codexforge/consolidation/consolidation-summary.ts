@@ -33,7 +33,7 @@ export function buildConsolidationSummary(): ConsolidationSummary {
     consolidationCandidateCount: cockpitAudit.items.length + routePlan.linkOnlyCandidateCount,
     workflowEntrypointCount: workflowEntrypoints.items.length,
     topRecommendation: consolidationPlan.topRecommendation,
-    recommendedNextPhase: "Phase 58 Approved Patch Apply v1",
+    recommendedNextPhase: "Phase 59 Validation Runner v1 after Approved Patch Apply v1 review",
     summary: [] as string[],
   };
   return { ...summary, summary: summarizeConsolidationSession(summary) };

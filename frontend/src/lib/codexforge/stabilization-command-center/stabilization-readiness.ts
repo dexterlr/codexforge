@@ -65,6 +65,11 @@ export function buildStabilizationReadiness(input: StabilizationCommandCenterInp
       detail: "Apply gate remains display-only here and requires explicit review elsewhere.",
     }),
     buildStabilizationReadinessCheck({
+      label: "Approved Patch Apply readiness",
+      status: statusFromSummary(input.approvedPatchApplySummary),
+      detail: "Review Approved Patch Apply v1 request-ready state for approval packet, policy, preflight, dry-run preview, rollback, validation commands, and guarded bridge status; review apply request / run validation manually.",
+    }),
+    buildStabilizationReadinessCheck({
       label: "rollback plan visible",
       status: statusFromSummary(input.rollbackSummary ?? input.postApplyVerificationSummary),
       detail: "Rollback plan must be visible before any future guarded apply.",

@@ -5,6 +5,7 @@ const WORKFLOWS: readonly Omit<ProductFunctionalWorkflowItem, "id">[] = [
   { label: "project file read", status: "functional", missingPieces: [], safetyBlockers: ["no source file mutation from UI"], nextFunctionalPhase: "Phase 57 Real Patch Preview v1", routeEntryPoints: ["/files"], validationNeeded: ["Local Project Reader smoke", "read-only safety assertions"], },
   { label: "File Reader v1 functional/read-only", status: "functional", missingPieces: [], safetyBlockers: ["no source file mutation from UI", "no command execution from UI"], nextFunctionalPhase: "Phase 57 Real Patch Preview v1", routeEntryPoints: ["/files"], validationNeeded: ["Local Project Reader smoke", "Files smoke"], },
   { label: "Patch Preview v1 functional/preview-only", status: "functional", missingPieces: [], safetyBlockers: ["no apply from UI", "no file writes from UI", "no command execution from UI"], nextFunctionalPhase: "Phase 58 Approved Patch Apply v1", routeEntryPoints: ["/files"], validationNeeded: ["Real Patch Preview smoke", "Local Project Reader smoke", "git diff --check"] },
+  { label: "Approved Patch Apply v1 request-ready", status: "preview-only", missingPieces: ["guarded apply execution remains blocked until safe API bridge is available"], safetyBlockers: ["explicit approval required", "dry-run/preflight required", "rollback plan required", "validation plan required", "no direct apply-diff from UI"], nextFunctionalPhase: "Phase 59 Validation Runner v1", routeEntryPoints: ["/files"], validationNeeded: ["Approved Patch Apply smoke", "git diff --check"] },
   { label: "file-to-brain context", status: "scaffolded", missingPieces: ["visible selected file to Brain context handoff"], safetyBlockers: ["no graph mutation"], nextFunctionalPhase: "Make Files real read-only workflow", routeEntryPoints: ["/files", "/brain"], validationNeeded: ["Brain context smoke"] },
   { label: "chat-to-task", status: "scaffolded", missingPieces: ["single reviewed task creation path"], safetyBlockers: ["latest-message authority preserved"], nextFunctionalPhase: "Functional workflow pass", routeEntryPoints: ["/ai", "/tasks"], validationNeeded: ["task activation smoke"] },
   { label: "task-to-patch-preview", status: "preview-only", missingPieces: ["task output to patch preview queue"], safetyBlockers: ["no apply without approval"], nextFunctionalPhase: "Make Patch Preview real", routeEntryPoints: ["/tasks", "/ai"], validationNeeded: ["patch preview queue smoke"] },
@@ -51,6 +52,6 @@ export function summarizeFunctionalWorkflowAudit(audit: Pick<ProductFunctionalWo
   return [
     `${audit.functionalCount}/${audit.items.length} workflows are fully functional.`,
     `${audit.blockedCount} workflows are blocked; most remain preview-only or scaffolded.`,
-    "Patch Preview v1 functional/preview-only can now recommend Phase 58 Approved Patch Apply v1.",
+    "Approved Patch Apply v1 request-ready can now recommend Phase 59 Validation Runner v1.",
   ];
 }

@@ -59,6 +59,11 @@ const ACTION_DETAIL: Record<StabilizationNextActionKind, { title: string; detail
     detail: "Review Patch Application Gate, dry run, and execution gate posture; no direct dispatch here.",
     targetRoute: "/ai",
   },
+  "review approved patch apply": {
+    title: "Review approved patch apply",
+    detail: "Review Approved Patch Apply readiness, apply request, approval packet, preflight, dry-run preview, rollback, and validation commands; run validation manually.",
+    targetRoute: "/files",
+  },
   "review runtime event executor": {
     title: "Review runtime event executor",
     detail: "Review Guarded Runtime Event Executor request, policy, validation, approval, reducer preview, audit ledger, and result before append-only execution.",
@@ -173,6 +178,11 @@ export function selectStabilizationNextAction(args: {
     return makeAction("review apply gate", "primary");
   }
 
+  const approvedPatchApply = queueRollup ? findRollup(queueRollup, "Approved Patch Apply") : null;
+  if (approvedPatchApply && approvedPatchApply.count > 0) {
+    return makeAction("review approved patch apply", "primary");
+  }
+
   if (signals.some((signal) => signal.type === "rollback-posture" && signal.reviewRequired)) {
     return makeAction("prepare rollback", "primary");
   }
@@ -215,6 +225,7 @@ export function buildStabilizationNextActionPlan(input: StabilizationCommandCent
     makeAction("prepare Safe Patch Preview"),
     makeAction("compose preview diff"),
     makeAction("review apply gate"),
+    makeAction("review approved patch apply"),
     makeAction("review runtime event executor"),
     makeAction("review runtime event journal"),
     makeAction("review runtime event replay"),

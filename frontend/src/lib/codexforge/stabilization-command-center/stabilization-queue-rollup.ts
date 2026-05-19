@@ -112,6 +112,12 @@ export function buildStabilizationQueueRollup(input: StabilizationCommandCenterI
       targetRoute: "/ai",
     }),
     buildStabilizationQueueRollupItem({
+      label: "Approved Patch Apply",
+      summary: input.approvedPatchApplySummary,
+      nextAction: "Review approved patch apply request and run validation manually.",
+      targetRoute: "/files",
+    }),
+    buildStabilizationQueueRollupItem({
       label: "Post-Apply Verification",
       summary: input.postApplyVerificationSummary,
       nextAction: "Prepare post-apply verification checklist.",

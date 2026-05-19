@@ -38,6 +38,7 @@ export {
 export {
   buildCodexForgeSafePatchPromptPayload,
   buildCodexForgeApplyGateHandoffPromptPayload,
+  buildCodexForgeApprovedPatchApplyReviewPromptPayload,
   buildCodexForgeFileInspectionPromptPayload,
   buildCodexForgeProjectReaderPatchPreviewPromptPayload,
   buildCodexForgeRealPatchReviewPromptPayload,
