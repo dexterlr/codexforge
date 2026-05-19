@@ -9,6 +9,8 @@ export * from "./navigation-shell-summary";
 export {
   buildCodexForgeNavigationRoute,
   buildCodexForgeNavigationRoutes,
+  dedupeCodexForgeNavigationRouteInputs,
+  dedupeCodexForgeNavigationRoutes,
   summarizeCodexForgeNavigationRoutes,
 } from "./navigation-route-registry";
 export {

@@ -26,6 +26,7 @@ export type CodexForgeRoute = {
     | "ai-router"
     | "capabilities"
     | "creative"
+    | "comfyui"
     | "creative-bridge"
     | "history"
     | "entry"
@@ -210,6 +211,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Production",
     description: "Creative briefs, production plans, render previews, and artifact flow.",
+  },
+  {
+    id: "comfyui",
+    path: "/comfyui",
+    label: "ComfyUI Adapter Preview",
+    shortLabel: "ComfyUI",
+    priority: "secondary",
+    showInGlobalNav: true,
+    group: "Production",
+    description: "Preview-only ComfyUI workflow manifest, prompt nodes, approval packet, and future executor handoff.",
   },
   {
     id: "creative-bridge",

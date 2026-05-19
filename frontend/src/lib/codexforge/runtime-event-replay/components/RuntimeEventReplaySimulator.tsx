@@ -133,11 +133,7 @@ export function RuntimeEventReplaySimulator({
                 Copy replay handoff
               </button>
               <Link href="/runtime-journal" style={heroLink}>Runtime Event Journal</Link>
-              <Link href="/brain-snapshots" style={heroLink}>Brain Snapshot Manager</Link>
               <Link href="/snapshot-restore" style={heroLink}>Snapshot Restore Gate</Link>
-              <Link href="/brain-governance" style={heroLink}>Brain Mutation Governance</Link>
-              <Link href="/brain" style={heroLink}>Brain reducer surface</Link>
-              <Link href="/stabilization" style={heroLink}>Stabilization</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>
           </div>
@@ -188,16 +184,16 @@ function HeroStat({ label, value }: { label: string; value: string }) {
 
 const safeText: CSSProperties = { minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere", wordBreak: "break-word" };
 const shell: CSSProperties = { display: "grid", gap: 16, minWidth: 0, width: "100%" };
-const hero: CSSProperties = { alignItems: "center", border: "1px solid rgba(45,212,191,0.2)", background: "linear-gradient(135deg, rgba(5,13,29,0.96), rgba(15,23,42,0.8))", borderRadius: 8, display: "grid", gap: 18, gridTemplateColumns: "minmax(0, 1.18fr) minmax(min(100%, 460px), 0.82fr)", minWidth: 0, padding: 20 };
+const hero: CSSProperties = { alignItems: "center", border: "1px solid rgba(45,212,191,0.2)", background: "linear-gradient(135deg, rgba(5,13,29,0.96), rgba(15,23,42,0.8))", borderRadius: 8, display: "grid", gap: 18, gridTemplateColumns: "minmax(0, 1fr)", minWidth: 0, padding: 20 };
 const heroCopy: CSSProperties = { display: "grid", gap: 10, minWidth: 0 };
 const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 12, fontWeight: 900, textTransform: "uppercase", ...safeText };
-const headline: CSSProperties = { color: "#f8fafc", fontSize: 42, letterSpacing: 0, lineHeight: 1.06, margin: 0, ...safeText };
+const headline: CSSProperties = { color: "#f8fafc", fontSize: 42, letterSpacing: 0, lineHeight: 1.06, margin: 0, maxWidth: 980, minWidth: 0, overflowWrap: "normal", wordBreak: "normal" };
 const lede: CSSProperties = { color: "#cbd5e1", fontSize: 15, lineHeight: 1.55, margin: 0, maxWidth: 980, ...safeText };
 const heroActions: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8, minWidth: 0 };
 const copyButton: CSSProperties = { border: "1px solid rgba(45,212,191,0.24)", background: "rgba(20,184,166,0.12)", borderRadius: 8, color: "#ccfbf1", cursor: "pointer", fontSize: 12, fontWeight: 900, padding: "9px 11px", ...safeText };
 const heroLink: CSSProperties = { border: "1px solid rgba(125,211,252,0.2)", background: "rgba(14,165,233,0.1)", borderRadius: 8, color: "#e0f2fe", fontSize: 12, fontWeight: 900, padding: "9px 11px", textDecoration: "none", ...safeText };
 const copiedPill: CSSProperties = { border: "1px solid rgba(148,163,184,0.16)", borderRadius: 8, color: "#cbd5e1", fontSize: 12, fontWeight: 850, padding: "9px 11px", ...safeText };
-const heroStats: CSSProperties = { display: "grid", gap: 10, gridTemplateColumns: "repeat(2, minmax(0, 1fr))", minWidth: 0 };
+const heroStats: CSSProperties = { display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))", minWidth: 0 };
 const stat: CSSProperties = { border: "1px solid rgba(148,163,184,0.16)", background: "rgba(2,6,23,0.42)", borderRadius: 8, display: "grid", gap: 5, minWidth: 0, padding: 12 };
 const statLabel: CSSProperties = { color: "#94a3b8", fontSize: 10, fontWeight: 850, textTransform: "uppercase", ...safeText };
 const statValue: CSSProperties = { color: "#ccfbf1", fontSize: 18, lineHeight: 1.15, ...safeText };

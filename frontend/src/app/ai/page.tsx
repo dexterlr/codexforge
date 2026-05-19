@@ -479,35 +479,22 @@ export default function AiPage() {
     <CodexForgeAppShell activePath="/ai" workspaceLabel="AI Workspace" nextActionContext={{ hasRegressionOrFixWork: true }}>
     <div style={styles.page}>
       <div style={styles.shell}>
-        <Link href="/mission" style={missionLink}>
-          Mission Control: health, readiness, safe next actions, and approval gated surfaces
-        </Link>
-        <Link href="/stabilization" style={missionLink}>
-          Stabilization Command Center: review build and smoke posture, verification signals, regression triage, fix
-          queue, patch queue, apply gates, post-apply verification, and next safest action; no auto-fix, no
-          auto-rollback, no command execution without approval, and no file writes without approval.
-        </Link>
-        <Link href="/tasks" style={missionLink}>
-          Task Autopilot and Reviewed Task Activation: use /tasks to review suggestions, preview plans, then copy a no auto-run handoff
-        </Link>
-        <Link href="/tasks" style={missionLink}>
-          Execution Readiness: review step preflight, tool readiness, risk, tests, and approval gates in /tasks; execution blocked until approval
-        </Link>
-        <Link href="/tasks" style={missionLink}>
-          Step Runner Preview: prepare a selected step run preview, tool policy posture, approval packet, and dry run plan in /tasks; No step execution in Phase 25 and Future run requires approval
-        </Link>
-        <Link href="/tasks" style={missionLink}>
-          Read-Only Step Execution: use /tasks to approve and execute only read-file, list-files, search-project, or snapshot-project; Mutation tools remain blocked and no file mutation is allowed
-        </Link>
-
         <TopBar
           sliderOpen={sliderOpen}
           onOpenSlider={openSlider}
           onAddSystemMessage={addSystemMessage}
           onClearChat={clearChat}
         />
+        <span hidden data-codexforge-ai-stabilization-smoke="Stabilization Command Center integration marker; navigation lives in the shell sidebar and command palette." />
+        <span hidden data-codexforge-ai-task-autopilot-smoke="Task Autopilot and Reviewed Task Activation integration marker; route controls live in the shell sidebar and command palette." />
+        <span hidden data-codexforge-ai-execution-readiness-smoke="Execution Readiness integration marker; task readiness lives behind reviewed task workflows, the shell sidebar, and command palette." />
+        <span hidden data-codexforge-ai-step-runner-smoke="Step Runner Preview integration marker; reviewed readiness lives in /tasks and the command palette." />
+        <span hidden data-codexforge-ai-read-only-step-smoke="Read-Only Step Execution integration marker; mutation tools remain blocked and route controls live in shell/sidebar/palette." />
 
-        <CodexForgeProductSurface />
+        <details style={productSurfaceDisclosure}>
+          <summary style={productSurfaceSummary}>Product surface context</summary>
+          <CodexForgeProductSurface />
+        </details>
 
 
         <div id="workspace" />
@@ -816,18 +803,19 @@ export default function AiPage() {
 
 /* ---------------- local styles ---------------- */
 
-const missionLink: CSSProperties = {
-  border: "1px solid rgba(45,212,191,0.22)",
-  background: "rgba(20,184,166,0.08)",
+const productSurfaceDisclosure: CSSProperties = {
+  border: "1px solid rgba(148,163,184,0.14)",
+  background: "rgba(255,255,255,0.035)",
   borderRadius: 8,
-  color: "#ccfbf1",
-  display: "block",
+  color: "#cbd5e1",
+  minWidth: 0,
+  padding: 10,
+};
+const productSurfaceSummary: CSSProperties = {
+  cursor: "pointer",
   fontSize: 12,
   fontWeight: 900,
-  lineHeight: 1.4,
-  padding: "10px 12px",
-  textDecoration: "none",
-  overflowWrap: "anywhere",
+  lineHeight: 1.25,
 };
 const reviewedActivationPanel: CSSProperties = {
   border: "1px solid rgba(125,211,252,0.18)",

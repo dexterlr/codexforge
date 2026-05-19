@@ -22,6 +22,7 @@ export type OperatorHomeRoutePath =
   | "/closed-loop"
   | "/memory"
   | "/creative"
+  | "/comfyui"
   | "/capabilities"
   | "/activity"
   | "/readiness"

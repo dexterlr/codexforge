@@ -40,6 +40,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/brain-governance": true,
   "/creative": true,
   "/blender": true,
+  "/comfyui": true,
   "/creative-bridge": true,
   "/capabilities": true,
   "/activity": true,
@@ -255,6 +256,14 @@ export function buildCodexForgeCommands(
       href: "/blender",
       keywords: ["blender", "adapter", "preview", "scene", "route"],
       priority: 70.5,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-comfyui-adapter-preview",
+      label: "Go to ComfyUI Adapter Preview",
+      description: "Navigate to ComfyUI Adapter Preview v1 workflow manifest and approval packet.",
+      href: "/comfyui",
+      keywords: ["comfyui", "adapter", "workflow", "preview", "route"],
+      priority: 70.75,
     }),
     buildRouteCommand(availability, {
       id: "go-creative-local-bridge",

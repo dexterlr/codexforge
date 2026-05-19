@@ -95,6 +95,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "UI"; File = "smoke-codexforge-ui.ps1"; Required = $true },
   @{ Name = "Operator Home Dashboard"; File = "smoke-codexforge-operator-home-dashboard.ps1"; Required = $true },
   @{ Name = "Navigation Shell"; File = "smoke-codexforge-navigation-shell.ps1"; Required = $true },
+  @{ Name = "Command UI Simplification"; File = "smoke-codexforge-command-ui-simplification.ps1"; Required = $true },
   @{ Name = "UX Unification"; File = "smoke-codexforge-ux-unification.ps1"; Required = $true },
   @{ Name = "UX Layout Rescue"; File = "smoke-codexforge-ux-layout-rescue.ps1"; Required = $true },
   @{ Name = "Stabilization Command Center"; File = "smoke-codexforge-stabilization-command-center.ps1"; Required = $true },
@@ -123,5 +124,6 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Artifacts Suite"; File = "smoke-codexforge-artifacts-suite.ps1"; Required = $true },
   @{ Name = "Creative Suite"; File = "smoke-codexforge-creative-suite.ps1"; Required = $true },
   @{ Name = "Creative Local Bridge"; File = "smoke-codexforge-creative-local-bridge.ps1"; Required = $true },
-  @{ Name = "Blender Adapter Preview"; File = "smoke-codexforge-blender-adapter-preview.ps1"; Required = $true }
+  @{ Name = "Blender Adapter Preview"; File = "smoke-codexforge-blender-adapter-preview.ps1"; Required = $true },
+  @{ Name = "ComfyUI Adapter Preview"; File = "smoke-codexforge-comfyui-adapter-preview.ps1"; Required = $true }
 )

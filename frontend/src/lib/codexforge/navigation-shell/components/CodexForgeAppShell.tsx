@@ -32,6 +32,12 @@ export function CodexForgeAppShell({
   routeAvailability,
   nextActionContext,
   contentMaxWidth = 1680,
+  showRouteTray = false,
+  routeTrayDefaultOpen = false,
+  showHeroRouteChips = false,
+  showRightRailRouteGroups = false,
+  showSafetyStrip = true,
+  pageDensity = "standard",
 }: CodexForgeAppShellProps) {
   const pathname = usePathname() ?? "/";
   const resolvedPath = activePath ?? pathname;
@@ -82,18 +88,24 @@ export function CodexForgeAppShell({
         <CodexForgeSidebar sections={sections} activeHref={routeState.activeRoute.href} />
         <div style={mainColumn}>
           <CodexForgeShellMobileNav routes={routes} activeHref={routeState.activeRoute.href} />
-          <div style={paletteDock}>
-            <CodexForgeCommandPalette routeAvailability={routeAvailability} />
-          </div>
-          <CodexForgeTopbar routeState={routeState} routes={routes} />
-          <CodexForgeSafetyPostureStrip posture={safetyPosture} />
-          <div style={deck}>
+          <CodexForgeTopbar
+            routeState={routeState}
+            routes={routes}
+            showRouteTray={showRouteTray}
+            routeTrayDefaultOpen={routeTrayDefaultOpen}
+            showHeroRouteChips={showHeroRouteChips}
+            commandPalette={<CodexForgeCommandPalette routeAvailability={routeAvailability} />}
+          />
+          {showSafetyStrip ? <CodexForgeSafetyPostureStrip posture={safetyPosture} /> : null}
+          <div style={pageDensity === "focus" ? focusDeck : deck}>
             <div style={content} data-codexforge-shell-content-key={buildCodexForgeShellStableKey([routeState.activeRoute.href, routeState.activeGroup])}>
               {children}
             </div>
-            <aside style={sideRail}>
+            <aside style={sideRail} data-codexforge-right-rail="page-specific context only; route groups hidden by default">
               <CodexForgeNextActionDock action={nextActionPlan.selected} />
-              <CodexForgeWorkspaceMap sections={sections} activeHref={routeState.activeRoute.href} />
+              {showRightRailRouteGroups ? (
+                <CodexForgeWorkspaceMap sections={sections} activeHref={routeState.activeRoute.href} />
+              ) : null}
               <section style={sessionPanel}>
                 <span style={sessionLabel}>Shell summary</span>
                 <p style={sessionText}>{summaryText}</p>
@@ -148,17 +160,19 @@ const mainColumn: CSSProperties = {
   minWidth: 0,
 };
 
-const paletteDock: CSSProperties = {
-  display: "flex",
-  justifyContent: "flex-end",
-  minWidth: 0,
-};
-
 const deck: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 16,
   gridTemplateColumns: "minmax(0, 1fr) clamp(260px, 19vw, 320px)",
+  minWidth: 0,
+  width: "100%",
+};
+
+const focusDeck: CSSProperties = {
+  display: "grid",
+  gap: 16,
+  gridTemplateColumns: "minmax(0, 1fr)",
   minWidth: 0,
   width: "100%",
 };

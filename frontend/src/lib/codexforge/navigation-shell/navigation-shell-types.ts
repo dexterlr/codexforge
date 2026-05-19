@@ -19,6 +19,7 @@ export type CodexForgeNavigationRouteId =
   | "brain-governance"
   | "creative"
   | "blender"
+  | "comfyui"
   | "creative-bridge"
   | "capabilities"
   | "activity"
@@ -47,6 +48,7 @@ export type CodexForgeNavigationRouteHref =
   | "/brain-governance"
   | "/creative"
   | "/blender"
+  | "/comfyui"
   | "/creative-bridge"
   | "/capabilities"
   | "/activity"
@@ -98,6 +100,7 @@ export type CodexForgeCommandDeckRole =
   | "brain-governance"
   | "production"
   | "blender-preview"
+  | "comfyui-preview"
   | "creative-bridge"
   | "capability"
   | "activity-feed"
@@ -231,4 +234,10 @@ export type CodexForgeAppShellProps = {
   routeAvailability?: CodexForgeNavigationRouteAvailability;
   nextActionContext?: CodexForgeShellNextActionContext;
   contentMaxWidth?: number;
+  showRouteTray?: boolean;
+  routeTrayDefaultOpen?: boolean;
+  showHeroRouteChips?: boolean;
+  showRightRailRouteGroups?: boolean;
+  showSafetyStrip?: boolean;
+  pageDensity?: "compact" | "standard" | "focus";
 };

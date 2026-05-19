@@ -9,13 +9,17 @@ export function CodexForgeRouteSwitcher({
   routes: readonly CodexForgeNavigationRoute[];
   activeHref: string;
 }) {
+  const dedupedRoutes = routes.filter(
+    (route, index, allRoutes) => allRoutes.findIndex((candidate) => candidate.href === route.href) === index
+  );
+
   return (
     <nav
       aria-label="CodexForge route switcher"
-      data-codexforge-route-switcher="CodexForgeRouteSwitcher renders AI Workspace Brain Files Stabilization"
+      data-codexforge-route-switcher="CodexForgeRouteSwitcher renders AI Workspace Brain Files Stabilization dedupes route entries by href"
       style={wrap}
     >
-      {routes.map((route) => {
+      {dedupedRoutes.map((route) => {
         const active = route.href === activeHref;
         return (
           <Link

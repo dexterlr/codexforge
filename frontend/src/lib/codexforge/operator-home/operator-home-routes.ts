@@ -32,6 +32,7 @@ const ROUTE_ORDER: OperatorHomeRoutePath[] = [
   "/closed-loop",
   "/memory",
   "/creative",
+  "/comfyui",
   "/capabilities",
   "/activity",
   "/readiness",
@@ -160,6 +161,18 @@ const ROUTE_DEFINITIONS: Record<OperatorHomeRoutePath, RouteDefinition> = {
     riskPosture: "preview-only",
     nextAction: "Review active creative production planning.",
     badge: "Studio",
+    requiredReview: true,
+  },
+  "/comfyui": {
+    href: "/comfyui",
+    label: "ComfyUI Adapter Preview",
+    description:
+      "Preview-only ComfyUI workflow manifest, prompt nodes, approval packet, and future executor handoff.",
+    domain: "creative",
+    readiness: "needs-review",
+    riskPosture: "preview-only",
+    nextAction: "Review workflow manifest and approval packet before any future ComfyUI executor boundary.",
+    badge: "ComfyUI",
     requiredReview: true,
   },
   "/capabilities": {

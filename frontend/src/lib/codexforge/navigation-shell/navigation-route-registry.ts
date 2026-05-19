@@ -25,6 +25,7 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/brain-governance",
   "/creative",
   "/blender",
+  "/comfyui",
   "/creative-bridge",
   "/capabilities",
   "/activity",
@@ -70,7 +71,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "ai-router",
     href: "/ai-router",
     label: "AI Router",
-    shortLabel: "AI",
+    shortLabel: "Router",
     description: "Preview-only provider and model route planning with no API keys stored and no provider calls.",
     group: "Start",
     readiness: "preview-only",
@@ -115,7 +116,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "tasks",
     href: "/tasks",
     label: "Tasks Workflow",
-    shortLabel: "Fix",
+    shortLabel: "Tasks",
     description: "Reviewed task activation, readiness previews, and copy-only handoffs.",
     group: "Build",
     readiness: "review-required",
@@ -160,7 +161,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "memory-inbox",
     href: "/memory-inbox",
     label: "Memory Inbox",
-    shortLabel: "Memory",
+    shortLabel: "Inbox",
     description: "Review-first Personal Operator Memory Inbox with Memory Promotion Gate approval, policy, memory.promoted event preview, and blocked execution bridge.",
     group: "Memory",
     readiness: "review-required",
@@ -175,7 +176,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "runtime-journal",
     href: "/runtime-journal",
     label: "Runtime Journal",
-    shortLabel: "Audit",
+    shortLabel: "Journal",
     description: "Read-only Runtime Event Journal for requests, approvals, policy, validation, reducer previews, blocked or ready results, and append-only audit handoffs.",
     group: "Audit",
     readiness: "review-required",
@@ -190,7 +191,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "runtime-replay",
     href: "/runtime-replay",
     label: "Runtime Replay",
-    shortLabel: "Audit",
+    shortLabel: "Replay",
     description: "Preview-only Runtime Event Replay Simulator for selected journal events, graph snapshot reducer preview, impact analysis, risk detection, and rollback guidance.",
     group: "Audit",
     readiness: "preview-only",
@@ -205,7 +206,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "brain-snapshots",
     href: "/brain-snapshots",
     label: "Brain Snapshots",
-    shortLabel: "Brain",
+    shortLabel: "Snapshots",
     description: "Read-only Brain Snapshot Manager for summary, comparison, integrity review, replay source selection, rollback planning, and memory governance review.",
     group: "Brain",
     readiness: "preview-only",
@@ -220,7 +221,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "snapshot-restore",
     href: "/snapshot-restore",
     label: "Snapshot Restore Gate",
-    shortLabel: "Brain",
+    shortLabel: "Restore",
     description: "Preview-only Snapshot Restore Approval Gate for restore candidate evidence, approval packet, and future executor request preview.",
     group: "Brain",
     readiness: "preview-only",
@@ -235,7 +236,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "brain-continuity",
     href: "/brain-continuity",
     label: "Brain Continuity",
-    shortLabel: "Brain",
+    shortLabel: "Continuity",
     description: "Read-only Brain Continuity Dashboard for memory growth, runtime journal health, snapshot posture, replay readiness, restore risk, governance posture, and next safe action.",
     group: "Brain",
     readiness: "review-required",
@@ -265,7 +266,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "brain-governance",
     href: "/brain-governance",
     label: "Brain Governance",
-    shortLabel: "Brain",
+    shortLabel: "Governance",
     description: "Read-only Brain Mutation Governance Console for approved boundaries, direct mutation signals, reducer impact, integrity posture, and risk review.",
     group: "Brain",
     readiness: "review-required",
@@ -306,6 +307,21 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     noMutation: true,
     commandDeckRole: "blender-preview",
   },
+  "/comfyui": {
+    id: "comfyui",
+    href: "/comfyui",
+    label: "ComfyUI Adapter Preview",
+    shortLabel: "ComfyUI",
+    description: "Preview-only ComfyUI workflow manifest, prompt nodes, approval packet, and future executor handoff.",
+    group: "Creative",
+    readiness: "preview-only",
+    safetyPosture: "operator-safe",
+    badge: "Preview",
+    priority: 70.75,
+    requiresReview: true,
+    noMutation: true,
+    commandDeckRole: "comfyui-preview",
+  },
   "/creative-bridge": {
     id: "creative-bridge",
     href: "/creative-bridge",
@@ -325,7 +341,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "capabilities",
     href: "/capabilities",
     label: "Capability Cockpit",
-    shortLabel: "Bridge",
+    shortLabel: "Capabilities",
     description: "Tool readiness, policy boundaries, consent posture, and blocked execution visibility.",
     group: "Advanced",
     readiness: "available",
@@ -355,7 +371,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "readiness",
     href: "/readiness",
     label: "Product Readiness Audit",
-    shortLabel: "Audit",
+    shortLabel: "Readiness",
     description: "Read-only product readiness audit cockpit for route, smoke, safety, UX, consolidation, and functional workflow posture.",
     group: "Audit",
     readiness: "review-required",
@@ -370,7 +386,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "consolidation",
     href: "/consolidation",
     label: "Consolidation",
-    shortLabel: "Audit",
+    shortLabel: "Consolidation",
     description: "Read-only consolidation cockpit for route prominence, shared readiness, safety copy, workflow entrypoints, and Phase 56 planning.",
     group: "Audit",
     readiness: "review-required",
@@ -400,7 +416,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "stabilization",
     href: "/stabilization",
     label: "Stabilization Command Center",
-    shortLabel: "Fix",
+    shortLabel: "Stabilize",
     description: "Build posture, smoke posture, regression queues, apply gates, and next safest action.",
     group: "Fix",
     readiness: "available",
@@ -447,7 +463,7 @@ export function buildCodexForgeNavigationRoutes(
   ) as CodexForgeNavigationRouteAvailability,
   suppliedRoutes: readonly CodexForgeNavigationRouteInput[] = []
 ): CodexForgeNavigationRoute[] {
-  const suppliedByHref = new Map(suppliedRoutes.map((route) => [route.href, route]));
+  const suppliedByHref = new Map(dedupeCodexForgeNavigationRouteInputs(suppliedRoutes).map((route) => [route.href, route]));
   const knownRoutes = ROUTE_ORDER.filter((href) => availability[href] === true).map((href) =>
     buildCodexForgeNavigationRoute(suppliedByHref.get(href) ?? { href })
   );
@@ -455,7 +471,29 @@ export function buildCodexForgeNavigationRoutes(
     .filter((route) => !ROUTE_ORDER.includes(route.href) && availability[route.href] === true)
     .map(buildCodexForgeNavigationRoute);
 
-  return [...knownRoutes, ...explicitUnknown].sort((a, b) => a.priority - b.priority || a.href.localeCompare(b.href));
+  return dedupeCodexForgeNavigationRoutes([...knownRoutes, ...explicitUnknown]).sort((a, b) => a.priority - b.priority || a.href.localeCompare(b.href));
+}
+
+export function dedupeCodexForgeNavigationRouteInputs(
+  routes: readonly CodexForgeNavigationRouteInput[]
+): CodexForgeNavigationRouteInput[] {
+  const byHref = new Map<CodexForgeNavigationRouteHref, CodexForgeNavigationRouteInput>();
+  for (const route of routes) {
+    byHref.set(route.href, route);
+  }
+
+  return [...byHref.values()];
+}
+
+export function dedupeCodexForgeNavigationRoutes(
+  routes: readonly CodexForgeNavigationRoute[]
+): CodexForgeNavigationRoute[] {
+  const byHref = new Map<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>();
+  for (const route of routes) {
+    byHref.set(route.href, route);
+  }
+
+  return [...byHref.values()];
 }
 
 export function summarizeCodexForgeNavigationRoutes(
