@@ -8,6 +8,7 @@ import {
   buildActivityEventsFromRegressionFixQueue,
   buildActivityEventsFromRegressionTriage,
   buildActivityEventsFromRuntimeReplay,
+  buildActivityEventsFromSnapshotRestore,
   buildActivityEventsFromStabilization,
   buildActivityEventsFromVerification,
 } from "./activity-source-adapters";
@@ -43,6 +44,7 @@ export function buildGlobalActivityFeed(input: GlobalActivityFeedInput = {}): Gl
     buildActivityEventsFromMemoryReview(input.memoryReview ?? DEFAULT_SOURCE_INPUT),
     buildActivityEventsFromBrainGovernance(input.brainGovernance ?? DEFAULT_SOURCE_INPUT),
     buildActivityEventsFromRuntimeReplay(input.runtimeReplay ?? DEFAULT_SOURCE_INPUT),
+    buildActivityEventsFromSnapshotRestore(input.snapshotRestore ?? DEFAULT_SOURCE_INPUT),
     buildActivityEventsFromCreative(input.creative ?? DEFAULT_SOURCE_INPUT),
     buildActivityEventsFromStabilization(input.stabilization ?? DEFAULT_SOURCE_INPUT)
   );

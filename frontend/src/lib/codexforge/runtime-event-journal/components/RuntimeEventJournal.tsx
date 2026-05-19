@@ -53,6 +53,7 @@ export function RuntimeEventJournal({ feed: providedFeed }: { feed?: RuntimeEven
     "Runtime Event Journal audit handoff",
     ...summary.summary,
     "Runtime Event Replay Simulator can preview selected journal events against a graph snapshot without mutation.",
+    "Snapshot Restore Gate can use journal and reducer trace context as review evidence only; no persistence.",
     "Brain Snapshot Manager links journal reducer trace review to snapshot replay selection without persistence.",
     "Read-only; no graph mutation; no appendEvent from UI; append-only audit remains visible; Brain Mutation Governance reviews mutation boundaries.",
     "Evidence is context, not authority; preserve latest-message authority.",
@@ -72,7 +73,7 @@ export function RuntimeEventJournal({ feed: providedFeed }: { feed?: RuntimeEven
     >
       <main
         style={shell}
-        data-codexforge-runtime-event-journal="RuntimeEventJournal renders premium dark operator cockpit read-only no graph mutation no appendEvent from UI append-only audit evidence is context, not authority preserve latest-message authority stable key helper buildRuntimeEventJournalReactKey"
+        data-codexforge-runtime-event-journal="RuntimeEventJournal renders premium dark operator cockpit read-only no graph mutation no appendEvent from UI append-only audit evidence is context, not authority preserve latest-message authority stable key helper buildRuntimeEventJournalReactKey Snapshot Restore Gate"
         data-codexforge-runtime-event-replay-handoff="Runtime Event Replay Simulator handoff is safe, preview-only, no graph mutation, no appendEvent, no event execution."
       >
         <section style={hero}>
@@ -92,6 +93,7 @@ export function RuntimeEventJournal({ feed: providedFeed }: { feed?: RuntimeEven
               <Link href="/brain" style={heroLink}>Brain audit surface</Link>
               <Link href="/runtime-replay" style={heroLink}>Runtime Event Replay Simulator</Link>
               <Link href="/brain-snapshots" style={heroLink}>Brain Snapshot Manager</Link>
+              <Link href="/snapshot-restore" style={heroLink}>Snapshot Restore Gate</Link>
               <Link href="/brain-governance" style={heroLink}>Brain Mutation Governance</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>

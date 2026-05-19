@@ -20,6 +20,7 @@ export type CodexForgeRoute = {
     | "runtime-journal"
     | "runtime-replay"
     | "brain-snapshots"
+    | "snapshot-restore"
     | "files"
     | "runs"
     | "capabilities"
@@ -147,6 +148,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Intelligence",
     description: "Read-only Brain Snapshot Manager for deterministic snapshot summary, comparison, replay selection, rollback planning, and governance review.",
+  },
+  {
+    id: "snapshot-restore",
+    path: "/snapshot-restore",
+    label: "Snapshot Restore",
+    shortLabel: "Restore Gate",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Intelligence",
+    description: "Preview-only Snapshot Restore Approval Gate for candidate modeling, evidence review, explicit approval packet, and future executor request preview.",
   },
   {
     id: "files",

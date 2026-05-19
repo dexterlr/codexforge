@@ -78,11 +78,18 @@ export function BrainSnapshotManager({ snapshots: suppliedSnapshots }: { snapsho
   const rollback = useMemo(() => buildBrainSnapshotRollbackPlan({ currentSnapshot: selected, targetSnapshot: target }), [selected, target]);
   const governance = useMemo(() => buildBrainSnapshotGovernanceReport(selected), [selected]);
   const snapshotSummaryText = summarizeBrainSnapshot(selected).concat(summary.summary, integrity.summary, governance.summary).join("\n");
+  const restoreCandidateHandoff = [
+    "Snapshot Restore Approval Gate handoff",
+    `Selected source snapshot: ${selected.id}`,
+    `Target/live snapshot: ${target.id}`,
+    "Build restore candidate preview only; no restore execution, no persistence, no graph mutation, no appendEvent, and no saveBrainGraph from UI.",
+    "Review comparison evidence, replay evidence, governance review, runtime journal review, explicit approval packet, and future guarded snapshot executor boundary.",
+  ].join("\n");
 
   return (
     <CodexForgeAppShell activePath="/brain-snapshots" contentMaxWidth={1440}>
       <main
-        data-codexforge-brain-snapshot-manager="BrainSnapshotManager renders Brain Snapshot Manager read-only no graph mutation no snapshot restore in Phase 50 no appendEvent no saveBrainGraph from UI canonical graph schema preserve latest-message authority stable key helper"
+        data-codexforge-brain-snapshot-manager="BrainSnapshotManager renders Brain Snapshot Manager read-only no graph mutation no snapshot restore in Phase 50 no appendEvent no saveBrainGraph from UI canonical graph schema preserve latest-message authority stable key helper Snapshot Restore Approval Gate"
         style={{
           color: "#e5f4ff",
           display: "grid",
@@ -103,7 +110,9 @@ export function BrainSnapshotManager({ snapshots: suppliedSnapshots }: { snapsho
               <Link href="/runtime-replay" style={heroLink}>Runtime Event Replay</Link>
               <Link href="/brain-governance" style={heroLink}>Brain Governance</Link>
               <Link href="/runtime-journal" style={heroLink}>Runtime Journal</Link>
+              <Link href="/snapshot-restore" style={heroLink}>Snapshot Restore Approval Gate</Link>
               <button type="button" onClick={() => copyText(snapshotSummaryText)} style={button}>Copy snapshot summary</button>
+              <button type="button" onClick={() => copyText(restoreCandidateHandoff)} style={button}>Copy restore candidate handoff</button>
             </div>
           </div>
           <BrainSnapshotSafetyNotice />

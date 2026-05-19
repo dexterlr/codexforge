@@ -59,6 +59,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Brain Snapshot Manager readiness covers read-only snapshot comparison, integrity review, replay source selection, rollback planning, and memory governance review; no graph mutation, no appendEvent, no saveBrainGraph from UI, and no snapshot restore in Phase 50.",
     },
     {
+      id: "review-snapshot-restore-gate",
+      label: "Review snapshot restore gate",
+      href: "/snapshot-restore",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Snapshot Restore Approval Gate readiness covers restore candidate, comparison evidence, replay evidence, governance review, runtime journal review, approval packet, and request preview; restore blocked by default, no graph mutation, no appendEvent, no saveBrainGraph from UI, and future guarded snapshot executor required.",
+    },
+    {
       id: "review-memory-inbox",
       label: "Review memory inbox",
       href: "/memory-inbox",

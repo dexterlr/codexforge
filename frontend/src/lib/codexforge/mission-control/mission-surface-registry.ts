@@ -134,6 +134,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 50 Brain Snapshot Manager",
     }),
     buildMissionSurface({
+      id: "snapshot-restore",
+      label: "Snapshot Restore Approval Gate",
+      href: "/snapshot-restore",
+      status: "preview-ready",
+      role: "Preview-only restore approval gate for selected Brain snapshot candidate modeling, comparison evidence, replay evidence, governance review, runtime journal review, approval packet, request preview, and blocked future executor boundary.",
+      riskPosture: "preview-only",
+      nextAction: "Review snapshot restore gate.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 51 Snapshot Restore Approval Gate",
+    }),
+    buildMissionSurface({
       id: "brain-governance",
       label: "Brain Mutation Governance",
       href: "/brain-governance",

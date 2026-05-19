@@ -100,6 +100,11 @@ export function buildStabilizationReadiness(input: StabilizationCommandCenterInp
       detail: "Review Runtime Event Replay Simulator for selected journal events, graph snapshot reducer preview, impact analysis, risk detection, and rollback guidance; preview-only, no graph mutation, no appendEvent, no event execution, and no auto-persistence.",
     }),
     buildStabilizationReadinessCheck({
+      label: "Snapshot Restore Gate readiness",
+      status: "needs-review",
+      detail: "Review Snapshot Restore Gate readiness for restore candidate, comparison evidence, replay evidence, policy, approval packet, request preview, and blocked future executor boundary; no snapshot restore in Phase 51, no graph mutation, no appendEvent, and no saveBrainGraph from UI.",
+    }),
+    buildStabilizationReadinessCheck({
       label: "Brain Mutation Governance readiness",
       status: "needs-review",
       detail: "Review Brain Mutation Governance for approved mutation boundaries, blocked direct mutation signals, reducer impact governance, runtime journal integrity posture, risk board, and next safe action before any Brain or memory mutation path.",

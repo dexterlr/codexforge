@@ -46,6 +46,9 @@ export function selectGlobalActivityNextAction(events: readonly GlobalActivityEv
   if (ranked.some((event) => event.type === "runtime.replayPreviewed" || event.source === "runtime-replay")) {
     return action("review runtime event replay", "Review runtime event replay preview before any guarded runtime event decision.", "/runtime-replay", 92);
   }
+  if (ranked.some((event) => event.type === "snapshot.restoreReviewed" || event.source === "snapshot-restore")) {
+    return action("review snapshot restore gate", "Review snapshot restore approval gate before any future guarded snapshot executor request.", "/snapshot-restore", 93);
+  }
   if (ranked.some((event) => event.type === "brain.governanceReviewed" || event.source === "brain-governance")) {
     return action("review brain mutation governance", "Review mutation boundaries and direct mutation signals without persistence.", "/brain-governance", 95);
   }

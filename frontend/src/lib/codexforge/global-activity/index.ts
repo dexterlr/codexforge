@@ -21,6 +21,7 @@ export {
   buildActivityEventsFromApplyGate,
   buildActivityEventsFromMemoryReview,
   buildActivityEventsFromBrainGovernance,
+  buildActivityEventsFromSnapshotRestore,
   buildActivityEventsFromCreative,
   buildActivityEventsFromStabilization,
   summarizeActivitySources,

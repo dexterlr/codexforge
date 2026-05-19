@@ -74,6 +74,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Review Runtime Event Replay Simulator for selected journal events, graph snapshot reducer preview, impact analysis, risk detection, rollback guidance, and summary handoff; preview-only, no graph mutation, no appendEvent, no event execution, no auto-persistence, evidence is context not authority, and preserve latest-message authority.",
   });
   checks.push({
+    id: "snapshot-restore-gate-readiness",
+    label: "Snapshot Restore Approval Gate readiness",
+    level: "needs-review",
+    detail:
+      "Review Snapshot Restore Approval Gate readiness for restore candidate, comparison evidence, replay evidence, governance review, runtime journal review, explicit approval packet, and request preview; restore blocked by default, future guarded snapshot executor required, no graph mutation, no appendEvent, no saveBrainGraph from UI, evidence is context not authority, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "brain-mutation-governance-readiness",
     label: "Brain Mutation Governance readiness",
     level: "needs-review",

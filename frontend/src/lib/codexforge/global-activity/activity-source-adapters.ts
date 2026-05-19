@@ -148,6 +148,21 @@ export function buildActivityEventsFromRuntimeReplay(inputs?: readonly GlobalAct
   });
 }
 
+export function buildActivityEventsFromSnapshotRestore(inputs?: readonly GlobalActivitySourceSummaryInput[]): GlobalActivityEvent[] {
+  return buildEvents(inputs, {
+    type: "snapshot.restoreReviewed",
+    source: "snapshot-restore",
+    surface: "Snapshot Restore Approval Gate",
+    title: "Snapshot Restore Approval Gate review ready",
+    detail: "Review restore candidate, comparison evidence, replay evidence, policy, approval packet, and request preview; preview-only, restore blocked by default, no graph mutation, no appendEvent, no saveBrainGraph from UI, and no auto-persistence.",
+    severity: "warning",
+    status: "review-required",
+    reviewRequired: true,
+    nextActionLabel: "review snapshot restore gate",
+    route: "/snapshot-restore",
+  });
+}
+
 export function buildActivityEventsFromCreative(inputs?: readonly GlobalActivitySourceSummaryInput[]): GlobalActivityEvent[] {
   return buildEvents(inputs, {
     type: "creative.planCreated",

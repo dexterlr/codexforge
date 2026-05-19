@@ -40,6 +40,7 @@ export function buildMissionActivityTimeline(): MissionActivityTimeline {
     buildMissionActivityItem("operator-memory-inbox-added", "Personal Operator Memory Inbox added", "Phase 44", "Signals become reviewed memory inbox cards with confidence, importance, risk, dedupe, and promotion preview only; no auto-promotion and no Brain graph mutation.", "needs-review"),
     buildMissionActivityItem("brain-mutation-governance-added", "Brain Mutation Governance added", "Phase 48", "Approved mutation boundaries, blocked direct mutation visibility, reducer impact governance, runtime journal integrity posture, and next safe action became reviewable in a read-only console.", "needs-review"),
     buildMissionActivityItem("runtime-event-replay-added", "Runtime Event Replay Simulator added", "Phase 49", "Selected runtime journal events can be replayed against a graph snapshot in reducer preview mode with impact analysis, risk detection, and rollback guidance; preview-only and no graph mutation.", "needs-review"),
+    buildMissionActivityItem("snapshot-restore-gate-added", "Snapshot Restore Approval Gate added", "Phase 51", "Restore candidates, comparison evidence, replay evidence, approval packets, risk policy, request preview, and future executor boundary became reviewable; restore blocked by default and no graph mutation.", "needs-review"),
   ];
 
   return {
