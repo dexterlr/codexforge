@@ -53,6 +53,7 @@ export function GlobalActivityFeed({ feed: providedFeed }: { feed?: GlobalActivi
             <p style={lede}>
               Read-only workflow feed from verification, regression triage, fix queue, patch preview, apply gates,
               memory review, Brain Mutation Governance, creative planning, stabilization, and next safe action.
+              Brain Snapshot Manager source/link is read-only and does not auto-persist snapshots.
             </p>
             <div style={heroActions}>
               <button type="button" style={copyButton} onClick={() => copyText("summary", summary.summary.join("\n"))}>Copy summary</button>
@@ -61,6 +62,7 @@ export function GlobalActivityFeed({ feed: providedFeed }: { feed?: GlobalActivi
               <Link href="/brain-governance" style={heroLink}>Brain Mutation Governance</Link>
               <Link href="/runtime-journal" style={heroLink}>Runtime Event Journal</Link>
               <Link href="/runtime-replay" style={heroLink}>Runtime Event Replay</Link>
+              <Link href="/brain-snapshots" style={heroLink}>Brain Snapshot Manager</Link>
               <Link href="/stabilization" style={heroLink}>Stabilization</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>

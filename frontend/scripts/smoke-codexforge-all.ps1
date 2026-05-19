@@ -99,6 +99,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Runtime Event Executor"; File = "smoke-codexforge-runtime-event-executor.ps1"; Required = $true },
   @{ Name = "Runtime Event Journal"; File = "smoke-codexforge-runtime-event-journal.ps1"; Required = $true },
   @{ Name = "Runtime Event Replay"; File = "smoke-codexforge-runtime-event-replay.ps1"; Required = $true },
+  @{ Name = "Brain Snapshot Manager"; File = "smoke-codexforge-brain-snapshot-manager.ps1"; Required = $true },
   @{ Name = "Brain Mutation Governance"; File = "smoke-codexforge-brain-mutation-governance.ps1"; Required = $true },
   @{ Name = "Command Palette"; File = "smoke-codexforge-command-palette.ps1"; Required = $true },
   @{ Name = "Regression Triage"; File = "smoke-codexforge-regression-triage.ps1"; Required = $true },

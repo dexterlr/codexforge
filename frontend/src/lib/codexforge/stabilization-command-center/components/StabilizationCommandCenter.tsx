@@ -43,6 +43,7 @@ export function StabilizationCommandCenter({ summary: providedSummary }: { summa
             <p style={lede}>
               Build and smoke posture, verification signals, regression triage, fix queue, patch queue, apply gates,
               post-apply verification, and the next safest action in one read-only operator cockpit.
+              Brain Snapshot Manager readiness is available for snapshot comparison and replay-source review.
             </p>
             <div style={heroActions}>
               <Link href="/mission" style={heroLink}>Mission Control</Link>
@@ -50,6 +51,7 @@ export function StabilizationCommandCenter({ summary: providedSummary }: { summa
               <Link href="/memory-inbox" style={heroLink}>Memory Inbox readiness</Link>
               <Link href="/runtime-journal" style={heroLink}>Runtime Event Journal</Link>
               <Link href="/runtime-replay" style={heroLink}>Runtime Event Replay</Link>
+              <Link href="/brain-snapshots" style={heroLink}>Brain Snapshot Manager</Link>
               <Link href="/brain-governance" style={heroLink}>Brain Mutation Governance</Link>
               <Link href="/ai" style={heroLink}>Review pipeline</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>

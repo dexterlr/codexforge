@@ -661,6 +661,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
   const runtimeEventExecutorReadiness = "Runtime Event Executor is the only approved mutation boundary for runtime events; review request, policy, validation, approval, reducer preview, and result before graph refresh.";
   const runtimeEventJournalReadiness = "Runtime Event Journal is the read-only mutation audit surface for runtime event lifecycle visibility; no graph mutation and no appendEvent from UI.";
   const runtimeEventReplayReadiness = "Runtime Event Replay Simulator is the preview-only reducer preview surface for selected journal events and graph snapshots; no graph mutation, no appendEvent, and no event execution.";
+  const brainSnapshotManagerReadiness = "Brain Snapshot Manager is the read-only snapshot summary, comparison, replay source selection, rollback planning, and memory governance review surface; no graph mutation, no appendEvent, no saveBrainGraph from UI, and no snapshot restore in Phase 50.";
   const brainMutationGovernanceReadiness = "Brain Mutation Governance is the read-only mutation audit surface for approved boundaries, blocked direct mutation signals, reducer impact, integrity posture, and no graph mutation from UI.";
   const regressionTriageReadiness = "Regression Triage waits for review before Brain merge; no graph mutation.";
   const regressionFixQueueReadiness = "Regression Fix Queue waits for review before Brain merge; no graph mutation.";
@@ -708,6 +709,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         data-codexforge-runtime-event-executor-notice="Runtime Event Executor is the only approved mutation boundary; no direct UI graph mutation and no auto-promotion."
         data-codexforge-runtime-event-journal-notice="Runtime Event Journal links Brain to a read-only mutation audit surface; no graph mutation and no appendEvent from UI."
         data-codexforge-runtime-event-replay-notice="Runtime Event Replay Simulator links Brain to a preview-only reducer preview surface; no graph mutation, no appendEvent, no event execution."
+        data-codexforge-brain-snapshot-manager-notice="Brain Snapshot Manager links Brain to read-only snapshot comparison and replay source selection; no graph mutation, no appendEvent, no saveBrainGraph from UI, no snapshot restore in Phase 50."
         data-codexforge-brain-mutation-governance-notice="Brain Mutation Governance links Brain to a read-only mutation audit surface; no direct UI graph mutation, no auto-promotion, no graph mutation from UI."
         data-codexforge-brain-overflow-guard
         style={{
@@ -729,6 +731,7 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
         <MiniStat label="Runtime Event Executor" value={runtimeEventExecutorReadiness} />
         <MiniStat label="Runtime Event Journal" value={runtimeEventJournalReadiness} />
         <MiniStat label="Runtime Event Replay" value={runtimeEventReplayReadiness} />
+        <MiniStat label="Brain Snapshot Manager" value={brainSnapshotManagerReadiness} />
         <MiniStat label="Brain Mutation Governance" value={brainMutationGovernanceReadiness} />
         <MiniStat label="Regression Triage" value={regressionTriageReadiness} />
         <MiniStat label="Regression Fix Queue" value={regressionFixQueueReadiness} />
@@ -745,6 +748,10 @@ function RuntimeReadinessPanel({ stats }: { stats: BrainStats }) {
 
       <Link href="/runtime-replay" style={buttonStyle()}>
         Runtime Event Replay Simulator as reducer preview surface
+      </Link>
+
+      <Link href="/brain-snapshots" style={buttonStyle()}>
+        Review Brain Snapshot Manager as read-only snapshot comparison surface
       </Link>
 
       <Link href="/brain-governance" style={buttonStyle()}>

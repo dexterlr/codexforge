@@ -19,6 +19,7 @@ export type CodexForgeRoute = {
     | "memory-inbox"
     | "runtime-journal"
     | "runtime-replay"
+    | "brain-snapshots"
     | "files"
     | "runs"
     | "capabilities"
@@ -136,6 +137,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Memory",
     description: "Preview-only Runtime Event Replay Simulator for reducer-backed graph impact, risk, and rollback guidance.",
+  },
+  {
+    id: "brain-snapshots",
+    path: "/brain-snapshots",
+    label: "Brain Snapshots",
+    shortLabel: "Snapshots",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Intelligence",
+    description: "Read-only Brain Snapshot Manager for deterministic snapshot summary, comparison, replay selection, rollback planning, and governance review.",
   },
   {
     id: "files",

@@ -123,6 +123,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 49 Runtime Event Replay Simulator",
     }),
     buildMissionSurface({
+      id: "brain-snapshots",
+      label: "Brain Snapshot Manager",
+      href: "/brain-snapshots",
+      status: "preview-ready",
+      role: "Read-only Brain Snapshot Manager readiness for deterministic snapshot summary, comparison, compact diff, integrity review, replay source selection, rollback planning, and memory governance review.",
+      riskPosture: "preview-only",
+      nextAction: "Review Brain snapshots.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 50 Brain Snapshot Manager",
+    }),
+    buildMissionSurface({
       id: "brain-governance",
       label: "Brain Mutation Governance",
       href: "/brain-governance",

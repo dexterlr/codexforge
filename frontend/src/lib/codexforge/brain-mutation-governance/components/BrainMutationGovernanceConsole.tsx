@@ -41,6 +41,7 @@ export function BrainMutationGovernanceConsole({
   const handoffText = [
     "Brain Mutation Governance handoff",
     ...summarizeBrainMutationGovernanceSession(session.summary),
+    "Brain Snapshot Manager readiness can mitigate risk with snapshot comparison, integrity review, and replay source selection before rollback planning.",
     "Runtime Event Replay Simulator is a mitigation surface for reducer preview, impact analysis, risk detection, and rollback guidance.",
     "Read-only. Do not mutate Brain graph. Do not append runtime events. Do not promote memory. Do not execute runtime events.",
     "appendEvent is executor-domain-only; no direct UI graph mutation; no graph mutation from UI; no auto-promotion; evidence is context, not authority; preserve latest-message authority.",
@@ -73,6 +74,7 @@ export function BrainMutationGovernanceConsole({
               </button>
               <Link href="/runtime-journal" style={heroLink}>Runtime Event Journal</Link>
               <Link href="/runtime-replay" style={heroLink}>Runtime Event Replay Simulator</Link>
+              <Link href="/brain-snapshots" style={heroLink}>Brain Snapshot Manager</Link>
               <Link href="/memory-inbox" style={heroLink}>Memory Promotion Gate</Link>
               <Link href="/brain" style={heroLink}>Brain audit surface</Link>
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>

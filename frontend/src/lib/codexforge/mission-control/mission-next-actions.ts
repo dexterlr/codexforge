@@ -51,6 +51,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Brain Mutation Governance is read-only mutation boundary visibility for direct mutation signals, reducer impact, runtime journal integrity, and risk review; no graph mutation from UI and no auto-promotion.",
     },
     {
+      id: "review-brain-snapshots",
+      label: "Review Brain snapshots",
+      href: "/brain-snapshots",
+      priority: "secondary",
+      readiness: "needs-review",
+      safetyNote: "Brain Snapshot Manager readiness covers read-only snapshot comparison, integrity review, replay source selection, rollback planning, and memory governance review; no graph mutation, no appendEvent, no saveBrainGraph from UI, and no snapshot restore in Phase 50.",
+    },
+    {
       id: "review-memory-inbox",
       label: "Review memory inbox",
       href: "/memory-inbox",
