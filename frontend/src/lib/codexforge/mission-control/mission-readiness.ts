@@ -39,6 +39,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
       "Real Local Project Reader readiness is functional/read-only: inspect real project files, view capped previews, metadata, purpose, risk, search, and copy Safe Patch Preview handoff; no file writes, no command execution, no Brain graph mutation, no auto-persistence, and preserve latest-message authority.",
   });
   checks.push({
+    id: "real-patch-preview-readiness",
+    label: "Real Patch Preview readiness",
+    level: "preview-only",
+    detail:
+      "Real Patch Preview readiness is functional/preview-only in /files: selected read file plus requested change builds deterministic patch request, supplied-content context, patch plan, unified diff preview, risk, tests, rollback, and copy-only handoff; no file writes, no apply, no command execution, no Brain graph mutation, no auto-persistence, use Patch Application Gate before apply, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "global-activity-feed-readiness",
     label: "Global Activity Feed readiness",
     level: "ready",

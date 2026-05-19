@@ -40,13 +40,41 @@ export function buildCodexForgeFileInspectionPromptPayload(): string {
 
 export function buildCodexForgeProjectReaderPatchPreviewPromptPayload(): string {
   return [
-    "Prepare Safe Patch Preview from CodexForge Project Reader.",
+    "Prepare Real Patch Preview from CodexForge Project Reader.",
     "",
     "Inspect first.",
     "Use selected file metadata, purpose, risk, and capped preview as read-only evidence.",
     "No file writes without approval.",
     "No command execution without approval.",
-    "Use Safe Patch Preview for edits.",
+    "Build preview-only patch plan, unified diff preview, risk, tests, rollback, and handoff.",
+    "Use Patch Application Gate before apply.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeRealPatchReviewPromptPayload(): string {
+  return [
+    "Review Real Patch Preview v1.",
+    "",
+    "Inspect first.",
+    "Patch is preview-only.",
+    "Do not write without approval.",
+    "Do not execute commands without approval.",
+    "Review selected file path, change request, risk, tests, rollback, and unified diff preview.",
+    "Use Patch Application Gate before apply.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeApplyGateHandoffPromptPayload(): string {
+  return [
+    "Prepare apply-gate handoff from Real Patch Preview v1.",
+    "",
+    "Inspect first.",
+    "Patch preview is not approval to write.",
+    "Do not apply, write files, or execute commands without explicit approval.",
+    "Use Patch Application Gate before apply.",
+    "Carry selected file path, requested change, preview-only diff, risk, test plan, and rollback plan.",
     "Preserve latest-message authority.",
   ].join("\n");
 }
@@ -90,5 +118,5 @@ export function buildCodexForgeContinuityValidationChecklistPayload(): string {
 }
 
 export function summarizeCodexForgeCopyPayloads(): string {
-  return "Copy payloads cover validation checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
+  return "Copy payloads cover validation checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
 }

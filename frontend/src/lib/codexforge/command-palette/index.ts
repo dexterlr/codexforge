@@ -37,8 +37,10 @@ export {
 } from "./command-shortcuts";
 export {
   buildCodexForgeSafePatchPromptPayload,
+  buildCodexForgeApplyGateHandoffPromptPayload,
   buildCodexForgeFileInspectionPromptPayload,
   buildCodexForgeProjectReaderPatchPreviewPromptPayload,
+  buildCodexForgeRealPatchReviewPromptPayload,
   buildCodexForgeStabilizationHandoffPayload,
   buildCodexForgeValidationChecklistPayload,
   summarizeCodexForgeCopyPayloads,

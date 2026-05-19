@@ -41,11 +41,11 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
       <div style={navBand}>
         <CodexForgeGlobalNav compact />
         <Link href="/ai" style={handoffLink}>
-          Safe Patch Preview handoff only: inspect current files first, then prepare preview context without applying.
+          Project Reader + Real Patch Preview: inspect current files first, then prepare preview-only diff context without applying.
         </Link>
         <div
           hidden
-          data-codexforge-files-legacy-handoff-registry="FilesCommandCenter Stabilization Command Center Apply-Diff Dry Run Simulate apply-diff dry run Apply-Diff Execution Gate Apply Evidence Pack Patch Application Gate Preview Diff Composer Patch Preview Queue Regression Fix Queue Regression Triage Grounded Fix Recommendation selected file context no mutation no auto-fix no auto-rollback Safe Patch Preview required current file verification required preserve latest-message authority"
+          data-codexforge-files-legacy-handoff-registry="FilesCommandCenter RealPatchPreviewPanel Stabilization Command Center Apply-Diff Dry Run Simulate apply-diff dry run Apply-Diff Execution Gate Apply Evidence Pack Patch Application Gate Preview Diff Composer Patch Preview Queue Regression Fix Queue Regression Triage Grounded Fix Recommendation selected file context no mutation no auto-fix no auto-rollback Safe Patch Preview required current file verification required Real Patch Preview v1 preview-only no file writes no apply no command execution preserve latest-message authority"
         />
       </div>
       <LocalProjectReader

@@ -18,6 +18,7 @@ import {
   type ProjectReaderReadResponse,
   type ProjectReaderSnapshot,
 } from "../index";
+import { RealPatchPreviewPanel } from "@/lib/codexforge/real-patch-preview/components/RealPatchPreviewPanel";
 import { ProjectFileList } from "./ProjectFileList";
 import { ProjectFileMetadataPanel } from "./ProjectFileMetadataPanel";
 import { ProjectFilePreviewPanel } from "./ProjectFilePreviewPanel";
@@ -118,6 +119,13 @@ export function LocalProjectReader({
       sizeBlocked: readResponse.sizeBlocked,
     });
   }, [readResponse, selectedEntry, selectedPath]);
+  const selectedReadContent =
+    readResponse &&
+    readResponse.path === selectedPath &&
+    !readResponse.binaryBlocked &&
+    !readResponse.sizeBlocked
+      ? readResponse.content
+      : null;
   const handoff = useMemo(
     () =>
       selectedPath
@@ -277,6 +285,15 @@ export function LocalProjectReader({
             onRead={readSelectedFile}
           />
           <ProjectReaderHandoffPanel handoff={handoff} onCopy={copyText} />
+          <RealPatchPreviewPanel
+            selectedFilePath={selectedPath}
+            selectedFileCategory={metadata?.category ?? "unknown"}
+            fileContent={selectedReadContent}
+            metadata={metadata}
+            purpose={purpose}
+            risk={riskReport}
+            onCopy={copyText}
+          />
         </div>
         <aside style={rightRail}>
           <ProjectFileMetadataPanel metadata={metadata} />

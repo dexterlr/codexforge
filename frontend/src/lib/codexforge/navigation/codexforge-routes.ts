@@ -162,12 +162,12 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
   {
     id: "files",
     path: "/files",
-    label: "Files",
+    label: "Files + Patch Preview",
     shortLabel: "Files",
     priority: "primary",
     showInGlobalNav: true,
     group: "Engineering",
-    description: "File intelligence, dependency context, and safe patch preview handoffs.",
+    description: "Project Reader, selected file context, and Real Patch Preview v1 functional/preview-only handoffs.",
   },
   {
     id: "runs",

@@ -11,6 +11,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Project Reader is File Reader v1 functional/read-only: inspect local project files, capped previews, metadata, purpose, risk, and Safe Patch Preview handoff without file writes or command execution.",
     },
     {
+      id: "prepare-real-patch-preview-diff",
+      label: "Prepare preview diff",
+      href: "/files",
+      priority: "secondary",
+      readiness: "preview-only",
+      safetyNote: "Real Patch Preview readiness is functional/preview-only: prepare preview diff from selected read file context and requested change; no file writes, no apply, no command execution, and use Patch Application Gate before apply.",
+    },
+    {
       id: "review-stabilization-command-center",
       label: "Review stabilization command center",
       href: "/stabilization",
@@ -272,7 +280,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
       href: "/files",
       priority: "secondary",
       readiness: "preview-only",
-      safetyNote: "Use Project Reader selected file evidence to prepare Safe Patch Preview only.",
+      safetyNote: "Use Project Reader selected file evidence to prepare Real Patch Preview v1 preview-only diffs.",
     },
     {
       id: "build-production-pack",

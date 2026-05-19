@@ -7,7 +7,7 @@ const ITEMS: readonly Omit<ConsolidationPlanItem, "id">[] = [
   { title: "Add clear Start here workflow cards", detail: "Operator Home should point to AI Workspace, Files, Stabilization, Product Readiness, Handoff, and the next functional workflow.", priority: 30, routeHref: "/", status: "in-progress" },
   { title: "Ensure /readiness and /handoff are operator checkpoints", detail: "Treat readiness and handoff as phase-transition checkpoints.", priority: 40, routeHref: "/readiness", status: "ready" },
   { title: "Use /stabilization as operations hub", detail: "Keep build, smoke, regression, queue, and apply-gate posture centralized.", priority: 50, routeHref: "/stabilization", status: "ready" },
-  { title: "Use /files as File Reader v1 functional/read-only", detail: "Phase 56 Real Local Project Reader made /files the Real Local Project Reader without writes; previous note was prepare /files for real read-only workflow next; next recommend Phase 57 Real Patch Preview v1.", priority: 60, routeHref: "/files", status: "ready" },
+  { title: "Use /files as File Reader v1 and Patch Preview v1", detail: "Phase 56 Real Local Project Reader made /files the Real Local Project Reader without writes; previous note was prepare /files for real read-only workflow next; Phase 57 Real Patch Preview v1 is now functional/preview-only; next recommend Phase 58 Approved Patch Apply v1.", priority: 60, routeHref: "/files", status: "ready" },
   { title: "Keep deep surfaces accessible via command palette", detail: "Runtime and Brain governance routes remain reachable without nav sprawl.", priority: 70, routeHref: "/runtime-journal", status: "in-progress" },
   { title: "Reduce duplicated next-action copy over time", detail: "Adopt shared next-action ordering gradually, cockpit by cockpit.", priority: 80, routeHref: "/consolidation", status: "planned" },
   { title: "Keep all smoke coverage intact", detail: "Consolidation adds smoke coverage and preserves existing smoke markers.", priority: 90, routeHref: "/consolidation", status: "ready" },
@@ -19,7 +19,7 @@ export function buildConsolidationPlanItem(input: Omit<ConsolidationPlanItem, "i
 
 export function buildConsolidationPlan(): ConsolidationPlan {
   const items = ITEMS.map(buildConsolidationPlanItem);
-  const topRecommendation = "File Reader v1 functional/read-only is integrated; recommend Phase 57 Real Patch Preview v1.";
+  const topRecommendation = "File Reader v1 functional/read-only and Patch Preview v1 functional/preview-only are integrated; recommend Phase 58 Approved Patch Apply v1.";
   return {
     id: "consolidation-plan",
     items,
