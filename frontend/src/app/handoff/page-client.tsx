@@ -8,5 +8,9 @@ type HandoffPageClientProps = {
 };
 
 export default function HandoffPageClient({ initialData }: HandoffPageClientProps) {
-  return <ContinuityHandoffPacket session={initialData} />;
+  return (
+    <div data-codexforge-handoff-product-readiness="Product Readiness Audit posture: include product readiness posture in next-session packet if safe; review /readiness before Phase 55 Consolidation Pass; read-only, no auto-persistence, preserve latest-message authority.">
+      <ContinuityHandoffPacket session={initialData} />
+    </div>
+  );
 }

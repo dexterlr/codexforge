@@ -57,6 +57,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 43 Global Activity Feed",
     }),
     buildMissionSurface({
+      id: "readiness",
+      label: "Product Readiness Audit",
+      href: "/readiness",
+      status: "review-needed",
+      role: "Read-only Product Readiness Audit readiness for route audit, smoke audit, safety audit, UX consistency audit, duplicate/dead-module audit, consolidation recommendations, and next functional workflow plan.",
+      riskPosture: "readonly",
+      nextAction: "Review product readiness before adding new feature surfaces.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 54 Product Readiness Audit",
+    }),
+    buildMissionSurface({
       id: "tasks",
       label: "Task Autopilot, Reviewed Task Activation, Execution Readiness, Step Runner Preview, Read-Only Step Execution, and Evidence Memory",
       href: "/tasks",

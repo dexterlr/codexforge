@@ -20,6 +20,7 @@ export type MissionSurfaceId =
   | "files"
   | "stabilization"
   | "activity"
+  | "readiness"
   | "capabilities"
   | "runs"
   | "bridge"

@@ -18,6 +18,7 @@ export type CodexForgeNavigationRouteId =
   | "creative"
   | "capabilities"
   | "activity"
+  | "readiness"
   | "stabilization"
   | "history";
 
@@ -39,6 +40,7 @@ export type CodexForgeNavigationRouteHref =
   | "/creative"
   | "/capabilities"
   | "/activity"
+  | "/readiness"
   | "/stabilization"
   | "/history";
 
@@ -82,6 +84,7 @@ export type CodexForgeCommandDeckRole =
   | "production"
   | "capability"
   | "activity-feed"
+  | "readiness-audit"
   | "stabilization"
   | "timeline";
 

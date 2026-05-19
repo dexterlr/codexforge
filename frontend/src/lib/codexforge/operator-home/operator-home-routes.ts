@@ -28,6 +28,7 @@ const ROUTE_ORDER: OperatorHomeRoutePath[] = [
   "/creative",
   "/capabilities",
   "/activity",
+  "/readiness",
   "/handoff",
   "/stabilization",
   "/history",
@@ -153,6 +154,18 @@ const ROUTE_DEFINITIONS: Record<OperatorHomeRoutePath, RouteDefinition> = {
     nextAction: "Review Activity Feed before moving from evidence to mutation-capable gates.",
     badge: "Activity",
     requiredReview: false,
+  },
+  "/readiness": {
+    href: "/readiness",
+    label: "Product Readiness Audit",
+    description:
+      "Read-only Product Readiness Audit for route, smoke, safety, UX, consolidation, and functional workflow posture.",
+    domain: "readiness",
+    readiness: "needs-review",
+    riskPosture: "readonly",
+    nextAction: "Review Product Readiness Audit before adding new feature surfaces.",
+    badge: "Readiness",
+    requiredReview: true,
   },
   "/handoff": {
     href: "/handoff",

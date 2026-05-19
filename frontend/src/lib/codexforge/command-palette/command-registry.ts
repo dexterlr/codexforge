@@ -31,6 +31,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/creative": true,
   "/capabilities": true,
   "/activity": true,
+  "/readiness": true,
   "/stabilization": true,
 };
 
@@ -216,6 +217,14 @@ export function buildCodexForgeCommands(
       href: "/activity",
       keywords: ["activity", "feed", "global", "route"],
       priority: 85,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-product-readiness",
+      label: "Go to Product Readiness",
+      description: "Navigate to the read-only Product Readiness Audit cockpit.",
+      href: "/readiness",
+      keywords: ["product readiness", "readiness", "audit", "route", "Phase 54"],
+      priority: 87,
     }),
     buildRouteCommand(availability, {
       id: "go-stabilization",
@@ -492,6 +501,30 @@ export function buildCodexForgeCommands(
       requiresReview: true,
       keywords: ["next phase", "handoff", "safe"],
       priority: 230,
+    }),
+    buildCodexForgeCommand({
+      id: "copy-product-readiness-audit-prompt",
+      label: "Copy product readiness audit prompt",
+      description: "Copy a read-only Product Readiness Audit prompt without mutation.",
+      group: "Next action",
+      kind: "copy-prompt",
+      copyPayload: "Review Product Readiness Audit. Keep it read-only, deterministic, local-first, and smoke-backed. Do not execute commands, write files, mutate Brain graph, promote memory, apply diffs, restore snapshots, call appendEvent, call saveBrainGraph, call broker-execution, call apply-diff, call write-file, or call run-command from UI. Preserve latest-message authority.",
+      safetyLevel: "copy-only",
+      requiresReview: true,
+      keywords: ["product readiness", "audit", "read-only", "latest-message authority"],
+      priority: 232,
+    }),
+    buildCodexForgeCommand({
+      id: "copy-product-readiness-consolidation-prompt",
+      label: "Copy consolidation prompt",
+      description: "Copy Product Readiness consolidation guidance without mutation.",
+      group: "Next action",
+      kind: "copy-prompt",
+      copyPayload: "Review Product Readiness Audit consolidation recommendations. Consolidate dashboards, reduce duplicate panels, unify route registry logic, centralize copy-payload logic, and prioritize real workflow before abstract features. Keep the review read-only and copy-only.",
+      safetyLevel: "copy-only",
+      requiresReview: true,
+      keywords: ["product readiness", "consolidation", "dashboard sprawl", "duplicate panels"],
+      priority: 233,
     }),
     buildCodexForgeCommand({
       id: "copy-activity-handoff-prompt",

@@ -22,6 +22,7 @@ export type OperatorHomeRoutePath =
   | "/creative"
   | "/capabilities"
   | "/activity"
+  | "/readiness"
   | "/handoff"
   | "/stabilization"
   | "/history";
@@ -35,6 +36,7 @@ export type OperatorHomeRouteDomain =
   | "creative"
   | "capabilities"
   | "activity"
+  | "readiness"
   | "handoff"
   | "stabilization"
   | "history";
