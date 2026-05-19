@@ -61,6 +61,7 @@ $scriptRoot = $PSScriptRoot
 # Name = "Files UX"; Path = "smoke-codexforge-files-ux.ps1"
 # Name = "Files runtime"; Path = "smoke-codexforge-files-runtime.ps1"
 # Name = "Files Command Center"; Path = "smoke-codexforge-files-command-center.ps1"
+# Name = "Local Project Reader"; Path = "smoke-codexforge-local-project-reader.ps1"
 # Name = "File workflow"; Path = "smoke-codexforge-file-workflow.ps1"
 # Name = "File Brain Chat workflow"; Path = "smoke-codexforge-file-brain-chat-workflow.ps1"
 # Name = "Patch Preview"; Path = "smoke-codexforge-patch-preview.ps1"

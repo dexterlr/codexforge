@@ -32,6 +32,13 @@ export function buildMissionReadiness(): MissionReadinessReport {
     detail: dimension.detail,
   }));
   checks.push({
+    id: "real-local-project-reader-readiness",
+    label: "Real Local Project Reader readiness",
+    level: "ready",
+    detail:
+      "Real Local Project Reader readiness is functional/read-only: inspect real project files, view capped previews, metadata, purpose, risk, search, and copy Safe Patch Preview handoff; no file writes, no command execution, no Brain graph mutation, no auto-persistence, and preserve latest-message authority.",
+  });
+  checks.push({
     id: "global-activity-feed-readiness",
     label: "Global Activity Feed readiness",
     level: "ready",

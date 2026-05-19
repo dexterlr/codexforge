@@ -3,6 +3,14 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "inspect-project-files",
+      label: "Inspect project files",
+      href: "/files",
+      priority: "secondary",
+      readiness: "ready",
+      safetyNote: "Project Reader is File Reader v1 functional/read-only: inspect local project files, capped previews, metadata, purpose, risk, and Safe Patch Preview handoff without file writes or command execution.",
+    },
+    {
       id: "review-stabilization-command-center",
       label: "Review stabilization command center",
       href: "/stabilization",
@@ -239,8 +247,8 @@ export function buildMissionNextActions(): MissionNextAction[] {
       label: "Open Files Command Center",
       href: "/files",
       priority: "secondary",
-      readiness: "needs-review",
-      safetyNote: "Preview file context before any external action.",
+      readiness: "ready",
+      safetyNote: "Open Project Reader to inspect project files before any external action.",
     },
     {
       id: "search-brain-memory",
@@ -264,7 +272,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
       href: "/files",
       priority: "secondary",
       readiness: "preview-only",
-      safetyNote: "Patch preparation remains preview-only here.",
+      safetyNote: "Use Project Reader selected file evidence to prepare Safe Patch Preview only.",
     },
     {
       id: "build-production-pack",

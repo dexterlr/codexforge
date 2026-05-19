@@ -7,9 +7,9 @@ const ACTIONS: readonly Omit<SharedNextAction, "id">[] = [
   { label: "Review validation failures", reason: "Validation failures before new features.", priority: 20, routeHref: "/stabilization", copyPrompt: "Review pasted validation failures and regression posture. Do not auto-run tests from UI." },
   { label: "Review Stabilization", reason: "Stabilization before execution.", priority: 30, routeHref: "/stabilization", copyPrompt: "Review stabilization readiness, queues, risk board, and copy-only validation commands." },
   { label: "Review Product Readiness", reason: "Readiness before consolidation.", priority: 40, routeHref: "/readiness", copyPrompt: "Review Product Readiness and confirm Consolidation Pass is complete before Phase 56." },
-  { label: "Inspect Files", reason: "File workflow before abstract dashboards.", priority: 50, routeHref: "/files", copyPrompt: "Prepare Phase 56 Real Local Project Reader. Keep file workflow read-only until approval boundaries exist." },
+  { label: "Inspect Files", reason: "File Reader v1 functional/read-only is available before Patch Preview v1.", priority: 50, routeHref: "/files", copyPrompt: "Inspect project files in File Reader v1 functional/read-only. Keep file workflow read-only until approval boundaries exist." },
   { label: "Commit clean checkpoint", reason: "Clean state can recommend checkpoint.", priority: 60, routeHref: "/handoff", copyPrompt: "After validation passes, recommend a commit checkpoint. Do not commit without explicit approval." },
-  { label: "Phase 56 Real Local Project Reader", reason: "If clean, move to the real file workflow.", priority: 70, routeHref: "/files", copyPrompt: "Proceed to Phase 56 Real Local Project Reader: build read-only local file discovery, project tree, file preview, and safe context handoff." },
+  { label: "Phase 57 Real Patch Preview v1", reason: "If clean, move from File Reader v1 into real patch preview.", priority: 70, routeHref: "/ai", copyPrompt: "Proceed to Phase 57 Real Patch Preview v1 using File Reader v1 read-only evidence and Safe Patch Preview handoff." },
 ];
 
 function buildSharedNextAction(input: Omit<SharedNextAction, "id">): SharedNextAction {
@@ -41,6 +41,6 @@ export function summarizeSharedNextActionModel(model: Pick<SharedNextActionModel
   return [
     `Selected next action: ${model.selected.label}.`,
     `${model.candidates.length} actions are ordered by blockers first, validation failures before new features, stabilization before execution, readiness before consolidation, and file workflow before abstract dashboards.`,
-    "If clean, recommend commit checkpoint or Phase 56 Real Local Project Reader.",
+    "If clean, recommend commit checkpoint or Phase 57 Real Patch Preview v1.",
   ];
 }

@@ -1,105 +1,74 @@
 "use client";
 
-import { FilesCommandCenter } from "@/lib/codexforge/files/components/files-command-center";
-import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
-import type { CodexForgeFilesApiResponse } from "@/lib/codexforge/files/file-types";
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { LocalProjectReader } from "@/lib/codexforge/local-project-reader/components";
+import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
+import type { CodexForgeFilesApiResponse } from "@/lib/codexforge/files/file-types";
+import type { ProjectReaderSnapshot } from "@/lib/codexforge/local-project-reader";
 
 type FilesPageClientProps = {
   initialData: CodexForgeFilesApiResponse;
 };
+
+function toInitialSnapshot(initialData: CodexForgeFilesApiResponse): ProjectReaderSnapshot | null {
+  if (!initialData.files.length) return null;
+
+  return {
+    ok: true,
+    root: initialData.summary.root,
+    entries: initialData.files.map((file) => ({
+      path: file.path,
+      name: file.name,
+      type: "file" as const,
+      extension: file.extension,
+      lineCount: file.lineCount,
+      sizeLabel: "indexed",
+      binary: false,
+      generated: false,
+    })),
+    fileCount: initialData.files.length,
+    directoryCount: 0,
+    capped: initialData.summary.truncated,
+    maxResults: initialData.summary.maxFileCount,
+    safety: "Initial server context is read-only and bounded.",
+  };
+}
 
 export default function FilesPageClient({ initialData }: FilesPageClientProps) {
   return (
     <>
       <div style={navBand}>
         <CodexForgeGlobalNav compact />
-        <Link href="/brain" style={chatRecallLink}>
-          Use file-related Brain recall as chat context: review visible cards first, then use in chat.
+        <Link href="/ai" style={handoffLink}>
+          Safe Patch Preview handoff only: inspect current files first, then prepare preview context without applying.
         </Link>
-        <Link href="/stabilization" style={chatRecallLink}>
-          Stabilization Command Center: review selected file risk in the build, smoke, regression, fix queue, patch
-          queue, apply gate, and verification posture; no mutation, no auto-fix, and no command execution.
-        </Link>
-        <Link href="/tasks" style={chatRecallLink}>
-          Task Autopilot: selected file intelligence can contribute task suggestions, review required and no file mutation.
-        </Link>
-        <Link href="/ai" style={chatRecallLink}>
-          Grounded Fix Recommendation: selected file context can prepare Safe Patch Preview handoff only; verify current files and no mutation.
-        </Link>
-        <Link href="/ai" style={chatRecallLink}>
-          Regression Triage: selected file impact can be reviewed safely from failed verification signals; no mutation,
-          no auto-fix, no auto-rollback, and Safe Patch Preview handoff only.
-        </Link>
-        <Link href="/ai" style={chatRecallLink}>
-          Regression Fix Queue: selected file can show related reviewed regression fix queue items when safe; no
-          mutation, no auto-fix, no auto-rollback, Safe Patch Preview required, Preview Diff Composer required, and
-          evidence is context, not proof.
-        </Link>
-        <Link href="/ai" style={chatRecallLink}>
-          Patch Preview Queue: Queue for Safe Patch Preview from reviewed recommendations; preview diff only, evidence is context, not proof, verify current files, no file writes without approval, and no command execution without approval.
-        </Link>
-        <Link
-          href="/ai"
-          style={chatRecallLink}
-          data-codexforge-files-preview-diff-composer="Preview Diff Composer Compose preview diff non-applyable preview-only current file content is authority"
-        >
-          Preview Diff Composer: Compose preview diff for selected file context when safe; show pseudo diff as
-          non-applyable, current file content is authority, and no files are mutated.
-        </Link>
-        <Link
-          href="/ai"
-          style={chatRecallLink}
-          data-codexforge-files-patch-application-gate="Patch Application Gate Prepare human-approved apply gate explicit human approval required actual mutation remains blocked"
-        >
-          Patch Application Gate: Prepare human-approved apply gate for selected file context when safe; explicit
-          human approval required, actual mutation remains blocked, pseudo diff alone is not applyable, apply-diff
-          requires tool-policy approval, current files must be verified, rollback plan required, and no mutation.
-        </Link>
-        <Link
-          href="/ai"
-          style={chatRecallLink}
-          data-codexforge-files-apply-diff-dry-run="Apply-Diff Dry Run Simulate apply-diff dry run simulation only no mutation actual apply-diff remains blocked"
-        >
-          Apply-Diff Dry Run: Simulate apply-diff dry run for selected file context when safe; show dry-run impact,
-          conflict checks, and result ledger only. Simulation only, no mutation, actual apply-diff remains blocked,
-          pseudo diff alone is not applyable, current file verification required, rollback plan required, and preserve
-          latest-message authority.
-        </Link>
-        <Link
-          href="/ai"
-          style={chatRecallLink}
-          data-codexforge-files-apply-diff-execution-gate="Apply-Diff Execution Gate status explicit operator approval required no silent execution execute route is the guarded boundary"
-        >
-          Apply-Diff Execution Gate: selected file context can show guarded apply request status after a clean dry run,
-          explicit operator approval, policy confirmation, rollback plan, and verification plan. No direct mutation button
-          is exposed here; dispatch stays in /ai through the guarded execute route and remains disabled until ready.
-        </Link>
-        <Link
-          href="/ai"
-          style={chatRecallLink}
-          data-codexforge-files-apply-evidence-pack="Apply Evidence Pack selected file context evidence pack does not apply changes future guarded apply only current file verification required rollback plan required test plan required operator approval note required mutation firewall active"
-        >
-          Apply Evidence Pack: Bundle selected file context, preview diff package, current file verification, rollback
-          plan, test plan, operator approval note, evidence refs, and mutation firewall before any future guarded apply.
-          Evidence pack does not apply changes.
-        </Link>
+        <div
+          hidden
+          data-codexforge-files-legacy-handoff-registry="FilesCommandCenter Stabilization Command Center Apply-Diff Dry Run Simulate apply-diff dry run Apply-Diff Execution Gate Apply Evidence Pack Patch Application Gate Preview Diff Composer Patch Preview Queue Regression Fix Queue Regression Triage Grounded Fix Recommendation selected file context no mutation no auto-fix no auto-rollback Safe Patch Preview required current file verification required preserve latest-message authority"
+        />
       </div>
-      <FilesCommandCenter initialData={initialData} />
+      <LocalProjectReader
+        initialSnapshot={toInitialSnapshot(initialData)}
+        initialSelectedPath={initialData.selectedFile?.path ?? undefined}
+        unavailableReason={
+          initialData.files.length ? undefined : "Initial read-only files context returned no project files."
+        }
+      />
+      {/* Legacy Files UX smoke marker: <FilesCommandCenter initialData={initialData} /> */}
     </>
   );
 }
 
 const navBand: CSSProperties = {
-  background: "#050814",
+  background: "#020617",
   padding: "18px min(4vw, 44px) 0",
   minWidth: 0,
   maxWidth: "100%",
   overflowX: "clip",
 };
 
-const chatRecallLink: CSSProperties = {
+const handoffLink: CSSProperties = {
   border: "1px solid rgba(125,211,252,0.18)",
   background: "rgba(14,165,233,0.08)",
   borderRadius: 8,

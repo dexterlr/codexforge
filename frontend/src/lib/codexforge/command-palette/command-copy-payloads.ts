@@ -25,6 +25,32 @@ export function buildCodexForgeSafePatchPromptPayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeFileInspectionPromptPayload(): string {
+  return [
+    "Inspect this file from CodexForge Project Reader.",
+    "",
+    "Inspect first.",
+    "Use read-only evidence only.",
+    "No file writes without approval.",
+    "No command execution without approval.",
+    "Do not mutate Brain graph or auto-persist file reads.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeProjectReaderPatchPreviewPromptPayload(): string {
+  return [
+    "Prepare Safe Patch Preview from CodexForge Project Reader.",
+    "",
+    "Inspect first.",
+    "Use selected file metadata, purpose, risk, and capped preview as read-only evidence.",
+    "No file writes without approval.",
+    "No command execution without approval.",
+    "Use Safe Patch Preview for edits.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
 export function buildCodexForgeStabilizationHandoffPayload(): string {
   return [
     "CodexForge stabilization handoff",
@@ -64,5 +90,5 @@ export function buildCodexForgeContinuityValidationChecklistPayload(): string {
 }
 
 export function summarizeCodexForgeCopyPayloads(): string {
-  return "Copy payloads cover validation checklist, safe patch prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
+  return "Copy payloads cover validation checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
 }
