@@ -34,11 +34,13 @@ export function UnrealAdapterPreviewPanel({ model }: { model: UnrealAdapterPrevi
             writes, and no save actions. Link to Video Render Job Preview for Sequencer/render plan queue review.
             Safety policy links to Local Bridge Health for the Unreal local health target before future execution.
             Creative Execution Sandbox can simulate the execution packet lifecycle without Unreal execution.
+            Creative Readiness can audit whether a future guarded health probe is safe before any real executor MVP.
           </p>
           <a href="/video-render" style={link}>Open Video Render Job Preview</a>
           <a href="/local-bridge-health" style={link}>Open Local Bridge Health</a>
           <a href="/creative-executor" style={link}>Open Guarded Creative Executor</a>
           <a href="/creative-sandbox" style={link}>Open Creative Execution Sandbox</a>
+          <a href="/creative-readiness" style={link}>Open Creative Readiness</a>
         </div>
         <div style={summaryGrid}>
           <Metric label="Actors" value={String(model.summary.actorCount)} />

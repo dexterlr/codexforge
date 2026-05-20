@@ -123,6 +123,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 69 Creative Execution Sandbox",
     }),
     buildMissionSurface({
+      id: "creative-readiness",
+      label: "Real Creative Executor Readiness",
+      href: "/creative-readiness",
+      status: "preview-ready",
+      role: "Audit-only creative executor readiness review for bridge profiles, adapter allowlists, path boundaries, artifact output, dry-run evidence, approval, kill-switch, scorecard, and future health probe packet.",
+      riskPosture: "preview-only",
+      nextAction: "Review creative readiness.",
+      readiness: "preview-only",
+      relatedPhase: "Phase 70 Real Creative Executor Readiness Audit",
+    }),
+    buildMissionSurface({
       id: "local-bridge-health",
       label: "Local Bridge Health",
       href: "/local-bridge-health",

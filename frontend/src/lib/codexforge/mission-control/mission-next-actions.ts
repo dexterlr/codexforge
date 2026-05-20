@@ -403,6 +403,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Creative Execution Sandbox readiness is simulation-only: run sandbox simulation for fake lifecycle, cancellation, artifact placeholders, logs, verification, and review handoff. No real execution, no command execution, no render execution, no local HTTP calls, no file writes, and preserve latest-message authority.",
     },
     {
+      id: "review-creative-readiness",
+      label: "Review creative readiness",
+      href: "/creative-readiness",
+      priority: "secondary",
+      readiness: "preview-only",
+      safetyNote: "Real Creative Executor Readiness Audit readiness is audit-only: review creative readiness before Phase 71 Future Guarded Health Probe. No real execution, no command execution, no render execution, no local HTTP calls, no provider calls, no file writes, execution allowed false, and preserve latest-message authority.",
+    },
+    {
       id: "review-local-bridge-health",
       label: "Review local bridge health",
       href: "/local-bridge-health",

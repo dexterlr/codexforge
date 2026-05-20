@@ -32,7 +32,7 @@ export function CreativeLocalBridgePanel({ model }: { model: CreativeLocalBridge
           <h1 style={headline}>Creative Local Bridge</h1>
           <p style={lede}>
             Creative plan to local bridge profile, Local Bridge Health profile summary, adapter readiness, job request preview,
-            approval packet, and artifact capture plan. Preview-only and request-ready; no
+            approval packet, artifact capture plan, and Creative Readiness audit handoff. Preview-only and request-ready; no
             local render tools are launched.
           </p>
           <div style={links}>
@@ -42,6 +42,7 @@ export function CreativeLocalBridgePanel({ model }: { model: CreativeLocalBridge
             <a href="/local-bridge-health" style={link}>Local Bridge Health</a>
             <a href="/creative-executor" style={link}>Guarded Creative Executor</a>
             <a href="/creative-sandbox" style={link}>Creative Sandbox</a>
+            <a href="/creative-readiness" style={link}>Creative Readiness</a>
           </div>
         </div>
         <div style={statusGrid}>

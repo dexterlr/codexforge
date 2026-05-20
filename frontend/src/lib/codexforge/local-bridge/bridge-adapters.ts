@@ -24,6 +24,7 @@ const familyByBridgeId: Record<CodexForgeCapabilityBridgeId, BridgeCapabilityFam
   "unreal-adapter-preview": "Unreal",
   "unreal-production": "Unreal",
   "creative-execution-sandbox": "creative tool execution",
+  "real-creative-executor-readiness": "creative tool execution",
   "comfyui-production": "ComfyUI",
   "trading-research": "trading research",
   "broker-execution": "broker execution",

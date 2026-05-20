@@ -241,6 +241,35 @@ export function buildCodexForgeFutureHealthProbePacketPayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeCreativeReadinessReportPayload(): string {
+  return [
+    "Real Creative Executor Readiness Audit report",
+    "",
+    "Audit-only in Phase 70.",
+    "Review bridge profiles, adapter allowlists, path boundaries, artifact output, dry-run evidence, approval, kill-switch, scorecard, and next action.",
+    "No real execution.",
+    "No render execution.",
+    "No command execution.",
+    "No local HTTP calls.",
+    "No provider API calls.",
+    "No file writes.",
+    "Execution allowed false.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeCreativeReadinessHealthProbePacketPayload(): string {
+  return [
+    "Phase 71 Future Guarded Health Probe readiness packet",
+    "",
+    "Use only after Real Creative Executor Readiness Audit review.",
+    "Require local bridge profile configuration, adapter allowlist, path boundaries, artifact output boundary, dry-run evidence, approval packet, kill-switch model, and smoke coverage.",
+    "Recommend Phase 71 Future Guarded Health Probe, not real execution yet.",
+    "No Blender launch, no ComfyUI endpoint call, no Unreal launch, no ffmpeg command, no render execution, no command execution, and no file writes from UI.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
 export function buildCodexForgeUnrealCommandPreviewPromptPayload(): string {
   return [
     "Unreal Adapter Preview v1 command preview prompt",
@@ -309,7 +338,7 @@ export function buildCodexForgeContinuityValidationChecklistPayload(): string {
 }
 
 export function summarizeCodexForgeCopyPayloads(): string {
-  return "Copy payloads cover validation checklist, Validation Runner v1 checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, Approved Patch Apply review prompt, Creative Local Bridge handoff, Video Render Job Preview plan, video render queue, video future executor packet, Guarded Creative Executor dry-run, Creative Execution Sandbox report, Creative Execution Sandbox to Creative Artifact Review handoff, Blender Adapter Preview prompt, Unreal Adapter Preview prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
+  return "Copy payloads cover validation checklist, Validation Runner v1 checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, Approved Patch Apply review prompt, Creative Local Bridge handoff, Video Render Job Preview plan, video render queue, video future executor packet, Guarded Creative Executor dry-run, Creative Execution Sandbox report, Real Creative Executor Readiness Audit report, Phase 71 Future Guarded Health Probe readiness packet, Creative Execution Sandbox to Creative Artifact Review handoff, Blender Adapter Preview prompt, Unreal Adapter Preview prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
 }
 
 export function buildCodexForgeBlenderFutureExecutorPacketPayload(): string {

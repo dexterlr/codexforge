@@ -53,9 +53,11 @@ export function CreativeExecutionSandboxPanel({ model }: { model: CreativeExecut
             Creative executor request to deterministic sandbox run simulation, fake output lifecycle,
             cancellation simulation, artifact capture simulation, verification summary, and review board handoff.
             Simulation-only: no real execution, no render execution, no command execution, and no file writes.
+            Verification can recommend Creative Readiness Audit before any future guarded health probe.
           </p>
           <div style={links}>
             <a href="/creative-executor" style={link}>Creative Executor</a>
+            <a href="/creative-readiness" style={link}>Creative Readiness</a>
             <a href="/local-bridge-health" style={link}>Local Bridge Health</a>
             <a href="/artifacts/review" style={link}>Artifact Review</a>
             <a href="/video-render" style={link}>Video Render</a>

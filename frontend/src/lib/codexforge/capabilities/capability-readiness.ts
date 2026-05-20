@@ -32,6 +32,7 @@ function buildSmokeCoverageHint(capability: CodexForgeResolvedCapabilityBridge):
 function safeNextAction(capability: CodexForgeResolvedCapabilityBridge): string {
   if (capability.id === "broker-execution") return "Keep blocked; design paper-trade-only controls first.";
   if (capability.id === "creative-execution-sandbox") return "Review simulation-only Creative Execution Sandbox before Future Guarded Health Probe or Real Creative Executor MVP.";
+  if (capability.id === "real-creative-executor-readiness") return "Review Real Creative Executor Readiness Audit before Phase 71 Future Guarded Health Probe; keep execution blocked.";
   if (capability.consent === "explicit-session-consent") return "Prepare consent UX and visible active state preview.";
   if (capability.operatorMode === "creative-production") return "Prepare production plan and approval boundary preview.";
   if (capability.operatorMode === "market-research") return "Prepare research-only brief with no live orders.";

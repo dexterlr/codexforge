@@ -14,6 +14,7 @@ export type CodexForgeCapabilityBridgeId =
   | "blender-adapter-preview"
   | "unreal-adapter-preview"
   | "creative-execution-sandbox"
+  | "real-creative-executor-readiness"
   | "blender-production"
   | "unreal-production"
   | "comfyui-production"
@@ -256,6 +257,27 @@ export const codexForgeCapabilityBridgeManifest = [
     ],
   },
   {
+    id: "real-creative-executor-readiness",
+    label: "Real Creative Executor Readiness",
+    summary:
+      "Audit local bridge profiles, adapter allowlists, path boundaries, artifact output, dry-run evidence, approvals, kill-switch posture, and future health probe readiness without execution.",
+    status: "planned",
+    consent: "approval-required",
+    riskLevel: "low",
+    adapterToolNames: [],
+    allowedSideEffects: ["none"],
+    operatorMode: "creative-production",
+    safetyInvariants: [
+      "Real Creative Executor Readiness capability is audit-only in Phase 70.",
+      "No Blender, ComfyUI, Unreal, ffmpeg, renderer, command, endpoint, provider, artifact write, or local app execution is allowed.",
+      "If all critical checks pass, the next step is Phase 71 Future Guarded Health Probe, not real execution.",
+    ],
+    nextMilestones: [
+      "Review Real Creative Executor Readiness at /creative-readiness.",
+      "Prepare Phase 71 Future Guarded Health Probe after all critical readiness checks pass.",
+    ],
+  },
+  {
     id: "blender-production",
     label: "Blender production",
     summary:
@@ -436,6 +458,7 @@ export const CODEXFORGE_GOD_TIER_FEATURE_SEQUENCE = [
   "blender-adapter-preview",
   "unreal-adapter-preview",
   "creative-execution-sandbox",
+  "real-creative-executor-readiness",
   "blender-production",
   "comfyui-production",
   "unreal-production",

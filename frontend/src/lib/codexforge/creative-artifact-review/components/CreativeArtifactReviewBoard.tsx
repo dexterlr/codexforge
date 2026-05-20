@@ -28,6 +28,14 @@ const ARTIFACTS = [
     risk: "Sandbox artifacts are placeholders or supplied evidence only; no real files written, no render executed, no local process launched, and no file writes from this board.",
   },
   {
+    id: "real-creative-executor-readiness",
+    title: "Real Creative Executor Readiness",
+    kind: "Readiness audit / blocker list / future health probe packet",
+    status: "Audit-only",
+    provenance: "Real Creative Executor Readiness Audit at /creative-readiness",
+    risk: "Next action can prepare Creative Readiness Audit evidence and Phase 71 Future Guarded Health Probe packet; no file writes, no render execution, and no command execution from this board.",
+  },
+  {
     id: "blender-scene",
     title: "Blender scene packet",
     kind: "Scene plan",

@@ -245,6 +245,33 @@ function buildCandidateForCapability(
         blockedBy: ["Real Creative Executor MVP not implemented yet."],
       });
 
+    case "real-creative-executor-readiness":
+      return candidate({
+        id: "real-creative-executor-readiness-audit-v1",
+        title: "Real Creative Executor Readiness Audit v1",
+        capabilityId,
+        priority: "p1",
+        status: "approval-gated",
+        riskLevel: "medium",
+        rationale:
+          "Real creative execution needs a deterministic readiness audit across bridge setup, adapter allowlists, path boundaries, artifact capture, dry-run evidence, approval, and kill-switch posture before any future executor is enabled.",
+        nextAction:
+          "Review /creative-readiness and prepare Phase 71 Future Guarded Health Probe while keeping real execution blocked.",
+        deliverables: [
+          "Readiness input and audit model.",
+          "Bridge, adapter, path, artifact, evidence, approval, and kill-switch audit panels.",
+          "Executor scorecard and next safe action.",
+          "Audit-only smoke coverage.",
+        ],
+        validationCommands: [...BASE_VALIDATION_COMMANDS],
+        safetyGates: [
+          "Execution allowed remains false.",
+          "No render, command, local HTTP, provider, or file-write execution.",
+          "Future health probe before any real executor MVP.",
+        ],
+        blockedBy: ["Future guarded health probe not implemented yet."],
+      });
+
     case "blender-production":
       return candidate({
         id: "blender-scene-plan-schema-v1",

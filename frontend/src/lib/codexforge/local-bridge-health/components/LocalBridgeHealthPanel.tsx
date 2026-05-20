@@ -43,11 +43,13 @@ export function LocalBridgeHealthPanel({ model }: { model: LocalBridgeHealthMode
           <p style={lede}>
             Local bridge profile to safe health check plan, readiness status, missing configuration,
             blocked execution reasons, and next setup action. Preview-only/manual-only/future-guarded.
+            Next action can mention Creative Readiness Audit before any future guarded health probe.
           </p>
           <div style={links}>
             <a href="/creative-bridge" style={link}>Creative Bridge</a>
             <a href="/creative-executor" style={link}>Creative Executor</a>
             <a href="/creative-sandbox" style={link}>Creative Sandbox</a>
+            <a href="/creative-readiness" style={link}>Creative Readiness</a>
             <a href="/video-render" style={link}>Video Render</a>
             <a href="/capabilities" style={link}>Capabilities</a>
           </div>

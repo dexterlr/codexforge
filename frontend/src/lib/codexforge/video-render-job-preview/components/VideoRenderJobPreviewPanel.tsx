@@ -39,7 +39,7 @@ export function VideoRenderJobPreviewPanel({ model }: { model: VideoRenderJobPre
             Creative cinematic intent to typed render job model, timeline, shot plan, provider plan, queue preview,
             artifact expectations, approval packet, policy, and future executor packet. This route is preview-only: no
             render execution, no command execution, no ffmpeg execution, no file writes, and future executor boundary.
-            Provider plan requires Local Bridge Health before any future local render handoff. Creative Execution Sandbox can simulate the execution packet lifecycle before review.
+            Provider plan requires Local Bridge Health before any future local render handoff. Creative Execution Sandbox can simulate the execution packet lifecycle before review, and Creative Readiness can audit whether a future executor remains blocked or becomes a later health-probe candidate.
           </p>
           <div style={actions}>
             <button type="button" style={linkButton} onClick={() => copyText("render plan", model.input.summary.join("\n"))}>Copy render plan</button>
@@ -48,6 +48,7 @@ export function VideoRenderJobPreviewPanel({ model }: { model: VideoRenderJobPre
             <a href="/local-bridge-health" style={linkButton}>Open Local Bridge Health</a>
             <a href="/creative-executor" style={linkButton}>Open Guarded Creative Executor</a>
             <a href="/creative-sandbox" style={linkButton}>Open Creative Execution Sandbox</a>
+            <a href="/creative-readiness" style={linkButton}>Open Creative Readiness</a>
             <span style={chip}>{copied ? `${copied} copied` : "copy-only controls"}</span>
           </div>
         </div>

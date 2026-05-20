@@ -41,6 +41,7 @@ export function CapabilityCommandCenter({ initialData }: CapabilityCommandCenter
         <a href="/creative-bridge" style={runLink}>Creative Local Bridge</a>
         <a href="/video-render" style={runLink}>Video Render Job Preview</a>
         <a href="/local-bridge-health" style={runLink}>Local Bridge Health</a>
+        <a href="/creative-readiness" style={runLink}>Creative Readiness</a>
         <a href="/creative-sandbox" style={runLink}>Creative Execution Sandbox</a>
         <a href="/blender" style={runLink}>Blender Adapter Preview</a>
         <a href="/unreal" style={runLink}>Unreal Adapter Preview</a>
@@ -61,6 +62,7 @@ export function CapabilityCommandCenter({ initialData }: CapabilityCommandCenter
         <span style={previewPill}>Video Render Job Preview capability: execution blocked, preview-only in Phase 66</span>
         <span style={previewPill}>Guarded Creative Executor capability: dry-run-first / execution disabled in Phase 67</span>
         <span style={previewPill}>Creative Execution Sandbox capability: simulation-only / no real execution in Phase 69</span>
+        <span style={previewPill}>Real Creative Executor Readiness capability: audit-only / execution allowed false in Phase 70</span>
         <span style={previewPill}>Local Bridge Health capability: probes blocked/manual-only in Phase 68</span>
         <span style={previewPill}>Blender Adapter Preview capability: execution blocked, preview-only in Phase 62</span>
         <span style={previewPill}>Unreal Adapter Preview capability: execution blocked, preview-only in Phase 65</span>
