@@ -10,7 +10,7 @@ type Props = {
 
 export default function CreativeBridgePageClient({ initialData }: Props) {
   return (
-    <CodexForgeAppShell activePath="/creative-bridge" workspaceLabel="Creative Bridge" nextActionContext={{ hasCreativeWork: true }}>
+    <CodexForgeAppShell activePath="/creative-bridge" workspaceLabel="Creative Bridge" nextActionContext={{ hasCreativeWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false}>
       <div style={{ minWidth: 0, width: "100%" }}>
         <CreativeLocalBridgePanel model={initialData} />
       </div>

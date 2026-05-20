@@ -31,6 +31,12 @@ export default function ClosedLoopPage() {
       activePath="/closed-loop"
       workspaceLabel="Closed Loop Fix"
       nextActionContext={{ hasRegressionOrFixWork: true }}
+      focusMode
+      contentMaxWidth="wide"
+      pageChrome="minimal"
+      showRightRail={false}
+      showSidebarBadges={false}
+      showSidebarSafetyNotice={false}
     >
       <section
         style={safetyNotice}

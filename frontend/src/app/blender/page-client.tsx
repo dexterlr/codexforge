@@ -10,7 +10,7 @@ type Props = {
 
 export default function BlenderPageClient({ initialData }: Props) {
   return (
-    <CodexForgeAppShell activePath="/blender" workspaceLabel="Blender Adapter Preview" nextActionContext={{ hasCreativeWork: true }}>
+    <CodexForgeAppShell activePath="/blender" workspaceLabel="Blender Adapter Preview" nextActionContext={{ hasCreativeWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false}>
       <BlenderAdapterPreviewPanel model={initialData} />
     </CodexForgeAppShell>
   );

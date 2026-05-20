@@ -10,7 +10,7 @@ type CreativePageClientProps = {
 
 export default function CreativePageClient({ initialData }: CreativePageClientProps) {
   return (
-    <CodexForgeAppShell activePath="/creative" workspaceLabel="Creative Production Studio" nextActionContext={{ hasCreativeWork: true }}>
+    <CodexForgeAppShell activePath="/creative" workspaceLabel="Creative Production Studio" nextActionContext={{ hasCreativeWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false}>
       <CreativeProductionStudio context={initialData} />
     </CodexForgeAppShell>
   );

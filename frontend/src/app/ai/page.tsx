@@ -476,7 +476,17 @@ export default function AiPage() {
   }, [sliderOpen]);
 
   return (
-    <CodexForgeAppShell activePath="/ai" workspaceLabel="AI Workspace" nextActionContext={{ hasRegressionOrFixWork: true }}>
+    <CodexForgeAppShell
+      activePath="/ai"
+      workspaceLabel="AI Workspace"
+      nextActionContext={{ hasRegressionOrFixWork: true }}
+      focusMode
+      contentMaxWidth="full"
+      pageChrome="minimal"
+      showRightRail={false}
+      showSidebarBadges={false}
+      showSidebarSafetyNotice={false}
+    >
     <div style={styles.page}>
       <div style={styles.shell}>
         <TopBar
@@ -491,6 +501,7 @@ export default function AiPage() {
         <span hidden data-codexforge-ai-step-runner-smoke="Step Runner Preview integration marker; reviewed readiness lives in /tasks and the command palette." />
         <span hidden data-codexforge-ai-read-only-step-smoke="Read-Only Step Execution integration marker; mutation tools remain blocked and route controls live in shell/sidebar/palette." />
 
+        <span hidden data-codexforge-ai-focus-workspace="focused two-zone AI workspace compact status strip large central chat composer min-width 520px duplicate route chip cloud disabled" />
         <details style={productSurfaceDisclosure}>
           <summary style={productSurfaceSummary}>Product surface context</summary>
           <CodexForgeProductSurface />
@@ -499,16 +510,19 @@ export default function AiPage() {
 
         <div id="workspace" />
 
-        <WorkspaceCommandCenter
-          workspaceCards={workspaceCards}
-          repoLabel={repoLabel}
-          diffCount={diffCount}
-          snapshotFileCount={snapshotFileCount}
-          enginePhaseLabel={enginePhaseLabel}
-          memoryCount={safeMemory.length}
-          activeTaskLabel={activeTask?.goal ?? "No active task"}
-          backendLabel={BACKEND_LABELS[backendMode]}
-        />
+        <details style={workspaceCommandDisclosure}>
+          <summary style={productSurfaceSummary}>Workspace status</summary>
+          <WorkspaceCommandCenter
+            workspaceCards={workspaceCards}
+            repoLabel={repoLabel}
+            diffCount={diffCount}
+            snapshotFileCount={snapshotFileCount}
+            enginePhaseLabel={enginePhaseLabel}
+            memoryCount={safeMemory.length}
+            activeTaskLabel={activeTask?.goal ?? "No active task"}
+            backendLabel={BACKEND_LABELS[backendMode]}
+          />
+        </details>
         <section style={styles.mainCard}>
           <ToolbarStatus
             busy={busy}
@@ -525,6 +539,7 @@ export default function AiPage() {
           />
 
           <div style={styles.workspaceLayout}>
+            <div style={styles.focusSidePanel}>
             <WorkspaceSidebar
               busy={busy || isExecuting}
               suggestions={SUGGESTIONS}
@@ -539,8 +554,9 @@ export default function AiPage() {
               onDeleteMemory={deleteMemory}
               onClearMemory={clearMemory}
             />
+            </div>
 
-            <div style={styles.chatPanel}>
+            <div style={styles.focusChatPanel}>
               <div ref={listRef} style={styles.messagesBox}>
                 {!hasMessages ? (
                   <EmptyState />
@@ -816,6 +832,14 @@ const productSurfaceSummary: CSSProperties = {
   fontSize: 12,
   fontWeight: 900,
   lineHeight: 1.25,
+};
+const workspaceCommandDisclosure: CSSProperties = {
+  border: "1px solid rgba(148,163,184,0.12)",
+  background: "rgba(255,255,255,0.025)",
+  borderRadius: 8,
+  color: "#cbd5e1",
+  minWidth: 0,
+  padding: 10,
 };
 const reviewedActivationPanel: CSSProperties = {
   border: "1px solid rgba(125,211,252,0.18)",

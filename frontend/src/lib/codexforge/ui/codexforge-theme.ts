@@ -22,9 +22,13 @@ export const safeText: CSSProperties = {
 };
 
 export const safeCodeText: CSSProperties = {
-  ...safeText,
+  minWidth: 0,
+  maxWidth: "100%",
   overflowX: "auto",
-  whiteSpace: "pre-wrap",
+  overflowY: "auto",
+  overflowWrap: "normal",
+  wordBreak: "normal",
+  whiteSpace: "pre",
 };
 
 export const normalTextWrap: CSSProperties = {

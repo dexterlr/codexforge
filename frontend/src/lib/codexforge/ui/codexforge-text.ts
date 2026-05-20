@@ -1,2 +1,13 @@
 export { safeCodeText, safeText } from "./codexforge-theme";
-export { cardText, cardTitle, codePreview } from "./codexforge-typography";
+export {
+  bodyCopy,
+  cardText,
+  cardTitle,
+  codeBlock,
+  codePreview,
+  commandLine,
+  compactMeta,
+  displayHeading,
+  jsonPreview,
+  pathLabel,
+} from "./codexforge-typography";

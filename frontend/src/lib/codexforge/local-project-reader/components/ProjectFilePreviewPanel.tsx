@@ -31,7 +31,13 @@ export function ProjectFilePreviewPanel({
       {error ? <div style={errorBox}>{error}</div> : null}
       {preview ? (
         <>
-          <pre style={previewBox} data-codexforge-file-path-panel-overflow="file path panels wrap safely overflowX auto no file writes">{preview.contentExcerpt || preview.safetyNote}</pre>
+          <pre
+            style={previewBox}
+            data-codexforge-file-path-panel-overflow="file path panels wrap safely overflowX auto no file writes"
+            data-codexforge-file-preview-code-panel="codeBlock jsonPreview overflowX auto whiteSpace pre no overflowWrap anywhere no wordBreak break-word read-only no file writes"
+          >
+            {preview.contentExcerpt || preview.safetyNote}
+          </pre>
           <div style={meta}>
             <span>{preview.lineCount} lines</span>
             <span>{preview.truncated ? "truncated" : "within cap"}</span>
@@ -98,16 +104,16 @@ const previewBox: CSSProperties = {
   border: "1px solid rgba(148,163,184,0.14)",
   borderRadius: 8,
   color: "#dbeafe",
-  fontSize: 11,
+  fontSize: 12,
   lineHeight: 1.45,
   margin: 0,
   maxHeight: 430,
   overflowX: "auto",
   overflowY: "auto",
-  overflowWrap: "anywhere",
-  wordBreak: "break-word",
+  overflowWrap: "normal",
+  wordBreak: "normal",
   padding: 12,
-  whiteSpace: "pre-wrap",
+  whiteSpace: "pre",
   maxWidth: "100%",
   minWidth: 0,
 };

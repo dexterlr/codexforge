@@ -54,7 +54,7 @@ export function OperatorMemoryInbox({ session: providedSession }: { session?: Op
   }
 
   return (
-    <CodexForgeAppShell activePath="/memory-inbox" workspaceLabel="Operator Memory Inbox" nextActionContext={{ hasMemoryReview: true }}>
+    <CodexForgeAppShell activePath="/memory-inbox" workspaceLabel="Operator Memory Inbox" nextActionContext={{ hasMemoryReview: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false}>
       <div
         style={contentShell}
         data-codexforge-operator-memory-inbox="OperatorMemoryInbox renders premium dark operator cockpit review required before promotion no auto-promotion no graph mutation evidence is context, not authority preserve latest-message authority no auto-persistence copy memory review prompt allowed"

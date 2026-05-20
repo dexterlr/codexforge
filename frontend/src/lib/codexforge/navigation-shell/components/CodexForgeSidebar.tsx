@@ -6,19 +6,27 @@ import { CodexForgeShellSafetyNotice } from "./CodexForgeShellSafetyNotice";
 export function CodexForgeSidebar({
   sections,
   activeHref,
+  mode = "full",
+  showBadges = true,
+  showSafetyNotice = true,
 }: {
   sections: readonly CodexForgeNavigationSection[];
   activeHref: string;
+  mode?: "full" | "compact" | "collapsed";
+  showBadges?: boolean;
+  showSafetyNotice?: boolean;
 }) {
+  const compact = mode !== "full";
+
   return (
     <aside
       aria-label="CodexForge command-deck navigation"
-      data-codexforge-sidebar="CodexForgeSidebar renders responsive command-deck navigation AI Workspace Brain Files Stabilization"
-      style={sidebar}
+      data-codexforge-sidebar="CodexForgeSidebar renders responsive command-deck navigation compact sidebar mode can hide badges and safety notice metadata clutter"
+      style={{ ...sidebar, ...(compact ? compactSidebar : null) }}
     >
       <Link href="/" style={brand}>
         <span aria-hidden="true" style={mark} />
-        <span style={brandText}>
+        <span style={{ ...brandText, ...(compact ? visuallyQuietBrand : null) }}>
           <strong style={brandTitle}>CodexForge</strong>
           <span style={brandSubtitle}>Unified shell</span>
         </span>
@@ -27,24 +35,27 @@ export function CodexForgeSidebar({
       <nav style={nav}>
         {sections.map((section) => (
           <div key={`sidebar-${section.id}`} style={sectionBlock}>
-            <div style={sectionLabel}>{section.label}</div>
+            <div style={{ ...sectionLabel, ...(compact ? compactSectionLabel : null) }}>{compact ? section.label.slice(0, 3) : section.label}</div>
             {section.routes.map((route) => (
               <Link
                 key={`sidebar-${route.href}`}
                 href={route.href}
                 title={route.description}
                 aria-current={route.href === activeHref ? "page" : undefined}
-                style={route.href === activeHref ? activeLink : link}
+                style={{
+                  ...(route.href === activeHref ? activeLink : link),
+                  ...(compact ? compactLink : null),
+                }}
               >
-                <span style={routeLabel}>{route.label}</span>
-                <span style={badge}>{route.badge}</span>
+                <span style={routeLabel}>{compact ? route.shortLabel : route.label}</span>
+                {showBadges && !compact ? <span style={badge}>{route.badge}</span> : null}
               </Link>
             ))}
           </div>
         ))}
       </nav>
 
-      <CodexForgeShellSafetyNotice />
+      {showSafetyNotice ? <CodexForgeShellSafetyNotice /> : null}
     </aside>
   );
 }
@@ -69,6 +80,27 @@ const sidebar: CSSProperties = {
   top: 12,
   maxHeight: "calc(100vh - 24px)",
   overflowY: "auto",
+};
+
+const compactSidebar: CSSProperties = {
+  gap: 9,
+  padding: 8,
+};
+
+const compactLink: CSSProperties = {
+  gridTemplateColumns: "minmax(0, 1fr)",
+  justifyItems: "center",
+  padding: "8px 6px",
+  textAlign: "center",
+};
+
+const visuallyQuietBrand: CSSProperties = {
+  display: "none",
+};
+
+const compactSectionLabel: CSSProperties = {
+  padding: 0,
+  textAlign: "center",
 };
 
 const brand: CSSProperties = {
@@ -136,7 +168,7 @@ const linkBase: CSSProperties = {
   borderRadius: 8,
   display: "grid",
   gap: 6,
-  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 54px)",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 48px)",
   minWidth: 0,
   padding: "8px 9px",
   textDecoration: "none",

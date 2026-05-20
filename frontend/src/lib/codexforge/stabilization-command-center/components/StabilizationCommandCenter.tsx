@@ -31,6 +31,9 @@ export function StabilizationCommandCenter({ summary: providedSummary }: { summa
       activePath="/stabilization"
       workspaceLabel="Stabilization Command Center"
       nextActionContext={{ hasStabilizationBlockers: summary.sessionSummary.blockerCount > 0 }}
+      pageChrome="dashboard"
+      contentMaxWidth="wide"
+      showSidebarBadges={false}
     >
       <div
         style={contentShell}

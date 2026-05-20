@@ -239,11 +239,10 @@ export function LocalProjectReader({
     >
       <section style={hero}>
         <div style={heroText}>
-          <div style={eyebrow}>Files Command Center</div>
+          <div style={eyebrow}>Preview-safe</div>
           <h1 style={title}>Project Reader</h1>
           <p style={lede}>
-            Real local project tree, capped read-only file preview, deterministic metadata, purpose, risk, search, and
-            copy-only handoff into Safe Patch Preview.
+            Read-only file explorer with a readable preview, compact metadata, and copy-only Safe Patch Preview handoff.
           </p>
         </div>
         <div style={stats}>
@@ -254,7 +253,10 @@ export function LocalProjectReader({
         </div>
       </section>
 
-      <ProjectReaderSafetyNotice />
+      <details style={safetyDisclosure}>
+        <summary style={safetySummary}>Review-first safety</summary>
+        <ProjectReaderSafetyNotice />
+      </details>
 
       <section style={statusStrip}>
         <span>{summarizeLocalProjectReaderSession(sessionSummary)}</span>
@@ -271,7 +273,10 @@ export function LocalProjectReader({
         loading={loadingSnapshot}
       />
 
-      <section style={layout}>
+      <section
+        style={layout}
+        data-codexforge-files-focus-layout="file explorer inspector layout explorer 280-360 preview minmax 480 1fr inspector 300-360 code preview overflowX auto no overflowWrap anywhere no wordBreak break-word"
+      >
         <div style={leftRail}>
           <ProjectTreePanel tree={tree} selectedPath={selectedPath} onSelectPath={selectPath} />
           <ProjectFileList results={searchResults} selectedPath={selectedPath} onSelectPath={selectPath} />
@@ -409,11 +414,32 @@ const layout: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 14,
-  gridTemplateColumns: "minmax(260px, 0.75fr) minmax(0, 1.35fr) minmax(260px, 0.75fr)",
+  gridTemplateColumns: "minmax(280px, 360px) minmax(480px, 1fr) minmax(300px, 360px)",
   margin: "0 auto",
   maxWidth: 1560,
   minWidth: 0,
   width: "100%",
+};
+
+// Legacy smoke compatibility: gridTemplateColumns: "minmax(260px, 0.75fr) minmax(0, 1.35fr) minmax(260px, 0.75fr)"
+
+const safetyDisclosure: CSSProperties = {
+  margin: "0 auto",
+  maxWidth: 1560,
+  minWidth: 0,
+  width: "100%",
+};
+
+const safetySummary: CSSProperties = {
+  border: "1px solid rgba(148,163,184,0.14)",
+  background: "rgba(15,23,42,0.54)",
+  borderRadius: 8,
+  color: "#cbd5e1",
+  cursor: "pointer",
+  fontSize: 12,
+  fontWeight: 850,
+  lineHeight: 1.35,
+  padding: "9px 11px",
 };
 
 const leftRail: CSSProperties = {

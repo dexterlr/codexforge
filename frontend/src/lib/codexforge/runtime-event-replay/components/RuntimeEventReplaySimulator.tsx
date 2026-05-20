@@ -112,6 +112,12 @@ export function RuntimeEventReplaySimulator({
       activePath="/runtime-replay"
       workspaceLabel="Runtime Event Replay"
       nextActionContext={{ hasMemoryReview: session.summary.memoryPromotionCount > 0 }}
+      focusMode
+      contentMaxWidth="wide"
+      pageChrome="minimal"
+      showRightRail={false}
+      showSidebarBadges={false}
+      showSidebarSafetyNotice={false}
     >
       <main
         style={shell}

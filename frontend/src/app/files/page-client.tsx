@@ -37,7 +37,17 @@ function toInitialSnapshot(initialData: CodexForgeFilesApiResponse): ProjectRead
 
 export default function FilesPageClient({ initialData }: FilesPageClientProps) {
   return (
-    <CodexForgeAppShell activePath="/files" workspaceLabel="Files Command Center" nextActionContext={{ hasFileWork: true }}>
+    <CodexForgeAppShell
+      activePath="/files"
+      workspaceLabel="Files"
+      nextActionContext={{ hasFileWork: true }}
+      focusMode
+      contentMaxWidth="full"
+      pageChrome="minimal"
+      showRightRail={false}
+      showSidebarBadges={false}
+      showSidebarSafetyNotice={false}
+    >
       <div style={handoffBand}>
         <Link href="/ai" style={handoffLink}>
           Preview-only file handoff: inspect current files first, then prepare diff context without applying.

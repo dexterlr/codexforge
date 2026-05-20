@@ -10,9 +10,8 @@ type Props = {
 
 export default function ComfyUiPageClient({ initialData }: Props) {
   return (
-    <CodexForgeAppShell activePath="/comfyui" workspaceLabel="ComfyUI Adapter Preview" nextActionContext={{ hasCreativeWork: true }}>
+    <CodexForgeAppShell activePath="/comfyui" workspaceLabel="ComfyUI Adapter Preview" nextActionContext={{ hasCreativeWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false}>
       <ComfyUiAdapterPreviewPanel model={initialData} />
     </CodexForgeAppShell>
   );
 }
-

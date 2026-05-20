@@ -18,6 +18,7 @@ export type CodexForgeNavigationRouteId =
   | "handoff"
   | "brain-governance"
   | "creative"
+  | "artifacts-review"
   | "blender"
   | "comfyui"
   | "creative-bridge"
@@ -47,6 +48,7 @@ export type CodexForgeNavigationRouteHref =
   | "/handoff"
   | "/brain-governance"
   | "/creative"
+  | "/artifacts/review"
   | "/blender"
   | "/comfyui"
   | "/creative-bridge"
@@ -102,6 +104,7 @@ export type CodexForgeCommandDeckRole =
   | "blender-preview"
   | "comfyui-preview"
   | "creative-bridge"
+  | "artifact-review"
   | "capability"
   | "activity-feed"
   | "readiness-audit"
@@ -233,7 +236,14 @@ export type CodexForgeAppShellProps = {
   workspaceLabel?: string;
   routeAvailability?: CodexForgeNavigationRouteAvailability;
   nextActionContext?: CodexForgeShellNextActionContext;
-  contentMaxWidth?: number;
+  sidebarMode?: "full" | "compact" | "collapsed";
+  defaultSidebarCollapsed?: boolean;
+  focusMode?: boolean;
+  showSidebarBadges?: boolean;
+  showSidebarSafetyNotice?: boolean;
+  showRightRail?: boolean;
+  contentMaxWidth?: number | "standard" | "wide" | "full";
+  pageChrome?: "minimal" | "standard" | "dashboard";
   showRouteTray?: boolean;
   routeTrayDefaultOpen?: boolean;
   showHeroRouteChips?: boolean;

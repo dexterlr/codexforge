@@ -207,7 +207,7 @@ function SectionTitleRow({
   return (
     <>
       <span style={styles.panelTitle}>{title}</span>
-      <span style={collapsedMark}>{open ? "−" : "+"}</span>
+      <span style={collapsedMark}>{open ? "-" : "+"}</span>
     </>
   );
 }

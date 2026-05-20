@@ -11,7 +11,7 @@ export const page: React.CSSProperties = {
 
 export const shell: React.CSSProperties = {
   width: "100%",
-  maxWidth: 1560,
+  maxWidth: 1680,
   margin: "0 auto",
   display: "grid",
   gap: 14,
@@ -131,10 +131,10 @@ export const miniInfoValue: React.CSSProperties = {
 };
 
 export const mainCard: React.CSSProperties = {
-  borderRadius: 22,
+  borderRadius: 8,
   border: "1px solid rgba(255,255,255,0.12)",
   background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))",
-  boxShadow: "0 30px 100px rgba(0,0,0,0.45)",
+  boxShadow: "0 20px 70px rgba(0,0,0,0.32)",
   overflow: "hidden",
 };
 
@@ -149,10 +149,15 @@ export const toolbar: React.CSSProperties = {
 
 export const workspaceLayout: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "minmax(260px, 300px) minmax(0, 1fr)",
-  gap: 14,
-  padding: 18,
+  gridTemplateColumns: "minmax(260px, 320px) minmax(520px, 1fr)",
+  gap: 16,
+  padding: 16,
   minWidth: 0,
+};
+
+export const focusSidePanel: React.CSSProperties = {
+  minWidth: 0,
+  alignSelf: "start",
 };
 
 export const leftPanel: React.CSSProperties = {
@@ -169,6 +174,13 @@ export const chatPanel: React.CSSProperties = {
   display: "grid",
   gap: 12,
   minWidth: 0,
+};
+
+export const focusChatPanel: React.CSSProperties = {
+  display: "grid",
+  gap: 12,
+  minWidth: 520,
+  width: "100%",
 };
 
 export const panelTitle: React.CSSProperties = {
@@ -224,7 +236,7 @@ export const bulletList: React.CSSProperties = {
 };
 
 export const messagesBox: React.CSSProperties = {
-  height: "min(58vh, 620px)",
+  height: "min(68vh, 760px)",
   overflow: "auto",
   padding: 12,
   borderRadius: 16,
@@ -468,6 +480,7 @@ export const statusCard: React.CSSProperties = {
 export const composerWrap: React.CSSProperties = {
   display: "grid",
   gap: 10,
+  minWidth: 0,
 };
 
 export const composer: React.CSSProperties = {
@@ -479,7 +492,8 @@ export const composer: React.CSSProperties = {
   color: "white",
   outline: "none",
   resize: "vertical",
-  minHeight: 110,
+  minHeight: 132,
+  minWidth: "min(100%, 520px)",
   font: "inherit",
 };
 

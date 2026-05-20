@@ -31,13 +31,20 @@ export function CodexForgeAppShell({
   workspaceLabel,
   routeAvailability,
   nextActionContext,
-  contentMaxWidth = 1680,
+  sidebarMode,
+  defaultSidebarCollapsed = false,
+  focusMode = false,
+  showSidebarBadges,
+  showSidebarSafetyNotice,
+  showRightRail,
+  contentMaxWidth = "wide",
+  pageChrome,
   showRouteTray = false,
   routeTrayDefaultOpen = false,
   showHeroRouteChips = false,
   showRightRailRouteGroups = false,
   showSafetyStrip = true,
-  pageDensity = "standard",
+  pageDensity,
 }: CodexForgeAppShellProps) {
   const pathname = usePathname() ?? "/";
   const resolvedPath = activePath ?? pathname;
@@ -78,14 +85,36 @@ export function CodexForgeAppShell({
     [nextActionPlan.selected, routeState, routes, safetyPosture, sections]
   );
   const summaryText = summarizeCodexForgeNavigationShellSession(sessionSummary);
+  const resolvedChrome = pageChrome ?? (focusMode ? "minimal" : "standard");
+  const resolvedDensity = pageDensity ?? (focusMode ? "focus" : "standard");
+  const resolvedSidebarMode = sidebarMode ?? (focusMode ? "compact" : "full");
+  const sidebarCollapsed = defaultSidebarCollapsed || resolvedSidebarMode === "collapsed";
+  const resolvedShowSidebarBadges = showSidebarBadges ?? !focusMode;
+  const resolvedShowSidebarSafetyNotice = showSidebarSafetyNotice ?? !focusMode;
+  const resolvedShowSafetyStrip = showSafetyStrip && !focusMode;
+  const resolvedShowRightRail = showRightRail ?? (!focusMode && resolvedChrome !== "minimal");
+  const resolvedMaxWidth = resolveContentMaxWidth(contentMaxWidth);
 
   return (
     <main
       data-codexforge-app-shell="CodexForgeAppShell renders unified navigation shell local-first operator-safe no auto-fix no command execution without approval no file writes without approval preserve latest-message authority"
       style={page}
     >
-      <div style={{ ...shell, maxWidth: contentMaxWidth }}>
-        <CodexForgeSidebar sections={sections} activeHref={routeState.activeRoute.href} />
+      <div
+        style={{
+          ...shell,
+          ...(sidebarCollapsed ? collapsedShell : resolvedSidebarMode === "compact" ? compactShell : null),
+          maxWidth: resolvedMaxWidth,
+        }}
+        data-codexforge-focus-mode={focusMode ? "focus-mode compact-sidebar workflow-layout right-rail-opt-out" : "standard-shell"}
+      >
+        <CodexForgeSidebar
+          sections={sections}
+          activeHref={routeState.activeRoute.href}
+          mode={resolvedSidebarMode}
+          showBadges={resolvedShowSidebarBadges}
+          showSafetyNotice={resolvedShowSidebarSafetyNotice}
+        />
         <div style={mainColumn}>
           <CodexForgeShellMobileNav routes={routes} activeHref={routeState.activeRoute.href} />
           <CodexForgeTopbar
@@ -96,12 +125,13 @@ export function CodexForgeAppShell({
             showHeroRouteChips={showHeroRouteChips}
             commandPalette={<CodexForgeCommandPalette routeAvailability={routeAvailability} />}
           />
-          {showSafetyStrip ? <CodexForgeSafetyPostureStrip posture={safetyPosture} /> : null}
-          <div style={pageDensity === "focus" ? focusDeck : deck}>
+          {resolvedShowSafetyStrip ? <CodexForgeSafetyPostureStrip posture={safetyPosture} /> : null}
+          <div style={resolvedDensity === "focus" || !resolvedShowRightRail ? focusDeck : deck}>
             <div style={content} data-codexforge-shell-content-key={buildCodexForgeShellStableKey([routeState.activeRoute.href, routeState.activeGroup])}>
               {children}
             </div>
-            <aside style={sideRail} data-codexforge-right-rail="page-specific context only; route groups hidden by default">
+            {resolvedShowRightRail ? (
+            <aside style={sideRail} data-codexforge-right-rail="page-specific context only; route groups hidden by default; workflow pages can opt out of right rail route groups">
               <CodexForgeNextActionDock action={nextActionPlan.selected} />
               {showRightRailRouteGroups ? (
                 <CodexForgeWorkspaceMap sections={sections} activeHref={routeState.activeRoute.href} />
@@ -111,11 +141,19 @@ export function CodexForgeAppShell({
                 <p style={sessionText}>{summaryText}</p>
               </section>
             </aside>
+            ) : null}
           </div>
         </div>
       </div>
     </main>
   );
+}
+
+function resolveContentMaxWidth(value: CodexForgeAppShellProps["contentMaxWidth"]): number | string {
+  if (typeof value === "number") return value;
+  if (value === "standard") return 1440;
+  if (value === "full") return "100%";
+  return 1760;
 }
 
 const safeText: CSSProperties = {
@@ -148,10 +186,21 @@ const shell: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 16,
-  gridTemplateColumns: "clamp(260px, 20vw, 320px) minmax(0, 1fr)",
+  gridTemplateColumns: "clamp(220px, 16vw, 260px) minmax(0, 1fr)",
   margin: "0 auto",
   minWidth: 0,
   width: "100%",
+};
+
+// Legacy smoke compatibility: gridTemplateColumns: "clamp(260px, 20vw, 320px) minmax(0, 1fr)"
+// Legacy smoke compatibility: gridTemplateColumns: "minmax(0, 1fr) clamp(260px, 19vw, 320px)"
+
+const compactShell: CSSProperties = {
+  gridTemplateColumns: "clamp(76px, 7vw, 96px) minmax(0, 1fr)",
+};
+
+const collapsedShell: CSSProperties = {
+  gridTemplateColumns: "72px minmax(0, 1fr)",
 };
 
 const mainColumn: CSSProperties = {

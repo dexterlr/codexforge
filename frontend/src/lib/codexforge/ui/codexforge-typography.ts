@@ -98,3 +98,21 @@ export const codePreview: CSSProperties = {
   margin: 0,
   padding: 12,
 };
+
+export const displayHeading = displayTitle;
+export const bodyCopy = bodyText;
+export const pathLabel = pathText;
+export const codeBlock = codePreview;
+export const jsonPreview = codePreview;
+export const commandLine = {
+  ...commandText,
+  overflowX: "auto",
+  whiteSpace: "pre",
+};
+export const compactMeta: CSSProperties = {
+  color: codexforgeUxTheme.textMuted,
+  fontSize: 12,
+  fontWeight: 800,
+  lineHeight: 1.35,
+  ...safeText,
+};

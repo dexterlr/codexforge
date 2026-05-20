@@ -27,7 +27,7 @@ export function BrainContinuityDashboard({ session: providedSession }: { session
   const compactSummary = session.continuitySummary.summary.join("\n");
 
   return (
-    <CodexForgeAppShell activePath="/brain-continuity" workspaceLabel="Brain Continuity Dashboard">
+    <CodexForgeAppShell activePath="/brain-continuity" workspaceLabel="Brain Continuity Dashboard" pageChrome="dashboard" contentMaxWidth="wide" showSidebarBadges={false}>
       <div style={shell} data-codexforge-brain-continuity-dashboard="BrainContinuityDashboard renders read-only no graph mutation no snapshot restore no appendEvent no saveBrainGraph from UI preserve latest-message authority no auto-persistence">
         <section style={hero}>
           <div style={{ display: "grid", gap: 10, minWidth: 0 }}>
