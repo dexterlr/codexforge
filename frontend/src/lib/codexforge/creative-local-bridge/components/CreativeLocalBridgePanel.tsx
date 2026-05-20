@@ -40,6 +40,7 @@ export function CreativeLocalBridgePanel({ model }: { model: CreativeLocalBridge
             <a href="/capabilities" style={link}>Capability Cockpit</a>
             <a href="/artifacts" style={link}>Artifact Workspace</a>
             <a href="/local-bridge-health" style={link}>Local Bridge Health</a>
+            <a href="/health-probe" style={link}>Health Probe</a>
             <a href="/creative-executor" style={link}>Guarded Creative Executor</a>
             <a href="/creative-sandbox" style={link}>Creative Sandbox</a>
             <a href="/creative-readiness" style={link}>Creative Readiness</a>

@@ -51,6 +51,7 @@ export function LocalBridgeHealthPanel({ model }: { model: LocalBridgeHealthMode
             <a href="/creative-sandbox" style={link}>Creative Sandbox</a>
             <a href="/creative-readiness" style={link}>Creative Readiness</a>
             <a href="/video-render" style={link}>Video Render</a>
+            <a href="/health-probe" style={link}>Health Probe</a>
             <a href="/capabilities" style={link}>Capabilities</a>
           </div>
         </div>
@@ -73,7 +74,7 @@ export function LocalBridgeHealthPanel({ model }: { model: LocalBridgeHealthMode
       <section style={copyRow}>
         <button type="button" style={copyButton} onClick={() => copyText("Copy health report", report)}>Copy health report</button>
         <button type="button" style={copyButton} onClick={() => copyText("Copy setup guide", setupGuide)}>Copy setup guide</button>
-        <button type="button" style={copyButton} onClick={() => copyText("Copy future probe packet", futureProbePacket)}>Copy future probe packet</button>
+        <button type="button" style={copyButton} onClick={() => copyText("Copy future probe packet", futureProbePacket)}>Copy future probe packet for Future Guarded Health Probe</button>
       </section>
 
       <div style={layout}>

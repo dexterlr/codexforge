@@ -38,6 +38,7 @@ export function UnrealAdapterPreviewPanel({ model }: { model: UnrealAdapterPrevi
           </p>
           <a href="/video-render" style={link}>Open Video Render Job Preview</a>
           <a href="/local-bridge-health" style={link}>Open Local Bridge Health</a>
+          <a href="/health-probe" style={link}>Open Health Probe</a>
           <a href="/creative-executor" style={link}>Open Guarded Creative Executor</a>
           <a href="/creative-sandbox" style={link}>Open Creative Execution Sandbox</a>
           <a href="/creative-readiness" style={link}>Open Creative Readiness</a>

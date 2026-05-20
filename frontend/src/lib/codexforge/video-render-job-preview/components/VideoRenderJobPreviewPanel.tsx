@@ -46,6 +46,7 @@ export function VideoRenderJobPreviewPanel({ model }: { model: VideoRenderJobPre
             <button type="button" style={linkButton} onClick={() => copyText("queue preview", model.queuePreview.summary.join("\n"))}>Copy queue preview</button>
             <button type="button" style={linkButton} onClick={() => copyText("future executor packet", model.executionPacket.summary.join("\n"))}>Copy future executor packet</button>
             <a href="/local-bridge-health" style={linkButton}>Open Local Bridge Health</a>
+            <a href="/health-probe" style={linkButton}>Open Health Probe</a>
             <a href="/creative-executor" style={linkButton}>Open Guarded Creative Executor</a>
             <a href="/creative-sandbox" style={linkButton}>Open Creative Execution Sandbox</a>
             <a href="/creative-readiness" style={linkButton}>Open Creative Readiness</a>

@@ -59,6 +59,7 @@ export function CreativeExecutionSandboxPanel({ model }: { model: CreativeExecut
             <a href="/creative-executor" style={link}>Creative Executor</a>
             <a href="/creative-readiness" style={link}>Creative Readiness</a>
             <a href="/local-bridge-health" style={link}>Local Bridge Health</a>
+            <a href="/health-probe" style={link}>Health Probe</a>
             <a href="/artifacts/review" style={link}>Artifact Review</a>
             <a href="/video-render" style={link}>Video Render</a>
           </div>

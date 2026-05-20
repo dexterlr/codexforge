@@ -419,6 +419,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Local Bridge Health readiness is preview/manual-only/future-guarded; review local bridge health before creative executor handoff. No command execution, no local HTTP calls by default, no file writes, and no render execution.",
     },
     {
+      id: "review-future-guarded-health-probe",
+      label: "Review guarded health probe",
+      href: "/health-probe",
+      priority: "secondary",
+      readiness: "preview-only",
+      safetyNote: "Future Guarded Health Probe readiness is metadata/manual-first/request-ready; review guarded health probe evidence only. Real probes disabled by default, no creative job execution, no render execution, no arbitrary command, no arbitrary endpoint, no file writes, and preserve latest-message authority.",
+    },
+    {
       id: "review-blender-adapter-preview",
       label: "Review Blender adapter preview",
       href: "/blender",

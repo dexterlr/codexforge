@@ -134,6 +134,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 70 Real Creative Executor Readiness Audit",
     }),
     buildMissionSurface({
+      id: "health-probe",
+      label: "Future Guarded Health Probe",
+      href: "/health-probe",
+      status: "preview-ready",
+      role: "Metadata/manual-first guarded health probe readiness for bridge health profile, approval, allowlist, policy, preflight, execution bridge, result capture, and readiness update.",
+      riskPosture: "preview-only",
+      nextAction: "Review guarded health probe.",
+      readiness: "preview-only",
+      relatedPhase: "Phase 71 Future Guarded Health Probe",
+    }),
+    buildMissionSurface({
       id: "local-bridge-health",
       label: "Local Bridge Health",
       href: "/local-bridge-health",

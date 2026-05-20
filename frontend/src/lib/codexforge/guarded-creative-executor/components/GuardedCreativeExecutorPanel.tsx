@@ -43,6 +43,7 @@ export function GuardedCreativeExecutorPanel({ model }: { model: GuardedCreative
           <div style={links}>
             <a href="/creative-bridge" style={link}>Creative Bridge</a>
             <a href="/local-bridge-health" style={link}>Local Bridge Health</a>
+            <a href="/health-probe" style={link}>Health Probe</a>
             <a href="/creative-sandbox" style={link}>Creative Execution Sandbox</a>
             <a href="/creative-readiness" style={link}>Creative Readiness</a>
             <a href="/video-render" style={link}>Video Render</a>

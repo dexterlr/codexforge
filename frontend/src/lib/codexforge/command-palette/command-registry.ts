@@ -56,6 +56,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/creative-executor": true,
   "/creative-sandbox": true,
   "/creative-readiness": true,
+  "/health-probe": true,
   "/local-bridge-health": true,
   "/blender": true,
   "/unreal": true,
@@ -307,6 +308,14 @@ export function buildCodexForgeCommands(
       href: "/local-bridge-health",
       keywords: ["local bridge health", "bridge health", "health check", "setup", "route"],
       priority: 70.45,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-health-probe",
+      label: "Go to Health Probe",
+      description: "Navigate to Future Guarded Health Probe metadata/manual-first review.",
+      href: "/health-probe",
+      keywords: ["health probe", "future guarded", "metadata-only", "manual-first", "route"],
+      priority: 70.46,
     }),
     buildRouteCommand(availability, {
       id: "go-blender-adapter-preview",

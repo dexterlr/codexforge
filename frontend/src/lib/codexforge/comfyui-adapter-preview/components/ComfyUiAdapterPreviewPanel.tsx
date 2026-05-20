@@ -42,6 +42,7 @@ export function ComfyUiAdapterPreviewPanel({ model }: { model: ComfyUiAdapterPre
             </button>
             <a href="/video-render" style={button}>Open Video Render Job Preview</a>
             <a href="/local-bridge-health" style={button}>Open Local Bridge Health</a>
+            <a href="/health-probe" style={button}>Open Health Probe</a>
             <a href="/creative-executor" style={button}>Open Guarded Creative Executor</a>
             <a href="/creative-sandbox" style={button}>Open Creative Execution Sandbox</a>
             <a href="/creative-readiness" style={button}>Open Creative Readiness</a>

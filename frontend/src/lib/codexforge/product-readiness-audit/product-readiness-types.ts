@@ -16,6 +16,7 @@ export type ProductRoutePath =
   | "/creative-executor"
   | "/creative-sandbox"
   | "/creative-readiness"
+  | "/health-probe"
   | "/local-bridge-health"
   | "/blender"
   | "/unreal"

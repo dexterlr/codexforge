@@ -28,6 +28,7 @@ export type CodexForgeRoute = {
     | "creative"
     | "comfyui"
     | "creative-executor"
+    | "health-probe"
     | "local-bridge-health"
     | "creative-bridge"
     | "history"
@@ -233,6 +234,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Production",
     description: "Preview/manual-only local bridge health readiness and setup guide.",
+  },
+  {
+    id: "health-probe",
+    path: "/health-probe",
+    label: "Future Guarded Health Probe",
+    shortLabel: "Health Probe",
+    priority: "secondary",
+    showInGlobalNav: true,
+    group: "Production",
+    description: "Metadata-only/manual-first guarded probe request and readiness update review.",
   },
   {
     id: "comfyui",
