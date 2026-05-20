@@ -152,6 +152,7 @@ export type RenderQueuePreviewItem = {
   approvalRequirement: string;
   estimatedArtifactPathPlaceholder: string;
   localSafeSimulatedRenderJobMarker: string;
+  videoRenderJobPreviewRoute?: "/video-render";
 };
 
 export type RenderQueuePreview = {

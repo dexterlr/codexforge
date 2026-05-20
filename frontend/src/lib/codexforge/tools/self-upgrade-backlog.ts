@@ -187,6 +187,35 @@ function buildCandidateForCapability(
         blockedBy: ["Future guarded creative executor not implemented yet."],
       });
 
+    case "video-render-job-preview":
+      return candidate({
+        id: "video-render-job-preview-v1",
+        title: "Video Render Job Preview v1",
+        capabilityId,
+        priority: "p1",
+        status: "approval-gated",
+        riskLevel: "medium",
+        rationale:
+          "Video render planning can become tangible through render input, timeline, shot plan, provider plan, queue preview, artifact expectations, approval, policy, and future executor packet before any render execution.",
+        nextAction:
+          "Review /video-render and keep render execution, Blender execution, ComfyUI execution, Unreal execution, ffmpeg execution, and file writes blocked until a future guarded creative executor exists.",
+        deliverables: [
+          "Render input and timeline.",
+          "Shot plan and provider plan.",
+          "Queue preview and artifact plan.",
+          "Approval, policy, and future executor packet.",
+        ],
+        validationCommands: [...BASE_VALIDATION_COMMANDS],
+        safetyGates: [
+          "No render execution.",
+          "No Blender, ComfyUI, Unreal, or ffmpeg execution.",
+          "No command execution.",
+          "No file writes.",
+          "Future executor boundary required.",
+        ],
+        blockedBy: ["Future guarded creative executor not implemented yet."],
+      });
+
     case "blender-production":
       return candidate({
         id: "blender-scene-plan-schema-v1",

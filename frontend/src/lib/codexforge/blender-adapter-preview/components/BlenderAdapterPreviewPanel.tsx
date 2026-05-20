@@ -24,8 +24,9 @@ export function BlenderAdapterPreviewPanel({ model }: { model: BlenderAdapterPre
           <p style={lede}>
             Creative scene plan to typed Blender scene model to structured Blender Python script preview. This route is
             preview-only: no Blender execution, no render execution, no file writes, and no save actions.
-            Cross-link to Unreal Adapter Preview for cinematic/level handoff planning.
+            Cross-link to Video Render Job Preview for render queue and future executor packet planning, or Unreal Adapter Preview for cinematic/level handoff planning.
           </p>
+          <a href="/video-render" style={link}>Open Video Render Job Preview</a>
           <a href="/unreal" style={link}>Open Unreal Adapter Preview</a>
         </div>
         <div style={summaryGrid}>

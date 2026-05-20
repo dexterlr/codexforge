@@ -31,8 +31,9 @@ export function UnrealAdapterPreviewPanel({ model }: { model: UnrealAdapterPrevi
             Creative cinematic or level idea to typed Unreal level model, actor and asset plan, Blueprint preview,
             Sequencer camera plan, build warnings, command preview, and future executor packet. This route is
             preview-only: no Unreal execution, no Unreal Editor launch, no render execution, no package/build, no file
-            writes, and no save actions.
+            writes, and no save actions. Link to Video Render Job Preview for Sequencer/render plan queue review.
           </p>
+          <a href="/video-render" style={link}>Open Video Render Job Preview</a>
         </div>
         <div style={summaryGrid}>
           <Metric label="Actors" value={String(model.summary.actorCount)} />
@@ -81,6 +82,7 @@ const hero: CSSProperties = { display: "grid", gridTemplateColumns: "minmax(0, 1
 const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 12, fontWeight: 900, textTransform: "uppercase" };
 const headline: CSSProperties = { margin: "8px 0", fontSize: "clamp(30px, 4vw, 52px)", lineHeight: 1.04, letterSpacing: 0, maxWidth: 980, minWidth: 0, overflowWrap: "normal", wordBreak: "normal", whiteSpace: "nowrap" };
 const lede: CSSProperties = { margin: 0, color: "#cbd5e1", lineHeight: 1.55, maxWidth: 900, overflowWrap: "anywhere" };
+const link: CSSProperties = { width: "fit-content", maxWidth: "100%", border: "1px solid rgba(94,234,212,0.28)", background: "rgba(20,184,166,0.12)", borderRadius: 8, padding: "8px 10px", color: "#ccfbf1", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none", overflowWrap: "anywhere" };
 const summaryGrid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 130px), 1fr))", gap: 8, minWidth: 0 };
 const metric: CSSProperties = { border: "1px solid rgba(125,211,252,0.18)", background: "rgba(2,6,23,0.52)", borderRadius: 8, padding: 10, display: "grid", gap: 4, minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere" };
 const summaryBand: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 8, color: "#dbeafe", fontSize: 13, minWidth: 0, overflowWrap: "anywhere" };

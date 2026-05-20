@@ -41,6 +41,9 @@ export type CreativeJobKind =
 export type CreativeArtifactCaptureType =
   | "image"
   | "video"
+  | "image-sequence"
+  | "frame"
+  | "thumbnail"
   | "blender-file"
   | "blender-python-preview"
   | "blender-scene-plan"

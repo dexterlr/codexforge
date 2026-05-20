@@ -28,6 +28,7 @@ export type BridgeCapabilityFamily =
   | "AI router"
   | "web research"
   | "render-job"
+  | "video-render"
   | "Blender"
   | "ComfyUI"
   | "Unreal"

@@ -8,6 +8,11 @@ export type ArtifactType =
   | "unreal-command-preview"
   | "unreal-level-plan"
   | "unreal-sequence"
+  | "video-render-queue"
+  | "image-sequence"
+  | "frame"
+  | "thumbnail"
+  | "render-log"
   | "render-queue-manifest"
   | "run-summary-markdown"
   | "research-summary"
@@ -171,6 +176,11 @@ export const SUPPORTED_ARTIFACT_TYPES: ArtifactType[] = [
   "unreal-command-preview",
   "unreal-level-plan",
   "unreal-sequence",
+  "video-render-queue",
+  "image-sequence",
+  "frame",
+  "thumbnail",
+  "render-log",
   "render-queue-manifest",
   "run-summary-markdown",
   "research-summary",

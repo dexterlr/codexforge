@@ -26,7 +26,7 @@ export function buildCreativeProductionPlan(brief: CreativeBrief): CreativeProdu
     buildCreativeProductionStage("storyboard", "Storyboard", "planned", "Break the production into reviewable shots with prompt hints and safety notes.", ["storyboard markdown preview"]),
     buildCreativeProductionStage("asset-plan", "Asset plan", "planned", "List source assets, generated placeholders, review checkpoints, and deterministic naming.", ["asset checklist"]),
     buildCreativeProductionStage("scene-workflow-level-plan", "Scene, workflow, level plan", "planned", "Prepare Blender, ComfyUI, and Unreal preview plans without launching those applications.", ["Blender script preview", "ComfyUI workflow preview", "Unreal command preview"]),
-    buildCreativeProductionStage("render-queue-preview", "Render queue preview", "preview-only", "Show local-safe simulated render-job entries without render execution.", ["render queue manifest preview"]),
+    buildCreativeProductionStage("render-queue-preview", "Render queue preview", "preview-only", "Show local-safe simulated render-job entries and link to Video Render Job Preview without render execution.", ["render queue manifest preview", "Video Render Job Preview v1 handoff"]),
     buildCreativeProductionStage("patch-preview-handoff", "Safe Patch Preview handoff", "approval-required", "Package future artifact previews as prompts for Safe Patch Preview.", ["patch preview prompt"]),
     buildCreativeProductionStage("approval-boundary", "Approval boundary", "approval-required", "Require explicit operator approval before any external app, render, or file mutation.", ["approval checklist"]),
     buildCreativeProductionStage("future-guarded-adapter", "Future guarded adapter", "blocked-until-approval", "Execution remains out of scope for this studio preview.", ["guarded adapter placeholder"]),
@@ -68,7 +68,7 @@ export function buildCreativeProductionPlan(brief: CreativeBrief): CreativeProdu
       "render_queue_manifest.json preview",
       "artifact_ledger_update.md preview",
     ],
-    safeNextAction: "Review the Safe Patch Preview handoff prompt; do not execute adapters from the studio.",
+    safeNextAction: "Review Video Render Job Preview v1 or the Safe Patch Preview handoff prompt; do not execute adapters from the studio.",
     summary: "",
   } satisfies CreativeProductionPlan;
 

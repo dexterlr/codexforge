@@ -90,6 +90,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Task Memory Autopilot, Reviewed Task Activation, Active Task Execution Readiness, Approved Step Runner Preview, Read-Only Step Execution, and Evidence Memory",
     }),
     buildMissionSurface({
+      id: "video-render",
+      label: "Video Render Job Preview",
+      href: "/video-render",
+      status: "preview-ready",
+      role: "Preview-only video render job model, timeline, shot plan, provider plan, queue preview, artifact expectations, approval packet, policy, and future executor packet.",
+      riskPosture: "preview-only",
+      nextAction: "Review video render job preview.",
+      readiness: "preview-only",
+      relatedPhase: "Phase 66 Video Render Job Preview v1",
+    }),
+    buildMissionSurface({
       id: "brain",
       label: "Brain",
       href: "/brain",

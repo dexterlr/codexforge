@@ -102,11 +102,13 @@ export function buildCreativeAdapterCatalog(): CreativeAdapterCatalogItem[] {
     }),
     buildCreativeAdapterCatalogItem({
       id: "local-video-render-preview",
-      label: "Local Video Render Preview",
+      label: "Video Render Job Preview v1",
       bridgeKind: "video-render",
-      capability: "video render plan preview",
-      expectedArtifacts: ["video", "render-log"],
+      capability: "video render job preview, queue preview, artifact expectations, approval packet, and future executor handoff",
+      expectedArtifacts: ["video", "image-sequence", "frame", "thumbnail", "render-log"],
+      sideEffects: ["No render execution.", "No command execution.", "No ffmpeg execution.", "No file writes."],
       riskLevel: "high",
+      outputRoute: "/video-render",
     }),
     buildCreativeAdapterCatalogItem({
       id: "image-generation-preview",

@@ -39,6 +39,7 @@ export function CapabilityCommandCenter({ initialData }: CapabilityCommandCenter
         <a href="/runs" style={runLink}>Open Operator Run Center</a>
         <a href="/bridge" style={runLink}>Open Jarvis Local Bridge</a>
         <a href="/creative-bridge" style={runLink}>Creative Local Bridge</a>
+        <a href="/video-render" style={runLink}>Video Render Job Preview</a>
         <a href="/blender" style={runLink}>Blender Adapter Preview</a>
         <a href="/unreal" style={runLink}>Unreal Adapter Preview</a>
         <Stat label="Capabilities" value={String(context.summary.capabilityCount)} />
@@ -54,6 +55,7 @@ export function CapabilityCommandCenter({ initialData }: CapabilityCommandCenter
           <span style={statusText}>{context.summary.adapterHealth}</span>
         </div>
         <span style={previewPill}>preview-only</span>
+        <span style={previewPill}>Video Render Job Preview capability: execution blocked, preview-only in Phase 66</span>
         <span style={previewPill}>Blender Adapter Preview capability: execution blocked, preview-only in Phase 62</span>
         <span style={previewPill}>Unreal Adapter Preview capability: execution blocked, preview-only in Phase 65</span>
         <span style={previewPill}>Creative Local Bridge: Blender local bridge, ComfyUI local bridge, Unreal local bridge, Video render bridge, Artifact capture execution blocked in Phase 61</span>

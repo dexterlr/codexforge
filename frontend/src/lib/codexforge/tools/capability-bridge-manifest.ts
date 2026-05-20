@@ -10,6 +10,7 @@ export type CodexForgeCapabilityBridgeId =
   | "web-research"
   | "pc-bridge"
   | "camera-inspection"
+  | "video-render-job-preview"
   | "blender-adapter-preview"
   | "unreal-adapter-preview"
   | "blender-production"
@@ -167,6 +168,27 @@ export const codexForgeCapabilityBridgeManifest = [
     nextMilestones: [
       "Add camera permission state UI.",
       "Add local-only snapshot inspection with no persistent storage by default.",
+    ],
+  },
+  {
+    id: "video-render-job-preview",
+    label: "Video Render Job Preview",
+    summary:
+      "Generate deterministic render inputs, timelines, shot plans, provider plans, queue previews, artifact expectations, approval packets, policy, and future executor packets without execution.",
+    status: "planned",
+    consent: "approval-required",
+    riskLevel: "medium",
+    adapterToolNames: [],
+    allowedSideEffects: ["none"],
+    operatorMode: "creative-production",
+    safetyInvariants: [
+      "Video Render Job Preview capability is preview-only in Phase 66.",
+      "Render execution, Blender execution, ComfyUI execution, Unreal execution, ffmpeg execution, and file writes are blocked.",
+      "Future Guarded Creative Executor is required before any local app action.",
+    ],
+    nextMilestones: [
+      "Review Video Render Job Preview v1 at /video-render.",
+      "Prepare Future Guarded Creative Executor after explicit approval design.",
     ],
   },
   {
@@ -388,6 +410,7 @@ export const CODEXFORGE_GOD_TIER_FEATURE_SEQUENCE = [
   "self-inspection",
   "ai-router",
   "web-research",
+  "video-render-job-preview",
   "blender-adapter-preview",
   "unreal-adapter-preview",
   "blender-production",

@@ -33,12 +33,13 @@ export function ComfyUiAdapterPreviewPanel({ model }: { model: ComfyUiAdapterPre
           <p style={lede}>
             Typed workflow manifest, prompt slots, model placeholder policy, seed policy, output placeholders, approval
             packet, and future executor handoff without launching ComfyUI or contacting a local endpoint.
-            Cross-link to Unreal Adapter Preview for texture/concept-art workflow planning.
+            Cross-link to Video Render Job Preview for image sequence / video frames plan, or Unreal Adapter Preview for texture/concept-art workflow planning.
           </p>
           <div style={actions}>
             <button type="button" style={button} onClick={() => copyText("handoff", model.handoff)}>
               Copy workflow handoff
             </button>
+            <a href="/video-render" style={button}>Open Video Render Job Preview</a>
             <a href="/unreal" style={button}>Open Unreal Adapter Preview</a>
             <span style={pill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
           </div>

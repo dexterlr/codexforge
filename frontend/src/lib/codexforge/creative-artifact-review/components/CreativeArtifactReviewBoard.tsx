@@ -12,6 +12,14 @@ const ARTIFACTS = [
     risk: "No export or execution from this board.",
   },
   {
+    id: "video-render-queue",
+    title: "Video render queue",
+    kind: "Video render queue / image sequence / frame / thumbnail / render log",
+    status: "Preview-only",
+    provenance: "Video Render Job Preview handoff at /video-render",
+    risk: "No video render execution, no ffmpeg execution, and no file writes from this board.",
+  },
+  {
     id: "blender-scene",
     title: "Blender scene packet",
     kind: "Scene plan",

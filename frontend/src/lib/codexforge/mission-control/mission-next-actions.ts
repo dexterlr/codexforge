@@ -379,6 +379,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Creative Local Bridge is preview-only/request-ready; no local render app, command, provider, or artifact file execution is launched from Mission Control.",
     },
     {
+      id: "review-video-render-job-preview",
+      label: "Review video render job preview",
+      href: "/video-render",
+      priority: "secondary",
+      readiness: "preview-only",
+      safetyNote: "Video Render Job Preview readiness is preview-only/request-ready for render queue and future executor packet review; no render execution, no Blender execution, no ComfyUI execution, no Unreal execution, no ffmpeg execution, no file writes, and preserve latest-message authority.",
+    },
+    {
       id: "review-blender-adapter-preview",
       label: "Review Blender adapter preview",
       href: "/blender",

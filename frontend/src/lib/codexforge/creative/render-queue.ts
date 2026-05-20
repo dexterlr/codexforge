@@ -1,7 +1,7 @@
 import type { CreativeProductionPlan, RenderQueuePreview, RenderQueuePreviewItem } from "./creative-types";
 
 export function summarizeRenderQueuePreview(queue: RenderQueuePreview): string {
-  return `Render queue preview: ${queue.items.length} local-safe simulated item(s), preview-only, no render execution.`;
+  return `Render queue preview: ${queue.items.length} local-safe simulated item(s), preview-only, no render execution; review Video Render Job Preview at /video-render.`;
 }
 
 export function buildRenderQueuePreview(plan: CreativeProductionPlan): RenderQueuePreview {
@@ -9,7 +9,8 @@ export function buildRenderQueuePreview(plan: CreativeProductionPlan): RenderQue
     status: "preview-only",
     sideEffectSummary: "No renderer or creative application is launched; this is a local-safe simulated render-job marker.",
     approvalRequirement: "approval required before execution",
-    localSafeSimulatedRenderJobMarker: "render-job:local-safe-simulated:preview-only",
+      localSafeSimulatedRenderJobMarker: "render-job:local-safe-simulated:preview-only",
+      videoRenderJobPreviewRoute: "/video-render",
   } as const;
 
   const items = [
