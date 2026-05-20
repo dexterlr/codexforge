@@ -110,6 +110,7 @@ export type CodexForgePaletteNextActionContext = {
   needsPatchPreview?: boolean;
   needsPreviewDiff?: boolean;
   needsApplyGateReview?: boolean;
+  needsCreativeSandboxReview?: boolean;
   cleanCheckpointRecommended?: boolean;
 };
 

@@ -13,6 +13,7 @@ export type CodexForgeCapabilityBridgeId =
   | "video-render-job-preview"
   | "blender-adapter-preview"
   | "unreal-adapter-preview"
+  | "creative-execution-sandbox"
   | "blender-production"
   | "unreal-production"
   | "comfyui-production"
@@ -234,6 +235,27 @@ export const codexForgeCapabilityBridgeManifest = [
     ],
   },
   {
+    id: "creative-execution-sandbox",
+    label: "Creative Execution Sandbox",
+    summary:
+      "Simulate creative executor requests through fake lifecycle, cancellation, artifact capture, logs, verification, and review handoff without launching tools or writing files.",
+    status: "planned",
+    consent: "approval-required",
+    riskLevel: "low",
+    adapterToolNames: [],
+    allowedSideEffects: ["none"],
+    operatorMode: "creative-production",
+    safetyInvariants: [
+      "Creative Execution Sandbox capability is simulation-only in Phase 69.",
+      "No Blender, ComfyUI, Unreal, ffmpeg, renderer, command, endpoint, provider, or artifact file execution is allowed.",
+      "Sandbox review and Local Bridge Health review are required before any future real creative executor MVP.",
+    ],
+    nextMilestones: [
+      "Review Creative Execution Sandbox at /creative-sandbox.",
+      "Prepare Future Guarded Health Probe or Real Creative Executor MVP after sandbox review.",
+    ],
+  },
+  {
     id: "blender-production",
     label: "Blender production",
     summary:
@@ -413,6 +435,7 @@ export const CODEXFORGE_GOD_TIER_FEATURE_SEQUENCE = [
   "video-render-job-preview",
   "blender-adapter-preview",
   "unreal-adapter-preview",
+  "creative-execution-sandbox",
   "blender-production",
   "comfyui-production",
   "unreal-production",

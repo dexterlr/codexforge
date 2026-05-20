@@ -20,6 +20,14 @@ const ARTIFACTS = [
     risk: "No video render execution, no ffmpeg execution, and no file writes from this board. Next action can prepare Guarded Creative Executor handoff.",
   },
   {
+    id: "creative-execution-sandbox-placeholders",
+    title: "Creative Execution Sandbox placeholders",
+    kind: "Sandbox artifact placeholders / image-placeholder / video-placeholder / render-log-placeholder",
+    status: "Sandbox-only",
+    provenance: "Creative Execution Sandbox handoff at /creative-sandbox",
+    risk: "Sandbox artifacts are placeholders or supplied evidence only; no real files written, no render executed, no local process launched, and no file writes from this board.",
+  },
+  {
     id: "blender-scene",
     title: "Blender scene packet",
     kind: "Scene plan",

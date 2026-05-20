@@ -38,6 +38,7 @@ export function UnrealExecutionPacketPanel({ packet }: { packet: UnrealExecution
         <div style={actions}>
           <button type="button" style={button} onClick={copyPacket}>Copy execution packet</button>
           <button type="button" style={button} onClick={copyPrompt}>Copy Unreal review prompt</button>
+          <a href="/creative-sandbox" style={button}>Open Creative Execution Sandbox</a>
         </div>
       </div>
       <div style={metaGrid}>

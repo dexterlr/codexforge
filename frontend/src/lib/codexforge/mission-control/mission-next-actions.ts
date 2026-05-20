@@ -395,6 +395,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Guarded Creative Executor readiness is dry-run-first/request-ready; review creative executor dry-run, adapter allowlist, approval, kill-switch policy, and artifact capture while execution remains disabled.",
     },
     {
+      id: "run-creative-execution-sandbox",
+      label: "Run sandbox simulation",
+      href: "/creative-sandbox",
+      priority: "secondary",
+      readiness: "preview-only",
+      safetyNote: "Creative Execution Sandbox readiness is simulation-only: run sandbox simulation for fake lifecycle, cancellation, artifact placeholders, logs, verification, and review handoff. No real execution, no command execution, no render execution, no local HTTP calls, no file writes, and preserve latest-message authority.",
+    },
+    {
       id: "review-local-bridge-health",
       label: "Review local bridge health",
       href: "/local-bridge-health",

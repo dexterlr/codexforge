@@ -25,7 +25,7 @@ export function CreativeLocalBridgePanel({ model }: { model: CreativeLocalBridge
   }
 
   return (
-    <main style={page} data-codexforge-creative-local-bridge-panel="CreativeLocalBridgePanel renders Creative Local Bridge preview-only no render execution no command execution no file writes future guarded executor preserve latest-message authority">
+    <main style={page} data-codexforge-creative-local-bridge-panel="CreativeLocalBridgePanel renders Creative Local Bridge preview-only no render execution no command execution no file writes future guarded executor Creative Execution Sandbox preserve latest-message authority">
       <section style={hero}>
         <div style={heroCopy}>
           <span style={eyebrow}>CodexForge Phase 61</span>
@@ -41,6 +41,7 @@ export function CreativeLocalBridgePanel({ model }: { model: CreativeLocalBridge
             <a href="/artifacts" style={link}>Artifact Workspace</a>
             <a href="/local-bridge-health" style={link}>Local Bridge Health</a>
             <a href="/creative-executor" style={link}>Guarded Creative Executor</a>
+            <a href="/creative-sandbox" style={link}>Creative Sandbox</a>
           </div>
         </div>
         <div style={statusGrid}>

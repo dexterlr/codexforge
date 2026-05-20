@@ -35,7 +35,7 @@ export function LocalBridgeHealthPanel({ model }: { model: LocalBridgeHealthMode
   const futureProbePacket = model.probePreview.items.map((item) => `${item.label}: ${item.requiredApproval}; ${item.noExecutionGuarantee}`).join("\n");
 
   return (
-    <main style={page} data-local-bridge-health-panel="LocalBridgeHealthPanel renders preview-only dry-run only no command execution no local HTTP calls by default no file writes no render execution future guarded health probe preserve latest-message authority Focus Mode UX calm workflow layout shell without duplicate route chip cloud stable key helper">
+    <main style={page} data-local-bridge-health-panel="LocalBridgeHealthPanel renders preview-only dry-run only no command execution no local HTTP calls by default no file writes no render execution future guarded health probe Creative Execution Sandbox preserve latest-message authority Focus Mode UX calm workflow layout shell without duplicate route chip cloud stable key helper">
       <section style={hero}>
         <div style={heroCopy}>
           <span style={eyebrow}>CodexForge Phase 68</span>
@@ -47,6 +47,7 @@ export function LocalBridgeHealthPanel({ model }: { model: LocalBridgeHealthMode
           <div style={links}>
             <a href="/creative-bridge" style={link}>Creative Bridge</a>
             <a href="/creative-executor" style={link}>Creative Executor</a>
+            <a href="/creative-sandbox" style={link}>Creative Sandbox</a>
             <a href="/video-render" style={link}>Video Render</a>
             <a href="/capabilities" style={link}>Capabilities</a>
           </div>

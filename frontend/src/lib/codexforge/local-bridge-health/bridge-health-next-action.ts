@@ -9,8 +9,9 @@ const ACTIONS: readonly BridgeHealthNextAction[] = [
   { id: "resolve-unsafe-probe", label: "Keep unsafe probe blocked", reason: "Unsafe probe blocked before all.", route: "/local-bridge-health", priority: 30, copyPrompt: "Keep executable launch, local HTTP calls, version commands, directory writes, command execution, and render execution blocked." },
   { id: "configure-artifact-boundary", label: "Configure artifact boundary", reason: "Artifact boundary before render jobs.", route: "/local-bridge-health", priority: 40, copyPrompt: "Configure artifact output boundary metadata. No UI writes." },
   { id: "review-bridge-health", label: "Review bridge health before creative executor", reason: "Bridge health before creative executor.", route: "/local-bridge-health", priority: 50, copyPrompt: "Review Local Bridge Health Check v1 before Guarded Creative Executor. Preview-only/manual-only/future-guarded." },
-  { id: "future-guarded-health-probe", label: "Plan future guarded health probe", reason: "Everything is configured/supplied; recommend future guarded health probe phase.", route: "/local-bridge-health", priority: 60, copyPrompt: "Plan Future Guarded Health Probe. Require approval, explicit allowlist, safe metadata probe only, and no execution by default." },
-  { id: "follow-setup-guide", label: "Follow setup guide", reason: "Setup guide is the next safe action.", route: "/local-bridge-health", priority: 70, copyPrompt: "Follow Local Bridge Health setup guide. No probing, no execution, no file writes." },
+  { id: "run-creative-execution-sandbox", label: "Run Creative Execution Sandbox simulation", reason: "Sandbox simulation before future real executor or health probe.", route: "/creative-sandbox", priority: 60, copyPrompt: "Review Creative Execution Sandbox before any future real executor or Future Guarded Health Probe. Simulation-only: no probes, no execution, no local HTTP calls, no file writes." },
+  { id: "future-guarded-health-probe", label: "Plan future guarded health probe", reason: "Everything is configured/supplied; recommend future guarded health probe phase after sandbox simulation.", route: "/local-bridge-health", priority: 70, copyPrompt: "Plan Future Guarded Health Probe. Require approval, explicit allowlist, safe metadata probe only, Creative Execution Sandbox review, and no execution by default." },
+  { id: "follow-setup-guide", label: "Follow setup guide", reason: "Setup guide is the next safe action.", route: "/local-bridge-health", priority: 80, copyPrompt: "Follow Local Bridge Health setup guide. No probing, no execution, no file writes." },
 ];
 
 export function selectBridgeHealthNextAction(input: {
@@ -25,7 +26,7 @@ export function selectBridgeHealthNextAction(input: {
   if (profiles.some((profile) => !isBridgeHealthProfileConfigured(profile))) return ACTIONS[1];
   if (result.items.some((item) => item.blockerReasons.length > 0)) return ACTIONS[2];
   if (profiles.some((profile) => profile.targetId === "artifact-output-root" && !isBridgeHealthProfileConfigured(profile))) return ACTIONS[3];
-  if (guide.steps.length > 0 && result.items.some((item) => item.status !== "ready" && item.status !== "configured")) return ACTIONS[6];
+  if (guide.steps.length > 0 && result.items.some((item) => item.status !== "ready" && item.status !== "configured")) return ACTIONS[7];
   return ACTIONS[5];
 }
 

@@ -216,6 +216,35 @@ function buildCandidateForCapability(
         blockedBy: ["Future guarded creative executor not implemented yet."],
       });
 
+    case "creative-execution-sandbox":
+      return candidate({
+        id: "creative-execution-sandbox-v1",
+        title: "Creative Execution Sandbox v1",
+        capabilityId,
+        priority: "p1",
+        status: "approval-gated",
+        riskLevel: "low",
+        rationale:
+          "Creative executor requests need deterministic fake lifecycle, cancellation, artifact, log, verification, and review handoff simulation before any real execution MVP.",
+        nextAction:
+          "Review /creative-sandbox and keep the sandbox simulation-only before Future Guarded Health Probe or Real Creative Executor MVP.",
+        deliverables: [
+          "Sandbox execution request.",
+          "Fake lifecycle and cancellation model.",
+          "Artifact placeholder and log simulation.",
+          "Verification and review handoff.",
+        ],
+        validationCommands: [...BASE_VALIDATION_COMMANDS],
+        safetyGates: [
+          "No real execution.",
+          "No render execution.",
+          "No command execution.",
+          "No local HTTP calls.",
+          "No file writes.",
+        ],
+        blockedBy: ["Real Creative Executor MVP not implemented yet."],
+      });
+
     case "blender-production":
       return candidate({
         id: "blender-scene-plan-schema-v1",

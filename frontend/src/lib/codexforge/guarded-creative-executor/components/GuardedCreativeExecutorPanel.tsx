@@ -37,10 +37,12 @@ export function GuardedCreativeExecutorPanel({ model }: { model: GuardedCreative
             One safe boundary for creative execution packets, adapter allowlists, Local Bridge Health readiness,
             approval packets, dry-run plans, cancellation policy, artifact capture, and future
             guarded executor handoff. Dry-run-first and request-ready; execution disabled.
+            Creative Execution Sandbox can simulate lifecycle, cancellation, fake artifacts, verification, and review handoff before any real executor phase.
           </p>
           <div style={links}>
             <a href="/creative-bridge" style={link}>Creative Bridge</a>
             <a href="/local-bridge-health" style={link}>Local Bridge Health</a>
+            <a href="/creative-sandbox" style={link}>Creative Execution Sandbox</a>
             <a href="/video-render" style={link}>Video Render</a>
             <a href="/artifacts/review" style={link}>Artifact Review</a>
           </div>

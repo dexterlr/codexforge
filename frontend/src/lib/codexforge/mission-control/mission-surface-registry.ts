@@ -112,6 +112,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 67 Future Guarded Creative Executor",
     }),
     buildMissionSurface({
+      id: "creative-sandbox",
+      label: "Creative Execution Sandbox",
+      href: "/creative-sandbox",
+      status: "preview-ready",
+      role: "Simulation-only creative executor lifecycle for fake run state, cancellation path, artifact placeholders, simulated logs, verification, and review handoff.",
+      riskPosture: "preview-only",
+      nextAction: "Run sandbox simulation before future real creative executor work.",
+      readiness: "preview-only",
+      relatedPhase: "Phase 69 Creative Execution Sandbox",
+    }),
+    buildMissionSurface({
       id: "local-bridge-health",
       label: "Local Bridge Health",
       href: "/local-bridge-health",
