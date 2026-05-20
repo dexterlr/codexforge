@@ -127,6 +127,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Creative Local Bridge"; File = "smoke-codexforge-creative-local-bridge.ps1"; Required = $true },
   @{ Name = "Local Bridge Health"; File = "smoke-codexforge-local-bridge-health.ps1"; Required = $true },
   @{ Name = "Future Guarded Health Probe"; File = "smoke-codexforge-future-guarded-health-probe.ps1"; Required = $true },
+  @{ Name = "Real Creative Executor MVP Design"; File = "smoke-codexforge-real-creative-executor-mvp.ps1"; Required = $true },
   @{ Name = "Creative Execution Sandbox"; File = "smoke-codexforge-creative-execution-sandbox.ps1"; Required = $true },
   @{ Name = "Real Creative Executor Readiness"; File = "smoke-codexforge-real-creative-executor-readiness.ps1"; Required = $true },
   @{ Name = "Video Render Job Preview"; File = "smoke-codexforge-video-render-job-preview.ps1"; Required = $true },

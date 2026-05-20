@@ -72,6 +72,7 @@ export function FutureGuardedHealthProbePanel({ model }: { model: FutureHealthPr
           <div style={links}>
             <a href="/local-bridge-health" style={link}>Local Bridge Health</a>
             <a href="/creative-readiness" style={link}>Creative Readiness</a>
+            <a href="/creative-mvp" style={link}>Creative MVP</a>
             <a href="/creative-executor" style={link}>Creative Executor</a>
             <a href="/creative-sandbox" style={link}>Creative Sandbox</a>
             <a href="/video-render" style={link}>Video Render</a>

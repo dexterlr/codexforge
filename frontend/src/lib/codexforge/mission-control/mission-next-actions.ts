@@ -427,6 +427,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Future Guarded Health Probe readiness is metadata/manual-first/request-ready; review guarded health probe evidence only. Real probes disabled by default, no creative job execution, no render execution, no arbitrary command, no arbitrary endpoint, no file writes, and preserve latest-message authority.",
     },
     {
+      id: "review-real-creative-executor-mvp-design",
+      label: "Review MVP candidate",
+      href: "/creative-mvp",
+      priority: "secondary",
+      readiness: "preview-only",
+      safetyNote: "Real Creative Executor MVP Design readiness is design-only: review MVP candidate artifact-capture-only, output boundary, approval packet, kill-switch posture, artifact review loop, and user-friendly flow. Execution allowed false, no real execution, no render execution, no command execution, no local HTTP calls, no file writes, and preserve latest-message authority.",
+    },
+    {
       id: "review-blender-adapter-preview",
       label: "Review Blender adapter preview",
       href: "/blender",

@@ -145,6 +145,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 71 Future Guarded Health Probe",
     }),
     buildMissionSurface({
+      id: "creative-mvp",
+      label: "Real Creative Executor MVP Design",
+      href: "/creative-mvp",
+      status: "preview-ready",
+      role: "Design-only first real creative executor MVP selection for artifact-capture-only, approval packet, output boundary, kill-switch posture, artifact review loop, and readiness decision.",
+      riskPosture: "preview-only",
+      nextAction: "Review MVP candidate.",
+      readiness: "preview-only",
+      relatedPhase: "Phase 72 Real Creative Executor MVP Design",
+    }),
+    buildMissionSurface({
       id: "local-bridge-health",
       label: "Local Bridge Health",
       href: "/local-bridge-health",

@@ -36,6 +36,14 @@ const ARTIFACTS = [
     risk: "Next action can prepare Creative Readiness Audit evidence and Phase 71 Future Guarded Health Probe packet; no file writes, no render execution, and no command execution from this board.",
   },
   {
+    id: "real-creative-executor-mvp-design",
+    title: "Real Creative Executor MVP Design",
+    kind: "MVP design packet / artifact-capture-only review loop",
+    status: "Design-only",
+    provenance: "Real Creative Executor MVP Design at /creative-mvp",
+    risk: "Next action can review Creative MVP candidate design; no file writes, no render execution, and no command execution from this board.",
+  },
+  {
     id: "blender-scene",
     title: "Blender scene packet",
     kind: "Scene plan",

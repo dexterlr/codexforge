@@ -50,6 +50,7 @@ export function VideoRenderJobPreviewPanel({ model }: { model: VideoRenderJobPre
             <a href="/creative-executor" style={linkButton}>Open Guarded Creative Executor</a>
             <a href="/creative-sandbox" style={linkButton}>Open Creative Execution Sandbox</a>
             <a href="/creative-readiness" style={linkButton}>Open Creative Readiness</a>
+            <a href="/creative-mvp" style={linkButton}>Open Creative MVP</a>
             <span style={chip}>{copied ? `${copied} copied` : "copy-only controls"}</span>
           </div>
         </div>

@@ -27,7 +27,7 @@ export function AiRouterCockpit() {
   const tiers = buildDefaultAiSubscriptionTiers();
   const policy = buildAiRoutingPolicy();
   const promptText =
-    "Plan storyboard planning, ComfyUI workflow planning, Blender scene planning, Blender Adapter Preview scene plan drafting, Unreal cinematic/level planning, Unreal Blueprint reasoning, video render planning task example, creative executor review task example, creative sandbox review task example, real creative executor readiness audit task example, local bridge health review task example, health probe review task example, render queue planning, and render review with private local context, then use local or cheap models for packet summarization and draft render queue planning, premium only for high-risk execution review, premium only for complex cinematic/blueprint reasoning, and premium only for complex cross-pipeline planning.";
+    "Plan storyboard planning, ComfyUI workflow planning, Blender scene planning, Blender Adapter Preview scene plan drafting, Unreal cinematic/level planning, Unreal Blueprint reasoning, video render planning task example, creative executor review task example, creative sandbox review task example, real creative executor readiness audit task example, MVP planning task example, local bridge health review task example, health probe review task example, render queue planning, and render review with private local context, then use local or cheap models for packet summarization and draft render queue planning, premium only for high-risk execution review, premium only for complex cinematic/blueprint reasoning, and premium only for complex cross-pipeline planning.";
   const task = classifyAiTask(promptText);
   const recommendation = buildAiRouteRecommendation({
     task,
@@ -56,7 +56,7 @@ export function AiRouterCockpit() {
             Register provider, model, and subscription metadata, classify tasks, estimate approximate tokens, then
             recommend a deterministic route with a visible fallback route. No API keys stored and no provider calls.
             Creative planning examples include storyboard planning, ComfyUI workflow planning, Blender scene
-            planning, Blender Adapter Preview scene plan drafting, Local Bridge Health review, health probe review, real creative executor readiness audit, Unreal cinematic/level planning, Unreal Blueprint
+            planning, Blender Adapter Preview scene plan drafting, Local Bridge Health review, health probe review, real creative executor readiness audit, MVP planning, Unreal cinematic/level planning, Unreal Blueprint
             reasoning, video render planning, creative executor review, creative sandbox review, draft render queue planning, and render review.
             Use local or cheap routing for packet summarization and draft planning, premium only for high-risk execution
             review, premium only for complex cinematic/blueprint reasoning, and premium only for complex cross-pipeline

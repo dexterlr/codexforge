@@ -46,6 +46,7 @@ export function ComfyUiAdapterPreviewPanel({ model }: { model: ComfyUiAdapterPre
             <a href="/creative-executor" style={button}>Open Guarded Creative Executor</a>
             <a href="/creative-sandbox" style={button}>Open Creative Execution Sandbox</a>
             <a href="/creative-readiness" style={button}>Open Creative Readiness</a>
+            <a href="/creative-mvp" style={button}>Open Creative MVP</a>
             <a href="/unreal" style={button}>Open Unreal Adapter Preview</a>
             <span style={pill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
           </div>

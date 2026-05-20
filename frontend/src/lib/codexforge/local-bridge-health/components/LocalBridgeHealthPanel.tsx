@@ -50,6 +50,7 @@ export function LocalBridgeHealthPanel({ model }: { model: LocalBridgeHealthMode
             <a href="/creative-executor" style={link}>Creative Executor</a>
             <a href="/creative-sandbox" style={link}>Creative Sandbox</a>
             <a href="/creative-readiness" style={link}>Creative Readiness</a>
+            <a href="/creative-mvp" style={link}>Creative MVP</a>
             <a href="/video-render" style={link}>Video Render</a>
             <a href="/health-probe" style={link}>Health Probe</a>
             <a href="/capabilities" style={link}>Capabilities</a>

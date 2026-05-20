@@ -33,6 +33,7 @@ export function BlenderAdapterPreviewPanel({ model }: { model: BlenderAdapterPre
           <a href="/creative-executor" style={link}>Open Guarded Creative Executor</a>
           <a href="/creative-sandbox" style={link}>Open Creative Execution Sandbox</a>
           <a href="/creative-readiness" style={link}>Open Creative Readiness</a>
+          <a href="/creative-mvp" style={link}>Open Creative MVP</a>
           <a href="/unreal" style={link}>Open Unreal Adapter Preview</a>
         </div>
         <div style={summaryGrid}>

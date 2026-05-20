@@ -42,6 +42,7 @@ export function UnrealAdapterPreviewPanel({ model }: { model: UnrealAdapterPrevi
           <a href="/creative-executor" style={link}>Open Guarded Creative Executor</a>
           <a href="/creative-sandbox" style={link}>Open Creative Execution Sandbox</a>
           <a href="/creative-readiness" style={link}>Open Creative Readiness</a>
+          <a href="/creative-mvp" style={link}>Open Creative MVP</a>
         </div>
         <div style={summaryGrid}>
           <Metric label="Actors" value={String(model.summary.actorCount)} />

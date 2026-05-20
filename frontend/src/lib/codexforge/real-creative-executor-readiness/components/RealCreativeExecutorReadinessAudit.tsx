@@ -98,6 +98,7 @@ export function RealCreativeExecutorReadinessAudit({
       <section style={copyRow}>
         <button type="button" style={copyButton} onClick={() => copyText("readiness report", readinessReport)}>Copy readiness report</button>
         <button type="button" style={copyButton} onClick={() => copyText("blocker list", blockerList)}>Copy blocker list</button>
+        <a href="/creative-mvp" style={copyButton}>Open Creative MVP</a>
         <a href="/health-probe" style={copyButton}>Open Health Probe</a>
         <button type="button" style={copyButton} onClick={() => copyText("health probe packet", healthProbePacket)}>Copy health probe readiness packet</button>
         <span style={copyState}>{copied ? `${copied} copied` : "copy-only controls"}</span>
