@@ -46,6 +46,8 @@ export type CreativeArtifactCaptureType =
   | "blender-scene-plan"
   | "comfyui-workflow"
   | "unreal-sequence"
+  | "unreal-level-plan"
+  | "unreal-command-preview"
   | "render-log"
   | "prompt"
   | "scene-plan"

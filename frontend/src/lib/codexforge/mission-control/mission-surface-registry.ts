@@ -288,6 +288,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 62 Blender Adapter Preview v1",
     }),
     buildMissionSurface({
+      id: "unreal",
+      label: "Unreal Adapter Preview",
+      href: "/unreal",
+      status: "preview-ready",
+      role: "Unreal Adapter Preview v1 readiness for project input, typed level model, actor/asset/material/Blueprint/Sequencer plans, build settings, command preview, safety policy, and future executor packet.",
+      riskPosture: "preview-only",
+      nextAction: "Review Unreal adapter preview.",
+      readiness: "preview-only",
+      relatedPhase: "Phase 65 Unreal Adapter Preview v1",
+    }),
+    buildMissionSurface({
       id: "creative-bridge",
       label: "Creative Local Bridge",
       href: "/creative-bridge",

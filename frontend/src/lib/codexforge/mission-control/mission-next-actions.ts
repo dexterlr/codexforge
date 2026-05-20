@@ -387,6 +387,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Blender Adapter Preview readiness is preview-only/request-ready for scene model, Python preview, and future executor packet review; no Blender execution, no render execution, no file writes, and preserve latest-message authority.",
     },
     {
+      id: "review-unreal-adapter-preview",
+      label: "Review Unreal adapter preview",
+      href: "/unreal",
+      priority: "secondary",
+      readiness: "preview-only",
+      safetyNote: "Unreal Adapter Preview readiness is preview-only/request-ready for level model, command preview, and future executor packet review; no Unreal execution, no Unreal Editor launch, no render execution, no package/build, no file writes, and preserve latest-message authority.",
+    },
+    {
       id: "open-operator-run-center",
       label: "Open Operator Run Center",
       href: "/runs",

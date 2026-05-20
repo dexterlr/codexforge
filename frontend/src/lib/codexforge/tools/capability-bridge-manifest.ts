@@ -11,6 +11,7 @@ export type CodexForgeCapabilityBridgeId =
   | "pc-bridge"
   | "camera-inspection"
   | "blender-adapter-preview"
+  | "unreal-adapter-preview"
   | "blender-production"
   | "unreal-production"
   | "comfyui-production"
@@ -187,6 +188,27 @@ export const codexForgeCapabilityBridgeManifest = [
     nextMilestones: [
       "Review Blender Adapter Preview v1 at /blender.",
       "Prepare a future guarded creative executor after explicit approval design.",
+    ],
+  },
+  {
+    id: "unreal-adapter-preview",
+    label: "Unreal Adapter Preview",
+    summary:
+      "Generate deterministic Unreal level models, actor/asset/material/Blueprint/Sequencer plans, build warnings, command previews, and future executor packets without execution.",
+    status: "planned",
+    consent: "approval-required",
+    riskLevel: "medium",
+    adapterToolNames: [],
+    allowedSideEffects: ["none"],
+    operatorMode: "creative-production",
+    safetyInvariants: [
+      "Unreal Adapter Preview capability is preview-only in Phase 65.",
+      "Unreal execution and Unreal Editor launch are blocked.",
+      "Render execution, package/build, and file writes are blocked.",
+    ],
+    nextMilestones: [
+      "Review Unreal Adapter Preview v1 at /unreal.",
+      "Prepare Future Guarded Creative Executor after explicit approval design.",
     ],
   },
   {
@@ -367,6 +389,7 @@ export const CODEXFORGE_GOD_TIER_FEATURE_SEQUENCE = [
   "ai-router",
   "web-research",
   "blender-adapter-preview",
+  "unreal-adapter-preview",
   "blender-production",
   "comfyui-production",
   "unreal-production",

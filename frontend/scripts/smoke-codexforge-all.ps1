@@ -126,5 +126,6 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Creative Suite"; File = "smoke-codexforge-creative-suite.ps1"; Required = $true },
   @{ Name = "Creative Local Bridge"; File = "smoke-codexforge-creative-local-bridge.ps1"; Required = $true },
   @{ Name = "Blender Adapter Preview"; File = "smoke-codexforge-blender-adapter-preview.ps1"; Required = $true },
+  @{ Name = "Unreal Adapter Preview"; File = "smoke-codexforge-unreal-adapter-preview.ps1"; Required = $true },
   @{ Name = "ComfyUI Adapter Preview"; File = "smoke-codexforge-comfyui-adapter-preview.ps1"; Required = $true }
 )

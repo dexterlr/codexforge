@@ -6,6 +6,8 @@ export type ArtifactType =
   | "blender-scene-plan"
   | "comfyui-workflow-json"
   | "unreal-command-preview"
+  | "unreal-level-plan"
+  | "unreal-sequence"
   | "render-queue-manifest"
   | "run-summary-markdown"
   | "research-summary"
@@ -167,6 +169,8 @@ export const SUPPORTED_ARTIFACT_TYPES: ArtifactType[] = [
   "blender-script-preview",
   "comfyui-workflow-json",
   "unreal-command-preview",
+  "unreal-level-plan",
+  "unreal-sequence",
   "render-queue-manifest",
   "run-summary-markdown",
   "research-summary",

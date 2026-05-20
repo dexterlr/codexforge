@@ -32,12 +32,15 @@ export function CreativeProductionStudio({ context }: { context: CreativeContext
         <a href="/bridge" style={runLink}>Bridge readiness</a>
         <a href="/creative-bridge" style={runLink}>Creative Local Bridge</a>
         <a href="/blender" style={runLink}>Blender Adapter Preview</a>
+        <a href="/unreal" style={runLink}>Unreal Adapter Preview</a>
         <a href="/artifacts" style={runLink}>Artifact Executor</a>
         <span style={statusPill}>approval required before execution</span>
         <span style={statusPill}>No render execution</span>
         <span style={statusPill}>Bridge handoff preview</span>
         <span style={statusPill}>No Blender execution</span>
         <span style={statusPill}>Blender script preview</span>
+        <span style={statusPill}>Unreal Adapter Preview level/cinematic plan</span>
+        <span style={statusPill}>Unreal command preview</span>
         <span style={statusPill}>No Unreal execution</span>
         <span style={statusPill}>No ComfyUI execution</span>
       </CodexForgeLocalActionBar>

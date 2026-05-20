@@ -13,6 +13,7 @@ export type ProductRoutePath =
   | "/memory-inbox"
   | "/creative"
   | "/blender"
+  | "/unreal"
   | "/comfyui"
   | "/creative-bridge"
   | "/capabilities"

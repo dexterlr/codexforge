@@ -20,6 +20,7 @@ const familyByBridgeId: Record<CodexForgeCapabilityBridgeId, BridgeCapabilityFam
   "camera-inspection": "camera",
   "blender-adapter-preview": "Blender",
   "blender-production": "Blender",
+  "unreal-adapter-preview": "Unreal",
   "unreal-production": "Unreal",
   "comfyui-production": "ComfyUI",
   "trading-research": "trading research",

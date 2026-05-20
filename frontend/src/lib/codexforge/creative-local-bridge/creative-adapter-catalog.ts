@@ -82,12 +82,13 @@ export function buildCreativeAdapterCatalog(): CreativeAdapterCatalogItem[] {
     }),
     buildCreativeAdapterCatalogItem({
       id: "unreal-editor-command-preview",
-      label: "Unreal Editor Command Preview",
+      label: "Unreal Adapter Preview v1",
       bridgeKind: "unreal",
-      capability: "editor command preview",
-      expectedArtifacts: ["unreal-sequence", "scene-plan"],
-      sideEffects: ["No Unreal execution.", "No editor command sent."],
+      capability: "level model, actor/asset plan, Sequencer plan, command preview, and future executor packet",
+      expectedArtifacts: ["unreal-sequence", "unreal-level-plan", "unreal-command-preview", "scene-plan"],
+      sideEffects: ["No Unreal execution.", "No Unreal Editor launch.", "No render execution.", "No package/build.", "No file writes."],
       riskLevel: "high",
+      outputRoute: "/unreal",
     }),
     buildCreativeAdapterCatalogItem({
       id: "unreal-sequencer-render",

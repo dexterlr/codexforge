@@ -10,6 +10,8 @@ export const CODEXFORGE_ARTIFACT_ALLOWED_EXTENSIONS = [
   ".preview.py",
   ".blender.preview.py",
   ".blender.scene.preview.json",
+  ".unreal.preview.txt",
+  ".unreal.level.preview.json",
   ".preview.txt",
 ] as const;
 

@@ -157,6 +157,36 @@ function buildCandidateForCapability(
         blockedBy: ["Future guarded creative executor not implemented yet."],
       });
 
+    case "unreal-adapter-preview":
+      return candidate({
+        id: "unreal-adapter-preview-v1",
+        title: "Unreal Adapter Preview v1",
+        capabilityId,
+        priority: "p1",
+        status: "approval-gated",
+        riskLevel: "medium",
+        rationale:
+          "Unreal cinematic and level planning can become tangible through typed level models, command previews, and future executor packets before any local app execution.",
+        nextAction:
+          "Review /unreal and keep Unreal execution, Unreal Editor launch, render execution, package/build, and file writes blocked until a future guarded creative executor exists.",
+        deliverables: [
+          "Unreal project input and level model.",
+          "Actor, asset, material, Blueprint, Sequencer, and build settings preview.",
+          "Command preview.",
+          "Future executor packet.",
+        ],
+        validationCommands: [...BASE_VALIDATION_COMMANDS],
+        safetyGates: [
+          "No Unreal execution.",
+          "No Unreal Editor launch.",
+          "No render execution.",
+          "No package/build.",
+          "No file writes.",
+          "Future executor boundary required.",
+        ],
+        blockedBy: ["Future guarded creative executor not implemented yet."],
+      });
+
     case "blender-production":
       return candidate({
         id: "blender-scene-plan-schema-v1",

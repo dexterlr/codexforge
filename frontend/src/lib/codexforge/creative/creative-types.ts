@@ -34,6 +34,7 @@ export type CreativeAdapterName =
   | "blender-python"
   | "comfyui-workflow-run"
   | "unreal-editor-command"
+  | "unreal-command-preview"
   | "local-safe-render-job"
   | "safe-patch-preview";
 

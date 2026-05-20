@@ -24,7 +24,9 @@ export function BlenderAdapterPreviewPanel({ model }: { model: BlenderAdapterPre
           <p style={lede}>
             Creative scene plan to typed Blender scene model to structured Blender Python script preview. This route is
             preview-only: no Blender execution, no render execution, no file writes, and no save actions.
+            Cross-link to Unreal Adapter Preview for cinematic/level handoff planning.
           </p>
+          <a href="/unreal" style={link}>Open Unreal Adapter Preview</a>
         </div>
         <div style={summaryGrid}>
           <Metric label="Objects" value={String(model.summary.objectCount)} />
@@ -72,6 +74,7 @@ const hero: CSSProperties = { display: "grid", gridTemplateColumns: "minmax(0, 1
 const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 12, fontWeight: 900, textTransform: "uppercase" };
 const headline: CSSProperties = { margin: "8px 0", fontSize: "clamp(30px, 4vw, 52px)", lineHeight: 1.04, letterSpacing: 0, maxWidth: 980, minWidth: 0, overflowWrap: "normal", wordBreak: "normal" };
 const lede: CSSProperties = { margin: 0, color: "#cbd5e1", lineHeight: 1.55, maxWidth: 820, overflowWrap: "anywhere" };
+const link: CSSProperties = { width: "fit-content", maxWidth: "100%", border: "1px solid rgba(94,234,212,0.28)", background: "rgba(20,184,166,0.12)", borderRadius: 8, padding: "8px 10px", color: "#ccfbf1", fontSize: 12, fontWeight: 900, textTransform: "uppercase", textDecoration: "none", overflowWrap: "anywhere" };
 const summaryGrid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 130px), 1fr))", gap: 8, minWidth: 0 };
 const metric: CSSProperties = { border: "1px solid rgba(125,211,252,0.18)", background: "rgba(2,6,23,0.52)", borderRadius: 8, padding: 10, display: "grid", gap: 4, minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere" };
 const summaryBand: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 8, color: "#dbeafe", fontSize: 13, minWidth: 0, overflowWrap: "anywhere" };

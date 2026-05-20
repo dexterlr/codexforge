@@ -37,7 +37,7 @@ export function buildRenderQueuePreview(plan: CreativeProductionPlan): RenderQue
     {
       id: "render-queue:unreal-cinematic-preview",
       capability: "unreal",
-      adapter: "unreal-editor-command",
+      adapter: "unreal-command-preview",
       estimatedArtifactPathPlaceholder: "artifacts/codexforge/creative/unreal-cinematic-preview.mp4",
       ...common,
     },

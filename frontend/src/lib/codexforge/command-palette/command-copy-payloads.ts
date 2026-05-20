@@ -121,6 +121,35 @@ export function buildCodexForgeBlenderAdapterPreviewPromptPayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeUnrealCommandPreviewPromptPayload(): string {
+  return [
+    "Unreal Adapter Preview v1 command preview prompt",
+    "",
+    "Inspect first.",
+    "Use Creative Local Bridge v1 metadata only.",
+    "Prepare an Unreal level/cinematic adapter preview without launching Unreal.",
+    "Review typed level model, actor plan, asset plan, material plan, Blueprint plan, Sequencer plan, build settings, command preview, and future executor packet.",
+    "Do not launch Unreal, execute editor commands, run Python or Blueprint automation, render, package/build, write artifact files, call providers, or mutate source files from UI.",
+    "Require future guarded creative executor before any local app execution.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeUnrealFutureExecutorPacketPayload(): string {
+  return [
+    "Unreal future executor packet review",
+    "",
+    "Copy packet metadata only.",
+    "No Unreal execution.",
+    "No Unreal Editor launch.",
+    "No render execution.",
+    "No package/build.",
+    "No file writes.",
+    "Future executor boundary required before any local app action.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
 export function buildCodexForgeStabilizationHandoffPayload(): string {
   return [
     "CodexForge stabilization handoff",
@@ -160,7 +189,7 @@ export function buildCodexForgeContinuityValidationChecklistPayload(): string {
 }
 
 export function summarizeCodexForgeCopyPayloads(): string {
-  return "Copy payloads cover validation checklist, Validation Runner v1 checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, Approved Patch Apply review prompt, Creative Local Bridge handoff, Blender Adapter Preview prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
+  return "Copy payloads cover validation checklist, Validation Runner v1 checklist, safe patch prompt, file inspection prompt, Project Reader patch preview prompt, Real Patch Preview review prompt, apply-gate handoff prompt, Approved Patch Apply review prompt, Creative Local Bridge handoff, Blender Adapter Preview prompt, Unreal Adapter Preview prompt, stabilization handoff, Continuity Handoff prompt, and Continuity Handoff validation checklist with inspect first, no file writes without approval, no command execution without approval, and preserve latest-message authority.";
 }
 
 export function buildCodexForgeBlenderFutureExecutorPacketPayload(): string {
