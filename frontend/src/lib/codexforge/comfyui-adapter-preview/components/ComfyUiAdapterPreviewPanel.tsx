@@ -33,6 +33,7 @@ export function ComfyUiAdapterPreviewPanel({ model }: { model: ComfyUiAdapterPre
           <p style={lede}>
             Typed workflow manifest, prompt slots, model placeholder policy, seed policy, output placeholders, approval
             packet, and future executor handoff without launching ComfyUI or contacting a local endpoint.
+            Safety policy links to Local Bridge Health for the ComfyUI local health target; no local HTTP calls.
             Cross-link to Video Render Job Preview for image sequence / video frames plan, or Unreal Adapter Preview for texture/concept-art workflow planning.
           </p>
           <div style={actions}>
@@ -40,6 +41,7 @@ export function ComfyUiAdapterPreviewPanel({ model }: { model: ComfyUiAdapterPre
               Copy workflow handoff
             </button>
             <a href="/video-render" style={button}>Open Video Render Job Preview</a>
+            <a href="/local-bridge-health" style={button}>Open Local Bridge Health</a>
             <a href="/creative-executor" style={button}>Open Guarded Creative Executor</a>
             <a href="/unreal" style={button}>Open Unreal Adapter Preview</a>
             <span style={pill}>{copied ? `${copied} copied` : "copy-only controls"}</span>

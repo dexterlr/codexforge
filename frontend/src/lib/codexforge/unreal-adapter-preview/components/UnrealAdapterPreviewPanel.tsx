@@ -32,8 +32,10 @@ export function UnrealAdapterPreviewPanel({ model }: { model: UnrealAdapterPrevi
             Sequencer camera plan, build warnings, command preview, and future executor packet. This route is
             preview-only: no Unreal execution, no Unreal Editor launch, no render execution, no package/build, no file
             writes, and no save actions. Link to Video Render Job Preview for Sequencer/render plan queue review.
+            Safety policy links to Local Bridge Health for the Unreal local health target before future execution.
           </p>
           <a href="/video-render" style={link}>Open Video Render Job Preview</a>
+          <a href="/local-bridge-health" style={link}>Open Local Bridge Health</a>
           <a href="/creative-executor" style={link}>Open Guarded Creative Executor</a>
         </div>
         <div style={summaryGrid}>

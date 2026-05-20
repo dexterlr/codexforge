@@ -395,6 +395,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Guarded Creative Executor readiness is dry-run-first/request-ready; review creative executor dry-run, adapter allowlist, approval, kill-switch policy, and artifact capture while execution remains disabled.",
     },
     {
+      id: "review-local-bridge-health",
+      label: "Review local bridge health",
+      href: "/local-bridge-health",
+      priority: "secondary",
+      readiness: "preview-only",
+      safetyNote: "Local Bridge Health readiness is preview/manual-only/future-guarded; review local bridge health before creative executor handoff. No command execution, no local HTTP calls by default, no file writes, and no render execution.",
+    },
+    {
       id: "review-blender-adapter-preview",
       label: "Review Blender adapter preview",
       href: "/blender",

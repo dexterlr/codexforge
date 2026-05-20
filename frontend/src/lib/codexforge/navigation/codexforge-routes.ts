@@ -28,6 +28,7 @@ export type CodexForgeRoute = {
     | "creative"
     | "comfyui"
     | "creative-executor"
+    | "local-bridge-health"
     | "creative-bridge"
     | "history"
     | "entry"
@@ -222,6 +223,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Production",
     description: "Dry-run-first creative executor control plane with execution disabled.",
+  },
+  {
+    id: "local-bridge-health",
+    path: "/local-bridge-health",
+    label: "Local Bridge Health",
+    shortLabel: "Bridge Health",
+    priority: "secondary",
+    showInGlobalNav: true,
+    group: "Production",
+    description: "Preview/manual-only local bridge health readiness and setup guide.",
   },
   {
     id: "comfyui",

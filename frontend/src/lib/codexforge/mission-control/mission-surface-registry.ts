@@ -112,6 +112,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 67 Future Guarded Creative Executor",
     }),
     buildMissionSurface({
+      id: "local-bridge-health",
+      label: "Local Bridge Health",
+      href: "/local-bridge-health",
+      status: "preview-ready",
+      role: "Preview/manual-only Local Bridge Health readiness for local bridge profiles, safe check plan, policy, probe preview, result, setup guide, and next setup action.",
+      riskPosture: "preview-only",
+      nextAction: "Review Local Bridge Health readiness before creative executor handoff.",
+      readiness: "preview-only",
+      relatedPhase: "Phase 68 Local Bridge Health Check v1",
+    }),
+    buildMissionSurface({
       id: "brain",
       label: "Brain",
       href: "/brain",

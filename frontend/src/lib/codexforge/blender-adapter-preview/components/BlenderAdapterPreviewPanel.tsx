@@ -24,9 +24,11 @@ export function BlenderAdapterPreviewPanel({ model }: { model: BlenderAdapterPre
           <p style={lede}>
             Creative scene plan to typed Blender scene model to structured Blender Python script preview. This route is
             preview-only: no Blender execution, no render execution, no file writes, and no save actions.
+            Safety policy links to Local Bridge Health for the Blender local health target before future execution.
             Cross-link to Video Render Job Preview for render queue and future executor packet planning, or Unreal Adapter Preview for cinematic/level handoff planning.
           </p>
           <a href="/video-render" style={link}>Open Video Render Job Preview</a>
+          <a href="/local-bridge-health" style={link}>Open Local Bridge Health</a>
           <a href="/creative-executor" style={link}>Open Guarded Creative Executor</a>
           <a href="/unreal" style={link}>Open Unreal Adapter Preview</a>
         </div>

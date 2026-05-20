@@ -188,6 +188,28 @@ export function buildCodexForgeCreativeExecutorFuturePacketPayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeLocalBridgeSetupGuidePayload(): string {
+  return [
+    "Local Bridge Health setup guide",
+    "",
+    "Review Blender, ComfyUI, Unreal, ffmpeg, artifact output boundary, adapter allowlist, and guarded executor policy.",
+    "Preview-only/manual-only/future-guarded.",
+    "No command execution, no local HTTP calls by default, no file writes, no render execution, and no local app launch.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeFutureHealthProbePacketPayload(): string {
+  return [
+    "Future health probe packet review",
+    "",
+    "Copy future probe metadata only.",
+    "Require approval, explicit allowlist, operator review, safe metadata-only boundaries, and no execution by default.",
+    "No Blender launch, no ComfyUI HTTP request, no Unreal launch, no ffmpeg version command, no artifact directory write, no command execution, and no render execution.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
 export function buildCodexForgeUnrealCommandPreviewPromptPayload(): string {
   return [
     "Unreal Adapter Preview v1 command preview prompt",

@@ -34,12 +34,13 @@ export function GuardedCreativeExecutorPanel({ model }: { model: GuardedCreative
           <span style={eyebrow}>CodexForge Phase 67</span>
           <h1 style={headline}>Guarded Creative Executor</h1>
           <p style={lede}>
-            One safe boundary for creative execution packets, adapter allowlists, bridge health,
+            One safe boundary for creative execution packets, adapter allowlists, Local Bridge Health readiness,
             approval packets, dry-run plans, cancellation policy, artifact capture, and future
             guarded executor handoff. Dry-run-first and request-ready; execution disabled.
           </p>
           <div style={links}>
             <a href="/creative-bridge" style={link}>Creative Bridge</a>
+            <a href="/local-bridge-health" style={link}>Local Bridge Health</a>
             <a href="/video-render" style={link}>Video Render</a>
             <a href="/artifacts/review" style={link}>Artifact Review</a>
           </div>

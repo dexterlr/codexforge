@@ -31,7 +31,7 @@ export function CreativeLocalBridgePanel({ model }: { model: CreativeLocalBridge
           <span style={eyebrow}>CodexForge Phase 61</span>
           <h1 style={headline}>Creative Local Bridge</h1>
           <p style={lede}>
-            Creative plan to local bridge profile, adapter readiness, job request preview,
+            Creative plan to local bridge profile, Local Bridge Health profile summary, adapter readiness, job request preview,
             approval packet, and artifact capture plan. Preview-only and request-ready; no
             local render tools are launched.
           </p>
@@ -39,6 +39,7 @@ export function CreativeLocalBridgePanel({ model }: { model: CreativeLocalBridge
             <a href="/creative" style={link}>Creative Production Studio</a>
             <a href="/capabilities" style={link}>Capability Cockpit</a>
             <a href="/artifacts" style={link}>Artifact Workspace</a>
+            <a href="/local-bridge-health" style={link}>Local Bridge Health</a>
             <a href="/creative-executor" style={link}>Guarded Creative Executor</a>
           </div>
         </div>
