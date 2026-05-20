@@ -27,6 +27,7 @@ export function BlenderAdapterPreviewPanel({ model }: { model: BlenderAdapterPre
             Cross-link to Video Render Job Preview for render queue and future executor packet planning, or Unreal Adapter Preview for cinematic/level handoff planning.
           </p>
           <a href="/video-render" style={link}>Open Video Render Job Preview</a>
+          <a href="/creative-executor" style={link}>Open Guarded Creative Executor</a>
           <a href="/unreal" style={link}>Open Unreal Adapter Preview</a>
         </div>
         <div style={summaryGrid}>

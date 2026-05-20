@@ -44,6 +44,7 @@ export function VideoRenderJobPreviewPanel({ model }: { model: VideoRenderJobPre
             <button type="button" style={linkButton} onClick={() => copyText("render plan", model.input.summary.join("\n"))}>Copy render plan</button>
             <button type="button" style={linkButton} onClick={() => copyText("queue preview", model.queuePreview.summary.join("\n"))}>Copy queue preview</button>
             <button type="button" style={linkButton} onClick={() => copyText("future executor packet", model.executionPacket.summary.join("\n"))}>Copy future executor packet</button>
+            <a href="/creative-executor" style={linkButton}>Open Guarded Creative Executor</a>
             <span style={chip}>{copied ? `${copied} copied` : "copy-only controls"}</span>
           </div>
         </div>

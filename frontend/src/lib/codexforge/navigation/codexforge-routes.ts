@@ -27,6 +27,7 @@ export type CodexForgeRoute = {
     | "capabilities"
     | "creative"
     | "comfyui"
+    | "creative-executor"
     | "creative-bridge"
     | "history"
     | "entry"
@@ -211,6 +212,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Production",
     description: "Creative briefs, production plans, render previews, and artifact flow.",
+  },
+  {
+    id: "creative-executor",
+    path: "/creative-executor",
+    label: "Guarded Creative Executor",
+    shortLabel: "Executor",
+    priority: "secondary",
+    showInGlobalNav: true,
+    group: "Production",
+    description: "Dry-run-first creative executor control plane with execution disabled.",
   },
   {
     id: "comfyui",

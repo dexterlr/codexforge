@@ -101,6 +101,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 66 Video Render Job Preview v1",
     }),
     buildMissionSurface({
+      id: "creative-executor",
+      label: "Guarded Creative Executor",
+      href: "/creative-executor",
+      status: "preview-ready",
+      role: "Dry-run-first creative execution boundary for request, adapter allowlist, approval, preflight, dry-run plan, kill-switch policy, artifact capture, result, and future guarded executor packet.",
+      riskPosture: "preview-only",
+      nextAction: "Review creative executor dry-run.",
+      readiness: "preview-only",
+      relatedPhase: "Phase 67 Future Guarded Creative Executor",
+    }),
+    buildMissionSurface({
       id: "brain",
       label: "Brain",
       href: "/brain",

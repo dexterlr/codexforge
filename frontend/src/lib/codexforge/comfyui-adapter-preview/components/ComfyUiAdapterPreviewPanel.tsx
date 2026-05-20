@@ -40,6 +40,7 @@ export function ComfyUiAdapterPreviewPanel({ model }: { model: ComfyUiAdapterPre
               Copy workflow handoff
             </button>
             <a href="/video-render" style={button}>Open Video Render Job Preview</a>
+            <a href="/creative-executor" style={button}>Open Guarded Creative Executor</a>
             <a href="/unreal" style={button}>Open Unreal Adapter Preview</a>
             <span style={pill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
           </div>

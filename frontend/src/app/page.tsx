@@ -36,6 +36,7 @@ const SURFACE_MAP: readonly HomeSurfaceMapItem[] = [
   { path: "/runs", label: "Operator Run Center" },
   { path: "/capabilities", label: "Capability Cockpit" },
   { path: "/creative", label: "Creative Production Studio" },
+  { path: "/creative-executor", label: "Guarded Creative Executor" },
   { path: "/comfyui", label: "ComfyUI Adapter Preview" },
   { path: "/activity", label: "Activity Feed" },
   { path: "/readiness", label: "Product Readiness Audit" },

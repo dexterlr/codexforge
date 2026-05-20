@@ -34,6 +34,7 @@ export function UnrealAdapterPreviewPanel({ model }: { model: UnrealAdapterPrevi
             writes, and no save actions. Link to Video Render Job Preview for Sequencer/render plan queue review.
           </p>
           <a href="/video-render" style={link}>Open Video Render Job Preview</a>
+          <a href="/creative-executor" style={link}>Open Guarded Creative Executor</a>
         </div>
         <div style={summaryGrid}>
           <Metric label="Actors" value={String(model.summary.actorCount)} />

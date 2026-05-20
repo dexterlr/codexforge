@@ -153,7 +153,7 @@ export function summarizeCreativeAdapterCatalog(
   const blocked = adapters.filter((adapter) => adapter.executionMode !== "preview-only").length;
   return [
     `${adapters.length} creative adapters cataloged.`,
-    `${blocked} adapters require future guarded execution.`,
+    `${blocked} adapters require future guarded execution; adapter catalog mentions Guarded Creative Executor for future handoff.`,
     "All Phase 61 adapter outputs are preview-only metadata or copyable handoff text.",
   ];
 }

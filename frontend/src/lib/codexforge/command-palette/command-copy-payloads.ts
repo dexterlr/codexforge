@@ -162,6 +162,32 @@ export function buildCodexForgeVideoRenderFutureExecutorPacketPayload(): string 
   ].join("\n");
 }
 
+export function buildCodexForgeCreativeExecutorDryRunPayload(): string {
+  return [
+    "Guarded Creative Executor dry-run",
+    "",
+    "Copy dry-run plan only.",
+    "No render execution.",
+    "No command execution.",
+    "No file writes.",
+    "No Blender, ComfyUI, Unreal, ffmpeg, or local renderer execution.",
+    "Future guarded executor remains request-ready only.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeCreativeExecutorFuturePacketPayload(): string {
+  return [
+    "Guarded Creative Executor future packet",
+    "",
+    "Review request, adapter allowlist, local bridge health, approval packet, preflight, dry-run, kill-switch plan, artifact capture plan, and result boundary.",
+    "Do not execute from Command Palette.",
+    "Do not launch local apps, render, package/build, call endpoints, write files, or call provider APIs.",
+    "Execution disabled in Phase 67.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
 export function buildCodexForgeUnrealCommandPreviewPromptPayload(): string {
   return [
     "Unreal Adapter Preview v1 command preview prompt",

@@ -387,6 +387,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Video Render Job Preview readiness is preview-only/request-ready for render queue and future executor packet review; no render execution, no Blender execution, no ComfyUI execution, no Unreal execution, no ffmpeg execution, no file writes, and preserve latest-message authority.",
     },
     {
+      id: "review-guarded-creative-executor",
+      label: "Review creative executor dry-run",
+      href: "/creative-executor",
+      priority: "secondary",
+      readiness: "preview-only",
+      safetyNote: "Guarded Creative Executor readiness is dry-run-first/request-ready; review creative executor dry-run, adapter allowlist, approval, kill-switch policy, and artifact capture while execution remains disabled.",
+    },
+    {
       id: "review-blender-adapter-preview",
       label: "Review Blender adapter preview",
       href: "/blender",
