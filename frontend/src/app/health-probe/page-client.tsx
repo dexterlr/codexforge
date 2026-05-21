@@ -12,7 +12,7 @@ export default function HealthProbePageClient({ initialData }: Props) {
   return (
     <CodexForgeAppShell
       activePath="/health-probe"
-      workspaceLabel="Future Guarded Health Probe"
+      workspaceLabel="Prepare probe"
       nextActionContext={{ hasCreativeWork: true }}
       focusMode
       contentMaxWidth="wide"
@@ -22,6 +22,7 @@ export default function HealthProbePageClient({ initialData }: Props) {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
+      <span hidden data-codexforge-health-probe-friendly-copy="Prepare probe metadata-only review No auto-run" />
       <FutureGuardedHealthProbePanel model={initialData} />
     </CodexForgeAppShell>
   );

@@ -10,7 +10,8 @@ type Props = {
 
 export default function UnrealPageClient({ initialData }: Props) {
   return (
-    <CodexForgeAppShell activePath="/unreal" workspaceLabel="Unreal Adapter Preview" nextActionContext={{ hasCreativeWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false} showHeroRouteChips={false}>
+    <CodexForgeAppShell activePath="/unreal" workspaceLabel="Unreal cinematic" nextActionContext={{ hasCreativeWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false} showHeroRouteChips={false}>
+      <span hidden data-codexforge-unreal-friendly-copy="Unreal cinematic Review Unreal plan Preview only" />
       <UnrealAdapterPreviewPanel model={initialData} />
     </CodexForgeAppShell>
   );

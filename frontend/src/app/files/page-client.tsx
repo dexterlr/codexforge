@@ -50,7 +50,7 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
     >
       <div style={handoffBand}>
         <Link href="/ai" style={handoffLink}>
-          Preview-only file handoff: inspect current files first, then prepare diff context without applying.
+          Inspect a file: preview code first, then keep patch/apply details secondary until review.
         </Link>
         <div
           hidden

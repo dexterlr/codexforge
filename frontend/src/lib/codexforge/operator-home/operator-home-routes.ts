@@ -11,6 +11,7 @@ import { buildOperatorHomeStableKey } from "./operator-home-types";
 
 const DEFAULT_ROUTE_AVAILABILITY: OperatorHomeRouteAvailability = {
   "/": true,
+  "/start": true,
   "/ai": true,
   "/ai-router": true,
   "/brain": true,
@@ -24,6 +25,7 @@ const DEFAULT_ROUTE_AVAILABILITY: OperatorHomeRouteAvailability = {
 
 const ROUTE_ORDER: OperatorHomeRoutePath[] = [
   "/",
+  "/start",
   "/ai",
   "/ai-router",
   "/brain",
@@ -65,6 +67,18 @@ const ROUTE_DEFINITIONS: Record<OperatorHomeRoutePath, RouteDefinition> = {
     riskPosture: "readonly",
     nextAction: "Use Home as the launch dashboard before entering mutation-capable workflows.",
     badge: "Home",
+    requiredReview: false,
+  },
+  "/start": {
+    href: "/start",
+    label: "Start",
+    description:
+      "Plain-English guided entrypoint for normal operators choosing the next safe workflow.",
+    domain: "operator-home",
+    readiness: "ready",
+    riskPosture: "readonly",
+    nextAction: "Use Start for guided choices before advanced operator surfaces.",
+    badge: "Guide",
     requiredReview: false,
   },
   "/ai": {

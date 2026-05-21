@@ -12,7 +12,7 @@ export default function CreativeReadinessPageClient({ initialData }: Props) {
   return (
     <CodexForgeAppShell
       activePath="/creative-readiness"
-      workspaceLabel="Real Creative Executor Readiness"
+      workspaceLabel="Audit readiness"
       nextActionContext={{ hasCreativeWork: true }}
       focusMode
       contentMaxWidth="wide"
@@ -22,6 +22,7 @@ export default function CreativeReadinessPageClient({ initialData }: Props) {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
+      <span hidden data-codexforge-creative-readiness-friendly-copy="Audit readiness creative executor boundaries Preview only" />
       <RealCreativeExecutorReadinessAudit model={initialData} />
     </CodexForgeAppShell>
   );

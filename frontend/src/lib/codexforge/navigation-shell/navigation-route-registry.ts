@@ -8,6 +8,7 @@ import type {
 
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/",
+  "/start",
   "/ai",
   "/ai-router",
   "/brain",
@@ -59,6 +60,21 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     requiresReview: false,
     noMutation: true,
     commandDeckRole: "overview",
+  },
+  "/start": {
+    id: "start",
+    href: "/start",
+    label: "Start",
+    shortLabel: "Start",
+    description: "Plain-English guided entrypoint for choosing the next safe CodexForge workflow.",
+    group: "Start",
+    readiness: "available",
+    safetyPosture: "local-first",
+    badge: "Guide",
+    priority: 12,
+    requiresReview: false,
+    noMutation: true,
+    commandDeckRole: "start",
   },
   "/ai": {
     id: "ai",

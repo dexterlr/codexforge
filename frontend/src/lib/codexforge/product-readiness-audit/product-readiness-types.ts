@@ -5,6 +5,7 @@ export type FunctionalWorkflowStatus = "functional" | "preview-only" | "scaffold
 
 export type ProductRoutePath =
   | "/"
+  | "/start"
   | "/ai"
   | "/brain"
   | "/files"

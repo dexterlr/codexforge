@@ -32,6 +32,9 @@ export function OperatorHomeHero({
         <p style={lede}>{surface.subtitle}</p>
         <p style={posture}>{surface.posture}</p>
         <div style={actionRow}>
+          <Link href="/start" style={primaryLink}>
+            Start here
+          </Link>
           <Link href={nextAction.href} style={primaryLink}>
             {nextAction.title}
           </Link>

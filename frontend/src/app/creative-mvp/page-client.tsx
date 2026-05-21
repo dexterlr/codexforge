@@ -12,7 +12,7 @@ export default function CreativeMvpPageClient({ initialData }: Props) {
   return (
     <CodexForgeAppShell
       activePath="/creative-mvp"
-      workspaceLabel="Real Creative Executor MVP Design"
+      workspaceLabel="Review MVP candidate"
       nextActionContext={{ hasCreativeWork: true }}
       focusMode
       contentMaxWidth="wide"
@@ -22,6 +22,7 @@ export default function CreativeMvpPageClient({ initialData }: Props) {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
+      <span hidden data-codexforge-creative-mvp-friendly-copy="Review MVP candidate recommended candidate advanced requirement lists collapsed Design only" />
       <RealCreativeExecutorMvpDesign model={initialData} />
     </CodexForgeAppShell>
   );

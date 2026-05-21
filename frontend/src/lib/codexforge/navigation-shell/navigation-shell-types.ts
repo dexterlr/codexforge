@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 export type CodexForgeNavigationRouteId =
   | "home"
+  | "start"
   | "ai"
   | "ai-router"
   | "brain"
@@ -40,6 +41,7 @@ export type CodexForgeNavigationRouteId =
 
 export type CodexForgeNavigationRouteHref =
   | "/"
+  | "/start"
   | "/ai"
   | "/ai-router"
   | "/brain"
@@ -101,6 +103,7 @@ export type CodexForgeNavigationSafetyPosture =
 
 export type CodexForgeCommandDeckRole =
   | "overview"
+  | "start"
   | "workspace"
   | "ai-router"
   | "graph"

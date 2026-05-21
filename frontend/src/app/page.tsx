@@ -6,6 +6,7 @@ import OperatorHomePageClient from "./page-client";
 
 const OPERATOR_HOME_ROUTES = [
   "/",
+  "/start",
   "/ai",
   "/ai-router",
   "/brain",
@@ -29,6 +30,7 @@ type HomeSurfaceMapItem = {
 };
 
 const SURFACE_MAP: readonly HomeSurfaceMapItem[] = [
+  { path: "/start", label: "Start" },
   { path: "/files", label: "Files Command Center" },
   { path: "/validation", label: "Validation Runner" },
   { path: "/closed-loop", label: "Closed Loop Fix" },

@@ -12,7 +12,7 @@ export default function CreativeExecutorPageClient({ initialData }: Props) {
   return (
     <CodexForgeAppShell
       activePath="/creative-executor"
-      workspaceLabel="Guarded Creative Executor"
+      workspaceLabel="Review dry run"
       nextActionContext={{ hasCreativeWork: true }}
       focusMode
       contentMaxWidth="wide"
@@ -22,6 +22,7 @@ export default function CreativeExecutorPageClient({ initialData }: Props) {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
+      <span hidden data-codexforge-creative-executor-friendly-copy="Review dry run No auto-run advanced executor packet secondary" />
       <GuardedCreativeExecutorPanel model={initialData} />
     </CodexForgeAppShell>
   );

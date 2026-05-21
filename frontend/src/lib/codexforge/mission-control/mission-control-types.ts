@@ -7,6 +7,7 @@ export type MissionReadinessLevel =
 
 export type MissionSurfaceId =
   | "operator-home"
+  | "product-simplification"
   | "brain"
   | "memory"
   | "memory-inbox"
@@ -78,6 +79,7 @@ export type MissionSurfaceRegistry = {
 
 export type MissionHealthDimensionId =
   | "operator-home-dashboard"
+  | "product-simplification"
   | "runtime"
   | "memory"
   | "brain-recall"

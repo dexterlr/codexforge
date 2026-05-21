@@ -495,6 +495,13 @@ export default function AiPage() {
           onAddSystemMessage={addSystemMessage}
           onClearChat={clearChat}
         />
+        <section style={friendlyAiIntro} data-codexforge-ai-friendly-copy="Ask CodexForge Describe what you want to inspect, fix, or plan. Advanced settings collapsed Review first">
+          <div>
+            <h1 style={friendlyAiTitle}>Ask CodexForge</h1>
+            <p style={friendlyAiCopy}>Describe what you want to inspect, fix, or plan.</p>
+          </div>
+          <Link href="/start" style={friendlyAiLink}>Start guide</Link>
+        </section>
         <span hidden data-codexforge-ai-stabilization-smoke="Stabilization Command Center integration marker; navigation lives in the shell sidebar and command palette." />
         <span hidden data-codexforge-ai-task-autopilot-smoke="Task Autopilot and Reviewed Task Activation integration marker; route controls live in the shell sidebar and command palette." />
         <span hidden data-codexforge-ai-execution-readiness-smoke="Execution Readiness integration marker; task readiness lives behind reviewed task workflows, the shell sidebar, and command palette." />
@@ -925,6 +932,43 @@ const aiRouterPanel: CSSProperties = {
   alignItems: "flex-start",
   flexWrap: "wrap",
   minWidth: 0,
+};
+
+const friendlyAiIntro: CSSProperties = {
+  alignItems: "center",
+  border: "1px solid rgba(45,212,191,0.18)",
+  background: "rgba(15,23,42,0.48)",
+  borderRadius: 8,
+  display: "grid",
+  gap: 12,
+  gridTemplateColumns: "minmax(0, 1fr) auto",
+  padding: 14,
+};
+
+const friendlyAiTitle: CSSProperties = {
+  fontSize: 24,
+  lineHeight: 1.15,
+  margin: 0,
+  overflowWrap: "normal",
+  wordBreak: "normal",
+};
+
+const friendlyAiCopy: CSSProperties = {
+  color: "#cbd5e1",
+  fontSize: 14,
+  lineHeight: 1.5,
+  margin: "5px 0 0",
+};
+
+const friendlyAiLink: CSSProperties = {
+  border: "1px solid rgba(125,211,252,0.22)",
+  borderRadius: 8,
+  color: "#e0f2fe",
+  fontSize: 12,
+  fontWeight: 900,
+  padding: "9px 10px",
+  textDecoration: "none",
+  whiteSpace: "nowrap",
 };
 const aiRouterEyebrow: CSSProperties = {
   fontSize: 11,

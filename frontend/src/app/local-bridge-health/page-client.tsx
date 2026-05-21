@@ -12,7 +12,7 @@ export default function LocalBridgeHealthPageClient({ initialData }: Props) {
   return (
     <CodexForgeAppShell
       activePath="/local-bridge-health"
-      workspaceLabel="Local Bridge Health"
+      workspaceLabel="Check setup"
       nextActionContext={{ hasCreativeWork: true }}
       focusMode
       contentMaxWidth="wide"
@@ -22,6 +22,7 @@ export default function LocalBridgeHealthPageClient({ initialData }: Props) {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
+      <span hidden data-codexforge-local-bridge-health-friendly-copy="Check setup Add setup details to check local tool readiness No auto-run" />
       <LocalBridgeHealthPanel model={initialData} />
     </CodexForgeAppShell>
   );

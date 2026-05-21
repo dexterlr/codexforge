@@ -38,6 +38,7 @@ import { isCodexForgeCommandMutationBlocked } from "./command-safety";
 
 const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/": true,
+  "/start": true,
   "/ai": true,
   "/ai-router": true,
   "/brain": true,
@@ -129,6 +130,14 @@ export function buildCodexForgeCommands(
       priority: 10,
     }),
     buildRouteCommand(availability, {
+      id: "go-start",
+      label: "Go to Start",
+      description: "Open the plain-English guided start page.",
+      href: "/start",
+      keywords: ["start", "guided", "what do i do", "route"],
+      priority: 12,
+    }),
+    buildRouteCommand(availability, {
       id: "go-ai-workspace",
       label: "Go to AI Workspace",
       description: "Navigate to planning, chat, and reviewed handoffs.",
@@ -191,6 +200,22 @@ export function buildCodexForgeCommands(
       href: "/closed-loop",
       keywords: ["closed loop", "fix", "regression", "validation", "route"],
       priority: 55,
+    }),
+    buildRouteCommand(availability, {
+      id: "start-code-fix",
+      label: "Start code fix",
+      description: "Navigate to the guided code fix path; no execution command.",
+      href: "/start",
+      keywords: ["start code fix", "fix code", "guided", "files"],
+      priority: 56,
+    }),
+    buildRouteCommand(availability, {
+      id: "start-validation",
+      label: "Start validation",
+      description: "Navigate to validation planning; no command runs from the palette.",
+      href: "/validation",
+      keywords: ["start validation", "run checks", "prepare checks"],
+      priority: 57,
     }),
     buildRouteCommand(availability, {
       id: "go-memory",
@@ -273,6 +298,14 @@ export function buildCodexForgeCommands(
       priority: 70,
     }),
     buildRouteCommand(availability, {
+      id: "start-creative-plan",
+      label: "Start creative plan",
+      description: "Navigate to guided creative planning; no render or tool execution.",
+      href: "/start",
+      keywords: ["start creative plan", "plan creative render", "creative work"],
+      priority: 70.1,
+    }),
+    buildRouteCommand(availability, {
       id: "go-video-render-job-preview",
       label: "Go to Video Render Job Preview",
       description: "Navigate to Video Render Job Preview v1 queue, artifact, approval, and policy preview.",
@@ -311,6 +344,22 @@ export function buildCodexForgeCommands(
       href: "/creative-mvp",
       keywords: ["creative mvp", "real creative executor mvp", "phase 72", "route"],
       priority: 70.435,
+    }),
+    buildRouteCommand(availability, {
+      id: "setup-local-tools",
+      label: "Setup local tools",
+      description: "Navigate to local tool readiness review; no probes run from the palette.",
+      href: "/local-bridge-health",
+      keywords: ["setup local tools", "local bridge", "check setup"],
+      priority: 70.437,
+    }),
+    buildRouteCommand(availability, {
+      id: "review-creative-mvp",
+      label: "Review creative MVP",
+      description: "Navigate to the design-only creative MVP candidate.",
+      href: "/creative-mvp",
+      keywords: ["review creative mvp", "mvp candidate", "design only"],
+      priority: 70.438,
     }),
     buildRouteCommand(availability, {
       id: "go-local-bridge-health",

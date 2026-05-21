@@ -35,6 +35,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 40 Operator Home Dashboard",
     }),
     buildMissionSurface({
+      id: "product-simplification",
+      label: "Product Simplification",
+      href: "/start",
+      status: "online",
+      role: "UX/product layer for plain-English user intent, guided workflows, compact safety badges, friendly empty states, workflow shortcuts, and collapsed advanced links.",
+      riskPosture: "readonly",
+      nextAction: "Recommend Real Workflow Wizard v1.",
+      readiness: "ready",
+      relatedPhase: "Phase 73 User-Friendly Product Simplification Pass",
+    }),
+    buildMissionSurface({
       id: "stabilization",
       label: "Stabilization Command Center",
       href: "/stabilization",

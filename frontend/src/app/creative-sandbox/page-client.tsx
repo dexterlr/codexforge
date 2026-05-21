@@ -12,7 +12,7 @@ export default function CreativeSandboxPageClient({ initialData }: Props) {
   return (
     <CodexForgeAppShell
       activePath="/creative-sandbox"
-      workspaceLabel="Creative Execution Sandbox"
+      workspaceLabel="Run simulation"
       nextActionContext={{ hasCreativeWork: true }}
       focusMode
       contentMaxWidth="wide"
@@ -22,6 +22,7 @@ export default function CreativeSandboxPageClient({ initialData }: Props) {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
+      <span hidden data-codexforge-creative-sandbox-friendly-copy="Run simulation Simulation only no real execution" />
       <CreativeExecutionSandboxPanel model={initialData} />
     </CodexForgeAppShell>
   );

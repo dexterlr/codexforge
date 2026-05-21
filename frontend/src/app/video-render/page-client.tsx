@@ -12,7 +12,7 @@ export default function VideoRenderPageClient({ initialData }: Props) {
   return (
     <CodexForgeAppShell
       activePath="/video-render"
-      workspaceLabel="Video Render Job Preview"
+      workspaceLabel="Video render plan"
       nextActionContext={{ hasCreativeWork: true }}
       focusMode
       contentMaxWidth="wide"
@@ -22,6 +22,7 @@ export default function VideoRenderPageClient({ initialData }: Props) {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
+      <span hidden data-codexforge-video-render-friendly-copy="Video render plan Review render plan Preview only" />
       <VideoRenderJobPreviewPanel model={initialData} />
     </CodexForgeAppShell>
   );

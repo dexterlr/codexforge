@@ -3,6 +3,14 @@ import type { MissionNextAction } from "./mission-control-types";
 export function buildMissionNextActions(): MissionNextAction[] {
   return [
     {
+      id: "open-product-simplification-start",
+      label: "Open guided Start",
+      href: "/start",
+      priority: "primary",
+      readiness: "ready",
+      safetyNote: "Product Simplification readiness is a UX/product layer only: choose a user intent, follow guided workflows, keep advanced details collapsed, and recommend Real Workflow Wizard v1; no execution, no file writes, and no Brain graph mutation.",
+    },
+    {
       id: "configure-ai-router",
       label: "Configure AI subscriptions/local models",
       href: "/ai-router",

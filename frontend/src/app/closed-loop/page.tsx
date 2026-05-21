@@ -29,7 +29,7 @@ export default function ClosedLoopPage() {
   return (
     <CodexForgeAppShell
       activePath="/closed-loop"
-      workspaceLabel="Closed Loop Fix"
+      workspaceLabel="Start fix loop"
       nextActionContext={{ hasRegressionOrFixWork: true }}
       focusMode
       contentMaxWidth="wide"
@@ -43,13 +43,13 @@ export default function ClosedLoopPage() {
         data-codexforge-closed-loop-route="Closed Loop Fix Workflow preview-only approval required no command execution no file writes no apply-diff no run-command no broker-execution preserve latest-message authority"
       >
         <div style={cardHeader}>
-          <h2 style={cardTitle}>Preview-only fix workflow</h2>
+          <h2 style={cardTitle}>Start fix loop</h2>
           <span style={pill}>No command execution</span>
           <span style={pill}>No file writes</span>
         </div>
         <p style={cardText}>
-          This page unifies the closed-loop path without adding execution. Use it as a compact workflow map from
-          regression review to patch preview, approval, manual validation output, and handoff.
+          Paste validation output or choose a failure first. Advanced bridge panels stay secondary while the next
+          reviewed fix step stays visible.
         </p>
       </section>
 

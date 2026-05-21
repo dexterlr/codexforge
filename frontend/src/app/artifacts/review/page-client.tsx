@@ -7,7 +7,7 @@ export default function ArtifactsReviewPageClient() {
   return (
     <CodexForgeAppShell
       activePath="/artifacts/review"
-      workspaceLabel="Artifact Review"
+      workspaceLabel="Review artifact"
       nextActionContext={{ hasCreativeWork: true }}
       focusMode
       contentMaxWidth="wide"
@@ -16,6 +16,7 @@ export default function ArtifactsReviewPageClient() {
       showSidebarBadges={false}
       showSidebarSafetyNotice={false}
     >
+      <span hidden data-codexforge-artifact-review-friendly-copy="Review artifact provenance safety handoff Review first" />
       <CreativeArtifactReviewBoard />
     </CodexForgeAppShell>
   );
