@@ -22,7 +22,9 @@ export default function CodeFlowPageClient() {
       <span hidden data-codexforge-code-flow-route="Code Flow route imports/renders RealCodingFlowPanel Fix code safely Pick a file Preview patch Review before apply Run checks Review result Apply Validation Hardening /apply-validation no auto-apply no auto-run approval required preview first preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
       <div style={linkRow}>
         <Link href="/apply-validation" style={handoffLink}>Apply Validation Hardening: apply safely, then validate</Link>
+        <Link href="/workflow-results" style={handoffLink}>Workflow Results: prepare reviewed handoff</Link>
       </div>
+      <span hidden data-codexforge-code-flow-workflow-results="result step can link to /workflow-results completion can prepare result record handoff passing/failing status can route through workflow results no auto-persistence Workflow Results" />
       <RealCodingFlowPanel />
     </CodexForgeAppShell>
   );

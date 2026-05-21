@@ -3,6 +3,7 @@ export type ProductSimplificationRoute =
   | "/start"
   | "/code-flow"
   | "/apply-validation"
+  | "/workflow-results"
   | "/ai"
   | "/files"
   | "/validation"

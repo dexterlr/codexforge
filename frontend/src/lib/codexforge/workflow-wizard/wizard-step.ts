@@ -29,7 +29,7 @@ export function buildWizardStepsForFlow(flowId: WizardFlowId): WizardStep[] {
       step("code-fix", 3, "Preview patch", "/code-flow", "Code Flow", "Prepare a preview before applying anything."),
       step("code-fix", 4, "Apply safely", "/apply-validation", "Apply safely and validate", "After Preview the change, review approval, rollback, and apply hardening."),
       step("code-fix", 5, "Run checks", "/apply-validation", "Apply safely and validate", "Then Run checks with copy-only validation commands or the approved runner."),
-      step("code-fix", 6, "Review result", "/code-flow", "Code Flow", "Paste or review output and choose the next safe fix step."),
+      step("code-fix", 6, "Review result", "/workflow-results", "Workflow Results", "Paste or review output and choose the next safe fix step."),
     ],
     "file-inspection": [
       step("file-inspection", 1, "Choose a file", "/files", "Files", "Open the project reader."),
@@ -42,6 +42,7 @@ export function buildWizardStepsForFlow(flowId: WizardFlowId): WizardStep[] {
       step("validation", 3, "Run manually or through approved runner", "/validation", "Validation", "Use the approved route only; this wizard does not run commands."),
       step("validation", 4, "Paste/review output", "/validation", "Validation", "Bring output back for review."),
       step("validation", 5, "Route failures", "/closed-loop", "Closed Loop", "Send failures to the fix loop."),
+      step("validation", 6, "Review result", "/workflow-results", "Workflow Results", "Prepare the reviewed validation result handoff."),
     ],
     "failure-review": [
       step("failure-review", 1, "Paste output", "/closed-loop", "Closed Loop", "Start from the failure text."),

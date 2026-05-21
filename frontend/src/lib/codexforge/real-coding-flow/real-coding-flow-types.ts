@@ -11,7 +11,7 @@ export type CodingFlowStep =
 
 export type CodingFlowResultStatus = "pass" | "fail" | "unknown" | "patch-issue" | "apply-issue";
 export type CodingFlowRiskLevel = "low" | "medium" | "high" | "blocked";
-export type CodingFlowRoute = "/start" | "/files" | "/code-flow" | "/validation" | "/closed-loop";
+export type CodingFlowRoute = "/start" | "/files" | "/code-flow" | "/apply-validation" | "/workflow-results" | "/validation" | "/closed-loop";
 export type CodingFlowHandoffKind =
   | "Open Start Wizard"
   | "Open Files"
@@ -19,6 +19,7 @@ export type CodingFlowHandoffKind =
   | "Open Approved Patch Apply"
   | "Open Validation Runner"
   | "Open Closed Loop Fix"
+  | "Open Workflow Results"
   | "Copy patch request"
   | "Copy validation checklist"
   | "Copy result summary";

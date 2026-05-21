@@ -59,6 +59,42 @@ export function buildCodexForgeCompletionGuidancePayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeWorkflowHandoffPayload(): string {
+  return [
+    "Workflow result handoff",
+    "",
+    "Capture what happened.",
+    "Include capped validation status and next action.",
+    "No raw secrets, no huge raw output, and no auto-persist into Brain.",
+    "Reviewed by operator status must be explicit.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeValidationResultSummaryPayload(): string {
+  return [
+    "Validation result summary",
+    "",
+    "Command: <reviewed command>",
+    "Status: pass/fail/warning/unknown/not-run/manual-only",
+    "Output excerpt: capped and supplied by operator only.",
+    "Failure route: /closed-loop when validation failed.",
+    "No command execution from UI.",
+  ].join("\n");
+}
+
+export function buildCodexForgeMemoryReviewCandidatePayload(): string {
+  return [
+    "Workflow result memory review candidate",
+    "",
+    "Source result: <reviewed result id>",
+    "Reusable lesson: <operator-reviewed summary>",
+    "Excluded sensitive details: raw secrets, huge logs, source code snippets not reviewed.",
+    "No-auto-promotion guarantee.",
+    "Route only to Memory Review or Operator Memory Inbox.",
+  ].join("\n");
+}
+
 export function buildCodexForgeSafePatchPromptPayload(): string {
   return [
     "Prepare a safe patch preview.",

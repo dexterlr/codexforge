@@ -3,6 +3,7 @@ export type WizardRoute =
   | "/start"
   | "/code-flow"
   | "/apply-validation"
+  | "/workflow-results"
   | "/ai"
   | "/files"
   | "/validation"

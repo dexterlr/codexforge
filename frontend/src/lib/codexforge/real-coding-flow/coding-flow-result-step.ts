@@ -3,7 +3,7 @@ import type { CodingFlowInput, CodingFlowResultStep } from "./real-coding-flow-t
 
 export function buildCodingFlowResultStep(input: CodingFlowInput): CodingFlowResultStep {
   if (input.resultStatus === "pass") {
-    return { validationResultStatus: "pass", failureSummary: null, recommendedRoute: "/code-flow", closedLoopHandoff: null, nextSafeAction: "Validation passed. Suggest commit/tag/push handoff after operator review.", completionStatus: "complete" };
+    return { validationResultStatus: "pass", failureSummary: null, recommendedRoute: "/workflow-results", closedLoopHandoff: null, nextSafeAction: "Validation passed. Prepare workflow result record handoff, then suggest commit/tag/push guidance after operator review.", completionStatus: "complete" };
   }
   if (input.resultStatus === "fail") {
     return { validationResultStatus: "fail", failureSummary: input.resultSummary ?? "Validation failed.", recommendedRoute: "/closed-loop", closedLoopHandoff: buildCodingFlowRouteHandoff("Open Closed Loop Fix"), nextSafeAction: "Open closed-loop and review the smallest repair.", completionStatus: "needs-review" };
@@ -14,7 +14,7 @@ export function buildCodingFlowResultStep(input: CodingFlowInput): CodingFlowRes
   if (input.resultStatus === "apply-issue") {
     return { validationResultStatus: "apply-issue", failureSummary: input.resultSummary ?? "Apply issue needs review.", recommendedRoute: "/closed-loop", closedLoopHandoff: buildCodingFlowRouteHandoff("Open Closed Loop Fix"), nextSafeAction: "Review apply issue in Files or Closed Loop.", completionStatus: "blocked" };
   }
-  return { validationResultStatus: "unknown", failureSummary: null, recommendedRoute: "/validation", closedLoopHandoff: null, nextSafeAction: "Open Validation Runner and review or paste results.", completionStatus: "needs-review" };
+  return { validationResultStatus: "unknown", failureSummary: null, recommendedRoute: "/workflow-results", closedLoopHandoff: null, nextSafeAction: "Open Workflow Results to capture the result, then route missing validation to Validation Runner.", completionStatus: "needs-review" };
 }
 
 export function summarizeCodingFlowResultStep(step: CodingFlowResultStep): string {

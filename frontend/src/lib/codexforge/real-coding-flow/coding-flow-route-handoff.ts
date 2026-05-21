@@ -8,9 +8,10 @@ const routeByLabel: Record<CodingFlowHandoffKind, CodingFlowRoute> = {
   "Open Approved Patch Apply": "/files",
   "Open Validation Runner": "/validation",
   "Open Closed Loop Fix": "/closed-loop",
+  "Open Workflow Results": "/workflow-results",
   "Copy patch request": "/code-flow",
   "Copy validation checklist": "/validation",
-  "Copy result summary": "/code-flow",
+  "Copy result summary": "/workflow-results",
 };
 
 export function buildCodingFlowRouteHandoff(label: CodingFlowHandoffKind, copyPayload: string | null = null): CodingFlowRouteHandoff {
