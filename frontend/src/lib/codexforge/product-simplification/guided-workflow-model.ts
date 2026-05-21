@@ -16,9 +16,10 @@ export function buildDefaultGuidedWorkflows(): GuidedWorkflow[] {
       description: "Move from a file inspection to a reviewed fix and validation loop.",
       currentStep: "Inspect project files",
       steps: [
+        { id: "real-coding-flow", label: "Real coding flow", route: "/code-flow", description: "Fix code safely from file selection through result review.", safety: ["Review first", "Approval required"] },
         { id: "files", label: "Files", route: "/files", description: "Inspect the file first.", safety: ["No file writes"] },
-        { id: "preview", label: "Real Patch Preview", route: "/files", description: "Prepare a preview diff.", safety: ["Preview only"] },
-        { id: "apply", label: "Approved Patch Apply", route: "/files", description: "Review approval packet before apply.", safety: ["Approval required"] },
+        { id: "preview", label: "Real Patch Preview", route: "/code-flow", description: "Prepare a preview diff.", safety: ["Preview only"] },
+        { id: "apply", label: "Approved Patch Apply", route: "/code-flow", description: "Review approval packet before apply.", safety: ["Approval required"] },
         { id: "validation", label: "Validation Runner", route: "/validation", description: "Prepare checks.", safety: ["No auto-run"] },
         { id: "closed-loop", label: "Closed Loop", route: "/closed-loop", description: "Review failures and next fix.", safety: ["Review first"] },
       ],
@@ -26,7 +27,7 @@ export function buildDefaultGuidedWorkflows(): GuidedWorkflow[] {
       secondaryAction: "Inspect files",
       advancedDetailsSummary: "Patch preview, apply request, validation routing, and closed-loop evidence remain separate technical details.",
       safetySummary: "Review first, approval required, no auto-run.",
-      routeTargets: ["/files", "/validation", "/closed-loop"],
+      routeTargets: ["/code-flow", "/files", "/validation", "/closed-loop"],
     }),
     buildGuidedWorkflow({
       id: "validation-workflow",

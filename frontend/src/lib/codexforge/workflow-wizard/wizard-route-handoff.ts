@@ -3,6 +3,7 @@ import type { WizardRoute, WizardRouteHandoff, WizardStep } from "./workflow-wiz
 const ROUTE_LABELS: Record<WizardRoute, string> = {
   "/": "Home",
   "/start": "Wizard",
+  "/code-flow": "Code Flow",
   "/ai": "AI",
   "/files": "Files",
   "/validation": "Validation",
@@ -19,6 +20,7 @@ const ROUTE_LABELS: Record<WizardRoute, string> = {
 
 const WHAT_TO_DO: Record<WizardRoute, string> = {
   "/files": "Select a file and inspect it.",
+  "/code-flow": "Pick a file, describe the change, preview the patch, review apply, run checks, and review the result.",
   "/validation": "Prepare checks and review output.",
   "/creative": "Choose the creative path.",
   "/creative-mvp": "Review the recommended first safe creative execution candidate.",

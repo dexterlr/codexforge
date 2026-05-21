@@ -500,8 +500,12 @@ export default function AiPage() {
             <h1 style={friendlyAiTitle}>Ask CodexForge</h1>
             <p style={friendlyAiCopy}>Describe what you want to inspect, fix, or plan.</p>
           </div>
-          <Link href="/start" style={friendlyAiLink}>Need help choosing? Open Start Wizard</Link>
+          <div style={friendlyAiLinks}>
+            <Link href="/code-flow" style={friendlyAiLink}>Coding help? Open Code Flow</Link>
+            <Link href="/start" style={friendlyAiLink}>Need help choosing? Open Start Wizard</Link>
+          </div>
         </section>
+        <span hidden data-codexforge-ai-code-flow="If user wants coding help link to /code-flow chat remains primary no clutter" />
         <span hidden data-codexforge-ai-stabilization-smoke="Stabilization Command Center integration marker; navigation lives in the shell sidebar and command palette." />
         <span hidden data-codexforge-ai-task-autopilot-smoke="Task Autopilot and Reviewed Task Activation integration marker; route controls live in the shell sidebar and command palette." />
         <span hidden data-codexforge-ai-execution-readiness-smoke="Execution Readiness integration marker; task readiness lives behind reviewed task workflows, the shell sidebar, and command palette." />
@@ -969,6 +973,13 @@ const friendlyAiLink: CSSProperties = {
   padding: "9px 10px",
   textDecoration: "none",
   whiteSpace: "nowrap",
+};
+
+const friendlyAiLinks: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+  justifyContent: "flex-end",
 };
 const aiRouterEyebrow: CSSProperties = {
   fontSize: 11,

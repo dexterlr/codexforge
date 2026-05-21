@@ -16,12 +16,13 @@ export function buildProductSimplificationSummary(): ProductSimplificationSummar
     emptyStates: buildDefaultFriendlyEmptyStates(),
     shortcuts: buildDefaultWorkflowShortcuts(),
     safetyBadges: ["Review first", "Approval required", "No auto-run", "No file writes", "Preview only", "Simulation only", "Design only"],
-    recommendedNextAction: "Real Workflow Wizard v1",
+    recommendedNextAction: "Real coding flow: Fix code safely",
     architectureSummary: [
       "Product Simplification is a UX/product layer.",
       "Start route guides user intent without removing advanced routes.",
       "Advanced details are collapsed or visually secondary.",
       "Safety boundaries remain visible as compact badges.",
+      "Real coding flow is the recommended primary workflow for fix-code.",
     ],
   };
 }

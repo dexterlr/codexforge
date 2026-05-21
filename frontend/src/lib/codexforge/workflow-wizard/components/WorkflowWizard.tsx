@@ -70,7 +70,7 @@ export function WorkflowWizard() {
       </section>
 
       <span hidden data-codexforge-workflow-wizard-summary={`Real Workflow Wizard summary selected ${summary.selectedIntent} flow ${summary.selectedFlow} step ${summary.currentStep} next ${summary.primaryAction} advanced ${summary.advancedDetailsCount}`} />
-      <span hidden data-codexforge-workflow-wizard-routes="/files /validation /creative /creative-mvp /local-bridge-health /health-probe /artifacts/review /closed-loop" />
+      <span hidden data-codexforge-workflow-wizard-routes="/code-flow /files /validation /creative /creative-mvp /local-bridge-health /health-probe /artifacts/review /closed-loop" />
       <span hidden data-codexforge-workflow-wizard-flows="code-fix validation creative-plan local-setup" />
     </div>
   );

@@ -24,11 +24,12 @@ function step(flow: WizardFlowId, order: number, title: string, route: WizardRou
 export function buildWizardStepsForFlow(flowId: WizardFlowId): WizardStep[] {
   const map: Record<WizardFlowId, WizardStep[]> = {
     "code-fix": [
-      step("code-fix", 1, "Pick a file", "/files", "Files", "Choose the file you want to inspect."),
-      step("code-fix", 2, "Preview the change", "/files", "Patch Preview", "Prepare a preview before applying anything."),
-      step("code-fix", 3, "Review before apply", "/files", "Approved Apply", "Review the approval packet before apply."),
-      step("code-fix", 4, "Run checks", "/validation", "Validation", "Prepare checks and run them outside the wizard or through the approved runner."),
-      step("code-fix", 5, "Review result", "/closed-loop", "Closed Loop", "Paste or review output and choose the next safe fix step."),
+      step("code-fix", 1, "Pick a file", "/code-flow", "Code Flow", "Choose the file you want to inspect."),
+      step("code-fix", 2, "Describe change", "/code-flow", "Code Flow", "Keep the requested change specific."),
+      step("code-fix", 3, "Preview patch", "/code-flow", "Code Flow", "Prepare a preview before applying anything."),
+      step("code-fix", 4, "Review apply", "/code-flow", "Code Flow", "Review the approval packet before apply."),
+      step("code-fix", 5, "Run checks", "/validation", "Validation", "Prepare checks and run them outside the wizard or through the approved runner."),
+      step("code-fix", 6, "Review result", "/code-flow", "Code Flow", "Paste or review output and choose the next safe fix step."),
     ],
     "file-inspection": [
       step("file-inspection", 1, "Choose a file", "/files", "Files", "Open the project reader."),

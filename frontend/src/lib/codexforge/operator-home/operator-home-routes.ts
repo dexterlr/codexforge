@@ -12,6 +12,7 @@ import { buildOperatorHomeStableKey } from "./operator-home-types";
 const DEFAULT_ROUTE_AVAILABILITY: OperatorHomeRouteAvailability = {
   "/": true,
   "/start": true,
+  "/code-flow": true,
   "/ai": true,
   "/ai-router": true,
   "/brain": true,
@@ -26,6 +27,7 @@ const DEFAULT_ROUTE_AVAILABILITY: OperatorHomeRouteAvailability = {
 const ROUTE_ORDER: OperatorHomeRoutePath[] = [
   "/",
   "/start",
+  "/code-flow",
   "/ai",
   "/ai-router",
   "/brain",
@@ -80,6 +82,18 @@ const ROUTE_DEFINITIONS: Record<OperatorHomeRoutePath, RouteDefinition> = {
     nextAction: "Use Start for guided choices before advanced operator surfaces.",
     badge: "Guide",
     requiredReview: false,
+  },
+  "/code-flow": {
+    href: "/code-flow",
+    label: "Fix code safely",
+    description:
+      "One real code-fix flow from file selection through preview, apply review, validation, and result routing.",
+    domain: "engineering",
+    readiness: "needs-review",
+    riskPosture: "approval-required",
+    nextAction: "Run a real code-fix flow manually without bypassing approval gates.",
+    badge: "Code Flow",
+    requiredReview: true,
   },
   "/ai": {
     href: "/ai",

@@ -52,7 +52,11 @@ export default function ClosedLoopPage() {
           Paste validation output or choose a failure first. Advanced bridge panels stay secondary while the next
           reviewed fix step stays visible.
         </p>
-        <Link href="/start" style={wizardLink}>Back to wizard: failure review flow</Link>
+        <div style={linkRow}>
+          <Link href="/code-flow" style={wizardLink}>Continue Code Flow</Link>
+          <Link href="/start" style={wizardLink}>Back to wizard: failure review flow</Link>
+        </div>
+        <span hidden data-codexforge-closed-loop-code-flow="Continue Code Flow failed validation handoff can return to code flow no auto-fix" />
       </section>
 
       <section style={contentGrid} aria-label="Closed-loop workflow steps">
@@ -95,4 +99,10 @@ const wizardLink: CSSProperties = {
   padding: "8px 10px",
   textDecoration: "none",
   width: "fit-content",
+};
+
+const linkRow: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
 };

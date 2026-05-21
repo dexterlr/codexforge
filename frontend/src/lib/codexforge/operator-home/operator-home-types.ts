@@ -15,6 +15,7 @@ export type OperatorHomeRiskPosture =
 export type OperatorHomeRoutePath =
   | "/"
   | "/start"
+  | "/code-flow"
   | "/ai"
   | "/ai-router"
   | "/brain"

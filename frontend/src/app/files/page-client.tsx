@@ -49,14 +49,14 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
       showSidebarSafetyNotice={false}
     >
       <div style={handoffBand}>
-        <Link href="/start" style={handoffLink}>
-          Choose a file to inspect, then preview changes safely. Continue code fix flow.
+        <Link href="/code-flow" style={handoffLink}>
+          Continue Code Flow: choose a file to inspect, then preview changes safely.
         </Link>
         <div
           hidden
           data-codexforge-files-legacy-handoff-registry="FilesCommandCenter RealPatchPreviewPanel ApprovedPatchApplyPanel Approved Patch Apply v1 Stabilization Command Center Apply-Diff Dry Run Simulate apply-diff dry run Apply-Diff Execution Gate Apply Evidence Pack Patch Application Gate Preview Diff Composer Patch Preview Queue Regression Fix Queue Regression Triage Grounded Fix Recommendation selected file context no mutation no auto-fix no auto-rollback Safe Patch Preview required current file verification required Real Patch Preview v1 preview-only no file writes no apply Approved Patch Apply approval required no command execution no direct apply-diff from UI no file writes without approval preserve latest-message authority"
         />
-        <span hidden data-codexforge-files-workflow-wizard="Back to wizard Continue code fix flow Choose a file to inspect then preview changes safely" />
+        <span hidden data-codexforge-files-workflow-wizard="Back to wizard Continue code fix flow Code Flow Choose a file to inspect then preview changes safely Real Patch Preview panel can mention code flow no auto-apply" />
         <span hidden data-codexforge-files-product-simplification-copy="Inspect a file" />
       </div>
       <LocalProjectReader

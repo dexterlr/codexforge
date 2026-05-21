@@ -6,7 +6,7 @@ export function buildWorkflowShortcut(input: WorkflowShortcut): WorkflowShortcut
 
 export function buildDefaultWorkflowShortcuts(): WorkflowShortcut[] {
   const shortcuts: WorkflowShortcut[] = [
-    { id: "start-code-fix", label: "Start code fix", description: "Inspect files, preview a patch, and prepare checks.", href: "/files", primaryActionLabel: "Start code fix", safetyBadges: ["Review first", "Approval required"] },
+    { id: "start-code-fix", label: "Start code fix", description: "Inspect files, preview a patch, and prepare checks.", href: "/code-flow", primaryActionLabel: "Fix code safely", safetyBadges: ["Review first", "Approval required"] },
     { id: "inspect-files", label: "Inspect files", description: "Browse project files before planning work.", href: "/files", primaryActionLabel: "Inspect a file", safetyBadges: ["No file writes"] },
     { id: "run-checks", label: "Run checks", description: "Prepare validation checks for review.", href: "/validation", primaryActionLabel: "Prepare checks", safetyBadges: ["Approval required", "No auto-run"] },
     { id: "review-failure", label: "Review failure", description: "Paste output and choose the next fix step.", href: "/closed-loop", primaryActionLabel: "Review a failure", safetyBadges: ["Review first"] },

@@ -12,6 +12,7 @@ export type CodexForgeRoute = {
     | "home"
     | "mission"
     | "stabilization"
+    | "code-flow"
     | "workspace"
     | "tasks"
     | "brain"
@@ -74,6 +75,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Core",
     description: "Read-only stabilization command center for build, smoke, verification, regression, queues, gates, and next safe action.",
+  },
+  {
+    id: "code-flow",
+    path: "/code-flow",
+    label: "Fix code safely",
+    shortLabel: "Code Flow",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Engineering",
+    description: "End-to-end coding flow from file selection through patch preview, approval review, validation, and result routing.",
   },
   {
     id: "workspace",

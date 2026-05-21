@@ -21,7 +21,7 @@ function intent(
 
 export function buildDefaultWizardIntents(): WizardIntent[] {
   return [
-    intent("fix-code", "Fix code", "Start with the file, then preview and validate.", "A reviewed code fix path.", "code-fix", "/files", "/validation", "Fix", "Review first", "Pick a file"),
+    intent("fix-code", "Fix code", "Start with the file, then preview and validate.", "A reviewed code fix path.", "code-fix", "/code-flow", "/validation", "Fix", "Review first", "Open code flow"),
     intent("inspect-file", "Inspect files", "Read project files without changing them.", "Clear file context.", "file-inspection", "/files", "/ai", "Files", "No file writes", "Open files"),
     intent("run-checks", "Run checks", "Prepare checks and review output safely.", "A validation plan.", "validation", "/validation", "/closed-loop", "Checks", "No auto-run", "Choose checks"),
     intent("review-failure", "Review a failure", "Route pasted output into the next fix step.", "A clear failure review.", "failure-review", "/closed-loop", "/validation", "Fail", "Review first", "Paste output"),

@@ -13,11 +13,16 @@ export default function ValidationPageClient() {
     >
       <CodexForgeAppShell activePath="/validation" workspaceLabel="Prepare checks" nextActionContext={{ hasRegressionOrFixWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false}>
         <span hidden data-codexforge-validation-friendly-copy="Prepare checks choose validation commands simply advanced policy and output routing collapsed Approval required" />
-        <Link href="/start" style={wizardLink}>Back to wizard: validation flow</Link>
+        <div style={linkRow}>
+          <Link href="/code-flow" style={wizardLink}>Continue Code Flow: review validation result</Link>
+          <Link href="/start" style={wizardLink}>Back to wizard: validation flow</Link>
+        </div>
+        <span hidden data-codexforge-validation-code-flow="Continue Code Flow validation result routing can mention /code-flow or /closed-loop no auto-run" />
         <ValidationRunnerPanel />
       </CodexForgeAppShell>
     </div>
   );
 }
 
-const wizardLink: CSSProperties = { border: "1px solid rgba(125,211,252,0.18)", borderRadius: 8, color: "#dbeafe", display: "inline-flex", fontSize: 12, fontWeight: 900, marginBottom: 10, padding: "8px 10px", textDecoration: "none" };
+const linkRow: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 };
+const wizardLink: CSSProperties = { border: "1px solid rgba(125,211,252,0.18)", borderRadius: 8, color: "#dbeafe", display: "inline-flex", fontSize: 12, fontWeight: 900, padding: "8px 10px", textDecoration: "none" };
