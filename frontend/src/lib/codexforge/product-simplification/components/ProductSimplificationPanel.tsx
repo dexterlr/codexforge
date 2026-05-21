@@ -25,6 +25,7 @@ export function ProductSimplificationPanel({ summary }: { summary: ProductSimpli
       style={shell}
       data-codexforge-product-simplification-panel="ProductSimplificationPanel renders Focus Mode UX calm workflow layout markers product simplification UX/product layer Real Workflow Wizard v1 no duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold"
     >
+      <span hidden data-codexforge-product-simplification-wizard-copy="What do you want to do" />
       <section style={hero}>
         <div style={heroCopy}>
           <span style={eyebrow}>CodexForge Start</span>

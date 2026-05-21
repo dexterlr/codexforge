@@ -33,7 +33,7 @@ export function buildConsolidationSummary(): ConsolidationSummary {
     consolidationCandidateCount: cockpitAudit.items.length + routePlan.linkOnlyCandidateCount,
     workflowEntrypointCount: workflowEntrypoints.items.length,
     topRecommendation: consolidationPlan.topRecommendation,
-    recommendedNextPhase: "Phase 59 Validation Runner v1 after Approved Patch Apply v1 review",
+    recommendedNextPhase: "Real Workflow Wizard v1, then One Real End-to-End Coding Flow",
     summary: [] as string[],
   };
   return { ...summary, summary: summarizeConsolidationSession(summary) };
@@ -43,6 +43,7 @@ export function summarizeConsolidationSession(summary: Pick<ConsolidationSummary
   return [
     `${summary.primaryRouteCount} primary routes, ${summary.secondaryRouteCount} secondary routes, and ${summary.deepRouteCount} deep routes are classified.`,
     `${summary.consolidationCandidateCount} consolidation candidates and ${summary.workflowEntrypointCount} workflow entrypoints are visible.`,
+    "Real Workflow Wizard v1 is listed as the user-facing entrypoint.",
     `Top recommendation: ${summary.topRecommendation}`,
     `Recommended next phase: ${summary.recommendedNextPhase}.`,
   ];

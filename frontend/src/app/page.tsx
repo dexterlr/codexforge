@@ -30,7 +30,7 @@ type HomeSurfaceMapItem = {
 };
 
 const SURFACE_MAP: readonly HomeSurfaceMapItem[] = [
-  { path: "/start", label: "Start" },
+  { path: "/start", label: "Start with the wizard" },
   { path: "/files", label: "Files Command Center" },
   { path: "/validation", label: "Validation Runner" },
   { path: "/closed-loop", label: "Closed Loop Fix" },

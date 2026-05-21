@@ -41,7 +41,7 @@ export function buildProductReadinessSummary(): ProductReadinessSummary {
           : "No top blocker detected.";
   const recommendedNextPhase =
     safetyAudit.blockerCount === 0 && smokeAudit.missingCount === 0
-      ? "Approved Patch Apply v1 request-ready / Phase 59 Validation Runner v1"
+      ? "Real Workflow Wizard v1 user-facing entrypoint, then One Real End-to-End Coding Flow"
       : "Stop and stabilize";
   const summary = {
     id: "product-readiness-summary",
@@ -76,6 +76,7 @@ export function summarizeProductReadinessSession(summary: Pick<ProductReadinessS
     `${summary.routeCount} routes audited; ${summary.smokeCoverageCount} smoke targets covered.`,
     `${summary.safetyBlockerCount} safety blockers, ${summary.uxRiskCount} UX risks, ${summary.duplicateConsolidationCount} consolidation candidates, ${summary.functionalWorkflowCount} fully functional workflows.`,
     `Top risk: ${summary.topRisk}`,
+    "Real Workflow Wizard v1 is the user-facing entrypoint for selecting the next safe route.",
     `Recommended next phase: ${summary.recommendedNextPhase}.`,
   ];
 }

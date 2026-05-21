@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import Link from "next/link";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { card, cardHeader, cardText, cardTitle, contentGrid, safetyNotice } from "@/lib/codexforge/ui";
 
@@ -51,6 +52,7 @@ export default function ClosedLoopPage() {
           Paste validation output or choose a failure first. Advanced bridge panels stay secondary while the next
           reviewed fix step stays visible.
         </p>
+        <Link href="/start" style={wizardLink}>Back to wizard: failure review flow</Link>
       </section>
 
       <section style={contentGrid} aria-label="Closed-loop workflow steps">
@@ -81,4 +83,16 @@ const stepIndex: CSSProperties = {
   fontSize: 12,
   fontWeight: 900,
   lineHeight: 1.2,
+};
+
+const wizardLink: CSSProperties = {
+  border: "1px solid rgba(125,211,252,0.18)",
+  borderRadius: 8,
+  color: "#dbeafe",
+  display: "inline-flex",
+  fontSize: 12,
+  fontWeight: 900,
+  padding: "8px 10px",
+  textDecoration: "none",
+  width: "fit-content",
 };

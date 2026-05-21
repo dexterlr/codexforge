@@ -500,7 +500,7 @@ export default function AiPage() {
             <h1 style={friendlyAiTitle}>Ask CodexForge</h1>
             <p style={friendlyAiCopy}>Describe what you want to inspect, fix, or plan.</p>
           </div>
-          <Link href="/start" style={friendlyAiLink}>Start guide</Link>
+          <Link href="/start" style={friendlyAiLink}>Need help choosing? Open Start Wizard</Link>
         </section>
         <span hidden data-codexforge-ai-stabilization-smoke="Stabilization Command Center integration marker; navigation lives in the shell sidebar and command palette." />
         <span hidden data-codexforge-ai-task-autopilot-smoke="Task Autopilot and Reviewed Task Activation integration marker; route controls live in the shell sidebar and command palette." />

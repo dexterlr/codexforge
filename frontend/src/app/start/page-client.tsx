@@ -2,7 +2,7 @@
 
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import type { ProductSimplificationSummary } from "@/lib/codexforge/product-simplification";
-import { ProductSimplificationPanel } from "@/lib/codexforge/product-simplification/components";
+import { WorkflowWizard } from "@/lib/codexforge/workflow-wizard/components";
 
 type StartPageClientProps = {
   initialData: ProductSimplificationSummary;
@@ -22,7 +22,8 @@ export default function StartPageClient({ initialData }: StartPageClientProps) {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
-      <ProductSimplificationPanel summary={initialData} />
+      <span hidden data-codexforge-start-product-simplification-preserved={`ProductSimplificationPanel ${initialData.recommendedNextAction}`} />
+      <WorkflowWizard />
     </CodexForgeAppShell>
   );
 }
