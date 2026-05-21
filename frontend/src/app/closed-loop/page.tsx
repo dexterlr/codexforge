@@ -54,9 +54,10 @@ export default function ClosedLoopPage() {
         </p>
         <div style={linkRow}>
           <Link href="/code-flow" style={wizardLink}>Continue Code Flow</Link>
+          <Link href="/apply-validation" style={wizardLink}>Review Apply Validation route</Link>
           <Link href="/start" style={wizardLink}>Back to wizard: failure review flow</Link>
         </div>
-        <span hidden data-codexforge-closed-loop-code-flow="Continue Code Flow failed validation handoff can return to code flow no auto-fix" />
+        <span hidden data-codexforge-closed-loop-code-flow="Continue Code Flow Apply Validation Hardening /apply-validation failed validation routing can use apply-validation result route no auto-fix" />
       </section>
 
       <section style={contentGrid} aria-label="Closed-loop workflow steps">

@@ -13,6 +13,52 @@ export function buildCodexForgeValidationChecklistPayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeHardenedValidationChecklistPayload(): string {
+  return [
+    "Hardened apply validation checklist",
+    "",
+    "[ ] Preview diff reviewed",
+    "[ ] Approval packet checked",
+    "[ ] Rollback plan visible",
+    "[ ] npm run build",
+    "[ ] targeted smoke for changed surface",
+    "[ ] npm run smoke:codexforge:server",
+    "[ ] git diff --check",
+    "[ ] git status --short",
+    "[ ] git diff --stat",
+    "[ ] Preserve latest-message authority",
+    "[ ] No auto-apply and no auto-run",
+  ].join("\n");
+}
+
+export function buildCodexForgeHardenedRollbackPlanPayload(): string {
+  return [
+    "Hardened rollback plan",
+    "",
+    "Before apply: git status --short",
+    "Before apply: git diff --stat",
+    "After apply before commit: git restore -- <target-file>",
+    "After commit: git revert <commit-sha>",
+    "If validation fails: keep diff/output and route to Closed Loop.",
+    "If smoke fails: do not stack unrelated changes.",
+  ].join("\n");
+}
+
+export function buildCodexForgeCompletionGuidancePayload(): string {
+  return [
+    "Completion guidance",
+    "",
+    "git status --short",
+    "git diff --stat",
+    "git add -A",
+    "git commit -m \"<message>\"",
+    "git tag <tag-if-appropriate>",
+    "git push origin <branch> --follow-tags",
+    "",
+    "Do not execute these commands from the UI.",
+  ].join("\n");
+}
+
 export function buildCodexForgeSafePatchPromptPayload(): string {
   return [
     "Prepare a safe patch preview.",

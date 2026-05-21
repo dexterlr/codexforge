@@ -23,7 +23,7 @@ function flow(id: WizardFlowId, title: string, description: string, primaryActio
 
 export function buildDefaultWizardFlows(): WizardFlow[] {
   return [
-    flow("code-fix", "Code fix", "Inspect a file, preview the change, then validate.", "Start code fix", "/code-flow", ["/readiness", "/consolidation"]),
+    flow("code-fix", "Code fix", "Inspect a file, preview the change, then apply safely and validate.", "Apply safely and validate", "/apply-validation", ["/readiness", "/consolidation"]),
     flow("file-inspection", "File inspection", "Read files safely before choosing a change.", "Inspect files", "/files"),
     flow("validation", "Validation", "Prepare checks and review results.", "Start validation", "/validation"),
     flow("failure-review", "Failure review", "Turn a failure into the next reviewed fix step.", "Review failure", "/closed-loop"),

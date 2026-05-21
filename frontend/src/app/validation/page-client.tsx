@@ -15,9 +15,10 @@ export default function ValidationPageClient() {
         <span hidden data-codexforge-validation-friendly-copy="Prepare checks choose validation commands simply advanced policy and output routing collapsed Approval required" />
         <div style={linkRow}>
           <Link href="/code-flow" style={wizardLink}>Continue Code Flow: review validation result</Link>
+          <Link href="/apply-validation" style={wizardLink}>Apply Validation Hardening: review output routing</Link>
           <Link href="/start" style={wizardLink}>Back to wizard: validation flow</Link>
         </div>
-        <span hidden data-codexforge-validation-code-flow="Continue Code Flow validation result routing can mention /code-flow or /closed-loop no auto-run" />
+        <span hidden data-codexforge-validation-code-flow="Continue Code Flow Apply Validation Hardening /apply-validation validation plan can use hardened command selection output review can link to apply-validation validation result routing can mention /code-flow or /closed-loop no auto-run" />
         <ValidationRunnerPanel />
       </CodexForgeAppShell>
     </div>

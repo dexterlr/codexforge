@@ -27,8 +27,8 @@ export function buildWizardStepsForFlow(flowId: WizardFlowId): WizardStep[] {
       step("code-fix", 1, "Pick a file", "/code-flow", "Code Flow", "Choose the file you want to inspect."),
       step("code-fix", 2, "Describe change", "/code-flow", "Code Flow", "Keep the requested change specific."),
       step("code-fix", 3, "Preview patch", "/code-flow", "Code Flow", "Prepare a preview before applying anything."),
-      step("code-fix", 4, "Review apply", "/code-flow", "Code Flow", "Review the approval packet before apply."),
-      step("code-fix", 5, "Run checks", "/validation", "Validation", "Prepare checks and run them outside the wizard or through the approved runner."),
+      step("code-fix", 4, "Apply safely", "/apply-validation", "Apply safely and validate", "After Preview the change, review approval, rollback, and apply hardening."),
+      step("code-fix", 5, "Run checks", "/apply-validation", "Apply safely and validate", "Then Run checks with copy-only validation commands or the approved runner."),
       step("code-fix", 6, "Review result", "/code-flow", "Code Flow", "Paste or review output and choose the next safe fix step."),
     ],
     "file-inspection": [
@@ -38,7 +38,7 @@ export function buildWizardStepsForFlow(flowId: WizardFlowId): WizardStep[] {
     ],
     validation: [
       step("validation", 1, "Choose checks", "/validation", "Validation", "Choose the checks you need."),
-      step("validation", 2, "Review checklist", "/validation", "Validation", "Review the checklist before any run."),
+      step("validation", 2, "Review checklist", "/apply-validation", "Apply safely and validate", "Review the hardened checklist before any run."),
       step("validation", 3, "Run manually or through approved runner", "/validation", "Validation", "Use the approved route only; this wizard does not run commands."),
       step("validation", 4, "Paste/review output", "/validation", "Validation", "Bring output back for review."),
       step("validation", 5, "Route failures", "/closed-loop", "Closed Loop", "Send failures to the fix loop."),
