@@ -17,9 +17,10 @@ export default function ValidationPageClient() {
           <Link href="/code-flow" style={wizardLink}>Continue Code Flow: review validation result</Link>
           <Link href="/apply-validation" style={wizardLink}>Apply Validation Hardening: review output routing</Link>
           <Link href="/workflow-results" style={wizardLink}>Workflow Results: capture output handoff</Link>
+          <Link href="/run-history" style={wizardLink}>Run History: review timeline</Link>
           <Link href="/start" style={wizardLink}>Back to wizard: validation flow</Link>
         </div>
-        <span hidden data-codexforge-validation-code-flow="Continue Code Flow Apply Validation Hardening /apply-validation validation plan can use hardened command selection output review can link to apply-validation validation result routing can mention /code-flow or /closed-loop no auto-run output capture can link to /workflow-results no auto-persistence Workflow Results" />
+        <span hidden data-codexforge-validation-code-flow="Continue Code Flow Apply Validation Hardening /apply-validation validation plan can use hardened command selection output review can link to apply-validation validation result routing can mention /code-flow or /closed-loop output capture/result routing can link to /run-history no auto-run output capture can link to /workflow-results no auto-persistence Workflow Results Run History" />
         <ValidationRunnerPanel />
       </CodexForgeAppShell>
     </div>

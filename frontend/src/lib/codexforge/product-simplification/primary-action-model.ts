@@ -8,6 +8,7 @@ const ACTIONS: readonly PrimaryAction[] = [
   { route: "/ai", label: "Ask CodexForge", description: "Focus the composer and describe what you want.", kind: "focus", safeOnly: true },
   { route: "/code-flow", label: "Fix code safely", description: "Pick a file, preview the change, approve it, then run checks.", kind: "focus", safeOnly: true },
   { route: "/apply-validation", label: "Apply safely, then validate", description: "Review policy, rollback, validation output, and result routing.", kind: "prepare", safeOnly: true },
+  { route: "/run-history", label: "Review run history", description: "Review recent runs, copy handoffs, and choose the next safe action.", kind: "copy", safeOnly: true },
   { route: "/files", label: "Inspect a file", description: "Open the file explorer and preview code.", kind: "focus", safeOnly: true },
   { route: "/validation", label: "Prepare checks", description: "Review validation choices before execution.", kind: "prepare", safeOnly: true },
   { route: "/closed-loop", label: "Start fix loop", description: "Choose a failure or paste output first.", kind: "prepare", safeOnly: true },

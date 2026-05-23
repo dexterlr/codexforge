@@ -23,10 +23,10 @@ function flow(id: WizardFlowId, title: string, description: string, primaryActio
 
 export function buildDefaultWizardFlows(): WizardFlow[] {
   return [
-    flow("code-fix", "Code fix", "Inspect a file, preview the change, then apply safely and validate.", "Apply safely and validate", "/apply-validation", ["/readiness", "/consolidation"]),
+    flow("code-fix", "Code fix", "Inspect a file, preview the change, then apply safely and validate.", "Apply safely and validate", "/run-history", ["/readiness", "/consolidation"]),
     flow("file-inspection", "File inspection", "Read files safely before choosing a change.", "Inspect files", "/files"),
-    flow("validation", "Validation", "Prepare checks and review results.", "Start validation", "/validation"),
-    flow("failure-review", "Failure review", "Turn a failure into the next reviewed fix step.", "Review failure", "/closed-loop"),
+    flow("validation", "Validation", "Prepare checks and review results.", "Start validation", "/run-history"),
+    flow("failure-review", "Failure review", "Turn a failure into the next reviewed fix step.", "Review failure", "/run-history"),
     flow("creative-plan", "Creative plan", "Choose a creative path and review plans before tools.", "Start creative plan", "/creative", ["/health-probe"]),
     flow("artifact-review", "Artifact review", "Review artifacts, provenance, and handoff.", "Review artifacts", "/artifacts/review"),
     flow("local-setup", "Local setup", "Check local tool readiness without running tools.", "Check setup", "/local-bridge-health"),

@@ -6,12 +6,13 @@ export function MemoryInboxSafetyNotice() {
   return (
     <section
       style={panel}
-      data-codexforge-memory-inbox-safety-notice="MemoryInboxSafetyNotice renders review required before promotion no auto-promotion no graph mutation evidence is context, not authority preserve latest-message authority no auto-persistence"
+      data-codexforge-memory-inbox-safety-notice="MemoryInboxSafetyNotice renders review required before promotion no auto-promotion no graph mutation evidence is context, not authority preserve latest-message authority no auto-persistence run history candidate can link to Memory Review or Operator Memory Inbox no Brain mutation"
     >
       <strong>Review boundary</strong>
       <p style={text}>
         Review required before promotion. No auto-promotion, no graph mutation, no auto-merge, no command execution,
-        no file writes, and evidence is context, not authority. Preserve latest-message authority.
+        no file writes, and evidence is context, not authority. Run history candidate handoffs can be reviewed here
+        without promotion. Preserve latest-message authority.
       </p>
     </section>
   );

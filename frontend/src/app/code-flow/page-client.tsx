@@ -23,8 +23,9 @@ export default function CodeFlowPageClient() {
       <div style={linkRow}>
         <Link href="/apply-validation" style={handoffLink}>Apply Validation Hardening: apply safely, then validate</Link>
         <Link href="/workflow-results" style={handoffLink}>Workflow Results: prepare reviewed handoff</Link>
+        <Link href="/run-history" style={handoffLink}>Run History: review completed runs</Link>
       </div>
-      <span hidden data-codexforge-code-flow-workflow-results="result step can link to /workflow-results completion can prepare result record handoff passing/failing status can route through workflow results no auto-persistence Workflow Results" />
+      <span hidden data-codexforge-code-flow-workflow-results="result step can link to /workflow-results completion can prepare result record handoff passing/failing status can route through workflow results completion/result step can link to /run-history no auto-persistence Workflow Results Run History" />
       <RealCodingFlowPanel />
     </CodexForgeAppShell>
   );

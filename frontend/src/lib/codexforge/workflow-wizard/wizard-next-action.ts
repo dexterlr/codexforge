@@ -17,7 +17,7 @@ export function selectWizardNextAction(flow: WizardFlow | null, state: WizardSta
     return buildWizardNextAction({ label: "Review blocker", description: step.safetyNote, route: step.route, routeLabel: step.routeLabel, blocked: true, advancedActions: ["Open advanced details"] });
   }
   if (state.completedStepIds.length >= flow.steps.length) {
-    return buildWizardNextAction({ label: "Start next workflow", description: "Review validation or product readiness next.", route: "/validation", routeLabel: "Validation", blocked: false, advancedActions: ["Open readiness"] });
+    return buildWizardNextAction({ label: "Review run history", description: "Review run history, copy a handoff, and decide the next safe action.", route: "/run-history", routeLabel: "Run History", blocked: false, advancedActions: ["Open readiness"] });
   }
   const handoff = buildWizardRouteHandoff(step.route);
   return buildWizardNextAction({ label: `Open ${handoff.routeLabel}`, description: handoff.whatToDoThere, route: handoff.destinationRoute, routeLabel: handoff.routeLabel, blocked: false, advancedActions: flow.advancedRoutesHidden.map((route) => `Advanced: ${route}`) });

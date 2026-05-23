@@ -104,6 +104,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Real Coding Flow"; File = "smoke-codexforge-real-coding-flow.ps1"; Required = $true },
   @{ Name = "Apply Validation Hardening"; File = "smoke-codexforge-apply-validation-hardening.ps1"; Required = $true },
   @{ Name = "Workflow Result Persistence"; File = "smoke-codexforge-workflow-result-persistence.ps1"; Required = $true },
+  @{ Name = "Run History"; File = "smoke-codexforge-run-history.ps1"; Required = $true },
   @{ Name = "Stabilization Command Center"; File = "smoke-codexforge-stabilization-command-center.ps1"; Required = $true },
   @{ Name = "Global Activity Feed"; File = "smoke-codexforge-global-activity-feed.ps1"; Required = $true },
   @{ Name = "Operator Memory Inbox"; File = "smoke-codexforge-operator-memory-inbox.ps1"; Required = $true },

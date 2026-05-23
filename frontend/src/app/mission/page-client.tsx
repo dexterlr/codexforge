@@ -10,7 +10,7 @@ type MissionPageClientProps = {
 export default function MissionPageClient({ initialData }: MissionPageClientProps) {
   return (
     <>
-      <span hidden data-codexforge-mission-control-coding-flow="Mission Control references Coding Flow readiness Apply Validation Hardening readiness Workflow Result Persistence readiness next action capture a real coding flow result run a real coding flow manually and capture output" />
+      <span hidden data-codexforge-mission-control-coding-flow="Mission Control references Coding Flow readiness Apply Validation Hardening readiness Workflow Result Persistence readiness Run History Timeline readiness next action capture a real code-flow run capture a real coding flow result run a real coding flow manually and capture output" />
       <MissionControlDashboard summary={initialData} />
     </>
   );

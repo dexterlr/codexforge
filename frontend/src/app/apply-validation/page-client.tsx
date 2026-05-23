@@ -22,8 +22,9 @@ export default function ApplyValidationPageClient() {
       <span hidden data-codexforge-apply-validation-route="Apply Validation route imports/renders ApplyValidationHardeningPanel Apply safely validate no auto-apply no auto-run approval required rollback preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
       <div style={linkRow}>
         <Link href="/workflow-results" style={handoffLink}>Workflow Results: copy reviewed validation handoff</Link>
+        <Link href="/run-history" style={handoffLink}>Run History: timeline and next action</Link>
       </div>
-      <span hidden data-codexforge-apply-validation-workflow-results="validation output review can create/copy workflow result handoff completion panel can link to /workflow-results no auto-persistence Workflow Results" />
+      <span hidden data-codexforge-apply-validation-workflow-results="validation output review can create/copy workflow result handoff completion panel can link to /workflow-results completion panel can link to /run-history no auto-run no auto-persistence Workflow Results Run History" />
       <ApplyValidationHardeningPanel />
     </CodexForgeAppShell>
   );
