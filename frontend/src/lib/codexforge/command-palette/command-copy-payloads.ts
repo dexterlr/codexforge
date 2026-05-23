@@ -95,6 +95,52 @@ export function buildCodexForgeMemoryReviewCandidatePayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeCodingUxFixChecklistPayload(): string {
+  return [
+    "Coding Flow UX fix checklist",
+    "",
+    "[ ] One primary action above the fold",
+    "[ ] Pick a file / Describe the change / Preview patch wording",
+    "[ ] Apply blocked reasons explain preview, approval, or rollback",
+    "[ ] Copy these checks / Run them in your terminal / Paste the output back",
+    "[ ] Result handoff says what happened and what comes next",
+    "[ ] Advanced details collapsed by default",
+    "[ ] No auto-apply, no auto-run, approval required",
+    "[ ] Preserve latest-message authority",
+  ].join("\n");
+}
+
+export function buildCodexForgeSimplifiedValidationCopyPayload(): string {
+  return [
+    "Copy these checks.",
+    "Run them in your terminal.",
+    "Paste the output back for review.",
+    "If a check fails, open Closed Loop.",
+    "",
+    "Build check: npm run build",
+    "Targeted smoke: powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-codexforge-coding-flow-ux-fix.ps1",
+    "Server smoke: npm run smoke:codexforge:server",
+    "Git diff check: git diff --check",
+    "Status/stat check: git status --short and git diff --stat",
+  ].join("\n");
+}
+
+export function buildCodexForgeRouteHandoffChecklistPayload(): string {
+  return [
+    "Coding Flow route handoff checklist",
+    "",
+    "/start -> /code-flow: Fix code.",
+    "/code-flow -> /files: Pick a file.",
+    "/code-flow -> /apply-validation: Review apply.",
+    "/apply-validation -> /validation: Prepare checks.",
+    "/validation -> /workflow-results: Capture result.",
+    "/workflow-results -> /run-history: Review history.",
+    "Failed validation -> /closed-loop: Review failure.",
+    "/code-flow/trial -> /code-flow/trial-review: Review trial.",
+    "/code-flow/trial-review -> /code-flow/ux-fixes: Open UX fixes.",
+  ].join("\n");
+}
+
 export function buildCodexForgeSafePatchPromptPayload(): string {
   return [
     "Prepare a safe patch preview.",

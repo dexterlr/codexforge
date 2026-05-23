@@ -12,7 +12,7 @@ export default function ValidationPageClient() {
       data-codexforge-validation-route="Validation route imports and renders ValidationRunnerPanel approval required no arbitrary shell no command execution without approval no file writes preserve latest-message authority"
     >
       <CodexForgeAppShell activePath="/validation" workspaceLabel="Prepare checks" nextActionContext={{ hasRegressionOrFixWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false}>
-        <span hidden data-codexforge-validation-friendly-copy="Prepare checks choose validation commands simply advanced policy and output routing collapsed Approval required" />
+        <span hidden data-codexforge-validation-friendly-copy="Prepare checks Copy these checks Run them in your terminal Paste the output back If a check fails open Closed Loop advanced policy and output routing collapsed Approval required no auto-run" />
         <div style={linkRow}>
           <Link href="/code-flow" style={wizardLink}>Continue Code Flow: review validation result</Link>
           <Link href="/apply-validation" style={wizardLink}>Apply Validation Hardening: review output routing</Link>

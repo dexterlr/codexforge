@@ -41,10 +41,15 @@ export function RealCodingFlowPanel() {
         <div style={heroCopy}>
           <span style={eyebrow}>One real end-to-end coding flow</span>
           <h1 style={headline}>Fix code safely</h1>
-          <p style={lede}>Pick a file, preview the change, approve it, then run checks.</p>
+          <p style={lede}>Pick a file, describe the change, preview patch, review apply, then prepare checks.</p>
           <CodingFlowSafetyStrip />
         </div>
         <CodingFlowNextActionPanel plan={nextActionPlan} />
+      </section>
+      <section style={stepStrip} data-codexforge-code-flow-ux-current-step="Current step visibility Pick a file Describe change Preview patch Continue code flow clearer next action">
+        <span>Current: {summary.currentStep}</span>
+        <strong>Next: {nextActionPlan.selected.label}</strong>
+        <span>Preview first. No auto-apply. No auto-run.</span>
       </section>
       <CodingFlowProgressPanel summary={summary} />
       <CodingFlowStartPanel input={input} />
@@ -68,4 +73,5 @@ const heroCopy: CSSProperties = { display: "grid", gap: 12, minWidth: 0 };
 const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 12, fontWeight: 900, letterSpacing: 0, textTransform: "uppercase" };
 const headline: CSSProperties = { fontSize: 38, letterSpacing: 0, lineHeight: 1.05, margin: 0, overflowWrap: "normal", whiteSpace: "nowrap", wordBreak: "normal" };
 const lede: CSSProperties = { color: "#dbeafe", fontSize: 15, lineHeight: 1.55, margin: 0, maxWidth: 760 };
+const stepStrip: CSSProperties = { alignItems: "center", background: "rgba(14,165,233,0.08)", border: "1px solid rgba(125,211,252,0.18)", borderRadius: 8, color: "#dbeafe", display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "space-between", minWidth: 0, padding: "10px 12px", fontSize: 13 };
 const grid: CSSProperties = { display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", minWidth: 0 };

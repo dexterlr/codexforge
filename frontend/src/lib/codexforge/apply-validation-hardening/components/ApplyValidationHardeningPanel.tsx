@@ -76,9 +76,9 @@ export function ApplyValidationHardeningPanel() {
     <section style={shell} data-codexforge-apply-validation-hardening-panel="ApplyValidationHardeningPanel renders Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold advanced details are collapsed or visually secondary no unsafe execution buttons no direct appendEvent call from UI no direct saveBrainGraph call from UI no direct graph mutation from UI no direct apply-diff call from UI unless through existing approved guarded apply boundary text no direct write-file call from UI no direct run-command call from UI no broker-execution call except blocked-policy text no external network dependency no vector database dependency no OpenAI/API-key dependency no hardcoded API keys no localStorage API key storage no process.env value printed in UI no Math.random no Date.now stable key helper apply-ready validation-ready handoff-only">
       <section style={hero}>
         <div style={heroCopy}>
-          <span style={eyebrow}>Real Apply and Validation Hardening</span>
-          <h1 style={headline}>Apply safely, then validate</h1>
-          <p style={lede}>Review the diff, keep rollback ready, run checks, and route the result.</p>
+          <span style={eyebrow}>Review first</span>
+          <h1 style={headline}>Review apply</h1>
+          <p style={lede}>Apply is blocked until preview, approval, and rollback are clear. Copy checks, run them in your terminal, then paste output back.</p>
           <ApplyValidationSafetyStrip />
         </div>
         <ApplyValidationNextActionPanel plan={model.nextActionPlan} />

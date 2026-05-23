@@ -50,7 +50,7 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
     >
       <div style={handoffBand}>
         <Link href="/code-flow" style={handoffLink}>
-          Continue Code Flow: choose a file to inspect, then preview changes safely.
+          Pick a file: inspect selected file, then preview patch safely.
         </Link>
         <Link href="/apply-validation" style={handoffLink}>
           Apply Validation Hardening: review preview diff, approval, rollback, and validation routing.
