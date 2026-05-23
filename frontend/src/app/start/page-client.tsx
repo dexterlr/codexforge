@@ -22,7 +22,7 @@ export default function StartPageClient({ initialData }: StartPageClientProps) {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
-      <span hidden data-codexforge-start-product-simplification-preserved={`ProductSimplificationPanel ${initialData.recommendedNextAction} Review run history /run-history route handoff includes /run-history`} />
+      <span hidden data-codexforge-start-product-simplification-preserved={`ProductSimplificationPanel ${initialData.recommendedNextAction} Try coding flow Coding Trial /code-flow/trial Review run history /run-history route handoff includes /run-history`} />
       <WorkflowWizard />
     </CodexForgeAppShell>
   );

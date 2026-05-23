@@ -4,6 +4,7 @@ const ROUTE_LABELS: Record<WizardRoute, string> = {
   "/": "Home",
   "/start": "Wizard",
   "/code-flow": "Code Flow",
+  "/code-flow/trial": "Coding Trial",
   "/apply-validation": "Apply safely and validate",
   "/workflow-results": "Workflow Results",
   "/run-history": "Run History",
@@ -24,6 +25,7 @@ const ROUTE_LABELS: Record<WizardRoute, string> = {
 const WHAT_TO_DO: Record<WizardRoute, string> = {
   "/files": "Select a file and inspect it.",
   "/code-flow": "Pick a file, describe the change, preview the patch, review apply, run checks, and review the result.",
+  "/code-flow/trial": "Follow the Coding Flow Live Trial checklist from safe file choice to result handoff.",
   "/apply-validation": "Review the diff, apply policy, rollback plan, validation commands, output, and result route.",
   "/workflow-results": "Review workflow results, capture capped validation output, and prepare a clean handoff.",
   "/run-history": "Review run history, copy a handoff, and decide the next safe action.",

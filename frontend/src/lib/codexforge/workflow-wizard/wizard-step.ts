@@ -23,6 +23,14 @@ function step(flow: WizardFlowId, order: number, title: string, route: WizardRou
 
 export function buildWizardStepsForFlow(flowId: WizardFlowId): WizardStep[] {
   const map: Record<WizardFlowId, WizardStep[]> = {
+    "coding-trial": [
+      step("coding-trial", 1, "Open trial guide", "/code-flow/trial", "Coding Trial", "Review the live trial checklist and choose an example."),
+      step("coding-trial", 2, "Start Code Flow", "/code-flow", "Code Flow", "Use the real coding flow with no auto-apply."),
+      step("coding-trial", 3, "Pick a safe file", "/files", "Files", "Choose a low-risk file category."),
+      step("coding-trial", 4, "Prepare validation", "/validation", "Validation", "Copy commands only and run manually."),
+      step("coding-trial", 5, "Capture result", "/workflow-results", "Workflow Results", "Prepare the reviewed trial result handoff."),
+      step("coding-trial", 6, "Review run history", "/run-history", "Run History", "Prepare run history handoff."),
+    ],
     "code-fix": [
       step("code-fix", 1, "Pick a file", "/code-flow", "Code Flow", "Choose the file you want to inspect."),
       step("code-fix", 2, "Describe change", "/code-flow", "Code Flow", "Keep the requested change specific."),

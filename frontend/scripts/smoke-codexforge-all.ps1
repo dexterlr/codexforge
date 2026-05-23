@@ -102,6 +102,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Product Simplification"; File = "smoke-codexforge-product-simplification.ps1"; Required = $true },
   @{ Name = "Workflow Wizard"; File = "smoke-codexforge-workflow-wizard.ps1"; Required = $true },
   @{ Name = "Real Coding Flow"; File = "smoke-codexforge-real-coding-flow.ps1"; Required = $true },
+  @{ Name = "Coding Flow Live Trial"; File = "smoke-codexforge-coding-flow-live-trial.ps1"; Required = $true },
   @{ Name = "Apply Validation Hardening"; File = "smoke-codexforge-apply-validation-hardening.ps1"; Required = $true },
   @{ Name = "Workflow Result Persistence"; File = "smoke-codexforge-workflow-result-persistence.ps1"; Required = $true },
   @{ Name = "Run History"; File = "smoke-codexforge-run-history.ps1"; Required = $true },

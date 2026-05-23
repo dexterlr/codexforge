@@ -6,6 +6,18 @@ export function buildUserIntentOption(input: UserIntentOption): UserIntentOption
 
 const INTENTS: readonly UserIntentOption[] = [
   {
+    id: "try-coding-flow",
+    label: "Try coding flow",
+    description: "Use the live trial pack before a real coding-flow run.",
+    primaryRoute: "/code-flow/trial",
+    recommendedRoute: "/code-flow/trial",
+    secondaryRoutes: ["/code-flow", "/run-history"],
+    userOutcome: "A guided operator trial from safe file choice to result handoff.",
+    hiddenAdvancedRoutes: ["/readiness"],
+    safetyPosture: ["Review first", "Approval required", "No auto-run"],
+    nextActionLabel: "Start trial",
+  },
+  {
     id: "fix-code",
     label: "Fix code",
     description: "Inspect files, preview a patch, then validate before any apply step.",

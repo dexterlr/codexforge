@@ -2,6 +2,7 @@ export type WizardRoute =
   | "/"
   | "/start"
   | "/code-flow"
+  | "/code-flow/trial"
   | "/apply-validation"
   | "/workflow-results"
   | "/run-history"
@@ -20,6 +21,7 @@ export type WizardRoute =
 
 export type WizardIntentId =
   | "fix-code"
+  | "try-coding-flow"
   | "inspect-file"
   | "run-checks"
   | "review-failure"
@@ -32,6 +34,7 @@ export type WizardIntentId =
 
 export type WizardFlowId =
   | "code-fix"
+  | "coding-trial"
   | "file-inspection"
   | "validation"
   | "failure-review"

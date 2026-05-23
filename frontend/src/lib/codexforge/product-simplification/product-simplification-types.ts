@@ -2,6 +2,7 @@ export type ProductSimplificationRoute =
   | "/"
   | "/start"
   | "/code-flow"
+  | "/code-flow/trial"
   | "/apply-validation"
   | "/workflow-results"
   | "/run-history"
@@ -35,6 +36,7 @@ export type ProductSimplificationSafetyBadge =
 
 export type UserIntentId =
   | "fix-code"
+  | "try-coding-flow"
   | "inspect-project"
   | "run-validation"
   | "review-failure"
