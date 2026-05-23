@@ -29,7 +29,8 @@ export function buildWizardStepsForFlow(flowId: WizardFlowId): WizardStep[] {
       step("coding-trial", 3, "Pick a safe file", "/files", "Files", "Choose a low-risk file category."),
       step("coding-trial", 4, "Prepare validation", "/validation", "Validation", "Copy commands only and run manually."),
       step("coding-trial", 5, "Capture result", "/workflow-results", "Workflow Results", "Prepare the reviewed trial result handoff."),
-      step("coding-trial", 6, "Review run history", "/run-history", "Run History", "Prepare run history handoff."),
+      step("coding-trial", 6, "Review trial run", "/code-flow/trial-review", "Trial Review", "Capture friction, pass/fail, UX fixes, and go/no-go."),
+      step("coding-trial", 7, "Review run history", "/run-history", "Run History", "Prepare run history handoff."),
     ],
     "code-fix": [
       step("code-fix", 1, "Pick a file", "/code-flow", "Code Flow", "Choose the file you want to inspect."),

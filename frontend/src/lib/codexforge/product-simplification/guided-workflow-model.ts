@@ -18,6 +18,7 @@ export function buildDefaultGuidedWorkflows(): GuidedWorkflow[] {
       steps: [
         { id: "real-coding-flow", label: "Real coding flow", route: "/code-flow", description: "Fix code safely from file selection through result review.", safety: ["Review first", "Approval required"] },
         { id: "coding-flow-live-trial", label: "Coding Flow Live Trial", route: "/code-flow/trial", description: "Run a guided operator trial before real fix work.", safety: ["Review first", "No auto-run"] },
+        { id: "coding-flow-trial-review", label: "Coding Trial Review", route: "/code-flow/trial-review", description: "Review coding trial friction, pass/fail, UX fixes, and go/no-go.", safety: ["Review first", "No auto-run"] },
         { id: "files", label: "Files", route: "/files", description: "Inspect the file first.", safety: ["No file writes"] },
         { id: "preview", label: "Real Patch Preview", route: "/code-flow", description: "Prepare a preview diff.", safety: ["Preview only"] },
         { id: "apply", label: "Approved Patch Apply", route: "/code-flow", description: "Review approval packet before apply.", safety: ["Approval required"] },
@@ -29,7 +30,7 @@ export function buildDefaultGuidedWorkflows(): GuidedWorkflow[] {
       secondaryAction: "Inspect files",
       advancedDetailsSummary: "Patch preview, apply request, validation routing, and closed-loop evidence remain separate technical details.",
       safetySummary: "Review first, approval required, no auto-run.",
-      routeTargets: ["/code-flow/trial", "/code-flow", "/files", "/validation", "/run-history", "/closed-loop"],
+      routeTargets: ["/code-flow/trial", "/code-flow/trial-review", "/code-flow", "/files", "/validation", "/run-history", "/closed-loop"],
     }),
     buildGuidedWorkflow({
       id: "validation-workflow",

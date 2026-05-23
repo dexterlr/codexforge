@@ -7,6 +7,7 @@ export function buildWorkflowShortcut(input: WorkflowShortcut): WorkflowShortcut
 export function buildDefaultWorkflowShortcuts(): WorkflowShortcut[] {
   const shortcuts: WorkflowShortcut[] = [
     { id: "start-code-fix", label: "Start code fix", description: "Inspect files, preview a patch, and prepare checks.", href: "/code-flow", primaryActionLabel: "Fix code safely", safetyBadges: ["Review first", "Approval required"] },
+    { id: "review-coding-trial", label: "Review coding trial", description: "Capture trial notes, friction, pass/fail, UX fixes, and go/no-go.", href: "/code-flow/trial-review", primaryActionLabel: "Copy trial review", safetyBadges: ["Review first", "No auto-run"] },
     { id: "apply-validate", label: "Apply safely, then validate", description: "Review diff policy, rollback, validation output, and routing.", href: "/apply-validation", primaryActionLabel: "Apply safely, then validate", safetyBadges: ["Approval required", "No auto-run"] },
     { id: "review-workflow-results", label: "Review workflow results", description: "Capture what happened, route failures, and prepare a clean handoff.", href: "/workflow-results", primaryActionLabel: "Review workflow results", safetyBadges: ["Review first", "No auto-run"] },
     { id: "review-run-history", label: "Review run history", description: "Review recent runs, copy handoffs, and choose the next safe action.", href: "/run-history", primaryActionLabel: "Review run history", safetyBadges: ["Review first", "No auto-run"] },

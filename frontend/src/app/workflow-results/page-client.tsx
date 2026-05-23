@@ -22,9 +22,11 @@ export default function WorkflowResultsPageClient() {
       <span hidden data-codexforge-workflow-results-route="Workflow Results route imports/renders WorkflowResultPersistencePanel Review workflow results Capture what happened route failures prepare a clean handoff no auto-promotion no Brain auto-mutation no auto-persist into Brain review required preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
       <div style={linkRow}>
         <Link href="/code-flow/trial" style={handoffLink}>Coding Trial: result handoff template</Link>
+        <Link href="/code-flow/trial-review" style={handoffLink}>Trial Review: capture friction and go/no-go</Link>
         <Link href="/run-history" style={handoffLink}>Run History: review recent runs and copy handoffs</Link>
       </div>
       <span hidden data-codexforge-workflow-results-run-history="Coding Trial trial result handoff option Workflow Results references Run History /run-history export and handoff can mention run history no auto-persistence" />
+      <span hidden data-codexforge-workflow-results-trial-review="Workflow Results references Trial Review result handoff can link to /code-flow/trial-review when workflow kind is coding trial no auto-persistence Coding Flow Trial Review" />
       <WorkflowResultPersistencePanel />
     </CodexForgeAppShell>
   );
