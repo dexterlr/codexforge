@@ -19,9 +19,10 @@ export default function CodeFlowUxFixesPageClient() {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
-      <span hidden data-codexforge-coding-flow-ux-fix-route="Coding Flow UX Fix route imports/renders CodingFlowUxFixPanel Make the coding flow easier Copy UX fix checklist no auto-apply no auto-run approval required preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold advanced details are collapsed or visually secondary" />
+      <span hidden data-codexforge-coding-flow-ux-fix-route="Coding Flow UX Fix route imports/renders CodingFlowUxFixPanel Make the coding flow easier Copy UX fix checklist Review apply guard as next reliability step Apply Guard Review /apply-guard-review no auto-apply no auto-run approval required preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold advanced details are collapsed or visually secondary" />
       <div style={linkRow}>
         <Link href="/code-flow" style={handoffLink}>Continue code flow</Link>
+        <Link href="/apply-guard-review" style={handoffLink}>Review apply guard</Link>
         <Link href="/code-flow/trial-review" style={handoffLink}>Back to trial review</Link>
         <Link href="/code-flow/trial" style={handoffLink}>Run another live trial</Link>
       </div>

@@ -310,6 +310,17 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
       relatedPhase: "Phase 58 Approved Patch Apply v1",
     }),
     buildMissionSurface({
+      id: "real-apply-guard-review",
+      label: "Real Apply Guard Review",
+      href: "/apply-guard-review",
+      status: "approval-gated",
+      role: "Real Apply Guard Review readiness audits approval packet enforcement, diff boundaries, path boundaries, rollback confidence, command/write separation, validation requirement, failure routing, and go/no-go before any apply automation increase.",
+      riskPosture: "approval-required",
+      nextAction: "Review apply guard before any apply automation increase.",
+      readiness: "needs-review",
+      relatedPhase: "Phase 82 Real Apply Guard Review",
+    }),
+    buildMissionSurface({
       id: "validation-runner",
       label: "Validation Runner",
       href: "/validation",

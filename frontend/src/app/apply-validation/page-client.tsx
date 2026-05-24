@@ -19,8 +19,9 @@ export default function ApplyValidationPageClient() {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
-      <span hidden data-codexforge-apply-validation-route="Apply Validation route imports/renders ApplyValidationHardeningPanel Review apply Prepare validation checklist apply blocked because preview approval or rollback is missing Copy these checks Run them in your terminal Paste the output back no auto-apply no auto-run approval required rollback preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
+      <span hidden data-codexforge-apply-validation-route="Apply Validation route imports/renders ApplyValidationHardeningPanel Review apply Prepare validation checklist apply blocked because preview approval or rollback is missing Apply Guard Review /apply-guard-review can audit policy rollback approval diff path command write separation Copy these checks Run them in your terminal Paste the output back no auto-apply no auto-run approval required rollback preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
       <div style={linkRow}>
+        <Link href="/apply-guard-review" style={primaryHandoffLink}>Apply Guard Review</Link>
         <Link href="/validation" style={primaryHandoffLink}>Prepare validation checklist</Link>
         <Link href="/workflow-results" style={handoffLink}>Next: capture result</Link>
         <Link href="/code-flow" style={handoffLink}>Back to Code Flow</Link>

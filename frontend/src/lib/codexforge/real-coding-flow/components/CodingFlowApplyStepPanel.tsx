@@ -10,6 +10,7 @@ export function CodingFlowApplyStepPanel({ step }: { step: CodingFlowApplyStep }
       <h2 style={title}>Review apply</h2>
       <p style={copy}>Review before apply. Approval is required. Keep rollback ready.</p>
       <div style={status}>{step.policyStatus}</div>
+      <Link href="/apply-guard-review" style={link}>Review apply guard</Link>
       <Link href="/files" style={link}>Open Approved Patch Apply</Link>
     </section>
   );

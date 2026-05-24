@@ -41,6 +41,7 @@ export function buildMissionActivityTimeline(): MissionActivityTimeline {
     buildMissionActivityItem("brain-mutation-governance-added", "Brain Mutation Governance added", "Phase 48", "Approved mutation boundaries, blocked direct mutation visibility, reducer impact governance, runtime journal integrity posture, and next safe action became reviewable in a read-only console.", "needs-review"),
     buildMissionActivityItem("runtime-event-replay-added", "Runtime Event Replay Simulator added", "Phase 49", "Selected runtime journal events can be replayed against a graph snapshot in reducer preview mode with impact analysis, risk detection, and rollback guidance; preview-only and no graph mutation.", "needs-review"),
     buildMissionActivityItem("snapshot-restore-gate-added", "Snapshot Restore Approval Gate added", "Phase 51", "Restore candidates, comparison evidence, replay evidence, approval packets, risk policy, request preview, and future executor boundary became reviewable; restore blocked by default and no graph mutation.", "needs-review"),
+    buildMissionActivityItem("real-apply-guard-review-added", "Real Apply Guard Review added", "Phase 82", "Apply guard audit reviews approval, diff/path boundaries, rollback, command/write separation, validation, failure routing, and go/no-go before any apply automation increase; executionAllowed false.", "needs-review"),
   ];
 
   return {

@@ -222,6 +222,42 @@ export function buildCodexForgeApprovedPatchApplyReviewPromptPayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeApplyGuardReviewPayload(): string {
+  return [
+    "Real Apply Guard Review report",
+    "",
+    "Review the apply guard before any apply automation increase.",
+    "Check approval packet enforcement, preview diff, diff boundaries, path boundaries, rollback confidence, command/write separation, validation requirement, failure routing, and latest-message authority.",
+    "No auto-apply.",
+    "No auto-run.",
+    "No file writes.",
+    "No command execution.",
+    "executionAllowed false in Phase 82.",
+  ].join("\n");
+}
+
+export function buildCodexForgeApplyGuardRequiredFixesPayload(): string {
+  return [
+    "Real Apply Guard Review required fixes",
+    "",
+    "Fix safety blockers first: direct UI apply/write/run bypass, missing approval packet, unsafe diff boundary, unsafe path boundary, missing rollback, missing validation route, command/write mixing, or unclear blocked reason routing.",
+    "Do not remove approval boundaries.",
+    "Do not add direct apply buttons.",
+    "Do not auto-run validation.",
+  ].join("\n");
+}
+
+export function buildCodexForgeGuardedApplyCandidateBriefPayload(): string {
+  return [
+    "Guarded apply candidate brief",
+    "",
+    "Only proceed when go/no-go permits.",
+    "Candidate still requires explicit approval, dry-run evidence, rollback guidance, validation checklist, path boundary proof, diff boundary proof, and latest-message authority.",
+    "go-for-guarded-apply-candidate does not execute in Phase 82.",
+    "executionAllowed false in Phase 82.",
+  ].join("\n");
+}
+
 export function buildCodexForgeCreativeBridgeHandoffPayload(): string {
   return [
     "Creative Local Bridge v1 handoff",
