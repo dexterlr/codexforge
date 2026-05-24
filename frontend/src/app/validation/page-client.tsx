@@ -12,9 +12,10 @@ export default function ValidationPageClient() {
       data-codexforge-validation-route="Validation route imports and renders ValidationRunnerPanel approval required no arbitrary shell no command execution without approval no file writes preserve latest-message authority"
     >
       <CodexForgeAppShell activePath="/validation" workspaceLabel="Prepare checks" nextActionContext={{ hasRegressionOrFixWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false}>
-        <span hidden data-codexforge-validation-friendly-copy="Prepare checks Copy these checks Run them in your terminal Paste the output back If apply safety is uncertain open Apply Guard Review /apply-guard-review If a check fails open Closed Loop advanced policy and output routing collapsed Approval required no auto-run" />
+        <span hidden data-codexforge-validation-friendly-copy="Prepare checks Copy these checks Run them in your terminal Paste the output back If apply safety is uncertain open Apply Guard Review /apply-guard-review Guarded Apply Candidate /guarded-apply-candidate separate validation contract If a check fails open Closed Loop advanced policy and output routing collapsed Approval required no auto-run" />
         <div style={linkRow}>
           <Link href="/code-flow" style={wizardLink}>Continue Code Flow: review validation result</Link>
+          <Link href="/guarded-apply-candidate" style={wizardLink}>Guarded Apply Candidate: separate validation contract</Link>
           <Link href="/apply-guard-review" style={wizardLink}>Apply Guard Review</Link>
           <Link href="/apply-validation" style={wizardLink}>Apply Validation Hardening: review output routing</Link>
           <Link href="/workflow-results" style={wizardLink}>Workflow Results: capture output handoff</Link>

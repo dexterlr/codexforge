@@ -258,6 +258,55 @@ export function buildCodexForgeGuardedApplyCandidateBriefPayload(): string {
   ].join("\n");
 }
 
+export function buildCodexForgeGuardedApplyCandidatePlanPayload(): string {
+  return [
+    "Guarded Apply Candidate Implementation Plan",
+    "",
+    "One file only.",
+    "One preview diff only.",
+    "One explicit approval packet tied to exact diff hash/label and latest request.",
+    "One guarded apply request through an approved boundary only if present.",
+    "One rollback plan with git restore and git revert guidance.",
+    "One validation checklist separate from apply.",
+    "One result handoff to Workflow Results and Run History.",
+    "No combined apply + run validation button.",
+    "No arbitrary write-file UI.",
+    "No arbitrary apply-diff UI.",
+    "No arbitrary run-command UI.",
+    "Execution allowed false in Phase 83.",
+    "Preserve latest-message authority.",
+  ].join("\n");
+}
+
+export function buildCodexForgeGuardedApplyImplementationGapsPayload(): string {
+  return [
+    "Guarded Apply Candidate implementation gaps",
+    "",
+    "Blocker: no exact diff hash/label.",
+    "Blocker: approval not tied to exact diff.",
+    "Blocker: direct tool call risk.",
+    "High: rollback not explicit enough.",
+    "High: validation result capture missing.",
+    "High: apply evidence not captured.",
+    "Medium: UI still too confusing.",
+    "Medium: missing smoke coverage.",
+    "Clear blocker gaps before implementation.",
+  ].join("\n");
+}
+
+export function buildCodexForgeGuardedApplyNextPromptPayload(): string {
+  return [
+    "Next guarded apply implementation prompt",
+    "",
+    "Inspect first.",
+    "Do not enable real apply unless a policy-gated guarded boundary exists.",
+    "Keep the first candidate to one low-risk text file and one exact preview diff.",
+    "Require explicit approval tied to diff hash/label, selected file, and latest request.",
+    "Keep apply and validation separate.",
+    "No auto-apply, no auto-run, no automatic commit, no memory auto-promotion.",
+  ].join("\n");
+}
+
 export function buildCodexForgeCreativeBridgeHandoffPayload(): string {
   return [
     "Creative Local Bridge v1 handoff",

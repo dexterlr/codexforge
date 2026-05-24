@@ -51,6 +51,14 @@ export function buildMissionNextActions(): MissionNextAction[] {
       safetyNote: "Real Apply Guard Review readiness checks approval, diff/path boundaries, rollback, command/write separation, validation, blocked failure routing, and go/no-go before any apply automation increase; executionAllowed false, no auto-apply, no auto-run, and preserve latest-message authority.",
     },
     {
+      id: "review-guarded-apply-candidate",
+      label: "Clear guarded apply blocker gaps",
+      href: "/guarded-apply-candidate",
+      priority: "primary",
+      readiness: "needs-review",
+      safetyNote: "Guarded Apply Candidate readiness keeps the first candidate to one file, one diff, one approval, one rollback, one validation checklist, and result handoff. Next action: clear blocker gaps before implementation. Execution allowed false in Phase 83.",
+    },
+    {
       id: "run-approved-validation",
       label: "Run approved validation",
       href: "/validation",

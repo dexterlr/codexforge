@@ -11,6 +11,7 @@ export type ProductRoutePath =
   | "/code-flow/trial-review"
   | "/code-flow/ux-fixes"
   | "/apply-guard-review"
+  | "/guarded-apply-candidate"
   | "/apply-validation"
   | "/workflow-results"
   | "/run-history"

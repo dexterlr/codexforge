@@ -19,9 +19,10 @@ export default function CodeFlowPageClient() {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
-      <span hidden data-codexforge-code-flow-route="Code Flow route imports/renders RealCodingFlowPanel Fix code safely Pick a file Preview patch Review before apply Review apply guard Apply Guard Review /apply-guard-review Run checks Review result Apply Validation Hardening /apply-validation no auto-apply no auto-run approval required preview first preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
+      <span hidden data-codexforge-code-flow-route="Code Flow route imports/renders RealCodingFlowPanel Fix code safely Pick a file Preview patch Review before apply Review apply guard Apply Guard Review /apply-guard-review Guarded Apply Candidate /guarded-apply-candidate first guarded apply candidate path Run checks Review result Apply Validation Hardening /apply-validation no auto-apply no auto-run approval required preview first preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
       <div style={linkRow}>
         <Link href="/files" style={primaryHandoffLink}>Continue code flow: pick a file</Link>
+        <Link href="/guarded-apply-candidate" style={handoffLink}>Plan guarded apply candidate</Link>
         <Link href="/apply-guard-review" style={handoffLink}>Review apply guard</Link>
         <Link href="/apply-validation" style={handoffLink}>Review apply</Link>
         <Link href="/workflow-results" style={handoffLink}>Capture result</Link>
