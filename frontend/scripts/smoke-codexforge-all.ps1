@@ -113,6 +113,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Validation Result Capture MVP"; File = "smoke-codexforge-validation-result-capture-mvp.ps1"; Required = $true },
   @{ Name = "Coding Flow Live Run MVP"; File = "smoke-codexforge-coding-flow-live-run-mvp.ps1"; Required = $true },
   @{ Name = "Coding Flow MVP Release Audit"; File = "smoke-codexforge-coding-flow-mvp-release-audit.ps1"; Required = $true },
+  @{ Name = "Full System Quality Audit"; File = "smoke-codexforge-full-system-quality-audit.ps1"; Required = $true },
   @{ Name = "Coding Flow Live Manual Trial"; File = "smoke-codexforge-coding-flow-live-manual-trial.ps1"; Required = $true },
   @{ Name = "Trial Friction Fix Pass"; File = "smoke-codexforge-trial-friction-fix-pass.ps1"; Required = $true },
   @{ Name = "MVP Working Path Lock"; File = "smoke-codexforge-mvp-working-path-lock.ps1"; Required = $true },

@@ -6,7 +6,7 @@ import { ApplyEvidenceCapturePanel } from "@/lib/codexforge/apply-evidence-captu
 export default function ApplyEvidencePageClient() {
   return <CodexForgeAppShell activePath="/apply-evidence" workspaceLabel="Capture apply evidence" nextActionContext={{ hasRegressionOrFixWork: true, hasFileWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false} showHeroRouteChips={false}>
     <span hidden data-codexforge-apply-evidence-route="Apply Evidence route imports/renders ApplyEvidenceCapturePanel Capture apply evidence Copy evidence pack no auto-apply no auto-run preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold advanced details are collapsed or visually secondary no unsafe execution buttons" />
-    <div style={linkRow}><Link href="/guarded-apply-mvp" style={primaryHandoffLink}>Back to guarded apply MVP</Link><Link href="/validation-results" style={handoffLink}>Capture validation result</Link><Link href="/code-flow/manual-trial" style={handoffLink}>Manual trial</Link><Link href="/code-flow/live-run" style={handoffLink}>Back to live run</Link></div>
+    <div style={linkRow}><Link href="/validation-results" style={primaryHandoffLink}>Next: validate separately</Link><Link href="/guarded-apply-mvp" style={handoffLink}>Back to apply request</Link><Link href="/workflow-results" style={handoffLink}>Review result</Link><Link href="/code-flow/live-run" style={handoffLink}>Back to live run</Link></div>
     <ApplyEvidenceCapturePanel />
   </CodexForgeAppShell>;
 }

@@ -49,20 +49,17 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
       showSidebarSafetyNotice={false}
     >
       <div style={handoffBand}>
-        <Link href="/code-flow" style={handoffLink}>
-          Pick a file: inspect selected file, then preview patch safely.
+        <Link href="/guarded-apply-mvp" style={primaryHandoffLink}>
+          Next: preview patch and review apply request.
         </Link>
-        <Link href="/apply-validation" style={handoffLink}>
-          Apply Validation Hardening: review preview diff, approval, rollback, and validation routing.
+        <Link href="/code-flow/live-run" style={handoffLink}>
+          Back to live run.
         </Link>
-        <Link href="/apply-guard-review" style={handoffLink}>
-          Apply Guard Review: audit approval packet, diff/path boundaries, rollback, validation, and no direct unsafe apply.
+        <Link href="/apply-evidence" style={handoffLink}>
+          Capture apply evidence after approval.
         </Link>
-        <Link href="/guarded-apply-candidate" style={handoffLink}>
-          Guarded Apply Candidate: plan one-file guarded candidate without direct unsafe apply.
-        </Link>
-        <Link href="/guarded-apply-mvp" style={handoffLink}>
-          Guarded Apply MVP: one file, one diff, one explicit approval, then validation handoff.
+        <Link href="/validation-results" style={handoffLink}>
+          Validate separately.
         </Link>
         <div
           hidden
@@ -103,3 +100,4 @@ const handoffLink: CSSProperties = {
   overflowWrap: "anywhere",
   maxWidth: "100%",
 };
+const primaryHandoffLink: CSSProperties = { ...handoffLink, background: "#5eead4", color: "#042f2e" };

@@ -20,6 +20,7 @@ const OPERATOR_HOME_ROUTES = [
   "/comfyui",
   "/activity",
   "/readiness",
+  "/quality-audit",
   "/stabilization",
   "/history",
 ] as const;
@@ -44,6 +45,7 @@ const SURFACE_MAP: readonly HomeSurfaceMapItem[] = [
   { path: "/comfyui", label: "ComfyUI Adapter Preview" },
   { path: "/activity", label: "Activity Feed" },
   { path: "/readiness", label: "Product Readiness Audit" },
+  { path: "/quality-audit", label: "System Quality Audit" },
   { path: "/consolidation", label: "Consolidation" },
   { path: "/handoff", label: "Handoff" },
   { path: "/brain", label: "Brain Command Center" },

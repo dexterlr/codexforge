@@ -100,6 +100,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/capabilities": true,
   "/activity": true,
   "/readiness": true,
+  "/quality-audit": true,
   "/consolidation": true,
   "/validation": true,
   "/stabilization": true,
@@ -655,6 +656,14 @@ export function buildCodexForgeCommands(
       href: "/readiness",
       keywords: ["product readiness", "readiness", "audit", "route", "Phase 54"],
       priority: 87,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-system-quality-audit",
+      label: "Go to System Quality Audit",
+      description: "Navigate to the read-only full system quality audit.",
+      href: "/quality-audit",
+      keywords: ["system quality audit", "quality audit", "bugs", "routes", "smoke", "coding mvp", "route"],
+      priority: 87.5,
     }),
     buildRouteCommand(availability, {
       id: "go-consolidation",
