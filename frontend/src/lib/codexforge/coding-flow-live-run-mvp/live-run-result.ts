@@ -1,0 +1,2 @@
+import type { LiveRunInput, LiveRunResult } from "./coding-flow-live-run-types";
+export function buildLiveRunResult(input: LiveRunInput): LiveRunResult { return input.validationStatus === "fail" ? { status: "fail", route: "/closed-loop", summary: "If failed, route to closed-loop." } : { status: input.validationStatus, route: "/workflow-results", summary: "Review workflow result, then send to run history." }; }

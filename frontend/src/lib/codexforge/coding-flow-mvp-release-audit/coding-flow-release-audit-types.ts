@@ -1,0 +1,9 @@
+export type ReleaseAuditStatus = "go" | "go-with-fixes" | "no-go" | "blocked";
+export type ReleaseAuditInputSource = { missingRoutes?: string[]; smokeCoverageOk?: boolean; uxSimpleEnough?: boolean };
+export type ReleaseAuditInput = { missingRoutes: string[]; smokeCoverageOk: boolean; uxSimpleEnough: boolean; latestMessageAuthorityPreserved: true };
+export type ReleaseAuditValidation = { ok: boolean; blockedReasons: string[]; warnings: string[] };
+export type ReleaseAuditCheck = { id: string; label: string; passed: boolean; detail: string };
+export type ReleaseAuditKnownGap = { id: string; label: string; severity: "low" | "medium" | "high" };
+export type ReleaseAuditGoNoGo = { status: ReleaseAuditStatus; topBlockers: string[]; reason: string };
+export type ReleaseAuditHandoff = { title: string; body: string; copyAllowed: true };
+export type ReleaseAuditSummary = { title: string; status: ReleaseAuditStatus; blockerCount: number; nextAction: string };

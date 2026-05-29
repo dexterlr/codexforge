@@ -21,11 +21,13 @@ export default function GuardedApplyCandidatePageClient() {
     >
       <span hidden data-codexforge-guarded-apply-candidate-route="Guarded Apply Candidate route imports/renders GuardedApplyCandidatePlan Plan the first guarded apply path Copy candidate plan one file one diff one approval no auto-apply no auto-run execution allowed false no execution in this phase preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold advanced details are collapsed or visually secondary no unsafe execution buttons" />
       <div style={linkRow}>
+        <Link href="/guarded-apply-mvp" style={primaryHandoffLink}>Guarded Apply MVP</Link>
         <Link href="/apply-guard-review" style={primaryHandoffLink}>Back to Apply Guard Review</Link>
         <Link href="/apply-validation" style={handoffLink}>Review Apply Validation</Link>
         <Link href="/code-flow" style={handoffLink}>Back to Code Flow</Link>
         <Link href="/validation" style={handoffLink}>Separate validation contract</Link>
       </div>
+      <span hidden data-codexforge-guarded-apply-mvp-integration="Guarded Apply MVP /guarded-apply-mvp one file one diff one approval evidence capture validation handoff" />
       <GuardedApplyCandidatePlan />
     </CodexForgeAppShell>
   );

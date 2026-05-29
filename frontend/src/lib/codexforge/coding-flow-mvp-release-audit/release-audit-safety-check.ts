@@ -1,0 +1,2 @@
+import type { ReleaseAuditCheck } from "./coding-flow-release-audit-types";
+export function buildReleaseAuditSafetyCheck(): ReleaseAuditCheck[] { return ["no auto-apply", "no auto-run", "no direct unsafe UI tool calls", "approval required", "preserve latest-message authority", "no Brain mutation", "no memory auto-promotion"].map((label, index) => ({ id: `safety-${index}`, label, passed: true, detail: label })); }

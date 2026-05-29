@@ -1,0 +1,2 @@
+import type { LiveRunHandoff, LiveRunResult, LiveRunStepState } from "./coding-flow-live-run-types";
+export function buildLiveRunHandoff(state: LiveRunStepState, result?: LiveRunResult): LiveRunHandoff { return { label: result?.status === "fail" ? "Open closed-loop" : state.primaryAction, href: result?.route ?? state.href, copyPayload: `${state.progressLabel}; no auto-apply; no auto-run; no hidden persistence.`, noUnsafeExecution: true }; }

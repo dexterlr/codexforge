@@ -1,0 +1,12 @@
+export type ValidationStatus = "pass" | "fail" | "unknown";
+export type ValidationCaptureInputSource = { commands?: string[]; output?: string; exitCode?: number | null; validationKind?: string };
+export type ValidationCaptureInput = { commands: string[]; output: string; exitCode: number | null; validationKind: string; manualPasteRequired: true; noAutoRunGuarantee: true };
+export type ValidationCommandCapture = { commands: string[]; capturedManually: true; noCommandExecution: true };
+export type ValidationOutputParser = { outputExcerpt: string; detectedErrorLines: string[]; detectedWarnings: string[]; truncatedOutput: boolean };
+export type ValidationPassFailSummary = { status: ValidationStatus; exitCode: number | null; reason: string };
+export type ValidationFailureRouting = { recommendedRoute: "/validation-results" | "/closed-loop" | "/workflow-results" | "/run-history" | "/apply-validation" | "/files"; reason: string };
+export type ValidationResultHandoff = { targetRoute: string; summary: string; copyAllowed: true };
+export type ValidationResultExport = { format: "markdown"; body: string; redacted: true };
+export type ValidationResultNextAction = { label: string; href: "/validation-results" | "/closed-loop" | "/workflow-results" | "/run-history" | "/apply-validation" | "/files"; copyPayload: string };
+export type ValidationResultCaptureSummary = { title: string; status: ValidationStatus; nextAction: string; errorCount: number; warningCount: number };
+export type ValidationCaptureValidation = { ok: boolean; blockedReasons: string[]; warnings: string[] };

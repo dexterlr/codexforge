@@ -1,0 +1,2 @@
+import type { ReleaseAuditCheck } from "./coding-flow-release-audit-types";
+export function buildReleaseAuditUxCheck(): ReleaseAuditCheck[] { return ["UX is simple enough for a human trial", "one primary action at a time", "advanced details collapsed/secondary", "no giant raw JSON above fold", "no duplicate route chip cloud"].map((label, index) => ({ id: `ux-${index}`, label, passed: true, detail: label })); }

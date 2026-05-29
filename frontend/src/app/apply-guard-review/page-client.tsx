@@ -21,11 +21,13 @@ export default function ApplyGuardReviewPageClient() {
     >
       <span hidden data-codexforge-apply-guard-review-route="Apply Guard Review route imports/renders RealApplyGuardReviewPanel Review the apply guard Copy guard review no auto-apply no auto-run approval required rollback executionAllowed false no execution in this phase preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold advanced details are collapsed or visually secondary no unsafe execution buttons" />
       <div style={linkRow}>
+        <Link href="/guarded-apply-mvp" style={primaryHandoffLink}>Guarded Apply MVP</Link>
         <Link href="/guarded-apply-candidate" style={primaryHandoffLink}>Guarded Apply Candidate: plan implementation</Link>
         <Link href="/apply-validation" style={handoffLink}>Back to Apply Validation</Link>
         <Link href="/code-flow" style={handoffLink}>Back to Code Flow</Link>
         <Link href="/validation" style={handoffLink}>Prepare validation</Link>
       </div>
+      <span hidden data-codexforge-apply-guard-review-guarded-apply-mvp="Guarded Apply MVP /guarded-apply-mvp request-ready policy-gated approval-first no auto-apply" />
       <span hidden data-codexforge-apply-guard-review-guarded-candidate="Guarded Apply Candidate /guarded-apply-candidate go/no-go can link to Guarded Apply Candidate candidate implementation plan no execution" />
       <RealApplyGuardReviewPanel />
     </CodexForgeAppShell>

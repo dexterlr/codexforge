@@ -1,0 +1,12 @@
+export type LiveRunStep = "start" | "pick-file" | "describe-change" | "preview-patch" | "review-apply-request" | "capture-apply-evidence" | "prepare-validation" | "capture-validation-result" | "review-workflow-result" | "send-to-run-history" | "closed-loop";
+export type LiveRunInputSource = { runId?: string; selectedFile?: string; changeDescription?: string; currentStep?: LiveRunStep; validationStatus?: "pass" | "fail" | "unknown" };
+export type LiveRunInput = { runId: string; selectedFile: string | null; changeDescription: string | null; currentStep: LiveRunStep; validationStatus: "pass" | "fail" | "unknown"; noAutoApply: true; noAutoRun: true; noHiddenPersistence: true; latestMessageAuthorityReminder: string };
+export type LiveRunValidation = { ok: boolean; blockedReasons: string[]; warnings: string[] };
+export type LiveRunStepState = { currentStep: LiveRunStep; progressLabel: string; primaryAction: string; href: string };
+export type LiveRunFileSelection = { selectedFile: string | null; route: "/files"; nextAction: string };
+export type LiveRunPatchPreview = { route: "/files"; previewRequired: true; summary: string };
+export type LiveRunApplyRequest = { route: "/guarded-apply-mvp"; approvalRequired: true; requestReadyOnly: true };
+export type LiveRunValidationStep = { route: "/validation-results"; noAutoRun: true; commands: string[] };
+export type LiveRunResult = { status: "pass" | "fail" | "unknown"; route: "/workflow-results" | "/closed-loop"; summary: string };
+export type LiveRunHandoff = { label: string; href: string; copyPayload: string; noUnsafeExecution: true };
+export type LiveRunSummary = { title: string; currentStep: LiveRunStep; selectedFile: string; nextAction: string; status: string };

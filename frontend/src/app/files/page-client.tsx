@@ -61,10 +61,14 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
         <Link href="/guarded-apply-candidate" style={handoffLink}>
           Guarded Apply Candidate: plan one-file guarded candidate without direct unsafe apply.
         </Link>
+        <Link href="/guarded-apply-mvp" style={handoffLink}>
+          Guarded Apply MVP: one file, one diff, one explicit approval, then validation handoff.
+        </Link>
         <div
           hidden
           data-codexforge-files-legacy-handoff-registry="FilesCommandCenter RealPatchPreviewPanel ApprovedPatchApplyPanel Apply Validation Hardening /apply-validation Apply Guard Review /apply-guard-review Guarded Apply Candidate /guarded-apply-candidate one-file guarded candidate Approved Patch Apply v1 Stabilization Command Center Apply-Diff Dry Run Simulate apply-diff dry run Apply-Diff Execution Gate Apply Evidence Pack Patch Application Gate Preview Diff Composer Patch Preview Queue Regression Fix Queue Regression Triage Grounded Fix Recommendation selected file context no mutation no auto-fix no auto-rollback Safe Patch Preview required current file verification required Real Patch Preview v1 preview-only no file writes no apply Approved Patch Apply approval required no command execution no direct apply-diff from UI no file writes without approval preserve latest-message authority"
         />
+        <span hidden data-codexforge-files-guarded-apply-mvp="Guarded Apply MVP /guarded-apply-mvp patch/apply handoff mention no auto-apply validation remains separate" />
         <span hidden data-codexforge-files-workflow-wizard="Back to wizard Continue code fix flow Code Flow Choose a file to inspect then preview changes safely Real Patch Preview panel can mention code flow no auto-apply" />
         <span hidden data-codexforge-files-product-simplification-copy="Inspect a file" />
       </div>

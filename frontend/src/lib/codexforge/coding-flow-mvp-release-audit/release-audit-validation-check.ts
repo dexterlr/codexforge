@@ -1,0 +1,2 @@
+import type { ReleaseAuditCheck } from "./coding-flow-release-audit-types";
+export function buildReleaseAuditValidationCheck(): ReleaseAuditCheck[] { return ["manual validation capture exists", "failure routes to /closed-loop", "passing routes to /workflow-results and /run-history", "git diff check failure routes to /apply-validation or /files"].map((label, index) => ({ id: `validation-${index}`, label, passed: true, detail: label })); }

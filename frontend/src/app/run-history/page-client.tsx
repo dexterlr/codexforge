@@ -21,11 +21,16 @@ export default function RunHistoryPageClient() {
     >
       <span hidden data-codexforge-run-history-route="Run History route imports/renders RunHistoryTimeline Review history Review latest run useful empty state compact filters not a debug event log Coding Trial trial run kind Review recent work capture handoffs and decide what to do next no auto-promotion no Brain auto-mutation no auto-persist into Brain review required preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
       <div style={linkRow}>
+        <Link href="/code-flow/live-run" style={primaryHandoffLink}>Run live coding flow</Link>
+        <Link href="/code-flow/release-audit" style={handoffLink}>Release Audit</Link>
+        <Link href="/apply-evidence" style={handoffLink}>Apply Evidence detail</Link>
+        <Link href="/validation-results" style={handoffLink}>Validation Result detail</Link>
         <Link href="/run-history" style={primaryHandoffLink}>Review latest run</Link>
         <Link href="/workflow-results" style={handoffLink}>Capture result</Link>
         <Link href="/code-flow/trial-review" style={handoffLink}>Trial Review</Link>
       </div>
       <span hidden data-codexforge-run-history-trial-review="Run History references Trial Review trial-review run kind/filter link to trial review no auto-persistence Coding Flow Trial Review" />
+      <span hidden data-codexforge-run-history-mvp="Run History references Coding Flow Live Run /code-flow/live-run Coding Flow MVP Release Audit /code-flow/release-audit apply evidence as run detail validation result capture as run detail" />
       <RunHistoryTimeline />
     </CodexForgeAppShell>
   );
