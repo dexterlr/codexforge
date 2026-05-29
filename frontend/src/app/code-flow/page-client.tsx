@@ -22,7 +22,9 @@ export default function CodeFlowPageClient() {
       <span hidden data-codexforge-code-flow-route="Code Flow route imports/renders RealCodingFlowPanel Fix code safely Pick a file Preview patch Review before apply Review apply guard Apply Guard Review /apply-guard-review Guarded Apply Candidate /guarded-apply-candidate first guarded apply candidate path Run checks Review result Apply Validation Hardening /apply-validation no auto-apply no auto-run approval required preview first preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
       <div style={linkRow}>
         <Link href="/code-flow/live-run" style={primaryHandoffLink}>Run live coding flow</Link>
+        <Link href="/code-flow/mvp-path" style={primaryHandoffLink}>Open Coding MVP Path</Link>
         <Link href="/code-flow/release-audit" style={handoffLink}>Audit coding MVP</Link>
+        <Link href="/code-flow/manual-trial" style={handoffLink}>Run manual coding trial</Link>
         <Link href="/guarded-apply-mvp" style={handoffLink}>Guarded Apply MVP</Link>
         <Link href="/files" style={primaryHandoffLink}>Continue code flow: pick a file</Link>
         <Link href="/guarded-apply-candidate" style={handoffLink}>Plan guarded apply candidate</Link>
@@ -32,7 +34,7 @@ export default function CodeFlowPageClient() {
         <Link href="/code-flow/ux-fixes" style={handoffLink}>Coding UX fixes</Link>
         <Link href="/code-flow/trial" style={handoffLink}>Coding trial</Link>
       </div>
-      <span hidden data-codexforge-code-flow-live-run-mvp="Coding Flow Live Run MVP /code-flow/live-run Run the coding flow Guarded Apply MVP /guarded-apply-mvp Apply Evidence /apply-evidence Validation Result Capture /validation-results Coding flow MVP audit /code-flow/release-audit" />
+      <span hidden data-codexforge-code-flow-live-run-mvp="Coding Flow Live Run MVP /code-flow/live-run Run the coding flow guided path Guarded Apply MVP /guarded-apply-mvp Apply Evidence /apply-evidence Validation Result Capture /validation-results Coding flow MVP audit /code-flow/release-audit Manual Trial /code-flow/manual-trial MVP Working Path /code-flow/mvp-path" />
       <span hidden data-codexforge-code-flow-workflow-results="Coding Trial Try guided trial result step can link to /workflow-results completion can prepare result record handoff passing/failing status can route through workflow results completion/result step can link to /run-history no auto-persistence Workflow Results Run History" />
       <span hidden data-codexforge-code-flow-trial-review="Coding Flow references Trial Review /code-flow/trial-review manual trial run review notes friction pass/fail checklist go/no-go no auto-persistence" />
       <RealCodingFlowPanel />

@@ -1,0 +1,9 @@
+export type MvpPathStep = { id: string; order: number; route: string; label: string; primaryAction: string; advanced: boolean };
+export type MvpPathDefinition = { title: string; steps: MvpPathStep[]; canonical: true };
+export type MvpPathRouteMap = { routes: string[]; advancedRoutesSecondary: true; noDuplicateRouteClouds: true };
+export type MvpPathSafetyLock = { noAutoApply: true; noAutoRun: true; approvalRequired: true; commandWriteApplySeparate: true; latestMessageAuthority: true };
+export type MvpPathValidationLock = { manualValidation: true; approvedRunnerBoundaryOnly: true; commands: string[] };
+export type MvpPathNavigationLock = { commandPaletteLabel: "Open Coding MVP Path"; primaryRoute: "/code-flow/mvp-path"; wizardAgrees: true };
+export type MvpPathRegressionLock = { smokeScripts: string[]; protectedRoutes: string[] };
+export type MvpPathHandoff = { title: string; copyMap: string; hrefs: string[]; noUnsafeExecution: true };
+export type MvpWorkingPathSummary = { title: string; stepCount: number; nextAction: string; safety: string };

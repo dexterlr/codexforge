@@ -1,0 +1,11 @@
+export type ManualTrialStatus = "not-started" | "in-progress" | "pass" | "fail" | "blocked";
+export type ManualTrialScenario = { id: string; title: string; route: string; safeFileCategory: string; blockedCategories: string[]; plainEnglishChange: string; safetyNotes: string[] };
+export type ManualTrialSafeChange = { id: string; filePattern: string; allowed: boolean; reason: string; disallowed: string[] };
+export type ManualTrialStep = { id: string; order: number; title: string; route: string; primaryAction: string; operatorNote: string };
+export type ManualTrialStepRunner = { title: string; steps: ManualTrialStep[]; noAutoApply: true; noAutoRun: true; approvalRequired: true };
+export type ManualTrialObservationCapture = { prompts: string[]; copyTemplate: string; latestMessageAuthorityReminder: string };
+export type ManualTrialValidationCapture = { commands: string[]; outputRequired: true; noAutoRun: true; copyTemplate: string };
+export type ManualTrialResultRecord = { scenarioId: string; status: ManualTrialStatus; observations: string[]; validationOutput: string; evidenceSupplied: boolean; approvalReviewed: boolean };
+export type ManualTrialTroubleshooting = { blockers: string[]; nextFixPrompts: string[]; failureRoutes: string[] };
+export type ManualTrialHandoff = { title: string; hrefs: string[]; copyReport: string; noUnsafeExecution: true };
+export type LiveManualTrialSummary = { title: string; scenarioCount: number; stepCount: number; status: ManualTrialStatus; nextAction: string };

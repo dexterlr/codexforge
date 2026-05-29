@@ -1,0 +1,4 @@
+"use client";
+import type { FrictionFinding } from "../trial-friction-fix-types";
+import { copy, eyebrow, list, panel, title } from "./FrictionFixStyles";
+export function FrictionFindingPanel({ findings }: { findings: FrictionFinding[] }) { return <section style={panel} data-codexforge-friction-finding="FrictionFindingPanel renders unclear next step too many panels wording too technical validation unclear apply blocked unclear route handoff confusing safety warning noisy empty state unhelpful result capture unclear manual trial hard to follow"><span style={eyebrow}>Findings</span><h2 style={title}>Trial friction</h2><ul style={list}>{findings.map((finding) => <li key={finding.id}>{finding.priority}: {finding.route} - {finding.category}. <span style={copy}>{finding.note}</span></li>)}</ul></section>; }

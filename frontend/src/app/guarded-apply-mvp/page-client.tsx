@@ -11,6 +11,7 @@ export default function GuardedApplyMvpPageClient() {
       <span hidden data-codexforge-guarded-apply-mvp-route="Guarded Apply MVP route imports/renders GuardedApplyMvpPanel Guarded apply MVP One file, one diff, one approval, then validate separately. Review apply request no auto-apply no auto-run approval required preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold advanced details are collapsed or visually secondary no unsafe execution buttons" />
       <div style={linkRow}>
         <Link href="/code-flow/live-run" style={primaryHandoffLink}>Back to live run</Link>
+        <Link href="/code-flow/friction-fixes" style={handoffLink}>Fix trial friction</Link>
         <Link href="/apply-evidence" style={handoffLink}>Capture apply evidence</Link>
         <Link href="/validation-results" style={handoffLink}>Capture validation result</Link>
       </div>
