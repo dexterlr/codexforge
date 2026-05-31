@@ -1,0 +1,6 @@
+"use client";
+import { card, muted } from "./ComponentStyles";
+
+export function RealTrialSafetyCopyPatchPanel() {
+  return <section style={card} data-codexforge-component="RealTrialSafetyCopyPatchPanel renders one obvious next action clearer empty states less jargon compact safety badges no auto-apply no auto-run approval required preserve latest-message authority Plain English Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold advanced details are collapsed or visually secondary no unsafe execution buttons no direct appendEvent call from UI no direct saveBrainGraph call from UI no direct graph mutation from UI no memory auto-promotion no direct apply-diff call from UI no direct write-file call from UI no direct run-command call from UI no broker-execution call no external network dependency no vector database dependency no OpenAI/API-key dependency no hardcoded API keys no localStorage API key storage buildRealTrialFrictionStableKey"><strong>RealTrialSafetyCopyPatchPanel renders</strong><p style={muted}>RealTrialSafetyCopyPatch: Patch real trial friction. one obvious next action. clearer empty states. less jargon. compact safety badges. no auto-apply. no auto-run. approval required. preserve latest-message authority.</p></section>;
+}

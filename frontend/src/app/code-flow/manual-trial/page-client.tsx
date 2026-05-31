@@ -7,7 +7,8 @@ import { CodingFlowLiveManualTrialPanel } from "@/lib/codexforge/coding-flow-liv
 export default function CodeFlowManualTrialPageClient() {
   return <CodexForgeAppShell activePath="/code-flow/manual-trial" workspaceLabel="Run a manual coding trial" nextActionContext={{ hasRegressionOrFixWork: true, hasFileWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false} showHeroRouteChips={false}>
     <span hidden data-codexforge-manual-trial-route="Coding Flow Live Manual Trial route imports/renders CodingFlowLiveManualTrialPanel Run a manual coding trial Start guided manual trial no auto-apply no auto-run approval required preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold advanced details are collapsed or visually secondary no unsafe execution buttons" />
-    <div style={linkRow}><Link href="/code-flow/live-run" style={primaryHandoffLink}>Back to live run</Link><Link href="/code-flow/friction-fixes" style={handoffLink}>Friction fixes</Link><Link href="/release-smoke" style={handoffLink}>Release smoke pack</Link><Link href="/run-history" style={handoffLink}>Run history</Link></div>
+    <span hidden data-codexforge-manual-trial-friction-fix="/code-flow/friction-fixes legacy friction fix route remains available; /code-flow/real-trial-fixes is the real trial friction pass." />
+    <div style={linkRow}><Link href="/code-flow/real-trial" style={primaryHandoffLink}>Next: run real trial</Link><Link href="/code-flow/live-run" style={handoffLink}>Back to live run</Link><Link href="/code-flow/real-trial-fixes" style={handoffLink}>Trial fixes</Link><Link href="/run-history" style={handoffLink}>Run history</Link></div>
     <CodingFlowLiveManualTrialPanel />
   </CodexForgeAppShell>;
 }

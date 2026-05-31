@@ -50,7 +50,7 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
     >
       <div style={handoffBand}>
         <Link href="/guarded-apply-mvp" style={primaryHandoffLink}>
-          Next: preview patch and review apply request.
+          Next: review one safe apply request.
         </Link>
         <Link href="/code-flow/live-run" style={handoffLink}>
           Back to live run.

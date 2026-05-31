@@ -6,7 +6,7 @@ import { CodingFlowMvpReleaseAuditPanel } from "@/lib/codexforge/coding-flow-mvp
 export default function CodeFlowReleaseAuditPageClient() {
   return <CodexForgeAppShell activePath="/code-flow/release-audit" workspaceLabel="Coding flow MVP audit" nextActionContext={{ hasRegressionOrFixWork: true, hasFileWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarBadges={false} showSidebarSafetyNotice={false} showHeroRouteChips={false}>
     <span hidden data-codexforge-release-audit-route="Coding Flow MVP Release Audit route imports/renders CodingFlowMvpReleaseAuditPanel Coding flow MVP audit Copy release audit go safe manual/operator-guided MVP ready no auto-apply no auto-run approval required preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap no giant raw JSON above fold advanced details are collapsed or visually secondary no unsafe execution buttons" />
-    <div style={linkRow}><Link href="/run-history" style={primaryHandoffLink}>Back to run history</Link><Link href="/code-flow/live-run" style={handoffLink}>Back to live run</Link><Link href="/workflow-results" style={handoffLink}>Review result</Link><Link href="/release-smoke" style={handoffLink}>Release smoke pack</Link></div>
+    <div style={linkRow}><Link href="/code-flow/rc" style={primaryHandoffLink}>Next: RC gate</Link><Link href="/run-history" style={handoffLink}>Run history</Link><Link href="/workflow-results" style={handoffLink}>Review result</Link><Link href="/release-smoke" style={handoffLink}>Smoke pack</Link></div>
     <CodingFlowMvpReleaseAuditPanel />
   </CodexForgeAppShell>;
 }

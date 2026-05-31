@@ -157,5 +157,12 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Guarded Creative Executor"; File = "smoke-codexforge-guarded-creative-executor.ps1"; Required = $true },
   @{ Name = "Blender Adapter Preview"; File = "smoke-codexforge-blender-adapter-preview.ps1"; Required = $true },
   @{ Name = "Unreal Adapter Preview"; File = "smoke-codexforge-unreal-adapter-preview.ps1"; Required = $true },
-  @{ Name = "ComfyUI Adapter Preview"; File = "smoke-codexforge-comfyui-adapter-preview.ps1"; Required = $true }
+  @{ Name = "ComfyUI Adapter Preview"; File = "smoke-codexforge-comfyui-adapter-preview.ps1"; Required = $true },
+  @{ Name = "Real Manual MVP Trial"; File = "smoke-codexforge-real-manual-mvp-trial.ps1"; Required = $true },
+  @{ Name = "Real Trial Friction Patch"; File = "smoke-codexforge-real-trial-friction-patch.ps1"; Required = $true },
+  @{ Name = "Guarded Apply MVP Hardening"; File = "smoke-codexforge-guarded-apply-mvp-hardening.ps1"; Required = $true },
+  @{ Name = "Validation Capture Hardening"; File = "smoke-codexforge-validation-capture-hardening.ps1"; Required = $true },
+  @{ Name = "First Successful Coding Run"; File = "smoke-codexforge-first-successful-coding-run.ps1"; Required = $true },
+  @{ Name = "Coding MVP Release Candidate"; File = "smoke-codexforge-coding-mvp-release-candidate.ps1"; Required = $true },
+  @{ Name = "MVP Polish Demo Final"; File = "smoke-codexforge-mvp-polish-demo-final.ps1"; Required = $true }
 )
