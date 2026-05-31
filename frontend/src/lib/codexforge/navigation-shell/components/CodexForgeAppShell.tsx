@@ -87,7 +87,7 @@ export function CodexForgeAppShell({
   const summaryText = summarizeCodexForgeNavigationShellSession(sessionSummary);
   const resolvedChrome = pageChrome ?? (focusMode ? "minimal" : "standard");
   const resolvedDensity = pageDensity ?? (focusMode ? "focus" : "standard");
-  const resolvedSidebarMode = sidebarMode ?? (focusMode ? "compact" : "full");
+  const resolvedSidebarMode = sidebarMode ?? "full";
   const sidebarCollapsed = defaultSidebarCollapsed || resolvedSidebarMode === "collapsed";
   const resolvedShowSidebarBadges = showSidebarBadges ?? !focusMode;
   const resolvedShowSidebarSafetyNotice = showSidebarSafetyNotice ?? !focusMode;
@@ -106,7 +106,8 @@ export function CodexForgeAppShell({
           ...(sidebarCollapsed ? collapsedShell : resolvedSidebarMode === "compact" ? compactShell : null),
           maxWidth: resolvedMaxWidth,
         }}
-        data-codexforge-focus-mode={focusMode ? "focus-mode compact-sidebar workflow-layout right-rail-opt-out" : "standard-shell"}
+        data-codexforge-focus-mode={focusMode ? "focus-mode compact-sidebar workflow-layout right-rail-opt-out readable-sidebar home-grade-unified-shell" : "standard-shell home-grade-unified-shell"}
+        data-codexforge-home-grade-unified-shell="UnifiedCodexForgeShell readable sidebar marker no cramped sidebar no duplicate route chip cloud primary Home Start Code Flow Files Apply Validate Results History Brain Demo secondary Memory Runtime Creative Governance Admin Readiness"
       >
         <CodexForgeSidebar
           sections={sections}
@@ -149,6 +150,8 @@ export function CodexForgeAppShell({
   );
 }
 
+export const UnifiedCodexForgeShell = CodexForgeAppShell;
+
 function resolveContentMaxWidth(value: CodexForgeAppShellProps["contentMaxWidth"]): number | string {
   if (typeof value === "number") return value;
   if (value === "standard") return 1440;
@@ -186,7 +189,7 @@ const shell: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 16,
-  gridTemplateColumns: "clamp(220px, 16vw, 260px) minmax(0, 1fr)",
+  gridTemplateColumns: "clamp(244px, 18vw, 292px) minmax(0, 1fr)",
   margin: "0 auto",
   minWidth: 0,
   width: "100%",

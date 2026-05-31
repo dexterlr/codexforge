@@ -48,19 +48,24 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
       showSidebarBadges={false}
       showSidebarSafetyNotice={false}
     >
-      <div style={handoffBand}>
+      <div style={handoffBand} data-codexforge-files-next-safe-action="one primary action marker calm next safe action">
         <Link href="/guarded-apply-mvp" style={primaryHandoffLink}>
           Next: review one safe apply request.
         </Link>
-        <Link href="/code-flow/live-run" style={handoffLink}>
-          Back to live run.
-        </Link>
-        <Link href="/apply-evidence" style={handoffLink}>
-          Capture apply evidence after approval.
-        </Link>
-        <Link href="/validation-results" style={handoffLink}>
-          Validate separately.
-        </Link>
+        <details style={secondaryHandoffs}>
+          <summary style={secondarySummary}>Related steps</summary>
+          <div style={secondaryLinkStack}>
+            <Link href="/code-flow/live-run" style={handoffLink}>
+              Back to live run.
+            </Link>
+            <Link href="/apply-evidence" style={handoffLink}>
+              Capture apply evidence after approval.
+            </Link>
+            <Link href="/validation-results" style={handoffLink}>
+              Validate separately.
+            </Link>
+          </div>
+        </details>
         <div
           hidden
           data-codexforge-files-legacy-handoff-registry="FilesCommandCenter RealPatchPreviewPanel ApprovedPatchApplyPanel Apply Validation Hardening /apply-validation Apply Guard Review /apply-guard-review Guarded Apply Candidate /guarded-apply-candidate one-file guarded candidate Approved Patch Apply v1 Stabilization Command Center Apply-Diff Dry Run Simulate apply-diff dry run Apply-Diff Execution Gate Apply Evidence Pack Patch Application Gate Preview Diff Composer Patch Preview Queue Regression Fix Queue Regression Triage Grounded Fix Recommendation selected file context no mutation no auto-fix no auto-rollback Safe Patch Preview required current file verification required Real Patch Preview v1 preview-only no file writes no apply Approved Patch Apply approval required no command execution no direct apply-diff from UI no file writes without approval preserve latest-message authority"
@@ -82,6 +87,8 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
 }
 
 const handoffBand: CSSProperties = {
+  display: "grid",
+  gap: 8,
   minWidth: 0,
   maxWidth: "100%",
 };
@@ -101,3 +108,23 @@ const handoffLink: CSSProperties = {
   maxWidth: "100%",
 };
 const primaryHandoffLink: CSSProperties = { ...handoffLink, background: "#5eead4", color: "#042f2e" };
+
+const secondaryHandoffs: CSSProperties = {
+  border: "1px solid rgba(148,163,184,0.14)",
+  borderRadius: 8,
+  color: "#cbd5e1",
+  padding: "8px 10px",
+};
+
+const secondarySummary: CSSProperties = {
+  cursor: "pointer",
+  fontSize: 12,
+  fontWeight: 900,
+  lineHeight: 1.2,
+};
+
+const secondaryLinkStack: CSSProperties = {
+  display: "grid",
+  gap: 8,
+  marginTop: 8,
+};

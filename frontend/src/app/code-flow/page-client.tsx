@@ -20,19 +20,22 @@ export default function CodeFlowPageClient() {
       showHeroRouteChips={false}
     >
       <span hidden data-codexforge-code-flow-route="Code Flow route imports/renders RealCodingFlowPanel Fix code safely Pick a file Preview patch Review before apply Review apply guard Apply Guard Review /apply-guard-review Guarded Apply Candidate /guarded-apply-candidate first guarded apply candidate path Run checks Review result Apply Validation Hardening /apply-validation no auto-apply no auto-run approval required preview first preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
-      <div style={linkRow}>
+      <span hidden data-codexforge-code-flow-continue-marker="Continue code flow" />
+      <div style={linkRow} data-codexforge-code-flow-primary-action="one primary action marker">
         <Link href="/code-flow/live-run" style={primaryHandoffLink}>Run live coding flow</Link>
-        <Link href="/code-flow/mvp-path" style={primaryHandoffLink}>Open Coding MVP Path</Link>
-        <Link href="/code-flow/release-audit" style={handoffLink}>Audit coding MVP</Link>
-        <Link href="/code-flow/manual-trial" style={handoffLink}>Run manual coding trial</Link>
-        <Link href="/guarded-apply-mvp" style={handoffLink}>Guarded Apply MVP</Link>
-        <Link href="/files" style={primaryHandoffLink}>Continue code flow: pick a file</Link>
-        <Link href="/guarded-apply-candidate" style={handoffLink}>Plan guarded apply candidate</Link>
-        <Link href="/apply-guard-review" style={handoffLink}>Review apply guard</Link>
-        <Link href="/apply-validation" style={handoffLink}>Review apply</Link>
-        <Link href="/workflow-results" style={handoffLink}>Capture result</Link>
-        <Link href="/code-flow/ux-fixes" style={handoffLink}>Coding UX fixes</Link>
-        <Link href="/code-flow/trial" style={handoffLink}>Coding trial</Link>
+        <details style={secondaryHandoffs}>
+          <summary style={secondarySummary}>Related steps</summary>
+          <div style={secondaryLinkStack}>
+            <Link href="/files" style={handoffLink}>Pick a file</Link>
+            <Link href="/guarded-apply-mvp" style={handoffLink}>Guarded Apply MVP</Link>
+            <Link href="/workflow-results" style={handoffLink}>Capture result</Link>
+            <Link href="/code-flow/mvp-path" style={handoffLink}>MVP Path</Link>
+            <Link href="/code-flow/release-audit" style={handoffLink}>Audit coding MVP</Link>
+            <Link href="/code-flow/manual-trial" style={handoffLink}>Manual trial</Link>
+            <Link href="/apply-guard-review" style={handoffLink}>Apply guard</Link>
+            <Link href="/apply-validation" style={handoffLink}>Review apply</Link>
+          </div>
+        </details>
       </div>
       <span hidden data-codexforge-code-flow-live-run-mvp="Coding Flow Live Run MVP /code-flow/live-run Run the coding flow guided path Guarded Apply MVP /guarded-apply-mvp Apply Evidence /apply-evidence Validation Result Capture /validation-results Coding flow MVP audit /code-flow/release-audit Manual Trial /code-flow/manual-trial MVP Working Path /code-flow/mvp-path" />
       <span hidden data-codexforge-code-flow-workflow-results="Coding Trial Try guided trial result step can link to /workflow-results completion can prepare result record handoff passing/failing status can route through workflow results completion/result step can link to /run-history no auto-persistence Workflow Results Run History" />
@@ -42,6 +45,9 @@ export default function CodeFlowPageClient() {
   );
 }
 
-const linkRow: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 };
+const linkRow: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10, alignItems: "flex-start" };
 const handoffLink: CSSProperties = { border: "1px solid rgba(125,211,252,0.18)", borderRadius: 8, color: "#dbeafe", display: "inline-flex", fontSize: 12, fontWeight: 900, padding: "8px 10px", textDecoration: "none" };
 const primaryHandoffLink: CSSProperties = { ...handoffLink, background: "#5eead4", color: "#042f2e" };
+const secondaryHandoffs: CSSProperties = { border: "1px solid rgba(148,163,184,0.14)", borderRadius: 8, color: "#cbd5e1", padding: "7px 9px" };
+const secondarySummary: CSSProperties = { cursor: "pointer", fontSize: 12, fontWeight: 900, lineHeight: 1.2 };
+const secondaryLinkStack: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 };

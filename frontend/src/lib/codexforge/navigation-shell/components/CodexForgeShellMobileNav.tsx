@@ -10,24 +10,33 @@ export function CodexForgeShellMobileNav({
   activeHref: string;
 }) {
   return (
-    <details
-      data-codexforge-shell-mobile-nav="CodexForgeShellMobileNav renders responsive command-deck navigation"
-      style={details}
-    >
-      <summary style={summary}>Routes</summary>
-      <nav aria-label="CodexForge mobile navigation" style={nav}>
-        {routes.map((route) => (
-          <Link
-            key={`mobile-${route.href}`}
-            href={route.href}
-            aria-current={route.href === activeHref ? "page" : undefined}
-            style={route.href === activeHref ? activeLink : link}
-          >
-            {route.label}
-          </Link>
-        ))}
-      </nav>
-    </details>
+    <>
+      <style>{`
+        @media (min-width: 860px) {
+          [data-codexforge-shell-mobile-nav] {
+            display: none !important;
+          }
+        }
+      `}</style>
+      <details
+        data-codexforge-shell-mobile-nav="CodexForgeShellMobileNav renders responsive command-deck navigation only on compact screens; desktop shell avoids duplicate top Routes clutter"
+        style={details}
+      >
+        <summary style={summary}>Routes</summary>
+        <nav aria-label="CodexForge mobile navigation" style={nav}>
+          {routes.map((route) => (
+            <Link
+              key={`mobile-${route.href}`}
+              href={route.href}
+              aria-current={route.href === activeHref ? "page" : undefined}
+              style={route.href === activeHref ? activeLink : link}
+            >
+              {route.shortLabel}
+            </Link>
+          ))}
+        </nav>
+      </details>
+    </>
   );
 }
 
@@ -79,4 +88,3 @@ const activeLink: CSSProperties = {
   background: "rgba(20,184,166,0.12)",
   color: "#ccfbf1",
 };
-

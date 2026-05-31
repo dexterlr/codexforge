@@ -98,6 +98,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "UI"; File = "smoke-codexforge-ui.ps1"; Required = $true },
   @{ Name = "Operator Home Dashboard"; File = "smoke-codexforge-operator-home-dashboard.ps1"; Required = $true },
   @{ Name = "Navigation Shell"; File = "smoke-codexforge-navigation-shell.ps1"; Required = $true },
+  @{ Name = "Home Grade Unified Shell"; File = "smoke-codexforge-home-grade-unified-shell.ps1"; Required = $true },
   @{ Name = "Command UI Simplification"; File = "smoke-codexforge-command-ui-simplification.ps1"; Required = $true },
   @{ Name = "UX Unification"; File = "smoke-codexforge-ux-unification.ps1"; Required = $true },
   @{ Name = "UX Layout Rescue"; File = "smoke-codexforge-ux-layout-rescue.ps1"; Required = $true },

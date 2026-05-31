@@ -40,6 +40,7 @@ export {
 
 export {
   CodexForgeAppShell,
+  UnifiedCodexForgeShell,
   buildCodexForgeShellStableKey,
 } from "./components/CodexForgeAppShell";
 export { CodexForgeSidebar } from "./components/CodexForgeSidebar";
