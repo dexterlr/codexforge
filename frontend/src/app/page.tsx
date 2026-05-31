@@ -23,6 +23,9 @@ const OPERATOR_HOME_ROUTES = [
   "/quality-audit",
   "/stabilization",
   "/history",
+  "/product-trial",
+  "/runbook",
+  "/mvp-experience",
 ] as const;
 const OPERATOR_HOME_PRODUCT_NAME = "CodexForge";
 
@@ -50,6 +53,9 @@ const SURFACE_MAP: readonly HomeSurfaceMapItem[] = [
   { path: "/handoff", label: "Handoff" },
   { path: "/brain", label: "Brain Command Center" },
   { path: "/history", label: "History" },
+  { path: "/product-trial", label: "Manual Product Trial" },
+  { path: "/runbook", label: "Operator Runbook" },
+  { path: "/mvp-experience", label: "MVP Experience Lock" },
   { path: "/ai", label: "AI Workspace" },
   { path: "/clawd", label: "Operator" },
   { path: "/entry", label: "Quick Launch" },

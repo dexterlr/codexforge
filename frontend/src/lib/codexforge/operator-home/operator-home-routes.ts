@@ -23,6 +23,9 @@ const DEFAULT_ROUTE_AVAILABILITY: OperatorHomeRouteAvailability = {
   "/consolidation": true,
   "/handoff": true,
   "/stabilization": true,
+  "/product-trial": true,
+  "/runbook": true,
+  "/mvp-experience": true,
 };
 
 const ROUTE_ORDER: OperatorHomeRoutePath[] = [
@@ -46,6 +49,9 @@ const ROUTE_ORDER: OperatorHomeRoutePath[] = [
   "/handoff",
   "/stabilization",
   "/history",
+  "/product-trial",
+  "/runbook",
+  "/mvp-experience",
 ];
 
 type RouteDefinition = {
@@ -300,6 +306,39 @@ const ROUTE_DEFINITIONS: Record<OperatorHomeRoutePath, RouteDefinition> = {
     nextAction: "Review recent operator workflow context.",
     badge: "History",
     requiredReview: false,
+  },
+  "/product-trial": {
+    href: "/product-trial",
+    label: "Manual Product Trial",
+    description: "Manual MVP path trial for route checks, friction capture, validation, result, and demo handoff.",
+    domain: "operator-home",
+    readiness: "needs-review",
+    riskPosture: "preview-only",
+    nextAction: "Run the product trial manually and record real friction before demo review.",
+    badge: "Trial",
+    requiredReview: true,
+  },
+  "/runbook": {
+    href: "/runbook",
+    label: "Operator Runbook",
+    description: "Recovery and rollback playbook for running, validating, and demoing the coding MVP.",
+    domain: "operator-home",
+    readiness: "ready",
+    riskPosture: "readonly",
+    nextAction: "Use the runbook before retrying blocked, failed, or unclear runs.",
+    badge: "Runbook",
+    requiredReview: false,
+  },
+  "/mvp-experience": {
+    href: "/mvp-experience",
+    label: "MVP Experience Lock",
+    description: "Final route, copy, navigation, safety, and release demo readiness review.",
+    domain: "operator-home",
+    readiness: "needs-review",
+    riskPosture: "preview-only",
+    nextAction: "Copy the release demo handoff after manual trial evidence is reviewed.",
+    badge: "Lock",
+    requiredReview: true,
   },
 };
 

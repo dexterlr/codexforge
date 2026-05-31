@@ -32,7 +32,10 @@ export type OperatorHomeRoutePath =
   | "/consolidation"
   | "/handoff"
   | "/stabilization"
-  | "/history";
+  | "/history"
+  | "/product-trial"
+  | "/runbook"
+  | "/mvp-experience";
 
 export type OperatorHomeRouteDomain =
   | "operator-home"
