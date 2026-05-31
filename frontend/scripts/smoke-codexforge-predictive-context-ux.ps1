@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -89,8 +89,9 @@ foreach ($marker in @("fetch", "XMLHttpRequest", "WebSocket", "OpenAI", "API-key
   Assert-NotContains $newPredictiveSources $marker "network/API marker absent: $marker"
 }
 
-foreach ($marker in @("ÃƒÂ¢", "ÃƒÆ’", "Ãƒâ€š", "Ã¯Â¿Â½")) {
-  Assert-NotContains ($newPredictiveSources + $brainPageSource) $marker "mojibake marker absent: $marker"
+foreach ($markerCode in @(0x00C3, 0x0192, 0x00C2, 0xFFFD)) {
+  $marker = [string][char]$markerCode
+  Assert-NotContains ($newPredictiveSources + $brainPageSource) $marker "mojibake marker absent: U+$($markerCode.ToString("X4"))"
 }
 
 $suiteMatches = [regex]::Matches($allSmokeSource, "smoke-codexforge-predictive-context-ux\.ps1")

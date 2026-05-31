@@ -1,12 +1,15 @@
 param(
-  [string]$BaseUrl = "http://localhost:3000"
+  [string]$BaseUrl = "http://localhost:3000",
+  [switch]$Interactive,
+  [switch]$ContinueOnMissingOptional,
+  [switch]$StopOnFirstFailure
 )
 
 $ErrorActionPreference = "Stop"
 $scriptRoot = $PSScriptRoot
 . (Join-Path $scriptRoot "codexforge-smoke-runner.ps1")
 
-Invoke-CodexForgeSmokeGroup -GroupName "Execution Suite" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Scripts @(
+Invoke-CodexForgeSmokeGroup -GroupName "Execution Suite" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts @(
   @{ Name = "Operator Run Center"; File = "smoke-codexforge-operator-run-center.ps1"; Required = $true },
   @{ Name = "AI Router"; File = "smoke-codexforge-ai-router.ps1"; Required = $true },
   @{ Name = "Execution Readiness"; File = "smoke-codexforge-execution-readiness.ps1"; Required = $true },

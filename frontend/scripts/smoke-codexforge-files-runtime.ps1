@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -119,8 +119,9 @@ foreach ($marker in @("applyPatch", "prepareApply", "writeFile", "appendFile", "
 
 Assert-NotMatches $allFilesSource 'from\s+["''][^"'']*brain-graph["'']' "legacy brain-graph import absent"
 
-foreach ($marker in @("ÃƒÂ¢", "ÃƒÆ’", "Ãƒâ€š", "Ã¯Â¿Â½")) {
-  Assert-NotContains $allFilesSource $marker "mojibake marker absent: $marker"
+foreach ($markerCode in @(0x00C3, 0x0192, 0x00C2, 0xFFFD)) {
+  $marker = [string][char]$markerCode
+  Assert-NotContains $allFilesSource $marker "mojibake marker absent: U+$($markerCode.ToString("X4"))"
 }
 
 $suiteMatches = [regex]::Matches($allSmokeSource, "smoke-codexforge-files-runtime\.ps1")

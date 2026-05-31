@@ -1,12 +1,15 @@
 param(
-  [string]$BaseUrl = "http://localhost:3000"
+  [string]$BaseUrl = "http://localhost:3000",
+  [switch]$Interactive,
+  [switch]$ContinueOnMissingOptional,
+  [switch]$StopOnFirstFailure
 )
 
 $ErrorActionPreference = "Stop"
 $scriptRoot = $PSScriptRoot
 . (Join-Path $scriptRoot "codexforge-smoke-runner.ps1")
 
-Invoke-CodexForgeSmokeGroup -GroupName "Core" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Scripts @(
+Invoke-CodexForgeSmokeGroup -GroupName "Core" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts @(
   @{ Name = "Global Navigation"; File = "smoke-codexforge-global-navigation.ps1"; Required = $true },
   @{ Name = "Header Dedupe"; File = "smoke-codexforge-header-dedupe.ps1"; Required = $true },
   @{ Name = "Product Surface UI"; File = "smoke-codexforge-product-surface-ui.ps1"; Required = $true },

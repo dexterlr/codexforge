@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -135,7 +135,8 @@ foreach ($marker in @("writeFile", "appendFile", "unlink", "rm(", "rmdir", "mkdi
   Assert-NotContains $contextSources $marker "no mutation/process marker $marker"
 }
 
-foreach ($marker in @("ÃƒÂ¢", "ÃƒÆ’", "Ãƒâ€š", "Ã¯Â¿Â½")) {
+foreach ($markerCode in @(0x00C3, 0x0192, 0x00C2, 0xFFFD)) {
+  $marker = [string][char]$markerCode
   Assert-NotContains $contextSources $marker "no mojibake marker $marker"
 }
 

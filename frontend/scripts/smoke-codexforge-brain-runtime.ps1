@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -160,8 +160,9 @@ foreach ($marker in @("Pinecone", "Chroma", "Weaviate", "Qdrant", "Milvus", "FAI
 foreach ($marker in @("fetch(", "XMLHttpRequest", "WebSocket", "OpenAI", "API-key", "apiKey")) {
   Assert-NotContains $selfAwarenessSource $marker "self-awareness external network/API marker absent: $marker"
 }
-foreach ($marker in @("â", "Ã", "Â", "�")) {
-  Assert-NotContains $selfAwarenessSource $marker "self-awareness mojibake marker absent: $marker"
+foreach ($markerCode in @(0x00C3, 0x0192, 0x00C2, 0xFFFD)) {
+  $marker = [string][char]$markerCode
+  Assert-NotContains $selfAwarenessSource $marker "self-awareness mojibake marker absent: U+$($markerCode.ToString("X4"))"
 }
 
 $pageClientPath = "src\app\brain\page-client.tsx"

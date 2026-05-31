@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -169,8 +169,14 @@ Assert-NotContains $allCapability "Date.now" "Date.now for layout"
 Assert-NotContains $allUi "d3-force" "d3-force"
 Assert-NotContains $allUi "fetch(" "external network dependency"
 Assert-NotContains $allCapability "vector" "vector database dependency"
-Assert-NotContains $allCapability "�" "mojibake"
-Assert-NotContains $allUi "�" "UI mojibake"
+foreach ($markerCode in @(0xFFFD)) {
+  $marker = [string][char]$markerCode
+  Assert-NotContains $allCapability $marker "mojibake marker absent: U+$($markerCode.ToString("X4"))"
+}
+foreach ($markerCode in @(0xFFFD)) {
+  $marker = [string][char]$markerCode
+  Assert-NotContains $allUi $marker "UI mojibake marker absent: U+$($markerCode.ToString("X4"))"
+}
 Assert-Contains $types "buildCodexForgeCapabilityReactKey" "stable key helper"
 
 $cockpitCount = ([regex]::Matches($allSmoke, "smoke-codexforge-capability-cockpit.ps1")).Count

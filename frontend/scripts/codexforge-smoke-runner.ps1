@@ -3,7 +3,10 @@ function Invoke-CodexForgeSmokeGroup {
     [Parameter(Mandatory = $true)][string]$GroupName,
     [Parameter(Mandatory = $true)][string]$BaseUrl,
     [Parameter(Mandatory = $true)][string]$ScriptRoot,
-    [Parameter(Mandatory = $true)][array]$Scripts
+    [Parameter(Mandatory = $true)][array]$Scripts,
+    [switch]$Interactive,
+    [switch]$ContinueOnMissingOptional,
+    [switch]$StopOnFirstFailure
   )
 
   $repoRoot = Split-Path -Parent $ScriptRoot
@@ -17,6 +20,7 @@ function Invoke-CodexForgeSmokeGroup {
   Write-Host "=== CodexForge $GroupName smoke group ==="
   Write-Host "Base URL: $BaseUrl"
   Write-Host "Started:  $($startedAt.ToString("s"))"
+  Write-Host "Mode:     $(if ($Interactive) { "interactive" } else { "non-interactive" })"
   Write-Host ""
 
   Push-Location $repoRoot
@@ -28,20 +32,42 @@ function Invoke-CodexForgeSmokeGroup {
       $path = Join-Path $ScriptRoot $file
 
       if ($seen.ContainsKey($file)) {
-        throw "[FAIL] Duplicate smoke script in $GroupName group: $file"
+        $message = "[FAIL] Duplicate smoke script in $GroupName group: $file"
+        Write-Host $message
+        $results += [pscustomobject]@{
+          Name = $name
+          Status = "FAILED"
+          Path = $path
+          Detail = $message
+        }
+        if ($StopOnFirstFailure) { break }
+        continue
       }
       $seen[$file] = $true
 
       if (-not (Test-Path $path)) {
         if ($required) {
-          throw "[FAIL] Required smoke script missing: $path"
+          $message = "[FAIL] Required smoke script missing: $path"
+          if ($file -eq "smoke-codexforge-real-product-run-fix.ps1") {
+            $message = "$message`nThis smoke belongs to Phase 101 and has not been generated yet.`nRun Phase 101 first, then run the smoke."
+          }
+          Write-Host $message
+          $results += [pscustomobject]@{
+            Name = $name
+            Status = "MISSING_REQUIRED"
+            Path = $path
+            Detail = $message
+          }
+          if ($StopOnFirstFailure) { break }
+          continue
         }
 
-        Write-Host "[SKIP] $name - optional script not found"
+        Write-Host "[WARN] $name - optional script not found: $path"
         $results += [pscustomobject]@{
           Name = $name
-          Status = "SKIP"
+          Status = "MISSING_OPTIONAL"
           Path = $path
+          Detail = "Optional smoke script missing."
         }
         continue
       }
@@ -51,12 +77,21 @@ function Invoke-CodexForgeSmokeGroup {
       try {
         $scriptSource = Get-Content -Raw $path
         $supportsBaseUrl = $scriptSource -match '(?s)param\s*\(.*\$BaseUrl'
-
+        $childArgs = @()
         if ($supportsBaseUrl) {
-          & powershell -ExecutionPolicy Bypass -File $path -BaseUrl $BaseUrl
-        } else {
-          & powershell -ExecutionPolicy Bypass -File $path
+          $childArgs += @("-BaseUrl", $BaseUrl)
         }
+        if ($scriptSource -match '(?s)param\s*\(.*\$Interactive' -and $Interactive) {
+          $childArgs += "-Interactive"
+        }
+        if ($scriptSource -match '(?s)param\s*\(.*\$ContinueOnMissingOptional' -and $ContinueOnMissingOptional) {
+          $childArgs += "-ContinueOnMissingOptional"
+        }
+        if ($scriptSource -match '(?s)param\s*\(.*\$StopOnFirstFailure' -and $StopOnFirstFailure) {
+          $childArgs += "-StopOnFirstFailure"
+        }
+
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $path @childArgs
 
         if ($LASTEXITCODE -ne 0) {
           throw "[FAIL] $name exited with code $LASTEXITCODE"
@@ -69,11 +104,20 @@ function Invoke-CodexForgeSmokeGroup {
           Name = $name
           Status = "PASS"
           Path = $path
+          Detail = ""
         }
       } catch {
+        $message = [string]$_
         Write-Host "[FAIL] $name"
-        Write-Host $_
-        throw
+        Write-Host $message
+        Write-Host ""
+        $results += [pscustomobject]@{
+          Name = $name
+          Status = "FAILED"
+          Path = $path
+          Detail = $message
+        }
+        if ($StopOnFirstFailure) { break }
       }
     }
   } finally {
@@ -83,14 +127,29 @@ function Invoke-CodexForgeSmokeGroup {
 
   $finishedAt = Get-Date
   $passed = @($results | Where-Object { $_.Status -eq "PASS" }).Count
-  $skipped = @($results | Where-Object { $_.Status -eq "SKIP" }).Count
+  $failed = @($results | Where-Object { $_.Status -eq "FAILED" }).Count
+  $missingRequired = @($results | Where-Object { $_.Status -eq "MISSING_REQUIRED" }).Count
+  $missingOptional = @($results | Where-Object { $_.Status -eq "MISSING_OPTIONAL" }).Count
 
   Write-Host ""
   Write-Host "=== CodexForge $GroupName smoke group complete ==="
-  Write-Host "Passed:  $passed"
-  Write-Host "Skipped: $skipped"
+  Write-Host "Passed:           $passed"
+  Write-Host "Failed:           $failed"
+  Write-Host "Missing required: $missingRequired"
+  Write-Host "Missing optional: $missingOptional"
   Write-Host "Elapsed: $([math]::Round(($finishedAt - $startedAt).TotalSeconds, 2))s"
   Write-Host ""
+
+  foreach ($result in $results | Where-Object { $_.Status -ne "PASS" }) {
+    Write-Host "[$($result.Status)] $($result.Name) - $($result.Path)"
+    if ($result.Detail) {
+      Write-Host $result.Detail
+    }
+  }
+
+  if (($failed + $missingRequired) -gt 0) {
+    throw "[FAIL] Required smoke scripts failed or missing for $GroupName."
+  }
 
   if ($passed -lt 1) {
     throw "[FAIL] No smoke scripts ran for $GroupName."

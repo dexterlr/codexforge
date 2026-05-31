@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 function Assert-True {
   param(
@@ -397,9 +397,10 @@ foreach ($fileName in $requiredStructuredFiles) {
 
 $forbiddenGlobalPatterns = @(
   "export export",
-  "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢",
-  "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬",
-  "ÃƒÂ¯Ã‚Â¿Ã‚Â½"
+  [string][char]0x00C3,
+  [string][char]0x0192,
+  [string][char]0x00C2,
+  [string][char]0xFFFD
 )
 
 foreach ($pattern in $forbiddenGlobalPatterns) {

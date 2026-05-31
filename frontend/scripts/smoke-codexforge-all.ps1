@@ -1,5 +1,8 @@
 param(
-  [string]$BaseUrl = "http://localhost:3000"
+  [string]$BaseUrl = "http://localhost:3000",
+  [switch]$Interactive,
+  [switch]$ContinueOnMissingOptional,
+  [switch]$StopOnFirstFailure
 )
 
 $ErrorActionPreference = "Stop"
@@ -90,7 +93,7 @@ $scriptRoot = $PSScriptRoot
 # Name = "AI Router"; Path = "smoke-codexforge-ai-router.ps1"
 # Name = "Brand cleanup"; Path = "smoke-codexforge-brand-clean.ps1"
 
-Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Scripts @(
+Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts @(
   @{ Name = "Core"; File = "smoke-codexforge-core.ps1"; Required = $true },
   @{ Name = "UI"; File = "smoke-codexforge-ui.ps1"; Required = $true },
   @{ Name = "Operator Home Dashboard"; File = "smoke-codexforge-operator-home-dashboard.ps1"; Required = $true },
@@ -140,6 +143,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Command Palette"; File = "smoke-codexforge-command-palette.ps1"; Required = $true },
   @{ Name = "Regression Triage"; File = "smoke-codexforge-regression-triage.ps1"; Required = $true },
   @{ Name = "Regression Fix Queue"; File = "smoke-codexforge-regression-fix-queue.ps1"; Required = $true },
+  @{ Name = "Noninteractive Smoke Runner"; File = "smoke-codexforge-noninteractive-smoke-runner.ps1"; Required = $true },
   @{ Name = "Brain Suite"; File = "smoke-codexforge-brain-suite.ps1"; Required = $true },
   @{ Name = "Memory Suite"; File = "smoke-codexforge-memory-suite.ps1"; Required = $true },
   @{ Name = "Files Suite"; File = "smoke-codexforge-files-suite.ps1"; Required = $true },

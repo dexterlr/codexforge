@@ -1,12 +1,15 @@
 param(
-  [string]$BaseUrl = "http://localhost:3000"
+  [string]$BaseUrl = "http://localhost:3000",
+  [switch]$Interactive,
+  [switch]$ContinueOnMissingOptional,
+  [switch]$StopOnFirstFailure
 )
 
 $ErrorActionPreference = "Stop"
 $scriptRoot = $PSScriptRoot
 . (Join-Path $scriptRoot "codexforge-smoke-runner.ps1")
 
-Invoke-CodexForgeSmokeGroup -GroupName "Brain Suite" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Scripts @(
+Invoke-CodexForgeSmokeGroup -GroupName "Brain Suite" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts @(
   @{ Name = "Brain Graph UI"; File = "smoke-codexforge-brain-graph-ui.ps1"; Required = $true },
   @{ Name = "Brain Graph Real 3D"; File = "smoke-codexforge-brain-graph-real-3d.ps1"; Required = $true },
   @{ Name = "Brain Graph 3D Navigation"; File = "smoke-codexforge-brain-graph-3d-navigation.ps1"; Required = $false },

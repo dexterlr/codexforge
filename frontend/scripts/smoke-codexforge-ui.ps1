@@ -1,12 +1,15 @@
 param(
-  [string]$BaseUrl = "http://localhost:3000"
+  [string]$BaseUrl = "http://localhost:3000",
+  [switch]$Interactive,
+  [switch]$ContinueOnMissingOptional,
+  [switch]$StopOnFirstFailure
 )
 
 $ErrorActionPreference = "Stop"
 $scriptRoot = $PSScriptRoot
 . (Join-Path $scriptRoot "codexforge-smoke-runner.ps1")
 
-Invoke-CodexForgeSmokeGroup -GroupName "UI" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Scripts @(
+Invoke-CodexForgeSmokeGroup -GroupName "UI" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts @(
   @{ Name = "Navigation Polish"; File = "smoke-codexforge-navigation.ps1"; Required = $false },
   @{ Name = "Agent Runtime UX"; File = "smoke-codexforge-agent-runtime-ux.ps1"; Required = $true },
   @{ Name = "Self Upgrade Console UI"; File = "smoke-codexforge-self-upgrade-console-ui.ps1"; Required = $true },

@@ -1,12 +1,15 @@
 param(
-  [string]$BaseUrl = "http://localhost:3000"
+  [string]$BaseUrl = "http://localhost:3000",
+  [switch]$Interactive,
+  [switch]$ContinueOnMissingOptional,
+  [switch]$StopOnFirstFailure
 )
 
 $ErrorActionPreference = "Stop"
 $scriptRoot = $PSScriptRoot
 . (Join-Path $scriptRoot "codexforge-smoke-runner.ps1")
 
-Invoke-CodexForgeSmokeGroup -GroupName "Artifacts Suite" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Scripts @(
+Invoke-CodexForgeSmokeGroup -GroupName "Artifacts Suite" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts @(
   @{ Name = "Artifact Executor"; File = "smoke-codexforge-artifact-executor.ps1"; Required = $true },
   @{ Name = "Artifact Workspace"; File = "smoke-codexforge-artifact-workspace.ps1"; Required = $true },
   @{ Name = "Artifact Export Flow"; File = "smoke-codexforge-artifact-export-flow.ps1"; Required = $true },

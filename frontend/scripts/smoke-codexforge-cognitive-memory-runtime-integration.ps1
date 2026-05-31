@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -176,8 +176,9 @@ foreach ($marker in @("fetch(", "XMLHttpRequest", "WebSocket", "OpenAI", "API-ke
   Assert-NotContains $runtimeIntegrationSource $marker "external network/API marker absent: $marker"
 }
 
-foreach ($marker in @("Ã¢", "Ãƒ", "Ã‚", "ï¿½")) {
-  Assert-NotContains $runtimeIntegrationSource $marker "mojibake marker absent: $marker"
+foreach ($markerCode in @(0x00C3, 0x0192, 0x00C2, 0xFFFD)) {
+  $marker = [string][char]$markerCode
+  Assert-NotContains $runtimeIntegrationSource $marker "mojibake marker absent: U+$($markerCode.ToString("X4"))"
 }
 
 $integrationSuiteCount = ([regex]::Matches($allSmokeSource, 'Name\s*=\s*"Cognitive memory runtime integration"')).Count

@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$BaseUrl = "http://localhost:3000"
 )
 
@@ -161,7 +161,10 @@ Assert-Contains $resultPanelSource "Adapter" "result panel adapter label"
 Assert-Contains $resultPanelSource "local-safe-render-job" "result panel local-safe adapter marker"
 Assert-Contains $resultPanelSource "sideEffect" "result panel sideEffect marker"
 Assert-Contains $resultPanelSource "{toolName} - {resultStatus}" "result panel ASCII status separator"
-Assert-NotContains $resultPanelSource "ÃƒÆ’Ã¢â‚¬Å¡" "result panel mojibake guard"
+foreach ($markerCode in @(0x00C3, 0x0192, 0x00C2, 0xFFFD)) {
+  $marker = [string][char]$markerCode
+  Assert-NotContains $resultPanelSource $marker "result panel mojibake marker absent: U+$($markerCode.ToString("X4"))"
+}
 Assert-Contains $decisionPanelSource "tool-execution-result-panel" "decision panel imports result panel"
 Assert-Contains $decisionPanelSource "<ToolExecutionResultPanel" "decision panel renders result panel"
 $toolExecutionEventsSource = Get-Content -Raw "src\lib\codexforge\chat\tool-execution-events.ts"
