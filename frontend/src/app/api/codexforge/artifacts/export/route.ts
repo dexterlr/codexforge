@@ -1,5 +1,5 @@
 import { mkdir, stat, writeFile as persistUtf8Artifact } from "fs/promises";
-import path from "path";
+import path from "node:path";
 import { NextResponse } from "next/server";
 import {
   CODEXFORGE_ARTIFACT_WORKSPACE_ROOT,
@@ -9,6 +9,10 @@ import {
   validateArtifactExportContent,
   validateArtifactExportRequest,
 } from "@/lib/codexforge/artifact-workspace";
+import {
+  resolveBoundedWorkspacePath,
+  summarizeBoundedPathCheck,
+} from "@/lib/codexforge/server-safe-paths";
 
 export const dynamic = "force-dynamic";
 
@@ -59,17 +63,21 @@ export async function POST(request: Request) {
     return failure("Artifact target path is outside the safe artifact workspace.", 403, validation.summary);
   }
 
-  const workspaceRoot = path.resolve(process.cwd(), CODEXFORGE_ARTIFACT_WORKSPACE_ROOT);
-  const targetPath = path.resolve(workspaceRoot, validation.pathValidation.normalizedPath);
-  const relativeFromRoot = path.relative(workspaceRoot, targetPath);
-  const insideWorkspace =
-    !!relativeFromRoot &&
-    !relativeFromRoot.startsWith("..") &&
-    !path.isAbsolute(relativeFromRoot);
+  const boundedTarget = resolveBoundedWorkspacePath({
+    workspaceRoot: CODEXFORGE_ARTIFACT_WORKSPACE_ROOT,
+    relativePath: validation.pathValidation.normalizedPath,
+  });
 
-  if (!insideWorkspace) {
-    return failure("Resolved artifact target escaped the safe workspace.", 403, validation.summary);
+  if (!boundedTarget.safe || !boundedTarget.absolutePath) {
+    return failure("Artifact export blocked by bounded path validation.", 403, [
+      ...validation.summary,
+      ...summarizeBoundedPathCheck(boundedTarget),
+      "Resolved artifact target escaped the safe workspace.",
+      "Artifact target path is outside the safe artifact workspace.",
+    ]);
   }
+
+  const targetPath = boundedTarget.absolutePath;
 
   try {
     await stat(targetPath);

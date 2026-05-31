@@ -1,5 +1,9 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import {
+  normalizeSafeRelativePath,
+  resolveImportSpecifierPath,
+} from "@/lib/codexforge/server-safe-paths";
 import type {
   CodexForgeFileDependency,
   CodexForgeFileDependencyTrace,
@@ -15,9 +19,12 @@ function normalizePath(value: string): string {
 }
 
 function resolveInsideProject(relativePath: string): string | null {
+  const normalized = normalizeSafeRelativePath(relativePath);
+  if (!normalized.safe || !normalized.normalizedRelativePath) return null;
+
   const root = process.cwd();
-  const absolutePath = path.resolve(root, relativePath);
-  const relative = path.relative(root, absolutePath);
+  const absolutePath = path.join(root, ...normalized.normalizedRelativePath.split("/"));
+  const relative = normalizePath(path.relative(root, absolutePath));
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) return null;
   return absolutePath;
 }
@@ -31,12 +38,9 @@ function resolveImportTarget(
   specifier: string,
   files: CodexForgeFileNode[]
 ): string | null {
-  if (!specifier.startsWith(".") && !specifier.startsWith("@/")) return null;
-  const root = process.cwd();
-  const base = specifier.startsWith("@/")
-    ? path.resolve(root, "src", specifier.slice(2))
-    : path.resolve(root, path.dirname(fromPath), specifier);
-  const normalizedBase = normalizePath(path.relative(root, base));
+  const normalizedBase = resolveImportSpecifierPath(fromPath, specifier);
+  if (!normalizedBase) return null;
+
   const matches = files
     .map((file) => file.path)
     .filter(

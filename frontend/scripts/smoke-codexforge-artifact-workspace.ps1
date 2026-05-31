@@ -146,7 +146,7 @@ Assert-Contains ($uiSource + "`n" + $pageSource) "explicit approval required" "U
 Assert-Contains ($uiSource + "`n" + $pageSource) "safe workspace" "UI says safe workspace"
 
 Assert-Contains $exportSource "CODEXFORGE_ARTIFACT_WORKSPACE_ROOT" "export API includes write guard for .codexforge/artifacts"
-Assert-Contains $exportSource "path.relative(workspaceRoot, targetPath)" "export API verifies resolved workspace path"
+Assert-Contains $exportSource "resolveBoundedWorkspacePath" "export API verifies resolved workspace path"
 Assert-Contains $exportSource "approved !== true" "export API requires approved true"
 Assert-Contains $exportSource "buildSafeArtifactPath" "export API uses safe artifact path"
 Assert-Contains $exportSource "overwrite" "export API enforces overwrite policy"

@@ -1,17 +1,39 @@
 import { readdir, stat } from "fs/promises";
-import path from "path";
+import path from "node:path";
 import { NextResponse } from "next/server";
 import {
   CODEXFORGE_MEMORY_EVENT_WORKSPACE_ROOT,
   validateMemoryEventWorkspacePath,
 } from "@/lib/codexforge/memory-persistence";
+import {
+  resolveBoundedWorkspacePath,
+  summarizeBoundedPathCheck,
+} from "@/lib/codexforge/server-safe-paths";
 
 export const dynamic = "force-dynamic";
 
 const MAX_EVENT_FILE_BYTES = 256 * 1024;
+const WORKSPACE_ROOT_CHECK = resolveBoundedWorkspacePath({
+  workspaceRoot: CODEXFORGE_MEMORY_EVENT_WORKSPACE_ROOT,
+  relativePath: ".keep",
+});
 
 export async function GET() {
-  const workspaceRoot = path.resolve(process.cwd(), CODEXFORGE_MEMORY_EVENT_WORKSPACE_ROOT);
+  const workspaceRoot = WORKSPACE_ROOT_CHECK.absolutePath
+    ? path.dirname(WORKSPACE_ROOT_CHECK.absolutePath)
+    : null;
+
+  if (!workspaceRoot) {
+    return NextResponse.json(
+      {
+        ok: false,
+        workspaceRoot: CODEXFORGE_MEMORY_EVENT_WORKSPACE_ROOT,
+        error: "Unable to list memory event workspace.",
+        summary: summarizeBoundedPathCheck(WORKSPACE_ROOT_CHECK),
+      },
+      { status: 500 }
+    );
+  }
 
   let entries: string[];
   try {
@@ -45,12 +67,14 @@ export async function GET() {
     const validation = validateMemoryEventWorkspacePath(relativePath);
     if (!validation.safe || !validation.normalizedPath) continue;
 
-    const targetPath = path.resolve(workspaceRoot, validation.normalizedPath);
-    const relativeFromRoot = path.relative(workspaceRoot, targetPath);
-    if (!relativeFromRoot || relativeFromRoot.startsWith("..") || path.isAbsolute(relativeFromRoot)) continue;
+    const boundedTarget = resolveBoundedWorkspacePath({
+      workspaceRoot: CODEXFORGE_MEMORY_EVENT_WORKSPACE_ROOT,
+      relativePath: validation.normalizedPath,
+    });
+    if (!boundedTarget.safe || !boundedTarget.absolutePath) continue;
 
     try {
-      const info = await stat(targetPath);
+      const info = await stat(boundedTarget.absolutePath);
       if (!info.isFile() || info.size > MAX_EVENT_FILE_BYTES) continue;
       events.push({
         targetRelativePath: validation.normalizedPath,

@@ -156,7 +156,7 @@ Assert-Contains $exportRouteSource "pathValidation.traversal" "export route bloc
 Assert-Contains $exportRouteSource "pathValidation.absolutePath" "export route blocks absolute paths"
 Assert-Contains $exportRouteSource "pathValidation.extensionAllowed" "export route blocks unsupported extensions"
 Assert-Contains $exportRouteSource "CODEXFORGE_ARTIFACT_WORKSPACE_ROOT" "export route writes only under .codexforge/artifacts"
-Assert-Contains $exportRouteSource "path.relative(workspaceRoot, targetPath)" "export route verifies resolved workspace path"
+Assert-Contains $exportRouteSource "resolveBoundedWorkspacePath" "export route verifies resolved workspace path"
 Assert-Contains $listRouteSource "Artifact workspace has not been created yet." "list route handles missing workspace safely"
 
 $mojibakePattern = [string]([char]0x00C3) + "|" + [string]([char]0x00C2) + "|" + [string]([char]0xFFFD)

@@ -1,5 +1,5 @@
 import { mkdir, stat, writeFile as persistUtf8MemoryEvent } from "fs/promises";
-import path from "path";
+import path from "node:path";
 import { NextResponse } from "next/server";
 import {
   CODEXFORGE_MEMORY_EVENT_WORKSPACE_ROOT,
@@ -9,6 +9,10 @@ import {
   validateMemoryEventContent,
   validateMemoryEventPersistenceRequest,
 } from "@/lib/codexforge/memory-persistence";
+import {
+  resolveBoundedWorkspacePath,
+  summarizeBoundedPathCheck,
+} from "@/lib/codexforge/server-safe-paths";
 
 export const dynamic = "force-dynamic";
 
@@ -57,17 +61,19 @@ export async function POST(request: Request) {
     return failure("Memory event target is outside .codexforge/memory-events.", 403, validation.summary);
   }
 
-  const workspaceRoot = path.resolve(process.cwd(), CODEXFORGE_MEMORY_EVENT_WORKSPACE_ROOT);
-  const targetPath = path.resolve(workspaceRoot, validation.pathValidation.normalizedPath);
-  const relativeFromRoot = path.relative(workspaceRoot, targetPath);
-  const insideWorkspace =
-    !!relativeFromRoot &&
-    !relativeFromRoot.startsWith("..") &&
-    !path.isAbsolute(relativeFromRoot);
+  const boundedTarget = resolveBoundedWorkspacePath({
+    workspaceRoot: CODEXFORGE_MEMORY_EVENT_WORKSPACE_ROOT,
+    relativePath: validation.pathValidation.normalizedPath,
+  });
 
-  if (!insideWorkspace) {
-    return failure("Resolved memory event target escaped .codexforge/memory-events.", 403, validation.summary);
+  if (!boundedTarget.safe || !boundedTarget.absolutePath) {
+    return failure("Resolved memory event target escaped .codexforge/memory-events.", 403, [
+      ...validation.summary,
+      ...summarizeBoundedPathCheck(boundedTarget),
+    ]);
   }
+
+  const targetPath = boundedTarget.absolutePath;
 
   try {
     await stat(targetPath);
