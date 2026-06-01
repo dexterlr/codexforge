@@ -59,6 +59,7 @@ export default function ClosedLoopPage() {
           <Link href="/apply-guard-review" style={wizardLink}>Review Apply Guard</Link>
           <Link href="/workflow-results" style={wizardLink}>Workflow Results handoff</Link>
           <Link href="/validation-results" style={wizardLink}>Validation Result failure handoff</Link>
+          <Link href="/recovery" style={wizardLink}>Recovery flow</Link>
           <Link href="/run-history" style={wizardLink}>Run History timeline</Link>
           <Link href="/start" style={wizardLink}>Back to wizard: failure review flow</Link>
         </div>

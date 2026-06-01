@@ -1,0 +1,9 @@
+export type RecoveryCaseId = "validation-failed" | "build-failed" | "smoke-failed" | "apply-blocked" | "result-unknown" | "wrong-file" | "patch-preview-missing" | "output-too-large" | "page-confused-user" | "demo-not-ready";
+export type RecoveryCase = { id: RecoveryCaseId; title: string; detail: string; route: string };
+export type RecoveryDiagnosis = { title: string; explanation: string };
+export type RecoverySafeNextStep = { label: string; href: string; reason: string };
+export type RecoveryRetryPlan = { title: string; steps: string[] };
+export type RecoveryRollbackGuidance = { title: string; guidance: string };
+export type RecoveryValidationGuidance = { title: string; guidance: string };
+export type RecoveryHandoff = { title: string; copyText: string };
+export type GuidedRecoveryFlowSummary = { title: string; subtitle: string; primaryAction: string; cases: RecoveryCase[]; diagnosis: RecoveryDiagnosis; safeNextStep: RecoverySafeNextStep; retryPlan: RecoveryRetryPlan; rollbackGuidance: RecoveryRollbackGuidance; validationGuidance: RecoveryValidationGuidance; handoff: RecoveryHandoff };

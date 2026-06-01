@@ -22,6 +22,7 @@ export default function RunHistoryPageClient() {
       <span hidden data-codexforge-run-history-route="Run History route imports/renders RunHistoryTimeline Review history Review latest run useful empty state compact filters not a debug event log Product trial result /product-trial Operator runbook /runbook Coding Trial trial run kind Review recent work capture handoffs and decide what to do next no auto-promotion no Brain auto-mutation no auto-persist into Brain review required preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
       <div style={linkRow}>
         <Link href="/mvp-experience" style={primaryHandoffLink}>Next: MVP experience lock</Link>
+        <Link href="/review-inbox" style={handoffLink}>Review inbox</Link>
         <Link href="/runbook" style={handoffLink}>Runbook</Link>
         <Link href="/code-flow/successful-run" style={handoffLink}>Record success</Link>
         <Link href="/code-flow/real-trial" style={handoffLink}>Real trial records</Link>

@@ -22,6 +22,7 @@ export default function WorkflowResultsPageClient() {
       <span hidden data-codexforge-workflow-results-route="Workflow Results route imports/renders WorkflowResultPersistencePanel Capture result Copy workflow handoff memory candidate optional reviewed raw export details lower Capture what happened route failures prepare a clean handoff no auto-promotion no Brain auto-mutation no auto-persist into Brain review required preserve latest-message authority Focus Mode UX calm workflow layout markers shell without duplicate route chip cloud route hero title does not vertically wrap" />
       <div style={linkRow}>
         <Link href="/run-history" style={primaryHandoffLink}>Next: see run history</Link>
+        <Link href="/review-inbox" style={handoffLink}>Review inbox</Link>
         <Link href="/code-flow/successful-run" style={handoffLink}>Record success</Link>
         <Link href="/closed-loop" style={handoffLink}>Failed: closed loop</Link>
         <Link href="/code-flow/release-audit" style={handoffLink}>Release audit</Link>

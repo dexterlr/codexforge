@@ -7,6 +7,8 @@ import OperatorHomePageClient from "./page-client";
 const OPERATOR_HOME_ROUTES = [
   "/",
   "/start",
+  "/onboarding",
+  "/assist",
   "/code-flow",
   "/ai",
   "/ai-router",
@@ -36,6 +38,8 @@ type HomeSurfaceMapItem = {
 
 const SURFACE_MAP: readonly HomeSurfaceMapItem[] = [
   { path: "/start", label: "Start with the wizard" },
+  { path: "/onboarding", label: "Start with CodexForge" },
+  { path: "/assist", label: "Assisted Coding" },
   { path: "/code-flow", label: "Fix code safely" },
   { path: "/files", label: "Files Command Center" },
   { path: "/validation", label: "Validation Runner" },
