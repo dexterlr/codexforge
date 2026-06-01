@@ -16,14 +16,16 @@ export function TokenEfficiencyRouterPanel() {
           <h1 style={headline}>Token Efficiency Router v1</h1>
           <p style={lede}>
             Estimate token size, sensitivity, and reasoning needs, then choose a local-first, cheap-profile, or manual
-            premium handoff. Adapter readiness wording keeps the route honest before any provider call exists. This is
-            recommendation-only and never sends prompts to a provider.
+            premium handoff. Local creative drafts, keyframes, and video workflow planning can avoid cloud spend before
+            any provider call exists. This is recommendation-only and never sends prompts to a provider.
           </p>
         </div>
         <div style={linkRow}>
           <Link href="/ai-router" style={link}>AI Router</Link>
           <Link href="/task-router" style={link}>Task router</Link>
           <Link href="/local-machine" style={link}>Local machine</Link>
+          <Link href="/local-creative" style={link}>Local creative</Link>
+          <Link href="/video-workflows" style={link}>Video workflows</Link>
           <Link href="/env-readiness" style={link}>Env readiness</Link>
           <Link href="/model-capabilities" style={link}>Model capabilities</Link>
           <Link href="/provider-health" style={link}>Provider health</Link>
