@@ -49,6 +49,7 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
       showSidebarSafetyNotice={false}
     >
       <div style={handoffBand} data-codexforge-files-next-safe-action="one primary action marker calm next safe action">
+        <span hidden data-codexforge-files-empty-state-help="no file selected choose one safe file why it matters preview needs one file what to do next go to /first-task what is safe wording-only UI files" />
         <Link href="/guarded-apply-mvp" style={primaryHandoffLink}>
           Next: review one safe apply request.
         </Link>
@@ -57,6 +58,9 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
           <div style={secondaryLinkStack}>
             <Link href="/code-flow/live-run" style={handoffLink}>
               Back to live run.
+            </Link>
+            <Link href="/first-task" style={handoffLink}>
+              First safe task.
             </Link>
             <Link href="/apply-evidence" style={handoffLink}>
               Capture apply evidence after approval.
