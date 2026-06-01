@@ -17,11 +17,12 @@ export function AiProviderRegistryPanel() {
           <p style={lede}>
             Keep a plain-English map of provider accounts without collecting passwords, tokens, or secret values.
             Manual ChatGPT and Claude subscriptions stay as profile-only handoffs; API and local providers are planned
-            profiles until a reviewed credential path exists.
+            profiles until a reviewed credential path exists. Env readiness shows only present, missing, not checked, or manual profile labels.
           </p>
         </div>
         <div style={linkRow}>
           <Link href="/credentials" style={primaryLink}>Credential strategy</Link>
+          <Link href="/env-readiness" style={link}>Env readiness</Link>
           <Link href="/provider-health" style={link}>Provider health</Link>
           <Link href="/provider-adapters" style={link}>Provider adapters</Link>
           <Link href="/provider-setup" style={link}>Setup wizard</Link>

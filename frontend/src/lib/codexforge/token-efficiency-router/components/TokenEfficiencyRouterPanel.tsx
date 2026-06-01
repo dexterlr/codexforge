@@ -23,6 +23,8 @@ export function TokenEfficiencyRouterPanel() {
         <div style={linkRow}>
           <Link href="/ai-router" style={link}>AI Router</Link>
           <Link href="/task-router" style={link}>Task router</Link>
+          <Link href="/local-machine" style={link}>Local machine</Link>
+          <Link href="/env-readiness" style={link}>Env readiness</Link>
           <Link href="/model-capabilities" style={link}>Model capabilities</Link>
           <Link href="/provider-health" style={link}>Provider health</Link>
           <Link href="/ai-providers" style={link}>Provider profiles</Link>
@@ -37,6 +39,7 @@ export function TokenEfficiencyRouterPanel() {
         <p style={copy}>{decision.reason}</p>
         <p style={copy}>Fallback lane: {decision.fallbackLane}. Estimated total: {decision.estimatedTotalTokens} tokens.</p>
         <p style={copy}>{decision.handoff}</p>
+        <p style={copy}>Local-first savings: the local machine profile can keep drafts and private preprocessing off paid cloud tokens when a local model fits the job.</p>
       </section>
 
       <section style={grid}>

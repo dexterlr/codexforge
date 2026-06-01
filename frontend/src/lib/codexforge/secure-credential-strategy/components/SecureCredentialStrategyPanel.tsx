@@ -21,8 +21,9 @@ export function SecureCredentialStrategyPanel() {
         </div>
         <div style={linkRow}>
           <Link href="/ai-providers" style={link}>Provider registry</Link>
+          <Link href="/env-readiness" style={primaryLink}>Env readiness</Link>
           <Link href="/provider-adapters" style={link}>Adapter safety</Link>
-          <Link href="/provider-setup" style={primaryLink}>Setup wizard</Link>
+          <Link href="/provider-setup" style={link}>Setup wizard</Link>
         </div>
       </section>
 

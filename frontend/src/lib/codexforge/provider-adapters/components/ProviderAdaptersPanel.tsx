@@ -36,6 +36,8 @@ export function ProviderAdaptersPanel() {
           <Link href="#readiness" style={primaryLink}>Review adapter readiness</Link>
           <Link href="/ai-providers" style={link}>Provider profiles</Link>
           <Link href="/provider-health" style={link}>Provider health</Link>
+          <Link href="/local-machine" style={link}>Local machine</Link>
+          <Link href="/local-provider-probes" style={link}>Local probes</Link>
           <Link href="/credentials" style={link}>Credential safety</Link>
           <Link href="/token-router" style={link}>Token router</Link>
         </div>
@@ -82,7 +84,8 @@ export function ProviderAdaptersPanel() {
         </p>
         <p style={copy}>
           Local placeholders use http://localhost:11434 and http://localhost:1234 as setup labels only. CodexForge will
-          not assume your local server is running until a guarded health check is added.
+          not assume your local server is running until a guarded health check is added. The local machine profile helps
+          route local-first work, and local provider probes describe safe localhost checks before any live probe runs.
         </p>
       </details>
     </div>
