@@ -16,12 +16,14 @@ export function TokenEfficiencyRouterPanel() {
           <h1 style={headline}>Token Efficiency Router v1</h1>
           <p style={lede}>
             Estimate token size, sensitivity, and reasoning needs, then choose a local-first, cheap-profile, or manual
-            premium handoff. This is recommendation-only and never sends prompts to a provider.
+            premium handoff. Adapter readiness wording keeps the route honest before any provider call exists. This is
+            recommendation-only and never sends prompts to a provider.
           </p>
         </div>
         <div style={linkRow}>
           <Link href="/ai-router" style={link}>AI Router</Link>
           <Link href="/ai-providers" style={link}>Provider profiles</Link>
+          <Link href="/provider-adapters" style={link}>Adapter readiness</Link>
           <Link href="/provider-setup" style={primaryLink}>Setup wizard</Link>
         </div>
       </section>
@@ -65,4 +67,3 @@ const card: CSSProperties = { border: "1px solid rgba(148,163,184,0.16)", border
 const cardTitle: CSSProperties = { margin: 0, fontSize: 18, letterSpacing: 0 };
 const copy: CSSProperties = { margin: 0, color: "rgba(226,232,240,0.76)", fontSize: 13, lineHeight: 1.45 };
 const rules: CSSProperties = { margin: 0, paddingLeft: 18, color: "rgba(226,232,240,0.76)", fontSize: 13, lineHeight: 1.5 };
-

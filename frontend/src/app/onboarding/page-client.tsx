@@ -11,6 +11,7 @@ export default function OnboardingPageClient() {
       <Link href="/first-task" style={primaryHandoffLink}>First safe task</Link>
       <Link href="/safety-coach" style={handoffLink}>Safety coach</Link>
       <Link href="/ai-providers" style={handoffLink}>AI provider profiles</Link>
+      <Link href="/provider-adapters" style={handoffLink}>Optional adapter review</Link>
       <Link href="/credentials" style={handoffLink}>Credential safety</Link>
     </div>
     <MvpOnboardingPanel />

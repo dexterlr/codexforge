@@ -15,11 +15,13 @@ export function SecureCredentialStrategyPanel() {
           <h1 style={headline}>Secure Credential Strategy</h1>
           <p style={lede}>
             CodexForge can describe provider access safely before any real connector exists. The strategy records
-            allowed metadata, blocks secret values, and keeps manual subscriptions as operator-owned handoffs.
+            allowed metadata, blocks secret values, references adapter credential safety, and keeps manual subscriptions
+            as operator-owned handoffs.
           </p>
         </div>
         <div style={linkRow}>
           <Link href="/ai-providers" style={link}>Provider registry</Link>
+          <Link href="/provider-adapters" style={link}>Adapter safety</Link>
           <Link href="/provider-setup" style={primaryLink}>Setup wizard</Link>
         </div>
       </section>
@@ -63,4 +65,3 @@ const copy: CSSProperties = { margin: 0, color: "rgba(226,232,240,0.76)", fontSi
 const columns: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 120px), 1fr))", gap: 10, fontSize: 12 };
 const pill: CSSProperties = { display: "block", marginTop: 6, border: "1px solid rgba(45,212,191,0.18)", borderRadius: 999, padding: "4px 8px", color: "#ccfbf1" };
 const blockedPill: CSSProperties = { ...pill, borderColor: "rgba(248,113,113,0.25)", color: "#fecaca" };
-

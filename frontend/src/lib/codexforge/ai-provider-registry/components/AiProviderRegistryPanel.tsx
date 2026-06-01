@@ -22,6 +22,7 @@ export function AiProviderRegistryPanel() {
         </div>
         <div style={linkRow}>
           <Link href="/credentials" style={primaryLink}>Credential strategy</Link>
+          <Link href="/provider-adapters" style={link}>Provider adapters</Link>
           <Link href="/provider-setup" style={link}>Setup wizard</Link>
           <Link href="/token-router" style={link}>Token router</Link>
         </div>
@@ -72,4 +73,3 @@ const list: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 6 };
 const pill: CSSProperties = { border: "1px solid rgba(45,212,191,0.18)", borderRadius: 999, padding: "4px 8px", fontSize: 11, color: "#ccfbf1" };
 const notes: CSSProperties = { margin: 0, paddingLeft: 18, color: "rgba(226,232,240,0.72)", fontSize: 12, lineHeight: 1.45 };
 const notice: CSSProperties = { border: "1px solid rgba(45,212,191,0.16)", borderRadius: 8, padding: 12, background: "rgba(20,83,45,0.16)", color: "#dcfce7", fontSize: 13 };
-

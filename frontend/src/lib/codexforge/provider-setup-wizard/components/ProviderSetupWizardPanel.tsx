@@ -20,6 +20,7 @@ export function ProviderSetupWizardPanel() {
         </div>
         <div style={linkRow}>
           <Link href="/ai-providers" style={link}>Profiles</Link>
+          <Link href="/provider-adapters" style={link}>Adapters</Link>
           <Link href="/credentials" style={link}>Credential rules</Link>
           <Link href="/token-router" style={primaryLink}>Routing role</Link>
         </div>
@@ -60,4 +61,3 @@ const tag: CSSProperties = { color: "#93c5fd", fontSize: 11, fontWeight: 900, te
 const cardTitle: CSSProperties = { margin: 0, fontSize: 18, letterSpacing: 0 };
 const copy: CSSProperties = { margin: 0, color: "rgba(226,232,240,0.76)", fontSize: 13, lineHeight: 1.45 };
 const smallLink: CSSProperties = { color: "#5eead4", fontSize: 12, fontWeight: 900, textDecoration: "none" };
-

@@ -88,6 +88,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/ai": true,
   "/ai-router": true,
   "/ai-providers": true,
+  "/provider-adapters": true,
   "/credentials": true,
   "/provider-setup": true,
   "/token-router": true,
@@ -483,6 +484,14 @@ export function buildCodexForgeCommands(
       href: "/ai-providers",
       keywords: ["ai", "provider", "registry", "manual handoff", "profile"],
       priority: 25.1,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-provider-adapters",
+      label: "Go to Provider Adapters",
+      description: "Open provider adapter definitions, readiness, and safety boundaries with no provider calls.",
+      href: "/provider-adapters",
+      keywords: ["provider adapters", "adapter readiness", "openai-compatible", "claude", "gemini", "deepseek", "ollama", "lm studio"],
+      priority: 25.15,
     }),
     buildRouteCommand(availability, {
       id: "go-secure-credential-strategy",
