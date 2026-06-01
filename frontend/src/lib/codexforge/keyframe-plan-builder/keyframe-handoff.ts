@@ -1,0 +1,2 @@
+import type { KeyframeEntry, KeyframeHandoff, KeyframePrompt } from "./keyframe-plan-types";
+export function buildKeyframeHandoff(entries: KeyframeEntry[], prompts: KeyframePrompt[]): KeyframeHandoff { return { keyframePrompts: prompts.map((prompt) => `${prompt.keyframeId}: ${prompt.prompt}`).join(" "), videoDraftHandoff: `Draft later: use ${entries.length} reviewed keyframe prompts with a short local workflow only after approval.`, nextStep: "Copy this to local draft review. Nothing is generated yet." }; }

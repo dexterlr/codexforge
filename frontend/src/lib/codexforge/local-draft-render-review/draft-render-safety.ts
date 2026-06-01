@@ -1,0 +1,2 @@
+import type { DraftRenderSafety } from "./local-draft-render-types";
+export function buildDraftRenderSafety(): DraftRenderSafety { return { id: "draft-render-safety", noCloudSpend: true, approvalRequired: true, noAutoRun: true, comfyUiCallAllowed: false, providerCallsAllowed: false, plainEnglish: "This review checks a future local draft request. It does not call ComfyUI, call providers, run workflows, generate images, or render video." }; }

@@ -1,0 +1,2 @@
+import type { KeyframeGenerationReadiness } from "./keyframe-plan-types";
+export function buildKeyframeGenerationReadiness(): KeyframeGenerationReadiness { return { id: "keyframe-readiness", status: "ready-for-review", approvalRequiredLater: true, imageGenerationAllowedNow: false, providerCallsAllowed: false, plainEnglish: "Keyframes are planned, but still images are not generated in this phase." }; }

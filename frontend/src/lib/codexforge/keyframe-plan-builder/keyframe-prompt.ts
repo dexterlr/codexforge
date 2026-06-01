@@ -1,0 +1,2 @@
+import type { KeyframeEntry, KeyframePrompt } from "./keyframe-plan-types";
+export function buildKeyframePrompt(entry: KeyframeEntry): KeyframePrompt { return { id: `prompt-${entry.id}`, keyframeId: entry.id, prompt: `${entry.framePurpose}: ${entry.visualPrompt}. ${entry.styleReferenceNote}. ${entry.subjectConsistencyNote}. ${entry.cameraNote}.`, negativePrompt: "avoid flicker, unreadable text, extra limbs, inconsistent subject, harsh crop, and cloud-only assumptions" }; }
