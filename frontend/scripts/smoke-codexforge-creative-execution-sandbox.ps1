@@ -220,7 +220,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Creative Execution Sandbox" "managed smoke suite includes Creative Execution Sandbox exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/creative-sandbox" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/creative-sandbox" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /creative-sandbox returned status $($response.StatusCode)"
   }

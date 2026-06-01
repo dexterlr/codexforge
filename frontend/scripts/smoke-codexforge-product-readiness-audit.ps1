@@ -178,7 +178,7 @@ if ($suiteMatches.Count -ne 1) { throw "[FAIL] Managed smoke suite must include 
 Assert-Contains $allSmoke "Product Readiness Audit" "managed smoke suite includes Product Readiness Audit exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/readiness" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/readiness" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /readiness returned status $($response.StatusCode)" }
   Write-Host "[PASS] /readiness route reachable"
 } catch {

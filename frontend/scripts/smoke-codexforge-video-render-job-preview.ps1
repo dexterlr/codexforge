@@ -218,7 +218,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Video Render Job Preview" "managed smoke suite includes Video Render Job Preview exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/video-render" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/video-render" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /video-render returned status $($response.StatusCode)"
   }

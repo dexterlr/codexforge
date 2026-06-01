@@ -40,12 +40,11 @@ function Invoke-JsonPost {
   $json = $Body | ConvertTo-Json -Depth 12
 
   try {
-    $response = Invoke-WebRequest `
+    $response = Invoke-WebRequest -UseBasicParsing `
       -Method Post `
       -Uri $Uri `
       -Body $json `
       -ContentType "application/json" `
-      -UseBasicParsing `
       -TimeoutSec 10
 
     return @{

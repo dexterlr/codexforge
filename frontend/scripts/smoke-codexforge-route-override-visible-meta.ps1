@@ -24,8 +24,7 @@ function Invoke-CodexForgeChat {
 
   $jsonBody = $Body | ConvertTo-Json -Depth 20
 
-  return Invoke-WebRequest `
-    -UseBasicParsing `
+  return Invoke-WebRequest -UseBasicParsing `
     -Uri "$BaseUrl/api/codexforge/chat" `
     -Method POST `
     -ContentType "application/json" `

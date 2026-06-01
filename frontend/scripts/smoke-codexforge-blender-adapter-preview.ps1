@@ -244,7 +244,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Blender Adapter Preview" "managed smoke suite includes Blender Adapter Preview exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/blender" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/blender" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /blender returned status $($response.StatusCode)"
   }

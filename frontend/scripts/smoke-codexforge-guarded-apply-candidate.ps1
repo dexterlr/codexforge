@@ -189,7 +189,7 @@ Assert-Contains $domainSource "buildGuardedApplyCandidateStableKey" "stable key 
 Assert-CountExactly $allSmoke "smoke-codexforge-guarded-apply-candidate.ps1" 1 "managed smoke suite includes Guarded Apply Candidate exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/guarded-apply-candidate" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/guarded-apply-candidate" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /guarded-apply-candidate returned status $($response.StatusCode)" }
   Write-Host "[PASS] /guarded-apply-candidate route reachable"
 } catch {

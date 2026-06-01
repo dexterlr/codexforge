@@ -44,7 +44,7 @@ Assert-NotMatches $source $mojibakePattern "no mojibake"
 Assert-NotMatches $source "appendEvent[(]|saveBrainGraph[(]|applyDiff[(]|writeFile[(]|runCommand[(]" "no unsafe execution calls"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/provider-adapters" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/provider-adapters" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /provider-adapters returned status $($response.StatusCode)" }
   Write-Host "[PASS] /provider-adapters route reachable"
 } catch {

@@ -217,7 +217,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Guarded Creative Executor" "managed smoke suite includes Guarded Creative Executor exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/creative-executor" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/creative-executor" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /creative-executor returned status $($response.StatusCode)"
   }

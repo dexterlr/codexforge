@@ -20,6 +20,7 @@ export function ProviderSetupWizardPanel() {
         </div>
         <div style={linkRow}>
           <Link href="/ai-providers" style={link}>Profiles</Link>
+          <Link href="/provider-health" style={link}>Provider health</Link>
           <Link href="/provider-adapters" style={link}>Adapters</Link>
           <Link href="/credentials" style={link}>Credential rules</Link>
           <Link href="/token-router" style={primaryLink}>Routing role</Link>

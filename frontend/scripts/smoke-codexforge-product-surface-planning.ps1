@@ -19,8 +19,7 @@ $body = @{
   }
 } | ConvertTo-Json -Depth 20
 
-$response = Invoke-WebRequest `
-  -UseBasicParsing `
+$response = Invoke-WebRequest -UseBasicParsing `
   -Uri "$BaseUrl/api/codexforge/chat" `
   -Method POST `
   -ContentType "application/json" `

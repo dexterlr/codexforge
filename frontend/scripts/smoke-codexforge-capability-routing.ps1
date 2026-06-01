@@ -59,12 +59,11 @@ foreach ($case in $cases) {
   } | ConvertTo-Json -Depth 20
 
   try {
-    $response = Invoke-WebRequest `
+    $response = Invoke-WebRequest -UseBasicParsing `
       -Uri "$baseUrl/api/codexforge/chat" `
       -Method POST `
       -ContentType "application/json" `
       -Body $body `
-      -UseBasicParsing
 
     $domain = $response.Headers["x-codexforge-capability-domain"]
     $matched = $response.Headers["x-codexforge-capability-matched"]
@@ -151,12 +150,11 @@ foreach ($case in $visibleCases) {
     )
   } | ConvertTo-Json -Depth 8
 
-  $response = Invoke-WebRequest `
+  $response = Invoke-WebRequest -UseBasicParsing `
     -Uri "$BaseUrl/api/codexforge/chat" `
     -Method POST `
     -Body $body `
     -ContentType "application/json" `
-    -UseBasicParsing
 
   if ($response.StatusCode -ne 200) {
     throw "[FAIL] $($case.Name) HTTP status was $($response.StatusCode)"
@@ -327,12 +325,11 @@ foreach ($case in $runtimePolicyCases) {
     )
   } | ConvertTo-Json -Depth 8
 
-  $response = Invoke-WebRequest `
+  $response = Invoke-WebRequest -UseBasicParsing `
     -Uri "$BaseUrl/api/codexforge/chat" `
     -Method POST `
     -Body $body `
     -ContentType "application/json" `
-    -UseBasicParsing
 
   if ($response.StatusCode -ne 200) {
     throw "[FAIL] $($case.Name) HTTP status was $($response.StatusCode)"
@@ -532,12 +529,11 @@ foreach ($case in $executePolicyCases) {
   $body = $case.Body | ConvertTo-Json -Depth 12
 
   try {
-    $response = Invoke-WebRequest `
+    $response = Invoke-WebRequest -UseBasicParsing `
       -Uri "$BaseUrl/api/codexforge/tools/execute" `
       -Method POST `
       -Body $body `
       -ContentType "application/json" `
-      -UseBasicParsing
 
     $statusCode = [int]$response.StatusCode
     $content = [string]$response.Content
@@ -636,12 +632,11 @@ foreach ($case in $visiblePolicyCases) {
   $body = $case.Body | ConvertTo-Json -Depth 12
 
   try {
-    $response = Invoke-WebRequest `
+    $response = Invoke-WebRequest -UseBasicParsing `
       -Uri "$BaseUrl/api/codexforge/tools/execute" `
       -Method POST `
       -Body $body `
       -ContentType "application/json" `
-      -UseBasicParsing
 
     $statusCode = [int]$response.StatusCode
     $content = [string]$response.Content

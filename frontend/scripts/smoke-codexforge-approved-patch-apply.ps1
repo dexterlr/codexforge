@@ -184,7 +184,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Approved Patch Apply" "managed smoke suite includes Approved Patch Apply exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/files" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/files" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /files returned status $($response.StatusCode)" }
   Write-Host "[PASS] /files route reachable"
 } catch {

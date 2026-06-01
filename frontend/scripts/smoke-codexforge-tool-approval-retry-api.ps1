@@ -26,12 +26,11 @@ function Invoke-CodexForgeExecute {
   $json = $Body | ConvertTo-Json -Depth 30
 
   try {
-    $response = Invoke-WebRequest `
+    $response = Invoke-WebRequest -UseBasicParsing `
       -Uri "$BaseUrl/api/codexforge/tools/execute" `
       -Method POST `
       -ContentType "application/json" `
       -Body $json `
-      -UseBasicParsing
   } catch {
     $response = $_.Exception.Response
 

@@ -38,7 +38,7 @@ $mojibakePattern = [string]([char]0x00C3) + "|" + [string]([char]0x00C2) + "|" +
 Assert-NotMatches $source $mojibakePattern "no mojibake"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/artifacts/review" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/artifacts/review" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /artifacts/review returned status $($response.StatusCode)" }
   Write-Host "[PASS] /artifacts/review route reachable"
 } catch {

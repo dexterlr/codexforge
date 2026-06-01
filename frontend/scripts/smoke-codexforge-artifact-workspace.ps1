@@ -176,7 +176,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Artifact Workspace" "managed smoke suite includes Artifact Workspace exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/artifacts" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/artifacts" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /artifacts returned status $($response.StatusCode)"
   }

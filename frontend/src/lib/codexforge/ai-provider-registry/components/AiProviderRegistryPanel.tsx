@@ -22,6 +22,7 @@ export function AiProviderRegistryPanel() {
         </div>
         <div style={linkRow}>
           <Link href="/credentials" style={primaryLink}>Credential strategy</Link>
+          <Link href="/provider-health" style={link}>Provider health</Link>
           <Link href="/provider-adapters" style={link}>Provider adapters</Link>
           <Link href="/provider-setup" style={link}>Setup wizard</Link>
           <Link href="/token-router" style={link}>Token router</Link>

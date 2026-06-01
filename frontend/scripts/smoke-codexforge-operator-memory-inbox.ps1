@@ -136,7 +136,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Operator Memory Inbox" "managed smoke suite includes Operator Memory Inbox exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/memory-inbox" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/memory-inbox" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /memory-inbox returned status $($response.StatusCode)"
   }

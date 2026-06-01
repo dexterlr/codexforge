@@ -225,7 +225,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Future Guarded Health Probe" "managed smoke suite includes Future Guarded Health Probe exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/health-probe" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/health-probe" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /health-probe returned status $($response.StatusCode)"
   }

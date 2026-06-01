@@ -186,7 +186,7 @@ if ($cockpitCount -ne 1) {
 Assert-Contains $allSmoke "Capability Cockpit" "managed smoke suite includes Capability Cockpit exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/capabilities" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/capabilities" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /capabilities returned status $($response.StatusCode)"
   }

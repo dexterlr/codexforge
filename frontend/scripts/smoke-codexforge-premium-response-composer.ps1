@@ -68,8 +68,7 @@ function Invoke-CodexForgeChatWithHeaders {
     context = $Context
   } | ConvertTo-Json -Depth 30
 
-  Invoke-WebRequest `
-    -UseBasicParsing `
+  Invoke-WebRequest -UseBasicParsing `
     -Method Post `
     -Uri "$BaseUrl/api/codexforge/chat" `
     -ContentType "application/json" `

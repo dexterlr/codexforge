@@ -135,7 +135,7 @@ if ($nameMatches.Count -ne 1) { throw "[FAIL] Managed smoke suite must include F
 Assert-Contains $allSmoke "Full System Quality Audit" "managed smoke suite includes Full System Quality Audit exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/quality-audit" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/quality-audit" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /quality-audit returned status $($response.StatusCode)" }
   Write-Host "[PASS] /quality-audit route reachable"
 } catch {

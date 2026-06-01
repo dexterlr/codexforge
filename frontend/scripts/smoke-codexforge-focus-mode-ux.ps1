@@ -141,7 +141,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Focus Mode UX" "managed smoke suite includes Focus Mode UX exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/ai" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/ai" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /ai returned status $($response.StatusCode)" }
   Write-Host "[PASS] /ai route reachable"
 } catch {

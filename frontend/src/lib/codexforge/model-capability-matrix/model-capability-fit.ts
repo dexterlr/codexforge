@@ -1,0 +1,2 @@
+import type { ModelCapabilityEntry, ModelCapabilityFit } from "./model-capability-types";
+export function scoreModelCapabilityFit(entry: ModelCapabilityEntry, task = "coding"): ModelCapabilityFit { const score = task.includes("long") ? entry.scores["long-context"] : task.includes("private") ? entry.scores["privacy-local"] : task.includes("cheap") ? entry.scores["cost-efficiency"] : task.includes("review") ? entry.scores.reasoning + entry.scores.reliability : entry.scores.coding + entry.scores.reasoning; return { entry, task, score, reason: entry.description }; }

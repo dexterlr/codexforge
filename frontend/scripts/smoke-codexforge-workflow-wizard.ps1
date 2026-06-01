@@ -173,7 +173,7 @@ if ($suiteMatches.Count -ne 1) { throw "[FAIL] Managed smoke suite must include 
 Assert-Contains $allSmoke "Workflow Wizard" "managed smoke suite includes Workflow Wizard exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/start" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/start" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /start returned status $($response.StatusCode)" }
   Write-Host "[PASS] /start route reachable"
 } catch {

@@ -179,7 +179,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Memory Review" "managed smoke suite includes Memory Review exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/memory" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/memory" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /memory returned status $($response.StatusCode)"
   }

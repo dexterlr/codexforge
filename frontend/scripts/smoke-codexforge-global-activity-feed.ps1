@@ -227,7 +227,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Global Activity Feed" "managed smoke suite includes Global Activity Feed exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/activity" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/activity" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /activity returned status $($response.StatusCode)"
   }

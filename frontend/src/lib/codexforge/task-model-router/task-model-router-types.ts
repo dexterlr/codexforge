@@ -1,0 +1,6 @@
+export type TaskModelTask = { id: string; title: string; sensitivity: "low" | "medium" | "high"; needsReasoning: boolean; needsLongContext: boolean; wantsCheapDraft: boolean; wantsLocalPrivate: boolean; tokenBudget: number; };
+export type TaskModelContext = { providerHealthSummary: string; modelCapabilitySummary: string; tokenPolicy: string; noProviderCalls: boolean; };
+export type TaskModelProviderCandidate = { id: string; family: string; provider: string; localPrivate: boolean; cheapDraft: boolean; premium: boolean; manualOnly: boolean; blocked: boolean; reason: string; };
+export type TaskModelRouteScore = { candidateId: string; score: number; reasons: string[]; blocked: boolean; };
+export type TaskModelRouteDecision = { task: TaskModelTask; recommended: TaskModelProviderCandidate; fallback: TaskModelProviderCandidate; localPrivateAlternative: TaskModelProviderCandidate; cheapDraftAlternative: TaskModelProviderCandidate; premiumEscalationRoute: TaskModelProviderCandidate; approximateTokenBudget: number; whyThisRoute: string; remainsManual: string; blocked: string; };
+export type TaskModelRouterSummary = { tasks: TaskModelTask[]; context: TaskModelContext; candidates: TaskModelProviderCandidate[]; decision: TaskModelRouteDecision; summary: string; };

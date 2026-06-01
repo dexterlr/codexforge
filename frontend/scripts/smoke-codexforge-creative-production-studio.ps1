@@ -174,7 +174,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Creative Production Studio" "managed smoke suite includes Creative Production Studio exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/creative" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/creative" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /creative returned status $($response.StatusCode)"
   }

@@ -40,7 +40,7 @@ Assert-NotMatches $source "localStorage\.setItem" "no browser secret write"
 Assert-NotMatches $source "password\s*[:=]" "no raw password field"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/ai-providers" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/ai-providers" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /ai-providers returned status $($response.StatusCode)" }
   Write-Host "[PASS] /ai-providers route reachable"
 } catch {

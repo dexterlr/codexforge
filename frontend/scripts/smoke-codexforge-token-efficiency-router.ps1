@@ -39,7 +39,7 @@ Assert-NotMatches $source "localStorage\.setItem" "no browser secret write"
 Assert-NotMatches $source "Math\.random|Date\.now" "deterministic routing"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/token-router" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/token-router" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /token-router returned status $($response.StatusCode)" }
   Write-Host "[PASS] /token-router route reachable"
 } catch {

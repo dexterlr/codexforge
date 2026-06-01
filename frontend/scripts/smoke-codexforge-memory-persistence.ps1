@@ -158,7 +158,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Memory Persistence" "managed smoke suite includes Memory Persistence exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/api/codexforge/memory/events/list" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/api/codexforge/memory/events/list" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] list API returned status $($response.StatusCode)"
   }

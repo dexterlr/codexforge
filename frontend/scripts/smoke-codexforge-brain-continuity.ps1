@@ -183,7 +183,7 @@ if ($suiteMatches.Count -ne 1) { throw "[FAIL] Managed smoke suite must include 
 Assert-Contains $allSmoke "Brain Continuity" "managed smoke suite includes Brain Continuity exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/brain-continuity" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/brain-continuity" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /brain-continuity returned status $($response.StatusCode)" }
   Write-Host "[PASS] /brain-continuity route reachable"
 } catch {

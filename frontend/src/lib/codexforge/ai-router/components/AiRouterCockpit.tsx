@@ -66,6 +66,8 @@ export function AiRouterCockpit() {
         <div style={linkRow}>
           <Link href="/ai" style={workspaceLink}>Open workspace</Link>
           <Link href="/ai-providers" style={secondaryLink}>Provider registry</Link>
+          <Link href="/model-capabilities" style={secondaryLink}>Model capabilities</Link>
+          <Link href="/task-router" style={secondaryLink}>Task router</Link>
           <Link href="/provider-adapters" style={secondaryLink}>Provider adapters</Link>
           <Link href="/credentials" style={secondaryLink}>Credential strategy</Link>
           <Link href="/token-router" style={secondaryLink}>Token router</Link>

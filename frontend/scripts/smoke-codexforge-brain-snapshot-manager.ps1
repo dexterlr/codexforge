@@ -229,7 +229,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Brain Snapshot Manager" "managed smoke suite includes Brain Snapshot Manager exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/brain-snapshots" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/brain-snapshots" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /brain-snapshots returned status $($response.StatusCode)"
   }

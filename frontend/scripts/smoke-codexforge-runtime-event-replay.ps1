@@ -223,7 +223,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Runtime Event Replay" "managed smoke suite includes Runtime Event Replay exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/runtime-replay" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/runtime-replay" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /runtime-replay returned status $($response.StatusCode)"
   }

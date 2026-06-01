@@ -177,7 +177,7 @@ if ($suiteMatches.Count -ne 1) { throw "[FAIL] Managed smoke suite must include 
 Assert-Contains $allSmoke "Consolidation Pass" "managed smoke suite includes Consolidation Pass exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/consolidation" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/consolidation" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /consolidation returned status $($response.StatusCode)" }
   Write-Host "[PASS] /consolidation route reachable"
 } catch {

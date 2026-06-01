@@ -22,6 +22,9 @@ export function TokenEfficiencyRouterPanel() {
         </div>
         <div style={linkRow}>
           <Link href="/ai-router" style={link}>AI Router</Link>
+          <Link href="/task-router" style={link}>Task router</Link>
+          <Link href="/model-capabilities" style={link}>Model capabilities</Link>
+          <Link href="/provider-health" style={link}>Provider health</Link>
           <Link href="/ai-providers" style={link}>Provider profiles</Link>
           <Link href="/provider-adapters" style={link}>Adapter readiness</Link>
           <Link href="/provider-setup" style={primaryLink}>Setup wizard</Link>

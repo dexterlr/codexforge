@@ -35,6 +35,7 @@ export function ProviderAdaptersPanel() {
         <div style={linkRow}>
           <Link href="#readiness" style={primaryLink}>Review adapter readiness</Link>
           <Link href="/ai-providers" style={link}>Provider profiles</Link>
+          <Link href="/provider-health" style={link}>Provider health</Link>
           <Link href="/credentials" style={link}>Credential safety</Link>
           <Link href="/token-router" style={link}>Token router</Link>
         </div>

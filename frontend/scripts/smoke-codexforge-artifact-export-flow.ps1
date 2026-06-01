@@ -169,7 +169,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Artifact Export Flow" "managed smoke suite includes Artifact Export Flow exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/production" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/production" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
     throw "[FAIL] /production returned status $($response.StatusCode)"
   }

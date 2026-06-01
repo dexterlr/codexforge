@@ -20,10 +20,9 @@ function Test-CodexForgeServer {
   param([Parameter(Mandatory = $true)][string]$Url)
 
   try {
-    $response = Invoke-WebRequest `
+    $response = Invoke-WebRequest -UseBasicParsing `
       -Uri $Url `
       -Method GET `
-      -UseBasicParsing `
       -TimeoutSec 3
 
     return [int]$response.StatusCode -ge 200 -and [int]$response.StatusCode -lt 500

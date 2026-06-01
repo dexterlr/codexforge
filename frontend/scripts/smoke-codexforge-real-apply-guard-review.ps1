@@ -207,7 +207,7 @@ if ($suiteMatches.Count -ne 1) {
 Assert-Contains $allSmoke "Real Apply Guard Review" "managed smoke suite includes Real Apply Guard Review exactly once"
 
 try {
-  $response = Invoke-WebRequest -Method Get -Uri "$BaseUrl/apply-guard-review" -TimeoutSec 5
+  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/apply-guard-review" -TimeoutSec 5
   if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "[FAIL] /apply-guard-review returned status $($response.StatusCode)" }
   Write-Host "[PASS] /apply-guard-review route reachable"
 } catch {

@@ -49,12 +49,11 @@ function Invoke-CodexForgeChat {
     }
   } | ConvertTo-Json -Depth 20
 
-  $Response = Invoke-WebRequest `
+  $Response = Invoke-WebRequest -UseBasicParsing `
     -Uri "$BaseUrl/api/codexforge/chat" `
     -Method POST `
     -ContentType "application/json" `
     -Body $Body `
-    -UseBasicParsing
 
   Assert-Equal "$Label HTTP status" $Response.StatusCode 200
 
