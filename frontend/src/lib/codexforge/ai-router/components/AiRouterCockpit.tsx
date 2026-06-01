@@ -63,7 +63,12 @@ export function AiRouterCockpit() {
             planning.
           </p>
         </div>
-        <Link href="/ai" style={workspaceLink}>Open workspace</Link>
+        <div style={linkRow}>
+          <Link href="/ai" style={workspaceLink}>Open workspace</Link>
+          <Link href="/ai-providers" style={secondaryLink}>Provider registry</Link>
+          <Link href="/credentials" style={secondaryLink}>Credential strategy</Link>
+          <Link href="/token-router" style={secondaryLink}>Token router</Link>
+        </div>
       </section>
 
       <AiRouterSafetyNotice />
@@ -114,6 +119,8 @@ const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 11, fontWeight: 900
 const headline: CSSProperties = { fontSize: "clamp(28px, 5vw, 54px)", lineHeight: 1, margin: "8px 0", letterSpacing: 0, overflowWrap: "anywhere" };
 const lede: CSSProperties = { maxWidth: 760, margin: 0, color: "rgba(226,232,240,0.76)", lineHeight: 1.55, fontSize: 14, overflowWrap: "anywhere" };
 const workspaceLink: CSSProperties = { color: "#021014", background: "#5eead4", borderRadius: 8, padding: "10px 12px", textDecoration: "none", fontSize: 12, fontWeight: 900, maxWidth: "100%", overflowWrap: "anywhere" };
+const linkRow: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8, alignContent: "flex-start" };
+const secondaryLink: CSSProperties = { color: "#dbeafe", border: "1px solid rgba(125,211,252,0.18)", borderRadius: 8, padding: "10px 12px", textDecoration: "none", fontSize: 12, fontWeight: 900, maxWidth: "100%", overflowWrap: "anywhere" };
 const metricGrid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))", gap: 10, minWidth: 0 };
 const metric: CSSProperties = { border: "1px solid rgba(148,163,184,0.16)", background: "rgba(15,23,42,0.62)", borderRadius: 8, padding: 12, display: "grid", gap: 4, minWidth: 0, overflowWrap: "anywhere" };
 const split: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 14, minWidth: 0 };
