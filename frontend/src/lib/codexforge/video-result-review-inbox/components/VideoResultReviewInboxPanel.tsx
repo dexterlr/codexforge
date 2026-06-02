@@ -29,6 +29,9 @@ export function VideoResultReviewInboxPanel() {
         links={[
           { href: "/video-artifacts", label: "Video artifacts" },
           { href: "/video-compare", label: "Compare drafts" },
+          { href: "/video-upscale", label: "Video upscale" },
+          { href: "/video-interpolation", label: "Frame interpolation" },
+          { href: "/video-final-render", label: "Draft to final" },
           { href: "/video-recovery", label: "Video recovery" },
           { href: "/video-jobs", label: "Video jobs" },
         ]}

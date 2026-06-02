@@ -31,6 +31,10 @@ export function LocalVideoArtifactGalleryPanel() {
           { href: "/video-review", label: "Video review" },
           { href: "/video-recovery", label: "Video recovery" },
           { href: "/video-compare", label: "Compare drafts" },
+          { href: "/video-upscale", label: "Video upscale" },
+          { href: "/video-interpolation", label: "Frame interpolation" },
+          { href: "/video-finishing", label: "Video finishing" },
+          { href: "/video-final-render", label: "Draft to final" },
         ]}
       />
       <VideoArtifactGallerySafetyStrip />

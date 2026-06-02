@@ -31,6 +31,7 @@ export function VideoFailureRecoveryFlowPanel() {
           { href: "/video-review", label: "Video review" },
           { href: "/video-artifacts", label: "Video artifacts" },
           { href: "/video-compare", label: "Compare drafts" },
+          { href: "/video-final-render", label: "Draft to final" },
           { href: "/comfyui-workflows/safety", label: "Workflow safety" },
         ]}
       />

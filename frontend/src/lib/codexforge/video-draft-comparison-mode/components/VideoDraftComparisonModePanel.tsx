@@ -32,6 +32,9 @@ export function VideoDraftComparisonModePanel() {
           { href: "/video-artifacts", label: "Video artifacts" },
           { href: "/video-recovery", label: "Video recovery" },
           { href: "/local-draft-review", label: "Draft review" },
+          { href: "/video-upscale", label: "Video upscale" },
+          { href: "/video-interpolation", label: "Frame interpolation" },
+          { href: "/video-finishing", label: "Video finishing" },
         ]}
       />
       <VideoDraftComparisonSafetyStrip />
