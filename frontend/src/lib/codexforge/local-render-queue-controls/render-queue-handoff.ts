@@ -4,7 +4,7 @@ export function buildRenderQueueHandoff(input: Partial<RenderQueueHandoff> = {})
   return {
     id: input.id ?? "render-queue-handoff",
     copyLabel: input.copyLabel ?? "Copy queue handoff allowed",
-    nextStep: input.nextStep ?? "Review queue items, worker strategy, and scheduler order before any approved local execution exists.",
+    nextStep: input.nextStep ?? "Review queue items, worker strategy, scheduler order, health gate status, dry run status, and submit boundary status before any approved local execution exists.",
     safetyNote: input.safetyNote ?? "This handoff is copy-only. It does not mutate a queue, delete files, or control a process.",
   };
 }

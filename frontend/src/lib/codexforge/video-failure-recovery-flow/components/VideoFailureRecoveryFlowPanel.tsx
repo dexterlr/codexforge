@@ -33,6 +33,7 @@ export function VideoFailureRecoveryFlowPanel() {
           { href: "/video-compare", label: "Compare drafts" },
           { href: "/video-final-render", label: "Draft to final" },
           { href: "/comfyui-workflows/safety", label: "Workflow safety" },
+          { href: "/comfyui-submit", label: "Submit boundary" },
         ]}
       />
       <VideoFailureRecoverySafetyStrip />

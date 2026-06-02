@@ -33,6 +33,9 @@ export function LocalRenderQueueControlsPanel() {
           { href: "/video-jobs", label: "Video jobs" },
           { href: "/video-final-render", label: "Draft to final" },
           { href: "/video-artifacts", label: "Artifacts" },
+          { href: "/comfyui-health/gate", label: "Health gate" },
+          { href: "/comfyui-workflows/dry-run", label: "Dry run" },
+          { href: "/comfyui-submit", label: "Submit boundary" },
         ]}
       />
       <RenderQueueSafetyStrip />
@@ -50,7 +53,7 @@ export function LocalRenderQueueControlsPanel() {
       <RenderQueueEmptyState />
       <PreviewFoundationDetail summary="Advanced render queue details">
         <PreviewFoundationCopy>
-          This queue preview models pause, resume, cancel, retry, hold, prioritize, remove from preview, and review before run. It does not control processes, delete files, mutate a real queue, call ComfyUI, or execute local render jobs.
+          This queue preview models pause, resume, cancel, retry, hold, prioritize, remove from preview, health gate status, workflow dry run status, and submit boundary status before run. It does not control processes, delete files, mutate a real queue, call ComfyUI, or execute local render jobs.
         </PreviewFoundationCopy>
       </PreviewFoundationDetail>
     </div>

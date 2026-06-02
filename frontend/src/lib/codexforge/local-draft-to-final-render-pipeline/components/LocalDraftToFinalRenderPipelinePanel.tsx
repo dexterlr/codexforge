@@ -38,6 +38,8 @@ export function LocalDraftToFinalRenderPipelinePanel() {
           { href: "/video-review", label: "Video review" },
           { href: "/video-artifacts", label: "Video artifacts" },
           { href: "/video-recovery", label: "Video recovery" },
+          { href: "/comfyui-workflows/dry-run", label: "Workflow dry run" },
+          { href: "/comfyui-submit", label: "Submit boundary" },
         ]}
       />
       <DraftToFinalSafetyStrip />

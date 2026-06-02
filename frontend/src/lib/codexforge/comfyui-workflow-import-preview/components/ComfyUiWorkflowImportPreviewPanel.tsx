@@ -32,6 +32,7 @@ export function ComfyUiWorkflowImportPreviewPanel() {
           { href: "/comfyui-workflows/parameters", label: "Parameters" },
           { href: "/comfyui-jobs/package", label: "Job package" },
           { href: "/comfyui-health", label: "ComfyUI health" },
+          { href: "/comfyui-metadata", label: "Metadata" },
         ]}
       />
       <ComfyUiWorkflowImportSafetyStrip />
@@ -47,7 +48,7 @@ export function ComfyUiWorkflowImportPreviewPanel() {
       <ComfyUiWorkflowImportEmptyState />
       <PreviewFoundationDetail summary="Advanced workflow import details">
         <PreviewFoundationCopy>Raw JSON preview, if supplied later, belongs here or below this fold. The default view only shows a safe plain-English summary.</PreviewFoundationCopy>
-        <PreviewFoundationCopy>No file upload parser, workflow execution, ComfyUI API call, asset download, or provider prompt send is part of this phase.</PreviewFoundationCopy>
+        <PreviewFoundationCopy>No file upload parser, workflow execution, ComfyUI API call, asset download, or provider prompt send is part of this phase. Metadata readiness can be reviewed separately before dry run.</PreviewFoundationCopy>
       </PreviewFoundationDetail>
     </div>
   );

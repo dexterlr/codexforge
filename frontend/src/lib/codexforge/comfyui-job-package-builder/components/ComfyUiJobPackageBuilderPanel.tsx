@@ -32,6 +32,8 @@ export function ComfyUiJobPackageBuilderPanel() {
           { href: "/video-jobs", label: "Video jobs" },
           { href: "/video-artifacts", label: "Video artifacts" },
           { href: "/comfyui-health", label: "ComfyUI health" },
+          { href: "/comfyui-workflows/dry-run", label: "Dry run" },
+          { href: "/comfyui-submit", label: "Submit boundary" },
         ]}
       />
       <ComfyUiJobPackageSafetyStrip />
