@@ -27,6 +27,9 @@ export function LocalVideoArtifactGalleryPanel() {
         subtitle="Review local creative outputs and handoffs in one place. No renders exist yet, and this page does not browse files."
         primary={{ href: "#video-artifacts", label: "Review artifacts" }}
         links={[
+          { href: "/local-image", label: "Local image MVP" },
+          { href: "/local-keyframes", label: "Local keyframes MVP" },
+          { href: "/video-capture", label: "Capture artifact" },
           { href: "/comfyui-jobs/package", label: "Job package" },
           { href: "/video-review", label: "Video review" },
           { href: "/video-recovery", label: "Video recovery" },

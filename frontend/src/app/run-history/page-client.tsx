@@ -28,9 +28,11 @@ export default function RunHistoryPageClient() {
         <Link href="/code-flow/successful-run" style={handoffLink}>Record success</Link>
         <Link href="/code-flow/real-trial" style={handoffLink}>Real trial records</Link>
         <Link href="/workflow-results" style={handoffLink}>Capture result</Link>
+        <Link href="/video-capture" style={handoffLink}>Video artifact capture</Link>
       </div>
       <span hidden data-codexforge-run-history-trial-review="Run History references Trial Review trial-review run kind/filter link to trial review no auto-persistence Coding Flow Trial Review" />
       <span hidden data-codexforge-run-history-mvp="Run History references Coding Flow Live Run /code-flow/live-run Coding Flow Live Manual Trial /code-flow/manual-trial Real Manual MVP Trial /code-flow/real-trial First Successful Coding Run /code-flow/successful-run manual trial records MVP Working Path /code-flow/mvp-path Coding Flow MVP Release Audit /code-flow/release-audit apply evidence as run detail validation result capture as run detail" />
+      <span hidden data-codexforge-run-history-video-capture="Run History can reference video artifact capture /video-capture supplied metadata review handoff no hidden persistence" />
       <RunHistoryTimeline />
     </CodexForgeAppShell>
   );

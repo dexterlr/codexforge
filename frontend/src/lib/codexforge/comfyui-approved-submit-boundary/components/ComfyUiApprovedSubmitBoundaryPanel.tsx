@@ -32,6 +32,7 @@ export function ComfyUiApprovedSubmitBoundaryPanel() {
           { href: "/comfyui-workflows/dry-run", label: "Dry run" },
           { href: "/comfyui-jobs/package", label: "Job package" },
           { href: "/render-queue", label: "Render queue" },
+          { href: "/local-image", label: "Local image MVP" },
           { href: "/video-final-render", label: "Draft to final" },
           { href: "/video-recovery", label: "Video recovery" },
         ]}

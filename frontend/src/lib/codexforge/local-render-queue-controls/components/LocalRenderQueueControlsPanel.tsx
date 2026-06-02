@@ -31,6 +31,7 @@ export function LocalRenderQueueControlsPanel() {
           { href: "/gpu-scheduler", label: "GPU scheduler" },
           { href: "/dual-gpu", label: "Dual-GPU strategy" },
           { href: "/video-jobs", label: "Video jobs" },
+          { href: "/local-video-draft", label: "Local video draft MVP" },
           { href: "/video-final-render", label: "Draft to final" },
           { href: "/video-artifacts", label: "Artifacts" },
           { href: "/comfyui-health/gate", label: "Health gate" },

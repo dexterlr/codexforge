@@ -27,6 +27,8 @@ export function VideoResultReviewInboxPanel() {
         subtitle="Review drafts, choose what to keep, and decide the next step. No generated results are faked here."
         primary={{ href: "#video-review", label: "Review next video" }}
         links={[
+          { href: "/local-video-draft", label: "Local video draft MVP" },
+          { href: "/video-capture", label: "Capture artifact" },
           { href: "/video-artifacts", label: "Video artifacts" },
           { href: "/video-compare", label: "Compare drafts" },
           { href: "/video-upscale", label: "Video upscale" },
