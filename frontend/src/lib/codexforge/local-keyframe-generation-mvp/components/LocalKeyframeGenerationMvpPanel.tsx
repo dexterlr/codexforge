@@ -29,6 +29,9 @@ export function LocalKeyframeGenerationMvpPanel() {
         primary={{ href: "#local-keyframes-mvp", label: "Review keyframe request" }}
         links={[
           { href: "/keyframes", label: "Keyframe plan" },
+          { href: "/creative-memory", label: "Creative memory" },
+          { href: "/style-presets", label: "Style presets" },
+          { href: "/consistency-kit", label: "Consistency kit" },
           { href: "/local-image", label: "Local image" },
           { href: "/storyboard", label: "Storyboard" },
           { href: "/local-draft-review", label: "Draft review" },

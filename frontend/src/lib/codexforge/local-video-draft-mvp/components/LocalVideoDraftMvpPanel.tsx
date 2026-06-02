@@ -29,6 +29,9 @@ export function LocalVideoDraftMvpPanel() {
         primary={{ href: "#local-video-draft-mvp", label: "Review draft request" }}
         links={[
           { href: "/local-draft-review", label: "Draft review" },
+          { href: "/creative-memory", label: "Creative memory" },
+          { href: "/consistency-kit", label: "Consistency kit" },
+          { href: "/shot-library", label: "Shot library" },
           { href: "/local-keyframes", label: "Local keyframes" },
           { href: "/video-jobs", label: "Video jobs" },
           { href: "/render-queue", label: "Render queue" },

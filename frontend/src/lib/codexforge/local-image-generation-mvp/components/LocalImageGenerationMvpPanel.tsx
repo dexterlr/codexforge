@@ -29,6 +29,8 @@ export function LocalImageGenerationMvpPanel() {
         primary={{ href: "#local-image-mvp", label: "Review image request" }}
         links={[
           { href: "/video-prompt", label: "Video prompt" },
+          { href: "/creative-memory", label: "Creative memory" },
+          { href: "/style-presets", label: "Style presets" },
           { href: "/keyframes", label: "Keyframes" },
           { href: "/comfyui-submit", label: "Submit boundary" },
           { href: "/video-artifacts", label: "Video artifacts" },

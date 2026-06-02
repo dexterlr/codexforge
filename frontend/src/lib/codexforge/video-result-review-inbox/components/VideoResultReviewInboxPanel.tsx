@@ -28,6 +28,8 @@ export function VideoResultReviewInboxPanel() {
         primary={{ href: "#video-review", label: "Review next video" }}
         links={[
           { href: "/local-video-draft", label: "Local video draft MVP" },
+          { href: "/creative-memory", label: "Creative memory" },
+          { href: "/shot-library", label: "Shot library" },
           { href: "/video-capture", label: "Capture artifact" },
           { href: "/video-artifacts", label: "Video artifacts" },
           { href: "/video-compare", label: "Compare drafts" },
