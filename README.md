@@ -4,10 +4,23 @@ CodexForge is a local-first AI developer workspace for planning, memory, file in
 
 The product is a foundation-stage engineering runtime. It can prepare and review many future execution paths, but it does not silently mutate files, bypass approval gates, or run external creative or broker tools from preview UI.
 
+## Canonical Workspace
+
+Active product: CodexForge frontend.
+
+Active path:
+
+```text
+C:\ai-lab\projects\openclaw-workspace\repos\<current-project>\frontend
+```
+
+Use `frontend/docs/WORKSPACE_MAP.md` before treating duplicate or scratch folders as source of truth. Generated folders, local env files, runtime state, dependency folders, build output, backups, and patch bundles are not reviewable work.
+
 ## Current Product
 
 CodexForge includes:
 
+- Novice onboarding, assisted coding, validation capture, recovery, review inbox, run history, and plain-English safety coaching.
 - Brain runtime with canonical graph types, runtime events, context assembly, memory ranking, episodes, lineage, semantic links, health dashboards, recommendations, and deterministic memory ingestion.
 - Cognitive memory, approved memory persistence, memory review and promotion queue, evidence memory review, approved Brain graph merge, Brain memory recall, and chat recall context.
 - Real 3D Brain graph built with WebGL, Three.js, React Three Fiber, and Drei, plus a fallback-safe 2D Brain graph.
@@ -17,6 +30,7 @@ CodexForge includes:
 - Evidence-Grounded Chat, Safe Patch Preview, Patch Preview Queue, Preview Diff Composer, Patch Application Gate, and Apply-Diff Dry Run simulation.
 - Operator Run Center, Capability Cockpit, Local Bridge, Mission Control, global navigation shell, header dedupe, and product surface planning.
 - Creative Production Studio, artifact workspace, artifact executor, artifact export flow, artifact ingestion, and production pack builder.
+- Local machine readiness, provider/router readiness, env-key safety, local provider probes, creative/video planning, repo hygiene, product readiness, and stabilization surfaces.
 - Policy guard, approval boundary visibility, and smoke-backed architecture.
 
 ## Architecture
@@ -68,6 +82,7 @@ Core planning prefers deterministic local logic. AI/provider integrations are op
 - `/history`: local activity and history intelligence.
 - `/mission`: Mission Control.
 - `/artifacts`: artifact executor, workspace, export, and ingestion review.
+- `/repo-hygiene`: generated-file, workspace, test-script, secret, and docs cleanup posture.
 - `/entry`: quick launch surface.
 - `/clawd`: operator surface.
 
@@ -115,6 +130,7 @@ CodexForge is intentionally conservative:
 - The graph visual layer does not mutate graph state.
 - The real 3D Brain graph has a 2D fallback.
 - Local deterministic logic is preferred for core planning and safety decisions.
+- Repo hygiene UI exposes no deletion controls and no command execution controls.
 
 ## Dependencies
 
@@ -148,6 +164,9 @@ Core validation:
 
 ```powershell
 npm run build
+npm run typecheck
+npm run test
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-repo-hygiene.ps1
 npm run smoke:codexforge:server
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
 git diff --check

@@ -28,10 +28,13 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.*
+!.env.example
 
 # vercel
 .vercel
@@ -39,6 +42,23 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# build caches
+dist/
+.turbo/
+.cache/
+.parcel-cache/
+.vite/
+
+# Python and test caches
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS files
+Thumbs.db
 
 # Local operator checkpoints (never commit)
 .checkpoints/
@@ -58,3 +78,11 @@ _codexforge-backups/
 
 # CodexForge local runtime state
 .codexforge/
+
+# Local patch bundles and agent scratch state
+unpushed-patches/
+*.bundle
+.agent-state/
+agent-state/
+.agent-memory/
+agent-memory/

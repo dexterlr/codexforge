@@ -4,12 +4,28 @@ This directory contains the Next.js frontend for CodexForge, a local-first AI de
 
 For the full product overview, see `../README.md`.
 
+## Current Stage
+
+CodexForge is now a foundation-stage local developer workspace. It has real deterministic frontend domains, route-backed review surfaces, smoke coverage, and explicit safety boundaries. Some areas are runtime-ready review surfaces; creative execution, provider execution, and broad apply automation remain preview-only or approval-gated.
+
+Canonical frontend path:
+
+```text
+C:\ai-lab\projects\openclaw-workspace\repos\<current-project>\frontend
+```
+
+See `docs/WORKSPACE_MAP.md` before using duplicate or scratch copies.
+
 ## Current Product
 
 CodexForge currently includes:
 
+- Novice onboarding, assisted coding, validation capture, recovery, review inbox, and run history.
 - Brain runtime, cognitive memory, deterministic Brain memory ingestion, Brain memory recall, and chat recall context.
 - AI Subscription Router for local/API/provider profiles, model catalog metadata, subscription tiers, deterministic task classification, approximate token budgets, route recommendations, fallback route visibility, and usage ledger preview.
+- Local machine, provider readiness, env readiness, and safe local provider probe previews.
+- Creative and video planning for local-first draft workflows, render planning, review, recovery, and finishing.
+- Repo hygiene, product readiness, quality audit, consolidation, validation, and stabilization surfaces.
 - Real 3D Brain graph powered by Three.js, React Three Fiber, and Drei, with a fallback-safe 2D graph view.
 - Approved memory persistence, memory review and promotion queue, approved Brain graph merge, and evidence memory review.
 - Task Memory Autopilot, reviewed task activation, Execution Readiness, Approved Step Runner Preview, and approved read-only step execution.
@@ -34,6 +50,7 @@ CodexForge currently includes:
 - `/history`: activity and history intelligence.
 - `/mission`: Mission Control.
 - `/artifacts`: artifact executor, workspace, export, and ingestion review.
+- `/repo-hygiene`: generated-file, workspace, test-script, secret, and docs cleanup posture.
 - `/entry`: quick launch surface.
 - `/clawd`: operator surface.
 
@@ -67,12 +84,36 @@ Provider configuration remains operator-controlled. API keys must stay in approv
 - PC/camera features require explicit future session consent.
 - Creative external tools remain approval-gated and preview-only from the frontend.
 - The graph visual layer does not mutate graph state; the 3D Brain graph has a 2D fallback.
+- Repo hygiene UI does not delete files or run commands.
+- Generated folders, local env files, runtime state, dependency folders, build output, and backup folders should not be committed.
+
+## Generated Files
+
+Generated and local-only state belongs outside review:
+
+```text
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+.operator/
+.codexforge/
+.checkpoints/
+_codexforge-backups/
+unpushed-patches/
+```
+
+Do commit intentional source, smoke scripts, package lockfiles, README files, and real docs.
 
 ## Development
 
 ```powershell
 npm install
 npm run dev
+npm run typecheck
+npm run test
 npm run build
 ```
 
@@ -92,6 +133,7 @@ Focused examples:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-smoke-groups.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-repo-hygiene.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-ai-router.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-apply-evidence-pack.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brand-clean.ps1

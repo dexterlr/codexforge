@@ -137,6 +137,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Continuity Handoff"; File = "smoke-codexforge-continuity-handoff.ps1"; Required = $true },
   @{ Name = "Product Readiness Audit"; File = "smoke-codexforge-product-readiness-audit.ps1"; Required = $true },
   @{ Name = "Consolidation Pass"; File = "smoke-codexforge-consolidation-pass.ps1"; Required = $true },
+  @{ Name = "Repo Hygiene"; File = "smoke-codexforge-repo-hygiene.ps1"; Required = $true },
   @{ Name = "Real Patch Preview"; File = "smoke-codexforge-real-patch-preview.ps1"; Required = $true },
   @{ Name = "Approved Patch Apply"; File = "smoke-codexforge-approved-patch-apply.ps1"; Required = $true },
   @{ Name = "Validation Runner"; File = "smoke-codexforge-validation-runner.ps1"; Required = $true },

@@ -151,6 +151,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/capabilities": true,
   "/activity": true,
   "/readiness": true,
+  "/repo-hygiene": true,
   "/quality-audit": true,
   "/consolidation": true,
   "/validation": true,
@@ -1115,6 +1116,14 @@ export function buildCodexForgeCommands(
       href: "/readiness",
       keywords: ["product readiness", "readiness", "audit", "route", "Phase 54"],
       priority: 87,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-repo-hygiene",
+      label: "Go to Repo Hygiene",
+      description: "Navigate to the read-only repo hygiene cleanup checklist.",
+      href: "/repo-hygiene",
+      keywords: ["repo hygiene", "workspace map", "generated files", "ignore rules", "secrets", "tests", "route"],
+      priority: 87.25,
     }),
     buildRouteCommand(availability, {
       id: "go-system-quality-audit",

@@ -8,12 +8,14 @@
         "start": "next start",
         "lint": "eslint .",
         "typecheck": "tsc --noEmit",
-        "test": "echo Operator test OK",
+        "test": "npm run typecheck",
         "check": "npm run lint && npm run typecheck",
         "clean": "rimraf .next",
         "rebuild": "npm run clean && npm run build",
         "smoke:codexforge": "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-all.ps1",
-        "smoke:codexforge:server": "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-with-server.ps1"
+        "smoke:codexforge:server": "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-codexforge-with-server.ps1",
+        "smoke": "npm run smoke:codexforge",
+        "validate": "npm run build && npm run smoke:codexforge:server"
     },
     "dependencies": {
         "@react-three/drei": "^10.7.7",
