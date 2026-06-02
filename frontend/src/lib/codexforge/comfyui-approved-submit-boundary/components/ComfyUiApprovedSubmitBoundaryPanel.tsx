@@ -34,6 +34,7 @@ export function ComfyUiApprovedSubmitBoundaryPanel() {
           { href: "/render-queue", label: "Render queue" },
           { href: "/local-image", label: "Local image MVP" },
           { href: "/video-final-render", label: "Draft to final" },
+          { href: "/video-safety-audit", label: "Safety audit" },
           { href: "/video-recovery", label: "Video recovery" },
         ]}
       />

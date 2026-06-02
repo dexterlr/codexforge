@@ -30,6 +30,9 @@ export function CreativeCostSaverRouterPanel() {
         links={[
           { href: "/video-jobs", label: "Video jobs" },
           { href: "/video-final-render", label: "Draft to final" },
+          { href: "/cloud-video-providers", label: "Cloud fallback" },
+          { href: "/cloud-final-render", label: "Cloud final review" },
+          { href: "/local-vs-cloud", label: "Local vs cloud" },
           { href: "/gpu-scheduler", label: "GPU scheduler" },
           { href: "/dual-gpu", label: "Dual-GPU strategy" },
           { href: "/render-queue", label: "Render queue" },

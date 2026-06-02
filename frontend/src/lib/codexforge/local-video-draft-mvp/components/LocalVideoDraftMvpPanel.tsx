@@ -38,6 +38,7 @@ export function LocalVideoDraftMvpPanel() {
           { href: "/video-jobs", label: "Video jobs" },
           { href: "/render-queue", label: "Render queue" },
           { href: "/video-review", label: "Video review" },
+          { href: "/video-safety-audit", label: "Safety audit" },
           { href: "/video-capture", label: "Capture artifact" },
         ]}
       />

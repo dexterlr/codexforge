@@ -30,6 +30,8 @@ export function VideoExportHandoffPanel() {
           { href: "/video-projects", label: "Video projects" },
           { href: "/render-history", label: "Render history" },
           { href: "/video-final-render", label: "Draft to final" },
+          { href: "/cloud-video-providers", label: "Cloud fallback" },
+          { href: "/cloud-final-render", label: "Cloud final review" },
           { href: "/video-artifacts", label: "Video artifacts" },
           { href: "/production", label: "Production pack" },
         ]}

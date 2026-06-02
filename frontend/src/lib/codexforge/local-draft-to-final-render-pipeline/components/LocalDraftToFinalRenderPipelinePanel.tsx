@@ -32,6 +32,8 @@ export function LocalDraftToFinalRenderPipelinePanel() {
           { href: "/render-history", label: "Render history" },
           { href: "/video-export", label: "Video export" },
           { href: "/creative-cost-router", label: "Creative cost saver" },
+          { href: "/cloud-final-render", label: "Cloud final review" },
+          { href: "/local-vs-cloud", label: "Local vs cloud" },
           { href: "/gpu-scheduler", label: "GPU scheduler" },
           { href: "/dual-gpu", label: "Dual-GPU strategy" },
           { href: "/render-queue", label: "Render queue" },

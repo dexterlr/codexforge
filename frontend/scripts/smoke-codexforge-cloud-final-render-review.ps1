@@ -1,0 +1,13 @@
+param([string]$BaseUrl = "http://localhost:3000")
+& (Join-Path $PSScriptRoot "codexforge-local-planning-phase-smoke-helper.ps1") `
+  -PhaseName "Cloud Final Render Review" `
+  -ScriptFile "smoke-codexforge-cloud-final-render-review.ps1" `
+  -Domain "src\lib\codexforge\cloud-final-render-review" `
+  -Route "src\app\cloud-final-render" `
+  -MainPanel "CloudFinalRenderReviewPanel" `
+  -CommandLabel "Go to Cloud Final Render" `
+  -Modules @("cloud-final-render-types.ts","cloud-final-render-request.ts","cloud-final-render-justification.ts","cloud-final-render-cost-review.ts","cloud-final-render-privacy-review.ts","cloud-final-render-readiness.ts","cloud-final-render-handoff.ts","cloud-final-render-summary.ts","index.ts") `
+  -Components @("CloudFinalRenderReviewPanel.tsx","CloudFinalRenderRequestPanel.tsx","CloudFinalRenderJustificationPanel.tsx","CloudFinalRenderCostReviewPanel.tsx","CloudFinalRenderPrivacyReviewPanel.tsx","CloudFinalRenderReadinessPanel.tsx","CloudFinalRenderHandoffPanel.tsx","CloudFinalRenderSummaryPanel.tsx","CloudFinalRenderSafetyStrip.tsx","CloudFinalRenderEmptyState.tsx","index.ts") `
+  -Exports @("buildCloudFinalRenderRequest","buildDefaultCloudFinalRenderRequest","buildCloudFinalRenderJustification","buildCloudFinalRenderCostReview","buildCloudFinalRenderPrivacyReview","buildCloudFinalRenderReadiness","buildCloudFinalRenderHandoff","buildCloudFinalRenderSummary","summarizeCloudFinalRenderReview") `
+  -PlainEnglish @("Cloud final render review","Review whether a cloud final render is worth the cost before anything is sent.","Review cloud render","local draft reviewed","local final attempt considered","cloud capability needed","budget/credit risk understood","privacy reviewed","prompt/assets reviewed","manual approval required","no-auto-submit guarantee","local-first-recommended","cloud-review-needed","ready-for-manual-cloud-handoff","blocked-needs-privacy-review","blocked-needs-budget-review","blocked-no-provider","blocked-policy","unknown","No upload button","No API call","No generate button","Copy manual cloud render handoff allowed","future/manual/approved only","Nothing is uploaded yet","Nothing is generated yet","No credits are spent","no cloud provider API calls","no upload","no auto-generation","no fake generation success","no real export","no direct ComfyUI workflow run","no ComfyUI queue submit","no job queue mutation","no arbitrary file browsing","no delete artifact button","no silent persistence") `
+  -ExtraRoutes @("/cloud-video-providers","/local-vs-cloud","/video-safety-audit","/video-projects","/video-final-render","/video-export","/creative-cost-router")

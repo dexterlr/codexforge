@@ -37,6 +37,10 @@ export function VideoProjectWorkspacePanel() {
           { href: "/video-assets", label: "Video assets" },
           { href: "/render-history", label: "Render history" },
           { href: "/video-export", label: "Video export" },
+          { href: "/cloud-video-providers", label: "Cloud fallback" },
+          { href: "/cloud-final-render", label: "Cloud final review" },
+          { href: "/local-vs-cloud", label: "Local vs cloud" },
+          { href: "/video-safety-audit", label: "Safety audit" },
         ]}
       />
       <VideoProjectWorkspaceSafetyStrip />

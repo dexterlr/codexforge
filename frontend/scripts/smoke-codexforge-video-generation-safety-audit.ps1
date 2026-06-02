@@ -1,0 +1,13 @@
+param([string]$BaseUrl = "http://localhost:3000")
+& (Join-Path $PSScriptRoot "codexforge-local-planning-phase-smoke-helper.ps1") `
+  -PhaseName "Video Generation Safety Audit" `
+  -ScriptFile "smoke-codexforge-video-generation-safety-audit.ps1" `
+  -Domain "src\lib\codexforge\video-generation-safety-audit" `
+  -Route "src\app\video-safety-audit" `
+  -MainPanel "VideoGenerationSafetyAuditPanel" `
+  -CommandLabel "Go to Video Safety Audit" `
+  -Modules @("video-generation-safety-types.ts","video-safety-audit.ts","video-safety-check.ts","video-safety-risk.ts","video-safety-boundary.ts","video-safety-decision.ts","video-safety-handoff.ts","video-safety-summary.ts","index.ts") `
+  -Components @("VideoGenerationSafetyAuditPanel.tsx","VideoSafetyAuditPanel.tsx","VideoSafetyCheckPanel.tsx","VideoSafetyRiskPanel.tsx","VideoSafetyBoundaryPanel.tsx","VideoSafetyDecisionPanel.tsx","VideoSafetyHandoffPanel.tsx","VideoSafetySummaryPanel.tsx","VideoSafetyAuditSafetyStrip.tsx","VideoSafetyAuditEmptyState.tsx","index.ts") `
+  -Exports @("buildVideoSafetyAudit","buildDefaultVideoSafetyAudit","buildVideoSafetyCheck","buildDefaultVideoSafetyChecks","buildVideoSafetyRisk","buildVideoSafetyBoundary","buildVideoSafetyDecision","buildVideoSafetyHandoff","buildVideoSafetySummary","summarizeVideoSafetyAudit") `
+  -PlainEnglish @("Video safety audit","Check whether the video generation path is safe enough for a future real trial.","Run safety audit","local health gate exists","metadata probe reviewed","workflow import reviewed","workflow safety inspected","parameters mapped","dry run contract reviewed","submit boundary reviewed","render queue controls reviewed","artifact capture ready","review inbox ready","recovery path ready","export handoff ready","cloud fallback review ready","local-vs-cloud decision ready","no secret exposure","no auto-run default","explicit approval required","ready-for-real-local-trial-planning","needs-health-review","needs-workflow-review","needs-artifact-plan","needs-recovery-plan","needs-cloud-review","blocked-policy","unknown","pass","warn","block","No generation button","No provider calls","No queue submit","Copy safety audit handoff allowed","future real trial","no cloud provider API calls","no upload","no auto-generation","no fake generation success","no real export","no direct ComfyUI workflow run","no ComfyUI queue submit","no job queue mutation","no arbitrary file browsing","no delete artifact button","no silent persistence") `
+  -ExtraRoutes @("/comfyui-submit","/local-video-draft","/cloud-final-render","/local-vs-cloud","/video-projects","/video-export")
