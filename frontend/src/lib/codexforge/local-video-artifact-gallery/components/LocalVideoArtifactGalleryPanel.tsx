@@ -35,6 +35,7 @@ export function LocalVideoArtifactGalleryPanel() {
           { href: "/video-interpolation", label: "Frame interpolation" },
           { href: "/video-finishing", label: "Video finishing" },
           { href: "/video-final-render", label: "Draft to final" },
+          { href: "/render-queue", label: "Render queue" },
         ]}
       />
       <VideoArtifactGallerySafetyStrip />
@@ -48,7 +49,7 @@ export function LocalVideoArtifactGalleryPanel() {
       </section>
       <VideoArtifactGalleryEmptyState />
       <PreviewFoundationDetail summary="Advanced artifact gallery details">
-        <PreviewFoundationCopy>Future safe artifact work can connect a known artifact workspace. This phase does not read arbitrary paths, delete files, generate images, or generate video.</PreviewFoundationCopy>
+        <PreviewFoundationCopy>Future safe artifact work can connect a known artifact workspace and supplied queue outcomes such as complete-supplied or failed-supplied. This phase does not read arbitrary paths, delete files, generate images, or generate video.</PreviewFoundationCopy>
       </PreviewFoundationDetail>
     </div>
   );

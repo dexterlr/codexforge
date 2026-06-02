@@ -24,6 +24,7 @@ export function TokenEfficiencyRouterPanel() {
           <Link href="/ai-router" style={link}>AI Router</Link>
           <Link href="/task-router" style={link}>Task router</Link>
           <Link href="/local-machine" style={link}>Local machine</Link>
+          <Link href="/creative-cost-router" style={link}>Creative cost saver</Link>
           <Link href="/local-creative" style={link}>Local creative</Link>
           <Link href="/video-workflows" style={link}>Video workflows</Link>
           <Link href="/env-readiness" style={link}>Env readiness</Link>

@@ -28,6 +28,10 @@ export function LocalDraftToFinalRenderPipelinePanel() {
         subtitle="Prepare a reviewed local draft for a future final render."
         primary={{ href: "#video-final-render", label: "Review final render readiness" }}
         links={[
+          { href: "/creative-cost-router", label: "Creative cost saver" },
+          { href: "/gpu-scheduler", label: "GPU scheduler" },
+          { href: "/dual-gpu", label: "Dual-GPU strategy" },
+          { href: "/render-queue", label: "Render queue" },
           { href: "/video-finishing", label: "Video finishing" },
           { href: "/video-upscale", label: "Video upscale" },
           { href: "/video-interpolation", label: "Frame interpolation" },
@@ -49,7 +53,7 @@ export function LocalDraftToFinalRenderPipelinePanel() {
       <DraftToFinalEmptyState />
       <PreviewFoundationDetail summary="Advanced draft-to-final details">
         <PreviewFoundationCopy>
-          This readiness page connects review, comparison, upscale planning, interpolation planning, finishing gates, artifact destination, and recovery. It does not final render, call ComfyUI, call providers, or process video.
+          This readiness page connects review, comparison, creative cost saver, GPU scheduler, dual-GPU strategy, render queue controls, upscale planning, interpolation planning, finishing gates, artifact destination, and recovery. It does not final render, call ComfyUI, call providers, or process video.
         </PreviewFoundationCopy>
       </PreviewFoundationDetail>
     </div>
