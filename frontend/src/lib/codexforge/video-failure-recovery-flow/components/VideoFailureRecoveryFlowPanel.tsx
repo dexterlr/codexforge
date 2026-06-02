@@ -28,6 +28,7 @@ export function VideoFailureRecoveryFlowPanel() {
         subtitle="When a render fails or looks wrong, follow a safe next step. This page never retries automatically."
         primary={{ href: "#video-recovery", label: "Find recovery step" }}
         links={[
+          { href: "/video-assets", label: "Video assets" },
           { href: "/video-review", label: "Video review" },
           { href: "/video-artifacts", label: "Video artifacts" },
           { href: "/video-compare", label: "Compare drafts" },

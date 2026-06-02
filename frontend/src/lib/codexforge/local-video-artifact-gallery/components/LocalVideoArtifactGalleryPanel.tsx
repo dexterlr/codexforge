@@ -27,6 +27,10 @@ export function LocalVideoArtifactGalleryPanel() {
         subtitle="Review local creative outputs and handoffs in one place. No renders exist yet, and this page does not browse files."
         primary={{ href: "#video-artifacts", label: "Review artifacts" }}
         links={[
+          { href: "/video-projects", label: "Video projects" },
+          { href: "/video-assets", label: "Video assets" },
+          { href: "/render-history", label: "Render history" },
+          { href: "/video-export", label: "Video export" },
           { href: "/local-image", label: "Local image MVP" },
           { href: "/local-keyframes", label: "Local keyframes MVP" },
           { href: "/video-capture", label: "Capture artifact" },

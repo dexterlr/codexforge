@@ -68,6 +68,7 @@ export function ProductionPackBuilder({ pack }: { pack: ProductionPack }) {
             <a href="/creative" style={link}>Creative</a>
             <a href="/runs" style={link}>Runs</a>
             <a href="/artifacts" style={link}>Artifacts</a>
+            <a href="/video-export" style={link}>Video Export</a>
           </div>
         </div>
         <ProductionPackSafetyNotice pack={pack} />

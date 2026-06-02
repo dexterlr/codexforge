@@ -28,6 +28,7 @@ export function ComfyUiJobPackageBuilderPanel() {
         subtitle="Prepare a reviewed local video job before anything renders. The package is ready for future approved submit, not auto-run."
         primary={{ href: "#comfyui-job-package", label: "Build job package" }}
         links={[
+          { href: "/video-assets", label: "Video assets" },
           { href: "/comfyui-workflows/parameters", label: "Parameters" },
           { href: "/video-jobs", label: "Video jobs" },
           { href: "/video-artifacts", label: "Video artifacts" },

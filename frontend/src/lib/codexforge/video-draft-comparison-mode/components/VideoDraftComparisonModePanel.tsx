@@ -28,6 +28,7 @@ export function VideoDraftComparisonModePanel() {
         subtitle="Decide which draft to keep, retry, upscale, or finish. No real playback or file reading is required yet."
         primary={{ href: "#video-compare", label: "Compare drafts" }}
         links={[
+          { href: "/render-history", label: "Render history" },
           { href: "/video-review", label: "Video review" },
           { href: "/video-artifacts", label: "Video artifacts" },
           { href: "/video-recovery", label: "Video recovery" },

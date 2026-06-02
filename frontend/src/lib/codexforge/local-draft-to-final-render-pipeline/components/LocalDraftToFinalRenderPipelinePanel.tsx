@@ -28,6 +28,9 @@ export function LocalDraftToFinalRenderPipelinePanel() {
         subtitle="Prepare a reviewed local draft for a future final render."
         primary={{ href: "#video-final-render", label: "Review final render readiness" }}
         links={[
+          { href: "/video-projects", label: "Video projects" },
+          { href: "/render-history", label: "Render history" },
+          { href: "/video-export", label: "Video export" },
           { href: "/creative-cost-router", label: "Creative cost saver" },
           { href: "/gpu-scheduler", label: "GPU scheduler" },
           { href: "/dual-gpu", label: "Dual-GPU strategy" },

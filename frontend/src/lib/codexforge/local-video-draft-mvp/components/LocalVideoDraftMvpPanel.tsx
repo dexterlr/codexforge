@@ -28,6 +28,8 @@ export function LocalVideoDraftMvpPanel() {
         subtitle="Prepare a short local video draft request before anything renders."
         primary={{ href: "#local-video-draft-mvp", label: "Review draft request" }}
         links={[
+          { href: "/video-projects", label: "Video projects" },
+          { href: "/video-assets", label: "Video assets" },
           { href: "/local-draft-review", label: "Draft review" },
           { href: "/creative-memory", label: "Creative memory" },
           { href: "/consistency-kit", label: "Consistency kit" },
