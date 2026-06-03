@@ -1,95 +1,100 @@
 # CodexForge Frontend
 
-This directory contains the Next.js frontend for CodexForge, a local-first AI developer workspace with Brain runtime, cognitive memory, real 3D graph inspection, file intelligence, evidence-grounded chat, Safe Patch Preview, guarded apply preparation, operator run review, artifact workflows, and smoke-backed safety boundaries.
+CodexForge is a local-first developer control surface for planning, reviewing, and validating AI-assisted coding and creative work. The frontend provides route-backed workspaces for Brain and memory review, file evidence, patch planning, provider governance, Jarvisd/local-daemon boundaries, project intelligence, and operator handoffs while keeping real execution, mutation, provider calls, and local operations behind explicit approval boundaries or future approved local services.
 
-For the full product overview, see `../README.md`.
+## Canonical Workspace
 
-## Current Stage
-
-CodexForge is now a foundation-stage local developer workspace. It has real deterministic frontend domains, route-backed review surfaces, smoke coverage, and explicit safety boundaries. Some areas are runtime-ready review surfaces; creative execution, provider execution, and broad apply automation remain preview-only or approval-gated.
-
-Canonical frontend path:
+Work in this frontend only:
 
 ```text
-C:\ai-lab\projects\openclaw-workspace\repos\<current-project>\frontend
+C:\ai-lab\projects\openclaw-workspace\repos\<canonical-repo>\frontend
 ```
 
-See `docs/WORKSPACE_MAP.md` before using duplicate or scratch copies.
+See `docs/WORKSPACE_MAP.md` before using duplicate, scratch, or generated copies. Do not edit `clawd/openclaw` or `projects/tools/<canonical-repo>/frontend` for CodexForge frontend work.
 
-## Current Product
+## Current Status
 
-CodexForge currently includes:
+CodexForge currently has deterministic frontend control surfaces, safety gates, preview layers, readiness reviews, route-backed panels, and smoke coverage for the local/provider/Jarvisd/project/patch-planning areas. Real command execution, file mutation, patch apply, provider calls, and local daemon actions remain approval-gated or future-local-boundary work where applicable. Provider live tests are represented as approval/readiness/result-review surfaces; they are not automatic background provider calls from arbitrary UI.
 
-- Novice onboarding, assisted coding, validation capture, recovery, review inbox, and run history.
-- Brain runtime, cognitive memory, deterministic Brain memory ingestion, Brain memory recall, and chat recall context.
-- AI Subscription Router for local/API/provider profiles, model catalog metadata, subscription tiers, deterministic task classification, approximate token budgets, route recommendations, fallback route visibility, and usage ledger preview.
-- Local machine, provider readiness, env readiness, and safe local provider probe previews.
-- Creative and video planning for local-first draft workflows, render planning, review, recovery, and finishing.
-- Repo hygiene, product readiness, quality audit, consolidation, validation, and stabilization surfaces.
-- Real 3D Brain graph powered by Three.js, React Three Fiber, and Drei, with a fallback-safe 2D graph view.
-- Approved memory persistence, memory review and promotion queue, approved Brain graph merge, and evidence memory review.
-- Task Memory Autopilot, reviewed task activation, Execution Readiness, Approved Step Runner Preview, and approved read-only step execution.
-- Evidence-Grounded Chat, Safe Patch Preview, Patch Preview Queue, Preview Diff Composer, Patch Application Gate, and Apply-Diff Dry Run simulation.
-- Files Command Center and File to Brain to Chat workflow.
-- Operator Run Center, Capability Cockpit, Local Bridge, Mission Control, global navigation shell, and header dedupe.
-- Creative Production Studio, artifact workspace, artifact executor, artifact export flow, artifact ingestion, and production pack builder.
-- Policy guard, approval boundary visibility, product surface planning, and smoke-backed architecture.
+## Architecture Overview
 
-## Main Routes
+- Core workspace and navigation: `src/app`, `src/lib/codexforge/navigation-shell`, command palette, operator home, onboarding, assisted coding, validation, review inbox, recovery, run history, readiness, and repo hygiene.
+- Brain and memory: Brain graph inspection, recall, snapshots, continuity, mutation governance, runtime journal/replay, memory inbox, promotion gates, and handoff packets. UI review surfaces do not mutate the Brain graph or auto-promote memory.
+- Files, evidence, and patch planning: file command center, safe project reader, apply evidence, validation capture, patch preview, patch preview queue, patch preview workbench, patch apply approval, and patch result capture. These surfaces separate planning, review, approval, validation, and result capture.
+- Creative, ComfyUI, and local generation review: creative studio, video planning, ComfyUI/Blender/Unreal previews, local draft/image/keyframe/video review, artifact review, render queues, and export handoffs. These are preview/review surfaces unless a future approved local boundary is explicitly added.
+- Provider governance and live-test gates: provider registry, setup, health, adapters, budget guardrails, privacy classifier, audit log, policy bundle, live-test gates, result capture, failure recovery, local-first router review, and release audit. Secrets are redacted and provider calls require explicit approval gates.
+- Jarvisd local daemon boundary: Jarvisd contract, health/version readiness, capability registry, and permission boundary. Jarvisd is documented as a future approved local service boundary, not an automatically executing daemon.
+- Local operations approval gates: local file operation approval, local command approval, local process preview, and workspace trust policy. These pages review proposed local operations and do not execute, browse, mutate, kill, restart, or grant permissions automatically.
+- Project intelligence: safe project indexer, project file search preview, dependency map, and project risk/secrets scan. These use reviewed/approved metadata concepts and do not crawl arbitrary files from the UI.
+- Codebase patch planning: codebase change plan builder, patch preview workbench, patch apply approval boundary, and patch result capture. These are review and approval surfaces, not a live apply pipeline.
 
-- `/`: product launcher.
-- `/ai`: main chat/workspace surface.
-- `/ai-router`: AI Subscription Router cockpit for local-first, subscription-efficient model routing metadata.
-- `/brain`: Brain command center with real 3D graph and 2D fallback.
-- `/files`: Files Command Center and File to Brain to Chat workflow.
-- `/runs`: Operator Run Center.
-- `/memory`: memory review, persistence, evidence memory, and graph merge review.
-- `/tasks`: task autopilot, reviewed task activation, execution readiness, and step runner review.
-- `/capabilities`: Capability Cockpit.
-- `/creative`: Creative Production Studio, preview-only.
-- `/history`: activity and history intelligence.
-- `/mission`: Mission Control.
-- `/artifacts`: artifact executor, workspace, export, and ingestion review.
-- `/repo-hygiene`: generated-file, workspace, test-script, secret, and docs cleanup posture.
-- `/entry`: quick launch surface.
-- `/clawd`: operator surface.
-
-## Dependencies
-
-The real 3D Brain graph uses `three`, `@react-three/fiber`, and `@react-three/drei`. The WebGL graph is isolated to the Brain graph visual layer and remains fallback-safe through the 2D graph path.
-
-## Architecture
-
-Key frontend domains live under `src/lib/codexforge/`: `brain`, `ai-router`, `memory-review`, `memory-persistence`, `evidence-memory`, `evidence-grounded-chat`, `files`, `patch-preview`, `patch-preview-queue`, `preview-diff-composer`, `patch-application-gate`, `apply-evidence-pack`, `task-autopilot`, `task-activation`, `execution-readiness`, `operator-run`, `capabilities`, `local-bridge`, `creative`, `artifact-executor`, `artifact-workspace`, `artifact-export-flow`, `artifact-ingestion`, `production-pack`, `mission-control`, and `navigation`.
-
-`src/lib/codexforge/memory-replay` is not present in this checkout.
-
-## AI Subscription Router
-
-The AI Router is a local deterministic control plane. Operators can describe local model servers, OpenAI-compatible APIs, Anthropic-compatible APIs, Google/Gemini-compatible APIs, OpenRouter-compatible APIs, custom HTTP providers, and manual subscription profiles without storing secrets in the browser.
-
-Routing uses provider metadata, model capability metadata, manual subscription tiers, task classification, approximate token estimates, privacy posture, context fit, and fallback reliability to recommend the best provider/model/tier for a task. It does not call external providers, does not query live pricing, and does not create real billing records. Token estimates are approximate chars/4 planning signals only.
-
-Provider configuration remains operator-controlled. API keys must stay in approved server-side environment configuration, while local profiles such as Ollama or LM Studio are represented as metadata until a future approved adapter is connected.
-
-## Safety Posture
+## Safety Model
 
 - No silent mutation.
-- Patch Preview, Preview Diff Composer, Apply Evidence Pack, Patch Application Gate, and Apply-Diff Dry Run are review/preview artifacts, not uncontrolled apply executors.
-- `apply-diff` requires explicit tool-policy approval and is not called by UI review panels.
-- `write-file` and `run-command` remain blocked unless a future explicit approval path is implemented.
-- No AI provider secrets stored in browser storage; router profiles are metadata/control-plane only.
-- AI Router token and cost estimates are approximate and never treated as billing truth.
-- Broker execution is blocked.
-- PC/camera features require explicit future session consent.
-- Creative external tools remain approval-gated and preview-only from the frontend.
-- The graph visual layer does not mutate graph state; the 3D Brain graph has a 2D fallback.
-- Repo hygiene UI does not delete files or run commands.
-- Generated folders, local env files, runtime state, dependency folders, build output, and backup folders should not be committed.
+- No arbitrary local file browsing from UI.
+- No command execution from arbitrary UI.
+- No patch application from UI.
+- No provider calls without explicit approval gates and result review.
+- Secrets are redacted and never displayed, exported, or stored in `localStorage`.
+- Local-first routing recommendations are reviewed before use.
+- Jarvisd permissions are not granted automatically.
+- Brain graph mutation, `appendEvent`, `saveBrainGraph`, memory promotion, and runtime event persistence are not called from UI review surfaces.
+- `process.env` values are not printed in UI or logs.
+
+## Route Overview
+
+- Start and guided coding: `/`, `/start`, `/onboarding`, `/first-task`, `/assist`, `/code-flow`, `/apply-validation`, `/validation-results`, `/review-inbox`, `/recovery`, `/workflow-results`, `/run-history`.
+- Brain, memory, and audit: `/brain`, `/memory`, `/memory-inbox`, `/runtime-journal`, `/runtime-replay`, `/brain-snapshots`, `/snapshot-restore`, `/brain-continuity`, `/brain-governance`, `/handoff`.
+- Files and patch planning: `/files`, `/safe-project-indexer`, `/project-file-search`, `/project-dependency-map`, `/project-risk-secrets-scan`, `/codebase-change-plan`, `/patch-preview-workbench`, `/patch-apply-approval`, `/patch-result-capture`.
+- Provider governance: `/ai-router`, `/ai-providers`, `/provider-adapters`, `/provider-health`, `/provider-live-test-gate`, `/openai-compatible-live-test`, `/multi-provider-live-test`, `/provider-test-results`, `/prompt-privacy-classifier`, `/provider-policy-bundle`, `/provider-governance-release-audit`.
+- Jarvisd and local boundaries: `/jarvisd-contract`, `/jarvisd-health`, `/jarvisd-capabilities`, `/jarvisd-permissions`, `/local-file-approval`, `/local-command-approval`, `/local-process-monitor`, `/workspace-trust-policy`.
+- Creative and artifact review: `/creative`, `/local-creative`, `/comfyui`, `/comfyui-health`, `/video-workflows`, `/video-jobs`, `/video-review`, `/creative-readiness`, `/creative-mvp`, `/health-probe`, `/local-bridge-health`, `/artifacts/review`.
+- Readiness and administration: `/capabilities`, `/activity`, `/readiness`, `/repo-hygiene`, `/quality-audit`, `/consolidation`, `/validation`, `/stabilization`, `/history`.
+
+## Operator Workflow
+
+1. Inspect the current route, source context, evidence, or readiness packet.
+2. Generate or preview a plan, prompt, diff summary, policy bundle, route recommendation, or result packet.
+3. Review safety posture, secrets handling, allowed scope, rollback/recovery notes, and handoff text.
+4. Cross the approval boundary only through an explicit approved workflow outside arbitrary UI execution.
+5. Validate with build, focused smokes, server smoke, and diff hygiene.
+6. Capture the result in review inbox, validation results, run history, or handoff surfaces.
+7. Commit, tag, or push only after explicit operator approval.
+
+## Development
+
+```powershell
+npm install
+npm run dev
+npm run build
+```
+
+## Build And Smoke Commands
+
+Run from the canonical frontend workspace:
+
+```powershell
+npm run build
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-codebase-change-plan-builder.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-patch-preview-workbench.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-patch-apply-approval-boundary.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-patch-result-capture.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-command-ui-simplification.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-repo-hygiene.ps1
+npm run smoke:codexforge:server
+git diff --check
+```
+
+Useful final hygiene checks:
+
+```powershell
+git status --short
+git diff --stat
+```
 
 ## Generated Files
 
-Generated and local-only state belongs outside review:
+Generated and local-only state should stay out of review:
 
 ```text
 node_modules/
@@ -105,46 +110,12 @@ _codexforge-backups/
 unpushed-patches/
 ```
 
-Do commit intentional source, smoke scripts, package lockfiles, README files, and real docs.
-
-## Development
-
-```powershell
-npm install
-npm run dev
-npm run typecheck
-npm run test
-npm run build
-```
-
-## Smoke Commands
-
-The smoke suite is organized into grouped runners so the full suite is not one flat wall of scripts.
-
-```powershell
-npm run smoke:codexforge:server
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-core.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-suite.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-execution-suite.ps1
-```
-
-Focused examples:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-smoke-groups.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-repo-hygiene.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-ai-router.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-apply-evidence-pack.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brand-clean.ps1
-```
+Commit intentional source, docs, package metadata, lockfiles, and smoke scripts only.
 
 ## Roadmap
 
-- Apply Gate Evidence Pack.
-- Guarded apply executor behind policy.
-- Persistent artifact ledger.
-- Full memory replay/merge audit.
-- Adapter execution behind local bridge and explicit policies.
-- Project onboarding/import.
-- Better graph data volume and clustering.
+- Next normal batch: phases 230-233 for test command planning, test execution approval boundary, test result summarization, and test failure triage routing.
+- Then phases 234-237 for Git review and commit approval surfaces.
+- Then phases 238-245 for release and Jarvisd audit surfaces.
+
+Do not implement phases 230-233 in this cleanup pass.
