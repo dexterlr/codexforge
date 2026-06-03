@@ -1642,7 +1642,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     id: "draft-playback-review",
     href: "/draft-playback-review",
     label: "Draft Playback Review",
-    shortLabel: "Draft Review",
+    shortLabel: "Draft Compare",
     description: "Side-by-side local draft playback review with explicit decision, no automatic promotion, and no deletion of rejected drafts.",
     group: "Creative",
     readiness: "preview-only",
