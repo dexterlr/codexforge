@@ -14,7 +14,7 @@ See `docs/WORKSPACE_MAP.md` before using duplicate, scratch, or generated copies
 
 ## Current Status
 
-CodexForge currently has deterministic frontend control surfaces, safety gates, preview layers, readiness reviews, route-backed panels, and smoke coverage for the local/provider/Jarvisd/project/patch-planning areas. Real command execution, file mutation, patch apply, provider calls, and local daemon actions remain approval-gated or future-local-boundary work where applicable. Provider live tests are represented as approval/readiness/result-review surfaces; they are not automatic background provider calls from arbitrary UI.
+CodexForge currently has deterministic frontend control surfaces, safety gates, preview layers, readiness reviews, route-backed panels, and smoke coverage for the local/provider/Jarvisd/project/patch-planning/test-planning areas. Real command execution, test execution, file mutation, patch apply, provider calls, and local daemon actions remain approval-gated or future-local-boundary work where applicable. Provider live tests are represented as approval/readiness/result-review surfaces; they are not automatic background provider calls from arbitrary UI.
 
 ## Architecture Overview
 
@@ -26,13 +26,14 @@ CodexForge currently has deterministic frontend control surfaces, safety gates, 
 - Jarvisd local daemon boundary: Jarvisd contract, health/version readiness, capability registry, and permission boundary. Jarvisd is documented as a future approved local service boundary, not an automatically executing daemon.
 - Local operations approval gates: local file operation approval, local command approval, local process preview, and workspace trust policy. These pages review proposed local operations and do not execute, browse, mutate, kill, restart, or grant permissions automatically.
 - Project intelligence: safe project indexer, project file search preview, dependency map, and project risk/secrets scan. These use reviewed/approved metadata concepts and do not crawl arbitrary files from the UI.
-- Codebase patch planning: codebase change plan builder, patch preview workbench, patch apply approval boundary, and patch result capture. These are review and approval surfaces, not a live apply pipeline.
+- Codebase patch and test planning: codebase change plan builder, patch preview workbench, patch apply approval boundary, patch result capture, test command planner, test execution approval boundary, test result summarizer, and test failure triage router. These are review and approval surfaces, not a live apply or test execution pipeline.
 
 ## Safety Model
 
 - No silent mutation.
 - No arbitrary local file browsing from UI.
 - No command execution from arbitrary UI.
+- No test execution from arbitrary UI.
 - No patch application from UI.
 - No provider calls without explicit approval gates and result review.
 - Secrets are redacted and never displayed, exported, or stored in `localStorage`.
@@ -45,7 +46,7 @@ CodexForge currently has deterministic frontend control surfaces, safety gates, 
 
 - Start and guided coding: `/`, `/start`, `/onboarding`, `/first-task`, `/assist`, `/code-flow`, `/apply-validation`, `/validation-results`, `/review-inbox`, `/recovery`, `/workflow-results`, `/run-history`.
 - Brain, memory, and audit: `/brain`, `/memory`, `/memory-inbox`, `/runtime-journal`, `/runtime-replay`, `/brain-snapshots`, `/snapshot-restore`, `/brain-continuity`, `/brain-governance`, `/handoff`.
-- Files and patch planning: `/files`, `/safe-project-indexer`, `/project-file-search`, `/project-dependency-map`, `/project-risk-secrets-scan`, `/codebase-change-plan`, `/patch-preview-workbench`, `/patch-apply-approval`, `/patch-result-capture`.
+- Files, patch planning, and test planning: `/files`, `/safe-project-indexer`, `/project-file-search`, `/project-dependency-map`, `/project-risk-secrets-scan`, `/codebase-change-plan`, `/patch-preview-workbench`, `/patch-apply-approval`, `/patch-result-capture`, `/test-command-planner`, `/test-execution-approval`, `/test-result-summary`, `/test-failure-triage`.
 - Provider governance: `/ai-router`, `/ai-providers`, `/provider-adapters`, `/provider-health`, `/provider-live-test-gate`, `/openai-compatible-live-test`, `/multi-provider-live-test`, `/provider-test-results`, `/prompt-privacy-classifier`, `/provider-policy-bundle`, `/provider-governance-release-audit`.
 - Jarvisd and local boundaries: `/jarvisd-contract`, `/jarvisd-health`, `/jarvisd-capabilities`, `/jarvisd-permissions`, `/local-file-approval`, `/local-command-approval`, `/local-process-monitor`, `/workspace-trust-policy`.
 - Creative and artifact review: `/creative`, `/local-creative`, `/comfyui`, `/comfyui-health`, `/video-workflows`, `/video-jobs`, `/video-review`, `/creative-readiness`, `/creative-mvp`, `/health-probe`, `/local-bridge-health`, `/artifacts/review`.
@@ -79,6 +80,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-codebase-cha
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-patch-preview-workbench.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-patch-apply-approval-boundary.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-patch-result-capture.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-test-command-planner.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-test-execution-approval-boundary.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-test-result-summarizer.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-test-failure-triage-router.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-command-ui-simplification.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-repo-hygiene.ps1
 npm run smoke:codexforge:server
@@ -114,8 +119,6 @@ Commit intentional source, docs, package metadata, lockfiles, and smoke scripts 
 
 ## Roadmap
 
-- Next normal batch: phases 230-233 for test command planning, test execution approval boundary, test result summarization, and test failure triage routing.
-- Then phases 234-237 for Git review and commit approval surfaces.
+- Phases 230-233 are now the test-planning batch: test command planner, test execution approval boundary, test result summarizer, and test failure triage router.
+- Next normal batch: phases 234-237 for Git review and commit approval surfaces.
 - Then phases 238-245 for release and Jarvisd audit surfaces.
-
-Do not implement phases 230-233 in this cleanup pass.
