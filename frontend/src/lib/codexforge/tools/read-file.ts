@@ -1,3 +1,4 @@
+import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import type {
@@ -14,6 +15,7 @@ import {
   finishToolSuccess,
   normalizeWindowsPath,
 } from "./shared";
+import { resolveCodexForgeToolPath } from "./server-paths";
 
 /* ================= CONSTANTS ================= */
 
@@ -95,54 +97,23 @@ function asNumber(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
-function cleanInputPath(value: string): string {
-  return value.trim().replaceAll("/", path.sep);
-}
-
-function isAbsolutePath(value: string): boolean {
-  return path.isAbsolute(value);
-}
-
-function pickBasePath(context: CodexForgeToolExecutionContext): string {
-  const repoPath = asOptionalString(context.repoPath);
-  const cwd = asOptionalString(context.cwd);
-  const workspaceRoot = asOptionalString(context.workspaceRoot);
-
-  return repoPath ?? cwd ?? workspaceRoot ?? process.cwd();
-}
-
-function ensureInsideBase(absolutePath: string, basePath: string): boolean {
-  const normalizedAbsolute = path.resolve(absolutePath);
-  const normalizedBase = path.resolve(basePath);
-
-  if (normalizedAbsolute === normalizedBase) {
-    return true;
-  }
-
-  const relative = path.relative(normalizedBase, normalizedAbsolute);
-  return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
-}
-
 function resolveTargetPath(
   requestedPath: string,
   context: CodexForgeToolExecutionContext
 ): ResolvedPathInfo {
-  const basePath = path.resolve(pickBasePath(context));
-  const cleaned = cleanInputPath(requestedPath);
-
-  const absolutePath = isAbsolutePath(cleaned)
-    ? path.resolve(cleaned)
-    : path.resolve(basePath, cleaned);
-
-  if (!ensureInsideBase(absolutePath, basePath)) {
-    throw new Error("Requested path is outside the allowed workspace scope.");
-  }
+  const resolved = resolveCodexForgeToolPath({
+    requestedPath,
+    context,
+    allowBasePath: false,
+    outsideBaseError: "Requested path is outside the allowed workspace scope.",
+    unsafeRelativeError: "Requested path contains unsafe traversal.",
+  });
 
   return {
     requestedPath,
-    absolutePath,
-    basePath,
-    relativePath: normalizeWindowsPath(path.relative(basePath, absolutePath)),
+    absolutePath: resolved.absolutePath,
+    basePath: resolved.basePath,
+    relativePath: resolved.relativePath,
   };
 }
 

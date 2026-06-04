@@ -1,10 +1,17 @@
+import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import {
+  CODEXFORGE_PROJECT_ROOT,
+  resolveCodexForgeProjectPath,
+  toPortableProjectRelativePath,
+} from "@/lib/codexforge/server-safe-paths";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const PROJECT_ROOT = process.cwd();
+const PROJECT_ROOT = CODEXFORGE_PROJECT_ROOT;
 const MAX_FILE_BYTES = 512 * 1024;
 const MAX_PREVIEW_CHARS = 6000;
 
@@ -31,19 +38,16 @@ const TEXT_EXTENSIONS = new Set([
   ".gitignore",
 ]);
 
-function toPosix(value: string): string {
-  return value.replaceAll("\\", "/");
-}
-
-function isInsideProjectRoot(targetAbs: string): boolean {
-  const relative = path.relative(PROJECT_ROOT, targetAbs);
-  return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
-}
-
 function resolveFilePath(requestedPath: string): string | null {
-  const target = path.resolve(PROJECT_ROOT, requestedPath);
-  if (!isInsideProjectRoot(target)) return null;
-  return target;
+  try {
+    return resolveCodexForgeProjectPath(requestedPath, {
+      allowBasePath: false,
+      outsideBaseError: "Path traversal guard rejected the requested file.",
+      unsafeRelativeError: "Path traversal guard rejected the requested file.",
+    }).absolutePath;
+  } catch {
+    return null;
+  }
 }
 
 function isTextLike(filePath: string): boolean {
@@ -94,7 +98,7 @@ export async function GET(request: Request) {
   if (stat.size > MAX_FILE_BYTES) {
     return NextResponse.json({
       ok: true,
-      path: toPosix(path.relative(PROJECT_ROOT, absPath)),
+      path: toPortableProjectRelativePath(absPath, PROJECT_ROOT),
       sizeBytes: stat.size,
       sizeLabel: formatSize(stat.size),
       lineCount: 0,
@@ -111,7 +115,7 @@ export async function GET(request: Request) {
   if (binaryBlocked) {
     return NextResponse.json({
       ok: true,
-      path: toPosix(path.relative(PROJECT_ROOT, absPath)),
+      path: toPortableProjectRelativePath(absPath, PROJECT_ROOT),
       sizeBytes: stat.size,
       sizeLabel: formatSize(stat.size),
       lineCount: 0,
@@ -129,7 +133,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    path: toPosix(path.relative(PROJECT_ROOT, absPath)),
+    path: toPortableProjectRelativePath(absPath, PROJECT_ROOT),
     sizeBytes: stat.size,
     sizeLabel: formatSize(stat.size),
     lineCount: text.length ? text.split("\n").length : 0,
@@ -140,4 +144,3 @@ export async function GET(request: Request) {
     safety: "Read-only file preview with path traversal guard, file size cap, binary guard, and no command execution.",
   });
 }
-

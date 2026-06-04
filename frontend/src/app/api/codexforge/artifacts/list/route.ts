@@ -1,6 +1,11 @@
+import "server-only";
 import { readdir, stat } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
+import {
+  appendCodexForgePathSegment,
+  resolveCodexForgeProjectPath,
+} from "@/lib/codexforge/server-safe-paths";
 import {
   CODEXFORGE_ARTIFACT_WORKSPACE_ROOT,
   isArtifactPathTraversal,
@@ -8,6 +13,7 @@ import {
   validateArtifactWorkspacePath,
 } from "@/lib/codexforge/artifact-workspace";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type ArtifactFileMetadata = {
@@ -18,7 +24,9 @@ type ArtifactFileMetadata = {
 };
 
 export async function GET() {
-  const workspaceRoot = path.resolve(process.cwd(), CODEXFORGE_ARTIFACT_WORKSPACE_ROOT);
+  const workspaceRoot = resolveCodexForgeProjectPath(CODEXFORGE_ARTIFACT_WORKSPACE_ROOT, {
+    allowBasePath: false,
+  }).absolutePath;
 
   try {
     const rootStats = await stat(workspaceRoot);
@@ -65,7 +73,7 @@ async function listArtifactFiles(root: string, current: string): Promise<Artifac
   const entries = await readdir(current, { withFileTypes: true });
   const groups = await Promise.all(
     entries.map(async (entry) => {
-      const fullPath = path.join(current, entry.name);
+      const fullPath = appendCodexForgePathSegment(current, entry.name);
       const relativePath = path.relative(root, fullPath).replace(/\\/g, "/");
       const validation = validateArtifactWorkspacePath(relativePath);
 

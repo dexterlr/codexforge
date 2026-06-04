@@ -1,5 +1,8 @@
+import "server-only";
 import path from "node:path";
 import type { BoundedPathCheck, BoundedWorkspacePathInput } from "./server-safe-paths-types";
+
+export const CODEXFORGE_PROJECT_ROOT = process.cwd();
 
 function splitPortablePath(value: string): string[] {
   return value.replace(/\\/g, "/").split("/").filter((segment) => segment && segment !== ".");
@@ -20,6 +23,15 @@ function blocked(reason: string, summary: string[], extra: Partial<BoundedPathCh
 
 export function toPortableRelativePath(input: string): string {
   return input.replace(/\\/g, "/");
+}
+
+function appendSafePathSegment(parent: string, segment: string): string {
+  return parent.endsWith(path.sep) ? `${parent}${segment}` : `${parent}${path.sep}${segment}`;
+}
+
+function joinPathFromSafeRelative(root: string, normalizedRelativePath: string): string {
+  const segments = normalizedRelativePath.split("/").filter(Boolean);
+  return segments.reduce((current, segment) => appendSafePathSegment(current, segment), root);
 }
 
 export function normalizeSafeRelativePath(input: unknown): BoundedPathCheck {
@@ -84,7 +96,7 @@ export function joinWorkspacePathFromSafeRelative(
     };
   }
 
-  const absolutePath = path.join(workspaceRoot, ...normalized.normalizedRelativePath.split("/"));
+  const absolutePath = joinPathFromSafeRelative(workspaceRoot, normalized.normalizedRelativePath);
   const inside = isPathInsideWorkspace(workspaceRoot, absolutePath);
   if (!inside.safe) {
     return {
@@ -116,7 +128,10 @@ export function resolveBoundedWorkspacePath(input: BoundedWorkspacePathInput): B
     ]);
   }
 
-  const workspaceRoot = path.join(process.cwd(), ...workspaceRootCheck.normalizedRelativePath.split("/"));
+  const workspaceRoot = joinPathFromSafeRelative(
+    CODEXFORGE_PROJECT_ROOT,
+    workspaceRootCheck.normalizedRelativePath
+  );
   return joinWorkspacePathFromSafeRelative(workspaceRoot, String(input.relativePath ?? ""));
 }
 

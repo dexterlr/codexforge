@@ -1,6 +1,14 @@
+import "server-only";
 import { promises as fs } from "node:fs";
 import type { Dirent } from "node:fs";
 import path from "node:path";
+import {
+  appendCodexForgePathSegment,
+  CODEXFORGE_PROJECT_ROOT,
+  isAbsolutePathInsideBase,
+  resolveCodexForgeProjectPath,
+  toPortableProjectRelativePath,
+} from "@/lib/codexforge/server-safe-paths";
 import {
   inferArchitectureRole,
   inferFileKind,
@@ -73,15 +81,6 @@ type Candidate = {
   lineCount: number;
   updatedAt: string;
 };
-
-function normalizePath(value: string): string {
-  return value.replaceAll("\\", "/");
-}
-
-function isInsideRoot(target: string, root: string): boolean {
-  const relative = path.relative(root, target);
-  return relative === "" || (!!relative && !relative.startsWith("..") && !path.isAbsolute(relative));
-}
 
 function clampLimit(value: number | undefined): number {
   if (typeof value !== "number" || !Number.isFinite(value)) return 80;
@@ -201,10 +200,14 @@ function matchesFilters(file: CodexForgeFileNode, filters: CodexForgeProjectFile
 }
 
 export function resolveCodexForgeFilesRoot(requestedPath?: string): string {
-  const root = process.cwd();
-  if (!requestedPath) return root;
-  const target = path.resolve(root, requestedPath);
-  return isInsideRoot(target, root) ? target : root;
+  try {
+    return resolveCodexForgeProjectPath(requestedPath || ".", {
+      outsideBaseError: "Requested Files root escaped the project root.",
+      unsafeRelativeError: "Requested Files root contains unsafe traversal.",
+    }).absolutePath;
+  } catch {
+    return CODEXFORGE_PROJECT_ROOT;
+  }
 }
 
 export async function collectCodexForgeProjectFiles(
@@ -239,7 +242,8 @@ export async function collectCodexForgeProjectFiles(
       }
 
       if (entry.name.startsWith(".") && entry.name !== ".env") continue;
-      const absolutePath = path.join(current.absolutePath, entry.name);
+      const absolutePath = appendCodexForgePathSegment(current.absolutePath, entry.name);
+      if (!isAbsolutePathInsideBase(absolutePath, CODEXFORGE_PROJECT_ROOT, true)) continue;
 
       if (entry.isDirectory()) {
         if (!blockedDir(entry.name) && current.depth < CODEXFORGE_FILES_MAX_DEPTH) {
@@ -257,7 +261,7 @@ export async function collectCodexForgeProjectFiles(
       const text = await fs.readFile(absolutePath, "utf8").catch(() => "");
       candidates.push({
         absolutePath,
-        relativePath: normalizePath(path.relative(process.cwd(), absolutePath)),
+        relativePath: toPortableProjectRelativePath(absolutePath, CODEXFORGE_PROJECT_ROOT),
         name: entry.name,
         extension: path.extname(entry.name).toLowerCase(),
         size: stat.size,
@@ -279,7 +283,7 @@ export async function collectCodexForgeProjectFiles(
     files,
     scannedFiles,
     truncated: truncated || candidates.length > limit,
-    root: normalizePath(path.relative(process.cwd(), root)) || ".",
+    root: toPortableProjectRelativePath(root, CODEXFORGE_PROJECT_ROOT) || ".",
     maxFileCount: CODEXFORGE_FILES_MAX_FILE_COUNT,
   };
 }

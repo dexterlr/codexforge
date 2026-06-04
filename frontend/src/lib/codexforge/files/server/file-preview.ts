@@ -1,5 +1,11 @@
+import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import {
+  CODEXFORGE_PROJECT_ROOT,
+  resolveCodexForgeProjectPath,
+  toPortableProjectRelativePath,
+} from "@/lib/codexforge/server-safe-paths";
 import type { CodexForgeFileNode, CodexForgeFilePreview } from "../types";
 
 export const CODEXFORGE_FILES_MAX_PREVIEW_LENGTH = 3200;
@@ -15,16 +21,16 @@ const LANGUAGE_BY_EXTENSION: Record<string, string> = {
   ".ps1": "powershell",
 };
 
-function normalizePath(value: string): string {
-  return value.replaceAll("\\", "/");
-}
-
 function resolveInsideProject(relativePath: string): string | null {
-  const root = process.cwd();
-  const absolutePath = path.resolve(root, relativePath);
-  const relative = path.relative(root, absolutePath);
-  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) return null;
-  return absolutePath;
+  try {
+    return resolveCodexForgeProjectPath(relativePath, {
+      allowBasePath: false,
+      outsideBaseError: "File preview path escaped the project root.",
+      unsafeRelativeError: "File preview path contains unsafe traversal.",
+    }).absolutePath;
+  } catch {
+    return null;
+  }
 }
 
 export async function buildFilePreview(
@@ -52,7 +58,7 @@ export async function buildFilePreview(
   const preview = text.length > safeMax ? `${text.slice(0, safeMax)}...` : text;
 
   return {
-    path: normalizePath(path.relative(process.cwd(), absolutePath)),
+    path: toPortableProjectRelativePath(absolutePath, CODEXFORGE_PROJECT_ROOT),
     language: LANGUAGE_BY_EXTENSION[file.extension] ?? "text",
     preview,
     lineCount: text ? text.split(/\r?\n/).length : file.lineCount,

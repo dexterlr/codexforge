@@ -35,6 +35,7 @@ CodexForge currently has deterministic frontend control surfaces, safety gates, 
 - No command execution from arbitrary UI.
 - No test execution from arbitrary UI.
 - No patch application from UI.
+- Filesystem-facing CodexForge API routes and helpers are server-only and bounded to approved project/workspace roots.
 - No provider calls without explicit approval gates and result review.
 - Secrets are redacted and never displayed, exported, or stored in `localStorage`.
 - Local-first routing recommendations are reviewed before use.

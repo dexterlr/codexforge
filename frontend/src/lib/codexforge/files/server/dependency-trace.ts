@@ -1,7 +1,8 @@
+import "server-only";
 import { promises as fs } from "node:fs";
-import path from "node:path";
 import {
   normalizeSafeRelativePath,
+  resolveCodexForgeProjectPath,
   resolveImportSpecifierPath,
 } from "@/lib/codexforge/server-safe-paths";
 import type {
@@ -14,19 +15,19 @@ const IMPORT_PATTERN =
   /\b(?:import|export)\s+(?:type\s+)?(?:[^"'`]*?\s+from\s+)?["']([^"']+)["']/g;
 const EXPORT_PATTERN = /\bexport\s+(?:type\s+)?(?:const|function|class|type|interface)\s+([A-Za-z0-9_]+)/g;
 
-function normalizePath(value: string): string {
-  return value.replaceAll("\\", "/");
-}
-
 function resolveInsideProject(relativePath: string): string | null {
   const normalized = normalizeSafeRelativePath(relativePath);
   if (!normalized.safe || !normalized.normalizedRelativePath) return null;
 
-  const root = process.cwd();
-  const absolutePath = path.join(root, ...normalized.normalizedRelativePath.split("/"));
-  const relative = normalizePath(path.relative(root, absolutePath));
-  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) return null;
-  return absolutePath;
+  try {
+    return resolveCodexForgeProjectPath(normalized.normalizedRelativePath, {
+      allowBasePath: false,
+      outsideBaseError: "Dependency trace path escaped the project root.",
+      unsafeRelativeError: "Dependency trace path contains unsafe traversal.",
+    }).absolutePath;
+  } catch {
+    return null;
+  }
 }
 
 function uniqueSorted(values: string[]): string[] {

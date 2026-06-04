@@ -1,3 +1,4 @@
+import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { Dirent } from "node:fs";
@@ -19,6 +20,11 @@ import {
   finishToolSuccess,
   normalizeWindowsPath,
 } from "./shared";
+import {
+  appendCodexForgeToolPathSegment,
+  appendCodexForgeToolRelativeSegment,
+  resolveCodexForgeToolPath,
+} from "./server-paths";
 
 /* ================= CONSTANTS ================= */
 
@@ -154,58 +160,22 @@ function normalizeExtension(value: string): string {
   return trimmed.startsWith(".") ? trimmed : `.${trimmed}`;
 }
 
-function cleanInputPath(value: string): string {
-  return value.trim().replaceAll("/", path.sep);
-}
-
-function isAbsolutePath(value: string): boolean {
-  return path.isAbsolute(value);
-}
-
-function pickBasePath(context: CodexForgeToolExecutionContext): string {
-  const repoPath = asOptionalString(context.repoPath);
-  const cwd = asOptionalString(context.cwd);
-  const workspaceRoot = asOptionalString(context.workspaceRoot);
-
-  return repoPath ?? cwd ?? workspaceRoot ?? process.cwd();
-}
-
-function ensureInsideBase(targetPath: string, basePath: string): boolean {
-  const normalizedTarget = path.resolve(targetPath);
-  const normalizedBase = path.resolve(basePath);
-
-  if (normalizedTarget === normalizedBase) {
-    return true;
-  }
-
-  const relative = path.relative(normalizedBase, normalizedTarget);
-  return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
-}
-
 function resolveScope(
   requestedPath: string | undefined,
   context: CodexForgeToolExecutionContext
 ): ResolvedScope {
-  const basePath = path.resolve(pickBasePath(context));
-  const cleaned = requestedPath ? cleanInputPath(requestedPath) : "";
-
-  const absolutePath = cleaned
-    ? isAbsolutePath(cleaned)
-      ? path.resolve(cleaned)
-      : path.resolve(basePath, cleaned)
-    : basePath;
-
-  if (!ensureInsideBase(absolutePath, basePath)) {
-    throw new Error("Requested search path is outside the allowed workspace scope.");
-  }
-
-  const relativePath = normalizeWindowsPath(path.relative(basePath, absolutePath));
+  const resolved = resolveCodexForgeToolPath({
+    requestedPath,
+    context,
+    outsideBaseError: "Requested search path is outside the allowed workspace scope.",
+    unsafeRelativeError: "Requested search path contains unsafe traversal.",
+  });
 
   return {
     requestedPath,
-    basePath,
-    absolutePath,
-    relativePath,
+    basePath: resolved.basePath,
+    absolutePath: resolved.absolutePath,
+    relativePath: resolved.relativePath,
   };
 }
 
@@ -460,12 +430,8 @@ async function collectFileCandidates(args: {
         continue;
       }
 
-      const entryAbsolutePath = path.join(current.absolutePath, entryName);
-      const entryRelativePath = normalizeWindowsPath(
-        current.relativePath
-          ? path.join(current.relativePath, entryName)
-          : entryName
-      );
+      const entryAbsolutePath = appendCodexForgeToolPathSegment(current.absolutePath, entryName);
+      const entryRelativePath = appendCodexForgeToolRelativeSegment(current.relativePath, entryName);
 
       if (entry.isFile()) {
         files.push({

@@ -150,6 +150,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Memory Suite"; File = "smoke-codexforge-memory-suite.ps1"; Required = $true },
   @{ Name = "Files Suite"; File = "smoke-codexforge-files-suite.ps1"; Required = $true },
   @{ Name = "Turbopack Warning Cleanup"; File = "smoke-codexforge-turbopack-warning-cleanup.ps1"; Required = $true },
+  @{ Name = "Build Warning Path Boundary"; File = "smoke-codexforge-build-warning-path-boundary.ps1"; Required = $true },
   @{ Name = "Execution Suite"; File = "smoke-codexforge-execution-suite.ps1"; Required = $true },
   @{ Name = "AI Provider Account Registry"; File = "smoke-codexforge-ai-provider-registry.ps1"; Required = $true },
   @{ Name = "Secure Credential Strategy"; File = "smoke-codexforge-secure-credential-strategy.ps1"; Required = $true },

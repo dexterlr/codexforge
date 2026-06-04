@@ -1,11 +1,20 @@
+import "server-only";
 import { promises as fs } from "node:fs";
 import type { Dirent } from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import {
+  appendCodexForgePathSegment,
+  CODEXFORGE_PROJECT_ROOT,
+  isAbsolutePathInsideBase,
+  resolveCodexForgeProjectPath,
+  toPortableProjectRelativePath,
+} from "@/lib/codexforge/server-safe-paths";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const PROJECT_ROOT = process.cwd();
+const PROJECT_ROOT = CODEXFORGE_PROJECT_ROOT;
 const MAX_RESULTS = 1000;
 const MAX_DEPTH = 9;
 const MAX_FILE_BYTES = 512 * 1024;
@@ -60,19 +69,15 @@ type SnapshotEntry = {
   generated?: boolean;
 };
 
-function toPosix(value: string): string {
-  return value.replaceAll("\\", "/");
-}
-
-function isInsideProjectRoot(targetAbs: string): boolean {
-  const relative = path.relative(PROJECT_ROOT, targetAbs);
-  return relative === "" || (!!relative && !relative.startsWith("..") && !path.isAbsolute(relative));
-}
-
 function resolveProjectPath(requestedPath = "."): string | null {
-  const target = path.resolve(PROJECT_ROOT, requestedPath);
-  if (!isInsideProjectRoot(target)) return null;
-  return target;
+  try {
+    return resolveCodexForgeProjectPath(requestedPath, {
+      outsideBaseError: "Path traversal guard rejected the requested path.",
+      unsafeRelativeError: "Path traversal guard rejected the requested path.",
+    }).absolutePath;
+  } catch {
+    return null;
+  }
 }
 
 function parseMaxResults(url: URL): number {
@@ -160,10 +165,10 @@ async function walkProject(rootAbs: string, maxResults: number): Promise<{
       }
 
       if (dirent.name.startsWith(".") && dirent.name !== ".env") continue;
-      const absPath = path.join(current.absPath, dirent.name);
-      if (!isInsideProjectRoot(absPath)) continue;
-      const relative = toPosix(path.relative(PROJECT_ROOT, absPath));
-      const parentPath = toPosix(path.dirname(relative)).replace(/^\.$/, "");
+      const absPath = appendCodexForgePathSegment(current.absPath, dirent.name);
+      if (!isAbsolutePathInsideBase(absPath, PROJECT_ROOT, true)) continue;
+      const relative = toPortableProjectRelativePath(absPath, PROJECT_ROOT);
+      const parentPath = path.posix.dirname(relative).replace(/^\.$/, "");
 
       if (dirent.isDirectory()) {
         if (SKIP_DIRS.has(dirent.name)) continue;
@@ -239,4 +244,3 @@ export async function GET(request: Request) {
     safety: "Read-only project snapshot with path traversal guard, file size cap, binary guard, and no command execution.",
   });
 }
-
