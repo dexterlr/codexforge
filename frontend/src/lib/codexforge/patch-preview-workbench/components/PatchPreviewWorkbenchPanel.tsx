@@ -32,6 +32,7 @@ export function PatchPreviewWorkbenchPanel() {
         primary={{ href: "#patch-preview-workbench", label: "Review patch preview" }}
         links={[
           { href: "/codebase-change-plan", label: "Source change plan" },
+          { href: "/patch-preview-live-context", label: "Live context" },
           { href: "/project-risk-secrets-scan", label: "Risk scan" },
           { href: "/local-file-approval", label: "File boundary" },
           { href: "/local-command-approval", label: "Command boundary" },

@@ -34,6 +34,7 @@ export function CodebaseChangePlanBuilderPanel() {
           { href: "/safe-project-indexer", label: "Project index" },
           { href: "/project-dependency-map", label: "Dependency map" },
           { href: "/project-risk-secrets-scan", label: "Risk scan" },
+          { href: "/change-plan-live-context", label: "Live context" },
           { href: "/local-file-approval", label: "File boundary" },
           { href: "/patch-preview-workbench", label: "Patch preview route" },
         ]}

@@ -4,7 +4,7 @@ $domain = "src\lib\codexforge\patch-preview-workbench"
 $route = "src\app\patch-preview-workbench"
 
 & (Join-Path $PSScriptRoot "codexforge-local-planning-phase-smoke-helper.ps1") `
-  -PhaseName "Patch Preview Workbench" `
+  -PhaseName "Phase 227 Patch Preview Workbench" `
   -ScriptFile "smoke-codexforge-patch-preview-workbench.ps1" `
   -Domain $domain `
   -Route $route `

@@ -1,0 +1,1 @@
+export { ProjectIntelligenceResultCapturePanel } from "./ProjectIntelligenceResultCapturePanel";
