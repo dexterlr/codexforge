@@ -129,7 +129,12 @@ Assert-NotMatches $deterministicSource "startJob\s*\(|runJob\s*\(|enqueueJob\s*\
 Assert-NotMatches $sourceWithShared "$([char]0x00C3)|$([char]0x00C2)|$([char]0xFFFD)" "no mojibake"
 Assert-NotMatches $sourceWithShared "key=\{index\}|key=\{i\}" "no obvious duplicate React key patterns"
 
-if (([regex]::Matches($allSmoke, [regex]::Escape($ScriptFile))).Count -ne 1) { throw "[FAIL] managed smoke suite includes script exactly once: $ScriptFile" }
-if (([regex]::Matches($allSmoke, [regex]::Escape($PhaseName))).Count -ne 1) { throw "[FAIL] managed smoke suite includes phase exactly once: $PhaseName" }
+$managedScriptPattern = 'File\s*=\s*"' + [regex]::Escape($ScriptFile) + '"'
+$managedPhasePattern = '@\{\s*Name\s*=\s*"' + [regex]::Escape($PhaseName) + '"'
+$managedRequiredEntryPattern = '@\{\s*Name\s*=\s*"' + [regex]::Escape($PhaseName) + '";\s*File\s*=\s*"' + [regex]::Escape($ScriptFile) + '";\s*Required\s*=\s*\$true\s*\}'
+
+if (([regex]::Matches($allSmoke, $managedScriptPattern)).Count -ne 1) { throw "[FAIL] managed smoke suite includes script exactly once: $ScriptFile" }
+if (([regex]::Matches($allSmoke, $managedPhasePattern)).Count -ne 1) { throw "[FAIL] managed smoke suite includes phase exactly once: $PhaseName" }
+if (([regex]::Matches($allSmoke, $managedRequiredEntryPattern)).Count -ne 1) { throw "[FAIL] managed smoke suite includes required phase/script entry exactly once: $PhaseName -> $ScriptFile" }
 Write-Host "[PASS] managed smoke suite includes phase exactly once"
 Write-Host "[OK] $PhaseName smoke passed."
