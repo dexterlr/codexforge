@@ -1,0 +1,93 @@
+param(
+  [Parameter(Mandatory = $true)][string]$Domain,
+  [Parameter(Mandatory = $true)][string]$Route,
+  [Parameter(Mandatory = $true)][string[]]$PhaseMarkers
+)
+
+$ErrorActionPreference = "Stop"
+
+function Assert-Contains {
+  param([AllowEmptyString()][string]$Haystack, [string]$Needle, [string]$Name)
+  if (-not $Haystack.Contains($Needle)) { throw "[FAIL] Missing $Name`: $Needle" }
+  Write-Host "[PASS] $Name"
+}
+
+function Assert-NotMatches {
+  param([AllowEmptyString()][string]$Haystack, [string]$Pattern, [string]$Name)
+  if ($Haystack -match $Pattern) { throw "[FAIL] Unexpected $Name`: $Pattern" }
+  Write-Host "[PASS] $Name"
+}
+
+$source = ((Get-ChildItem -Recurse -File $Domain, $Route) | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
+$packageSource = Get-Content -Raw "package.json"
+$deterministicSource = $source.Replace("no Math.random", "").Replace("no Date.now", "").Replace("no Date.now for deterministic layout/ids", "")
+
+foreach ($needle in $PhaseMarkers) {
+  Assert-Contains $source $needle "phase marker $needle"
+}
+
+Assert-NotMatches $packageSource '"ruflo"|"@ruflo/|"odysseus"|"@odysseus/|"mcp"|"@modelcontextprotocol/' "no Ruflo/Odysseus/MCP dependency references in package manifest"
+
+$blockedPatterns = @{
+  "no automatic provider calls" = "providerApiCallsAllowedFromUi:\s*true|rawFetchAllowedFromUi:\s*true|fetch\s*\(|XMLHttpRequest|axios|callProviderApi\s*\("
+  "no provider API calls" = "providerApiCallsAllowedFromUi:\s*true|callProviderApi\s*\("
+  "no automatic provider send" = "automaticProviderSendAllowed:\s*true|promptOrFileAutoSendAllowed:\s*true|sendPrompt\s*\(|sendFiles\s*\("
+  "no prompt/file sending without approval" = "promptOrFileAutoSendAllowed:\s*true|sendPrompt\s*\(|sendFiles\s*\("
+  "no auto-spend tokens" = "autoSpendTokensAllowed:\s*true|tokenSpendAllowedFromUi:\s*true|spendTokens\s*\("
+  "no auto-route live provider traffic" = "autoRouteLiveProviderTrafficAllowed:\s*true|routeLiveTraffic\s*\("
+  "no API key export" = "apiKeyExportAllowed:\s*true|exportApiKey\s*\("
+  "no secret export" = "secretExportAllowed:\s*true|exportSecret\s*\("
+  "no localStorage API key storage" = "apiKeyLocalStorageAllowed:\s*true|localStorageApiKeyStorageAllowed:\s*true|localStorage\.setItem"
+  "no process.env printing" = "processEnvDisplayAllowed:\s*true|process\.env\.[A-Za-z0-9_]+"
+  "no API keys or secrets displayed" = "apiKeysDisplayedAllowed:\s*true|secretValuesDisplayedAllowed:\s*true|secretsDisplayedAllowed:\s*true|sk-[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{20,}"
+  "no plugin execution" = "pluginExecutionAllowedFromUi:\s*true|pluginRuntimeCreated:\s*true|executePlugin\s*\(|runPlugin\s*\("
+  "no tool execution" = "toolExecutionAllowedFromUi:\s*true|executeTool\s*\(|runTool\s*\("
+  "no agent execution" = "agentExecutionAllowedFromUi:\s*true|executeAgent\s*\(|runAgent\s*\("
+  "no extension install behavior" = "extensionInstallAllowedFromUi:\s*true|extensionsInstalledAutomatically:\s*true|installExtension\s*\(|installPlugin\s*\("
+  "no extension runtime executor" = "extensionRuntimeExecutorCreated:\s*true|createExtensionRuntimeExecutor\s*\(|runExtension\s*\(|executeExtension\s*\("
+  "no MCP runtime" = "mcpRuntimeCreated:\s*true|mcpServerCreated:\s*true|mcpClientCreated:\s*true|createMcpServer\s*\(|createMcpClient\s*\("
+  "no MCP tool calls" = "mcpToolCallsAllowedFromUi:\s*true|callMcpTool\s*\(|executeMcpTool\s*\("
+  "no memory/RAG ingestion" = "memoryIngestionAllowedFromUi:\s*true|ragIngestionAllowedFromUi:\s*true|memoryRagIngestionAllowedFromUi:\s*true|ingestMemory\s*\(|ingestRag\s*\("
+  "no Brain graph mutation" = "brainGraphMutationAllowed:\s*true|mutateBrainGraph\s*\("
+  "no appendEvent/saveBrainGraph calls from UI" = "appendEventAllowedFromUi:\s*true|saveBrainGraphAllowedFromUi:\s*true|appendEvent\s*\(|saveBrainGraph\s*\("
+  "no Ruflo/Odysseus vendoring" = "thirdPartyCodeVendoredOrCopied:\s*true|vendor[/\\](ruflo|odysseus)|third_party[/\\](ruflo|odysseus)"
+  "no Ruflo/Odysseus runtime integration" = "executeRuflo\s*\(|executeOdysseus\s*\(|connectRuflo\s*\(|connectOdysseus\s*\("
+  "no Ruflo/Odysseus dependency references" = "from\s+[`"'](?:ruflo|odysseus|@ruflo/|@odysseus/|@[^/`"']+/(?:ruflo|odysseus))|require\s*\(\s*[`"'](?:ruflo|odysseus|@ruflo/|@odysseus/)"
+  "future adoption requires license/security review" = "licenseSecurityReviewRequired:\s*false|thirdPartyLicenseSecurityReviewRequired:\s*false|futureExtensionAdoptionRequiresLicenseSecurityReview:\s*false"
+  "no provider/Jarvisd registry mutation" = "providerRegistryMutationAllowed:\s*true|jarvisdRegistryMutationAllowed:\s*true|mutateProviderRegistry\s*\(|mutateJarvisdRegistry\s*\("
+  "no Jarvisd permission auto-grant" = "jarvisdPermissionAutoGrantAllowed:\s*true|grantJarvisdPermission\s*\("
+  "no ComfyUI job submission" = "comfyUiJobSubmissionAllowedFromPage:\s*true|queue_prompt|submitComfyUiJob\s*\("
+  "no ComfyUI request sent from UI" = "comfyUiRequestSentFromPageAllowed:\s*true|queue_prompt|ComfyUIQueueSubmit\s*\("
+  "no arbitrary local endpoint calls from UI" = "arbitraryLocalEndpointCallsAllowedFromUi:\s*true|callLocalEndpoint\s*\(|localEndpointFetch\s*\(|fetch\s*\("
+  "no uncontrolled polling loops" = "setInterval\s*\(|while\s*\(\s*true\s*\)|for\s*\(\s*;\s*;\s*\)"
+  "no render job start/cancel/hold/retry behavior" = "renderJobMutationAllowedFromUi:\s*true|startRenderJob\s*\(|cancelRenderJob\s*\(|holdRenderJob\s*\(|retryRenderJob\s*\("
+  "no command execution" = "commandExecutionAllowedFromUi:\s*true|shellExecutionAllowedFromUi:\s*true|child_process|execSync|spawn\s*\(|runCommand\s*\("
+  "no shell command execution" = "shellExecutionAllowedFromUi:\s*true"
+  "no git command execution from UI" = "gitCommandExecutionAllowedFromUi:\s*true|runGit\s*\("
+  "no test execution from UI" = "testExecutionFromUiAllowed:\s*true|runTests\s*\("
+  "no Jarvisd capability execution from UI" = "jarvisdCapabilityExecutionAllowedFromUi:\s*true|executeJarvisdCapability\s*\("
+  "no daemon process creation from frontend" = "daemonProcessCreationAllowedFromFrontend:\s*true|createDaemon\s*\(|startDaemon\s*\("
+  "no browser-stored signing secrets" = "signingMaterialStorageAllowedInBrowser:\s*true|generateSigningSecret\s*\("
+  "no session token localStorage storage" = "sessionTokenStorageAllowedInBrowser:\s*true|localStorage\.setItem"
+  "no arbitrary local file browsing" = "arbitraryLocalBrowsingAllowed:\s*true|showOpenFilePicker|browseLocalFiles\s*\("
+  "no arbitrary path crawling" = "arbitraryPathCrawlingAllowed:\s*true|crawlPath\s*\("
+  "no arbitrary file read/open from UI" = "arbitraryFileReadOpenAllowed:\s*true|readFile\s*\(|openFile\s*\("
+  "no auto-open local files" = "autoOpenLocalFilesAllowed:\s*true|autoOpenLocalFile\s*\("
+  "no file mutation" = "fileMutationAllowedFromUi:\s*true|fileWriteAllowedFromUi:\s*true|writeFile\s*\("
+  "no file write" = "fileWriteAllowedFromUi:\s*true|writeFile\s*\("
+  "no patch apply behavior" = "patchApplyAllowedFromUi:\s*true|applyPatch\s*\(|applyDiff\s*\("
+  "no file deletion" = "fileDeletionAllowedFromUi:\s*true|deleteFile\s*\(|unlink\s*\("
+  "no artifact deletion" = "artifactDeletionAllowed:\s*true|deleteArtifact\s*\("
+  "no memory auto-promotion" = "memoryAutoPromotionAllowed:\s*true|autoPromoteMemory\s*\(|promoteMemory\s*\("
+  "no process kill/restart/shutdown from UI" = "processKillRestartShutdownAllowedFromUi:\s*true|localProcessMutationAllowedFromUi:\s*true|killProcess\s*\(|restartProcess\s*\(|shutdownProcess\s*\("
+  "no package install behavior" = "packageInstallAllowedFromUi:\s*true|npm\s+install|pnpm\s+add|yarn\s+add|bun\s+add|installPackage\s*\("
+  "no Math.random" = "Math\.random\s*\("
+  "no Date.now" = "Date\.now\s*\("
+  "no mojibake" = "$([char]0x00C3)|$([char]0x00C2)|$([char]0xFFFD)"
+  "no obvious duplicate React key patterns" = "key=\{label\}|key=\{summary\}|key=\{item\}"
+}
+
+foreach ($name in $blockedPatterns.Keys) {
+  $haystack = if ($name -eq "no Math.random" -or $name -eq "no Date.now") { $deterministicSource } else { $source }
+  Assert-NotMatches $haystack $blockedPatterns[$name] $name
+}
