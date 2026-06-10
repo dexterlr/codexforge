@@ -111,6 +111,8 @@ export function buildBetaTrialIntakeReviewBoundary(): BetaTrialIntakeReviewBound
     connectorApiCallsAllowedFromUi: false,
     webSearchProviderCallsAllowedFromUi: false,
     localBridgeEndpointCallsAllowedFromUi: false,
+    promptFileProjectDataAutoSendAllowed: false,
+    promptFileProjectConnectorDataAutoSendAllowed: false,
     promptFileProjectConnectorFeedbackDataAutoSendAllowed: false,
     arbitraryProjectScanningAllowed: false,
     arbitraryLocalFileBrowsingAllowed: false,
@@ -193,6 +195,7 @@ export function buildBetaTrialIntakeReviewModel(): BetaTrialIntakeReviewModel {
       "No invites are sent from this page",
       "Participant data is not collected automatically",
       "advanced intake details collapsed/secondary",
+      "no prompt/file/project data sending without approval",
       "Server-only path boundary markers remain intact",
     ],
   };

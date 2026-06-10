@@ -107,6 +107,8 @@ export function buildFullSmokeSuiteStabilityPassBoundary(): FullSmokeSuiteStabil
     connectorApiCallsAllowedFromUi: false,
     webSearchProviderCallsAllowedFromUi: false,
     localBridgeEndpointCallsAllowedFromUi: false,
+    promptFileProjectDataAutoSendAllowed: false,
+    promptFileProjectConnectorDataAutoSendAllowed: false,
     promptFileProjectConnectorFeedbackDataAutoSendAllowed: false,
     arbitraryProjectScanningAllowed: false,
     arbitraryLocalFileBrowsingAllowed: false,
@@ -190,6 +192,7 @@ export function buildFullSmokeSuiteStabilityPassModel(): FullSmokeSuiteStability
       "Smoke results require operator review",
       "Unresolved smoke failures stay blocked",
       "advanced smoke stability details collapsed/secondary",
+      "no prompt/file/project data sending without approval",
       "Server-only path boundary markers remain intact",
     ],
   };

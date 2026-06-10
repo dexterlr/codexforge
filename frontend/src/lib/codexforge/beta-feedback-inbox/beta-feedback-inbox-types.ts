@@ -28,6 +28,8 @@ export type BetaFeedbackInboxBoundary = {
   connectorApiCallsAllowedFromUi: false;
   webSearchProviderCallsAllowedFromUi: false;
   localBridgeEndpointCallsAllowedFromUi: false;
+  promptFileProjectDataAutoSendAllowed: false;
+  promptFileProjectConnectorDataAutoSendAllowed: false;
   promptFileProjectConnectorFeedbackDataAutoSendAllowed: false;
   arbitraryProjectScanningAllowed: false;
   arbitraryLocalFileBrowsingAllowed: false;

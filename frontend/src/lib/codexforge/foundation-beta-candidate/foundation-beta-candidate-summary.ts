@@ -105,6 +105,8 @@ export function buildFoundationBetaCandidateBoundary(): FoundationBetaCandidateB
     connectorApiCallsAllowedFromUi: false,
     webSearchProviderCallsAllowedFromUi: false,
     localBridgeEndpointCallsAllowedFromUi: false,
+    promptFileProjectDataAutoSendAllowed: false,
+    promptFileProjectConnectorDataAutoSendAllowed: false,
     promptFileProjectConnectorFeedbackDataAutoSendAllowed: false,
     arbitraryProjectScanningAllowed: false,
     arbitraryLocalFileBrowsingAllowed: false,
@@ -187,6 +189,7 @@ export function buildFoundationBetaCandidateModel(): FoundationBetaCandidateMode
       "Beta does not publish or invite users automatically",
       "Beta approval requires explicit operator sign-off",
       "advanced beta candidate details collapsed/secondary",
+      "no prompt/file/project data sending without approval",
       "Server-only path boundary markers remain intact",
     ],
   };
