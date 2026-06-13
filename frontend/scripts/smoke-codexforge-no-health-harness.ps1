@@ -69,6 +69,19 @@ function Assert-ContentMissing {
   }
 }
 
+function Remove-AllowedCanonicalWorkspaceRefs {
+  param([AllowEmptyString()][string]$Content)
+
+  $result = $Content
+  foreach ($allowed in @(
+    "C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend",
+    "C:\ai-lab\projects\tools\health-tracker"
+  )) {
+    $result = $result.Replace($allowed, "")
+  }
+  return $result
+}
+
 $repoRoot = Resolve-Path -LiteralPath $Root
 Push-Location $repoRoot
 try {
@@ -125,7 +138,7 @@ try {
 
   foreach ($file in $uniqueFiles) {
     $relative = Resolve-Path -Relative -LiteralPath $file.FullName
-    $content = Read-Text $file.FullName
+    $content = Remove-AllowedCanonicalWorkspaceRefs (Read-Text $file.FullName)
 
     foreach ($needle in $forbidden) {
       Assert-ContentMissing $content $needle "$relative excludes retired harness marker"

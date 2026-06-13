@@ -1,12 +1,18 @@
 # CodexForge Structure Map
 
-CodexForge is a foundation-stage local-first developer workspace. This map is for orientation only. It does not rename existing route folders or feature domains.
+CodexForge is a local-first developer workspace checkpointed through detected phase 481 in the local all-smoke registry. This map is for orientation only. It does not rename existing route folders or feature domains.
 
 ## Main route groups
 
 - Start and novice onboarding: `/start`, `/onboarding`, `/first-task`, `/assist`, `/safety-coach`, `/help-empty-states`, `/assisted-quality`.
 - Assisted coding and fix flow: `/code-flow`, `/apply-guard-review`, `/guarded-apply-candidate`, `/guarded-apply-mvp`, `/apply-evidence`, `/apply-validation`, `/validation-results`, `/review-inbox`, `/recovery`, `/workflow-results`, `/run-history`.
 - Provider and readiness: `/ai-router`, `/ai-providers`, `/provider-adapters`, `/provider-health`, `/env-readiness`, `/local-provider-probes`, `/provider-tests`, `/provider-live-test-gate`, `/provider-test-results`, `/prompt-privacy-classifier`, `/provider-policy-bundle`, `/provider-governance-release-audit`, `/model-capabilities`, `/task-router`, `/credentials`, `/provider-setup`, `/token-router`.
+- Provider live trial review: `/provider-live-call-guard-review`, `/first-provider-live-call-trial-review`, `/provider-live-response-capture-review`, `/provider-live-trial-release-candidate`.
+- Local model live trial review: `/local-model-runtime-boundary-review`, `/local-model-output-review-inbox`, `/local-model-live-call-guard-review`, `/first-local-model-live-trial-review`, `/local-model-live-output-capture-review`, `/local-model-live-trial-release-candidate`, `/local-model-integration-release-candidate`.
+- Connector live trial review: `/connector-live-permission-trial-review`, `/connector-live-access-guard-review`, `/first-connector-live-access-trial-review`, `/connector-live-evidence-capture-review`, `/connector-live-trial-release-candidate`, `/connector-integration-release-candidate`.
+- Automation live trial review: `/automation-dry-run-trial-review`, `/automation-approval-queue-review`, `/automation-live-execution-guard-review`, `/first-automation-live-dry-run-replay`, `/first-automation-live-approval-trial`, `/automation-live-trial-release-candidate`, `/automation-integration-release-candidate`.
+- Unified live workflow trial 2: `/unified-live-workflow-trial-2`, `/unified-live-workflow-trial-2-result-review`, `/unified-live-workflow-trial-2-failure-recovery`, `/unified-live-workflow-trial-2-hardening-pass`.
+- Beta operator daily workflow: `/beta-operator-daily-workflow-trial`, `/beta-operator-daily-workflow-review`, `/beta-operator-workflow-friction-patch`, `/beta-operator-workflow-release-candidate`.
 - Jarvisd and local boundaries: `/jarvisd-contract`, `/jarvisd-health`, `/jarvisd-capabilities`, `/jarvisd-permissions`, `/local-file-approval`, `/local-command-approval`, `/local-process-monitor`, `/workspace-trust-policy`.
 - Project intelligence and patch planning: `/safe-project-indexer`, `/project-file-search`, `/project-dependency-map`, `/project-risk-secrets-scan`, `/codebase-change-plan`, `/patch-preview-workbench`, `/patch-apply-approval`, `/patch-result-capture`.
 - Brain and memory: `/brain`, `/memory`, `/memory-inbox`, `/brain-snapshots`, `/snapshot-restore`, `/brain-continuity`, `/brain-governance`, `/runtime-journal`, `/runtime-replay`, `/handoff`.
@@ -18,13 +24,13 @@ CodexForge is a foundation-stage local-first developer workspace. This map is fo
 
 Provider/router domains live under `src/lib/codexforge/ai-router`, `ai-provider-registry`, `provider-adapters`, `provider-health`, `provider-setup`, `provider-connection-test-ux`, `safe-env-key-detection`, `local-provider-probe-preview`, `provider-live-test-gate`, `prompt-privacy-classifier`, `provider-policy-bundle`, `provider-governance-release-audit`, and related local machine/provider readiness folders.
 
-These areas are metadata and readiness surfaces unless a future explicit server-side adapter is approved. They must not store browser secrets or call live provider APIs from review UI.
+These areas are metadata, readiness, and review-only surfaces unless a future explicit server-side adapter is approved. They must not store browser secrets, store live outputs, or call live provider APIs from review UI.
 
 ## Jarvisd and local boundary folders
 
 Jarvisd and local operation domains include `jarvisd-local-daemon-contract`, `jarvisd-health-version-probe`, `jarvisd-capability-registry`, `jarvisd-permission-boundary`, `local-file-operation-approval-gate`, `local-command-execution-approval-gate`, `local-process-monitor-preview`, and `local-workspace-trust-policy`.
 
-These areas define reviewed boundaries for a future approved local daemon/service. They must not grant permissions automatically, run commands, browse arbitrary local files, mutate files, print environment values, or call local services from arbitrary UI.
+These areas define reviewed boundaries for a future approved local daemon/service. They must not grant permissions automatically, run commands, browse arbitrary local files, mutate files, print environment values, call local services, call local models, call connectors, or run automations from arbitrary UI.
 
 ## Coding MVP folders
 
@@ -52,7 +58,7 @@ Artifact review may show planned records, previews, and handoffs. Local generate
 
 ## Preview-only, real runtime, and safety-critical
 
-Preview-only and approval-gated areas include most creative adapters, ComfyUI workflow planning, local provider probes, provider live-test gates, Jarvisd readiness, local operation boundaries, project intelligence, video render job previews, and guarded apply planning.
+Preview-only and approval-gated areas include most creative adapters, ComfyUI workflow planning, local provider probes, provider live-test gates, provider live trial review, local model live trial review, connector live trial review, automation live trial review, unified live workflow trial 2 review, beta operator workflow review, Jarvisd readiness, local operation boundaries, project intelligence, video render job previews, and guarded apply planning.
 
 Real runtime areas include deterministic local domain builders, route rendering, command palette routing/copy actions, smoke scripts, and Next.js build/typecheck validation.
 

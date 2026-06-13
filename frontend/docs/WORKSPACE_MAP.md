@@ -5,7 +5,7 @@
 The active CodexForge product surface for this repository is the frontend app at:
 
 ```text
-C:\ai-lab\projects\openclaw-workspace\repos\<current-project>\frontend
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 ```
 
 Use this path for CodexForge frontend source edits, build checks, smoke checks, docs, and reviewable app work.
@@ -17,7 +17,7 @@ Do not use duplicate or scratch copies unless a maintainer explicitly documents 
 The path below exists and should be treated as an unverified duplicate or scratch candidate until a maintainer reviews it:
 
 ```text
-C:\ai-lab\projects\tools\<current-project>
+C:\ai-lab\projects\tools\health-tracker
 ```
 
 It was not treated as canonical in this cleanup pass.
@@ -54,6 +54,12 @@ npm run build
 ```
 
 ## Smoke
+
+Checkpoint docs smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-checkpoint-docs.ps1
+```
 
 Focused CodexForge smoke:
 

@@ -152,6 +152,7 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Turbopack Warning Cleanup"; File = "smoke-codexforge-turbopack-warning-cleanup.ps1"; Required = $true },
   @{ Name = "Build Warning Path Boundary"; File = "smoke-codexforge-build-warning-path-boundary.ps1"; Required = $true },
   @{ Name = "Execution Suite"; File = "smoke-codexforge-execution-suite.ps1"; Required = $true },
+  @{ Name = "Checkpoint Documentation Consistency"; File = "smoke-codexforge-checkpoint-docs.ps1"; Required = $true },
   @{ Name = "AI Provider Account Registry"; File = "smoke-codexforge-ai-provider-registry.ps1"; Required = $true },
   @{ Name = "Secure Credential Strategy"; File = "smoke-codexforge-secure-credential-strategy.ps1"; Required = $true },
   @{ Name = "Provider Setup Wizard"; File = "smoke-codexforge-provider-setup-wizard.ps1"; Required = $true },

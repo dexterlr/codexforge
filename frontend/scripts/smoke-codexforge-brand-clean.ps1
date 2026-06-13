@@ -28,6 +28,19 @@ function Assert-NotContains {
   Write-Host "[PASS] $Name"
 }
 
+function Remove-AllowedCanonicalWorkspaceRefs {
+  param([AllowEmptyString()][string]$Content)
+
+  $result = $Content
+  foreach ($allowed in @(
+    "C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend",
+    "C:\ai-lab\projects\tools\health-tracker"
+  )) {
+    $result = $result.Replace($allowed, "")
+  }
+  return $result
+}
+
 Write-Host "=== CodexForge brand cleanup smoke ==="
 
 $scanPaths = @(
@@ -58,7 +71,7 @@ foreach ($path in $scanPaths) {
 
   foreach ($file in $files) {
     $relative = Resolve-Path -Relative $file.FullName
-    $content = Get-Content -Raw $file.FullName
+    $content = Remove-AllowedCanonicalWorkspaceRefs (Get-Content -Raw $file.FullName)
 
     foreach ($needle in $forbidden) {
       Assert-NotContains $content $needle "$relative excludes legacy brand"

@@ -2,41 +2,53 @@
 
 ## What CodexForge Is
 
-CodexForge is a local-first AI developer/operator workspace. It provides frontend control surfaces for planning, reviewing, and validating AI-assisted coding and operator workflows while keeping real file mutation, command execution, patch apply, provider calls, local daemon action, and test execution behind explicit approval gates or future approved local-boundary work.
+CodexForge is a local-first AI developer/operator workspace. It provides frontend control surfaces for planning, reviewing, approving, and validating AI-assisted coding and operator workflows while real file mutation, command execution, patch apply, provider calls, local daemon action, connector access, automation, and test execution remain behind explicit approval gates or future approved boundaries.
 
 ## Current State
 
-CodexForge currently includes deterministic frontend surfaces for:
+Current checkpoint: through phase 481, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest completed milestone family is the beta operator daily workflow release candidate.
 
-- Operator home, guided onboarding, assisted coding, validation capture, review inbox, recovery, run history, readiness, and repo hygiene.
-- Brain and memory review, runtime journal/replay, snapshots, continuity, mutation governance, and memory promotion gates.
-- Provider governance, setup, health, budget, privacy, live-test approval gates, result capture, and failure recovery.
+CodexForge currently includes deterministic frontend review and approval surfaces for:
+
+- Operator home, guided onboarding, assisted coding, validation capture, review inbox, recovery, run history, readiness, route search, and repo hygiene.
+- Brain and memory review, runtime journal/replay, snapshots, continuity, mutation governance, memory inbox, and memory promotion gates.
+- Provider governance, setup, health, budget, privacy, live trial review, result capture, cost/rate-limit review, safety regression review, and failure recovery.
+- Local model trial review, runtime boundary review, output review inbox, failover review, and local model integration release-candidate surfaces.
+- Connector permission review, redaction review, evidence handoff, live access guard review, live evidence capture review, and connector release-candidate surfaces.
+- Automation dry-run review, approval queue review, schedule safety review, live execution guard review, replay/approval trial review, and automation release-candidate surfaces.
+- Unified live workflow trial 2, result review, failure recovery review, and hardening review.
+- Beta operator daily workflow trial, review, friction patch review, and release candidate.
 - Jarvisd/local-daemon contract, health, capability, permission, local file approval, local command approval, local process preview, and workspace trust boundaries.
-- Project intelligence, including safe project indexer, project file search preview, dependency map, and risk/secrets scanner.
-- Codebase patch planning through change plans, patch preview workbench, patch apply approval boundary, and patch result capture.
-- Test planning surfaces for test command planning, test execution approval, test result summarization, and test failure triage.
+- Project intelligence, codebase change planning, patch preview, patch apply approval, patch result capture, test planning, and test result/failure review.
 
-These are frontend review and approval surfaces. CodexForge does not claim real backend execution for file mutation, shell execution, provider calls, Jarvisd action, patch apply, or test execution unless a specific approved local boundary implements it.
+These are review-only surfaces unless an approved local/backend/provider boundary exists for the specific action. CodexForge does not claim live execution for provider, local model, connector, automation, file, shell, patch, test, Jarvisd, or memory mutation work from arbitrary UI.
 
 ## Safety Model
 
+- Review-only surfaces are the default.
+- Explicit operator approval is required before any mutation-capable or spend-capable action can be considered.
 - No silent mutation.
+- No automatic provider/local/connector/automation execution without approval.
 - No arbitrary local file browsing from UI.
-- No command or test execution from arbitrary UI.
-- No patch application from UI.
-- No provider calls, live-test sends, or token-spending routes without explicit approval gates.
-- Secrets are redacted and never displayed, exported, or stored in `localStorage`.
+- No command, shell, test, patch apply, process control, connector, automation, provider, local model, or local daemon execution from arbitrary UI.
+- No credential/output storage in browser storage; secrets and live outputs must not be persisted in `localStorage` or `sessionStorage`.
+- No provider calls, live-test sends, local model calls, connector access, automation runs, or token-spending routes without explicit approval gates and result review.
 - Jarvisd permissions and local daemon actions are not granted or executed automatically.
 - Brain graph mutation, `appendEvent`, `saveBrainGraph`, memory promotion, and runtime persistence are not called from UI review surfaces.
+- No memory auto-promotion.
 - `process.env` values are not printed in UI or logs.
 
 ## Main Route Families
 
 - Start and safe coding: `/`, `/start`, `/onboarding`, `/first-task`, `/assist`, `/code-flow`.
 - Validation and review: `/apply-validation`, `/validation-results`, `/review-inbox`, `/recovery`, `/workflow-results`, `/run-history`.
-- Project and patch planning: `/safe-project-indexer`, `/project-file-search`, `/project-dependency-map`, `/project-risk-secrets-scan`, `/codebase-change-plan`, `/patch-preview-workbench`, `/patch-apply-approval`, `/patch-result-capture`.
-- Test planning: `/test-command-planner`, `/test-execution-approval`, `/test-result-summary`, `/test-failure-triage`.
-- Provider governance: `/ai-router`, `/ai-providers`, `/provider-adapters`, `/provider-health`, `/provider-live-test-gate`, `/provider-test-results`, `/provider-governance-release-audit`.
+- Project, patch, and test planning: `/safe-project-indexer`, `/project-file-search`, `/project-dependency-map`, `/project-risk-secrets-scan`, `/codebase-change-plan`, `/patch-preview-workbench`, `/patch-apply-approval`, `/patch-result-capture`, `/test-command-planner`, `/test-execution-approval`, `/test-result-summary`, `/test-failure-triage`.
+- Provider governance and provider live trial review: `/ai-router`, `/ai-providers`, `/provider-adapters`, `/provider-health`, `/provider-live-test-gate`, `/openai-compatible-live-test`, `/multi-provider-live-test`, `/provider-live-call-guard-review`, `/first-provider-live-call-trial-review`, `/provider-live-response-capture-review`, `/provider-live-trial-release-candidate`, `/provider-test-results`, `/provider-governance-release-audit`.
+- Local model live trial review: `/local-model-runtime-boundary-review`, `/local-model-output-review-inbox`, `/local-model-live-call-guard-review`, `/first-local-model-live-trial-review`, `/local-model-live-output-capture-review`, `/local-model-live-trial-release-candidate`, `/local-model-integration-release-candidate`.
+- Connector live trial review: `/connector-live-permission-trial-review`, `/connector-live-access-guard-review`, `/first-connector-live-access-trial-review`, `/connector-live-evidence-capture-review`, `/connector-live-trial-release-candidate`, `/connector-integration-release-candidate`.
+- Automation live trial review: `/automation-dry-run-trial-review`, `/automation-approval-queue-review`, `/automation-live-execution-guard-review`, `/first-automation-live-dry-run-replay`, `/first-automation-live-approval-trial`, `/automation-live-trial-release-candidate`, `/automation-integration-release-candidate`.
+- Unified live workflow trial 2: `/unified-live-workflow-trial-2`, `/unified-live-workflow-trial-2-result-review`, `/unified-live-workflow-trial-2-failure-recovery`, `/unified-live-workflow-trial-2-hardening-pass`.
+- Beta operator daily workflow: `/beta-operator-daily-workflow-trial`, `/beta-operator-daily-workflow-review`, `/beta-operator-workflow-friction-patch`, `/beta-operator-workflow-release-candidate`.
 - Jarvisd and local boundaries: `/jarvisd-contract`, `/jarvisd-health`, `/jarvisd-capabilities`, `/jarvisd-permissions`, `/local-file-approval`, `/local-command-approval`, `/local-process-monitor`, `/workspace-trust-policy`.
 - Brain, memory, and audit: `/brain`, `/memory`, `/memory-inbox`, `/runtime-journal`, `/runtime-replay`, `/brain-snapshots`, `/snapshot-restore`, `/brain-continuity`, `/brain-governance`, `/handoff`.
 - Creative and artifact review: `/creative`, `/local-creative`, `/comfyui`, `/video-workflows`, `/video-jobs`, `/video-review`, `/creative-readiness`, `/artifacts/review`.
@@ -44,29 +56,23 @@ These are frontend review and approval surfaces. CodexForge does not claim real 
 
 ## Development And Validation Commands
 
-Run from `frontend`:
+Run checkpoint validation from `frontend`:
 
 ```powershell
-npm install
-npm run dev
 npm run build
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-test-command-planner.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-test-execution-approval-boundary.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-test-result-summarizer.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-test-failure-triage-router.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-command-ui-simplification.ps1
-git diff --check
-```
-
-Optional broader checks:
-
-```powershell
-npm run smoke:codexforge:server
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-checkpoint-docs.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-command-ui-simplification.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-repo-hygiene.ps1
+npm run smoke:codexforge:server
+git diff --check
+git status --short
+git diff --stat
 ```
 
 ## Roadmap
 
-- Phases 230-233 are now the test-planning batch: test command planner, test execution approval boundary, test result summarizer, and test failure triage router.
-- Next: phases 234-237 for Git review and commit approval surfaces.
-- Later: release, Jarvisd audit, and approved local-boundary hardening.
+- Current checkpoint: documentation and hygiene alignment through detected phase 481.
+- Next milestone: keep provider, local model, connector, automation, unified workflow, and beta operator surfaces review-only while defining any approved backend/local/provider boundaries before claiming execution.
+- Do not claim live execution unless an approved local/backend/provider boundary exists.
+- Do not claim CI passed unless actual CI or terminal logs prove it.

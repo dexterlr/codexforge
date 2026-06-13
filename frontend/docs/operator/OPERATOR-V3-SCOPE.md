@@ -14,19 +14,16 @@
 
 ## Current CodexForge Surface Area
 
-- Brain runtime, cognitive memory, deterministic ingestion, recall, real 3D graph, and 2D fallback.
-- Approved memory persistence, memory review, evidence memory review, and approved Brain graph merge.
-- Files Command Center and File to Brain to Chat workflow.
-- Safe Patch Preview, Patch Preview Queue, Preview Diff Composer, Patch Application Gate, and Apply-Diff Dry Run.
-- Evidence-Grounded Chat.
-- Task Autopilot, reviewed task activation, Execution Readiness, Step Runner Preview, and approved read-only step execution.
-- Operator Run Center.
-- Capability Cockpit.
-- Local Bridge.
-- Creative Production Studio, preview-only.
-- Artifact workspace/executor/export/ingestion and Production Pack Builder.
-- Mission Control and global navigation shell.
-- Tool adapter registry and policy guard.
+- Checkpoint through detected phase 481 in `scripts/smoke-codexforge-all.ps1`.
+- Brain runtime, memory review, runtime journal/replay, snapshots, continuity, mutation governance, memory inbox, and promotion gates.
+- Files, evidence, project intelligence, codebase change planning, patch preview, patch apply approval review, patch result capture, test planning, test result summary, and test failure triage review.
+- Provider governance, provider live call guard review, first provider live call trial review, provider response capture review, and provider live trial release candidate.
+- Local model runtime boundary review, local model live call guard review, first local model live trial review, local model output capture review, and local model release candidate.
+- Connector permission/redaction/evidence review, connector live access guard review, first connector live access trial review, connector evidence capture review, and connector release candidate.
+- Automation dry-run review, approval queue review, schedule safety review, live execution guard review, automation replay/approval trial review, and automation release candidate.
+- Unified live workflow trial 2, result review, failure recovery review, and hardening review.
+- Beta operator daily workflow trial, workflow review, friction patch review, and release candidate.
+- Creative and artifact review surfaces remain preview/review oriented unless an approved boundary is explicitly documented.
 
 ## Goals
 
@@ -50,11 +47,15 @@ Audit reviewed memory events and Brain graph merge state before any graph mutati
 
 Keep adapters blocked until policy, consent, approval, audit, and operator state are ready.
 
-### 6. Project Onboarding And Import
+### 6. Approved Boundary Definition
+
+Define the backend, local service, provider, connector, automation, credential, output-retention, audit, and rollback boundaries before any page claims live execution.
+
+### 7. Project Onboarding And Import
 
 Make project setup explicit and reviewable.
 
-### 7. Better Graph Data Volume And Clustering
+### 8. Better Graph Data Volume And Clustering
 
 Improve graph scale and clustering without weakening deterministic layout or fallback safety.
 
@@ -69,6 +70,10 @@ Improve graph scale and clustering without weakening deterministic layout or fal
 - No ComfyUI execution.
 - No render execution.
 - No PC/camera control.
+- No provider/local/connector/automation execution without explicit operator approval and an approved boundary.
+- No credential/output storage in browser storage.
+- No memory auto-promotion.
+- No CI or live execution claims without terminal, CI, or approved-boundary evidence.
 
 ## Success Definition
 
