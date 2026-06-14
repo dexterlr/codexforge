@@ -14,7 +14,7 @@
 
 ## Current CodexForge Surface Area
 
-- Checkpoint through detected phase 497 in `scripts/smoke-codexforge-all.ps1`.
+- Checkpoint through detected phase 505 in `scripts/smoke-codexforge-all.ps1`.
 - Brain runtime, memory review, runtime journal/replay, snapshots, continuity, mutation governance, memory inbox, and promotion gates.
 - Files, evidence, project intelligence, codebase change planning, patch preview, patch apply approval review, patch result capture, test planning, test result summary, and test failure triage review.
 - Provider governance, provider live call guard review, first provider live call trial review, provider response capture review, and provider live trial release candidate.

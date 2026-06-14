@@ -4,7 +4,7 @@ Checkpoint date: 2026-06-14.
 
 Canonical workspace: `C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend`.
 
-Highest detected phase: 497.
+Highest detected phase: 505.
 
 ## Status
 
@@ -20,8 +20,9 @@ Highest detected phase: 497.
 | Beta workflow release review | Phases 482-485 cover release regression review, safety signoff review, documentation review, and onboarding final pass. These review release readiness without applying changes or executing workflows. |
 | Beta 2 review and hardening | Phases 486-489 cover the CodexForge Beta 2 release candidate, controlled operator trial review, operator feedback review, and Beta 2 hardening pass. This does not mark Beta 2 live. |
 | Unified operator cohesion and final policy polish | Phases 490-497 cover provider/local/connector/automation cohesion, unified approval policy, evidence policy, result policy, recovery policy, settings/preferences, daily cockpit polish, and command palette polish. These are review-only surfaces and do not route live traffic, apply policies, persist settings, execute commands, or store credentials/outputs. |
+| Foundation 500 and first real daily workflow review | Phases 498-505 cover final review inbox consolidation, release readiness dashboard, Foundation 500 milestone review, first real daily workflow candidate, evidence review, result review, recovery review, and hardening pass. These surfaces do not approve release, sign off the milestone, launch real daily workflow, ingest evidence/results/feedback, trigger recovery, apply hardening, or mutate files/memory. |
 | Safety/hygiene | Review-only surfaces, explicit operator approval, no silent mutation, no provider/local/connector/automation execution without approval, no credential/output storage, and no memory auto-promotion remain the checkpoint posture. |
-| Next milestone | Define and document approved backend/local/provider/connector/automation boundaries before any live execution claim. |
+| Next milestone | Review real daily workflow evidence/result/recovery/hardening readiness and define approved backend/local/provider/connector/automation boundaries before any live execution claim. |
 
 ## Validation
 
