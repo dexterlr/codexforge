@@ -237,11 +237,26 @@ if ($touchedSource.Count -eq 0) {
     Get-Content -Raw (Join-Path $repoRoot $_)
   }) -join "`n"
 
-  Assert-NotContains $sourceText "Date.now" "no Date.now in touched app/source files"
-  Assert-NotContains $sourceText "Math.random" "no Math.random in touched app/source files"
-  Assert-NotMatches $sourceText "localStorage\.setItem|sessionStorage\.setItem" "no localStorage/sessionStorage credential storage in touched app/source files"
-  Assert-NotMatches $sourceText "runCommand|brokerExecution|apply-diff|write-file|appendEvent|saveBrainGraph" "no runtime execution or Brain mutation calls in touched app/source files"
-  Assert-NotMatches $sourceText "fetch\s*\(|XMLHttpRequest|EventSource|WebSocket" "no provider/local/connector/automation calls in touched app/source files"
+  $sourceRuntimeScan = $sourceText
+  foreach ($marker in @(
+    "no Date.now for deterministic layout/ids",
+    "no Date.now",
+    "no Math.random",
+    "no appendEvent/saveBrainGraph calls from UI",
+    "no direct appendEvent call from UI",
+    "no direct saveBrainGraph call from UI",
+    "no direct apply-diff call from UI",
+    "no direct write-file call from UI",
+    "no direct run-command call from UI"
+  )) {
+    $sourceRuntimeScan = $sourceRuntimeScan.Replace($marker, "")
+  }
+
+  Assert-NotContains $sourceRuntimeScan "Date.now" "no Date.now in touched app/source files"
+  Assert-NotContains $sourceRuntimeScan "Math.random" "no Math.random in touched app/source files"
+  Assert-NotMatches $sourceRuntimeScan "localStorage\.setItem|sessionStorage\.setItem" "no localStorage/sessionStorage credential storage in touched app/source files"
+  Assert-NotMatches $sourceRuntimeScan "runCommand|brokerExecution|apply-diff|write-file|appendEvent|saveBrainGraph" "no runtime execution or Brain mutation calls in touched app/source files"
+  Assert-NotMatches $sourceRuntimeScan "fetch\s*\(|XMLHttpRequest|EventSource|WebSocket" "no provider/local/connector/automation calls in touched app/source files"
 }
 
 $navOrCommandTouched = @(

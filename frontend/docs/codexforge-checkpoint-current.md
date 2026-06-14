@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 505.
+Highest detected phase: 513.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 505, so the checkpoint is documented as through phase 505.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 513, so the checkpoint is documented as through phase 513.
 
-Latest detected milestone family: review inbox final consolidation, release readiness, Foundation 500, and first real daily workflow review-only preparation.
+Latest detected milestone family: multi-workflow operator trial planning, multi-workflow trial/regression/release review, controlled live capability signoff review, and Daily Beta release/trial/feedback review.
 
 ## Current Route Families
 
@@ -29,6 +29,7 @@ Latest detected milestone family: review inbox final consolidation, release read
 - Beta 2 review and hardening: `/codexforge-beta-2-release-candidate`, `/beta-2-controlled-operator-trial`, `/beta-2-operator-feedback-review`, `/beta-2-hardening-pass`.
 - Unified operator cohesion and final policy polish: `/provider-local-connector-automation-cohesion-review`, `/unified-approval-policy-final-review`, `/unified-evidence-policy-final-review`, `/unified-result-policy-final-review`, `/unified-recovery-policy-final-review`, `/unified-settings-preferences-review`, `/daily-operator-cockpit-final-polish`, `/global-command-palette-final-polish`.
 - Foundation 500 and first real daily workflow review: `/review-inbox-final-consolidation`, `/release-readiness-dashboard`, `/codexforge-foundation-500-milestone-review`, `/first-real-daily-workflow-candidate`, `/real-daily-workflow-evidence-review`, `/real-daily-workflow-result-review`, `/real-daily-workflow-recovery-review`, `/real-daily-workflow-hardening-pass`.
+- Multi-workflow and Daily Beta review: `/multi-workflow-operator-trial-plan`, `/multi-workflow-trial-review`, `/multi-workflow-regression-review`, `/multi-workflow-release-candidate`, `/controlled-live-capability-signoff`, `/codexforge-daily-beta-release-candidate`, `/daily-beta-controlled-operator-trial`, `/daily-beta-feedback-review`.
 
 ## Safety Model
 
@@ -43,7 +44,7 @@ Latest detected milestone family: review inbox final consolidation, release read
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 505 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 513 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, unified trial 2, and beta operator route families are represented as review and approval surfaces.
 - Local validation commands are documented for build, checkpoint docs smoke, all-smoke, command UI simplification, repo hygiene, server smoke, and diff hygiene.
 
@@ -57,6 +58,7 @@ Latest detected milestone family: review inbox final consolidation, release read
 - Beta workflow release and Beta 2 review/hardening pages remain review-only; they do not mark Beta 2 live and do not execute provider, local, connector, automation, file, shell, patch, test, Jarvisd, or memory actions.
 - Unified cohesion, approval, evidence, result, recovery, settings, cockpit, and command palette polish pages remain review-only; they do not apply policies, persist settings, execute commands, route live traffic, ingest evidence/results, trigger recovery, or store credentials/outputs.
 - Review inbox final consolidation, release readiness dashboard, Foundation 500 milestone review, and first real daily workflow evidence/result/recovery/hardening pages remain review-only; they do not approve release, sign off the milestone, launch real daily workflow, ingest evidence/results/feedback, trigger recovery, apply hardening, mutate files, mutate memory, or store credentials/outputs.
+- Multi-workflow operator trial planning, multi-workflow trial/regression/release review, controlled live capability signoff, and Daily Beta release/trial/feedback pages remain review-only; they do not execute workflows, launch trials, run tests, approve release, sign off live capability automatically, go live, launch Daily Beta, auto-ingest feedback, call providers/local models/connectors, create automations, persist settings, mutate files, mutate memory, or store credentials/outputs.
 
 ## What Is Next
 
