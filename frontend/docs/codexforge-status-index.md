@@ -4,7 +4,7 @@ Checkpoint date: 2026-06-14.
 
 Canonical workspace: `C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend`.
 
-Highest detected phase: 521.
+Highest detected phase: 529.
 
 ## Status
 
@@ -23,8 +23,9 @@ Highest detected phase: 521.
 | Foundation 500 and first real daily workflow review | Phases 498-505 cover final review inbox consolidation, release readiness dashboard, Foundation 500 milestone review, first real daily workflow candidate, evidence review, result review, recovery review, and hardening pass. These surfaces do not approve release, sign off the milestone, launch real daily workflow, ingest evidence/results/feedback, trigger recovery, apply hardening, or mutate files/memory. |
 | Multi-workflow and Daily Beta review | Phases 506-517 cover multi-workflow operator trial planning, multi-workflow trial review, multi-workflow regression review, multi-workflow release candidate, controlled live capability signoff, CodexForge Daily Beta release candidate, Daily Beta controlled operator trial, Daily Beta feedback review, hardening pass, documentation final review, onboarding final review, and release signoff review. These surfaces do not execute workflows, launch trials, run tests, approve release, sign off live capability automatically, publish documentation automatically, launch onboarding workflows, go live, launch Daily Beta, auto-ingest feedback, call providers/local models/connectors, create automations, persist settings/preferences, or mutate files/memory. |
 | Daily Beta 1 rollout candidate review | Phases 518-521 cover CodexForge Daily Beta 1 candidate, Daily Beta 1 controlled rollout plan, Daily Beta 1 rollout review, and Daily Beta 1 feedback inbox. These surfaces do not go live, launch Daily Beta 1, execute rollout, proceed automatically, persist rollout decisions, send notifications, create automations, auto-ingest feedback, call providers/local models/connectors, mutate files/memory, or store credentials/outputs. |
+| Daily Beta 1 release-candidate review package | Phases 522-529 cover Daily Beta 1 feedback triage review, regression review, hardening pass, documentation refresh, release notes review, operator handoff packet, final safety review, and CodexForge Daily Beta 1 release candidate. These surfaces do not auto-ingest feedback, run tests, apply hardening changes, publish documentation, publish release notes, send handoff, sign off release automatically, go live, execute rollout, execute workflows, persist release settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files/memory, or store credentials/outputs. |
 | Safety/hygiene | Review-only surfaces, explicit operator approval, no silent mutation, no provider/local/connector/automation execution without approval, no credential/output storage, and no memory auto-promotion remain the checkpoint posture. |
-| Next milestone | Review Daily Beta 1 rollout feedback and blockers while defining approved backend/local/provider/connector/automation boundaries before any live execution claim. |
+| Next milestone | Review Daily Beta 1 release-candidate blockers, validation evidence, and final safety wording while defining approved backend/local/provider/connector/automation boundaries before any live execution claim. |
 
 ## Validation
 

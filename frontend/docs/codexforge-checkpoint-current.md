@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 521.
+Highest detected phase: 529.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 521, so the checkpoint is documented as through phase 521.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 529, so the checkpoint is documented as through phase 529.
 
-Latest detected milestone family: Daily Beta hardening, documentation final review, onboarding final review, release signoff review, CodexForge Daily Beta 1 candidate, controlled rollout plan, rollout review, and feedback inbox review.
+Latest detected milestone family: Daily Beta 1 feedback triage review, regression review, hardening pass, documentation refresh, release notes review, operator handoff packet, final safety review, and CodexForge Daily Beta 1 release candidate.
 
 ## Current Route Families
 
@@ -31,6 +31,7 @@ Latest detected milestone family: Daily Beta hardening, documentation final revi
 - Foundation 500 and first real daily workflow review: `/review-inbox-final-consolidation`, `/release-readiness-dashboard`, `/codexforge-foundation-500-milestone-review`, `/first-real-daily-workflow-candidate`, `/real-daily-workflow-evidence-review`, `/real-daily-workflow-result-review`, `/real-daily-workflow-recovery-review`, `/real-daily-workflow-hardening-pass`.
 - Multi-workflow and Daily Beta review: `/multi-workflow-operator-trial-plan`, `/multi-workflow-trial-review`, `/multi-workflow-regression-review`, `/multi-workflow-release-candidate`, `/controlled-live-capability-signoff`, `/codexforge-daily-beta-release-candidate`, `/daily-beta-controlled-operator-trial`, `/daily-beta-feedback-review`, `/daily-beta-hardening-pass`, `/daily-beta-documentation-final-review`, `/daily-beta-onboarding-final-review`, `/daily-beta-release-signoff-review`.
 - Daily Beta 1 rollout candidate review: `/codexforge-daily-beta-1-candidate`, `/daily-beta-1-controlled-rollout-plan`, `/daily-beta-1-rollout-review`, `/daily-beta-1-feedback-inbox`.
+- Daily Beta 1 release-candidate review package: `/daily-beta-1-feedback-triage-review`, `/daily-beta-1-regression-review`, `/daily-beta-1-hardening-pass`, `/daily-beta-1-documentation-refresh`, `/daily-beta-1-release-notes-review`, `/daily-beta-1-operator-handoff-packet`, `/daily-beta-1-final-safety-review`, `/codexforge-daily-beta-1-release-candidate`.
 
 ## Safety Model
 
@@ -45,7 +46,7 @@ Latest detected milestone family: Daily Beta hardening, documentation final revi
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 521 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 529 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, unified trial 2, and beta operator route families are represented as review and approval surfaces.
 - Local validation commands are documented for build, checkpoint docs smoke, all-smoke, command UI simplification, repo hygiene, server smoke, and diff hygiene.
 
@@ -61,11 +62,12 @@ Latest detected milestone family: Daily Beta hardening, documentation final revi
 - Review inbox final consolidation, release readiness dashboard, Foundation 500 milestone review, and first real daily workflow evidence/result/recovery/hardening pages remain review-only; they do not approve release, sign off the milestone, launch real daily workflow, ingest evidence/results/feedback, trigger recovery, apply hardening, mutate files, mutate memory, or store credentials/outputs.
 - Multi-workflow operator trial planning, multi-workflow trial/regression/release review, controlled live capability signoff, and Daily Beta release/trial/feedback/hardening/documentation/onboarding/signoff pages remain review-only; they do not execute workflows, launch trials, run tests, approve release, sign off live capability automatically, publish documentation automatically, launch onboarding workflows, go live, launch Daily Beta, auto-ingest feedback, call providers/local models/connectors, create automations, persist settings, persist preferences, mutate files, mutate memory, or store credentials/outputs.
 - CodexForge Daily Beta 1 candidate, controlled rollout plan, rollout review, and feedback inbox pages remain review-only; they do not go live, launch Daily Beta 1, execute rollout, proceed automatically, persist rollout decisions, send notifications, create automations, auto-ingest feedback, call providers/local models/connectors, mutate files, mutate memory, or store credentials/outputs.
+- Daily Beta 1 feedback triage, regression, hardening, documentation refresh, release notes review, operator handoff packet, final safety review, and CodexForge Daily Beta 1 release candidate pages remain review-only; they do not auto-ingest feedback, run tests, apply hardening changes, publish documentation, publish release notes, send handoff, sign off release automatically, go live, execute rollout, execute workflows, persist release settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, or store credentials/outputs.
 
 ## What Is Next
 
 - Keep documentation aligned with the highest local all-smoke phase.
-- Review Daily Beta 1 feedback and unresolved rollout blockers before any future rollout claim.
+- Review Daily Beta 1 release-candidate blockers, validation evidence, and final safety wording before any future rollout claim.
 - Define any approved backend, local, provider, connector, automation, credential, output-retention, audit, and rollback boundary before claiming execution.
 - Keep checkpoint docs sober: do not describe review surfaces as live execution.
 
