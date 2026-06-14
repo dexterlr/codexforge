@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 481.
+Highest detected phase: 489.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains phases 474-481, so the checkpoint is documented as through phase 481.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 489, so the checkpoint is documented as through phase 489.
 
-Latest completed milestone family: beta operator daily workflow release candidate.
+Latest detected milestone family: Beta 2 hardening pass review.
 
 ## Current Route Families
 
@@ -25,6 +25,8 @@ Latest completed milestone family: beta operator daily workflow release candidat
 - Automation live trial review: `/automation-live-execution-guard-review`, `/first-automation-live-dry-run-replay`, `/first-automation-live-approval-trial`, `/automation-live-trial-release-candidate`.
 - Unified live workflow trial 2: `/unified-live-workflow-trial-2`, `/unified-live-workflow-trial-2-result-review`, `/unified-live-workflow-trial-2-failure-recovery`, `/unified-live-workflow-trial-2-hardening-pass`.
 - Beta operator workflow: `/beta-operator-daily-workflow-trial`, `/beta-operator-daily-workflow-review`, `/beta-operator-workflow-friction-patch`, `/beta-operator-workflow-release-candidate`.
+- Beta workflow release review: `/beta-workflow-release-regression-review`, `/beta-workflow-safety-signoff-review`, `/beta-workflow-documentation-review`, `/beta-workflow-onboarding-final-pass`.
+- Beta 2 review and hardening: `/codexforge-beta-2-release-candidate`, `/beta-2-controlled-operator-trial`, `/beta-2-operator-feedback-review`, `/beta-2-hardening-pass`.
 
 ## Safety Model
 
@@ -39,7 +41,7 @@ Latest completed milestone family: beta operator daily workflow release candidat
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 481 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 489 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, unified trial 2, and beta operator route families are represented as review and approval surfaces.
 - Local validation commands are documented for build, checkpoint docs smoke, all-smoke, command UI simplification, repo hygiene, server smoke, and diff hygiene.
 
@@ -50,6 +52,7 @@ Latest completed milestone family: beta operator daily workflow release candidat
 - Connector live trial pages remain review-only unless an approved connector boundary exists for the specific request.
 - Automation live trial pages remain review-only unless an approved automation boundary exists for the specific request.
 - Unified live workflow and beta operator workflow pages remain review-only until approved boundaries and validation evidence exist.
+- Beta workflow release and Beta 2 review/hardening pages remain review-only; they do not mark Beta 2 live and do not execute provider, local, connector, automation, file, shell, patch, test, Jarvisd, or memory actions.
 
 ## What Is Next
 

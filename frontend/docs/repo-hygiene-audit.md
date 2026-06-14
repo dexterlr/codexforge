@@ -2,7 +2,7 @@
 
 Audit date: 2026-06-02
 
-Scope: CodexForge frontend hygiene pass from `C:\ai-lab\projects\openclaw-workspace\repos\<current-project>\frontend`.
+Scope: CodexForge frontend hygiene pass from `C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend`.
 
 ## Git status at audit time
 
@@ -48,16 +48,36 @@ No untracked files were reported by `git ls-files --others --exclude-standard` b
 Canonical frontend path:
 
 ```text
-C:\ai-lab\projects\openclaw-workspace\repos\<current-project>\frontend
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 ```
 
 Unverified duplicate or scratch candidate:
 
 ```text
-C:\ai-lab\projects\tools\<current-project>
+C:\ai-lab\projects\tools\health-tracker
 ```
 
 The tools copy exists but was not a Git repository during inspection.
+
+## Current checkpoint note
+
+Checkpoint repair date: 2026-06-13.
+
+The current canonical checkpoint is through highest detected phase 489 from `frontend/scripts/smoke-codexforge-all.ps1`. The checkpoint remains documentation and review-surface alignment only: review-only surfaces, explicit operator approval, no silent mutation, no provider/local/connector/automation execution without approval, no credential/output storage, and no memory auto-promotion remain required.
+
+Current validation commands from `frontend`:
+
+```powershell
+npm run build
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-checkpoint-docs.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-command-ui-simplification.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-repo-hygiene.ps1
+npm run smoke:codexforge:server
+git diff --check
+git status --short
+git diff --stat
+```
 
 ## Placeholder test status
 

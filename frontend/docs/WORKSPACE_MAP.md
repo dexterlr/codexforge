@@ -61,9 +61,16 @@ Checkpoint docs smoke:
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-checkpoint-docs.ps1
 ```
 
+All-smoke registry:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
+```
+
 Focused CodexForge smoke:
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-command-ui-simplification.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-repo-hygiene.ps1
 ```
 

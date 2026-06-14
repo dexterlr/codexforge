@@ -6,7 +6,7 @@ CodexForge is a local-first AI developer/operator workspace. It provides fronten
 
 ## Current State
 
-Current checkpoint: through phase 481, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest completed milestone family is the beta operator daily workflow release candidate.
+Current checkpoint: through phase 489, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the Beta 2 hardening pass review surface.
 
 CodexForge currently includes deterministic frontend review and approval surfaces for:
 
@@ -18,6 +18,7 @@ CodexForge currently includes deterministic frontend review and approval surface
 - Automation dry-run review, approval queue review, schedule safety review, live execution guard review, replay/approval trial review, and automation release-candidate surfaces.
 - Unified live workflow trial 2, result review, failure recovery review, and hardening review.
 - Beta operator daily workflow trial, review, friction patch review, and release candidate.
+- Beta workflow release regression, safety signoff, documentation, onboarding final pass, Beta 2 release candidate, controlled trial, feedback review, and hardening pass review surfaces.
 - Jarvisd/local-daemon contract, health, capability, permission, local file approval, local command approval, local process preview, and workspace trust boundaries.
 - Project intelligence, codebase change planning, patch preview, patch apply approval, patch result capture, test planning, and test result/failure review.
 
@@ -49,6 +50,7 @@ These are review-only surfaces unless an approved local/backend/provider boundar
 - Automation live trial review: `/automation-dry-run-trial-review`, `/automation-approval-queue-review`, `/automation-live-execution-guard-review`, `/first-automation-live-dry-run-replay`, `/first-automation-live-approval-trial`, `/automation-live-trial-release-candidate`, `/automation-integration-release-candidate`.
 - Unified live workflow trial 2: `/unified-live-workflow-trial-2`, `/unified-live-workflow-trial-2-result-review`, `/unified-live-workflow-trial-2-failure-recovery`, `/unified-live-workflow-trial-2-hardening-pass`.
 - Beta operator daily workflow: `/beta-operator-daily-workflow-trial`, `/beta-operator-daily-workflow-review`, `/beta-operator-workflow-friction-patch`, `/beta-operator-workflow-release-candidate`.
+- Beta 2 review and hardening: `/beta-workflow-release-regression-review`, `/beta-workflow-safety-signoff-review`, `/beta-workflow-documentation-review`, `/beta-workflow-onboarding-final-pass`, `/codexforge-beta-2-release-candidate`, `/beta-2-controlled-operator-trial`, `/beta-2-operator-feedback-review`, `/beta-2-hardening-pass`.
 - Jarvisd and local boundaries: `/jarvisd-contract`, `/jarvisd-health`, `/jarvisd-capabilities`, `/jarvisd-permissions`, `/local-file-approval`, `/local-command-approval`, `/local-process-monitor`, `/workspace-trust-policy`.
 - Brain, memory, and audit: `/brain`, `/memory`, `/memory-inbox`, `/runtime-journal`, `/runtime-replay`, `/brain-snapshots`, `/snapshot-restore`, `/brain-continuity`, `/brain-governance`, `/handoff`.
 - Creative and artifact review: `/creative`, `/local-creative`, `/comfyui`, `/video-workflows`, `/video-jobs`, `/video-review`, `/creative-readiness`, `/artifacts/review`.
@@ -72,7 +74,7 @@ git diff --stat
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 481.
+- Current checkpoint: documentation and hygiene alignment through detected phase 489.
 - Next milestone: keep provider, local model, connector, automation, unified workflow, and beta operator surfaces review-only while defining any approved backend/local/provider boundaries before claiming execution.
 - Do not claim live execution unless an approved local/backend/provider boundary exists.
 - Do not claim CI passed unless actual CI or terminal logs prove it.
