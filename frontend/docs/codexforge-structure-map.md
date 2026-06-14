@@ -1,6 +1,6 @@
 # CodexForge Structure Map
 
-CodexForge is a local-first developer workspace checkpointed through detected phase 489 in the local all-smoke registry. This map is for orientation only. It does not rename existing route folders or feature domains.
+CodexForge is a local-first developer workspace checkpointed through detected phase 497 in the local all-smoke registry. This map is for orientation only. It does not rename existing route folders or feature domains.
 
 ## Main route groups
 
@@ -15,6 +15,7 @@ CodexForge is a local-first developer workspace checkpointed through detected ph
 - Beta operator daily workflow: `/beta-operator-daily-workflow-trial`, `/beta-operator-daily-workflow-review`, `/beta-operator-workflow-friction-patch`, `/beta-operator-workflow-release-candidate`.
 - Beta workflow release review: `/beta-workflow-release-regression-review`, `/beta-workflow-safety-signoff-review`, `/beta-workflow-documentation-review`, `/beta-workflow-onboarding-final-pass`.
 - Beta 2 review and hardening: `/codexforge-beta-2-release-candidate`, `/beta-2-controlled-operator-trial`, `/beta-2-operator-feedback-review`, `/beta-2-hardening-pass`.
+- Unified operator cohesion and final policy polish: `/provider-local-connector-automation-cohesion-review`, `/unified-approval-policy-final-review`, `/unified-evidence-policy-final-review`, `/unified-result-policy-final-review`, `/unified-recovery-policy-final-review`, `/unified-settings-preferences-review`, `/daily-operator-cockpit-final-polish`, `/global-command-palette-final-polish`.
 - Jarvisd and local boundaries: `/jarvisd-contract`, `/jarvisd-health`, `/jarvisd-capabilities`, `/jarvisd-permissions`, `/local-file-approval`, `/local-command-approval`, `/local-process-monitor`, `/workspace-trust-policy`.
 - Project intelligence and patch planning: `/safe-project-indexer`, `/project-file-search`, `/project-dependency-map`, `/project-risk-secrets-scan`, `/codebase-change-plan`, `/patch-preview-workbench`, `/patch-apply-approval`, `/patch-result-capture`.
 - Brain and memory: `/brain`, `/memory`, `/memory-inbox`, `/brain-snapshots`, `/snapshot-restore`, `/brain-continuity`, `/brain-governance`, `/runtime-journal`, `/runtime-replay`, `/handoff`.
@@ -60,7 +61,7 @@ Artifact review may show planned records, previews, and handoffs. Local generate
 
 ## Preview-only, real runtime, and safety-critical
 
-Preview-only and approval-gated areas include most creative adapters, ComfyUI workflow planning, local provider probes, provider live-test gates, provider live trial review, local model live trial review, connector live trial review, automation live trial review, unified live workflow trial 2 review, beta operator workflow review, Beta 2 review and hardening, Jarvisd readiness, local operation boundaries, project intelligence, video render job previews, and guarded apply planning.
+Preview-only and approval-gated areas include most creative adapters, ComfyUI workflow planning, local provider probes, provider live-test gates, provider live trial review, local model live trial review, connector live trial review, automation live trial review, unified live workflow trial 2 review, beta operator workflow review, Beta 2 review and hardening, unified operator cohesion and final policy polish, Jarvisd readiness, local operation boundaries, project intelligence, video render job previews, and guarded apply planning.
 
 Real runtime areas include deterministic local domain builders, route rendering, command palette routing/copy actions, smoke scripts, and Next.js build/typecheck validation.
 

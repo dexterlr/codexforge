@@ -14,7 +14,7 @@
 
 ## Current CodexForge Surface Area
 
-- Checkpoint through detected phase 489 in `scripts/smoke-codexforge-all.ps1`.
+- Checkpoint through detected phase 497 in `scripts/smoke-codexforge-all.ps1`.
 - Brain runtime, memory review, runtime journal/replay, snapshots, continuity, mutation governance, memory inbox, and promotion gates.
 - Files, evidence, project intelligence, codebase change planning, patch preview, patch apply approval review, patch result capture, test planning, test result summary, and test failure triage review.
 - Provider governance, provider live call guard review, first provider live call trial review, provider response capture review, and provider live trial release candidate.
@@ -25,6 +25,7 @@
 - Beta operator daily workflow trial, workflow review, friction patch review, and release candidate.
 - Beta workflow release regression review, safety signoff review, documentation review, and onboarding final pass.
 - Beta 2 release candidate, controlled operator trial review, operator feedback review, and hardening pass.
+- Unified operator cohesion and final policy polish for cross-lane cohesion, approval policy, evidence policy, result policy, recovery policy, settings/preferences, cockpit readiness, and command palette discoverability.
 - Creative and artifact review surfaces remain preview/review oriented unless an approved boundary is explicitly documented.
 
 ## Goals

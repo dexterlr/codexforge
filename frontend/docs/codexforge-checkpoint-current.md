@@ -1,6 +1,6 @@
 # CodexForge Current Checkpoint
 
-Checkpoint date: 2026-06-13.
+Checkpoint date: 2026-06-14.
 
 Canonical workspace:
 
@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 489.
+Highest detected phase: 497.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 489, so the checkpoint is documented as through phase 489.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 497, so the checkpoint is documented as through phase 497.
 
-Latest detected milestone family: Beta 2 hardening pass review.
+Latest detected milestone family: unified operator cohesion and final policy polish review.
 
 ## Current Route Families
 
@@ -27,6 +27,7 @@ Latest detected milestone family: Beta 2 hardening pass review.
 - Beta operator workflow: `/beta-operator-daily-workflow-trial`, `/beta-operator-daily-workflow-review`, `/beta-operator-workflow-friction-patch`, `/beta-operator-workflow-release-candidate`.
 - Beta workflow release review: `/beta-workflow-release-regression-review`, `/beta-workflow-safety-signoff-review`, `/beta-workflow-documentation-review`, `/beta-workflow-onboarding-final-pass`.
 - Beta 2 review and hardening: `/codexforge-beta-2-release-candidate`, `/beta-2-controlled-operator-trial`, `/beta-2-operator-feedback-review`, `/beta-2-hardening-pass`.
+- Unified operator cohesion and final policy polish: `/provider-local-connector-automation-cohesion-review`, `/unified-approval-policy-final-review`, `/unified-evidence-policy-final-review`, `/unified-result-policy-final-review`, `/unified-recovery-policy-final-review`, `/unified-settings-preferences-review`, `/daily-operator-cockpit-final-polish`, `/global-command-palette-final-polish`.
 
 ## Safety Model
 
@@ -41,7 +42,7 @@ Latest detected milestone family: Beta 2 hardening pass review.
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 489 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 497 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, unified trial 2, and beta operator route families are represented as review and approval surfaces.
 - Local validation commands are documented for build, checkpoint docs smoke, all-smoke, command UI simplification, repo hygiene, server smoke, and diff hygiene.
 
@@ -53,6 +54,7 @@ Latest detected milestone family: Beta 2 hardening pass review.
 - Automation live trial pages remain review-only unless an approved automation boundary exists for the specific request.
 - Unified live workflow and beta operator workflow pages remain review-only until approved boundaries and validation evidence exist.
 - Beta workflow release and Beta 2 review/hardening pages remain review-only; they do not mark Beta 2 live and do not execute provider, local, connector, automation, file, shell, patch, test, Jarvisd, or memory actions.
+- Unified cohesion, approval, evidence, result, recovery, settings, cockpit, and command palette polish pages remain review-only; they do not apply policies, persist settings, execute commands, route live traffic, ingest evidence/results, trigger recovery, or store credentials/outputs.
 
 ## What Is Next
 
@@ -87,7 +89,7 @@ git diff --stat
 
 ## Known Non-Goals
 
-- Do not create product phase surfaces for this checkpoint.
+- Do not create execution-capable product phase surfaces for this checkpoint.
 - Do not add runtime workflow routes for this checkpoint.
 - Do not add dependencies.
 - Do not mutate Brain or memory.

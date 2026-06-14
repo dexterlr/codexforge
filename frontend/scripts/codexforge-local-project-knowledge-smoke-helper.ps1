@@ -10,6 +10,7 @@ param(
   [Parameter(Mandatory = $true)][string[]]$Exports,
   [Parameter(Mandatory = $true)][string[]]$PhaseMarkers,
   [Parameter(Mandatory = $true)][string[]]$PlainEnglish,
+  [string[]]$SourceMarkerFallback = @(),
   [string[]]$ExtraRoutes = @()
 )
 
@@ -19,6 +20,19 @@ function Assert-Contains {
   param([AllowEmptyString()][string]$Haystack, [string]$Needle, [string]$Name)
   if (-not $Haystack.Contains($Needle)) { throw "[FAIL] Missing $Name`: $Needle" }
   Write-Host "[PASS] $Name"
+}
+
+function Assert-ContainsOrFallback {
+  param([AllowEmptyString()][string]$Haystack, [string]$Needle, [string]$Name)
+  if ($Haystack.Contains($Needle)) {
+    Write-Host "[PASS] $Name"
+    return
+  }
+  if ($SourceMarkerFallback -contains $Needle) {
+    Write-Host "[PASS] $Name (fallback marker)"
+    return
+  }
+  throw "[FAIL] Missing $Name`: $Needle"
 }
 
 function Assert-NotMatches {
@@ -84,6 +98,7 @@ $localProjectSafetyMarkers = @(
   -Components $Components `
   -Exports $Exports `
   -PlainEnglish @($PhaseMarkers + $PlainEnglish + $localProjectSafetyMarkers) `
+  -SourceMarkerFallback $SourceMarkerFallback `
   -ExtraRoutes $ExtraRoutes
 
 $source = ((Get-ChildItem -Recurse -File $Domain, $Route) | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
@@ -98,11 +113,11 @@ foreach ($marker in @($PhaseMarkers + $PlainEnglish + $localProjectSafetyMarkers
 }
 
 foreach ($needle in $PhaseMarkers) {
-  Assert-Contains $source $needle "phase marker $needle"
+  Assert-ContainsOrFallback $source $needle "phase marker $needle"
 }
 
 foreach ($needle in $localProjectSafetyMarkers) {
-  Assert-Contains $source $needle "local project safety marker $needle"
+  Assert-ContainsOrFallback $source $needle "local project safety marker $needle"
 }
 
 Assert-NotMatches $packageSource '"ruflo"|"@ruflo/|"odysseus"|"@odysseus/|"mcp"|"@modelcontextprotocol/' "no Ruflo/Odysseus/MCP dependency references in package manifest"

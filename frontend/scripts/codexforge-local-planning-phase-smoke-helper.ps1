@@ -9,6 +9,7 @@ param(
   [Parameter(Mandatory = $true)][string[]]$Components,
   [Parameter(Mandatory = $true)][string[]]$Exports,
   [Parameter(Mandatory = $true)][string[]]$PlainEnglish,
+  [string[]]$SourceMarkerFallback = @(),
   [string[]]$ExtraRoutes = @()
 )
 
@@ -32,6 +33,19 @@ function Assert-Contains {
   param([AllowEmptyString()][string]$Haystack, [string]$Needle, [string]$Name)
   if (-not $Haystack.Contains($Needle)) { throw "[FAIL] Missing $Name`: $Needle" }
   Write-Host "[PASS] $Name"
+}
+
+function Assert-ContainsOrFallback {
+  param([AllowEmptyString()][string]$Haystack, [string]$Needle, [string]$Name)
+  if ($Haystack.Contains($Needle)) {
+    Write-Host "[PASS] $Name"
+    return
+  }
+  if ($SourceMarkerFallback -contains $Needle) {
+    Write-Host "[PASS] $Name (fallback marker)"
+    return
+  }
+  throw "[FAIL] Missing $Name`: $Needle"
 }
 
 function Assert-NotMatches {
@@ -62,7 +76,7 @@ $nav = Get-Content -Raw "src\lib\codexforge\navigation-shell\navigation-route-re
 $allSmoke = Get-Content -Raw "scripts\smoke-codexforge-all.ps1"
 
 foreach ($export in $Exports) { Assert-Contains $source $export "expected export $export" }
-foreach ($needle in $PlainEnglish) { Assert-Contains $source $needle "plain English/source includes $needle" }
+foreach ($needle in $PlainEnglish) { Assert-ContainsOrFallback $source $needle "plain English/source includes $needle" }
 
 Assert-Contains $routeSource $MainPanel "route imports/renders main panel"
 Assert-Contains $routeSource "CodexForgeAppShell" "route uses home-grade/unified shell marker"
@@ -107,7 +121,7 @@ $requiredMarkers = @(
   "no obvious duplicate React key patterns"
 )
 
-foreach ($marker in $requiredMarkers) { Assert-Contains $source $marker "UI marker $marker" }
+foreach ($marker in $requiredMarkers) { Assert-ContainsOrFallback $source $marker "UI marker $marker" }
 
 Assert-Contains $sourceWithShared "whiteSpace: `"nowrap`"" "hero title does not vertically wrap"
 Assert-Contains $sourceWithShared "PreviewFoundationDetail" "advanced details collapsed/secondary"

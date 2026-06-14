@@ -14,22 +14,22 @@ See `docs/WORKSPACE_MAP.md` before using duplicate, scratch, or generated copies
 
 ## Current Status
 
-CodexForge is checkpointed through phase 489, detected from the local `scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the Beta 2 hardening pass review surface.
+CodexForge is checkpointed through phase 497, detected from the local `scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the unified operator cohesion and final policy polish review surface.
 
 The current surface area is still mostly deterministic frontend review and approval UI. Provider live trial review, local model live trial review, connector live trial review, automation live trial review, unified live workflow trial 2, and beta operator daily workflow routes are represented as approval/readiness/result-review surfaces. They are not automatic background provider calls, local model calls, connector calls, automation runs, file mutations, patch applies, test execution, or shell execution from arbitrary UI.
 
 ## Operational Checkpoint
 
-- Highest detected phase: 489.
-- Checkpoint date: 2026-06-13.
-- Latest detected milestone family: Beta 2 hardening pass review.
+- Highest detected phase: 497.
+- Checkpoint date: 2026-06-14.
+- Latest detected milestone family: unified operator cohesion and final policy polish review.
 - Checkpoint docs: `docs/codexforge-checkpoint-current.md`, `docs/codexforge-operator-checkpoint-runbook.md`, and `docs/codexforge-status-index.md`.
 - Checkpoint smoke: `scripts/smoke-codexforge-checkpoint-docs.ps1`, registered in `scripts/smoke-codexforge-all.ps1` as `Checkpoint Documentation Consistency`.
 
 ## What Works Now
 
 - Route-backed review panels render for operator home, onboarding, assisted coding, validation, review inbox, recovery, run history, readiness, repo hygiene, and recent live workflow review families.
-- Safety copy, hidden smoke markers, deterministic builders, and smoke scripts cover the provider/local/connector/automation/unified/beta/Beta 2 checkpoint surface.
+- Safety copy, hidden smoke markers, deterministic builders, and smoke scripts cover the provider/local/connector/automation/unified/beta/Beta 2/final policy polish checkpoint surface.
 - Build, command UI simplification smoke, repo hygiene smoke, server smoke, and the all-smoke registry are available as local validation commands.
 - Documentation now records how to detect the current checkpoint phase from the local all-smoke registry.
 
@@ -52,7 +52,7 @@ The current surface area is still mostly deterministic frontend review and appro
 - Provider governance and live-trial review: provider registry, setup, health, adapters, budget guardrails, privacy classifier, audit log, policy bundle, live-test gates, live call guard review, result capture, failure recovery, local-first router review, and release audit. Secrets are redacted and provider calls require explicit approval gates.
 - Local model live trial review: runtime boundary review, live call guard review, first trial review, output capture review, output inbox, failover review, and release candidate surfaces. These do not call local models from arbitrary UI.
 - Connector and automation live trial review: connector permission/redaction/evidence review and automation dry-run/approval/schedule/live guard review. These do not call connectors or run automations from arbitrary UI.
-- Unified, beta operator, and Beta 2 workflow review: unified live workflow trial 2, result review, failure recovery, hardening review, beta daily workflow trial, beta workflow review, friction patch review, beta workflow release candidate, beta workflow release regression review, safety signoff review, documentation review, onboarding final pass, Beta 2 release candidate, controlled operator trial, feedback review, and hardening pass.
+- Unified, beta operator, Beta 2, and final policy polish review: unified live workflow trial 2, result review, failure recovery, hardening review, beta daily workflow trial, beta workflow review, friction patch review, beta workflow release candidate, beta workflow release regression review, safety signoff review, documentation review, onboarding final pass, Beta 2 release candidate, controlled operator trial, feedback review, hardening pass, cross-lane cohesion review, approval policy review, evidence policy review, result policy review, recovery policy review, settings review, cockpit polish, and command palette polish.
 - Jarvisd local daemon boundary: Jarvisd contract, health/version readiness, capability registry, and permission boundary. Jarvisd is documented as a future approved local service boundary, not an automatically executing daemon.
 - Local operations approval gates: local file operation approval, local command approval, local process preview, and workspace trust policy. These pages review proposed local operations and do not execute, browse, mutate, kill, restart, or grant permissions automatically.
 - Project intelligence: safe project indexer, project file search preview, dependency map, and project risk/secrets scan. These use reviewed/approved metadata concepts and do not crawl arbitrary files from the UI.
@@ -87,6 +87,7 @@ The current surface area is still mostly deterministic frontend review and appro
 - Unified trial 2: `/unified-live-workflow-trial-2`, `/unified-live-workflow-trial-2-result-review`, `/unified-live-workflow-trial-2-failure-recovery`, `/unified-live-workflow-trial-2-hardening-pass`.
 - Beta operator workflow: `/beta-operator-daily-workflow-trial`, `/beta-operator-daily-workflow-review`, `/beta-operator-workflow-friction-patch`, `/beta-operator-workflow-release-candidate`.
 - Beta 2 review and hardening: `/beta-workflow-release-regression-review`, `/beta-workflow-safety-signoff-review`, `/beta-workflow-documentation-review`, `/beta-workflow-onboarding-final-pass`, `/codexforge-beta-2-release-candidate`, `/beta-2-controlled-operator-trial`, `/beta-2-operator-feedback-review`, `/beta-2-hardening-pass`.
+- Final policy polish: `/provider-local-connector-automation-cohesion-review`, `/unified-approval-policy-final-review`, `/unified-evidence-policy-final-review`, `/unified-result-policy-final-review`, `/unified-recovery-policy-final-review`, `/unified-settings-preferences-review`, `/daily-operator-cockpit-final-polish`, `/global-command-palette-final-polish`.
 - Provider governance: `/ai-router`, `/ai-providers`, `/provider-adapters`, `/provider-health`, `/provider-live-test-gate`, `/openai-compatible-live-test`, `/multi-provider-live-test`, `/provider-test-results`, `/prompt-privacy-classifier`, `/provider-policy-bundle`, `/provider-governance-release-audit`.
 - Jarvisd and local boundaries: `/jarvisd-contract`, `/jarvisd-health`, `/jarvisd-capabilities`, `/jarvisd-permissions`, `/local-file-approval`, `/local-command-approval`, `/local-process-monitor`, `/workspace-trust-policy`.
 - Creative and artifact review: `/creative`, `/local-creative`, `/comfyui`, `/comfyui-health`, `/video-workflows`, `/video-jobs`, `/video-review`, `/creative-readiness`, `/creative-mvp`, `/health-probe`, `/local-bridge-health`, `/artifacts/review`.
@@ -152,7 +153,7 @@ Commit intentional source, docs, package metadata, lockfiles, and smoke scripts 
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 489.
+- Current checkpoint: documentation and hygiene alignment through detected phase 497.
 - Next milestone: define and document approved backend/local/provider boundaries before any route claims live execution.
 - Keep provider, local model, connector, automation, unified workflow, and beta operator pages review-only until those boundaries exist.
 - Do not claim CI passed unless actual CI or terminal logs prove it.

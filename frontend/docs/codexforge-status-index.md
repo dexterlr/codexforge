@@ -1,10 +1,10 @@
 # CodexForge Status Index
 
-Checkpoint date: 2026-06-13.
+Checkpoint date: 2026-06-14.
 
 Canonical workspace: `C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend`.
 
-Highest detected phase: 489.
+Highest detected phase: 497.
 
 ## Status
 
@@ -18,7 +18,8 @@ Highest detected phase: 489.
 | Unified live workflow | Phases 474-477 cover unified live workflow trial 2, result review, failure recovery review, and hardening review. These remain review-only surfaces. |
 | Beta operator workflow | Phases 478-481 cover beta operator daily workflow trial, review, friction patch review, and release candidate. These remain review-only surfaces. |
 | Beta workflow release review | Phases 482-485 cover release regression review, safety signoff review, documentation review, and onboarding final pass. These review release readiness without applying changes or executing workflows. |
-| Beta 2 review and hardening | Phases 486-489 cover the CodexForge Beta 2 release candidate, controlled operator trial review, operator feedback review, and Beta 2 hardening pass. This is the latest detected milestone family and does not mark Beta 2 live. |
+| Beta 2 review and hardening | Phases 486-489 cover the CodexForge Beta 2 release candidate, controlled operator trial review, operator feedback review, and Beta 2 hardening pass. This does not mark Beta 2 live. |
+| Unified operator cohesion and final policy polish | Phases 490-497 cover provider/local/connector/automation cohesion, unified approval policy, evidence policy, result policy, recovery policy, settings/preferences, daily cockpit polish, and command palette polish. These are review-only surfaces and do not route live traffic, apply policies, persist settings, execute commands, or store credentials/outputs. |
 | Safety/hygiene | Review-only surfaces, explicit operator approval, no silent mutation, no provider/local/connector/automation execution without approval, no credential/output storage, and no memory auto-promotion remain the checkpoint posture. |
 | Next milestone | Define and document approved backend/local/provider/connector/automation boundaries before any live execution claim. |
 
