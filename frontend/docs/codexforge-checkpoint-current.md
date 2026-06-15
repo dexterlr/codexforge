@@ -1,6 +1,6 @@
 # CodexForge Current Checkpoint
 
-Checkpoint date: 2026-06-14.
+Checkpoint date: 2026-06-15.
 
 Canonical workspace:
 
@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 537.
+Highest detected phase: 545.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 537, so the checkpoint is documented as through phase 537.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 545, so the checkpoint is documented as through phase 545.
 
-Latest detected milestone family: Daily Beta 1 controlled trial result/recovery/hardening review and live backend/provider/local model/connector/automation execution boundary readiness inventory.
+Latest detected milestone family: execution-boundary readiness completion and first approved-trial review surfaces for file mutation, test execution, unified gap reporting, provider execution, local model execution, connector access, automation dry-runs, and file patch dry-runs.
 
 ## Current Route Families
 
@@ -33,6 +33,7 @@ Latest detected milestone family: Daily Beta 1 controlled trial result/recovery/
 - Daily Beta 1 rollout candidate review: `/codexforge-daily-beta-1-candidate`, `/daily-beta-1-controlled-rollout-plan`, `/daily-beta-1-rollout-review`, `/daily-beta-1-feedback-inbox`.
 - Daily Beta 1 release-candidate review package: `/daily-beta-1-feedback-triage-review`, `/daily-beta-1-regression-review`, `/daily-beta-1-hardening-pass`, `/daily-beta-1-documentation-refresh`, `/daily-beta-1-release-notes-review`, `/daily-beta-1-operator-handoff-packet`, `/daily-beta-1-final-safety-review`, `/codexforge-daily-beta-1-release-candidate`.
 - Daily Beta 1 controlled trial and execution boundary readiness review: `/daily-beta-1-controlled-trial-result-review`, `/daily-beta-1-controlled-trial-recovery-review`, `/daily-beta-1-controlled-trial-hardening`, `/live-backend-boundary-inventory`, `/provider-execution-boundary-readiness-review`, `/local-model-execution-boundary-readiness-review`, `/connector-execution-boundary-readiness-review`, `/automation-execution-boundary-readiness-review`.
+- Execution-boundary gap and first approved-trial review: `/file-mutation-boundary-readiness-review`, `/test-execution-boundary-readiness-review`, `/unified-execution-boundary-gap-report`, `/first-approved-provider-execution-trial`, `/first-approved-local-model-execution-trial`, `/first-approved-connector-access-trial`, `/first-approved-automation-dry-run-trial`, `/first-approved-file-patch-dry-run`.
 
 ## Safety Model
 
@@ -47,8 +48,8 @@ Latest detected milestone family: Daily Beta 1 controlled trial result/recovery/
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 537 checkpoint directly from the local all-smoke registry.
-- The recent provider, local model, connector, automation, unified trial 2, and beta operator route families are represented as review and approval surfaces.
+- Documentation and smoke coverage now identify the phase 545 checkpoint directly from the local all-smoke registry.
+- The recent provider, local model, connector, automation, file mutation, test execution, unified gap, and first approved-trial route families are represented as review and approval surfaces.
 - Local validation commands are documented for build, checkpoint docs smoke, all-smoke, command UI simplification, repo hygiene, server smoke, and diff hygiene.
 
 ## What Remains Review-Only
@@ -65,12 +66,13 @@ Latest detected milestone family: Daily Beta 1 controlled trial result/recovery/
 - CodexForge Daily Beta 1 candidate, controlled rollout plan, rollout review, and feedback inbox pages remain review-only; they do not go live, launch Daily Beta 1, execute rollout, proceed automatically, persist rollout decisions, send notifications, create automations, auto-ingest feedback, call providers/local models/connectors, mutate files, mutate memory, or store credentials/outputs.
 - Daily Beta 1 feedback triage, regression, hardening, documentation refresh, release notes review, operator handoff packet, final safety review, and CodexForge Daily Beta 1 release candidate pages remain review-only; they do not auto-ingest feedback, run tests, apply hardening changes, publish documentation, publish release notes, send handoff, sign off release automatically, go live, execute rollout, execute workflows, persist release settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, or store credentials/outputs.
 - Daily Beta 1 controlled trial result, recovery, and hardening review plus live backend/provider/local model/connector/automation boundary readiness pages remain review-only; they do not store or accept trial results automatically, execute controlled trials, trigger recovery, apply hardening, execute boundary probes, call backends, call providers/local models/connectors, send prompts, fetch connector data, create automations, schedule tasks, create watches/reminders, send notifications, run tests, browse arbitrary local files, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
+- File mutation readiness, test execution readiness, unified execution gap reporting, and first approved provider/local model/connector/automation/file patch dry-run trial pages remain review-only; they do not mutate files, apply patches, run tests, run commands, execute probes, call backends, call providers, call local models, call local bridge endpoints, call connectors, fetch connector data, create automations, schedule tasks, create watches/reminders, send notifications, persist settings, persist approval decisions, store credentials/outputs, auto-ingest feedback/evidence, mutate memory, or claim UI review proves live execution.
 
 ## What Is Next
 
 - Keep documentation aligned with the highest local all-smoke phase.
-- Review Daily Beta 1 controlled trial result/recovery/hardening blockers and live execution boundary gaps before any future execution claim.
-- Define and approve bounded backend, local, provider, connector, automation, credential, output-retention, audit, and rollback boundaries before claiming execution.
+- Review the unified execution gap report and first approved-trial blockers before any future execution claim.
+- Define and approve bounded backend, local, provider, connector, automation, file mutation, test execution, credential, output-retention, audit, and rollback boundaries before claiming execution.
 - Keep checkpoint docs sober: do not describe review surfaces as live execution.
 
 ## Validation Commands
