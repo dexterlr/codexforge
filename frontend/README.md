@@ -14,13 +14,13 @@ See `docs/WORKSPACE_MAP.md` before using duplicate, scratch, or generated copies
 
 ## Current Status
 
-CodexForge is checkpointed through phase 593, detected from the local `scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the Daily Beta 1 activation final gate, controlled trial, feedback review, regression review, recovery review, hardening pass, activation release candidate, and readiness lock review package.
+CodexForge is checkpointed through phase 601, detected from the local `scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the Daily Beta 1 activation lock audit, release handoff final review, launch readiness summary, launch dry-run review, launch evidence review, launch result review, launch candidate, and launch readiness lock review package.
 
-The current surface area is still mostly deterministic frontend review and approval UI. Provider live trial review, local model live trial review, connector live trial review, automation live trial review, unified live workflow trial 2, beta operator daily workflow, Daily Beta 1 controlled trial review, execution boundary readiness, first approved test execution, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta activation, and Daily Beta 1 activation routes are represented as approval/readiness/result-review surfaces. They are not automatic background provider calls, local model calls, connector calls, automation runs, file mutations, patch applies, test execution, boundary probes, shell execution, workflow execution, activation execution, activation dry-run execution, recovery triggers, hardening applies, readiness locks, release candidate signoffs, handoff sends, or go-live actions from arbitrary UI.
+The current surface area is still mostly deterministic frontend review and approval UI. Provider live trial review, local model live trial review, connector live trial review, automation live trial review, unified live workflow trial 2, beta operator daily workflow, Daily Beta 1 controlled trial review, execution boundary readiness, first approved test execution, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta activation, Daily Beta 1 activation, and Daily Beta 1 launch-candidate routes are represented as approval/readiness/result-review surfaces. They are not automatic background provider calls, local model calls, connector calls, automation runs, file mutations, patch applies, test execution, boundary probes, shell execution, workflow execution, activation execution, launch execution, launch dry-run execution, recovery triggers, hardening applies, readiness locks, release candidate signoffs, handoff sends, or go-live actions from arbitrary UI.
 
 ## Operational Checkpoint
 
-- Highest detected phase: 593.
+- Highest detected phase: 601.
 - Checkpoint date: 2026-06-16.
 - Latest detected milestone family: Daily Beta 1 activation final-gate and release-candidate review.
 - Checkpoint docs: `docs/codexforge-checkpoint-current.md`, `docs/codexforge-operator-checkpoint-runbook.md`, and `docs/codexforge-status-index.md`.
@@ -157,7 +157,7 @@ Commit intentional source, docs, package metadata, lockfiles, and smoke scripts 
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 593.
+- Current checkpoint: documentation and hygiene alignment through detected phase 601.
 - Next milestone: define and document approved backend/local/provider/connector/automation boundaries before any route claims live execution.
 - Keep provider, local model, connector, automation, unified workflow, beta operator, Daily Beta 1 controlled trial, and execution boundary pages review-only until those boundaries exist.
 - Do not claim CI passed unless actual CI or terminal logs prove it.
