@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 585.
+Highest detected phase: 593.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 585, so the checkpoint is documented as through phase 585.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 593, so the checkpoint is documented as through phase 593.
 
-Latest detected milestone family: Daily Beta readiness lock audit, release candidate summary, Daily Beta 1 final candidate, final operator review, final regression review, final recovery review, final hardening pass, and activation candidate review surfaces.
+Latest detected milestone family: Daily Beta 1 activation final gate, controlled trial, feedback review, regression review, recovery review, hardening pass, activation release candidate, and readiness lock review surfaces.
 
 ## Current Route Families
 
@@ -39,6 +39,7 @@ Latest detected milestone family: Daily Beta readiness lock audit, release candi
 - Daily Beta activation review: `/daily-beta-activation-checklist-review`, `/daily-beta-activation-dry-run-review`, `/daily-beta-activation-evidence-review`, `/daily-beta-activation-result-review`, `/daily-beta-activation-recovery-review`, `/daily-beta-activation-hardening-pass`, `/codexforge-daily-beta-activation-release-candidate`, `/daily-beta-activation-operator-readiness-review`.
 - Daily Beta activation final gate and readiness lock review: `/daily-beta-activation-final-gate`, `/daily-beta-activation-controlled-operator-trial`, `/daily-beta-activation-feedback-inbox`, `/daily-beta-activation-regression-review`, `/daily-beta-activation-final-hardening`, `/codexforge-daily-beta-activation-candidate`, `/daily-beta-activation-release-handoff`, `/daily-beta-activation-readiness-lock`.
 - Daily Beta 1 final candidate package: `/daily-beta-readiness-lock-audit`, `/daily-beta-release-candidate-summary`, `/codexforge-daily-beta-1-final-candidate`, `/daily-beta-1-final-operator-review`, `/daily-beta-1-final-regression-review`, `/daily-beta-1-final-recovery-review`, `/daily-beta-1-final-hardening-pass`, `/codexforge-daily-beta-1-activation-candidate`.
+- Daily Beta 1 activation final-gate and release-candidate review: `/daily-beta-1-activation-final-gate`, `/daily-beta-1-activation-controlled-trial`, `/daily-beta-1-activation-feedback-review`, `/daily-beta-1-activation-regression-review`, `/daily-beta-1-activation-recovery-review`, `/daily-beta-1-activation-hardening-pass`, `/codexforge-daily-beta-1-activation-release-candidate`, `/daily-beta-1-activation-readiness-lock`.
 
 ## Safety Model
 
@@ -53,10 +54,11 @@ Latest detected milestone family: Daily Beta readiness lock audit, release candi
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 585 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 593 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, file mutation, test execution, unified gap, first approved-trial, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta candidate, and operator handoff route families are represented as review and approval surfaces.
 - The Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, and readiness lock route family is represented as review-only and approval-required UI.
 - The Daily Beta readiness lock audit, release candidate summary, Daily Beta 1 final candidate, final operator review, final regression review, final recovery review, final hardening pass, and Daily Beta 1 activation candidate package is represented as review-only and approval-required UI.
+- The Daily Beta 1 activation final gate, controlled trial, feedback review, regression review, recovery review, hardening pass, activation release candidate, and readiness lock package is represented as review-only and approval-required UI.
 - Local validation commands are documented for build, checkpoint docs smoke, all-smoke, command UI simplification, repo hygiene, server smoke, and diff hygiene.
 
 ## What Remains Review-Only
@@ -79,11 +81,12 @@ Latest detected milestone family: Daily Beta readiness lock audit, release candi
 - Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, and operator readiness pages remain review-only; they do not activate Daily Beta, run activation dry-runs, ingest evidence, store live outputs, trigger recovery, apply hardening, go live, sign off activation release candidate automatically, sign off operator readiness automatically, send handoff, execute workflows, persist activation settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
 - Daily Beta activation final gate, controlled operator trial, feedback inbox, regression review, final hardening, CodexForge Daily Beta activation candidate, release handoff, and readiness lock pages remain review-only; they do not pass the final gate automatically, execute controlled operator trials, auto-ingest feedback, run tests, apply fixes or hardening, go live, activate Daily Beta, send or apply handoff, export files automatically, lock readiness automatically, persist activation settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
 - Daily Beta readiness lock audit, release candidate summary, Daily Beta 1 final candidate, final operator review, final regression review, final recovery review, final hardening pass, and CodexForge Daily Beta 1 activation candidate pages remain review-only; they do not lock or freeze readiness automatically, approve release, activate Daily Beta 1, sign off operators automatically, run final regression tests, trigger recovery, apply hardening, go live, persist activation settings, persist approval decisions, send handoff, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
+- Daily Beta 1 activation final gate, controlled trial, feedback review, regression review, recovery review, hardening pass, CodexForge Daily Beta 1 activation release candidate, and readiness lock pages remain review-only; they do not activate Daily Beta 1, pass final gate automatically, execute controlled trials, auto-ingest feedback, run tests, apply fixes or hardening, trigger recovery, go live, sign off activation release candidate automatically, lock readiness automatically, persist activation settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
 
 ## What Is Next
 
 - Keep documentation aligned with the highest local all-smoke phase.
-- Review the activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, readiness lock, readiness lock audit, release summary, final candidate, final operator, final regression, final recovery, final hardening, and Daily Beta 1 activation candidate blockers before any future activation or execution claim.
+- Review the activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, readiness lock, readiness lock audit, release summary, final candidate, final operator, final regression, final recovery, final hardening, Daily Beta 1 activation candidate, Daily Beta 1 activation final gate, controlled trial, feedback, regression, recovery, hardening, activation release candidate, and readiness lock blockers before any future activation or execution claim.
 - Define and approve bounded backend, local, provider, connector, automation, file mutation, test execution, credential, output-retention, audit, and rollback boundaries before claiming execution.
 - Keep checkpoint docs sober: do not describe review surfaces as live execution.
 
