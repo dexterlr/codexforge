@@ -47,7 +47,15 @@ $protectedRoutes = @(
   "/launch-monitoring-plan-review",
   "/launch-support-runbook-review",
   "/codexforge-daily-beta-1-go-no-go-candidate",
-  "/first-controlled-launch-plan"
+  "/first-controlled-launch-plan",
+  "/first-controlled-launch-review",
+  "/first-controlled-launch-evidence-review",
+  "/first-controlled-launch-result-review",
+  "/first-controlled-launch-recovery-review",
+  "/first-controlled-launch-hardening",
+  "/daily-beta-1-controlled-launch-candidate",
+  "/daily-beta-1-controlled-launch-handoff",
+  "/daily-beta-1-controlled-launch-readiness-lock"
 )
 
 $governanceMarkers = @(

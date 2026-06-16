@@ -14,15 +14,15 @@ See `docs/WORKSPACE_MAP.md` before using duplicate, scratch, or generated copies
 
 ## Current Status
 
-CodexForge is checkpointed through phase 609, detected from the local `scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the Daily Beta 1 launch governance review package: launch boundary audit, launch approval packet, launch go/no-go review, rollback plan review, monitoring plan review, support runbook review, Daily Beta 1 go/no-go candidate, and first controlled launch plan.
+CodexForge is checkpointed through phase 617, detected from the local `scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the Daily Beta 1 controlled launch review package: first controlled launch review, controlled launch evidence review, controlled launch result review, controlled launch recovery review, controlled launch hardening, controlled launch candidate, controlled launch handoff, and controlled launch readiness lock.
 
-The current surface area is still mostly deterministic frontend review and approval UI. Provider live trial review, local model live trial review, connector live trial review, automation live trial review, unified live workflow trial 2, beta operator daily workflow, Daily Beta 1 controlled trial review, execution boundary readiness, first approved test execution, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta activation, Daily Beta 1 activation, Daily Beta 1 launch-candidate, and Daily Beta 1 launch governance routes are represented as approval/readiness/result-review surfaces. They are not automatic background provider calls, local model calls, connector calls, automation runs, file mutations, patch applies, test execution, boundary probes, shell execution, workflow execution, activation execution, launch execution, controlled launch execution, launch dry-run execution, recovery triggers, rollback triggers, monitoring jobs, support runbook publishing, hardening applies, readiness locks, release candidate signoffs, handoff sends, go/no-go auto-passes, approval packet sends, or go-live actions from arbitrary UI.
+The current surface area is still mostly deterministic frontend review and approval UI. Provider live trial review, local model live trial review, connector live trial review, automation live trial review, unified live workflow trial 2, beta operator daily workflow, Daily Beta 1 controlled trial review, execution boundary readiness, first approved test execution, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta activation, Daily Beta 1 activation, Daily Beta 1 launch-candidate, Daily Beta 1 launch governance, and Daily Beta 1 controlled launch review routes are represented as approval/readiness/result-review surfaces. They are not automatic background provider calls, local model calls, connector calls, automation runs, file mutations, patch applies, test execution, boundary probes, shell execution, workflow execution, activation execution, launch execution, controlled launch execution, launch dry-run execution, evidence ingestion, result persistence, recovery triggers, rollback triggers, monitoring jobs, support runbook publishing, hardening applies, readiness locks, release candidate signoffs, handoff sends, go/no-go auto-passes, approval packet sends, or go-live actions from arbitrary UI.
 
 ## Operational Checkpoint
 
-- Highest detected phase: 609.
+- Highest detected phase: 617.
 - Checkpoint date: 2026-06-16.
-- Latest detected milestone family: Daily Beta 1 launch governance review.
+- Latest detected milestone family: Daily Beta 1 controlled launch review.
 - Checkpoint docs: `docs/codexforge-checkpoint-current.md`, `docs/codexforge-operator-checkpoint-runbook.md`, and `docs/codexforge-status-index.md`.
 - Checkpoint smoke: `scripts/smoke-codexforge-checkpoint-docs.ps1`, registered in `scripts/smoke-codexforge-all.ps1` as `Checkpoint Documentation Consistency`.
 
@@ -157,7 +157,7 @@ Commit intentional source, docs, package metadata, lockfiles, and smoke scripts 
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 609.
-- Next milestone: define and document approved backend/local/provider/connector/automation boundaries before any route claims live execution.
-- Keep provider, local model, connector, automation, unified workflow, beta operator, Daily Beta 1 controlled trial, and execution boundary pages review-only until those boundaries exist.
+- Current checkpoint: documentation and hygiene alignment through detected phase 617.
+- Next milestone: define and document approved backend/local/provider/connector/automation/file/command/local runtime/package/deployment boundaries before any route claims live execution or project/server building.
+- Keep provider, local model, connector, automation, unified workflow, beta operator, Daily Beta 1 controlled trial, execution boundary, launch governance, and controlled launch review pages review-only until those boundaries exist.
 - Do not claim CI passed unless actual CI or terminal logs prove it.
