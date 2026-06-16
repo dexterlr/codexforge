@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 601.
+Highest detected phase: 609.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 601, so the checkpoint is documented as through phase 601.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 609, so the checkpoint is documented as through phase 609.
 
-Latest detected milestone family: Daily Beta 1 activation lock audit, release handoff final review, launch readiness summary, launch dry-run review, launch evidence review, launch result review, launch candidate, and launch readiness lock review surfaces.
+Latest detected milestone family: Daily Beta 1 launch governance review surfaces covering launch boundary audit, launch approval packet, launch go/no-go review, rollback plan review, monitoring plan review, support runbook review, Daily Beta 1 go/no-go candidate, and first controlled launch plan.
 
 ## Current Route Families
 
@@ -41,6 +41,7 @@ Latest detected milestone family: Daily Beta 1 activation lock audit, release ha
 - Daily Beta 1 final candidate package: `/daily-beta-readiness-lock-audit`, `/daily-beta-release-candidate-summary`, `/codexforge-daily-beta-1-final-candidate`, `/daily-beta-1-final-operator-review`, `/daily-beta-1-final-regression-review`, `/daily-beta-1-final-recovery-review`, `/daily-beta-1-final-hardening-pass`, `/codexforge-daily-beta-1-activation-candidate`.
 - Daily Beta 1 activation final-gate and release-candidate review: `/daily-beta-1-activation-final-gate`, `/daily-beta-1-activation-controlled-trial`, `/daily-beta-1-activation-feedback-review`, `/daily-beta-1-activation-regression-review`, `/daily-beta-1-activation-recovery-review`, `/daily-beta-1-activation-hardening-pass`, `/codexforge-daily-beta-1-activation-release-candidate`, `/daily-beta-1-activation-readiness-lock`.
 - Daily Beta 1 launch-candidate review: `/daily-beta-1-activation-lock-audit`, `/daily-beta-1-release-handoff-final-review`, `/daily-beta-1-launch-readiness-summary`, `/daily-beta-1-launch-dry-run-review`, `/daily-beta-1-launch-evidence-review`, `/daily-beta-1-launch-result-review`, `/codexforge-daily-beta-1-launch-candidate`, `/daily-beta-1-launch-readiness-lock`.
+- Daily Beta 1 launch governance review: `/launch-boundary-audit`, `/launch-approval-packet`, `/launch-go-no-go-review`, `/launch-rollback-plan-review`, `/launch-monitoring-plan-review`, `/launch-support-runbook-review`, `/codexforge-daily-beta-1-go-no-go-candidate`, `/first-controlled-launch-plan`.
 
 ## Safety Model
 
@@ -55,12 +56,13 @@ Latest detected milestone family: Daily Beta 1 activation lock audit, release ha
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 601 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 609 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, file mutation, test execution, unified gap, first approved-trial, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta candidate, and operator handoff route families are represented as review and approval surfaces.
 - The Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, and readiness lock route family is represented as review-only and approval-required UI.
 - The Daily Beta readiness lock audit, release candidate summary, Daily Beta 1 final candidate, final operator review, final regression review, final recovery review, final hardening pass, and Daily Beta 1 activation candidate package is represented as review-only and approval-required UI.
 - The Daily Beta 1 activation final gate, controlled trial, feedback review, regression review, recovery review, hardening pass, activation release candidate, and readiness lock package is represented as review-only and approval-required UI.
 - The Daily Beta 1 activation lock audit, release handoff final review, launch readiness summary, launch dry-run review, launch evidence review, launch result review, CodexForge Daily Beta 1 launch candidate, and launch readiness lock package is represented as review-only and approval-required UI.
+- The Daily Beta 1 launch boundary audit, approval packet, go/no-go review, rollback plan review, monitoring plan review, support runbook review, go/no-go candidate, and first controlled launch plan package is represented as review-only and approval-required UI.
 - Local validation commands are documented for build, checkpoint docs smoke, all-smoke, command UI simplification, repo hygiene, server smoke, and diff hygiene.
 
 ## What Remains Review-Only
@@ -85,11 +87,12 @@ Latest detected milestone family: Daily Beta 1 activation lock audit, release ha
 - Daily Beta readiness lock audit, release candidate summary, Daily Beta 1 final candidate, final operator review, final regression review, final recovery review, final hardening pass, and CodexForge Daily Beta 1 activation candidate pages remain review-only; they do not lock or freeze readiness automatically, approve release, activate Daily Beta 1, sign off operators automatically, run final regression tests, trigger recovery, apply hardening, go live, persist activation settings, persist approval decisions, send handoff, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
 - Daily Beta 1 activation final gate, controlled trial, feedback review, regression review, recovery review, hardening pass, CodexForge Daily Beta 1 activation release candidate, and readiness lock pages remain review-only; they do not activate Daily Beta 1, pass final gate automatically, execute controlled trials, auto-ingest feedback, run tests, apply fixes or hardening, trigger recovery, go live, sign off activation release candidate automatically, lock readiness automatically, persist activation settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
 - Daily Beta 1 activation lock audit, release handoff final review, launch readiness summary, launch dry-run review, launch evidence review, launch result review, CodexForge Daily Beta 1 launch candidate, and launch readiness lock pages remain review-only; they do not lock or freeze readiness automatically, send or apply handoff, approve launch, launch Daily Beta 1, run launch dry-runs, ingest launch evidence, store launch results, lock launch readiness automatically, go live, persist launch settings, persist approval decisions, call providers/local models/connectors, create automations, create polling loops, create background jobs, send notifications, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
+- Daily Beta 1 launch governance pages remain review-only; launch boundary audit does not run boundary probes, launch approval packet does not send or approve launch, launch go/no-go review does not launch or approve automatically, rollback plan review does not trigger rollback, monitoring plan review does not start monitoring jobs, support runbook review does not publish or send support guidance, the go/no-go candidate does not launch Daily Beta 1, and the first controlled launch plan does not execute launch. Unresolved blockers stay blocked, controlled launch actions require explicit operator approval, and actual server/build/project execution still requires approved execution boundaries.
 
 ## What Is Next
 
 - Keep documentation aligned with the highest local all-smoke phase.
-- Review the activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, readiness lock, readiness lock audit, release summary, final candidate, final operator, final regression, final recovery, final hardening, Daily Beta 1 activation candidate, Daily Beta 1 activation final gate, controlled trial, feedback, regression, recovery, hardening, activation release candidate, activation lock audit, release handoff final review, launch readiness summary, launch dry-run review, launch evidence review, launch result review, launch candidate, and launch readiness lock blockers before any future activation, launch, or execution claim.
+- Review the activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, readiness lock, readiness lock audit, release summary, final candidate, final operator, final regression, final recovery, final hardening, Daily Beta 1 activation candidate, Daily Beta 1 activation final gate, controlled trial, feedback, regression, recovery, hardening, activation release candidate, activation lock audit, release handoff final review, launch readiness summary, launch dry-run review, launch evidence review, launch result review, launch candidate, launch readiness lock, launch boundary audit, launch approval packet, go/no-go, rollback, monitoring, support, go/no-go candidate, and first controlled launch plan blockers before any future activation, launch, or execution claim.
 - Define and approve bounded backend, local, provider, connector, automation, file mutation, test execution, credential, output-retention, audit, and rollback boundaries before claiming execution.
 - Keep checkpoint docs sober: do not describe review surfaces as live execution.
 
