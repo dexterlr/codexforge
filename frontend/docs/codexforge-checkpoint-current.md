@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 569.
+Highest detected phase: 577.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 569, so the checkpoint is documented as through phase 569.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 577, so the checkpoint is documented as through phase 577.
 
-Latest detected milestone family: Daily Beta activation checklist, activation dry-run, activation evidence, activation result, activation recovery, activation hardening, activation release candidate, and activation operator readiness review surfaces.
+Latest detected milestone family: Daily Beta activation final gate, controlled operator trial, feedback inbox, regression review, final hardening, activation candidate, release handoff, and readiness lock review surfaces.
 
 ## Current Route Families
 
@@ -37,6 +37,7 @@ Latest detected milestone family: Daily Beta activation checklist, activation dr
 - First approved test execution and end-to-end workflow release-candidate review: `/first-approved-test-execution-trial`, `/first-real-end-to-end-workflow-trial-plan`, `/first-real-end-to-end-workflow-trial-review`, `/end-to-end-workflow-evidence-review`, `/end-to-end-workflow-result-review`, `/end-to-end-workflow-recovery-review`, `/end-to-end-workflow-hardening-pass`, `/codexforge-end-to-end-workflow-release-candidate`.
 - End-to-end controlled rollout and Daily Beta handoff review: `/end-to-end-controlled-rollout-plan`, `/end-to-end-controlled-rollout-review`, `/end-to-end-rollout-feedback-inbox`, `/end-to-end-rollout-regression-review`, `/end-to-end-rollout-hardening-pass`, `/live-execution-boundary-final-signoff`, `/codexforge-end-to-end-daily-beta-candidate`, `/end-to-end-daily-beta-operator-handoff`.
 - Daily Beta activation review: `/daily-beta-activation-checklist-review`, `/daily-beta-activation-dry-run-review`, `/daily-beta-activation-evidence-review`, `/daily-beta-activation-result-review`, `/daily-beta-activation-recovery-review`, `/daily-beta-activation-hardening-pass`, `/codexforge-daily-beta-activation-release-candidate`, `/daily-beta-activation-operator-readiness-review`.
+- Daily Beta activation final gate and readiness lock review: `/daily-beta-activation-final-gate`, `/daily-beta-activation-controlled-operator-trial`, `/daily-beta-activation-feedback-inbox`, `/daily-beta-activation-regression-review`, `/daily-beta-activation-final-hardening`, `/codexforge-daily-beta-activation-candidate`, `/daily-beta-activation-release-handoff`, `/daily-beta-activation-readiness-lock`.
 
 ## Safety Model
 
@@ -51,9 +52,9 @@ Latest detected milestone family: Daily Beta activation checklist, activation dr
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 569 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 577 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, file mutation, test execution, unified gap, first approved-trial, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta candidate, and operator handoff route families are represented as review and approval surfaces.
-- The Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, and operator readiness route family is represented as review-only and approval-required UI.
+- The Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, and readiness lock route family is represented as review-only and approval-required UI.
 - Local validation commands are documented for build, checkpoint docs smoke, all-smoke, command UI simplification, repo hygiene, server smoke, and diff hygiene.
 
 ## What Remains Review-Only
@@ -74,11 +75,12 @@ Latest detected milestone family: Daily Beta activation checklist, activation dr
 - First approved test execution and first real end-to-end workflow plan/trial/evidence/result/recovery/hardening/release-candidate pages remain review-only; they do not run tests, execute workflows, run end-to-end trials, ingest evidence, store live outputs, trigger recovery, apply hardening, go live, approve release automatically, persist release settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
 - End-to-end controlled rollout plan/review, rollout feedback inbox, rollout regression review, rollout hardening pass, live execution boundary final signoff, CodexForge end-to-end Daily Beta candidate, and end-to-end Daily Beta operator handoff pages remain review-only; they do not execute rollout, proceed automatically, auto-ingest feedback, run tests, apply hardening, sign off live execution automatically, go live, activate Daily Beta, send or apply handoff, export files automatically, persist activation settings, persist rollout decisions, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
 - Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, and operator readiness pages remain review-only; they do not activate Daily Beta, run activation dry-runs, ingest evidence, store live outputs, trigger recovery, apply hardening, go live, sign off activation release candidate automatically, sign off operator readiness automatically, send handoff, execute workflows, persist activation settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
+- Daily Beta activation final gate, controlled operator trial, feedback inbox, regression review, final hardening, CodexForge Daily Beta activation candidate, release handoff, and readiness lock pages remain review-only; they do not pass the final gate automatically, execute controlled operator trials, auto-ingest feedback, run tests, apply fixes or hardening, go live, activate Daily Beta, send or apply handoff, export files automatically, lock readiness automatically, persist activation settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
 
 ## What Is Next
 
 - Keep documentation aligned with the highest local all-smoke phase.
-- Review the activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, and operator readiness blockers before any future activation or execution claim.
+- Review the activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, and readiness lock blockers before any future activation or execution claim.
 - Define and approve bounded backend, local, provider, connector, automation, file mutation, test execution, credential, output-retention, audit, and rollback boundaries before claiming execution.
 - Keep checkpoint docs sober: do not describe review surfaces as live execution.
 
