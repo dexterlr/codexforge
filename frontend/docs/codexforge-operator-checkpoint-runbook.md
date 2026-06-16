@@ -57,7 +57,7 @@ $phases = [regex]::Matches($allSmoke, 'Phase\s+(\d+)') |
 $phases | Sort-Object -Descending | Select-Object -First 1
 ```
 
-Update checkpoint docs to the actual highest detected phase. If phases 554-561 are present and no higher phase exists, document the checkpoint as through phase 561 and describe the end-to-end controlled rollout plan, rollout review, feedback inbox, regression review, hardening pass, live execution boundary final signoff, Daily Beta candidate, and operator handoff package as review-only.
+Update checkpoint docs to the actual highest detected phase. If phases 562-569 are present and no higher phase exists, document the checkpoint as through phase 569 and describe the Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, and operator readiness review package as review-only.
 
 ## Commit And Tag Checkpoint Docs
 
