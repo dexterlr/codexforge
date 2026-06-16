@@ -1,6 +1,6 @@
 # CodexForge Current Checkpoint
 
-Checkpoint date: 2026-06-15.
+Checkpoint date: 2026-06-16.
 
 Canonical workspace:
 
@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 553.
+Highest detected phase: 561.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 553, so the checkpoint is documented as through phase 553.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 561, so the checkpoint is documented as through phase 561.
 
-Latest detected milestone family: first approved test execution review and first real end-to-end workflow plan, trial review, evidence review, result review, recovery review, hardening pass, and release-candidate review surfaces.
+Latest detected milestone family: end-to-end controlled rollout planning, rollout review, rollout feedback inbox, rollout regression review, rollout hardening pass, live execution boundary final signoff, end-to-end Daily Beta candidate, and operator handoff surfaces.
 
 ## Current Route Families
 
@@ -35,6 +35,7 @@ Latest detected milestone family: first approved test execution review and first
 - Daily Beta 1 controlled trial and execution boundary readiness review: `/daily-beta-1-controlled-trial-result-review`, `/daily-beta-1-controlled-trial-recovery-review`, `/daily-beta-1-controlled-trial-hardening`, `/live-backend-boundary-inventory`, `/provider-execution-boundary-readiness-review`, `/local-model-execution-boundary-readiness-review`, `/connector-execution-boundary-readiness-review`, `/automation-execution-boundary-readiness-review`.
 - Execution-boundary gap and first approved-trial review: `/file-mutation-boundary-readiness-review`, `/test-execution-boundary-readiness-review`, `/unified-execution-boundary-gap-report`, `/first-approved-provider-execution-trial`, `/first-approved-local-model-execution-trial`, `/first-approved-connector-access-trial`, `/first-approved-automation-dry-run-trial`, `/first-approved-file-patch-dry-run`.
 - First approved test execution and end-to-end workflow release-candidate review: `/first-approved-test-execution-trial`, `/first-real-end-to-end-workflow-trial-plan`, `/first-real-end-to-end-workflow-trial-review`, `/end-to-end-workflow-evidence-review`, `/end-to-end-workflow-result-review`, `/end-to-end-workflow-recovery-review`, `/end-to-end-workflow-hardening-pass`, `/codexforge-end-to-end-workflow-release-candidate`.
+- End-to-end controlled rollout and Daily Beta handoff review: `/end-to-end-controlled-rollout-plan`, `/end-to-end-controlled-rollout-review`, `/end-to-end-rollout-feedback-inbox`, `/end-to-end-rollout-regression-review`, `/end-to-end-rollout-hardening-pass`, `/live-execution-boundary-final-signoff`, `/codexforge-end-to-end-daily-beta-candidate`, `/end-to-end-daily-beta-operator-handoff`.
 
 ## Safety Model
 
@@ -49,8 +50,8 @@ Latest detected milestone family: first approved test execution review and first
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 553 checkpoint directly from the local all-smoke registry.
-- The recent provider, local model, connector, automation, file mutation, test execution, unified gap, first approved-trial, and first end-to-end workflow release-candidate route families are represented as review and approval surfaces.
+- Documentation and smoke coverage now identify the phase 561 checkpoint directly from the local all-smoke registry.
+- The recent provider, local model, connector, automation, file mutation, test execution, unified gap, first approved-trial, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta candidate, and operator handoff route families are represented as review and approval surfaces.
 - Local validation commands are documented for build, checkpoint docs smoke, all-smoke, command UI simplification, repo hygiene, server smoke, and diff hygiene.
 
 ## What Remains Review-Only
@@ -69,11 +70,12 @@ Latest detected milestone family: first approved test execution review and first
 - Daily Beta 1 controlled trial result, recovery, and hardening review plus live backend/provider/local model/connector/automation boundary readiness pages remain review-only; they do not store or accept trial results automatically, execute controlled trials, trigger recovery, apply hardening, execute boundary probes, call backends, call providers/local models/connectors, send prompts, fetch connector data, create automations, schedule tasks, create watches/reminders, send notifications, run tests, browse arbitrary local files, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
 - File mutation readiness, test execution readiness, unified execution gap reporting, and first approved provider/local model/connector/automation/file patch dry-run trial pages remain review-only; they do not mutate files, apply patches, run tests, run commands, execute probes, call backends, call providers, call local models, call local bridge endpoints, call connectors, fetch connector data, create automations, schedule tasks, create watches/reminders, send notifications, persist settings, persist approval decisions, store credentials/outputs, auto-ingest feedback/evidence, mutate memory, or claim UI review proves live execution.
 - First approved test execution and first real end-to-end workflow plan/trial/evidence/result/recovery/hardening/release-candidate pages remain review-only; they do not run tests, execute workflows, run end-to-end trials, ingest evidence, store live outputs, trigger recovery, apply hardening, go live, approve release automatically, persist release settings, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
+- End-to-end controlled rollout plan/review, rollout feedback inbox, rollout regression review, rollout hardening pass, live execution boundary final signoff, CodexForge end-to-end Daily Beta candidate, and end-to-end Daily Beta operator handoff pages remain review-only; they do not execute rollout, proceed automatically, auto-ingest feedback, run tests, apply hardening, sign off live execution automatically, go live, activate Daily Beta, send or apply handoff, export files automatically, persist activation settings, persist rollout decisions, persist approval decisions, call providers/local models/connectors, create automations, mutate files, mutate memory, store credentials/outputs, or claim UI review proves live execution.
 
 ## What Is Next
 
 - Keep documentation aligned with the highest local all-smoke phase.
-- Review the unified execution gap report, first approved test execution blockers, and first end-to-end workflow release-candidate blockers before any future execution claim.
+- Review the controlled rollout blockers, rollout feedback/regression/hardening blockers, live boundary final signoff blockers, Daily Beta candidate blockers, and operator handoff blockers before any future execution claim.
 - Define and approve bounded backend, local, provider, connector, automation, file mutation, test execution, credential, output-retention, audit, and rollback boundaries before claiming execution.
 - Keep checkpoint docs sober: do not describe review surfaces as live execution.
 
