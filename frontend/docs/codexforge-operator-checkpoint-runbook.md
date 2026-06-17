@@ -57,7 +57,7 @@ $phases = [regex]::Matches($allSmoke, 'Phase\s+(\d+)') |
 $phases | Sort-Object -Descending | Select-Object -First 1
 ```
 
-Update checkpoint docs to the actual highest detected phase. If phases 618-633 are present and no higher phase exists, document the checkpoint as through phase 633 and describe the universal execution boundary inventory, file write approval, command execution approval, local runtime approval, provider/model call approval, connector access approval, automation/schedule approval, evidence capture, result review, recovery/retry, packaging/export, workflow profile registry, creative workflow profile, research workflow profile, chatbot workflow profile, and game server workflow profile package as review-only and approval-required.
+Update checkpoint docs to the actual highest detected phase. If phases 634-649 are present and no higher phase exists, document the checkpoint as through phase 649 and describe the controlled builder dry-run layer: project scaffold dry-run planning, scaffold evidence/result/recovery/hardening review, file write controlled trial planning/review, command execution controlled trial planning/review, local runtime controlled trial planning/review, provider/model controlled trial planning, connector controlled trial planning, automation controlled trial planning, packaging/export controlled trial planning, and the universal builder controlled trial candidate. Keep the package review-only, approval-required, and not executable.
 
 ## Commit And Tag Checkpoint Docs
 

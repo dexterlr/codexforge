@@ -41,7 +41,23 @@ $protectedRoutes = @(
   "/creative-workflow-profile",
   "/research-workflow-profile",
   "/chatbot-workflow-profile",
-  "/game-server-workflow-profile"
+  "/game-server-workflow-profile",
+  "/project-scaffold-dry-run-plan",
+  "/project-scaffold-evidence-review",
+  "/project-scaffold-result-review",
+  "/project-scaffold-recovery-review",
+  "/project-scaffold-hardening-pass",
+  "/file-write-controlled-trial-plan",
+  "/file-write-controlled-trial-review",
+  "/command-execution-controlled-trial-plan",
+  "/command-execution-controlled-trial-review",
+  "/local-runtime-controlled-trial-plan",
+  "/local-runtime-controlled-trial-review",
+  "/provider-model-controlled-trial-plan",
+  "/connector-controlled-trial-plan",
+  "/automation-controlled-trial-plan",
+  "/packaging-export-controlled-trial-plan",
+  "/universal-builder-controlled-trial-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `

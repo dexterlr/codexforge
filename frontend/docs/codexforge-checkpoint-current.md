@@ -1,6 +1,6 @@
 # CodexForge Current Checkpoint
 
-Checkpoint date: 2026-06-16.
+Checkpoint date: 2026-06-17.
 
 Canonical workspace:
 
@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 633.
+Highest detected phase: 649.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 633, so the checkpoint is documented as through phase 633.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 649, so the checkpoint is documented as through phase 649.
 
-Latest detected milestone family: Universal controlled execution foundation surfaces covering universal execution boundary inventory, file write approval, command execution approval, local runtime approval, provider/model call approval, connector access approval, automation/schedule approval, evidence capture, result review, recovery/retry, packaging/export, workflow profile registry, creative workflow profile, research workflow profile, chatbot workflow profile, and game server workflow profile.
+Latest detected milestone family: Controlled builder dry-run layer surfaces covering project scaffold dry-run planning, scaffold evidence/result/recovery/hardening review, file write controlled trial plan/review, command execution controlled trial plan/review, local runtime controlled trial plan/review, provider/model controlled trial planning, connector controlled trial planning, automation controlled trial planning, packaging/export controlled trial planning, and the universal builder controlled trial candidate.
 
 ## Current Route Families
 
@@ -44,6 +44,7 @@ Latest detected milestone family: Universal controlled execution foundation surf
 - Daily Beta 1 launch governance review: `/launch-boundary-audit`, `/launch-approval-packet`, `/launch-go-no-go-review`, `/launch-rollback-plan-review`, `/launch-monitoring-plan-review`, `/launch-support-runbook-review`, `/codexforge-daily-beta-1-go-no-go-candidate`, `/first-controlled-launch-plan`.
 - Daily Beta 1 controlled launch review: `/first-controlled-launch-review`, `/first-controlled-launch-evidence-review`, `/first-controlled-launch-result-review`, `/first-controlled-launch-recovery-review`, `/first-controlled-launch-hardening`, `/daily-beta-1-controlled-launch-candidate`, `/daily-beta-1-controlled-launch-handoff`, `/daily-beta-1-controlled-launch-readiness-lock`.
 - Universal controlled execution foundation: `/universal-execution-boundary-inventory`, `/file-write-approval-boundary`, `/command-execution-approval-boundary`, `/local-runtime-approval-boundary`, `/provider-model-call-approval-boundary`, `/connector-access-approval-boundary`, `/automation-schedule-approval-boundary`, `/evidence-capture-boundary`, `/result-review-boundary`, `/recovery-retry-boundary`, `/packaging-export-boundary`, `/workflow-profile-registry`, `/creative-workflow-profile`, `/research-workflow-profile`, `/chatbot-workflow-profile`, `/game-server-workflow-profile`.
+- Controlled builder dry-run layer: `/project-scaffold-dry-run-plan`, `/project-scaffold-evidence-review`, `/project-scaffold-result-review`, `/project-scaffold-recovery-review`, `/project-scaffold-hardening-pass`, `/file-write-controlled-trial-plan`, `/file-write-controlled-trial-review`, `/command-execution-controlled-trial-plan`, `/command-execution-controlled-trial-review`, `/local-runtime-controlled-trial-plan`, `/local-runtime-controlled-trial-review`, `/provider-model-controlled-trial-plan`, `/connector-controlled-trial-plan`, `/automation-controlled-trial-plan`, `/packaging-export-controlled-trial-plan`, `/universal-builder-controlled-trial-candidate`.
 
 ## Safety Model
 
@@ -58,7 +59,7 @@ Latest detected milestone family: Universal controlled execution foundation surf
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 633 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 649 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, file mutation, test execution, unified gap, first approved-trial, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta candidate, and operator handoff route families are represented as review and approval surfaces.
 - The Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, and readiness lock route family is represented as review-only and approval-required UI.
 - The Daily Beta readiness lock audit, release candidate summary, Daily Beta 1 final candidate, final operator review, final regression review, final recovery review, final hardening pass, and Daily Beta 1 activation candidate package is represented as review-only and approval-required UI.
@@ -67,6 +68,7 @@ Latest detected milestone family: Universal controlled execution foundation surf
 - The Daily Beta 1 launch boundary audit, approval packet, go/no-go review, rollback plan review, monitoring plan review, support runbook review, go/no-go candidate, and first controlled launch plan package is represented as review-only and approval-required UI.
 - The Daily Beta 1 controlled launch review, evidence review, result review, recovery review, hardening, controlled launch candidate, controlled launch handoff, and controlled launch readiness lock package is represented as review-only and approval-required UI.
 - The universal controlled execution foundation is represented as review-only and approval-required UI for file writes, commands, local runtimes, provider/model calls, connectors, automation/schedules, evidence, results, recovery/retry, packaging/export, and workflow profiles.
+- The controlled builder dry-run layer is represented as review-only and approval-required UI for scaffold planning, scaffold evidence/result/recovery/hardening review, file writes, commands, local runtime startup, provider/model calls, connector access, automations, packaging/export, and the universal builder controlled trial candidate.
 - Local validation commands are documented for build, checkpoint docs smoke, all-smoke, command UI simplification, repo hygiene, server smoke, and diff hygiene.
 
 ## What Remains Review-Only
@@ -94,11 +96,12 @@ Latest detected milestone family: Universal controlled execution foundation surf
 - Daily Beta 1 launch governance pages remain review-only; launch boundary audit does not run boundary probes, launch approval packet does not send or approve launch, launch go/no-go review does not launch or approve automatically, rollback plan review does not trigger rollback, monitoring plan review does not start monitoring jobs, support runbook review does not publish or send support guidance, the go/no-go candidate does not launch Daily Beta 1, and the first controlled launch plan does not execute launch. Unresolved blockers stay blocked, controlled launch actions require explicit operator approval, and actual server/build/project execution still requires approved execution boundaries.
 - Daily Beta 1 controlled launch review pages remain review-only; first controlled launch review does not execute launch, evidence review does not ingest evidence automatically, result review does not store live outputs, recovery review does not trigger recovery, hardening does not apply changes, the controlled launch candidate does not go live, handoff does not send or apply handoff automatically, and readiness lock does not lock launch readiness automatically. Unresolved blockers stay blocked, controlled launch decisions require explicit operator approval, and actual project/server building still requires approved file, command, local runtime, package, and deployment execution boundaries.
 - Universal controlled execution foundation pages remain review-only; they do not write files, run commands, start local runtimes, call providers/models, connect accounts, fetch connector data, create automations/schedules/reminders/tasks/watches, capture evidence automatically, store or reuse outputs automatically, trigger recovery/retry, create packages/exports, generate creative assets, browse/search/fetch research sources, create or deploy chatbots/agents, join or monitor video calls, create monitoring jobs, build or launch game servers, mutate Brain, create MCP runtimes, store credentials, or persist approval decisions.
+- Controlled builder dry-run layer pages remain review-only; they do not scaffold projects, write files, run commands, start local runtimes, call providers/models, connect accounts, fetch connector data, create automations/schedules/reminders/tasks/watches, capture or ingest evidence automatically, store or reuse scaffold outputs automatically, trigger recovery/retry, apply hardening changes, create packages/exports, generate creative/video/image/3D assets, browse/search/fetch research sources, create or deploy chatbots/agents, join or monitor video calls, create monitoring jobs, build or launch Minecraft/game servers, mutate Brain, create MCP runtimes, store credentials, persist policy/settings/preference changes, or persist approval decisions. The safe game/server example is an original medieval fantasy server with no copied franchise assets.
 
 ## What Is Next
 
 - Keep documentation aligned with the highest local all-smoke phase.
-- Review the universal execution boundary inventory, file write approval, command execution approval, local runtime approval, provider/model call approval, connector access approval, automation/schedule approval, evidence capture, result review, recovery/retry, packaging/export, workflow profile registry, creative profile, research profile, chatbot profile, and game server profile blockers before any future execution claim.
+- Review the controlled builder dry-run blockers for project scaffold creation, file writes, command execution, local runtime startup, provider/model calls, connector access, automation/schedules, evidence/result/recovery handling, packaging/export, and universal builder profiles before any future execution claim.
 - Define and approve bounded backend, local, provider/model, connector, automation/schedule, file mutation, command execution, runtime, credential, evidence, output-retention, audit, recovery, packaging, export, and workflow profile boundaries before claiming execution.
 - Keep checkpoint docs sober: do not describe review surfaces as live execution.
 
