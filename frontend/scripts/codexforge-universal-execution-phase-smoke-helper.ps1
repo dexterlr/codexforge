@@ -1,0 +1,214 @@
+param(
+  [Parameter(Mandatory = $true)][string]$PhaseName,
+  [Parameter(Mandatory = $true)][string]$ScriptFile,
+  [Parameter(Mandatory = $true)][string]$Domain,
+  [Parameter(Mandatory = $true)][string]$Route,
+  [Parameter(Mandatory = $true)][string]$MainPanel,
+  [Parameter(Mandatory = $true)][string]$CommandLabel,
+  [Parameter(Mandatory = $true)][string[]]$Modules,
+  [Parameter(Mandatory = $true)][string[]]$Components,
+  [Parameter(Mandatory = $true)][string[]]$Exports,
+  [Parameter(Mandatory = $true)][string[]]$PhaseMarkers,
+  [Parameter(Mandatory = $true)][string[]]$PlainEnglish,
+  [Parameter(Mandatory = $true)][string]$RouteHref
+)
+
+$ErrorActionPreference = "Stop"
+$root = Split-Path -Parent $PSScriptRoot
+Set-Location $root
+
+$protectedRoutes = @(
+  "/first-controlled-launch-review",
+  "/first-controlled-launch-evidence-review",
+  "/first-controlled-launch-result-review",
+  "/first-controlled-launch-recovery-review",
+  "/first-controlled-launch-hardening",
+  "/daily-beta-1-controlled-launch-candidate",
+  "/daily-beta-1-controlled-launch-handoff",
+  "/daily-beta-1-controlled-launch-readiness-lock",
+  "/universal-execution-boundary-inventory",
+  "/file-write-approval-boundary",
+  "/command-execution-approval-boundary",
+  "/local-runtime-approval-boundary",
+  "/provider-model-call-approval-boundary",
+  "/connector-access-approval-boundary",
+  "/automation-schedule-approval-boundary",
+  "/evidence-capture-boundary",
+  "/result-review-boundary",
+  "/recovery-retry-boundary",
+  "/packaging-export-boundary",
+  "/workflow-profile-registry",
+  "/creative-workflow-profile",
+  "/research-workflow-profile",
+  "/chatbot-workflow-profile",
+  "/game-server-workflow-profile"
+)
+
+& (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
+  -PhaseName $PhaseName `
+  -ScriptFile $ScriptFile `
+  -Domain $Domain `
+  -Route $Route `
+  -MainPanel $MainPanel `
+  -CommandLabel $CommandLabel `
+  -Modules $Modules `
+  -Components $Components `
+  -Exports $Exports `
+  -PhaseMarkers $PhaseMarkers `
+  -PlainEnglish $PlainEnglish `
+  -RouteHref $RouteHref `
+  -ProtectedRoutes $protectedRoutes
+
+function Assert-Contains {
+  param([AllowEmptyString()][string]$Haystack, [string]$Needle, [string]$Name)
+  if (-not $Haystack.Contains($Needle)) { throw "[FAIL] Missing $Name`: $Needle" }
+  Write-Host "[PASS] $Name"
+}
+
+function Assert-NotMatches {
+  param([AllowEmptyString()][string]$Haystack, [string]$Pattern, [string]$Name)
+  if ($Haystack -match $Pattern) { throw "[FAIL] Unexpected $Name`: $Pattern" }
+  Write-Host "[PASS] $Name"
+}
+
+function Assert-CountExactly {
+  param([AllowEmptyString()][string]$Haystack, [string]$Needle, [int]$Expected, [string]$Name)
+  $count = ([regex]::Matches($Haystack, [regex]::Escape($Needle))).Count
+  if ($count -ne $Expected) { throw "[FAIL] $Name expected $Expected found $count" }
+  Write-Host "[PASS] $Name"
+}
+
+$shared = "src\lib\codexforge\daily-beta-1-release-review-kit"
+$universalShared = "src\lib\codexforge\universal-execution-review-kit"
+$sourceParts = @()
+foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared)) {
+  $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
+}
+$source = $sourceParts -join "`n"
+$allSmoke = Get-Content -Raw "scripts\smoke-codexforge-all.ps1"
+$packageSource = Get-Content -Raw "package.json"
+
+$universalMarkers = @(
+  "UniversalExecutionReviewSurface",
+  "review-only",
+  "approval required",
+  "approval required before execution",
+  "not executable yet",
+  "no action execution from UI",
+  "no file write/delete/mutation",
+  "no command execution",
+  "no shell/git/test/build/smoke execution from UI",
+  "no local runtime start",
+  "no local bridge endpoint calls",
+  "no provider/model calls",
+  "no prompt sending",
+  "no connector calls",
+  "no connector fetch/mutation",
+  "no connector data storage",
+  "no automation/schedule/reminder/task/watch creation",
+  "no polling loop creation",
+  "no background job creation",
+  "no notification sending",
+  "no evidence capture/ingestion",
+  "no memory/RAG ingestion",
+  "no output/result storage",
+  "no output storage",
+  "no recovery/retry trigger",
+  "no package/export/write behavior",
+  "no creative asset generation",
+  "no video generation",
+  "no image generation",
+  "no 3D generation",
+  "no research browsing/searching/fetching",
+  "no chatbot/agent creation/deployment",
+  "no video-call joining/monitoring",
+  "no monitoring job creation",
+  "no Minecraft/project/server build execution",
+  "no server launch",
+  "no copyrighted franchise asset/name/logo/map/dialogue/music copying",
+  "no approval automation",
+  "no approval decision persistence",
+  "no policy auto-apply",
+  "no settings persistence",
+  "no preference persistence",
+  "no patch apply behavior",
+  "no web/search API calls",
+  "no GitHub API calls from UI",
+  "no prompt/file/project/connector/provider/model/output/audit/evidence/automation/live/beta/policy/settings/daily/rollout/release/boundary/e2e/activation/launch data sending without approval",
+  "no arbitrary project scanning",
+  "no arbitrary local file browsing",
+  "no arbitrary path crawling",
+  "no arbitrary file read/open from UI",
+  "no auto-open local files",
+  "no memory auto-promotion",
+  "no Brain graph mutation",
+  "no appendEvent/saveBrainGraph calls from UI",
+  "no direct appendEvent call from UI",
+  "no direct saveBrainGraph call from UI",
+  "no direct apply-diff call from UI",
+  "no direct write-file call from UI",
+  "no direct run-command call from UI",
+  "no plugin execution",
+  "no tool execution",
+  "no agent execution",
+  "no extension runtime executor",
+  "no MCP runtime",
+  "no MCP tool calls",
+  "no localStorage API key storage",
+  "no sessionStorage API key storage",
+  "no token storage",
+  "no endpoint storage",
+  "no credential storage",
+  "no process.env printing",
+  "no API keys or secrets displayed",
+  "no example real key/token/endpoint values",
+  "no route coverage removal",
+  "no duplicate route hrefs",
+  "no duplicate shortLabel values",
+  "no obvious duplicate React key patterns",
+  "no Ruflo/Odysseus vendoring",
+  "no package install behavior",
+  "checkpoint documentation smoke still exists and remains registered",
+  "server-only path boundary markers remain intact",
+  "no Math.random",
+  "no Date.now",
+  "no Date.now for deterministic layout/ids",
+  "no mojibake"
+)
+
+foreach ($needle in $universalMarkers) {
+  Assert-Contains $source $needle "universal execution marker $needle"
+}
+
+Assert-Contains $allSmoke "Checkpoint Documentation Consistency" "checkpoint documentation smoke still exists and remains registered"
+Assert-Contains $allSmoke "smoke-codexforge-checkpoint-docs.ps1" "checkpoint documentation smoke script remains registered"
+Assert-CountExactly $allSmoke $ScriptFile 1 "all-smoke includes $ScriptFile exactly once"
+Assert-CountExactly $allSmoke $PhaseName 1 "all-smoke includes $PhaseName exactly once"
+
+$deterministicSource = $source
+foreach ($marker in @($PhaseMarkers + $PlainEnglish + $universalMarkers)) {
+  $deterministicSource = $deterministicSource.Replace($marker, "")
+}
+
+$blockedPatterns = @{
+  "no action workflow approval automation or persistence" = "actionsExecutedFromUi:\s*true|workflowExecutionAllowedFromUi:\s*true|approvalAutomationAllowedFromUi:\s*true|approvalDecisionPersistenceAllowedFromUi:\s*true|approveAction\s*\(|grantApproval\s*\(|executeAction\s*\(|runWorkflow\s*\(|executeWorkflow\s*\("
+  "no file write delete mutation patch export behavior" = "fileMutationAllowedFromUi:\s*true|fileWriteAllowedFromUi:\s*true|fileDeletionAllowedFromUi:\s*true|patchApplyAllowedFromUi:\s*true|packageExportAllowedFromUi:\s*true|writeFile\s*\(|deleteFile\s*\(|mutateFiles\s*\(|applyPatch\s*\(|exportFile\s*\(|downloadFile\s*\("
+  "no command shell git test build smoke package server execution" = "commandExecutionAllowedFromUi:\s*true|shellExecutionAllowedFromUi:\s*true|gitCommandExecutionAllowedFromUi:\s*true|testBuildSmokeExecutionAllowedFromUi:\s*true|runCommand\s*\(|runGit\s*\(|runTests\s*\(|runBuild\s*\(|runSmoke\s*\(|child_process|execSync|spawn\s*\("
+  "no local runtime bridge provider model prompt connector behavior" = "localRuntimeStartAllowedFromUi:\s*true|localBridgeEndpointCallsAllowedFromUi:\s*true|providerModelCallsAllowedFromUi:\s*true|providerApiCallsAllowedFromUi:\s*true|promptSendingAllowedFromUi:\s*true|connectorAccountConnectionAllowedFromUi:\s*true|connectorDataFetchAllowedFromUi:\s*true|connectorDataMutationAllowedFromUi:\s*true|fetch\s*\(|XMLHttpRequest|axios|api\.github|octokit|callProvider\s*\(|callModel\s*\(|sendPrompt\s*\(|callConnector\s*\(|connectAccount\s*\("
+  "no automation schedule reminders watches polling jobs notifications" = "automationCreationAllowedFromUi:\s*true|scheduleCreationAllowedFromUi:\s*true|reminderCreationAllowedFromUi:\s*true|taskSchedulingAllowedFromUi:\s*true|conditionalWatchCreationAllowedFromUi:\s*true|pollingLoopAllowedFromUi:\s*true|backgroundJobCreationAllowedFromUi:\s*true|notificationSendingAllowedFromUi:\s*true|createAutomation\s*\(|createSchedule\s*\(|createReminder\s*\(|scheduleTask\s*\(|createWatch\s*\(|setInterval\s*\(|setTimeout\s*\(|createBackgroundJob\s*\(|sendNotification\s*\("
+  "no evidence result recovery package creative research chatbot game meeting monitoring execution" = "evidenceCaptureAllowedFromUi:\s*true|evidenceIngestionAllowedFromUi:\s*true|resultStorageAllowedFromUi:\s*true|recoveryRetryAllowedFromUi:\s*true|creativeGenerationAllowedFromUi:\s*true|researchFetchAllowedFromUi:\s*true|chatbotAgentCreationAllowedFromUi:\s*true|gameServerBuildAllowedFromUi:\s*true|videoCallJoinAllowedFromUi:\s*true|monitoringJobCreationAllowedFromUi:\s*true|captureEvidence\s*\(|ingestEvidence\s*\(|storeResult\s*\(|triggerRecovery\s*\(|triggerRetry\s*\(|generateImage\s*\(|generateVideo\s*\(|generate3D\s*\(|createAgent\s*\(|deployBot\s*\(|buildServer\s*\(|launchServer\s*\(|joinVideoCall\s*\("
+  "no arbitrary project file browsing or memory Brain mutation" = "arbitraryProjectScanningAllowed:\s*true|arbitraryLocalFileBrowsingAllowed:\s*true|arbitraryPathCrawlingAllowed:\s*true|arbitraryFileReadOpenAllowed:\s*true|autoOpenLocalFilesAllowed:\s*true|memoryMutationAllowedFromUi:\s*true|memoryIngestionAllowedFromUi:\s*true|memoryAutoPromotionAllowed:\s*true|brainGraphMutationAllowed:\s*true|appendEventAllowedFromUi:\s*true|saveBrainGraphAllowedFromUi:\s*true|readFile\s*\(|openFile\s*\(|crawlPath\s*\(|ingestMemory\s*\(|ingestRag\s*\(|promoteMemory\s*\(|appendEvent\s*\(|saveBrainGraph\s*\("
+  "no plugin tool agent extension MCP runtime execution" = "pluginExecutionAllowedFromUi:\s*true|toolExecutionAllowedFromUi:\s*true|agentExecutionAllowedFromUi:\s*true|extensionRuntimeExecutorCreated:\s*true|mcpRuntimeCreated:\s*true|mcpToolCallsAllowedFromUi:\s*true|executePlugin\s*\(|executeTool\s*\(|executeAgent\s*\(|createExtensionRuntimeExecutor\s*\(|createMcpServer\s*\(|createMcpClient\s*\(|callMcpTool\s*\("
+  "no credentials tokens endpoints storage or env exposure" = "localStorageApiKeyStorageAllowed:\s*true|sessionStorageApiKeyStorageAllowed:\s*true|tokenStorageAllowed:\s*true|endpointStorageAllowed:\s*true|credentialStorageAllowed:\s*true|outputStorageAllowed:\s*true|localStorage\.setItem|sessionStorage\.setItem|accessToken\s*[:=]|refreshToken\s*[:=]|processEnvDisplayAllowed:\s*true|process\.env\.[A-Za-z0-9_]+|console\.(log|warn|error)\s*\([^\r\n]*process\.env|secretsDisplayedAllowed:\s*true|sk-[A-Za-z0-9_-]{16,}|AIza[0-9A-Za-z_-]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|gh[pousr]_[A-Za-z0-9_]{20,}"
+  "no package install vendoring duplicate React key patterns" = "packageInstallAllowedFromUi:\s*true|thirdPartyCodeVendoredOrCopied:\s*true|npm\s+install|pnpm\s+add|yarn\s+add|bun\s+add|vendor[/\\](ruflo|odysseus)|key=\{label\}|key=\{summary\}|key=\{item\}"
+  "no deterministic API misuse" = "Math\.random\s*\(|Date\.now\s*\("
+  "no mojibake" = "$([char]0x00C3)|$([char]0x00C2)|$([char]0xFFFD)"
+}
+
+foreach ($name in $blockedPatterns.Keys) {
+  $haystack = if ($name -eq "no deterministic API misuse") { $deterministicSource } else { $source }
+  Assert-NotMatches $haystack $blockedPatterns[$name] $name
+}
+
+Assert-NotMatches $packageSource '"ruflo"|"@ruflo/|"odysseus"|"@odysseus/|"@modelcontextprotocol/' "no Ruflo/Odysseus/MCP dependency references in package manifest"
+Write-Host "[PASS] universal controlled execution boundary safety helper checks passed."
