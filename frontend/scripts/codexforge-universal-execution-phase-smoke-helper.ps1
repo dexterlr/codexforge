@@ -73,7 +73,23 @@ $protectedRoutes = @(
   "/universal-builder-evidence-review",
   "/universal-builder-result-review",
   "/universal-builder-recovery-review",
-  "/universal-builder-mvp-candidate"
+  "/universal-builder-mvp-candidate",
+  "/execution-adapter-contract-inventory",
+  "/file-write-adapter-contract-review",
+  "/command-runner-adapter-contract-review",
+  "/local-runtime-adapter-contract-review",
+  "/provider-model-adapter-contract-review",
+  "/connector-adapter-contract-review",
+  "/automation-adapter-contract-review",
+  "/evidence-store-adapter-contract-review",
+  "/result-store-adapter-contract-review",
+  "/recovery-adapter-contract-review",
+  "/packaging-adapter-contract-review",
+  "/creative-adapter-contract-review",
+  "/research-adapter-contract-review",
+  "/chatbot-adapter-contract-review",
+  "/game-server-adapter-contract-review",
+  "/universal-execution-adapter-mvp-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
