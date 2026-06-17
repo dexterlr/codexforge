@@ -57,7 +57,7 @@ $phases = [regex]::Matches($allSmoke, 'Phase\s+(\d+)') |
 $phases | Sort-Object -Descending | Select-Object -First 1
 ```
 
-Update checkpoint docs to the actual highest detected phase. If phases 634-649 are present and no higher phase exists, document the checkpoint as through phase 649 and describe the controlled builder dry-run layer: project scaffold dry-run planning, scaffold evidence/result/recovery/hardening review, file write controlled trial planning/review, command execution controlled trial planning/review, local runtime controlled trial planning/review, provider/model controlled trial planning, connector controlled trial planning, automation controlled trial planning, packaging/export controlled trial planning, and the universal builder controlled trial candidate. Keep the package review-only, approval-required, and not executable.
+Update checkpoint docs to the actual highest detected phase. If phases 650-665 are present and no higher phase exists, document the checkpoint as through phase 665 and describe the first controlled execution trial layer: first project scaffold controlled trial/review, first file write controlled trial/review, first command execution controlled trial/review, first local runtime controlled trial/review, first provider/model controlled trial, first connector controlled trial, first automation controlled trial, first packaging/export controlled trial, universal builder evidence/result/recovery review, and the universal builder MVP candidate. Keep the package review-only, approval-required, and not executable yet without approved backend/local/provider/connector/automation/file/command/runtime boundaries.
 
 ## Commit And Tag Checkpoint Docs
 

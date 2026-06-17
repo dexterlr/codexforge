@@ -57,7 +57,23 @@ $protectedRoutes = @(
   "/connector-controlled-trial-plan",
   "/automation-controlled-trial-plan",
   "/packaging-export-controlled-trial-plan",
-  "/universal-builder-controlled-trial-candidate"
+  "/universal-builder-controlled-trial-candidate",
+  "/first-project-scaffold-controlled-trial",
+  "/first-project-scaffold-trial-review",
+  "/first-file-write-controlled-trial",
+  "/first-file-write-trial-review",
+  "/first-command-execution-controlled-trial",
+  "/first-command-execution-trial-review",
+  "/first-local-runtime-controlled-trial",
+  "/first-local-runtime-trial-review",
+  "/first-provider-model-controlled-trial",
+  "/first-connector-controlled-trial",
+  "/first-automation-controlled-trial",
+  "/first-packaging-export-controlled-trial",
+  "/universal-builder-evidence-review",
+  "/universal-builder-result-review",
+  "/universal-builder-recovery-review",
+  "/universal-builder-mvp-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
