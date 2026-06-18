@@ -89,7 +89,23 @@ $protectedRoutes = @(
   "/research-adapter-contract-review",
   "/chatbot-adapter-contract-review",
   "/game-server-adapter-contract-review",
-  "/universal-execution-adapter-mvp-candidate"
+  "/universal-execution-adapter-mvp-candidate",
+  "/adapter-backed-execution-preview-inventory",
+  "/file-write-adapter-preview",
+  "/command-runner-adapter-preview",
+  "/local-runtime-adapter-preview",
+  "/provider-model-adapter-preview",
+  "/connector-adapter-preview",
+  "/automation-adapter-preview",
+  "/evidence-store-adapter-preview",
+  "/result-store-adapter-preview",
+  "/recovery-adapter-preview",
+  "/packaging-adapter-preview",
+  "/creative-adapter-preview",
+  "/research-adapter-preview",
+  "/chatbot-adapter-preview",
+  "/game-server-adapter-preview",
+  "/universal-adapter-backed-execution-preview-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
@@ -129,7 +145,8 @@ function Assert-CountExactly {
 $shared = "src\lib\codexforge\daily-beta-1-release-review-kit"
 $universalShared = "src\lib\codexforge\universal-execution-review-kit"
 $sourceParts = @()
-foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared)) {
+$adapterPreviewShared = "src\lib\codexforge\adapter-backed-execution-preview-kit"
+foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared)) {
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
 $source = $sourceParts -join "`n"
