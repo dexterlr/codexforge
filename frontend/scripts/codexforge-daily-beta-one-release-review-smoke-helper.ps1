@@ -38,8 +38,18 @@ Assert-FileExists (Join-Path $shared "DailyBetaOneReleaseReviewSurface.tsx")
 
 $domainSource = ((Get-ChildItem -Recurse -File $Domain) | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
 $routeSource = ((Get-ChildItem -Recurse -File $Route) | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
+$additionalSharedRoots = @(
+  "src\lib\codexforge\universal-execution-review-kit",
+  "src\lib\codexforge\controlled-builder-dry-run-review-kit",
+  "src\lib\codexforge\first-controlled-execution-trial-kit",
+  "src\lib\codexforge\execution-adapter-contract-review-kit",
+  "src\lib\codexforge\adapter-backed-execution-preview-kit",
+  "src\lib\codexforge\bounded-adapter-implementation-plan-kit",
+  "src\lib\codexforge\first-real-adapter-mvp-design-kit"
+) | Where-Object { Test-Path $_ }
 $sharedSource = ((Get-ChildItem -Recurse -File $shared) | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
-$source = @($domainSource, $routeSource, $sharedSource) -join "`n"
+$additionalSharedSource = (($additionalSharedRoots | ForEach-Object { Get-ChildItem -Recurse -File $_ }) | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
+$source = @($domainSource, $routeSource, $sharedSource, $additionalSharedSource) -join "`n"
 $indexSource = Get-Content -Raw (Join-Path $Domain "index.ts")
 $componentIndexSource = Get-Content -Raw (Join-Path (Join-Path $Domain "components") "index.ts")
 $allSmoke = Get-Content -Raw "scripts\smoke-codexforge-all.ps1"
