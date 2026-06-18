@@ -14,15 +14,15 @@ See `docs/WORKSPACE_MAP.md` before using duplicate, scratch, or generated copies
 
 ## Current Status
 
-CodexForge is checkpointed through phase 649, detected from the local `scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the controlled builder dry-run layer: project scaffold dry-run planning, scaffold evidence/result/recovery/hardening review, file write controlled trial planning/review, command execution controlled trial planning/review, local runtime controlled trial planning/review, provider/model controlled trial planning, connector controlled trial planning, automation controlled trial planning, packaging/export controlled trial planning, and the universal builder controlled trial candidate.
+CodexForge is checkpointed through phase 713, detected from the local `scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the bounded adapter implementation-plan layer: bounded adapter implementation readiness, file write adapter implementation plan, command runner adapter implementation plan, local runtime adapter implementation plan, provider/model adapter implementation plan, connector adapter implementation plan, automation adapter implementation plan, evidence store adapter implementation plan, result store adapter implementation plan, recovery adapter implementation plan, packaging adapter implementation plan, creative adapter implementation plan, research adapter implementation plan, chatbot adapter implementation plan, game server adapter implementation plan, and first bounded adapter implementation candidate.
 
 The current surface area is still mostly deterministic frontend review and approval UI. Provider live trial review, local model live trial review, connector live trial review, automation live trial review, unified live workflow trial 2, beta operator daily workflow, Daily Beta 1 controlled trial review, execution boundary readiness, first approved test execution, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta activation, Daily Beta 1 activation, Daily Beta 1 launch-candidate, Daily Beta 1 launch governance, Daily Beta 1 controlled launch review, universal controlled execution foundation, and controlled builder dry-run routes are represented as approval/readiness/result-review surfaces. They are not automatic background provider calls, local model calls, connector calls, automation runs, file mutations, patch applies, test execution, boundary probes, shell execution, workflow execution, scaffold creation, activation execution, launch execution, controlled launch execution, launch dry-run execution, evidence ingestion, result persistence, recovery triggers, rollback triggers, monitoring jobs, support runbook publishing, hardening applies, readiness locks, release candidate signoffs, handoff sends, go/no-go auto-passes, approval packet sends, package/export writes, workflow profile execution, creative generation, live research, chatbot/agent creation, video-call joining, server building, Minecraft/game server launching, or go-live actions from arbitrary UI.
 
 ## Operational Checkpoint
 
-- Highest detected phase: 649.
-- Checkpoint date: 2026-06-17.
-- Latest detected milestone family: Controlled builder dry-run layer.
+- Highest detected phase: 713.
+- Checkpoint date: 2026-06-18.
+- Latest detected milestone family: Bounded adapter implementation-plan layer.
 - Checkpoint docs: `docs/codexforge-checkpoint-current.md`, `docs/codexforge-operator-checkpoint-runbook.md`, and `docs/codexforge-status-index.md`.
 - Checkpoint smoke: `scripts/smoke-codexforge-checkpoint-docs.ps1`, registered in `scripts/smoke-codexforge-all.ps1` as `Checkpoint Documentation Consistency`.
 
@@ -158,7 +158,7 @@ Commit intentional source, docs, package metadata, lockfiles, and smoke scripts 
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 649.
-- Next milestone: define and document approved backend/local/provider/connector/automation/file/command/local runtime/package/deployment boundaries before any route claims live execution, project scaffolding, package/export, automation, connector access, chatbot/agent creation, creative generation, research fetching, meeting monitoring, or project/server building.
+- Current checkpoint: documentation and hygiene alignment through detected phase 713.
+- Next milestone: choose the first actual bounded file-write, command-runner, or local-runtime implementation slice only after backend-owned approval, audit, rollback, recovery, result review, and safety smoke evidence exist.
 - Keep provider, local model, connector, automation, unified workflow, beta operator, Daily Beta 1 controlled trial, execution boundary, launch governance, controlled launch review, and universal workflow profile pages review-only until those boundaries exist.
 - Do not claim CI passed unless actual CI or terminal logs prove it.

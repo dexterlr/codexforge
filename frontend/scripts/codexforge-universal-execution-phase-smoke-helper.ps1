@@ -105,7 +105,23 @@ $protectedRoutes = @(
   "/research-adapter-preview",
   "/chatbot-adapter-preview",
   "/game-server-adapter-preview",
-  "/universal-adapter-backed-execution-preview-candidate"
+  "/universal-adapter-backed-execution-preview-candidate",
+  "/bounded-adapter-implementation-readiness",
+  "/file-write-adapter-implementation-plan",
+  "/command-runner-adapter-implementation-plan",
+  "/local-runtime-adapter-implementation-plan",
+  "/provider-model-adapter-implementation-plan",
+  "/connector-adapter-implementation-plan",
+  "/automation-adapter-implementation-plan",
+  "/evidence-store-adapter-implementation-plan",
+  "/result-store-adapter-implementation-plan",
+  "/recovery-adapter-implementation-plan",
+  "/packaging-adapter-implementation-plan",
+  "/creative-adapter-implementation-plan",
+  "/research-adapter-implementation-plan",
+  "/chatbot-adapter-implementation-plan",
+  "/game-server-adapter-implementation-plan",
+  "/first-bounded-adapter-implementation-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
@@ -146,7 +162,8 @@ $shared = "src\lib\codexforge\daily-beta-1-release-review-kit"
 $universalShared = "src\lib\codexforge\universal-execution-review-kit"
 $sourceParts = @()
 $adapterPreviewShared = "src\lib\codexforge\adapter-backed-execution-preview-kit"
-foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared)) {
+$boundedImplementationShared = "src\lib\codexforge\bounded-adapter-implementation-plan-kit"
+foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared)) {
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
 $source = $sourceParts -join "`n"
