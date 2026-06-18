@@ -137,7 +137,23 @@ $protectedRoutes = @(
   "/first-adapter-implementation-guardrails",
   "/first-adapter-implementation-test-harness",
   "/first-adapter-implementation-operator-handoff",
-  "/first-real-adapter-mvp-candidate"
+  "/first-real-adapter-mvp-candidate",
+  "/bounded-adapter-implementation-slice-inventory",
+  "/file-write-adapter-implementation-slice",
+  "/command-runner-adapter-implementation-slice",
+  "/local-runtime-adapter-implementation-slice",
+  "/evidence-store-adapter-implementation-slice",
+  "/result-store-adapter-implementation-slice",
+  "/recovery-adapter-implementation-slice",
+  "/packaging-adapter-implementation-slice",
+  "/project-scaffold-adapter-implementation-slice",
+  "/adapter-implementation-approval-gate",
+  "/adapter-implementation-audit-trail",
+  "/adapter-implementation-failure-modes",
+  "/adapter-implementation-sandbox-boundary",
+  "/adapter-implementation-validation-matrix",
+  "/adapter-implementation-release-handoff",
+  "/first-bounded-adapter-implementation-layer-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
@@ -179,8 +195,9 @@ $universalShared = "src\lib\codexforge\universal-execution-review-kit"
 $sourceParts = @()
 $adapterPreviewShared = "src\lib\codexforge\adapter-backed-execution-preview-kit"
 $boundedImplementationShared = "src\lib\codexforge\bounded-adapter-implementation-plan-kit"
+$boundedImplementationSliceShared = "src\lib\codexforge\bounded-adapter-implementation-slice-kit"
 $firstRealAdapterMvpDesignShared = "src\lib\codexforge\first-real-adapter-mvp-design-kit"
-foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $firstRealAdapterMvpDesignShared)) {
+foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $firstRealAdapterMvpDesignShared)) {
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
 $source = $sourceParts -join "`n"

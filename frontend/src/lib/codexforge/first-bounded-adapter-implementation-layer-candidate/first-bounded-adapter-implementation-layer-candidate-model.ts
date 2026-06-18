@@ -1,0 +1,37 @@
+import type { UniversalExecutionReviewPacket } from "../universal-execution-review-kit";
+import {
+  FIRST_BOUNDED_ADAPTER_IMPLEMENTATION_LAYER_CANDIDATE_LANGUAGE,
+  buildBoundedAdapterImplementationSlice,
+  buildBoundedAdapterImplementationSliceBoundary,
+  buildBoundedAdapterImplementationSliceModelForSlug,
+  buildBoundedAdapterImplementationSlicePackets,
+  buildBoundedAdapterImplementationSliceStableKey as buildFirstBoundedAdapterImplementationLayerCandidateStableKey,
+  summarizeBoundedAdapterImplementationSliceForSlug,
+  type BoundedAdapterImplementationSlicePacketInput,
+} from "../bounded-adapter-implementation-slice-kit";
+
+export { FIRST_BOUNDED_ADAPTER_IMPLEMENTATION_LAYER_CANDIDATE_LANGUAGE, buildFirstBoundedAdapterImplementationLayerCandidateStableKey };
+
+const FIRST_BOUNDED_ADAPTER_IMPLEMENTATION_LAYER_CANDIDATE_SLUG = "first-bounded-adapter-implementation-layer-candidate";
+
+export function buildFirstBoundedAdapterImplementationLayerCandidate(input: BoundedAdapterImplementationSlicePacketInput): UniversalExecutionReviewPacket {
+  return buildBoundedAdapterImplementationSlice(FIRST_BOUNDED_ADAPTER_IMPLEMENTATION_LAYER_CANDIDATE_SLUG, input);
+}
+
+export function buildFirstBoundedAdapterImplementationLayerCandidateItems(): UniversalExecutionReviewPacket[] {
+  return buildBoundedAdapterImplementationSlicePackets(FIRST_BOUNDED_ADAPTER_IMPLEMENTATION_LAYER_CANDIDATE_SLUG);
+}
+
+export function buildFirstBoundedAdapterImplementationLayerCandidateBoundary() {
+  return buildBoundedAdapterImplementationSliceBoundary();
+}
+
+export function summarizeFirstBoundedAdapterImplementationLayerCandidate(model: { firstBoundedAdapterImplementationLayerCandidateItems: readonly UniversalExecutionReviewPacket[] }): string {
+  return summarizeBoundedAdapterImplementationSliceForSlug(FIRST_BOUNDED_ADAPTER_IMPLEMENTATION_LAYER_CANDIDATE_SLUG, model.firstBoundedAdapterImplementationLayerCandidateItems);
+}
+
+export function buildFirstBoundedAdapterImplementationLayerCandidateModel() {
+  const firstBoundedAdapterImplementationLayerCandidateItems = buildFirstBoundedAdapterImplementationLayerCandidateItems();
+  const model = buildBoundedAdapterImplementationSliceModelForSlug(FIRST_BOUNDED_ADAPTER_IMPLEMENTATION_LAYER_CANDIDATE_SLUG, firstBoundedAdapterImplementationLayerCandidateItems);
+  return { ...model, firstBoundedAdapterImplementationLayerCandidateItems };
+}
