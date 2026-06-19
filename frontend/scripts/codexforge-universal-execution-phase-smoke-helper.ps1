@@ -185,7 +185,23 @@ $protectedRoutes = @(
   "/adapter-execution-sandbox-packet",
   "/adapter-execution-validation-packet",
   "/adapter-execution-operator-runbook",
-  "/first-adapter-execution-beta-candidate"
+  "/first-adapter-execution-beta-candidate",
+  "/real-file-write-adapter-wiring-plan",
+  "/real-command-runner-adapter-wiring-plan",
+  "/real-local-runtime-adapter-wiring-plan",
+  "/real-evidence-store-wiring-plan",
+  "/real-result-store-wiring-plan",
+  "/real-recovery-wiring-plan",
+  "/real-packaging-wiring-plan",
+  "/real-project-scaffold-wiring-plan",
+  "/real-adapter-approval-wiring-plan",
+  "/real-adapter-audit-wiring-plan",
+  "/real-adapter-sandbox-wiring-plan",
+  "/real-adapter-validation-wiring-plan",
+  "/real-adapter-operator-trial-plan",
+  "/first-real-adapter-wiring-candidate",
+  "/first-adapter-execution-beta-review",
+  "/broad-controlled-builder-beta-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `

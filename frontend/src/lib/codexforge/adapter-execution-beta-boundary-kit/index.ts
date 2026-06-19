@@ -31,7 +31,23 @@ export type AdapterExecutionBetaBoundarySlug =
   | "adapter-execution-sandbox-packet"
   | "adapter-execution-validation-packet"
   | "adapter-execution-operator-runbook"
-  | "first-adapter-execution-beta-candidate";
+  | "first-adapter-execution-beta-candidate"
+  | "real-file-write-adapter-wiring-plan"
+  | "real-command-runner-adapter-wiring-plan"
+  | "real-local-runtime-adapter-wiring-plan"
+  | "real-evidence-store-wiring-plan"
+  | "real-result-store-wiring-plan"
+  | "real-recovery-wiring-plan"
+  | "real-packaging-wiring-plan"
+  | "real-project-scaffold-wiring-plan"
+  | "real-adapter-approval-wiring-plan"
+  | "real-adapter-audit-wiring-plan"
+  | "real-adapter-sandbox-wiring-plan"
+  | "real-adapter-validation-wiring-plan"
+  | "real-adapter-operator-trial-plan"
+  | "first-real-adapter-wiring-candidate"
+  | "first-adapter-execution-beta-review"
+  | "broad-controlled-builder-beta-candidate";
 
 type AdapterExecutionBetaBoundarySectionInput = {
   label: string;
@@ -69,6 +85,10 @@ export const ADAPTER_EXECUTION_BETA_BOUNDARY_SAFETY_MARKERS = [
   "audit required",
   "what this unlocks next",
   "no live adapter implementation",
+  "wiring plan only",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
   ...ADAPTER_BACKED_EXECUTION_PREVIEW_SAFETY_MARKERS,
 ] as const;
 
@@ -337,6 +357,357 @@ export const FIRST_ADAPTER_EXECUTION_BETA_CANDIDATE_LANGUAGE = [
   "deferred families",
   "unresolved blockers",
   "next recommended action",
+] as const;
+
+export const REAL_FILE_WRITE_ADAPTER_WIRING_PLAN_LANGUAGE = [
+  "Real File Write Adapter Wiring Plan",
+  "Real file write adapter wiring plan does not write files",
+  "File write adapter wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "diff preview",
+  "write operation",
+  "rollback",
+  "audit",
+  "evidence",
+  "result",
+  "validation",
+  "unresolved blockers",
+] as const;
+
+export const REAL_COMMAND_RUNNER_ADAPTER_WIRING_PLAN_LANGUAGE = [
+  "Real Command Runner Adapter Wiring Plan",
+  "Real command runner adapter wiring plan does not run commands",
+  "Command runner adapter wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "command preview",
+  "working directory",
+  "env/secrets redaction",
+  "timeout",
+  "stdout/stderr",
+  "exit-code",
+  "recovery",
+  "unresolved blockers",
+] as const;
+
+export const REAL_LOCAL_RUNTIME_ADAPTER_WIRING_PLAN_LANGUAGE = [
+  "Real Local Runtime Adapter Wiring Plan",
+  "Real local runtime adapter wiring plan does not start local runtimes",
+  "Local runtime adapter wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "process lifecycle",
+  "port/network",
+  "stop policy",
+  "logs",
+  "recovery",
+  "audit",
+  "validation",
+  "unresolved blockers",
+] as const;
+
+export const REAL_EVIDENCE_STORE_WIRING_PLAN_LANGUAGE = [
+  "Real Evidence Store Wiring Plan",
+  "Real evidence store wiring plan does not store or ingest evidence",
+  "Evidence store wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "storage boundary",
+  "redaction",
+  "citation",
+  "retention",
+  "privacy",
+  "audit",
+  "result linkage",
+  "unresolved blockers",
+] as const;
+
+export const REAL_RESULT_STORE_WIRING_PLAN_LANGUAGE = [
+  "Real Result Store Wiring Plan",
+  "Real result store wiring plan does not store or reuse results",
+  "Result store wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "storage boundary",
+  "acceptance/rejection",
+  "reuse scope",
+  "privacy/safety",
+  "retention",
+  "audit",
+  "evidence linkage",
+  "unresolved blockers",
+] as const;
+
+export const REAL_RECOVERY_WIRING_PLAN_LANGUAGE = [
+  "Real Recovery Wiring Plan",
+  "Real recovery wiring plan does not trigger recovery or retry",
+  "Recovery wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "recovery boundary",
+  "retry",
+  "rollback",
+  "cleanup",
+  "escalation",
+  "audit",
+  "evidence/result linkage",
+  "unresolved blockers",
+] as const;
+
+export const REAL_PACKAGING_WIRING_PLAN_LANGUAGE = [
+  "Real Packaging Wiring Plan",
+  "Real packaging wiring plan does not create packages or exports",
+  "Packaging wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "packaging boundary",
+  "bundle",
+  "artifact",
+  "destination",
+  "license/redaction",
+  "handoff",
+  "rollback",
+  "unresolved blockers",
+] as const;
+
+export const REAL_PROJECT_SCAFFOLD_WIRING_PLAN_LANGUAGE = [
+  "Real Project Scaffold Wiring Plan",
+  "Real project scaffold wiring plan does not create projects",
+  "Project scaffold wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "scaffold boundary",
+  "project type",
+  "template",
+  "target path",
+  "file write dependency",
+  "command/runtime dependency",
+  "Original medieval fantasy",
+  "No copied franchise assets",
+] as const;
+
+export const REAL_ADAPTER_APPROVAL_WIRING_PLAN_LANGUAGE = [
+  "Real Adapter Approval Wiring Plan",
+  "Real adapter approval wiring plan does not approve or execute adapters",
+  "Adapter approval wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "approval flow",
+  "reviewer requirements",
+  "denial reasons",
+  "expiry",
+  "audit",
+  "evidence",
+  "rollback",
+  "unresolved blockers",
+] as const;
+
+export const REAL_ADAPTER_AUDIT_WIRING_PLAN_LANGUAGE = [
+  "Real Adapter Audit Wiring Plan",
+  "Real adapter audit wiring plan does not store audit events",
+  "Adapter audit wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "audit event shape",
+  "actor",
+  "request id",
+  "adapter family",
+  "approved operation",
+  "denied operation",
+  "redaction",
+  "retention",
+  "unresolved blockers",
+] as const;
+
+export const REAL_ADAPTER_SANDBOX_WIRING_PLAN_LANGUAGE = [
+  "Real Adapter Sandbox Wiring Plan",
+  "Real adapter sandbox wiring plan does not run adapters",
+  "Adapter sandbox wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "sandbox allowed paths",
+  "denied paths",
+  "process policy",
+  "network policy",
+  "provider/connector/automation exclusions",
+  "file/command/runtime boundaries",
+  "evidence/result boundaries",
+  "unresolved blockers",
+] as const;
+
+export const REAL_ADAPTER_VALIDATION_WIRING_PLAN_LANGUAGE = [
+  "Real Adapter Validation Wiring Plan",
+  "Real adapter validation wiring plan does not run validation from UI",
+  "Adapter validation wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "smokes",
+  "build",
+  "repo hygiene",
+  "route coverage",
+  "command UI simplification",
+  "checkpoint docs",
+  "server smoke",
+  "evidence/result linkage",
+  "unresolved blockers",
+] as const;
+
+export const REAL_ADAPTER_OPERATOR_TRIAL_PLAN_LANGUAGE = [
+  "Real Adapter Operator Trial Plan",
+  "Real adapter operator trial plan does not execute adapters",
+  "Adapter operator trials require explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "operator trial flow",
+  "approval review",
+  "dry-run review",
+  "sandbox review",
+  "observation",
+  "validation",
+  "rollback",
+  "handoff",
+  "unresolved blockers",
+] as const;
+
+export const FIRST_REAL_ADAPTER_WIRING_CANDIDATE_LANGUAGE = [
+  "First Real Adapter Wiring Candidate",
+  "First real adapter wiring candidate does not execute adapters",
+  "Real adapter wiring requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "file write",
+  "command runner",
+  "local runtime",
+  "evidence store",
+  "result store",
+  "recovery",
+  "packaging",
+  "project scaffold",
+  "approval",
+  "audit",
+  "sandbox",
+  "validation",
+  "operator trial",
+  "unresolved blockers",
+] as const;
+
+export const FIRST_ADAPTER_EXECUTION_BETA_REVIEW_LANGUAGE = [
+  "First Adapter Execution Beta Review",
+  "First adapter execution beta review does not execute adapters",
+  "Adapter execution beta requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "beta review checklist",
+  "blocked execution items",
+  "ready items",
+  "deferred items",
+  "validation plan",
+  "rollback plan",
+  "operator runbook",
+  "evidence/result/recovery readiness",
+  "unresolved blockers",
+] as const;
+
+export const BROAD_CONTROLLED_BUILDER_BETA_CANDIDATE_LANGUAGE = [
+  "Broad Controlled Builder Beta Candidate",
+  "Broad controlled builder beta candidate does not execute builder workflows from UI",
+  "Broad controlled builder beta requires explicit operator approval",
+  "wiring plan only",
+  "not executable from UI",
+  "approval required",
+  "local bridge required",
+  "sandbox required",
+  "evidence required",
+  "what this unlocks next",
+  "coding/project builder",
+  "creative/video",
+  "research/live research",
+  "chatbot/agent",
+  "monitoring/automation",
+  "video-call/meeting",
+  "connector workflows",
+  "game/server builder",
+  "deferred families",
+  "unresolved blockers",
+  "next recommended action",
+  "Original medieval fantasy",
+  "No copied franchise assets",
 ] as const;
 
 const ADAPTER_EXECUTION_BETA_BOUNDARY_DEFINITIONS: Record<
@@ -981,6 +1352,742 @@ const ADAPTER_EXECUTION_BETA_BOUNDARY_DEFINITIONS: Record<
       "advanced first adapter execution beta candidate details collapsed/secondary. This route is boundary packet only, not executable from UI, and does not execute adapters from UI.",
     dataScope:
       "first-adapter-execution-beta-candidate buildFirstAdapterExecutionBetaCandidateStableKey FirstAdapterExecutionBetaCandidatePanel",
+  },
+  "real-file-write-adapter-wiring-plan": {
+    slug: "real-file-write-adapter-wiring-plan",
+    phase: "Phase 778",
+    title: "Real File Write Adapter Wiring Plan",
+    summarySubject: "Real File Write Adapter Wiring Plan",
+    approvalCopy: "File write adapter wiring requires explicit operator approval.",
+    subtitle: "Review the real file write adapter wiring plan without writing files from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-file-write-adapter-wiring-plan",
+    plainEnglishTitle: "Plain-English real file write adapter wiring plan",
+    plainEnglishCopy:
+      "Real file write adapter wiring plan does not write files. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: UI review packet, approval packet, local/backend boundary, sandbox, diff preview, write operation, rollback, audit, evidence, result, validation, unresolved blockers.",
+    identity:
+      "Real File Write Adapter Wiring Plan identity: Real file write adapter wiring plan does not write files. File write adapter wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_FILE_WRITE_ADAPTER_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real File Write Adapter Wiring Plan identity",
+      "Wiring path: UI review packet, approval packet, local/backend boundary, sandbox, diff preview, write operation, rollback, audit, evidence, result, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, local/backend boundary, sandbox, diff preview, write operation, rollback, audit, evidence, result, validation, unresolved blockers.",
+      "Safety boundary: Real file write adapter wiring plan does not write files. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, local/backend boundary, sandbox, diff preview, write operation, rollback, audit, evidence, result, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: UI review packet, approval packet, local/backend boundary, sandbox, diff preview, write operation, rollback, audit, evidence, result, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real file write adapter wiring plan does not write files. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["File write adapter wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, local/backend boundary, sandbox, diff preview, write operation, rollback, audit, evidence, result, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, local/backend boundary, sandbox, diff preview, write operation, rollback, audit, evidence, result, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/actual-file-write-adapter-boundary",
+      "/adapter-execution-approval-packet",
+      "/real-command-runner-adapter-wiring-plan",
+    ],
+    links: [
+      { href: "/actual-file-write-adapter-boundary", label: "File boundary" },
+      { href: "/adapter-execution-approval-packet", label: "Approval packet" },
+      { href: "/real-command-runner-adapter-wiring-plan", label: "Command wiring" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, local/backend boundary, sandbox, diff preview, write operation, rollback, audit, evidence, result, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-file-write-adapter-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real file write adapter wiring plan does not write files.",
+    dataScope:
+      "real-file-write-adapter-wiring-plan buildRealFileWriteAdapterWiringPlanStableKey RealFileWriteAdapterWiringPlanPanel",
+  },
+  "real-command-runner-adapter-wiring-plan": {
+    slug: "real-command-runner-adapter-wiring-plan",
+    phase: "Phase 779",
+    title: "Real Command Runner Adapter Wiring Plan",
+    summarySubject: "Real Command Runner Adapter Wiring Plan",
+    approvalCopy: "Command runner adapter wiring requires explicit operator approval.",
+    subtitle: "Review the real command runner adapter wiring plan without running commands from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-command-runner-adapter-wiring-plan",
+    plainEnglishTitle: "Plain-English real command runner adapter wiring plan",
+    plainEnglishCopy:
+      "Real command runner adapter wiring plan does not run commands. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: UI review packet, approval packet, local/backend boundary, sandbox, command preview, working directory, env/secrets redaction, timeout, stdout/stderr, exit-code, recovery, audit, evidence, result, validation, unresolved blockers.",
+    identity:
+      "Real Command Runner Adapter Wiring Plan identity: Real command runner adapter wiring plan does not run commands. Command runner adapter wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_COMMAND_RUNNER_ADAPTER_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Command Runner Adapter Wiring Plan identity",
+      "Wiring path: UI review packet, approval packet, local/backend boundary, sandbox, command preview, working directory, env/secrets redaction, timeout, stdout/stderr, exit-code, recovery, audit, evidence, result, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, local/backend boundary, sandbox, command preview, working directory, env/secrets redaction, timeout, stdout/stderr, exit-code, recovery, audit, evidence, result, validation, unresolved blockers.",
+      "Safety boundary: Real command runner adapter wiring plan does not run commands. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, local/backend boundary, sandbox, command preview, working directory, env/secrets redaction, timeout, stdout/stderr, exit-code, recovery, audit, evidence, result, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: UI review packet, approval packet, local/backend boundary, sandbox, command preview, working directory, env/secrets redaction, timeout, stdout/stderr, exit-code, recovery, audit, evidence, result, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real command runner adapter wiring plan does not run commands. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Command runner adapter wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, local/backend boundary, sandbox, command preview, working directory, env/secrets redaction, timeout, stdout/stderr, exit-code, recovery, audit, evidence, result, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, local/backend boundary, sandbox, command preview, working directory, env/secrets redaction, timeout, stdout/stderr, exit-code, recovery, audit, evidence, result, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/real-file-write-adapter-wiring-plan",
+      "/adapter-execution-sandbox-packet",
+      "/real-local-runtime-adapter-wiring-plan",
+    ],
+    links: [
+      { href: "/real-file-write-adapter-wiring-plan", label: "File wiring" },
+      { href: "/adapter-execution-sandbox-packet", label: "Sandbox packet" },
+      { href: "/real-local-runtime-adapter-wiring-plan", label: "Runtime wiring" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, local/backend boundary, sandbox, command preview, working directory, env/secrets redaction, timeout, stdout/stderr, exit-code, recovery, audit, evidence, result, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-command-runner-adapter-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real command runner adapter wiring plan does not run commands.",
+    dataScope:
+      "real-command-runner-adapter-wiring-plan buildRealCommandRunnerAdapterWiringPlanStableKey RealCommandRunnerAdapterWiringPlanPanel",
+  },
+  "real-local-runtime-adapter-wiring-plan": {
+    slug: "real-local-runtime-adapter-wiring-plan",
+    phase: "Phase 780",
+    title: "Real Local Runtime Adapter Wiring Plan",
+    summarySubject: "Real Local Runtime Adapter Wiring Plan",
+    approvalCopy: "Local runtime adapter wiring requires explicit operator approval.",
+    subtitle: "Review the real local runtime adapter wiring plan without starting local runtimes from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-local-runtime-adapter-wiring-plan",
+    plainEnglishTitle: "Plain-English real local runtime adapter wiring plan",
+    plainEnglishCopy:
+      "Real local runtime adapter wiring plan does not start local runtimes. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: UI review packet, approval packet, local/backend boundary, sandbox, process lifecycle, port/network, stop policy, logs, recovery, audit, evidence, result, validation, unresolved blockers.",
+    identity:
+      "Real Local Runtime Adapter Wiring Plan identity: Real local runtime adapter wiring plan does not start local runtimes. Local runtime adapter wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_LOCAL_RUNTIME_ADAPTER_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Local Runtime Adapter Wiring Plan identity",
+      "Wiring path: UI review packet, approval packet, local/backend boundary, sandbox, process lifecycle, port/network, stop policy, logs, recovery, audit, evidence, result, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, local/backend boundary, sandbox, process lifecycle, port/network, stop policy, logs, recovery, audit, evidence, result, validation, unresolved blockers.",
+      "Safety boundary: Real local runtime adapter wiring plan does not start local runtimes. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, local/backend boundary, sandbox, process lifecycle, port/network, stop policy, logs, recovery, audit, evidence, result, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: UI review packet, approval packet, local/backend boundary, sandbox, process lifecycle, port/network, stop policy, logs, recovery, audit, evidence, result, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real local runtime adapter wiring plan does not start local runtimes. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Local runtime adapter wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, local/backend boundary, sandbox, process lifecycle, port/network, stop policy, logs, recovery, audit, evidence, result, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, local/backend boundary, sandbox, process lifecycle, port/network, stop policy, logs, recovery, audit, evidence, result, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/real-command-runner-adapter-wiring-plan",
+      "/adapter-execution-sandbox-packet",
+      "/real-evidence-store-wiring-plan",
+    ],
+    links: [
+      { href: "/real-command-runner-adapter-wiring-plan", label: "Command wiring" },
+      { href: "/adapter-execution-sandbox-packet", label: "Sandbox packet" },
+      { href: "/real-evidence-store-wiring-plan", label: "Evidence wiring" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, local/backend boundary, sandbox, process lifecycle, port/network, stop policy, logs, recovery, audit, evidence, result, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-local-runtime-adapter-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real local runtime adapter wiring plan does not start local runtimes.",
+    dataScope:
+      "real-local-runtime-adapter-wiring-plan buildRealLocalRuntimeAdapterWiringPlanStableKey RealLocalRuntimeAdapterWiringPlanPanel",
+  },
+  "real-evidence-store-wiring-plan": {
+    slug: "real-evidence-store-wiring-plan",
+    phase: "Phase 781",
+    title: "Real Evidence Store Wiring Plan",
+    summarySubject: "Real Evidence Store Wiring Plan",
+    approvalCopy: "Evidence store wiring requires explicit operator approval.",
+    subtitle: "Review the real evidence store wiring plan without storing or ingesting evidence from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-evidence-store-wiring-plan",
+    plainEnglishTitle: "Plain-English real evidence store wiring plan",
+    plainEnglishCopy:
+      "Real evidence store wiring plan does not store or ingest evidence. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: UI review packet, approval packet, storage boundary, redaction, citation, retention, privacy, audit, result linkage, validation, unresolved blockers.",
+    identity:
+      "Real Evidence Store Wiring Plan identity: Real evidence store wiring plan does not store or ingest evidence. Evidence store wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_EVIDENCE_STORE_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Evidence Store Wiring Plan identity",
+      "Wiring path: UI review packet, approval packet, storage boundary, redaction, citation, retention, privacy, audit, result linkage, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, storage boundary, redaction, citation, retention, privacy, audit, result linkage, validation, unresolved blockers.",
+      "Safety boundary: Real evidence store wiring plan does not store or ingest evidence. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, storage boundary, redaction, citation, retention, privacy, audit, result linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: UI review packet, approval packet, storage boundary, redaction, citation, retention, privacy, audit, result linkage, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real evidence store wiring plan does not store or ingest evidence. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Evidence store wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, storage boundary, redaction, citation, retention, privacy, audit, result linkage, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, storage boundary, redaction, citation, retention, privacy, audit, result linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/actual-evidence-store-boundary",
+      "/real-result-store-wiring-plan",
+      "/adapter-execution-audit-packet",
+    ],
+    links: [
+      { href: "/actual-evidence-store-boundary", label: "Evidence boundary" },
+      { href: "/real-result-store-wiring-plan", label: "Result wiring" },
+      { href: "/adapter-execution-audit-packet", label: "Audit packet" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, storage boundary, redaction, citation, retention, privacy, audit, result linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-evidence-store-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real evidence store wiring plan does not store or ingest evidence.",
+    dataScope:
+      "real-evidence-store-wiring-plan buildRealEvidenceStoreWiringPlanStableKey RealEvidenceStoreWiringPlanPanel",
+  },
+  "real-result-store-wiring-plan": {
+    slug: "real-result-store-wiring-plan",
+    phase: "Phase 782",
+    title: "Real Result Store Wiring Plan",
+    summarySubject: "Real Result Store Wiring Plan",
+    approvalCopy: "Result store wiring requires explicit operator approval.",
+    subtitle: "Review the real result store wiring plan without storing or reusing results from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-result-store-wiring-plan",
+    plainEnglishTitle: "Plain-English real result store wiring plan",
+    plainEnglishCopy:
+      "Real result store wiring plan does not store or reuse results. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: UI review packet, approval packet, storage boundary, acceptance/rejection, reuse scope, privacy/safety, retention, audit, evidence linkage, validation, unresolved blockers.",
+    identity:
+      "Real Result Store Wiring Plan identity: Real result store wiring plan does not store or reuse results. Result store wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_RESULT_STORE_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Result Store Wiring Plan identity",
+      "Wiring path: UI review packet, approval packet, storage boundary, acceptance/rejection, reuse scope, privacy/safety, retention, audit, evidence linkage, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, storage boundary, acceptance/rejection, reuse scope, privacy/safety, retention, audit, evidence linkage, validation, unresolved blockers.",
+      "Safety boundary: Real result store wiring plan does not store or reuse results. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, storage boundary, acceptance/rejection, reuse scope, privacy/safety, retention, audit, evidence linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: UI review packet, approval packet, storage boundary, acceptance/rejection, reuse scope, privacy/safety, retention, audit, evidence linkage, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real result store wiring plan does not store or reuse results. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Result store wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, storage boundary, acceptance/rejection, reuse scope, privacy/safety, retention, audit, evidence linkage, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, storage boundary, acceptance/rejection, reuse scope, privacy/safety, retention, audit, evidence linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/actual-result-store-boundary",
+      "/real-evidence-store-wiring-plan",
+      "/real-recovery-wiring-plan",
+    ],
+    links: [
+      { href: "/actual-result-store-boundary", label: "Result boundary" },
+      { href: "/real-evidence-store-wiring-plan", label: "Evidence wiring" },
+      { href: "/real-recovery-wiring-plan", label: "Recovery wiring" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, storage boundary, acceptance/rejection, reuse scope, privacy/safety, retention, audit, evidence linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-result-store-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real result store wiring plan does not store or reuse results.",
+    dataScope:
+      "real-result-store-wiring-plan buildRealResultStoreWiringPlanStableKey RealResultStoreWiringPlanPanel",
+  },
+  "real-recovery-wiring-plan": {
+    slug: "real-recovery-wiring-plan",
+    phase: "Phase 783",
+    title: "Real Recovery Wiring Plan",
+    summarySubject: "Real Recovery Wiring Plan",
+    approvalCopy: "Recovery wiring requires explicit operator approval.",
+    subtitle: "Review the real recovery wiring plan without triggering recovery or retry from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-recovery-wiring-plan",
+    plainEnglishTitle: "Plain-English real recovery wiring plan",
+    plainEnglishCopy:
+      "Real recovery wiring plan does not trigger recovery or retry. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: UI review packet, approval packet, recovery boundary, retry, rollback, cleanup, escalation, audit, evidence/result linkage, validation, unresolved blockers.",
+    identity:
+      "Real Recovery Wiring Plan identity: Real recovery wiring plan does not trigger recovery or retry. Recovery wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_RECOVERY_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Recovery Wiring Plan identity",
+      "Wiring path: UI review packet, approval packet, recovery boundary, retry, rollback, cleanup, escalation, audit, evidence/result linkage, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, recovery boundary, retry, rollback, cleanup, escalation, audit, evidence/result linkage, validation, unresolved blockers.",
+      "Safety boundary: Real recovery wiring plan does not trigger recovery or retry. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, recovery boundary, retry, rollback, cleanup, escalation, audit, evidence/result linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: UI review packet, approval packet, recovery boundary, retry, rollback, cleanup, escalation, audit, evidence/result linkage, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real recovery wiring plan does not trigger recovery or retry. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Recovery wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, recovery boundary, retry, rollback, cleanup, escalation, audit, evidence/result linkage, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, recovery boundary, retry, rollback, cleanup, escalation, audit, evidence/result linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/actual-recovery-boundary",
+      "/real-result-store-wiring-plan",
+      "/real-packaging-wiring-plan",
+    ],
+    links: [
+      { href: "/actual-recovery-boundary", label: "Recovery boundary" },
+      { href: "/real-result-store-wiring-plan", label: "Result wiring" },
+      { href: "/real-packaging-wiring-plan", label: "Packaging wiring" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, recovery boundary, retry, rollback, cleanup, escalation, audit, evidence/result linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-recovery-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real recovery wiring plan does not trigger recovery or retry.",
+    dataScope:
+      "real-recovery-wiring-plan buildRealRecoveryWiringPlanStableKey RealRecoveryWiringPlanPanel",
+  },
+  "real-packaging-wiring-plan": {
+    slug: "real-packaging-wiring-plan",
+    phase: "Phase 784",
+    title: "Real Packaging Wiring Plan",
+    summarySubject: "Real Packaging Wiring Plan",
+    approvalCopy: "Packaging wiring requires explicit operator approval.",
+    subtitle: "Review the real packaging wiring plan without creating packages or exports from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-packaging-wiring-plan",
+    plainEnglishTitle: "Plain-English real packaging wiring plan",
+    plainEnglishCopy:
+      "Real packaging wiring plan does not create packages or exports. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: UI review packet, approval packet, packaging boundary, bundle, artifact, destination, license/redaction, handoff, rollback, audit, evidence/result linkage, validation, unresolved blockers.",
+    identity:
+      "Real Packaging Wiring Plan identity: Real packaging wiring plan does not create packages or exports. Packaging wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_PACKAGING_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Packaging Wiring Plan identity",
+      "Wiring path: UI review packet, approval packet, packaging boundary, bundle, artifact, destination, license/redaction, handoff, rollback, audit, evidence/result linkage, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, packaging boundary, bundle, artifact, destination, license/redaction, handoff, rollback, audit, evidence/result linkage, validation, unresolved blockers.",
+      "Safety boundary: Real packaging wiring plan does not create packages or exports. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, packaging boundary, bundle, artifact, destination, license/redaction, handoff, rollback, audit, evidence/result linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: UI review packet, approval packet, packaging boundary, bundle, artifact, destination, license/redaction, handoff, rollback, audit, evidence/result linkage, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real packaging wiring plan does not create packages or exports. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Packaging wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, packaging boundary, bundle, artifact, destination, license/redaction, handoff, rollback, audit, evidence/result linkage, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, packaging boundary, bundle, artifact, destination, license/redaction, handoff, rollback, audit, evidence/result linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/actual-packaging-boundary",
+      "/real-recovery-wiring-plan",
+      "/real-project-scaffold-wiring-plan",
+    ],
+    links: [
+      { href: "/actual-packaging-boundary", label: "Packaging boundary" },
+      { href: "/real-recovery-wiring-plan", label: "Recovery wiring" },
+      { href: "/real-project-scaffold-wiring-plan", label: "Scaffold wiring" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, packaging boundary, bundle, artifact, destination, license/redaction, handoff, rollback, audit, evidence/result linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-packaging-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real packaging wiring plan does not create packages or exports.",
+    dataScope:
+      "real-packaging-wiring-plan buildRealPackagingWiringPlanStableKey RealPackagingWiringPlanPanel",
+  },
+  "real-project-scaffold-wiring-plan": {
+    slug: "real-project-scaffold-wiring-plan",
+    phase: "Phase 785",
+    title: "Real Project Scaffold Wiring Plan",
+    summarySubject: "Real Project Scaffold Wiring Plan",
+    approvalCopy: "Project scaffold wiring requires explicit operator approval.",
+    subtitle: "Review the real project scaffold wiring plan without creating projects from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-project-scaffold-wiring-plan",
+    plainEnglishTitle: "Plain-English real project scaffold wiring plan",
+    plainEnglishCopy:
+      "Real project scaffold wiring plan does not create projects. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: UI review packet, approval packet, scaffold boundary, project type, template, target path, file write dependency, command/runtime dependency, audit, evidence/result/recovery linkage, validation, unresolved blockers. Original medieval fantasy server inspired by ice, fire, castles, houses, and kingdoms. No copied franchise assets.",
+    identity:
+      "Real Project Scaffold Wiring Plan identity: Real project scaffold wiring plan does not create projects. Project scaffold wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_PROJECT_SCAFFOLD_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Project Scaffold Wiring Plan identity",
+      "Wiring path: UI review packet, approval packet, scaffold boundary, project type, template, target path, file write dependency, command/runtime dependency, audit, evidence/result/recovery linkage, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, scaffold boundary, project type, template, target path, file write dependency, command/runtime dependency, audit, evidence/result/recovery linkage, validation, unresolved blockers.",
+      "Original medieval fantasy server inspired by ice, fire, castles, houses, and kingdoms. No copied franchise assets.",
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, scaffold boundary, project type, template, target path, file write dependency, command/runtime dependency, audit, evidence/result/recovery linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: UI review packet, approval packet, scaffold boundary, project type, template, target path, file write dependency, command/runtime dependency, audit, evidence/result/recovery linkage, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real project scaffold wiring plan does not create projects. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered. Original medieval fantasy server inspired by ice, fire, castles, houses, and kingdoms. No copied franchise assets."] },
+      { label: "Approval and validation", items: ["Project scaffold wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and UI review packet, approval packet, scaffold boundary, project type, template, target path, file write dependency, command/runtime dependency, audit, evidence/result/recovery linkage, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, scaffold boundary, project type, template, target path, file write dependency, command/runtime dependency, audit, evidence/result/recovery linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/actual-project-scaffold-boundary",
+      "/real-file-write-adapter-wiring-plan",
+      "/first-real-adapter-wiring-candidate",
+    ],
+    links: [
+      { href: "/actual-project-scaffold-boundary", label: "Scaffold boundary" },
+      { href: "/real-file-write-adapter-wiring-plan", label: "File wiring" },
+      { href: "/first-real-adapter-wiring-candidate", label: "Wiring candidate" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after UI review packet, approval packet, scaffold boundary, project type, template, target path, file write dependency, command/runtime dependency, audit, evidence/result/recovery linkage, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-project-scaffold-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real project scaffold wiring plan does not create projects.",
+    dataScope:
+      "real-project-scaffold-wiring-plan buildRealProjectScaffoldWiringPlanStableKey RealProjectScaffoldWiringPlanPanel",
+  },
+  "real-adapter-approval-wiring-plan": {
+    slug: "real-adapter-approval-wiring-plan",
+    phase: "Phase 786",
+    title: "Real Adapter Approval Wiring Plan",
+    summarySubject: "Real Adapter Approval Wiring Plan",
+    approvalCopy: "Adapter approval wiring requires explicit operator approval.",
+    subtitle: "Review the real adapter approval wiring plan without approving or executing adapters.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-adapter-approval-wiring-plan",
+    plainEnglishTitle: "Plain-English real adapter approval wiring plan",
+    plainEnglishCopy:
+      "Real adapter approval wiring plan does not approve or execute adapters. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: approval flow, reviewer requirements, denial reasons, expiry, audit, evidence, recovery, rollback, validation, unresolved blockers.",
+    identity:
+      "Real Adapter Approval Wiring Plan identity: Real adapter approval wiring plan does not approve or execute adapters. Adapter approval wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_ADAPTER_APPROVAL_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Adapter Approval Wiring Plan identity",
+      "Wiring path: approval flow, reviewer requirements, denial reasons, expiry, audit, evidence, recovery, rollback, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and approval flow, reviewer requirements, denial reasons, expiry, audit, evidence, recovery, rollback, validation, unresolved blockers.",
+      "Safety boundary: Real adapter approval wiring plan does not approve or execute adapters. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after approval flow, reviewer requirements, denial reasons, expiry, audit, evidence, recovery, rollback, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: approval flow, reviewer requirements, denial reasons, expiry, audit, evidence, recovery, rollback, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real adapter approval wiring plan does not approve or execute adapters. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Adapter approval wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and approval flow, reviewer requirements, denial reasons, expiry, audit, evidence, recovery, rollback, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after approval flow, reviewer requirements, denial reasons, expiry, audit, evidence, recovery, rollback, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/adapter-execution-approval-packet",
+      "/real-adapter-audit-wiring-plan",
+      "/first-real-adapter-wiring-candidate",
+    ],
+    links: [
+      { href: "/adapter-execution-approval-packet", label: "Approval packet" },
+      { href: "/real-adapter-audit-wiring-plan", label: "Audit wiring" },
+      { href: "/first-real-adapter-wiring-candidate", label: "Wiring candidate" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after approval flow, reviewer requirements, denial reasons, expiry, audit, evidence, recovery, rollback, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-adapter-approval-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real adapter approval wiring plan does not approve or execute adapters.",
+    dataScope:
+      "real-adapter-approval-wiring-plan buildRealAdapterApprovalWiringPlanStableKey RealAdapterApprovalWiringPlanPanel",
+  },
+  "real-adapter-audit-wiring-plan": {
+    slug: "real-adapter-audit-wiring-plan",
+    phase: "Phase 787",
+    title: "Real Adapter Audit Wiring Plan",
+    summarySubject: "Real Adapter Audit Wiring Plan",
+    approvalCopy: "Adapter audit wiring requires explicit operator approval.",
+    subtitle: "Review the real adapter audit wiring plan without storing audit events from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-adapter-audit-wiring-plan",
+    plainEnglishTitle: "Plain-English real adapter audit wiring plan",
+    plainEnglishCopy:
+      "Real adapter audit wiring plan does not store audit events. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: audit event shape, actor, request id, adapter family, approved operation, denied operation, evidence/result/recovery links, redaction, retention, validation, unresolved blockers.",
+    identity:
+      "Real Adapter Audit Wiring Plan identity: Real adapter audit wiring plan does not store audit events. Adapter audit wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_ADAPTER_AUDIT_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Adapter Audit Wiring Plan identity",
+      "Wiring path: audit event shape, actor, request id, adapter family, approved operation, denied operation, evidence/result/recovery links, redaction, retention, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and audit event shape, actor, request id, adapter family, approved operation, denied operation, evidence/result/recovery links, redaction, retention, validation, unresolved blockers.",
+      "Safety boundary: Real adapter audit wiring plan does not store audit events. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after audit event shape, actor, request id, adapter family, approved operation, denied operation, evidence/result/recovery links, redaction, retention, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: audit event shape, actor, request id, adapter family, approved operation, denied operation, evidence/result/recovery links, redaction, retention, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real adapter audit wiring plan does not store audit events. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Adapter audit wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and audit event shape, actor, request id, adapter family, approved operation, denied operation, evidence/result/recovery links, redaction, retention, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after audit event shape, actor, request id, adapter family, approved operation, denied operation, evidence/result/recovery links, redaction, retention, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/adapter-execution-audit-packet",
+      "/real-adapter-approval-wiring-plan",
+      "/real-adapter-sandbox-wiring-plan",
+    ],
+    links: [
+      { href: "/adapter-execution-audit-packet", label: "Audit packet" },
+      { href: "/real-adapter-approval-wiring-plan", label: "Approval wiring" },
+      { href: "/real-adapter-sandbox-wiring-plan", label: "Sandbox wiring" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after audit event shape, actor, request id, adapter family, approved operation, denied operation, evidence/result/recovery links, redaction, retention, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-adapter-audit-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real adapter audit wiring plan does not store audit events.",
+    dataScope:
+      "real-adapter-audit-wiring-plan buildRealAdapterAuditWiringPlanStableKey RealAdapterAuditWiringPlanPanel",
+  },
+  "real-adapter-sandbox-wiring-plan": {
+    slug: "real-adapter-sandbox-wiring-plan",
+    phase: "Phase 788",
+    title: "Real Adapter Sandbox Wiring Plan",
+    summarySubject: "Real Adapter Sandbox Wiring Plan",
+    approvalCopy: "Adapter sandbox wiring requires explicit operator approval.",
+    subtitle: "Review the real adapter sandbox wiring plan without running adapters.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-adapter-sandbox-wiring-plan",
+    plainEnglishTitle: "Plain-English real adapter sandbox wiring plan",
+    plainEnglishCopy:
+      "Real adapter sandbox wiring plan does not run adapters. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: sandbox allowed paths, denied paths, process policy, network policy, provider/connector/automation exclusions, file/command/runtime boundaries, evidence/result boundaries, validation, unresolved blockers.",
+    identity:
+      "Real Adapter Sandbox Wiring Plan identity: Real adapter sandbox wiring plan does not run adapters. Adapter sandbox wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_ADAPTER_SANDBOX_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Adapter Sandbox Wiring Plan identity",
+      "Wiring path: sandbox allowed paths, denied paths, process policy, network policy, provider/connector/automation exclusions, file/command/runtime boundaries, evidence/result boundaries, validation, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and sandbox allowed paths, denied paths, process policy, network policy, provider/connector/automation exclusions, file/command/runtime boundaries, evidence/result boundaries, validation, unresolved blockers.",
+      "Safety boundary: Real adapter sandbox wiring plan does not run adapters. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after sandbox allowed paths, denied paths, process policy, network policy, provider/connector/automation exclusions, file/command/runtime boundaries, evidence/result boundaries, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: sandbox allowed paths, denied paths, process policy, network policy, provider/connector/automation exclusions, file/command/runtime boundaries, evidence/result boundaries, validation, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real adapter sandbox wiring plan does not run adapters. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Adapter sandbox wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and sandbox allowed paths, denied paths, process policy, network policy, provider/connector/automation exclusions, file/command/runtime boundaries, evidence/result boundaries, validation, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after sandbox allowed paths, denied paths, process policy, network policy, provider/connector/automation exclusions, file/command/runtime boundaries, evidence/result boundaries, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/adapter-execution-sandbox-packet",
+      "/real-command-runner-adapter-wiring-plan",
+      "/real-adapter-validation-wiring-plan",
+    ],
+    links: [
+      { href: "/adapter-execution-sandbox-packet", label: "Sandbox packet" },
+      { href: "/real-command-runner-adapter-wiring-plan", label: "Command wiring" },
+      { href: "/real-adapter-validation-wiring-plan", label: "Validation wiring" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after sandbox allowed paths, denied paths, process policy, network policy, provider/connector/automation exclusions, file/command/runtime boundaries, evidence/result boundaries, validation, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-adapter-sandbox-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real adapter sandbox wiring plan does not run adapters.",
+    dataScope:
+      "real-adapter-sandbox-wiring-plan buildRealAdapterSandboxWiringPlanStableKey RealAdapterSandboxWiringPlanPanel",
+  },
+  "real-adapter-validation-wiring-plan": {
+    slug: "real-adapter-validation-wiring-plan",
+    phase: "Phase 789",
+    title: "Real Adapter Validation Wiring Plan",
+    summarySubject: "Real Adapter Validation Wiring Plan",
+    approvalCopy: "Adapter validation wiring requires explicit operator approval.",
+    subtitle: "Review the real adapter validation wiring plan without running validation from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-adapter-validation-wiring-plan",
+    plainEnglishTitle: "Plain-English real adapter validation wiring plan",
+    plainEnglishCopy:
+      "Real adapter validation wiring plan does not run validation from UI. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: smokes, build, repo hygiene, route coverage, command UI simplification, checkpoint docs, server smoke, evidence/result linkage, unresolved blockers.",
+    identity:
+      "Real Adapter Validation Wiring Plan identity: Real adapter validation wiring plan does not run validation from UI. Adapter validation wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_ADAPTER_VALIDATION_WIRING_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Adapter Validation Wiring Plan identity",
+      "Wiring path: smokes, build, repo hygiene, route coverage, command UI simplification, checkpoint docs, server smoke, evidence/result linkage, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and smokes, build, repo hygiene, route coverage, command UI simplification, checkpoint docs, server smoke, evidence/result linkage, unresolved blockers.",
+      "Safety boundary: Real adapter validation wiring plan does not run validation from UI. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after smokes, build, repo hygiene, route coverage, command UI simplification, checkpoint docs, server smoke, evidence/result linkage, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: smokes, build, repo hygiene, route coverage, command UI simplification, checkpoint docs, server smoke, evidence/result linkage, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real adapter validation wiring plan does not run validation from UI. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Adapter validation wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and smokes, build, repo hygiene, route coverage, command UI simplification, checkpoint docs, server smoke, evidence/result linkage, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after smokes, build, repo hygiene, route coverage, command UI simplification, checkpoint docs, server smoke, evidence/result linkage, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/adapter-execution-validation-packet",
+      "/real-adapter-sandbox-wiring-plan",
+      "/real-adapter-operator-trial-plan",
+    ],
+    links: [
+      { href: "/adapter-execution-validation-packet", label: "Validation packet" },
+      { href: "/real-adapter-sandbox-wiring-plan", label: "Sandbox wiring" },
+      { href: "/real-adapter-operator-trial-plan", label: "Operator trial" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after smokes, build, repo hygiene, route coverage, command UI simplification, checkpoint docs, server smoke, evidence/result linkage, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-adapter-validation-wiring-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real adapter validation wiring plan does not run validation from UI.",
+    dataScope:
+      "real-adapter-validation-wiring-plan buildRealAdapterValidationWiringPlanStableKey RealAdapterValidationWiringPlanPanel",
+  },
+  "real-adapter-operator-trial-plan": {
+    slug: "real-adapter-operator-trial-plan",
+    phase: "Phase 790",
+    title: "Real Adapter Operator Trial Plan",
+    summarySubject: "Real Adapter Operator Trial Plan",
+    approvalCopy: "Adapter operator trials require explicit operator approval.",
+    subtitle: "Review the real adapter operator trial plan without executing adapters from UI.",
+    primaryLabel: "Review wiring plan",
+    anchor: "real-adapter-operator-trial-plan",
+    plainEnglishTitle: "Plain-English real adapter operator trial plan",
+    plainEnglishCopy:
+      "Real adapter operator trial plan does not execute adapters. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: operator trial flow, approval review, dry-run review, sandbox review, observation, validation, rollback, handoff, unresolved blockers.",
+    identity:
+      "Real Adapter Operator Trial Plan identity: Real adapter operator trial plan does not execute adapters. Adapter operator trials require explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: REAL_ADAPTER_OPERATOR_TRIAL_PLAN_LANGUAGE,
+    advancedDetails: [
+      "Real Adapter Operator Trial Plan identity",
+      "Wiring path: operator trial flow, approval review, dry-run review, sandbox review, observation, validation, rollback, handoff, unresolved blockers.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and operator trial flow, approval review, dry-run review, sandbox review, observation, validation, rollback, handoff, unresolved blockers.",
+      "Safety boundary: Real adapter operator trial plan does not execute adapters. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after operator trial flow, approval review, dry-run review, sandbox review, observation, validation, rollback, handoff, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: operator trial flow, approval review, dry-run review, sandbox review, observation, validation, rollback, handoff, unresolved blockers."] },
+      { label: "Safety boundary", items: ["Real adapter operator trial plan does not execute adapters. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Adapter operator trials require explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and operator trial flow, approval review, dry-run review, sandbox review, observation, validation, rollback, handoff, unresolved blockers."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after operator trial flow, approval review, dry-run review, sandbox review, observation, validation, rollback, handoff, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/adapter-execution-operator-runbook",
+      "/real-adapter-validation-wiring-plan",
+      "/first-real-adapter-wiring-candidate",
+    ],
+    links: [
+      { href: "/adapter-execution-operator-runbook", label: "Operator runbook" },
+      { href: "/real-adapter-validation-wiring-plan", label: "Validation wiring" },
+      { href: "/first-real-adapter-wiring-candidate", label: "Wiring candidate" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after operator trial flow, approval review, dry-run review, sandbox review, observation, validation, rollback, handoff, unresolved blockers, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced real-adapter-operator-trial-plan details collapsed/secondary. This route is wiring plan only, not executable from UI, and real adapter operator trial plan does not execute adapters.",
+    dataScope:
+      "real-adapter-operator-trial-plan buildRealAdapterOperatorTrialPlanStableKey RealAdapterOperatorTrialPlanPanel",
+  },
+  "first-real-adapter-wiring-candidate": {
+    slug: "first-real-adapter-wiring-candidate",
+    phase: "Phase 791",
+    title: "First Real Adapter Wiring Candidate",
+    summarySubject: "First Real Adapter Wiring Candidate",
+    approvalCopy: "Real adapter wiring requires explicit operator approval.",
+    subtitle: "Summarize first real adapter wiring readiness without executing adapters from UI.",
+    primaryLabel: "Review beta surface",
+    anchor: "first-real-adapter-wiring-candidate",
+    plainEnglishTitle: "Plain-English first real adapter wiring candidate",
+    plainEnglishCopy:
+      "First real adapter wiring candidate does not execute adapters. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: file write, command runner, local runtime, evidence store, result store, recovery, packaging, project scaffold, approval, audit, sandbox, validation, operator trial wiring readiness.",
+    identity:
+      "First Real Adapter Wiring Candidate identity: First real adapter wiring candidate does not execute adapters. Real adapter wiring requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: FIRST_REAL_ADAPTER_WIRING_CANDIDATE_LANGUAGE,
+    advancedDetails: [
+      "First Real Adapter Wiring Candidate identity",
+      "Wiring path: file write, command runner, local runtime, evidence store, result store, recovery, packaging, project scaffold, approval, audit, sandbox, validation, operator trial wiring readiness.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and file write, command runner, local runtime, evidence store, result store, recovery, packaging, project scaffold, approval, audit, sandbox, validation, operator trial wiring readiness.",
+      "Safety boundary: First real adapter wiring candidate does not execute adapters. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after file write, command runner, local runtime, evidence store, result store, recovery, packaging, project scaffold, approval, audit, sandbox, validation, operator trial wiring readiness, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: file write, command runner, local runtime, evidence store, result store, recovery, packaging, project scaffold, approval, audit, sandbox, validation, operator trial wiring readiness."] },
+      { label: "Safety boundary", items: ["First real adapter wiring candidate does not execute adapters. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Real adapter wiring requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and file write, command runner, local runtime, evidence store, result store, recovery, packaging, project scaffold, approval, audit, sandbox, validation, operator trial wiring readiness."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after file write, command runner, local runtime, evidence store, result store, recovery, packaging, project scaffold, approval, audit, sandbox, validation, operator trial wiring readiness, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/real-file-write-adapter-wiring-plan",
+      "/real-adapter-approval-wiring-plan",
+      "/first-adapter-execution-beta-review",
+    ],
+    links: [
+      { href: "/real-file-write-adapter-wiring-plan", label: "File wiring" },
+      { href: "/real-adapter-approval-wiring-plan", label: "Approval wiring" },
+      { href: "/first-adapter-execution-beta-review", label: "Beta review" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after file write, command runner, local runtime, evidence store, result store, recovery, packaging, project scaffold, approval, audit, sandbox, validation, operator trial wiring readiness, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced first-real-adapter-wiring-candidate details collapsed/secondary. This route is wiring plan only, not executable from UI, and first real adapter wiring candidate does not execute adapters.",
+    dataScope:
+      "first-real-adapter-wiring-candidate buildFirstRealAdapterWiringCandidateStableKey FirstRealAdapterWiringCandidatePanel",
+  },
+  "first-adapter-execution-beta-review": {
+    slug: "first-adapter-execution-beta-review",
+    phase: "Phase 792",
+    title: "First Adapter Execution Beta Review",
+    summarySubject: "First Adapter Execution Beta Review",
+    approvalCopy: "Adapter execution beta requires explicit operator approval.",
+    subtitle: "Review the first adapter execution beta without executing adapters from UI.",
+    primaryLabel: "Review beta surface",
+    anchor: "first-adapter-execution-beta-review",
+    plainEnglishTitle: "Plain-English first adapter execution beta review",
+    plainEnglishCopy:
+      "First adapter execution beta review does not execute adapters. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: beta review checklist, blocked execution items, ready items, deferred items, validation plan, rollback plan, operator runbook, evidence/result/recovery readiness.",
+    identity:
+      "First Adapter Execution Beta Review identity: First adapter execution beta review does not execute adapters. Adapter execution beta requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: FIRST_ADAPTER_EXECUTION_BETA_REVIEW_LANGUAGE,
+    advancedDetails: [
+      "First Adapter Execution Beta Review identity",
+      "Wiring path: beta review checklist, blocked execution items, ready items, deferred items, validation plan, rollback plan, operator runbook, evidence/result/recovery readiness.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and beta review checklist, blocked execution items, ready items, deferred items, validation plan, rollback plan, operator runbook, evidence/result/recovery readiness.",
+      "Safety boundary: First adapter execution beta review does not execute adapters. No live adapter implementation, no adapter execution, and no adapter preview execution are available from UI.",
+      "What this unlocks next: a bounded backend/local implementation sprint after beta review checklist, blocked execution items, ready items, deferred items, validation plan, rollback plan, operator runbook, evidence/result/recovery readiness, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: beta review checklist, blocked execution items, ready items, deferred items, validation plan, rollback plan, operator runbook, evidence/result/recovery readiness."] },
+      { label: "Safety boundary", items: ["First adapter execution beta review does not execute adapters. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered."] },
+      { label: "Approval and validation", items: ["Adapter execution beta requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and beta review checklist, blocked execution items, ready items, deferred items, validation plan, rollback plan, operator runbook, evidence/result/recovery readiness."] },
+      { label: "What this unlocks next", items: ["What this unlocks next: a bounded backend/local implementation sprint after beta review checklist, blocked execution items, ready items, deferred items, validation plan, rollback plan, operator runbook, evidence/result/recovery readiness, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified."] },
+    ],
+    routes: [
+      "/first-adapter-execution-beta-candidate",
+      "/first-real-adapter-wiring-candidate",
+      "/broad-controlled-builder-beta-candidate",
+    ],
+    links: [
+      { href: "/first-adapter-execution-beta-candidate", label: "Beta candidate" },
+      { href: "/first-real-adapter-wiring-candidate", label: "Wiring candidate" },
+      { href: "/broad-controlled-builder-beta-candidate", label: "Builder beta" },
+    ],
+    nextRecommendedAction:
+      "What this unlocks next: a bounded backend/local implementation sprint after beta review checklist, blocked execution items, ready items, deferred items, validation plan, rollback plan, operator runbook, evidence/result/recovery readiness, explicit approval, sandbox, audit, evidence, result, validation, rollback/recovery, and denial rules are specified.",
+    advancedCopy:
+      "advanced first-adapter-execution-beta-review details collapsed/secondary. This route is wiring plan only, not executable from UI, and first adapter execution beta review does not execute adapters.",
+    dataScope:
+      "first-adapter-execution-beta-review buildFirstAdapterExecutionBetaReviewStableKey FirstAdapterExecutionBetaReviewPanel",
+  },
+  "broad-controlled-builder-beta-candidate": {
+    slug: "broad-controlled-builder-beta-candidate",
+    phase: "Phase 793",
+    title: "Broad Controlled Builder Beta Candidate",
+    summarySubject: "Broad Controlled Builder Beta Candidate",
+    approvalCopy: "Broad controlled builder beta requires explicit operator approval.",
+    subtitle: "Summarize broad controlled builder beta readiness without executing builder workflows from UI.",
+    primaryLabel: "Review beta surface",
+    anchor: "broad-controlled-builder-beta-candidate",
+    plainEnglishTitle: "Plain-English broad controlled builder beta candidate",
+    plainEnglishCopy:
+      "Broad controlled builder beta candidate does not execute builder workflows from UI. It is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, and evidence required. Wiring path: coding/project builder, file write, command runner, local runtime, evidence/result/recovery, packaging, creative/video, research/live research, chatbot/agent, monitoring/automation, video-call/meeting, connector workflows, game/server builder readiness. Original medieval fantasy server inspired by ice, fire, castles, houses, and kingdoms. No copied franchise assets.",
+    identity:
+      "Broad Controlled Builder Beta Candidate identity: Broad controlled builder beta candidate does not execute builder workflows from UI. Broad controlled builder beta requires explicit operator approval. This is wiring plan only, not executable from UI, approval required, local bridge required, sandbox required, evidence required, and what this unlocks next.",
+    language: BROAD_CONTROLLED_BUILDER_BETA_CANDIDATE_LANGUAGE,
+    advancedDetails: [
+      "Broad Controlled Builder Beta Candidate identity",
+      "Wiring path: coding/project builder, file write, command runner, local runtime, evidence/result/recovery, packaging, creative/video, research/live research, chatbot/agent, monitoring/automation, video-call/meeting, connector workflows, game/server builder readiness.",
+      "Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and coding/project builder, file write, command runner, local runtime, evidence/result/recovery, packaging, creative/video, research/live research, chatbot/agent, monitoring/automation, video-call/meeting, connector workflows, game/server builder readiness.",
+      "Original medieval fantasy server inspired by ice, fire, castles, houses, and kingdoms. No copied franchise assets.",
+      "Next recommended action: start actual local/backend adapter implementation with the file write adapter only, while command runner, local runtime, providers, connectors, automations, creative/video, research, chatbot/agent, meeting, monitoring, and game/server builders remain blocked until their own approved boundaries exist.",
+    ],
+    sections: [
+      { label: "Wiring path", items: ["Wiring path: coding/project builder, file write, command runner, local runtime, evidence/result/recovery, packaging, creative/video, research/live research, chatbot/agent, monitoring/automation, video-call/meeting, connector workflows, game/server builder readiness."] },
+      { label: "Safety boundary", items: ["Broad controlled builder beta candidate does not execute builder workflows from UI. This surface is wiring plan only, not executable from UI, and keeps approval required, local bridge required, sandbox required, and evidence required before any future backend/local implementation can be considered. Original medieval fantasy server inspired by ice, fire, castles, houses, and kingdoms. No copied franchise assets."] },
+      { label: "Approval and validation", items: ["Broad controlled builder beta requires explicit operator approval. Validation remains an operator-run terminal responsibility; the UI does not execute adapters, run previews, persist approval decisions, store outputs, or trigger recovery."] },
+      { label: "Unresolved blockers", items: ["Unresolved blockers: approved backend/local owner, sandbox enforcement, audit persistence, evidence/result policy, validation evidence, rollback/recovery owner, privacy/redaction review, denial behavior, and coding/project builder, file write, command runner, local runtime, evidence/result/recovery, packaging, creative/video, research/live research, chatbot/agent, monitoring/automation, video-call/meeting, connector workflows, game/server builder readiness."] },
+      { label: "What this unlocks next", items: ["Next recommended action: start actual local/backend adapter implementation with the file write adapter only, while command runner, local runtime, providers, connectors, automations, creative/video, research, chatbot/agent, meeting, monitoring, and game/server builders remain blocked until their own approved boundaries exist."] },
+    ],
+    routes: [
+      "/first-real-adapter-wiring-candidate",
+      "/first-adapter-execution-beta-review",
+      "/real-file-write-adapter-wiring-plan",
+    ],
+    links: [
+      { href: "/first-real-adapter-wiring-candidate", label: "Wiring candidate" },
+      { href: "/first-adapter-execution-beta-review", label: "Beta review" },
+      { href: "/real-file-write-adapter-wiring-plan", label: "File wiring" },
+    ],
+    nextRecommendedAction:
+      "Next recommended action: start actual local/backend adapter implementation with the file write adapter only, while command runner, local runtime, providers, connectors, automations, creative/video, research, chatbot/agent, meeting, monitoring, and game/server builders remain blocked until their own approved boundaries exist.",
+    advancedCopy:
+      "advanced broad-controlled-builder-beta-candidate details collapsed/secondary. This route is wiring plan only, not executable from UI, and broad controlled builder beta candidate does not execute builder workflows from UI.",
+    dataScope:
+      "broad-controlled-builder-beta-candidate buildBroadControlledBuilderBetaCandidateStableKey BroadControlledBuilderBetaCandidatePanel",
   },
 };
 
