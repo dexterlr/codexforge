@@ -265,7 +265,23 @@ $protectedRoutes = @(
   "/cross-model-failure-recovery-preview",
   "/model-spend-guardrail-preview",
   "/model-routing-audit-trail-preview",
-  "/shared-brain-model-router-candidate"
+  "/shared-brain-model-router-candidate",
+  "/model-provider-registry-preview",
+  "/openai-compatible-model-provider-preview",
+  "/local-model-provider-preview",
+  "/free-model-provider-preview",
+  "/paid-model-provider-preview",
+  "/pro-model-provider-preview",
+  "/specialist-video-model-provider-preview",
+  "/specialist-image-model-provider-preview",
+  "/specialist-coding-model-provider-preview",
+  "/specialist-research-model-provider-preview",
+  "/specialist-trading-model-provider-preview",
+  "/model-credential-boundary-preview",
+  "/model-usage-budget-preview",
+  "/model-context-sync-packet",
+  "/model-output-evidence-packet",
+  "/controlled-model-use-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
