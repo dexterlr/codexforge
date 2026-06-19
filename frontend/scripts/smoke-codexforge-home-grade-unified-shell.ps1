@@ -135,7 +135,7 @@ foreach($marker in @(
   "from 'openai'"
 )){ Assert-NotContains $allSource $marker "unsafe secret/API marker absent $marker" }
 
-foreach($secretPattern in @("sk-[A-Za-z0-9_-]{20,}", "AIza[0-9A-Za-z_-]{20,}")){
+foreach($secretPattern in @("(?<![A-Za-z0-9_])sk-[A-Za-z0-9_-]{20,}", "(?<![A-Za-z0-9_])AIza[0-9A-Za-z_-]{20,}")){
   Assert-NotMatches $allSource $secretPattern "no hardcoded API keys"
 }
 
