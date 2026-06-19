@@ -10,11 +10,30 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 889.
+Highest detected phase: 905.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 889, so the checkpoint is documented as through phase 889.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 905, so the checkpoint is documented as through phase 905.
 
-Latest detected milestone family: model router/provider readiness preview layer: model router selection, capability registry, cost/quality/privacy/locality/fallback policy, selection approval, backend dry-run router candidate, shared Brain context/memory/knowledge access, task classification, efficiency scoring, free/paid/pro/local/specialist routing policy, continuity handoff, cross-model comparison, failure recovery, spend guardrail, audit trail, provider registry, OpenAI-compatible/local/free/paid/pro/specialist provider previews, credential boundary, usage budget, context sync, output evidence, controlled model-use, provider connection boundary, connection-test previews, health probe, latency/quality/cost/privacy/tool support scoring, dry-run result, first controlled model-use trial packet, and controlled model router readiness candidate surfaces. These pages define preview-only, approval-gated routing and provider review contracts. They remain frontend review/planning UI only and do not make model calls, provider calls, credential reads, network calls, router executions, Brain mutations, automatic memory promotions, browser credential writes, or hidden execution from UI.
+Latest detected milestone family: controlled model-use release-candidate layer. Phases 890-905 extend the model router/provider readiness preview layer with controlled dry-run and review surfaces:
+
+- Phase 890 - Controlled Model Use Dry-Run Inventory.
+- Phase 891 - OpenAI-Compatible Model Use Dry-Run.
+- Phase 892 - Local Model Use Dry-Run.
+- Phase 893 - Free Model Use Dry-Run.
+- Phase 894 - Paid Model Use Dry-Run.
+- Phase 895 - Pro Model Use Dry-Run.
+- Phase 896 - Specialist Video Model Use Dry-Run.
+- Phase 897 - Specialist Image Model Use Dry-Run.
+- Phase 898 - Specialist Coding Model Use Dry-Run.
+- Phase 899 - Specialist Research Model Use Dry-Run.
+- Phase 900 - Specialist Trading Model Use Dry-Run.
+- Phase 901 - Shared Context Packet Validation.
+- Phase 902 - Shared Memory Handoff Validation.
+- Phase 903 - Model Router Decision Explanation Review.
+- Phase 904 - First Controlled Model Router Trial Review.
+- Phase 905 - Controlled Model Use Release Candidate.
+
+These pages preserve the model router/provider direction: CodexForge is a Jarvis-style, local-first, approval-safe execution OS. Paid, free, local, remote, and specialist models are workers that share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer; CodexForge remains the brain. They remain frontend review/planning UI only and do not make model calls, provider calls, credential reads, network calls, router executions, Brain mutations, automatic memory promotions, browser credential writes, or hidden execution from UI.
 
 ## Current Route Families
 
@@ -56,7 +75,7 @@ Latest detected milestone family: model router/provider readiness preview layer:
 - Real adapter wiring plan and broad controlled builder beta layer: `/real-file-write-adapter-wiring-plan`, `/real-command-runner-adapter-wiring-plan`, `/real-local-runtime-adapter-wiring-plan`, `/real-evidence-store-wiring-plan`, `/real-result-store-wiring-plan`, `/real-recovery-wiring-plan`, `/real-packaging-wiring-plan`, `/real-project-scaffold-wiring-plan`, `/real-adapter-approval-wiring-plan`, `/real-adapter-audit-wiring-plan`, `/real-adapter-sandbox-wiring-plan`, `/real-adapter-validation-wiring-plan`, `/real-adapter-operator-trial-plan`, `/first-real-adapter-wiring-candidate`, `/first-adapter-execution-beta-review`, `/broad-controlled-builder-beta-candidate`.
 - Backend/local adapter contract layer: `/backend-adapter-boundary-contract`, `/local-bridge-adapter-boundary-contract`, `/file-write-adapter-backend-contract`, `/command-runner-adapter-backend-contract`, `/local-runtime-adapter-backend-contract`, `/evidence-store-backend-contract`, `/result-store-backend-contract`, `/recovery-backend-contract`, `/packaging-backend-contract`, `/project-scaffold-backend-contract`, `/adapter-backend-approval-contract`, `/adapter-backend-audit-contract`, `/adapter-backend-sandbox-contract`, `/adapter-backend-validation-contract`, `/adapter-backend-operator-trial-contract`, `/first-backend-adapter-contract-candidate`.
 - Backend adapter implementation and dry-run packet layer: backend adapter implementation scaffold, file-write/command-runner/local-runtime/evidence/result/recovery/packaging/project-scaffold adapter previews, approval/audit/sandbox/validation/operator-trial previews, dry-run candidate, first implementation preview candidate, and dry-run packet inventory/review surfaces. These remain preview-only and do not run adapters.
-- Model router/provider readiness layer: model router selection, model capability/cost/privacy/fallback policy, model selection approval, backend dry-run model router candidate, shared Brain model context/memory/knowledge access, model task classification, efficiency scoring, routing policy, continuity handoff, comparison/recovery/spend/audit, provider registry and provider previews, credential boundary, usage/context/evidence packets, provider connection and connection-test previews, health/scoring previews, dry-run result, first controlled model-use packet, and controlled router readiness candidate surfaces. These remain preview-only and approval-gated; no model/provider/network/credential/router execution occurs from UI.
+- Model router/provider readiness and controlled model-use release-candidate layer: model router selection, model capability/cost/privacy/fallback policy, model selection approval, backend dry-run model router candidate, shared Brain model context/memory/knowledge access, model task classification, efficiency scoring, routing policy, continuity handoff, comparison/recovery/spend/audit, provider registry and provider previews, credential boundary, usage/context/evidence packets, provider connection and connection-test previews, health/scoring previews, dry-run result, controlled model-use dry-run inventory, OpenAI-compatible/local/free/paid/pro/specialist dry-run previews, shared context packet validation, shared memory handoff validation, decision explanation review, first controlled model router trial review, and controlled model-use release candidate surfaces. These remain preview-only and approval-gated; no model/provider/network/credential/router execution occurs from UI.
 
 ## Safety Model
 
@@ -71,7 +90,7 @@ Latest detected milestone family: model router/provider readiness preview layer:
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 889 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 905 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, file mutation, test execution, unified gap, first approved-trial, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta candidate, and operator handoff route families are represented as review and approval surfaces.
 - The Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, and readiness lock route family is represented as review-only and approval-required UI.
 - The Daily Beta readiness lock audit, release candidate summary, Daily Beta 1 final candidate, final operator review, final regression review, final recovery review, final hardening pass, and Daily Beta 1 activation candidate package is represented as review-only and approval-required UI.
@@ -127,12 +146,12 @@ Latest detected milestone family: model router/provider readiness preview layer:
 - Real adapter wiring plan and broad controlled builder beta pages remain review-only; they do not write files, run commands, start local runtimes, store or ingest evidence, store or reuse results, trigger recovery/retry, create packages/exports, create projects, approve or execute adapters, store audit events, run adapters, run validation from UI, execute operator trials, execute builder workflows, call providers/models, send prompts, connect accounts, fetch or mutate connector data, create automations/schedules/reminders/tasks/watches/background jobs, send notifications, generate videos/images/3D assets, browse/search/fetch research sources, create/deploy chatbots/agents, join or monitor video calls, create monitoring jobs, build or launch game servers, mutate Brain, execute plugins/tools/agents/MCP, store credentials/keys/tokens/endpoints/outputs, persist policy/settings/preference changes, persist approval decisions, or claim execution works before backend-owned approval and evidence. The project scaffold and builder beta examples use original medieval fantasy wording and no copied franchise assets.
 - Backend/local adapter contract pages remain review-only; they do not implement or run backend adapters, call the local bridge, write files, run commands, start local runtimes, store or ingest evidence, store or reuse results, trigger recovery/retry, create packages/exports, create projects, approve or execute adapters, store audit events, run adapters, run validation from UI, execute operator trials, call providers/models, send prompts, connect accounts, fetch or mutate connector data, create automations/schedules/reminders/tasks/watches/background jobs, send notifications, generate videos/images/3D assets, browse/search/fetch research sources, create/deploy chatbots/agents, join or monitor video calls, create monitoring jobs, build or launch game servers, mutate Brain, execute plugins/tools/agents/MCP, store credentials/keys/tokens/endpoints/outputs, persist policy/settings/preference changes, persist approval decisions, or claim execution works before backend-owned approval and evidence. The project scaffold backend contract uses original medieval fantasy wording and no copied franchise assets.
 - Backend adapter implementation and dry-run packet pages remain preview-only; they do not implement adapters, execute adapters, run dry-runs, write files, run commands, start local runtimes, call providers/models/connectors, store evidence/results, mutate Brain, store credentials/outputs, or persist approval decisions.
-- Model router/provider readiness pages remain preview-only; they do not make model calls, provider calls, credential reads, network calls, router executions, automatic memory promotions, Brain mutations, browser credential writes, or hidden execution.
+- Model router/provider readiness and controlled model-use release-candidate pages remain preview-only; they do not make model calls, provider calls, credential reads, network calls, router executions, automatic memory promotions, Brain mutations, browser credential writes, or hidden execution.
 
 ## What Is Next
 
 - Keep documentation aligned with the highest local all-smoke phase.
-- Review the model router/provider readiness blockers for provider registry, credential boundary, usage budget, context/evidence packets, connection tests, health/scoring previews, dry-run result, first controlled model-use packet, and controlled router readiness candidate before any future routing or provider execution claim.
+- Review the model router/provider readiness and controlled model-use release-candidate blockers for provider registry, credential boundary, usage budget, context/evidence packets, connection tests, health/scoring previews, dry-run result, first controlled model-use packet, controlled router readiness candidate, shared context packet validation, shared memory handoff validation, decision explanation review, first controlled model router trial review, and release-candidate posture before any future routing or provider execution claim.
 - Keep model/provider/router work preview-only unless explicitly approved, and choose any first actual local/backend implementation proposal only after explicit approval, backend contract review, local bridge contract review, sandbox enforcement, audit, evidence/result links, rollback plan, validation packet, denial behavior, and safety smoke evidence exist. Keep command runner, local runtime, provider/model, connector, automation, creative/video, research/live research, chatbot/agent, monitoring, video-call/meeting, and game/server builder implementation blocked until evidence is proven.
 - Keep checkpoint docs sober: do not describe review surfaces as live execution.
 

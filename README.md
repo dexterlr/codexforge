@@ -6,7 +6,7 @@ CodexForge is a local-first AI developer/operator workspace. It provides fronten
 
 ## Current State
 
-Current checkpoint: through phase 889, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the model router/provider readiness preview layer: provider registry previews, connection-test previews, credential boundary review, budget/context/evidence packets, scoring previews, dry-run result review, first controlled model-use packet, and controlled router readiness candidate surfaces.
+Current checkpoint: through phase 905, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the controlled model-use release-candidate layer: controlled model-use dry-run inventory, OpenAI-compatible/local/free/paid/pro/specialist model dry-run previews, shared context packet validation, shared memory handoff validation, model router decision explanation review, first controlled model router trial review, and controlled model-use release candidate surfaces.
 
 CodexForge currently includes deterministic frontend review and approval surfaces for:
 
@@ -21,7 +21,7 @@ CodexForge currently includes deterministic frontend review and approval surface
 - Beta workflow release regression, safety signoff, documentation, onboarding final pass, Beta 2 release candidate, controlled trial, feedback review, and hardening pass review surfaces.
 - Jarvisd/local-daemon contract, health, capability, permission, local file approval, local command approval, local process preview, and workspace trust boundaries.
 - Project intelligence, codebase change planning, patch preview, patch apply approval, patch result capture, test planning, and test result/failure review.
-- Model router/provider preview, model connection-test preview, model scoring, model dry-run result, controlled model-use packet, and controlled model router readiness review surfaces.
+- Model router/provider preview, model connection-test preview, model scoring, controlled model-use dry-run preview, shared context and memory handoff review, decision explanation review, first controlled model router trial review, and controlled model-use release-candidate surfaces.
 
 These are review-only surfaces unless an approved local/backend/provider boundary exists for the specific action. CodexForge does not claim live execution for provider, local model, connector, automation, file, shell, patch, test, Jarvisd, or memory mutation work from arbitrary UI.
 
@@ -75,7 +75,7 @@ git diff --stat
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 889.
+- Current checkpoint: documentation and hygiene alignment through detected phase 905.
 - Next milestone: keep model/provider/router, local model, connector, automation, unified workflow, and beta operator surfaces preview-only or review-only while defining any approved backend/local/provider boundaries before claiming execution.
 - Do not claim live execution unless an approved local/backend/provider boundary exists.
 - Do not claim CI passed unless actual CI or terminal logs prove it.

@@ -1,6 +1,6 @@
 # CodexForge Structure Map
 
-CodexForge is a local-first developer workspace checkpointed through detected phase 889 in the local all-smoke registry. This map is for orientation only. It does not rename existing route folders or feature domains.
+CodexForge is a local-first developer workspace checkpointed through detected phase 905 in the local all-smoke registry. This map is for orientation only. It does not rename existing route folders or feature domains.
 
 ## Main route groups
 
