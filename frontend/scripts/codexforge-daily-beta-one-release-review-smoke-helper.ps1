@@ -47,6 +47,7 @@ $additionalSharedRoots = @(
   "src\lib\codexforge\bounded-adapter-implementation-plan-kit",
   "src\lib\codexforge\bounded-adapter-implementation-slice-kit",
   "src\lib\codexforge\adapter-implementation-review-kit",
+  "src\lib\codexforge\adapter-execution-beta-boundary-kit",
   "src\lib\codexforge\first-real-adapter-mvp-design-kit"
 ) | Where-Object { Test-Path $_ }
 $sharedSource = ((Get-ChildItem -Recurse -File $shared) | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"

@@ -169,7 +169,23 @@ $protectedRoutes = @(
   "/adapter-implementation-packaging-review",
   "/adapter-implementation-operator-trial-review",
   "/first-adapter-implementation-evidence-review",
-  "/first-useful-controlled-adapter-mvp-candidate"
+  "/first-useful-controlled-adapter-mvp-candidate",
+  "/actual-file-write-adapter-boundary",
+  "/actual-command-runner-adapter-boundary",
+  "/actual-local-runtime-adapter-boundary",
+  "/actual-evidence-store-boundary",
+  "/actual-result-store-boundary",
+  "/actual-recovery-boundary",
+  "/actual-packaging-boundary",
+  "/actual-project-scaffold-boundary",
+  "/adapter-execution-approval-packet",
+  "/adapter-execution-dry-run-packet",
+  "/adapter-execution-audit-packet",
+  "/adapter-execution-failure-packet",
+  "/adapter-execution-sandbox-packet",
+  "/adapter-execution-validation-packet",
+  "/adapter-execution-operator-runbook",
+  "/first-adapter-execution-beta-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
@@ -213,8 +229,9 @@ $adapterPreviewShared = "src\lib\codexforge\adapter-backed-execution-preview-kit
 $boundedImplementationShared = "src\lib\codexforge\bounded-adapter-implementation-plan-kit"
 $boundedImplementationSliceShared = "src\lib\codexforge\bounded-adapter-implementation-slice-kit"
 $adapterImplementationReviewShared = "src\lib\codexforge\adapter-implementation-review-kit"
+$adapterExecutionBetaBoundaryShared = "src\lib\codexforge\adapter-execution-beta-boundary-kit"
 $firstRealAdapterMvpDesignShared = "src\lib\codexforge\first-real-adapter-mvp-design-kit"
-foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $firstRealAdapterMvpDesignShared)) {
+foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $adapterExecutionBetaBoundaryShared, $firstRealAdapterMvpDesignShared)) {
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
 $source = $sourceParts -join "`n"
