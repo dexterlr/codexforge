@@ -281,7 +281,23 @@ $protectedRoutes = @(
   "/model-usage-budget-preview",
   "/model-context-sync-packet",
   "/model-output-evidence-packet",
-  "/controlled-model-use-candidate"
+  "/controlled-model-use-candidate",
+  "/model-provider-connection-boundary-preview",
+  "/openai-compatible-connection-test-preview",
+  "/local-model-connection-test-preview",
+  "/free-model-connection-test-preview",
+  "/paid-model-connection-test-preview",
+  "/pro-model-connection-test-preview",
+  "/specialist-model-connection-test-preview",
+  "/model-health-probe-preview",
+  "/model-latency-score-preview",
+  "/model-quality-score-preview",
+  "/model-cost-efficiency-score-preview",
+  "/model-privacy-risk-score-preview",
+  "/model-tool-support-score-preview",
+  "/model-selection-dry-run-result-preview",
+  "/first-controlled-model-use-trial-packet",
+  "/controlled-model-router-readiness-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
@@ -474,7 +490,7 @@ foreach ($name in $blockedPatterns.Keys) {
   $haystack = if ($name -eq "no deterministic API misuse") {
     $deterministicSource
   } elseif ($name -eq "no credentials tokens endpoints storage or env exposure") {
-    $source.Replace("model-task-classification-matrix", "model task classification matrix")
+    $source.Replace("model-task-classification-matrix", "model task classification matrix").Replace("model-privacy-risk-score-preview", "model privacy risk score preview")
   } else {
     $source
   }

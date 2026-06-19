@@ -184,7 +184,7 @@ foreach ($name in $blockedPatterns.Keys) {
   $haystack = if ($name -eq "no deterministic API misuse") {
     $deterministicSource
   } elseif ($name -eq "no credentials tokens endpoints browser storage or env exposure") {
-    $source.Replace("model-task-classification-matrix", "model task classification matrix")
+    $source.Replace("model-task-classification-matrix", "model task classification matrix").Replace("model-privacy-risk-score-preview", "model privacy risk score preview")
   } else {
     $source
   }
