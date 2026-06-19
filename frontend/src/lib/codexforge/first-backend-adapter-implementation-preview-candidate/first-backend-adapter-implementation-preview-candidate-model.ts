@@ -1,0 +1,37 @@
+import type { UniversalExecutionReviewPacket } from "../universal-execution-review-kit";
+import {
+  FIRST_BACKEND_ADAPTER_IMPLEMENTATION_PREVIEW_CANDIDATE_LANGUAGE,
+  buildBackendAdapterImplementationPreview,
+  buildBackendAdapterImplementationPreviewBoundary,
+  buildBackendAdapterImplementationPreviewModelForSlug,
+  buildBackendAdapterImplementationPreviewPackets,
+  buildBackendAdapterImplementationPreviewStableKey as buildFirstBackendAdapterImplementationPreviewCandidateStableKey,
+  summarizeBackendAdapterImplementationPreviewForSlug,
+  type BackendAdapterImplementationPreviewPacketInput,
+} from "../backend-adapter-implementation-preview-kit";
+
+export { FIRST_BACKEND_ADAPTER_IMPLEMENTATION_PREVIEW_CANDIDATE_LANGUAGE, buildFirstBackendAdapterImplementationPreviewCandidateStableKey };
+
+const FIRST_BACKEND_ADAPTER_IMPLEMENTATION_PREVIEW_CANDIDATE_SLUG = "first-backend-adapter-implementation-preview-candidate";
+
+export function buildFirstBackendAdapterImplementationPreviewCandidate(input: BackendAdapterImplementationPreviewPacketInput): UniversalExecutionReviewPacket {
+  return buildBackendAdapterImplementationPreview(FIRST_BACKEND_ADAPTER_IMPLEMENTATION_PREVIEW_CANDIDATE_SLUG, input);
+}
+
+export function buildFirstBackendAdapterImplementationPreviewCandidateItems(): UniversalExecutionReviewPacket[] {
+  return buildBackendAdapterImplementationPreviewPackets(FIRST_BACKEND_ADAPTER_IMPLEMENTATION_PREVIEW_CANDIDATE_SLUG);
+}
+
+export function buildFirstBackendAdapterImplementationPreviewCandidateBoundary() {
+  return buildBackendAdapterImplementationPreviewBoundary();
+}
+
+export function summarizeFirstBackendAdapterImplementationPreviewCandidate(model: { firstBackendAdapterImplementationPreviewCandidateItems: readonly UniversalExecutionReviewPacket[] }): string {
+  return summarizeBackendAdapterImplementationPreviewForSlug(FIRST_BACKEND_ADAPTER_IMPLEMENTATION_PREVIEW_CANDIDATE_SLUG, model.firstBackendAdapterImplementationPreviewCandidateItems);
+}
+
+export function buildFirstBackendAdapterImplementationPreviewCandidateModel() {
+  const firstBackendAdapterImplementationPreviewCandidateItems = buildFirstBackendAdapterImplementationPreviewCandidateItems();
+  const model = buildBackendAdapterImplementationPreviewModelForSlug(FIRST_BACKEND_ADAPTER_IMPLEMENTATION_PREVIEW_CANDIDATE_SLUG, firstBackendAdapterImplementationPreviewCandidateItems);
+  return { ...model, firstBackendAdapterImplementationPreviewCandidateItems };
+}
