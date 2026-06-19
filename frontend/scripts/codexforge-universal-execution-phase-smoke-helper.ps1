@@ -297,7 +297,23 @@ $protectedRoutes = @(
   "/model-tool-support-score-preview",
   "/model-selection-dry-run-result-preview",
   "/first-controlled-model-use-trial-packet",
-  "/controlled-model-router-readiness-candidate"
+  "/controlled-model-router-readiness-candidate",
+  "/controlled-model-use-dry-run-inventory",
+  "/openai-compatible-model-use-dry-run",
+  "/local-model-use-dry-run",
+  "/free-model-use-dry-run",
+  "/paid-model-use-dry-run",
+  "/pro-model-use-dry-run",
+  "/specialist-video-model-use-dry-run",
+  "/specialist-image-model-use-dry-run",
+  "/specialist-coding-model-use-dry-run",
+  "/specialist-research-model-use-dry-run",
+  "/specialist-trading-model-use-dry-run",
+  "/shared-context-packet-validation",
+  "/shared-memory-handoff-validation",
+  "/model-router-decision-explanation-review",
+  "/first-controlled-model-router-trial-review",
+  "/controlled-model-use-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
