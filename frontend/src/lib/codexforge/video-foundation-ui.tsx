@@ -9,6 +9,18 @@ export type CodexForgePreviewLink = {
   primary?: boolean;
 };
 
+export function buildPreviewFoundationStableKey(...parts: Array<string | number | null | undefined>): string {
+  return parts
+    .map((part) =>
+      String(part ?? "empty")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9._-]+/g, "-")
+    )
+    .filter(Boolean)
+    .join(":");
+}
+
 export function PreviewFoundationHero({
   phase,
   title,
@@ -31,8 +43,8 @@ export function PreviewFoundationHero({
       </div>
       <div style={previewStyles.linkRow}>
         <PreviewFoundationLink link={{ ...primary, primary: true }} />
-        {links.map((link) => (
-          <PreviewFoundationLink key={link.href} link={link} />
+        {links.map((link, index) => (
+          <PreviewFoundationLink key={buildPreviewFoundationStableKey("hero-link", index, link.href, link.label)} link={link} />
         ))}
       </div>
     </section>
@@ -74,8 +86,8 @@ export function PreviewFoundationCard({
 export function PreviewFoundationSafetyStrip({ items }: { items: string[] }) {
   return (
     <section style={previewStyles.safetyStrip}>
-      {items.map((item) => (
-        <span key={item} style={previewStyles.safetyPill}>
+      {items.map((item, index) => (
+        <span key={buildPreviewFoundationStableKey("safety", index, item)} style={previewStyles.safetyPill}>
           {item}
         </span>
       ))}
@@ -101,8 +113,8 @@ export function PreviewFoundationEmptyState({
 export function PreviewFoundationPillList({ items }: { items: string[] }) {
   return (
     <div style={previewStyles.pillList}>
-      {items.map((item) => (
-        <span key={item} style={previewStyles.pill}>
+      {items.map((item, index) => (
+        <span key={buildPreviewFoundationStableKey("pill", index, item)} style={previewStyles.pill}>
           {item}
         </span>
       ))}

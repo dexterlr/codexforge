@@ -398,6 +398,9 @@ $firstRealAdapterMvpDesignShared = "src\lib\codexforge\first-real-adapter-mvp-de
 foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $adapterExecutionBetaBoundaryShared, $backendAdapterContractShared, $backendAdapterImplementationPreviewShared, $backendDryRunModelRouterPreviewShared, $modelRouterProviderReadinessReviewShared, $firstRealAdapterMvpDesignShared)) {
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
+foreach ($sharedFile in @("src\lib\codexforge\video-foundation-ui.tsx")) {
+  if (Test-Path $sharedFile) { $sourceParts += Get-Content -Raw $sharedFile }
+}
 $source = $sourceParts -join "`n"
 $allSmoke = Get-Content -Raw "scripts\smoke-codexforge-all.ps1"
 $packageSource = Get-Content -Raw "package.json"
@@ -530,8 +533,8 @@ $blockedPatterns = @{
   "no arbitrary project file browsing or memory Brain mutation" = "arbitraryProjectScanningAllowed:\s*true|arbitraryLocalFileBrowsingAllowed:\s*true|arbitraryPathCrawlingAllowed:\s*true|arbitraryFileReadOpenAllowed:\s*true|autoOpenLocalFilesAllowed:\s*true|memoryMutationAllowedFromUi:\s*true|memoryIngestionAllowedFromUi:\s*true|memoryAutoPromotionAllowed:\s*true|brainGraphMutationAllowed:\s*true|appendEventAllowedFromUi:\s*true|saveBrainGraphAllowedFromUi:\s*true|readFile\s*\(|openFile\s*\(|crawlPath\s*\(|ingestMemory\s*\(|ingestRag\s*\(|promoteMemory\s*\(|appendEvent\s*\(|saveBrainGraph\s*\("
   "no plugin tool agent extension MCP runtime execution" = "pluginExecutionAllowedFromUi:\s*true|toolExecutionAllowedFromUi:\s*true|agentExecutionAllowedFromUi:\s*true|extensionRuntimeExecutorCreated:\s*true|mcpRuntimeCreated:\s*true|mcpToolCallsAllowedFromUi:\s*true|executePlugin\s*\(|executeTool\s*\(|executeAgent\s*\(|createExtensionRuntimeExecutor\s*\(|createMcpServer\s*\(|createMcpClient\s*\(|callMcpTool\s*\("
   "no credentials tokens endpoints storage or env exposure" = "localStorageApiKeyStorageAllowed:\s*true|sessionStorageApiKeyStorageAllowed:\s*true|tokenStorageAllowed:\s*true|endpointStorageAllowed:\s*true|credentialStorageAllowed:\s*true|outputStorageAllowed:\s*true|localStorage\.setItem|sessionStorage\.setItem|accessToken\s*[:=]|refreshToken\s*[:=]|processEnvDisplayAllowed:\s*true|process\.env\.[A-Za-z0-9_]+|console\.(log|warn|error)\s*\([^\r\n]*process\.env|secretsDisplayedAllowed:\s*true|sk-[A-Za-z0-9_-]{16,}|AIza[0-9A-Za-z_-]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|gh[pousr]_[A-Za-z0-9_]{20,}"
-  "no package install vendoring duplicate React key patterns" = "packageInstallAllowedFromUi:\s*true|thirdPartyCodeVendoredOrCopied:\s*true|npm\s+install|pnpm\s+add|yarn\s+add|bun\s+add|vendor[/\\](ruflo|odysseus)|key=\{label\}|key=\{summary\}|key=\{item\}"
-  "no deterministic API misuse" = "Math\.random\s*\(|Date\.now\s*\("
+  "no package install vendoring duplicate React key patterns" = "packageInstallAllowedFromUi:\s*true|thirdPartyCodeVendoredOrCopied:\s*true|npm\s+install|pnpm\s+add|yarn\s+add|bun\s+add|vendor[/\\](ruflo|odysseus)|key=\{label\}|key=\{summary\}|key=\{item\}|key=\{constraint\}|key=\{badge\}|key=\{title\}|key=\{entry\}|key=\{step\}|key=\{phase\}|key=\{route\}"
+  "no deterministic API misuse" = "Math\.random\s*\(|Date\.now\s*\(|crypto\.randomUUID\s*\("
   "no mojibake" = "$([char]0x00C3)|$([char]0x00C2)|$([char]0xFFFD)"
 }
 
