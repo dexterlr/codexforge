@@ -50,3 +50,5 @@ git status --short
 - Adapter execution behind local bridge and explicit policies.
 - Project onboarding/import.
 - Better graph data volume and clustering.
+
+CodexForge checkpoint documentation now records through phase 1017.

@@ -1,0 +1,37 @@
+import type { UniversalExecutionReviewPacket } from "../universal-execution-review-kit";
+import {
+  CONTROLLED_UNIVERSAL_BUILDER_COCKPIT_RELEASE_CANDIDATE_LANGUAGE,
+  buildUniversalBuilderCockpitReview,
+  buildUniversalBuilderCockpitReviewBoundary,
+  buildUniversalBuilderCockpitReviewModelForSlug,
+  buildUniversalBuilderCockpitReviewPackets,
+  buildUniversalBuilderCockpitReviewStableKey as buildControlledUniversalBuilderCockpitReleaseCandidateStableKey,
+  summarizeUniversalBuilderCockpitReviewForSlug,
+  type UniversalBuilderCockpitReviewPacketInput,
+} from "../universal-builder-cockpit-preview-kit";
+
+export { CONTROLLED_UNIVERSAL_BUILDER_COCKPIT_RELEASE_CANDIDATE_LANGUAGE, buildControlledUniversalBuilderCockpitReleaseCandidateStableKey };
+
+const CONTROLLED_UNIVERSAL_BUILDER_COCKPIT_RELEASE_CANDIDATE_SLUG = "controlled-universal-builder-cockpit-release-candidate";
+
+export function buildControlledUniversalBuilderCockpitReleaseCandidate(input: UniversalBuilderCockpitReviewPacketInput): UniversalExecutionReviewPacket {
+  return buildUniversalBuilderCockpitReview(CONTROLLED_UNIVERSAL_BUILDER_COCKPIT_RELEASE_CANDIDATE_SLUG, input);
+}
+
+export function buildControlledUniversalBuilderCockpitReleaseCandidateItems(): UniversalExecutionReviewPacket[] {
+  return buildUniversalBuilderCockpitReviewPackets(CONTROLLED_UNIVERSAL_BUILDER_COCKPIT_RELEASE_CANDIDATE_SLUG);
+}
+
+export function buildControlledUniversalBuilderCockpitReleaseCandidateBoundary() {
+  return buildUniversalBuilderCockpitReviewBoundary();
+}
+
+export function summarizeControlledUniversalBuilderCockpitReleaseCandidate(model: { controlledUniversalBuilderCockpitReleaseCandidateItems: readonly UniversalExecutionReviewPacket[] }): string {
+  return summarizeUniversalBuilderCockpitReviewForSlug(CONTROLLED_UNIVERSAL_BUILDER_COCKPIT_RELEASE_CANDIDATE_SLUG, model.controlledUniversalBuilderCockpitReleaseCandidateItems);
+}
+
+export function buildControlledUniversalBuilderCockpitReleaseCandidateModel() {
+  const controlledUniversalBuilderCockpitReleaseCandidateItems = buildControlledUniversalBuilderCockpitReleaseCandidateItems();
+  const controlledUniversalBuilderCockpitReleaseCandidateModel = buildUniversalBuilderCockpitReviewModelForSlug(CONTROLLED_UNIVERSAL_BUILDER_COCKPIT_RELEASE_CANDIDATE_SLUG, controlledUniversalBuilderCockpitReleaseCandidateItems);
+  return { ...controlledUniversalBuilderCockpitReleaseCandidateModel, controlledUniversalBuilderCockpitReleaseCandidateItems };
+}
