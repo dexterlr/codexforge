@@ -425,7 +425,23 @@ $protectedRoutes = @(
   "/builder-operator-decision-packet",
   "/first-guided-build-anything-candidate",
   "/universal-builder-cockpit-trial-packet",
-  "/controlled-universal-builder-cockpit-release-candidate"
+  "/controlled-universal-builder-cockpit-release-candidate",
+  "/guided-build-workflow-boundary",
+  "/guided-build-goal-review",
+  "/guided-build-target-selection",
+  "/guided-build-requirement-checklist",
+  "/guided-build-architecture-sketch",
+  "/guided-build-file-blueprint",
+  "/guided-build-command-blueprint",
+  "/guided-build-runtime-blueprint",
+  "/guided-build-adapter-blueprint",
+  "/guided-build-validation-blueprint",
+  "/guided-build-risk-review",
+  "/guided-build-approval-queue",
+  "/guided-build-evidence-plan",
+  "/guided-build-result-plan",
+  "/first-practical-guided-build-candidate",
+  "/controlled-guided-build-workflow-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
@@ -479,7 +495,8 @@ $projectBuilderMvpPreviewShared = "src\lib\codexforge\project-builder-mvp-previe
 $universalGameBuilderPreviewShared = "src\lib\codexforge\universal-game-builder-preview-kit"
 $universalProjectBuilderPreviewShared = "src\lib\codexforge\universal-project-builder-preview-kit"
 $universalBuilderCockpitPreviewShared = "src\lib\codexforge\universal-builder-cockpit-preview-kit"
-foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $adapterExecutionBetaBoundaryShared, $backendAdapterContractShared, $backendAdapterImplementationPreviewShared, $backendDryRunModelRouterPreviewShared, $modelRouterProviderReadinessReviewShared, $firstRealAdapterMvpDesignShared, $projectBuilderMvpPreviewShared, $universalGameBuilderPreviewShared, $universalProjectBuilderPreviewShared, $universalBuilderCockpitPreviewShared)) {
+$guidedBuildWorkflowPreviewShared = "src\lib\codexforge\guided-build-workflow-preview-kit"
+foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $adapterExecutionBetaBoundaryShared, $backendAdapterContractShared, $backendAdapterImplementationPreviewShared, $backendDryRunModelRouterPreviewShared, $modelRouterProviderReadinessReviewShared, $firstRealAdapterMvpDesignShared, $projectBuilderMvpPreviewShared, $universalGameBuilderPreviewShared, $universalProjectBuilderPreviewShared, $universalBuilderCockpitPreviewShared, $guidedBuildWorkflowPreviewShared)) {
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
 foreach ($sharedFile in @("src\lib\codexforge\video-foundation-ui.tsx")) {
