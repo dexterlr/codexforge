@@ -1,0 +1,37 @@
+import type { UniversalExecutionReviewPacket } from "../universal-execution-review-kit";
+import {
+  CONTROLLED_MODEL_ROUTER_BETA_RELEASE_CANDIDATE_LANGUAGE,
+  buildModelRouterProviderReadinessReview,
+  buildModelRouterProviderReadinessReviewBoundary,
+  buildModelRouterProviderReadinessReviewModelForSlug,
+  buildModelRouterProviderReadinessReviewPackets,
+  buildModelRouterProviderReadinessReviewStableKey as buildControlledModelRouterBetaReleaseCandidateStableKey,
+  summarizeModelRouterProviderReadinessReviewForSlug,
+  type ModelRouterProviderReadinessReviewPacketInput,
+} from "../model-router-provider-readiness-review-kit";
+
+export { CONTROLLED_MODEL_ROUTER_BETA_RELEASE_CANDIDATE_LANGUAGE, buildControlledModelRouterBetaReleaseCandidateStableKey };
+
+const CONTROLLED_MODEL_ROUTER_BETA_RELEASE_CANDIDATE_SLUG = "controlled-model-router-beta-release-candidate";
+
+export function buildControlledModelRouterBetaReleaseCandidate(input: ModelRouterProviderReadinessReviewPacketInput): UniversalExecutionReviewPacket {
+  return buildModelRouterProviderReadinessReview(CONTROLLED_MODEL_ROUTER_BETA_RELEASE_CANDIDATE_SLUG, input);
+}
+
+export function buildControlledModelRouterBetaReleaseCandidateItems(): UniversalExecutionReviewPacket[] {
+  return buildModelRouterProviderReadinessReviewPackets(CONTROLLED_MODEL_ROUTER_BETA_RELEASE_CANDIDATE_SLUG);
+}
+
+export function buildControlledModelRouterBetaReleaseCandidateBoundary() {
+  return buildModelRouterProviderReadinessReviewBoundary();
+}
+
+export function summarizeControlledModelRouterBetaReleaseCandidate(model: { controlledModelRouterBetaReleaseCandidateItems: readonly UniversalExecutionReviewPacket[] }): string {
+  return summarizeModelRouterProviderReadinessReviewForSlug(CONTROLLED_MODEL_ROUTER_BETA_RELEASE_CANDIDATE_SLUG, model.controlledModelRouterBetaReleaseCandidateItems);
+}
+
+export function buildControlledModelRouterBetaReleaseCandidateModel() {
+  const controlledModelRouterBetaReleaseCandidateItems = buildControlledModelRouterBetaReleaseCandidateItems();
+  const controlledModelRouterBetaReleaseCandidateModel = buildModelRouterProviderReadinessReviewModelForSlug(CONTROLLED_MODEL_ROUTER_BETA_RELEASE_CANDIDATE_SLUG, controlledModelRouterBetaReleaseCandidateItems);
+  return { ...controlledModelRouterBetaReleaseCandidateModel, controlledModelRouterBetaReleaseCandidateItems };
+}

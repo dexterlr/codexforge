@@ -14,7 +14,7 @@
 
 ## Current CodexForge Surface Area
 
-- Checkpoint through detected phase 921 in `scripts/smoke-codexforge-all.ps1`.
+- Checkpoint through detected phase 937 in `scripts/smoke-codexforge-all.ps1`.
 - Brain runtime, memory review, runtime journal/replay, snapshots, continuity, mutation governance, memory inbox, and promotion gates.
 - Files, evidence, project intelligence, codebase change planning, patch preview, patch apply approval review, patch result capture, test planning, test result summary, and test failure triage review.
 - Provider governance, provider live call guard review, first provider live call trial review, provider response capture review, and provider live trial release candidate.
@@ -27,7 +27,7 @@
 - Beta 2 release candidate, controlled operator trial review, operator feedback review, and hardening pass.
 - Unified operator cohesion and final policy polish for cross-lane cohesion, approval policy, evidence policy, result policy, recovery policy, settings/preferences, cockpit readiness, and command palette discoverability.
 - Creative and artifact review surfaces remain preview/review oriented unless an approved boundary is explicitly documented.
-- Model router/provider execution-readiness candidate surfaces cover provider readiness, provider test packets, local model bridge dry-run, provider trial packets, model router trial cockpit, ranking/budget/privacy/shared-context/evidence reviews, first controlled provider trial candidate, and Model Router Execution Readiness Candidate while remaining preview-only, dry-run, and approval-gated. Models are workers; CodexForge is the brain with shared memory, knowledge, evidence, result, audit, and approval.
+- Model router/provider beta release-candidate surfaces cover provider readiness, provider test packets, local model bridge dry-run, provider trial packets, model router trial cockpit, ranking/budget/privacy/shared-context/evidence reviews, first controlled provider trial candidate, Model Router Execution Readiness Candidate, approved provider health check boundary, provider health check request/result packets, local model bridge readiness/context/evidence packets, router trial results, trial summary, regression guard, operator review, first model router beta candidate, and Controlled Model Router Beta Release Candidate while remaining preview-only, dry-run, and approval-gated. The latest model-router beta phase is 937. Models are workers; CodexForge is the brain with shared memory, knowledge, evidence, result, audit, and approval.
 
 ## Goals
 

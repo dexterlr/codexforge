@@ -57,7 +57,7 @@ $phases = [regex]::Matches($allSmoke, 'Phase\s+(\d+)') |
 $phases | Sort-Object -Descending | Select-Object -First 1
 ```
 
-Update checkpoint docs to the actual highest detected phase. If phases 835-921 are present and no higher phase exists, document the checkpoint as through phase 921 and describe the model router execution-readiness candidate layer: model router selection, capability registry, cost/quality/privacy/locality/fallback policy, model selection approval, backend dry-run model router candidate, shared Brain context/memory/knowledge access, task classification, efficiency scoring, routing policies, continuity handoff, cross-model comparison, failure recovery, spend guardrail, audit trail, provider registry and provider previews, credential boundary, usage budget, context sync, output evidence, controlled model-use, provider connection boundary, connection-test previews, health and scoring previews, dry-run result, first controlled model-use trial packet, controlled model router readiness candidate, controlled model-use dry-run inventory, OpenAI-compatible/local/free/paid/pro/specialist model dry-run previews, shared context packet validation, shared memory handoff validation, model router decision explanation review, first controlled model router trial review, controlled model-use release candidate, live provider readiness boundary, provider test packets, local model bridge dry-run, provider trial packets, trial cockpit, candidate ranking, budget/privacy/shared-context/evidence reviews, first controlled provider trial candidate, and Model Router Execution Readiness Candidate. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make model calls, provider calls, credential reads, secret reads, network calls, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer.
+Update checkpoint docs to the actual highest detected phase. If phases 835-937 are present and no higher phase exists, document the checkpoint as through phase 937 and describe the controlled model router beta release-candidate layer: model router selection, capability registry, cost/quality/privacy/locality/fallback policy, model selection approval, backend dry-run model router candidate, shared Brain context/memory/knowledge access, task classification, efficiency scoring, routing policies, continuity handoff, cross-model comparison, failure recovery, spend guardrail, audit trail, provider registry and provider previews, credential boundary, usage budget, context sync, output evidence, controlled model-use, provider connection boundary, connection-test previews, health and scoring previews, dry-run result, first controlled model-use trial packet, controlled model router readiness candidate, controlled model-use dry-run inventory, OpenAI-compatible/local/free/paid/pro/specialist model dry-run previews, shared context packet validation, shared memory handoff validation, model router decision explanation review, first controlled model router trial review, controlled model-use release candidate, live provider readiness boundary, provider test packets, local model bridge dry-run, provider trial packets, trial cockpit, candidate ranking, budget/privacy/shared-context/evidence reviews, first controlled provider trial candidate, Model Router Execution Readiness Candidate, approved provider health check boundary, provider health check request/result packets, local model bridge readiness/context/evidence packets, router trial result packets, trial summary, regression guard, operator review, first model router beta candidate, and Controlled Model Router Beta Release Candidate. The latest model-router beta phase is 937. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer.
 
 The current phase ledger is:
 
@@ -93,6 +93,22 @@ The current phase ledger is:
 - Phase 919 - Model Router Evidence Capture Review.
 - Phase 920 - First Controlled Provider Trial Candidate.
 - Phase 921 - Model Router Execution Readiness Candidate.
+- Phase 922 - Approved Provider Health Check Boundary.
+- Phase 923 - Provider Health Check Request Packet.
+- Phase 924 - Provider Health Check Result Packet.
+- Phase 925 - Local Model Bridge Readiness Review.
+- Phase 926 - Local Model Bridge Context Packet.
+- Phase 927 - Local Model Bridge Evidence Packet.
+- Phase 928 - OpenAI-Compatible Router Trial Result.
+- Phase 929 - Free Model Router Trial Result.
+- Phase 930 - Paid Model Router Trial Result.
+- Phase 931 - Pro Model Router Trial Result.
+- Phase 932 - Specialist Model Router Trial Result.
+- Phase 933 - Model Router Trial Summary.
+- Phase 934 - Model Router Trial Regression Guard.
+- Phase 935 - Model Router Trial Operator Review.
+- Phase 936 - First Model Router Beta Candidate.
+- Phase 937 - Controlled Model Router Beta Release Candidate.
 
 ## Commit And Tag Checkpoint Docs
 

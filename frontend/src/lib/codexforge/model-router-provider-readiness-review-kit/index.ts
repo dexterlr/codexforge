@@ -31,7 +31,23 @@ export type ModelRouterProviderReadinessReviewSlug =
   | "model-router-shared-context-review"
   | "model-router-evidence-capture-review"
   | "first-controlled-provider-trial-candidate"
-  | "model-router-execution-readiness-candidate";
+  | "model-router-execution-readiness-candidate"
+  | "approved-provider-health-check-boundary"
+  | "provider-health-check-request-packet"
+  | "provider-health-check-result-packet"
+  | "local-model-bridge-readiness-review"
+  | "local-model-bridge-context-packet"
+  | "local-model-bridge-evidence-packet"
+  | "openai-compatible-router-trial-result"
+  | "free-model-router-trial-result"
+  | "paid-model-router-trial-result"
+  | "pro-model-router-trial-result"
+  | "specialist-model-router-trial-result"
+  | "model-router-trial-summary"
+  | "model-router-trial-regression-guard"
+  | "model-router-trial-operator-review"
+  | "first-model-router-beta-candidate"
+  | "controlled-model-router-beta-release-candidate";
 
 type ModelRouterProviderReadinessReviewSectionInput = {
   label: string;
@@ -295,6 +311,198 @@ export const MODEL_ROUTER_EXECUTION_READINESS_CANDIDATE_LANGUAGE = [
   "approval required",
 ] as const;
 
+export const APPROVED_PROVIDER_HEALTH_CHECK_BOUNDARY_LANGUAGE = [
+  "Approved provider health check boundary",
+  "Approved provider health check boundary does not call providers",
+  "Provider health checks require explicit operator approval",
+  "All provider health checks preserve shared CodexForge brain state",
+  "Denied provider health check paths remain blocked",
+  "Provider health check boundary checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const PROVIDER_HEALTH_CHECK_REQUEST_PACKET_LANGUAGE = [
+  "Provider health check request packet",
+  "Provider health check request packet does not send requests",
+  "Health check requests require explicit operator approval",
+  "Request packets include credential boundary state",
+  "Denied health check request paths remain blocked",
+  "Provider health request checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const PROVIDER_HEALTH_CHECK_RESULT_PACKET_LANGUAGE = [
+  "Provider health check result packet",
+  "Provider health check result packet does not persist live results",
+  "Health check result capture requires explicit operator approval",
+  "Result packets return through shared evidence review",
+  "Denied health check result paths remain blocked",
+  "Provider health result checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const LOCAL_MODEL_BRIDGE_READINESS_REVIEW_LANGUAGE = [
+  "Local model bridge readiness review",
+  "Local model bridge readiness review does not probe runtimes",
+  "Local model bridge readiness requires explicit operator approval",
+  "Local bridge uses shared CodexForge memory and knowledge",
+  "Denied local bridge readiness paths remain blocked",
+  "Local bridge readiness checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const LOCAL_MODEL_BRIDGE_CONTEXT_PACKET_LANGUAGE = [
+  "Local model bridge context packet",
+  "Local model bridge context packet does not send prompts",
+  "Local bridge context sync requires explicit operator approval",
+  "Context packets preserve shared CodexForge brain state",
+  "Denied local bridge context paths remain blocked",
+  "Local bridge context checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const LOCAL_MODEL_BRIDGE_EVIDENCE_PACKET_LANGUAGE = [
+  "Local model bridge evidence packet",
+  "Local model bridge evidence packet does not persist outputs",
+  "Local bridge evidence capture requires explicit operator approval",
+  "Evidence packets return through shared result review",
+  "Denied local bridge evidence paths remain blocked",
+  "Local bridge evidence checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const OPENAI_COMPATIBLE_ROUTER_TRIAL_RESULT_LANGUAGE = [
+  "OpenAI-compatible router trial result",
+  "OpenAI-compatible router trial result does not call APIs",
+  "OpenAI-compatible trial results require explicit operator approval",
+  "Trial results use shared CodexForge context",
+  "Denied OpenAI-compatible trial result paths remain blocked",
+  "OpenAI-compatible trial result checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const FREE_MODEL_ROUTER_TRIAL_RESULT_LANGUAGE = [
+  "Free model router trial result",
+  "Free model router trial result does not call free models",
+  "Free model trial results require explicit operator approval",
+  "Free model trial results use shared CodexForge context",
+  "Denied free model trial result paths remain blocked",
+  "Free model trial result checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const PAID_MODEL_ROUTER_TRIAL_RESULT_LANGUAGE = [
+  "Paid model router trial result",
+  "Paid model router trial result does not call paid models",
+  "Paid model trial results require explicit operator approval",
+  "Paid model trial results require spend approval",
+  "Denied paid model trial result paths remain blocked",
+  "Paid model trial result checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const PRO_MODEL_ROUTER_TRIAL_RESULT_LANGUAGE = [
+  "Pro model router trial result",
+  "Pro model router trial result does not call pro models",
+  "Pro model trial results require explicit operator approval",
+  "Pro model trial results require quality justification",
+  "Denied pro model trial result paths remain blocked",
+  "Pro model trial result checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const SPECIALIST_MODEL_ROUTER_TRIAL_RESULT_LANGUAGE = [
+  "Specialist model router trial result",
+  "Specialist model router trial result does not call specialist models",
+  "Specialist model trial results require explicit operator approval",
+  "Specialist trial results require domain-fit justification",
+  "Denied specialist model trial result paths remain blocked",
+  "Specialist model trial result checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const MODEL_ROUTER_TRIAL_SUMMARY_LANGUAGE = [
+  "Model router trial summary",
+  "Model router trial summary does not route live requests",
+  "Model router summaries require explicit operator approval",
+  "Trial summaries explain cost quality speed privacy and task fit",
+  "Denied model router summary paths remain blocked",
+  "Model router trial summary checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const MODEL_ROUTER_TRIAL_REGRESSION_GUARD_LANGUAGE = [
+  "Model router trial regression guard",
+  "Model router trial regression guard does not call models",
+  "Model router regression guards require explicit operator approval",
+  "Regression guards preserve shared brain routing rules",
+  "Denied model router regression paths remain blocked",
+  "Model router regression checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const MODEL_ROUTER_TRIAL_OPERATOR_REVIEW_LANGUAGE = [
+  "Model router trial operator review",
+  "Model router trial operator review does not approve actions",
+  "Operator review requires explicit human approval",
+  "Operator review preserves budget privacy and shared context gates",
+  "Denied operator review paths remain blocked",
+  "Model router operator review checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const FIRST_MODEL_ROUTER_BETA_CANDIDATE_LANGUAGE = [
+  "First model router beta candidate",
+  "First model router beta candidate does not route live model calls",
+  "Model router beta use requires explicit operator approval",
+  "All model workers use one CodexForge brain memory and knowledge layer",
+  "Denied model router beta paths remain blocked",
+  "First model router beta checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
+export const CONTROLLED_MODEL_ROUTER_BETA_RELEASE_CANDIDATE_LANGUAGE = [
+  "Controlled model router beta release candidate",
+  "Controlled model router beta release candidate does not call models",
+  "Controlled model router beta release requires explicit operator approval",
+  "Beta release preserves shared context memory evidence and audit gates",
+  "Denied model router beta release paths remain blocked",
+  "Controlled model router beta release checklist",
+  "review-only",
+  "not executable from UI",
+  "approval required",
+] as const;
+
 function sentenceList(items: readonly string[]): string {
   return items.join(", ");
 }
@@ -323,7 +531,7 @@ function buildDefinition(input: {
   nextRecommendedAction: string;
 }): ModelRouterProviderReadinessReviewDefinition {
   const readinessFields =
-    "Future provider readiness packets include provider class, model class, connection status placeholder, credential boundary status, approval requirement, expected cost tier, expected latency tier, privacy/locality risk, context window capability, tool support capability, model specialization, shared brain context requirement, output evidence destination, audit trail destination, and denied live-call status.";
+    "Future provider readiness packets include provider class, model class, connection status placeholder, credential boundary status, approval requirement, expected cost tier, expected latency tier, privacy/locality risk, context window capability, tool support capability, model specialization, shared brain context requirement, output evidence destination, audit trail destination, and denied live-call status. Future provider health-check packets include provider class, provider alias placeholder, credential boundary state, approval requirement, connection status placeholder, health status placeholder, latency class placeholder, failure reason placeholder, retry policy placeholder, no-live-call state, and audit destination. Future local model bridge readiness packets include local runtime class, local endpoint placeholder, privacy-first routing reason, context handoff packet, evidence return packet, denied runtime probe state, and explicit operator approval. Future model-router trial result packets include selected model class, rejected model classes, ranking explanation, cost rationale, latency rationale, quality rationale, privacy rationale, tool-support rationale, shared context used, shared memory handoff status, output evidence destination, audit trail summary, and denied live-call state.";
   const efficiencyBoundary =
     "Future model-router logic is static preview only: free or cheap models are preferred for low-risk drafts and simple summaries, local models are preferred for private, sensitive, or codebase context, paid or pro models are reserved for high-quality reasoning, final review, hard coding, and complex planning, specialist models are considered for video, image, coding, research, trading, game-server, creative, and automation tasks, the cheapest capable model wins when safe, escalation happens only when capability or quality thresholds require it, and every decision explains cost, quality, speed, privacy, context, and tool support for operator review.";
   const sharedBrainBoundary =
@@ -412,6 +620,46 @@ const routerDecisionFields = [
   "evidence/result destination",
   "audit trail placeholder",
   "operator approval requirement",
+] as const;
+
+const providerHealthCheckFields = [
+  "provider class",
+  "provider alias placeholder",
+  "credential boundary state",
+  "approval requirement",
+  "connection status placeholder",
+  "health status placeholder",
+  "latency class placeholder",
+  "failure reason placeholder",
+  "retry policy placeholder",
+  "no-live-call state",
+  "audit destination",
+] as const;
+
+const localBridgeReadinessFields = [
+  "local runtime class",
+  "local endpoint placeholder",
+  "privacy-first routing reason",
+  "context handoff packet",
+  "evidence return packet",
+  "denied runtime probe state",
+  "explicit operator approval",
+] as const;
+
+const routerTrialResultFields = [
+  "selected model class",
+  "rejected model classes",
+  "ranking explanation",
+  "cost rationale",
+  "latency rationale",
+  "quality rationale",
+  "privacy rationale",
+  "tool-support rationale",
+  "shared context used",
+  "shared memory handoff status",
+  "output evidence destination",
+  "audit trail summary",
+  "denied live-call state",
 ] as const;
 
 export const MODEL_ROUTER_PROVIDER_READINESS_REVIEW_DEFINITIONS: Record<
@@ -785,6 +1033,370 @@ export const MODEL_ROUTER_PROVIDER_READINESS_REVIEW_DEFINITIONS: Record<
       { href: "/controlled-model-use-release-candidate", label: "Phase 905 RC" },
     ],
     nextRecommendedAction: "keep model-router execution blocked until provider readiness, approved context packets, budget/privacy decisions, evidence capture, audit destination, denied paths, and explicit operator approval are reviewed together.",
+  }),
+  "approved-provider-health-check-boundary": buildDefinition({
+    slug: "approved-provider-health-check-boundary",
+    phase: "Phase 922",
+    title: "Approved Provider Health Check Boundary",
+    markerTitle: "Approved provider health check boundary",
+    approvalCopy: "Provider health checks require explicit operator approval.",
+    subtitle: "Review approved provider health-check boundaries without calling providers.",
+    primaryLabel: "Review health boundary",
+    safetyCopy: "Approved provider health check boundary does not call providers",
+    deniedCopy: "Denied provider health check paths remain blocked",
+    groupLabel: "Provider health-check packet boundary",
+    checklistLabel: "Provider health check boundary checklist",
+    language: APPROVED_PROVIDER_HEALTH_CHECK_BOUNDARY_LANGUAGE,
+    fieldItems: providerHealthCheckFields,
+    previewFocus: "approved provider health-check boundaries without provider calls, connection tests, credential reads, prompt transfer, or audit writes",
+    routes: ["/provider-health-check-request-packet", "/model-router-trial-summary"],
+    links: [
+      { href: "/provider-health-check-request-packet", label: "Health Request" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review provider alias placeholders, credential boundary state, no-live-call status, retry policy placeholders, audit destination, and explicit operator approval before any health check can exist.",
+  }),
+  "provider-health-check-request-packet": buildDefinition({
+    slug: "provider-health-check-request-packet",
+    phase: "Phase 923",
+    title: "Provider Health Check Request Packet",
+    markerTitle: "Provider health check request packet",
+    approvalCopy: "Health check requests require explicit operator approval.",
+    subtitle: "Review provider health-check request packets without sending requests.",
+    primaryLabel: "Review health request",
+    safetyCopy: "Provider health check request packet does not send requests",
+    deniedCopy: "Denied health check request paths remain blocked",
+    groupLabel: "Request packets include credential boundary state",
+    checklistLabel: "Provider health request checklist",
+    language: PROVIDER_HEALTH_CHECK_REQUEST_PACKET_LANGUAGE,
+    fieldItems: providerHealthCheckFields,
+    previewFocus: "provider health-check request packets without outbound requests, provider probes, credential reads, or hidden approvals",
+    routes: ["/approved-provider-health-check-boundary", "/provider-health-check-result-packet", "/model-router-trial-summary"],
+    links: [
+      { href: "/approved-provider-health-check-boundary", label: "Health Boundary" },
+      { href: "/provider-health-check-result-packet", label: "Health Result" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review request packet credential boundaries, approval gate, connection placeholder, denied request path, and audit destination before any provider health-check request can be sent.",
+  }),
+  "provider-health-check-result-packet": buildDefinition({
+    slug: "provider-health-check-result-packet",
+    phase: "Phase 924",
+    title: "Provider Health Check Result Packet",
+    markerTitle: "Provider health check result packet",
+    approvalCopy: "Health check result capture requires explicit operator approval.",
+    subtitle: "Review provider health-check result packets without persisting live results.",
+    primaryLabel: "Review health result",
+    safetyCopy: "Provider health check result packet does not persist live results",
+    deniedCopy: "Denied health check result paths remain blocked",
+    groupLabel: "Result packets return through shared evidence review",
+    checklistLabel: "Provider health result checklist",
+    language: PROVIDER_HEALTH_CHECK_RESULT_PACKET_LANGUAGE,
+    fieldItems: providerHealthCheckFields,
+    previewFocus: "provider health-check result packets without live result persistence, provider calls, audit writes, or automatic memory promotion",
+    routes: ["/provider-health-check-request-packet", "/local-model-bridge-readiness-review", "/model-router-trial-summary"],
+    links: [
+      { href: "/provider-health-check-request-packet", label: "Health Request" },
+      { href: "/local-model-bridge-readiness-review", label: "Bridge Readiness" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review result packet placeholders, shared evidence return, failure reason placeholder, denied persistence path, and operator approval before health results can be captured.",
+  }),
+  "local-model-bridge-readiness-review": buildDefinition({
+    slug: "local-model-bridge-readiness-review",
+    phase: "Phase 925",
+    title: "Local Model Bridge Readiness Review",
+    markerTitle: "Local model bridge readiness review",
+    approvalCopy: "Local model bridge readiness requires explicit operator approval.",
+    subtitle: "Review local model bridge readiness without probing runtimes.",
+    primaryLabel: "Review bridge readiness",
+    safetyCopy: "Local model bridge readiness review does not probe runtimes",
+    deniedCopy: "Denied local bridge readiness paths remain blocked",
+    groupLabel: "Local bridge uses shared CodexForge memory and knowledge",
+    checklistLabel: "Local bridge readiness checklist",
+    language: LOCAL_MODEL_BRIDGE_READINESS_REVIEW_LANGUAGE,
+    fieldItems: localBridgeReadinessFields,
+    previewFocus: "local bridge readiness without runtime probes, local endpoint calls, process checks, local model calls, or output persistence",
+    routes: ["/provider-health-check-result-packet", "/local-model-bridge-context-packet", "/model-router-trial-summary"],
+    links: [
+      { href: "/provider-health-check-result-packet", label: "Health Result" },
+      { href: "/local-model-bridge-context-packet", label: "Bridge Context" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review local runtime class placeholders, denied runtime probe state, privacy-first routing reason, context handoff, evidence return, and explicit operator approval before any bridge readiness probe can exist.",
+  }),
+  "local-model-bridge-context-packet": buildDefinition({
+    slug: "local-model-bridge-context-packet",
+    phase: "Phase 926",
+    title: "Local Model Bridge Context Packet",
+    markerTitle: "Local model bridge context packet",
+    approvalCopy: "Local bridge context sync requires explicit operator approval.",
+    subtitle: "Review local bridge context packets without sending prompts.",
+    primaryLabel: "Review bridge context",
+    safetyCopy: "Local model bridge context packet does not send prompts",
+    deniedCopy: "Denied local bridge context paths remain blocked",
+    groupLabel: "Context packets preserve shared CodexForge brain state",
+    checklistLabel: "Local bridge context checklist",
+    language: LOCAL_MODEL_BRIDGE_CONTEXT_PACKET_LANGUAGE,
+    fieldItems: localBridgeReadinessFields,
+    previewFocus: "local bridge context packet sync without prompt sending, runtime probes, local endpoint calls, isolated memory, or memory promotion",
+    routes: ["/local-model-bridge-readiness-review", "/local-model-bridge-evidence-packet", "/model-router-trial-summary"],
+    links: [
+      { href: "/local-model-bridge-readiness-review", label: "Bridge Readiness" },
+      { href: "/local-model-bridge-evidence-packet", label: "Bridge Evidence" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review approved context handoff packet fields, privacy-first routing, denied prompt sending, shared brain preservation, evidence return, and operator approval before local context sync can occur.",
+  }),
+  "local-model-bridge-evidence-packet": buildDefinition({
+    slug: "local-model-bridge-evidence-packet",
+    phase: "Phase 927",
+    title: "Local Model Bridge Evidence Packet",
+    markerTitle: "Local model bridge evidence packet",
+    approvalCopy: "Local bridge evidence capture requires explicit operator approval.",
+    subtitle: "Review local bridge evidence packets without persisting outputs.",
+    primaryLabel: "Review bridge evidence",
+    safetyCopy: "Local model bridge evidence packet does not persist outputs",
+    deniedCopy: "Denied local bridge evidence paths remain blocked",
+    groupLabel: "Evidence packets return through shared result review",
+    checklistLabel: "Local bridge evidence checklist",
+    language: LOCAL_MODEL_BRIDGE_EVIDENCE_PACKET_LANGUAGE,
+    fieldItems: localBridgeReadinessFields,
+    previewFocus: "local bridge evidence packets without output persistence, result storage, runtime probes, local endpoint calls, or memory promotion",
+    routes: ["/local-model-bridge-context-packet", "/openai-compatible-router-trial-result", "/model-router-trial-summary"],
+    links: [
+      { href: "/local-model-bridge-context-packet", label: "Bridge Context" },
+      { href: "/openai-compatible-router-trial-result", label: "OpenAI-Compatible Result" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review evidence return packet placeholders, shared result review, denied output persistence, audit destination, and explicit operator approval before local evidence capture can exist.",
+  }),
+  "openai-compatible-router-trial-result": buildDefinition({
+    slug: "openai-compatible-router-trial-result",
+    phase: "Phase 928",
+    title: "OpenAI-Compatible Router Trial Result",
+    markerTitle: "OpenAI-compatible router trial result",
+    approvalCopy: "OpenAI-compatible trial results require explicit operator approval.",
+    subtitle: "Review OpenAI-compatible router trial results without calling APIs.",
+    primaryLabel: "Review OpenAI-compatible result",
+    safetyCopy: "OpenAI-compatible router trial result does not call APIs",
+    deniedCopy: "Denied OpenAI-compatible trial result paths remain blocked",
+    groupLabel: "Trial results use shared CodexForge context",
+    checklistLabel: "OpenAI-compatible trial result checklist",
+    language: OPENAI_COMPATIBLE_ROUTER_TRIAL_RESULT_LANGUAGE,
+    fieldItems: routerTrialResultFields,
+    previewFocus: "OpenAI-compatible router trial results without API calls, prompt transfer, paid spend, output persistence, or live routing",
+    routes: ["/local-model-bridge-evidence-packet", "/free-model-router-trial-result", "/model-router-trial-summary"],
+    links: [
+      { href: "/local-model-bridge-evidence-packet", label: "Bridge Evidence" },
+      { href: "/free-model-router-trial-result", label: "Free Result" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review selected and rejected model class placeholders, ranking explanation, shared context, evidence destination, denied API call state, and operator approval before any OpenAI-compatible trial result can be captured.",
+  }),
+  "free-model-router-trial-result": buildDefinition({
+    slug: "free-model-router-trial-result",
+    phase: "Phase 929",
+    title: "Free Model Router Trial Result",
+    markerTitle: "Free model router trial result",
+    approvalCopy: "Free model trial results require explicit operator approval.",
+    subtitle: "Review free model router trial results without calling free models.",
+    primaryLabel: "Review free result",
+    safetyCopy: "Free model router trial result does not call free models",
+    deniedCopy: "Denied free model trial result paths remain blocked",
+    groupLabel: "Free model trial results use shared CodexForge context",
+    checklistLabel: "Free model trial result checklist",
+    language: FREE_MODEL_ROUTER_TRIAL_RESULT_LANGUAGE,
+    fieldItems: routerTrialResultFields,
+    previewFocus: "free model trial results for low-risk drafts and simple summaries without free model calls, prompt transfer, live routing, or output persistence",
+    routes: ["/openai-compatible-router-trial-result", "/paid-model-router-trial-result", "/model-router-trial-summary"],
+    links: [
+      { href: "/openai-compatible-router-trial-result", label: "OpenAI-Compatible Result" },
+      { href: "/paid-model-router-trial-result", label: "Paid Result" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review free-model suitability, rejected higher-cost classes, shared context, quality thresholds, denied live-call status, evidence destination, and approval before free trial results can exist.",
+  }),
+  "paid-model-router-trial-result": buildDefinition({
+    slug: "paid-model-router-trial-result",
+    phase: "Phase 930",
+    title: "Paid Model Router Trial Result",
+    markerTitle: "Paid model router trial result",
+    approvalCopy: "Paid model trial results require explicit operator approval.",
+    subtitle: "Review paid model router trial results without calling paid models.",
+    primaryLabel: "Review paid result",
+    safetyCopy: "Paid model router trial result does not call paid models",
+    deniedCopy: "Denied paid model trial result paths remain blocked",
+    groupLabel: "Paid model trial results require spend approval",
+    checklistLabel: "Paid model trial result checklist",
+    language: PAID_MODEL_ROUTER_TRIAL_RESULT_LANGUAGE,
+    fieldItems: routerTrialResultFields,
+    previewFocus: "paid model trial results without paid model calls, credit spend, live routing, prompt transfer, hidden approval, or output persistence",
+    routes: ["/free-model-router-trial-result", "/pro-model-router-trial-result", "/model-router-trial-summary"],
+    links: [
+      { href: "/free-model-router-trial-result", label: "Free Result" },
+      { href: "/pro-model-router-trial-result", label: "Pro Result" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review spend approval, selected and rejected model classes, cost rationale, quality threshold, denied paid-call state, evidence destination, and explicit operator approval before paid trial results can exist.",
+  }),
+  "pro-model-router-trial-result": buildDefinition({
+    slug: "pro-model-router-trial-result",
+    phase: "Phase 931",
+    title: "Pro Model Router Trial Result",
+    markerTitle: "Pro model router trial result",
+    approvalCopy: "Pro model trial results require explicit operator approval.",
+    subtitle: "Review pro model router trial results without calling pro models.",
+    primaryLabel: "Review pro result",
+    safetyCopy: "Pro model router trial result does not call pro models",
+    deniedCopy: "Denied pro model trial result paths remain blocked",
+    groupLabel: "Pro model trial results require quality justification",
+    checklistLabel: "Pro model trial result checklist",
+    language: PRO_MODEL_ROUTER_TRIAL_RESULT_LANGUAGE,
+    fieldItems: routerTrialResultFields,
+    previewFocus: "pro model trial results for hard reasoning, final review, difficult coding, and complex planning without pro model calls, live routing, or output persistence",
+    routes: ["/paid-model-router-trial-result", "/specialist-model-router-trial-result", "/model-router-trial-summary"],
+    links: [
+      { href: "/paid-model-router-trial-result", label: "Paid Result" },
+      { href: "/specialist-model-router-trial-result", label: "Specialist Result" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review quality justification, rejected cheaper classes, cost and latency tradeoffs, shared context, denied pro-call state, evidence destination, and approval before pro trial results can exist.",
+  }),
+  "specialist-model-router-trial-result": buildDefinition({
+    slug: "specialist-model-router-trial-result",
+    phase: "Phase 932",
+    title: "Specialist Model Router Trial Result",
+    markerTitle: "Specialist model router trial result",
+    approvalCopy: "Specialist model trial results require explicit operator approval.",
+    subtitle: "Review specialist model router trial results without calling specialist models.",
+    primaryLabel: "Review specialist result",
+    safetyCopy: "Specialist model router trial result does not call specialist models",
+    deniedCopy: "Denied specialist model trial result paths remain blocked",
+    groupLabel: "Specialist trial results require domain-fit justification",
+    checklistLabel: "Specialist model trial result checklist",
+    language: SPECIALIST_MODEL_ROUTER_TRIAL_RESULT_LANGUAGE,
+    fieldItems: routerTrialResultFields,
+    previewFocus: "specialist model trial results for video, image, coding, research, trading, game-server, and creative tasks without specialist calls or artifact generation",
+    routes: ["/pro-model-router-trial-result", "/model-router-trial-summary"],
+    links: [
+      { href: "/pro-model-router-trial-result", label: "Pro Result" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review domain-fit justification, selected and rejected model classes, tool-support rationale, shared context, denied specialist-call state, evidence destination, and approval before specialist trial results can exist.",
+  }),
+  "model-router-trial-summary": buildDefinition({
+    slug: "model-router-trial-summary",
+    phase: "Phase 933",
+    title: "Model Router Trial Summary",
+    markerTitle: "Model router trial summary",
+    approvalCopy: "Model router summaries require explicit operator approval.",
+    subtitle: "Review model-router trial summaries without routing live requests.",
+    primaryLabel: "Review trial summary",
+    safetyCopy: "Model router trial summary does not route live requests",
+    deniedCopy: "Denied model router summary paths remain blocked",
+    groupLabel: "Trial summaries explain cost quality speed privacy and task fit",
+    checklistLabel: "Model router trial summary checklist",
+    language: MODEL_ROUTER_TRIAL_SUMMARY_LANGUAGE,
+    fieldItems: routerTrialResultFields,
+    previewFocus: "model-router trial summaries without live routing, model calls, provider calls, output persistence, audit writes, or automatic memory promotion",
+    routes: ["/specialist-model-router-trial-result", "/model-router-trial-regression-guard", "/model-router-trial-summary"],
+    links: [
+      { href: "/specialist-model-router-trial-result", label: "Specialist Result" },
+      { href: "/model-router-trial-regression-guard", label: "Regression Guard" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review aggregate cost, quality, speed, privacy, task fit, shared context, denied live routing, evidence destination, and approval before any trial summary can inform routing.",
+  }),
+  "model-router-trial-regression-guard": buildDefinition({
+    slug: "model-router-trial-regression-guard",
+    phase: "Phase 934",
+    title: "Model Router Trial Regression Guard",
+    markerTitle: "Model router trial regression guard",
+    approvalCopy: "Model router regression guards require explicit operator approval.",
+    subtitle: "Review model-router trial regression guards without calling models.",
+    primaryLabel: "Review regression guard",
+    safetyCopy: "Model router trial regression guard does not call models",
+    deniedCopy: "Denied model router regression paths remain blocked",
+    groupLabel: "Regression guards preserve shared brain routing rules",
+    checklistLabel: "Model router regression checklist",
+    language: MODEL_ROUTER_TRIAL_REGRESSION_GUARD_LANGUAGE,
+    fieldItems: routerTrialResultFields,
+    previewFocus: "model-router regression guards without model calls, live replay, benchmark execution, backend adapter execution, or audit writes",
+    routes: ["/model-router-trial-summary", "/model-router-trial-operator-review"],
+    links: [
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+      { href: "/model-router-trial-operator-review", label: "Operator Review" },
+    ],
+    nextRecommendedAction: "review cheapest-capable routing invariants, privacy-first gates, spend approval, domain-fit escalation, denied live-call paths, and operator approval before regression guards can govern trials.",
+  }),
+  "model-router-trial-operator-review": buildDefinition({
+    slug: "model-router-trial-operator-review",
+    phase: "Phase 935",
+    title: "Model Router Trial Operator Review",
+    markerTitle: "Model router trial operator review",
+    approvalCopy: "Operator review requires explicit human approval.",
+    subtitle: "Review model-router operator review packets without approving actions.",
+    primaryLabel: "Review operator gate",
+    safetyCopy: "Model router trial operator review does not approve actions",
+    deniedCopy: "Denied operator review paths remain blocked",
+    groupLabel: "Operator review preserves budget privacy and shared context gates",
+    checklistLabel: "Model router operator review checklist",
+    language: MODEL_ROUTER_TRIAL_OPERATOR_REVIEW_LANGUAGE,
+    fieldItems: routerTrialResultFields,
+    previewFocus: "operator review of trial results without approving actions, persisting approval decisions, routing live requests, spending credits, or calling models",
+    routes: ["/model-router-trial-regression-guard", "/first-model-router-beta-candidate", "/model-router-trial-summary"],
+    links: [
+      { href: "/model-router-trial-regression-guard", label: "Regression Guard" },
+      { href: "/first-model-router-beta-candidate", label: "Beta Candidate" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review human approval requirements, budget gates, privacy gates, shared context gates, denied operator paths, evidence destination, and audit summary before operator review can authorize anything.",
+  }),
+  "first-model-router-beta-candidate": buildDefinition({
+    slug: "first-model-router-beta-candidate",
+    phase: "Phase 936",
+    title: "First Model Router Beta Candidate",
+    markerTitle: "First model router beta candidate",
+    approvalCopy: "Model router beta use requires explicit operator approval.",
+    subtitle: "Review the first model-router beta candidate without routing live model calls.",
+    primaryLabel: "Review beta candidate",
+    safetyCopy: "First model router beta candidate does not route live model calls",
+    deniedCopy: "Denied model router beta paths remain blocked",
+    groupLabel: "All model workers use one CodexForge brain memory and knowledge layer",
+    checklistLabel: "First model router beta checklist",
+    language: FIRST_MODEL_ROUTER_BETA_CANDIDATE_LANGUAGE,
+    fieldItems: routerTrialResultFields,
+    previewFocus: "first model-router beta candidate without live model calls, provider calls, prompt transfer, backend adapter execution, output persistence, or memory promotion",
+    routes: ["/model-router-trial-operator-review", "/controlled-model-router-beta-release-candidate", "/model-router-trial-summary"],
+    links: [
+      { href: "/model-router-trial-operator-review", label: "Operator Review" },
+      { href: "/controlled-model-router-beta-release-candidate", label: "Beta Release" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review shared brain, shared memory, shared knowledge, context sync, evidence review, denied live-call state, spend approval, and operator approval before any beta use can exist.",
+  }),
+  "controlled-model-router-beta-release-candidate": buildDefinition({
+    slug: "controlled-model-router-beta-release-candidate",
+    phase: "Phase 937",
+    title: "Controlled Model Router Beta Release Candidate",
+    markerTitle: "Controlled model router beta release candidate",
+    approvalCopy: "Controlled model router beta release requires explicit operator approval.",
+    subtitle: "Review controlled model-router beta release readiness without calling models.",
+    primaryLabel: "Review beta release",
+    safetyCopy: "Controlled model router beta release candidate does not call models",
+    deniedCopy: "Denied model router beta release paths remain blocked",
+    groupLabel: "Beta release preserves shared context memory evidence and audit gates",
+    checklistLabel: "Controlled model router beta release checklist",
+    language: CONTROLLED_MODEL_ROUTER_BETA_RELEASE_CANDIDATE_LANGUAGE,
+    fieldItems: routerTrialResultFields,
+    previewFocus: "controlled model-router beta release readiness without model calls, live routing, provider calls, prompt transfer, output persistence, memory promotion, or hidden approvals",
+    routes: ["/first-model-router-beta-candidate", "/model-router-trial-summary"],
+    links: [
+      { href: "/first-model-router-beta-candidate", label: "Beta Candidate" },
+      { href: "/model-router-trial-summary", label: "Trial Summary" },
+    ],
+    nextRecommendedAction: "review shared context, memory, evidence, audit gates, regression guardrails, operator approval, denied beta-release paths, and spend approval before controlled beta release can advance.",
   }),
 };
 
