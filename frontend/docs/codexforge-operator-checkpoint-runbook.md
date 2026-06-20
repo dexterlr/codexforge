@@ -57,7 +57,7 @@ $phases = [regex]::Matches($allSmoke, 'Phase\s+(\d+)') |
 $phases | Sort-Object -Descending | Select-Object -First 1
 ```
 
-Update checkpoint docs to the actual highest detected phase. If phases 970-985 are present and no higher phase exists, document the checkpoint as through phase 985 and describe the universal game-builder review layer: Universal Game Builder Boundary, Game Target Intake Packet, Game Platform Classifier Preview, Game Server Plan Preview, Game Modpack Plan Preview, Game Content Plan Preview, Game Automation Plan Preview, Game Asset Pipeline Plan Preview, Game Deployment Plan Preview, Game Safety Approval Plan, Game Evidence Capture Plan, Game Result Review Plan, Game Recovery Plan Preview, Game Packaging Plan Preview, First Universal Game Builder Candidate, and Controlled Universal Game Builder Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, game adapter execution, file writes, command execution, runtime/server starts, game server launches, game client launches, mod installs, asset downloads, asset rendering, deployment, evidence/result/model-output persistence, recovery triggers, packaging, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported game target language must remain broad; Minecraft is one supported example, not the default or only route.
+Update checkpoint docs to the actual highest detected phase. If phases 986-1001 are present and no higher phase exists, document the checkpoint as through phase 1001 and describe the universal project-builder review layer: Universal Project Builder Boundary, App Builder Target Packet, Website Builder Target Packet, Dashboard Builder Target Packet, Tool Builder Target Packet, Research Pack Builder Target Packet, Automation Workflow Builder Target Packet, Creative Workflow Builder Target Packet, Trading Workspace Builder Target Packet, Data Workspace Builder Target Packet, Documentation Pack Builder Target Packet, Integration Pack Builder Target Packet, Universal Project Builder Safety Plan, First Universal Project Builder Candidate, Universal Builder MVP Trial Packet, and Controlled Universal Project Builder Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, project adapter execution, game adapter execution, file writes, command execution, runtime starts, app scaffolds, website publishing, live data connections, tool creation, research browsing, automation creation, asset rendering, trading or broker calls, data ingestion, documentation export, integration connections, evidence/result/model-output persistence, recovery triggers, packaging/export, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported project target language must remain broad and cover apps, websites, dashboards, tools, research packs, automation workflows, creative workflows, trading workspaces, data workspaces, documentation packs, integrations, and mixed project targets.
 
 The current phase ledger is:
 
@@ -157,6 +157,22 @@ The current phase ledger is:
 - Phase 983 - Game Packaging Plan Preview.
 - Phase 984 - First Universal Game Builder Candidate.
 - Phase 985 - Controlled Universal Game Builder Release Candidate.
+- Phase 986 - Universal Project Builder Boundary.
+- Phase 987 - App Builder Target Packet.
+- Phase 988 - Website Builder Target Packet.
+- Phase 989 - Dashboard Builder Target Packet.
+- Phase 990 - Tool Builder Target Packet.
+- Phase 991 - Research Pack Builder Target Packet.
+- Phase 992 - Automation Workflow Builder Target Packet.
+- Phase 993 - Creative Workflow Builder Target Packet.
+- Phase 994 - Trading Workspace Builder Target Packet.
+- Phase 995 - Data Workspace Builder Target Packet.
+- Phase 996 - Documentation Pack Builder Target Packet.
+- Phase 997 - Integration Pack Builder Target Packet.
+- Phase 998 - Universal Project Builder Safety Plan.
+- Phase 999 - First Universal Project Builder Candidate.
+- Phase 1000 - Universal Builder MVP Trial Packet.
+- Phase 1001 - Controlled Universal Project Builder Release Candidate.
 
 ## Commit And Tag Checkpoint Docs
 

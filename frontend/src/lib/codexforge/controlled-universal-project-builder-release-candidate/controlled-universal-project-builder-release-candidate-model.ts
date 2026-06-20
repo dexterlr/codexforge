@@ -1,0 +1,37 @@
+import type { UniversalExecutionReviewPacket } from "../universal-execution-review-kit";
+import {
+  CONTROLLED_UNIVERSAL_PROJECT_BUILDER_RELEASE_CANDIDATE_LANGUAGE,
+  buildUniversalProjectBuilderReview,
+  buildUniversalProjectBuilderReviewBoundary,
+  buildUniversalProjectBuilderReviewModelForSlug,
+  buildUniversalProjectBuilderReviewPackets,
+  buildUniversalProjectBuilderReviewStableKey as buildControlledUniversalProjectBuilderReleaseCandidateStableKey,
+  summarizeUniversalProjectBuilderReviewForSlug,
+  type UniversalProjectBuilderReviewPacketInput,
+} from "../universal-project-builder-preview-kit";
+
+export { CONTROLLED_UNIVERSAL_PROJECT_BUILDER_RELEASE_CANDIDATE_LANGUAGE, buildControlledUniversalProjectBuilderReleaseCandidateStableKey };
+
+const CONTROLLED_UNIVERSAL_PROJECT_BUILDER_RELEASE_CANDIDATE_SLUG = "controlled-universal-project-builder-release-candidate";
+
+export function buildControlledUniversalProjectBuilderReleaseCandidate(input: UniversalProjectBuilderReviewPacketInput): UniversalExecutionReviewPacket {
+  return buildUniversalProjectBuilderReview(CONTROLLED_UNIVERSAL_PROJECT_BUILDER_RELEASE_CANDIDATE_SLUG, input);
+}
+
+export function buildControlledUniversalProjectBuilderReleaseCandidateItems(): UniversalExecutionReviewPacket[] {
+  return buildUniversalProjectBuilderReviewPackets(CONTROLLED_UNIVERSAL_PROJECT_BUILDER_RELEASE_CANDIDATE_SLUG);
+}
+
+export function buildControlledUniversalProjectBuilderReleaseCandidateBoundary() {
+  return buildUniversalProjectBuilderReviewBoundary();
+}
+
+export function summarizeControlledUniversalProjectBuilderReleaseCandidate(model: { controlledUniversalProjectBuilderReleaseCandidateItems: readonly UniversalExecutionReviewPacket[] }): string {
+  return summarizeUniversalProjectBuilderReviewForSlug(CONTROLLED_UNIVERSAL_PROJECT_BUILDER_RELEASE_CANDIDATE_SLUG, model.controlledUniversalProjectBuilderReleaseCandidateItems);
+}
+
+export function buildControlledUniversalProjectBuilderReleaseCandidateModel() {
+  const controlledUniversalProjectBuilderReleaseCandidateItems = buildControlledUniversalProjectBuilderReleaseCandidateItems();
+  const controlledUniversalProjectBuilderReleaseCandidateModel = buildUniversalProjectBuilderReviewModelForSlug(CONTROLLED_UNIVERSAL_PROJECT_BUILDER_RELEASE_CANDIDATE_SLUG, controlledUniversalProjectBuilderReleaseCandidateItems);
+  return { ...controlledUniversalProjectBuilderReleaseCandidateModel, controlledUniversalProjectBuilderReleaseCandidateItems };
+}
