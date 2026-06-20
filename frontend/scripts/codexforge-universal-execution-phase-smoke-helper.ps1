@@ -441,7 +441,23 @@ $protectedRoutes = @(
   "/guided-build-evidence-plan",
   "/guided-build-result-plan",
   "/first-practical-guided-build-candidate",
-  "/controlled-guided-build-workflow-release-candidate"
+  "/controlled-guided-build-workflow-release-candidate",
+  "/build-plan-bundle-boundary",
+  "/build-plan-summary-packet",
+  "/build-plan-requirements-packet",
+  "/build-plan-architecture-packet",
+  "/build-plan-file-manifest-packet",
+  "/build-plan-command-manifest-packet",
+  "/build-plan-runtime-manifest-packet",
+  "/build-plan-adapter-manifest-packet",
+  "/build-plan-validation-manifest-packet",
+  "/build-plan-risk-manifest-packet",
+  "/build-plan-approval-manifest-packet",
+  "/build-plan-evidence-manifest-packet",
+  "/build-plan-result-manifest-packet",
+  "/build-plan-recovery-manifest-packet",
+  "/first-complete-build-plan-candidate",
+  "/controlled-build-plan-bundle-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
@@ -496,7 +512,8 @@ $universalGameBuilderPreviewShared = "src\lib\codexforge\universal-game-builder-
 $universalProjectBuilderPreviewShared = "src\lib\codexforge\universal-project-builder-preview-kit"
 $universalBuilderCockpitPreviewShared = "src\lib\codexforge\universal-builder-cockpit-preview-kit"
 $guidedBuildWorkflowPreviewShared = "src\lib\codexforge\guided-build-workflow-preview-kit"
-foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $adapterExecutionBetaBoundaryShared, $backendAdapterContractShared, $backendAdapterImplementationPreviewShared, $backendDryRunModelRouterPreviewShared, $modelRouterProviderReadinessReviewShared, $firstRealAdapterMvpDesignShared, $projectBuilderMvpPreviewShared, $universalGameBuilderPreviewShared, $universalProjectBuilderPreviewShared, $universalBuilderCockpitPreviewShared, $guidedBuildWorkflowPreviewShared)) {
+$buildPlanBundlePreviewShared = "src\lib\codexforge\build-plan-bundle-preview-kit"
+foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $adapterExecutionBetaBoundaryShared, $backendAdapterContractShared, $backendAdapterImplementationPreviewShared, $backendDryRunModelRouterPreviewShared, $modelRouterProviderReadinessReviewShared, $firstRealAdapterMvpDesignShared, $projectBuilderMvpPreviewShared, $universalGameBuilderPreviewShared, $universalProjectBuilderPreviewShared, $universalBuilderCockpitPreviewShared, $guidedBuildWorkflowPreviewShared, $buildPlanBundlePreviewShared)) {
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
 foreach ($sharedFile in @("src\lib\codexforge\video-foundation-ui.tsx")) {
@@ -643,7 +660,7 @@ foreach ($name in $blockedPatterns.Keys) {
   $haystack = if ($name -eq "no deterministic API misuse") {
     $deterministicSource
   } elseif ($name -eq "no credentials tokens endpoints storage or env exposure") {
-    $source.Replace("model-task-classification-matrix", "model task classification matrix").Replace("model-privacy-risk-score-preview", "model privacy risk score preview")
+    $source.Replace("model-task-classification-matrix", "model task classification matrix").Replace("model-privacy-risk-score-preview", "model privacy risk score preview").Replace("build-plan-risk-manifest-packet", "build plan risk manifest packet")
   } else {
     $source
   }

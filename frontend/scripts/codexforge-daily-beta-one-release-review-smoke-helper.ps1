@@ -57,7 +57,8 @@ $additionalSharedRoots = @(
   "src\lib\codexforge\universal-game-builder-preview-kit",
   "src\lib\codexforge\universal-project-builder-preview-kit",
   "src\lib\codexforge\universal-builder-cockpit-preview-kit",
-  "src\lib\codexforge\guided-build-workflow-preview-kit"
+  "src\lib\codexforge\guided-build-workflow-preview-kit",
+  "src\lib\codexforge\build-plan-bundle-preview-kit"
 ) | Where-Object { Test-Path $_ }
 $sharedSource = ((Get-ChildItem -Recurse -File $shared) | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
 $additionalSharedSourceParts = @()
@@ -195,7 +196,7 @@ foreach ($name in $blockedPatterns.Keys) {
   $haystack = if ($name -eq "no deterministic API misuse") {
     $deterministicSource
   } elseif ($name -eq "no credentials tokens endpoints browser storage or env exposure") {
-    $source.Replace("model-task-classification-matrix", "model task classification matrix").Replace("model-privacy-risk-score-preview", "model privacy risk score preview")
+    $source.Replace("model-task-classification-matrix", "model task classification matrix").Replace("model-privacy-risk-score-preview", "model privacy risk score preview").Replace("build-plan-risk-manifest-packet", "build plan risk manifest packet")
   } else {
     $source
   }
