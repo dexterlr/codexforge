@@ -313,7 +313,23 @@ $protectedRoutes = @(
   "/shared-memory-handoff-validation",
   "/model-router-decision-explanation-review",
   "/first-controlled-model-router-trial-review",
-  "/controlled-model-use-release-candidate"
+  "/controlled-model-use-release-candidate",
+  "/live-provider-readiness-boundary",
+  "/approved-provider-test-packet",
+  "/openai-compatible-provider-test-packet",
+  "/local-model-bridge-dry-run",
+  "/free-model-provider-trial-packet",
+  "/paid-model-provider-trial-packet",
+  "/pro-model-provider-trial-packet",
+  "/specialist-model-provider-trial-packet",
+  "/model-router-trial-cockpit",
+  "/model-router-candidate-ranking-review",
+  "/model-router-budget-decision-review",
+  "/model-router-privacy-decision-review",
+  "/model-router-shared-context-review",
+  "/model-router-evidence-capture-review",
+  "/first-controlled-provider-trial-candidate",
+  "/model-router-execution-readiness-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
@@ -361,8 +377,9 @@ $adapterExecutionBetaBoundaryShared = "src\lib\codexforge\adapter-execution-beta
 $backendAdapterContractShared = "src\lib\codexforge\backend-adapter-boundary-contract-kit"
 $backendAdapterImplementationPreviewShared = "src\lib\codexforge\backend-adapter-implementation-preview-kit"
 $backendDryRunModelRouterPreviewShared = "src\lib\codexforge\backend-dry-run-model-router-preview-kit"
+$modelRouterProviderReadinessReviewShared = "src\lib\codexforge\model-router-provider-readiness-review-kit"
 $firstRealAdapterMvpDesignShared = "src\lib\codexforge\first-real-adapter-mvp-design-kit"
-foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $adapterExecutionBetaBoundaryShared, $backendAdapterContractShared, $backendAdapterImplementationPreviewShared, $backendDryRunModelRouterPreviewShared, $firstRealAdapterMvpDesignShared)) {
+foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $adapterExecutionBetaBoundaryShared, $backendAdapterContractShared, $backendAdapterImplementationPreviewShared, $backendDryRunModelRouterPreviewShared, $modelRouterProviderReadinessReviewShared, $firstRealAdapterMvpDesignShared)) {
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
 $source = $sourceParts -join "`n"

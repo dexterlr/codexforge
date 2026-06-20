@@ -61,9 +61,9 @@ The tools copy exists but was not a Git repository during inspection.
 
 ## Current checkpoint note
 
-Checkpoint repair date: 2026-06-13.
+Checkpoint repair date: 2026-06-20.
 
-The current canonical checkpoint is through highest detected phase 905 from `frontend/scripts/smoke-codexforge-all.ps1`. The checkpoint remains documentation and review-surface alignment only: review-only surfaces, explicit operator approval, no silent mutation, no provider/local/connector/automation execution without approval, no credential/output storage, no memory auto-promotion, and preview-only model/provider/router/controlled-model-use surfaces remain required unless explicitly approved.
+The current canonical checkpoint is through highest detected phase 921 from `frontend/scripts/smoke-codexforge-all.ps1`. The checkpoint remains documentation and review-surface alignment only: review-only surfaces, explicit operator approval, no silent mutation, no provider/local/connector/automation execution without approval, no credential/output storage, no memory auto-promotion, and preview-only/dry-run/approval-gated model/provider/router/controlled-model-use surfaces remain required unless explicitly approved.
 
 Current validation commands from `frontend`:
 
