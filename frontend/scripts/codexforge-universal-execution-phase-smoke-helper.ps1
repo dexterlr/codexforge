@@ -345,7 +345,23 @@ $protectedRoutes = @(
   "/model-router-trial-regression-guard",
   "/model-router-trial-operator-review",
   "/first-model-router-beta-candidate",
-  "/controlled-model-router-beta-release-candidate"
+  "/controlled-model-router-beta-release-candidate",
+  "/backend-execution-router-integration-boundary",
+  "/file-write-model-routed-execution-preview",
+  "/command-runner-model-routed-execution-preview",
+  "/local-runtime-model-routed-execution-preview",
+  "/evidence-store-model-routed-execution-preview",
+  "/result-store-model-routed-execution-preview",
+  "/recovery-model-routed-execution-preview",
+  "/packaging-model-routed-execution-preview",
+  "/project-scaffold-model-routed-execution-preview",
+  "/model-routed-execution-approval-packet",
+  "/model-routed-execution-audit-packet",
+  "/model-routed-execution-sandbox-review",
+  "/model-routed-execution-validation-review",
+  "/model-routed-execution-operator-trial",
+  "/first-model-routed-backend-execution-candidate",
+  "/controlled-backend-model-router-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `

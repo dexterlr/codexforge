@@ -57,7 +57,7 @@ $phases = [regex]::Matches($allSmoke, 'Phase\s+(\d+)') |
 $phases | Sort-Object -Descending | Select-Object -First 1
 ```
 
-Update checkpoint docs to the actual highest detected phase. If phases 835-937 are present and no higher phase exists, document the checkpoint as through phase 937 and describe the controlled model router beta release-candidate layer: model router selection, capability registry, cost/quality/privacy/locality/fallback policy, model selection approval, backend dry-run model router candidate, shared Brain context/memory/knowledge access, task classification, efficiency scoring, routing policies, continuity handoff, cross-model comparison, failure recovery, spend guardrail, audit trail, provider registry and provider previews, credential boundary, usage budget, context sync, output evidence, controlled model-use, provider connection boundary, connection-test previews, health and scoring previews, dry-run result, first controlled model-use trial packet, controlled model router readiness candidate, controlled model-use dry-run inventory, OpenAI-compatible/local/free/paid/pro/specialist model dry-run previews, shared context packet validation, shared memory handoff validation, model router decision explanation review, first controlled model router trial review, controlled model-use release candidate, live provider readiness boundary, provider test packets, local model bridge dry-run, provider trial packets, trial cockpit, candidate ranking, budget/privacy/shared-context/evidence reviews, first controlled provider trial candidate, Model Router Execution Readiness Candidate, approved provider health check boundary, provider health check request/result packets, local model bridge readiness/context/evidence packets, router trial result packets, trial summary, regression guard, operator review, first model router beta candidate, and Controlled Model Router Beta Release Candidate. The latest model-router beta phase is 937. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer.
+Update checkpoint docs to the actual highest detected phase. If phases 835-953 are present and no higher phase exists, document the checkpoint as through phase 953 and describe the controlled model router beta release-candidate layer plus the model-routed backend execution review layer: backend execution router integration boundary, file write/command runner/local runtime/evidence store/result store/recovery/packaging/project scaffold previews, model-routed approval/audit/sandbox/validation/operator-trial packets, first model-routed backend execution candidate, and Controlled Backend Model Router Release Candidate surfaces. The latest model-routed backend execution review phase is 953. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, backend adapter execution, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer.
 
 The current phase ledger is:
 
@@ -109,6 +109,22 @@ The current phase ledger is:
 - Phase 935 - Model Router Trial Operator Review.
 - Phase 936 - First Model Router Beta Candidate.
 - Phase 937 - Controlled Model Router Beta Release Candidate.
+- Phase 938 - Backend Execution Router Integration Boundary.
+- Phase 939 - File Write Model-Routed Execution Preview.
+- Phase 940 - Command Runner Model-Routed Execution Preview.
+- Phase 941 - Local Runtime Model-Routed Execution Preview.
+- Phase 942 - Evidence Store Model-Routed Execution Preview.
+- Phase 943 - Result Store Model-Routed Execution Preview.
+- Phase 944 - Recovery Model-Routed Execution Preview.
+- Phase 945 - Packaging Model-Routed Execution Preview.
+- Phase 946 - Project Scaffold Model-Routed Execution Preview.
+- Phase 947 - Model-Routed Execution Approval Packet.
+- Phase 948 - Model-Routed Execution Audit Packet.
+- Phase 949 - Model-Routed Execution Sandbox Review.
+- Phase 950 - Model-Routed Execution Validation Review.
+- Phase 951 - Model-Routed Execution Operator Trial.
+- Phase 952 - First Model-Routed Backend Execution Candidate.
+- Phase 953 - Controlled Backend Model Router Release Candidate.
 
 ## Commit And Tag Checkpoint Docs
 

@@ -12,7 +12,7 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 Highest detected phase: 937.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 937, so the checkpoint is documented as through phase 937.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 953, so the checkpoint is documented as through phase 953.
 
 Latest detected milestone family: controlled model router beta release candidate layer. Phases 890-937 extend the model router/provider readiness preview layer with controlled dry-run, provider health, local bridge, router trial result, beta candidate, and release-candidate surfaces:
 
@@ -64,8 +64,24 @@ Latest detected milestone family: controlled model router beta release candidate
 - Phase 935 - Model Router Trial Operator Review.
 - Phase 936 - First Model Router Beta Candidate.
 - Phase 937 - Controlled Model Router Beta Release Candidate.
+- Phase 938 - Backend Execution Router Integration Boundary.
+- Phase 939 - File Write Model-Routed Execution Preview.
+- Phase 940 - Command Runner Model-Routed Execution Preview.
+- Phase 941 - Local Runtime Model-Routed Execution Preview.
+- Phase 942 - Evidence Store Model-Routed Execution Preview.
+- Phase 943 - Result Store Model-Routed Execution Preview.
+- Phase 944 - Recovery Model-Routed Execution Preview.
+- Phase 945 - Packaging Model-Routed Execution Preview.
+- Phase 946 - Project Scaffold Model-Routed Execution Preview.
+- Phase 947 - Model-Routed Execution Approval Packet.
+- Phase 948 - Model-Routed Execution Audit Packet.
+- Phase 949 - Model-Routed Execution Sandbox Review.
+- Phase 950 - Model-Routed Execution Validation Review.
+- Phase 951 - Model-Routed Execution Operator Trial.
+- Phase 952 - First Model-Routed Backend Execution Candidate.
+- Phase 953 - Controlled Backend Model Router Release Candidate.
 
-These pages preserve the model router/provider direction: CodexForge is a Jarvis-style, local-first, approval-safe execution OS. The latest model-router beta phase is 937. Models are workers; CodexForge is the brain. Paid, free, local, remote, OpenAI-compatible, and specialist models share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer. Model use remains preview-only, dry-run, and approval-gated until explicit operator approval. They remain frontend review/planning UI only with no live model calls, no provider calls, no credential reads, no secret reads, no network calls, no router executions, no Brain mutations, no automatic memory promotions, no browser credential writes, no browser credential storage, no hidden model calls, and no hidden execution from UI.
+These pages preserve the model router/provider direction: CodexForge is a Jarvis-style, local-first, approval-safe execution OS. The latest model-routed backend execution review phase is 953. Models are workers; CodexForge is the brain. Paid, free, local, remote, OpenAI-compatible, and specialist models share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer. Model use and backend adapter use remain preview-only, dry-run, and approval-gated until explicit operator approval. They remain frontend review/planning UI only with no live model calls, no provider calls, no credential reads, no secret reads, no network calls, no router executions, no backend adapter execution, no Brain mutations, no automatic memory promotions, no browser credential writes, no browser credential storage, no hidden model calls, and no hidden execution from UI. The latest family is the model-routed backend execution review layer: backend execution router integration boundary, file write/command runner/local runtime/evidence store/result store/recovery/packaging/project scaffold previews, model-routed approval/audit/sandbox/validation/operator-trial packets, first model-routed backend execution candidate, and Controlled Backend Model Router Release Candidate surfaces.
 
 ## Current Route Families
 
@@ -122,7 +138,7 @@ These pages preserve the model router/provider direction: CodexForge is a Jarvis
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 937 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 953 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, file mutation, test execution, unified gap, first approved-trial, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta candidate, and operator handoff route families are represented as review and approval surfaces.
 - The Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, and readiness lock route family is represented as review-only and approval-required UI.
 - The Daily Beta readiness lock audit, release candidate summary, Daily Beta 1 final candidate, final operator review, final regression review, final recovery review, final hardening pass, and Daily Beta 1 activation candidate package is represented as review-only and approval-required UI.

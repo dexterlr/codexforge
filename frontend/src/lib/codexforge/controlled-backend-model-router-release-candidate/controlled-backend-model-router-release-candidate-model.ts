@@ -1,0 +1,37 @@
+import type { UniversalExecutionReviewPacket } from "../universal-execution-review-kit";
+import {
+  CONTROLLED_BACKEND_MODEL_ROUTER_RELEASE_CANDIDATE_LANGUAGE,
+  buildBackendDryRunModelRouterPreview,
+  buildBackendDryRunModelRouterPreviewBoundary,
+  buildBackendDryRunModelRouterPreviewModelForSlug,
+  buildBackendDryRunModelRouterPreviewPackets,
+  buildBackendDryRunModelRouterPreviewStableKey as buildControlledBackendModelRouterReleaseCandidateStableKey,
+  summarizeBackendDryRunModelRouterPreviewForSlug,
+  type BackendDryRunModelRouterPreviewPacketInput,
+} from "../backend-dry-run-model-router-preview-kit";
+
+export { CONTROLLED_BACKEND_MODEL_ROUTER_RELEASE_CANDIDATE_LANGUAGE, buildControlledBackendModelRouterReleaseCandidateStableKey };
+
+const CONTROLLED_BACKEND_MODEL_ROUTER_RELEASE_CANDIDATE_SLUG = "controlled-backend-model-router-release-candidate";
+
+export function buildControlledBackendModelRouterReleaseCandidate(input: BackendDryRunModelRouterPreviewPacketInput): UniversalExecutionReviewPacket {
+  return buildBackendDryRunModelRouterPreview(CONTROLLED_BACKEND_MODEL_ROUTER_RELEASE_CANDIDATE_SLUG, input);
+}
+
+export function buildControlledBackendModelRouterReleaseCandidateItems(): UniversalExecutionReviewPacket[] {
+  return buildBackendDryRunModelRouterPreviewPackets(CONTROLLED_BACKEND_MODEL_ROUTER_RELEASE_CANDIDATE_SLUG);
+}
+
+export function buildControlledBackendModelRouterReleaseCandidateBoundary() {
+  return buildBackendDryRunModelRouterPreviewBoundary();
+}
+
+export function summarizeControlledBackendModelRouterReleaseCandidate(model: { controlledBackendModelRouterReleaseCandidateItems: readonly UniversalExecutionReviewPacket[] }): string {
+  return summarizeBackendDryRunModelRouterPreviewForSlug(CONTROLLED_BACKEND_MODEL_ROUTER_RELEASE_CANDIDATE_SLUG, model.controlledBackendModelRouterReleaseCandidateItems);
+}
+
+export function buildControlledBackendModelRouterReleaseCandidateModel() {
+  const controlledBackendModelRouterReleaseCandidateItems = buildControlledBackendModelRouterReleaseCandidateItems();
+  const controlledBackendModelRouterReleaseCandidateModel = buildBackendDryRunModelRouterPreviewModelForSlug(CONTROLLED_BACKEND_MODEL_ROUTER_RELEASE_CANDIDATE_SLUG, controlledBackendModelRouterReleaseCandidateItems);
+  return { ...controlledBackendModelRouterReleaseCandidateModel, controlledBackendModelRouterReleaseCandidateItems };
+}

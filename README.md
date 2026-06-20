@@ -6,7 +6,7 @@ CodexForge is a local-first AI developer/operator workspace. It provides fronten
 
 ## Current State
 
-Current checkpoint: through phase 937, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the controlled model router beta release-candidate layer: approved provider health check boundary, provider health check request/result packets, local model bridge readiness/context/evidence packets, OpenAI-compatible/free/paid/pro/specialist router trial results, model router trial summary, regression guard, operator review, first model router beta candidate, and Controlled Model Router Beta Release Candidate surfaces.
+Current checkpoint: through phase 953, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the model-routed backend execution review layer: backend execution router integration boundary, file write/command runner/local runtime/evidence store/result store/recovery/packaging/project scaffold previews, model-routed approval/audit/sandbox/validation/operator-trial packets, first model-routed backend execution candidate, and Controlled Backend Model Router Release Candidate surfaces.
 
 CodexForge currently includes deterministic frontend review and approval surfaces for:
 
@@ -75,7 +75,7 @@ git diff --stat
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 937.
+- Current checkpoint: documentation and hygiene alignment through detected phase 953.
 - Next milestone: keep model/provider/router, local model, connector, automation, unified workflow, and beta operator surfaces preview-only or review-only while defining any approved backend/local/provider boundaries before claiming execution.
 - Do not claim live execution unless an approved local/backend/provider boundary exists.
 - Do not claim CI passed unless actual CI or terminal logs prove it.
