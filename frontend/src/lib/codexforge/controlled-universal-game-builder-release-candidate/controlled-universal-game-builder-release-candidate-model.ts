@@ -1,0 +1,37 @@
+import type { UniversalExecutionReviewPacket } from "../universal-execution-review-kit";
+import {
+  CONTROLLED_UNIVERSAL_GAME_BUILDER_RELEASE_CANDIDATE_LANGUAGE,
+  buildUniversalGameBuilderReview,
+  buildUniversalGameBuilderReviewBoundary,
+  buildUniversalGameBuilderReviewModelForSlug,
+  buildUniversalGameBuilderReviewPackets,
+  buildUniversalGameBuilderReviewStableKey as buildControlledUniversalGameBuilderReleaseCandidateStableKey,
+  summarizeUniversalGameBuilderReviewForSlug,
+  type UniversalGameBuilderReviewPacketInput,
+} from "../universal-game-builder-preview-kit";
+
+export { CONTROLLED_UNIVERSAL_GAME_BUILDER_RELEASE_CANDIDATE_LANGUAGE, buildControlledUniversalGameBuilderReleaseCandidateStableKey };
+
+const CONTROLLED_UNIVERSAL_GAME_BUILDER_RELEASE_CANDIDATE_SLUG = "controlled-universal-game-builder-release-candidate";
+
+export function buildControlledUniversalGameBuilderReleaseCandidate(input: UniversalGameBuilderReviewPacketInput): UniversalExecutionReviewPacket {
+  return buildUniversalGameBuilderReview(CONTROLLED_UNIVERSAL_GAME_BUILDER_RELEASE_CANDIDATE_SLUG, input);
+}
+
+export function buildControlledUniversalGameBuilderReleaseCandidateItems(): UniversalExecutionReviewPacket[] {
+  return buildUniversalGameBuilderReviewPackets(CONTROLLED_UNIVERSAL_GAME_BUILDER_RELEASE_CANDIDATE_SLUG);
+}
+
+export function buildControlledUniversalGameBuilderReleaseCandidateBoundary() {
+  return buildUniversalGameBuilderReviewBoundary();
+}
+
+export function summarizeControlledUniversalGameBuilderReleaseCandidate(model: { controlledUniversalGameBuilderReleaseCandidateItems: readonly UniversalExecutionReviewPacket[] }): string {
+  return summarizeUniversalGameBuilderReviewForSlug(CONTROLLED_UNIVERSAL_GAME_BUILDER_RELEASE_CANDIDATE_SLUG, model.controlledUniversalGameBuilderReleaseCandidateItems);
+}
+
+export function buildControlledUniversalGameBuilderReleaseCandidateModel() {
+  const controlledUniversalGameBuilderReleaseCandidateItems = buildControlledUniversalGameBuilderReleaseCandidateItems();
+  const controlledUniversalGameBuilderReleaseCandidateModel = buildUniversalGameBuilderReviewModelForSlug(CONTROLLED_UNIVERSAL_GAME_BUILDER_RELEASE_CANDIDATE_SLUG, controlledUniversalGameBuilderReleaseCandidateItems);
+  return { ...controlledUniversalGameBuilderReleaseCandidateModel, controlledUniversalGameBuilderReleaseCandidateItems };
+}

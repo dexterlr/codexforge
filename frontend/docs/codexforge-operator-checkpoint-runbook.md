@@ -57,7 +57,7 @@ $phases = [regex]::Matches($allSmoke, 'Phase\s+(\d+)') |
 $phases | Sort-Object -Descending | Select-Object -First 1
 ```
 
-Update checkpoint docs to the actual highest detected phase. If phases 954-969 are present and no higher phase exists, document the checkpoint as through phase 969 and describe the project-builder MVP review layer: Project Builder MVP Integration Boundary, Project Goal Intake Packet, Project Domain Classifier Preview, Project Plan Model-Routing Preview, Project File Plan Preview, Project Command Plan Preview, Project Runtime Plan Preview, Project Evidence Plan Preview, Project Result Plan Preview, Project Recovery Plan Preview, Project Packaging Plan Preview, Project Approval Plan Preview, Project Builder Operator Review, First Useful Project Builder Candidate, Project Builder MVP Trial Packet, and Controlled Project Builder Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, file writes, command execution, runtime starts, evidence/result/model-output persistence, recovery triggers, packaging, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer.
+Update checkpoint docs to the actual highest detected phase. If phases 970-985 are present and no higher phase exists, document the checkpoint as through phase 985 and describe the universal game-builder review layer: Universal Game Builder Boundary, Game Target Intake Packet, Game Platform Classifier Preview, Game Server Plan Preview, Game Modpack Plan Preview, Game Content Plan Preview, Game Automation Plan Preview, Game Asset Pipeline Plan Preview, Game Deployment Plan Preview, Game Safety Approval Plan, Game Evidence Capture Plan, Game Result Review Plan, Game Recovery Plan Preview, Game Packaging Plan Preview, First Universal Game Builder Candidate, and Controlled Universal Game Builder Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, game adapter execution, file writes, command execution, runtime/server starts, game server launches, game client launches, mod installs, asset downloads, asset rendering, deployment, evidence/result/model-output persistence, recovery triggers, packaging, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported game target language must remain broad; Minecraft is one supported example, not the default or only route.
 
 The current phase ledger is:
 
@@ -141,6 +141,22 @@ The current phase ledger is:
 - Phase 967 - First Useful Project Builder Candidate.
 - Phase 968 - Project Builder MVP Trial Packet.
 - Phase 969 - Controlled Project Builder Release Candidate.
+- Phase 970 - Universal Game Builder Boundary.
+- Phase 971 - Game Target Intake Packet.
+- Phase 972 - Game Platform Classifier Preview.
+- Phase 973 - Game Server Plan Preview.
+- Phase 974 - Game Modpack Plan Preview.
+- Phase 975 - Game Content Plan Preview.
+- Phase 976 - Game Automation Plan Preview.
+- Phase 977 - Game Asset Pipeline Plan Preview.
+- Phase 978 - Game Deployment Plan Preview.
+- Phase 979 - Game Safety Approval Plan.
+- Phase 980 - Game Evidence Capture Plan.
+- Phase 981 - Game Result Review Plan.
+- Phase 982 - Game Recovery Plan Preview.
+- Phase 983 - Game Packaging Plan Preview.
+- Phase 984 - First Universal Game Builder Candidate.
+- Phase 985 - Controlled Universal Game Builder Release Candidate.
 
 ## Commit And Tag Checkpoint Docs
 

@@ -1,0 +1,1 @@
+export { UniversalGameBuilderBoundaryPanel } from "../../universal-game-builder-preview-kit";

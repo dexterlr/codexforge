@@ -1,0 +1,1 @@
+export { GamePlatformClassifierPreviewPanel } from "../../universal-game-builder-preview-kit";

@@ -1,0 +1,1 @@
+export { GameSafetyApprovalPlanPanel } from "../../universal-game-builder-preview-kit";

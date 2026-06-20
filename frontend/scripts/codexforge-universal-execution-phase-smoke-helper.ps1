@@ -377,7 +377,23 @@ $protectedRoutes = @(
   "/project-builder-operator-review",
   "/first-useful-project-builder-candidate",
   "/project-builder-mvp-trial-packet",
-  "/controlled-project-builder-release-candidate"
+  "/controlled-project-builder-release-candidate",
+  "/universal-game-builder-boundary",
+  "/game-target-intake-packet",
+  "/game-platform-classifier-preview",
+  "/game-server-plan-preview",
+  "/game-modpack-plan-preview",
+  "/game-content-plan-preview",
+  "/game-automation-plan-preview",
+  "/game-asset-pipeline-plan-preview",
+  "/game-deployment-plan-preview",
+  "/game-safety-approval-plan",
+  "/game-evidence-capture-plan",
+  "/game-result-review-plan",
+  "/game-recovery-plan-preview",
+  "/game-packaging-plan-preview",
+  "/first-universal-game-builder-candidate",
+  "/controlled-universal-game-builder-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
@@ -428,7 +444,8 @@ $backendDryRunModelRouterPreviewShared = "src\lib\codexforge\backend-dry-run-mod
 $modelRouterProviderReadinessReviewShared = "src\lib\codexforge\model-router-provider-readiness-review-kit"
 $firstRealAdapterMvpDesignShared = "src\lib\codexforge\first-real-adapter-mvp-design-kit"
 $projectBuilderMvpPreviewShared = "src\lib\codexforge\project-builder-mvp-preview-kit"
-foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $adapterExecutionBetaBoundaryShared, $backendAdapterContractShared, $backendAdapterImplementationPreviewShared, $backendDryRunModelRouterPreviewShared, $modelRouterProviderReadinessReviewShared, $firstRealAdapterMvpDesignShared, $projectBuilderMvpPreviewShared)) {
+$universalGameBuilderPreviewShared = "src\lib\codexforge\universal-game-builder-preview-kit"
+foreach ($scanRoot in @($Domain, $Route, $shared, $universalShared, $adapterPreviewShared, $boundedImplementationShared, $boundedImplementationSliceShared, $adapterImplementationReviewShared, $adapterExecutionBetaBoundaryShared, $backendAdapterContractShared, $backendAdapterImplementationPreviewShared, $backendDryRunModelRouterPreviewShared, $modelRouterProviderReadinessReviewShared, $firstRealAdapterMvpDesignShared, $projectBuilderMvpPreviewShared, $universalGameBuilderPreviewShared)) {
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
 foreach ($sharedFile in @("src\lib\codexforge\video-foundation-ui.tsx")) {

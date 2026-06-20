@@ -6,7 +6,7 @@ CodexForge is a local-first AI developer/operator workspace. It provides fronten
 
 ## Current State
 
-Current checkpoint: through phase 969, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the project-builder MVP review layer: integration boundary, goal intake, domain classifier, model-routing preview, file/command/runtime/evidence/result/recovery/packaging/approval plan previews, operator review, first useful candidate, MVP trial packet, and Controlled Project Builder Release Candidate surfaces.
+Current checkpoint: through phase 985, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the universal game-builder review layer: boundary, target intake, platform classifier, server/modpack/content/automation/asset/deployment/safety/evidence/result/recovery/packaging plan previews, first universal candidate, and Controlled Universal Game Builder Release Candidate surfaces.
 
 CodexForge currently includes deterministic frontend review and approval surfaces for:
 
@@ -21,7 +21,7 @@ CodexForge currently includes deterministic frontend review and approval surface
 - Beta workflow release regression, safety signoff, documentation, onboarding final pass, Beta 2 release candidate, controlled trial, feedback review, and hardening pass review surfaces.
 - Jarvisd/local-daemon contract, health, capability, permission, local file approval, local command approval, local process preview, and workspace trust boundaries.
 - Project intelligence, codebase change planning, patch preview, patch apply approval, patch result capture, test planning, and test result/failure review.
-- Model router/provider preview, model connection-test preview, model scoring, controlled model-use dry-run preview, shared context and memory handoff review, decision explanation review, first controlled model router trial review, controlled model-use release-candidate, provider test packet, trial cockpit, provider trial candidate, model router execution-readiness candidate, controlled model router beta release-candidate, model-routed backend execution review, and project-builder MVP review surfaces.
+- Model router/provider preview, model connection-test preview, model scoring, controlled model-use dry-run preview, shared context and memory handoff review, decision explanation review, first controlled model router trial review, controlled model-use release-candidate, provider test packet, trial cockpit, provider trial candidate, model router execution-readiness candidate, controlled model router beta release-candidate, model-routed backend execution review, project-builder MVP review, and universal game-builder review surfaces.
 
 These are review-only surfaces unless an approved local/backend/provider boundary exists for the specific action. CodexForge is the brain; models are workers that share the same CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer. CodexForge does not claim live execution for provider, local model, connector, automation, file, shell, patch, test, Jarvisd, model routing, or memory mutation work from arbitrary UI.
 
@@ -46,6 +46,7 @@ These are review-only surfaces unless an approved local/backend/provider boundar
 - Validation and review: `/apply-validation`, `/validation-results`, `/review-inbox`, `/recovery`, `/workflow-results`, `/run-history`.
 - Project, patch, and test planning: `/safe-project-indexer`, `/project-file-search`, `/project-dependency-map`, `/project-risk-secrets-scan`, `/codebase-change-plan`, `/patch-preview-workbench`, `/patch-apply-approval`, `/patch-result-capture`, `/test-command-planner`, `/test-execution-approval`, `/test-result-summary`, `/test-failure-triage`.
 - Project-builder MVP review: `/project-builder-mvp-integration-boundary`, `/project-goal-intake-packet`, `/project-domain-classifier-preview`, `/project-plan-model-routing-preview`, `/project-file-plan-preview`, `/project-command-plan-preview`, `/project-runtime-plan-preview`, `/project-evidence-plan-preview`, `/project-result-plan-preview`, `/project-recovery-plan-preview`, `/project-packaging-plan-preview`, `/project-approval-plan-preview`, `/project-builder-operator-review`, `/first-useful-project-builder-candidate`, `/project-builder-mvp-trial-packet`, `/controlled-project-builder-release-candidate`.
+- Universal game-builder review: `/universal-game-builder-boundary`, `/game-target-intake-packet`, `/game-platform-classifier-preview`, `/game-server-plan-preview`, `/game-modpack-plan-preview`, `/game-content-plan-preview`, `/game-automation-plan-preview`, `/game-asset-pipeline-plan-preview`, `/game-deployment-plan-preview`, `/game-safety-approval-plan`, `/game-evidence-capture-plan`, `/game-result-review-plan`, `/game-recovery-plan-preview`, `/game-packaging-plan-preview`, `/first-universal-game-builder-candidate`, `/controlled-universal-game-builder-release-candidate`.
 - Provider governance and provider live trial review: `/ai-router`, `/ai-providers`, `/provider-adapters`, `/provider-health`, `/provider-live-test-gate`, `/openai-compatible-live-test`, `/multi-provider-live-test`, `/provider-live-call-guard-review`, `/first-provider-live-call-trial-review`, `/provider-live-response-capture-review`, `/provider-live-trial-release-candidate`, `/provider-test-results`, `/provider-governance-release-audit`.
 - Local model live trial review: `/local-model-runtime-boundary-review`, `/local-model-output-review-inbox`, `/local-model-live-call-guard-review`, `/first-local-model-live-trial-review`, `/local-model-live-output-capture-review`, `/local-model-live-trial-release-candidate`, `/local-model-integration-release-candidate`.
 - Connector live trial review: `/connector-live-permission-trial-review`, `/connector-live-access-guard-review`, `/first-connector-live-access-trial-review`, `/connector-live-evidence-capture-review`, `/connector-live-trial-release-candidate`, `/connector-integration-release-candidate`.
@@ -76,7 +77,7 @@ git diff --stat
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 969.
+- Current checkpoint: documentation and hygiene alignment through detected phase 985.
 - Next milestone: keep model/provider/router, local model, connector, automation, unified workflow, and beta operator surfaces preview-only or review-only while defining any approved backend/local/provider boundaries before claiming execution.
 - Do not claim live execution unless an approved local/backend/provider boundary exists.
 - Do not claim CI passed unless actual CI or terminal logs prove it.
