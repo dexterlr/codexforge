@@ -6,7 +6,7 @@ CodexForge is a local-first AI developer/operator workspace. It provides fronten
 
 ## Current State
 
-Current checkpoint: through phase 1049, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the build plan bundle review layer: bundle boundary, summary packet, requirements packet, architecture packet, file/command/runtime/adapter/validation/risk/approval/evidence/result/recovery manifests, first complete build plan candidate, and Controlled Build Plan Bundle Release Candidate surfaces.
+Current checkpoint: through phase 1065, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the build plan approval layer: approval boundary, approval queue, detail packet, diff/command/runtime/adapter previews, risk/evidence/result/recovery gates, ready-to-execute packet, execution hold state, operator signoff packet, first approved build plan candidate, and Controlled Build Plan Approval Release Candidate surfaces.
 
 CodexForge currently includes deterministic frontend review and approval surfaces for:
 
@@ -80,7 +80,7 @@ git diff --stat
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 1049.
+- Current checkpoint: documentation and hygiene alignment through detected phase 1065.
 - Next milestone: keep model/provider/router, local model, connector, automation, unified workflow, and beta operator surfaces preview-only or review-only while defining any approved backend/local/provider boundaries before claiming execution.
 - Do not claim live execution unless an approved local/backend/provider boundary exists.
 - Do not claim CI passed unless actual CI or terminal logs prove it.

@@ -457,7 +457,23 @@ $protectedRoutes = @(
   "/build-plan-result-manifest-packet",
   "/build-plan-recovery-manifest-packet",
   "/first-complete-build-plan-candidate",
-  "/controlled-build-plan-bundle-release-candidate"
+  "/controlled-build-plan-bundle-release-candidate",
+  "/build-plan-approval-boundary",
+  "/build-plan-approval-queue",
+  "/build-plan-approval-detail-packet",
+  "/build-plan-approval-diff-preview",
+  "/build-plan-approval-command-preview",
+  "/build-plan-approval-runtime-preview",
+  "/build-plan-approval-adapter-preview",
+  "/build-plan-approval-risk-gate",
+  "/build-plan-approval-evidence-gate",
+  "/build-plan-approval-result-gate",
+  "/build-plan-approval-recovery-gate",
+  "/build-plan-ready-to-execute-packet",
+  "/build-plan-execution-hold-state",
+  "/build-plan-operator-signoff-packet",
+  "/first-approved-build-plan-candidate",
+  "/controlled-build-plan-approval-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `

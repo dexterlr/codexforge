@@ -66,3 +66,67 @@ export function FirstCompleteBuildPlanCandidatePanel() {
 export function ControlledBuildPlanBundleReleaseCandidatePanel() {
   return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-build-plan-bundle-release-candidate")} />;
 }
+
+export function BuildPlanApprovalBoundaryPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-boundary")} />;
+}
+
+export function BuildPlanApprovalQueuePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-queue")} />;
+}
+
+export function BuildPlanApprovalDetailPacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-detail-packet")} />;
+}
+
+export function BuildPlanApprovalDiffPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-diff-preview")} />;
+}
+
+export function BuildPlanApprovalCommandPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-command-preview")} />;
+}
+
+export function BuildPlanApprovalRuntimePreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-runtime-preview")} />;
+}
+
+export function BuildPlanApprovalAdapterPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-adapter-preview")} />;
+}
+
+export function BuildPlanApprovalRiskGatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-risk-gate")} />;
+}
+
+export function BuildPlanApprovalEvidenceGatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-evidence-gate")} />;
+}
+
+export function BuildPlanApprovalResultGatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-result-gate")} />;
+}
+
+export function BuildPlanApprovalRecoveryGatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-approval-recovery-gate")} />;
+}
+
+export function BuildPlanReadyToExecutePacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-ready-to-execute-packet")} />;
+}
+
+export function BuildPlanExecutionHoldStatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-execution-hold-state")} />;
+}
+
+export function BuildPlanOperatorSignoffPacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("build-plan-operator-signoff-packet")} />;
+}
+
+export function FirstApprovedBuildPlanCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("first-approved-build-plan-candidate")} />;
+}
+
+export function ControlledBuildPlanApprovalReleaseCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-build-plan-approval-release-candidate")} />;
+}

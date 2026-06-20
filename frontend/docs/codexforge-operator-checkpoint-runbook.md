@@ -57,7 +57,7 @@ $phases = [regex]::Matches($allSmoke, 'Phase\s+(\d+)') |
 $phases | Sort-Object -Descending | Select-Object -First 1
 ```
 
-Update checkpoint docs to the actual highest detected phase. If phases 1034-1049 are present and no higher phase exists, document the checkpoint as through phase 1049 and describe the build plan bundle review layer: Build Plan Bundle Boundary, Build Plan Summary Packet, Build Plan Requirements Packet, Build Plan Architecture Packet, Build Plan File Manifest Packet, Build Plan Command Manifest Packet, Build Plan Runtime Manifest Packet, Build Plan Adapter Manifest Packet, Build Plan Validation Manifest Packet, Build Plan Risk Manifest Packet, Build Plan Approval Manifest Packet, Build Plan Evidence Manifest Packet, Build Plan Result Manifest Packet, Build Plan Recovery Manifest Packet, First Complete Build Plan Candidate, and Controlled Build Plan Bundle Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, project adapter execution, game adapter execution, domain adapter execution, file writes, command execution, runtime starts, app scaffolds, website publishing, live data connections, tool creation, research browsing, automation creation, asset rendering, trading or broker calls, data ingestion, documentation export, integration connections, validation execution, evidence/result/model-output persistence, recovery triggers, packaging/export, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported target language must remain broad and cover games, apps, websites, dashboards, tools, research packs, automation workflows, creative workflows, trading workspaces, data workspaces, documentation packs, integrations, and general local projects.
+Update checkpoint docs to the actual highest detected phase. If phases 1050-1065 are present and no higher phase exists, document the checkpoint as through phase 1065 and describe the build plan approval layer: Build Plan Approval Boundary, Build Plan Approval Queue, Build Plan Approval Detail Packet, Build Plan Approval Diff Preview, Build Plan Approval Command Preview, Build Plan Approval Runtime Preview, Build Plan Approval Adapter Preview, Build Plan Approval Risk Gate, Build Plan Approval Evidence Gate, Build Plan Approval Result Gate, Build Plan Approval Recovery Gate, Build Plan Ready-To-Execute Packet, Build Plan Execution Hold State, Build Plan Operator Signoff Packet, First Approved Build Plan Candidate, and Controlled Build Plan Approval Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, not auto-approved, not persisted as approval decisions, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, project adapter execution, game adapter execution, domain adapter execution, file writes, command execution, runtime starts, app scaffolds, website publishing, live data connections, tool creation, research browsing, automation creation, asset rendering, trading or broker calls, data ingestion, documentation export, integration connections, validation execution, evidence/result/model-output persistence, recovery triggers, packaging/export, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported target language must remain broad and cover games, apps, websites, dashboards, tools, research packs, automation workflows, creative workflows, trading workspaces, data workspaces, documentation packs, integrations, and general local projects.
 
 The current phase ledger is:
 
@@ -221,6 +221,22 @@ The current phase ledger is:
 - Phase 1047 - Build Plan Recovery Manifest Packet.
 - Phase 1048 - First Complete Build Plan Candidate.
 - Phase 1049 - Controlled Build Plan Bundle Release Candidate.
+- Phase 1050 - Build Plan Approval Boundary.
+- Phase 1051 - Build Plan Approval Queue.
+- Phase 1052 - Build Plan Approval Detail Packet.
+- Phase 1053 - Build Plan Approval Diff Preview.
+- Phase 1054 - Build Plan Approval Command Preview.
+- Phase 1055 - Build Plan Approval Runtime Preview.
+- Phase 1056 - Build Plan Approval Adapter Preview.
+- Phase 1057 - Build Plan Approval Risk Gate.
+- Phase 1058 - Build Plan Approval Evidence Gate.
+- Phase 1059 - Build Plan Approval Result Gate.
+- Phase 1060 - Build Plan Approval Recovery Gate.
+- Phase 1061 - Build Plan Ready-To-Execute Packet.
+- Phase 1062 - Build Plan Execution Hold State.
+- Phase 1063 - Build Plan Operator Signoff Packet.
+- Phase 1064 - First Approved Build Plan Candidate.
+- Phase 1065 - Controlled Build Plan Approval Release Candidate.
 
 ## Commit And Tag Checkpoint Docs
 
