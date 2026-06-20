@@ -57,7 +57,7 @@ $phases = [regex]::Matches($allSmoke, 'Phase\s+(\d+)') |
 $phases | Sort-Object -Descending | Select-Object -First 1
 ```
 
-Update checkpoint docs to the actual highest detected phase. If phases 835-953 are present and no higher phase exists, document the checkpoint as through phase 953 and describe the controlled model router beta release-candidate layer plus the model-routed backend execution review layer: backend execution router integration boundary, file write/command runner/local runtime/evidence store/result store/recovery/packaging/project scaffold previews, model-routed approval/audit/sandbox/validation/operator-trial packets, first model-routed backend execution candidate, and Controlled Backend Model Router Release Candidate surfaces. The latest model-routed backend execution review phase is 953. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, backend adapter execution, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer.
+Update checkpoint docs to the actual highest detected phase. If phases 954-969 are present and no higher phase exists, document the checkpoint as through phase 969 and describe the project-builder MVP review layer: Project Builder MVP Integration Boundary, Project Goal Intake Packet, Project Domain Classifier Preview, Project Plan Model-Routing Preview, Project File Plan Preview, Project Command Plan Preview, Project Runtime Plan Preview, Project Evidence Plan Preview, Project Result Plan Preview, Project Recovery Plan Preview, Project Packaging Plan Preview, Project Approval Plan Preview, Project Builder Operator Review, First Useful Project Builder Candidate, Project Builder MVP Trial Packet, and Controlled Project Builder Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, file writes, command execution, runtime starts, evidence/result/model-output persistence, recovery triggers, packaging, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer.
 
 The current phase ledger is:
 
@@ -125,6 +125,22 @@ The current phase ledger is:
 - Phase 951 - Model-Routed Execution Operator Trial.
 - Phase 952 - First Model-Routed Backend Execution Candidate.
 - Phase 953 - Controlled Backend Model Router Release Candidate.
+- Phase 954 - Project Builder MVP Integration Boundary.
+- Phase 955 - Project Goal Intake Packet.
+- Phase 956 - Project Domain Classifier Preview.
+- Phase 957 - Project Plan Model-Routing Preview.
+- Phase 958 - Project File Plan Preview.
+- Phase 959 - Project Command Plan Preview.
+- Phase 960 - Project Runtime Plan Preview.
+- Phase 961 - Project Evidence Plan Preview.
+- Phase 962 - Project Result Plan Preview.
+- Phase 963 - Project Recovery Plan Preview.
+- Phase 964 - Project Packaging Plan Preview.
+- Phase 965 - Project Approval Plan Preview.
+- Phase 966 - Project Builder Operator Review.
+- Phase 967 - First Useful Project Builder Candidate.
+- Phase 968 - Project Builder MVP Trial Packet.
+- Phase 969 - Controlled Project Builder Release Candidate.
 
 ## Commit And Tag Checkpoint Docs
 

@@ -52,7 +52,8 @@ $additionalSharedRoots = @(
   "src\lib\codexforge\backend-adapter-implementation-preview-kit",
   "src\lib\codexforge\backend-dry-run-model-router-preview-kit",
   "src\lib\codexforge\model-router-provider-readiness-review-kit",
-  "src\lib\codexforge\first-real-adapter-mvp-design-kit"
+  "src\lib\codexforge\first-real-adapter-mvp-design-kit",
+  "src\lib\codexforge\project-builder-mvp-preview-kit"
 ) | Where-Object { Test-Path $_ }
 $sharedSource = ((Get-ChildItem -Recurse -File $shared) | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
 $additionalSharedSourceParts = @()
