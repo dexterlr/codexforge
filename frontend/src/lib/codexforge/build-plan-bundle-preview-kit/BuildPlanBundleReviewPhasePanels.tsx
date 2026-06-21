@@ -450,3 +450,68 @@ export function FirstSimulatedRuntimeCandidatePanel() {
 export function ControlledSimulatedRuntimeReleaseCandidatePanel() {
   return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-simulated-runtime-release-candidate")} />;
 }
+
+
+export function SimulatedAdapterExecutionBoundaryPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-execution-boundary")} />;
+}
+
+export function SimulatedAdapterIntentPacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-intent-packet")} />;
+}
+
+export function SimulatedAdapterSelectionReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-selection-review")} />;
+}
+
+export function SimulatedAdapterCapabilityReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-capability-review")} />;
+}
+
+export function SimulatedAdapterPermissionReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-permission-review")} />;
+}
+
+export function SimulatedAdapterInputReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-input-review")} />;
+}
+
+export function SimulatedAdapterOutputReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-output-review")} />;
+}
+
+export function SimulatedAdapterRiskReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-risk-review")} />;
+}
+
+export function SimulatedAdapterEvidencePreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-evidence-preview")} />;
+}
+
+export function SimulatedAdapterResultPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-result-preview")} />;
+}
+
+export function SimulatedAdapterFailurePreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-failure-preview")} />;
+}
+
+export function SimulatedAdapterRecoveryPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-recovery-preview")} />;
+}
+
+export function SimulatedAdapterOperatorReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-operator-review")} />;
+}
+
+export function SimulatedAdapterExecutionHoldStatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-adapter-execution-hold-state")} />;
+}
+
+export function FirstSimulatedAdapterCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("first-simulated-adapter-candidate")} />;
+}
+
+export function ControlledSimulatedAdapterReleaseCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-simulated-adapter-release-candidate")} />;
+}

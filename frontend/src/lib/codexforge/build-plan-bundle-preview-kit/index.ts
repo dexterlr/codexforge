@@ -38,7 +38,8 @@ export type BuildPlanBundleReviewSlug =
   | DryRunExecutionHandoffReviewSlug
   | SimulatedFileWriteReviewSlug
   | SimulatedCommandReviewSlug
-  | SimulatedRuntimeReviewSlug;
+  | SimulatedRuntimeReviewSlug
+  | SimulatedAdapterReviewSlug;
 
 export type BuildPlanApprovalReviewSlug =
   | "build-plan-approval-boundary"
@@ -147,6 +148,24 @@ export type SimulatedRuntimeReviewSlug =
   | "simulated-runtime-execution-hold-state"
   | "first-simulated-runtime-candidate"
   | "controlled-simulated-runtime-release-candidate";
+
+export type SimulatedAdapterReviewSlug =
+  | "simulated-adapter-execution-boundary"
+  | "simulated-adapter-intent-packet"
+  | "simulated-adapter-selection-review"
+  | "simulated-adapter-capability-review"
+  | "simulated-adapter-permission-review"
+  | "simulated-adapter-input-review"
+  | "simulated-adapter-output-review"
+  | "simulated-adapter-risk-review"
+  | "simulated-adapter-evidence-preview"
+  | "simulated-adapter-result-preview"
+  | "simulated-adapter-failure-preview"
+  | "simulated-adapter-recovery-preview"
+  | "simulated-adapter-operator-review"
+  | "simulated-adapter-execution-hold-state"
+  | "first-simulated-adapter-candidate"
+  | "controlled-simulated-adapter-release-candidate";
 
 type BuildPlanBundleDefinition = {
   slug: BuildPlanBundleReviewSlug;
@@ -1407,6 +1426,182 @@ export const CONTROLLED_SIMULATED_RUNTIME_RELEASE_CANDIDATE_LANGUAGE = [
   "approval required",
 ] as const;
 
+export const SIMULATED_ADAPTER_EXECUTION_BOUNDARY_LANGUAGE = [
+  "Simulated adapter execution boundary",
+  "Simulated adapter execution boundary does not execute adapters",
+  "Simulated adapter execution requires explicit operator approval",
+  "Simulated adapter execution keeps every adapter blocked",
+  "Denied simulated adapter execution paths remain blocked",
+  "Simulated adapter execution checklist",
+  "static simulated-adapter-execution-boundary preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_INTENT_PACKET_LANGUAGE = [
+  "Simulated adapter intent packet",
+  "Simulated adapter intent packet does not send prompts",
+  "Adapter intent review requires explicit operator approval",
+  "Intent packets preserve shared CodexForge brain context",
+  "Denied simulated adapter intent paths remain blocked",
+  "Simulated adapter intent checklist",
+  "static simulated-adapter-intent-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_SELECTION_REVIEW_LANGUAGE = [
+  "Simulated adapter selection review",
+  "Simulated adapter selection review does not call adapters",
+  "Adapter selection review requires explicit operator approval",
+  "Selection reviews show adapter choices without execution",
+  "Denied simulated adapter selection paths remain blocked",
+  "Simulated adapter selection checklist",
+  "static simulated-adapter-selection-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_CAPABILITY_REVIEW_LANGUAGE = [
+  "Simulated adapter capability review",
+  "Simulated adapter capability review does not probe capabilities",
+  "Adapter capability review requires explicit operator approval",
+  "Capability reviews show declared abilities without probing",
+  "Denied simulated adapter capability paths remain blocked",
+  "Simulated adapter capability checklist",
+  "static simulated-adapter-capability-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_PERMISSION_REVIEW_LANGUAGE = [
+  "Simulated adapter permission review",
+  "Simulated adapter permission review does not grant permissions",
+  "Adapter permission review requires explicit operator approval",
+  "Permission reviews keep every adapter permission blocked",
+  "Denied simulated adapter permission paths remain blocked",
+  "Simulated adapter permission checklist",
+  "static simulated-adapter-permission-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_INPUT_REVIEW_LANGUAGE = [
+  "Simulated adapter input review",
+  "Simulated adapter input review does not submit inputs",
+  "Adapter input review requires explicit operator approval",
+  "Input reviews show contracts without dispatch",
+  "Denied simulated adapter input paths remain blocked",
+  "Simulated adapter input checklist",
+  "static simulated-adapter-input-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_OUTPUT_REVIEW_LANGUAGE = [
+  "Simulated adapter output review",
+  "Simulated adapter output review does not persist outputs",
+  "Adapter output review requires explicit operator approval",
+  "Output reviews route future outputs through shared evidence and result review",
+  "Denied simulated adapter output paths remain blocked",
+  "Simulated adapter output checklist",
+  "static simulated-adapter-output-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_RISK_REVIEW_LANGUAGE = [
+  "Simulated adapter risk review",
+  "Simulated adapter risk review does not approve adapters",
+  "Adapter risk review requires explicit operator approval",
+  "Risk reviews gate file command runtime provider connector automation creative research and game server adapters",
+  "Denied simulated adapter risk paths remain blocked",
+  "Simulated adapter risk checklist",
+  "static simulated-adapter-risk-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_EVIDENCE_PREVIEW_LANGUAGE = [
+  "Simulated adapter evidence preview",
+  "Simulated adapter evidence preview does not persist evidence",
+  "Adapter evidence preview requires explicit operator approval",
+  "Evidence previews route future adapter outputs through shared evidence review",
+  "Denied simulated adapter evidence paths remain blocked",
+  "Simulated adapter evidence checklist",
+  "static simulated-adapter-evidence-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_RESULT_PREVIEW_LANGUAGE = [
+  "Simulated adapter result preview",
+  "Simulated adapter result preview does not persist results",
+  "Adapter result preview requires explicit operator approval",
+  "Result previews route future adapter outputs through shared result review",
+  "Denied simulated adapter result paths remain blocked",
+  "Simulated adapter result checklist",
+  "static simulated-adapter-result-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_FAILURE_PREVIEW_LANGUAGE = [
+  "Simulated adapter failure preview",
+  "Simulated adapter failure preview does not trigger retries",
+  "Adapter failure preview requires explicit operator approval",
+  "Failure previews show blocked retry and triage states",
+  "Denied simulated adapter failure paths remain blocked",
+  "Simulated adapter failure checklist",
+  "static simulated-adapter-failure-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_RECOVERY_PREVIEW_LANGUAGE = [
+  "Simulated adapter recovery preview",
+  "Simulated adapter recovery preview does not trigger recovery",
+  "Adapter recovery preview requires explicit operator approval",
+  "Recovery previews include stop rollback restore retry and cleanup plans",
+  "Denied simulated adapter recovery paths remain blocked",
+  "Simulated adapter recovery checklist",
+  "static simulated-adapter-recovery-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_OPERATOR_REVIEW_LANGUAGE = [
+  "Simulated adapter operator review",
+  "Simulated adapter operator review does not approve actions",
+  "Adapter operator review requires explicit human approval",
+  "Operator reviews keep adapter execution blocked",
+  "Denied simulated adapter operator review paths remain blocked",
+  "Simulated adapter operator review checklist",
+  "static simulated-adapter-operator-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_ADAPTER_EXECUTION_HOLD_STATE_LANGUAGE = [
+  "Simulated adapter execution hold state",
+  "Simulated adapter execution hold state does not release adapters",
+  "Adapter execution hold release requires explicit operator approval",
+  "Execution hold keeps every adapter blocked",
+  "Denied simulated adapter execution hold paths remain blocked",
+  "Simulated adapter execution hold checklist",
+  "static simulated-adapter-execution-hold-state preview",
+  "approval required",
+] as const;
+
+export const FIRST_SIMULATED_ADAPTER_CANDIDATE_LANGUAGE = [
+  "First simulated adapter candidate",
+  "First simulated adapter candidate does not execute adapters",
+  "Simulated adapter candidates require explicit operator approval",
+  "Candidate packets combine intent selection capability permission input output risk evidence result failure and recovery gates",
+  "Denied simulated adapter candidate paths remain blocked",
+  "First simulated adapter checklist",
+  "static first-simulated-adapter-candidate preview",
+  "approval required",
+] as const;
+
+export const CONTROLLED_SIMULATED_ADAPTER_RELEASE_CANDIDATE_LANGUAGE = [
+  "Controlled simulated adapter release candidate",
+  "Controlled simulated adapter release candidate does not call models or execute adapters",
+  "Controlled simulated adapter release requires explicit operator approval",
+  "Release candidate supports adapter previews with shared brain gates",
+  "Denied controlled simulated adapter paths remain blocked",
+  "Controlled simulated adapter release checklist",
+  "static controlled-simulated-adapter-release-candidate preview",
+  "approval required",
+] as const;
+
 export const BUILD_PLAN_BUNDLE_PREVIEW_SAFETY_MARKERS = [
   "build-plan-bundle static review-only preview",
   "deterministic static review content",
@@ -1759,6 +1954,64 @@ const SIMULATED_RUNTIME_SAFETY_POLICIES = [
   "every runtime remains blocked until explicit operator approval",
 ] as const;
 
+const SIMULATED_ADAPTER_FAMILIES = [
+  "file-write adapter",
+  "command-runner adapter",
+  "local-runtime adapter",
+  "project-scaffold adapter",
+  "provider-model adapter",
+  "connector adapter",
+  "automation adapter",
+  "evidence-store adapter",
+  "result-store adapter",
+  "recovery adapter",
+  "packaging adapter",
+  "creative adapter",
+  "research adapter",
+  "chatbot adapter",
+  "game-server adapter",
+  "no-op",
+  "denied",
+  "preview-only",
+] as const;
+
+const SIMULATED_ADAPTER_PREVIEW_FIELDS = [
+  "guarded queue reference",
+  "dry-run ticket reference",
+  "adapter intent",
+  "adapter family",
+  "adapter capability preview",
+  "permission gate",
+  "input contract preview",
+  "output contract preview",
+  "expected evidence preview",
+  "expected result preview",
+  "failure preview",
+  "recovery preview",
+  "operator review state",
+  "adapter execution hold state",
+  "denied adapter execution state",
+  "approval gate name",
+  "explicit approval requirement",
+] as const;
+
+const SIMULATED_ADAPTER_SAFETY_POLICIES = [
+  "show no real adapter call",
+  "show no backend execution",
+  "show no domain execution",
+  "show no connector execution",
+  "show no provider execution",
+  "show no automation execution",
+  "show no creative generation",
+  "show no research execution",
+  "show no game server launch",
+  "show no local runtime start",
+  "show no file mutation",
+  "show no command execution",
+  "every adapter remains blocked until explicit operator approval",
+] as const;
+
+
 const SUPPORTED_BUILD_PLAN_TARGET_FAMILIES = [
   "game target",
   "app target",
@@ -1809,12 +2062,16 @@ function buildBuildPlanBundleDefinition(input: {
   const simulatedCommandOperationTypes = "Simulated command operation types: " + joinSentence(SIMULATED_COMMAND_OPERATION_TYPES) + ".";
   const simulatedCommandPreviewFields = "Simulated command previews include " + joinSentence(SIMULATED_COMMAND_PREVIEW_FIELDS) + ".";
   const simulatedCommandSafetyPolicies = "Simulated command safety policies: " + joinSentence(SIMULATED_COMMAND_SAFETY_POLICIES) + ".";
+  const simulatedAdapterFamilies = "Simulated adapter families: " + joinSentence(SIMULATED_ADAPTER_FAMILIES) + ".";
+  const simulatedAdapterPreviewFields = "Simulated adapter execution previews include " + joinSentence(SIMULATED_ADAPTER_PREVIEW_FIELDS) + ".";
+  const simulatedAdapterSafetyPolicies = "Simulated adapter safety policies: " + joinSentence(SIMULATED_ADAPTER_SAFETY_POLICIES) + ".";
   const supportedTargets = "Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + ".";
   const sharedBrainCopy = "Models are workers. CodexForge is the brain. All paid/free/local/remote/OpenAI-compatible/specialist model workers share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer.";
   const modelRouterCopy = "Model-router policy: cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation.";
   const adapterCopy = "Backend/domain adapter policy: all plan manifests and dry-run tickets remain preview-only; no live execution; no actual dry-run execution; no queue persistence; all real execution requires explicit operator approval; every adapter proposal must name its approval gate; every result must return through shared evidence/result review.";
   const fileAdapterCopy = "Simulated file adapter policy: all file write previews remain preview-only; no live execution; no actual file mutation; no queue persistence; every file operation names its approval gate and returns through shared evidence/result review.";
   const commandAdapterCopy = "Simulated command adapter policy: all command previews remain preview-only; no live execution; no actual command execution; no shell git test build smoke install runtime deploy package or scaffold execution; no queue persistence; every command operation names its approval gate and returns through shared evidence/result review.";
+  const simulatedAdapterCopy = "Simulated adapter execution policy: all adapter previews remain preview-only; no live execution; no actual adapter execution; no backend, domain, connector, provider, automation, creative, research, game server, local runtime, file, or command execution; no queue persistence; every adapter operation names its approval gate and every result returns through shared evidence/result review.";
   const deniedCopy = input.deniedCopy + ". Denied build plan bundle and dry-run execution handoff paths block model calls, provider calls, provider connection tests, local runtime probes, API key reads, secret reads, credential storage, credit spend, prompt sending, remote prompt sending, browsing, deployment, file writes, command execution, runtime starts, game server starts, mod installs, automations, backend adapter execution, domain adapter execution, project adapter execution, game adapter execution, validation execution, evidence persistence, result persistence, recovery, packaging, exports, project scaffolding, model output persistence, automatic memory promotion, hidden approvals, audit writes, live request routing, queue persistence, real queue jobs, execution lock release, and dry-run execution.";
   const checklistCopy = input.checklistLabel + ": " + joinSentence(BUILD_PLAN_BUNDLE_PACKET_FIELDS) + ".";
   return {
@@ -1837,10 +2094,10 @@ function buildBuildPlanBundleDefinition(input: {
     links: input.links,
     nextRecommendedAction: input.nextRecommendedAction,
     plainEnglishTitle: "Plain-English " + input.title.toLowerCase(),
-    plainEnglishCopy: input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + deniedCopy + " " + packetFields + " " + queueStates + " " + dryRunTicketStates + " " + dryRunTicketFields + " " + simulatedFileOperationTypes + " " + simulatedFileWriteFields + " " + simulatedFileSafetyPolicies + " " + simulatedCommandOperationTypes + " " + simulatedCommandPreviewFields + " " + simulatedCommandSafetyPolicies + " " + supportedTargets + " " + sharedBrainCopy + " " + modelRouterCopy + " " + adapterCopy + " " + fileAdapterCopy + " " + commandAdapterCopy + " Preview focus: " + input.previewFocus + ".",
+    plainEnglishCopy: input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + deniedCopy + " " + packetFields + " " + queueStates + " " + dryRunTicketStates + " " + dryRunTicketFields + " " + simulatedFileOperationTypes + " " + simulatedFileWriteFields + " " + simulatedFileSafetyPolicies + " " + simulatedCommandOperationTypes + " " + simulatedCommandPreviewFields + " " + simulatedCommandSafetyPolicies + " " + simulatedAdapterFamilies + " " + simulatedAdapterPreviewFields + " " + simulatedAdapterSafetyPolicies + " " + supportedTargets + " " + sharedBrainCopy + " " + modelRouterCopy + " " + adapterCopy + " " + fileAdapterCopy + " " + commandAdapterCopy + " " + simulatedAdapterCopy + " Preview focus: " + input.previewFocus + ".",
     identity: input.title + " identity: " + input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + input.deniedCopy + ". " + sharedBrainCopy + " Static preview-only review content remains blocked until explicit operator approval.",
-    advancedDetails: [input.markerTitle, input.safetyCopy, input.approvalCopy, input.supportCopy, input.deniedCopy, packetFields, queueStates, dryRunTicketStates, dryRunTicketFields, simulatedFileOperationTypes, simulatedFileWriteFields, simulatedFileSafetyPolicies, simulatedCommandOperationTypes, simulatedCommandPreviewFields, simulatedCommandSafetyPolicies, supportedTargets, sharedBrainCopy, modelRouterCopy, adapterCopy, fileAdapterCopy, commandAdapterCopy, deniedCopy, checklistCopy, "Static preview focus fields: " + joinSentence(input.fieldItems) + ".", "Operator decision state: blocked until explicit human approval confirms original operator goal, clarified goal, target family, target recommendation, requirements, architecture, files, commands, runtimes, adapters, validation, risk, approvals, evidence, result, recovery, packaging, model routing, dry-run intent, file operation type, target path preview, diff preview, safety gate, apply hold state, denied mutation state, and safety gates."],
-    advancedCopy: input.title + " remains deterministic, static, local-first, review-only, and approval-gated. It does not call models, call providers, send prompts, read secrets, store credentials, spend credits, execute backend adapters, execute domain adapters, write files, run commands, start runtimes, scaffold projects, browse, deploy, package outputs, persist model outputs, persist evidence/results, trigger recovery, run validation, run dry-runs, release execution locks, persist queues, create queue jobs, or promote memory automatically. Simulated command previews remain static, preview-only, approval-gated, denied by default, and blocked from shell, git, test, build, smoke, install, runtime, deploy, package, scaffold, and no-op execution.",
+    advancedDetails: [input.markerTitle, input.safetyCopy, input.approvalCopy, input.supportCopy, input.deniedCopy, packetFields, queueStates, dryRunTicketStates, dryRunTicketFields, simulatedFileOperationTypes, simulatedFileWriteFields, simulatedFileSafetyPolicies, simulatedCommandOperationTypes, simulatedCommandPreviewFields, simulatedCommandSafetyPolicies, simulatedAdapterFamilies, simulatedAdapterPreviewFields, simulatedAdapterSafetyPolicies, supportedTargets, sharedBrainCopy, modelRouterCopy, adapterCopy, fileAdapterCopy, commandAdapterCopy, simulatedAdapterCopy, deniedCopy, checklistCopy, "Static preview focus fields: " + joinSentence(input.fieldItems) + ".", "Operator decision state: blocked until explicit human approval confirms original operator goal, clarified goal, target family, target recommendation, requirements, architecture, files, commands, runtimes, adapters, validation, risk, approvals, evidence, result, recovery, packaging, model routing, dry-run intent, file operation type, target path preview, diff preview, safety gate, apply hold state, denied mutation state, and safety gates."],
+    advancedCopy: input.title + " remains deterministic, static, local-first, review-only, and approval-gated. It does not call models, call providers, send prompts, read secrets, store credentials, spend credits, execute backend adapters, execute domain adapters, write files, run commands, start runtimes, scaffold projects, browse, deploy, package outputs, persist model outputs, persist evidence/results, trigger recovery, run validation, run dry-runs, release execution locks, persist queues, create queue jobs, or promote memory automatically. Simulated command previews remain static, preview-only, approval-gated, denied by default, and blocked from shell, git, test, build, smoke, install, runtime, deploy, package, scaffold, and no-op execution. Simulated adapter execution previews remain static, preview-only, approval-gated, denied by default, and blocked from backend, domain, connector, provider, automation, creative, research, game server, local runtime, file, command, and adapter execution.",
     dataScope: input.slug + " build-plan-bundle review-only approval required denied execution static preview",
   };
 }
@@ -4157,14 +4414,401 @@ const SIMULATED_RUNTIME_DEFINITION_INPUTS = [
     previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
     language: CONTROLLED_SIMULATED_RUNTIME_RELEASE_CANDIDATE_LANGUAGE,
     fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1145 fields", "preview-only runtime denial"],
-    routes: ["/first-simulated-runtime-candidate", "/simulated-runtime-execution-boundary", "/dry-run-runtime-ticket"],
+    routes: ["/first-simulated-runtime-candidate", "/simulated-adapter-execution-boundary", "/dry-run-runtime-ticket"],
     links: [
       { href: "/first-simulated-runtime-candidate", label: "Previous Phase" },
-      { href: "/simulated-runtime-execution-boundary", label: "Next Phase" },
+      { href: "/simulated-adapter-execution-boundary", label: "Next Phase" },
       { href: "/dry-run-runtime-ticket", label: "Dry-Run Runtime Ticket" },
     ],
     nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
   },
+] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
+
+const SIMULATED_ADAPTER_DEFINITION_INPUTS = [
+  {
+    slug: "simulated-adapter-execution-boundary",
+    phase: "Phase 1146",
+    title: "Simulated Adapter Execution Boundary",
+    markerTitle: "Simulated adapter execution boundary",
+    safetyCopy: "Simulated adapter execution boundary does not execute adapters",
+    approvalCopy: "Simulated adapter execution requires explicit operator approval",
+    supportCopy: "Simulated adapter execution keeps every adapter blocked",
+    deniedCopy: "Denied simulated adapter execution paths remain blocked",
+    checklistLabel: "Simulated adapter execution checklist",
+    subtitle: "Review Simulated Adapter Execution Boundary as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Execution Boundary fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_EXECUTION_BOUNDARY_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter boundary fields", "preview-only adapter denial"],
+    routes: ["/controlled-simulated-runtime-release-candidate", "/simulated-adapter-intent-packet", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/controlled-simulated-runtime-release-candidate", label: "Previous Family" },
+      { href: "/simulated-adapter-intent-packet", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-intent-packet",
+    phase: "Phase 1147",
+    title: "Simulated Adapter Intent Packet",
+    markerTitle: "Simulated adapter intent packet",
+    safetyCopy: "Simulated adapter intent packet does not send prompts",
+    approvalCopy: "Adapter intent review requires explicit operator approval",
+    supportCopy: "Intent packets preserve shared CodexForge brain context",
+    deniedCopy: "Denied simulated adapter intent paths remain blocked",
+    checklistLabel: "Simulated adapter intent checklist",
+    subtitle: "Review Simulated Adapter Intent Packet as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Intent Packet fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_INTENT_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter intent fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-execution-boundary", "/simulated-adapter-selection-review", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-execution-boundary", label: "Previous Phase" },
+      { href: "/simulated-adapter-selection-review", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-selection-review",
+    phase: "Phase 1148",
+    title: "Simulated Adapter Selection Review",
+    markerTitle: "Simulated adapter selection review",
+    safetyCopy: "Simulated adapter selection review does not call adapters",
+    approvalCopy: "Adapter selection review requires explicit operator approval",
+    supportCopy: "Selection reviews show adapter choices without execution",
+    deniedCopy: "Denied simulated adapter selection paths remain blocked",
+    checklistLabel: "Simulated adapter selection checklist",
+    subtitle: "Review Simulated Adapter Selection Review as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Selection Review fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_SELECTION_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter selection fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-intent-packet", "/simulated-adapter-capability-review", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-intent-packet", label: "Previous Phase" },
+      { href: "/simulated-adapter-capability-review", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-capability-review",
+    phase: "Phase 1149",
+    title: "Simulated Adapter Capability Review",
+    markerTitle: "Simulated adapter capability review",
+    safetyCopy: "Simulated adapter capability review does not probe capabilities",
+    approvalCopy: "Adapter capability review requires explicit operator approval",
+    supportCopy: "Capability reviews show declared abilities without probing",
+    deniedCopy: "Denied simulated adapter capability paths remain blocked",
+    checklistLabel: "Simulated adapter capability checklist",
+    subtitle: "Review Simulated Adapter Capability Review as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Capability Review fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_CAPABILITY_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter capability fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-selection-review", "/simulated-adapter-permission-review", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-selection-review", label: "Previous Phase" },
+      { href: "/simulated-adapter-permission-review", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-permission-review",
+    phase: "Phase 1150",
+    title: "Simulated Adapter Permission Review",
+    markerTitle: "Simulated adapter permission review",
+    safetyCopy: "Simulated adapter permission review does not grant permissions",
+    approvalCopy: "Adapter permission review requires explicit operator approval",
+    supportCopy: "Permission reviews keep every adapter permission blocked",
+    deniedCopy: "Denied simulated adapter permission paths remain blocked",
+    checklistLabel: "Simulated adapter permission checklist",
+    subtitle: "Review Simulated Adapter Permission Review as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Permission Review fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_PERMISSION_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter permission fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-capability-review", "/simulated-adapter-input-review", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-capability-review", label: "Previous Phase" },
+      { href: "/simulated-adapter-input-review", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-input-review",
+    phase: "Phase 1151",
+    title: "Simulated Adapter Input Review",
+    markerTitle: "Simulated adapter input review",
+    safetyCopy: "Simulated adapter input review does not submit inputs",
+    approvalCopy: "Adapter input review requires explicit operator approval",
+    supportCopy: "Input reviews show contracts without dispatch",
+    deniedCopy: "Denied simulated adapter input paths remain blocked",
+    checklistLabel: "Simulated adapter input checklist",
+    subtitle: "Review Simulated Adapter Input Review as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Input Review fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_INPUT_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter input fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-permission-review", "/simulated-adapter-output-review", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-permission-review", label: "Previous Phase" },
+      { href: "/simulated-adapter-output-review", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-output-review",
+    phase: "Phase 1152",
+    title: "Simulated Adapter Output Review",
+    markerTitle: "Simulated adapter output review",
+    safetyCopy: "Simulated adapter output review does not persist outputs",
+    approvalCopy: "Adapter output review requires explicit operator approval",
+    supportCopy: "Output reviews route future outputs through shared evidence and result review",
+    deniedCopy: "Denied simulated adapter output paths remain blocked",
+    checklistLabel: "Simulated adapter output checklist",
+    subtitle: "Review Simulated Adapter Output Review as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Output Review fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_OUTPUT_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter output fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-input-review", "/simulated-adapter-risk-review", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-input-review", label: "Previous Phase" },
+      { href: "/simulated-adapter-risk-review", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-risk-review",
+    phase: "Phase 1153",
+    title: "Simulated Adapter Risk Review",
+    markerTitle: "Simulated adapter risk review",
+    safetyCopy: "Simulated adapter risk review does not approve adapters",
+    approvalCopy: "Adapter risk review requires explicit operator approval",
+    supportCopy: "Risk reviews gate file command runtime provider connector automation creative research and game server adapters",
+    deniedCopy: "Denied simulated adapter risk paths remain blocked",
+    checklistLabel: "Simulated adapter risk checklist",
+    subtitle: "Review Simulated Adapter Risk Review as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Risk Review fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_RISK_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter risk fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-output-review", "/simulated-adapter-evidence-preview", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-output-review", label: "Previous Phase" },
+      { href: "/simulated-adapter-evidence-preview", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-evidence-preview",
+    phase: "Phase 1154",
+    title: "Simulated Adapter Evidence Preview",
+    markerTitle: "Simulated adapter evidence preview",
+    safetyCopy: "Simulated adapter evidence preview does not persist evidence",
+    approvalCopy: "Adapter evidence preview requires explicit operator approval",
+    supportCopy: "Evidence previews route future adapter outputs through shared evidence review",
+    deniedCopy: "Denied simulated adapter evidence paths remain blocked",
+    checklistLabel: "Simulated adapter evidence checklist",
+    subtitle: "Review Simulated Adapter Evidence Preview as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Evidence Preview fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_EVIDENCE_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter evidence fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-risk-review", "/simulated-adapter-result-preview", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-risk-review", label: "Previous Phase" },
+      { href: "/simulated-adapter-result-preview", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-result-preview",
+    phase: "Phase 1155",
+    title: "Simulated Adapter Result Preview",
+    markerTitle: "Simulated adapter result preview",
+    safetyCopy: "Simulated adapter result preview does not persist results",
+    approvalCopy: "Adapter result preview requires explicit operator approval",
+    supportCopy: "Result previews route future adapter outputs through shared result review",
+    deniedCopy: "Denied simulated adapter result paths remain blocked",
+    checklistLabel: "Simulated adapter result checklist",
+    subtitle: "Review Simulated Adapter Result Preview as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Result Preview fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_RESULT_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter result fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-evidence-preview", "/simulated-adapter-failure-preview", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-evidence-preview", label: "Previous Phase" },
+      { href: "/simulated-adapter-failure-preview", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-failure-preview",
+    phase: "Phase 1156",
+    title: "Simulated Adapter Failure Preview",
+    markerTitle: "Simulated adapter failure preview",
+    safetyCopy: "Simulated adapter failure preview does not trigger retries",
+    approvalCopy: "Adapter failure preview requires explicit operator approval",
+    supportCopy: "Failure previews show blocked retry and triage states",
+    deniedCopy: "Denied simulated adapter failure paths remain blocked",
+    checklistLabel: "Simulated adapter failure checklist",
+    subtitle: "Review Simulated Adapter Failure Preview as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Failure Preview fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_FAILURE_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter failure fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-result-preview", "/simulated-adapter-recovery-preview", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-result-preview", label: "Previous Phase" },
+      { href: "/simulated-adapter-recovery-preview", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-recovery-preview",
+    phase: "Phase 1157",
+    title: "Simulated Adapter Recovery Preview",
+    markerTitle: "Simulated adapter recovery preview",
+    safetyCopy: "Simulated adapter recovery preview does not trigger recovery",
+    approvalCopy: "Adapter recovery preview requires explicit operator approval",
+    supportCopy: "Recovery previews include stop rollback restore retry and cleanup plans",
+    deniedCopy: "Denied simulated adapter recovery paths remain blocked",
+    checklistLabel: "Simulated adapter recovery checklist",
+    subtitle: "Review Simulated Adapter Recovery Preview as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Recovery Preview fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_RECOVERY_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter recovery fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-failure-preview", "/simulated-adapter-operator-review", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-failure-preview", label: "Previous Phase" },
+      { href: "/simulated-adapter-operator-review", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-operator-review",
+    phase: "Phase 1158",
+    title: "Simulated Adapter Operator Review",
+    markerTitle: "Simulated adapter operator review",
+    safetyCopy: "Simulated adapter operator review does not approve actions",
+    approvalCopy: "Adapter operator review requires explicit human approval",
+    supportCopy: "Operator reviews keep adapter execution blocked",
+    deniedCopy: "Denied simulated adapter operator review paths remain blocked",
+    checklistLabel: "Simulated adapter operator review checklist",
+    subtitle: "Review Simulated Adapter Operator Review as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Operator Review fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_OPERATOR_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter operator fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-recovery-preview", "/simulated-adapter-execution-hold-state", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-recovery-preview", label: "Previous Phase" },
+      { href: "/simulated-adapter-execution-hold-state", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-adapter-execution-hold-state",
+    phase: "Phase 1159",
+    title: "Simulated Adapter Execution Hold State",
+    markerTitle: "Simulated adapter execution hold state",
+    safetyCopy: "Simulated adapter execution hold state does not release adapters",
+    approvalCopy: "Adapter execution hold release requires explicit operator approval",
+    supportCopy: "Execution hold keeps every adapter blocked",
+    deniedCopy: "Denied simulated adapter execution hold paths remain blocked",
+    checklistLabel: "Simulated adapter execution hold checklist",
+    subtitle: "Review Simulated Adapter Execution Hold State as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Simulated Adapter Execution Hold State fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: SIMULATED_ADAPTER_EXECUTION_HOLD_STATE_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter hold fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-operator-review", "/first-simulated-adapter-candidate", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-operator-review", label: "Previous Phase" },
+      { href: "/first-simulated-adapter-candidate", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "first-simulated-adapter-candidate",
+    phase: "Phase 1160",
+    title: "First Simulated Adapter Candidate",
+    markerTitle: "First simulated adapter candidate",
+    safetyCopy: "First simulated adapter candidate does not execute adapters",
+    approvalCopy: "Simulated adapter candidates require explicit operator approval",
+    supportCopy: "Candidate packets combine intent selection capability permission input output risk evidence result failure and recovery gates",
+    deniedCopy: "Denied simulated adapter candidate paths remain blocked",
+    checklistLabel: "First simulated adapter checklist",
+    subtitle: "Review First Simulated Adapter Candidate as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "First Simulated Adapter Candidate fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: FIRST_SIMULATED_ADAPTER_CANDIDATE_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter candidate fields", "preview-only adapter denial"],
+    routes: ["/simulated-adapter-execution-hold-state", "/controlled-simulated-adapter-release-candidate", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/simulated-adapter-execution-hold-state", label: "Previous Phase" },
+      { href: "/controlled-simulated-adapter-release-candidate", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "controlled-simulated-adapter-release-candidate",
+    phase: "Phase 1161",
+    title: "Controlled Simulated Adapter Release Candidate",
+    markerTitle: "Controlled simulated adapter release candidate",
+    safetyCopy: "Controlled simulated adapter release candidate does not call models or execute adapters",
+    approvalCopy: "Controlled simulated adapter release requires explicit operator approval",
+    supportCopy: "Release candidate supports adapter previews with shared brain gates",
+    deniedCopy: "Denied controlled simulated adapter paths remain blocked",
+    checklistLabel: "Controlled simulated adapter release checklist",
+    subtitle: "Review Controlled Simulated Adapter Release Candidate as a static adapter execution preview without model calls, provider calls, connector calls, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, backend execution, domain execution, or adapter execution.",
+    primaryLabel: "Review adapter preview",
+    groupLabel: "Controlled Simulated Adapter Release Candidate fields",
+    previewFocus: "adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, guarded queue reference, dry-run ticket reference, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, approval gate name, explicit approval requirement, model router policy, shared brain context, and shared evidence/result review",
+    language: CONTROLLED_SIMULATED_ADAPTER_RELEASE_CANDIDATE_LANGUAGE,
+    fieldItems: [...SIMULATED_ADAPTER_PREVIEW_FIELDS, "simulated adapter release fields", "preview-only adapter denial"],
+    routes: ["/first-simulated-adapter-candidate", "/simulated-adapter-execution-boundary", "/dry-run-adapter-ticket"],
+    links: [
+      { href: "/first-simulated-adapter-candidate", label: "Previous Phase" },
+      { href: "/simulated-adapter-execution-boundary", label: "Next Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Dry-Run Adapter Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated adapter preview while every adapter remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  }
 ] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
 
 export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, BuildPlanBundleDefinition> = {
@@ -4570,6 +5214,9 @@ export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, Bu
   ...(Object.fromEntries(
     SIMULATED_RUNTIME_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
   ) as Record<SimulatedRuntimeReviewSlug, BuildPlanBundleDefinition>),
+  ...(Object.fromEntries(
+    SIMULATED_ADAPTER_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
+  ) as Record<SimulatedAdapterReviewSlug, BuildPlanBundleDefinition>),
 };
 
 export function buildBuildPlanBundleReview(slug: BuildPlanBundleReviewSlug, input: BuildPlanBundleReviewPacketInput): UniversalExecutionReviewPacket {
@@ -4609,6 +5256,9 @@ export function buildBuildPlanBundleReviewPackets(slug: BuildPlanBundleReviewSlu
     { label: "Simulated runtime families", items: ["Simulated runtime families: " + joinSentence(SIMULATED_RUNTIME_FAMILIES) + "."] },
     { label: "Simulated runtime preview fields", items: ["Simulated runtime previews include " + joinSentence(SIMULATED_RUNTIME_PREVIEW_FIELDS) + "."] },
     { label: "Simulated runtime safety policy", items: ["Simulated runtime safety policy: " + joinSentence(SIMULATED_RUNTIME_SAFETY_POLICIES) + "."] },
+    { label: "Simulated adapter families", items: ["Simulated adapter families: " + joinSentence(SIMULATED_ADAPTER_FAMILIES) + "."] },
+    { label: "Simulated adapter preview fields", items: ["Simulated adapter execution previews include " + joinSentence(SIMULATED_ADAPTER_PREVIEW_FIELDS) + "."] },
+    { label: "Simulated adapter safety policy", items: ["Simulated adapter safety policy: " + joinSentence(SIMULATED_ADAPTER_SAFETY_POLICIES) + "."] },
     { label: "Supported target families", items: ["Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + "."] },
     { label: "Model router policy", items: ["Cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation."] },
     { label: "Backend adapter policy", items: ["Backend adapter proposals remain preview-only, do not execute adapters, name their approval gate, and return through shared evidence/result review after explicit operator approval."] },

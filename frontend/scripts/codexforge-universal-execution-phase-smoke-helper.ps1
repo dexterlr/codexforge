@@ -553,7 +553,23 @@ $protectedRoutes = @(
   "/simulated-runtime-operator-review",
   "/simulated-runtime-execution-hold-state",
   "/first-simulated-runtime-candidate",
-  "/controlled-simulated-runtime-release-candidate"
+  "/controlled-simulated-runtime-release-candidate",
+  "/simulated-adapter-execution-boundary",
+  "/simulated-adapter-intent-packet",
+  "/simulated-adapter-selection-review",
+  "/simulated-adapter-capability-review",
+  "/simulated-adapter-permission-review",
+  "/simulated-adapter-input-review",
+  "/simulated-adapter-output-review",
+  "/simulated-adapter-risk-review",
+  "/simulated-adapter-evidence-preview",
+  "/simulated-adapter-result-preview",
+  "/simulated-adapter-failure-preview",
+  "/simulated-adapter-recovery-preview",
+  "/simulated-adapter-operator-review",
+  "/simulated-adapter-execution-hold-state",
+  "/first-simulated-adapter-candidate",
+  "/controlled-simulated-adapter-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `
