@@ -586,6 +586,22 @@ $protectedRoutes = @(
   "/file-write-cockpit-integration-contract",
   "/first-real-guarded-file-write-candidate",
   "/controlled-real-guarded-file-write-mvp-release-candidate",
+  "/real-guarded-command-runner-adapter-boundary",
+  "/command-runner-adapter-contract",
+  "/command-allowlist-policy",
+  "/command-argument-guard",
+  "/command-working-directory-guard",
+  "/command-environment-guard",
+  "/command-approval-ticket",
+  "/command-preflight-review",
+  "/command-execution-hold",
+  "/command-evidence-capture-contract",
+  "/command-result-capture-contract",
+  "/command-recovery-contract",
+  "/command-dry-run-harness",
+  "/command-cockpit-integration-contract",
+  "/first-real-guarded-command-candidate",
+  "/controlled-real-guarded-command-mvp-release-candidate",
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `

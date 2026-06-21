@@ -579,3 +579,67 @@ export function FirstRealGuardedFileWriteCandidatePanel() {
 export function ControlledRealGuardedFileWriteMvpReleaseCandidatePanel() {
   return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-real-guarded-file-write-mvp-release-candidate")} />;
 }
+
+export function RealGuardedCommandRunnerAdapterBoundaryPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("real-guarded-command-runner-adapter-boundary")} />;
+}
+
+export function CommandRunnerAdapterContractPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-runner-adapter-contract")} />;
+}
+
+export function CommandAllowlistPolicyPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-allowlist-policy")} />;
+}
+
+export function CommandArgumentGuardPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-argument-guard")} />;
+}
+
+export function CommandWorkingDirectoryGuardPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-working-directory-guard")} />;
+}
+
+export function CommandEnvironmentGuardPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-environment-guard")} />;
+}
+
+export function CommandApprovalTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-approval-ticket")} />;
+}
+
+export function CommandPreflightReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-preflight-review")} />;
+}
+
+export function CommandExecutionHoldPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-execution-hold")} />;
+}
+
+export function CommandEvidenceCaptureContractPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-evidence-capture-contract")} />;
+}
+
+export function CommandResultCaptureContractPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-result-capture-contract")} />;
+}
+
+export function CommandRecoveryContractPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-recovery-contract")} />;
+}
+
+export function CommandDryRunHarnessPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-dry-run-harness")} />;
+}
+
+export function CommandCockpitIntegrationContractPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("command-cockpit-integration-contract")} />;
+}
+
+export function FirstRealGuardedCommandCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("first-real-guarded-command-candidate")} />;
+}
+
+export function ControlledRealGuardedCommandMvpReleaseCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-real-guarded-command-mvp-release-candidate")} />;
+}

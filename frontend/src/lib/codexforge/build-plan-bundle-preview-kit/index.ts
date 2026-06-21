@@ -40,7 +40,8 @@ export type BuildPlanBundleReviewSlug =
   | SimulatedCommandReviewSlug
   | SimulatedRuntimeReviewSlug
   | SimulatedAdapterReviewSlug
-  | RealGuardedFileWriteReviewSlug;
+  | RealGuardedFileWriteReviewSlug
+  | RealGuardedCommandRunnerReviewSlug;
 
 export type BuildPlanApprovalReviewSlug =
   | "build-plan-approval-boundary"
@@ -185,6 +186,403 @@ export type RealGuardedFileWriteReviewSlug =
   | "file-write-cockpit-integration-contract"
   | "first-real-guarded-file-write-candidate"
   | "controlled-real-guarded-file-write-mvp-release-candidate";
+
+export type RealGuardedCommandRunnerReviewSlug =
+  | "real-guarded-command-runner-adapter-boundary"
+  | "command-runner-adapter-contract"
+  | "command-allowlist-policy"
+  | "command-argument-guard"
+  | "command-working-directory-guard"
+  | "command-environment-guard"
+  | "command-approval-ticket"
+  | "command-preflight-review"
+  | "command-execution-hold"
+  | "command-evidence-capture-contract"
+  | "command-result-capture-contract"
+  | "command-recovery-contract"
+  | "command-dry-run-harness"
+  | "command-cockpit-integration-contract"
+  | "first-real-guarded-command-candidate"
+  | "controlled-real-guarded-command-mvp-release-candidate";
+
+export type RealGuardedCommandRunnerCommandFamily =
+  | "build command"
+  | "test command"
+  | "smoke command"
+  | "lint command"
+  | "format check command"
+  | "git status command"
+  | "read-only diagnostic command"
+  | "package command preview"
+  | "runtime start preview"
+  | "no-op"
+  | "denied"
+  | "preview-only";
+
+export type RealGuardedCommandRunnerResultState = "success" | "denied" | "blocked" | "failed" | "timeout" | "needs review";
+
+export type RealGuardedCommandRunnerHoldState = "blocked until approval" | "denied by guard";
+
+export type RealGuardedCommandRunnerGuardDecision = {
+  state: RealGuardedCommandRunnerHoldState;
+  reasons: readonly string[];
+};
+
+export type RealGuardedCommandRunnerRequest = {
+  adapterId?: string;
+  commandFamily: RealGuardedCommandRunnerCommandFamily;
+  executable: string;
+  args: readonly string[];
+  workspaceRoot: string;
+  workingDirectory: string;
+  envNames: readonly string[];
+  explicitApprovalGate: boolean;
+};
+
+export type RealGuardedCommandRunnerAdapterContract = {
+  adapterId: string;
+  adapterFamily: "real guarded command-runner";
+  allowedCommandFamilies: readonly RealGuardedCommandRunnerCommandFamily[];
+  explicitApprovalGate: "required";
+  commandAllowlistPolicy: readonly string[];
+  argumentGuard: readonly string[];
+  workingDirectoryGuard: readonly string[];
+  environmentGuard: readonly string[];
+  deniedCommandReasons: readonly string[];
+  stdoutCaptureContract: string;
+  stderrCaptureContract: string;
+  exitCodeCaptureContract: string;
+  evidenceCaptureContract: readonly string[];
+  resultCaptureContract: readonly RealGuardedCommandRunnerResultState[];
+  recoveryContract: readonly string[];
+  dryRunHarnessContract: readonly string[];
+  cockpitIntegrationShape: readonly string[];
+  operatorReviewPacket: readonly string[];
+  executionHoldState: RealGuardedCommandRunnerHoldState;
+  deniedExecutionState: "denied by guard";
+};
+
+export type RealGuardedCommandRunnerDryRunPacket = {
+  adapterId: string;
+  commandFamily: RealGuardedCommandRunnerCommandFamily;
+  commandPreview: string;
+  workingDirectoryPreview: string;
+  environmentVariableNames: readonly string[];
+  approvalIdPlaceholder: string;
+  operatorIdPlaceholder: string;
+  timestampPlaceholder: string;
+  stdoutPlaceholder: string;
+  stderrPlaceholder: string;
+  exitCodePlaceholder: string;
+  evidenceContract: readonly string[];
+  resultContract: readonly RealGuardedCommandRunnerResultState[];
+  recoveryContract: readonly string[];
+  holdState: RealGuardedCommandRunnerHoldState;
+  deniedReasons: readonly string[];
+  approvalRequired: true;
+  previewOnly: true;
+};
+
+export const REAL_GUARDED_COMMAND_RUNNER_COMMAND_FAMILIES = [
+  "build command",
+  "test command",
+  "smoke command",
+  "lint command",
+  "format check command",
+  "git status command",
+  "read-only diagnostic command",
+  "package command preview",
+  "runtime start preview",
+  "no-op",
+  "denied",
+  "preview-only",
+] as const satisfies readonly RealGuardedCommandRunnerCommandFamily[];
+
+export const REAL_GUARDED_COMMAND_RUNNER_ADAPTER_FIELDS = [
+  "adapter id",
+  "adapter family",
+  "allowed command families",
+  "explicit approval gate",
+  "command allowlist policy",
+  "argument guard",
+  "working directory guard",
+  "environment guard",
+  "denied command reasons",
+  "stdout capture contract",
+  "stderr capture contract",
+  "exit code capture contract",
+  "evidence capture contract",
+  "result capture contract",
+  "recovery contract",
+  "dry-run harness contract",
+  "cockpit integration shape",
+  "operator review packet",
+  "execution hold state",
+  "denied execution state",
+] as const;
+
+export const REAL_GUARDED_COMMAND_RUNNER_DENIED_REASONS = [
+  "destructive shell command",
+  "package install in this MVP",
+  "git mutation in this MVP",
+  "deploy command",
+  "arbitrary script",
+  "command with secrets",
+  "command outside workspace",
+  "path traversal",
+  "shell chaining",
+  "redirection to files",
+  "background process launch",
+  "unknown executable",
+  "environment value exposure",
+  "credential forwarding",
+] as const;
+
+export const REAL_GUARDED_COMMAND_RUNNER_EVIDENCE_FIELDS = [
+  "stdout placeholder",
+  "stderr placeholder",
+  "exit-code placeholder",
+  "command preview",
+  "working-directory preview",
+  "approval id placeholder",
+  "operator id placeholder",
+  "timestamp placeholder",
+] as const;
+
+export const REAL_GUARDED_COMMAND_RUNNER_RECOVERY_FIELDS = [
+  "retry",
+  "stop",
+  "rollback related file write",
+  "restore prior state",
+  "explain failure",
+] as const;
+
+export const REAL_GUARDED_COMMAND_RUNNER_COCKPIT_PANELS = [
+  "goal panel",
+  "plan panel",
+  "command panel",
+  "approval panel",
+  "execution state panel",
+  "evidence panel",
+  "result panel",
+  "recovery panel",
+] as const;
+
+export const REAL_GUARDED_COMMAND_RUNNER_ALLOWED_EXECUTABLES = [
+  "npm",
+  "pnpm",
+  "yarn",
+  "bun",
+  "git",
+  "tsc",
+  "eslint",
+  "prettier",
+  "node",
+  "dotnet",
+  "python",
+  "pytest",
+  "go",
+  "cargo",
+  "mvn",
+  "gradle",
+  "echo",
+  "noop",
+] as const;
+
+const REAL_GUARDED_COMMAND_RUNNER_DESTRUCTIVE_EXECUTABLES = ["rm", "del", "erase", "rmdir", "remove-item", "format", "shutdown"] as const;
+const REAL_GUARDED_COMMAND_RUNNER_DEPLOY_EXECUTABLES = ["vercel", "netlify", "firebase", "docker", "kubectl", "terraform"] as const;
+const REAL_GUARDED_COMMAND_RUNNER_SCRIPT_EXECUTABLES = ["bash", "sh", "cmd", "powershell", "pwsh"] as const;
+const REAL_GUARDED_COMMAND_RUNNER_PACKAGE_EXECUTABLES = ["npm", "pnpm", "yarn", "bun"] as const;
+const REAL_GUARDED_COMMAND_RUNNER_PACKAGE_INSTALL_ARGS = ["install", "add", "i"] as const;
+const REAL_GUARDED_COMMAND_RUNNER_GIT_MUTATION_ARGS = ["add", "commit", "push", "pull", "merge", "rebase", "checkout", "switch", "reset", "clean", "tag", "branch", "stash", "cherry-pick"] as const;
+const REAL_GUARDED_COMMAND_RUNNER_CHAIN_MARKERS = ["&&", "||", ";", "|"] as const;
+const REAL_GUARDED_COMMAND_RUNNER_REDIRECTION_MARKERS = [">", ">>", "<"] as const;
+const REAL_GUARDED_COMMAND_RUNNER_SECRET_MARKERS = ["secret", "token", "api_key", "apikey", "password", "credential"] as const;
+
+function includesAnyGuardMarker(value: string, markers: readonly string[]): boolean {
+  const normalized = value.toLowerCase();
+  return markers.some((marker) => normalized.includes(marker));
+}
+
+function hasExactGuardToken(values: readonly string[], tokens: readonly string[]): boolean {
+  return values.some((value) => tokens.includes(value.toLowerCase()));
+}
+
+function isWorkspaceBoundedPath(workspaceRoot: string, workingDirectory: string): boolean {
+  const normalizedRoot = workspaceRoot.trim().replace(/\\/g, "/").replace(/\/+$/, "");
+  const normalizedWorkingDirectory = workingDirectory.trim().replace(/\\/g, "/").replace(/\/+$/, "");
+  if (!normalizedRoot || !normalizedWorkingDirectory) {
+    return false;
+  }
+
+  return normalizedWorkingDirectory === normalizedRoot || normalizedWorkingDirectory.startsWith(normalizedRoot + "/");
+}
+
+export function validateGuardedCommandRunnerCandidate(input: RealGuardedCommandRunnerRequest): RealGuardedCommandRunnerGuardDecision {
+  const executable = input.executable.trim().toLowerCase();
+  const args = input.args.map((arg) => arg.trim()).filter(Boolean);
+  const joinedArgs = args.join(" ");
+  const reasons: string[] = [];
+
+  if (!input.explicitApprovalGate) {
+    reasons.push("explicit operator approval gate is missing");
+  }
+
+  if (!REAL_GUARDED_COMMAND_RUNNER_ALLOWED_EXECUTABLES.includes(executable as (typeof REAL_GUARDED_COMMAND_RUNNER_ALLOWED_EXECUTABLES)[number])) {
+    reasons.push("unknown executable");
+  }
+
+  if (REAL_GUARDED_COMMAND_RUNNER_DESTRUCTIVE_EXECUTABLES.includes(executable as (typeof REAL_GUARDED_COMMAND_RUNNER_DESTRUCTIVE_EXECUTABLES)[number])) {
+    reasons.push("destructive shell command");
+  }
+
+  if (REAL_GUARDED_COMMAND_RUNNER_PACKAGE_EXECUTABLES.includes(executable as (typeof REAL_GUARDED_COMMAND_RUNNER_PACKAGE_EXECUTABLES)[number]) && hasExactGuardToken(args, REAL_GUARDED_COMMAND_RUNNER_PACKAGE_INSTALL_ARGS)) {
+    reasons.push("package install in this MVP");
+  }
+
+  if (executable === "git" && hasExactGuardToken(args, REAL_GUARDED_COMMAND_RUNNER_GIT_MUTATION_ARGS)) {
+    reasons.push("git mutation in this MVP");
+  }
+
+  if (REAL_GUARDED_COMMAND_RUNNER_DEPLOY_EXECUTABLES.includes(executable as (typeof REAL_GUARDED_COMMAND_RUNNER_DEPLOY_EXECUTABLES)[number])) {
+    reasons.push("deploy command");
+  }
+
+  if (REAL_GUARDED_COMMAND_RUNNER_SCRIPT_EXECUTABLES.includes(executable as (typeof REAL_GUARDED_COMMAND_RUNNER_SCRIPT_EXECUTABLES)[number])) {
+    reasons.push("arbitrary script");
+  }
+
+  if (includesAnyGuardMarker(joinedArgs, REAL_GUARDED_COMMAND_RUNNER_SECRET_MARKERS)) {
+    reasons.push("command with secrets");
+  }
+
+  if (!isWorkspaceBoundedPath(input.workspaceRoot, input.workingDirectory)) {
+    reasons.push("command outside workspace");
+  }
+
+  if (input.workingDirectory.includes("..")) {
+    reasons.push("path traversal");
+  }
+
+  if (includesAnyGuardMarker(joinedArgs, REAL_GUARDED_COMMAND_RUNNER_CHAIN_MARKERS)) {
+    reasons.push("shell chaining");
+  }
+
+  if (includesAnyGuardMarker(joinedArgs, REAL_GUARDED_COMMAND_RUNNER_REDIRECTION_MARKERS)) {
+    reasons.push("redirection to files");
+  }
+
+  if (args.some((arg) => arg === "&" || arg.endsWith(" &"))) {
+    reasons.push("background process launch");
+  }
+
+  if (joinedArgs.toLowerCase().includes("process.env")) {
+    reasons.push("environment value exposure");
+  }
+
+  if (input.envNames.some((name) => includesAnyGuardMarker(name, REAL_GUARDED_COMMAND_RUNNER_SECRET_MARKERS))) {
+    reasons.push("credential forwarding");
+  }
+
+  if (reasons.length > 0) {
+    return { state: "denied by guard", reasons };
+  }
+
+  return { state: "blocked until approval", reasons: ["command remains blocked until explicit operator approval and backend-owned execution gate"] };
+}
+
+export function buildGuardedCommandRunnerDryRunPacket(input: RealGuardedCommandRunnerRequest): RealGuardedCommandRunnerDryRunPacket {
+  const guardDecision = validateGuardedCommandRunnerCandidate(input);
+  return {
+    adapterId: input.adapterId ?? "real-guarded-command-runner-adapter",
+    commandFamily: input.commandFamily,
+    commandPreview: [input.executable, ...input.args].join(" ").trim(),
+    workingDirectoryPreview: input.workingDirectory,
+    environmentVariableNames: [...input.envNames],
+    approvalIdPlaceholder: "approval-id-placeholder",
+    operatorIdPlaceholder: "operator-id-placeholder",
+    timestampPlaceholder: "timestamp-placeholder",
+    stdoutPlaceholder: "stdout placeholder",
+    stderrPlaceholder: "stderr placeholder",
+    exitCodePlaceholder: "exit-code placeholder",
+    evidenceContract: REAL_GUARDED_COMMAND_RUNNER_EVIDENCE_FIELDS,
+    resultContract: ["success", "denied", "blocked", "failed", "timeout", "needs review"],
+    recoveryContract: REAL_GUARDED_COMMAND_RUNNER_RECOVERY_FIELDS,
+    holdState: guardDecision.state,
+    deniedReasons: guardDecision.reasons,
+    approvalRequired: true,
+    previewOnly: true,
+  };
+}
+
+export const REAL_GUARDED_COMMAND_RUNNER_ADAPTER_CONTRACT = {
+  adapterId: "real-guarded-command-runner-adapter",
+  adapterFamily: "real guarded command-runner",
+  allowedCommandFamilies: REAL_GUARDED_COMMAND_RUNNER_COMMAND_FAMILIES,
+  explicitApprovalGate: "required",
+  commandAllowlistPolicy: [
+    "allow named command families only",
+    "deny destructive shell commands",
+    "deny package install in this MVP",
+    "deny git mutation in this MVP",
+    "deny deploy commands",
+    "deny arbitrary scripts",
+    "deny commands with secrets",
+    "deny shell chaining",
+    "deny redirection to files",
+    "deny background process launch",
+    "deny unknown executable",
+  ],
+  argumentGuard: [
+    "deny secrets",
+    "deny chaining",
+    "deny redirection",
+    "deny background launch",
+    "deny unsafe flags",
+  ],
+  workingDirectoryGuard: [
+    "deny paths outside workspace",
+    "deny traversal",
+  ],
+  environmentGuard: [
+    "never display env values",
+    "allow variable names only",
+    "deny process.env printing",
+    "deny API key or token exposure",
+    "deny credential forwarding",
+  ],
+  deniedCommandReasons: REAL_GUARDED_COMMAND_RUNNER_DENIED_REASONS,
+  stdoutCaptureContract: "stdout placeholder only until approved backend execution exists",
+  stderrCaptureContract: "stderr placeholder only until approved backend execution exists",
+  exitCodeCaptureContract: "exit-code placeholder only until approved backend execution exists",
+  evidenceCaptureContract: REAL_GUARDED_COMMAND_RUNNER_EVIDENCE_FIELDS,
+  resultCaptureContract: ["success", "denied", "blocked", "failed", "timeout", "needs review"],
+  recoveryContract: REAL_GUARDED_COMMAND_RUNNER_RECOVERY_FIELDS,
+  dryRunHarnessContract: [
+    "command preview only",
+    "working-directory preview only",
+    "environment names only",
+    "evidence result and recovery previews only",
+    "no dry-run execution",
+  ],
+  cockpitIntegrationShape: REAL_GUARDED_COMMAND_RUNNER_COCKPIT_PANELS,
+  operatorReviewPacket: [
+    "goal",
+    "plan",
+    "command preview",
+    "allowlist decision",
+    "argument guard decision",
+    "working directory guard decision",
+    "environment guard decision",
+    "approval ticket",
+    "execution hold",
+    "evidence contract",
+    "result contract",
+    "recovery contract",
+  ],
+  executionHoldState: "blocked until approval",
+  deniedExecutionState: "denied by guard",
+} as const satisfies RealGuardedCommandRunnerAdapterContract;
 
 type BuildPlanBundleDefinition = {
   slug: BuildPlanBundleReviewSlug;
@@ -1794,6 +2192,182 @@ export const CONTROLLED_REAL_GUARDED_FILE_WRITE_MVP_RELEASE_CANDIDATE_LANGUAGE =
   "Denied controlled real guarded file-write paths remain blocked",
   "Controlled real guarded file-write MVP release checklist",
   "static controlled-real-guarded-file-write-mvp-release-candidate preview",
+  "approval required",
+] as const;
+
+export const REAL_GUARDED_COMMAND_RUNNER_ADAPTER_BOUNDARY_LANGUAGE = [
+  "Real guarded command-runner adapter boundary",
+  "Real guarded command-runner adapter boundary does not run commands from UI",
+  "Real guarded command-runner requires explicit operator approval",
+  "Command-runner adapter keeps every command blocked until approval",
+  "Denied real guarded command-runner paths remain blocked",
+  "Real guarded command-runner checklist",
+  "static real-guarded-command-runner-adapter-boundary preview",
+  "approval required",
+] as const;
+
+export const COMMAND_RUNNER_ADAPTER_CONTRACT_LANGUAGE = [
+  "Command-runner adapter contract",
+  "Command-runner adapter contract does not execute commands",
+  "Command-runner adapter contract requires explicit operator approval",
+  "Adapter contract defines allowlist argument working-directory environment evidence result and recovery gates",
+  "Denied command-runner adapter contract paths remain blocked",
+  "Command-runner adapter contract checklist",
+  "static command-runner-adapter-contract preview",
+  "approval required",
+] as const;
+
+export const COMMAND_ALLOWLIST_POLICY_LANGUAGE = [
+  "Command allowlist policy",
+  "Command allowlist policy does not execute commands",
+  "Command allowlist policy requires explicit operator approval before future command execution",
+  "Allowlist policy denies destructive package install git mutation deploy arbitrary script shell chaining redirection background and unknown executable commands",
+  "Denied command allowlist paths remain blocked",
+  "Command allowlist checklist",
+  "static command-allowlist-policy preview",
+  "approval required",
+] as const;
+
+export const COMMAND_ARGUMENT_GUARD_LANGUAGE = [
+  "Command argument guard",
+  "Command argument guard does not execute arguments",
+  "Command argument guard requires explicit operator approval before future execution",
+  "Argument guard denies secrets chaining redirection background launch and unsafe flags",
+  "Denied command argument paths remain blocked",
+  "Command argument guard checklist",
+  "static command-argument-guard preview",
+  "approval required",
+] as const;
+
+export const COMMAND_WORKING_DIRECTORY_GUARD_LANGUAGE = [
+  "Command working directory guard",
+  "Command working directory guard does not browse local files",
+  "Command working directory guard requires explicit operator approval before future execution",
+  "Working directory guard denies paths outside workspace and traversal",
+  "Denied command working directory paths remain blocked",
+  "Command working directory guard checklist",
+  "static command-working-directory-guard preview",
+  "approval required",
+] as const;
+
+export const COMMAND_ENVIRONMENT_GUARD_LANGUAGE = [
+  "Command environment guard",
+  "Command environment guard does not read env values",
+  "Command environment guard requires explicit operator approval before future execution",
+  "Environment guard shows variable names only and denies process.env printing",
+  "Denied command environment paths remain blocked",
+  "Command environment guard checklist",
+  "static command-environment-guard preview",
+  "approval required",
+] as const;
+
+export const COMMAND_APPROVAL_TICKET_LANGUAGE = [
+  "Command approval ticket",
+  "Command approval ticket does not approve commands",
+  "Command approval ticket requires explicit human approval",
+  "Approval tickets keep every command blocked",
+  "Denied command approval ticket paths remain blocked",
+  "Command approval ticket checklist",
+  "static command-approval-ticket preview",
+  "approval required",
+] as const;
+
+export const COMMAND_PREFLIGHT_REVIEW_LANGUAGE = [
+  "Command preflight review",
+  "Command preflight review does not execute commands",
+  "Command preflight review requires explicit operator approval",
+  "Preflight reviews gate allowlist arguments working directory environment timeout evidence result and recovery readiness",
+  "Denied command preflight paths remain blocked",
+  "Command preflight checklist",
+  "static command-preflight-review preview",
+  "approval required",
+] as const;
+
+export const COMMAND_EXECUTION_HOLD_LANGUAGE = [
+  "Command execution hold",
+  "Command execution hold does not release commands",
+  "Command execution hold requires explicit operator approval",
+  "Execution hold keeps every future command blocked",
+  "Denied command execution hold paths remain blocked",
+  "Command execution hold checklist",
+  "static command-execution-hold preview",
+  "approval required",
+] as const;
+
+export const COMMAND_EVIDENCE_CAPTURE_CONTRACT_LANGUAGE = [
+  "Command evidence capture contract",
+  "Command evidence capture contract does not persist evidence",
+  "Command evidence capture requires explicit operator approval",
+  "Evidence contract captures stdout stderr exit code command preview working directory approval and operator placeholders",
+  "Denied command evidence paths remain blocked",
+  "Command evidence capture checklist",
+  "static command-evidence-capture-contract preview",
+  "approval required",
+] as const;
+
+export const COMMAND_RESULT_CAPTURE_CONTRACT_LANGUAGE = [
+  "Command result capture contract",
+  "Command result capture contract does not persist results",
+  "Command result capture requires explicit operator approval",
+  "Result contract supports success denied blocked failed timeout and needs-review states",
+  "Denied command result paths remain blocked",
+  "Command result capture checklist",
+  "static command-result-capture-contract preview",
+  "approval required",
+] as const;
+
+export const COMMAND_RECOVERY_CONTRACT_LANGUAGE = [
+  "Command recovery contract",
+  "Command recovery contract does not execute recovery",
+  "Command recovery requires explicit operator approval",
+  "Recovery contract describes retry stop rollback related file write restore prior state and explain failure gates",
+  "Denied command recovery paths remain blocked",
+  "Command recovery checklist",
+  "static command-recovery-contract preview",
+  "approval required",
+] as const;
+
+export const COMMAND_DRY_RUN_HARNESS_LANGUAGE = [
+  "Command dry-run harness",
+  "Command dry-run harness does not execute commands",
+  "Command dry-run harness requires explicit operator approval before future execution",
+  "Dry-run harness returns command evidence result and recovery previews only",
+  "Denied command dry-run harness paths remain blocked",
+  "Command dry-run harness checklist",
+  "static command-dry-run-harness preview",
+  "approval required",
+] as const;
+
+export const COMMAND_COCKPIT_INTEGRATION_CONTRACT_LANGUAGE = [
+  "Command cockpit integration contract",
+  "Command cockpit integration contract does not execute commands",
+  "Command cockpit integration requires explicit operator approval",
+  "Future cockpit shows goal plan command approval execution evidence result and recovery in one place",
+  "Phase pages are dev/test surfaces only",
+  "Command cockpit integration checklist",
+  "static command-cockpit-integration-contract preview",
+  "approval required",
+] as const;
+
+export const FIRST_REAL_GUARDED_COMMAND_CANDIDATE_LANGUAGE = [
+  "First real guarded command candidate",
+  "First real guarded command candidate does not run commands from UI",
+  "First real guarded command candidate requires explicit operator approval",
+  "Candidate combines adapter contract allowlist arguments working directory environment approval preflight evidence result recovery and cockpit gates",
+  "Denied first real guarded command paths remain blocked",
+  "First real guarded command checklist",
+  "static first-real-guarded-command-candidate preview",
+  "approval required",
+] as const;
+
+export const CONTROLLED_REAL_GUARDED_COMMAND_MVP_RELEASE_CANDIDATE_LANGUAGE = [
+  "Controlled real guarded command MVP release candidate",
+  "Controlled real guarded command MVP release candidate does not call models or run commands from UI",
+  "Controlled real guarded command MVP release requires explicit operator approval",
+  "Release candidate prepares real command-runner adapter spine with shared brain gates",
+  "Denied controlled real guarded command paths remain blocked",
+  "Controlled real guarded command MVP release checklist",
+  "static controlled-real-guarded-command-mvp-release-candidate preview",
   "approval required",
 ] as const;
 
@@ -5393,6 +5967,423 @@ const REAL_GUARDED_FILE_WRITE_DEFINITION_INPUTS = [
   }
 ] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
 
+const REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS = [
+  ...REAL_GUARDED_COMMAND_RUNNER_ADAPTER_FIELDS,
+  "build command",
+  "test command",
+  "smoke command",
+  "lint command",
+  "format check command",
+  "git status command",
+  "read-only diagnostic command",
+  "package command preview",
+  "runtime start preview",
+  "operator approval required",
+  "blocked command state",
+  "denied execution state",
+  "goal panel",
+  "plan panel",
+  "command panel",
+  "approval panel",
+  "execution state panel",
+  "evidence panel",
+  "result panel",
+  "recovery panel",
+] as const;
+
+const REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS = "adapter id, adapter family, allowed command families, explicit approval gate, command allowlist policy, argument guard, working directory guard, environment guard, denied command reasons, stdout capture contract, stderr capture contract, exit code capture contract, evidence capture contract, result capture contract, recovery contract, dry-run harness contract, cockpit integration shape, operator review packet, execution hold state, denied execution state, and future cockpit panels for goal, plan, command, approval, execution state, evidence, result, and recovery";
+
+const REAL_GUARDED_COMMAND_RUNNER_SUBTITLE = "as a static real guarded command-runner adapter packet without running commands from UI, executing shell/git/test/build/smoke commands, persisting approvals, running dry-runs, spawning processes, starting runtimes, binding ports, forwarding environment values, or executing adapters.";
+
+const REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION = "Review the next real guarded command-runner adapter packet while every command remains blocked until explicit operator approval, command allowlist policy, argument guard, working directory guard, environment guard, evidence capture, result capture, and recovery contract are complete.";
+
+const REAL_GUARDED_COMMAND_RUNNER_DEFINITION_INPUTS = [
+  {
+    slug: "real-guarded-command-runner-adapter-boundary",
+    phase: "Phase 1178",
+    title: "Real Guarded Command Runner Adapter Boundary",
+    markerTitle: "Real guarded command-runner adapter boundary",
+    safetyCopy: "Real guarded command-runner adapter boundary does not run commands from UI",
+    approvalCopy: "Real guarded command-runner requires explicit operator approval",
+    supportCopy: "Command-runner adapter keeps every command blocked until approval",
+    deniedCopy: "Denied real guarded command-runner paths remain blocked",
+    checklistLabel: "Real guarded command-runner checklist",
+    subtitle: "Review Real Guarded Command Runner Adapter Boundary " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Real Guarded Command Runner Adapter Boundary fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: REAL_GUARDED_COMMAND_RUNNER_ADAPTER_BOUNDARY_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/controlled-real-guarded-file-write-mvp-release-candidate", "/command-runner-adapter-contract", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/controlled-real-guarded-file-write-mvp-release-candidate", label: "Previous Family" },
+      { href: "/command-runner-adapter-contract", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-runner-adapter-contract",
+    phase: "Phase 1179",
+    title: "Command Runner Adapter Contract",
+    markerTitle: "Command-runner adapter contract",
+    safetyCopy: "Command-runner adapter contract does not execute commands",
+    approvalCopy: "Command-runner adapter contract requires explicit operator approval",
+    supportCopy: "Adapter contract defines allowlist argument working-directory environment evidence result and recovery gates",
+    deniedCopy: "Denied command-runner adapter contract paths remain blocked",
+    checklistLabel: "Command-runner adapter contract checklist",
+    subtitle: "Review Command Runner Adapter Contract " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Runner Adapter Contract fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_RUNNER_ADAPTER_CONTRACT_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/real-guarded-command-runner-adapter-boundary", "/command-allowlist-policy", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/real-guarded-command-runner-adapter-boundary", label: "Previous Phase" },
+      { href: "/command-allowlist-policy", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-allowlist-policy",
+    phase: "Phase 1180",
+    title: "Command Allowlist Policy",
+    markerTitle: "Command allowlist policy",
+    safetyCopy: "Command allowlist policy does not execute commands",
+    approvalCopy: "Command allowlist policy requires explicit operator approval before future command execution",
+    supportCopy: "Allowlist policy denies destructive package install git mutation deploy arbitrary script shell chaining redirection background and unknown executable commands",
+    deniedCopy: "Denied command allowlist paths remain blocked",
+    checklistLabel: "Command allowlist checklist",
+    subtitle: "Review Command Allowlist Policy " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Allowlist Policy fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_ALLOWLIST_POLICY_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-runner-adapter-contract", "/command-argument-guard", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/command-runner-adapter-contract", label: "Previous Phase" },
+      { href: "/command-argument-guard", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-argument-guard",
+    phase: "Phase 1181",
+    title: "Command Argument Guard",
+    markerTitle: "Command argument guard",
+    safetyCopy: "Command argument guard does not execute arguments",
+    approvalCopy: "Command argument guard requires explicit operator approval before future execution",
+    supportCopy: "Argument guard denies secrets chaining redirection background launch and unsafe flags",
+    deniedCopy: "Denied command argument paths remain blocked",
+    checklistLabel: "Command argument guard checklist",
+    subtitle: "Review Command Argument Guard " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Argument Guard fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_ARGUMENT_GUARD_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-allowlist-policy", "/command-working-directory-guard", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/command-allowlist-policy", label: "Previous Phase" },
+      { href: "/command-working-directory-guard", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-working-directory-guard",
+    phase: "Phase 1182",
+    title: "Command Working Directory Guard",
+    markerTitle: "Command working directory guard",
+    safetyCopy: "Command working directory guard does not browse local files",
+    approvalCopy: "Command working directory guard requires explicit operator approval before future execution",
+    supportCopy: "Working directory guard denies paths outside workspace and traversal",
+    deniedCopy: "Denied command working directory paths remain blocked",
+    checklistLabel: "Command working directory guard checklist",
+    subtitle: "Review Command Working Directory Guard " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Working Directory Guard fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_WORKING_DIRECTORY_GUARD_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-argument-guard", "/command-environment-guard", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/command-argument-guard", label: "Previous Phase" },
+      { href: "/command-environment-guard", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-environment-guard",
+    phase: "Phase 1183",
+    title: "Command Environment Guard",
+    markerTitle: "Command environment guard",
+    safetyCopy: "Command environment guard does not read env values",
+    approvalCopy: "Command environment guard requires explicit operator approval before future execution",
+    supportCopy: "Environment guard shows variable names only and denies process.env printing",
+    deniedCopy: "Denied command environment paths remain blocked",
+    checklistLabel: "Command environment guard checklist",
+    subtitle: "Review Command Environment Guard " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Environment Guard fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_ENVIRONMENT_GUARD_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-working-directory-guard", "/command-approval-ticket", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/command-working-directory-guard", label: "Previous Phase" },
+      { href: "/command-approval-ticket", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-approval-ticket",
+    phase: "Phase 1184",
+    title: "Command Approval Ticket",
+    markerTitle: "Command approval ticket",
+    safetyCopy: "Command approval ticket does not approve commands",
+    approvalCopy: "Command approval ticket requires explicit human approval",
+    supportCopy: "Approval tickets keep every command blocked",
+    deniedCopy: "Denied command approval ticket paths remain blocked",
+    checklistLabel: "Command approval ticket checklist",
+    subtitle: "Review Command Approval Ticket " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Approval Ticket fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_APPROVAL_TICKET_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-environment-guard", "/command-preflight-review", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/command-environment-guard", label: "Previous Phase" },
+      { href: "/command-preflight-review", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-preflight-review",
+    phase: "Phase 1185",
+    title: "Command Preflight Review",
+    markerTitle: "Command preflight review",
+    safetyCopy: "Command preflight review does not execute commands",
+    approvalCopy: "Command preflight review requires explicit operator approval",
+    supportCopy: "Preflight reviews gate allowlist arguments working directory environment timeout evidence result and recovery readiness",
+    deniedCopy: "Denied command preflight paths remain blocked",
+    checklistLabel: "Command preflight checklist",
+    subtitle: "Review Command Preflight Review " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Preflight Review fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_PREFLIGHT_REVIEW_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-approval-ticket", "/command-execution-hold", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/command-approval-ticket", label: "Previous Phase" },
+      { href: "/command-execution-hold", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-execution-hold",
+    phase: "Phase 1186",
+    title: "Command Execution Hold",
+    markerTitle: "Command execution hold",
+    safetyCopy: "Command execution hold does not release commands",
+    approvalCopy: "Command execution hold requires explicit operator approval",
+    supportCopy: "Execution hold keeps every future command blocked",
+    deniedCopy: "Denied command execution hold paths remain blocked",
+    checklistLabel: "Command execution hold checklist",
+    subtitle: "Review Command Execution Hold " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Execution Hold fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_EXECUTION_HOLD_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-preflight-review", "/command-evidence-capture-contract", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/command-preflight-review", label: "Previous Phase" },
+      { href: "/command-evidence-capture-contract", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-evidence-capture-contract",
+    phase: "Phase 1187",
+    title: "Command Evidence Capture Contract",
+    markerTitle: "Command evidence capture contract",
+    safetyCopy: "Command evidence capture contract does not persist evidence",
+    approvalCopy: "Command evidence capture requires explicit operator approval",
+    supportCopy: "Evidence contract captures stdout stderr exit code command preview working directory approval and operator placeholders",
+    deniedCopy: "Denied command evidence paths remain blocked",
+    checklistLabel: "Command evidence capture checklist",
+    subtitle: "Review Command Evidence Capture Contract " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Evidence Capture Contract fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_EVIDENCE_CAPTURE_CONTRACT_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-execution-hold", "/command-result-capture-contract", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/command-execution-hold", label: "Previous Phase" },
+      { href: "/command-result-capture-contract", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-result-capture-contract",
+    phase: "Phase 1188",
+    title: "Command Result Capture Contract",
+    markerTitle: "Command result capture contract",
+    safetyCopy: "Command result capture contract does not persist results",
+    approvalCopy: "Command result capture requires explicit operator approval",
+    supportCopy: "Result contract supports success denied blocked failed timeout and needs-review states",
+    deniedCopy: "Denied command result paths remain blocked",
+    checklistLabel: "Command result capture checklist",
+    subtitle: "Review Command Result Capture Contract " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Result Capture Contract fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_RESULT_CAPTURE_CONTRACT_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-evidence-capture-contract", "/command-recovery-contract", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/command-evidence-capture-contract", label: "Previous Phase" },
+      { href: "/command-recovery-contract", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-recovery-contract",
+    phase: "Phase 1189",
+    title: "Command Recovery Contract",
+    markerTitle: "Command recovery contract",
+    safetyCopy: "Command recovery contract does not execute recovery",
+    approvalCopy: "Command recovery requires explicit operator approval",
+    supportCopy: "Recovery contract describes retry stop rollback related file write restore prior state and explain failure gates",
+    deniedCopy: "Denied command recovery paths remain blocked",
+    checklistLabel: "Command recovery checklist",
+    subtitle: "Review Command Recovery Contract " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Recovery Contract fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_RECOVERY_CONTRACT_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-result-capture-contract", "/command-dry-run-harness", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/command-result-capture-contract", label: "Previous Phase" },
+      { href: "/command-dry-run-harness", label: "Next Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-dry-run-harness",
+    phase: "Phase 1190",
+    title: "Command Dry Run Harness",
+    markerTitle: "Command dry-run harness",
+    safetyCopy: "Command dry-run harness does not execute commands",
+    approvalCopy: "Command dry-run harness requires explicit operator approval before future execution",
+    supportCopy: "Dry-run harness returns command evidence result and recovery previews only",
+    deniedCopy: "Denied command dry-run harness paths remain blocked",
+    checklistLabel: "Command dry-run harness checklist",
+    subtitle: "Review Command Dry Run Harness " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Dry Run Harness fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_DRY_RUN_HARNESS_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-recovery-contract", "/command-cockpit-integration-contract", "/real-guarded-command-runner-adapter-boundary"],
+    links: [
+      { href: "/command-recovery-contract", label: "Previous Phase" },
+      { href: "/command-cockpit-integration-contract", label: "Next Phase" },
+      { href: "/real-guarded-command-runner-adapter-boundary", label: "Boundary" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "command-cockpit-integration-contract",
+    phase: "Phase 1191",
+    title: "Command Cockpit Integration Contract",
+    markerTitle: "Command cockpit integration contract",
+    safetyCopy: "Command cockpit integration contract does not execute commands",
+    approvalCopy: "Command cockpit integration requires explicit operator approval",
+    supportCopy: "Future cockpit shows goal plan command approval execution evidence result and recovery in one place",
+    deniedCopy: "Phase pages are dev/test surfaces only",
+    checklistLabel: "Command cockpit integration checklist",
+    subtitle: "Review Command Cockpit Integration Contract " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Command Cockpit Integration Contract fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: COMMAND_COCKPIT_INTEGRATION_CONTRACT_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-dry-run-harness", "/first-real-guarded-command-candidate", "/real-guarded-command-runner-adapter-boundary"],
+    links: [
+      { href: "/command-dry-run-harness", label: "Previous Phase" },
+      { href: "/first-real-guarded-command-candidate", label: "Next Phase" },
+      { href: "/real-guarded-command-runner-adapter-boundary", label: "Boundary" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "first-real-guarded-command-candidate",
+    phase: "Phase 1192",
+    title: "First Real Guarded Command Candidate",
+    markerTitle: "First real guarded command candidate",
+    safetyCopy: "First real guarded command candidate does not run commands from UI",
+    approvalCopy: "First real guarded command candidate requires explicit operator approval",
+    supportCopy: "Candidate combines adapter contract allowlist arguments working directory environment approval preflight evidence result recovery and cockpit gates",
+    deniedCopy: "Denied first real guarded command paths remain blocked",
+    checklistLabel: "First real guarded command checklist",
+    subtitle: "Review First Real Guarded Command Candidate " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "First Real Guarded Command Candidate fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: FIRST_REAL_GUARDED_COMMAND_CANDIDATE_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/command-cockpit-integration-contract", "/controlled-real-guarded-command-mvp-release-candidate", "/real-guarded-command-runner-adapter-boundary"],
+    links: [
+      { href: "/command-cockpit-integration-contract", label: "Previous Phase" },
+      { href: "/controlled-real-guarded-command-mvp-release-candidate", label: "Next Phase" },
+      { href: "/real-guarded-command-runner-adapter-boundary", label: "Boundary" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  },
+  {
+    slug: "controlled-real-guarded-command-mvp-release-candidate",
+    phase: "Phase 1193",
+    title: "Controlled Real Guarded Command MVP Release Candidate",
+    markerTitle: "Controlled real guarded command MVP release candidate",
+    safetyCopy: "Controlled real guarded command MVP release candidate does not call models or run commands from UI",
+    approvalCopy: "Controlled real guarded command MVP release requires explicit operator approval",
+    supportCopy: "Release candidate prepares real command-runner adapter spine with shared brain gates",
+    deniedCopy: "Denied controlled real guarded command paths remain blocked",
+    checklistLabel: "Controlled real guarded command MVP release checklist",
+    subtitle: "Review Controlled Real Guarded Command MVP Release Candidate " + REAL_GUARDED_COMMAND_RUNNER_SUBTITLE,
+    primaryLabel: "Review command gate",
+    groupLabel: "Controlled Real Guarded Command MVP Release Candidate fields",
+    previewFocus: REAL_GUARDED_COMMAND_RUNNER_PREVIEW_FOCUS,
+    language: CONTROLLED_REAL_GUARDED_COMMAND_MVP_RELEASE_CANDIDATE_LANGUAGE,
+    fieldItems: REAL_GUARDED_COMMAND_RUNNER_FIELD_ITEMS,
+    routes: ["/first-real-guarded-command-candidate", "/real-guarded-command-runner-adapter-boundary", "/command-cockpit-integration-contract"],
+    links: [
+      { href: "/first-real-guarded-command-candidate", label: "Previous Phase" },
+      { href: "/real-guarded-command-runner-adapter-boundary", label: "Boundary" },
+      { href: "/command-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: REAL_GUARDED_COMMAND_RUNNER_NEXT_ACTION,
+  }
+] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
+
 export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, BuildPlanBundleDefinition> = {
   "build-plan-bundle-boundary": buildBuildPlanBundleDefinition({
     slug: "build-plan-bundle-boundary",
@@ -5802,6 +6793,9 @@ export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, Bu
   ...(Object.fromEntries(
     REAL_GUARDED_FILE_WRITE_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
   ) as Record<RealGuardedFileWriteReviewSlug, BuildPlanBundleDefinition>),
+  ...(Object.fromEntries(
+    REAL_GUARDED_COMMAND_RUNNER_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
+  ) as Record<RealGuardedCommandRunnerReviewSlug, BuildPlanBundleDefinition>),
 };
 
 export function buildBuildPlanBundleReview(slug: BuildPlanBundleReviewSlug, input: BuildPlanBundleReviewPacketInput): UniversalExecutionReviewPacket {
@@ -5850,6 +6844,13 @@ export function buildBuildPlanBundleReviewPackets(slug: BuildPlanBundleReviewSlu
     { label: "Domain adapter policy", items: ["Game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project adapter proposals remain preview-only, do not execute domain adapters, and require explicit operator approval."] },
     { label: "File adapter policy", items: ["All file write previews remain preview-only, no live execution, no actual file mutation, no queue persistence, every file operation names its approval gate, and every result returns through shared evidence/result review."] },
     { label: "Command adapter policy", items: ["All command previews remain preview-only, no live execution, no actual command execution, no queue persistence, every command operation names its approval gate, and every result returns through shared evidence/result review."] },
+    { label: "Real guarded command-runner adapter contract", items: ["Real guarded command-runner adapter contract includes " + joinSentence(REAL_GUARDED_COMMAND_RUNNER_ADAPTER_FIELDS) + "."] },
+    { label: "Real guarded command-runner families", items: ["Real guarded command-runner command families: " + joinSentence(REAL_GUARDED_COMMAND_RUNNER_COMMAND_FAMILIES) + "."] },
+    { label: "Real guarded command-runner denial reasons", items: ["Real guarded command-runner denied command reasons: " + joinSentence(REAL_GUARDED_COMMAND_RUNNER_DENIED_REASONS) + "."] },
+    { label: "Real guarded command-runner evidence contract", items: ["Real guarded command-runner evidence contract includes " + joinSentence(REAL_GUARDED_COMMAND_RUNNER_EVIDENCE_FIELDS) + "."] },
+    { label: "Real guarded command-runner result contract", items: ["Real guarded command-runner result contract supports success, denied, blocked, failed, timeout, and needs review states."] },
+    { label: "Real guarded command-runner recovery contract", items: ["Real guarded command-runner recovery contract includes " + joinSentence(REAL_GUARDED_COMMAND_RUNNER_RECOVERY_FIELDS) + ". No real recovery execution yet."] },
+    { label: "Real guarded command-runner cockpit contract", items: ["Future single-page CodexForge Cockpit shows " + joinSentence(REAL_GUARDED_COMMAND_RUNNER_COCKPIT_PANELS) + " in one place. Phase pages are dev/test surfaces only."] },
     { label: "Runtime adapter policy", items: ["All runtime previews remain preview-only, no live execution, no actual runtime execution, no queue persistence, every runtime operation names its approval gate, and every result returns through shared evidence/result review."] },
     { label: "Dry-run handoff policy", items: ["Dry-run tickets remain static preview-only handoffs. They do not execute dry-runs, persist queues, create queue jobs, release execution locks, write files, run commands, start runtimes, execute backend adapters, execute domain adapters, persist evidence, persist results, trigger recovery, or package outputs."] },
     { label: "Denied live execution state", items: [definition.deniedCopy, definition.safetyCopy] },
