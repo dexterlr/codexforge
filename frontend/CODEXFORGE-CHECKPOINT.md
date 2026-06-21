@@ -51,4 +51,4 @@ git status --short
 - Project onboarding/import.
 - Better graph data volume and clustering.
 
-CodexForge checkpoint documentation now records through phase 1113.
+CodexForge checkpoint documentation now records through phase 1129.

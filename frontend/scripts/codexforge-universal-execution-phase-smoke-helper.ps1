@@ -521,7 +521,23 @@ $protectedRoutes = @(
   "/simulated-file-operator-review",
   "/simulated-file-apply-hold-state",
   "/first-simulated-file-write-candidate",
-  "/controlled-simulated-file-write-release-candidate"
+  "/controlled-simulated-file-write-release-candidate",
+  "/simulated-command-execution-boundary",
+  "/simulated-command-intent-packet",
+  "/simulated-command-plan-packet",
+  "/simulated-command-argument-review",
+  "/simulated-command-environment-review",
+  "/simulated-command-working-directory-review",
+  "/simulated-command-risk-review",
+  "/simulated-command-evidence-preview",
+  "/simulated-command-result-preview",
+  "/simulated-command-failure-preview",
+  "/simulated-command-recovery-preview",
+  "/simulated-command-operator-review",
+  "/simulated-command-execution-hold-state",
+  "/simulated-command-validation-preview",
+  "/first-simulated-command-candidate",
+  "/controlled-simulated-command-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `

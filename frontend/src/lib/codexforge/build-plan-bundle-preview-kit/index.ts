@@ -36,7 +36,8 @@ export type BuildPlanBundleReviewSlug =
   | BuildPlanApprovalReviewSlug
   | GuardedExecutionQueueReviewSlug
   | DryRunExecutionHandoffReviewSlug
-  | SimulatedFileWriteReviewSlug;
+  | SimulatedFileWriteReviewSlug
+  | SimulatedCommandReviewSlug;
 
 export type BuildPlanApprovalReviewSlug =
   | "build-plan-approval-boundary"
@@ -109,6 +110,24 @@ export type SimulatedFileWriteReviewSlug =
   | "simulated-file-apply-hold-state"
   | "first-simulated-file-write-candidate"
   | "controlled-simulated-file-write-release-candidate";
+
+export type SimulatedCommandReviewSlug =
+  | "simulated-command-execution-boundary"
+  | "simulated-command-intent-packet"
+  | "simulated-command-plan-packet"
+  | "simulated-command-argument-review"
+  | "simulated-command-environment-review"
+  | "simulated-command-working-directory-review"
+  | "simulated-command-risk-review"
+  | "simulated-command-evidence-preview"
+  | "simulated-command-result-preview"
+  | "simulated-command-failure-preview"
+  | "simulated-command-recovery-preview"
+  | "simulated-command-operator-review"
+  | "simulated-command-execution-hold-state"
+  | "simulated-command-validation-preview"
+  | "first-simulated-command-candidate"
+  | "controlled-simulated-command-release-candidate";
 
 type BuildPlanBundleDefinition = {
   slug: BuildPlanBundleReviewSlug;
@@ -1017,6 +1036,182 @@ export const CONTROLLED_SIMULATED_FILE_WRITE_RELEASE_CANDIDATE_LANGUAGE = [
   "approval required",
 ] as const;
 
+export const SIMULATED_COMMAND_EXECUTION_BOUNDARY_LANGUAGE = [
+  "Simulated command execution boundary",
+  "Simulated command execution boundary does not run commands",
+  "Simulated command execution requires explicit operator approval",
+  "Simulated command execution keeps every command blocked",
+  "Denied simulated command execution paths remain blocked",
+  "Simulated command execution checklist",
+  "static simulated-command-execution-boundary preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_INTENT_PACKET_LANGUAGE = [
+  "Simulated command intent packet",
+  "Simulated command intent packet does not send prompts",
+  "Command intent review requires explicit operator approval",
+  "Intent packets preserve shared CodexForge brain context",
+  "Denied simulated command intent paths remain blocked",
+  "Simulated command intent checklist",
+  "static simulated-command-intent-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_PLAN_PACKET_LANGUAGE = [
+  "Simulated command plan packet",
+  "Simulated command plan packet does not run commands",
+  "Command plan review requires explicit operator approval",
+  "Command plans show planned commands without execution",
+  "Denied simulated command plan paths remain blocked",
+  "Simulated command plan checklist",
+  "static simulated-command-plan-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_ARGUMENT_REVIEW_LANGUAGE = [
+  "Simulated command argument review",
+  "Simulated command argument review does not execute arguments",
+  "Command argument review requires explicit operator approval",
+  "Argument reviews keep command execution blocked",
+  "Denied simulated command argument paths remain blocked",
+  "Simulated command argument checklist",
+  "static simulated-command-argument-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_ENVIRONMENT_REVIEW_LANGUAGE = [
+  "Simulated command environment review",
+  "Simulated command environment review does not read env values",
+  "Command environment review requires explicit operator approval",
+  "Environment reviews show variable names without secret values",
+  "Denied simulated command environment paths remain blocked",
+  "Simulated command environment checklist",
+  "static simulated-command-environment-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_WORKING_DIRECTORY_REVIEW_LANGUAGE = [
+  "Simulated command working directory review",
+  "Simulated command working directory review does not browse local files",
+  "Command working directory review requires explicit operator approval",
+  "Working directory reviews show planned paths without crawling",
+  "Denied simulated command working directory paths remain blocked",
+  "Simulated command working directory checklist",
+  "static simulated-command-working-directory-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_RISK_REVIEW_LANGUAGE = [
+  "Simulated command risk review",
+  "Simulated command risk review does not approve commands",
+  "Command risk review requires explicit operator approval",
+  "Risk reviews gate shell git test build smoke install runtime and deploy commands",
+  "Denied simulated command risk paths remain blocked",
+  "Simulated command risk checklist",
+  "static simulated-command-risk-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_EVIDENCE_PREVIEW_LANGUAGE = [
+  "Simulated command evidence preview",
+  "Simulated command evidence preview does not persist evidence",
+  "Command evidence preview requires explicit operator approval",
+  "Evidence previews route future stdout stderr and exit code through shared evidence review",
+  "Denied simulated command evidence paths remain blocked",
+  "Simulated command evidence checklist",
+  "static simulated-command-evidence-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_RESULT_PREVIEW_LANGUAGE = [
+  "Simulated command result preview",
+  "Simulated command result preview does not persist results",
+  "Command result preview requires explicit operator approval",
+  "Result previews route future outputs through shared result review",
+  "Denied simulated command result paths remain blocked",
+  "Simulated command result checklist",
+  "static simulated-command-result-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_FAILURE_PREVIEW_LANGUAGE = [
+  "Simulated command failure preview",
+  "Simulated command failure preview does not trigger retries",
+  "Command failure preview requires explicit operator approval",
+  "Failure previews show blocked retry and triage states",
+  "Denied simulated command failure paths remain blocked",
+  "Simulated command failure checklist",
+  "static simulated-command-failure-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_RECOVERY_PREVIEW_LANGUAGE = [
+  "Simulated command recovery preview",
+  "Simulated command recovery preview does not trigger recovery",
+  "Command recovery preview requires explicit operator approval",
+  "Recovery previews include rollback restore and retry plans",
+  "Denied simulated command recovery paths remain blocked",
+  "Simulated command recovery checklist",
+  "static simulated-command-recovery-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_OPERATOR_REVIEW_LANGUAGE = [
+  "Simulated command operator review",
+  "Simulated command operator review does not approve actions",
+  "Command operator review requires explicit human approval",
+  "Operator reviews keep command execution blocked",
+  "Denied simulated command operator review paths remain blocked",
+  "Simulated command operator review checklist",
+  "static simulated-command-operator-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_EXECUTION_HOLD_STATE_LANGUAGE = [
+  "Simulated command execution hold state",
+  "Simulated command execution hold state does not release commands",
+  "Command execution hold release requires explicit operator approval",
+  "Execution hold keeps every command blocked",
+  "Denied simulated command execution hold paths remain blocked",
+  "Simulated command execution hold checklist",
+  "static simulated-command-execution-hold-state preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_COMMAND_VALIDATION_PREVIEW_LANGUAGE = [
+  "Simulated command validation preview",
+  "Simulated command validation preview does not run validation",
+  "Command validation preview requires explicit operator approval",
+  "Validation previews show expected checks without execution",
+  "Denied simulated command validation paths remain blocked",
+  "Simulated command validation checklist",
+  "static simulated-command-validation-preview preview",
+  "approval required",
+] as const;
+
+export const FIRST_SIMULATED_COMMAND_CANDIDATE_LANGUAGE = [
+  "First simulated command candidate",
+  "First simulated command candidate does not run commands",
+  "Simulated command candidates require explicit operator approval",
+  "Candidate packets combine intent plan arguments environment working directory risk evidence result failure recovery and validation gates",
+  "Denied simulated command candidate paths remain blocked",
+  "First simulated command checklist",
+  "static first-simulated-command-candidate preview",
+  "approval required",
+] as const;
+
+export const CONTROLLED_SIMULATED_COMMAND_RELEASE_CANDIDATE_LANGUAGE = [
+  "Controlled simulated command release candidate",
+  "Controlled simulated command release candidate does not call models or execute commands",
+  "Controlled simulated command release requires explicit operator approval",
+  "Release candidate supports command previews with shared brain gates",
+  "Denied controlled simulated command paths remain blocked",
+  "Controlled simulated command release checklist",
+  "static controlled-simulated-command-release-candidate preview",
+  "approval required",
+] as const;
+
 export const BUILD_PLAN_BUNDLE_PREVIEW_SAFETY_MARKERS = [
   "build-plan-bundle static review-only preview",
   "deterministic static review content",
@@ -1265,6 +1460,53 @@ const SIMULATED_FILE_WRITE_SAFETY_POLICIES = [
   "every mutation remains blocked until explicit operator approval",
 ] as const;
 
+
+const SIMULATED_COMMAND_OPERATION_TYPES = [
+  "install command",
+  "build command",
+  "test command",
+  "smoke command",
+  "git command",
+  "runtime command",
+  "package command",
+  "scaffold command",
+  "no-op",
+  "denied",
+  "preview-only",
+] as const;
+
+const SIMULATED_COMMAND_PREVIEW_FIELDS = [
+  "guarded queue reference",
+  "dry-run ticket reference",
+  "command intent",
+  "command string preview",
+  "argument preview",
+  "working directory preview",
+  "environment variable preview without values",
+  "expected stdout preview",
+  "expected stderr preview",
+  "expected exit code preview",
+  "validation expectation",
+  "evidence capture preview",
+  "result preview",
+  "failure preview",
+  "recovery preview",
+  "operator review state",
+  "execution hold state",
+  "denied execution state",
+  "approval gate name",
+  "explicit approval requirement",
+] as const;
+
+const SIMULATED_COMMAND_SAFETY_POLICIES = [
+  "show no real command execution",
+  "show no shell git test build smoke execution from UI",
+  "show no environment values",
+  "show no API keys or secrets",
+  "show no real endpoint token or example secrets",
+  "every command remains blocked until explicit operator approval",
+] as const;
+
 const SUPPORTED_BUILD_PLAN_TARGET_FAMILIES = [
   "game target",
   "app target",
@@ -1312,11 +1554,15 @@ function buildBuildPlanBundleDefinition(input: {
   const simulatedFileOperationTypes = "Simulated file operation types: " + joinSentence(SIMULATED_FILE_OPERATION_TYPES) + ".";
   const simulatedFileWriteFields = "Simulated file write previews include " + joinSentence(SIMULATED_FILE_WRITE_PREVIEW_FIELDS) + ".";
   const simulatedFileSafetyPolicies = "Simulated file safety policies: " + joinSentence(SIMULATED_FILE_WRITE_SAFETY_POLICIES) + ".";
+  const simulatedCommandOperationTypes = "Simulated command operation types: " + joinSentence(SIMULATED_COMMAND_OPERATION_TYPES) + ".";
+  const simulatedCommandPreviewFields = "Simulated command previews include " + joinSentence(SIMULATED_COMMAND_PREVIEW_FIELDS) + ".";
+  const simulatedCommandSafetyPolicies = "Simulated command safety policies: " + joinSentence(SIMULATED_COMMAND_SAFETY_POLICIES) + ".";
   const supportedTargets = "Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + ".";
   const sharedBrainCopy = "Models are workers. CodexForge is the brain. All paid/free/local/remote/OpenAI-compatible/specialist model workers share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer.";
   const modelRouterCopy = "Model-router policy: cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation.";
   const adapterCopy = "Backend/domain adapter policy: all plan manifests and dry-run tickets remain preview-only; no live execution; no actual dry-run execution; no queue persistence; all real execution requires explicit operator approval; every adapter proposal must name its approval gate; every result must return through shared evidence/result review.";
   const fileAdapterCopy = "Simulated file adapter policy: all file write previews remain preview-only; no live execution; no actual file mutation; no queue persistence; every file operation names its approval gate and returns through shared evidence/result review.";
+  const commandAdapterCopy = "Simulated command adapter policy: all command previews remain preview-only; no live execution; no actual command execution; no shell git test build smoke install runtime deploy package or scaffold execution; no queue persistence; every command operation names its approval gate and returns through shared evidence/result review.";
   const deniedCopy = input.deniedCopy + ". Denied build plan bundle and dry-run execution handoff paths block model calls, provider calls, provider connection tests, local runtime probes, API key reads, secret reads, credential storage, credit spend, prompt sending, remote prompt sending, browsing, deployment, file writes, command execution, runtime starts, game server starts, mod installs, automations, backend adapter execution, domain adapter execution, project adapter execution, game adapter execution, validation execution, evidence persistence, result persistence, recovery, packaging, exports, project scaffolding, model output persistence, automatic memory promotion, hidden approvals, audit writes, live request routing, queue persistence, real queue jobs, execution lock release, and dry-run execution.";
   const checklistCopy = input.checklistLabel + ": " + joinSentence(BUILD_PLAN_BUNDLE_PACKET_FIELDS) + ".";
   return {
@@ -1339,10 +1585,10 @@ function buildBuildPlanBundleDefinition(input: {
     links: input.links,
     nextRecommendedAction: input.nextRecommendedAction,
     plainEnglishTitle: "Plain-English " + input.title.toLowerCase(),
-    plainEnglishCopy: input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + deniedCopy + " " + packetFields + " " + queueStates + " " + dryRunTicketStates + " " + dryRunTicketFields + " " + simulatedFileOperationTypes + " " + simulatedFileWriteFields + " " + simulatedFileSafetyPolicies + " " + supportedTargets + " " + sharedBrainCopy + " " + modelRouterCopy + " " + adapterCopy + " " + fileAdapterCopy + " Preview focus: " + input.previewFocus + ".",
+    plainEnglishCopy: input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + deniedCopy + " " + packetFields + " " + queueStates + " " + dryRunTicketStates + " " + dryRunTicketFields + " " + simulatedFileOperationTypes + " " + simulatedFileWriteFields + " " + simulatedFileSafetyPolicies + " " + simulatedCommandOperationTypes + " " + simulatedCommandPreviewFields + " " + simulatedCommandSafetyPolicies + " " + supportedTargets + " " + sharedBrainCopy + " " + modelRouterCopy + " " + adapterCopy + " " + fileAdapterCopy + " " + commandAdapterCopy + " Preview focus: " + input.previewFocus + ".",
     identity: input.title + " identity: " + input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + input.deniedCopy + ". " + sharedBrainCopy + " Static preview-only review content remains blocked until explicit operator approval.",
-    advancedDetails: [input.markerTitle, input.safetyCopy, input.approvalCopy, input.supportCopy, input.deniedCopy, packetFields, queueStates, dryRunTicketStates, dryRunTicketFields, simulatedFileOperationTypes, simulatedFileWriteFields, simulatedFileSafetyPolicies, supportedTargets, sharedBrainCopy, modelRouterCopy, adapterCopy, fileAdapterCopy, deniedCopy, checklistCopy, "Static preview focus fields: " + joinSentence(input.fieldItems) + ".", "Operator decision state: blocked until explicit human approval confirms original operator goal, clarified goal, target family, target recommendation, requirements, architecture, files, commands, runtimes, adapters, validation, risk, approvals, evidence, result, recovery, packaging, model routing, dry-run intent, file operation type, target path preview, diff preview, safety gate, apply hold state, denied mutation state, and safety gates."],
-    advancedCopy: input.title + " remains deterministic, static, local-first, review-only, and approval-gated. It does not call models, call providers, send prompts, read secrets, store credentials, spend credits, execute backend adapters, execute domain adapters, write files, run commands, start runtimes, scaffold projects, browse, deploy, package outputs, persist model outputs, persist evidence/results, trigger recovery, run validation, run dry-runs, release execution locks, persist queues, create queue jobs, or promote memory automatically.",
+    advancedDetails: [input.markerTitle, input.safetyCopy, input.approvalCopy, input.supportCopy, input.deniedCopy, packetFields, queueStates, dryRunTicketStates, dryRunTicketFields, simulatedFileOperationTypes, simulatedFileWriteFields, simulatedFileSafetyPolicies, simulatedCommandOperationTypes, simulatedCommandPreviewFields, simulatedCommandSafetyPolicies, supportedTargets, sharedBrainCopy, modelRouterCopy, adapterCopy, fileAdapterCopy, commandAdapterCopy, deniedCopy, checklistCopy, "Static preview focus fields: " + joinSentence(input.fieldItems) + ".", "Operator decision state: blocked until explicit human approval confirms original operator goal, clarified goal, target family, target recommendation, requirements, architecture, files, commands, runtimes, adapters, validation, risk, approvals, evidence, result, recovery, packaging, model routing, dry-run intent, file operation type, target path preview, diff preview, safety gate, apply hold state, denied mutation state, and safety gates."],
+    advancedCopy: input.title + " remains deterministic, static, local-first, review-only, and approval-gated. It does not call models, call providers, send prompts, read secrets, store credentials, spend credits, execute backend adapters, execute domain adapters, write files, run commands, start runtimes, scaffold projects, browse, deploy, package outputs, persist model outputs, persist evidence/results, trigger recovery, run validation, run dry-runs, release execution locks, persist queues, create queue jobs, or promote memory automatically. Simulated command previews remain static, preview-only, approval-gated, denied by default, and blocked from shell, git, test, build, smoke, install, runtime, deploy, package, scaffold, and no-op execution.",
     dataScope: input.slug + " build-plan-bundle review-only approval required denied execution static preview",
   };
 }
@@ -2895,6 +3141,393 @@ const SIMULATED_FILE_WRITE_DEFINITION_INPUTS = [
   },
 ] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
 
+const SIMULATED_COMMAND_DEFINITION_INPUTS = [
+  {
+    slug: "simulated-command-execution-boundary",
+    phase: "Phase 1114",
+    title: "Simulated Command Execution Boundary",
+    markerTitle: "Simulated command execution boundary",
+    safetyCopy: "Simulated command execution boundary does not run commands",
+    approvalCopy: "Simulated command execution requires explicit operator approval",
+    supportCopy: "Simulated command execution keeps every command blocked",
+    deniedCopy: "Denied simulated command execution paths remain blocked",
+    checklistLabel: "Simulated command execution checklist",
+    subtitle: "Review the simulated command execution boundary without running commands, opening shells, executing adapters, or releasing guarded queue items.",
+    primaryLabel: "Review command boundary",
+    groupLabel: "Simulated command boundary fields",
+    previewFocus: "guarded queue reference, dry-run ticket reference, command intent, command string preview, argument preview, working directory preview, environment variable names, evidence, result, failure, recovery, operator review, execution hold, denied execution, and explicit approval requirement",
+    language: SIMULATED_COMMAND_EXECUTION_BOUNDARY_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command boundary fields", "preview-only execution denial"],
+    routes: ["/controlled-simulated-file-write-release-candidate", "/simulated-command-intent-packet", "/dry-run-command-ticket"],
+    links: [
+      { href: "/controlled-simulated-file-write-release-candidate", label: "Previous Phase" },
+      { href: "/simulated-command-intent-packet", label: "Next Phase" },
+      { href: "/dry-run-command-ticket", label: "Dry-Run Command Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-intent-packet",
+    phase: "Phase 1115",
+    title: "Simulated Command Intent Packet",
+    markerTitle: "Simulated command intent packet",
+    safetyCopy: "Simulated command intent packet does not send prompts",
+    approvalCopy: "Command intent review requires explicit operator approval",
+    supportCopy: "Intent packets preserve shared CodexForge brain context",
+    deniedCopy: "Denied simulated command intent paths remain blocked",
+    checklistLabel: "Simulated command intent checklist",
+    subtitle: "Review command intent without sending prompts, calling models, executing adapters, or persisting model outputs.",
+    primaryLabel: "Review command intent",
+    groupLabel: "Simulated command intent fields",
+    previewFocus: "command intent, shared brain context, model-router rationale, dry-run ticket reference, guarded queue reference, denied prompt sending, operator review state, and explicit approval requirement",
+    language: SIMULATED_COMMAND_INTENT_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command intent fields", "preview-only execution denial"],
+    routes: ["/simulated-command-execution-boundary", "/simulated-command-plan-packet", "/build-plan-command-manifest-packet"],
+    links: [
+      { href: "/simulated-command-execution-boundary", label: "Previous Phase" },
+      { href: "/simulated-command-plan-packet", label: "Next Phase" },
+      { href: "/build-plan-command-manifest-packet", label: "Command Manifest" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-plan-packet",
+    phase: "Phase 1116",
+    title: "Simulated Command Plan Packet",
+    markerTitle: "Simulated command plan packet",
+    safetyCopy: "Simulated command plan packet does not run commands",
+    approvalCopy: "Command plan review requires explicit operator approval",
+    supportCopy: "Command plans show planned commands without execution",
+    deniedCopy: "Denied simulated command plan paths remain blocked",
+    checklistLabel: "Simulated command plan checklist",
+    subtitle: "Review planned command packets without shell, git, test, build, smoke, install, runtime, package, scaffold, or deploy execution.",
+    primaryLabel: "Review command plan",
+    groupLabel: "Simulated command plan fields",
+    previewFocus: "planned command sequence, command operation type, command string preview, approval gate name, dry-run ticket reference, execution hold state, denied execution state, and shared evidence/result route",
+    language: SIMULATED_COMMAND_PLAN_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command plan fields", "preview-only execution denial"],
+    routes: ["/simulated-command-intent-packet", "/simulated-command-argument-review", "/build-plan-approval-command-preview"],
+    links: [
+      { href: "/simulated-command-intent-packet", label: "Previous Phase" },
+      { href: "/simulated-command-argument-review", label: "Next Phase" },
+      { href: "/build-plan-approval-command-preview", label: "Approval Command Preview" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-argument-review",
+    phase: "Phase 1117",
+    title: "Simulated Command Argument Review",
+    markerTitle: "Simulated command argument review",
+    safetyCopy: "Simulated command argument review does not execute arguments",
+    approvalCopy: "Command argument review requires explicit operator approval",
+    supportCopy: "Argument reviews keep command execution blocked",
+    deniedCopy: "Denied simulated command argument paths remain blocked",
+    checklistLabel: "Simulated command argument checklist",
+    subtitle: "Review command arguments without expanding them into executable shell, git, test, build, smoke, install, package, runtime, or scaffold calls.",
+    primaryLabel: "Review arguments",
+    groupLabel: "Simulated command argument fields",
+    previewFocus: "argument preview, command string preview, operation type, guarded queue reference, dry-run ticket reference, argument safety gate, denied execution state, and explicit approval requirement",
+    language: SIMULATED_COMMAND_ARGUMENT_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command argument fields", "preview-only execution denial"],
+    routes: ["/simulated-command-plan-packet", "/simulated-command-environment-review", "/simulated-command-risk-review"],
+    links: [
+      { href: "/simulated-command-plan-packet", label: "Previous Phase" },
+      { href: "/simulated-command-environment-review", label: "Next Phase" },
+      { href: "/simulated-command-risk-review", label: "Risk Review" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-environment-review",
+    phase: "Phase 1118",
+    title: "Simulated Command Environment Review",
+    markerTitle: "Simulated command environment review",
+    safetyCopy: "Simulated command environment review does not read env values",
+    approvalCopy: "Command environment review requires explicit operator approval",
+    supportCopy: "Environment reviews show variable names without secret values",
+    deniedCopy: "Denied simulated command environment paths remain blocked",
+    checklistLabel: "Simulated command environment checklist",
+    subtitle: "Review planned environment variable names without reading values, printing secrets, storing credentials, or exposing tokens.",
+    primaryLabel: "Review environment",
+    groupLabel: "Simulated command environment fields",
+    previewFocus: "environment variable names only, secret-value denial, command string preview, guarded queue reference, dry-run ticket reference, evidence preview, denied execution state, and explicit approval requirement",
+    language: SIMULATED_COMMAND_ENVIRONMENT_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command environment fields", "preview-only execution denial"],
+    routes: ["/simulated-command-argument-review", "/simulated-command-working-directory-review", "/safe-env-key-detection"],
+    links: [
+      { href: "/simulated-command-argument-review", label: "Previous Phase" },
+      { href: "/simulated-command-working-directory-review", label: "Next Phase" },
+      { href: "/safe-env-key-detection", label: "Env-Key Detection" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-working-directory-review",
+    phase: "Phase 1119",
+    title: "Simulated Command Working Directory Review",
+    markerTitle: "Simulated command working directory review",
+    safetyCopy: "Simulated command working directory review does not browse local files",
+    approvalCopy: "Command working directory review requires explicit operator approval",
+    supportCopy: "Working directory reviews show planned paths without crawling",
+    deniedCopy: "Denied simulated command working directory paths remain blocked",
+    checklistLabel: "Simulated command working directory checklist",
+    subtitle: "Review planned working directory paths without browsing local files, crawling arbitrary paths, auto-opening files, or starting runtimes.",
+    primaryLabel: "Review directory",
+    groupLabel: "Simulated command working directory fields",
+    previewFocus: "working directory preview, planned path display, no path crawling state, command string preview, guarded queue reference, dry-run ticket reference, denied execution state, and explicit approval requirement",
+    language: SIMULATED_COMMAND_WORKING_DIRECTORY_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command working directory fields", "preview-only execution denial"],
+    routes: ["/simulated-command-environment-review", "/simulated-command-risk-review", "/simulated-command-argument-review"],
+    links: [
+      { href: "/simulated-command-environment-review", label: "Previous Phase" },
+      { href: "/simulated-command-risk-review", label: "Next Phase" },
+      { href: "/simulated-command-argument-review", label: "Argument Review" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-risk-review",
+    phase: "Phase 1120",
+    title: "Simulated Command Risk Review",
+    markerTitle: "Simulated command risk review",
+    safetyCopy: "Simulated command risk review does not approve commands",
+    approvalCopy: "Command risk review requires explicit operator approval",
+    supportCopy: "Risk reviews gate shell git test build smoke install runtime and deploy commands",
+    deniedCopy: "Denied simulated command risk paths remain blocked",
+    checklistLabel: "Simulated command risk checklist",
+    subtitle: "Review command risk without approving or running shell, git, test, build, smoke, install, runtime, package, scaffold, or deploy commands.",
+    primaryLabel: "Review command risk",
+    groupLabel: "Simulated command risk fields",
+    previewFocus: "risk review, operation type, command string preview, argument preview, environment variable names, working directory preview, approval gate name, denied execution, and explicit approval requirement",
+    language: SIMULATED_COMMAND_RISK_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command risk fields", "preview-only execution denial"],
+    routes: ["/simulated-command-working-directory-review", "/simulated-command-evidence-preview", "/build-plan-approval-risk-gate"],
+    links: [
+      { href: "/simulated-command-working-directory-review", label: "Previous Phase" },
+      { href: "/simulated-command-evidence-preview", label: "Next Phase" },
+      { href: "/build-plan-approval-risk-gate", label: "Approval Risk Gate" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-evidence-preview",
+    phase: "Phase 1121",
+    title: "Simulated Command Evidence Preview",
+    markerTitle: "Simulated command evidence preview",
+    safetyCopy: "Simulated command evidence preview does not persist evidence",
+    approvalCopy: "Command evidence preview requires explicit operator approval",
+    supportCopy: "Evidence previews route future stdout stderr and exit code through shared evidence review",
+    deniedCopy: "Denied simulated command evidence paths remain blocked",
+    checklistLabel: "Simulated command evidence checklist",
+    subtitle: "Review future command evidence capture without running commands, storing stdout/stderr, persisting exit codes, or promoting memory.",
+    primaryLabel: "Review command evidence",
+    groupLabel: "Simulated command evidence fields",
+    previewFocus: "expected stdout preview, expected stderr preview, expected exit code preview, evidence capture preview, shared evidence route, dry-run ticket reference, denied evidence persistence, and explicit approval requirement",
+    language: SIMULATED_COMMAND_EVIDENCE_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command evidence fields", "preview-only execution denial"],
+    routes: ["/simulated-command-risk-review", "/simulated-command-result-preview", "/build-plan-approval-evidence-gate"],
+    links: [
+      { href: "/simulated-command-risk-review", label: "Previous Phase" },
+      { href: "/simulated-command-result-preview", label: "Next Phase" },
+      { href: "/build-plan-approval-evidence-gate", label: "Evidence Gate" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-result-preview",
+    phase: "Phase 1122",
+    title: "Simulated Command Result Preview",
+    markerTitle: "Simulated command result preview",
+    safetyCopy: "Simulated command result preview does not persist results",
+    approvalCopy: "Command result preview requires explicit operator approval",
+    supportCopy: "Result previews route future outputs through shared result review",
+    deniedCopy: "Denied simulated command result paths remain blocked",
+    checklistLabel: "Simulated command result checklist",
+    subtitle: "Review future command results without persisting outputs, storing model outputs, reusing results, or promoting memory automatically.",
+    primaryLabel: "Review command result",
+    groupLabel: "Simulated command result fields",
+    previewFocus: "result preview, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, shared result route, denied result persistence, and explicit approval requirement",
+    language: SIMULATED_COMMAND_RESULT_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command result fields", "preview-only execution denial"],
+    routes: ["/simulated-command-evidence-preview", "/simulated-command-failure-preview", "/build-plan-approval-result-gate"],
+    links: [
+      { href: "/simulated-command-evidence-preview", label: "Previous Phase" },
+      { href: "/simulated-command-failure-preview", label: "Next Phase" },
+      { href: "/build-plan-approval-result-gate", label: "Result Gate" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-failure-preview",
+    phase: "Phase 1123",
+    title: "Simulated Command Failure Preview",
+    markerTitle: "Simulated command failure preview",
+    safetyCopy: "Simulated command failure preview does not trigger retries",
+    approvalCopy: "Command failure preview requires explicit operator approval",
+    supportCopy: "Failure previews show blocked retry and triage states",
+    deniedCopy: "Denied simulated command failure paths remain blocked",
+    checklistLabel: "Simulated command failure checklist",
+    subtitle: "Review future command failure states without retrying, triggering triage, launching recovery, or persisting outputs.",
+    primaryLabel: "Review command failure",
+    groupLabel: "Simulated command failure fields",
+    previewFocus: "failure preview, blocked retry state, blocked triage state, expected stderr preview, expected exit code preview, recovery preview, operator review state, denied execution, and explicit approval requirement",
+    language: SIMULATED_COMMAND_FAILURE_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command failure fields", "preview-only execution denial"],
+    routes: ["/simulated-command-result-preview", "/simulated-command-recovery-preview", "/simulated-command-risk-review"],
+    links: [
+      { href: "/simulated-command-result-preview", label: "Previous Phase" },
+      { href: "/simulated-command-recovery-preview", label: "Next Phase" },
+      { href: "/simulated-command-risk-review", label: "Risk Review" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-recovery-preview",
+    phase: "Phase 1124",
+    title: "Simulated Command Recovery Preview",
+    markerTitle: "Simulated command recovery preview",
+    safetyCopy: "Simulated command recovery preview does not trigger recovery",
+    approvalCopy: "Command recovery preview requires explicit operator approval",
+    supportCopy: "Recovery previews include rollback restore and retry plans",
+    deniedCopy: "Denied simulated command recovery paths remain blocked",
+    checklistLabel: "Simulated command recovery checklist",
+    subtitle: "Review future command recovery plans without rollback, restore, retry, cleanup, repair, or recovery execution.",
+    primaryLabel: "Review command recovery",
+    groupLabel: "Simulated command recovery fields",
+    previewFocus: "recovery preview, rollback plan, restore plan, retry plan, failure preview, expected exit code preview, shared evidence/result route, denied recovery state, and explicit approval requirement",
+    language: SIMULATED_COMMAND_RECOVERY_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command recovery fields", "preview-only execution denial"],
+    routes: ["/simulated-command-failure-preview", "/simulated-command-operator-review", "/build-plan-approval-recovery-gate"],
+    links: [
+      { href: "/simulated-command-failure-preview", label: "Previous Phase" },
+      { href: "/simulated-command-operator-review", label: "Next Phase" },
+      { href: "/build-plan-approval-recovery-gate", label: "Recovery Gate" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-operator-review",
+    phase: "Phase 1125",
+    title: "Simulated Command Operator Review",
+    markerTitle: "Simulated command operator review",
+    safetyCopy: "Simulated command operator review does not approve actions",
+    approvalCopy: "Command operator review requires explicit human approval",
+    supportCopy: "Operator reviews keep command execution blocked",
+    deniedCopy: "Denied simulated command operator review paths remain blocked",
+    checklistLabel: "Simulated command operator review checklist",
+    subtitle: "Review human approval state without granting approval, persisting approval decisions, releasing holds, or enabling command execution.",
+    primaryLabel: "Review operator gate",
+    groupLabel: "Simulated command operator fields",
+    previewFocus: "operator review state, explicit human approval requirement, approval gate name, command string preview, risk gate, evidence preview, result preview, recovery preview, denied execution, and execution hold state",
+    language: SIMULATED_COMMAND_OPERATOR_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command operator fields", "preview-only execution denial"],
+    routes: ["/simulated-command-recovery-preview", "/simulated-command-execution-hold-state", "/build-plan-operator-signoff-packet"],
+    links: [
+      { href: "/simulated-command-recovery-preview", label: "Previous Phase" },
+      { href: "/simulated-command-execution-hold-state", label: "Next Phase" },
+      { href: "/build-plan-operator-signoff-packet", label: "Operator Signoff" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-execution-hold-state",
+    phase: "Phase 1126",
+    title: "Simulated Command Execution Hold State",
+    markerTitle: "Simulated command execution hold state",
+    safetyCopy: "Simulated command execution hold state does not release commands",
+    approvalCopy: "Command execution hold release requires explicit operator approval",
+    supportCopy: "Execution hold keeps every command blocked",
+    deniedCopy: "Denied simulated command execution hold paths remain blocked",
+    checklistLabel: "Simulated command execution hold checklist",
+    subtitle: "Review command execution hold state without releasing shell, git, test, build, smoke, install, runtime, package, scaffold, deploy, or no-op tickets.",
+    primaryLabel: "Review command hold",
+    groupLabel: "Simulated command hold fields",
+    previewFocus: "execution hold state, release denial, explicit approval requirement, command operation type, guarded queue reference, dry-run ticket reference, operator review state, denied execution, and shared evidence/result/recovery gates",
+    language: SIMULATED_COMMAND_EXECUTION_HOLD_STATE_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command hold fields", "preview-only execution denial"],
+    routes: ["/simulated-command-operator-review", "/simulated-command-validation-preview", "/build-plan-execution-hold-state"],
+    links: [
+      { href: "/simulated-command-operator-review", label: "Previous Phase" },
+      { href: "/simulated-command-validation-preview", label: "Next Phase" },
+      { href: "/build-plan-execution-hold-state", label: "Build Plan Hold" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-command-validation-preview",
+    phase: "Phase 1127",
+    title: "Simulated Command Validation Preview",
+    markerTitle: "Simulated command validation preview",
+    safetyCopy: "Simulated command validation preview does not run validation",
+    approvalCopy: "Command validation preview requires explicit operator approval",
+    supportCopy: "Validation previews show expected checks without execution",
+    deniedCopy: "Denied simulated command validation paths remain blocked",
+    checklistLabel: "Simulated command validation checklist",
+    subtitle: "Review expected validation checks without running validation, tests, builds, smokes, commands, runtimes, providers, or adapters.",
+    primaryLabel: "Review validation preview",
+    groupLabel: "Simulated command validation fields",
+    previewFocus: "validation expectation, expected stdout preview, expected stderr preview, expected exit code preview, evidence capture preview, result preview, operator review state, execution hold state, denied execution, and explicit approval requirement",
+    language: SIMULATED_COMMAND_VALIDATION_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command validation fields", "preview-only execution denial"],
+    routes: ["/simulated-command-execution-hold-state", "/first-simulated-command-candidate", "/dry-run-execution-validation-preview"],
+    links: [
+      { href: "/simulated-command-execution-hold-state", label: "Previous Phase" },
+      { href: "/first-simulated-command-candidate", label: "Next Phase" },
+      { href: "/dry-run-execution-validation-preview", label: "Dry-Run Validation" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "first-simulated-command-candidate",
+    phase: "Phase 1128",
+    title: "First Simulated Command Candidate",
+    markerTitle: "First simulated command candidate",
+    safetyCopy: "First simulated command candidate does not run commands",
+    approvalCopy: "Simulated command candidates require explicit operator approval",
+    supportCopy: "Candidate packets combine intent plan arguments environment working directory risk evidence result failure recovery and validation gates",
+    deniedCopy: "Denied simulated command candidate paths remain blocked",
+    checklistLabel: "First simulated command checklist",
+    subtitle: "Review the first combined simulated command candidate without running commands, executing dry-runs, persisting queues, or executing adapters.",
+    primaryLabel: "Review command candidate",
+    groupLabel: "Simulated command candidate fields",
+    previewFocus: "combined intent, plan, arguments, environment, working directory, risk, evidence, result, failure, recovery, operator review, execution hold, validation, denied execution, shared brain gate, and explicit approval requirement",
+    language: FIRST_SIMULATED_COMMAND_CANDIDATE_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command candidate fields", "preview-only execution denial"],
+    routes: ["/simulated-command-validation-preview", "/controlled-simulated-command-release-candidate", "/simulated-command-execution-boundary"],
+    links: [
+      { href: "/simulated-command-validation-preview", label: "Previous Phase" },
+      { href: "/controlled-simulated-command-release-candidate", label: "Next Phase" },
+      { href: "/simulated-command-execution-boundary", label: "Command Boundary" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "controlled-simulated-command-release-candidate",
+    phase: "Phase 1129",
+    title: "Controlled Simulated Command Release Candidate",
+    markerTitle: "Controlled simulated command release candidate",
+    safetyCopy: "Controlled simulated command release candidate does not call models or execute commands",
+    approvalCopy: "Controlled simulated command release requires explicit operator approval",
+    supportCopy: "Release candidate supports command previews with shared brain gates",
+    deniedCopy: "Denied controlled simulated command paths remain blocked",
+    checklistLabel: "Controlled simulated command release checklist",
+    subtitle: "Review the controlled simulated command release candidate without model calls, provider calls, command execution, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review command RC",
+    groupLabel: "Simulated command release fields",
+    previewFocus: "command previews with shared brain gates, guarded queue reference, dry-run ticket reference, model routing policy, backend/domain adapter gates, intent, plan, arguments, environment, working directory, risk, evidence, result, failure, recovery, validation, operator review, execution hold, denied execution, and explicit approval requirement",
+    language: CONTROLLED_SIMULATED_COMMAND_RELEASE_CANDIDATE_LANGUAGE,
+    fieldItems: [...SIMULATED_COMMAND_PREVIEW_FIELDS, "simulated command release fields", "preview-only execution denial"],
+    routes: ["/first-simulated-command-candidate", "/simulated-command-execution-boundary", "/controlled-dry-run-execution-handoff-release-candidate"],
+    links: [
+      { href: "/first-simulated-command-candidate", label: "Previous Phase" },
+      { href: "/simulated-command-execution-boundary", label: "Next Phase" },
+      { href: "/controlled-dry-run-execution-handoff-release-candidate", label: "Dry-Run RC" },
+    ],
+    nextRecommendedAction: "Review the next simulated command preview while every command remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
+
 export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, BuildPlanBundleDefinition> = {
   "build-plan-bundle-boundary": buildBuildPlanBundleDefinition({
     slug: "build-plan-bundle-boundary",
@@ -3292,6 +3925,9 @@ export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, Bu
   ...(Object.fromEntries(
     SIMULATED_FILE_WRITE_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
   ) as Record<SimulatedFileWriteReviewSlug, BuildPlanBundleDefinition>),
+  ...(Object.fromEntries(
+    SIMULATED_COMMAND_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
+  ) as Record<SimulatedCommandReviewSlug, BuildPlanBundleDefinition>),
 };
 
 export function buildBuildPlanBundleReview(slug: BuildPlanBundleReviewSlug, input: BuildPlanBundleReviewPacketInput): UniversalExecutionReviewPacket {
@@ -3325,11 +3961,15 @@ export function buildBuildPlanBundleReviewPackets(slug: BuildPlanBundleReviewSlu
     { label: "Simulated file operation types", items: ["Simulated file operation types: " + joinSentence(SIMULATED_FILE_OPERATION_TYPES) + "."] },
     { label: "Simulated file preview fields", items: ["Simulated file write previews include " + joinSentence(SIMULATED_FILE_WRITE_PREVIEW_FIELDS) + "."] },
     { label: "Simulated file safety policy", items: ["Simulated file safety policy: " + joinSentence(SIMULATED_FILE_WRITE_SAFETY_POLICIES) + "."] },
+    { label: "Simulated command operation types", items: ["Simulated command operation types: " + joinSentence(SIMULATED_COMMAND_OPERATION_TYPES) + "."] },
+    { label: "Simulated command preview fields", items: ["Simulated command previews include " + joinSentence(SIMULATED_COMMAND_PREVIEW_FIELDS) + "."] },
+    { label: "Simulated command safety policy", items: ["Simulated command safety policy: " + joinSentence(SIMULATED_COMMAND_SAFETY_POLICIES) + "."] },
     { label: "Supported target families", items: ["Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + "."] },
     { label: "Model router policy", items: ["Cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation."] },
     { label: "Backend adapter policy", items: ["Backend adapter proposals remain preview-only, do not execute adapters, name their approval gate, and return through shared evidence/result review after explicit operator approval."] },
     { label: "Domain adapter policy", items: ["Game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project adapter proposals remain preview-only, do not execute domain adapters, and require explicit operator approval."] },
     { label: "File adapter policy", items: ["All file write previews remain preview-only, no live execution, no actual file mutation, no queue persistence, every file operation names its approval gate, and every result returns through shared evidence/result review."] },
+    { label: "Command adapter policy", items: ["All command previews remain preview-only, no live execution, no actual command execution, no queue persistence, every command operation names its approval gate, and every result returns through shared evidence/result review."] },
     { label: "Dry-run handoff policy", items: ["Dry-run tickets remain static preview-only handoffs. They do not execute dry-runs, persist queues, create queue jobs, release execution locks, write files, run commands, start runtimes, execute backend adapters, execute domain adapters, persist evidence, persist results, trigger recovery, or package outputs."] },
     { label: "Denied live execution state", items: [definition.deniedCopy, definition.safetyCopy] },
     { label: "Operator approval state", items: [definition.approvalCopy, "All real execution requires explicit operator approval."] }

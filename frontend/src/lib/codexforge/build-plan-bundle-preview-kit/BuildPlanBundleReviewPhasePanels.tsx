@@ -322,3 +322,67 @@ export function FirstSimulatedFileWriteCandidatePanel() {
 export function ControlledSimulatedFileWriteReleaseCandidatePanel() {
   return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-simulated-file-write-release-candidate")} />;
 }
+
+export function SimulatedCommandExecutionBoundaryPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-execution-boundary")} />;
+}
+
+export function SimulatedCommandIntentPacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-intent-packet")} />;
+}
+
+export function SimulatedCommandPlanPacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-plan-packet")} />;
+}
+
+export function SimulatedCommandArgumentReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-argument-review")} />;
+}
+
+export function SimulatedCommandEnvironmentReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-environment-review")} />;
+}
+
+export function SimulatedCommandWorkingDirectoryReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-working-directory-review")} />;
+}
+
+export function SimulatedCommandRiskReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-risk-review")} />;
+}
+
+export function SimulatedCommandEvidencePreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-evidence-preview")} />;
+}
+
+export function SimulatedCommandResultPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-result-preview")} />;
+}
+
+export function SimulatedCommandFailurePreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-failure-preview")} />;
+}
+
+export function SimulatedCommandRecoveryPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-recovery-preview")} />;
+}
+
+export function SimulatedCommandOperatorReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-operator-review")} />;
+}
+
+export function SimulatedCommandExecutionHoldStatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-execution-hold-state")} />;
+}
+
+export function SimulatedCommandValidationPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-command-validation-preview")} />;
+}
+
+export function FirstSimulatedCommandCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("first-simulated-command-candidate")} />;
+}
+
+export function ControlledSimulatedCommandReleaseCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-simulated-command-release-candidate")} />;
+}
