@@ -569,7 +569,23 @@ $protectedRoutes = @(
   "/simulated-adapter-operator-review",
   "/simulated-adapter-execution-hold-state",
   "/first-simulated-adapter-candidate",
-  "/controlled-simulated-adapter-release-candidate"
+  "/controlled-simulated-adapter-release-candidate",
+  "/real-guarded-file-write-adapter-boundary",
+  "/file-write-adapter-contract",
+  "/file-write-path-guard",
+  "/file-write-diff-builder",
+  "/file-write-approval-ticket",
+  "/file-write-preflight-review",
+  "/file-write-apply-hold",
+  "/file-write-evidence-capture-contract",
+  "/file-write-result-capture-contract",
+  "/file-write-rollback-contract",
+  "/file-write-dry-run-harness",
+  "/file-write-denied-mutation-review",
+  "/file-write-operator-review-packet",
+  "/file-write-cockpit-integration-contract",
+  "/first-real-guarded-file-write-candidate",
+  "/controlled-real-guarded-file-write-mvp-release-candidate",
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `

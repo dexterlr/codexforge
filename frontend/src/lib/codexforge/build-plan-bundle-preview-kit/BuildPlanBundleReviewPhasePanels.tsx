@@ -515,3 +515,67 @@ export function FirstSimulatedAdapterCandidatePanel() {
 export function ControlledSimulatedAdapterReleaseCandidatePanel() {
   return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-simulated-adapter-release-candidate")} />;
 }
+
+export function RealGuardedFileWriteAdapterBoundaryPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("real-guarded-file-write-adapter-boundary")} />;
+}
+
+export function FileWriteAdapterContractPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-adapter-contract")} />;
+}
+
+export function FileWritePathGuardPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-path-guard")} />;
+}
+
+export function FileWriteDiffBuilderPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-diff-builder")} />;
+}
+
+export function FileWriteApprovalTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-approval-ticket")} />;
+}
+
+export function FileWritePreflightReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-preflight-review")} />;
+}
+
+export function FileWriteApplyHoldPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-apply-hold")} />;
+}
+
+export function FileWriteEvidenceCaptureContractPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-evidence-capture-contract")} />;
+}
+
+export function FileWriteResultCaptureContractPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-result-capture-contract")} />;
+}
+
+export function FileWriteRollbackContractPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-rollback-contract")} />;
+}
+
+export function FileWriteDryRunHarnessPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-dry-run-harness")} />;
+}
+
+export function FileWriteDeniedMutationReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-denied-mutation-review")} />;
+}
+
+export function FileWriteOperatorReviewPacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-operator-review-packet")} />;
+}
+
+export function FileWriteCockpitIntegrationContractPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("file-write-cockpit-integration-contract")} />;
+}
+
+export function FirstRealGuardedFileWriteCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("first-real-guarded-file-write-candidate")} />;
+}
+
+export function ControlledRealGuardedFileWriteMvpReleaseCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-real-guarded-file-write-mvp-release-candidate")} />;
+}

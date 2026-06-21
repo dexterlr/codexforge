@@ -39,7 +39,8 @@ export type BuildPlanBundleReviewSlug =
   | SimulatedFileWriteReviewSlug
   | SimulatedCommandReviewSlug
   | SimulatedRuntimeReviewSlug
-  | SimulatedAdapterReviewSlug;
+  | SimulatedAdapterReviewSlug
+  | RealGuardedFileWriteReviewSlug;
 
 export type BuildPlanApprovalReviewSlug =
   | "build-plan-approval-boundary"
@@ -166,6 +167,24 @@ export type SimulatedAdapterReviewSlug =
   | "simulated-adapter-execution-hold-state"
   | "first-simulated-adapter-candidate"
   | "controlled-simulated-adapter-release-candidate";
+
+export type RealGuardedFileWriteReviewSlug =
+  | "real-guarded-file-write-adapter-boundary"
+  | "file-write-adapter-contract"
+  | "file-write-path-guard"
+  | "file-write-diff-builder"
+  | "file-write-approval-ticket"
+  | "file-write-preflight-review"
+  | "file-write-apply-hold"
+  | "file-write-evidence-capture-contract"
+  | "file-write-result-capture-contract"
+  | "file-write-rollback-contract"
+  | "file-write-dry-run-harness"
+  | "file-write-denied-mutation-review"
+  | "file-write-operator-review-packet"
+  | "file-write-cockpit-integration-contract"
+  | "first-real-guarded-file-write-candidate"
+  | "controlled-real-guarded-file-write-mvp-release-candidate";
 
 type BuildPlanBundleDefinition = {
   slug: BuildPlanBundleReviewSlug;
@@ -1599,6 +1618,182 @@ export const CONTROLLED_SIMULATED_ADAPTER_RELEASE_CANDIDATE_LANGUAGE = [
   "Denied controlled simulated adapter paths remain blocked",
   "Controlled simulated adapter release checklist",
   "static controlled-simulated-adapter-release-candidate preview",
+  "approval required",
+] as const;
+
+export const REAL_GUARDED_FILE_WRITE_ADAPTER_BOUNDARY_LANGUAGE = [
+  "Real guarded file-write adapter boundary",
+  "Real guarded file-write adapter boundary does not write files from UI",
+  "Real guarded file-write requires explicit operator approval",
+  "File-write adapter keeps every mutation blocked until approval",
+  "Denied real guarded file-write paths remain blocked",
+  "Real guarded file-write checklist",
+  "static real-guarded-file-write-adapter-boundary preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_ADAPTER_CONTRACT_LANGUAGE = [
+  "File-write adapter contract",
+  "File-write adapter contract does not execute writes",
+  "File-write adapter contract requires explicit operator approval",
+  "Adapter contract defines path guard diff evidence result and rollback gates",
+  "Denied file-write adapter contract paths remain blocked",
+  "File-write adapter contract checklist",
+  "static file-write-adapter-contract preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_PATH_GUARD_LANGUAGE = [
+  "File-write path guard",
+  "File-write path guard does not mutate files",
+  "File-write path guard requires explicit operator approval before future writes",
+  "Path guard denies traversal system credential env git node_modules and build-output paths",
+  "Denied file-write path guard paths remain blocked",
+  "File-write path guard checklist",
+  "static file-write-path-guard preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_DIFF_BUILDER_LANGUAGE = [
+  "File-write diff builder",
+  "File-write diff builder does not apply diffs",
+  "File-write diff builder requires explicit operator approval before future apply",
+  "Diff builder shows planned before and after changes without mutation",
+  "Denied file-write diff builder paths remain blocked",
+  "File-write diff builder checklist",
+  "static file-write-diff-builder preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_APPROVAL_TICKET_LANGUAGE = [
+  "File-write approval ticket",
+  "File-write approval ticket does not approve writes",
+  "File-write approval ticket requires explicit human approval",
+  "Approval tickets keep every mutation blocked",
+  "Denied file-write approval ticket paths remain blocked",
+  "File-write approval ticket checklist",
+  "static file-write-approval-ticket preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_PREFLIGHT_REVIEW_LANGUAGE = [
+  "File-write preflight review",
+  "File-write preflight review does not execute writes",
+  "File-write preflight review requires explicit operator approval",
+  "Preflight reviews gate path diff size secrets binary writes and rollback readiness",
+  "Denied file-write preflight paths remain blocked",
+  "File-write preflight checklist",
+  "static file-write-preflight-review preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_APPLY_HOLD_LANGUAGE = [
+  "File-write apply hold",
+  "File-write apply hold does not release writes",
+  "File-write apply hold requires explicit operator approval",
+  "Apply hold keeps every future mutation blocked",
+  "Denied file-write apply hold paths remain blocked",
+  "File-write apply hold checklist",
+  "static file-write-apply-hold preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_EVIDENCE_CAPTURE_CONTRACT_LANGUAGE = [
+  "File-write evidence capture contract",
+  "File-write evidence capture contract does not persist evidence",
+  "File-write evidence capture requires explicit operator approval",
+  "Evidence contract captures before snapshot after snapshot diff approval and operator placeholders",
+  "Denied file-write evidence paths remain blocked",
+  "File-write evidence capture checklist",
+  "static file-write-evidence-capture-contract preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_RESULT_CAPTURE_CONTRACT_LANGUAGE = [
+  "File-write result capture contract",
+  "File-write result capture contract does not persist results",
+  "File-write result capture requires explicit operator approval",
+  "Result contract supports success denied blocked failed and needs-review states",
+  "Denied file-write result paths remain blocked",
+  "File-write result capture checklist",
+  "static file-write-result-capture-contract preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_ROLLBACK_CONTRACT_LANGUAGE = [
+  "File-write rollback contract",
+  "File-write rollback contract does not execute rollback",
+  "File-write rollback requires explicit operator approval",
+  "Rollback contract describes restore reverse-create reverse-delete reverse-move and retry gates",
+  "Denied file-write rollback paths remain blocked",
+  "File-write rollback checklist",
+  "static file-write-rollback-contract preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_DRY_RUN_HARNESS_LANGUAGE = [
+  "File-write dry-run harness",
+  "File-write dry-run harness does not write files",
+  "File-write dry-run harness requires explicit operator approval before future apply",
+  "Dry-run harness returns diff evidence result and rollback previews only",
+  "Denied file-write dry-run harness paths remain blocked",
+  "File-write dry-run harness checklist",
+  "static file-write-dry-run-harness preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_DENIED_MUTATION_REVIEW_LANGUAGE = [
+  "File-write denied mutation review",
+  "File-write denied mutation review does not mutate files",
+  "Denied mutation review requires explicit operator approval",
+  "Denied mutation review explains blocked traversal secrets system git node_modules env binary and build-output writes",
+  "Denied file-write mutation paths remain blocked",
+  "File-write denied mutation checklist",
+  "static file-write-denied-mutation-review preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_OPERATOR_REVIEW_PACKET_LANGUAGE = [
+  "File-write operator review packet",
+  "File-write operator review packet does not approve writes",
+  "File-write operator review requires explicit human approval",
+  "Operator review packet combines path guard diff approval evidence result and rollback gates",
+  "Denied file-write operator review paths remain blocked",
+  "File-write operator review checklist",
+  "static file-write-operator-review-packet preview",
+  "approval required",
+] as const;
+
+export const FILE_WRITE_COCKPIT_INTEGRATION_CONTRACT_LANGUAGE = [
+  "File-write cockpit integration contract",
+  "File-write cockpit integration contract does not execute writes",
+  "File-write cockpit integration requires explicit operator approval",
+  "Future cockpit shows goal plan diff approval execution evidence result and recovery in one place",
+  "Phase pages are dev/test surfaces only",
+  "File-write cockpit integration checklist",
+  "static file-write-cockpit-integration-contract preview",
+  "approval required",
+] as const;
+
+export const FIRST_REAL_GUARDED_FILE_WRITE_CANDIDATE_LANGUAGE = [
+  "First real guarded file-write candidate",
+  "First real guarded file-write candidate does not write files from UI",
+  "First real guarded file-write candidate requires explicit operator approval",
+  "Candidate combines adapter contract path guard diff approval preflight evidence result rollback and cockpit gates",
+  "Denied first real guarded file-write paths remain blocked",
+  "First real guarded file-write checklist",
+  "static first-real-guarded-file-write-candidate preview",
+  "approval required",
+] as const;
+
+export const CONTROLLED_REAL_GUARDED_FILE_WRITE_MVP_RELEASE_CANDIDATE_LANGUAGE = [
+  "Controlled real guarded file-write MVP release candidate",
+  "Controlled real guarded file-write MVP release candidate does not call models or write files from UI",
+  "Controlled real guarded file-write MVP release requires explicit operator approval",
+  "Release candidate prepares real file-write adapter spine with shared brain gates",
+  "Denied controlled real guarded file-write paths remain blocked",
+  "Controlled real guarded file-write MVP release checklist",
+  "static controlled-real-guarded-file-write-mvp-release-candidate preview",
   "approval required",
 ] as const;
 
@@ -4811,6 +5006,393 @@ const SIMULATED_ADAPTER_DEFINITION_INPUTS = [
   }
 ] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
 
+const REAL_GUARDED_FILE_WRITE_DEFINITION_INPUTS = [
+  {
+    slug: "real-guarded-file-write-adapter-boundary",
+    phase: "Phase 1162",
+    title: "Real Guarded File Write Adapter Boundary",
+    markerTitle: "Real guarded file-write adapter boundary",
+    safetyCopy: "Real guarded file-write adapter boundary does not write files from UI",
+    approvalCopy: "Real guarded file-write requires explicit operator approval",
+    supportCopy: "File-write adapter keeps every mutation blocked until approval",
+    deniedCopy: "Denied real guarded file-write paths remain blocked",
+    checklistLabel: "Real guarded file-write checklist",
+    subtitle: "Review Real Guarded File Write Adapter Boundary as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "Real Guarded File Write Adapter Boundary fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: REAL_GUARDED_FILE_WRITE_ADAPTER_BOUNDARY_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/controlled-simulated-adapter-release-candidate", "/file-write-adapter-contract", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/controlled-simulated-adapter-release-candidate", label: "Previous Family" },
+      { href: "/file-write-adapter-contract", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-adapter-contract",
+    phase: "Phase 1163",
+    title: "File Write Adapter Contract",
+    markerTitle: "File-write adapter contract",
+    safetyCopy: "File-write adapter contract does not execute writes",
+    approvalCopy: "File-write adapter contract requires explicit operator approval",
+    supportCopy: "Adapter contract defines path guard diff evidence result and rollback gates",
+    deniedCopy: "Denied file-write adapter contract paths remain blocked",
+    checklistLabel: "File-write adapter contract checklist",
+    subtitle: "Review File Write Adapter Contract as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Adapter Contract fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_ADAPTER_CONTRACT_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/real-guarded-file-write-adapter-boundary", "/file-write-path-guard", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/real-guarded-file-write-adapter-boundary", label: "Previous Phase" },
+      { href: "/file-write-path-guard", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-path-guard",
+    phase: "Phase 1164",
+    title: "File Write Path Guard",
+    markerTitle: "File-write path guard",
+    safetyCopy: "File-write path guard does not mutate files",
+    approvalCopy: "File-write path guard requires explicit operator approval before future writes",
+    supportCopy: "Path guard denies traversal system credential env git node_modules and build-output paths",
+    deniedCopy: "Denied file-write path guard paths remain blocked",
+    checklistLabel: "File-write path guard checklist",
+    subtitle: "Review File Write Path Guard as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Path Guard fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_PATH_GUARD_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-adapter-contract", "/file-write-diff-builder", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-adapter-contract", label: "Previous Phase" },
+      { href: "/file-write-diff-builder", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-diff-builder",
+    phase: "Phase 1165",
+    title: "File Write Diff Builder",
+    markerTitle: "File-write diff builder",
+    safetyCopy: "File-write diff builder does not apply diffs",
+    approvalCopy: "File-write diff builder requires explicit operator approval before future apply",
+    supportCopy: "Diff builder shows planned before and after changes without mutation",
+    deniedCopy: "Denied file-write diff builder paths remain blocked",
+    checklistLabel: "File-write diff builder checklist",
+    subtitle: "Review File Write Diff Builder as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Diff Builder fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_DIFF_BUILDER_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-path-guard", "/file-write-approval-ticket", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-path-guard", label: "Previous Phase" },
+      { href: "/file-write-approval-ticket", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-approval-ticket",
+    phase: "Phase 1166",
+    title: "File Write Approval Ticket",
+    markerTitle: "File-write approval ticket",
+    safetyCopy: "File-write approval ticket does not approve writes",
+    approvalCopy: "File-write approval ticket requires explicit human approval",
+    supportCopy: "Approval tickets keep every mutation blocked",
+    deniedCopy: "Denied file-write approval ticket paths remain blocked",
+    checklistLabel: "File-write approval ticket checklist",
+    subtitle: "Review File Write Approval Ticket as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Approval Ticket fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_APPROVAL_TICKET_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-diff-builder", "/file-write-preflight-review", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-diff-builder", label: "Previous Phase" },
+      { href: "/file-write-preflight-review", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-preflight-review",
+    phase: "Phase 1167",
+    title: "File Write Preflight Review",
+    markerTitle: "File-write preflight review",
+    safetyCopy: "File-write preflight review does not execute writes",
+    approvalCopy: "File-write preflight review requires explicit operator approval",
+    supportCopy: "Preflight reviews gate path diff size secrets binary writes and rollback readiness",
+    deniedCopy: "Denied file-write preflight paths remain blocked",
+    checklistLabel: "File-write preflight checklist",
+    subtitle: "Review File Write Preflight Review as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Preflight Review fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_PREFLIGHT_REVIEW_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-approval-ticket", "/file-write-apply-hold", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-approval-ticket", label: "Previous Phase" },
+      { href: "/file-write-apply-hold", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-apply-hold",
+    phase: "Phase 1168",
+    title: "File Write Apply Hold",
+    markerTitle: "File-write apply hold",
+    safetyCopy: "File-write apply hold does not release writes",
+    approvalCopy: "File-write apply hold requires explicit operator approval",
+    supportCopy: "Apply hold keeps every future mutation blocked",
+    deniedCopy: "Denied file-write apply hold paths remain blocked",
+    checklistLabel: "File-write apply hold checklist",
+    subtitle: "Review File Write Apply Hold as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Apply Hold fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_APPLY_HOLD_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-preflight-review", "/file-write-evidence-capture-contract", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-preflight-review", label: "Previous Phase" },
+      { href: "/file-write-evidence-capture-contract", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-evidence-capture-contract",
+    phase: "Phase 1169",
+    title: "File Write Evidence Capture Contract",
+    markerTitle: "File-write evidence capture contract",
+    safetyCopy: "File-write evidence capture contract does not persist evidence",
+    approvalCopy: "File-write evidence capture requires explicit operator approval",
+    supportCopy: "Evidence contract captures before snapshot after snapshot diff approval and operator placeholders",
+    deniedCopy: "Denied file-write evidence paths remain blocked",
+    checklistLabel: "File-write evidence capture checklist",
+    subtitle: "Review File Write Evidence Capture Contract as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Evidence Capture Contract fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_EVIDENCE_CAPTURE_CONTRACT_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-apply-hold", "/file-write-result-capture-contract", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-apply-hold", label: "Previous Phase" },
+      { href: "/file-write-result-capture-contract", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-result-capture-contract",
+    phase: "Phase 1170",
+    title: "File Write Result Capture Contract",
+    markerTitle: "File-write result capture contract",
+    safetyCopy: "File-write result capture contract does not persist results",
+    approvalCopy: "File-write result capture requires explicit operator approval",
+    supportCopy: "Result contract supports success denied blocked failed and needs-review states",
+    deniedCopy: "Denied file-write result paths remain blocked",
+    checklistLabel: "File-write result capture checklist",
+    subtitle: "Review File Write Result Capture Contract as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Result Capture Contract fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_RESULT_CAPTURE_CONTRACT_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-evidence-capture-contract", "/file-write-rollback-contract", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-evidence-capture-contract", label: "Previous Phase" },
+      { href: "/file-write-rollback-contract", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-rollback-contract",
+    phase: "Phase 1171",
+    title: "File Write Rollback Contract",
+    markerTitle: "File-write rollback contract",
+    safetyCopy: "File-write rollback contract does not execute rollback",
+    approvalCopy: "File-write rollback requires explicit operator approval",
+    supportCopy: "Rollback contract describes restore reverse-create reverse-delete reverse-move and retry gates",
+    deniedCopy: "Denied file-write rollback paths remain blocked",
+    checklistLabel: "File-write rollback checklist",
+    subtitle: "Review File Write Rollback Contract as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Rollback Contract fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_ROLLBACK_CONTRACT_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-result-capture-contract", "/file-write-dry-run-harness", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-result-capture-contract", label: "Previous Phase" },
+      { href: "/file-write-dry-run-harness", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-dry-run-harness",
+    phase: "Phase 1172",
+    title: "File Write Dry Run Harness",
+    markerTitle: "File-write dry-run harness",
+    safetyCopy: "File-write dry-run harness does not write files",
+    approvalCopy: "File-write dry-run harness requires explicit operator approval before future apply",
+    supportCopy: "Dry-run harness returns diff evidence result and rollback previews only",
+    deniedCopy: "Denied file-write dry-run harness paths remain blocked",
+    checklistLabel: "File-write dry-run harness checklist",
+    subtitle: "Review File Write Dry Run Harness as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Dry Run Harness fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_DRY_RUN_HARNESS_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-rollback-contract", "/file-write-denied-mutation-review", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-rollback-contract", label: "Previous Phase" },
+      { href: "/file-write-denied-mutation-review", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-denied-mutation-review",
+    phase: "Phase 1173",
+    title: "File Write Denied Mutation Review",
+    markerTitle: "File-write denied mutation review",
+    safetyCopy: "File-write denied mutation review does not mutate files",
+    approvalCopy: "Denied mutation review requires explicit operator approval",
+    supportCopy: "Denied mutation review explains blocked traversal secrets system git node_modules env binary and build-output writes",
+    deniedCopy: "Denied file-write mutation paths remain blocked",
+    checklistLabel: "File-write denied mutation checklist",
+    subtitle: "Review File Write Denied Mutation Review as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Denied Mutation Review fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_DENIED_MUTATION_REVIEW_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-dry-run-harness", "/file-write-operator-review-packet", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-dry-run-harness", label: "Previous Phase" },
+      { href: "/file-write-operator-review-packet", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-operator-review-packet",
+    phase: "Phase 1174",
+    title: "File Write Operator Review Packet",
+    markerTitle: "File-write operator review packet",
+    safetyCopy: "File-write operator review packet does not approve writes",
+    approvalCopy: "File-write operator review requires explicit human approval",
+    supportCopy: "Operator review packet combines path guard diff approval evidence result and rollback gates",
+    deniedCopy: "Denied file-write operator review paths remain blocked",
+    checklistLabel: "File-write operator review checklist",
+    subtitle: "Review File Write Operator Review Packet as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Operator Review Packet fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_OPERATOR_REVIEW_PACKET_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-denied-mutation-review", "/file-write-cockpit-integration-contract", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-denied-mutation-review", label: "Previous Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "file-write-cockpit-integration-contract",
+    phase: "Phase 1175",
+    title: "File Write Cockpit Integration Contract",
+    markerTitle: "File-write cockpit integration contract",
+    safetyCopy: "File-write cockpit integration contract does not execute writes",
+    approvalCopy: "File-write cockpit integration requires explicit operator approval",
+    supportCopy: "Future cockpit shows goal plan diff approval execution evidence result and recovery in one place",
+    deniedCopy: "Phase pages are dev/test surfaces only",
+    checklistLabel: "File-write cockpit integration checklist",
+    subtitle: "Review File Write Cockpit Integration Contract as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "File Write Cockpit Integration Contract fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FILE_WRITE_COCKPIT_INTEGRATION_CONTRACT_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-operator-review-packet", "/first-real-guarded-file-write-candidate", "/real-guarded-file-write-adapter-boundary"],
+    links: [
+      { href: "/file-write-operator-review-packet", label: "Previous Phase" },
+      { href: "/first-real-guarded-file-write-candidate", label: "Next Phase" },
+      { href: "/real-guarded-file-write-adapter-boundary", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "first-real-guarded-file-write-candidate",
+    phase: "Phase 1176",
+    title: "First Real Guarded File Write Candidate",
+    markerTitle: "First real guarded file-write candidate",
+    safetyCopy: "First real guarded file-write candidate does not write files from UI",
+    approvalCopy: "First real guarded file-write candidate requires explicit operator approval",
+    supportCopy: "Candidate combines adapter contract path guard diff approval preflight evidence result rollback and cockpit gates",
+    deniedCopy: "Denied first real guarded file-write paths remain blocked",
+    checklistLabel: "First real guarded file-write checklist",
+    subtitle: "Review First Real Guarded File Write Candidate as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "First Real Guarded File Write Candidate fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: FIRST_REAL_GUARDED_FILE_WRITE_CANDIDATE_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/file-write-cockpit-integration-contract", "/controlled-real-guarded-file-write-mvp-release-candidate", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/file-write-cockpit-integration-contract", label: "Previous Phase" },
+      { href: "/controlled-real-guarded-file-write-mvp-release-candidate", label: "Next Phase" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  },
+  {
+    slug: "controlled-real-guarded-file-write-mvp-release-candidate",
+    phase: "Phase 1177",
+    title: "Controlled Real Guarded File Write MVP Release Candidate",
+    markerTitle: "Controlled real guarded file-write MVP release candidate",
+    safetyCopy: "Controlled real guarded file-write MVP release candidate does not call models or write files from UI",
+    approvalCopy: "Controlled real guarded file-write MVP release requires explicit operator approval",
+    supportCopy: "Release candidate prepares real file-write adapter spine with shared brain gates",
+    deniedCopy: "Denied controlled real guarded file-write paths remain blocked",
+    checklistLabel: "Controlled real guarded file-write MVP release checklist",
+    subtitle: "Review Controlled Real Guarded File Write MVP Release Candidate as a static real guarded file-write adapter packet without writing files from UI, executing adapters, persisting approvals, running dry-runs, spawning processes, or mutating paths.",
+    primaryLabel: "Review file-write gate",
+    groupLabel: "Controlled Real Guarded File Write MVP Release Candidate fields",
+    previewFocus: "goal, plan, path guard, diff preview, approval ticket, preflight review, apply hold, evidence contract, result contract, rollback contract, dry-run harness, denied mutation review, operator review packet, cockpit integration, explicit operator approval, and blocked mutation state",
+    language: CONTROLLED_REAL_GUARDED_FILE_WRITE_MVP_RELEASE_CANDIDATE_LANGUAGE,
+    fieldItems: ["goal", "plan", "path guard", "diff preview", "approval ticket", "preflight review", "apply hold", "evidence contract", "result contract", "rollback contract", "dry-run harness", "denied mutation review", "operator review packet", "cockpit integration", "explicit approval requirement", "blocked mutation state"],
+    routes: ["/first-real-guarded-file-write-candidate", "/real-guarded-file-write-adapter-boundary", "/file-write-cockpit-integration-contract"],
+    links: [
+      { href: "/first-real-guarded-file-write-candidate", label: "Previous Phase" },
+      { href: "/real-guarded-file-write-adapter-boundary", label: "Boundary" },
+      { href: "/file-write-cockpit-integration-contract", label: "Cockpit Contract" },
+    ],
+    nextRecommendedAction: "Review the next real guarded file-write adapter packet while every mutation remains blocked until explicit operator approval, guarded path review, diff preview, evidence capture, result capture, and rollback contract are complete.",
+  }
+] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
+
 export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, BuildPlanBundleDefinition> = {
   "build-plan-bundle-boundary": buildBuildPlanBundleDefinition({
     slug: "build-plan-bundle-boundary",
@@ -5217,6 +5799,9 @@ export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, Bu
   ...(Object.fromEntries(
     SIMULATED_ADAPTER_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
   ) as Record<SimulatedAdapterReviewSlug, BuildPlanBundleDefinition>),
+  ...(Object.fromEntries(
+    REAL_GUARDED_FILE_WRITE_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
+  ) as Record<RealGuardedFileWriteReviewSlug, BuildPlanBundleDefinition>),
 };
 
 export function buildBuildPlanBundleReview(slug: BuildPlanBundleReviewSlug, input: BuildPlanBundleReviewPacketInput): UniversalExecutionReviewPacket {

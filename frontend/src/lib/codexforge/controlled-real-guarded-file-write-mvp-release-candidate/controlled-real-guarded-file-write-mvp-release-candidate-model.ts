@@ -1,0 +1,37 @@
+import type { UniversalExecutionReviewPacket } from "../universal-execution-review-kit";
+import {
+  CONTROLLED_REAL_GUARDED_FILE_WRITE_MVP_RELEASE_CANDIDATE_LANGUAGE,
+  buildBuildPlanBundleReview,
+  buildBuildPlanBundleReviewBoundary,
+  buildBuildPlanBundleReviewModelForSlug,
+  buildBuildPlanBundleReviewPackets,
+  buildBuildPlanBundleReviewStableKey as buildControlledRealGuardedFileWriteMvpReleaseCandidateStableKey,
+  summarizeBuildPlanBundleReviewForSlug,
+  type BuildPlanBundleReviewPacketInput,
+} from "../build-plan-bundle-preview-kit";
+
+export { CONTROLLED_REAL_GUARDED_FILE_WRITE_MVP_RELEASE_CANDIDATE_LANGUAGE, buildControlledRealGuardedFileWriteMvpReleaseCandidateStableKey };
+
+const CONTROLLED_REAL_GUARDED_FILE_WRITE_MVP_RELEASE_CANDIDATE_SLUG = "controlled-real-guarded-file-write-mvp-release-candidate";
+
+export function buildControlledRealGuardedFileWriteMvpReleaseCandidate(input: BuildPlanBundleReviewPacketInput): UniversalExecutionReviewPacket {
+  return buildBuildPlanBundleReview(CONTROLLED_REAL_GUARDED_FILE_WRITE_MVP_RELEASE_CANDIDATE_SLUG, input);
+}
+
+export function buildControlledRealGuardedFileWriteMvpReleaseCandidateItems(): UniversalExecutionReviewPacket[] {
+  return buildBuildPlanBundleReviewPackets(CONTROLLED_REAL_GUARDED_FILE_WRITE_MVP_RELEASE_CANDIDATE_SLUG);
+}
+
+export function buildControlledRealGuardedFileWriteMvpReleaseCandidateBoundary() {
+  return buildBuildPlanBundleReviewBoundary();
+}
+
+export function summarizeControlledRealGuardedFileWriteMvpReleaseCandidate(model: { controlledRealGuardedFileWriteMvpReleaseCandidateItems: readonly UniversalExecutionReviewPacket[] }): string {
+  return summarizeBuildPlanBundleReviewForSlug(CONTROLLED_REAL_GUARDED_FILE_WRITE_MVP_RELEASE_CANDIDATE_SLUG, model.controlledRealGuardedFileWriteMvpReleaseCandidateItems);
+}
+
+export function buildControlledRealGuardedFileWriteMvpReleaseCandidateModel() {
+  const controlledRealGuardedFileWriteMvpReleaseCandidateItems = buildControlledRealGuardedFileWriteMvpReleaseCandidateItems();
+  const controlledRealGuardedFileWriteMvpReleaseCandidateModel = buildBuildPlanBundleReviewModelForSlug(CONTROLLED_REAL_GUARDED_FILE_WRITE_MVP_RELEASE_CANDIDATE_SLUG, controlledRealGuardedFileWriteMvpReleaseCandidateItems);
+  return { ...controlledRealGuardedFileWriteMvpReleaseCandidateModel, controlledRealGuardedFileWriteMvpReleaseCandidateItems };
+}
