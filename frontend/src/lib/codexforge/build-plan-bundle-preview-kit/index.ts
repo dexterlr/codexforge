@@ -34,7 +34,8 @@ export type BuildPlanBundleReviewSlug =
   | "first-complete-build-plan-candidate"
   | "controlled-build-plan-bundle-release-candidate"
   | BuildPlanApprovalReviewSlug
-  | GuardedExecutionQueueReviewSlug;
+  | GuardedExecutionQueueReviewSlug
+  | DryRunExecutionHandoffReviewSlug;
 
 export type BuildPlanApprovalReviewSlug =
   | "build-plan-approval-boundary"
@@ -71,6 +72,24 @@ export type GuardedExecutionQueueReviewSlug =
   | "guarded-execution-dry-run-ticket"
   | "first-guarded-execution-queue-candidate"
   | "controlled-guarded-execution-queue-release-candidate";
+
+export type DryRunExecutionHandoffReviewSlug =
+  | "dry-run-execution-handoff-boundary"
+  | "dry-run-file-write-ticket"
+  | "dry-run-command-ticket"
+  | "dry-run-runtime-ticket"
+  | "dry-run-adapter-ticket"
+  | "dry-run-domain-ticket"
+  | "dry-run-evidence-ticket"
+  | "dry-run-result-ticket"
+  | "dry-run-recovery-ticket"
+  | "dry-run-packaging-ticket"
+  | "dry-run-execution-trace-preview"
+  | "dry-run-execution-validation-preview"
+  | "dry-run-execution-operator-review"
+  | "dry-run-execution-hold-release-preview"
+  | "first-dry-run-execution-arm-candidate"
+  | "controlled-dry-run-execution-handoff-release-candidate";
 
 type BuildPlanBundleDefinition = {
   slug: BuildPlanBundleReviewSlug;
@@ -627,6 +646,182 @@ export const CONTROLLED_GUARDED_EXECUTION_QUEUE_RELEASE_CANDIDATE_LANGUAGE = [
   "approval required",
 ] as const;
 
+export const DRY_RUN_EXECUTION_HANDOFF_BOUNDARY_LANGUAGE = [
+  "Dry-run execution handoff boundary",
+  "Dry-run execution handoff boundary does not execute dry-runs",
+  "Dry-run execution handoff requires explicit operator approval",
+  "Dry-run handoffs keep every execution arm blocked",
+  "Denied dry-run execution handoff paths remain blocked",
+  "Dry-run execution handoff checklist",
+  "static dry-run-execution-handoff-boundary preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_FILE_WRITE_TICKET_LANGUAGE = [
+  "Dry-run file write ticket",
+  "Dry-run file write ticket does not write files",
+  "File write dry-run requires explicit operator approval",
+  "File write tickets show planned mutations without applying them",
+  "Denied dry-run file write paths remain blocked",
+  "Dry-run file write checklist",
+  "static dry-run-file-write-ticket preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_COMMAND_TICKET_LANGUAGE = [
+  "Dry-run command ticket",
+  "Dry-run command ticket does not run commands",
+  "Command dry-run requires explicit operator approval",
+  "Command tickets show planned commands without execution",
+  "Denied dry-run command paths remain blocked",
+  "Dry-run command checklist",
+  "static dry-run-command-ticket preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_RUNTIME_TICKET_LANGUAGE = [
+  "Dry-run runtime ticket",
+  "Dry-run runtime ticket does not start runtimes",
+  "Runtime dry-run requires explicit operator approval",
+  "Runtime tickets show planned runtime launches without execution",
+  "Denied dry-run runtime paths remain blocked",
+  "Dry-run runtime checklist",
+  "static dry-run-runtime-ticket preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_ADAPTER_TICKET_LANGUAGE = [
+  "Dry-run adapter ticket",
+  "Dry-run adapter ticket does not execute adapters",
+  "Adapter dry-run requires explicit operator approval",
+  "Adapter tickets show backend adapter gates",
+  "Denied dry-run adapter paths remain blocked",
+  "Dry-run adapter checklist",
+  "static dry-run-adapter-ticket preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_DOMAIN_TICKET_LANGUAGE = [
+  "Dry-run domain ticket",
+  "Dry-run domain ticket does not execute domain adapters",
+  "Domain dry-run requires explicit operator approval",
+  "Domain tickets support games apps research creative trading automation data docs and integrations",
+  "Denied dry-run domain paths remain blocked",
+  "Dry-run domain checklist",
+  "static dry-run-domain-ticket preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_EVIDENCE_TICKET_LANGUAGE = [
+  "Dry-run evidence ticket",
+  "Dry-run evidence ticket does not persist evidence",
+  "Evidence dry-run requires explicit operator approval",
+  "Evidence tickets route future outputs through shared evidence review",
+  "Denied dry-run evidence paths remain blocked",
+  "Dry-run evidence checklist",
+  "static dry-run-evidence-ticket preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_RESULT_TICKET_LANGUAGE = [
+  "Dry-run result ticket",
+  "Dry-run result ticket does not persist results",
+  "Result dry-run requires explicit operator approval",
+  "Result tickets route future outputs through shared result review",
+  "Denied dry-run result paths remain blocked",
+  "Dry-run result checklist",
+  "static dry-run-result-ticket preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_RECOVERY_TICKET_LANGUAGE = [
+  "Dry-run recovery ticket",
+  "Dry-run recovery ticket does not trigger recovery",
+  "Recovery dry-run requires explicit operator approval",
+  "Recovery tickets include rollback backup restore and retry plans",
+  "Denied dry-run recovery paths remain blocked",
+  "Dry-run recovery checklist",
+  "static dry-run-recovery-ticket preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_PACKAGING_TICKET_LANGUAGE = [
+  "Dry-run packaging ticket",
+  "Dry-run packaging ticket does not package outputs",
+  "Packaging dry-run requires explicit operator approval",
+  "Packaging tickets include export artifact and runbook review",
+  "Denied dry-run packaging paths remain blocked",
+  "Dry-run packaging checklist",
+  "static dry-run-packaging-ticket preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_EXECUTION_TRACE_PREVIEW_LANGUAGE = [
+  "Dry-run execution trace preview",
+  "Dry-run execution trace preview does not write traces",
+  "Execution trace previews require explicit operator approval",
+  "Trace previews show expected evidence result and audit flow",
+  "Denied dry-run execution trace paths remain blocked",
+  "Dry-run execution trace checklist",
+  "static dry-run-execution-trace-preview preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_EXECUTION_VALIDATION_PREVIEW_LANGUAGE = [
+  "Dry-run execution validation preview",
+  "Dry-run execution validation preview does not run validation",
+  "Execution validation previews require explicit operator approval",
+  "Validation previews show expected checks without execution",
+  "Denied dry-run execution validation paths remain blocked",
+  "Dry-run execution validation checklist",
+  "static dry-run-execution-validation-preview preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_EXECUTION_OPERATOR_REVIEW_LANGUAGE = [
+  "Dry-run execution operator review",
+  "Dry-run execution operator review does not approve actions",
+  "Operator review requires explicit human approval",
+  "Operator reviews keep model backend and domain actions blocked",
+  "Denied dry-run execution operator review paths remain blocked",
+  "Dry-run execution operator review checklist",
+  "static dry-run-execution-operator-review preview",
+  "approval required",
+] as const;
+
+export const DRY_RUN_EXECUTION_HOLD_RELEASE_PREVIEW_LANGUAGE = [
+  "Dry-run execution hold release preview",
+  "Dry-run execution hold release preview does not release execution",
+  "Hold release requires explicit operator approval",
+  "Hold release previews keep every real action blocked",
+  "Denied dry-run execution hold release paths remain blocked",
+  "Dry-run execution hold release checklist",
+  "static dry-run-execution-hold-release-preview preview",
+  "approval required",
+] as const;
+
+export const FIRST_DRY_RUN_EXECUTION_ARM_CANDIDATE_LANGUAGE = [
+  "First dry-run execution arm candidate",
+  "First dry-run execution arm candidate does not execute builds",
+  "Dry-run execution arm candidates require explicit operator approval",
+  "Candidate packets combine dry-run tickets trace validation operator review and hold release gates",
+  "Denied dry-run execution arm candidate paths remain blocked",
+  "First dry-run execution arm checklist",
+  "static first-dry-run-execution-arm-candidate preview",
+  "approval required",
+] as const;
+
+export const CONTROLLED_DRY_RUN_EXECUTION_HANDOFF_RELEASE_CANDIDATE_LANGUAGE = [
+  "Controlled dry-run execution handoff release candidate",
+  "Controlled dry-run execution handoff release candidate does not call models or execute adapters",
+  "Controlled dry-run execution handoff release requires explicit operator approval",
+  "Release candidate supports build anything dry-run tickets with shared brain gates",
+  "Denied controlled dry-run execution handoff paths remain blocked",
+  "Controlled dry-run execution handoff release checklist",
+  "static controlled-dry-run-execution-handoff-release-candidate preview",
+  "approval required",
+] as const;
+
 export const BUILD_PLAN_BUNDLE_PREVIEW_SAFETY_MARKERS = [
   "build-plan-bundle static review-only preview",
   "deterministic static review content",
@@ -691,6 +886,22 @@ export const BUILD_PLAN_BUNDLE_PREVIEW_SAFETY_MARKERS = [
   "no queue job creation",
   "no backend execution queue creation",
   "no dry-run execution",
+  "no actual dry-run execution",
+  "dry-run handoff preview-only",
+  "dry-run boundary does not execute dry-runs",
+  "dry-run file write ticket does not write files",
+  "dry-run command ticket does not run commands",
+  "dry-run runtime ticket does not start runtimes",
+  "dry-run adapter ticket does not execute adapters",
+  "dry-run domain ticket does not execute domain adapters",
+  "dry-run evidence ticket does not persist evidence",
+  "dry-run result ticket does not persist results",
+  "dry-run recovery ticket does not trigger recovery",
+  "dry-run packaging ticket does not package outputs",
+  "dry-run execution trace preview does not write traces",
+  "dry-run execution validation preview does not run validation",
+  "dry-run execution operator review does not approve actions",
+  "dry-run execution hold release preview does not release execution",
   "no execution lock release",
   "no execution locks released",
   "operator lock not released",
@@ -738,8 +949,17 @@ const BUILD_PLAN_BUNDLE_PACKET_FIELDS = [
   "target recommendation",
   "build plan bundle reference",
   "build plan approval reference",
+  "guarded queue reference",
   "queue item type",
   "requested execution family",
+  "execution family",
+  "dry-run intent",
+  "simulated action preview",
+  "expected inputs",
+  "expected outputs",
+  "validation expectations",
+  "evidence capture plan",
+  "result review plan",
   "requirements",
   "architecture sketch",
   "file manifest",
@@ -769,10 +989,13 @@ const BUILD_PLAN_BUNDLE_PACKET_FIELDS = [
   "recovery manifest",
   "recovery gate",
   "recovery handoff",
+  "recovery plan",
   "packaging/export handoff",
+  "packaging/export plan",
   "preflight checklist",
   "operator lock state",
   "dry-run ticket state",
+  "operator review state",
   "ready-to-execute state",
   "execution hold state",
   "operator signoff state",
@@ -786,6 +1009,16 @@ const GUARDED_EXECUTION_QUEUE_ITEM_STATES = [
   "waiting-for-operator-review",
   "held-for-risk-review",
   "ready-for-dry-run",
+  "blocked",
+  "denied",
+  "preview-only",
+] as const;
+
+const DRY_RUN_EXECUTION_TICKET_STATES = [
+  "draft",
+  "waiting-for-operator-review",
+  "held-for-risk-review",
+  "ready-for-simulated-dry-run",
   "blocked",
   "denied",
   "preview-only",
@@ -833,11 +1066,13 @@ function buildBuildPlanBundleDefinition(input: {
 }): BuildPlanBundleDefinition {
   const packetFields = "Future build plan bundle packet fields: " + joinSentence(BUILD_PLAN_BUNDLE_PACKET_FIELDS) + ".";
   const queueStates = "Future guarded execution queue item states: " + joinSentence(GUARDED_EXECUTION_QUEUE_ITEM_STATES) + ".";
+  const dryRunTicketStates = "Future dry-run execution ticket states: " + joinSentence(DRY_RUN_EXECUTION_TICKET_STATES) + ".";
+  const dryRunTicketFields = "Future dry-run execution tickets include guarded queue reference, build plan approval reference, execution family, dry-run intent, simulated action preview, expected inputs, expected outputs, validation expectations, evidence capture plan, result review plan, recovery plan, packaging/export plan, operator review state, execution hold state, denied live execution state, and explicit approval requirement.";
   const supportedTargets = "Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + ".";
   const sharedBrainCopy = "Models are workers. CodexForge is the brain. All paid/free/local/remote/OpenAI-compatible/specialist model workers share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer.";
   const modelRouterCopy = "Model-router policy: cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation.";
-  const adapterCopy = "Backend/domain adapter policy: all plan manifests remain preview-only; no live execution; all real execution requires explicit operator approval; every adapter proposal must name its approval gate; every result must return through shared evidence/result review.";
-  const deniedCopy = input.deniedCopy + ". Denied build plan bundle paths block model calls, provider calls, provider connection tests, local runtime probes, API key reads, secret reads, credential storage, credit spend, prompt sending, remote prompt sending, browsing, deployment, file writes, command execution, runtime starts, game server starts, mod installs, automations, backend adapter execution, domain adapter execution, project adapter execution, game adapter execution, validation execution, evidence persistence, result persistence, recovery, packaging, exports, project scaffolding, model output persistence, automatic memory promotion, hidden approvals, audit writes, and live request routing.";
+  const adapterCopy = "Backend/domain adapter policy: all plan manifests and dry-run tickets remain preview-only; no live execution; no actual dry-run execution; no queue persistence; all real execution requires explicit operator approval; every adapter proposal must name its approval gate; every result must return through shared evidence/result review.";
+  const deniedCopy = input.deniedCopy + ". Denied build plan bundle and dry-run execution handoff paths block model calls, provider calls, provider connection tests, local runtime probes, API key reads, secret reads, credential storage, credit spend, prompt sending, remote prompt sending, browsing, deployment, file writes, command execution, runtime starts, game server starts, mod installs, automations, backend adapter execution, domain adapter execution, project adapter execution, game adapter execution, validation execution, evidence persistence, result persistence, recovery, packaging, exports, project scaffolding, model output persistence, automatic memory promotion, hidden approvals, audit writes, live request routing, queue persistence, real queue jobs, execution lock release, and dry-run execution.";
   const checklistCopy = input.checklistLabel + ": " + joinSentence(BUILD_PLAN_BUNDLE_PACKET_FIELDS) + ".";
   return {
     slug: input.slug,
@@ -859,10 +1094,10 @@ function buildBuildPlanBundleDefinition(input: {
     links: input.links,
     nextRecommendedAction: input.nextRecommendedAction,
     plainEnglishTitle: "Plain-English " + input.title.toLowerCase(),
-    plainEnglishCopy: input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + deniedCopy + " " + packetFields + " " + queueStates + " " + supportedTargets + " " + sharedBrainCopy + " " + modelRouterCopy + " " + adapterCopy + " Preview focus: " + input.previewFocus + ".",
+    plainEnglishCopy: input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + deniedCopy + " " + packetFields + " " + queueStates + " " + dryRunTicketStates + " " + dryRunTicketFields + " " + supportedTargets + " " + sharedBrainCopy + " " + modelRouterCopy + " " + adapterCopy + " Preview focus: " + input.previewFocus + ".",
     identity: input.title + " identity: " + input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + input.deniedCopy + ". " + sharedBrainCopy + " Static preview-only review content remains blocked until explicit operator approval.",
-    advancedDetails: [input.markerTitle, input.safetyCopy, input.approvalCopy, input.supportCopy, input.deniedCopy, packetFields, queueStates, supportedTargets, sharedBrainCopy, modelRouterCopy, adapterCopy, deniedCopy, checklistCopy, "Static preview focus fields: " + joinSentence(input.fieldItems) + ".", "Operator decision state: blocked until explicit human approval confirms original operator goal, clarified goal, target family, target recommendation, requirements, architecture, files, commands, runtimes, adapters, validation, risk, approvals, evidence, result, recovery, model routing, and safety gates."],
-    advancedCopy: input.title + " remains deterministic, static, local-first, review-only, and approval-gated. It does not call models, call providers, send prompts, read secrets, store credentials, spend credits, execute backend adapters, execute domain adapters, write files, run commands, start runtimes, scaffold projects, browse, deploy, package outputs, persist model outputs, persist evidence/results, trigger recovery, run validation, or promote memory automatically.",
+    advancedDetails: [input.markerTitle, input.safetyCopy, input.approvalCopy, input.supportCopy, input.deniedCopy, packetFields, queueStates, dryRunTicketStates, dryRunTicketFields, supportedTargets, sharedBrainCopy, modelRouterCopy, adapterCopy, deniedCopy, checklistCopy, "Static preview focus fields: " + joinSentence(input.fieldItems) + ".", "Operator decision state: blocked until explicit human approval confirms original operator goal, clarified goal, target family, target recommendation, requirements, architecture, files, commands, runtimes, adapters, validation, risk, approvals, evidence, result, recovery, packaging, model routing, dry-run intent, and safety gates."],
+    advancedCopy: input.title + " remains deterministic, static, local-first, review-only, and approval-gated. It does not call models, call providers, send prompts, read secrets, store credentials, spend credits, execute backend adapters, execute domain adapters, write files, run commands, start runtimes, scaffold projects, browse, deploy, package outputs, persist model outputs, persist evidence/results, trigger recovery, run validation, run dry-runs, release execution locks, persist queues, create queue jobs, or promote memory automatically.",
     dataScope: input.slug + " build-plan-bundle review-only approval required denied execution static preview",
   };
 }
@@ -1641,6 +1876,393 @@ const GUARDED_EXECUTION_QUEUE_DEFINITION_INPUTS = [
   },
 ] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
 
+const DRY_RUN_EXECUTION_HANDOFF_DEFINITION_INPUTS = [
+  {
+    slug: "dry-run-execution-handoff-boundary",
+    phase: "Phase 1082",
+    title: "Dry-Run Execution Handoff Boundary",
+    markerTitle: "Dry-run execution handoff boundary",
+    safetyCopy: "Dry-run execution handoff boundary does not execute dry-runs",
+    approvalCopy: "Dry-run execution handoff requires explicit operator approval",
+    supportCopy: "Dry-run handoffs keep every execution arm blocked",
+    deniedCopy: "Denied dry-run execution handoff paths remain blocked",
+    checklistLabel: "Dry-run execution handoff checklist",
+    subtitle: "Review the future dry-run handoff boundary without running dry-runs, persisting queues, releasing holds, or executing adapters.",
+    primaryLabel: "Review dry-run boundary",
+    groupLabel: "Dry-run handoff boundary fields",
+    previewFocus: "guarded queue reference, build plan approval reference, execution family, dry-run intent, simulated action preview, expected inputs, expected outputs, validation expectations, evidence capture plan, result review plan, recovery plan, packaging/export plan, operator review state, execution hold state, denied live execution state, and explicit approval requirement",
+    language: DRY_RUN_EXECUTION_HANDOFF_BOUNDARY_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "execution family", "dry-run intent", "simulated action preview", "expected inputs", "expected outputs", "validation expectations", "evidence capture plan", "result review plan", "recovery plan", "packaging/export plan", "operator review state", "execution hold state", "denied live execution state", "explicit approval requirement"],
+    routes: ["/controlled-guarded-execution-queue-release-candidate", "/dry-run-file-write-ticket", "/guarded-execution-dry-run-ticket"],
+    links: [
+      { href: "/controlled-guarded-execution-queue-release-candidate", label: "Previous Phase" },
+      { href: "/dry-run-file-write-ticket", label: "Next Phase" },
+      { href: "/guarded-execution-dry-run-ticket", label: "Guarded Dry-Run Ticket" },
+    ],
+    nextRecommendedAction: "Review the dry-run file write ticket while every execution arm remains blocked and preview-only.",
+  },
+  {
+    slug: "dry-run-file-write-ticket",
+    phase: "Phase 1083",
+    title: "Dry-Run File Write Ticket",
+    markerTitle: "Dry-run file write ticket",
+    safetyCopy: "Dry-run file write ticket does not write files",
+    approvalCopy: "File write dry-run requires explicit operator approval",
+    supportCopy: "File write tickets show planned mutations without applying them",
+    deniedCopy: "Denied dry-run file write paths remain blocked",
+    checklistLabel: "Dry-run file write checklist",
+    subtitle: "Review future file mutation previews without creating, editing, deleting, moving, exporting, packaging, or applying files.",
+    primaryLabel: "Review file ticket",
+    groupLabel: "Dry-run file write fields",
+    previewFocus: "guarded queue reference, build plan approval reference, file mutation preview, expected inputs, expected outputs, validation expectations, evidence capture plan, recovery plan, denied write state, and explicit approval requirement",
+    language: DRY_RUN_FILE_WRITE_TICKET_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "dry-run intent", "file mutation preview", "expected inputs", "expected outputs", "validation expectations", "evidence capture plan", "recovery plan", "denied write state", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-execution-handoff-boundary", "/dry-run-command-ticket", "/dry-run-recovery-ticket"],
+    links: [
+      { href: "/dry-run-execution-handoff-boundary", label: "Previous Phase" },
+      { href: "/dry-run-command-ticket", label: "Next Phase" },
+      { href: "/dry-run-recovery-ticket", label: "Recovery Ticket" },
+    ],
+    nextRecommendedAction: "Review the dry-run command ticket while planned file mutations stay unapplied.",
+  },
+  {
+    slug: "dry-run-command-ticket",
+    phase: "Phase 1084",
+    title: "Dry-Run Command Ticket",
+    markerTitle: "Dry-run command ticket",
+    safetyCopy: "Dry-run command ticket does not run commands",
+    approvalCopy: "Command dry-run requires explicit operator approval",
+    supportCopy: "Command tickets show planned commands without execution",
+    deniedCopy: "Denied dry-run command paths remain blocked",
+    checklistLabel: "Dry-run command checklist",
+    subtitle: "Review future command previews without shell, git, build, test, smoke, install, server, broker, or automation command execution.",
+    primaryLabel: "Review command ticket",
+    groupLabel: "Dry-run command fields",
+    previewFocus: "guarded queue reference, build plan approval reference, planned command preview, expected inputs, expected outputs, validation expectations, evidence capture plan, result review plan, denied command state, and explicit approval requirement",
+    language: DRY_RUN_COMMAND_TICKET_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "dry-run intent", "planned command preview", "expected inputs", "expected outputs", "validation expectations", "evidence capture plan", "result review plan", "denied command state", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-file-write-ticket", "/dry-run-runtime-ticket", "/dry-run-evidence-ticket"],
+    links: [
+      { href: "/dry-run-file-write-ticket", label: "Previous Phase" },
+      { href: "/dry-run-runtime-ticket", label: "Next Phase" },
+      { href: "/dry-run-evidence-ticket", label: "Evidence Ticket" },
+    ],
+    nextRecommendedAction: "Review the dry-run runtime ticket while planned commands remain static and non-executing.",
+  },
+  {
+    slug: "dry-run-runtime-ticket",
+    phase: "Phase 1085",
+    title: "Dry-Run Runtime Ticket",
+    markerTitle: "Dry-run runtime ticket",
+    safetyCopy: "Dry-run runtime ticket does not start runtimes",
+    approvalCopy: "Runtime dry-run requires explicit operator approval",
+    supportCopy: "Runtime tickets show planned runtime launches without execution",
+    deniedCopy: "Denied dry-run runtime paths remain blocked",
+    checklistLabel: "Dry-run runtime checklist",
+    subtitle: "Review future runtime launch previews without starting local runtimes, dev servers, game servers, provider bridges, services, or probes.",
+    primaryLabel: "Review runtime ticket",
+    groupLabel: "Dry-run runtime fields",
+    previewFocus: "guarded queue reference, build plan approval reference, runtime launch preview, expected inputs, expected outputs, validation expectations, evidence capture plan, result review plan, denied runtime state, and explicit approval requirement",
+    language: DRY_RUN_RUNTIME_TICKET_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "dry-run intent", "runtime launch preview", "expected inputs", "expected outputs", "validation expectations", "evidence capture plan", "result review plan", "denied runtime state", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-command-ticket", "/dry-run-adapter-ticket", "/dry-run-execution-validation-preview"],
+    links: [
+      { href: "/dry-run-command-ticket", label: "Previous Phase" },
+      { href: "/dry-run-adapter-ticket", label: "Next Phase" },
+      { href: "/dry-run-execution-validation-preview", label: "Validation Preview" },
+    ],
+    nextRecommendedAction: "Review the dry-run adapter ticket while planned runtimes stay blocked.",
+  },
+  {
+    slug: "dry-run-adapter-ticket",
+    phase: "Phase 1086",
+    title: "Dry-Run Adapter Ticket",
+    markerTitle: "Dry-run adapter ticket",
+    safetyCopy: "Dry-run adapter ticket does not execute adapters",
+    approvalCopy: "Adapter dry-run requires explicit operator approval",
+    supportCopy: "Adapter tickets show backend adapter gates",
+    deniedCopy: "Denied dry-run adapter paths remain blocked",
+    checklistLabel: "Dry-run adapter checklist",
+    subtitle: "Review backend adapter dry-run proposals without executing adapters, testing provider connections, routing live requests, or persisting queues.",
+    primaryLabel: "Review adapter ticket",
+    groupLabel: "Dry-run adapter fields",
+    previewFocus: "guarded queue reference, backend adapter proposal, approval gate name, simulated action preview, expected inputs, expected outputs, evidence capture plan, result review plan, denied adapter state, and explicit approval requirement",
+    language: DRY_RUN_ADAPTER_TICKET_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "backend adapter proposal", "approval gate name", "simulated action preview", "expected inputs", "expected outputs", "evidence capture plan", "result review plan", "denied adapter state", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-runtime-ticket", "/dry-run-domain-ticket", "/dry-run-evidence-ticket"],
+    links: [
+      { href: "/dry-run-runtime-ticket", label: "Previous Phase" },
+      { href: "/dry-run-domain-ticket", label: "Next Phase" },
+      { href: "/dry-run-evidence-ticket", label: "Evidence Ticket" },
+    ],
+    nextRecommendedAction: "Review the dry-run domain ticket while backend adapter proposals stay preview-only and approval-gated.",
+  },
+  {
+    slug: "dry-run-domain-ticket",
+    phase: "Phase 1087",
+    title: "Dry-Run Domain Ticket",
+    markerTitle: "Dry-run domain ticket",
+    safetyCopy: "Dry-run domain ticket does not execute domain adapters",
+    approvalCopy: "Domain dry-run requires explicit operator approval",
+    supportCopy: "Domain tickets support games apps research creative trading automation data docs and integrations",
+    deniedCopy: "Denied dry-run domain paths remain blocked",
+    checklistLabel: "Dry-run domain checklist",
+    subtitle: "Review broad build-anything domain adapter tickets across games, apps, websites, dashboards, tools, research, automation, creative, trading, data, docs, integrations, and local projects without execution.",
+    primaryLabel: "Review domain ticket",
+    groupLabel: "Dry-run domain fields",
+    previewFocus: "domain adapter proposal, target family, execution family, approval gate name, simulated action preview, expected inputs, expected outputs, evidence/result review plans, denied domain state, and explicit approval requirement",
+    language: DRY_RUN_DOMAIN_TICKET_LANGUAGE,
+    fieldItems: ["guarded queue reference", "target family", "execution family", "domain adapter proposal", "approval gate name", "simulated action preview", "expected inputs", "expected outputs", "evidence capture plan", "result review plan", "denied domain state", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-adapter-ticket", "/dry-run-evidence-ticket", "/dry-run-packaging-ticket"],
+    links: [
+      { href: "/dry-run-adapter-ticket", label: "Previous Phase" },
+      { href: "/dry-run-evidence-ticket", label: "Next Phase" },
+      { href: "/dry-run-packaging-ticket", label: "Packaging Ticket" },
+    ],
+    nextRecommendedAction: "Review the dry-run evidence ticket while domain proposals stay broad, static, and non-executing.",
+  },
+  {
+    slug: "dry-run-evidence-ticket",
+    phase: "Phase 1088",
+    title: "Dry-Run Evidence Ticket",
+    markerTitle: "Dry-run evidence ticket",
+    safetyCopy: "Dry-run evidence ticket does not persist evidence",
+    approvalCopy: "Evidence dry-run requires explicit operator approval",
+    supportCopy: "Evidence tickets route future outputs through shared evidence review",
+    deniedCopy: "Denied dry-run evidence paths remain blocked",
+    checklistLabel: "Dry-run evidence checklist",
+    subtitle: "Review future evidence capture plans without capturing, ingesting, storing, indexing, exporting, or promoting evidence.",
+    primaryLabel: "Review evidence ticket",
+    groupLabel: "Dry-run evidence fields",
+    previewFocus: "guarded queue reference, evidence capture plan, expected evidence inputs, expected evidence outputs, validation expectations, shared evidence review route, denied evidence persistence, and explicit approval requirement",
+    language: DRY_RUN_EVIDENCE_TICKET_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "evidence capture plan", "expected inputs", "expected outputs", "validation expectations", "shared evidence review", "denied evidence persistence", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-domain-ticket", "/dry-run-result-ticket", "/dry-run-execution-trace-preview"],
+    links: [
+      { href: "/dry-run-domain-ticket", label: "Previous Phase" },
+      { href: "/dry-run-result-ticket", label: "Next Phase" },
+      { href: "/dry-run-execution-trace-preview", label: "Trace Preview" },
+    ],
+    nextRecommendedAction: "Review the dry-run result ticket while evidence capture remains a static plan.",
+  },
+  {
+    slug: "dry-run-result-ticket",
+    phase: "Phase 1089",
+    title: "Dry-Run Result Ticket",
+    markerTitle: "Dry-run result ticket",
+    safetyCopy: "Dry-run result ticket does not persist results",
+    approvalCopy: "Result dry-run requires explicit operator approval",
+    supportCopy: "Result tickets route future outputs through shared result review",
+    deniedCopy: "Denied dry-run result paths remain blocked",
+    checklistLabel: "Dry-run result checklist",
+    subtitle: "Review future result review plans without storing outputs, reusing results, persisting model outputs, or promoting memory.",
+    primaryLabel: "Review result ticket",
+    groupLabel: "Dry-run result fields",
+    previewFocus: "guarded queue reference, result review plan, expected result inputs, expected result outputs, validation expectations, shared result review route, denied result persistence, and explicit approval requirement",
+    language: DRY_RUN_RESULT_TICKET_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "result review plan", "expected inputs", "expected outputs", "validation expectations", "shared result review", "denied result persistence", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-evidence-ticket", "/dry-run-recovery-ticket", "/dry-run-execution-trace-preview"],
+    links: [
+      { href: "/dry-run-evidence-ticket", label: "Previous Phase" },
+      { href: "/dry-run-recovery-ticket", label: "Next Phase" },
+      { href: "/dry-run-execution-trace-preview", label: "Trace Preview" },
+    ],
+    nextRecommendedAction: "Review the dry-run recovery ticket while result persistence remains denied.",
+  },
+  {
+    slug: "dry-run-recovery-ticket",
+    phase: "Phase 1090",
+    title: "Dry-Run Recovery Ticket",
+    markerTitle: "Dry-run recovery ticket",
+    safetyCopy: "Dry-run recovery ticket does not trigger recovery",
+    approvalCopy: "Recovery dry-run requires explicit operator approval",
+    supportCopy: "Recovery tickets include rollback backup restore and retry plans",
+    deniedCopy: "Denied dry-run recovery paths remain blocked",
+    checklistLabel: "Dry-run recovery checklist",
+    subtitle: "Review future recovery plans without triggering rollback, backup, restore, retry, cleanup, or repair behavior.",
+    primaryLabel: "Review recovery ticket",
+    groupLabel: "Dry-run recovery fields",
+    previewFocus: "guarded queue reference, recovery plan, rollback plan, backup plan, restore plan, retry plan, expected inputs, expected outputs, evidence/result review plans, denied recovery trigger, and explicit approval requirement",
+    language: DRY_RUN_RECOVERY_TICKET_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "recovery plan", "rollback plan", "backup plan", "restore plan", "retry plan", "expected inputs", "expected outputs", "evidence capture plan", "result review plan", "denied recovery trigger", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-result-ticket", "/dry-run-packaging-ticket", "/dry-run-file-write-ticket"],
+    links: [
+      { href: "/dry-run-result-ticket", label: "Previous Phase" },
+      { href: "/dry-run-packaging-ticket", label: "Next Phase" },
+      { href: "/dry-run-file-write-ticket", label: "File Ticket" },
+    ],
+    nextRecommendedAction: "Review the dry-run packaging ticket while recovery remains non-triggering.",
+  },
+  {
+    slug: "dry-run-packaging-ticket",
+    phase: "Phase 1091",
+    title: "Dry-Run Packaging Ticket",
+    markerTitle: "Dry-run packaging ticket",
+    safetyCopy: "Dry-run packaging ticket does not package outputs",
+    approvalCopy: "Packaging dry-run requires explicit operator approval",
+    supportCopy: "Packaging tickets include export artifact and runbook review",
+    deniedCopy: "Denied dry-run packaging paths remain blocked",
+    checklistLabel: "Dry-run packaging checklist",
+    subtitle: "Review future packaging and export plans without creating artifacts, writing runbooks, exporting files, publishing docs, or packaging outputs.",
+    primaryLabel: "Review packaging ticket",
+    groupLabel: "Dry-run packaging fields",
+    previewFocus: "guarded queue reference, packaging/export plan, artifact review plan, runbook review plan, expected inputs, expected outputs, validation expectations, evidence/result review plans, denied packaging state, and explicit approval requirement",
+    language: DRY_RUN_PACKAGING_TICKET_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "packaging/export plan", "artifact review plan", "runbook review plan", "expected inputs", "expected outputs", "validation expectations", "evidence capture plan", "result review plan", "denied packaging state", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-recovery-ticket", "/dry-run-execution-trace-preview", "/dry-run-domain-ticket"],
+    links: [
+      { href: "/dry-run-recovery-ticket", label: "Previous Phase" },
+      { href: "/dry-run-execution-trace-preview", label: "Next Phase" },
+      { href: "/dry-run-domain-ticket", label: "Domain Ticket" },
+    ],
+    nextRecommendedAction: "Review the dry-run execution trace preview while packaging remains preview-only.",
+  },
+  {
+    slug: "dry-run-execution-trace-preview",
+    phase: "Phase 1092",
+    title: "Dry-Run Execution Trace Preview",
+    markerTitle: "Dry-run execution trace preview",
+    safetyCopy: "Dry-run execution trace preview does not write traces",
+    approvalCopy: "Execution trace previews require explicit operator approval",
+    supportCopy: "Trace previews show expected evidence result and audit flow",
+    deniedCopy: "Denied dry-run execution trace paths remain blocked",
+    checklistLabel: "Dry-run execution trace checklist",
+    subtitle: "Review expected evidence, result, audit, approval, and adapter return flow without writing traces, audit records, or logs.",
+    primaryLabel: "Review trace preview",
+    groupLabel: "Dry-run trace fields",
+    previewFocus: "guarded queue reference, simulated action preview, expected evidence flow, expected result flow, expected audit flow, validation expectations, denied trace write state, and explicit approval requirement",
+    language: DRY_RUN_EXECUTION_TRACE_PREVIEW_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "simulated action preview", "expected evidence flow", "expected result flow", "expected audit flow", "validation expectations", "denied trace write state", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-packaging-ticket", "/dry-run-execution-validation-preview", "/dry-run-evidence-ticket"],
+    links: [
+      { href: "/dry-run-packaging-ticket", label: "Previous Phase" },
+      { href: "/dry-run-execution-validation-preview", label: "Next Phase" },
+      { href: "/dry-run-evidence-ticket", label: "Evidence Ticket" },
+    ],
+    nextRecommendedAction: "Review the dry-run execution validation preview while trace writes remain blocked.",
+  },
+  {
+    slug: "dry-run-execution-validation-preview",
+    phase: "Phase 1093",
+    title: "Dry-Run Execution Validation Preview",
+    markerTitle: "Dry-run execution validation preview",
+    safetyCopy: "Dry-run execution validation preview does not run validation",
+    approvalCopy: "Execution validation previews require explicit operator approval",
+    supportCopy: "Validation previews show expected checks without execution",
+    deniedCopy: "Denied dry-run execution validation paths remain blocked",
+    checklistLabel: "Dry-run execution validation checklist",
+    subtitle: "Review expected validation checks without executing tests, builds, smokes, lint, runtime checks, provider probes, or adapter checks.",
+    primaryLabel: "Review validation preview",
+    groupLabel: "Dry-run validation fields",
+    previewFocus: "guarded queue reference, validation expectations, planned checks, expected inputs, expected outputs, evidence capture plan, result review plan, denied validation state, and explicit approval requirement",
+    language: DRY_RUN_EXECUTION_VALIDATION_PREVIEW_LANGUAGE,
+    fieldItems: ["guarded queue reference", "build plan approval reference", "validation expectations", "planned checks", "expected inputs", "expected outputs", "evidence capture plan", "result review plan", "denied validation state", "operator review state", "execution hold state", "explicit approval requirement"],
+    routes: ["/dry-run-execution-trace-preview", "/dry-run-execution-operator-review", "/dry-run-runtime-ticket"],
+    links: [
+      { href: "/dry-run-execution-trace-preview", label: "Previous Phase" },
+      { href: "/dry-run-execution-operator-review", label: "Next Phase" },
+      { href: "/dry-run-runtime-ticket", label: "Runtime Ticket" },
+    ],
+    nextRecommendedAction: "Review the dry-run execution operator review while validation stays expected-only.",
+  },
+  {
+    slug: "dry-run-execution-operator-review",
+    phase: "Phase 1094",
+    title: "Dry-Run Execution Operator Review",
+    markerTitle: "Dry-run execution operator review",
+    safetyCopy: "Dry-run execution operator review does not approve actions",
+    approvalCopy: "Operator review requires explicit human approval",
+    supportCopy: "Operator reviews keep model backend and domain actions blocked",
+    deniedCopy: "Denied dry-run execution operator review paths remain blocked",
+    checklistLabel: "Dry-run execution operator review checklist",
+    subtitle: "Review operator decision state without granting approval, persisting approval decisions, releasing locks, or enabling any model, backend, domain, file, command, runtime, recovery, or packaging action.",
+    primaryLabel: "Review operator gate",
+    groupLabel: "Dry-run operator review fields",
+    previewFocus: "operator review state, human approval requirement, model block, backend block, domain block, file command runtime block, execution hold state, denied approval state, and explicit approval requirement",
+    language: DRY_RUN_EXECUTION_OPERATOR_REVIEW_LANGUAGE,
+    fieldItems: ["operator review state", "human approval requirement", "model block", "backend block", "domain block", "file command runtime block", "execution hold state", "denied approval state", "guarded queue reference", "build plan approval reference", "explicit approval requirement"],
+    routes: ["/dry-run-execution-validation-preview", "/dry-run-execution-hold-release-preview", "/dry-run-execution-handoff-boundary"],
+    links: [
+      { href: "/dry-run-execution-validation-preview", label: "Previous Phase" },
+      { href: "/dry-run-execution-hold-release-preview", label: "Next Phase" },
+      { href: "/dry-run-execution-handoff-boundary", label: "Boundary" },
+    ],
+    nextRecommendedAction: "Review the dry-run execution hold release preview while operator review grants no approval.",
+  },
+  {
+    slug: "dry-run-execution-hold-release-preview",
+    phase: "Phase 1095",
+    title: "Dry-Run Execution Hold Release Preview",
+    markerTitle: "Dry-run execution hold release preview",
+    safetyCopy: "Dry-run execution hold release preview does not release execution",
+    approvalCopy: "Hold release requires explicit operator approval",
+    supportCopy: "Hold release previews keep every real action blocked",
+    deniedCopy: "Denied dry-run execution hold release paths remain blocked",
+    checklistLabel: "Dry-run execution hold release checklist",
+    subtitle: "Review future hold release preview without releasing execution locks, queue holds, dry-run holds, backend holds, domain holds, or model holds.",
+    primaryLabel: "Review hold release",
+    groupLabel: "Dry-run hold release fields",
+    previewFocus: "execution hold state, release denial, operator review state, explicit approval requirement, model block, backend block, domain block, file command runtime block, evidence result recovery packaging blocks, and denied release state",
+    language: DRY_RUN_EXECUTION_HOLD_RELEASE_PREVIEW_LANGUAGE,
+    fieldItems: ["execution hold state", "release denial", "operator review state", "explicit approval requirement", "model block", "backend block", "domain block", "file command runtime block", "evidence result recovery packaging blocks", "denied release state", "guarded queue reference", "build plan approval reference"],
+    routes: ["/dry-run-execution-operator-review", "/first-dry-run-execution-arm-candidate", "/dry-run-execution-handoff-boundary"],
+    links: [
+      { href: "/dry-run-execution-operator-review", label: "Previous Phase" },
+      { href: "/first-dry-run-execution-arm-candidate", label: "Next Phase" },
+      { href: "/dry-run-execution-handoff-boundary", label: "Boundary" },
+    ],
+    nextRecommendedAction: "Review the first dry-run execution arm candidate while all holds remain unreleased.",
+  },
+  {
+    slug: "first-dry-run-execution-arm-candidate",
+    phase: "Phase 1096",
+    title: "First Dry-Run Execution Arm Candidate",
+    markerTitle: "First dry-run execution arm candidate",
+    safetyCopy: "First dry-run execution arm candidate does not execute builds",
+    approvalCopy: "Dry-run execution arm candidates require explicit operator approval",
+    supportCopy: "Candidate packets combine dry-run tickets trace validation operator review and hold release gates",
+    deniedCopy: "Denied dry-run execution arm candidate paths remain blocked",
+    checklistLabel: "First dry-run execution arm checklist",
+    subtitle: "Review the first dry-run execution arm candidate as one static packet without executing builds, running dry-runs, creating queue jobs, releasing holds, or persisting approvals.",
+    primaryLabel: "Review dry-run candidate",
+    groupLabel: "Dry-run execution arm candidate fields",
+    previewFocus: "dry-run tickets, trace preview, validation preview, operator review, hold release gate, evidence capture plan, result review plan, recovery plan, packaging/export plan, shared brain gate, denied execution, and explicit approval requirement",
+    language: FIRST_DRY_RUN_EXECUTION_ARM_CANDIDATE_LANGUAGE,
+    fieldItems: ["dry-run tickets", "trace preview", "validation preview", "operator review", "hold release gate", "evidence capture plan", "result review plan", "recovery plan", "packaging/export plan", "shared brain gate", "denied execution", "guarded queue reference", "build plan approval reference", "explicit approval requirement"],
+    routes: ["/dry-run-execution-hold-release-preview", "/controlled-dry-run-execution-handoff-release-candidate", "/dry-run-execution-handoff-boundary"],
+    links: [
+      { href: "/dry-run-execution-hold-release-preview", label: "Previous Phase" },
+      { href: "/controlled-dry-run-execution-handoff-release-candidate", label: "Next Phase" },
+      { href: "/dry-run-execution-handoff-boundary", label: "Boundary" },
+    ],
+    nextRecommendedAction: "Review the controlled dry-run execution handoff release candidate while the first candidate remains static and non-executing.",
+  },
+  {
+    slug: "controlled-dry-run-execution-handoff-release-candidate",
+    phase: "Phase 1097",
+    title: "Controlled Dry-Run Execution Handoff Release Candidate",
+    markerTitle: "Controlled dry-run execution handoff release candidate",
+    safetyCopy: "Controlled dry-run execution handoff release candidate does not call models or execute adapters",
+    approvalCopy: "Controlled dry-run execution handoff release requires explicit operator approval",
+    supportCopy: "Release candidate supports build anything dry-run tickets with shared brain gates",
+    deniedCopy: "Denied controlled dry-run execution handoff paths remain blocked",
+    checklistLabel: "Controlled dry-run execution handoff release checklist",
+    subtitle: "Review the controlled dry-run execution handoff release candidate without model calls, provider calls, prompt sending, queue persistence, dry-run execution, adapter execution, or approval persistence.",
+    primaryLabel: "Review dry-run RC",
+    groupLabel: "Dry-run handoff release fields",
+    previewFocus: "build-anything dry-run tickets, guarded queue reference, build plan approval reference, shared brain gates, model routing policy, backend/domain adapter gates, trace preview, validation preview, operator review, hold release gate, evidence, result, audit, recovery, packaging, and denied execution",
+    language: CONTROLLED_DRY_RUN_EXECUTION_HANDOFF_RELEASE_CANDIDATE_LANGUAGE,
+    fieldItems: ["build-anything dry-run tickets", "guarded queue reference", "build plan approval reference", "shared brain gates", "model routing policy", "backend/domain adapter gates", "trace preview", "validation preview", "operator review", "hold release gate", "evidence", "result", "audit", "recovery", "packaging/export plan", "denied execution", "explicit approval requirement"],
+    routes: ["/first-dry-run-execution-arm-candidate", "/dry-run-execution-handoff-boundary", "/guarded-execution-queue-boundary"],
+    links: [
+      { href: "/first-dry-run-execution-arm-candidate", label: "Previous Phase" },
+      { href: "/dry-run-execution-handoff-boundary", label: "Dry-Run Boundary" },
+      { href: "/guarded-execution-queue-boundary", label: "Queue Boundary" },
+    ],
+    nextRecommendedAction: "Keep dry-run execution handoffs static, preview-only, shared-brain gated, and blocked until a future explicit operator approval path exists.",
+  },
+] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
+
 export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, BuildPlanBundleDefinition> = {
   "build-plan-bundle-boundary": buildBuildPlanBundleDefinition({
     slug: "build-plan-bundle-boundary",
@@ -2032,6 +2654,9 @@ export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, Bu
   ...(Object.fromEntries(
     GUARDED_EXECUTION_QUEUE_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
   ) as Record<GuardedExecutionQueueReviewSlug, BuildPlanBundleDefinition>),
+  ...(Object.fromEntries(
+    DRY_RUN_EXECUTION_HANDOFF_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
+  ) as Record<DryRunExecutionHandoffReviewSlug, BuildPlanBundleDefinition>),
 };
 
 export function buildBuildPlanBundleReview(slug: BuildPlanBundleReviewSlug, input: BuildPlanBundleReviewPacketInput): UniversalExecutionReviewPacket {
@@ -2060,10 +2685,13 @@ export function buildBuildPlanBundleReviewPackets(slug: BuildPlanBundleReviewSlu
     { label: definition.groupLabel, items: [definition.groupLabel + ": " + joinSentence(definition.fieldItems) + "."] },
     { label: definition.checklistLabel, items: [definition.checklistLabel + ": " + joinSentence(BUILD_PLAN_BUNDLE_PACKET_FIELDS) + "."] },
     { label: "Guarded queue states", items: ["Guarded queue states: " + joinSentence(GUARDED_EXECUTION_QUEUE_ITEM_STATES) + "."] },
+    { label: "Dry-run ticket states", items: ["Dry-run ticket states: " + joinSentence(DRY_RUN_EXECUTION_TICKET_STATES) + "."] },
+    { label: "Dry-run ticket fields", items: ["Dry-run tickets include guarded queue reference, build plan approval reference, execution family, dry-run intent, simulated action preview, expected inputs, expected outputs, validation expectations, evidence capture plan, result review plan, recovery plan, packaging/export plan, operator review state, execution hold state, denied live execution state, and explicit approval requirement."] },
     { label: "Supported target families", items: ["Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + "."] },
     { label: "Model router policy", items: ["Cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation."] },
-    { label: "Backend adapter policy", items: ["Backend adapter proposals remain preview-only, name their approval gate, and return through shared evidence/result review after explicit operator approval."] },
-    { label: "Domain adapter policy", items: ["Game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project adapter proposals remain preview-only until explicit operator approval."] },
+    { label: "Backend adapter policy", items: ["Backend adapter proposals remain preview-only, do not execute adapters, name their approval gate, and return through shared evidence/result review after explicit operator approval."] },
+    { label: "Domain adapter policy", items: ["Game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project adapter proposals remain preview-only, do not execute domain adapters, and require explicit operator approval."] },
+    { label: "Dry-run handoff policy", items: ["Dry-run tickets remain static preview-only handoffs. They do not execute dry-runs, persist queues, create queue jobs, release execution locks, write files, run commands, start runtimes, execute backend adapters, execute domain adapters, persist evidence, persist results, trigger recovery, or package outputs."] },
     { label: "Denied live execution state", items: [definition.deniedCopy, definition.safetyCopy] },
     { label: "Operator approval state", items: [definition.approvalCopy, "All real execution requires explicit operator approval."] }
   );

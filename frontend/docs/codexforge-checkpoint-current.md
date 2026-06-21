@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 1081.
+Highest detected phase: 1097.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 1081, so the checkpoint is documented as through phase 1081.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 1097, so the checkpoint is documented as through phase 1097.
 
-Latest detected milestone family: guarded execution queue preview layer. Phases 1066-1081 add guarded queue and handoff preview surfaces after the Controlled Build Plan Approval Release Candidate:
+Latest detected milestone family: dry-run execution handoff preview layer. Phases 1082-1097 add first dry-run execution handoff surfaces after the Controlled Guarded Execution Queue Release Candidate:
 
 - Phase 890 - Controlled Model Use Dry-Run Inventory.
 - Phase 891 - OpenAI-Compatible Model Use Dry-Run.
@@ -208,8 +208,24 @@ Latest detected milestone family: guarded execution queue preview layer. Phases 
 - Phase 1079 - Guarded Execution Dry-Run Ticket.
 - Phase 1080 - First Guarded Execution Queue Candidate.
 - Phase 1081 - Controlled Guarded Execution Queue Release Candidate.
+- Phase 1082 - Dry-Run Execution Handoff Boundary.
+- Phase 1083 - Dry-Run File Write Ticket.
+- Phase 1084 - Dry-Run Command Ticket.
+- Phase 1085 - Dry-Run Runtime Ticket.
+- Phase 1086 - Dry-Run Adapter Ticket.
+- Phase 1087 - Dry-Run Domain Ticket.
+- Phase 1088 - Dry-Run Evidence Ticket.
+- Phase 1089 - Dry-Run Result Ticket.
+- Phase 1090 - Dry-Run Recovery Ticket.
+- Phase 1091 - Dry-Run Packaging Ticket.
+- Phase 1092 - Dry-Run Execution Trace Preview.
+- Phase 1093 - Dry-Run Execution Validation Preview.
+- Phase 1094 - Dry-Run Execution Operator Review.
+- Phase 1095 - Dry-Run Execution Hold Release Preview.
+- Phase 1096 - First Dry-Run Execution Arm Candidate.
+- Phase 1097 - Controlled Dry-Run Execution Handoff Release Candidate.
 
-These pages preserve the model router/provider, project-builder MVP, universal game-builder, universal project-builder, Universal Builder Cockpit, guided build workflow, build plan bundle, and build plan approval direction while adding the guarded execution queue preview layer. CodexForge is a Jarvis-style, local-first, approval-safe execution OS. The latest product checkpoint is through phase 1081. Models are workers; CodexForge is the brain. Paid, free, local, remote, OpenAI-compatible, and specialist models share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer. Guarded execution queue packets remain static, deterministic, review-only, preview-only, and approval-gated until explicit operator approval. They represent build plan approval reference, queue item type, requested execution family, file write handoff, command handoff, runtime handoff, backend adapter handoff, domain adapter handoff, evidence handoff, result handoff, recovery handoff, packaging/export handoff, preflight checklist, operator lock state, dry-run ticket state, denied live execution state, and explicit approval requirement. They support game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project targets. They remain frontend review/planning UI only with no real queue jobs, no queue persistence, no auto-approval, no persisted approval decisions, no live model calls, no provider calls, no credential reads, no secret reads, no network calls, no prompt sending, no router executions, no backend adapter execution, no domain adapter execution, no project adapter execution, no game adapter execution, no file writes, no command execution, no runtime starts, no game server starts, no dry-run execution, no operator lock release, no evidence/result persistence, no recovery triggers, no packaging/export, no scaffolding, no Brain mutations, no automatic memory promotions, no browser credential writes, no browser credential storage, no hidden model calls, and no hidden execution from UI. The latest family is the guarded execution queue preview layer: queue boundary, queue item, guarded handoffs, preflight checklist, operator lock, dry-run ticket, first guarded execution queue candidate, and Controlled Guarded Execution Queue Release Candidate surfaces.
+These pages preserve the model router/provider, project-builder MVP, universal game-builder, universal project-builder, Universal Builder Cockpit, guided build workflow, build plan bundle, build plan approval, and guarded execution queue direction while adding the dry-run execution handoff preview layer. CodexForge is a Jarvis-style, local-first, approval-safe execution OS. The latest product checkpoint is through phase 1097. Models are workers; CodexForge is the brain. Paid, free, local, remote, OpenAI-compatible, and specialist models share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer. Dry-run execution handoff tickets remain static, deterministic, review-only, preview-only, and approval-gated until explicit operator approval. They represent guarded queue reference, build plan approval reference, execution family, dry-run intent, simulated action preview, expected inputs, expected outputs, validation expectations, evidence capture plan, result review plan, recovery plan, packaging/export plan, operator review state, execution hold state, denied live execution state, and explicit approval requirement. They support game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project targets. They remain frontend review/planning UI only with no real queue jobs, no queue persistence, no auto-approval, no persisted approval decisions, no live model calls, no provider calls, no credential reads, no secret reads, no network calls, no prompt sending, no router executions, no backend adapter execution, no domain adapter execution, no project adapter execution, no game adapter execution, no file writes, no command execution, no runtime starts, no game server starts, no dry-run execution, no validation execution, no operator lock release, no evidence/result persistence, no recovery triggers, no packaging/export, no scaffolding, no Brain mutations, no automatic memory promotions, no browser credential writes, no browser credential storage, no hidden model calls, and no hidden execution from UI. The latest family is the dry-run execution handoff preview layer: boundary, file write ticket, command ticket, runtime ticket, adapter ticket, domain ticket, evidence ticket, result ticket, recovery ticket, packaging ticket, trace preview, validation preview, operator review, hold release preview, first dry-run execution arm candidate, and Controlled Dry-Run Execution Handoff Release Candidate surfaces.
 
 ## Current Route Families
 
@@ -274,7 +290,7 @@ These pages preserve the model router/provider, project-builder MVP, universal g
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 1081 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 1097 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, file mutation, test execution, unified gap, first approved-trial, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta candidate, and operator handoff route families are represented as review and approval surfaces.
 - The Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, and readiness lock route family is represented as review-only and approval-required UI.
 - The Daily Beta readiness lock audit, release candidate summary, Daily Beta 1 final candidate, final operator review, final regression review, final recovery review, final hardening pass, and Daily Beta 1 activation candidate package is represented as review-only and approval-required UI.

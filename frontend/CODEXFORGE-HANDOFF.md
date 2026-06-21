@@ -60,4 +60,4 @@ npm run smoke:codexforge:server
 - Project onboarding/import.
 - Better graph data volume and clustering.
 
-CodexForge checkpoint documentation now records through phase 1081.
+CodexForge checkpoint documentation now records through phase 1097.

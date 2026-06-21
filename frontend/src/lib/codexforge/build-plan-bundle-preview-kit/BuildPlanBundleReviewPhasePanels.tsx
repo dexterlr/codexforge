@@ -194,3 +194,67 @@ export function FirstGuardedExecutionQueueCandidatePanel() {
 export function ControlledGuardedExecutionQueueReleaseCandidatePanel() {
   return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-guarded-execution-queue-release-candidate")} />;
 }
+
+export function DryRunExecutionHandoffBoundaryPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-execution-handoff-boundary")} />;
+}
+
+export function DryRunFileWriteTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-file-write-ticket")} />;
+}
+
+export function DryRunCmdTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-command-ticket")} />;
+}
+
+export function DryRunRuntimeTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-runtime-ticket")} />;
+}
+
+export function DryRunAdapterTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-adapter-ticket")} />;
+}
+
+export function DryRunDomainTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-domain-ticket")} />;
+}
+
+export function DryRunEvidenceTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-evidence-ticket")} />;
+}
+
+export function DryRunResultTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-result-ticket")} />;
+}
+
+export function DryRunRecoveryTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-recovery-ticket")} />;
+}
+
+export function DryRunPackagingTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-packaging-ticket")} />;
+}
+
+export function DryRunExecutionTracePreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-execution-trace-preview")} />;
+}
+
+export function DryRunExecutionValidationPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-execution-validation-preview")} />;
+}
+
+export function DryRunExecutionOperatorReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-execution-operator-review")} />;
+}
+
+export function DryRunExecutionHoldReleasePreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("dry-run-execution-hold-release-preview")} />;
+}
+
+export function FirstDryRunExecutionArmCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("first-dry-run-execution-arm-candidate")} />;
+}
+
+export function ControlledDryRunExecutionHandoffReleaseCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-dry-run-execution-handoff-release-candidate")} />;
+}
