@@ -57,7 +57,7 @@ $phases = [regex]::Matches($allSmoke, 'Phase\s+(\d+)') |
 $phases | Sort-Object -Descending | Select-Object -First 1
 ```
 
-Update checkpoint docs to the actual highest detected phase. If phases 1050-1065 are present and no higher phase exists, document the checkpoint as through phase 1065 and describe the build plan approval layer: Build Plan Approval Boundary, Build Plan Approval Queue, Build Plan Approval Detail Packet, Build Plan Approval Diff Preview, Build Plan Approval Command Preview, Build Plan Approval Runtime Preview, Build Plan Approval Adapter Preview, Build Plan Approval Risk Gate, Build Plan Approval Evidence Gate, Build Plan Approval Result Gate, Build Plan Approval Recovery Gate, Build Plan Ready-To-Execute Packet, Build Plan Execution Hold State, Build Plan Operator Signoff Packet, First Approved Build Plan Candidate, and Controlled Build Plan Approval Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, not auto-approved, not persisted as approval decisions, and not allowed to make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, project adapter execution, game adapter execution, domain adapter execution, file writes, command execution, runtime starts, app scaffolds, website publishing, live data connections, tool creation, research browsing, automation creation, asset rendering, trading or broker calls, data ingestion, documentation export, integration connections, validation execution, evidence/result/model-output persistence, recovery triggers, packaging/export, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported target language must remain broad and cover games, apps, websites, dashboards, tools, research packs, automation workflows, creative workflows, trading workspaces, data workspaces, documentation packs, integrations, and general local projects.
+Update checkpoint docs to the actual highest detected phase. If phases 1066-1081 are present and no higher phase exists, document the checkpoint as through phase 1081 and describe the guarded execution queue preview layer: Guarded Execution Queue Boundary, Guarded Execution Queue Item, Guarded File Write Handoff Preview, Guarded Command Handoff Preview, Guarded Runtime Handoff Preview, Guarded Adapter Handoff Preview, Guarded Domain Handoff Preview, Guarded Evidence Handoff Preview, Guarded Result Handoff Preview, Guarded Recovery Handoff Preview, Guarded Packaging Handoff Preview, Guarded Execution Preflight Checklist, Guarded Execution Operator Lock, Guarded Execution Dry-Run Ticket, First Guarded Execution Queue Candidate, and Controlled Guarded Execution Queue Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, not auto-approved, not persisted as approval decisions, and not allowed to create queue jobs, persist queue state, release locks, run dry-runs, make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, project adapter execution, game adapter execution, domain adapter execution, file writes, command execution, runtime starts, app scaffolds, website publishing, live data connections, tool creation, research browsing, automation creation, asset rendering, trading or broker calls, data ingestion, documentation export, integration connections, validation execution, evidence/result/model-output persistence, recovery triggers, packaging/export, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported target language must remain broad and cover games, apps, websites, dashboards, tools, research packs, automation workflows, creative workflows, trading workspaces, data workspaces, documentation packs, integrations, and general local projects.
 
 The current phase ledger is:
 
@@ -237,6 +237,22 @@ The current phase ledger is:
 - Phase 1063 - Build Plan Operator Signoff Packet.
 - Phase 1064 - First Approved Build Plan Candidate.
 - Phase 1065 - Controlled Build Plan Approval Release Candidate.
+- Phase 1066 - Guarded Execution Queue Boundary.
+- Phase 1067 - Guarded Execution Queue Item.
+- Phase 1068 - Guarded File Write Handoff Preview.
+- Phase 1069 - Guarded Command Handoff Preview.
+- Phase 1070 - Guarded Runtime Handoff Preview.
+- Phase 1071 - Guarded Adapter Handoff Preview.
+- Phase 1072 - Guarded Domain Handoff Preview.
+- Phase 1073 - Guarded Evidence Handoff Preview.
+- Phase 1074 - Guarded Result Handoff Preview.
+- Phase 1075 - Guarded Recovery Handoff Preview.
+- Phase 1076 - Guarded Packaging Handoff Preview.
+- Phase 1077 - Guarded Execution Preflight Checklist.
+- Phase 1078 - Guarded Execution Operator Lock.
+- Phase 1079 - Guarded Execution Dry-Run Ticket.
+- Phase 1080 - First Guarded Execution Queue Candidate.
+- Phase 1081 - Controlled Guarded Execution Queue Release Candidate.
 
 ## Commit And Tag Checkpoint Docs
 

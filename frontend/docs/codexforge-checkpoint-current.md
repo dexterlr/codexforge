@@ -1,6 +1,6 @@
 # CodexForge Current Checkpoint
 
-Checkpoint date: 2026-06-20.
+Checkpoint date: 2026-06-21.
 
 Canonical workspace:
 
@@ -10,11 +10,11 @@ C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
 
 ## Detected Smoke State
 
-Highest detected phase: 1065.
+Highest detected phase: 1081.
 
-Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 1065, so the checkpoint is documented as through phase 1065.
+Detection source: `scripts/smoke-codexforge-all.ps1`, parsed by taking the highest `Phase N` entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 1081, so the checkpoint is documented as through phase 1081.
 
-Latest detected milestone family: build plan approval layer. Phases 1050-1065 add the first build plan approval surfaces after the Controlled Build Plan Bundle Release Candidate:
+Latest detected milestone family: guarded execution queue preview layer. Phases 1066-1081 add guarded queue and handoff preview surfaces after the Controlled Build Plan Approval Release Candidate:
 
 - Phase 890 - Controlled Model Use Dry-Run Inventory.
 - Phase 891 - OpenAI-Compatible Model Use Dry-Run.
@@ -192,8 +192,24 @@ Latest detected milestone family: build plan approval layer. Phases 1050-1065 ad
 - Phase 1063 - Build Plan Operator Signoff Packet.
 - Phase 1064 - First Approved Build Plan Candidate.
 - Phase 1065 - Controlled Build Plan Approval Release Candidate.
+- Phase 1066 - Guarded Execution Queue Boundary.
+- Phase 1067 - Guarded Execution Queue Item.
+- Phase 1068 - Guarded File Write Handoff Preview.
+- Phase 1069 - Guarded Command Handoff Preview.
+- Phase 1070 - Guarded Runtime Handoff Preview.
+- Phase 1071 - Guarded Adapter Handoff Preview.
+- Phase 1072 - Guarded Domain Handoff Preview.
+- Phase 1073 - Guarded Evidence Handoff Preview.
+- Phase 1074 - Guarded Result Handoff Preview.
+- Phase 1075 - Guarded Recovery Handoff Preview.
+- Phase 1076 - Guarded Packaging Handoff Preview.
+- Phase 1077 - Guarded Execution Preflight Checklist.
+- Phase 1078 - Guarded Execution Operator Lock.
+- Phase 1079 - Guarded Execution Dry-Run Ticket.
+- Phase 1080 - First Guarded Execution Queue Candidate.
+- Phase 1081 - Controlled Guarded Execution Queue Release Candidate.
 
-These pages preserve the model router/provider, project-builder MVP, universal game-builder, universal project-builder, Universal Builder Cockpit, guided build workflow, and build plan bundle direction while adding the build plan approval layer. CodexForge is a Jarvis-style, local-first, approval-safe execution OS. The latest product checkpoint is through phase 1065. Models are workers; CodexForge is the brain. Paid, free, local, remote, OpenAI-compatible, and specialist models share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer. Build plan approval packets remain static, deterministic, review-only, and approval-gated until explicit operator approval. They represent original operator goal, build plan bundle reference, file manifest preview, command manifest preview, runtime manifest preview, adapter manifest preview, risk gate, evidence gate, result gate, recovery gate, approval checklist, ready-to-execute state, execution hold state, operator signoff state, and denied live execution state. They support game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project targets. They remain frontend review/planning UI only with no auto-approval, no persisted approval decisions, no live model calls, no provider calls, no credential reads, no secret reads, no network calls, no prompt sending, no router executions, no backend adapter execution, no domain adapter execution, no project adapter execution, no game adapter execution, no file writes, no command execution, no runtime starts, no game server starts, no app scaffolding, no website publishing, no dashboard live data connection, no tool creation, no research browsing, no automation creation, no creative asset rendering, no trading or broker call, no data ingestion, no documentation export, no integration connection, no validation execution, no evidence/result persistence, no recovery triggers, no packaging/export, no scaffolding, no Brain mutations, no automatic memory promotions, no browser credential writes, no browser credential storage, no hidden model calls, and no hidden execution from UI. The latest family is the build plan approval layer: approval boundary, approval queue, detail packet, diff preview, command preview, runtime preview, adapter preview, risk/evidence/result/recovery gates, ready-to-execute packet, execution hold state, operator signoff packet, first approved candidate, and Controlled Build Plan Approval Release Candidate surfaces.
+These pages preserve the model router/provider, project-builder MVP, universal game-builder, universal project-builder, Universal Builder Cockpit, guided build workflow, build plan bundle, and build plan approval direction while adding the guarded execution queue preview layer. CodexForge is a Jarvis-style, local-first, approval-safe execution OS. The latest product checkpoint is through phase 1081. Models are workers; CodexForge is the brain. Paid, free, local, remote, OpenAI-compatible, and specialist models share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer. Guarded execution queue packets remain static, deterministic, review-only, preview-only, and approval-gated until explicit operator approval. They represent build plan approval reference, queue item type, requested execution family, file write handoff, command handoff, runtime handoff, backend adapter handoff, domain adapter handoff, evidence handoff, result handoff, recovery handoff, packaging/export handoff, preflight checklist, operator lock state, dry-run ticket state, denied live execution state, and explicit approval requirement. They support game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project targets. They remain frontend review/planning UI only with no real queue jobs, no queue persistence, no auto-approval, no persisted approval decisions, no live model calls, no provider calls, no credential reads, no secret reads, no network calls, no prompt sending, no router executions, no backend adapter execution, no domain adapter execution, no project adapter execution, no game adapter execution, no file writes, no command execution, no runtime starts, no game server starts, no dry-run execution, no operator lock release, no evidence/result persistence, no recovery triggers, no packaging/export, no scaffolding, no Brain mutations, no automatic memory promotions, no browser credential writes, no browser credential storage, no hidden model calls, and no hidden execution from UI. The latest family is the guarded execution queue preview layer: queue boundary, queue item, guarded handoffs, preflight checklist, operator lock, dry-run ticket, first guarded execution queue candidate, and Controlled Guarded Execution Queue Release Candidate surfaces.
 
 ## Current Route Families
 
@@ -243,6 +259,7 @@ These pages preserve the model router/provider, project-builder MVP, universal g
 - Guided build workflow review layer: `/guided-build-workflow-boundary`, `/guided-build-goal-review`, `/guided-build-target-selection`, `/guided-build-requirement-checklist`, `/guided-build-architecture-sketch`, `/guided-build-file-blueprint`, `/guided-build-command-blueprint`, `/guided-build-runtime-blueprint`, `/guided-build-adapter-blueprint`, `/guided-build-validation-blueprint`, `/guided-build-risk-review`, `/guided-build-approval-queue`, `/guided-build-evidence-plan`, `/guided-build-result-plan`, `/first-practical-guided-build-candidate`, `/controlled-guided-build-workflow-release-candidate`. These remain static, preview-only, deterministic, denied live execution by default, support build-anything goals across game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project targets, and require explicit operator approval.
 - Build plan bundle review layer: `/build-plan-bundle-boundary`, `/build-plan-summary-packet`, `/build-plan-requirements-packet`, `/build-plan-architecture-packet`, `/build-plan-file-manifest-packet`, `/build-plan-command-manifest-packet`, `/build-plan-runtime-manifest-packet`, `/build-plan-adapter-manifest-packet`, `/build-plan-validation-manifest-packet`, `/build-plan-risk-manifest-packet`, `/build-plan-approval-manifest-packet`, `/build-plan-evidence-manifest-packet`, `/build-plan-result-manifest-packet`, `/build-plan-recovery-manifest-packet`, `/first-complete-build-plan-candidate`, `/controlled-build-plan-bundle-release-candidate`. These remain static, preview-only, deterministic, denied live execution by default, support build-anything goals across game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project targets, and require explicit operator approval before any model call, provider call, backend adapter execution, domain adapter execution, file write, command, runtime start, validation execution, evidence/result persistence, recovery, packaging/export, scaffold, audit write, memory promotion, or approval action can exist.
 - Build plan approval layer: `/build-plan-approval-boundary`, `/build-plan-approval-queue`, `/build-plan-approval-detail-packet`, `/build-plan-approval-diff-preview`, `/build-plan-approval-command-preview`, `/build-plan-approval-runtime-preview`, `/build-plan-approval-adapter-preview`, `/build-plan-approval-risk-gate`, `/build-plan-approval-evidence-gate`, `/build-plan-approval-result-gate`, `/build-plan-approval-recovery-gate`, `/build-plan-ready-to-execute-packet`, `/build-plan-execution-hold-state`, `/build-plan-operator-signoff-packet`, `/first-approved-build-plan-candidate`, `/controlled-build-plan-approval-release-candidate`. These remain static, preview-only, deterministic, denied live execution by default, do not auto-approve or persist approval decisions, and require explicit operator approval before any model, backend, domain, file, command, runtime, deploy, package, scaffold, evidence, result, recovery, audit, memory, or approval action can exist.
+- Guarded execution queue preview layer: `/guarded-execution-queue-boundary`, `/guarded-execution-queue-item`, `/guarded-file-write-handoff-preview`, `/guarded-command-handoff-preview`, `/guarded-runtime-handoff-preview`, `/guarded-adapter-handoff-preview`, `/guarded-domain-handoff-preview`, `/guarded-evidence-handoff-preview`, `/guarded-result-handoff-preview`, `/guarded-recovery-handoff-preview`, `/guarded-packaging-handoff-preview`, `/guarded-execution-preflight-checklist`, `/guarded-execution-operator-lock`, `/guarded-execution-dry-run-ticket`, `/first-guarded-execution-queue-candidate`, `/controlled-guarded-execution-queue-release-candidate`. These remain static, preview-only, deterministic, denied live execution by default, do not create real queue jobs, do not persist queue state or approval decisions, do not run dry-runs, do not release execution locks, and require explicit operator approval before any model, provider, backend, domain, file, command, runtime, evidence, result, recovery, packaging, audit, memory, queue, dry-run, or approval action can exist.
 
 ## Safety Model
 
@@ -257,7 +274,7 @@ These pages preserve the model router/provider, project-builder MVP, universal g
 
 ## What Is Ready
 
-- Documentation and smoke coverage now identify the phase 1065 checkpoint directly from the local all-smoke registry.
+- Documentation and smoke coverage now identify the phase 1081 checkpoint directly from the local all-smoke registry.
 - The recent provider, local model, connector, automation, file mutation, test execution, unified gap, first approved-trial, first end-to-end workflow release-candidate, controlled rollout, final boundary signoff, Daily Beta candidate, and operator handoff route families are represented as review and approval surfaces.
 - The Daily Beta activation checklist, dry-run, evidence, result, recovery, hardening, release candidate, operator readiness, final gate, controlled operator trial, feedback, regression, final hardening, activation candidate, release handoff, and readiness lock route family is represented as review-only and approval-required UI.
 - The Daily Beta readiness lock audit, release candidate summary, Daily Beta 1 final candidate, final operator review, final regression review, final recovery review, final hardening pass, and Daily Beta 1 activation candidate package is represented as review-only and approval-required UI.

@@ -130,3 +130,67 @@ export function FirstApprovedBuildPlanCandidatePanel() {
 export function ControlledBuildPlanApprovalReleaseCandidatePanel() {
   return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-build-plan-approval-release-candidate")} />;
 }
+
+export function GuardedExecutionQueueBoundaryPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-execution-queue-boundary")} />;
+}
+
+export function GuardedExecutionQueueItemPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-execution-queue-item")} />;
+}
+
+export function GuardedFileWriteHandoffPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-file-write-handoff-preview")} />;
+}
+
+export function GuardedCommandHandoffPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-command-handoff-preview")} />;
+}
+
+export function GuardedRuntimeHandoffPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-runtime-handoff-preview")} />;
+}
+
+export function GuardedAdapterHandoffPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-adapter-handoff-preview")} />;
+}
+
+export function GuardedDomainHandoffPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-domain-handoff-preview")} />;
+}
+
+export function GuardedEvidenceHandoffPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-evidence-handoff-preview")} />;
+}
+
+export function GuardedResultHandoffPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-result-handoff-preview")} />;
+}
+
+export function GuardedRecoveryHandoffPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-recovery-handoff-preview")} />;
+}
+
+export function GuardedPackagingHandoffPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-packaging-handoff-preview")} />;
+}
+
+export function GuardedExecutionPreflightChecklistPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-execution-preflight-checklist")} />;
+}
+
+export function GuardedExecutionOperatorLockPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-execution-operator-lock")} />;
+}
+
+export function GuardedExecutionDryRunTicketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("guarded-execution-dry-run-ticket")} />;
+}
+
+export function FirstGuardedExecutionQueueCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("first-guarded-execution-queue-candidate")} />;
+}
+
+export function ControlledGuardedExecutionQueueReleaseCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-guarded-execution-queue-release-candidate")} />;
+}

@@ -473,7 +473,23 @@ $protectedRoutes = @(
   "/build-plan-execution-hold-state",
   "/build-plan-operator-signoff-packet",
   "/first-approved-build-plan-candidate",
-  "/controlled-build-plan-approval-release-candidate"
+  "/controlled-build-plan-approval-release-candidate",
+  "/guarded-execution-queue-boundary",
+  "/guarded-execution-queue-item",
+  "/guarded-file-write-handoff-preview",
+  "/guarded-command-handoff-preview",
+  "/guarded-runtime-handoff-preview",
+  "/guarded-adapter-handoff-preview",
+  "/guarded-domain-handoff-preview",
+  "/guarded-evidence-handoff-preview",
+  "/guarded-result-handoff-preview",
+  "/guarded-recovery-handoff-preview",
+  "/guarded-packaging-handoff-preview",
+  "/guarded-execution-preflight-checklist",
+  "/guarded-execution-operator-lock",
+  "/guarded-execution-dry-run-ticket",
+  "/first-guarded-execution-queue-candidate",
+  "/controlled-guarded-execution-queue-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `

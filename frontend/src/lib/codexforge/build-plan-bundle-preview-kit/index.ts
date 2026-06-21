@@ -33,7 +33,8 @@ export type BuildPlanBundleReviewSlug =
   | "build-plan-recovery-manifest-packet"
   | "first-complete-build-plan-candidate"
   | "controlled-build-plan-bundle-release-candidate"
-  | BuildPlanApprovalReviewSlug;
+  | BuildPlanApprovalReviewSlug
+  | GuardedExecutionQueueReviewSlug;
 
 export type BuildPlanApprovalReviewSlug =
   | "build-plan-approval-boundary"
@@ -52,6 +53,24 @@ export type BuildPlanApprovalReviewSlug =
   | "build-plan-operator-signoff-packet"
   | "first-approved-build-plan-candidate"
   | "controlled-build-plan-approval-release-candidate";
+
+export type GuardedExecutionQueueReviewSlug =
+  | "guarded-execution-queue-boundary"
+  | "guarded-execution-queue-item"
+  | "guarded-file-write-handoff-preview"
+  | "guarded-command-handoff-preview"
+  | "guarded-runtime-handoff-preview"
+  | "guarded-adapter-handoff-preview"
+  | "guarded-domain-handoff-preview"
+  | "guarded-evidence-handoff-preview"
+  | "guarded-result-handoff-preview"
+  | "guarded-recovery-handoff-preview"
+  | "guarded-packaging-handoff-preview"
+  | "guarded-execution-preflight-checklist"
+  | "guarded-execution-operator-lock"
+  | "guarded-execution-dry-run-ticket"
+  | "first-guarded-execution-queue-candidate"
+  | "controlled-guarded-execution-queue-release-candidate";
 
 type BuildPlanBundleDefinition = {
   slug: BuildPlanBundleReviewSlug;
@@ -432,6 +451,182 @@ export const CONTROLLED_BUILD_PLAN_APPROVAL_RELEASE_CANDIDATE_LANGUAGE = [
   "approval required",
 ] as const;
 
+export const GUARDED_EXECUTION_QUEUE_BOUNDARY_LANGUAGE = [
+  "Guarded execution queue boundary",
+  "Guarded execution queue boundary does not create real queue jobs",
+  "Guarded execution queue requires explicit operator approval",
+  "Guarded execution queue keeps every execution arm blocked",
+  "Denied guarded execution queue paths remain blocked",
+  "Guarded execution queue checklist",
+  "static guarded-execution-queue-boundary preview",
+  "approval required",
+] as const;
+
+export const GUARDED_EXECUTION_QUEUE_ITEM_LANGUAGE = [
+  "Guarded execution queue item",
+  "Guarded execution queue item does not persist queue state",
+  "Queue item decisions require explicit operator approval",
+  "Queue items remain preview-only until operator signoff",
+  "Denied guarded execution queue item paths remain blocked",
+  "Guarded execution queue item checklist",
+  "static guarded-execution-queue-item preview",
+  "approval required",
+] as const;
+
+export const GUARDED_FILE_WRITE_HANDOFF_PREVIEW_LANGUAGE = [
+  "Guarded file write handoff preview",
+  "Guarded file write handoff preview does not write files",
+  "File write handoff requires explicit operator approval",
+  "File write handoffs show planned mutations without applying them",
+  "Denied guarded file write handoff paths remain blocked",
+  "Guarded file write handoff checklist",
+  "static guarded-file-write-handoff-preview preview",
+  "approval required",
+] as const;
+
+export const GUARDED_COMMAND_HANDOFF_PREVIEW_LANGUAGE = [
+  "Guarded command handoff preview",
+  "Guarded command handoff preview does not run commands",
+  "Command handoff requires explicit operator approval",
+  "Command handoffs show planned commands without execution",
+  "Denied guarded command handoff paths remain blocked",
+  "Guarded command handoff checklist",
+  "static guarded-command-handoff-preview preview",
+  "approval required",
+] as const;
+
+export const GUARDED_RUNTIME_HANDOFF_PREVIEW_LANGUAGE = [
+  "Guarded runtime handoff preview",
+  "Guarded runtime handoff preview does not start runtimes",
+  "Runtime handoff requires explicit operator approval",
+  "Runtime handoffs show planned runtime launches without execution",
+  "Denied guarded runtime handoff paths remain blocked",
+  "Guarded runtime handoff checklist",
+  "static guarded-runtime-handoff-preview preview",
+  "approval required",
+] as const;
+
+export const GUARDED_ADAPTER_HANDOFF_PREVIEW_LANGUAGE = [
+  "Guarded adapter handoff preview",
+  "Guarded adapter handoff preview does not execute adapters",
+  "Adapter handoff requires explicit operator approval",
+  "Adapter handoffs show backend adapter gates",
+  "Denied guarded adapter handoff paths remain blocked",
+  "Guarded adapter handoff checklist",
+  "static guarded-adapter-handoff-preview preview",
+  "approval required",
+] as const;
+
+export const GUARDED_DOMAIN_HANDOFF_PREVIEW_LANGUAGE = [
+  "Guarded domain handoff preview",
+  "Guarded domain handoff preview does not execute domain adapters",
+  "Domain handoff requires explicit operator approval",
+  "Domain handoffs support games apps research creative trading automation data docs and integrations",
+  "Denied guarded domain handoff paths remain blocked",
+  "Guarded domain handoff checklist",
+  "static guarded-domain-handoff-preview preview",
+  "approval required",
+] as const;
+
+export const GUARDED_EVIDENCE_HANDOFF_PREVIEW_LANGUAGE = [
+  "Guarded evidence handoff preview",
+  "Guarded evidence handoff preview does not persist evidence",
+  "Evidence handoff requires explicit operator approval",
+  "Evidence handoffs route future outputs through shared evidence review",
+  "Denied guarded evidence handoff paths remain blocked",
+  "Guarded evidence handoff checklist",
+  "static guarded-evidence-handoff-preview preview",
+  "approval required",
+] as const;
+
+export const GUARDED_RESULT_HANDOFF_PREVIEW_LANGUAGE = [
+  "Guarded result handoff preview",
+  "Guarded result handoff preview does not persist results",
+  "Result handoff requires explicit operator approval",
+  "Result handoffs route future outputs through shared result review",
+  "Denied guarded result handoff paths remain blocked",
+  "Guarded result handoff checklist",
+  "static guarded-result-handoff-preview preview",
+  "approval required",
+] as const;
+
+export const GUARDED_RECOVERY_HANDOFF_PREVIEW_LANGUAGE = [
+  "Guarded recovery handoff preview",
+  "Guarded recovery handoff preview does not trigger recovery",
+  "Recovery handoff requires explicit operator approval",
+  "Recovery handoffs include rollback backup restore and retry plans",
+  "Denied guarded recovery handoff paths remain blocked",
+  "Guarded recovery handoff checklist",
+  "static guarded-recovery-handoff-preview preview",
+  "approval required",
+] as const;
+
+export const GUARDED_PACKAGING_HANDOFF_PREVIEW_LANGUAGE = [
+  "Guarded packaging handoff preview",
+  "Guarded packaging handoff preview does not package outputs",
+  "Packaging handoff requires explicit operator approval",
+  "Packaging handoffs include export artifact and runbook review",
+  "Denied guarded packaging handoff paths remain blocked",
+  "Guarded packaging handoff checklist",
+  "static guarded-packaging-handoff-preview preview",
+  "approval required",
+] as const;
+
+export const GUARDED_EXECUTION_PREFLIGHT_CHECKLIST_LANGUAGE = [
+  "Guarded execution preflight checklist",
+  "Guarded execution preflight checklist does not execute checks",
+  "Preflight checklist review requires explicit operator approval",
+  "Preflight checklists gate files commands runtimes adapters evidence results and recovery",
+  "Denied guarded execution preflight paths remain blocked",
+  "Guarded execution preflight checklist",
+  "static guarded-execution-preflight-checklist preview",
+  "approval required",
+] as const;
+
+export const GUARDED_EXECUTION_OPERATOR_LOCK_LANGUAGE = [
+  "Guarded execution operator lock",
+  "Guarded execution operator lock does not release execution",
+  "Operator lock release requires explicit human approval",
+  "Operator locks keep model backend and domain actions blocked",
+  "Denied guarded execution operator lock paths remain blocked",
+  "Guarded execution operator lock checklist",
+  "static guarded-execution-operator-lock preview",
+  "approval required",
+] as const;
+
+export const GUARDED_EXECUTION_DRY_RUN_TICKET_LANGUAGE = [
+  "Guarded execution dry-run ticket",
+  "Guarded execution dry-run ticket does not run dry-runs",
+  "Dry-run tickets require explicit operator approval",
+  "Dry-run tickets preserve shared brain memory evidence result and audit gates",
+  "Denied guarded execution dry-run ticket paths remain blocked",
+  "Guarded execution dry-run ticket checklist",
+  "static guarded-execution-dry-run-ticket preview",
+  "approval required",
+] as const;
+
+export const FIRST_GUARDED_EXECUTION_QUEUE_CANDIDATE_LANGUAGE = [
+  "First guarded execution queue candidate",
+  "First guarded execution queue candidate does not execute builds",
+  "Guarded execution queue candidates require explicit operator approval",
+  "Candidate packets combine queue item handoffs preflight lock dry-run evidence result and recovery gates",
+  "Denied guarded execution queue candidate paths remain blocked",
+  "First guarded execution queue checklist",
+  "static first-guarded-execution-queue-candidate preview",
+  "approval required",
+] as const;
+
+export const CONTROLLED_GUARDED_EXECUTION_QUEUE_RELEASE_CANDIDATE_LANGUAGE = [
+  "Controlled guarded execution queue release candidate",
+  "Controlled guarded execution queue release candidate does not call models or execute adapters",
+  "Controlled guarded execution queue release requires explicit operator approval",
+  "Release candidate supports build anything execution queues with shared brain gates",
+  "Denied controlled guarded execution queue paths remain blocked",
+  "Controlled guarded execution queue release checklist",
+  "static controlled-guarded-execution-queue-release-candidate preview",
+  "approval required",
+] as const;
+
 export const BUILD_PLAN_BUNDLE_PREVIEW_SAFETY_MARKERS = [
   "build-plan-bundle static review-only preview",
   "deterministic static review content",
@@ -489,6 +684,17 @@ export const BUILD_PLAN_BUNDLE_PREVIEW_SAFETY_MARKERS = [
   "no approval persistence",
   "no approval decision persistence",
   "no persisted approval decisions",
+  "no real queue persistence",
+  "no queue persistence",
+  "no queue state persistence",
+  "no real queue jobs",
+  "no queue job creation",
+  "no backend execution queue creation",
+  "no dry-run execution",
+  "no execution lock release",
+  "no execution locks released",
+  "operator lock not released",
+  "dry-run ticket not executed",
   "all approval states are static preview states",
   "all approval previews remain preview-only",
   "every model/backend/domain action remains explicitly gated",
@@ -531,16 +737,24 @@ const BUILD_PLAN_BUNDLE_PACKET_FIELDS = [
   "target family",
   "target recommendation",
   "build plan bundle reference",
+  "build plan approval reference",
+  "queue item type",
+  "requested execution family",
   "requirements",
   "architecture sketch",
   "file manifest",
   "file manifest preview",
+  "file write handoff",
   "command manifest",
   "command manifest preview",
+  "command handoff",
   "runtime manifest",
   "runtime manifest preview",
+  "runtime handoff",
   "adapter manifest",
   "adapter manifest preview",
+  "backend adapter handoff",
+  "domain adapter handoff",
   "validation manifest",
   "risk manifest",
   "risk gate",
@@ -548,15 +762,33 @@ const BUILD_PLAN_BUNDLE_PACKET_FIELDS = [
   "approval checklist",
   "evidence manifest",
   "evidence gate",
+  "evidence handoff",
   "result manifest",
   "result gate",
+  "result handoff",
   "recovery manifest",
   "recovery gate",
+  "recovery handoff",
+  "packaging/export handoff",
+  "preflight checklist",
+  "operator lock state",
+  "dry-run ticket state",
   "ready-to-execute state",
   "execution hold state",
   "operator signoff state",
   "denied live execution state",
+  "explicit approval requirement",
   "operator decision state",
+] as const;
+
+const GUARDED_EXECUTION_QUEUE_ITEM_STATES = [
+  "draft",
+  "waiting-for-operator-review",
+  "held-for-risk-review",
+  "ready-for-dry-run",
+  "blocked",
+  "denied",
+  "preview-only",
 ] as const;
 
 const SUPPORTED_BUILD_PLAN_TARGET_FAMILIES = [
@@ -600,6 +832,7 @@ function buildBuildPlanBundleDefinition(input: {
   nextRecommendedAction: string;
 }): BuildPlanBundleDefinition {
   const packetFields = "Future build plan bundle packet fields: " + joinSentence(BUILD_PLAN_BUNDLE_PACKET_FIELDS) + ".";
+  const queueStates = "Future guarded execution queue item states: " + joinSentence(GUARDED_EXECUTION_QUEUE_ITEM_STATES) + ".";
   const supportedTargets = "Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + ".";
   const sharedBrainCopy = "Models are workers. CodexForge is the brain. All paid/free/local/remote/OpenAI-compatible/specialist model workers share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer.";
   const modelRouterCopy = "Model-router policy: cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation.";
@@ -626,9 +859,9 @@ function buildBuildPlanBundleDefinition(input: {
     links: input.links,
     nextRecommendedAction: input.nextRecommendedAction,
     plainEnglishTitle: "Plain-English " + input.title.toLowerCase(),
-    plainEnglishCopy: input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + deniedCopy + " " + packetFields + " " + supportedTargets + " " + sharedBrainCopy + " " + modelRouterCopy + " " + adapterCopy + " Preview focus: " + input.previewFocus + ".",
+    plainEnglishCopy: input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + deniedCopy + " " + packetFields + " " + queueStates + " " + supportedTargets + " " + sharedBrainCopy + " " + modelRouterCopy + " " + adapterCopy + " Preview focus: " + input.previewFocus + ".",
     identity: input.title + " identity: " + input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + input.deniedCopy + ". " + sharedBrainCopy + " Static preview-only review content remains blocked until explicit operator approval.",
-    advancedDetails: [input.markerTitle, input.safetyCopy, input.approvalCopy, input.supportCopy, input.deniedCopy, packetFields, supportedTargets, sharedBrainCopy, modelRouterCopy, adapterCopy, deniedCopy, checklistCopy, "Static preview focus fields: " + joinSentence(input.fieldItems) + ".", "Operator decision state: blocked until explicit human approval confirms original operator goal, clarified goal, target family, target recommendation, requirements, architecture, files, commands, runtimes, adapters, validation, risk, approvals, evidence, result, recovery, model routing, and safety gates."],
+    advancedDetails: [input.markerTitle, input.safetyCopy, input.approvalCopy, input.supportCopy, input.deniedCopy, packetFields, queueStates, supportedTargets, sharedBrainCopy, modelRouterCopy, adapterCopy, deniedCopy, checklistCopy, "Static preview focus fields: " + joinSentence(input.fieldItems) + ".", "Operator decision state: blocked until explicit human approval confirms original operator goal, clarified goal, target family, target recommendation, requirements, architecture, files, commands, runtimes, adapters, validation, risk, approvals, evidence, result, recovery, model routing, and safety gates."],
     advancedCopy: input.title + " remains deterministic, static, local-first, review-only, and approval-gated. It does not call models, call providers, send prompts, read secrets, store credentials, spend credits, execute backend adapters, execute domain adapters, write files, run commands, start runtimes, scaffold projects, browse, deploy, package outputs, persist model outputs, persist evidence/results, trigger recovery, run validation, or promote memory automatically.",
     dataScope: input.slug + " build-plan-bundle review-only approval required denied execution static preview",
   };
@@ -1021,6 +1254,393 @@ const BUILD_PLAN_APPROVAL_DEFINITION_INPUTS = [
   },
 ] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
 
+const GUARDED_EXECUTION_QUEUE_DEFINITION_INPUTS = [
+  {
+    slug: "guarded-execution-queue-boundary",
+    phase: "Phase 1066",
+    title: "Guarded Execution Queue Boundary",
+    markerTitle: "Guarded execution queue boundary",
+    safetyCopy: "Guarded execution queue boundary does not create real queue jobs",
+    approvalCopy: "Guarded execution queue requires explicit operator approval",
+    supportCopy: "Guarded execution queue keeps every execution arm blocked",
+    deniedCopy: "Denied guarded execution queue paths remain blocked",
+    checklistLabel: "Guarded execution queue checklist",
+    subtitle: "Review the future guarded execution queue boundary without creating queue jobs, persisting queue state, or releasing execution arms.",
+    primaryLabel: "Review queue boundary",
+    groupLabel: "Queue boundary fields",
+    previewFocus: "build plan approval reference, queue item type, requested execution family, operator lock state, denied live execution state, and explicit approval requirement",
+    language: GUARDED_EXECUTION_QUEUE_BOUNDARY_LANGUAGE,
+    fieldItems: ["build plan approval reference", "queue item type", "requested execution family", "operator lock state", "denied live execution state", "explicit approval requirement"],
+    routes: ["/controlled-build-plan-approval-release-candidate", "/guarded-execution-queue-item", "/guarded-execution-preflight-checklist"],
+    links: [
+      { href: "/controlled-build-plan-approval-release-candidate", label: "Previous Phase" },
+      { href: "/guarded-execution-queue-item", label: "Next Phase" },
+      { href: "/guarded-execution-preflight-checklist", label: "Preflight Checklist" },
+    ],
+    nextRecommendedAction: "Review the guarded queue item while every future execution arm remains blocked and non-persistent.",
+  },
+  {
+    slug: "guarded-execution-queue-item",
+    phase: "Phase 1067",
+    title: "Guarded Execution Queue Item",
+    markerTitle: "Guarded execution queue item",
+    safetyCopy: "Guarded execution queue item does not persist queue state",
+    approvalCopy: "Queue item decisions require explicit operator approval",
+    supportCopy: "Queue items remain preview-only until operator signoff",
+    deniedCopy: "Denied guarded execution queue item paths remain blocked",
+    checklistLabel: "Guarded execution queue item checklist",
+    subtitle: "Review a static future queue item without storing state, creating jobs, or converting preview decisions into approvals.",
+    primaryLabel: "Review queue item",
+    groupLabel: "Queue item fields",
+    previewFocus: "queue item type, requested execution family, queue item states, build plan approval reference, denied live execution state, and operator decision state",
+    language: GUARDED_EXECUTION_QUEUE_ITEM_LANGUAGE,
+    fieldItems: ["queue item type", "requested execution family", "draft state", "waiting-for-operator-review state", "held-for-risk-review state", "ready-for-dry-run state", "blocked state", "denied state", "preview-only state", "explicit approval requirement"],
+    routes: ["/guarded-execution-queue-boundary", "/guarded-file-write-handoff-preview", "/guarded-execution-operator-lock"],
+    links: [
+      { href: "/guarded-execution-queue-boundary", label: "Previous Phase" },
+      { href: "/guarded-file-write-handoff-preview", label: "Next Phase" },
+      { href: "/guarded-execution-operator-lock", label: "Operator Lock" },
+    ],
+    nextRecommendedAction: "Review file write handoff while queue state remains static and every decision still requires explicit operator approval.",
+  },
+  {
+    slug: "guarded-file-write-handoff-preview",
+    phase: "Phase 1068",
+    title: "Guarded File Write Handoff Preview",
+    markerTitle: "Guarded file write handoff preview",
+    safetyCopy: "Guarded file write handoff preview does not write files",
+    approvalCopy: "File write handoff requires explicit operator approval",
+    supportCopy: "File write handoffs show planned mutations without applying them",
+    deniedCopy: "Denied guarded file write handoff paths remain blocked",
+    checklistLabel: "Guarded file write handoff checklist",
+    subtitle: "Review future file write handoff packets without creating, editing, deleting, moving, exporting, or packaging files.",
+    primaryLabel: "Review file handoff",
+    groupLabel: "File write handoff fields",
+    previewFocus: "build plan approval reference, queue item type, file write handoff, planned mutation summary, write denial, recovery handoff, and explicit approval requirement",
+    language: GUARDED_FILE_WRITE_HANDOFF_PREVIEW_LANGUAGE,
+    fieldItems: ["build plan approval reference", "queue item type", "file write handoff", "planned mutation summary", "write denial", "recovery handoff", "explicit approval requirement"],
+    routes: ["/guarded-execution-queue-item", "/guarded-command-handoff-preview", "/guarded-recovery-handoff-preview"],
+    links: [
+      { href: "/guarded-execution-queue-item", label: "Previous Phase" },
+      { href: "/guarded-command-handoff-preview", label: "Next Phase" },
+      { href: "/guarded-recovery-handoff-preview", label: "Recovery Handoff" },
+    ],
+    nextRecommendedAction: "Review command handoff while planned file mutations stay unapplied and approval-gated.",
+  },
+  {
+    slug: "guarded-command-handoff-preview",
+    phase: "Phase 1069",
+    title: "Guarded Command Handoff Preview",
+    markerTitle: "Guarded command handoff preview",
+    safetyCopy: "Guarded command handoff preview does not run commands",
+    approvalCopy: "Command handoff requires explicit operator approval",
+    supportCopy: "Command handoffs show planned commands without execution",
+    deniedCopy: "Denied guarded command handoff paths remain blocked",
+    checklistLabel: "Guarded command handoff checklist",
+    subtitle: "Review future command handoff packets without running shell, git, test, build, smoke, install, server, broker, or automation commands.",
+    primaryLabel: "Review command handoff",
+    groupLabel: "Command handoff fields",
+    previewFocus: "build plan approval reference, command handoff, command purpose, risk class, command approval gate, execution denial, evidence handoff, and operator decision state",
+    language: GUARDED_COMMAND_HANDOFF_PREVIEW_LANGUAGE,
+    fieldItems: ["build plan approval reference", "command handoff", "command purpose", "risk class", "command approval gate", "execution denial", "evidence handoff", "operator decision state"],
+    routes: ["/guarded-file-write-handoff-preview", "/guarded-runtime-handoff-preview", "/guarded-evidence-handoff-preview"],
+    links: [
+      { href: "/guarded-file-write-handoff-preview", label: "Previous Phase" },
+      { href: "/guarded-runtime-handoff-preview", label: "Next Phase" },
+      { href: "/guarded-evidence-handoff-preview", label: "Evidence Handoff" },
+    ],
+    nextRecommendedAction: "Review runtime handoff while planned commands remain static and non-executing.",
+  },
+  {
+    slug: "guarded-runtime-handoff-preview",
+    phase: "Phase 1070",
+    title: "Guarded Runtime Handoff Preview",
+    markerTitle: "Guarded runtime handoff preview",
+    safetyCopy: "Guarded runtime handoff preview does not start runtimes",
+    approvalCopy: "Runtime handoff requires explicit operator approval",
+    supportCopy: "Runtime handoffs show planned runtime launches without execution",
+    deniedCopy: "Denied guarded runtime handoff paths remain blocked",
+    checklistLabel: "Guarded runtime handoff checklist",
+    subtitle: "Review future runtime handoff packets without launching local runtimes, dev servers, game servers, brokers, provider bridges, or services.",
+    primaryLabel: "Review runtime handoff",
+    groupLabel: "Runtime handoff fields",
+    previewFocus: "build plan approval reference, runtime handoff, planned launch purpose, local privacy boundary, runtime approval gate, launch denial, and operator decision state",
+    language: GUARDED_RUNTIME_HANDOFF_PREVIEW_LANGUAGE,
+    fieldItems: ["build plan approval reference", "runtime handoff", "planned launch purpose", "local privacy boundary", "runtime approval gate", "launch denial", "operator decision state"],
+    routes: ["/guarded-command-handoff-preview", "/guarded-adapter-handoff-preview", "/guarded-execution-preflight-checklist"],
+    links: [
+      { href: "/guarded-command-handoff-preview", label: "Previous Phase" },
+      { href: "/guarded-adapter-handoff-preview", label: "Next Phase" },
+      { href: "/guarded-execution-preflight-checklist", label: "Preflight Checklist" },
+    ],
+    nextRecommendedAction: "Review adapter handoff while planned runtimes stay blocked until explicit approval.",
+  },
+  {
+    slug: "guarded-adapter-handoff-preview",
+    phase: "Phase 1071",
+    title: "Guarded Adapter Handoff Preview",
+    markerTitle: "Guarded adapter handoff preview",
+    safetyCopy: "Guarded adapter handoff preview does not execute adapters",
+    approvalCopy: "Adapter handoff requires explicit operator approval",
+    supportCopy: "Adapter handoffs show backend adapter gates",
+    deniedCopy: "Denied guarded adapter handoff paths remain blocked",
+    checklistLabel: "Guarded adapter handoff checklist",
+    subtitle: "Review future backend adapter handoff packets without executing adapters, testing provider connections, or routing live requests.",
+    primaryLabel: "Review adapter handoff",
+    groupLabel: "Adapter handoff fields",
+    previewFocus: "build plan approval reference, backend adapter handoff, approval gate name, adapter execution denial, shared evidence review, shared result review, and operator decision state",
+    language: GUARDED_ADAPTER_HANDOFF_PREVIEW_LANGUAGE,
+    fieldItems: ["build plan approval reference", "backend adapter handoff", "approval gate name", "adapter execution denial", "shared evidence review", "shared result review", "operator decision state"],
+    routes: ["/guarded-runtime-handoff-preview", "/guarded-domain-handoff-preview", "/guarded-evidence-handoff-preview"],
+    links: [
+      { href: "/guarded-runtime-handoff-preview", label: "Previous Phase" },
+      { href: "/guarded-domain-handoff-preview", label: "Next Phase" },
+      { href: "/guarded-evidence-handoff-preview", label: "Evidence Handoff" },
+    ],
+    nextRecommendedAction: "Review domain handoff while backend adapter proposals stay preview-only and named by approval gate.",
+  },
+  {
+    slug: "guarded-domain-handoff-preview",
+    phase: "Phase 1072",
+    title: "Guarded Domain Handoff Preview",
+    markerTitle: "Guarded domain handoff preview",
+    safetyCopy: "Guarded domain handoff preview does not execute domain adapters",
+    approvalCopy: "Domain handoff requires explicit operator approval",
+    supportCopy: "Domain handoffs support games apps research creative trading automation data docs and integrations",
+    deniedCopy: "Denied guarded domain handoff paths remain blocked",
+    checklistLabel: "Guarded domain handoff checklist",
+    subtitle: "Review domain adapter proposals across games, apps, websites, dashboards, tools, research, automation, creative, trading, data, documentation, integrations, and local projects without execution.",
+    primaryLabel: "Review domain handoff",
+    groupLabel: "Domain handoff fields",
+    previewFocus: "domain adapter handoff, target family, requested execution family, approval gate name, domain execution denial, shared evidence/result review, and explicit approval requirement",
+    language: GUARDED_DOMAIN_HANDOFF_PREVIEW_LANGUAGE,
+    fieldItems: ["domain adapter handoff", "target family", "requested execution family", "approval gate name", "domain execution denial", "shared evidence/result review", "explicit approval requirement"],
+    routes: ["/guarded-adapter-handoff-preview", "/guarded-evidence-handoff-preview", "/guarded-packaging-handoff-preview"],
+    links: [
+      { href: "/guarded-adapter-handoff-preview", label: "Previous Phase" },
+      { href: "/guarded-evidence-handoff-preview", label: "Next Phase" },
+      { href: "/guarded-packaging-handoff-preview", label: "Packaging Handoff" },
+    ],
+    nextRecommendedAction: "Review evidence handoff while all game, app, research, creative, trading, automation, data, documentation, and integration adapters remain blocked.",
+  },
+  {
+    slug: "guarded-evidence-handoff-preview",
+    phase: "Phase 1073",
+    title: "Guarded Evidence Handoff Preview",
+    markerTitle: "Guarded evidence handoff preview",
+    safetyCopy: "Guarded evidence handoff preview does not persist evidence",
+    approvalCopy: "Evidence handoff requires explicit operator approval",
+    supportCopy: "Evidence handoffs route future outputs through shared evidence review",
+    deniedCopy: "Denied guarded evidence handoff paths remain blocked",
+    checklistLabel: "Guarded evidence handoff checklist",
+    subtitle: "Review future evidence routing without capturing, ingesting, persisting, promoting, or sending evidence automatically.",
+    primaryLabel: "Review evidence handoff",
+    groupLabel: "Evidence handoff fields",
+    previewFocus: "evidence handoff, future output route, capture denial, persistence denial, shared evidence review, audit handoff, and operator decision state",
+    language: GUARDED_EVIDENCE_HANDOFF_PREVIEW_LANGUAGE,
+    fieldItems: ["evidence handoff", "future output route", "capture denial", "persistence denial", "shared evidence review", "audit handoff", "operator decision state"],
+    routes: ["/guarded-domain-handoff-preview", "/guarded-result-handoff-preview", "/guarded-command-handoff-preview"],
+    links: [
+      { href: "/guarded-domain-handoff-preview", label: "Previous Phase" },
+      { href: "/guarded-result-handoff-preview", label: "Next Phase" },
+      { href: "/guarded-command-handoff-preview", label: "Command Handoff" },
+    ],
+    nextRecommendedAction: "Review result handoff while future evidence remains routed through shared review and non-persistent.",
+  },
+  {
+    slug: "guarded-result-handoff-preview",
+    phase: "Phase 1074",
+    title: "Guarded Result Handoff Preview",
+    markerTitle: "Guarded result handoff preview",
+    safetyCopy: "Guarded result handoff preview does not persist results",
+    approvalCopy: "Result handoff requires explicit operator approval",
+    supportCopy: "Result handoffs route future outputs through shared result review",
+    deniedCopy: "Denied guarded result handoff paths remain blocked",
+    checklistLabel: "Guarded result handoff checklist",
+    subtitle: "Review future result routing without storing outputs, reusing results, persisting model outputs, or promoting memory automatically.",
+    primaryLabel: "Review result handoff",
+    groupLabel: "Result handoff fields",
+    previewFocus: "result handoff, future output review, output storage denial, shared result review, memory promotion denial, audit handoff, and operator decision state",
+    language: GUARDED_RESULT_HANDOFF_PREVIEW_LANGUAGE,
+    fieldItems: ["result handoff", "future output review", "output storage denial", "shared result review", "memory promotion denial", "audit handoff", "operator decision state"],
+    routes: ["/guarded-evidence-handoff-preview", "/guarded-recovery-handoff-preview", "/guarded-packaging-handoff-preview"],
+    links: [
+      { href: "/guarded-evidence-handoff-preview", label: "Previous Phase" },
+      { href: "/guarded-recovery-handoff-preview", label: "Next Phase" },
+      { href: "/guarded-packaging-handoff-preview", label: "Packaging Handoff" },
+    ],
+    nextRecommendedAction: "Review recovery handoff while future results remain routed through shared result review and non-persistent.",
+  },
+  {
+    slug: "guarded-recovery-handoff-preview",
+    phase: "Phase 1075",
+    title: "Guarded Recovery Handoff Preview",
+    markerTitle: "Guarded recovery handoff preview",
+    safetyCopy: "Guarded recovery handoff preview does not trigger recovery",
+    approvalCopy: "Recovery handoff requires explicit operator approval",
+    supportCopy: "Recovery handoffs include rollback backup restore and retry plans",
+    deniedCopy: "Denied guarded recovery handoff paths remain blocked",
+    checklistLabel: "Guarded recovery handoff checklist",
+    subtitle: "Review rollback, backup, restore, and retry plans without triggering recovery, writing backups, or running retries.",
+    primaryLabel: "Review recovery handoff",
+    groupLabel: "Recovery handoff fields",
+    previewFocus: "recovery handoff, rollback plan, backup plan, restore plan, retry plan, recovery approval gate, trigger denial, and operator decision state",
+    language: GUARDED_RECOVERY_HANDOFF_PREVIEW_LANGUAGE,
+    fieldItems: ["recovery handoff", "rollback plan", "backup plan", "restore plan", "retry plan", "recovery approval gate", "trigger denial", "operator decision state"],
+    routes: ["/guarded-result-handoff-preview", "/guarded-packaging-handoff-preview", "/guarded-file-write-handoff-preview"],
+    links: [
+      { href: "/guarded-result-handoff-preview", label: "Previous Phase" },
+      { href: "/guarded-packaging-handoff-preview", label: "Next Phase" },
+      { href: "/guarded-file-write-handoff-preview", label: "File Handoff" },
+    ],
+    nextRecommendedAction: "Review packaging handoff while recovery remains a static plan, not a triggered action.",
+  },
+  {
+    slug: "guarded-packaging-handoff-preview",
+    phase: "Phase 1076",
+    title: "Guarded Packaging Handoff Preview",
+    markerTitle: "Guarded packaging handoff preview",
+    safetyCopy: "Guarded packaging handoff preview does not package outputs",
+    approvalCopy: "Packaging handoff requires explicit operator approval",
+    supportCopy: "Packaging handoffs include export artifact and runbook review",
+    deniedCopy: "Denied guarded packaging handoff paths remain blocked",
+    checklistLabel: "Guarded packaging handoff checklist",
+    subtitle: "Review export, artifact, and runbook handoff packets without packaging, writing, publishing, exporting, or scaffolding outputs.",
+    primaryLabel: "Review packaging handoff",
+    groupLabel: "Packaging handoff fields",
+    previewFocus: "packaging/export handoff, export review, artifact review, runbook review, package denial, shared result review, and explicit approval requirement",
+    language: GUARDED_PACKAGING_HANDOFF_PREVIEW_LANGUAGE,
+    fieldItems: ["packaging/export handoff", "export review", "artifact review", "runbook review", "package denial", "shared result review", "explicit approval requirement"],
+    routes: ["/guarded-recovery-handoff-preview", "/guarded-execution-preflight-checklist", "/guarded-result-handoff-preview"],
+    links: [
+      { href: "/guarded-recovery-handoff-preview", label: "Previous Phase" },
+      { href: "/guarded-execution-preflight-checklist", label: "Next Phase" },
+      { href: "/guarded-result-handoff-preview", label: "Result Handoff" },
+    ],
+    nextRecommendedAction: "Review the guarded execution preflight checklist while packaging/export remains blocked.",
+  },
+  {
+    slug: "guarded-execution-preflight-checklist",
+    phase: "Phase 1077",
+    title: "Guarded Execution Preflight Checklist",
+    markerTitle: "Guarded execution preflight checklist",
+    safetyCopy: "Guarded execution preflight checklist does not execute checks",
+    approvalCopy: "Preflight checklist review requires explicit operator approval",
+    supportCopy: "Preflight checklists gate files commands runtimes adapters evidence results and recovery",
+    deniedCopy: "Denied guarded execution preflight paths remain blocked",
+    checklistLabel: "Guarded execution preflight checklist",
+    subtitle: "Review preflight gates without running validation, tests, smokes, builds, runtime probes, provider checks, or adapter checks.",
+    primaryLabel: "Review preflight checklist",
+    groupLabel: "Preflight checklist fields",
+    previewFocus: "preflight checklist, file gate, command gate, runtime gate, adapter gate, evidence gate, result gate, recovery gate, operator lock state, and explicit approval requirement",
+    language: GUARDED_EXECUTION_PREFLIGHT_CHECKLIST_LANGUAGE,
+    fieldItems: ["preflight checklist", "file gate", "command gate", "runtime gate", "adapter gate", "evidence gate", "result gate", "recovery gate", "operator lock state", "explicit approval requirement"],
+    routes: ["/guarded-packaging-handoff-preview", "/guarded-execution-operator-lock", "/guarded-execution-queue-boundary"],
+    links: [
+      { href: "/guarded-packaging-handoff-preview", label: "Previous Phase" },
+      { href: "/guarded-execution-operator-lock", label: "Next Phase" },
+      { href: "/guarded-execution-queue-boundary", label: "Queue Boundary" },
+    ],
+    nextRecommendedAction: "Review operator lock while every preflight item remains static and non-executing.",
+  },
+  {
+    slug: "guarded-execution-operator-lock",
+    phase: "Phase 1078",
+    title: "Guarded Execution Operator Lock",
+    markerTitle: "Guarded execution operator lock",
+    safetyCopy: "Guarded execution operator lock does not release execution",
+    approvalCopy: "Operator lock release requires explicit human approval",
+    supportCopy: "Operator locks keep model backend and domain actions blocked",
+    deniedCopy: "Denied guarded execution operator lock paths remain blocked",
+    checklistLabel: "Guarded execution operator lock checklist",
+    subtitle: "Review the operator lock state without releasing model calls, backend adapters, domain adapters, files, commands, runtimes, packaging, or recovery.",
+    primaryLabel: "Review operator lock",
+    groupLabel: "Operator lock fields",
+    previewFocus: "operator lock state, human approval requirement, model block, backend block, domain block, file/command/runtime block, denied release state, and operator decision state",
+    language: GUARDED_EXECUTION_OPERATOR_LOCK_LANGUAGE,
+    fieldItems: ["operator lock state", "human approval requirement", "model block", "backend block", "domain block", "file command runtime block", "denied release state", "operator decision state"],
+    routes: ["/guarded-execution-preflight-checklist", "/guarded-execution-dry-run-ticket", "/guarded-execution-queue-item"],
+    links: [
+      { href: "/guarded-execution-preflight-checklist", label: "Previous Phase" },
+      { href: "/guarded-execution-dry-run-ticket", label: "Next Phase" },
+      { href: "/guarded-execution-queue-item", label: "Queue Item" },
+    ],
+    nextRecommendedAction: "Review the dry-run ticket while the operator lock remains unreleased and every execution family stays blocked.",
+  },
+  {
+    slug: "guarded-execution-dry-run-ticket",
+    phase: "Phase 1079",
+    title: "Guarded Execution Dry-Run Ticket",
+    markerTitle: "Guarded execution dry-run ticket",
+    safetyCopy: "Guarded execution dry-run ticket does not run dry-runs",
+    approvalCopy: "Dry-run tickets require explicit operator approval",
+    supportCopy: "Dry-run tickets preserve shared brain memory evidence result and audit gates",
+    deniedCopy: "Denied guarded execution dry-run ticket paths remain blocked",
+    checklistLabel: "Guarded execution dry-run ticket checklist",
+    subtitle: "Review future dry-run tickets without running dry-runs, creating jobs, writing outputs, persisting decisions, or releasing locks.",
+    primaryLabel: "Review dry-run ticket",
+    groupLabel: "Dry-run ticket fields",
+    previewFocus: "dry-run ticket state, shared brain gate, memory gate, evidence gate, result gate, audit gate, operator lock state, and denied dry-run state",
+    language: GUARDED_EXECUTION_DRY_RUN_TICKET_LANGUAGE,
+    fieldItems: ["dry-run ticket state", "shared brain gate", "memory gate", "evidence gate", "result gate", "audit gate", "operator lock state", "denied dry-run state"],
+    routes: ["/guarded-execution-operator-lock", "/first-guarded-execution-queue-candidate", "/guarded-evidence-handoff-preview"],
+    links: [
+      { href: "/guarded-execution-operator-lock", label: "Previous Phase" },
+      { href: "/first-guarded-execution-queue-candidate", label: "Next Phase" },
+      { href: "/guarded-evidence-handoff-preview", label: "Evidence Handoff" },
+    ],
+    nextRecommendedAction: "Review the first guarded execution queue candidate while dry-run tickets remain static and approval-gated.",
+  },
+  {
+    slug: "first-guarded-execution-queue-candidate",
+    phase: "Phase 1080",
+    title: "First Guarded Execution Queue Candidate",
+    markerTitle: "First guarded execution queue candidate",
+    safetyCopy: "First guarded execution queue candidate does not execute builds",
+    approvalCopy: "Guarded execution queue candidates require explicit operator approval",
+    supportCopy: "Candidate packets combine queue item handoffs preflight lock dry-run evidence result and recovery gates",
+    deniedCopy: "Denied guarded execution queue candidate paths remain blocked",
+    checklistLabel: "First guarded execution queue checklist",
+    subtitle: "Review the first guarded execution queue candidate as one static packet without creating jobs, running dry-runs, executing builds, or persisting approvals.",
+    primaryLabel: "Review queue candidate",
+    groupLabel: "Guarded queue candidate fields",
+    previewFocus: "queue item, file write handoff, command handoff, runtime handoff, adapter handoff, domain handoff, preflight checklist, operator lock, dry-run ticket, evidence, result, recovery, packaging, and denied execution",
+    language: FIRST_GUARDED_EXECUTION_QUEUE_CANDIDATE_LANGUAGE,
+    fieldItems: ["queue item", "file write handoff", "command handoff", "runtime handoff", "adapter handoff", "domain handoff", "preflight checklist", "operator lock state", "dry-run ticket state", "evidence handoff", "result handoff", "recovery handoff", "packaging/export handoff", "denied execution"],
+    routes: ["/guarded-execution-dry-run-ticket", "/controlled-guarded-execution-queue-release-candidate", "/guarded-execution-queue-boundary"],
+    links: [
+      { href: "/guarded-execution-dry-run-ticket", label: "Previous Phase" },
+      { href: "/controlled-guarded-execution-queue-release-candidate", label: "Next Phase" },
+      { href: "/guarded-execution-queue-boundary", label: "Queue Boundary" },
+    ],
+    nextRecommendedAction: "Review the controlled guarded execution queue release candidate while the first candidate remains static and non-executing.",
+  },
+  {
+    slug: "controlled-guarded-execution-queue-release-candidate",
+    phase: "Phase 1081",
+    title: "Controlled Guarded Execution Queue Release Candidate",
+    markerTitle: "Controlled guarded execution queue release candidate",
+    safetyCopy: "Controlled guarded execution queue release candidate does not call models or execute adapters",
+    approvalCopy: "Controlled guarded execution queue release requires explicit operator approval",
+    supportCopy: "Release candidate supports build anything execution queues with shared brain gates",
+    deniedCopy: "Denied controlled guarded execution queue paths remain blocked",
+    checklistLabel: "Controlled guarded execution queue release checklist",
+    subtitle: "Review the controlled guarded execution queue release candidate without model calls, provider calls, prompt sending, queue persistence, job creation, adapter execution, or approval persistence.",
+    primaryLabel: "Review guarded queue RC",
+    groupLabel: "Guarded queue release fields",
+    previewFocus: "build-anything execution queues, build plan approval reference, shared brain gates, model routing policy, backend/domain adapter gates, preflight checklist, operator lock, dry-run ticket, evidence, result, audit, recovery, packaging, and denied execution",
+    language: CONTROLLED_GUARDED_EXECUTION_QUEUE_RELEASE_CANDIDATE_LANGUAGE,
+    fieldItems: ["build-anything execution queues", "build plan approval reference", "shared brain gates", "model routing policy", "backend/domain adapter gates", "preflight checklist", "operator lock state", "dry-run ticket state", "evidence", "result", "audit", "recovery", "packaging/export handoff", "denied execution"],
+    routes: ["/first-guarded-execution-queue-candidate", "/guarded-execution-queue-boundary", "/guarded-execution-preflight-checklist"],
+    links: [
+      { href: "/first-guarded-execution-queue-candidate", label: "Previous Phase" },
+      { href: "/guarded-execution-queue-boundary", label: "Queue Boundary" },
+      { href: "/guarded-execution-preflight-checklist", label: "Preflight Checklist" },
+    ],
+    nextRecommendedAction: "Keep guarded execution queues static, preview-only, shared-brain gated, and blocked until a future explicit operator approval path exists.",
+  },
+] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
+
 export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, BuildPlanBundleDefinition> = {
   "build-plan-bundle-boundary": buildBuildPlanBundleDefinition({
     slug: "build-plan-bundle-boundary",
@@ -1409,6 +2029,9 @@ export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, Bu
   ...(Object.fromEntries(
     BUILD_PLAN_APPROVAL_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
   ) as Record<BuildPlanApprovalReviewSlug, BuildPlanBundleDefinition>),
+  ...(Object.fromEntries(
+    GUARDED_EXECUTION_QUEUE_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
+  ) as Record<GuardedExecutionQueueReviewSlug, BuildPlanBundleDefinition>),
 };
 
 export function buildBuildPlanBundleReview(slug: BuildPlanBundleReviewSlug, input: BuildPlanBundleReviewPacketInput): UniversalExecutionReviewPacket {
@@ -1436,6 +2059,7 @@ export function buildBuildPlanBundleReviewPackets(slug: BuildPlanBundleReviewSlu
   const sections = buildBuildPlanBundleReviewSections(
     { label: definition.groupLabel, items: [definition.groupLabel + ": " + joinSentence(definition.fieldItems) + "."] },
     { label: definition.checklistLabel, items: [definition.checklistLabel + ": " + joinSentence(BUILD_PLAN_BUNDLE_PACKET_FIELDS) + "."] },
+    { label: "Guarded queue states", items: ["Guarded queue states: " + joinSentence(GUARDED_EXECUTION_QUEUE_ITEM_STATES) + "."] },
     { label: "Supported target families", items: ["Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + "."] },
     { label: "Model router policy", items: ["Cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation."] },
     { label: "Backend adapter policy", items: ["Backend adapter proposals remain preview-only, name their approval gate, and return through shared evidence/result review after explicit operator approval."] },
