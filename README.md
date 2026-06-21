@@ -6,7 +6,7 @@ CodexForge is a local-first AI developer/operator workspace. It provides fronten
 
 ## Current State
 
-Current checkpoint: through phase 1113, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the simulated file write dry-run review layer: boundary, diff, create, update, delete, move, patch, conflict, safety, evidence, result, recovery, operator review, apply hold, First Simulated File Write Candidate, and Controlled Simulated File Write Release Candidate surfaces.
+Current checkpoint: through phase 1145, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the simulated runtime execution dry-run review layer: boundary, intent packet, plan packet, process review, port review, environment review, dependency review, risk review, evidence preview, result preview, failure preview, recovery preview, operator review, execution hold, First Simulated Runtime Candidate, and Controlled Simulated Runtime Release Candidate surfaces.
 
 CodexForge currently includes deterministic frontend review and approval surfaces for:
 
@@ -21,7 +21,7 @@ CodexForge currently includes deterministic frontend review and approval surface
 - Beta workflow release regression, safety signoff, documentation, onboarding final pass, Beta 2 release candidate, controlled trial, feedback review, and hardening pass review surfaces.
 - Jarvisd/local-daemon contract, health, capability, permission, local file approval, local command approval, local process preview, and workspace trust boundaries.
 - Project intelligence, codebase change planning, patch preview, patch apply approval, patch result capture, test planning, and test result/failure review.
-- Model router/provider preview, model connection-test preview, model scoring, controlled model-use dry-run preview, shared context and memory handoff review, decision explanation review, first controlled model router trial review, controlled model-use release-candidate, provider test packet, trial cockpit, provider trial candidate, model router execution-readiness candidate, controlled model router beta release-candidate, model-routed backend execution review, project-builder MVP review, universal game-builder review, universal project-builder review, universal builder cockpit review, guided build workflow review, build plan bundle review, build plan approval review, guarded execution queue preview, and dry-run execution handoff preview surfaces.
+- Model router/provider preview, model connection-test preview, model scoring, controlled model-use dry-run preview, shared context and memory handoff review, decision explanation review, first controlled model router trial review, controlled model-use release-candidate, provider test packet, trial cockpit, provider trial candidate, model router execution-readiness candidate, controlled model router beta release-candidate, model-routed backend execution review, project-builder MVP review, universal game-builder review, universal project-builder review, universal builder cockpit review, guided build workflow review, build plan bundle review, build plan approval review, guarded execution queue preview, dry-run execution handoff preview, simulated file write dry-run preview, simulated command execution dry-run preview, and simulated runtime execution dry-run preview surfaces.
 
 These are review-only surfaces unless an approved local/backend/provider boundary exists for the specific action. CodexForge is the brain; models are workers that share the same CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer. CodexForge does not claim live execution for provider, local model, connector, automation, file, shell, patch, test, Jarvisd, model routing, or memory mutation work from arbitrary UI.
 
@@ -80,7 +80,9 @@ git diff --stat
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 1113.
+- Current checkpoint: documentation and hygiene alignment through detected phase 1145.
 - Next milestone: keep model/provider/router, local model, connector, automation, unified workflow, and beta operator surfaces preview-only or review-only while defining any approved backend/local/provider boundaries before claiming execution.
 - Do not claim live execution unless an approved local/backend/provider boundary exists.
 - Do not claim CI passed unless actual CI or terminal logs prove it.
+
+The latest simulated runtime execution dry-run review layer covers phases 1130-1145: boundary, intent packet, plan packet, process review, port review, environment review, dependency review, risk review, evidence preview, result preview, failure preview, recovery preview, operator review, execution hold state, First Simulated Runtime Candidate, and Controlled Simulated Runtime Release Candidate. These surfaces remain static, deterministic, preview-only, denied runtime execution by default, and require explicit operator approval before any runtime start, process spawn, port binding, endpoint call, local bridge call, health probe, evidence persistence, result persistence, recovery, queue persistence, dry-run execution, model call, provider call, backend adapter execution, or domain adapter execution can exist.

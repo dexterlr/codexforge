@@ -53,4 +53,6 @@ This file records the current phase posture after the latest foundation work. It
 - Project onboarding/import.
 - Better graph data volume and clustering.
 
-CodexForge checkpoint documentation now records through phase 1129.
+CodexForge checkpoint documentation now records through phase 1145.
+
+The latest simulated runtime execution dry-run review layer covers phases 1130-1145: boundary, intent packet, plan packet, process review, port review, environment review, dependency review, risk review, evidence preview, result preview, failure preview, recovery preview, operator review, execution hold state, First Simulated Runtime Candidate, and Controlled Simulated Runtime Release Candidate. These surfaces remain static, deterministic, preview-only, denied runtime execution by default, and require explicit operator approval before any runtime start, process spawn, port binding, endpoint call, local bridge call, health probe, evidence persistence, result persistence, recovery, queue persistence, dry-run execution, model call, provider call, backend adapter execution, or domain adapter execution can exist.

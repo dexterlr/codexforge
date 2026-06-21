@@ -37,7 +37,8 @@ export type BuildPlanBundleReviewSlug =
   | GuardedExecutionQueueReviewSlug
   | DryRunExecutionHandoffReviewSlug
   | SimulatedFileWriteReviewSlug
-  | SimulatedCommandReviewSlug;
+  | SimulatedCommandReviewSlug
+  | SimulatedRuntimeReviewSlug;
 
 export type BuildPlanApprovalReviewSlug =
   | "build-plan-approval-boundary"
@@ -128,6 +129,24 @@ export type SimulatedCommandReviewSlug =
   | "simulated-command-validation-preview"
   | "first-simulated-command-candidate"
   | "controlled-simulated-command-release-candidate";
+
+export type SimulatedRuntimeReviewSlug =
+  | "simulated-runtime-execution-boundary"
+  | "simulated-runtime-intent-packet"
+  | "simulated-runtime-plan-packet"
+  | "simulated-runtime-process-review"
+  | "simulated-runtime-port-review"
+  | "simulated-runtime-environment-review"
+  | "simulated-runtime-dependency-review"
+  | "simulated-runtime-risk-review"
+  | "simulated-runtime-evidence-preview"
+  | "simulated-runtime-result-preview"
+  | "simulated-runtime-failure-preview"
+  | "simulated-runtime-recovery-preview"
+  | "simulated-runtime-operator-review"
+  | "simulated-runtime-execution-hold-state"
+  | "first-simulated-runtime-candidate"
+  | "controlled-simulated-runtime-release-candidate";
 
 type BuildPlanBundleDefinition = {
   slug: BuildPlanBundleReviewSlug;
@@ -1212,6 +1231,182 @@ export const CONTROLLED_SIMULATED_COMMAND_RELEASE_CANDIDATE_LANGUAGE = [
   "approval required",
 ] as const;
 
+export const SIMULATED_RUNTIME_EXECUTION_BOUNDARY_LANGUAGE = [
+  "Simulated runtime execution boundary",
+  "Simulated runtime execution boundary does not start runtimes",
+  "Simulated runtime execution requires explicit operator approval",
+  "Simulated runtime execution keeps every runtime blocked",
+  "Denied simulated runtime execution paths remain blocked",
+  "Simulated runtime execution checklist",
+  "static simulated-runtime-execution-boundary preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_INTENT_PACKET_LANGUAGE = [
+  "Simulated runtime intent packet",
+  "Simulated runtime intent packet does not send prompts",
+  "Runtime intent review requires explicit operator approval",
+  "Intent packets preserve shared CodexForge brain context",
+  "Denied simulated runtime intent paths remain blocked",
+  "Simulated runtime intent checklist",
+  "static simulated-runtime-intent-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_PLAN_PACKET_LANGUAGE = [
+  "Simulated runtime plan packet",
+  "Simulated runtime plan packet does not start runtimes",
+  "Runtime plan review requires explicit operator approval",
+  "Runtime plans show planned launches without execution",
+  "Denied simulated runtime plan paths remain blocked",
+  "Simulated runtime plan checklist",
+  "static simulated-runtime-plan-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_PROCESS_REVIEW_LANGUAGE = [
+  "Simulated runtime process review",
+  "Simulated runtime process review does not spawn processes",
+  "Runtime process review requires explicit operator approval",
+  "Process reviews keep runtime execution blocked",
+  "Denied simulated runtime process paths remain blocked",
+  "Simulated runtime process checklist",
+  "static simulated-runtime-process-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_PORT_REVIEW_LANGUAGE = [
+  "Simulated runtime port review",
+  "Simulated runtime port review does not open ports",
+  "Runtime port review requires explicit operator approval",
+  "Port reviews show planned bindings without binding",
+  "Denied simulated runtime port paths remain blocked",
+  "Simulated runtime port checklist",
+  "static simulated-runtime-port-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_ENVIRONMENT_REVIEW_LANGUAGE = [
+  "Simulated runtime environment review",
+  "Simulated runtime environment review does not read env values",
+  "Runtime environment review requires explicit operator approval",
+  "Environment reviews show variable names without secret values",
+  "Denied simulated runtime environment paths remain blocked",
+  "Simulated runtime environment checklist",
+  "static simulated-runtime-environment-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_DEPENDENCY_REVIEW_LANGUAGE = [
+  "Simulated runtime dependency review",
+  "Simulated runtime dependency review does not install dependencies",
+  "Runtime dependency review requires explicit operator approval",
+  "Dependency reviews show requirements without installation",
+  "Denied simulated runtime dependency paths remain blocked",
+  "Simulated runtime dependency checklist",
+  "static simulated-runtime-dependency-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_RISK_REVIEW_LANGUAGE = [
+  "Simulated runtime risk review",
+  "Simulated runtime risk review does not approve runtimes",
+  "Runtime risk review requires explicit operator approval",
+  "Risk reviews gate dev servers game servers local bridges model runtimes and background workers",
+  "Denied simulated runtime risk paths remain blocked",
+  "Simulated runtime risk checklist",
+  "static simulated-runtime-risk-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_EVIDENCE_PREVIEW_LANGUAGE = [
+  "Simulated runtime evidence preview",
+  "Simulated runtime evidence preview does not persist evidence",
+  "Runtime evidence preview requires explicit operator approval",
+  "Evidence previews route future stdout stderr exit code and health state through shared evidence review",
+  "Denied simulated runtime evidence paths remain blocked",
+  "Simulated runtime evidence checklist",
+  "static simulated-runtime-evidence-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_RESULT_PREVIEW_LANGUAGE = [
+  "Simulated runtime result preview",
+  "Simulated runtime result preview does not persist results",
+  "Runtime result preview requires explicit operator approval",
+  "Result previews route future runtime outputs through shared result review",
+  "Denied simulated runtime result paths remain blocked",
+  "Simulated runtime result checklist",
+  "static simulated-runtime-result-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_FAILURE_PREVIEW_LANGUAGE = [
+  "Simulated runtime failure preview",
+  "Simulated runtime failure preview does not trigger retries",
+  "Runtime failure preview requires explicit operator approval",
+  "Failure previews show blocked retry and triage states",
+  "Denied simulated runtime failure paths remain blocked",
+  "Simulated runtime failure checklist",
+  "static simulated-runtime-failure-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_RECOVERY_PREVIEW_LANGUAGE = [
+  "Simulated runtime recovery preview",
+  "Simulated runtime recovery preview does not trigger recovery",
+  "Runtime recovery preview requires explicit operator approval",
+  "Recovery previews include stop rollback restore retry and cleanup plans",
+  "Denied simulated runtime recovery paths remain blocked",
+  "Simulated runtime recovery checklist",
+  "static simulated-runtime-recovery-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_OPERATOR_REVIEW_LANGUAGE = [
+  "Simulated runtime operator review",
+  "Simulated runtime operator review does not approve actions",
+  "Runtime operator review requires explicit human approval",
+  "Operator reviews keep runtime execution blocked",
+  "Denied simulated runtime operator review paths remain blocked",
+  "Simulated runtime operator review checklist",
+  "static simulated-runtime-operator-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_RUNTIME_EXECUTION_HOLD_STATE_LANGUAGE = [
+  "Simulated runtime execution hold state",
+  "Simulated runtime execution hold state does not release runtimes",
+  "Runtime execution hold release requires explicit operator approval",
+  "Execution hold keeps every runtime blocked",
+  "Denied simulated runtime execution hold paths remain blocked",
+  "Simulated runtime execution hold checklist",
+  "static simulated-runtime-execution-hold-state preview",
+  "approval required",
+] as const;
+
+export const FIRST_SIMULATED_RUNTIME_CANDIDATE_LANGUAGE = [
+  "First simulated runtime candidate",
+  "First simulated runtime candidate does not start runtimes",
+  "Simulated runtime candidates require explicit operator approval",
+  "Candidate packets combine intent plan process port environment dependency risk evidence result failure and recovery gates",
+  "Denied simulated runtime candidate paths remain blocked",
+  "First simulated runtime checklist",
+  "static first-simulated-runtime-candidate preview",
+  "approval required",
+] as const;
+
+export const CONTROLLED_SIMULATED_RUNTIME_RELEASE_CANDIDATE_LANGUAGE = [
+  "Controlled simulated runtime release candidate",
+  "Controlled simulated runtime release candidate does not call models or start runtimes",
+  "Controlled simulated runtime release requires explicit operator approval",
+  "Release candidate supports runtime previews with shared brain gates",
+  "Denied controlled simulated runtime paths remain blocked",
+  "Controlled simulated runtime release checklist",
+  "static controlled-simulated-runtime-release-candidate preview",
+  "approval required",
+] as const;
+
 export const BUILD_PLAN_BUNDLE_PREVIEW_SAFETY_MARKERS = [
   "build-plan-bundle static review-only preview",
   "deterministic static review content",
@@ -1505,6 +1700,63 @@ const SIMULATED_COMMAND_SAFETY_POLICIES = [
   "show no API keys or secrets",
   "show no real endpoint token or example secrets",
   "every command remains blocked until explicit operator approval",
+] as const;
+
+const SIMULATED_RUNTIME_FAMILIES = [
+  "Next.js dev server",
+  "Node service",
+  "Python service",
+  "local model runtime",
+  "local bridge runtime",
+  "game server runtime",
+  "ComfyUI runtime",
+  "Blender runtime",
+  "Unreal runtime",
+  "database runtime",
+  "automation worker",
+  "no-op",
+  "denied",
+  "preview-only",
+] as const;
+
+const SIMULATED_RUNTIME_PREVIEW_FIELDS = [
+  "guarded queue reference",
+  "dry-run ticket reference",
+  "runtime intent",
+  "runtime family",
+  "planned command preview",
+  "planned process preview",
+  "working directory preview",
+  "port preview",
+  "environment variable names without values",
+  "dependency expectations",
+  "readiness expectation",
+  "health check expectation",
+  "expected stdout preview",
+  "expected stderr preview",
+  "expected exit code preview",
+  "validation expectation",
+  "evidence capture preview",
+  "result preview",
+  "failure preview",
+  "recovery preview",
+  "operator review state",
+  "runtime hold state",
+  "denied runtime execution state",
+  "approval gate name",
+  "explicit approval requirement",
+] as const;
+
+const SIMULATED_RUNTIME_SAFETY_POLICIES = [
+  "show no real runtime start",
+  "show no port binding",
+  "show no process spawning",
+  "show no endpoint calls",
+  "show no local bridge calls",
+  "show no health probes",
+  "show no process.env values",
+  "show no API keys or secrets displayed",
+  "every runtime remains blocked until explicit operator approval",
 ] as const;
 
 const SUPPORTED_BUILD_PLAN_TARGET_FAMILIES = [
@@ -3528,6 +3780,393 @@ const SIMULATED_COMMAND_DEFINITION_INPUTS = [
   },
 ] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
 
+const SIMULATED_RUNTIME_DEFINITION_INPUTS = [
+  {
+    slug: "simulated-runtime-execution-boundary",
+    phase: "Phase 1130",
+    title: "Simulated Runtime Execution Boundary",
+    markerTitle: "Simulated runtime execution boundary",
+    safetyCopy: "Simulated runtime execution boundary does not start runtimes",
+    approvalCopy: "Simulated runtime execution requires explicit operator approval",
+    supportCopy: "Simulated runtime execution keeps every runtime blocked",
+    deniedCopy: "Denied simulated runtime execution paths remain blocked",
+    checklistLabel: "Simulated runtime execution checklist",
+    subtitle: "Review Simulated runtime execution boundary as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Execution Boundary fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_EXECUTION_BOUNDARY_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1130 fields", "preview-only runtime denial"],
+    routes: ["/controlled-simulated-command-release-candidate", "/simulated-runtime-intent-packet", "/build-plan-approval-runtime-preview"],
+    links: [
+      { href: "/controlled-simulated-command-release-candidate", label: "Previous Family" },
+      { href: "/simulated-runtime-intent-packet", label: "Next Phase" },
+      { href: "/build-plan-approval-runtime-preview", label: "Runtime Approval Preview" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-intent-packet",
+    phase: "Phase 1131",
+    title: "Simulated Runtime Intent Packet",
+    markerTitle: "Simulated runtime intent packet",
+    safetyCopy: "Simulated runtime intent packet does not send prompts",
+    approvalCopy: "Runtime intent review requires explicit operator approval",
+    supportCopy: "Intent packets preserve shared CodexForge brain context",
+    deniedCopy: "Denied simulated runtime intent paths remain blocked",
+    checklistLabel: "Simulated runtime intent checklist",
+    subtitle: "Review Simulated runtime intent packet as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Intent Packet fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_INTENT_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1131 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-execution-boundary", "/simulated-runtime-plan-packet", "/build-plan-approval-runtime-preview"],
+    links: [
+      { href: "/simulated-runtime-execution-boundary", label: "Previous Phase" },
+      { href: "/simulated-runtime-plan-packet", label: "Next Phase" },
+      { href: "/build-plan-approval-runtime-preview", label: "Runtime Approval Preview" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-plan-packet",
+    phase: "Phase 1132",
+    title: "Simulated Runtime Plan Packet",
+    markerTitle: "Simulated runtime plan packet",
+    safetyCopy: "Simulated runtime plan packet does not start runtimes",
+    approvalCopy: "Runtime plan review requires explicit operator approval",
+    supportCopy: "Runtime plans show planned launches without execution",
+    deniedCopy: "Denied simulated runtime plan paths remain blocked",
+    checklistLabel: "Simulated runtime plan checklist",
+    subtitle: "Review Simulated runtime plan packet as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Plan Packet fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_PLAN_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1132 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-intent-packet", "/simulated-runtime-process-review", "/build-plan-approval-runtime-preview"],
+    links: [
+      { href: "/simulated-runtime-intent-packet", label: "Previous Phase" },
+      { href: "/simulated-runtime-process-review", label: "Next Phase" },
+      { href: "/build-plan-approval-runtime-preview", label: "Runtime Approval Preview" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-process-review",
+    phase: "Phase 1133",
+    title: "Simulated Runtime Process Review",
+    markerTitle: "Simulated runtime process review",
+    safetyCopy: "Simulated runtime process review does not spawn processes",
+    approvalCopy: "Runtime process review requires explicit operator approval",
+    supportCopy: "Process reviews keep runtime execution blocked",
+    deniedCopy: "Denied simulated runtime process paths remain blocked",
+    checklistLabel: "Simulated runtime process checklist",
+    subtitle: "Review Simulated runtime process review as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Process Review fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_PROCESS_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1133 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-plan-packet", "/simulated-runtime-port-review", "/build-plan-approval-runtime-preview"],
+    links: [
+      { href: "/simulated-runtime-plan-packet", label: "Previous Phase" },
+      { href: "/simulated-runtime-port-review", label: "Next Phase" },
+      { href: "/build-plan-approval-runtime-preview", label: "Runtime Approval Preview" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-port-review",
+    phase: "Phase 1134",
+    title: "Simulated Runtime Port Review",
+    markerTitle: "Simulated runtime port review",
+    safetyCopy: "Simulated runtime port review does not open ports",
+    approvalCopy: "Runtime port review requires explicit operator approval",
+    supportCopy: "Port reviews show planned bindings without binding",
+    deniedCopy: "Denied simulated runtime port paths remain blocked",
+    checklistLabel: "Simulated runtime port checklist",
+    subtitle: "Review Simulated runtime port review as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Port Review fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_PORT_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1134 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-process-review", "/simulated-runtime-environment-review", "/build-plan-approval-runtime-preview"],
+    links: [
+      { href: "/simulated-runtime-process-review", label: "Previous Phase" },
+      { href: "/simulated-runtime-environment-review", label: "Next Phase" },
+      { href: "/build-plan-approval-runtime-preview", label: "Runtime Approval Preview" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-environment-review",
+    phase: "Phase 1135",
+    title: "Simulated Runtime Environment Review",
+    markerTitle: "Simulated runtime environment review",
+    safetyCopy: "Simulated runtime environment review does not read env values",
+    approvalCopy: "Runtime environment review requires explicit operator approval",
+    supportCopy: "Environment reviews show variable names without secret values",
+    deniedCopy: "Denied simulated runtime environment paths remain blocked",
+    checklistLabel: "Simulated runtime environment checklist",
+    subtitle: "Review Simulated runtime environment review as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Environment Review fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_ENVIRONMENT_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1135 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-port-review", "/simulated-runtime-dependency-review", "/build-plan-approval-runtime-preview"],
+    links: [
+      { href: "/simulated-runtime-port-review", label: "Previous Phase" },
+      { href: "/simulated-runtime-dependency-review", label: "Next Phase" },
+      { href: "/build-plan-approval-runtime-preview", label: "Runtime Approval Preview" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-dependency-review",
+    phase: "Phase 1136",
+    title: "Simulated Runtime Dependency Review",
+    markerTitle: "Simulated runtime dependency review",
+    safetyCopy: "Simulated runtime dependency review does not install dependencies",
+    approvalCopy: "Runtime dependency review requires explicit operator approval",
+    supportCopy: "Dependency reviews show requirements without installation",
+    deniedCopy: "Denied simulated runtime dependency paths remain blocked",
+    checklistLabel: "Simulated runtime dependency checklist",
+    subtitle: "Review Simulated runtime dependency review as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Dependency Review fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_DEPENDENCY_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1136 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-environment-review", "/simulated-runtime-risk-review", "/build-plan-approval-runtime-preview"],
+    links: [
+      { href: "/simulated-runtime-environment-review", label: "Previous Phase" },
+      { href: "/simulated-runtime-risk-review", label: "Next Phase" },
+      { href: "/build-plan-approval-runtime-preview", label: "Runtime Approval Preview" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-risk-review",
+    phase: "Phase 1137",
+    title: "Simulated Runtime Risk Review",
+    markerTitle: "Simulated runtime risk review",
+    safetyCopy: "Simulated runtime risk review does not approve runtimes",
+    approvalCopy: "Runtime risk review requires explicit operator approval",
+    supportCopy: "Risk reviews gate dev servers game servers local bridges model runtimes and background workers",
+    deniedCopy: "Denied simulated runtime risk paths remain blocked",
+    checklistLabel: "Simulated runtime risk checklist",
+    subtitle: "Review Simulated runtime risk review as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Risk Review fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_RISK_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1137 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-dependency-review", "/simulated-runtime-evidence-preview", "/build-plan-approval-runtime-preview"],
+    links: [
+      { href: "/simulated-runtime-dependency-review", label: "Previous Phase" },
+      { href: "/simulated-runtime-evidence-preview", label: "Next Phase" },
+      { href: "/build-plan-approval-runtime-preview", label: "Runtime Approval Preview" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-evidence-preview",
+    phase: "Phase 1138",
+    title: "Simulated Runtime Evidence Preview",
+    markerTitle: "Simulated runtime evidence preview",
+    safetyCopy: "Simulated runtime evidence preview does not persist evidence",
+    approvalCopy: "Runtime evidence preview requires explicit operator approval",
+    supportCopy: "Evidence previews route future stdout stderr exit code and health state through shared evidence review",
+    deniedCopy: "Denied simulated runtime evidence paths remain blocked",
+    checklistLabel: "Simulated runtime evidence checklist",
+    subtitle: "Review Simulated runtime evidence preview as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Evidence Preview fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_EVIDENCE_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1138 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-risk-review", "/simulated-runtime-result-preview", "/dry-run-runtime-ticket"],
+    links: [
+      { href: "/simulated-runtime-risk-review", label: "Previous Phase" },
+      { href: "/simulated-runtime-result-preview", label: "Next Phase" },
+      { href: "/dry-run-runtime-ticket", label: "Dry-Run Runtime Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-result-preview",
+    phase: "Phase 1139",
+    title: "Simulated Runtime Result Preview",
+    markerTitle: "Simulated runtime result preview",
+    safetyCopy: "Simulated runtime result preview does not persist results",
+    approvalCopy: "Runtime result preview requires explicit operator approval",
+    supportCopy: "Result previews route future runtime outputs through shared result review",
+    deniedCopy: "Denied simulated runtime result paths remain blocked",
+    checklistLabel: "Simulated runtime result checklist",
+    subtitle: "Review Simulated runtime result preview as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Result Preview fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_RESULT_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1139 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-evidence-preview", "/simulated-runtime-failure-preview", "/dry-run-runtime-ticket"],
+    links: [
+      { href: "/simulated-runtime-evidence-preview", label: "Previous Phase" },
+      { href: "/simulated-runtime-failure-preview", label: "Next Phase" },
+      { href: "/dry-run-runtime-ticket", label: "Dry-Run Runtime Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-failure-preview",
+    phase: "Phase 1140",
+    title: "Simulated Runtime Failure Preview",
+    markerTitle: "Simulated runtime failure preview",
+    safetyCopy: "Simulated runtime failure preview does not trigger retries",
+    approvalCopy: "Runtime failure preview requires explicit operator approval",
+    supportCopy: "Failure previews show blocked retry and triage states",
+    deniedCopy: "Denied simulated runtime failure paths remain blocked",
+    checklistLabel: "Simulated runtime failure checklist",
+    subtitle: "Review Simulated runtime failure preview as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Failure Preview fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_FAILURE_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1140 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-result-preview", "/simulated-runtime-recovery-preview", "/dry-run-runtime-ticket"],
+    links: [
+      { href: "/simulated-runtime-result-preview", label: "Previous Phase" },
+      { href: "/simulated-runtime-recovery-preview", label: "Next Phase" },
+      { href: "/dry-run-runtime-ticket", label: "Dry-Run Runtime Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-recovery-preview",
+    phase: "Phase 1141",
+    title: "Simulated Runtime Recovery Preview",
+    markerTitle: "Simulated runtime recovery preview",
+    safetyCopy: "Simulated runtime recovery preview does not trigger recovery",
+    approvalCopy: "Runtime recovery preview requires explicit operator approval",
+    supportCopy: "Recovery previews include stop rollback restore retry and cleanup plans",
+    deniedCopy: "Denied simulated runtime recovery paths remain blocked",
+    checklistLabel: "Simulated runtime recovery checklist",
+    subtitle: "Review Simulated runtime recovery preview as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Recovery Preview fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_RECOVERY_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1141 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-failure-preview", "/simulated-runtime-operator-review", "/dry-run-runtime-ticket"],
+    links: [
+      { href: "/simulated-runtime-failure-preview", label: "Previous Phase" },
+      { href: "/simulated-runtime-operator-review", label: "Next Phase" },
+      { href: "/dry-run-runtime-ticket", label: "Dry-Run Runtime Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-operator-review",
+    phase: "Phase 1142",
+    title: "Simulated Runtime Operator Review",
+    markerTitle: "Simulated runtime operator review",
+    safetyCopy: "Simulated runtime operator review does not approve actions",
+    approvalCopy: "Runtime operator review requires explicit human approval",
+    supportCopy: "Operator reviews keep runtime execution blocked",
+    deniedCopy: "Denied simulated runtime operator review paths remain blocked",
+    checklistLabel: "Simulated runtime operator review checklist",
+    subtitle: "Review Simulated runtime operator review as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Operator Review fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_OPERATOR_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1142 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-recovery-preview", "/simulated-runtime-execution-hold-state", "/dry-run-runtime-ticket"],
+    links: [
+      { href: "/simulated-runtime-recovery-preview", label: "Previous Phase" },
+      { href: "/simulated-runtime-execution-hold-state", label: "Next Phase" },
+      { href: "/dry-run-runtime-ticket", label: "Dry-Run Runtime Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "simulated-runtime-execution-hold-state",
+    phase: "Phase 1143",
+    title: "Simulated Runtime Execution Hold State",
+    markerTitle: "Simulated runtime execution hold state",
+    safetyCopy: "Simulated runtime execution hold state does not release runtimes",
+    approvalCopy: "Runtime execution hold release requires explicit operator approval",
+    supportCopy: "Execution hold keeps every runtime blocked",
+    deniedCopy: "Denied simulated runtime execution hold paths remain blocked",
+    checklistLabel: "Simulated runtime execution hold checklist",
+    subtitle: "Review Simulated runtime execution hold state as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Simulated Runtime Execution Hold State fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: SIMULATED_RUNTIME_EXECUTION_HOLD_STATE_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1143 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-operator-review", "/first-simulated-runtime-candidate", "/dry-run-runtime-ticket"],
+    links: [
+      { href: "/simulated-runtime-operator-review", label: "Previous Phase" },
+      { href: "/first-simulated-runtime-candidate", label: "Next Phase" },
+      { href: "/dry-run-runtime-ticket", label: "Dry-Run Runtime Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "first-simulated-runtime-candidate",
+    phase: "Phase 1144",
+    title: "First Simulated Runtime Candidate",
+    markerTitle: "First simulated runtime candidate",
+    safetyCopy: "First simulated runtime candidate does not start runtimes",
+    approvalCopy: "Simulated runtime candidates require explicit operator approval",
+    supportCopy: "Candidate packets combine intent plan process port environment dependency risk evidence result failure and recovery gates",
+    deniedCopy: "Denied simulated runtime candidate paths remain blocked",
+    checklistLabel: "First simulated runtime checklist",
+    subtitle: "Review First simulated runtime candidate as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "First Simulated Runtime Candidate fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: FIRST_SIMULATED_RUNTIME_CANDIDATE_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1144 fields", "preview-only runtime denial"],
+    routes: ["/simulated-runtime-execution-hold-state", "/controlled-simulated-runtime-release-candidate", "/dry-run-runtime-ticket"],
+    links: [
+      { href: "/simulated-runtime-execution-hold-state", label: "Previous Phase" },
+      { href: "/controlled-simulated-runtime-release-candidate", label: "Next Phase" },
+      { href: "/dry-run-runtime-ticket", label: "Dry-Run Runtime Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+  {
+    slug: "controlled-simulated-runtime-release-candidate",
+    phase: "Phase 1145",
+    title: "Controlled Simulated Runtime Release Candidate",
+    markerTitle: "Controlled simulated runtime release candidate",
+    safetyCopy: "Controlled simulated runtime release candidate does not call models or start runtimes",
+    approvalCopy: "Controlled simulated runtime release requires explicit operator approval",
+    supportCopy: "Release candidate supports runtime previews with shared brain gates",
+    deniedCopy: "Denied controlled simulated runtime paths remain blocked",
+    checklistLabel: "Controlled simulated runtime release checklist",
+    subtitle: "Review Controlled simulated runtime release candidate as a static runtime preview without model calls, provider calls, runtime starts, process spawning, port binding, endpoint calls, local bridge calls, health probes, env value reads, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review runtime preview",
+    groupLabel: "Controlled Simulated Runtime Release Candidate fields",
+    previewFocus: "runtime intent, runtime family, guarded queue reference, dry-run ticket reference, planned command preview, planned process preview, working directory preview, port preview, environment variable names without values, dependency expectations, readiness expectation, health check expectation, expected stdout preview, expected stderr preview, expected exit code preview, validation expectation, evidence capture preview, result preview, failure preview, recovery preview, operator review state, runtime hold state, denied runtime execution state, and explicit approval requirement",
+    language: CONTROLLED_SIMULATED_RUNTIME_RELEASE_CANDIDATE_LANGUAGE,
+    fieldItems: [...SIMULATED_RUNTIME_PREVIEW_FIELDS, "simulated runtime 1145 fields", "preview-only runtime denial"],
+    routes: ["/first-simulated-runtime-candidate", "/simulated-runtime-execution-boundary", "/dry-run-runtime-ticket"],
+    links: [
+      { href: "/first-simulated-runtime-candidate", label: "Previous Phase" },
+      { href: "/simulated-runtime-execution-boundary", label: "Next Phase" },
+      { href: "/dry-run-runtime-ticket", label: "Dry-Run Runtime Ticket" },
+    ],
+    nextRecommendedAction: "Review the next simulated runtime preview while every runtime remains static, preview-only, shared-brain gated, and blocked until explicit operator approval.",
+  },
+] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
+
 export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, BuildPlanBundleDefinition> = {
   "build-plan-bundle-boundary": buildBuildPlanBundleDefinition({
     slug: "build-plan-bundle-boundary",
@@ -3928,6 +4567,9 @@ export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, Bu
   ...(Object.fromEntries(
     SIMULATED_COMMAND_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
   ) as Record<SimulatedCommandReviewSlug, BuildPlanBundleDefinition>),
+  ...(Object.fromEntries(
+    SIMULATED_RUNTIME_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
+  ) as Record<SimulatedRuntimeReviewSlug, BuildPlanBundleDefinition>),
 };
 
 export function buildBuildPlanBundleReview(slug: BuildPlanBundleReviewSlug, input: BuildPlanBundleReviewPacketInput): UniversalExecutionReviewPacket {
@@ -3964,12 +4606,16 @@ export function buildBuildPlanBundleReviewPackets(slug: BuildPlanBundleReviewSlu
     { label: "Simulated command operation types", items: ["Simulated command operation types: " + joinSentence(SIMULATED_COMMAND_OPERATION_TYPES) + "."] },
     { label: "Simulated command preview fields", items: ["Simulated command previews include " + joinSentence(SIMULATED_COMMAND_PREVIEW_FIELDS) + "."] },
     { label: "Simulated command safety policy", items: ["Simulated command safety policy: " + joinSentence(SIMULATED_COMMAND_SAFETY_POLICIES) + "."] },
+    { label: "Simulated runtime families", items: ["Simulated runtime families: " + joinSentence(SIMULATED_RUNTIME_FAMILIES) + "."] },
+    { label: "Simulated runtime preview fields", items: ["Simulated runtime previews include " + joinSentence(SIMULATED_RUNTIME_PREVIEW_FIELDS) + "."] },
+    { label: "Simulated runtime safety policy", items: ["Simulated runtime safety policy: " + joinSentence(SIMULATED_RUNTIME_SAFETY_POLICIES) + "."] },
     { label: "Supported target families", items: ["Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + "."] },
     { label: "Model router policy", items: ["Cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation."] },
     { label: "Backend adapter policy", items: ["Backend adapter proposals remain preview-only, do not execute adapters, name their approval gate, and return through shared evidence/result review after explicit operator approval."] },
     { label: "Domain adapter policy", items: ["Game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project adapter proposals remain preview-only, do not execute domain adapters, and require explicit operator approval."] },
     { label: "File adapter policy", items: ["All file write previews remain preview-only, no live execution, no actual file mutation, no queue persistence, every file operation names its approval gate, and every result returns through shared evidence/result review."] },
     { label: "Command adapter policy", items: ["All command previews remain preview-only, no live execution, no actual command execution, no queue persistence, every command operation names its approval gate, and every result returns through shared evidence/result review."] },
+    { label: "Runtime adapter policy", items: ["All runtime previews remain preview-only, no live execution, no actual runtime execution, no queue persistence, every runtime operation names its approval gate, and every result returns through shared evidence/result review."] },
     { label: "Dry-run handoff policy", items: ["Dry-run tickets remain static preview-only handoffs. They do not execute dry-runs, persist queues, create queue jobs, release execution locks, write files, run commands, start runtimes, execute backend adapters, execute domain adapters, persist evidence, persist results, trigger recovery, or package outputs."] },
     { label: "Denied live execution state", items: [definition.deniedCopy, definition.safetyCopy] },
     { label: "Operator approval state", items: [definition.approvalCopy, "All real execution requires explicit operator approval."] }

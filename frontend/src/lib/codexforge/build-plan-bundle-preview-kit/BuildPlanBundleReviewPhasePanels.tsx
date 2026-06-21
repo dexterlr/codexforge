@@ -386,3 +386,67 @@ export function FirstSimulatedCommandCandidatePanel() {
 export function ControlledSimulatedCommandReleaseCandidatePanel() {
   return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-simulated-command-release-candidate")} />;
 }
+
+export function SimulatedRuntimeExecutionBoundaryPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-execution-boundary")} />;
+}
+
+export function SimulatedRuntimeIntentPacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-intent-packet")} />;
+}
+
+export function SimulatedRuntimePlanPacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-plan-packet")} />;
+}
+
+export function SimulatedRuntimeProcessReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-process-review")} />;
+}
+
+export function SimulatedRuntimePortReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-port-review")} />;
+}
+
+export function SimulatedRuntimeEnvironmentReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-environment-review")} />;
+}
+
+export function SimulatedRuntimeDependencyReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-dependency-review")} />;
+}
+
+export function SimulatedRuntimeRiskReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-risk-review")} />;
+}
+
+export function SimulatedRuntimeEvidencePreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-evidence-preview")} />;
+}
+
+export function SimulatedRuntimeResultPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-result-preview")} />;
+}
+
+export function SimulatedRuntimeFailurePreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-failure-preview")} />;
+}
+
+export function SimulatedRuntimeRecoveryPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-recovery-preview")} />;
+}
+
+export function SimulatedRuntimeOperatorReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-operator-review")} />;
+}
+
+export function SimulatedRuntimeExecutionHoldStatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-runtime-execution-hold-state")} />;
+}
+
+export function FirstSimulatedRuntimeCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("first-simulated-runtime-candidate")} />;
+}
+
+export function ControlledSimulatedRuntimeReleaseCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-simulated-runtime-release-candidate")} />;
+}
