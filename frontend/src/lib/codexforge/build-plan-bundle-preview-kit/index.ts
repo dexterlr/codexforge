@@ -35,7 +35,8 @@ export type BuildPlanBundleReviewSlug =
   | "controlled-build-plan-bundle-release-candidate"
   | BuildPlanApprovalReviewSlug
   | GuardedExecutionQueueReviewSlug
-  | DryRunExecutionHandoffReviewSlug;
+  | DryRunExecutionHandoffReviewSlug
+  | SimulatedFileWriteReviewSlug;
 
 export type BuildPlanApprovalReviewSlug =
   | "build-plan-approval-boundary"
@@ -90,6 +91,24 @@ export type DryRunExecutionHandoffReviewSlug =
   | "dry-run-execution-hold-release-preview"
   | "first-dry-run-execution-arm-candidate"
   | "controlled-dry-run-execution-handoff-release-candidate";
+
+export type SimulatedFileWriteReviewSlug =
+  | "simulated-file-write-dry-run-boundary"
+  | "simulated-file-diff-packet"
+  | "simulated-file-create-packet"
+  | "simulated-file-update-packet"
+  | "simulated-file-delete-packet"
+  | "simulated-file-move-packet"
+  | "simulated-file-patch-packet"
+  | "simulated-file-conflict-review"
+  | "simulated-file-safety-review"
+  | "simulated-file-evidence-preview"
+  | "simulated-file-result-preview"
+  | "simulated-file-recovery-preview"
+  | "simulated-file-operator-review"
+  | "simulated-file-apply-hold-state"
+  | "first-simulated-file-write-candidate"
+  | "controlled-simulated-file-write-release-candidate";
 
 type BuildPlanBundleDefinition = {
   slug: BuildPlanBundleReviewSlug;
@@ -822,6 +841,182 @@ export const CONTROLLED_DRY_RUN_EXECUTION_HANDOFF_RELEASE_CANDIDATE_LANGUAGE = [
   "approval required",
 ] as const;
 
+export const SIMULATED_FILE_WRITE_DRY_RUN_BOUNDARY_LANGUAGE = [
+  "Simulated file write dry-run boundary",
+  "Simulated file write dry-run boundary does not write files",
+  "Simulated file write dry-run requires explicit operator approval",
+  "Simulated file write keeps every mutation blocked",
+  "Denied simulated file write paths remain blocked",
+  "Simulated file write checklist",
+  "static simulated-file-write-dry-run-boundary preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_DIFF_PACKET_LANGUAGE = [
+  "Simulated file diff packet",
+  "Simulated file diff packet does not apply diffs",
+  "File diff review requires explicit operator approval",
+  "Diff packets show planned mutations without applying them",
+  "Denied simulated file diff paths remain blocked",
+  "Simulated file diff checklist",
+  "static simulated-file-diff-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_CREATE_PACKET_LANGUAGE = [
+  "Simulated file create packet",
+  "Simulated file create packet does not create files",
+  "File create review requires explicit operator approval",
+  "Create packets show planned file creation without mutation",
+  "Denied simulated file create paths remain blocked",
+  "Simulated file create checklist",
+  "static simulated-file-create-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_UPDATE_PACKET_LANGUAGE = [
+  "Simulated file update packet",
+  "Simulated file update packet does not update files",
+  "File update review requires explicit operator approval",
+  "Update packets show planned file changes without mutation",
+  "Denied simulated file update paths remain blocked",
+  "Simulated file update checklist",
+  "static simulated-file-update-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_DELETE_PACKET_LANGUAGE = [
+  "Simulated file delete packet",
+  "Simulated file delete packet does not delete files",
+  "File delete review requires explicit operator approval",
+  "Delete packets show planned file removal without mutation",
+  "Denied simulated file delete paths remain blocked",
+  "Simulated file delete checklist",
+  "static simulated-file-delete-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_MOVE_PACKET_LANGUAGE = [
+  "Simulated file move packet",
+  "Simulated file move packet does not move files",
+  "File move review requires explicit operator approval",
+  "Move packets show planned file moves without mutation",
+  "Denied simulated file move paths remain blocked",
+  "Simulated file move checklist",
+  "static simulated-file-move-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_PATCH_PACKET_LANGUAGE = [
+  "Simulated file patch packet",
+  "Simulated file patch packet does not apply patches",
+  "File patch review requires explicit operator approval",
+  "Patch packets show planned patch application without mutation",
+  "Denied simulated file patch paths remain blocked",
+  "Simulated file patch checklist",
+  "static simulated-file-patch-packet preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_CONFLICT_REVIEW_LANGUAGE = [
+  "Simulated file conflict review",
+  "Simulated file conflict review does not resolve conflicts",
+  "File conflict review requires explicit operator approval",
+  "Conflict reviews keep every mutation blocked",
+  "Denied simulated file conflict paths remain blocked",
+  "Simulated file conflict checklist",
+  "static simulated-file-conflict-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_SAFETY_REVIEW_LANGUAGE = [
+  "Simulated file safety review",
+  "Simulated file safety review does not approve mutations",
+  "File safety review requires explicit operator approval",
+  "Safety reviews gate paths secrets diffs and mutations",
+  "Denied simulated file safety paths remain blocked",
+  "Simulated file safety checklist",
+  "static simulated-file-safety-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_EVIDENCE_PREVIEW_LANGUAGE = [
+  "Simulated file evidence preview",
+  "Simulated file evidence preview does not persist evidence",
+  "File evidence preview requires explicit operator approval",
+  "Evidence previews route future outputs through shared evidence review",
+  "Denied simulated file evidence paths remain blocked",
+  "Simulated file evidence checklist",
+  "static simulated-file-evidence-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_RESULT_PREVIEW_LANGUAGE = [
+  "Simulated file result preview",
+  "Simulated file result preview does not persist results",
+  "File result preview requires explicit operator approval",
+  "Result previews route future outputs through shared result review",
+  "Denied simulated file result paths remain blocked",
+  "Simulated file result checklist",
+  "static simulated-file-result-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_RECOVERY_PREVIEW_LANGUAGE = [
+  "Simulated file recovery preview",
+  "Simulated file recovery preview does not trigger recovery",
+  "File recovery preview requires explicit operator approval",
+  "Recovery previews include rollback backup restore and retry plans",
+  "Denied simulated file recovery paths remain blocked",
+  "Simulated file recovery checklist",
+  "static simulated-file-recovery-preview preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_OPERATOR_REVIEW_LANGUAGE = [
+  "Simulated file operator review",
+  "Simulated file operator review does not approve actions",
+  "File operator review requires explicit human approval",
+  "Operator reviews keep file mutations blocked",
+  "Denied simulated file operator review paths remain blocked",
+  "Simulated file operator review checklist",
+  "static simulated-file-operator-review preview",
+  "approval required",
+] as const;
+
+export const SIMULATED_FILE_APPLY_HOLD_STATE_LANGUAGE = [
+  "Simulated file apply hold state",
+  "Simulated file apply hold state does not release file writes",
+  "File apply hold release requires explicit operator approval",
+  "Apply hold keeps every file mutation blocked",
+  "Denied simulated file apply hold paths remain blocked",
+  "Simulated file apply hold checklist",
+  "static simulated-file-apply-hold-state preview",
+  "approval required",
+] as const;
+
+export const FIRST_SIMULATED_FILE_WRITE_CANDIDATE_LANGUAGE = [
+  "First simulated file write candidate",
+  "First simulated file write candidate does not write files",
+  "Simulated file write candidates require explicit operator approval",
+  "Candidate packets combine diff create update delete move patch conflict safety evidence result and recovery gates",
+  "Denied simulated file write candidate paths remain blocked",
+  "First simulated file write checklist",
+  "static first-simulated-file-write-candidate preview",
+  "approval required",
+] as const;
+
+export const CONTROLLED_SIMULATED_FILE_WRITE_RELEASE_CANDIDATE_LANGUAGE = [
+  "Controlled simulated file write release candidate",
+  "Controlled simulated file write release candidate does not call models or execute adapters",
+  "Controlled simulated file write release requires explicit operator approval",
+  "Release candidate supports file mutation previews with shared brain gates",
+  "Denied controlled simulated file write paths remain blocked",
+  "Controlled simulated file write release checklist",
+  "static controlled-simulated-file-write-release-candidate preview",
+  "approval required",
+] as const;
+
 export const BUILD_PLAN_BUNDLE_PREVIEW_SAFETY_MARKERS = [
   "build-plan-bundle static review-only preview",
   "deterministic static review content",
@@ -853,7 +1048,12 @@ export const BUILD_PLAN_BUNDLE_PREVIEW_SAFETY_MARKERS = [
   "no network calls",
   "no browsing",
   "no deployment",
+  "no real mutation",
+  "no real path mutation",
   "no file write/delete/mutation",
+  "no arbitrary path crawling",
+  "no arbitrary local file browsing",
+  "no auto-open local files",
   "no command execution",
   "no shell/git/test/build/smoke execution from UI",
   "no local runtime start/stop",
@@ -1024,6 +1224,47 @@ const DRY_RUN_EXECUTION_TICKET_STATES = [
   "preview-only",
 ] as const;
 
+const SIMULATED_FILE_OPERATION_TYPES = [
+  "create",
+  "update",
+  "delete",
+  "move",
+  "patch",
+  "no-op",
+  "conflict",
+  "denied",
+  "preview-only",
+] as const;
+
+const SIMULATED_FILE_WRITE_PREVIEW_FIELDS = [
+  "guarded queue reference",
+  "dry-run ticket reference",
+  "file operation type",
+  "target path preview",
+  "before state preview",
+  "after state preview",
+  "diff preview",
+  "conflict status",
+  "safety gate",
+  "approval gate name",
+  "evidence capture preview",
+  "result preview",
+  "recovery preview",
+  "operator review state",
+  "apply hold state",
+  "denied mutation state",
+  "explicit approval requirement",
+] as const;
+
+const SIMULATED_FILE_WRITE_SAFETY_POLICIES = [
+  "show no real mutation",
+  "show no arbitrary path crawling",
+  "show no arbitrary local file browsing",
+  "show no auto-open local files",
+  "show no real path mutation",
+  "every mutation remains blocked until explicit operator approval",
+] as const;
+
 const SUPPORTED_BUILD_PLAN_TARGET_FAMILIES = [
   "game target",
   "app target",
@@ -1068,10 +1309,14 @@ function buildBuildPlanBundleDefinition(input: {
   const queueStates = "Future guarded execution queue item states: " + joinSentence(GUARDED_EXECUTION_QUEUE_ITEM_STATES) + ".";
   const dryRunTicketStates = "Future dry-run execution ticket states: " + joinSentence(DRY_RUN_EXECUTION_TICKET_STATES) + ".";
   const dryRunTicketFields = "Future dry-run execution tickets include guarded queue reference, build plan approval reference, execution family, dry-run intent, simulated action preview, expected inputs, expected outputs, validation expectations, evidence capture plan, result review plan, recovery plan, packaging/export plan, operator review state, execution hold state, denied live execution state, and explicit approval requirement.";
+  const simulatedFileOperationTypes = "Simulated file operation types: " + joinSentence(SIMULATED_FILE_OPERATION_TYPES) + ".";
+  const simulatedFileWriteFields = "Simulated file write previews include " + joinSentence(SIMULATED_FILE_WRITE_PREVIEW_FIELDS) + ".";
+  const simulatedFileSafetyPolicies = "Simulated file safety policies: " + joinSentence(SIMULATED_FILE_WRITE_SAFETY_POLICIES) + ".";
   const supportedTargets = "Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + ".";
   const sharedBrainCopy = "Models are workers. CodexForge is the brain. All paid/free/local/remote/OpenAI-compatible/specialist model workers share one CodexForge brain, memory, knowledge, evidence, result, audit, and approval layer.";
   const modelRouterCopy = "Model-router policy: cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation.";
   const adapterCopy = "Backend/domain adapter policy: all plan manifests and dry-run tickets remain preview-only; no live execution; no actual dry-run execution; no queue persistence; all real execution requires explicit operator approval; every adapter proposal must name its approval gate; every result must return through shared evidence/result review.";
+  const fileAdapterCopy = "Simulated file adapter policy: all file write previews remain preview-only; no live execution; no actual file mutation; no queue persistence; every file operation names its approval gate and returns through shared evidence/result review.";
   const deniedCopy = input.deniedCopy + ". Denied build plan bundle and dry-run execution handoff paths block model calls, provider calls, provider connection tests, local runtime probes, API key reads, secret reads, credential storage, credit spend, prompt sending, remote prompt sending, browsing, deployment, file writes, command execution, runtime starts, game server starts, mod installs, automations, backend adapter execution, domain adapter execution, project adapter execution, game adapter execution, validation execution, evidence persistence, result persistence, recovery, packaging, exports, project scaffolding, model output persistence, automatic memory promotion, hidden approvals, audit writes, live request routing, queue persistence, real queue jobs, execution lock release, and dry-run execution.";
   const checklistCopy = input.checklistLabel + ": " + joinSentence(BUILD_PLAN_BUNDLE_PACKET_FIELDS) + ".";
   return {
@@ -1094,9 +1339,9 @@ function buildBuildPlanBundleDefinition(input: {
     links: input.links,
     nextRecommendedAction: input.nextRecommendedAction,
     plainEnglishTitle: "Plain-English " + input.title.toLowerCase(),
-    plainEnglishCopy: input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + deniedCopy + " " + packetFields + " " + queueStates + " " + dryRunTicketStates + " " + dryRunTicketFields + " " + supportedTargets + " " + sharedBrainCopy + " " + modelRouterCopy + " " + adapterCopy + " Preview focus: " + input.previewFocus + ".",
+    plainEnglishCopy: input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + deniedCopy + " " + packetFields + " " + queueStates + " " + dryRunTicketStates + " " + dryRunTicketFields + " " + simulatedFileOperationTypes + " " + simulatedFileWriteFields + " " + simulatedFileSafetyPolicies + " " + supportedTargets + " " + sharedBrainCopy + " " + modelRouterCopy + " " + adapterCopy + " " + fileAdapterCopy + " Preview focus: " + input.previewFocus + ".",
     identity: input.title + " identity: " + input.markerTitle + ". " + input.safetyCopy + ". " + input.approvalCopy + ". " + input.supportCopy + ". " + input.deniedCopy + ". " + sharedBrainCopy + " Static preview-only review content remains blocked until explicit operator approval.",
-    advancedDetails: [input.markerTitle, input.safetyCopy, input.approvalCopy, input.supportCopy, input.deniedCopy, packetFields, queueStates, dryRunTicketStates, dryRunTicketFields, supportedTargets, sharedBrainCopy, modelRouterCopy, adapterCopy, deniedCopy, checklistCopy, "Static preview focus fields: " + joinSentence(input.fieldItems) + ".", "Operator decision state: blocked until explicit human approval confirms original operator goal, clarified goal, target family, target recommendation, requirements, architecture, files, commands, runtimes, adapters, validation, risk, approvals, evidence, result, recovery, packaging, model routing, dry-run intent, and safety gates."],
+    advancedDetails: [input.markerTitle, input.safetyCopy, input.approvalCopy, input.supportCopy, input.deniedCopy, packetFields, queueStates, dryRunTicketStates, dryRunTicketFields, simulatedFileOperationTypes, simulatedFileWriteFields, simulatedFileSafetyPolicies, supportedTargets, sharedBrainCopy, modelRouterCopy, adapterCopy, fileAdapterCopy, deniedCopy, checklistCopy, "Static preview focus fields: " + joinSentence(input.fieldItems) + ".", "Operator decision state: blocked until explicit human approval confirms original operator goal, clarified goal, target family, target recommendation, requirements, architecture, files, commands, runtimes, adapters, validation, risk, approvals, evidence, result, recovery, packaging, model routing, dry-run intent, file operation type, target path preview, diff preview, safety gate, apply hold state, denied mutation state, and safety gates."],
     advancedCopy: input.title + " remains deterministic, static, local-first, review-only, and approval-gated. It does not call models, call providers, send prompts, read secrets, store credentials, spend credits, execute backend adapters, execute domain adapters, write files, run commands, start runtimes, scaffold projects, browse, deploy, package outputs, persist model outputs, persist evidence/results, trigger recovery, run validation, run dry-runs, release execution locks, persist queues, create queue jobs, or promote memory automatically.",
     dataScope: input.slug + " build-plan-bundle review-only approval required denied execution static preview",
   };
@@ -2253,13 +2498,400 @@ const DRY_RUN_EXECUTION_HANDOFF_DEFINITION_INPUTS = [
     previewFocus: "build-anything dry-run tickets, guarded queue reference, build plan approval reference, shared brain gates, model routing policy, backend/domain adapter gates, trace preview, validation preview, operator review, hold release gate, evidence, result, audit, recovery, packaging, and denied execution",
     language: CONTROLLED_DRY_RUN_EXECUTION_HANDOFF_RELEASE_CANDIDATE_LANGUAGE,
     fieldItems: ["build-anything dry-run tickets", "guarded queue reference", "build plan approval reference", "shared brain gates", "model routing policy", "backend/domain adapter gates", "trace preview", "validation preview", "operator review", "hold release gate", "evidence", "result", "audit", "recovery", "packaging/export plan", "denied execution", "explicit approval requirement"],
-    routes: ["/first-dry-run-execution-arm-candidate", "/dry-run-execution-handoff-boundary", "/guarded-execution-queue-boundary"],
+    routes: ["/first-dry-run-execution-arm-candidate", "/simulated-file-write-dry-run-boundary", "/dry-run-execution-handoff-boundary"],
     links: [
       { href: "/first-dry-run-execution-arm-candidate", label: "Previous Phase" },
+      { href: "/simulated-file-write-dry-run-boundary", label: "Next Phase" },
       { href: "/dry-run-execution-handoff-boundary", label: "Dry-Run Boundary" },
-      { href: "/guarded-execution-queue-boundary", label: "Queue Boundary" },
     ],
-    nextRecommendedAction: "Keep dry-run execution handoffs static, preview-only, shared-brain gated, and blocked until a future explicit operator approval path exists.",
+    nextRecommendedAction: "Review the simulated file write dry-run boundary while dry-run execution handoffs remain static, preview-only, shared-brain gated, and blocked.",
+  },
+] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
+
+const SIMULATED_FILE_WRITE_DEFINITION_INPUTS = [
+  {
+    slug: "simulated-file-write-dry-run-boundary",
+    phase: "Phase 1098",
+    title: "Simulated File Write Dry-Run Boundary",
+    markerTitle: "Simulated file write dry-run boundary",
+    safetyCopy: "Simulated file write dry-run boundary does not write files",
+    approvalCopy: "Simulated file write dry-run requires explicit operator approval",
+    supportCopy: "Simulated file write keeps every mutation blocked",
+    deniedCopy: "Denied simulated file write paths remain blocked",
+    checklistLabel: "Simulated file write checklist",
+    subtitle: "Review the simulated local file write boundary without browsing local files, crawling arbitrary paths, mutating paths, applying patches, or writing files.",
+    primaryLabel: "Review file boundary",
+    groupLabel: "Simulated file write boundary fields",
+    previewFocus: "guarded queue reference, dry-run ticket reference, file operation type, target path preview, before state preview, after state preview, diff preview, conflict status, safety gate, evidence capture preview, result preview, recovery preview, operator review state, apply hold state, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_WRITE_DRY_RUN_BOUNDARY_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "boundary scope", "preview-only mutation denial"],
+    routes: ["/controlled-dry-run-execution-handoff-release-candidate", "/simulated-file-diff-packet", "/dry-run-file-write-ticket"],
+    links: [
+      { href: "/controlled-dry-run-execution-handoff-release-candidate", label: "Previous Phase" },
+      { href: "/simulated-file-diff-packet", label: "Next Phase" },
+      { href: "/dry-run-file-write-ticket", label: "Dry-Run File Ticket" },
+    ],
+    nextRecommendedAction: "Review the simulated file diff packet while every future mutation stays blocked behind explicit approval.",
+  },
+  {
+    slug: "simulated-file-diff-packet",
+    phase: "Phase 1099",
+    title: "Simulated File Diff Packet",
+    markerTitle: "Simulated file diff packet",
+    safetyCopy: "Simulated file diff packet does not apply diffs",
+    approvalCopy: "File diff review requires explicit operator approval",
+    supportCopy: "Diff packets show planned mutations without applying them",
+    deniedCopy: "Denied simulated file diff paths remain blocked",
+    checklistLabel: "Simulated file diff checklist",
+    subtitle: "Review planned diffs without applying patches, writing files, opening local files, or mutating target paths.",
+    primaryLabel: "Review diff packet",
+    groupLabel: "Simulated diff packet fields",
+    previewFocus: "dry-run ticket reference, file operation type, target path preview, before state preview, after state preview, diff preview, conflict status, safety gate, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_DIFF_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "unapplied diff preview", "diff approval gate"],
+    routes: ["/simulated-file-write-dry-run-boundary", "/simulated-file-create-packet", "/simulated-file-safety-review"],
+    links: [
+      { href: "/simulated-file-write-dry-run-boundary", label: "Previous Phase" },
+      { href: "/simulated-file-create-packet", label: "Next Phase" },
+      { href: "/simulated-file-safety-review", label: "Safety Review" },
+    ],
+    nextRecommendedAction: "Review the simulated file create packet while diff previews remain unapplied.",
+  },
+  {
+    slug: "simulated-file-create-packet",
+    phase: "Phase 1100",
+    title: "Simulated File Create Packet",
+    markerTitle: "Simulated file create packet",
+    safetyCopy: "Simulated file create packet does not create files",
+    approvalCopy: "File create review requires explicit operator approval",
+    supportCopy: "Create packets show planned file creation without mutation",
+    deniedCopy: "Denied simulated file create paths remain blocked",
+    checklistLabel: "Simulated file create checklist",
+    subtitle: "Review planned file creation without creating files, scaffolding projects, crawling directories, or storing generated output.",
+    primaryLabel: "Review create packet",
+    groupLabel: "Simulated create packet fields",
+    previewFocus: "create operation preview, target path preview, before state preview, after state preview, diff preview, safety gate, evidence capture preview, apply hold state, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_CREATE_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "create operation preview", "planned new-file state"],
+    routes: ["/simulated-file-diff-packet", "/simulated-file-update-packet", "/simulated-file-conflict-review"],
+    links: [
+      { href: "/simulated-file-diff-packet", label: "Previous Phase" },
+      { href: "/simulated-file-update-packet", label: "Next Phase" },
+      { href: "/simulated-file-conflict-review", label: "Conflict Review" },
+    ],
+    nextRecommendedAction: "Review the simulated file update packet while create previews remain non-mutating.",
+  },
+  {
+    slug: "simulated-file-update-packet",
+    phase: "Phase 1101",
+    title: "Simulated File Update Packet",
+    markerTitle: "Simulated file update packet",
+    safetyCopy: "Simulated file update packet does not update files",
+    approvalCopy: "File update review requires explicit operator approval",
+    supportCopy: "Update packets show planned file changes without mutation",
+    deniedCopy: "Denied simulated file update paths remain blocked",
+    checklistLabel: "Simulated file update checklist",
+    subtitle: "Review planned file changes without updating files, reading arbitrary workspace paths, or applying patch output.",
+    primaryLabel: "Review update packet",
+    groupLabel: "Simulated update packet fields",
+    previewFocus: "update operation preview, target path preview, before state preview, after state preview, diff preview, conflict status, safety gate, operator review state, apply hold state, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_UPDATE_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "update operation preview", "planned changed-file state"],
+    routes: ["/simulated-file-create-packet", "/simulated-file-delete-packet", "/simulated-file-safety-review"],
+    links: [
+      { href: "/simulated-file-create-packet", label: "Previous Phase" },
+      { href: "/simulated-file-delete-packet", label: "Next Phase" },
+      { href: "/simulated-file-safety-review", label: "Safety Review" },
+    ],
+    nextRecommendedAction: "Review the simulated file delete packet while update previews remain blocked.",
+  },
+  {
+    slug: "simulated-file-delete-packet",
+    phase: "Phase 1102",
+    title: "Simulated File Delete Packet",
+    markerTitle: "Simulated file delete packet",
+    safetyCopy: "Simulated file delete packet does not delete files",
+    approvalCopy: "File delete review requires explicit operator approval",
+    supportCopy: "Delete packets show planned file removal without mutation",
+    deniedCopy: "Denied simulated file delete paths remain blocked",
+    checklistLabel: "Simulated file delete checklist",
+    subtitle: "Review planned file removals without deleting files, moving paths, writing backups, or triggering recovery.",
+    primaryLabel: "Review delete packet",
+    groupLabel: "Simulated delete packet fields",
+    previewFocus: "delete operation preview, target path preview, before state preview, after state preview, diff preview, recovery preview, safety gate, apply hold state, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_DELETE_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "delete operation preview", "planned removal state"],
+    routes: ["/simulated-file-update-packet", "/simulated-file-move-packet", "/simulated-file-recovery-preview"],
+    links: [
+      { href: "/simulated-file-update-packet", label: "Previous Phase" },
+      { href: "/simulated-file-move-packet", label: "Next Phase" },
+      { href: "/simulated-file-recovery-preview", label: "Recovery Preview" },
+    ],
+    nextRecommendedAction: "Review the simulated file move packet while delete previews remain non-mutating.",
+  },
+  {
+    slug: "simulated-file-move-packet",
+    phase: "Phase 1103",
+    title: "Simulated File Move Packet",
+    markerTitle: "Simulated file move packet",
+    safetyCopy: "Simulated file move packet does not move files",
+    approvalCopy: "File move review requires explicit operator approval",
+    supportCopy: "Move packets show planned file moves without mutation",
+    deniedCopy: "Denied simulated file move paths remain blocked",
+    checklistLabel: "Simulated file move checklist",
+    subtitle: "Review planned file moves without moving, renaming, deleting, copying, or auto-opening local files.",
+    primaryLabel: "Review move packet",
+    groupLabel: "Simulated move packet fields",
+    previewFocus: "move operation preview, source path preview, target path preview, before state preview, after state preview, diff preview, conflict status, safety gate, apply hold state, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_MOVE_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "move operation preview", "source path preview", "destination path preview"],
+    routes: ["/simulated-file-delete-packet", "/simulated-file-patch-packet", "/simulated-file-conflict-review"],
+    links: [
+      { href: "/simulated-file-delete-packet", label: "Previous Phase" },
+      { href: "/simulated-file-patch-packet", label: "Next Phase" },
+      { href: "/simulated-file-conflict-review", label: "Conflict Review" },
+    ],
+    nextRecommendedAction: "Review the simulated file patch packet while move previews remain blocked.",
+  },
+  {
+    slug: "simulated-file-patch-packet",
+    phase: "Phase 1104",
+    title: "Simulated File Patch Packet",
+    markerTitle: "Simulated file patch packet",
+    safetyCopy: "Simulated file patch packet does not apply patches",
+    approvalCopy: "File patch review requires explicit operator approval",
+    supportCopy: "Patch packets show planned patch application without mutation",
+    deniedCopy: "Denied simulated file patch paths remain blocked",
+    checklistLabel: "Simulated file patch checklist",
+    subtitle: "Review planned patch application without applying patches, writing hunks, editing files, or executing adapters.",
+    primaryLabel: "Review patch packet",
+    groupLabel: "Simulated patch packet fields",
+    previewFocus: "patch operation preview, target path preview, before state preview, after state preview, diff preview, conflict status, safety gate, operator review state, apply hold state, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_PATCH_PACKET_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "patch operation preview", "unapplied patch state"],
+    routes: ["/simulated-file-move-packet", "/simulated-file-conflict-review", "/simulated-file-safety-review"],
+    links: [
+      { href: "/simulated-file-move-packet", label: "Previous Phase" },
+      { href: "/simulated-file-conflict-review", label: "Next Phase" },
+      { href: "/simulated-file-safety-review", label: "Safety Review" },
+    ],
+    nextRecommendedAction: "Review the simulated file conflict review while patch previews remain unapplied.",
+  },
+  {
+    slug: "simulated-file-conflict-review",
+    phase: "Phase 1105",
+    title: "Simulated File Conflict Review",
+    markerTitle: "Simulated file conflict review",
+    safetyCopy: "Simulated file conflict review does not resolve conflicts",
+    approvalCopy: "File conflict review requires explicit operator approval",
+    supportCopy: "Conflict reviews keep every mutation blocked",
+    deniedCopy: "Denied simulated file conflict paths remain blocked",
+    checklistLabel: "Simulated file conflict checklist",
+    subtitle: "Review future conflict states without resolving conflicts, opening files, applying merges, or writing conflict markers.",
+    primaryLabel: "Review conflict state",
+    groupLabel: "Simulated conflict review fields",
+    previewFocus: "conflict status, target path preview, before state preview, after state preview, diff preview, safety gate, recovery preview, operator review state, apply hold state, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_CONFLICT_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "conflict status preview", "blocked conflict resolution state"],
+    routes: ["/simulated-file-patch-packet", "/simulated-file-safety-review", "/simulated-file-recovery-preview"],
+    links: [
+      { href: "/simulated-file-patch-packet", label: "Previous Phase" },
+      { href: "/simulated-file-safety-review", label: "Next Phase" },
+      { href: "/simulated-file-recovery-preview", label: "Recovery Preview" },
+    ],
+    nextRecommendedAction: "Review the simulated file safety review while conflict handling remains preview-only.",
+  },
+  {
+    slug: "simulated-file-safety-review",
+    phase: "Phase 1106",
+    title: "Simulated File Safety Review",
+    markerTitle: "Simulated file safety review",
+    safetyCopy: "Simulated file safety review does not approve mutations",
+    approvalCopy: "File safety review requires explicit operator approval",
+    supportCopy: "Safety reviews gate paths secrets diffs and mutations",
+    deniedCopy: "Denied simulated file safety paths remain blocked",
+    checklistLabel: "Simulated file safety checklist",
+    subtitle: "Review path, secret, diff, conflict, and mutation safety without reading secrets, crawling paths, approving mutations, or releasing holds.",
+    primaryLabel: "Review file safety",
+    groupLabel: "Simulated safety review fields",
+    previewFocus: "safety gate, path boundary, secret boundary, diff review, conflict status, operator review state, apply hold state, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_SAFETY_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "path safety gate", "secret safety gate", "diff safety gate"],
+    routes: ["/simulated-file-conflict-review", "/simulated-file-evidence-preview", "/simulated-file-operator-review"],
+    links: [
+      { href: "/simulated-file-conflict-review", label: "Previous Phase" },
+      { href: "/simulated-file-evidence-preview", label: "Next Phase" },
+      { href: "/simulated-file-operator-review", label: "Operator Review" },
+    ],
+    nextRecommendedAction: "Review the simulated file evidence preview while safety review grants no approval.",
+  },
+  {
+    slug: "simulated-file-evidence-preview",
+    phase: "Phase 1107",
+    title: "Simulated File Evidence Preview",
+    markerTitle: "Simulated file evidence preview",
+    safetyCopy: "Simulated file evidence preview does not persist evidence",
+    approvalCopy: "File evidence preview requires explicit operator approval",
+    supportCopy: "Evidence previews route future outputs through shared evidence review",
+    deniedCopy: "Denied simulated file evidence paths remain blocked",
+    checklistLabel: "Simulated file evidence checklist",
+    subtitle: "Review future file-write evidence capture without capturing, ingesting, storing, indexing, or promoting evidence.",
+    primaryLabel: "Review file evidence",
+    groupLabel: "Simulated evidence preview fields",
+    previewFocus: "evidence capture preview, guarded queue reference, dry-run ticket reference, file operation type, diff preview, safety gate, result preview, operator review state, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_EVIDENCE_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "shared evidence review route", "denied evidence persistence"],
+    routes: ["/simulated-file-safety-review", "/simulated-file-result-preview", "/simulated-file-write-dry-run-boundary"],
+    links: [
+      { href: "/simulated-file-safety-review", label: "Previous Phase" },
+      { href: "/simulated-file-result-preview", label: "Next Phase" },
+      { href: "/simulated-file-write-dry-run-boundary", label: "Boundary" },
+    ],
+    nextRecommendedAction: "Review the simulated file result preview while evidence remains unpersisted.",
+  },
+  {
+    slug: "simulated-file-result-preview",
+    phase: "Phase 1108",
+    title: "Simulated File Result Preview",
+    markerTitle: "Simulated file result preview",
+    safetyCopy: "Simulated file result preview does not persist results",
+    approvalCopy: "File result preview requires explicit operator approval",
+    supportCopy: "Result previews route future outputs through shared result review",
+    deniedCopy: "Denied simulated file result paths remain blocked",
+    checklistLabel: "Simulated file result checklist",
+    subtitle: "Review future file-write results without storing outputs, persisting model outputs, reusing results, or promoting memory.",
+    primaryLabel: "Review file result",
+    groupLabel: "Simulated result preview fields",
+    previewFocus: "result preview, file operation type, target path preview, before state preview, after state preview, diff preview, safety gate, evidence capture preview, recovery preview, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_RESULT_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "shared result review route", "denied result persistence"],
+    routes: ["/simulated-file-evidence-preview", "/simulated-file-recovery-preview", "/simulated-file-write-dry-run-boundary"],
+    links: [
+      { href: "/simulated-file-evidence-preview", label: "Previous Phase" },
+      { href: "/simulated-file-recovery-preview", label: "Next Phase" },
+      { href: "/simulated-file-write-dry-run-boundary", label: "Boundary" },
+    ],
+    nextRecommendedAction: "Review the simulated file recovery preview while result persistence remains denied.",
+  },
+  {
+    slug: "simulated-file-recovery-preview",
+    phase: "Phase 1109",
+    title: "Simulated File Recovery Preview",
+    markerTitle: "Simulated file recovery preview",
+    safetyCopy: "Simulated file recovery preview does not trigger recovery",
+    approvalCopy: "File recovery preview requires explicit operator approval",
+    supportCopy: "Recovery previews include rollback backup restore and retry plans",
+    deniedCopy: "Denied simulated file recovery paths remain blocked",
+    checklistLabel: "Simulated file recovery checklist",
+    subtitle: "Review rollback, backup, restore, retry, cleanup, and repair plans without writing backups or triggering recovery.",
+    primaryLabel: "Review file recovery",
+    groupLabel: "Simulated recovery preview fields",
+    previewFocus: "recovery preview, rollback plan, backup plan, restore plan, retry plan, target path preview, diff preview, safety gate, operator review state, apply hold state, denied mutation state, and explicit approval requirement",
+    language: SIMULATED_FILE_RECOVERY_PREVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "rollback plan", "backup plan", "restore plan", "retry plan"],
+    routes: ["/simulated-file-result-preview", "/simulated-file-operator-review", "/simulated-file-delete-packet"],
+    links: [
+      { href: "/simulated-file-result-preview", label: "Previous Phase" },
+      { href: "/simulated-file-operator-review", label: "Next Phase" },
+      { href: "/simulated-file-delete-packet", label: "Delete Packet" },
+    ],
+    nextRecommendedAction: "Review the simulated file operator review while recovery remains non-triggering.",
+  },
+  {
+    slug: "simulated-file-operator-review",
+    phase: "Phase 1110",
+    title: "Simulated File Operator Review",
+    markerTitle: "Simulated file operator review",
+    safetyCopy: "Simulated file operator review does not approve actions",
+    approvalCopy: "File operator review requires explicit human approval",
+    supportCopy: "Operator reviews keep file mutations blocked",
+    deniedCopy: "Denied simulated file operator review paths remain blocked",
+    checklistLabel: "Simulated file operator review checklist",
+    subtitle: "Review operator decision state without granting approval, persisting approval decisions, releasing apply holds, or enabling file mutation.",
+    primaryLabel: "Review operator gate",
+    groupLabel: "Simulated operator review fields",
+    previewFocus: "operator review state, explicit human approval requirement, approval gate name, safety gate, apply hold state, denied mutation state, evidence capture preview, result preview, recovery preview, and blocked file mutation state",
+    language: SIMULATED_FILE_OPERATOR_REVIEW_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "human approval requirement", "blocked approval state"],
+    routes: ["/simulated-file-recovery-preview", "/simulated-file-apply-hold-state", "/simulated-file-safety-review"],
+    links: [
+      { href: "/simulated-file-recovery-preview", label: "Previous Phase" },
+      { href: "/simulated-file-apply-hold-state", label: "Next Phase" },
+      { href: "/simulated-file-safety-review", label: "Safety Review" },
+    ],
+    nextRecommendedAction: "Review the simulated file apply hold state while operator review grants no approval.",
+  },
+  {
+    slug: "simulated-file-apply-hold-state",
+    phase: "Phase 1111",
+    title: "Simulated File Apply Hold State",
+    markerTitle: "Simulated file apply hold state",
+    safetyCopy: "Simulated file apply hold state does not release file writes",
+    approvalCopy: "File apply hold release requires explicit operator approval",
+    supportCopy: "Apply hold keeps every file mutation blocked",
+    deniedCopy: "Denied simulated file apply hold paths remain blocked",
+    checklistLabel: "Simulated file apply hold checklist",
+    subtitle: "Review the apply hold without releasing file writes, approving patches, persisting queues, or mutating local paths.",
+    primaryLabel: "Review apply hold",
+    groupLabel: "Simulated apply hold fields",
+    previewFocus: "apply hold state, release denial, explicit approval requirement, approval gate name, operator review state, file operation type, target path preview, diff preview, safety gate, denied mutation state, and shared evidence/result/recovery review",
+    language: SIMULATED_FILE_APPLY_HOLD_STATE_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "release denial", "blocked apply state"],
+    routes: ["/simulated-file-operator-review", "/first-simulated-file-write-candidate", "/simulated-file-write-dry-run-boundary"],
+    links: [
+      { href: "/simulated-file-operator-review", label: "Previous Phase" },
+      { href: "/first-simulated-file-write-candidate", label: "Next Phase" },
+      { href: "/simulated-file-write-dry-run-boundary", label: "Boundary" },
+    ],
+    nextRecommendedAction: "Review the first simulated file write candidate while apply hold remains unreleased.",
+  },
+  {
+    slug: "first-simulated-file-write-candidate",
+    phase: "Phase 1112",
+    title: "First Simulated File Write Candidate",
+    markerTitle: "First simulated file write candidate",
+    safetyCopy: "First simulated file write candidate does not write files",
+    approvalCopy: "Simulated file write candidates require explicit operator approval",
+    supportCopy: "Candidate packets combine diff create update delete move patch conflict safety evidence result and recovery gates",
+    deniedCopy: "Denied simulated file write candidate paths remain blocked",
+    checklistLabel: "First simulated file write checklist",
+    subtitle: "Review the first simulated file write candidate as one static packet without writing files, applying patches, persisting queues, or executing adapters.",
+    primaryLabel: "Review file candidate",
+    groupLabel: "Simulated file write candidate fields",
+    previewFocus: "combined diff, create, update, delete, move, patch, conflict, safety, evidence, result, recovery, operator review, apply hold, denied mutation, approval gate, shared brain gate, and explicit approval requirement",
+    language: FIRST_SIMULATED_FILE_WRITE_CANDIDATE_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "diff gate", "create gate", "update gate", "delete gate", "move gate", "patch gate", "conflict gate"],
+    routes: ["/simulated-file-apply-hold-state", "/controlled-simulated-file-write-release-candidate", "/simulated-file-write-dry-run-boundary"],
+    links: [
+      { href: "/simulated-file-apply-hold-state", label: "Previous Phase" },
+      { href: "/controlled-simulated-file-write-release-candidate", label: "Next Phase" },
+      { href: "/simulated-file-write-dry-run-boundary", label: "Boundary" },
+    ],
+    nextRecommendedAction: "Review the controlled simulated file write release candidate while the first candidate remains static and blocked.",
+  },
+  {
+    slug: "controlled-simulated-file-write-release-candidate",
+    phase: "Phase 1113",
+    title: "Controlled Simulated File Write Release Candidate",
+    markerTitle: "Controlled simulated file write release candidate",
+    safetyCopy: "Controlled simulated file write release candidate does not call models or execute adapters",
+    approvalCopy: "Controlled simulated file write release requires explicit operator approval",
+    supportCopy: "Release candidate supports file mutation previews with shared brain gates",
+    deniedCopy: "Denied controlled simulated file write paths remain blocked",
+    checklistLabel: "Controlled simulated file write release checklist",
+    subtitle: "Review the controlled simulated file write release candidate without model calls, provider calls, prompt sending, file mutation, queue persistence, dry-run execution, or adapter execution.",
+    primaryLabel: "Review file RC",
+    groupLabel: "Simulated file write release fields",
+    previewFocus: "file mutation previews with shared brain gates, guarded queue reference, dry-run ticket reference, model routing policy, backend/domain adapter gates, diff create update delete move patch conflict safety evidence result recovery operator review apply hold denied mutation and explicit approval requirement",
+    language: CONTROLLED_SIMULATED_FILE_WRITE_RELEASE_CANDIDATE_LANGUAGE,
+    fieldItems: [...SIMULATED_FILE_WRITE_PREVIEW_FIELDS, "shared brain gates", "model routing policy", "backend/domain adapter gates", "release candidate state"],
+    routes: ["/first-simulated-file-write-candidate", "/simulated-file-write-dry-run-boundary", "/controlled-dry-run-execution-handoff-release-candidate"],
+    links: [
+      { href: "/first-simulated-file-write-candidate", label: "Previous Phase" },
+      { href: "/simulated-file-write-dry-run-boundary", label: "Boundary" },
+      { href: "/controlled-dry-run-execution-handoff-release-candidate", label: "Dry-Run RC" },
+    ],
+    nextRecommendedAction: "Keep simulated file write previews static, preview-only, shared-brain gated, and blocked until a future explicit operator approval path exists.",
   },
 ] satisfies readonly (Parameters<typeof buildBuildPlanBundleDefinition>[0])[];
 
@@ -2657,6 +3289,9 @@ export const BUILD_PLAN_BUNDLE_DEFINITIONS: Record<BuildPlanBundleReviewSlug, Bu
   ...(Object.fromEntries(
     DRY_RUN_EXECUTION_HANDOFF_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
   ) as Record<DryRunExecutionHandoffReviewSlug, BuildPlanBundleDefinition>),
+  ...(Object.fromEntries(
+    SIMULATED_FILE_WRITE_DEFINITION_INPUTS.map((input) => [input.slug, buildBuildPlanBundleDefinition(input)])
+  ) as Record<SimulatedFileWriteReviewSlug, BuildPlanBundleDefinition>),
 };
 
 export function buildBuildPlanBundleReview(slug: BuildPlanBundleReviewSlug, input: BuildPlanBundleReviewPacketInput): UniversalExecutionReviewPacket {
@@ -2687,10 +3322,14 @@ export function buildBuildPlanBundleReviewPackets(slug: BuildPlanBundleReviewSlu
     { label: "Guarded queue states", items: ["Guarded queue states: " + joinSentence(GUARDED_EXECUTION_QUEUE_ITEM_STATES) + "."] },
     { label: "Dry-run ticket states", items: ["Dry-run ticket states: " + joinSentence(DRY_RUN_EXECUTION_TICKET_STATES) + "."] },
     { label: "Dry-run ticket fields", items: ["Dry-run tickets include guarded queue reference, build plan approval reference, execution family, dry-run intent, simulated action preview, expected inputs, expected outputs, validation expectations, evidence capture plan, result review plan, recovery plan, packaging/export plan, operator review state, execution hold state, denied live execution state, and explicit approval requirement."] },
+    { label: "Simulated file operation types", items: ["Simulated file operation types: " + joinSentence(SIMULATED_FILE_OPERATION_TYPES) + "."] },
+    { label: "Simulated file preview fields", items: ["Simulated file write previews include " + joinSentence(SIMULATED_FILE_WRITE_PREVIEW_FIELDS) + "."] },
+    { label: "Simulated file safety policy", items: ["Simulated file safety policy: " + joinSentence(SIMULATED_FILE_WRITE_SAFETY_POLICIES) + "."] },
     { label: "Supported target families", items: ["Supported target families: " + joinSentence(SUPPORTED_BUILD_PLAN_TARGET_FAMILIES) + "."] },
     { label: "Model router policy", items: ["Cheapest capable model wins if safe; local model preferred for private files, codebases, sensitive plans, local workspace context, and local game/server config; paid/pro model requires quality or capability justification; specialist model requires domain-fit justification for games/research/creative/trading/coding/automation."] },
     { label: "Backend adapter policy", items: ["Backend adapter proposals remain preview-only, do not execute adapters, name their approval gate, and return through shared evidence/result review after explicit operator approval."] },
     { label: "Domain adapter policy", items: ["Game, app, website, dashboard, tool, research, automation, creative, trading, data, documentation, integration, and general project adapter proposals remain preview-only, do not execute domain adapters, and require explicit operator approval."] },
+    { label: "File adapter policy", items: ["All file write previews remain preview-only, no live execution, no actual file mutation, no queue persistence, every file operation names its approval gate, and every result returns through shared evidence/result review."] },
     { label: "Dry-run handoff policy", items: ["Dry-run tickets remain static preview-only handoffs. They do not execute dry-runs, persist queues, create queue jobs, release execution locks, write files, run commands, start runtimes, execute backend adapters, execute domain adapters, persist evidence, persist results, trigger recovery, or package outputs."] },
     { label: "Denied live execution state", items: [definition.deniedCopy, definition.safetyCopy] },
     { label: "Operator approval state", items: [definition.approvalCopy, "All real execution requires explicit operator approval."] }

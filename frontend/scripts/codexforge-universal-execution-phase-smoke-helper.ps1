@@ -505,7 +505,23 @@ $protectedRoutes = @(
   "/dry-run-execution-operator-review",
   "/dry-run-execution-hold-release-preview",
   "/first-dry-run-execution-arm-candidate",
-  "/controlled-dry-run-execution-handoff-release-candidate"
+  "/controlled-dry-run-execution-handoff-release-candidate",
+  "/simulated-file-write-dry-run-boundary",
+  "/simulated-file-diff-packet",
+  "/simulated-file-create-packet",
+  "/simulated-file-update-packet",
+  "/simulated-file-delete-packet",
+  "/simulated-file-move-packet",
+  "/simulated-file-patch-packet",
+  "/simulated-file-conflict-review",
+  "/simulated-file-safety-review",
+  "/simulated-file-evidence-preview",
+  "/simulated-file-result-preview",
+  "/simulated-file-recovery-preview",
+  "/simulated-file-operator-review",
+  "/simulated-file-apply-hold-state",
+  "/first-simulated-file-write-candidate",
+  "/controlled-simulated-file-write-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `

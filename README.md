@@ -6,7 +6,7 @@ CodexForge is a local-first AI developer/operator workspace. It provides fronten
 
 ## Current State
 
-Current checkpoint: through phase 1097, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the dry-run execution handoff preview layer: Dry-Run Execution Handoff Boundary, dry-run file write, command, runtime, adapter, domain, evidence, result, recovery, packaging, trace, validation, operator review, hold release, First Dry-Run Execution Arm Candidate, and Controlled Dry-Run Execution Handoff Release Candidate surfaces.
+Current checkpoint: through phase 1113, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the simulated file write dry-run review layer: boundary, diff, create, update, delete, move, patch, conflict, safety, evidence, result, recovery, operator review, apply hold, First Simulated File Write Candidate, and Controlled Simulated File Write Release Candidate surfaces.
 
 CodexForge currently includes deterministic frontend review and approval surfaces for:
 
@@ -80,7 +80,7 @@ git diff --stat
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 1097.
+- Current checkpoint: documentation and hygiene alignment through detected phase 1113.
 - Next milestone: keep model/provider/router, local model, connector, automation, unified workflow, and beta operator surfaces preview-only or review-only while defining any approved backend/local/provider boundaries before claiming execution.
 - Do not claim live execution unless an approved local/backend/provider boundary exists.
 - Do not claim CI passed unless actual CI or terminal logs prove it.

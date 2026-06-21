@@ -258,3 +258,67 @@ export function FirstDryRunExecutionArmCandidatePanel() {
 export function ControlledDryRunExecutionHandoffReleaseCandidatePanel() {
   return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-dry-run-execution-handoff-release-candidate")} />;
 }
+
+export function SimulatedFileWriteDryRunBoundaryPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-write-dry-run-boundary")} />;
+}
+
+export function SimulatedFileDiffPacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-diff-packet")} />;
+}
+
+export function SimulatedFileCreatePacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-create-packet")} />;
+}
+
+export function SimulatedFileUpdatePacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-update-packet")} />;
+}
+
+export function SimulatedFileDeletePacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-delete-packet")} />;
+}
+
+export function SimulatedFileMovePacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-move-packet")} />;
+}
+
+export function SimulatedFilePatchPacketPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-patch-packet")} />;
+}
+
+export function SimulatedFileConflictReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-conflict-review")} />;
+}
+
+export function SimulatedFileSafetyReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-safety-review")} />;
+}
+
+export function SimulatedFileEvidencePreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-evidence-preview")} />;
+}
+
+export function SimulatedFileResultPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-result-preview")} />;
+}
+
+export function SimulatedFileRecoveryPreviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-recovery-preview")} />;
+}
+
+export function SimulatedFileOperatorReviewPanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-operator-review")} />;
+}
+
+export function SimulatedFileApplyHoldStatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("simulated-file-apply-hold-state")} />;
+}
+
+export function FirstSimulatedFileWriteCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("first-simulated-file-write-candidate")} />;
+}
+
+export function ControlledSimulatedFileWriteReleaseCandidatePanel() {
+  return <ControlledBuilderReviewPhasePanel model={buildBuildPlanBundleReviewModelForSlug("controlled-simulated-file-write-release-candidate")} />;
+}
