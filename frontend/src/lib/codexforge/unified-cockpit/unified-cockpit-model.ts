@@ -95,7 +95,23 @@ export type UnifiedCockpitRouteSlug =
   | "execution-readiness-denied-path-matrix"
   | "execution-readiness-go-no-go-summary"
   | "first-controlled-execution-readiness-candidate"
-  | "controlled-execution-readiness-gate-release-candidate";
+  | "controlled-execution-readiness-gate-release-candidate"
+  | "real-controlled-operator-trial-packet-boundary"
+  | "real-trial-goal-packet"
+  | "real-trial-project-context-packet"
+  | "real-trial-file-write-packet"
+  | "real-trial-command-packet"
+  | "real-trial-approval-packet"
+  | "real-trial-execution-hold-packet"
+  | "real-trial-evidence-capture-packet"
+  | "real-trial-result-capture-packet"
+  | "real-trial-recovery-packet"
+  | "real-trial-audit-packet"
+  | "real-trial-operator-checklist"
+  | "real-trial-denied-path-checklist"
+  | "real-trial-go-no-go-review"
+  | "first-real-controlled-operator-trial-candidate"
+  | "controlled-real-operator-trial-packet-release-candidate";
 
 export type UnifiedCockpitPanelState = "blocked" | "preview-only" | "approval-required" | "dev-test-only";
 
@@ -209,6 +225,21 @@ export const UNIFIED_CODEXFORGE_COCKPIT_LANGUAGE = [
   "Execution readiness operator signoff",
   "Execution readiness denied path matrix",
   "Execution readiness go no-go summary",
+  "Real controlled operator trial packet",
+  "Real trial goal packet",
+  "Real trial project context packet",
+  "Real trial file write packet",
+  "Real trial command packet",
+  "Real trial approval packet",
+  "Real trial execution hold packet",
+  "Real trial evidence capture packet",
+  "Real trial result capture packet",
+  "Real trial recovery packet",
+  "Real trial audit packet",
+  "Real trial operator checklist",
+  "Real trial denied path checklist",
+  "Real trial go no-go review",
+  "No real operator trial execution from the cockpit",
   "Cockpit evidence stream",
   "Cockpit result summary",
   "Cockpit recovery options",
@@ -286,6 +317,21 @@ const GLOBAL_SAFETY_COPY = [
   "Execution readiness operator signoff.",
   "Execution readiness denied path matrix.",
   "Execution readiness go no-go summary.",
+  "Real controlled operator trial packet.",
+  "Real trial goal packet.",
+  "Real trial project context packet.",
+  "Real trial file write packet.",
+  "Real trial command packet.",
+  "Real trial approval packet.",
+  "Real trial execution hold packet.",
+  "Real trial evidence capture packet.",
+  "Real trial result capture packet.",
+  "Real trial recovery packet.",
+  "Real trial audit packet.",
+  "Real trial operator checklist.",
+  "Real trial denied path checklist.",
+  "Real trial go no-go review.",
+  "No real operator trial execution from the cockpit.",
   "Evidence result and recovery remain preview-only.",
   "No evidence persistence from the cockpit.",
   "No result persistence from the cockpit.",
@@ -982,6 +1028,118 @@ const DEV_ROUTES: readonly UnifiedCockpitDevRoute[] = [
     label: "Controlled Execution Readiness Gate Release Candidate",
     commandLabel: "Go to Controlled Execution Readiness Gate Release Candidate",
   },
+  {
+    slug: "real-controlled-operator-trial-packet-boundary",
+    href: "/real-controlled-operator-trial-packet-boundary",
+    phase: "1290",
+    label: "Real Controlled Operator Trial Packet Boundary",
+    commandLabel: "Go to Real Controlled Operator Trial Packet Boundary",
+  },
+  {
+    slug: "real-trial-goal-packet",
+    href: "/real-trial-goal-packet",
+    phase: "1291",
+    label: "Real Trial Goal Packet",
+    commandLabel: "Go to Real Trial Goal Packet",
+  },
+  {
+    slug: "real-trial-project-context-packet",
+    href: "/real-trial-project-context-packet",
+    phase: "1292",
+    label: "Real Trial Project Context Packet",
+    commandLabel: "Go to Real Trial Project Context Packet",
+  },
+  {
+    slug: "real-trial-file-write-packet",
+    href: "/real-trial-file-write-packet",
+    phase: "1293",
+    label: "Real Trial File Write Packet",
+    commandLabel: "Go to Real Trial File Write Packet",
+  },
+  {
+    slug: "real-trial-command-packet",
+    href: "/real-trial-command-packet",
+    phase: "1294",
+    label: "Real Trial Command Packet",
+    commandLabel: "Go to Real Trial Command Packet",
+  },
+  {
+    slug: "real-trial-approval-packet",
+    href: "/real-trial-approval-packet",
+    phase: "1295",
+    label: "Real Trial Approval Packet",
+    commandLabel: "Go to Real Trial Approval Packet",
+  },
+  {
+    slug: "real-trial-execution-hold-packet",
+    href: "/real-trial-execution-hold-packet",
+    phase: "1296",
+    label: "Real Trial Execution Hold Packet",
+    commandLabel: "Go to Real Trial Execution Hold Packet",
+  },
+  {
+    slug: "real-trial-evidence-capture-packet",
+    href: "/real-trial-evidence-capture-packet",
+    phase: "1297",
+    label: "Real Trial Evidence Capture Packet",
+    commandLabel: "Go to Real Trial Evidence Capture Packet",
+  },
+  {
+    slug: "real-trial-result-capture-packet",
+    href: "/real-trial-result-capture-packet",
+    phase: "1298",
+    label: "Real Trial Result Capture Packet",
+    commandLabel: "Go to Real Trial Result Capture Packet",
+  },
+  {
+    slug: "real-trial-recovery-packet",
+    href: "/real-trial-recovery-packet",
+    phase: "1299",
+    label: "Real Trial Recovery Packet",
+    commandLabel: "Go to Real Trial Recovery Packet",
+  },
+  {
+    slug: "real-trial-audit-packet",
+    href: "/real-trial-audit-packet",
+    phase: "1300",
+    label: "Real Trial Audit Packet",
+    commandLabel: "Go to Real Trial Audit Packet",
+  },
+  {
+    slug: "real-trial-operator-checklist",
+    href: "/real-trial-operator-checklist",
+    phase: "1301",
+    label: "Real Trial Operator Checklist",
+    commandLabel: "Go to Real Trial Operator Checklist",
+  },
+  {
+    slug: "real-trial-denied-path-checklist",
+    href: "/real-trial-denied-path-checklist",
+    phase: "1302",
+    label: "Real Trial Denied Path Checklist",
+    commandLabel: "Go to Real Trial Denied Path Checklist",
+  },
+  {
+    slug: "real-trial-go-no-go-review",
+    href: "/real-trial-go-no-go-review",
+    phase: "1303",
+    label: "Real Trial Go No Go Review",
+    commandLabel: "Go to Real Trial Go No Go Review",
+  },
+  {
+    slug: "first-real-controlled-operator-trial-candidate",
+    href: "/first-real-controlled-operator-trial-candidate",
+    phase: "1304",
+    label: "First Real Controlled Operator Trial Candidate",
+    commandLabel: "Go to First Real Controlled Operator Trial Candidate",
+  },
+  {
+    slug: "controlled-real-operator-trial-packet-release-candidate",
+    href: "/controlled-real-operator-trial-packet-release-candidate",
+    phase: "1305",
+    label: "Controlled Real Operator Trial Packet Release Candidate",
+    commandLabel: "Go to Controlled Real Operator Trial Packet Release Candidate",
+  },
 ] as const;
 
 const PANELS: readonly UnifiedCockpitPanel[] = [
@@ -1343,6 +1501,20 @@ const ROUTES: readonly UnifiedCockpitRouteDefinition[] = [
       "Execution readiness operator signoff",
       "Execution readiness denied path matrix",
       "Execution readiness go no-go summary",
+      "Real controlled operator trial packet",
+      "Real trial goal packet",
+      "Real trial project context packet",
+      "Real trial file write packet",
+      "Real trial command packet",
+      "Real trial approval packet",
+      "Real trial execution hold packet",
+      "Real trial evidence capture packet",
+      "Real trial result capture packet",
+      "Real trial recovery packet",
+      "Real trial audit packet",
+      "Real trial operator checklist",
+      "Real trial denied path checklist",
+      "Real trial go no-go review",
       "Cockpit evidence stream",
       "Cockpit result summary",
       "Cockpit recovery options",
@@ -1354,6 +1526,7 @@ const ROUTES: readonly UnifiedCockpitRouteDefinition[] = [
       "No result persistence from the cockpit",
       "No recovery execution from the cockpit",
       "No execution lock release from the cockpit",
+      "No real operator trial execution from the cockpit",
       "Unified cockpit checklist",
     ],
     deniedCopy: "Denied cockpit paths remain blocked: no real mutation, no command execution, no execution lock release, no provider calls, no runtime starts, no adapter execution, no evidence persistence, no result persistence, no recovery execution, no queue persistence, and no approval persistence.",

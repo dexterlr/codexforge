@@ -6,6 +6,7 @@ import { ControlledExecutionReadinessGateRoutePanel } from "../../controlled-exe
 import { EndToEndBuildFixWorkflowRoutePanel } from "../../end-to-end-build-fix-workflow/components";
 import { FirstLocalChangeTrialRoutePanel } from "../../first-local-change-trial/components";
 import { GuidedOperatorRunRoutePanel } from "../../guided-operator-run/components";
+import { RealControlledOperatorTrialPacketRoutePanel } from "../../real-controlled-operator-trial-packet/components";
 import {
   buildUnifiedCockpitRouteModel,
   buildUnifiedCockpitStableKey,
@@ -88,6 +89,8 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <GuidedOperatorRunRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       {isMainCockpit ? <ControlledExecutionReadinessGateRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
+
+      {isMainCockpit ? <RealControlledOperatorTrialPacketRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       <section style={panelStack} aria-label="Unified cockpit checklist">
         {model.panels.map((panel, panelIndex) => (
