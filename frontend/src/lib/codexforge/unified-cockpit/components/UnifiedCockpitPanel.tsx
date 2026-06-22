@@ -1,17 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { BackendApprovalHandoffRoutePanel } from "../../backend-approval-handoff/components";
-import { BackendGuardedApplyRunRoutePanel } from "../../backend-guarded-apply-run/components";
-import { CockpitEvidenceResultRecoveryRoutePanel } from "../../cockpit-evidence-result-recovery/components";
-import { ControlledExecutionReadinessGateRoutePanel } from "../../controlled-execution-readiness-gate/components";
-import { EndToEndBuildFixWorkflowRoutePanel } from "../../end-to-end-build-fix-workflow/components";
-import { FirstLocalChangeTrialRoutePanel } from "../../first-local-change-trial/components";
-import { GuardedApplyRunDryRunRoutePanel } from "../../guarded-apply-run-dry-run/components";
-import { GuidedOperatorRunRoutePanel } from "../../guided-operator-run/components";
-import { RealControlledOperatorTrialPacketRoutePanel } from "../../real-controlled-operator-trial-packet/components";
-import { RealTrialHardeningRoutePanel } from "../../real-trial-hardening/components";
-import { TinyRealControlledTrialRoutePanel } from "../../tiny-real-controlled-trial/components";
+import { DailyTestableCockpitMvpPanel } from "../../daily-testable-cockpit-mvp/components";
 import {
   buildUnifiedCockpitRouteModel,
   buildUnifiedCockpitStableKey,
@@ -72,122 +62,93 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
         </article>
       </section>
 
-      {isMainCockpit ? (
-        <section style={targetBand} aria-label="Build anything goal targets">
-          <h2 style={sectionTitle}>Build-Anything Goal Scope</h2>
-          <div style={targetGrid}>
-            {model.targetFamilies.map((target, index) => (
-              <span key={buildUnifiedCockpitStableKey(["target-family", String(index), target])} style={targetPill}>
-                {target}
-              </span>
+      {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
+
+      {!isMainCockpit ? (
+        <>
+          <section style={panelStack} aria-label="Unified cockpit checklist">
+            {model.panels.map((panel, panelIndex) => (
+              <article key={buildUnifiedCockpitStableKey(["cockpit-panel", model.route.slug, String(panelIndex), panel.id])} style={panelBlock}>
+                <div style={panelHeader}>
+                  <div>
+                    <p style={panelEyebrow}>{panel.eyebrow}</p>
+                    <h2 style={panelTitle}>{panel.title}</h2>
+                  </div>
+                  <span style={stateStyle(panel.state)}>{formatState(panel.state)}</span>
+                </div>
+                <p style={bodyText}>{panel.body}</p>
+                <div style={checklistGrid}>
+                  {panel.checklist.map((item, itemIndex) => (
+                    <div
+                      key={buildUnifiedCockpitStableKey(["checklist-item", panel.id, String(itemIndex), item.id])}
+                      style={checklistRow}
+                    >
+                      <span style={smallStateStyle(item.state)}>{formatState(item.state)}</span>
+                      <div>
+                        <p style={checkLabel}>{item.label}</p>
+                        <p style={checkDetail}>{item.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={evidenceRail} aria-label={`${panel.title} evidence placeholders`}>
+                  {panel.evidence.map((evidence, evidenceIndex) => (
+                    <span key={buildUnifiedCockpitStableKey(["evidence", panel.id, String(evidenceIndex)])} style={evidenceChip}>
+                      {evidence}
+                    </span>
+                  ))}
+                </div>
+              </article>
             ))}
-          </div>
-        </section>
-      ) : null}
+          </section>
 
-      {isMainCockpit ? <CockpitEvidenceResultRecoveryRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
+          <section style={integrationBand} aria-label="Guarded spine cockpit integration">
+            <h2 style={sectionTitle}>Guarded Spine Integration</h2>
+            <p style={bodyText}>
+              File-write and command-runner slices feed this cockpit as review/dev surface language only. Future real file
+              write or command execution must remain behind explicit operator approval, guards, evidence capture, result
+              capture, and recovery contract.
+            </p>
+            <div style={linkRow}>
+              <a style={safeLink} href="/controlled-real-guarded-file-write-mvp-release-candidate">
+                Controlled real guarded file-write review
+              </a>
+              <a style={safeLink} href="/controlled-real-guarded-command-mvp-release-candidate">
+                Controlled real guarded command review
+              </a>
+            </div>
+          </section>
 
-      {isMainCockpit ? <FirstLocalChangeTrialRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
-
-      {isMainCockpit ? <EndToEndBuildFixWorkflowRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
-
-      {isMainCockpit ? <GuidedOperatorRunRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
-
-      {isMainCockpit ? <ControlledExecutionReadinessGateRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
-
-      {isMainCockpit ? <RealControlledOperatorTrialPacketRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
-
-      {isMainCockpit ? <BackendApprovalHandoffRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
-
-      {isMainCockpit ? <BackendGuardedApplyRunRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
-
-      {isMainCockpit ? <GuardedApplyRunDryRunRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
-
-      {isMainCockpit ? <TinyRealControlledTrialRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
-
-      {isMainCockpit ? <RealTrialHardeningRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
-
-      <section style={panelStack} aria-label="Unified cockpit checklist">
-        {model.panels.map((panel, panelIndex) => (
-          <article key={buildUnifiedCockpitStableKey(["cockpit-panel", model.route.slug, String(panelIndex), panel.id])} style={panelBlock}>
+          <section style={devDrawer} aria-label="Cockpit dev surface drawer">
             <div style={panelHeader}>
               <div>
-                <p style={panelEyebrow}>{panel.eyebrow}</p>
-                <h2 style={panelTitle}>{panel.title}</h2>
+                <p style={panelEyebrow}>Dev/test surface drawer</p>
+                <h2 style={sectionTitle}>Phase pages are dev/test surfaces only</h2>
               </div>
-              <span style={stateStyle(panel.state)}>{formatState(panel.state)}</span>
+              <a style={mainCockpitLink} href="/codexforge-cockpit">
+                Go to Unified CodexForge Cockpit
+              </a>
             </div>
-            <p style={bodyText}>{panel.body}</p>
-            <div style={checklistGrid}>
-              {panel.checklist.map((item, itemIndex) => (
-                <div
-                  key={buildUnifiedCockpitStableKey(["checklist-item", panel.id, String(itemIndex), item.id])}
-                  style={checklistRow}
+            <p style={bodyText}>
+              Dev surface drawer requires explicit operator intent to browse dev/test routes. Normal users should use the
+              cockpit instead of phase pages.
+            </p>
+            <div style={devRouteGrid}>
+              {model.devRoutes.map((route, routeIndex) => (
+                <a
+                  key={buildUnifiedCockpitStableKey(["dev-route", String(routeIndex), route.slug])}
+                  style={devRouteLink}
+                  href={route.href}
                 >
-                  <span style={smallStateStyle(item.state)}>{formatState(item.state)}</span>
-                  <div>
-                    <p style={checkLabel}>{item.label}</p>
-                    <p style={checkDetail}>{item.detail}</p>
-                  </div>
-                </div>
+                  <span style={routePhase}>Phase {route.phase}</span>
+                  <span style={routeLabel}>{route.label}</span>
+                  <span style={routeCommand}>{route.commandLabel}</span>
+                </a>
               ))}
             </div>
-            <div style={evidenceRail} aria-label={`${panel.title} evidence placeholders`}>
-              {panel.evidence.map((evidence, evidenceIndex) => (
-                <span key={buildUnifiedCockpitStableKey(["evidence", panel.id, String(evidenceIndex)])} style={evidenceChip}>
-                  {evidence}
-                </span>
-              ))}
-            </div>
-          </article>
-        ))}
-      </section>
-
-      <section style={integrationBand} aria-label="Guarded spine cockpit integration">
-        <h2 style={sectionTitle}>Guarded Spine Integration</h2>
-        <p style={bodyText}>
-          File-write and command-runner slices feed this cockpit as review/dev surface language only. Future real file
-          write or command execution must remain behind explicit operator approval, guards, evidence capture, result
-          capture, and recovery contract.
-        </p>
-        <div style={linkRow}>
-          <a style={safeLink} href="/controlled-real-guarded-file-write-mvp-release-candidate">
-            Controlled real guarded file-write review
-          </a>
-          <a style={safeLink} href="/controlled-real-guarded-command-mvp-release-candidate">
-            Controlled real guarded command review
-          </a>
-        </div>
-      </section>
-
-      <section style={devDrawer} aria-label="Cockpit dev surface drawer">
-        <div style={panelHeader}>
-          <div>
-            <p style={panelEyebrow}>Dev/test surface drawer</p>
-            <h2 style={sectionTitle}>Phase pages are dev/test surfaces only</h2>
-          </div>
-          <a style={mainCockpitLink} href="/codexforge-cockpit">
-            Go to Unified CodexForge Cockpit
-          </a>
-        </div>
-        <p style={bodyText}>
-          Dev surface drawer requires explicit operator intent to browse dev/test routes. Normal users should use the
-          cockpit instead of phase pages.
-        </p>
-        <div style={devRouteGrid}>
-          {model.devRoutes.map((route, routeIndex) => (
-            <a
-              key={buildUnifiedCockpitStableKey(["dev-route", String(routeIndex), route.slug])}
-              style={devRouteLink}
-              href={route.href}
-            >
-              <span style={routePhase}>Phase {route.phase}</span>
-              <span style={routeLabel}>{route.label}</span>
-              <span style={routeCommand}>{route.commandLabel}</span>
-            </a>
-          ))}
-        </div>
-      </section>
+          </section>
+        </>
+      ) : null}
     </section>
   );
 }

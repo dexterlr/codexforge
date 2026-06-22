@@ -7,7 +7,7 @@ export default function CodexForgeCockpitPageClient() {
   return (
     <CodexForgeAppShell
       activePath="/codexforge-cockpit"
-      workspaceLabel="Unified CodexForge Cockpit"
+      workspaceLabel="CodexForge Cockpit"
       nextActionContext={{ wantsOperatorOverview: false }}
       focusMode
       contentMaxWidth="wide"
