@@ -53,9 +53,9 @@ This file records the current phase posture after the latest foundation work. It
 - Project onboarding/import.
 - Better graph data volume and clustering.
 
-CodexForge checkpoint documentation now records through phase 1273.
+CodexForge checkpoint documentation now records through phase 1289.
 
-The latest family is the controlled guided operator run hardening release-candidate layer for phases 1258-1273. It adds preview-only guided operator run surfaces for goal confirmation, plan review, diff review, command review, approval confirmation, hold state, evidence review, result review, recovery review, timeline review, friction review, safety interlocks, completion checklist, first candidate, and controlled release candidate without model calls, file writes, command execution, persistence, recovery execution, queue creation, runtime starts, adapter execution, exports, or memory promotion.
+The latest family is the controlled execution readiness gate release-candidate layer for phases 1274-1289. It adds preview-only readiness gate surfaces for goal lock, plan lock, diff lock, command lock, approval lock, evidence lock, result lock, recovery lock, audit lock, safety lock, operator signoff, denied path matrix, go/no-go summary, first readiness candidate, and controlled release candidate without model calls, file writes, command execution, approval persistence, evidence/result/audit persistence, recovery execution, lock release, queue creation, runtime starts, adapter execution, exports, or memory promotion.
 
 The latest simulated runtime execution dry-run review layer covers phases 1130-1145: boundary, intent packet, plan packet, process review, port review, environment review, dependency review, risk review, evidence preview, result preview, failure preview, recovery preview, operator review, execution hold state, First Simulated Runtime Candidate, and Controlled Simulated Runtime Release Candidate. These surfaces remain static, deterministic, preview-only, denied runtime execution by default, and require explicit operator approval before any runtime start, process spawn, port binding, endpoint call, local bridge call, health probe, evidence persistence, result persistence, recovery, queue persistence, dry-run execution, model call, provider call, backend adapter execution, or domain adapter execution can exist.
 

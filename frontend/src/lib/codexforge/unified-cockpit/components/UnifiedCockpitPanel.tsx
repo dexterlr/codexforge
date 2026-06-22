@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { CockpitEvidenceResultRecoveryRoutePanel } from "../../cockpit-evidence-result-recovery/components";
+import { ControlledExecutionReadinessGateRoutePanel } from "../../controlled-execution-readiness-gate/components";
 import { EndToEndBuildFixWorkflowRoutePanel } from "../../end-to-end-build-fix-workflow/components";
 import { FirstLocalChangeTrialRoutePanel } from "../../first-local-change-trial/components";
 import { GuidedOperatorRunRoutePanel } from "../../guided-operator-run/components";
@@ -85,6 +86,8 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <EndToEndBuildFixWorkflowRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       {isMainCockpit ? <GuidedOperatorRunRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
+
+      {isMainCockpit ? <ControlledExecutionReadinessGateRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       <section style={panelStack} aria-label="Unified cockpit checklist">
         {model.panels.map((panel, panelIndex) => (

@@ -79,7 +79,23 @@ export type UnifiedCockpitRouteSlug =
   | "guided-operator-safety-interlocks"
   | "guided-operator-completion-checklist"
   | "first-guided-operator-run-candidate"
-  | "controlled-guided-operator-run-hardening-release-candidate";
+  | "controlled-guided-operator-run-hardening-release-candidate"
+  | "controlled-execution-readiness-gate-boundary"
+  | "execution-readiness-goal-lock"
+  | "execution-readiness-plan-lock"
+  | "execution-readiness-diff-lock"
+  | "execution-readiness-command-lock"
+  | "execution-readiness-approval-lock"
+  | "execution-readiness-evidence-lock"
+  | "execution-readiness-result-lock"
+  | "execution-readiness-recovery-lock"
+  | "execution-readiness-audit-lock"
+  | "execution-readiness-safety-lock"
+  | "execution-readiness-operator-signoff"
+  | "execution-readiness-denied-path-matrix"
+  | "execution-readiness-go-no-go-summary"
+  | "first-controlled-execution-readiness-candidate"
+  | "controlled-execution-readiness-gate-release-candidate";
 
 export type UnifiedCockpitPanelState = "blocked" | "preview-only" | "approval-required" | "dev-test-only";
 
@@ -179,6 +195,20 @@ export const UNIFIED_CODEXFORGE_COCKPIT_LANGUAGE = [
   "Guided operator friction review",
   "Guided operator safety interlocks",
   "Guided operator completion checklist",
+  "Controlled execution readiness gate",
+  "Execution readiness goal lock",
+  "Execution readiness plan lock",
+  "Execution readiness diff lock",
+  "Execution readiness command lock",
+  "Execution readiness approval lock",
+  "Execution readiness evidence lock",
+  "Execution readiness result lock",
+  "Execution readiness recovery lock",
+  "Execution readiness audit lock",
+  "Execution readiness safety lock",
+  "Execution readiness operator signoff",
+  "Execution readiness denied path matrix",
+  "Execution readiness go no-go summary",
   "Cockpit evidence stream",
   "Cockpit result summary",
   "Cockpit recovery options",
@@ -189,6 +219,7 @@ export const UNIFIED_CODEXFORGE_COCKPIT_LANGUAGE = [
   "No evidence persistence from the cockpit",
   "No result persistence from the cockpit",
   "No recovery execution from the cockpit",
+  "No execution lock release from the cockpit",
   "Unified cockpit checklist",
 ].join(" | ");
 
@@ -241,10 +272,25 @@ const GLOBAL_SAFETY_COPY = [
   "Guided operator friction review.",
   "Guided operator safety interlocks.",
   "Guided operator completion checklist.",
+  "Controlled execution readiness gate.",
+  "Execution readiness goal lock.",
+  "Execution readiness plan lock.",
+  "Execution readiness diff lock.",
+  "Execution readiness command lock.",
+  "Execution readiness approval lock.",
+  "Execution readiness evidence lock.",
+  "Execution readiness result lock.",
+  "Execution readiness recovery lock.",
+  "Execution readiness audit lock.",
+  "Execution readiness safety lock.",
+  "Execution readiness operator signoff.",
+  "Execution readiness denied path matrix.",
+  "Execution readiness go no-go summary.",
   "Evidence result and recovery remain preview-only.",
   "No evidence persistence from the cockpit.",
   "No result persistence from the cockpit.",
   "No recovery execution from the cockpit.",
+  "No execution lock release from the cockpit.",
 ] as const;
 
 const TARGET_FAMILIES = [
@@ -824,6 +870,118 @@ const DEV_ROUTES: readonly UnifiedCockpitDevRoute[] = [
     label: "Controlled Guided Operator Run Hardening Release Candidate",
     commandLabel: "Go to Controlled Guided Operator Run Hardening Release Candidate",
   },
+  {
+    slug: "controlled-execution-readiness-gate-boundary",
+    href: "/controlled-execution-readiness-gate-boundary",
+    phase: "1274",
+    label: "Controlled Execution Readiness Gate Boundary",
+    commandLabel: "Go to Controlled Execution Readiness Gate Boundary",
+  },
+  {
+    slug: "execution-readiness-goal-lock",
+    href: "/execution-readiness-goal-lock",
+    phase: "1275",
+    label: "Execution Readiness Goal Lock",
+    commandLabel: "Go to Execution Readiness Goal Lock",
+  },
+  {
+    slug: "execution-readiness-plan-lock",
+    href: "/execution-readiness-plan-lock",
+    phase: "1276",
+    label: "Execution Readiness Plan Lock",
+    commandLabel: "Go to Execution Readiness Plan Lock",
+  },
+  {
+    slug: "execution-readiness-diff-lock",
+    href: "/execution-readiness-diff-lock",
+    phase: "1277",
+    label: "Execution Readiness Diff Lock",
+    commandLabel: "Go to Execution Readiness Diff Lock",
+  },
+  {
+    slug: "execution-readiness-command-lock",
+    href: "/execution-readiness-command-lock",
+    phase: "1278",
+    label: "Execution Readiness Command Lock",
+    commandLabel: "Go to Execution Readiness Command Lock",
+  },
+  {
+    slug: "execution-readiness-approval-lock",
+    href: "/execution-readiness-approval-lock",
+    phase: "1279",
+    label: "Execution Readiness Approval Lock",
+    commandLabel: "Go to Execution Readiness Approval Lock",
+  },
+  {
+    slug: "execution-readiness-evidence-lock",
+    href: "/execution-readiness-evidence-lock",
+    phase: "1280",
+    label: "Execution Readiness Evidence Lock",
+    commandLabel: "Go to Execution Readiness Evidence Lock",
+  },
+  {
+    slug: "execution-readiness-result-lock",
+    href: "/execution-readiness-result-lock",
+    phase: "1281",
+    label: "Execution Readiness Result Lock",
+    commandLabel: "Go to Execution Readiness Result Lock",
+  },
+  {
+    slug: "execution-readiness-recovery-lock",
+    href: "/execution-readiness-recovery-lock",
+    phase: "1282",
+    label: "Execution Readiness Recovery Lock",
+    commandLabel: "Go to Execution Readiness Recovery Lock",
+  },
+  {
+    slug: "execution-readiness-audit-lock",
+    href: "/execution-readiness-audit-lock",
+    phase: "1283",
+    label: "Execution Readiness Audit Lock",
+    commandLabel: "Go to Execution Readiness Audit Lock",
+  },
+  {
+    slug: "execution-readiness-safety-lock",
+    href: "/execution-readiness-safety-lock",
+    phase: "1284",
+    label: "Execution Readiness Safety Lock",
+    commandLabel: "Go to Execution Readiness Safety Lock",
+  },
+  {
+    slug: "execution-readiness-operator-signoff",
+    href: "/execution-readiness-operator-signoff",
+    phase: "1285",
+    label: "Execution Readiness Operator Signoff",
+    commandLabel: "Go to Execution Readiness Operator Signoff",
+  },
+  {
+    slug: "execution-readiness-denied-path-matrix",
+    href: "/execution-readiness-denied-path-matrix",
+    phase: "1286",
+    label: "Execution Readiness Denied Path Matrix",
+    commandLabel: "Go to Execution Readiness Denied Path Matrix",
+  },
+  {
+    slug: "execution-readiness-go-no-go-summary",
+    href: "/execution-readiness-go-no-go-summary",
+    phase: "1287",
+    label: "Execution Readiness Go No Go Summary",
+    commandLabel: "Go to Execution Readiness Go No Go Summary",
+  },
+  {
+    slug: "first-controlled-execution-readiness-candidate",
+    href: "/first-controlled-execution-readiness-candidate",
+    phase: "1288",
+    label: "First Controlled Execution Readiness Candidate",
+    commandLabel: "Go to First Controlled Execution Readiness Candidate",
+  },
+  {
+    slug: "controlled-execution-readiness-gate-release-candidate",
+    href: "/controlled-execution-readiness-gate-release-candidate",
+    phase: "1289",
+    label: "Controlled Execution Readiness Gate Release Candidate",
+    commandLabel: "Go to Controlled Execution Readiness Gate Release Candidate",
+  },
 ] as const;
 
 const PANELS: readonly UnifiedCockpitPanel[] = [
@@ -1171,6 +1329,20 @@ const ROUTES: readonly UnifiedCockpitRouteDefinition[] = [
       "Guided operator friction review",
       "Guided operator safety interlocks",
       "Guided operator completion checklist",
+      "Controlled execution readiness gate",
+      "Execution readiness goal lock",
+      "Execution readiness plan lock",
+      "Execution readiness diff lock",
+      "Execution readiness command lock",
+      "Execution readiness approval lock",
+      "Execution readiness evidence lock",
+      "Execution readiness result lock",
+      "Execution readiness recovery lock",
+      "Execution readiness audit lock",
+      "Execution readiness safety lock",
+      "Execution readiness operator signoff",
+      "Execution readiness denied path matrix",
+      "Execution readiness go no-go summary",
       "Cockpit evidence stream",
       "Cockpit result summary",
       "Cockpit recovery options",
@@ -1181,10 +1353,11 @@ const ROUTES: readonly UnifiedCockpitRouteDefinition[] = [
       "No evidence persistence from the cockpit",
       "No result persistence from the cockpit",
       "No recovery execution from the cockpit",
+      "No execution lock release from the cockpit",
       "Unified cockpit checklist",
     ],
-    deniedCopy: "Denied cockpit paths remain blocked: no real mutation, no command execution, no provider calls, no runtime starts, no adapter execution, no evidence persistence, no result persistence, no recovery execution, and no approval persistence.",
-    approvalCopy: "Future file writes and commands must pass explicit operator approval with guards, evidence, result capture, recovery contract, and audit preview.",
+    deniedCopy: "Denied cockpit paths remain blocked: no real mutation, no command execution, no execution lock release, no provider calls, no runtime starts, no adapter execution, no evidence persistence, no result persistence, no recovery execution, no queue persistence, and no approval persistence.",
+    approvalCopy: "Future file writes and commands must pass explicit operator approval with goal lock, plan lock, diff lock, command lock, approval lock, evidence capture, result capture, recovery contract, audit preview, safety lock, operator signoff, denied path matrix, and go/no-go summary.",
     panelIds: [
       "goal-intake",
       "plan-summary",
