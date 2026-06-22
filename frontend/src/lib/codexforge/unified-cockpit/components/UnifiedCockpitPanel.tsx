@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { DailyTestableCockpitMvpPanel } from "../../daily-testable-cockpit-mvp/components";
 import { GoalCompilerCockpitSummaryPanel } from "../../goal-compiler/components";
+import { PlanDiffCommandComposerCockpitSummaryPanel } from "../../plan-diff-command-composer/components";
 import { ProjectContextBrainCockpitSummaryPanel } from "../../project-context-brain/components";
 import {
   buildUnifiedCockpitRouteModel,
@@ -67,6 +68,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <PlanDiffCommandComposerCockpitSummaryPanel /> : null}
 
       {!isMainCockpit ? (
         <>
