@@ -6,7 +6,7 @@ CodexForge is a local-first AI developer/operator workspace. It provides fronten
 
 ## Current State
 
-Current checkpoint: through phase 1321, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the backend approval handoff release-candidate layer: Backend Approval Handoff Boundary, Backend Approval Ticket Contract, Backend File Write Handoff Contract, Backend Command Handoff Contract, Backend Evidence Handoff Contract, Backend Result Handoff Contract, Backend Recovery Handoff Contract, Backend Audit Handoff Contract, Backend Queue Handoff Contract, Backend Approval Denied Path Matrix, Backend Approval Operator Signoff, Backend Approval Go No-Go Review, Backend Handoff Security Review, Backend Handoff Failure Review, First Backend Approval Handoff Candidate, and Controlled Backend Approval Handoff Release Candidate. These surfaces extend the unified cockpit without allowing UI command execution, shell execution, backend execution, model calls, provider calls, connector calls, file writes, runtime execution, adapter execution, approval persistence, queue persistence, evidence/result/audit persistence, export writing, rollback/retry/recovery execution, environment value reads, process spawning, port binding, real operator trial execution, or hidden mutation.
+Current checkpoint: through phase 1337, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest detected milestone family is the backend guarded apply/run preview release-candidate layer: Backend Guarded Apply Run Boundary, Backend Guarded Apply Contract, Backend Guarded Run Contract, Backend Guarded Combined Apply Run Contract, Backend Guarded Path Guard Contract, Backend Guarded Command Guard Contract, Backend Guarded Approval Enforcement Contract, Backend Guarded Evidence Contract, Backend Guarded Result Contract, Backend Guarded Recovery Contract, Backend Guarded Audit Contract, Backend Guarded Queue State Contract, Backend Guarded Denied Path Review, Backend Guarded Go No-Go Review, First Backend Guarded Apply Run Candidate, and Controlled Backend Guarded Apply Run Preview Release Candidate. These surfaces extend the unified cockpit without allowing UI command execution, shell execution, backend execution, apply execution, model calls, provider calls, connector calls, file writes, runtime execution, adapter execution, approval persistence, queue persistence, evidence/result/audit persistence, export writing, rollback/retry/recovery execution, environment value reads, process spawning, port binding, real operator trial execution, or hidden mutation.
 
 CodexForge currently includes deterministic frontend review and approval surfaces for:
 
@@ -80,7 +80,7 @@ git diff --stat
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 1321.
+- Current checkpoint: documentation and hygiene alignment through detected phase 1337.
 - Next milestone: keep model/provider/router, local model, connector, automation, unified workflow, and beta operator surfaces preview-only or review-only while defining any approved backend/local/provider boundaries before claiming execution.
 - Do not claim live execution unless an approved local/backend/provider boundary exists.
 - Do not claim CI passed unless actual CI or terminal logs prove it.
