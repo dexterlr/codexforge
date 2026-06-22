@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { BackendApprovalHandoffRoutePanel } from "../../backend-approval-handoff/components";
 import { CockpitEvidenceResultRecoveryRoutePanel } from "../../cockpit-evidence-result-recovery/components";
 import { ControlledExecutionReadinessGateRoutePanel } from "../../controlled-execution-readiness-gate/components";
 import { EndToEndBuildFixWorkflowRoutePanel } from "../../end-to-end-build-fix-workflow/components";
@@ -91,6 +92,8 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <ControlledExecutionReadinessGateRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       {isMainCockpit ? <RealControlledOperatorTrialPacketRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
+
+      {isMainCockpit ? <BackendApprovalHandoffRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       <section style={panelStack} aria-label="Unified cockpit checklist">
         {model.panels.map((panel, panelIndex) => (

@@ -111,7 +111,23 @@ export type UnifiedCockpitRouteSlug =
   | "real-trial-denied-path-checklist"
   | "real-trial-go-no-go-review"
   | "first-real-controlled-operator-trial-candidate"
-  | "controlled-real-operator-trial-packet-release-candidate";
+  | "controlled-real-operator-trial-packet-release-candidate"
+  | "backend-approval-handoff-boundary"
+  | "backend-approval-ticket-contract"
+  | "backend-file-write-handoff-contract"
+  | "backend-command-handoff-contract"
+  | "backend-evidence-handoff-contract"
+  | "backend-result-handoff-contract"
+  | "backend-recovery-handoff-contract"
+  | "backend-audit-handoff-contract"
+  | "backend-queue-handoff-contract"
+  | "backend-approval-denied-path-matrix"
+  | "backend-approval-operator-signoff"
+  | "backend-approval-go-no-go-review"
+  | "backend-handoff-security-review"
+  | "backend-handoff-failure-review"
+  | "first-backend-approval-handoff-candidate"
+  | "controlled-backend-approval-handoff-release-candidate";
 
 export type UnifiedCockpitPanelState = "blocked" | "preview-only" | "approval-required" | "dev-test-only";
 
@@ -240,6 +256,21 @@ export const UNIFIED_CODEXFORGE_COCKPIT_LANGUAGE = [
   "Real trial denied path checklist",
   "Real trial go no-go review",
   "No real operator trial execution from the cockpit",
+  "Backend approval handoff packet",
+  "Backend approval ticket contract",
+  "Backend file write handoff contract",
+  "Backend command handoff contract",
+  "Backend evidence handoff contract",
+  "Backend result handoff contract",
+  "Backend recovery handoff contract",
+  "Backend audit handoff contract",
+  "Backend queue handoff contract",
+  "Backend approval denied path matrix",
+  "Backend approval operator signoff",
+  "Backend approval go no-go review",
+  "Backend handoff security review",
+  "Backend handoff failure review",
+  "No backend execution from the cockpit",
   "Cockpit evidence stream",
   "Cockpit result summary",
   "Cockpit recovery options",
@@ -1140,6 +1171,118 @@ const DEV_ROUTES: readonly UnifiedCockpitDevRoute[] = [
     label: "Controlled Real Operator Trial Packet Release Candidate",
     commandLabel: "Go to Controlled Real Operator Trial Packet Release Candidate",
   },
+  {
+    slug: "backend-approval-handoff-boundary",
+    href: "/backend-approval-handoff-boundary",
+    phase: "1306",
+    label: "Backend Approval Handoff Boundary",
+    commandLabel: "Go to Backend Approval Handoff Boundary",
+  },
+  {
+    slug: "backend-approval-ticket-contract",
+    href: "/backend-approval-ticket-contract",
+    phase: "1307",
+    label: "Backend Approval Ticket Contract",
+    commandLabel: "Go to Backend Approval Ticket Contract",
+  },
+  {
+    slug: "backend-file-write-handoff-contract",
+    href: "/backend-file-write-handoff-contract",
+    phase: "1308",
+    label: "Backend File Write Handoff Contract",
+    commandLabel: "Go to Backend File Write Handoff Contract",
+  },
+  {
+    slug: "backend-command-handoff-contract",
+    href: "/backend-command-handoff-contract",
+    phase: "1309",
+    label: "Backend Command Handoff Contract",
+    commandLabel: "Go to Backend Command Handoff Contract",
+  },
+  {
+    slug: "backend-evidence-handoff-contract",
+    href: "/backend-evidence-handoff-contract",
+    phase: "1310",
+    label: "Backend Evidence Handoff Contract",
+    commandLabel: "Go to Backend Evidence Handoff Contract",
+  },
+  {
+    slug: "backend-result-handoff-contract",
+    href: "/backend-result-handoff-contract",
+    phase: "1311",
+    label: "Backend Result Handoff Contract",
+    commandLabel: "Go to Backend Result Handoff Contract",
+  },
+  {
+    slug: "backend-recovery-handoff-contract",
+    href: "/backend-recovery-handoff-contract",
+    phase: "1312",
+    label: "Backend Recovery Handoff Contract",
+    commandLabel: "Go to Backend Recovery Handoff Contract",
+  },
+  {
+    slug: "backend-audit-handoff-contract",
+    href: "/backend-audit-handoff-contract",
+    phase: "1313",
+    label: "Backend Audit Handoff Contract",
+    commandLabel: "Go to Backend Audit Handoff Contract",
+  },
+  {
+    slug: "backend-queue-handoff-contract",
+    href: "/backend-queue-handoff-contract",
+    phase: "1314",
+    label: "Backend Queue Handoff Contract",
+    commandLabel: "Go to Backend Queue Handoff Contract",
+  },
+  {
+    slug: "backend-approval-denied-path-matrix",
+    href: "/backend-approval-denied-path-matrix",
+    phase: "1315",
+    label: "Backend Approval Denied Path Matrix",
+    commandLabel: "Go to Backend Approval Denied Path Matrix",
+  },
+  {
+    slug: "backend-approval-operator-signoff",
+    href: "/backend-approval-operator-signoff",
+    phase: "1316",
+    label: "Backend Approval Operator Signoff",
+    commandLabel: "Go to Backend Approval Operator Signoff",
+  },
+  {
+    slug: "backend-approval-go-no-go-review",
+    href: "/backend-approval-go-no-go-review",
+    phase: "1317",
+    label: "Backend Approval Go No Go Review",
+    commandLabel: "Go to Backend Approval Go No Go Review",
+  },
+  {
+    slug: "backend-handoff-security-review",
+    href: "/backend-handoff-security-review",
+    phase: "1318",
+    label: "Backend Handoff Security Review",
+    commandLabel: "Go to Backend Handoff Security Review",
+  },
+  {
+    slug: "backend-handoff-failure-review",
+    href: "/backend-handoff-failure-review",
+    phase: "1319",
+    label: "Backend Handoff Failure Review",
+    commandLabel: "Go to Backend Handoff Failure Review",
+  },
+  {
+    slug: "first-backend-approval-handoff-candidate",
+    href: "/first-backend-approval-handoff-candidate",
+    phase: "1320",
+    label: "First Backend Approval Handoff Candidate",
+    commandLabel: "Go to First Backend Approval Handoff Candidate",
+  },
+  {
+    slug: "controlled-backend-approval-handoff-release-candidate",
+    href: "/controlled-backend-approval-handoff-release-candidate",
+    phase: "1321",
+    label: "Controlled Backend Approval Handoff Release Candidate",
+    commandLabel: "Go to Controlled Backend Approval Handoff Release Candidate",
+  },
 ] as const;
 
 const PANELS: readonly UnifiedCockpitPanel[] = [
@@ -1515,6 +1658,21 @@ const ROUTES: readonly UnifiedCockpitRouteDefinition[] = [
       "Real trial operator checklist",
       "Real trial denied path checklist",
       "Real trial go no-go review",
+      "Backend approval handoff packet",
+      "Backend approval ticket contract",
+      "Backend file write handoff contract",
+      "Backend command handoff contract",
+      "Backend evidence handoff contract",
+      "Backend result handoff contract",
+      "Backend recovery handoff contract",
+      "Backend audit handoff contract",
+      "Backend queue handoff contract",
+      "Backend approval denied path matrix",
+      "Backend approval operator signoff",
+      "Backend approval go no-go review",
+      "Backend handoff security review",
+      "Backend handoff failure review",
+      "No backend execution from the cockpit",
       "Cockpit evidence stream",
       "Cockpit result summary",
       "Cockpit recovery options",
