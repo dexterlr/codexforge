@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { DailyTestableCockpitMvpPanel } from "../../daily-testable-cockpit-mvp/components";
+import { ProjectContextBrainCockpitSummaryPanel } from "../../project-context-brain/components";
 import {
   buildUnifiedCockpitRouteModel,
   buildUnifiedCockpitStableKey,
@@ -63,6 +64,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       </section>
 
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
+      {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
 
       {!isMainCockpit ? (
         <>
