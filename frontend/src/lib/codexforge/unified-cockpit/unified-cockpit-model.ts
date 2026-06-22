@@ -63,7 +63,23 @@ export type UnifiedCockpitRouteSlug =
   | "build-fix-recovery-packet"
   | "build-fix-audit-timeline-packet"
   | "first-end-to-end-build-fix-candidate"
-  | "controlled-end-to-end-build-fix-workflow-release-candidate";
+  | "controlled-end-to-end-build-fix-workflow-release-candidate"
+  | "guided-operator-run-boundary"
+  | "guided-operator-goal-confirmation"
+  | "guided-operator-plan-review"
+  | "guided-operator-diff-review"
+  | "guided-operator-command-review"
+  | "guided-operator-approval-confirmation"
+  | "guided-operator-hold-state-review"
+  | "guided-operator-evidence-review"
+  | "guided-operator-result-review"
+  | "guided-operator-recovery-review"
+  | "guided-operator-timeline-review"
+  | "guided-operator-friction-review"
+  | "guided-operator-safety-interlocks"
+  | "guided-operator-completion-checklist"
+  | "first-guided-operator-run-candidate"
+  | "controlled-guided-operator-run-hardening-release-candidate";
 
 export type UnifiedCockpitPanelState = "blocked" | "preview-only" | "approval-required" | "dev-test-only";
 
@@ -149,6 +165,20 @@ export const UNIFIED_CODEXFORGE_COCKPIT_LANGUAGE = [
   "Build fix result decision packet",
   "Build fix recovery packet",
   "Build fix audit timeline packet",
+  "First guided operator run",
+  "Guided operator goal confirmation",
+  "Guided operator plan review",
+  "Guided operator diff review",
+  "Guided operator command review",
+  "Guided operator approval confirmation",
+  "Guided operator hold state review",
+  "Guided operator evidence review",
+  "Guided operator result review",
+  "Guided operator recovery review",
+  "Guided operator timeline review",
+  "Guided operator friction review",
+  "Guided operator safety interlocks",
+  "Guided operator completion checklist",
   "Cockpit evidence stream",
   "Cockpit result summary",
   "Cockpit recovery options",
@@ -197,6 +227,20 @@ const GLOBAL_SAFETY_COPY = [
   "Build fix result decision packet.",
   "Build fix recovery packet.",
   "Build fix audit timeline packet.",
+  "First guided operator run.",
+  "Guided operator goal confirmation.",
+  "Guided operator plan review.",
+  "Guided operator diff review.",
+  "Guided operator command review.",
+  "Guided operator approval confirmation.",
+  "Guided operator hold state review.",
+  "Guided operator evidence review.",
+  "Guided operator result review.",
+  "Guided operator recovery review.",
+  "Guided operator timeline review.",
+  "Guided operator friction review.",
+  "Guided operator safety interlocks.",
+  "Guided operator completion checklist.",
   "Evidence result and recovery remain preview-only.",
   "No evidence persistence from the cockpit.",
   "No result persistence from the cockpit.",
@@ -668,6 +712,118 @@ const DEV_ROUTES: readonly UnifiedCockpitDevRoute[] = [
     label: "Controlled End to End Build Fix Workflow Release Candidate",
     commandLabel: "Go to Controlled End to End Build Fix Workflow Release Candidate",
   },
+  {
+    slug: "guided-operator-run-boundary",
+    href: "/guided-operator-run-boundary",
+    phase: "1258",
+    label: "Guided Operator Run Boundary",
+    commandLabel: "Go to Guided Operator Run Boundary",
+  },
+  {
+    slug: "guided-operator-goal-confirmation",
+    href: "/guided-operator-goal-confirmation",
+    phase: "1259",
+    label: "Guided Operator Goal Confirmation",
+    commandLabel: "Go to Guided Operator Goal Confirmation",
+  },
+  {
+    slug: "guided-operator-plan-review",
+    href: "/guided-operator-plan-review",
+    phase: "1260",
+    label: "Guided Operator Plan Review",
+    commandLabel: "Go to Guided Operator Plan Review",
+  },
+  {
+    slug: "guided-operator-diff-review",
+    href: "/guided-operator-diff-review",
+    phase: "1261",
+    label: "Guided Operator Diff Review",
+    commandLabel: "Go to Guided Operator Diff Review",
+  },
+  {
+    slug: "guided-operator-command-review",
+    href: "/guided-operator-command-review",
+    phase: "1262",
+    label: "Guided Operator Command Review",
+    commandLabel: "Go to Guided Operator Command Review",
+  },
+  {
+    slug: "guided-operator-approval-confirmation",
+    href: "/guided-operator-approval-confirmation",
+    phase: "1263",
+    label: "Guided Operator Approval Confirmation",
+    commandLabel: "Go to Guided Operator Approval Confirmation",
+  },
+  {
+    slug: "guided-operator-hold-state-review",
+    href: "/guided-operator-hold-state-review",
+    phase: "1264",
+    label: "Guided Operator Hold State Review",
+    commandLabel: "Go to Guided Operator Hold State Review",
+  },
+  {
+    slug: "guided-operator-evidence-review",
+    href: "/guided-operator-evidence-review",
+    phase: "1265",
+    label: "Guided Operator Evidence Review",
+    commandLabel: "Go to Guided Operator Evidence Review",
+  },
+  {
+    slug: "guided-operator-result-review",
+    href: "/guided-operator-result-review",
+    phase: "1266",
+    label: "Guided Operator Result Review",
+    commandLabel: "Go to Guided Operator Result Review",
+  },
+  {
+    slug: "guided-operator-recovery-review",
+    href: "/guided-operator-recovery-review",
+    phase: "1267",
+    label: "Guided Operator Recovery Review",
+    commandLabel: "Go to Guided Operator Recovery Review",
+  },
+  {
+    slug: "guided-operator-timeline-review",
+    href: "/guided-operator-timeline-review",
+    phase: "1268",
+    label: "Guided Operator Timeline Review",
+    commandLabel: "Go to Guided Operator Timeline Review",
+  },
+  {
+    slug: "guided-operator-friction-review",
+    href: "/guided-operator-friction-review",
+    phase: "1269",
+    label: "Guided Operator Friction Review",
+    commandLabel: "Go to Guided Operator Friction Review",
+  },
+  {
+    slug: "guided-operator-safety-interlocks",
+    href: "/guided-operator-safety-interlocks",
+    phase: "1270",
+    label: "Guided Operator Safety Interlocks",
+    commandLabel: "Go to Guided Operator Safety Interlocks",
+  },
+  {
+    slug: "guided-operator-completion-checklist",
+    href: "/guided-operator-completion-checklist",
+    phase: "1271",
+    label: "Guided Operator Completion Checklist",
+    commandLabel: "Go to Guided Operator Completion Checklist",
+  },
+  {
+    slug: "first-guided-operator-run-candidate",
+    href: "/first-guided-operator-run-candidate",
+    phase: "1272",
+    label: "First Guided Operator Run Candidate",
+    commandLabel: "Go to First Guided Operator Run Candidate",
+  },
+  {
+    slug: "controlled-guided-operator-run-hardening-release-candidate",
+    href: "/controlled-guided-operator-run-hardening-release-candidate",
+    phase: "1273",
+    label: "Controlled Guided Operator Run Hardening Release Candidate",
+    commandLabel: "Go to Controlled Guided Operator Run Hardening Release Candidate",
+  },
 ] as const;
 
 const PANELS: readonly UnifiedCockpitPanel[] = [
@@ -1001,6 +1157,20 @@ const ROUTES: readonly UnifiedCockpitRouteDefinition[] = [
       "Build fix result decision packet",
       "Build fix recovery packet",
       "Build fix audit timeline packet",
+      "First guided operator run",
+      "Guided operator goal confirmation",
+      "Guided operator plan review",
+      "Guided operator diff review",
+      "Guided operator command review",
+      "Guided operator approval confirmation",
+      "Guided operator hold state review",
+      "Guided operator evidence review",
+      "Guided operator result review",
+      "Guided operator recovery review",
+      "Guided operator timeline review",
+      "Guided operator friction review",
+      "Guided operator safety interlocks",
+      "Guided operator completion checklist",
       "Cockpit evidence stream",
       "Cockpit result summary",
       "Cockpit recovery options",
