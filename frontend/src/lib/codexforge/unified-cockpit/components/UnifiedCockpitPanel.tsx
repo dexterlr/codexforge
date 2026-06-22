@@ -10,6 +10,7 @@ import { FirstLocalChangeTrialRoutePanel } from "../../first-local-change-trial/
 import { GuardedApplyRunDryRunRoutePanel } from "../../guarded-apply-run-dry-run/components";
 import { GuidedOperatorRunRoutePanel } from "../../guided-operator-run/components";
 import { RealControlledOperatorTrialPacketRoutePanel } from "../../real-controlled-operator-trial-packet/components";
+import { RealTrialHardeningRoutePanel } from "../../real-trial-hardening/components";
 import { TinyRealControlledTrialRoutePanel } from "../../tiny-real-controlled-trial/components";
 import {
   buildUnifiedCockpitRouteModel,
@@ -103,6 +104,8 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <GuardedApplyRunDryRunRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       {isMainCockpit ? <TinyRealControlledTrialRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
+
+      {isMainCockpit ? <RealTrialHardeningRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       <section style={panelStack} aria-label="Unified cockpit checklist">
         {model.panels.map((panel, panelIndex) => (
