@@ -47,7 +47,23 @@ export type UnifiedCockpitRouteSlug =
   | "local-change-cockpit-trial-view"
   | "local-change-denied-path-review"
   | "first-approved-local-change-candidate"
-  | "controlled-first-local-change-trial-release-candidate";
+  | "controlled-first-local-change-trial-release-candidate"
+  | "end-to-end-build-fix-workflow-boundary"
+  | "build-fix-goal-intake-packet"
+  | "build-fix-project-context-packet"
+  | "build-fix-plan-summary-packet"
+  | "build-fix-file-diff-packet"
+  | "build-fix-command-preview-packet"
+  | "build-fix-risk-review-packet"
+  | "build-fix-approval-ticket-packet"
+  | "build-fix-apply-hold-packet"
+  | "build-fix-command-hold-packet"
+  | "build-fix-evidence-packet"
+  | "build-fix-result-decision-packet"
+  | "build-fix-recovery-packet"
+  | "build-fix-audit-timeline-packet"
+  | "first-end-to-end-build-fix-candidate"
+  | "controlled-end-to-end-build-fix-workflow-release-candidate";
 
 export type UnifiedCockpitPanelState = "blocked" | "preview-only" | "approval-required" | "dev-test-only";
 
@@ -119,6 +135,20 @@ export const UNIFIED_CODEXFORGE_COCKPIT_LANGUAGE = [
   "Local change result preview",
   "Local change recovery preview",
   "Local change audit preview",
+  "First end-to-end build fix workflow",
+  "Build fix goal intake packet",
+  "Build fix project context packet",
+  "Build fix plan summary packet",
+  "Build fix file diff packet",
+  "Build fix command preview packet",
+  "Build fix risk review packet",
+  "Build fix approval ticket packet",
+  "Build fix apply hold packet",
+  "Build fix command hold packet",
+  "Build fix evidence packet",
+  "Build fix result decision packet",
+  "Build fix recovery packet",
+  "Build fix audit timeline packet",
   "Cockpit evidence stream",
   "Cockpit result summary",
   "Cockpit recovery options",
@@ -153,6 +183,20 @@ const GLOBAL_SAFETY_COPY = [
   "Local change result preview.",
   "Local change recovery preview.",
   "Local change audit preview.",
+  "First end-to-end build fix workflow.",
+  "Build fix goal intake packet.",
+  "Build fix project context packet.",
+  "Build fix plan summary packet.",
+  "Build fix file diff packet.",
+  "Build fix command preview packet.",
+  "Build fix risk review packet.",
+  "Build fix approval ticket packet.",
+  "Build fix apply hold packet.",
+  "Build fix command hold packet.",
+  "Build fix evidence packet.",
+  "Build fix result decision packet.",
+  "Build fix recovery packet.",
+  "Build fix audit timeline packet.",
   "Evidence result and recovery remain preview-only.",
   "No evidence persistence from the cockpit.",
   "No result persistence from the cockpit.",
@@ -512,6 +556,118 @@ const DEV_ROUTES: readonly UnifiedCockpitDevRoute[] = [
     label: "Controlled First Local Change Trial Release Candidate",
     commandLabel: "Go to Controlled First Local Change Trial Release Candidate",
   },
+  {
+    slug: "end-to-end-build-fix-workflow-boundary",
+    href: "/end-to-end-build-fix-workflow-boundary",
+    phase: "1242",
+    label: "End to End Build Fix Workflow Boundary",
+    commandLabel: "Go to End to End Build Fix Workflow Boundary",
+  },
+  {
+    slug: "build-fix-goal-intake-packet",
+    href: "/build-fix-goal-intake-packet",
+    phase: "1243",
+    label: "Build Fix Goal Intake Packet",
+    commandLabel: "Go to Build Fix Goal Intake Packet",
+  },
+  {
+    slug: "build-fix-project-context-packet",
+    href: "/build-fix-project-context-packet",
+    phase: "1244",
+    label: "Build Fix Project Context Packet",
+    commandLabel: "Go to Build Fix Project Context Packet",
+  },
+  {
+    slug: "build-fix-plan-summary-packet",
+    href: "/build-fix-plan-summary-packet",
+    phase: "1245",
+    label: "Build Fix Plan Summary Packet",
+    commandLabel: "Go to Build Fix Plan Summary Packet",
+  },
+  {
+    slug: "build-fix-file-diff-packet",
+    href: "/build-fix-file-diff-packet",
+    phase: "1246",
+    label: "Build Fix File Diff Packet",
+    commandLabel: "Go to Build Fix File Diff Packet",
+  },
+  {
+    slug: "build-fix-command-preview-packet",
+    href: "/build-fix-command-preview-packet",
+    phase: "1247",
+    label: "Build Fix Command Preview Packet",
+    commandLabel: "Go to Build Fix Command Preview Packet",
+  },
+  {
+    slug: "build-fix-risk-review-packet",
+    href: "/build-fix-risk-review-packet",
+    phase: "1248",
+    label: "Build Fix Risk Review Packet",
+    commandLabel: "Go to Build Fix Risk Review Packet",
+  },
+  {
+    slug: "build-fix-approval-ticket-packet",
+    href: "/build-fix-approval-ticket-packet",
+    phase: "1249",
+    label: "Build Fix Approval Ticket Packet",
+    commandLabel: "Go to Build Fix Approval Ticket Packet",
+  },
+  {
+    slug: "build-fix-apply-hold-packet",
+    href: "/build-fix-apply-hold-packet",
+    phase: "1250",
+    label: "Build Fix Apply Hold Packet",
+    commandLabel: "Go to Build Fix Apply Hold Packet",
+  },
+  {
+    slug: "build-fix-command-hold-packet",
+    href: "/build-fix-command-hold-packet",
+    phase: "1251",
+    label: "Build Fix Command Hold Packet",
+    commandLabel: "Go to Build Fix Command Hold Packet",
+  },
+  {
+    slug: "build-fix-evidence-packet",
+    href: "/build-fix-evidence-packet",
+    phase: "1252",
+    label: "Build Fix Evidence Packet",
+    commandLabel: "Go to Build Fix Evidence Packet",
+  },
+  {
+    slug: "build-fix-result-decision-packet",
+    href: "/build-fix-result-decision-packet",
+    phase: "1253",
+    label: "Build Fix Result Decision Packet",
+    commandLabel: "Go to Build Fix Result Decision Packet",
+  },
+  {
+    slug: "build-fix-recovery-packet",
+    href: "/build-fix-recovery-packet",
+    phase: "1254",
+    label: "Build Fix Recovery Packet",
+    commandLabel: "Go to Build Fix Recovery Packet",
+  },
+  {
+    slug: "build-fix-audit-timeline-packet",
+    href: "/build-fix-audit-timeline-packet",
+    phase: "1255",
+    label: "Build Fix Audit Timeline Packet",
+    commandLabel: "Go to Build Fix Audit Timeline Packet",
+  },
+  {
+    slug: "first-end-to-end-build-fix-candidate",
+    href: "/first-end-to-end-build-fix-candidate",
+    phase: "1256",
+    label: "First End to End Build Fix Candidate",
+    commandLabel: "Go to First End to End Build Fix Candidate",
+  },
+  {
+    slug: "controlled-end-to-end-build-fix-workflow-release-candidate",
+    href: "/controlled-end-to-end-build-fix-workflow-release-candidate",
+    phase: "1257",
+    label: "Controlled End to End Build Fix Workflow Release Candidate",
+    commandLabel: "Go to Controlled End to End Build Fix Workflow Release Candidate",
+  },
 ] as const;
 
 const PANELS: readonly UnifiedCockpitPanel[] = [
@@ -831,6 +987,20 @@ const ROUTES: readonly UnifiedCockpitRouteDefinition[] = [
       "Local change result preview",
       "Local change recovery preview",
       "Local change audit preview",
+      "First end-to-end build fix workflow",
+      "Build fix goal intake packet",
+      "Build fix project context packet",
+      "Build fix plan summary packet",
+      "Build fix file diff packet",
+      "Build fix command preview packet",
+      "Build fix risk review packet",
+      "Build fix approval ticket packet",
+      "Build fix apply hold packet",
+      "Build fix command hold packet",
+      "Build fix evidence packet",
+      "Build fix result decision packet",
+      "Build fix recovery packet",
+      "Build fix audit timeline packet",
       "Cockpit evidence stream",
       "Cockpit result summary",
       "Cockpit recovery options",
