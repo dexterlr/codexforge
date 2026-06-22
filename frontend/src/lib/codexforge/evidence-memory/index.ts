@@ -6,3 +6,4 @@ export * from "./evidence-source-trace";
 export * from "./evidence-review-policy";
 export * from "./evidence-brain-merge";
 export * from "./evidence-memory-summary";
+export * from "./evidence-memory-v1-model";

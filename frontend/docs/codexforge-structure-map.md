@@ -1,6 +1,6 @@
 # CodexForge Structure Map
 
-CodexForge is a local-first developer workspace checkpointed through detected phase 1401 in the local all-smoke registry. Latest completed batch: 1386-1401 - Daily-Testable Cockpit MVP Polish. Latest release candidate: Controlled Daily-Testable Cockpit MVP Release Candidate. `/codexforge-cockpit` is the normal user surface; phase pages remain dev test diagnostics only. Broad execution still blocked. Next likely batch: 1402-1417 - Project Context Brain v1. This map is for orientation only. It does not rename existing route folders or feature domains.
+CodexForge is a local-first developer workspace checkpointed through detected phase 1465 in the local all-smoke registry. Latest completed batch: 1450-1465 - Evidence Memory v1. Latest release candidate: Controlled Evidence Memory Release Candidate. `/codexforge-cockpit` is the normal user surface; phase pages remain dev test diagnostics only. Broad execution still blocked and automatic memory promotion still blocked. Next likely batch: 1466-1481 - Backend Execution Queue v1. This map is for orientation only. It does not rename existing route folders or feature domains.
 
 ## Main route groups
 

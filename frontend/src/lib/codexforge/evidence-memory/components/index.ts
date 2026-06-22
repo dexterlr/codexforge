@@ -6,3 +6,4 @@ export * from "./EvidenceSourceTracePanel";
 export * from "./EvidenceReviewPolicyPanel";
 export * from "./EvidenceBrainMergePanel";
 export * from "./EvidenceMemorySafetyNotice";
+export * from "./EvidenceMemoryV1Panel";
