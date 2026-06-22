@@ -31,7 +31,23 @@ export type UnifiedCockpitRouteSlug =
   | "cockpit-evidence-export-preview"
   | "cockpit-recovery-safety-gate"
   | "first-cockpit-evidence-result-recovery-candidate"
-  | "controlled-cockpit-evidence-result-recovery-release-candidate";
+  | "controlled-cockpit-evidence-result-recovery-release-candidate"
+  | "first-local-change-trial-boundary"
+  | "local-change-goal-packet"
+  | "local-change-plan-packet"
+  | "local-change-file-diff-packet"
+  | "local-change-command-preview-packet"
+  | "local-change-approval-ticket"
+  | "local-change-apply-hold"
+  | "local-change-command-hold"
+  | "local-change-evidence-preview"
+  | "local-change-result-preview"
+  | "local-change-recovery-preview"
+  | "local-change-audit-preview"
+  | "local-change-cockpit-trial-view"
+  | "local-change-denied-path-review"
+  | "first-approved-local-change-candidate"
+  | "controlled-first-local-change-trial-release-candidate";
 
 export type UnifiedCockpitPanelState = "blocked" | "preview-only" | "approval-required" | "dev-test-only";
 
@@ -91,6 +107,18 @@ export const UNIFIED_CODEXFORGE_COCKPIT_LANGUAGE = [
   "Commands remain blocked until explicit operator approval",
   "No real command execution from the cockpit",
   "No real file mutation from the cockpit",
+  "First approved local change trial",
+  "Local change goal packet",
+  "Local change plan packet",
+  "Local change file diff packet",
+  "Local change command preview packet",
+  "Local change approval ticket",
+  "Local change apply hold",
+  "Local change command hold",
+  "Local change evidence preview",
+  "Local change result preview",
+  "Local change recovery preview",
+  "Local change audit preview",
   "Cockpit evidence stream",
   "Cockpit result summary",
   "Cockpit recovery options",
@@ -113,6 +141,18 @@ const GLOBAL_SAFETY_COPY = [
   "No real mutation occurs from this cockpit in this batch.",
   "No real command execution from the cockpit.",
   "No real file mutation from the cockpit.",
+  "First approved local change trial.",
+  "Local change goal packet.",
+  "Local change plan packet.",
+  "Local change file diff packet.",
+  "Local change command preview packet.",
+  "Local change approval ticket.",
+  "Local change apply hold.",
+  "Local change command hold.",
+  "Local change evidence preview.",
+  "Local change result preview.",
+  "Local change recovery preview.",
+  "Local change audit preview.",
   "Evidence result and recovery remain preview-only.",
   "No evidence persistence from the cockpit.",
   "No result persistence from the cockpit.",
@@ -359,6 +399,118 @@ const DEV_ROUTES: readonly UnifiedCockpitDevRoute[] = [
     phase: "1225",
     label: "Controlled Cockpit Evidence Result Recovery Release Candidate",
     commandLabel: "Go to Controlled Cockpit Evidence Result Recovery Release Candidate",
+  },
+  {
+    slug: "first-local-change-trial-boundary",
+    href: "/first-local-change-trial-boundary",
+    phase: "1226",
+    label: "First Local Change Trial Boundary",
+    commandLabel: "Go to First Local Change Trial Boundary",
+  },
+  {
+    slug: "local-change-goal-packet",
+    href: "/local-change-goal-packet",
+    phase: "1227",
+    label: "Local Change Goal Packet",
+    commandLabel: "Go to Local Change Goal Packet",
+  },
+  {
+    slug: "local-change-plan-packet",
+    href: "/local-change-plan-packet",
+    phase: "1228",
+    label: "Local Change Plan Packet",
+    commandLabel: "Go to Local Change Plan Packet",
+  },
+  {
+    slug: "local-change-file-diff-packet",
+    href: "/local-change-file-diff-packet",
+    phase: "1229",
+    label: "Local Change File Diff Packet",
+    commandLabel: "Go to Local Change File Diff Packet",
+  },
+  {
+    slug: "local-change-command-preview-packet",
+    href: "/local-change-command-preview-packet",
+    phase: "1230",
+    label: "Local Change Command Preview Packet",
+    commandLabel: "Go to Local Change Command Preview Packet",
+  },
+  {
+    slug: "local-change-approval-ticket",
+    href: "/local-change-approval-ticket",
+    phase: "1231",
+    label: "Local Change Approval Ticket",
+    commandLabel: "Go to Local Change Approval Ticket",
+  },
+  {
+    slug: "local-change-apply-hold",
+    href: "/local-change-apply-hold",
+    phase: "1232",
+    label: "Local Change Apply Hold",
+    commandLabel: "Go to Local Change Apply Hold",
+  },
+  {
+    slug: "local-change-command-hold",
+    href: "/local-change-command-hold",
+    phase: "1233",
+    label: "Local Change Command Hold",
+    commandLabel: "Go to Local Change Command Hold",
+  },
+  {
+    slug: "local-change-evidence-preview",
+    href: "/local-change-evidence-preview",
+    phase: "1234",
+    label: "Local Change Evidence Preview",
+    commandLabel: "Go to Local Change Evidence Preview",
+  },
+  {
+    slug: "local-change-result-preview",
+    href: "/local-change-result-preview",
+    phase: "1235",
+    label: "Local Change Result Preview",
+    commandLabel: "Go to Local Change Result Preview",
+  },
+  {
+    slug: "local-change-recovery-preview",
+    href: "/local-change-recovery-preview",
+    phase: "1236",
+    label: "Local Change Recovery Preview",
+    commandLabel: "Go to Local Change Recovery Preview",
+  },
+  {
+    slug: "local-change-audit-preview",
+    href: "/local-change-audit-preview",
+    phase: "1237",
+    label: "Local Change Audit Preview",
+    commandLabel: "Go to Local Change Audit Preview",
+  },
+  {
+    slug: "local-change-cockpit-trial-view",
+    href: "/local-change-cockpit-trial-view",
+    phase: "1238",
+    label: "Local Change Cockpit Trial View",
+    commandLabel: "Go to Local Change Cockpit Trial View",
+  },
+  {
+    slug: "local-change-denied-path-review",
+    href: "/local-change-denied-path-review",
+    phase: "1239",
+    label: "Local Change Denied Path Review",
+    commandLabel: "Go to Local Change Denied Path Review",
+  },
+  {
+    slug: "first-approved-local-change-candidate",
+    href: "/first-approved-local-change-candidate",
+    phase: "1240",
+    label: "First Approved Local Change Candidate",
+    commandLabel: "Go to First Approved Local Change Candidate",
+  },
+  {
+    slug: "controlled-first-local-change-trial-release-candidate",
+    href: "/controlled-first-local-change-trial-release-candidate",
+    phase: "1241",
+    label: "Controlled First Local Change Trial Release Candidate",
+    commandLabel: "Go to Controlled First Local Change Trial Release Candidate",
   },
 ] as const;
 
@@ -667,6 +819,18 @@ const ROUTES: readonly UnifiedCockpitRouteDefinition[] = [
       "Commands remain blocked until explicit operator approval",
       "No real command execution from the cockpit",
       "No real file mutation from the cockpit",
+      "First approved local change trial",
+      "Local change goal packet",
+      "Local change plan packet",
+      "Local change file diff packet",
+      "Local change command preview packet",
+      "Local change approval ticket",
+      "Local change apply hold",
+      "Local change command hold",
+      "Local change evidence preview",
+      "Local change result preview",
+      "Local change recovery preview",
+      "Local change audit preview",
       "Cockpit evidence stream",
       "Cockpit result summary",
       "Cockpit recovery options",
@@ -679,8 +843,8 @@ const ROUTES: readonly UnifiedCockpitRouteDefinition[] = [
       "No recovery execution from the cockpit",
       "Unified cockpit checklist",
     ],
-    deniedCopy: "Denied cockpit paths remain blocked: no real mutation, no command execution, no provider calls, no runtime starts, and no adapter execution.",
-    approvalCopy: "Future file writes and commands must pass explicit operator approval with guards, evidence, result capture, and recovery contract.",
+    deniedCopy: "Denied cockpit paths remain blocked: no real mutation, no command execution, no provider calls, no runtime starts, no adapter execution, no evidence persistence, no result persistence, no recovery execution, and no approval persistence.",
+    approvalCopy: "Future file writes and commands must pass explicit operator approval with guards, evidence, result capture, recovery contract, and audit preview.",
     panelIds: [
       "goal-intake",
       "plan-summary",

@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { CockpitEvidenceResultRecoveryRoutePanel } from "../../cockpit-evidence-result-recovery/components";
+import { FirstLocalChangeTrialRoutePanel } from "../../first-local-change-trial/components";
 import {
   buildUnifiedCockpitRouteModel,
   buildUnifiedCockpitStableKey,
@@ -76,6 +77,8 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       ) : null}
 
       {isMainCockpit ? <CockpitEvidenceResultRecoveryRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
+
+      {isMainCockpit ? <FirstLocalChangeTrialRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       <section style={panelStack} aria-label="Unified cockpit checklist">
         {model.panels.map((panel, panelIndex) => (
