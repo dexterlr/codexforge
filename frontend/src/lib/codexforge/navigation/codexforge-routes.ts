@@ -11,6 +11,7 @@ export type CodexForgeRoute = {
   id:
     | "home"
     | "mission"
+    | "cockpit"
     | "stabilization"
     | "code-flow"
     | "workspace"
@@ -65,6 +66,16 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     showInGlobalNav: true,
     group: "Core",
     description: "Unified readonly cockpit for health, surfaces, readiness, and safe next actions.",
+  },
+  {
+    id: "cockpit",
+    path: "/codexforge-cockpit",
+    label: "Unified CodexForge Cockpit",
+    shortLabel: "Cockpit",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Core",
+    description: "Preferred normal user surface for goal, plan, approval, execution-state, evidence, result, and recovery review.",
   },
   {
     id: "stabilization",
