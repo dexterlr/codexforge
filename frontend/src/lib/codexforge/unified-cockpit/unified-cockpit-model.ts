@@ -15,7 +15,23 @@ export type UnifiedCockpitRouteSlug =
   | "cockpit-single-page-navigation-contract"
   | "cockpit-mvp-empty-state"
   | "first-unified-cockpit-candidate"
-  | "controlled-unified-cockpit-release-candidate";
+  | "controlled-unified-cockpit-release-candidate"
+  | "cockpit-evidence-result-recovery-boundary"
+  | "cockpit-evidence-stream-model"
+  | "cockpit-file-evidence-view"
+  | "cockpit-command-evidence-view"
+  | "cockpit-result-summary-model"
+  | "cockpit-result-decision-view"
+  | "cockpit-recovery-option-model"
+  | "cockpit-rollback-preview-view"
+  | "cockpit-retry-preview-view"
+  | "cockpit-explain-failure-view"
+  | "cockpit-audit-trail-view"
+  | "cockpit-run-timeline-view"
+  | "cockpit-evidence-export-preview"
+  | "cockpit-recovery-safety-gate"
+  | "first-cockpit-evidence-result-recovery-candidate"
+  | "controlled-cockpit-evidence-result-recovery-release-candidate";
 
 export type UnifiedCockpitPanelState = "blocked" | "preview-only" | "approval-required" | "dev-test-only";
 
@@ -75,6 +91,16 @@ export const UNIFIED_CODEXFORGE_COCKPIT_LANGUAGE = [
   "Commands remain blocked until explicit operator approval",
   "No real command execution from the cockpit",
   "No real file mutation from the cockpit",
+  "Cockpit evidence stream",
+  "Cockpit result summary",
+  "Cockpit recovery options",
+  "Cockpit audit trail",
+  "Cockpit run timeline",
+  "Cockpit evidence export preview",
+  "Evidence result and recovery remain preview-only",
+  "No evidence persistence from the cockpit",
+  "No result persistence from the cockpit",
+  "No recovery execution from the cockpit",
   "Unified cockpit checklist",
 ].join(" | ");
 
@@ -87,6 +113,10 @@ const GLOBAL_SAFETY_COPY = [
   "No real mutation occurs from this cockpit in this batch.",
   "No real command execution from the cockpit.",
   "No real file mutation from the cockpit.",
+  "Evidence result and recovery remain preview-only.",
+  "No evidence persistence from the cockpit.",
+  "No result persistence from the cockpit.",
+  "No recovery execution from the cockpit.",
 ] as const;
 
 const TARGET_FAMILIES = [
@@ -217,6 +247,118 @@ const DEV_ROUTES: readonly UnifiedCockpitDevRoute[] = [
     phase: "1209",
     label: "Controlled Unified Cockpit Release Candidate",
     commandLabel: "Go to Controlled Unified Cockpit Release Candidate",
+  },
+  {
+    slug: "cockpit-evidence-result-recovery-boundary",
+    href: "/cockpit-evidence-result-recovery-boundary",
+    phase: "1210",
+    label: "Cockpit Evidence Result Recovery Boundary",
+    commandLabel: "Go to Cockpit Evidence Result Recovery Boundary",
+  },
+  {
+    slug: "cockpit-evidence-stream-model",
+    href: "/cockpit-evidence-stream-model",
+    phase: "1211",
+    label: "Cockpit Evidence Stream Model",
+    commandLabel: "Go to Cockpit Evidence Stream Model",
+  },
+  {
+    slug: "cockpit-file-evidence-view",
+    href: "/cockpit-file-evidence-view",
+    phase: "1212",
+    label: "Cockpit File Evidence View",
+    commandLabel: "Go to Cockpit File Evidence View",
+  },
+  {
+    slug: "cockpit-command-evidence-view",
+    href: "/cockpit-command-evidence-view",
+    phase: "1213",
+    label: "Cockpit Command Evidence View",
+    commandLabel: "Go to Cockpit Command Evidence View",
+  },
+  {
+    slug: "cockpit-result-summary-model",
+    href: "/cockpit-result-summary-model",
+    phase: "1214",
+    label: "Cockpit Result Summary Model",
+    commandLabel: "Go to Cockpit Result Summary Model",
+  },
+  {
+    slug: "cockpit-result-decision-view",
+    href: "/cockpit-result-decision-view",
+    phase: "1215",
+    label: "Cockpit Result Decision View",
+    commandLabel: "Go to Cockpit Result Decision View",
+  },
+  {
+    slug: "cockpit-recovery-option-model",
+    href: "/cockpit-recovery-option-model",
+    phase: "1216",
+    label: "Cockpit Recovery Option Model",
+    commandLabel: "Go to Cockpit Recovery Option Model",
+  },
+  {
+    slug: "cockpit-rollback-preview-view",
+    href: "/cockpit-rollback-preview-view",
+    phase: "1217",
+    label: "Cockpit Rollback Preview View",
+    commandLabel: "Go to Cockpit Rollback Preview View",
+  },
+  {
+    slug: "cockpit-retry-preview-view",
+    href: "/cockpit-retry-preview-view",
+    phase: "1218",
+    label: "Cockpit Retry Preview View",
+    commandLabel: "Go to Cockpit Retry Preview View",
+  },
+  {
+    slug: "cockpit-explain-failure-view",
+    href: "/cockpit-explain-failure-view",
+    phase: "1219",
+    label: "Cockpit Explain Failure View",
+    commandLabel: "Go to Cockpit Explain Failure View",
+  },
+  {
+    slug: "cockpit-audit-trail-view",
+    href: "/cockpit-audit-trail-view",
+    phase: "1220",
+    label: "Cockpit Audit Trail View",
+    commandLabel: "Go to Cockpit Audit Trail View",
+  },
+  {
+    slug: "cockpit-run-timeline-view",
+    href: "/cockpit-run-timeline-view",
+    phase: "1221",
+    label: "Cockpit Run Timeline View",
+    commandLabel: "Go to Cockpit Run Timeline View",
+  },
+  {
+    slug: "cockpit-evidence-export-preview",
+    href: "/cockpit-evidence-export-preview",
+    phase: "1222",
+    label: "Cockpit Evidence Export Preview",
+    commandLabel: "Go to Cockpit Evidence Export Preview",
+  },
+  {
+    slug: "cockpit-recovery-safety-gate",
+    href: "/cockpit-recovery-safety-gate",
+    phase: "1223",
+    label: "Cockpit Recovery Safety Gate",
+    commandLabel: "Go to Cockpit Recovery Safety Gate",
+  },
+  {
+    slug: "first-cockpit-evidence-result-recovery-candidate",
+    href: "/first-cockpit-evidence-result-recovery-candidate",
+    phase: "1224",
+    label: "First Cockpit Evidence Result Recovery Candidate",
+    commandLabel: "Go to First Cockpit Evidence Result Recovery Candidate",
+  },
+  {
+    slug: "controlled-cockpit-evidence-result-recovery-release-candidate",
+    href: "/controlled-cockpit-evidence-result-recovery-release-candidate",
+    phase: "1225",
+    label: "Controlled Cockpit Evidence Result Recovery Release Candidate",
+    commandLabel: "Go to Controlled Cockpit Evidence Result Recovery Release Candidate",
   },
 ] as const;
 
@@ -525,6 +667,16 @@ const ROUTES: readonly UnifiedCockpitRouteDefinition[] = [
       "Commands remain blocked until explicit operator approval",
       "No real command execution from the cockpit",
       "No real file mutation from the cockpit",
+      "Cockpit evidence stream",
+      "Cockpit result summary",
+      "Cockpit recovery options",
+      "Cockpit audit trail",
+      "Cockpit run timeline",
+      "Cockpit evidence export preview",
+      "Evidence result and recovery remain preview-only",
+      "No evidence persistence from the cockpit",
+      "No result persistence from the cockpit",
+      "No recovery execution from the cockpit",
       "Unified cockpit checklist",
     ],
     deniedCopy: "Denied cockpit paths remain blocked: no real mutation, no command execution, no provider calls, no runtime starts, and no adapter execution.",
