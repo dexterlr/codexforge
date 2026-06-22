@@ -7,6 +7,7 @@ import { CockpitEvidenceResultRecoveryRoutePanel } from "../../cockpit-evidence-
 import { ControlledExecutionReadinessGateRoutePanel } from "../../controlled-execution-readiness-gate/components";
 import { EndToEndBuildFixWorkflowRoutePanel } from "../../end-to-end-build-fix-workflow/components";
 import { FirstLocalChangeTrialRoutePanel } from "../../first-local-change-trial/components";
+import { GuardedApplyRunDryRunRoutePanel } from "../../guarded-apply-run-dry-run/components";
 import { GuidedOperatorRunRoutePanel } from "../../guided-operator-run/components";
 import { RealControlledOperatorTrialPacketRoutePanel } from "../../real-controlled-operator-trial-packet/components";
 import {
@@ -97,6 +98,8 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <BackendApprovalHandoffRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       {isMainCockpit ? <BackendGuardedApplyRunRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
+
+      {isMainCockpit ? <GuardedApplyRunDryRunRoutePanel routeSlug="codexforge-cockpit" embedded /> : null}
 
       <section style={panelStack} aria-label="Unified cockpit checklist">
         {model.panels.map((panel, panelIndex) => (
