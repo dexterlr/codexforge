@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { ApplyRunTransactionCockpitSummaryPanel } from "../../apply-run-transaction/components";
 import { BackendExecutionQueueCockpitSummaryPanel } from "../../backend-execution-queue/components";
+import { CockpitDomainWorkspaceCockpitPanel } from "../../cockpit-domain-workspace/components";
 import { CommandRunnerSafetyV2CockpitSummaryPanel } from "../../command-runner-safety-v2/components";
 import { DailyTestableCockpitMvpPanel } from "../../daily-testable-cockpit-mvp/components";
 import { DomainPackRunnerCockpitSummaryPanel } from "../../domain-pack-runner/components";
@@ -76,6 +77,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
         </article>
       </section>
 
+      {isMainCockpit ? <CockpitDomainWorkspaceCockpitPanel /> : null}
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}

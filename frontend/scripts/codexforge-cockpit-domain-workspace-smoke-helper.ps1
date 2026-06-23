@@ -1,0 +1,131 @@
+param(
+  [Parameter(Mandatory = $true)][string]$SmokeName,
+  [Parameter(Mandatory = $true)][string]$ScriptFile,
+  [Parameter(Mandatory = $true)][string]$Domain,
+  [Parameter(Mandatory = $true)][string]$Route,
+  [Parameter(Mandatory = $true)][string]$MainPanel,
+  [Parameter(Mandatory = $true)][string]$CommandLabel,
+  [Parameter(Mandatory = $true)][string]$RouteHref,
+  [Parameter(Mandatory = $true)][string[]]$Markers
+)
+
+$ErrorActionPreference = "Stop"
+$root = Split-Path -Parent $PSScriptRoot
+Set-Location $root
+
+function Assert-Contains {
+  param([AllowEmptyString()][string]$Haystack, [string]$Needle, [string]$Name)
+  if (-not $Haystack.Contains($Needle)) { throw "[FAIL] Missing $Name`: $Needle" }
+  Write-Host "[PASS] $Name"
+}
+
+function Assert-NotMatches {
+  param([AllowEmptyString()][string]$Haystack, [string]$Pattern, [string]$Name)
+  if ($Haystack -match $Pattern) { throw "[FAIL] Unexpected $Name`: $Pattern" }
+  Write-Host "[PASS] $Name"
+}
+
+foreach ($path in @($Domain, $Route, (Join-Path $Route "page.tsx"), (Join-Path $Route "page-client.tsx"), (Join-Path "scripts" $ScriptFile))) {
+  if (-not (Test-Path $path)) { throw "[FAIL] Missing path: $path" }
+  Write-Host "[PASS] path exists $path"
+}
+
+$sourceParts = @()
+foreach ($scanRoot in @($Domain, $Route, "src\lib\codexforge\cockpit-domain-workspace", "src\lib\codexforge\unified-cockpit")) {
+  $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
+}
+$source = $sourceParts -join "`n"
+$navigationRegistry = Get-Content -Raw "src\lib\codexforge\navigation-shell\navigation-route-registry.ts"
+$commandRegistry = Get-Content -Raw "src\lib\codexforge\command-palette\command-registry.ts"
+$allSmoke = Get-Content -Raw "scripts\smoke-codexforge-all.ps1"
+
+Assert-Contains $source $MainPanel "main panel source"
+Assert-Contains $source $RouteHref "route href source"
+Assert-Contains $source $CommandLabel "command label source"
+Assert-Contains $navigationRegistry $RouteHref "navigation route href"
+Assert-Contains $navigationRegistry $CommandLabel.Replace("Go to ", "") "navigation label"
+Assert-Contains $commandRegistry $RouteHref "command route href"
+Assert-Contains $commandRegistry $CommandLabel "command palette label"
+Assert-Contains $allSmoke $SmokeName "all-smoke name"
+Assert-Contains $allSmoke $ScriptFile "all-smoke script file"
+
+foreach ($marker in $Markers) {
+  Assert-Contains $source $marker "marker $marker"
+}
+
+foreach ($safetyMarker in @(
+  "Cockpit Domain Workspace",
+  "Start with a goal",
+  "Choose a domain",
+  "Game Server Builder",
+  "Trading Automation Research",
+  "Web App Builder",
+  "Docs Pack",
+  "Data Analysis Pack",
+  "Creative Campaign Pack",
+  "Active Workspace",
+  "Generated Plan",
+  "Worker Route",
+  "Approval Gates",
+  "Artifacts",
+  "Commands",
+  "Evidence",
+  "Results",
+  "Recovery",
+  "Audit",
+  "Memory Context",
+  "Next Action",
+  "Hold Before Execution",
+  "Trading automation uses capital limits",
+  "Trading automation uses profit lockbox rules",
+  "Trading automation requires paper trading first",
+  "Trading automation requires risk governor",
+  "No domain execution from the cockpit",
+  "No worker dispatch from the cockpit",
+  "No model calls from the cockpit",
+  "No provider calls from the cockpit",
+  "No command execution from the cockpit",
+  "No broker connections from the cockpit",
+  "No trade placement from the cockpit",
+  "Backend-owned domain workspace remains required",
+  "Explicit operator approval remains required",
+  "Cockpit Domain Workspace v1 is preview-only from the frontend.",
+  "It does not execute domain packs from the UI.",
+  "It does not dispatch workers from the UI.",
+  "It does not call models, local models, providers, or connectors from the UI.",
+  "It does not send prompts from the UI.",
+  "It does not run commands from the UI.",
+  "It does not write generated artifacts from the UI.",
+  "It does not connect brokers or place trades from the UI.",
+  "It prepares a future backend-owned domain workspace.",
+  "cockpitDomainWorkspaceId",
+  "cockpitDomainWorkspaceKind",
+  "frontGoalComposer",
+  "domainCards",
+  "activeDomainWorkspace",
+  "generatedPlanWorkspace",
+  "workerRouteWorkspace",
+  "approvalGatesWorkspace",
+  "artifactCommandWorkspace",
+  "evidenceResultWorkspace",
+  "recoveryAuditWorkspace",
+  "memoryContextWorkspace",
+  "tradingAutomationDomainTeaser",
+  "gameServerBuilderWorkspace",
+  "nextActionRail",
+  "deniedCockpitWorkspaceBoundaries",
+  "cockpitSummary",
+  "explicitSafetyLimits",
+  "Phase pages remain dev test diagnostics only",
+  "frontend domain execution still blocked",
+  "frontend broker connection and trade placement still blocked",
+  "backend-owned domain workspace remains required"
+)) {
+  Assert-Contains $source $safetyMarker "safety marker $safetyMarker"
+}
+
+Assert-NotMatches $source 'key=\{(item|label|constraint|badge|entry|step|route|profile|record|section)\}' "banned duplicate-prone React keys"
+Assert-NotMatches $source 'Math\.random|Date\.now|crypto\.randomUUID' "nondeterministic key or data generators"
+Assert-NotMatches $source 'fetch\(|localStorage|sessionStorage|runCommand|writeFile|spawn\(|exec\(|XMLHttpRequest|EventSource|WebSocket' "runtime/provider/command/file side-effect APIs"
+
+Write-Host "[OK] $SmokeName static cockpit domain workspace smoke passed."

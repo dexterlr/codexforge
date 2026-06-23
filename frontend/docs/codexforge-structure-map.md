@@ -1,6 +1,6 @@
 # CodexForge Structure Map
 
-CodexForge is a local-first developer workspace checkpointed through detected phase 1625 in the local all-smoke registry. Latest completed batch: 1610-1625 - Domain Pack Runner Preview. Latest release candidate: Controlled Domain Pack Runner Release Candidate. `/codexforge-cockpit` is the normal user surface and is becoming the front user-facing product shell; phase pages remain dev test diagnostics only. frontend domain pack execution still blocked and backend-owned domain pack runner remains required. Next likely batch: 1626-1641 - Cockpit Domain Workspace v1. This map is for orientation only. It does not rename existing route folders or feature domains.
+CodexForge is a local-first developer workspace checkpointed through detected phase 1641 in the local all-smoke registry. Latest completed batch: 1626-1641 - Cockpit Domain Workspace v1. Latest release candidate: Controlled Cockpit Domain Workspace Release Candidate. `/codexforge-cockpit` is the normal user surface and is now becoming the front user-facing product workspace; phase pages remain dev test diagnostics only. frontend domain execution still blocked, frontend broker connection and trade placement still blocked, and backend-owned domain workspace remains required. Next likely batch: 1642-1657 - Trading Research Domain Pack v1. This map is for orientation only. It does not rename existing route folders or feature domains.
 
 ## Main route groups
 
