@@ -13,6 +13,7 @@ import { PlanDiffCommandComposerCockpitSummaryPanel } from "../../plan-diff-comm
 import { ProviderApprovalGateCockpitSummaryPanel } from "../../provider-approval-gate/components";
 import { ProjectContextBrainCockpitSummaryPanel } from "../../project-context-brain/components";
 import { ReleaseGradeAuditTrailCockpitSummaryPanel } from "../../release-grade-audit-trail/components";
+import { SpecialistWorkerRegistryCockpitSummaryPanel } from "../../specialist-worker-registry/components";
 import {
   buildUnifiedCockpitRouteModel,
   buildUnifiedCockpitStableKey,
@@ -85,6 +86,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <ModelRouterV2CockpitSummaryPanel /> : null}
       {isMainCockpit ? <ProviderApprovalGateCockpitSummaryPanel /> : null}
       {isMainCockpit ? <LocalModelBridgeCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <SpecialistWorkerRegistryCockpitSummaryPanel /> : null}
 
       {!isMainCockpit ? (
         <>
