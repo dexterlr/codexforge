@@ -1,6 +1,6 @@
 # CodexForge Structure Map
 
-CodexForge is a local-first developer workspace checkpointed through detected phase 1593 in the local all-smoke registry. Latest completed batch: 1578-1593 - Specialist Worker Registry. Latest release candidate: Controlled Specialist Worker Registry Release Candidate. `/codexforge-cockpit` is the normal user surface; phase pages remain dev test diagnostics only. frontend worker dispatch still blocked and backend-owned specialist worker routing remains required. Next likely batch: 1594-1609 - First Domain Pack Game Server Builder. This map is for orientation only. It does not rename existing route folders or feature domains.
+CodexForge is a local-first developer workspace checkpointed through detected phase 1609 in the local all-smoke registry. Latest completed batch: 1594-1609 - First Domain Pack Game Server Builder. Latest release candidate: Controlled Game Server Builder Release Candidate. `/codexforge-cockpit` is the normal user surface; phase pages remain dev test diagnostics only. frontend game server execution still blocked and backend-owned game server workflow remains required. Next likely batch: 1610-1625 - Domain Pack Runner Preview. This map is for orientation only. It does not rename existing route folders or feature domains.
 
 ## Main route groups
 

@@ -6,6 +6,7 @@ import { BackendExecutionQueueCockpitSummaryPanel } from "../../backend-executio
 import { CommandRunnerSafetyV2CockpitSummaryPanel } from "../../command-runner-safety-v2/components";
 import { DailyTestableCockpitMvpPanel } from "../../daily-testable-cockpit-mvp/components";
 import { EvidenceMemoryCockpitSummaryPanel } from "../../evidence-memory/components";
+import { GameServerBuilderCockpitSummaryPanel } from "../../game-server-builder/components";
 import { GoalCompilerCockpitSummaryPanel } from "../../goal-compiler/components";
 import { LocalModelBridgeCockpitSummaryPanel } from "../../local-model-bridge/components";
 import { ModelRouterV2CockpitSummaryPanel } from "../../model-router-v2/components";
@@ -87,6 +88,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <ProviderApprovalGateCockpitSummaryPanel /> : null}
       {isMainCockpit ? <LocalModelBridgeCockpitSummaryPanel /> : null}
       {isMainCockpit ? <SpecialistWorkerRegistryCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <GameServerBuilderCockpitSummaryPanel /> : null}
 
       {!isMainCockpit ? (
         <>
