@@ -9,6 +9,7 @@ import { EvidenceMemoryCockpitSummaryPanel } from "../../evidence-memory/compone
 import { GoalCompilerCockpitSummaryPanel } from "../../goal-compiler/components";
 import { PlanDiffCommandComposerCockpitSummaryPanel } from "../../plan-diff-command-composer/components";
 import { ProjectContextBrainCockpitSummaryPanel } from "../../project-context-brain/components";
+import { ReleaseGradeAuditTrailCockpitSummaryPanel } from "../../release-grade-audit-trail/components";
 import {
   buildUnifiedCockpitRouteModel,
   buildUnifiedCockpitStableKey,
@@ -77,6 +78,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <BackendExecutionQueueCockpitSummaryPanel /> : null}
       {isMainCockpit ? <ApplyRunTransactionCockpitSummaryPanel /> : null}
       {isMainCockpit ? <CommandRunnerSafetyV2CockpitSummaryPanel /> : null}
+      {isMainCockpit ? <ReleaseGradeAuditTrailCockpitSummaryPanel /> : null}
 
       {!isMainCockpit ? (
         <>
