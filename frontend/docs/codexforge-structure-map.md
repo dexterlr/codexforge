@@ -1,6 +1,6 @@
 # CodexForge Structure Map
 
-CodexForge is a local-first developer workspace checkpointed through detected phase 1497 in the local all-smoke registry. Latest completed batch: 1482-1497 - Apply Run Transaction Boundary. Latest release candidate: Controlled Apply Run Transaction Release Candidate. `/codexforge-cockpit` is the normal user surface; phase pages remain dev test diagnostics only. Broad execution still blocked and frontend transaction persistence still blocked. Next likely batch: 1498-1513 - Command Runner Safety v2. This map is for orientation only. It does not rename existing route folders or feature domains.
+CodexForge is a local-first developer workspace checkpointed through detected phase 1513 in the local all-smoke registry. Latest completed batch: 1498-1513 - Command Runner Safety v2. Latest release candidate: Controlled Command Runner Safety v2 Release Candidate. `/codexforge-cockpit` is the normal user surface; phase pages remain dev test diagnostics only. frontend command execution still blocked and backend-owned command execution remains required. Next likely batch: 1514-1529 - Release-Grade Audit Trail. This map is for orientation only. It does not rename existing route folders or feature domains.
 
 ## Main route groups
 

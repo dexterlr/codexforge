@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandWorkingDirectoryGuardPanel } from "@/lib/codexforge/command-working-directory-guard/components";
+import { CommandRunnerSafetyV2RoutePanel } from "@/lib/codexforge/command-runner-safety-v2/components";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 
 export default function CommandWorkingDirectoryGuardPageClient() {
@@ -16,7 +16,7 @@ export default function CommandWorkingDirectoryGuardPageClient() {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
-      <CommandWorkingDirectoryGuardPanel />
+      <CommandRunnerSafetyV2RoutePanel routeSlug="command-working-directory-guard" />
     </CodexForgeAppShell>
   );
 }
