@@ -5,6 +5,7 @@ import { ApplyRunTransactionCockpitSummaryPanel } from "../../apply-run-transact
 import { BackendExecutionQueueCockpitSummaryPanel } from "../../backend-execution-queue/components";
 import { CommandRunnerSafetyV2CockpitSummaryPanel } from "../../command-runner-safety-v2/components";
 import { DailyTestableCockpitMvpPanel } from "../../daily-testable-cockpit-mvp/components";
+import { DomainPackRunnerCockpitSummaryPanel } from "../../domain-pack-runner/components";
 import { EvidenceMemoryCockpitSummaryPanel } from "../../evidence-memory/components";
 import { GameServerBuilderCockpitSummaryPanel } from "../../game-server-builder/components";
 import { GoalCompilerCockpitSummaryPanel } from "../../goal-compiler/components";
@@ -89,6 +90,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <LocalModelBridgeCockpitSummaryPanel /> : null}
       {isMainCockpit ? <SpecialistWorkerRegistryCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GameServerBuilderCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <DomainPackRunnerCockpitSummaryPanel /> : null}
 
       {!isMainCockpit ? (
         <>
