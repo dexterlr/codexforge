@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { BackendExecutionQueueCockpitSummaryPanel } from "../../backend-execution-queue/components";
 import { DailyTestableCockpitMvpPanel } from "../../daily-testable-cockpit-mvp/components";
 import { EvidenceMemoryCockpitSummaryPanel } from "../../evidence-memory/components";
 import { GoalCompilerCockpitSummaryPanel } from "../../goal-compiler/components";
@@ -71,6 +72,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}
       {isMainCockpit ? <PlanDiffCommandComposerCockpitSummaryPanel /> : null}
       {isMainCockpit ? <EvidenceMemoryCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <BackendExecutionQueueCockpitSummaryPanel /> : null}
 
       {!isMainCockpit ? (
         <>
