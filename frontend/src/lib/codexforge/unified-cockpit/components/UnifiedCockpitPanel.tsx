@@ -7,6 +7,7 @@ import { CommandRunnerSafetyV2CockpitSummaryPanel } from "../../command-runner-s
 import { DailyTestableCockpitMvpPanel } from "../../daily-testable-cockpit-mvp/components";
 import { EvidenceMemoryCockpitSummaryPanel } from "../../evidence-memory/components";
 import { GoalCompilerCockpitSummaryPanel } from "../../goal-compiler/components";
+import { ModelRouterV2CockpitSummaryPanel } from "../../model-router-v2/components";
 import { PlanDiffCommandComposerCockpitSummaryPanel } from "../../plan-diff-command-composer/components";
 import { ProjectContextBrainCockpitSummaryPanel } from "../../project-context-brain/components";
 import { ReleaseGradeAuditTrailCockpitSummaryPanel } from "../../release-grade-audit-trail/components";
@@ -79,6 +80,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <ApplyRunTransactionCockpitSummaryPanel /> : null}
       {isMainCockpit ? <CommandRunnerSafetyV2CockpitSummaryPanel /> : null}
       {isMainCockpit ? <ReleaseGradeAuditTrailCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <ModelRouterV2CockpitSummaryPanel /> : null}
 
       {!isMainCockpit ? (
         <>

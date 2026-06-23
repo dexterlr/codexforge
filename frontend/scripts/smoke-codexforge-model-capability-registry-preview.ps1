@@ -2,18 +2,12 @@ param([string]$BaseUrl = "http://localhost:3000")
 
 $ErrorActionPreference = "Stop"
 
-& (Join-Path $PSScriptRoot "codexforge-universal-execution-phase-smoke-helper.ps1") `
-  -PhaseName "Phase 836 Model Capability Registry Preview" `
+& (Join-Path $PSScriptRoot "codexforge-model-router-v2-smoke-helper.ps1") `
+  -SmokeName "Phase 1531 Model Capability Registry Preview" `
   -ScriptFile "smoke-codexforge-model-capability-registry-preview.ps1" `
   -Domain "src\lib\codexforge\model-capability-registry-preview" `
   -Route "src\app\model-capability-registry-preview" `
-  -MainPanel "ModelCapabilityRegistryPreviewPanel" `
+  -MainPanel "ModelRouterV2RoutePanel" `
   -CommandLabel "Go to Model Capability Registry Preview" `
-  -Modules @("model-capability-registry-preview-model.ts", "index.ts") `
-  -Components @("ModelCapabilityRegistryPreviewPanel.tsx", "index.ts") `
-  -Exports @("buildModelCapabilityRegistryPreviewStableKey", "buildModelCapabilityRegistryPreview", "buildModelCapabilityRegistryPreviewItems", "buildModelCapabilityRegistryPreviewBoundary", "buildModelCapabilityRegistryPreviewModel", "summarizeModelCapabilityRegistryPreview", "MODEL_CAPABILITY_REGISTRY_PREVIEW_LANGUAGE") `
-  -PhaseMarkers @("Model capability registry preview", "Model capability registry preview does not call models", "Capability registration requires explicit operator approval", "Denied capability shortcuts remain blocked", "Model capability groups", "Capability registry checklist") `
-  -PlainEnglish @("review-only", "not executable from UI", "approval required", "Model capability registry preview does not call models", "Capability registration requires explicit operator approval", "Denied capability shortcuts remain blocked") `
-  -RouteHref "/model-capability-registry-preview"
-
-Write-Host "[OK] CodexForge Phase 836 Model capability registry preview smoke passed."
+  -RouteHref "/model-capability-registry-preview" `
+  -Markers @("Model capability registry preview", "Model capability registry preview does not query providers", "Model capability registry preview requires explicit operator approval before provider use", "Model capability registry previews coding reasoning research creative image video local private paid pro specialist and domain-fit capabilities", "Denied model capability registry paths remain blocked", "Model capability registry checklist")

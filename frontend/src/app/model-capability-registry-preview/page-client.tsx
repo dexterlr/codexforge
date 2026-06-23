@@ -1,6 +1,6 @@
 "use client";
 
-import { ModelCapabilityRegistryPreviewPanel } from "@/lib/codexforge/model-capability-registry-preview/components";
+import { ModelRouterV2RoutePanel } from "@/lib/codexforge/model-router-v2/components";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 
 export default function ModelCapabilityRegistryPreviewPageClient() {
@@ -16,7 +16,7 @@ export default function ModelCapabilityRegistryPreviewPageClient() {
       showSidebarSafetyNotice={false}
       showHeroRouteChips={false}
     >
-      <ModelCapabilityRegistryPreviewPanel />
+      <ModelRouterV2RoutePanel routeSlug="model-capability-registry-preview" />
     </CodexForgeAppShell>
   );
 }
