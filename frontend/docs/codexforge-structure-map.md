@@ -1,6 +1,6 @@
 # CodexForge Structure Map
 
-CodexForge is a local-first developer workspace checkpointed through detected phase 1561 in the local all-smoke registry. Latest completed batch: 1546-1561 - Provider Approval Gate. Latest release candidate: Controlled Provider Approval Gate Release Candidate. `/codexforge-cockpit` is the normal user surface; phase pages remain dev test diagnostics only. frontend model/provider/connector calls still blocked and backend-owned provider approval remains required. Next likely batch: 1562-1577 - Local Model Bridge v1. This map is for orientation only. It does not rename existing route folders or feature domains.
+CodexForge is a local-first developer workspace checkpointed through detected phase 1577 in the local all-smoke registry. Latest completed batch: 1562-1577 - Local Model Bridge v1. Latest release candidate: Controlled Local Model Bridge Release Candidate. `/codexforge-cockpit` is the normal user surface; phase pages remain dev test diagnostics only. frontend local model calls still blocked and backend-owned local model bridge remains required. Next likely batch: 1578-1593 - Specialist Worker Registry. This map is for orientation only. It does not rename existing route folders or feature domains.
 
 ## Main route groups
 
