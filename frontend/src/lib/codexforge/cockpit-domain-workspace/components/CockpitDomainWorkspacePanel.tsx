@@ -284,8 +284,8 @@ export function CockpitDomainWorkspaceRoutePanel({
         </div>
         <p style={bodyText}>
           Release candidate makes the cockpit a clearer front user-facing workspace without frontend execution. Phase
-          pages remain dev test diagnostics only. frontend domain execution still blocked. frontend broker connection
-          and trade placement still blocked. backend-owned domain workspace remains required.
+          pages remain dev test diagnostics only. frontend domain execution still blocked.
+          frontend broker connection and trade placement still blocked. backend-owned domain workspace remains required.
         </p>
       </section>
 

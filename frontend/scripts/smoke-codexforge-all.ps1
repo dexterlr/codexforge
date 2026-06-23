@@ -8,6 +8,10 @@ param(
 $ErrorActionPreference = "Stop"
 $scriptRoot = $PSScriptRoot
 . (Join-Path $scriptRoot "codexforge-smoke-runner.ps1")
+$fullSmokeStartedAt = Get-Date
+$script:CodexForgeSmokeLastSummary = $null
+$fullSmokeFailure = $null
+$fullSmokeShouldExitFailure = $false
 
 # Coverage metadata for legacy smoke assertions. The executable suite below runs
 # grouped runners only; these entries keep existing smoke scripts able to verify
@@ -93,7 +97,8 @@ $scriptRoot = $PSScriptRoot
 # Name = "AI Router"; Path = "smoke-codexforge-ai-router.ps1"
 # Name = "Brand cleanup"; Path = "smoke-codexforge-brand-clean.ps1"
 
-Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts @(
+try {
+  Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts @(
   @{ Name = "Core"; File = "smoke-codexforge-core.ps1"; Required = $true },
   @{ Name = "UI"; File = "smoke-codexforge-ui.ps1"; Required = $true },
   @{ Name = "Operator Home Dashboard"; File = "smoke-codexforge-operator-home-dashboard.ps1"; Required = $true },
@@ -1716,3 +1721,47 @@ Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoo
   @{ Name = "Coding MVP Release Candidate"; File = "smoke-codexforge-coding-mvp-release-candidate.ps1"; Required = $true },
   @{ Name = "MVP Polish Demo Final"; File = "smoke-codexforge-mvp-polish-demo-final.ps1"; Required = $true }
 )
+} catch {
+  $fullSmokeFailure = $_
+} finally {
+  $fullSmokeSummary = $script:CodexForgeSmokeLastSummary
+
+  if ($fullSmokeSummary) {
+    $passed = [int]$fullSmokeSummary.Passed
+    $failed = [int]$fullSmokeSummary.Failed
+    $missingRequired = [int]$fullSmokeSummary.MissingRequired
+    $missingOptional = [int]$fullSmokeSummary.MissingOptional
+    $elapsed = $fullSmokeSummary.Elapsed
+  } else {
+    $passed = 0
+    $failed = 1
+    $missingRequired = 0
+    $missingOptional = 0
+    $elapsed = (Get-Date) - $fullSmokeStartedAt
+  }
+
+  if ($fullSmokeFailure -and (($failed + $missingRequired) -eq 0)) {
+    $failed = 1
+  }
+
+  $fullSmokeShouldExitFailure = (($failed + $missingRequired) -gt 0)
+
+  Write-Host ""
+  Write-Host "=== CodexForge full smoke complete ==="
+  Write-Host "Passed:           $passed"
+  Write-Host "Failed:           $failed"
+  Write-Host "Missing required: $missingRequired"
+  Write-Host "Missing optional: $missingOptional"
+  Write-Host "Elapsed: $([math]::Round($elapsed.TotalSeconds, 2))s"
+  Write-Host ""
+
+  if ($fullSmokeShouldExitFailure) {
+    Write-Host "[FAIL] CodexForge full smoke failed."
+  } else {
+    Write-Host "[PASS] CodexForge full smoke passed."
+  }
+}
+
+if ($fullSmokeShouldExitFailure) {
+  exit 1
+}
