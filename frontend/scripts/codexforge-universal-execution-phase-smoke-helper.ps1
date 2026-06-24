@@ -601,7 +601,7 @@ $protectedRoutes = @(
   "/command-dry-run-harness",
   "/command-cockpit-integration-contract",
   "/first-real-guarded-command-candidate",
-  "/controlled-real-guarded-command-mvp-release-candidate",
+  "/controlled-real-guarded-command-mvp-release-candidate"
 )
 
 & (Join-Path $PSScriptRoot "codexforge-daily-beta-one-release-review-smoke-helper.ps1") `

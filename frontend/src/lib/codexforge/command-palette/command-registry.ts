@@ -796,7 +796,6 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/packaging-backend-dry-run-packet": true,
   "/project-scaffold-backend-dry-run-packet": true,
   "/model-router-selection-preview": true,
-  "/model-capability-registry-preview": true,
   "/model-cost-quality-policy-preview": true,
   "/model-privacy-locality-policy-preview": true,
   "/model-fallback-chain-preview": true,
@@ -7663,14 +7662,6 @@ export function buildCodexForgeCommands(
       href: "/model-router-selection-preview",
       keywords: ["Model router selection preview", "Model selection groups", "Model router checklist", "Paid free local and specialist models remain preview-only", "approval required"],
       priority: 25.17000434,
-    }),
-    buildRouteCommand(availability, {
-      id: "go-model-capability-registry-preview",
-      label: "Go to Model Capability Registry Preview",
-      description: "Review static model capability registration without calling models from UI.",
-      href: "/model-capability-registry-preview",
-      keywords: ["Model capability registry preview", "Model capability groups", "Capability registry checklist", "no model calls", "approval required"],
-      priority: 25.17000435,
     }),
     buildRouteCommand(availability, {
       id: "go-model-cost-quality-policy-preview",

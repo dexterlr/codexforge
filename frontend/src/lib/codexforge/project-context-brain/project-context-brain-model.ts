@@ -154,13 +154,13 @@ const WORKSPACE_IDENTITY: ProjectContextBrainSection = {
     {
       id: "workspace-root",
       label: "Root path",
-      detail: "Canonical workspace: C:\\ai-lab\\projects\\openclaw-workspace\\repos\\health-tracker\\frontend.",
+      detail: "Canonical workspace: operator-supplied frontend workspace root.",
       state: "known",
     },
     {
       id: "project-name",
       label: "Project name",
-      detail: "Project identity candidate: health-tracker frontend with CodexForge cockpit surfaces.",
+      detail: "Project identity candidate: frontend workspace with CodexForge cockpit surfaces.",
       state: "known",
     },
     {
@@ -548,7 +548,7 @@ const COCKPIT_SUMMARY: readonly ProjectContextBrainItem[] = [
   {
     id: "cockpit-project",
     label: "Project",
-    detail: "CodexForge thinks this is the health-tracker frontend workspace with CodexForge cockpit routes.",
+    detail: "CodexForge thinks this is the current frontend workspace with CodexForge cockpit routes.",
     state: "known",
   },
   {

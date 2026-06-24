@@ -28,7 +28,7 @@ export function ProjectContextBrainCockpitSummaryPanel() {
         <span style={stateStyle("preview-only")}>Preview only</span>
       </div>
       <p style={bodyText}>
-        CodexForge thinks this is the health-tracker frontend workspace. Stack, files, commands, risks, evidence,
+        CodexForge thinks this is the current frontend workspace. Stack, files, commands, risks, evidence,
         result, recovery, and confidence are shown as deterministic review context only.
       </p>
       <p style={bodyText}>

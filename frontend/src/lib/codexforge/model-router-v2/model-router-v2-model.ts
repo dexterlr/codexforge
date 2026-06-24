@@ -128,6 +128,7 @@ export const MODEL_ROUTER_V2_COCKPIT_MARKERS = [
   "No prompt sending from the cockpit",
   "No credential storage from the cockpit",
   "Backend-owned model routing remains required",
+  "backend-owned provider-gated model routing remains required",
   "Explicit operator approval remains required",
 ] as const;
 
@@ -146,6 +147,7 @@ const EXPLICIT_SAFETY_LIMITS = [
   "It does not persist routing decisions from the UI.",
   "It does not release execution from the frontend.",
   "It prepares a future backend-owned provider-gated model routing path.",
+  "backend-owned provider-gated model routing remains required",
   "Explicit operator approval remains required.",
 ] as const;
 
