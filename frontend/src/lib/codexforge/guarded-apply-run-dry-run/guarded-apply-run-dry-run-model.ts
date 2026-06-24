@@ -821,6 +821,7 @@ const ROUTES: readonly GuardedApplyRunDryRunRouteDefinition[] = [
       "Dry-run command guard evaluation does not run commands",
       "Dry-run command guard evaluation requires explicit operator approval",
       "Command guard evaluation previews allowlist arguments working directory environment-name-only display timeout cancellation stdout stderr and exit-code capture",
+      "Backend-owned guarded command runner remains required",
       "Denied dry-run command guard paths remain blocked",
       "Dry-run command guard checklist",
     ],

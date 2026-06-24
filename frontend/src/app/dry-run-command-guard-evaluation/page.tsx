@@ -1,5 +1,5 @@
-import DryRunCommandGuardEvaluationPageClient from "./page-client";
+import DryRunCmdGuardEvaluationPageClient from "./page-client";
 
-export default function DryRunCommandGuardEvaluationPage() {
-  return <DryRunCommandGuardEvaluationPageClient />;
+export default function DryRunCmdGuardEvaluationPage() {
+  return <DryRunCmdGuardEvaluationPageClient />;
 }
