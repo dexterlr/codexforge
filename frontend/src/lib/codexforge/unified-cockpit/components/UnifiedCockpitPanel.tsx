@@ -17,6 +17,7 @@ import { ProviderApprovalGateCockpitSummaryPanel } from "../../provider-approval
 import { ProjectContextBrainCockpitSummaryPanel } from "../../project-context-brain/components";
 import { ReleaseGradeAuditTrailCockpitSummaryPanel } from "../../release-grade-audit-trail/components";
 import { SpecialistWorkerRegistryCockpitSummaryPanel } from "../../specialist-worker-registry/components";
+import { TradingResearchDomainPackCockpitPanel } from "../../trading-research-domain-pack/components";
 import {
   buildUnifiedCockpitRouteModel,
   buildUnifiedCockpitStableKey,
@@ -78,6 +79,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       </section>
 
       {isMainCockpit ? <CockpitDomainWorkspaceCockpitPanel /> : null}
+      {isMainCockpit ? <TradingResearchDomainPackCockpitPanel /> : null}
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}

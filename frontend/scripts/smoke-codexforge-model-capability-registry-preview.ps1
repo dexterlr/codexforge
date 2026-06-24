@@ -3,7 +3,7 @@ param([string]$BaseUrl = "http://localhost:3000")
 $ErrorActionPreference = "Stop"
 
 & (Join-Path $PSScriptRoot "codexforge-model-router-v2-smoke-helper.ps1") `
-  -SmokeName "Phase 1531 Model Capability Registry Preview" `
+  -SmokeName "Phase 836 Model Capability Registry Preview" `
   -ScriptFile "smoke-codexforge-model-capability-registry-preview.ps1" `
   -Domain "src\lib\codexforge\model-capability-registry-preview" `
   -Route "src\app\model-capability-registry-preview" `

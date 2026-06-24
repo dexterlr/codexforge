@@ -1,0 +1,22 @@
+"use client";
+
+import { TradingResearchDomainRoutePanel } from "@/lib/codexforge/trading-research-domain-pack/components";
+import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
+
+export default function TradingMandateDraftPreviewPageClient() {
+  return (
+    <CodexForgeAppShell
+      activePath="/trading-mandate-draft-preview"
+      workspaceLabel="Trading Mandate Draft Preview"
+      nextActionContext={{ wantsOperatorOverview: false }}
+      focusMode
+      contentMaxWidth="wide"
+      pageChrome="minimal"
+      showRightRail={false}
+      showSidebarSafetyNotice={false}
+      showHeroRouteChips={false}
+    >
+      <TradingResearchDomainRoutePanel routeSlug="trading-mandate-draft-preview" />
+    </CodexForgeAppShell>
+  );
+}

@@ -3,7 +3,7 @@ param([string]$BaseUrl = "http://localhost:3000")
 $ErrorActionPreference = "Stop"
 
 & (Join-Path $PSScriptRoot "codexforge-command-runner-safety-v2-smoke-helper.ps1") `
-  -SmokeName "Phase 1501 Command Working Directory Guard" `
+  -SmokeName "Phase 1182 Command Working Directory Guard" `
   -ScriptFile "smoke-codexforge-command-working-directory-guard.ps1" `
   -Domain "src\lib\codexforge\command-working-directory-guard" `
   -Route "src\app\command-working-directory-guard" `

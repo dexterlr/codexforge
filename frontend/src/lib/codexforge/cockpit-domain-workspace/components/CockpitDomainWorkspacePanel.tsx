@@ -52,8 +52,11 @@ export function CockpitDomainWorkspaceCockpitPanel() {
           <p style={panelEyebrow}>Choose a domain</p>
           <h3 style={sectionTitle}>Game Server Builder is available</h3>
           <p style={bodyText}>
-            Game Server Builder is available as the first domain pack. Trading Automation Research is upcoming and will
-            be capital-limited, paper-first, backtested, risk-governed, and broker-approval bounded.
+            Game Server Builder is available as the first domain pack. Trading Research Domain Pack is available as a
+            research-only, review-only workflow with no broker connections, no trade placement, no live market data
+            calls, no financial advice, and no guaranteed profit claims. Trading Automation Research remains a future
+            backend-owned workflow that must be capital-limited, paper-first, backtested, risk-governed, and
+            broker-approval bounded.
           </p>
         </article>
       </section>
