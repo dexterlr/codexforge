@@ -1894,7 +1894,7 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-developer-diagnostics",
-      label: "Open Developer Diagnostics",
+      label: "Go to Developer Diagnostics Hub Preview",
       description: "Open Developer Diagnostics for grouped phase pages, smoke routes, route families, diagnostic deep links, and direct phase route access.",
       group: "Developer diagnostics",
       href: "/developer-diagnostics-hub-preview",
