@@ -70,12 +70,12 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
   {
     id: "cockpit",
     path: "/codexforge-cockpit",
-    label: "Unified CodexForge Cockpit",
+    label: "CodexForge Cockpit",
     shortLabel: "Cockpit",
     priority: "primary",
     showInGlobalNav: true,
     group: "Core",
-    description: "Preferred normal user surface for goal, plan, approval, execution-state, evidence, result, and recovery review.",
+    description: "One normal user surface for goal intake, Trading Workspace, Build Workspace, Approvals, Evidence & Audit, Next Action, and Developer Diagnostics.",
   },
   {
     id: "stabilization",

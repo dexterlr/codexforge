@@ -4,17 +4,16 @@ import type { CodexForgeNavigationRoute, CodexForgeNavigationSection } from "../
 import { CodexForgeShellSafetyNotice } from "./CodexForgeShellSafetyNotice";
 
 const PRIMARY_ROUTE_HREFS = [
-  "/",
-  "/start",
-  "/code-flow",
-  "/files",
-  "/guarded-apply-mvp",
-  "/validation-results",
-  "/workflow-results",
-  "/run-history",
-  "/brain",
-  "/demo",
+  "/codexforge-cockpit",
+  "/trading-workspace-hub-preview",
+  "/build-workspace-hub-preview",
+  "/approvals-hub-preview",
+  "/evidence-audit-hub-preview",
+  "/next-action-rail-cleanup-preview",
+  "/developer-diagnostics-hub-preview",
 ] as const;
+
+const USER_NAV_ROUTE_HREFS = new Set<string>(PRIMARY_ROUTE_HREFS);
 
 const SECONDARY_GROUP_LABELS: Record<string, string> = {
   Brain: "Governance",
@@ -50,7 +49,7 @@ export function CodexForgeSidebar({
     .map((section) => ({
       ...section,
       label: SECONDARY_GROUP_LABELS[section.group] ?? section.label,
-      routes: section.routes.filter((route) => !primaryHrefSet.has(route.href)),
+      routes: section.routes.filter((route) => !primaryHrefSet.has(route.href) && !isPhaseDiagnosticRoute(route)),
     }))
     .filter((section) => section.routes.length > 0);
 
@@ -85,11 +84,38 @@ export function CodexForgeSidebar({
             ))}
           </div>
         </details>
+
+        <details style={advancedDetails}>
+          <summary style={advancedSummary}>Developer Diagnostics</summary>
+          <div style={diagnosticsBlock}>
+            <p style={diagnosticsText}>
+              Phase routes remain diagnostics. Main menu hides phase spam while diagnostics remain searchable and direct
+              phase route access remains available.
+            </p>
+            {renderRouteLink(
+              routes.find((route) => route.href === "/developer-diagnostics-hub-preview") ??
+                ({
+                  href: "/developer-diagnostics-hub-preview",
+                  label: "Developer Diagnostics",
+                  shortLabel: "Developer Diagnostics",
+                  description: "Grouped phase route diagnostics.",
+                  badge: "Diagnostics",
+                } as CodexForgeNavigationRoute),
+              activeHref,
+              compact,
+              showBadges
+            )}
+          </div>
+        </details>
       </nav>
 
       {showSafetyNotice ? <CodexForgeShellSafetyNotice /> : null}
     </aside>
   );
+}
+
+function isPhaseDiagnosticRoute(route: CodexForgeNavigationRoute): boolean {
+  return route.badge.startsWith("Phase ") && !USER_NAV_ROUTE_HREFS.has(route.href);
 }
 
 function renderRouteLink(
@@ -286,4 +312,19 @@ const advancedStack: CSSProperties = {
   gap: 10,
   marginTop: 9,
   minWidth: 0,
+};
+
+const diagnosticsBlock: CSSProperties = {
+  display: "grid",
+  gap: 8,
+  marginTop: 9,
+  minWidth: 0,
+};
+
+const diagnosticsText: CSSProperties = {
+  color: "#94a3b8",
+  fontSize: 11,
+  lineHeight: 1.4,
+  margin: "0 6px",
+  overflowWrap: "anywhere",
 };

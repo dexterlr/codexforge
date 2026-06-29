@@ -14,6 +14,8 @@ export type CodexForgeCommandKind =
   | "patch-preview";
 
 export type CodexForgeCommandGroup =
+  | "User features"
+  | "Developer diagnostics"
   | "Navigate"
   | "Stabilize"
   | "Patch workflow"

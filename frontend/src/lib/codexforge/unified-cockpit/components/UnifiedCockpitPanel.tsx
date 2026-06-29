@@ -18,6 +18,7 @@ import { ProjectContextBrainCockpitSummaryPanel } from "../../project-context-br
 import { ReleaseGradeAuditTrailCockpitSummaryPanel } from "../../release-grade-audit-trail/components";
 import { SpecialistWorkerRegistryCockpitSummaryPanel } from "../../specialist-worker-registry/components";
 import { BacktestPaperTradingEngineCockpitPanel } from "../../backtest-paper-trading-engine/components";
+import { CockpitNavigationCleanupUserUxCockpitPanel } from "../../cockpit-navigation-cleanup-user-ux/components";
 import { ProfitLockboxReinvestmentRulesCockpitPanel } from "../../profit-lockbox-reinvestment-rules/components";
 import { StrategyLabSignalEngineCockpitPanel } from "../../strategy-lab-signal-engine/components";
 import { TradingMandateRiskGovernorCockpitPanel } from "../../trading-mandate-risk-governor/components";
@@ -30,7 +31,7 @@ import {
 } from "../unified-cockpit-model";
 
 export function UnifiedCodexForgeCockpitPanel() {
-  return <UnifiedCockpitRoutePanel routeSlug="codexforge-cockpit" />;
+  return <CockpitNavigationCleanupUserUxCockpitPanel />;
 }
 
 export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCockpitRouteSlug }) {
