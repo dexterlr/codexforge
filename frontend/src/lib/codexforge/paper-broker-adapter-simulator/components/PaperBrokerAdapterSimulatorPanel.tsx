@@ -1,0 +1,775 @@
+"use client";
+
+import type { CSSProperties } from "react";
+import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
+import {
+  buildPaperBrokerAdapterSimulatorRouteModel,
+  buildPaperBrokerAdapterSimulatorStableKey,
+  type PaperBrokerAdapterSimulatorItem,
+  type PaperBrokerAdapterSimulatorRouteSlug,
+  type PaperBrokerAdapterSimulatorSection,
+  type PaperBrokerAdapterSimulatorState,
+} from "../paper-broker-adapter-simulator-model";
+
+export function PaperBrokerAdapterSimulatorPageClientShell({
+  routeSlug,
+}: {
+  routeSlug: PaperBrokerAdapterSimulatorRouteSlug;
+}) {
+  const model = buildPaperBrokerAdapterSimulatorRouteModel(routeSlug);
+
+  return (
+    <CodexForgeAppShell
+      activePath={model.route.href}
+      workspaceLabel={model.route.title}
+      nextActionContext={{ wantsOperatorOverview: false }}
+      focusMode
+      contentMaxWidth="wide"
+      pageChrome="minimal"
+      showRightRail={false}
+      showSidebarSafetyNotice={false}
+      showHeroRouteChips={false}
+    >
+      <PaperBrokerAdapterSimulatorRoutePanel routeSlug={routeSlug} />
+    </CodexForgeAppShell>
+  );
+}
+
+export function PaperBrokerAdapterSimulatorCockpitSummaryPanel() {
+  const model = buildPaperBrokerAdapterSimulatorRouteModel("cockpit-paper-broker-simulator-summary");
+  const simulator = model.paperBrokerAdapterSimulator;
+
+  return (
+    <section
+      style={cockpitPanel}
+      aria-label="Paper Broker Adapter Simulator"
+      data-codexforge-paper-broker-adapter-simulator={model.cockpitMarkers.join(" | ")}
+    >
+      <header style={hero}>
+        <div style={eyebrowRow}>
+          <span style={phaseBadge}>Paper Broker Adapter Simulator</span>
+          <span style={surfaceBadge}>Trading Workspace</span>
+          <span style={approvalBadge}>Synthetic review only</span>
+        </div>
+        <h2 style={title}>Paper Broker Adapter Simulator</h2>
+        <p style={summary}>
+          Safe review-only paper broker adapter simulator preview for synthetic account state, buying power, position
+          ledger, order intent, validation, queue, fill model, slippage fee, rejection, cancel replace, execution audit,
+          risk governor bridge, and denied paths. No real broker connection from the cockpit, no broker SDK from the
+          cockpit, no broker API calls from the cockpit, no real account state from the cockpit, no real buying power
+          from the cockpit, no live positions from the cockpit, no live market data calls from the cockpit, no order
+          placement from the cockpit, no order dispatch from the cockpit, no real paper order execution from the
+          cockpit, no money movement from the cockpit, no trading automation from the cockpit, no financial advice from
+          the cockpit, no personalised recommendations from the cockpit, and no buy sell instructions from the cockpit.
+        </p>
+      </header>
+
+      <section style={summaryGrid} aria-label="Paper broker adapter simulator cockpit summary">
+        {simulator.cockpitSummary.map((item, index) => (
+          <CheckRow
+            key={buildPaperBrokerAdapterSimulatorStableKey(["paper-cockpit-summary", String(index), item.id])}
+            item={item}
+          />
+        ))}
+      </section>
+
+      <section style={sectionGrid} aria-label="Paper broker adapter simulator cockpit cards">
+        <SummaryCard section={simulator.syntheticAccountState} stateLabel="Account State" />
+        <SummaryCard section={simulator.syntheticBuyingPower} stateLabel="Buying Power" />
+        <SummaryCard section={simulator.syntheticPositionLedger} stateLabel="Position Ledger" />
+        <SummaryCard section={simulator.syntheticOrderIntent} stateLabel="Order Intent" />
+        <SummaryCard section={simulator.syntheticOrderValidation} stateLabel="Order Validation" />
+        <SummaryCard section={simulator.syntheticOrderQueue} stateLabel="Order Queue" />
+        <SummaryCard section={simulator.syntheticFillModel} stateLabel="Fill Model" />
+        <SummaryCard section={simulator.syntheticSlippageFee} stateLabel="Slippage Fee" />
+        <SummaryCard section={simulator.syntheticRejectionReason} stateLabel="Rejection Reason" />
+        <SummaryCard section={simulator.syntheticCancelReplace} stateLabel="Cancel Replace" />
+        <SummaryCard section={simulator.syntheticExecutionAudit} stateLabel="Execution Audit" />
+        <SummaryCard section={simulator.syntheticRiskGovernorBridge} stateLabel="Risk Governor Bridge" />
+      </section>
+
+      <section style={noticeBand} aria-label="Paper broker adapter simulator safety limits">
+        {simulator.explicitSafetyLimits.map((limit, index) => (
+          <span
+            key={buildPaperBrokerAdapterSimulatorStableKey(["paper-cockpit-limit", String(index), limit])}
+            style={dangerChip}
+          >
+            {limit}
+          </span>
+        ))}
+      </section>
+
+      <a style={safeLink} href="/cockpit-paper-broker-simulator-summary">
+        Review Paper Broker Simulator Summary
+      </a>
+    </section>
+  );
+}
+
+export function PaperBrokerAdapterSimulatorRoutePanel({
+  routeSlug,
+  embedded = false,
+}: {
+  routeSlug: PaperBrokerAdapterSimulatorRouteSlug;
+  embedded?: boolean;
+}) {
+  const model = buildPaperBrokerAdapterSimulatorRouteModel(routeSlug);
+  const simulator = model.paperBrokerAdapterSimulator;
+  const titleText = embedded ? "Paper Broker Adapter Simulator" : model.route.title;
+
+  return (
+    <section
+      style={embedded ? embeddedPage : page}
+      data-codexforge-paper-broker-adapter-simulator-route={model.route.markerPhrases.join(" | ")}
+    >
+      <header style={hero}>
+        <div style={eyebrowRow}>
+          <span style={phaseBadge}>{embedded ? "Paper Broker Simulator" : model.route.phase}</span>
+          <span style={surfaceBadge}>{model.route.devOnly ? "Dev test diagnostics only" : "Cockpit surface"}</span>
+          <span style={approvalBadge}>Synthetic only</span>
+        </div>
+        {embedded ? <h2 style={title}>{titleText}</h2> : <h1 style={title}>{titleText}</h1>}
+        <p style={summary}>{model.route.summary}</p>
+        <p style={bodyText}>
+          Paper Broker Adapter Simulator v1 is review-only from the frontend. This is not a real broker, broker SDK,
+          broker API, real account, portfolio access, live market data, order placement, order routing, paper order
+          execution from the frontend, money movement, financial advice, personalised recommendation, buy sell
+          instruction, or automated trading.
+        </p>
+        <p style={bodyText}>
+          Synthetic data only. Backend-owned paper broker adapter remains required. Backend-owned execution simulator
+          remains required. Risk governor approval remains required. Kill switch enforcement remains required. Explicit
+          operator approval remains required.
+        </p>
+      </header>
+
+      <section style={markerBand} aria-label="Paper broker adapter simulator page markers">
+        {model.route.markerPhrases.map((marker, index) => (
+          <span
+            key={buildPaperBrokerAdapterSimulatorStableKey(["paper-route-marker", model.route.slug, String(index), marker])}
+            style={markerPill}
+          >
+            {marker}
+          </span>
+        ))}
+      </section>
+
+      <section style={identityBand} aria-label="Paper broker adapter simulator model fields">
+        <div>
+          <p style={panelEyebrow}>Paper broker adapter simulator model</p>
+          <h2 style={sectionTitle}>paperBrokerAdapterSimulatorId: {simulator.paperBrokerAdapterSimulatorId}</h2>
+        </div>
+        <p style={bodyText}>paperBrokerAdapterSimulatorKind: {simulator.paperBrokerAdapterSimulatorKind}</p>
+        <div style={chipRow}>
+          {[
+            "paperBrokerAdapterSimulatorId",
+            "paperBrokerAdapterSimulatorKind",
+            "syntheticAccountState",
+            "syntheticBuyingPower",
+            "syntheticPositionLedger",
+            "syntheticOrderIntent",
+            "syntheticOrderValidation",
+            "syntheticOrderQueue",
+            "syntheticFillModel",
+            "syntheticSlippageFee",
+            "syntheticRejectionReason",
+            "syntheticCancelReplace",
+            "syntheticExecutionAudit",
+            "syntheticRiskGovernorBridge",
+            "deniedPaperBrokerSimulatorBoundaries",
+            "cockpitSummary",
+            "explicitSafetyLimits",
+          ].map((field, index) => (
+            <span key={buildPaperBrokerAdapterSimulatorStableKey(["paper-field", String(index), field])} style={chip}>
+              {field}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      <section style={sectionGrid} aria-label="Paper broker adapter simulator route sections">
+        {model.sections.map((section, index) => (
+          <SectionCard
+            key={buildPaperBrokerAdapterSimulatorStableKey(["paper-section", model.route.slug, String(index), section.sectionId])}
+            section={section}
+          />
+        ))}
+      </section>
+
+      <section style={splitBand} aria-label="Paper broker adapter simulator summary and safety limits">
+        <article style={panel}>
+          <div style={panelHeader}>
+            <div>
+              <p style={panelEyebrow}>Cockpit</p>
+              <h3 style={sectionTitle}>cockpitSummary</h3>
+            </div>
+            <span style={stateStyle("review-only")}>Review only</span>
+          </div>
+          <div style={checklistGrid}>
+            {simulator.cockpitSummary.map((item, index) => (
+              <CheckRow
+                key={buildPaperBrokerAdapterSimulatorStableKey(["paper-route-summary", String(index), item.id])}
+                item={item}
+              />
+            ))}
+          </div>
+        </article>
+
+        <article style={panel}>
+          <div style={panelHeader}>
+            <div>
+              <p style={panelEyebrow}>Safety</p>
+              <h3 style={sectionTitle}>explicitSafetyLimits</h3>
+            </div>
+            <span style={stateStyle("blocked")}>Blocked</span>
+          </div>
+          <div style={chipRow}>
+            {simulator.explicitSafetyLimits.map((limit, index) => (
+              <span
+                key={buildPaperBrokerAdapterSimulatorStableKey(["paper-route-limit", String(index), limit])}
+                style={dangerChip}
+              >
+                {limit}
+              </span>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section style={continuityBand} aria-label="Paper broker adapter simulator continuity">
+        <div style={panelHeader}>
+          <div>
+            <p style={panelEyebrow}>Continuity</p>
+            <h3 style={sectionTitle}>
+              Paper Broker Adapter Simulator Synthetic Account State Synthetic Buying Power Synthetic Position Ledger
+              Synthetic Order Intent Synthetic Order Validation Synthetic Order Queue Synthetic Fill Model Synthetic
+              Slippage Fee Synthetic Rejection Reason Synthetic Cancel Replace Synthetic Execution Audit Synthetic Risk
+              Governor Bridge
+            </h3>
+          </div>
+          <span style={stateStyle("backend-owned")}>Backend-owned simulator required</span>
+        </div>
+        <p style={bodyText}>
+          Controlled paper broker adapter simulator release candidate prepares CodexForge for backend-owned paper broker
+          adapter simulation without frontend broker execution. Paper broker simulator remains review-only. Synthetic
+          data only. Frontend broker connection still blocked. Frontend broker account reads still blocked. Frontend
+          buying power reads still blocked. Frontend live position reads still blocked. Frontend order placement and
+          dispatch still blocked. Frontend paper order execution still blocked. Frontend money movement still blocked.
+          Frontend live market data calls still blocked. Frontend financial advice still blocked. Backend-owned paper
+          broker adapter remains required. Backend-owned execution simulator remains required. Risk governor approval
+          remains required. Kill switch enforcement remains required. Explicit operator approval remains required.
+        </p>
+      </section>
+
+      <details style={diagnosticsDrawer} open={!embedded}>
+        <summary style={diagnosticsSummary}>Diagnostics</summary>
+        <p style={bodyText}>
+          Normal users continue to work from /codexforge-cockpit. Paper broker adapter simulator phase pages remain dev
+          test diagnostics only.
+        </p>
+        <div style={routeGrid}>
+          {model.diagnosticRoutes.map((route, index) => (
+            <a
+              key={buildPaperBrokerAdapterSimulatorStableKey(["paper-diagnostic-route", String(index), route.slug])}
+              style={routeLink}
+              href={route.href}
+            >
+              <span style={routePhase}>{route.phase}</span>
+              <span style={routeLabel}>{route.title}</span>
+              <span style={routeCommand}>{route.commandLabel}</span>
+            </a>
+          ))}
+        </div>
+      </details>
+    </section>
+  );
+}
+
+function SummaryCard({ section, stateLabel }: { section: PaperBrokerAdapterSimulatorSection; stateLabel: string }) {
+  return (
+    <article style={panel}>
+      <div style={panelHeader}>
+        <div>
+          <p style={panelEyebrow}>{stateLabel}</p>
+          <h3 style={sectionTitle}>{section.label}</h3>
+        </div>
+        <span style={stateStyle(section.state)}>{formatState(section.state)}</span>
+      </div>
+      <p style={bodyText}>{section.humanReadableSummary}</p>
+      <div style={chipRow}>
+        {section.plannedOutputs.slice(0, 4).map((output, index) => (
+          <span
+            key={buildPaperBrokerAdapterSimulatorStableKey(["paper-summary-output", section.sectionId, String(index), output])}
+            style={chip}
+          >
+            {output}
+          </span>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function SectionCard({ section }: { section: PaperBrokerAdapterSimulatorSection }) {
+  return (
+    <article style={panel}>
+      <div style={panelHeader}>
+        <div>
+          <p style={panelEyebrow}>{section.label}</p>
+          <h2 style={sectionTitle}>{section.title}</h2>
+        </div>
+        <span style={stateStyle(section.state)}>{formatState(section.state)}</span>
+      </div>
+      <p style={bodyText}>{section.humanReadableSummary}</p>
+      <FieldList label="plannedInputs" values={section.plannedInputs} />
+      <FieldList label="plannedOutputs" values={section.plannedOutputs} />
+      <FieldList label="reviewOnlyNotes" values={section.reviewOnlyNotes} />
+      <FieldList label="safetyNotes" values={section.safetyNotes} />
+      <div style={chipRow}>
+        {section.deniedActions.map((action, index) => (
+          <span
+            key={buildPaperBrokerAdapterSimulatorStableKey(["paper-denied-action", section.sectionId, String(index), action])}
+            style={dangerChip}
+          >
+            {action}
+          </span>
+        ))}
+      </div>
+      <div style={checklistGrid}>
+        {section.checklist.map((item, index) => (
+          <CheckRow
+            key={buildPaperBrokerAdapterSimulatorStableKey(["paper-section-check", section.sectionId, String(index), item.id])}
+            item={item}
+          />
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function FieldList({ label, values }: { label: string; values: readonly string[] }) {
+  return (
+    <div style={fieldRow}>
+      <span style={fieldLabel}>{label}</span>
+      {values.map((value, index) => (
+        <span
+          key={buildPaperBrokerAdapterSimulatorStableKey(["paper-field-list", label, String(index), value])}
+          style={fieldValue}
+        >
+          {value}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function CheckRow({ item }: { item: PaperBrokerAdapterSimulatorItem }) {
+  return (
+    <div style={checkRow}>
+      <span style={smallStateStyle(item.state)}>{formatState(item.state)}</span>
+      <div>
+        <p style={checkLabel}>{item.label}</p>
+        <p style={checkDetail}>{item.detail}</p>
+      </div>
+    </div>
+  );
+}
+
+function formatState(state: PaperBrokerAdapterSimulatorState): string {
+  if (state === "synthetic-only") return "Synthetic only";
+  if (state === "backend-owned") return "Backend-owned";
+  if (state === "needs-approval") return "Approval required";
+  if (state === "blocked") return "Blocked";
+  if (state === "candidate") return "Candidate";
+  if (state === "release-candidate") return "Release candidate";
+  return "Review only";
+}
+
+function stateStyle(state: PaperBrokerAdapterSimulatorState): CSSProperties {
+  return {
+    ...stateBadge,
+    ...(state === "blocked"
+      ? blockedBadge
+      : state === "needs-approval"
+        ? approvalStateBadge
+        : state === "backend-owned"
+          ? backendOwnedBadge
+          : state === "candidate" || state === "release-candidate"
+            ? candidateBadge
+            : syntheticBadge),
+  };
+}
+
+function smallStateStyle(state: PaperBrokerAdapterSimulatorState): CSSProperties {
+  return {
+    ...smallStateBadge,
+    ...(state === "blocked"
+      ? blockedBadge
+      : state === "needs-approval"
+        ? approvalStateBadge
+        : state === "backend-owned"
+          ? backendOwnedBadge
+          : state === "candidate" || state === "release-candidate"
+            ? candidateBadge
+            : syntheticBadge),
+  };
+}
+
+const page: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 18,
+  padding: "28px",
+  color: "#172026",
+};
+
+const embeddedPage: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+  color: "#172026",
+};
+
+const cockpitPanel: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+  borderTop: "1px solid #d8dee4",
+  paddingTop: 18,
+  color: "#172026",
+};
+
+const hero: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+  padding: "4px 0 10px",
+};
+
+const eyebrowRow: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+};
+
+const phaseBadge: CSSProperties = {
+  display: "inline-flex",
+  border: "1px solid #8aa4b8",
+  borderRadius: 6,
+  padding: "5px 8px",
+  fontSize: 12,
+  fontWeight: 700,
+  color: "#233746",
+  background: "#f2f7fa",
+};
+
+const surfaceBadge: CSSProperties = {
+  ...phaseBadge,
+  borderColor: "#8ab7a3",
+  color: "#24533f",
+  background: "#f0faf5",
+};
+
+const approvalBadge: CSSProperties = {
+  ...phaseBadge,
+  borderColor: "#c7a553",
+  color: "#5c4512",
+  background: "#fff7df",
+};
+
+const title: CSSProperties = {
+  margin: 0,
+  fontSize: 34,
+  lineHeight: 1.08,
+  letterSpacing: 0,
+};
+
+const summary: CSSProperties = {
+  margin: 0,
+  maxWidth: 1080,
+  fontSize: 17,
+  lineHeight: 1.5,
+  color: "#344854",
+};
+
+const bodyText: CSSProperties = {
+  margin: "8px 0 0",
+  color: "#425563",
+  fontSize: 14,
+  lineHeight: 1.55,
+};
+
+const summaryGrid: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+  gap: 12,
+  border: "1px solid #cfd8df",
+  borderRadius: 8,
+  padding: 14,
+  background: "#f7fafc",
+};
+
+const sectionGrid: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+  gap: 14,
+};
+
+const splitBand: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+  gap: 14,
+};
+
+const panel: CSSProperties = {
+  border: "1px solid #d8dee4",
+  borderRadius: 8,
+  padding: 16,
+  background: "#ffffff",
+};
+
+const panelHeader: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 12,
+  flexWrap: "wrap",
+};
+
+const panelEyebrow: CSSProperties = {
+  margin: "0 0 4px",
+  color: "#60717d",
+  fontSize: 12,
+  fontWeight: 700,
+  textTransform: "uppercase",
+  letterSpacing: 0,
+};
+
+const sectionTitle: CSSProperties = {
+  margin: 0,
+  fontSize: 20,
+  lineHeight: 1.25,
+  letterSpacing: 0,
+};
+
+const markerBand: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+};
+
+const markerPill: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  border: "1px solid #d8dee4",
+  borderRadius: 6,
+  padding: "7px 9px",
+  background: "#ffffff",
+  color: "#2f3b43",
+  fontSize: 12,
+  lineHeight: 1.3,
+};
+
+const identityBand: CSSProperties = {
+  border: "1px solid #cfd8df",
+  borderRadius: 8,
+  padding: 14,
+  background: "#f7fafc",
+};
+
+const chipRow: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+  marginTop: 10,
+};
+
+const chip: CSSProperties = {
+  border: "1px solid #ccd6dd",
+  borderRadius: 6,
+  padding: "6px 8px",
+  background: "#f7fafc",
+  color: "#2b3b46",
+  fontSize: 12,
+  lineHeight: 1.3,
+};
+
+const dangerChip: CSSProperties = {
+  ...chip,
+  borderColor: "#d29a9a",
+  background: "#fff3f1",
+  color: "#7d2c26",
+};
+
+const noticeBand: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+  border: "1px solid #d8c7c2",
+  borderRadius: 8,
+  padding: 14,
+  background: "#fff8f6",
+};
+
+const fieldRow: CSSProperties = {
+  display: "grid",
+  gap: 3,
+  borderTop: "1px solid #edf1f4",
+  paddingTop: 8,
+  marginTop: 8,
+};
+
+const fieldLabel: CSSProperties = {
+  color: "#60717d",
+  fontSize: 12,
+  fontWeight: 800,
+};
+
+const fieldValue: CSSProperties = {
+  margin: "7px 0 0",
+  color: "#344854",
+  fontSize: 13,
+  lineHeight: 1.45,
+};
+
+const checklistGrid: CSSProperties = {
+  display: "grid",
+  gap: 8,
+  marginTop: 12,
+};
+
+const checkRow: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "auto 1fr",
+  gap: 10,
+  alignItems: "start",
+  borderTop: "1px solid #edf1f4",
+  paddingTop: 8,
+};
+
+const checkLabel: CSSProperties = {
+  margin: 0,
+  color: "#25313a",
+  fontSize: 13,
+  fontWeight: 700,
+};
+
+const checkDetail: CSSProperties = {
+  margin: "3px 0 0",
+  color: "#526572",
+  fontSize: 13,
+  lineHeight: 1.45,
+};
+
+const stateBadge: CSSProperties = {
+  border: "1px solid",
+  borderRadius: 6,
+  padding: "6px 8px",
+  fontSize: 12,
+  fontWeight: 700,
+};
+
+const smallStateBadge: CSSProperties = {
+  ...stateBadge,
+  flex: "0 0 auto",
+  padding: "4px 6px",
+  fontSize: 11,
+};
+
+const blockedBadge: CSSProperties = {
+  borderColor: "#d29a9a",
+  background: "#fff3f1",
+  color: "#7d2c26",
+};
+
+const approvalStateBadge: CSSProperties = {
+  borderColor: "#c7a553",
+  background: "#fff8e6",
+  color: "#5c4512",
+};
+
+const syntheticBadge: CSSProperties = {
+  borderColor: "#91b9a8",
+  background: "#f0faf5",
+  color: "#235342",
+};
+
+const backendOwnedBadge: CSSProperties = {
+  borderColor: "#81b3c9",
+  background: "#eff8fc",
+  color: "#1f5269",
+};
+
+const candidateBadge: CSSProperties = {
+  borderColor: "#8aa4b8",
+  background: "#f2f7fa",
+  color: "#233746",
+};
+
+const continuityBand: CSSProperties = {
+  border: "1px solid #cddbd7",
+  borderRadius: 8,
+  padding: 16,
+  background: "#f8fbfa",
+};
+
+const diagnosticsDrawer: CSSProperties = {
+  border: "1px solid #d8dee4",
+  borderRadius: 8,
+  padding: 14,
+  background: "#fbfcfd",
+};
+
+const diagnosticsSummary: CSSProperties = {
+  cursor: "pointer",
+  fontWeight: 800,
+  color: "#263540",
+};
+
+const routeGrid: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+  gap: 10,
+  marginTop: 12,
+};
+
+const routeLink: CSSProperties = {
+  display: "grid",
+  gap: 4,
+  border: "1px solid #d8dee4",
+  borderRadius: 8,
+  padding: 12,
+  color: "#25313a",
+  textDecoration: "none",
+  background: "#ffffff",
+};
+
+const routePhase: CSSProperties = {
+  color: "#60717d",
+  fontSize: 12,
+  fontWeight: 700,
+};
+
+const routeLabel: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 800,
+};
+
+const routeCommand: CSSProperties = {
+  color: "#526572",
+  fontSize: 12,
+};
+
+const safeLink: CSSProperties = {
+  display: "inline-flex",
+  width: "fit-content",
+  border: "1px solid #b7c9d7",
+  borderRadius: 6,
+  padding: "8px 10px",
+  color: "#164666",
+  background: "#ffffff",
+  textDecoration: "none",
+  fontSize: 13,
+  fontWeight: 700,
+  marginTop: 12,
+};

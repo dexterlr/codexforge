@@ -20,6 +20,7 @@ import { SpecialistWorkerRegistryCockpitSummaryPanel } from "../../specialist-wo
 import { BacktestPaperTradingEngineCockpitPanel } from "../../backtest-paper-trading-engine/components";
 import { BrokerExecutionBoundaryCockpitSummaryPanel } from "../../broker-execution-boundary/components";
 import { CockpitNavigationCleanupUserUxCockpitPanel } from "../../cockpit-navigation-cleanup-user-ux/components";
+import { PaperBrokerAdapterSimulatorCockpitSummaryPanel } from "../../paper-broker-adapter-simulator/components";
 import { ProfitLockboxReinvestmentRulesCockpitPanel } from "../../profit-lockbox-reinvestment-rules/components";
 import { StrategyLabSignalEngineCockpitPanel } from "../../strategy-lab-signal-engine/components";
 import { TradingMandateRiskGovernorCockpitPanel } from "../../trading-mandate-risk-governor/components";
@@ -91,6 +92,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <BacktestPaperTradingEngineCockpitPanel /> : null}
       {isMainCockpit ? <ProfitLockboxReinvestmentRulesCockpitPanel /> : null}
       {isMainCockpit ? <BrokerExecutionBoundaryCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <PaperBrokerAdapterSimulatorCockpitSummaryPanel /> : null}
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}
