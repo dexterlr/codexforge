@@ -18,6 +18,7 @@ import { ProjectContextBrainCockpitSummaryPanel } from "../../project-context-br
 import { ReleaseGradeAuditTrailCockpitSummaryPanel } from "../../release-grade-audit-trail/components";
 import { SpecialistWorkerRegistryCockpitSummaryPanel } from "../../specialist-worker-registry/components";
 import { BacktestPaperTradingEngineCockpitPanel } from "../../backtest-paper-trading-engine/components";
+import { BrokerExecutionBoundaryCockpitSummaryPanel } from "../../broker-execution-boundary/components";
 import { CockpitNavigationCleanupUserUxCockpitPanel } from "../../cockpit-navigation-cleanup-user-ux/components";
 import { ProfitLockboxReinvestmentRulesCockpitPanel } from "../../profit-lockbox-reinvestment-rules/components";
 import { StrategyLabSignalEngineCockpitPanel } from "../../strategy-lab-signal-engine/components";
@@ -89,6 +90,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <StrategyLabSignalEngineCockpitPanel /> : null}
       {isMainCockpit ? <BacktestPaperTradingEngineCockpitPanel /> : null}
       {isMainCockpit ? <ProfitLockboxReinvestmentRulesCockpitPanel /> : null}
+      {isMainCockpit ? <BrokerExecutionBoundaryCockpitSummaryPanel /> : null}
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}

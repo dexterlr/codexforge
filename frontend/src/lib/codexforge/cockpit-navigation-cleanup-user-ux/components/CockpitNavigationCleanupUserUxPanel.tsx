@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
+import { BrokerExecutionBoundaryCockpitSummaryPanel } from "../../broker-execution-boundary/components";
 import {
   buildCockpitNavigationCleanupRouteModel,
   buildCockpitNavigationCleanupStableKey,
@@ -54,8 +55,8 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         <h1 style={title}>CodexForge Cockpit</h1>
         <p style={summary}>
           One normal user UX for starting with a goal, reviewing the Trading Workspace, Build Workspace, Approvals,
-          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1737 after this batch.
-          Phase pages remain dev test diagnostics only.
+          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1753 after Broker
+          Execution Boundary v1. Phase pages remain dev test diagnostics only.
         </p>
       </header>
 
@@ -80,7 +81,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <section style={splitBand} aria-label="Trading and build workspace grouping">
         <WorkspacePanel
           title="Trading Workspace"
-          summary="Trading workspace groups research, mandate, risk governor, strategy lab, signal engine, backtest, paper trading, profit lockbox, and reinvestment rules."
+          summary="Trading workspace groups research, mandate, risk governor, strategy lab, signal engine, backtest, paper trading, profit lockbox, reinvestment rules, and broker execution boundary previews."
           items={ux.tradingWorkspaceHub.featureLabels}
           href="/trading-workspace-hub-preview"
         />
@@ -91,6 +92,8 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
           href="/build-workspace-hub-preview"
         />
       </section>
+
+      <BrokerExecutionBoundaryCockpitSummaryPanel />
 
       <section style={quickActionBand} aria-label="Cockpit quick actions">
         <div style={panelHeader}>
@@ -141,9 +144,10 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             </a>
           </div>
           <p style={bodyText}>
-            Current checkpoint: through phase 1737. Latest batch: 1722-1737 - Cockpit Navigation Cleanup + User UX
-            Consolidation v1. Latest release candidate: Controlled Consolidated User UX Release Candidate. Full smoke is
-            not claimed here unless full smoke has passed.
+            Current checkpoint: through phase 1753. Latest batch: 1738-1753 - Broker Execution Boundary v1. Latest
+            release candidate: Controlled Broker Execution Boundary Release Candidate. Broker boundary remains
+            review-only and frontend broker execution remains blocked. Full smoke is not claimed here unless full smoke
+            has passed.
           </p>
         </article>
       </section>
