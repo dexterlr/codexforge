@@ -1,5 +1,7 @@
 import type { CodexForgeNavigationRouteHref } from "../navigation-shell/navigation-shell-types";
 
+export type CodexForgeCommandRouteHref = CodexForgeNavigationRouteHref | (string & {});
+
 export type CodexForgeCommandKind =
   | "route"
   | "safe-action"
@@ -40,7 +42,7 @@ export type CodexForgeCommand = {
   description: string;
   group: CodexForgeCommandGroup;
   kind: CodexForgeCommandKind;
-  href?: CodexForgeNavigationRouteHref;
+  href?: CodexForgeCommandRouteHref;
   copyPayload?: string;
   safetyLevel: CodexForgeCommandSafetyLevel;
   requiresReview: boolean;
@@ -56,7 +58,7 @@ export type CodexForgeCommandInput = Partial<Omit<CodexForgeCommand, "id" | "lab
 };
 
 export type CodexForgeCommandRouteAvailability = Partial<
-  Record<CodexForgeNavigationRouteHref, boolean>
+  Record<string, boolean>
 >;
 
 export type CodexForgeCommandRegistryOptions = {

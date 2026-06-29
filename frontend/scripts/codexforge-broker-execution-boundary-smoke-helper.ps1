@@ -51,7 +51,9 @@ Assert-Contains $commandRegistry $CommandLabel "command palette label"
 Assert-Contains $allSmoke $SmokeName "all-smoke name"
 Assert-Contains $allSmoke $ScriptFile "all-smoke script file"
 
-$commandHrefCount = ($commandRegistry.Split("href: `"$RouteHref`"")).Length - 1
+$escapedRouteHref = [regex]::Escape($RouteHref)
+$commandHrefPattern = "href:\s*`"$escapedRouteHref`""
+$commandHrefCount = ([regex]::Matches($commandRegistry, $commandHrefPattern)).Count
 if ($commandHrefCount -ne 1) { throw "[FAIL] Duplicate command palette href count for $RouteHref`: $commandHrefCount" }
 Write-Host "[PASS] unique command palette href $RouteHref"
 

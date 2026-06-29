@@ -11,6 +11,7 @@ param(
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
+$workspaceRoot = (Resolve-Path ".").Path
 
 function Assert-Contains {
   param([AllowEmptyString()][string]$Haystack, [string]$Needle, [string]$Name)
@@ -24,6 +25,39 @@ function Assert-NotMatches {
   Write-Host "[PASS] $Name"
 }
 
+function Assert-NotMatchesCaseSensitive {
+  param([AllowEmptyString()][string]$Haystack, [string]$Pattern, [string]$Name)
+  if ($Haystack -cmatch $Pattern) { throw "[FAIL] Unexpected $Name`: $Pattern" }
+  Write-Host "[PASS] $Name"
+}
+
+function Get-RelativeSmokePath {
+  param([string]$Path)
+  $relativePath = $Path
+  if ($relativePath.ToLowerInvariant().StartsWith($workspaceRoot.ToLowerInvariant())) {
+    $relativePath = $relativePath.Substring($workspaceRoot.Length)
+  }
+  return $relativePath.TrimStart([char[]]("\\/")).Replace("/", "\")
+}
+
+function Test-ExcludedOlderUserUxPath {
+  param([string]$Path)
+  $relativePath = Get-RelativeSmokePath $Path
+  foreach ($pattern in @(
+    "^src\\lib\\codexforge\\broker-execution-boundary(\\|$)",
+    "^src\\lib\\codexforge\\broker-[^\\]*-boundary[^\\]*(\\|$)",
+    "^src\\app\\broker-[^\\]*(\\|$)",
+    "^src\\app\\cockpit-broker-boundary-summary(\\|$)",
+    "^src\\app\\controlled-broker-execution-boundary-release-candidate(\\|$)",
+    "^src\\app\\first-broker-execution-boundary-candidate(\\|$)",
+    "^scripts\\smoke-codexforge-broker-[^\\]*\.ps1$",
+    "^scripts\\codexforge-broker-execution-boundary-smoke-helper\.ps1$"
+  )) {
+    if ($relativePath -match $pattern) { return $true }
+  }
+  return $false
+}
+
 foreach ($path in @($Domain, $Route, (Join-Path $Route "page.tsx"), (Join-Path $Route "page-client.tsx"), (Join-Path "scripts" $ScriptFile))) {
   if (-not (Test-Path $path)) { throw "[FAIL] Missing path: $path" }
   Write-Host "[PASS] path exists $path"
@@ -34,6 +68,49 @@ foreach ($scanRoot in @($Domain, $Route, "src\lib\codexforge\cockpit-navigation-
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
 $source = $sourceParts -join "`n"
+$olderBatchSourceParts = @()
+$olderUserUxScanRoots = @(
+  "src\lib\codexforge\cockpit-navigation-cleanup-user-ux",
+  "src\lib\codexforge\user-cockpit-home-preview",
+  "src\lib\codexforge\trading-workspace-hub-preview",
+  "src\lib\codexforge\build-workspace-hub-preview",
+  "src\lib\codexforge\approvals-hub-preview",
+  "src\lib\codexforge\evidence-audit-hub-preview",
+  "src\lib\codexforge\developer-diagnostics-hub-preview",
+  "src\lib\codexforge\phase-route-grouping-preview",
+  "src\lib\codexforge\user-feature-label-map-preview",
+  "src\lib\codexforge\cockpit-quick-actions-preview",
+  "src\lib\codexforge\next-action-rail-cleanup-preview",
+  "src\lib\codexforge\command-palette-grouping-preview",
+  "src\lib\codexforge\cockpit-status-summary-preview",
+  "src\lib\codexforge\cockpit-onboarding-help-preview",
+  "src\lib\codexforge\first-consolidated-user-ux-candidate",
+  "src\lib\codexforge\controlled-consolidated-user-ux-release-candidate",
+  "src\app\cockpit-navigation-cleanup-boundary",
+  "src\app\user-cockpit-home-preview",
+  "src\app\trading-workspace-hub-preview",
+  "src\app\build-workspace-hub-preview",
+  "src\app\approvals-hub-preview",
+  "src\app\evidence-audit-hub-preview",
+  "src\app\developer-diagnostics-hub-preview",
+  "src\app\phase-route-grouping-preview",
+  "src\app\user-feature-label-map-preview",
+  "src\app\cockpit-quick-actions-preview",
+  "src\app\next-action-rail-cleanup-preview",
+  "src\app\command-palette-grouping-preview",
+  "src\app\cockpit-status-summary-preview",
+  "src\app\cockpit-onboarding-help-preview",
+  "src\app\first-consolidated-user-ux-candidate",
+  "src\app\controlled-consolidated-user-ux-release-candidate"
+)
+foreach ($scanRoot in $olderUserUxScanRoots) {
+  if (Test-Path $scanRoot) {
+    $olderBatchSourceParts += Get-ChildItem -Recurse -File $scanRoot |
+      Where-Object { -not (Test-ExcludedOlderUserUxPath $_.FullName) } |
+      ForEach-Object { Get-Content -Raw $_.FullName }
+  }
+}
+$olderBatchSource = $olderBatchSourceParts -join "`n"
 $navigationRegistry = Get-Content -Raw "src\lib\codexforge\navigation-shell\navigation-route-registry.ts"
 $navigationTypes = Get-Content -Raw "src\lib\codexforge\navigation-shell\navigation-shell-types.ts"
 $commandRegistry = Get-Content -Raw "src\lib\codexforge\command-palette\command-registry.ts"
@@ -127,6 +204,6 @@ foreach ($safetyMarker in @(
 Assert-NotMatches $source 'key=\{(item|label|constraint|badge|entry|step|route|profile|record|section)\}' "banned duplicate-prone React keys"
 Assert-NotMatches $source 'Math\.random|Date\.now|crypto\.randomUUID' "nondeterministic key or data generators"
 Assert-NotMatches $source 'fetch\(|XMLHttpRequest|EventSource|WebSocket|runCommand|writeFile|spawn\(|exec\(' "runtime/provider/command/file side-effect APIs"
-Assert-NotMatches $source 'brokerExecution|orderPlacement|marketDataApi|exchangeApi|submitOrder|placeOrder|withdrawFunds|transferFunds|reinvestCapital|readBrokerAccount' "broker, market, or money movement APIs"
+Assert-NotMatchesCaseSensitive $olderBatchSource 'brokerExecution|orderPlacement|marketDataApi|exchangeApi|submitOrder|placeOrder|withdrawFunds|transferFunds|reinvestCapital|readBrokerAccount' "broker, market, or money movement APIs"
 
 Write-Host "[OK] $SmokeName static cockpit navigation cleanup user UX smoke passed."

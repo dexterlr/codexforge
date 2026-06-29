@@ -35,6 +35,11 @@ foreach ($scanRoot in @($Domain, $Route, "src\lib\codexforge\profit-lockbox-rein
   $sourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
 }
 $source = $sourceParts -join "`n"
+$olderBatchSourceParts = @()
+foreach ($scanRoot in @($Domain, $Route, "src\lib\codexforge\profit-lockbox-reinvestment-rules")) {
+  $olderBatchSourceParts += Get-ChildItem -Recurse -File $scanRoot | ForEach-Object { Get-Content -Raw $_.FullName }
+}
+$olderBatchSource = $olderBatchSourceParts -join "`n"
 $navigationRegistry = Get-Content -Raw "src\lib\codexforge\navigation-shell\navigation-route-registry.ts"
 $commandRegistry = Get-Content -Raw "src\lib\codexforge\command-palette\command-registry.ts"
 $allSmoke = Get-Content -Raw "scripts\smoke-codexforge-all.ps1"
@@ -124,6 +129,6 @@ foreach ($safetyMarker in @(
 Assert-NotMatches $source 'key=\{(item|label|constraint|badge|entry|step|route|profile|record|section)\}' "banned duplicate-prone React keys"
 Assert-NotMatches $source 'Math\.random|Date\.now|crypto\.randomUUID' "nondeterministic key or data generators"
 Assert-NotMatches $source 'fetch\(|XMLHttpRequest|EventSource|WebSocket|localStorage|sessionStorage|runCommand|writeFile|spawn\(|exec\(' "runtime/provider/command/file/browser side-effect APIs"
-Assert-NotMatches $source 'brokerExecution|orderPlacement|marketDataApi|exchangeApi|submitOrder|placeOrder|withdrawFunds|transferFunds|reinvestCapital|readBrokerAccount' "broker, market, or money movement APIs"
+Assert-NotMatches $olderBatchSource 'brokerExecution|orderPlacement|marketDataApi|exchangeApi|submitOrder|placeOrder|withdrawFunds|transferFunds|reinvestCapital|readBrokerAccount' "broker, market, or money movement APIs"
 
 Write-Host "[OK] $SmokeName static profit lockbox reinvestment rules smoke passed."
