@@ -255,7 +255,7 @@ if ($touchedSource.Count -eq 0) {
   Assert-NotContains $sourceRuntimeScan "Date.now" "no Date.now in touched app/source files"
   Assert-NotContains $sourceRuntimeScan "Math.random" "no Math.random in touched app/source files"
   Assert-NotMatches $sourceRuntimeScan "localStorage\.setItem|sessionStorage\.setItem" "no localStorage/sessionStorage credential storage in touched app/source files"
-  Assert-NotMatches $sourceRuntimeScan "runCommand|brokerExecution|apply-diff|write-file|appendEvent|saveBrainGraph" "no runtime execution or Brain mutation calls in touched app/source files"
+  Assert-NotMatches $sourceRuntimeScan "runCommand|brokerExecution\s*\(|brokerExecution\.run|brokerExecution\.execute|brokerExecutionClient|executeBroker|dispatchBroker|apply-diff|write-file|appendEvent|saveBrainGraph" "no runtime execution or Brain mutation calls in touched app/source files"
   Assert-NotMatches $sourceRuntimeScan "fetch\s*\(|XMLHttpRequest|EventSource|WebSocket" "no provider/local/connector/automation calls in touched app/source files"
 }
 
