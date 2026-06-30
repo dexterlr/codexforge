@@ -269,6 +269,12 @@ const ROUTE_FAMILIES: readonly CockpitNavigationCleanupRouteFamily[] = [
     exampleRoutes: ["/paper-trading-result-ledger-boundary", "/cockpit-paper-trading-result-ledger-summary", "/controlled-paper-trading-result-ledger-release-candidate"],
   },
   {
+    id: "paper-trading-review-dashboard",
+    label: "Paper Trading Review Dashboard",
+    summary: "Simulated performance summary, trade review queue, risk review queue, evidence review queue, approval review queue, metric cards, ledger timeline, exception queue, review notes, operator signoff, export boundary, health status, and denied dashboard paths.",
+    exampleRoutes: ["/paper-trading-review-dashboard-boundary", "/cockpit-paper-trading-review-dashboard-summary", "/controlled-paper-trading-review-dashboard-release-candidate"],
+  },
+  {
     id: "cockpit-ux-diagnostics",
     label: "Cockpit UX Diagnostics",
     summary: "Navigation cleanup, user cockpit, workspace hubs, command grouping, status summary, onboarding, and controlled consolidated UX release candidate.",
@@ -367,10 +373,10 @@ const TRADING_WORKSPACE_HUB = createSection({
   label: "Trading Workspace",
   title: "Trading Workspace Hub",
   humanReadableSummary:
-    "Trading Workspace groups Trading Research, Mandate / Risk Governor, Strategy Lab / Signal Engine, Backtest / Paper Trading, Profit Lockbox / Reinvestment Rules, Broker Execution Boundary previews, Paper Broker Adapter Simulator previews, and Paper Trading Result Ledger previews behind one user-facing section.",
-  featureLabels: ["Trading Research", "Mandate / Risk Governor", "Strategy Lab / Signal Engine", "Backtest / Paper Trading", "Profit Lockbox / Reinvestment Rules", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger"],
-  plannedInputs: ["Research notes", "Risk governor posture", "Strategy hypothesis", "Backtest readiness", "Profit lockbox rules", "Broker boundary status", "Paper broker simulator status", "Paper result ledger status"],
-  plannedOutputs: ["Trading Workspace", "Grouped trading diagnostics", "Broker boundary summary", "Paper broker simulator summary", "Paper result ledger summary", "No live trading", "No financial advice"],
+    "Trading Workspace groups Trading Research, Mandate / Risk Governor, Strategy Lab / Signal Engine, Backtest / Paper Trading, Profit Lockbox / Reinvestment Rules, Broker Execution Boundary previews, Paper Broker Adapter Simulator previews, Paper Trading Result Ledger previews, and Paper Trading Review Dashboard previews behind one user-facing section.",
+  featureLabels: ["Trading Research", "Mandate / Risk Governor", "Strategy Lab / Signal Engine", "Backtest / Paper Trading", "Profit Lockbox / Reinvestment Rules", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard"],
+  plannedInputs: ["Research notes", "Risk governor posture", "Strategy hypothesis", "Backtest readiness", "Profit lockbox rules", "Broker boundary status", "Paper broker simulator status", "Paper result ledger status", "Paper review dashboard status"],
+  plannedOutputs: ["Trading Workspace", "Grouped trading diagnostics", "Broker boundary summary", "Paper broker simulator summary", "Paper result ledger summary", "Paper review dashboard summary", "No live trading", "No financial advice"],
   checklistPrefix: "trading-workspace-hub",
   checklistSummary:
     "Trading workspace hub preview groups trading research mandate risk governor strategy lab backtest paper trading profit lockbox broker execution boundary paper broker adapter simulator and paper trading result ledger into one user-facing trading workspace.",
@@ -537,7 +543,7 @@ const COCKPIT_STATUS_SUMMARY = createSection({
   label: "Cockpit Status Summary",
   title: "Cockpit Status Summary",
   humanReadableSummary:
-    "Cockpit Status Summary shows current checkpoint through phase 1785, latest batch, latest release candidate, smoke posture, UX readiness, and blocked execution boundaries.",
+    "Cockpit Status Summary shows current checkpoint through phase 1801, latest batch, latest release candidate, smoke posture, UX readiness, and blocked execution boundaries.",
   featureLabels: ["Current phase checkpoint", "Latest batch", "Latest release candidate", "Smoke posture", "User UX readiness", "Blocked execution boundaries"],
   plannedInputs: ["All-smoke registry checkpoint", "Batch label", "Release candidate label", "Known validation posture"],
   plannedOutputs: ["Checkpoint summary", "No unearned full-smoke claim", "Execution boundary summary"],
@@ -618,9 +624,9 @@ const SECTION_LOOKUP: Record<(typeof ALL_SECTION_IDS)[number], CockpitNavigation
 
 const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
   {
-    id: "checkpoint-through-1785",
+    id: "checkpoint-through-1801",
     label: "Current checkpoint",
-    detail: "Status summary: through phase 1785 after Paper Trading Result Ledger v1.",
+    detail: "Status summary: through phase 1801 after Paper Trading Review Dashboard v1.",
     state: "review-only",
   },
   {
@@ -645,7 +651,7 @@ const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
 
 const QUICK_ACTIONS: readonly CockpitNavigationCleanupItem[] = [
   { id: "start-with-goal", label: "Start with a goal", detail: "Review the goal intake area in the cockpit.", state: "user-facing" },
-  { id: "open-trading-workspace", label: "Open Trading Workspace", detail: "Review trading research, risk, strategy, backtest, paper trading, profit lockbox, broker boundary, paper broker simulator, and paper result ledger sections.", state: "user-facing" },
+  { id: "open-trading-workspace", label: "Open Trading Workspace", detail: "Review trading research, risk, strategy, backtest, paper trading, profit lockbox, broker boundary, paper broker simulator, paper result ledger, and paper review dashboard sections.", state: "user-facing" },
   { id: "open-build-workspace", label: "Open Build Workspace", detail: "Review project builder, game server builder, domain packs, plans, artifacts, commands, and evidence.", state: "user-facing" },
   { id: "review-approvals", label: "Review Approvals", detail: "Review approval gates and holds without persisting approval decisions.", state: "approval-required" },
   { id: "review-evidence", label: "Review Evidence", detail: "Review evidence and audit posture without persisting evidence, results, audit, or memory.", state: "review-only" },
@@ -659,6 +665,7 @@ const FEATURE_COMMANDS: readonly CockpitNavigationCleanupItem[] = [
   { id: "review-broker-boundary", label: "Review Broker Boundary", detail: "Feature command points to /cockpit-broker-boundary-summary.", state: "review-only" },
   { id: "review-paper-broker-simulator", label: "Review Paper Broker Simulator", detail: "Feature command points to /cockpit-paper-broker-simulator-summary.", state: "review-only" },
   { id: "review-paper-result-ledger", label: "Review Paper Result Ledger", detail: "Feature command points to /cockpit-paper-trading-result-ledger-summary.", state: "review-only" },
+  { id: "review-paper-review-dashboard", label: "Review Paper Review Dashboard", detail: "Feature command points to /cockpit-paper-trading-review-dashboard-summary.", state: "review-only" },
   { id: "open-build-workspace", label: "Open Build Workspace", detail: "Feature command points to /build-workspace-hub-preview.", state: "user-facing" },
   { id: "review-approvals", label: "Review Approvals", detail: "Feature command points to /approvals-hub-preview.", state: "approval-required" },
   { id: "review-evidence-audit", label: "Review Evidence and Audit", detail: "Feature command points to /evidence-audit-hub-preview.", state: "review-only" },

@@ -5,6 +5,7 @@ import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { BrokerExecutionBoundaryCockpitSummaryPanel } from "../../broker-execution-boundary/components";
 import { PaperBrokerAdapterSimulatorCockpitSummaryPanel } from "../../paper-broker-adapter-simulator/components";
 import { PaperTradingResultLedgerCockpitSummaryPanel } from "../../paper-trading-result-ledger/components";
+import { PaperTradingReviewDashboardCockpitSummaryPanel } from "../../paper-trading-review-dashboard/components";
 import {
   buildCockpitNavigationCleanupRouteModel,
   buildCockpitNavigationCleanupStableKey,
@@ -57,8 +58,8 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         <h1 style={title}>CodexForge Cockpit</h1>
         <p style={summary}>
           One normal user UX for starting with a goal, reviewing the Trading Workspace, Build Workspace, Approvals,
-          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1785 after Paper
-          Trading Result Ledger v1. Phase pages remain dev test diagnostics only.
+          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1801 after Paper
+          Trading Review Dashboard v1. Phase pages remain dev test diagnostics only.
         </p>
       </header>
 
@@ -83,7 +84,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <section style={splitBand} aria-label="Trading and build workspace grouping">
         <WorkspacePanel
           title="Trading Workspace"
-          summary="Trading workspace groups research, mandate, risk governor, strategy lab, signal engine, backtest, paper trading, profit lockbox, reinvestment rules, broker execution boundary previews, paper broker adapter simulator previews, and paper trading result ledger previews."
+          summary="Trading workspace groups research, mandate, risk governor, strategy lab, signal engine, backtest, paper trading, profit lockbox, reinvestment rules, broker execution boundary previews, paper broker adapter simulator previews, paper trading result ledger previews, and paper trading review dashboard previews."
           items={ux.tradingWorkspaceHub.featureLabels}
           href="/trading-workspace-hub-preview"
         />
@@ -98,6 +99,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <BrokerExecutionBoundaryCockpitSummaryPanel />
       <PaperBrokerAdapterSimulatorCockpitSummaryPanel />
       <PaperTradingResultLedgerCockpitSummaryPanel />
+      <PaperTradingReviewDashboardCockpitSummaryPanel />
 
       <section style={quickActionBand} aria-label="Cockpit quick actions">
         <div style={panelHeader}>
@@ -148,10 +150,10 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             </a>
           </div>
           <p style={bodyText}>
-            Current checkpoint: through phase 1785. Latest batch: 1770-1785 - Paper Trading Result Ledger v1. Latest
-            release candidate: Controlled Paper Trading Result Ledger Release Candidate. Paper trading result ledger
-            remains review-only, synthetic-only, and frontend broker execution plus frontend ledger persistence remain
-            blocked. Full smoke is not claimed here unless full smoke has passed.
+            Current checkpoint: through phase 1801. Latest batch: 1786-1801 - Paper Trading Review Dashboard v1.
+            Latest release candidate: Controlled Paper Trading Review Dashboard Release Candidate. Paper trading review
+            dashboard remains review-only, synthetic-only, and frontend broker execution plus frontend dashboard and
+            evidence persistence remain blocked. Full smoke is not claimed here unless full smoke has passed.
           </p>
         </article>
       </section>
