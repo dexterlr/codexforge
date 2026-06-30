@@ -7,6 +7,7 @@ import { PaperBrokerAdapterSimulatorCockpitSummaryPanel } from "../../paper-brok
 import { PaperTradingResultLedgerCockpitSummaryPanel } from "../../paper-trading-result-ledger/components";
 import { PaperTradingReviewDashboardCockpitSummaryPanel } from "../../paper-trading-review-dashboard/components";
 import { StrategyPerformanceReviewLoopCockpitSummaryPanel } from "../../strategy-performance-review-loop/components";
+import { StrategyChangeControlWorkflowCockpitSummaryPanel } from "../../strategy-change-control-workflow/components";
 import {
   buildCockpitNavigationCleanupRouteModel,
   buildCockpitNavigationCleanupStableKey,
@@ -59,8 +60,8 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         <h1 style={title}>CodexForge Cockpit</h1>
         <p style={summary}>
           One normal user UX for starting with a goal, reviewing the Trading Workspace, Build Workspace, Approvals,
-          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1817 after Strategy
-          Performance Review Loop v1. Phase pages remain dev test diagnostics only.
+          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1833 after Strategy
+          Change Control Workflow v1. Phase pages remain dev test diagnostics only.
         </p>
       </header>
 
@@ -85,7 +86,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <section style={splitBand} aria-label="Trading and build workspace grouping">
         <WorkspacePanel
           title="Trading Workspace"
-          summary="Trading workspace groups research, mandate, risk governor, strategy lab, signal engine, backtest, paper trading, profit lockbox, reinvestment rules, broker execution boundary previews, paper broker adapter simulator previews, paper trading result ledger previews, paper trading review dashboard previews, and strategy performance review loop previews."
+          summary="Trading workspace groups research, mandate, risk governor, strategy lab, signal engine, backtest, paper trading, profit lockbox, reinvestment rules, broker execution boundary previews, paper broker adapter simulator previews, paper trading result ledger previews, paper trading review dashboard previews, strategy performance review loop previews, and strategy change control workflow previews."
           items={ux.tradingWorkspaceHub.featureLabels}
           href="/trading-workspace-hub-preview"
         />
@@ -102,6 +103,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <PaperTradingResultLedgerCockpitSummaryPanel />
       <PaperTradingReviewDashboardCockpitSummaryPanel />
       <StrategyPerformanceReviewLoopCockpitSummaryPanel />
+      <StrategyChangeControlWorkflowCockpitSummaryPanel />
 
       <section style={quickActionBand} aria-label="Cockpit quick actions">
         <div style={panelHeader}>
@@ -152,12 +154,12 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             </a>
           </div>
           <p style={bodyText}>
-            Current checkpoint: through phase 1817. Latest batch: 1802-1817 - Strategy Performance Review Loop v1.
-            Latest release candidate: Controlled Strategy Performance Review Loop Release Candidate. Strategy feedback
-            remains review-only, synthetic-only, and frontend strategy auto tuning, strategy auto promotion, broker
-            execution, order placement, live market data, real P&amp;L calculation, advice, recommendations, buy sell
-            instructions, evidence persistence, and export/file writes remain blocked. Full smoke is not claimed here
-            unless full smoke has passed.
+            Current checkpoint: through phase 1833. Latest batch: 1818-1833 - Strategy Change Control Workflow v1.
+            Latest release candidate: Controlled Strategy Change Control Workflow Release Candidate. Strategy change
+            control remains review-only, synthetic-only, and frontend strategy auto tuning, strategy auto promotion, rule
+            mutation, file writes, approval persistence, evidence persistence, broker execution, order placement, order
+            dispatch, live market data calls, real P&amp;L calculation, advice, recommendations, and buy sell instructions
+            remain blocked. Full smoke is not claimed here unless full smoke has passed.
           </p>
         </article>
       </section>
