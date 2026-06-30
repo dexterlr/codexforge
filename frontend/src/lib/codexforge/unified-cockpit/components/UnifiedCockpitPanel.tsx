@@ -25,6 +25,7 @@ import { PaperTradingResultLedgerCockpitSummaryPanel } from "../../paper-trading
 import { PaperTradingReviewDashboardCockpitSummaryPanel } from "../../paper-trading-review-dashboard/components";
 import { ProfitLockboxReinvestmentRulesCockpitPanel } from "../../profit-lockbox-reinvestment-rules/components";
 import { StrategyLabSignalEngineCockpitPanel } from "../../strategy-lab-signal-engine/components";
+import { StrategyPerformanceReviewLoopCockpitSummaryPanel } from "../../strategy-performance-review-loop/components";
 import { TradingMandateRiskGovernorCockpitPanel } from "../../trading-mandate-risk-governor/components";
 import { TradingResearchDomainPackCockpitPanel } from "../../trading-research-domain-pack/components";
 import {
@@ -97,6 +98,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <PaperBrokerAdapterSimulatorCockpitSummaryPanel /> : null}
       {isMainCockpit ? <PaperTradingResultLedgerCockpitSummaryPanel /> : null}
       {isMainCockpit ? <PaperTradingReviewDashboardCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <StrategyPerformanceReviewLoopCockpitSummaryPanel /> : null}
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}
