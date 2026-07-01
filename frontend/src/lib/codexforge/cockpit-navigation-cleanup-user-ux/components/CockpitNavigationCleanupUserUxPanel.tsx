@@ -9,6 +9,7 @@ import { PaperTradingReviewDashboardCockpitSummaryPanel } from "../../paper-trad
 import { StrategyPerformanceReviewLoopCockpitSummaryPanel } from "../../strategy-performance-review-loop/components";
 import { StrategyChangeControlWorkflowCockpitSummaryPanel } from "../../strategy-change-control-workflow/components";
 import { StrategyVersionReviewRegistryCockpitSummaryPanel } from "../../strategy-version-review-registry/components";
+import { PaperStrategyPromotionGateCockpitSummaryPanel } from "../../paper-strategy-promotion-gate/components";
 import {
   buildCockpitNavigationCleanupRouteModel,
   buildCockpitNavigationCleanupStableKey,
@@ -61,8 +62,8 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         <h1 style={title}>CodexForge Cockpit</h1>
         <p style={summary}>
           One normal user UX for starting with a goal, reviewing the Trading Workspace, Build Workspace, Approvals,
-          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1849 after Strategy
-          Version Review Registry v1. Phase pages remain dev test diagnostics only.
+          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1865 after Paper
+          Strategy Promotion Gate v1. Phase pages remain dev test diagnostics only.
         </p>
       </header>
 
@@ -87,7 +88,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <section style={splitBand} aria-label="Trading and build workspace grouping">
         <WorkspacePanel
           title="Trading Workspace"
-          summary="Trading workspace groups research, mandate, risk governor, strategy lab, signal engine, backtest, paper trading, profit lockbox, reinvestment rules, broker execution boundary previews, paper broker adapter simulator previews, paper trading result ledger previews, paper trading review dashboard previews, strategy performance review loop previews, strategy change control workflow previews, and strategy version review registry previews."
+          summary="Trading workspace groups research, mandate, risk governor, strategy lab, signal engine, backtest, paper trading, profit lockbox, reinvestment rules, broker execution boundary previews, paper broker adapter simulator previews, paper trading result ledger previews, paper trading review dashboard previews, strategy performance review loop previews, strategy change control workflow previews, strategy version review registry previews, and paper strategy promotion gate previews."
           items={ux.tradingWorkspaceHub.featureLabels}
           href="/trading-workspace-hub-preview"
         />
@@ -106,6 +107,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <StrategyPerformanceReviewLoopCockpitSummaryPanel />
       <StrategyChangeControlWorkflowCockpitSummaryPanel />
       <StrategyVersionReviewRegistryCockpitSummaryPanel />
+      <PaperStrategyPromotionGateCockpitSummaryPanel />
 
       <section style={quickActionBand} aria-label="Cockpit quick actions">
         <div style={panelHeader}>
@@ -156,12 +158,13 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             </a>
           </div>
           <p style={bodyText}>
-            Current checkpoint: through phase 1849. Latest batch: 1834-1849 - Strategy Version Review Registry v1.
-            Latest release candidate: Controlled Strategy Version Review Registry Release Candidate. Strategy version
-            registry remains review-only, synthetic-only, and frontend strategy auto tuning, strategy auto promotion, rule
-            mutation, file writes, version persistence, approval persistence, evidence persistence, broker execution,
-            order placement, order dispatch, live market data calls, real P&amp;L calculation, advice, recommendations,
-            and buy sell instructions remain blocked. Full smoke is not claimed here unless full smoke has passed.
+            Current checkpoint: through phase 1865. Latest batch: 1850-1865 - Paper Strategy Promotion Gate v1.
+            Latest release candidate: Controlled Paper Strategy Promotion Gate Release Candidate. Paper strategy
+            promotion gate remains review-only, synthetic-only, and frontend strategy auto tuning, strategy auto
+            promotion, rule mutation, file writes, version persistence, approval persistence, evidence persistence,
+            broker execution, order placement, order dispatch, paper execution, live execution, live market data calls,
+            real P&amp;L calculation, advice, recommendations, and buy sell instructions remain blocked. Full smoke is not
+            claimed here unless full smoke has passed.
           </p>
         </article>
       </section>
