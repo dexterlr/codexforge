@@ -14,6 +14,7 @@ import { PaperTradingEndToEndReviewCockpitSummaryPanel } from "../../paper-tradi
 import { CockpitTradingWorkflowPolishCockpitSummaryPanel } from "../../cockpit-trading-workflow-polish/components";
 import { ControlledPaperTradingWorkspaceCockpitSummaryPanel } from "../../controlled-paper-trading-workspace/components";
 import { AssetAndShotPlanningWorkspaceCockpitSummaryPanel } from "../../asset-and-shot-planning-workspace/components";
+import { VoiceoverAndCaptionPlanningWorkspaceCockpitSummaryPanel } from "../../voiceover-and-caption-planning-workspace/components";
 import { ScriptAndStoryboardWorkspaceCockpitSummaryPanel } from "../../script-and-storyboard-workspace/components";
 import { VideoCreationDomainCockpitSummaryPanel } from "../../video-creation-domain/components";
 import {
@@ -69,8 +70,9 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         <p style={summary}>
           One normal user UX for starting with a goal, reviewing the Trading Workspace, Build Workspace, Creative
           Workspace, Approvals, Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase
-          1961 after Asset And Shot Planning Workspace v1, layered below Script And Storyboard Workspace v1 and Video
-          Creation Domain Boundary v1. Phase pages remain dev test diagnostics only.
+          1977 after Voiceover And Caption Planning Workspace v1, layered below Asset And Shot Planning Workspace v1,
+          Script And Storyboard Workspace v1, and Video Creation Domain Boundary v1. Phase pages remain dev test
+          diagnostics only.
         </p>
       </header>
 
@@ -107,11 +109,24 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         />
         <WorkspacePanel
           title="Creative Workspace"
-          summary="Creative Workspace starts with the Video Creation Domain as a review-only, planning-only lane, keeps Script And Storyboard Workspace intact, and now adds Asset And Shot Planning Workspace previews for shot list, scene asset map, b-roll requirements, product shot requirements, visual reference board, music and audio notes, brand asset checklist, rights and source status, missing asset blockers, asset handoff packet, upload blocked boundary, and download blocked boundary. No generation controls, render controls, export controls, upload controls, download controls, provider controls, model controls, connector controls, publishing controls, or scheduling controls are present."
+          summary="Creative Workspace starts with the Video Creation Domain as a review-only, planning-only lane, keeps Script And Storyboard Workspace and Asset And Shot Planning Workspace intact, and now adds Voiceover And Caption Planning Workspace previews for narration brief, voice tone and pace, consent and rights, audio cues, caption style guide, subtitle timing, lower thirds, accessibility notes, transcript review, audio caption blockers, voice generation blocked boundary, and caption export blocked boundary. No voice generation controls, transcription controls, caption export controls, render controls, export controls, upload controls, download controls, provider controls, model controls, connector controls, publishing controls, or scheduling controls are present."
           items={[
             "Video Creation Domain",
             "Script And Storyboard Workspace",
             "Asset And Shot Planning Workspace",
+            "Voiceover And Caption Planning Workspace",
+            "Narration Brief",
+            "Voice Tone And Pace",
+            "Voice Consent And Rights",
+            "Audio Cue Planning",
+            "Caption Style Guide",
+            "Subtitle Timing Plan",
+            "Lower Third And Supers Plan",
+            "Accessibility Caption Note",
+            "Transcript Review Lane",
+            "Audio Caption Blocker Map",
+            "Voice Generation Blocked Boundary",
+            "Caption Export Blocked Boundary",
             "Shot List Planning",
             "Scene Asset Map",
             "B-Roll Requirement",
@@ -149,7 +164,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             "Render Job Blocked",
             "Export Blocked",
           ]}
-          href="/cockpit-asset-and-shot-planning-summary"
+          href="/cockpit-voiceover-and-caption-planning-summary"
         />
       </section>
 
@@ -167,6 +182,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <VideoCreationDomainCockpitSummaryPanel />
       <ScriptAndStoryboardWorkspaceCockpitSummaryPanel />
       <AssetAndShotPlanningWorkspaceCockpitSummaryPanel />
+      <VoiceoverAndCaptionPlanningWorkspaceCockpitSummaryPanel />
 
       <section style={quickActionBand} aria-label="Cockpit quick actions">
         <div style={panelHeader}>
@@ -217,17 +233,19 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             </a>
           </div>
           <p style={bodyText}>
-            Current checkpoint: through phase 1961. Latest batch: 1946-1961 - Asset And Shot Planning Workspace v1.
-            Latest release candidate: Controlled Asset And Shot Planning Workspace Release Candidate. Asset and shot
-            planning workspace remains review-only, synthetic-only, and planning-only below Script And Storyboard
-            Workspace and Video Creation Domain. Frontend upload, download, media storage, final script generation,
-            storyboard image generation, rendering, export, file generation, script persistence, storyboard persistence,
-            asset persistence, rights persistence, prompt persistence, job persistence, approval persistence, provider
-            calls, model calls, connector calls, image generation, video generation, voice generation, publishing,
-            scheduling, and performance guarantees remain blocked. Controlled paper trading workspace remains
-            review-only and no-live-transition. Backend-owned asset storage, render service, export service, provider
-            gateway, rights review, approval capture, paper workflow, promotion workflow, broker adapter, credential
-            vault, and audit trail remain required. Full smoke is not claimed here unless full smoke has passed.
+            Current checkpoint: through phase 1977. Latest batch: 1962-1977 - Voiceover And Caption Planning Workspace
+            v1. Latest release candidate: Controlled Voiceover And Caption Planning Workspace Release Candidate.
+            Voiceover and caption planning workspace remains review-only, synthetic-only, and planning-only below Asset
+            And Shot Planning Workspace, Script And Storyboard Workspace, and Video Creation Domain. Frontend voice
+            generation, voice cloning, audio synthesis, transcription, caption export, subtitle file generation, audio
+            upload/download, final script generation, storyboard image generation, rendering, export, file generation,
+            voice persistence, caption persistence, transcript persistence, audio persistence, asset persistence, rights
+            persistence, prompt persistence, job persistence, approval persistence, provider calls, model calls, connector
+            calls, image generation, video generation, publishing, scheduling, and performance guarantees remain blocked.
+            Controlled paper trading workspace remains review-only and no-live-transition. Backend-owned asset storage,
+            audio storage, render service, export service, provider gateway, rights review, consent review, approval
+            capture, caption persistence, paper workflow, promotion workflow, broker adapter, credential vault, and audit
+            trail remain required. Full smoke is not claimed here unless full smoke has passed.
           </p>
         </article>
       </section>
