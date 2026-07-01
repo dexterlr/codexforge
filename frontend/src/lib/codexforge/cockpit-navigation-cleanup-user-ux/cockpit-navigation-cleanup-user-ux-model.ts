@@ -110,6 +110,7 @@ export const COCKPIT_NAVIGATION_CLEANUP_USER_UX_MARKERS = [
   "Build Workspace",
   "Creative Workspace",
   "Video Creation Domain",
+  "Script And Storyboard Workspace",
   "Approvals Hub",
   "Evidence Audit Hub",
   "Developer Diagnostics",
@@ -161,8 +162,12 @@ export const COCKPIT_NAVIGATION_CLEANUP_USER_UX_MARKERS = [
   "Kill switch enforcement remains required",
   "No model calls from the cockpit",
   "No command execution from the cockpit",
+  "No final script generation from the cockpit",
+  "No storyboard image generation from the cockpit",
   "No video rendering from the cockpit",
   "No video export from the cockpit",
+  "No frontend script persistence",
+  "No frontend storyboard persistence",
   "Explicit operator approval remains required",
 ] as const;
 
@@ -216,8 +221,12 @@ const EXPLICIT_SAFETY_LIMITS = [
   "Kill switch enforcement remains required.",
   "No model calls from the cockpit.",
   "No command execution from the cockpit.",
+  "No final script generation from the cockpit.",
+  "No storyboard image generation from the cockpit.",
   "No video rendering from the cockpit.",
   "No video export from the cockpit.",
+  "No frontend script persistence.",
+  "No frontend storyboard persistence.",
   "No file mutation from the cockpit.",
   "No approval, evidence, result, audit, queue, transaction, lock, credential, or browser storage persistence from the cockpit.",
   "Explicit operator approval remains required.",
@@ -313,6 +322,12 @@ const ROUTE_FAMILIES: readonly CockpitNavigationCleanupRouteFamily[] = [
     label: "Video Creation Domain",
     summary: "Workspace intake, project brief, audience and goal, format boundary, safety and rights, asset planning, script planning, storyboard planning, voiceover planning, caption planning, render job blocked, export blocked, cockpit summary, and denied video creation paths.",
     exampleRoutes: ["/video-creation-domain-boundary", "/cockpit-video-creation-domain-summary", "/controlled-video-creation-domain-boundary-release-candidate"],
+  },
+  {
+    id: "script-and-storyboard-workspace",
+    label: "Script And Storyboard Workspace",
+    summary: "Script brief intake, hook and opening beat, scene beat outline, storyboard card grid, shot intent, visual references, b-roll and asset notes, captions and supers, review comments, brand and rights notes, model generation blocked, storyboard export blocked, cockpit summary, and denied script and storyboard paths.",
+    exampleRoutes: ["/script-and-storyboard-workspace-boundary", "/cockpit-script-and-storyboard-summary", "/controlled-script-and-storyboard-workspace-release-candidate"],
   },
   {
     id: "cockpit-ux-diagnostics",
@@ -499,7 +514,7 @@ const PHASE_ROUTE_GROUPING = createSection({
   title: "Phase Route Grouping",
   humanReadableSummary:
     "Phase route grouping keeps phase routes searchable and directly accessible while grouping them by build, trading, research, mandate, strategy, backtest, profit, cockpit diagnostics, and legacy foundations.",
-  featureLabels: ["Core Foundations", "Build Workspace", "Creative Workspace", "Video Creation Domain", "Trading Research", "Mandate Risk Governor", "Strategy Lab Signal Engine", "Backtest Paper Trading", "Profit Lockbox Reinvestment", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Strategy Version Review Registry", "Paper Strategy Promotion Gate", "Paper Trading End-to-End Review", "Cockpit Trading Workflow Polish", "Controlled Paper Trading Workspace", "Cockpit UX Diagnostics"],
+  featureLabels: ["Core Foundations", "Build Workspace", "Creative Workspace", "Video Creation Domain", "Script And Storyboard Workspace", "Trading Research", "Mandate Risk Governor", "Strategy Lab Signal Engine", "Backtest Paper Trading", "Profit Lockbox Reinvestment", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Strategy Version Review Registry", "Paper Strategy Promotion Gate", "Paper Trading End-to-End Review", "Cockpit Trading Workflow Polish", "Controlled Paper Trading Workspace", "Cockpit UX Diagnostics"],
   plannedInputs: ["Phase routes", "Route families", "Command palette diagnostics", "Smoke coverage"],
   plannedOutputs: ["Grouped phase diagnostics", "Reduced normal menu noise", "Preserved direct route access", "Preserved smoke coverage"],
   checklistPrefix: "phase-route-grouping",
@@ -583,7 +598,7 @@ const COCKPIT_STATUS_SUMMARY = createSection({
   label: "Cockpit Status Summary",
   title: "Cockpit Status Summary",
   humanReadableSummary:
-    "Cockpit Status Summary shows current checkpoint through phase 1929, latest batch, latest release candidate, smoke posture, UX readiness, and blocked execution boundaries.",
+    "Cockpit Status Summary shows current checkpoint through phase 1945, latest batch, latest release candidate, smoke posture, UX readiness, and blocked execution boundaries.",
   featureLabels: ["Current phase checkpoint", "Latest batch", "Latest release candidate", "Smoke posture", "User UX readiness", "Blocked execution boundaries"],
   plannedInputs: ["All-smoke registry checkpoint", "Batch label", "Release candidate label", "Known validation posture"],
   plannedOutputs: ["Checkpoint summary", "No unearned full-smoke claim", "Execution boundary summary"],
@@ -664,9 +679,9 @@ const SECTION_LOOKUP: Record<(typeof ALL_SECTION_IDS)[number], CockpitNavigation
 
 const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
   {
-    id: "checkpoint-through-1929",
+    id: "checkpoint-through-1945",
     label: "Current checkpoint",
-    detail: "Status summary: through phase 1929 after Video Creation Domain Boundary v1.",
+    detail: "Status summary: through phase 1945 after Script And Storyboard Workspace v1.",
     state: "review-only",
   },
   {
@@ -684,7 +699,7 @@ const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
   {
     id: "execution-blocked",
     label: "Execution blocked",
-    detail: "No route deletion, smoke deletion, hidden execution, broker connection, credential storage, account reads, order placement, order dispatch, trade placement, money movement, video rendering, video export, asset upload, asset download, provider call, model call, connector call, command execution, evidence persistence, export/file writes, or file mutation is enabled.",
+    detail: "No route deletion, smoke deletion, hidden execution, broker connection, credential storage, account reads, order placement, order dispatch, trade placement, money movement, final script generation, storyboard image generation, video rendering, video export, asset upload, asset download, provider call, model call, connector call, command execution, script persistence, storyboard persistence, evidence persistence, export/file writes, or file mutation is enabled.",
     state: "blocked",
   },
 ] as const;
@@ -692,7 +707,7 @@ const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
 const QUICK_ACTIONS: readonly CockpitNavigationCleanupItem[] = [
   { id: "start-with-goal", label: "Start with a goal", detail: "Review the goal intake area in the cockpit.", state: "user-facing" },
   { id: "open-trading-workspace", label: "Open Trading Workspace", detail: "Review trading research, risk, strategy, backtest, paper trading, profit lockbox, broker boundary, paper broker simulator, paper result ledger, paper review dashboard, strategy performance review loop, strategy change control, strategy version registry, paper strategy promotion gate, paper trading end-to-end review, cockpit trading workflow polish, and controlled paper trading workspace sections.", state: "user-facing" },
-  { id: "open-creative-workspace", label: "Open Creative Workspace", detail: "Review video creation domain planning surfaces without rendering, export, upload, download, provider calls, model calls, publishing, scheduling, or persistence.", state: "review-only" },
+  { id: "open-creative-workspace", label: "Open Creative Workspace", detail: "Review video creation domain and script/storyboard planning surfaces without final script generation, storyboard image generation, rendering, export, upload, download, provider calls, model calls, publishing, scheduling, or persistence.", state: "review-only" },
   { id: "open-build-workspace", label: "Open Build Workspace", detail: "Review project builder, game server builder, domain packs, plans, artifacts, commands, and evidence.", state: "user-facing" },
   { id: "review-approvals", label: "Review Approvals", detail: "Review approval gates and holds without persisting approval decisions.", state: "approval-required" },
   { id: "review-evidence", label: "Review Evidence", detail: "Review evidence and audit posture without persisting evidence, results, audit, or memory.", state: "review-only" },
@@ -703,7 +718,7 @@ const QUICK_ACTIONS: readonly CockpitNavigationCleanupItem[] = [
 const FEATURE_COMMANDS: readonly CockpitNavigationCleanupItem[] = [
   { id: "open-codexforge-cockpit", label: "Open CodexForge Cockpit", detail: "Feature command points to /codexforge-cockpit.", state: "user-facing" },
   { id: "open-trading-workspace", label: "Open Trading Workspace", detail: "Feature command points to /trading-workspace-hub-preview.", state: "user-facing" },
-  { id: "command-open-creative-workspace", label: "Open Creative Workspace", detail: "Feature command points to /cockpit-video-creation-domain-summary.", state: "review-only" },
+  { id: "command-open-creative-workspace", label: "Open Creative Workspace", detail: "Feature command points to /cockpit-script-and-storyboard-summary.", state: "review-only" },
   { id: "review-broker-boundary", label: "Review Broker Boundary", detail: "Feature command points to /cockpit-broker-boundary-summary.", state: "review-only" },
   { id: "review-paper-broker-simulator", label: "Review Paper Broker Simulator", detail: "Feature command points to /cockpit-paper-broker-simulator-summary.", state: "review-only" },
   { id: "review-paper-result-ledger", label: "Review Paper Result Ledger", detail: "Feature command points to /cockpit-paper-trading-result-ledger-summary.", state: "review-only" },
