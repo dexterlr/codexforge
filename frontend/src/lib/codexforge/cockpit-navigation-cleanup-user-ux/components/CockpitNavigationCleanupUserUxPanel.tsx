@@ -11,6 +11,7 @@ import { StrategyChangeControlWorkflowCockpitSummaryPanel } from "../../strategy
 import { StrategyVersionReviewRegistryCockpitSummaryPanel } from "../../strategy-version-review-registry/components";
 import { PaperStrategyPromotionGateCockpitSummaryPanel } from "../../paper-strategy-promotion-gate/components";
 import { PaperTradingEndToEndReviewCockpitSummaryPanel } from "../../paper-trading-end-to-end-review/components";
+import { CockpitTradingWorkflowPolishCockpitSummaryPanel } from "../../cockpit-trading-workflow-polish/components";
 import {
   buildCockpitNavigationCleanupRouteModel,
   buildCockpitNavigationCleanupStableKey,
@@ -63,8 +64,9 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         <h1 style={title}>CodexForge Cockpit</h1>
         <p style={summary}>
           One normal user UX for starting with a goal, reviewing the Trading Workspace, Build Workspace, Approvals,
-          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1881 after Paper
-          Trading End-to-End Review Candidate v1. Phase pages remain dev test diagnostics only.
+          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1897 after Cockpit
+          Trading Workflow Polish v1, layered below Paper Trading End-to-End Review Candidate v1. Phase pages remain dev
+          test diagnostics only.
         </p>
       </header>
 
@@ -89,7 +91,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <section style={splitBand} aria-label="Trading and build workspace grouping">
         <WorkspacePanel
           title="Trading Workspace"
-          summary="Trading workspace groups research, mandate, risk governor, strategy lab, signal engine, backtest, paper trading, profit lockbox, reinvestment rules, broker execution boundary previews, paper broker adapter simulator previews, paper trading result ledger previews, paper trading review dashboard previews, strategy performance review loop previews, strategy change control workflow previews, strategy version review registry previews, paper strategy promotion gate previews, and paper trading end-to-end review previews."
+          summary="Trading workspace groups research, mandate, risk governor, strategy lab, signal engine, backtest, paper trading, profit lockbox, reinvestment rules, broker execution boundary previews, paper broker adapter simulator previews, paper trading result ledger previews, paper trading review dashboard previews, strategy performance review loop previews, strategy change control workflow previews, strategy version review registry previews, paper strategy promotion gate previews, paper trading end-to-end review previews, and cockpit trading workflow polish previews."
           items={ux.tradingWorkspaceHub.featureLabels}
           href="/trading-workspace-hub-preview"
         />
@@ -110,6 +112,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <StrategyVersionReviewRegistryCockpitSummaryPanel />
       <PaperStrategyPromotionGateCockpitSummaryPanel />
       <PaperTradingEndToEndReviewCockpitSummaryPanel />
+      <CockpitTradingWorkflowPolishCockpitSummaryPanel />
 
       <section style={quickActionBand} aria-label="Cockpit quick actions">
         <div style={panelHeader}>
@@ -160,13 +163,15 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             </a>
           </div>
           <p style={bodyText}>
-            Current checkpoint: through phase 1881. Latest batch: 1866-1881 - Paper Trading End-to-End Review Candidate
-            v1. Latest release candidate: Controlled Paper Trading End-to-End Review Release Candidate. Paper trading
-            end-to-end review remains review-only, synthetic-only, and frontend strategy auto tuning, strategy auto
-            promotion, rule mutation, file writes, version persistence, approval persistence, evidence persistence,
-            broker execution, order placement, order dispatch, paper execution, live execution, live market data calls,
-            real P&amp;L calculation, advice, recommendations, and buy sell instructions remain blocked. Full smoke is not
-            claimed here unless full smoke has passed.
+            Current checkpoint: through phase 1897. Latest batch: 1882-1897 - Cockpit Trading Workflow Polish v1. Latest
+            release candidate: Controlled Cockpit Trading Workflow Polish Release Candidate. Cockpit trading workflow
+            polish remains review-only, synthetic-only, and frontend strategy auto tuning, strategy auto promotion, rule
+            mutation, file writes, version persistence, approval persistence, evidence persistence, broker execution,
+            order placement, order dispatch, paper execution, live execution, live market data calls, real P&amp;L
+            calculation, financial advice, personalised recommendations, buy sell instructions, hidden execution
+            affordances, and performance guarantees remain blocked. Backend-owned paper workflow, promotion workflow,
+            version registry, change workflow, evidence capture, approval capture, and execution service remain required.
+            Full smoke is not claimed here unless full smoke has passed.
           </p>
         </article>
       </section>

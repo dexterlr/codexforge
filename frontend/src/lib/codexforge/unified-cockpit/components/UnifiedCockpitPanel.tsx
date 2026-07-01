@@ -30,6 +30,7 @@ import { StrategyChangeControlWorkflowCockpitSummaryPanel } from "../../strategy
 import { StrategyVersionReviewRegistryCockpitSummaryPanel } from "../../strategy-version-review-registry/components";
 import { PaperStrategyPromotionGateCockpitSummaryPanel } from "../../paper-strategy-promotion-gate/components";
 import { PaperTradingEndToEndReviewCockpitSummaryPanel } from "../../paper-trading-end-to-end-review/components";
+import { CockpitTradingWorkflowPolishCockpitSummaryPanel } from "../../cockpit-trading-workflow-polish/components";
 import { TradingMandateRiskGovernorCockpitPanel } from "../../trading-mandate-risk-governor/components";
 import { TradingResearchDomainPackCockpitPanel } from "../../trading-research-domain-pack/components";
 import {
@@ -107,6 +108,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <StrategyVersionReviewRegistryCockpitSummaryPanel /> : null}
       {isMainCockpit ? <PaperStrategyPromotionGateCockpitSummaryPanel /> : null}
       {isMainCockpit ? <PaperTradingEndToEndReviewCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <CockpitTradingWorkflowPolishCockpitSummaryPanel /> : null}
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}
