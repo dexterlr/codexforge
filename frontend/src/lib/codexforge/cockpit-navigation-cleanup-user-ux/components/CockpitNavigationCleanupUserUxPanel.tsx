@@ -13,6 +13,7 @@ import { PaperStrategyPromotionGateCockpitSummaryPanel } from "../../paper-strat
 import { PaperTradingEndToEndReviewCockpitSummaryPanel } from "../../paper-trading-end-to-end-review/components";
 import { CockpitTradingWorkflowPolishCockpitSummaryPanel } from "../../cockpit-trading-workflow-polish/components";
 import { ControlledPaperTradingWorkspaceCockpitSummaryPanel } from "../../controlled-paper-trading-workspace/components";
+import { AssetAndShotPlanningWorkspaceCockpitSummaryPanel } from "../../asset-and-shot-planning-workspace/components";
 import { ScriptAndStoryboardWorkspaceCockpitSummaryPanel } from "../../script-and-storyboard-workspace/components";
 import { VideoCreationDomainCockpitSummaryPanel } from "../../video-creation-domain/components";
 import {
@@ -68,8 +69,8 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         <p style={summary}>
           One normal user UX for starting with a goal, reviewing the Trading Workspace, Build Workspace, Creative
           Workspace, Approvals, Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase
-          1945 after Script And Storyboard Workspace v1, layered below Video Creation Domain Boundary v1. Phase pages
-          remain dev test diagnostics only.
+          1961 after Asset And Shot Planning Workspace v1, layered below Script And Storyboard Workspace v1 and Video
+          Creation Domain Boundary v1. Phase pages remain dev test diagnostics only.
         </p>
       </header>
 
@@ -106,10 +107,23 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         />
         <WorkspacePanel
           title="Creative Workspace"
-          summary="Creative Workspace starts with the Video Creation Domain as a review-only, planning-only lane and now adds the Script And Storyboard Workspace as the first useful video workflow surface for script brief, hook, scene outline, storyboard cards, shot intent, visual references, b-roll and asset notes, captions, review comments, brand and rights notes, model generation blocked, and storyboard export blocked previews. No generation controls, render controls, export controls, upload controls, download controls, provider controls, model controls, connector controls, publishing controls, or scheduling controls are present."
+          summary="Creative Workspace starts with the Video Creation Domain as a review-only, planning-only lane, keeps Script And Storyboard Workspace intact, and now adds Asset And Shot Planning Workspace previews for shot list, scene asset map, b-roll requirements, product shot requirements, visual reference board, music and audio notes, brand asset checklist, rights and source status, missing asset blockers, asset handoff packet, upload blocked boundary, and download blocked boundary. No generation controls, render controls, export controls, upload controls, download controls, provider controls, model controls, connector controls, publishing controls, or scheduling controls are present."
           items={[
             "Video Creation Domain",
             "Script And Storyboard Workspace",
+            "Asset And Shot Planning Workspace",
+            "Shot List Planning",
+            "Scene Asset Map",
+            "B-Roll Requirement",
+            "Product Shot Requirement",
+            "Visual Reference Board",
+            "Music And Audio Asset Note",
+            "Brand Asset Checklist",
+            "Rights And Source Status",
+            "Missing Asset Blocker",
+            "Asset Handoff Packet",
+            "Asset Upload Blocked Boundary",
+            "Asset Download Blocked Boundary",
             "Script Brief",
             "Hook And Opening Beat",
             "Scene Beat Outline",
@@ -135,7 +149,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             "Render Job Blocked",
             "Export Blocked",
           ]}
-          href="/cockpit-script-and-storyboard-summary"
+          href="/cockpit-asset-and-shot-planning-summary"
         />
       </section>
 
@@ -152,6 +166,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <ControlledPaperTradingWorkspaceCockpitSummaryPanel />
       <VideoCreationDomainCockpitSummaryPanel />
       <ScriptAndStoryboardWorkspaceCockpitSummaryPanel />
+      <AssetAndShotPlanningWorkspaceCockpitSummaryPanel />
 
       <section style={quickActionBand} aria-label="Cockpit quick actions">
         <div style={panelHeader}>
@@ -202,17 +217,17 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             </a>
           </div>
           <p style={bodyText}>
-            Current checkpoint: through phase 1945. Latest batch: 1930-1945 - Script And Storyboard Workspace v1.
-            Latest release candidate: Controlled Script And Storyboard Workspace Release Candidate. Script and storyboard
-            workspace remains review-only, synthetic-only, and planning-only. Video creation remains planning-only.
-            Frontend final script generation, storyboard image generation, rendering, export, upload, download, file
-            generation, script persistence, storyboard persistence, asset persistence, prompt persistence, job persistence,
-            approval persistence, provider calls, model calls, connector calls, image generation, video generation, voice
-            generation, publishing, scheduling, and performance guarantees remain blocked. Controlled paper trading
-            workspace remains review-only and no-live-transition.
-            Backend-owned asset storage, render service, export service, provider gateway, rights review, approval
-            capture, paper workflow, promotion workflow, broker adapter, credential vault, and audit trail remain required.
-            Full smoke is not claimed here unless full smoke has passed.
+            Current checkpoint: through phase 1961. Latest batch: 1946-1961 - Asset And Shot Planning Workspace v1.
+            Latest release candidate: Controlled Asset And Shot Planning Workspace Release Candidate. Asset and shot
+            planning workspace remains review-only, synthetic-only, and planning-only below Script And Storyboard
+            Workspace and Video Creation Domain. Frontend upload, download, media storage, final script generation,
+            storyboard image generation, rendering, export, file generation, script persistence, storyboard persistence,
+            asset persistence, rights persistence, prompt persistence, job persistence, approval persistence, provider
+            calls, model calls, connector calls, image generation, video generation, voice generation, publishing,
+            scheduling, and performance guarantees remain blocked. Controlled paper trading workspace remains
+            review-only and no-live-transition. Backend-owned asset storage, render service, export service, provider
+            gateway, rights review, approval capture, paper workflow, promotion workflow, broker adapter, credential
+            vault, and audit trail remain required. Full smoke is not claimed here unless full smoke has passed.
           </p>
         </article>
       </section>
