@@ -27,6 +27,7 @@ import { ProfitLockboxReinvestmentRulesCockpitPanel } from "../../profit-lockbox
 import { StrategyLabSignalEngineCockpitPanel } from "../../strategy-lab-signal-engine/components";
 import { StrategyPerformanceReviewLoopCockpitSummaryPanel } from "../../strategy-performance-review-loop/components";
 import { StrategyChangeControlWorkflowCockpitSummaryPanel } from "../../strategy-change-control-workflow/components";
+import { StrategyVersionReviewRegistryCockpitSummaryPanel } from "../../strategy-version-review-registry/components";
 import { TradingMandateRiskGovernorCockpitPanel } from "../../trading-mandate-risk-governor/components";
 import { TradingResearchDomainPackCockpitPanel } from "../../trading-research-domain-pack/components";
 import {
@@ -101,6 +102,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <PaperTradingReviewDashboardCockpitSummaryPanel /> : null}
       {isMainCockpit ? <StrategyPerformanceReviewLoopCockpitSummaryPanel /> : null}
       {isMainCockpit ? <StrategyChangeControlWorkflowCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <StrategyVersionReviewRegistryCockpitSummaryPanel /> : null}
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}

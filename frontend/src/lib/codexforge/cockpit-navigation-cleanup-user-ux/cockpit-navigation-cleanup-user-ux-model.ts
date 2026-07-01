@@ -297,6 +297,12 @@ const ROUTE_FAMILIES: readonly CockpitNavigationCleanupRouteFamily[] = [
     exampleRoutes: ["/strategy-change-control-boundary", "/cockpit-strategy-change-control-summary", "/controlled-strategy-change-control-workflow-release-candidate"],
   },
   {
+    id: "strategy-version-review-registry",
+    label: "Strategy Version Review Registry",
+    summary: "Version lineage map, version diff summary, version evidence links, version risk status, version mandate status, version approval state, version retirement state, version rollback note, version comparison matrix, version review checklist, version registry export boundary, no auto promote registry boundary, and denied strategy version registry paths.",
+    exampleRoutes: ["/strategy-version-review-registry-boundary", "/cockpit-strategy-version-registry-summary", "/controlled-strategy-version-review-registry-release-candidate"],
+  },
+  {
     id: "cockpit-ux-diagnostics",
     label: "Cockpit UX Diagnostics",
     summary: "Navigation cleanup, user cockpit, workspace hubs, command grouping, status summary, onboarding, and controlled consolidated UX release candidate.",
@@ -395,13 +401,13 @@ const TRADING_WORKSPACE_HUB = createSection({
   label: "Trading Workspace",
   title: "Trading Workspace Hub",
   humanReadableSummary:
-    "Trading Workspace groups Trading Research, Mandate / Risk Governor, Strategy Lab / Signal Engine, Backtest / Paper Trading, Profit Lockbox / Reinvestment Rules, Broker Execution Boundary previews, Paper Broker Adapter Simulator previews, Paper Trading Result Ledger previews, Paper Trading Review Dashboard previews, Strategy Performance Review Loop previews, and Strategy Change Control Workflow previews behind one user-facing section.",
-  featureLabels: ["Trading Research", "Mandate / Risk Governor", "Strategy Lab / Signal Engine", "Backtest / Paper Trading", "Profit Lockbox / Reinvestment Rules", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow"],
-  plannedInputs: ["Research notes", "Risk governor posture", "Strategy hypothesis", "Backtest readiness", "Profit lockbox rules", "Broker boundary status", "Paper broker simulator status", "Paper result ledger status", "Paper review dashboard status", "Strategy performance review loop status", "Strategy change control workflow status"],
-  plannedOutputs: ["Trading Workspace", "Grouped trading diagnostics", "Broker boundary summary", "Paper broker simulator summary", "Paper result ledger summary", "Paper review dashboard summary", "Strategy performance review loop summary", "Strategy change control workflow summary", "No live trading", "No financial advice"],
+    "Trading Workspace groups Trading Research, Mandate / Risk Governor, Strategy Lab / Signal Engine, Backtest / Paper Trading, Profit Lockbox / Reinvestment Rules, Broker Execution Boundary previews, Paper Broker Adapter Simulator previews, Paper Trading Result Ledger previews, Paper Trading Review Dashboard previews, Strategy Performance Review Loop previews, Strategy Change Control Workflow previews, and Strategy Version Review Registry previews behind one user-facing section.",
+  featureLabels: ["Trading Research", "Mandate / Risk Governor", "Strategy Lab / Signal Engine", "Backtest / Paper Trading", "Profit Lockbox / Reinvestment Rules", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Strategy Version Review Registry"],
+  plannedInputs: ["Research notes", "Risk governor posture", "Strategy hypothesis", "Backtest readiness", "Profit lockbox rules", "Broker boundary status", "Paper broker simulator status", "Paper result ledger status", "Paper review dashboard status", "Strategy performance review loop status", "Strategy change control workflow status", "Strategy version review registry status"],
+  plannedOutputs: ["Trading Workspace", "Grouped trading diagnostics", "Broker boundary summary", "Paper broker simulator summary", "Paper result ledger summary", "Paper review dashboard summary", "Strategy performance review loop summary", "Strategy change control workflow summary", "Strategy version review registry summary", "No live trading", "No financial advice"],
   checklistPrefix: "trading-workspace-hub",
   checklistSummary:
-    "Trading workspace hub preview groups trading research mandate risk governor strategy lab backtest paper trading profit lockbox broker execution boundary paper broker adapter simulator paper trading result ledger paper trading review dashboard strategy performance review loop and strategy change control workflow into one user-facing trading workspace.",
+    "Trading workspace hub preview groups trading research mandate risk governor strategy lab backtest paper trading profit lockbox broker execution boundary paper broker adapter simulator paper trading result ledger paper trading review dashboard strategy performance review loop strategy change control workflow and strategy version review registry into one user-facing trading workspace.",
   blocked: "Trading workspace hub preview does not connect brokers, store credentials, read accounts, fetch live market data, place trades, dispatch orders, move money, or provide buy sell instructions.",
   approval: "Trading workspace hub preview requires explicit operator approval.",
   state: "user-facing",
@@ -481,7 +487,7 @@ const PHASE_ROUTE_GROUPING = createSection({
   title: "Phase Route Grouping",
   humanReadableSummary:
     "Phase route grouping keeps phase routes searchable and directly accessible while grouping them by build, trading, research, mandate, strategy, backtest, profit, cockpit diagnostics, and legacy foundations.",
-  featureLabels: ["Core Foundations", "Build Workspace", "Trading Research", "Mandate Risk Governor", "Strategy Lab Signal Engine", "Backtest Paper Trading", "Profit Lockbox Reinvestment", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Cockpit UX Diagnostics"],
+  featureLabels: ["Core Foundations", "Build Workspace", "Trading Research", "Mandate Risk Governor", "Strategy Lab Signal Engine", "Backtest Paper Trading", "Profit Lockbox Reinvestment", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Strategy Version Review Registry", "Cockpit UX Diagnostics"],
   plannedInputs: ["Phase routes", "Route families", "Command palette diagnostics", "Smoke coverage"],
   plannedOutputs: ["Grouped phase diagnostics", "Reduced normal menu noise", "Preserved direct route access", "Preserved smoke coverage"],
   checklistPrefix: "phase-route-grouping",
@@ -565,7 +571,7 @@ const COCKPIT_STATUS_SUMMARY = createSection({
   label: "Cockpit Status Summary",
   title: "Cockpit Status Summary",
   humanReadableSummary:
-    "Cockpit Status Summary shows current checkpoint through phase 1833, latest batch, latest release candidate, smoke posture, UX readiness, and blocked execution boundaries.",
+    "Cockpit Status Summary shows current checkpoint through phase 1849, latest batch, latest release candidate, smoke posture, UX readiness, and blocked execution boundaries.",
   featureLabels: ["Current phase checkpoint", "Latest batch", "Latest release candidate", "Smoke posture", "User UX readiness", "Blocked execution boundaries"],
   plannedInputs: ["All-smoke registry checkpoint", "Batch label", "Release candidate label", "Known validation posture"],
   plannedOutputs: ["Checkpoint summary", "No unearned full-smoke claim", "Execution boundary summary"],
@@ -646,9 +652,9 @@ const SECTION_LOOKUP: Record<(typeof ALL_SECTION_IDS)[number], CockpitNavigation
 
 const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
   {
-    id: "checkpoint-through-1833",
+    id: "checkpoint-through-1849",
     label: "Current checkpoint",
-    detail: "Status summary: through phase 1833 after Strategy Change Control Workflow v1.",
+    detail: "Status summary: through phase 1849 after Strategy Version Review Registry v1.",
     state: "review-only",
   },
   {
