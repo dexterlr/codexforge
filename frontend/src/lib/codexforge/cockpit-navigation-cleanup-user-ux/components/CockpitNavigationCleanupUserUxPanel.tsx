@@ -13,6 +13,7 @@ import { PaperStrategyPromotionGateCockpitSummaryPanel } from "../../paper-strat
 import { PaperTradingEndToEndReviewCockpitSummaryPanel } from "../../paper-trading-end-to-end-review/components";
 import { CockpitTradingWorkflowPolishCockpitSummaryPanel } from "../../cockpit-trading-workflow-polish/components";
 import { ControlledPaperTradingWorkspaceCockpitSummaryPanel } from "../../controlled-paper-trading-workspace/components";
+import { VideoCreationDomainCockpitSummaryPanel } from "../../video-creation-domain/components";
 import {
   buildCockpitNavigationCleanupRouteModel,
   buildCockpitNavigationCleanupStableKey,
@@ -64,10 +65,10 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         </div>
         <h1 style={title}>CodexForge Cockpit</h1>
         <p style={summary}>
-          One normal user UX for starting with a goal, reviewing the Trading Workspace, Build Workspace, Approvals,
-          Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase 1913 after Controlled
-          Paper Trading Workspace Release Candidate v1, layered below Cockpit Trading Workflow Polish v1. Phase pages
-          remain dev test diagnostics only.
+          One normal user UX for starting with a goal, reviewing the Trading Workspace, Build Workspace, Creative
+          Workspace, Approvals, Evidence & Audit, Next Action, and Developer Diagnostics. Status summary: through phase
+          1929 after Video Creation Domain Boundary v1, layered below Controlled Paper Trading Workspace Release
+          Candidate v1. Phase pages remain dev test diagnostics only.
         </p>
       </header>
 
@@ -102,6 +103,26 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
           items={ux.buildWorkspaceHub.featureLabels}
           href="/build-workspace-hub-preview"
         />
+        <WorkspacePanel
+          title="Creative Workspace"
+          summary="Creative Workspace starts with the Video Creation Domain as a review-only, planning-only lane for intake, brief, audience, format, rights, asset planning, script planning, storyboard planning, voiceover planning, caption planning, render job blocked, and export blocked previews. No render controls, export controls, upload controls, download controls, provider controls, model controls, connector controls, publishing controls, or scheduling controls are present."
+          items={[
+            "Video Creation Domain",
+            "Workspace Intake",
+            "Project Brief",
+            "Audience And Goal",
+            "Format Boundary",
+            "Safety And Rights",
+            "Asset Planning",
+            "Script Planning",
+            "Storyboard Planning",
+            "Voiceover Planning",
+            "Caption Planning",
+            "Render Job Blocked",
+            "Export Blocked",
+          ]}
+          href="/cockpit-video-creation-domain-summary"
+        />
       </section>
 
       <BrokerExecutionBoundaryCockpitSummaryPanel />
@@ -115,6 +136,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <PaperTradingEndToEndReviewCockpitSummaryPanel />
       <CockpitTradingWorkflowPolishCockpitSummaryPanel />
       <ControlledPaperTradingWorkspaceCockpitSummaryPanel />
+      <VideoCreationDomainCockpitSummaryPanel />
 
       <section style={quickActionBand} aria-label="Cockpit quick actions">
         <div style={panelHeader}>
@@ -165,16 +187,15 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             </a>
           </div>
           <p style={bodyText}>
-            Current checkpoint: through phase 1913. Latest batch: 1898-1913 - Controlled Paper Trading Workspace Release
-            Candidate v1. Latest release candidate: Controlled Paper Trading Workspace Release Candidate. Controlled
-            paper trading workspace remains review-only, synthetic-only, and frontend strategy auto tuning, strategy auto
-            promotion, rule mutation, file writes, version persistence, approval persistence, evidence persistence, queue
-            persistence, worker dispatch, broker execution, order placement, order dispatch, paper execution, live
-            execution, live transition, live market data calls, real P&amp;L calculation, financial advice, personalised
-            recommendations, buy sell instructions, hidden execution affordances, and performance guarantees remain
-            blocked. Backend-owned paper workflow, promotion workflow, version registry, change workflow, evidence
-            capture, approval capture, execution service, broker adapter, credential vault, and audit trail remain
-            required. Full smoke is not claimed here unless full smoke has passed.
+            Current checkpoint: through phase 1929. Latest batch: 1914-1929 - Video Creation Domain Boundary v1. Latest
+            release candidate: Controlled Video Creation Domain Boundary Release Candidate. Video creation domain remains
+            review-only, planning-only, and synthetic-only. Frontend rendering, export, upload, download, file generation,
+            asset persistence, prompt persistence, job persistence, approval persistence, provider calls, model calls,
+            connector calls, image generation, video generation, voice generation, publishing, scheduling, and performance
+            guarantees remain blocked. Controlled paper trading workspace remains review-only and no-live-transition.
+            Backend-owned asset storage, render service, export service, provider gateway, rights review, approval
+            capture, paper workflow, promotion workflow, broker adapter, credential vault, and audit trail remain required.
+            Full smoke is not claimed here unless full smoke has passed.
           </p>
         </article>
       </section>
