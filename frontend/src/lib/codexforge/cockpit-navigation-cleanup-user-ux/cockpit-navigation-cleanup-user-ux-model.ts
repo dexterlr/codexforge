@@ -401,13 +401,13 @@ const TRADING_WORKSPACE_HUB = createSection({
   label: "Trading Workspace",
   title: "Trading Workspace Hub",
   humanReadableSummary:
-    "Trading Workspace groups Trading Research, Mandate / Risk Governor, Strategy Lab / Signal Engine, Backtest / Paper Trading, Profit Lockbox / Reinvestment Rules, Broker Execution Boundary previews, Paper Broker Adapter Simulator previews, Paper Trading Result Ledger previews, Paper Trading Review Dashboard previews, Strategy Performance Review Loop previews, Strategy Change Control Workflow previews, Strategy Version Review Registry previews, Paper Strategy Promotion Gate previews, Paper Trading End-to-End Review previews, and Cockpit Trading Workflow Polish previews behind one user-facing section.",
-  featureLabels: ["Trading Research", "Mandate / Risk Governor", "Strategy Lab / Signal Engine", "Backtest / Paper Trading", "Profit Lockbox / Reinvestment Rules", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Strategy Version Review Registry", "Paper Strategy Promotion Gate", "Paper Trading End-to-End Review", "Cockpit Trading Workflow Polish"],
-  plannedInputs: ["Research notes", "Risk governor posture", "Strategy hypothesis", "Backtest readiness", "Profit lockbox rules", "Broker boundary status", "Paper broker simulator status", "Paper result ledger status", "Paper review dashboard status", "Strategy performance review loop status", "Strategy change control workflow status", "Strategy version review registry status", "Paper trading end-to-end review status", "Cockpit trading workflow polish status"],
-  plannedOutputs: ["Trading Workspace", "Grouped trading diagnostics", "Broker boundary summary", "Paper broker simulator summary", "Paper result ledger summary", "Paper review dashboard summary", "Strategy performance review loop summary", "Strategy change control workflow summary", "Strategy version review registry summary", "Paper trading end-to-end review summary", "Cockpit trading workflow polish summary", "No live trading", "No financial advice"],
+    "Trading Workspace groups Trading Research, Mandate / Risk Governor, Strategy Lab / Signal Engine, Backtest / Paper Trading, Profit Lockbox / Reinvestment Rules, Broker Execution Boundary previews, Paper Broker Adapter Simulator previews, Paper Trading Result Ledger previews, Paper Trading Review Dashboard previews, Strategy Performance Review Loop previews, Strategy Change Control Workflow previews, Strategy Version Review Registry previews, Paper Strategy Promotion Gate previews, Paper Trading End-to-End Review previews, Cockpit Trading Workflow Polish previews, and Controlled Paper Trading Workspace Release Candidate previews behind one user-facing section.",
+  featureLabels: ["Trading Research", "Mandate / Risk Governor", "Strategy Lab / Signal Engine", "Backtest / Paper Trading", "Profit Lockbox / Reinvestment Rules", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Strategy Version Review Registry", "Paper Strategy Promotion Gate", "Paper Trading End-to-End Review", "Cockpit Trading Workflow Polish", "Controlled Paper Trading Workspace"],
+  plannedInputs: ["Research notes", "Risk governor posture", "Strategy hypothesis", "Backtest readiness", "Profit lockbox rules", "Broker boundary status", "Paper broker simulator status", "Paper result ledger status", "Paper review dashboard status", "Strategy performance review loop status", "Strategy change control workflow status", "Strategy version review registry status", "Paper trading end-to-end review status", "Cockpit trading workflow polish status", "Controlled paper trading workspace status"],
+  plannedOutputs: ["Trading Workspace", "Grouped trading diagnostics", "Broker boundary summary", "Paper broker simulator summary", "Paper result ledger summary", "Paper review dashboard summary", "Strategy performance review loop summary", "Strategy change control workflow summary", "Strategy version registry summary", "Paper trading end-to-end review summary", "Cockpit trading workflow polish summary", "Controlled paper trading workspace summary", "No live trading", "No financial advice"],
   checklistPrefix: "trading-workspace-hub",
   checklistSummary:
-    "Trading workspace hub preview groups trading research mandate risk governor strategy lab backtest paper trading profit lockbox broker execution boundary paper broker adapter simulator paper trading result ledger paper trading review dashboard strategy performance review loop strategy change control workflow strategy version review registry paper strategy promotion gate paper trading end-to-end review and cockpit trading workflow polish into one user-facing trading workspace.",
+    "Trading workspace hub preview groups trading research mandate risk governor strategy lab backtest paper trading profit lockbox broker execution boundary paper broker adapter simulator paper trading result ledger paper trading review dashboard strategy performance review loop strategy change control workflow strategy version review registry paper strategy promotion gate paper trading end-to-end review cockpit trading workflow polish and controlled paper trading workspace release candidate into one user-facing trading workspace.",
   blocked: "Trading workspace hub preview does not connect brokers, store credentials, read accounts, fetch live market data, place trades, dispatch orders, move money, or provide buy sell instructions.",
   approval: "Trading workspace hub preview requires explicit operator approval.",
   state: "user-facing",
@@ -487,7 +487,7 @@ const PHASE_ROUTE_GROUPING = createSection({
   title: "Phase Route Grouping",
   humanReadableSummary:
     "Phase route grouping keeps phase routes searchable and directly accessible while grouping them by build, trading, research, mandate, strategy, backtest, profit, cockpit diagnostics, and legacy foundations.",
-  featureLabels: ["Core Foundations", "Build Workspace", "Trading Research", "Mandate Risk Governor", "Strategy Lab Signal Engine", "Backtest Paper Trading", "Profit Lockbox Reinvestment", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Strategy Version Review Registry", "Paper Strategy Promotion Gate", "Paper Trading End-to-End Review", "Cockpit Trading Workflow Polish", "Cockpit UX Diagnostics"],
+  featureLabels: ["Core Foundations", "Build Workspace", "Trading Research", "Mandate Risk Governor", "Strategy Lab Signal Engine", "Backtest Paper Trading", "Profit Lockbox Reinvestment", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Strategy Version Review Registry", "Paper Strategy Promotion Gate", "Paper Trading End-to-End Review", "Cockpit Trading Workflow Polish", "Controlled Paper Trading Workspace", "Cockpit UX Diagnostics"],
   plannedInputs: ["Phase routes", "Route families", "Command palette diagnostics", "Smoke coverage"],
   plannedOutputs: ["Grouped phase diagnostics", "Reduced normal menu noise", "Preserved direct route access", "Preserved smoke coverage"],
   checklistPrefix: "phase-route-grouping",
@@ -571,7 +571,7 @@ const COCKPIT_STATUS_SUMMARY = createSection({
   label: "Cockpit Status Summary",
   title: "Cockpit Status Summary",
   humanReadableSummary:
-    "Cockpit Status Summary shows current checkpoint through phase 1865, latest batch, latest release candidate, smoke posture, UX readiness, and blocked execution boundaries.",
+    "Cockpit Status Summary shows current checkpoint through phase 1913, latest batch, latest release candidate, smoke posture, UX readiness, and blocked execution boundaries.",
   featureLabels: ["Current phase checkpoint", "Latest batch", "Latest release candidate", "Smoke posture", "User UX readiness", "Blocked execution boundaries"],
   plannedInputs: ["All-smoke registry checkpoint", "Batch label", "Release candidate label", "Known validation posture"],
   plannedOutputs: ["Checkpoint summary", "No unearned full-smoke claim", "Execution boundary summary"],
@@ -652,9 +652,9 @@ const SECTION_LOOKUP: Record<(typeof ALL_SECTION_IDS)[number], CockpitNavigation
 
 const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
   {
-    id: "checkpoint-through-1897",
+    id: "checkpoint-through-1913",
     label: "Current checkpoint",
-    detail: "Status summary: through phase 1897 after Cockpit Trading Workflow Polish v1.",
+    detail: "Status summary: through phase 1913 after Controlled Paper Trading Workspace Release Candidate v1.",
     state: "review-only",
   },
   {
@@ -679,7 +679,7 @@ const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
 
 const QUICK_ACTIONS: readonly CockpitNavigationCleanupItem[] = [
   { id: "start-with-goal", label: "Start with a goal", detail: "Review the goal intake area in the cockpit.", state: "user-facing" },
-  { id: "open-trading-workspace", label: "Open Trading Workspace", detail: "Review trading research, risk, strategy, backtest, paper trading, profit lockbox, broker boundary, paper broker simulator, paper result ledger, paper review dashboard, strategy performance review loop, strategy change control, strategy version registry, paper strategy promotion gate, paper trading end-to-end review, and cockpit trading workflow polish sections.", state: "user-facing" },
+  { id: "open-trading-workspace", label: "Open Trading Workspace", detail: "Review trading research, risk, strategy, backtest, paper trading, profit lockbox, broker boundary, paper broker simulator, paper result ledger, paper review dashboard, strategy performance review loop, strategy change control, strategy version registry, paper strategy promotion gate, paper trading end-to-end review, cockpit trading workflow polish, and controlled paper trading workspace sections.", state: "user-facing" },
   { id: "open-build-workspace", label: "Open Build Workspace", detail: "Review project builder, game server builder, domain packs, plans, artifacts, commands, and evidence.", state: "user-facing" },
   { id: "review-approvals", label: "Review Approvals", detail: "Review approval gates and holds without persisting approval decisions.", state: "approval-required" },
   { id: "review-evidence", label: "Review Evidence", detail: "Review evidence and audit posture without persisting evidence, results, audit, or memory.", state: "review-only" },
