@@ -113,6 +113,7 @@ export const COCKPIT_NAVIGATION_CLEANUP_USER_UX_MARKERS = [
   "Script And Storyboard Workspace",
   "Asset And Shot Planning Workspace",
   "Voiceover And Caption Planning Workspace",
+  "Render Job Boundary",
   "Approvals Hub",
   "Evidence Audit Hub",
   "Developer Diagnostics",
@@ -580,7 +581,7 @@ const PHASE_ROUTE_GROUPING = createSection({
   title: "Phase Route Grouping",
   humanReadableSummary:
     "Phase route grouping keeps phase routes searchable and directly accessible while grouping them by build, trading, research, mandate, strategy, backtest, profit, cockpit diagnostics, and legacy foundations.",
-  featureLabels: ["Core Foundations", "Build Workspace", "Creative Workspace", "Video Creation Domain", "Script And Storyboard Workspace", "Asset And Shot Planning Workspace", "Voiceover And Caption Planning Workspace", "Trading Research", "Mandate Risk Governor", "Strategy Lab Signal Engine", "Backtest Paper Trading", "Profit Lockbox Reinvestment", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Strategy Version Review Registry", "Paper Strategy Promotion Gate", "Paper Trading End-to-End Review", "Cockpit Trading Workflow Polish", "Controlled Paper Trading Workspace", "Cockpit UX Diagnostics"],
+  featureLabels: ["Core Foundations", "Build Workspace", "Creative Workspace", "Video Creation Domain", "Script And Storyboard Workspace", "Asset And Shot Planning Workspace", "Voiceover And Caption Planning Workspace", "Render Job Boundary", "Trading Research", "Mandate Risk Governor", "Strategy Lab Signal Engine", "Backtest Paper Trading", "Profit Lockbox Reinvestment", "Broker Execution Boundary", "Paper Broker Adapter Simulator", "Paper Trading Result Ledger", "Paper Trading Review Dashboard", "Strategy Performance Review Loop", "Strategy Change Control Workflow", "Strategy Version Review Registry", "Paper Strategy Promotion Gate", "Paper Trading End-to-End Review", "Cockpit Trading Workflow Polish", "Controlled Paper Trading Workspace", "Cockpit UX Diagnostics"],
   plannedInputs: ["Phase routes", "Route families", "Command palette diagnostics", "Smoke coverage"],
   plannedOutputs: ["Grouped phase diagnostics", "Reduced normal menu noise", "Preserved direct route access", "Preserved smoke coverage"],
   checklistPrefix: "phase-route-grouping",
@@ -664,7 +665,7 @@ const COCKPIT_STATUS_SUMMARY = createSection({
   label: "Cockpit Status Summary",
   title: "Cockpit Status Summary",
   humanReadableSummary:
-    "Cockpit Status Summary shows current checkpoint through phase 1977, latest batch, latest release candidate, smoke posture, UX readiness, and blocked execution boundaries.",
+    "Cockpit Status Summary shows current checkpoint through phase 1993, latest batch, latest release candidate, smoke posture, UX readiness, and blocked execution boundaries.",
   featureLabels: ["Current phase checkpoint", "Latest batch", "Latest release candidate", "Smoke posture", "User UX readiness", "Blocked execution boundaries"],
   plannedInputs: ["All-smoke registry checkpoint", "Batch label", "Release candidate label", "Known validation posture"],
   plannedOutputs: ["Checkpoint summary", "No unearned full-smoke claim", "Execution boundary summary"],
@@ -745,9 +746,9 @@ const SECTION_LOOKUP: Record<(typeof ALL_SECTION_IDS)[number], CockpitNavigation
 
 const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
   {
-    id: "checkpoint-through-1977",
+    id: "checkpoint-through-1993",
     label: "Current checkpoint",
-    detail: "Status summary: through phase 1977 after Voiceover And Caption Planning Workspace v1.",
+    detail: "Status summary: through phase 1993 after Render Job Boundary v1.",
     state: "review-only",
   },
   {
@@ -765,7 +766,7 @@ const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
   {
     id: "execution-blocked",
     label: "Execution blocked",
-    detail: "No route deletion, smoke deletion, hidden execution, broker connection, credential storage, account reads, order placement, order dispatch, trade placement, money movement, final script generation, storyboard image generation, image generation, video generation, voice generation, voice cloning, audio synthesis, transcription, caption export, subtitle file generation, video rendering, video export, asset upload, asset download, audio upload, audio download, media storage, provider call, model call, connector call, command execution, script persistence, storyboard persistence, asset persistence, voice persistence, caption persistence, transcript persistence, audio persistence, rights persistence, prompt persistence, job persistence, approval persistence, evidence persistence, export/file writes, publishing, scheduling, or file mutation is enabled.",
+    detail: "No route deletion, smoke deletion, hidden execution, broker connection, credential storage, account reads, order placement, order dispatch, trade placement, money movement, final script generation, storyboard image generation, image generation, video generation, voice generation, voice cloning, audio synthesis, transcription, caption export, subtitle file generation, video rendering, render queue creation, worker dispatch, artifact creation, artifact persistence, video export, asset upload, asset download, audio upload, audio download, media storage, provider call, model call, connector call, command execution, script persistence, storyboard persistence, render job persistence, queue persistence, asset persistence, voice persistence, caption persistence, transcript persistence, audio persistence, rights persistence, prompt persistence, job persistence, approval persistence, evidence persistence, export/file writes, publishing, scheduling, or file mutation is enabled.",
     state: "blocked",
   },
 ] as const;
@@ -773,7 +774,7 @@ const COCKPIT_SUMMARY: readonly CockpitNavigationCleanupItem[] = [
 const QUICK_ACTIONS: readonly CockpitNavigationCleanupItem[] = [
   { id: "start-with-goal", label: "Start with a goal", detail: "Review the goal intake area in the cockpit.", state: "user-facing" },
   { id: "open-trading-workspace", label: "Open Trading Workspace", detail: "Review trading research, risk, strategy, backtest, paper trading, profit lockbox, broker boundary, paper broker simulator, paper result ledger, paper review dashboard, strategy performance review loop, strategy change control, strategy version registry, paper strategy promotion gate, paper trading end-to-end review, cockpit trading workflow polish, and controlled paper trading workspace sections.", state: "user-facing" },
-  { id: "open-creative-workspace", label: "Open Creative Workspace", detail: "Review video creation domain, script/storyboard planning, asset/shot planning, and voiceover/caption planning surfaces without final script generation, storyboard image generation, image generation, video generation, voice generation, voice cloning, audio synthesis, transcription, caption export, subtitle file generation, rendering, export, upload, download, audio upload, audio download, media storage, provider calls, model calls, publishing, scheduling, or persistence.", state: "review-only" },
+  { id: "open-creative-workspace", label: "Open Creative Workspace", detail: "Review video creation domain, script/storyboard planning, asset/shot planning, voiceover/caption planning, and render job boundary surfaces without final script generation, storyboard image generation, image generation, video generation, voice generation, voice cloning, audio synthesis, transcription, caption export, subtitle file generation, rendering, render queue creation, worker dispatch, artifact creation, artifact persistence, export, upload, download, audio upload, audio download, media storage, provider calls, model calls, publishing, scheduling, or persistence.", state: "review-only" },
   { id: "open-build-workspace", label: "Open Build Workspace", detail: "Review project builder, game server builder, domain packs, plans, artifacts, commands, and evidence.", state: "user-facing" },
   { id: "review-approvals", label: "Review Approvals", detail: "Review approval gates and holds without persisting approval decisions.", state: "approval-required" },
   { id: "review-evidence", label: "Review Evidence", detail: "Review evidence and audit posture without persisting evidence, results, audit, or memory.", state: "review-only" },
@@ -784,7 +785,7 @@ const QUICK_ACTIONS: readonly CockpitNavigationCleanupItem[] = [
 const FEATURE_COMMANDS: readonly CockpitNavigationCleanupItem[] = [
   { id: "open-codexforge-cockpit", label: "Open CodexForge Cockpit", detail: "Feature command points to /codexforge-cockpit.", state: "user-facing" },
   { id: "open-trading-workspace", label: "Open Trading Workspace", detail: "Feature command points to /trading-workspace-hub-preview.", state: "user-facing" },
-  { id: "command-open-creative-workspace", label: "Open Creative Workspace", detail: "Feature command points to /cockpit-voiceover-and-caption-planning-summary.", state: "review-only" },
+  { id: "command-open-creative-workspace", label: "Open Creative Workspace", detail: "Feature command points to /cockpit-render-job-boundary-summary.", state: "review-only" },
   { id: "review-broker-boundary", label: "Review Broker Boundary", detail: "Feature command points to /cockpit-broker-boundary-summary.", state: "review-only" },
   { id: "review-paper-broker-simulator", label: "Review Paper Broker Simulator", detail: "Feature command points to /cockpit-paper-broker-simulator-summary.", state: "review-only" },
   { id: "review-paper-result-ledger", label: "Review Paper Result Ledger", detail: "Feature command points to /cockpit-paper-trading-result-ledger-summary.", state: "review-only" },
