@@ -59,9 +59,44 @@ $phases | Sort-Object -Descending | Select-Object -First 1
 
 Update checkpoint docs to the actual highest detected phase. If phases 1114-1129 are present and no higher phase exists, document the checkpoint as through phase 1129 and describe the simulated command execution dry-run review layer: Simulated Command Execution Boundary, Simulated Command Intent Packet, Simulated Command Plan Packet, Simulated Command Argument Review, Simulated Command Environment Review, Simulated Command Working Directory Review, Simulated Command Risk Review, Simulated Command Evidence Preview, Simulated Command Result Preview, Simulated Command Failure Preview, Simulated Command Recovery Preview, Simulated Command Operator Review, Simulated Command Execution Hold State, Simulated Command Validation Preview, First Simulated Command Candidate, and Controlled Simulated Command Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, not auto-approved, not persisted as approval decisions, and not allowed to create queue jobs, persist queue state, release locks, run dry-runs, run validation, make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, project adapter execution, game adapter execution, domain adapter execution, file writes, file updates, file deletes, file moves, patch applies, command execution, shell execution, git execution, test execution, build execution, smoke execution, runtime starts, app scaffolds, website publishing, live data connections, tool creation, research browsing, automation creation, asset rendering, trading or broker calls, data ingestion, documentation export, integration connections, evidence/result/model-output persistence, recovery triggers, packaging/export, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, arbitrary path crawling, arbitrary local file browsing, auto-open local files, real path mutation, environment value reads, secret display, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported target language must remain broad and cover games, apps, websites, dashboards, tools, research packs, automation workflows, creative workflows, trading workspaces, data workspaces, documentation packs, integrations, and general local projects.
 
-Current checkpoint note: through phase 2185 with the latest completed batch recorded as 2154-2185 - Approval Capture + Rights Consent + Audit Ledger Mega Batch v1 and latest release candidate recorded as Controlled Foundation Contracts Completion Candidate. The cockpit now includes safe approval capture rights consent and audit ledger contract previews below Publish Gateway Contract inside Creative Workspace / Backend Contracts. Approval rights consent audit contracts remain review-only. No approval persistence from frontend, no signature capture from frontend, no identity verification from frontend, no rights clearance from frontend, no consent approval from frontend, no license grant from frontend, no legal approval from frontend, no audit persistence from frontend, no evidence storage from frontend, and no export publish render from frontend. Backend-owned approval capture remains required, backend-owned rights workflow remains required, backend-owned consent workflow remains required, backend-owned legal review remains required, backend-owned immutable audit ledger remains required, backend-owned redaction and retention policy remains required, operator review remains required, and explicit operator approval remains required. Video creation workspace remains review-only and planning-only. Trading workspace remains review-only and no-live-transition. Next likely batch: 2186-2217 - Interactive Video Workspace UX Mega Batch v1.
+Current checkpoint note: through phase 2217 with the latest completed batch recorded as 2186-2217 - Interactive Video Workspace UX Mega Batch v1 and latest release candidate recorded as Controlled Interactive Video Workspace Completion Candidate. The cockpit now includes the interactive local-state video workspace UX as the normal user-facing surface near the top, with project setup, script, storyboard, shot, asset, audio, caption, brand, rights, approval, readiness, fake timeline, blocked backend action centre, and first backend wiring readiness preview. The UX remains local React state only and synthetic data only. No backend execution from frontend, no frontend persistence, no browser storage writes, no provider calls from frontend, no model calls from frontend, no connector calls from frontend, no prompt sending from frontend, no uploads from frontend, no downloads from frontend, no render/export/publish/schedule from frontend, and no protected action execution from frontend. Backend-owned persistence, provider gateway, asset/audio storage, render queue, worker orchestration, artifact export, publish gateway, approval capture, and rights consent audit ledger remain required. Operator review remains required. Explicit operator approval remains required. Next likely batch: 2218-2249 - First Backend Wiring Boundary Mega Batch v1.
 
-The current phase ledger includes the latest approval rights audit contract batch:
+The current phase ledger includes the latest interactive video workspace UX batch:
+
+- Phase 2186 - Interactive Video Workspace Shell.
+- Phase 2187 - Project Brief Editor Mock.
+- Phase 2188 - Audience Outcome Selector Mock.
+- Phase 2189 - Script Outline Editor Mock.
+- Phase 2190 - Scene Storyboard Builder Mock.
+- Phase 2191 - Shot List Planner Mock.
+- Phase 2192 - Asset Checklist Panel Mock.
+- Phase 2193 - Audio Voiceover Planner Mock.
+- Phase 2194 - Caption Accessibility Planner Mock.
+- Phase 2195 - Brand Style Guard Panel Mock.
+- Phase 2196 - Rights Consent Checklist Mock.
+- Phase 2197 - Approval Gate Checklist Mock.
+- Phase 2198 - Render Readiness Panel Mock.
+- Phase 2199 - Export Readiness Panel Mock.
+- Phase 2200 - Publish Readiness Panel Mock.
+- Phase 2201 - Fake Video Job Timeline Mock.
+- Phase 2202 - Blocked Backend Action Centre.
+- Phase 2203 - Interactive Workspace Empty State.
+- Phase 2204 - Interactive Workspace Dirty State Mock.
+- Phase 2205 - Interactive Workspace Review State Mock.
+- Phase 2206 - Interactive Workspace Approved State Mock.
+- Phase 2207 - Interactive Workspace Blocked State Mock.
+- Phase 2208 - Interactive UX Contract Summary.
+- Phase 2209 - Cockpit Interactive Video Workspace Summary.
+- Phase 2210 - First Interactive Video Workspace Candidate.
+- Phase 2211 - Controlled Interactive Video Workspace Release Candidate.
+- Phase 2212 - UX Safety Regression Guard.
+- Phase 2213 - UX Navigation Integration Guard.
+- Phase 2214 - UX Smoke Coverage Guard.
+- Phase 2215 - UX Checkpoint Completion Guard.
+- Phase 2216 - First Backend Wiring Readiness Preview.
+- Phase 2217 - Controlled Interactive Video Workspace Completion Candidate.
+
+The previous phase ledger includes the latest approval rights audit contract batch:
 
 - Phase 2154 - Approval Capture Contract Boundary.
 - Phase 2155 - Approval Request Schema Preview.

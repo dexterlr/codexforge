@@ -45,6 +45,7 @@ import { AudioStorageContractBoundaryCockpitSummaryPanel } from "../../audio-sto
 import { RenderQueueContractBoundaryCockpitSummaryPanel, WorkerOrchestrationContractBoundaryCockpitSummaryPanel } from "../../render-queue-contract-boundary/components";
 import { ArtifactExportContractBoundaryCockpitSummaryPanel, PublishGatewayContractBoundaryCockpitSummaryPanel } from "../../artifact-export-contract-boundary/components";
 import { ApprovalCaptureContractBoundaryCockpitSummaryPanel, FoundationContractsCompletionCandidateCockpitSummaryPanel, RightsConsentAuditContractBoundaryCockpitSummaryPanel } from "../../approval-capture-contract-boundary/components";
+import { InteractiveVideoWorkspaceCockpitPanel } from "../../interactive-video-workspace-shell/components";
 import { VideoCreationDomainCockpitSummaryPanel } from "../../video-creation-domain/components";
 import { TradingMandateRiskGovernorCockpitPanel } from "../../trading-mandate-risk-governor/components";
 import { TradingResearchDomainPackCockpitPanel } from "../../trading-research-domain-pack/components";
@@ -56,7 +57,26 @@ import {
 } from "../unified-cockpit-model";
 
 export function UnifiedCodexForgeCockpitPanel() {
-  return <CockpitNavigationCleanupUserUxCockpitPanel />;
+  return (
+    <section
+      style={mainCockpitStack}
+      data-codexforge-cockpit-interactive-video-workspace="Interactive Video Workspace Cockpit Interactive Video Workspace Summary Local React state only Synthetic data only No backend execution No frontend persistence No browser storage writes No provider calls No model calls No connector calls No prompt sending No upload No download No render No export No publish No schedule Backend wiring required Operator review required Explicit operator approval required"
+    >
+      <InteractiveVideoWorkspaceCockpitPanel />
+      <CockpitNavigationCleanupUserUxCockpitPanel />
+      <VideoBackendServiceContractBoundaryCockpitSummaryPanel />
+      <ProviderGatewayContractBoundaryCockpitSummaryPanel />
+      <AssetStorageContractBoundaryCockpitSummaryPanel />
+      <AudioStorageContractBoundaryCockpitSummaryPanel />
+      <RenderQueueContractBoundaryCockpitSummaryPanel />
+      <WorkerOrchestrationContractBoundaryCockpitSummaryPanel />
+      <ArtifactExportContractBoundaryCockpitSummaryPanel />
+      <PublishGatewayContractBoundaryCockpitSummaryPanel />
+      <ApprovalCaptureContractBoundaryCockpitSummaryPanel />
+      <RightsConsentAuditContractBoundaryCockpitSummaryPanel />
+      <FoundationContractsCompletionCandidateCockpitSummaryPanel />
+    </section>
+  );
 }
 
 export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCockpitRouteSlug }) {
@@ -286,6 +306,13 @@ const page: CSSProperties = {
   flexDirection: "column",
   gap: 18,
   padding: "28px",
+  color: "#172026",
+};
+
+const mainCockpitStack: CSSProperties = {
+  display: "grid",
+  gap: 18,
+  padding: 20,
   color: "#172026",
 };
 
