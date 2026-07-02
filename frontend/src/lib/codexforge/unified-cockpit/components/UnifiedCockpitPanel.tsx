@@ -40,6 +40,8 @@ import { VideoReviewAndExportBoundaryCockpitSummaryPanel } from "../../video-rev
 import { ControlledVideoCreationWorkspaceCockpitSummaryPanel } from "../../controlled-video-creation-workspace/components";
 import { VideoBackendServiceContractBoundaryCockpitSummaryPanel } from "../../video-backend-service-contract-boundary/components";
 import { ProviderGatewayContractBoundaryCockpitSummaryPanel } from "../../provider-gateway-contract-boundary/components";
+import { AssetStorageContractBoundaryCockpitSummaryPanel } from "../../asset-storage-contract-boundary/components";
+import { AudioStorageContractBoundaryCockpitSummaryPanel } from "../../audio-storage-contract-boundary/components";
 import { VideoCreationDomainCockpitSummaryPanel } from "../../video-creation-domain/components";
 import { TradingMandateRiskGovernorCockpitPanel } from "../../trading-mandate-risk-governor/components";
 import { TradingResearchDomainPackCockpitPanel } from "../../trading-research-domain-pack/components";
@@ -129,6 +131,8 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <ControlledVideoCreationWorkspaceCockpitSummaryPanel /> : null}
       {isMainCockpit ? <VideoBackendServiceContractBoundaryCockpitSummaryPanel /> : null}
       {isMainCockpit ? <ProviderGatewayContractBoundaryCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <AssetStorageContractBoundaryCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <AudioStorageContractBoundaryCockpitSummaryPanel /> : null}
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}

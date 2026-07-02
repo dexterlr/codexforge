@@ -18,6 +18,10 @@ import { VoiceoverAndCaptionPlanningWorkspaceCockpitSummaryPanel } from "../../v
 import { RenderJobBoundaryCockpitSummaryPanel } from "../../render-job-boundary/components";
 import { VideoReviewAndExportBoundaryCockpitSummaryPanel } from "../../video-review-and-export-boundary/components";
 import { ControlledVideoCreationWorkspaceCockpitSummaryPanel } from "../../controlled-video-creation-workspace/components";
+import { VideoBackendServiceContractBoundaryCockpitSummaryPanel } from "../../video-backend-service-contract-boundary/components";
+import { ProviderGatewayContractBoundaryCockpitSummaryPanel } from "../../provider-gateway-contract-boundary/components";
+import { AssetStorageContractBoundaryCockpitSummaryPanel } from "../../asset-storage-contract-boundary/components";
+import { AudioStorageContractBoundaryCockpitSummaryPanel } from "../../audio-storage-contract-boundary/components";
 import { ScriptAndStoryboardWorkspaceCockpitSummaryPanel } from "../../script-and-storyboard-workspace/components";
 import { VideoCreationDomainCockpitSummaryPanel } from "../../video-creation-domain/components";
 import {
@@ -113,7 +117,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         />
         <WorkspacePanel
           title="Creative Workspace"
-          summary="Creative Workspace starts with the Video Creation Domain as a review-only, planning-only lane, keeps Script And Storyboard Workspace, Asset And Shot Planning Workspace, Voiceover And Caption Planning Workspace, Render Job Boundary, and Video Review And Export Boundary intact, and now adds the Controlled Video Creation Workspace as the top-level final video release-candidate summary. It shows release map, safe state overview, script lane, asset lane, audio caption lane, render lane, review export lane, backend prerequisites, blocked actions, operator release checklist, release readiness packet, no hidden generation boundary, and denied paths. No generation controls, prompt controls, provider controls, model controls, connector controls, render controls, queue controls, worker controls, artifact controls, export controls, upload controls, download controls, publish controls, or schedule controls are present."
+          summary="Creative Workspace starts with the Video Creation Domain as a review-only, planning-only lane, keeps Script And Storyboard Workspace, Asset And Shot Planning Workspace, Voiceover And Caption Planning Workspace, Render Job Boundary, and Video Review And Export Boundary intact, keeps Controlled Video Creation Workspace and Provider Gateway Contract grouped as backend contract review content, and now adds Asset Storage Contract and Audio Storage Contract summaries. It shows asset intake schema, asset metadata schema, asset rights tagging, malware scan, deduplication, access policy, retention and redaction, asset handoff and audit, frontend asset persistence blocked, audio intake schema, audio metadata schema, consent and rights tagging, transcript and caption links, audio redaction retention access, audio handoff and audit, frontend audio persistence blocked, and denied paths. No upload controls, download controls, storage controls, API controls, service controls, command controls, provider controls, model controls, connector controls, voice controls, transcription controls, caption controls, or hidden execution affordances are present."
           items={[
             "Video Creation Domain",
             "Script And Storyboard Workspace",
@@ -122,6 +126,26 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             "Render Job Boundary",
             "Video Review And Export Boundary",
             "Controlled Video Creation Workspace",
+            "Video Backend Service Contract Boundary",
+            "Provider Gateway Contract",
+            "Asset Storage Contract",
+            "Asset Intake Schema",
+            "Asset Metadata Schema",
+            "Asset Rights Tagging Contract",
+            "Asset Malware Scan",
+            "Asset Deduplication",
+            "Asset Access Policy",
+            "Asset Retention And Redaction",
+            "Asset Handoff And Audit",
+            "Frontend Asset Persistence Blocked",
+            "Audio Storage Contract",
+            "Audio Intake Schema",
+            "Audio Metadata Schema",
+            "Audio Consent And Rights Tagging",
+            "Audio Transcript And Caption Links",
+            "Audio Redaction Retention Access",
+            "Audio Handoff And Audit",
+            "Frontend Audio Persistence Blocked",
             "Video Workspace Release Map",
             "Video Workspace Safe State Overview",
             "Video Script Lane Summary",
@@ -217,6 +241,11 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <RenderJobBoundaryCockpitSummaryPanel />
       <VideoReviewAndExportBoundaryCockpitSummaryPanel />
       <ControlledVideoCreationWorkspaceCockpitSummaryPanel />
+
+      <VideoBackendServiceContractBoundaryCockpitSummaryPanel />
+      <ProviderGatewayContractBoundaryCockpitSummaryPanel />
+      <AssetStorageContractBoundaryCockpitSummaryPanel />
+      <AudioStorageContractBoundaryCockpitSummaryPanel />
 
       <section style={quickActionBand} aria-label="Cockpit quick actions">
         <div style={panelHeader}>
