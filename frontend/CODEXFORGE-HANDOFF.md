@@ -5,67 +5,104 @@ Branch: `codexforge-foundation`
 ## Continue From Here
 
 ```powershell
+
 git status --short
+
 npm run build
+
 npm run smoke:codexforge:server
+
 ```
 
 ## Current Surfaces
 
 - `/`: product launcher.
+
 - `/ai`: main workspace with chat, evidence-grounded chat, preview diff composition, apply gate review, and dry-run review.
+
 - `/brain`: Brain command center with real 3D graph and 2D fallback.
+
 - `/files`: Files Command Center and File to Brain to Chat workflow.
+
 - `/runs`: Operator Run Center.
+
 - `/memory`: memory review, approved persistence, evidence memory, and Brain merge review.
+
 - `/tasks`: Task Autopilot, reviewed activation, execution readiness, step runner preview, and approved read-only execution.
+
 - `/capabilities`: Capability Cockpit.
+
 - `/creative`: Creative Production Studio, preview-only.
+
 - `/history`: activity and history intelligence.
+
 - `/mission`: Mission Control.
+
 - `/artifacts`: artifact executor, workspace, export, and ingestion review.
+
 - `/entry`: quick launch surface.
+
 - `/clawd`: operator surface.
 
 ## Current Capabilities
 
 - Brain runtime, cognitive memory, deterministic ingestion, recall, and approved memory persistence.
+
 - Real 3D Brain graph with fallback-safe 2D graph.
+
 - Approved Brain graph merge and evidence memory review.
+
 - Safe Patch Preview, Patch Preview Queue, Preview Diff Composer, Patch Application Gate, and Apply-Diff Dry Run simulation.
+
 - Files Command Center and File to Brain to Chat workflow.
+
 - Task Autopilot, reviewed task activation, execution readiness, step runner preview, and read-only step execution.
+
 - Operator Run Center, Capability Cockpit, Local Bridge, Mission Control, Creative Production Studio, artifact workflow, and Production Pack Builder.
+
 - Tool adapter registry, policy guard, global navigation shell, and grouped smoke coverage.
 
 ## Do Not Overclaim
 
 - No uncontrolled apply executor.
+
 - No silent file mutation.
+
 - No Blender execution.
+
 - No Unreal execution.
+
 - No ComfyUI execution.
+
 - No render execution.
+
 - No broker execution.
+
 - No PC/camera control.
+
 - `apply-diff`, `write-file`, and `run-command` require explicit future approval paths before mutation or command execution.
 
 ## Next Useful Work
 
 - Apply Gate Evidence Pack.
+
 - Guarded apply executor behind policy.
+
 - Persistent artifact ledger.
+
 - Full memory replay/merge audit.
+
 - Adapter execution behind local bridge and explicit policies.
+
 - Project onboarding/import.
+
 - Better graph data volume and clustering.
 
-CodexForge checkpoint documentation now records through phase 2217.
+CodexForge checkpoint documentation now records through phase 2249.
 
-CodexForge is checkpointed through detected phase 2217 in the local all-smoke registry. The latest completed batch is 2186-2217 - Interactive Video Workspace UX Mega Batch v1. Latest release candidate: Controlled Interactive Video Workspace Completion Candidate. /codexforge-cockpit now includes the interactive local-state video workspace UX near the top while backend contract status panels remain available below it. The UX remains local React state only and synthetic data only. No backend execution from frontend, no frontend persistence, no browser storage writes, no provider calls from frontend, no model calls from frontend, no connector calls from frontend, no prompt sending from frontend, no uploads from frontend, no downloads from frontend, and no render/export/publish/schedule from frontend. Backend-owned persistence, provider gateway, asset/audio storage, render queue, worker orchestration, artifact export, publish gateway, approval capture, and rights consent audit ledger remain required. Operator review remains required. Explicit operator approval remains required. Next likely batch: 2218-2249 - First Backend Wiring Boundary Mega Batch v1.
+CodexForge is checkpointed through detected phase 2249 in the local all-smoke registry. The latest completed batch is 2218-2249 - Jarvis Cockpit Visual Upgrade Mega Batch v1. Latest release candidate: Controlled Jarvis Cockpit Completion Candidate. /codexforge-cockpit now includes premium Jarvis-style high-end visual command centre UX with a cinematic mission-control hero, holographic command grid, readiness orb cluster, cinematic workflow timeline, polished project command brief, storyboard orbit shell, asset/audio status matrix, approval rights safety rail, backend systems health wall, blocked action command deck, contract status drawer, preserved interactive local-state video workspace core, and lower-priority backend contract status coverage. The cockpit remains local React state only and synthetic data only. No backend execution from frontend, no frontend persistence, no browser storage writes, no provider calls from frontend, no model calls from frontend, no connector calls from frontend, no prompt sending from frontend, no uploads from frontend, no downloads from frontend, and no render/export/publish/schedule from frontend. Backend-owned persistence, provider gateway, asset/audio storage, render queue, worker orchestration, artifact export, publish gateway, approval capture, and rights consent audit ledger remain required. Operator review remains required. Explicit operator approval remains required. Next likely batch: 2250-2281 - First Backend Wiring Boundary Mega Batch v1.
 
 The latest simulated runtime execution dry-run review layer covers phases 1130-1145: boundary, intent packet, plan packet, process review, port review, environment review, dependency review, risk review, evidence preview, result preview, failure preview, recovery preview, operator review, execution hold state, First Simulated Runtime Candidate, and Controlled Simulated Runtime Release Candidate. These surfaces remain static, deterministic, preview-only, denied runtime execution by default, and require explicit operator approval before any runtime start, process spawn, port binding, endpoint call, local bridge call, health probe, evidence persistence, result persistence, recovery, queue persistence, dry-run execution, model call, provider call, backend adapter execution, or domain adapter execution can exist.
-
 
 The simulated adapter execution dry-run review layer covers boundary, intent packet, selection review, capability review, permission review, input review, output review, risk review, evidence preview, result preview, failure preview, recovery preview, operator review, execution hold state, First Simulated Adapter Candidate, and Controlled Simulated Adapter Release Candidate surfaces. Simulated adapter execution previews remain static, deterministic, review-only, preview-only, and approval-gated until explicit operator approval. They represent guarded queue reference, dry-run ticket reference, adapter intent, adapter family, adapter capability preview, permission gate, input contract preview, output contract preview, expected evidence preview, expected result preview, failure preview, recovery preview, operator review state, adapter execution hold state, denied adapter execution state, and explicit approval requirement. They support file-write, command-runner, local-runtime, project-scaffold, provider-model, connector, automation, evidence-store, result-store, recovery, packaging, creative, research, chatbot, game-server, no-op, denied, and preview-only adapter families while showing no real adapter call, backend execution, domain execution, connector execution, provider execution, automation execution, creative generation, research execution, game server launch, local runtime start, file mutation, command execution, queue persistence, dry-run execution, or hidden approvals.
 

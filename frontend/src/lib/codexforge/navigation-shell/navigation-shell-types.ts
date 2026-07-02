@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-
 export type CodexForgePhaseDiagnosticRouteId =
   | "evidence-memory-boundary"
   | "goal-memory-snapshot-preview"
@@ -81,7 +80,6 @@ export type CodexForgePhaseDiagnosticRouteId =
   | "denied-money-movement-boundary"
   | "first-profit-lockbox-reinvestment-candidate"
   | "controlled-profit-lockbox-reinvestment-release-candidate";
-
 export type CodexForgeNavigationRouteId =
   | CodexForgePhaseDiagnosticRouteId
   | "home"
@@ -2133,6 +2131,38 @@ export type CodexForgeNavigationRouteId =
   | "ux-checkpoint-completion-guard"
   | "first-backend-wiring-readiness-preview"
   | "controlled-interactive-video-workspace-completion-candidate"
+  | "jarvis-cockpit-visual-system"
+  | "mission-control-hero-preview"
+  | "holographic-command-grid-preview"
+  | "readiness-orb-cluster-preview"
+  | "cinematic-workflow-timeline-preview"
+  | "project-command-brief-panel-preview"
+  | "storyboard-orbit-panel-preview"
+  | "asset-audio-status-matrix-preview"
+  | "approval-rights-safety-rail-preview"
+  | "backend-systems-health-wall-preview"
+  | "blocked-action-command-deck-preview"
+  | "contract-status-drawer-preview"
+  | "premium-dark-glass-theme-preview"
+  | "responsive-command-centre-layout-preview"
+  | "cockpit-visual-accessibility-guard"
+  | "cockpit-animation-safety-guard"
+  | "cockpit-performance-budget-guard"
+  | "cockpit-empty-loading-states-preview"
+  | "cockpit-microcopy-polish-preview"
+  | "cockpit-iconography-system-preview"
+  | "cockpit-depth-lighting-system-preview"
+  | "cockpit-data-density-tuning-preview"
+  | "cockpit-mobile-command-layout-preview"
+  | "cockpit-high-end-ux-summary"
+  | "first-jarvis-cockpit-candidate"
+  | "controlled-jarvis-cockpit-release-candidate"
+  | "jarvis-cockpit-safety-regression-guard"
+  | "jarvis-cockpit-navigation-regression-guard"
+  | "jarvis-cockpit-smoke-coverage-guard"
+  | "jarvis-cockpit-checkpoint-completion-guard"
+  | "first-backend-wiring-readiness-after-visual-upgrade"
+  | "controlled-jarvis-cockpit-completion-candidate"
   | "change-plan-live-context"
   | "patch-preview-live-context"
   | "test-planner-live-context"
@@ -2177,7 +2207,6 @@ export type CodexForgeNavigationRouteId =
   | "validation"
   | "stabilization"
   | "history";
-
 export type CodexForgeNavigationRouteHref =
   | `/${CodexForgePhaseDiagnosticRouteId}`
   | "/"
@@ -3781,6 +3810,38 @@ export type CodexForgeNavigationRouteHref =
   | "/ux-checkpoint-completion-guard"
   | "/first-backend-wiring-readiness-preview"
   | "/controlled-interactive-video-workspace-completion-candidate"
+  | "/jarvis-cockpit-visual-system"
+  | "/mission-control-hero-preview"
+  | "/holographic-command-grid-preview"
+  | "/readiness-orb-cluster-preview"
+  | "/cinematic-workflow-timeline-preview"
+  | "/project-command-brief-panel-preview"
+  | "/storyboard-orbit-panel-preview"
+  | "/asset-audio-status-matrix-preview"
+  | "/approval-rights-safety-rail-preview"
+  | "/backend-systems-health-wall-preview"
+  | "/blocked-action-command-deck-preview"
+  | "/contract-status-drawer-preview"
+  | "/premium-dark-glass-theme-preview"
+  | "/responsive-command-centre-layout-preview"
+  | "/cockpit-visual-accessibility-guard"
+  | "/cockpit-animation-safety-guard"
+  | "/cockpit-performance-budget-guard"
+  | "/cockpit-empty-loading-states-preview"
+  | "/cockpit-microcopy-polish-preview"
+  | "/cockpit-iconography-system-preview"
+  | "/cockpit-depth-lighting-system-preview"
+  | "/cockpit-data-density-tuning-preview"
+  | "/cockpit-mobile-command-layout-preview"
+  | "/cockpit-high-end-ux-summary"
+  | "/first-jarvis-cockpit-candidate"
+  | "/controlled-jarvis-cockpit-release-candidate"
+  | "/jarvis-cockpit-safety-regression-guard"
+  | "/jarvis-cockpit-navigation-regression-guard"
+  | "/jarvis-cockpit-smoke-coverage-guard"
+  | "/jarvis-cockpit-checkpoint-completion-guard"
+  | "/first-backend-wiring-readiness-after-visual-upgrade"
+  | "/controlled-jarvis-cockpit-completion-candidate"
   | "/unified-cockpit-boundary"
   | "/cockpit-goal-intake-panel"
   | "/cockpit-plan-summary-panel"
@@ -4289,7 +4350,6 @@ export type CodexForgeNavigationRouteHref =
   | "/validation"
   | "/stabilization"
   | "/history";
-
 export type CodexForgeNavigationGroup =
   | "Start"
   | "Build"
@@ -4299,20 +4359,17 @@ export type CodexForgeNavigationGroup =
   | "Creative"
   | "Audit"
   | "Advanced";
-
 export type CodexForgeNavigationReadiness =
   | "available"
   | "review-required"
   | "preview-only"
   | "blocked";
-
 export type CodexForgeNavigationSafetyPosture =
   | "local-first"
   | "operator-safe"
   | "review-gated"
   | "read-only"
   | "approval-gated";
-
 export type CodexForgeCommandDeckRole =
   | CodexForgePhaseDiagnosticRouteId
   | "overview"
@@ -6368,7 +6425,6 @@ export type CodexForgeCommandDeckRole =
   | "validation-runner"
   | "stabilization"
   | "timeline";
-
 export type CodexForgeNavigationRoute = {
   id: CodexForgeNavigationRouteId;
   href: CodexForgeNavigationRouteHref;
@@ -6384,16 +6440,13 @@ export type CodexForgeNavigationRoute = {
   noMutation: boolean;
   commandDeckRole: CodexForgeCommandDeckRole;
 };
-
 export type CodexForgeNavigationRouteAvailability = Partial<
   Record<CodexForgeNavigationRouteHref, boolean>
 >;
-
 export type CodexForgeNavigationRouteInput =
   Partial<Omit<CodexForgeNavigationRoute, "href">> & {
     href: CodexForgeNavigationRouteHref;
   };
-
 export type CodexForgeNavigationSection = {
   id: string;
   group: CodexForgeNavigationGroup;
@@ -6402,7 +6455,6 @@ export type CodexForgeNavigationSection = {
   priority: number;
   routes: CodexForgeNavigationRoute[];
 };
-
 export type CodexForgeNavigationSectionInput = {
   group: CodexForgeNavigationGroup;
   routes: CodexForgeNavigationRoute[];
@@ -6410,7 +6462,6 @@ export type CodexForgeNavigationSectionInput = {
   description?: string;
   priority?: number;
 };
-
 export type CodexForgeSafetyPostureItem = {
   id: string;
   label: string;
@@ -6418,11 +6469,9 @@ export type CodexForgeSafetyPostureItem = {
   state: "enforced" | "review-required" | "visible";
   priority: number;
 };
-
 export type CodexForgeSafetyPostureInput = Partial<CodexForgeSafetyPostureItem> & {
   id: string;
 };
-
 export type CodexForgeShellNextActionReason =
   | "stabilization-blockers"
   | "operator-home-overview"
@@ -6432,7 +6481,6 @@ export type CodexForgeShellNextActionReason =
   | "creative-work"
   | "clean-checkpoint"
   | "continue-next-phase";
-
 export type CodexForgeShellNextAction = {
   id: string;
   label: string;
@@ -6442,7 +6490,6 @@ export type CodexForgeShellNextAction = {
   noMutation: boolean;
   requiresApproval: boolean;
 };
-
 export type CodexForgeShellNextActionContext = {
   activeHref?: string;
   hasStabilizationBlockers?: boolean;
@@ -6454,18 +6501,15 @@ export type CodexForgeShellNextActionContext = {
   cleanCheckpointRecommended?: boolean;
   routeAvailability?: CodexForgeNavigationRouteAvailability;
 };
-
 export type CodexForgeShellNextActionPlan = {
   selected: CodexForgeShellNextAction;
   candidates: CodexForgeShellNextAction[];
   summary: string;
 };
-
 export type CodexForgeRouteBreadcrumb = {
   label: string;
   href: CodexForgeNavigationRouteHref;
 };
-
 export type CodexForgeRouteState = {
   activeRoute: CodexForgeNavigationRoute;
   activeGroup: CodexForgeNavigationGroup;
@@ -6475,7 +6519,6 @@ export type CodexForgeRouteState = {
   currentSafetyPosture: CodexForgeSafetyPostureItem[];
   workspaceLabel: string;
 };
-
 export type CodexForgeNavigationShellSummary = {
   routeCount: number;
   groupCount: number;
@@ -6485,7 +6528,6 @@ export type CodexForgeNavigationShellSummary = {
   nextAction: string;
   noMutationStatus: "all-routes-no-mutation" | "review-required";
 };
-
 export type CodexForgeAppShellProps = {
   children: ReactNode;
   activePath?: string;

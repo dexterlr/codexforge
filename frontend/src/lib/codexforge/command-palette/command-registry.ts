@@ -50,7 +50,6 @@ import {
   buildCodexForgeGuardedApplyNextPromptPayload,
 } from "./command-copy-payloads";
 import { isCodexForgeCommandMutationBlocked } from "./command-safety";
-
 const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/": true,
   "/start": true,
@@ -2167,6 +2166,38 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/ux-checkpoint-completion-guard": true,
   "/first-backend-wiring-readiness-preview": true,
   "/controlled-interactive-video-workspace-completion-candidate": true,
+  "/jarvis-cockpit-visual-system": true,
+  "/mission-control-hero-preview": true,
+  "/holographic-command-grid-preview": true,
+  "/readiness-orb-cluster-preview": true,
+  "/cinematic-workflow-timeline-preview": true,
+  "/project-command-brief-panel-preview": true,
+  "/storyboard-orbit-panel-preview": true,
+  "/asset-audio-status-matrix-preview": true,
+  "/approval-rights-safety-rail-preview": true,
+  "/backend-systems-health-wall-preview": true,
+  "/blocked-action-command-deck-preview": true,
+  "/contract-status-drawer-preview": true,
+  "/premium-dark-glass-theme-preview": true,
+  "/responsive-command-centre-layout-preview": true,
+  "/cockpit-visual-accessibility-guard": true,
+  "/cockpit-animation-safety-guard": true,
+  "/cockpit-performance-budget-guard": true,
+  "/cockpit-empty-loading-states-preview": true,
+  "/cockpit-microcopy-polish-preview": true,
+  "/cockpit-iconography-system-preview": true,
+  "/cockpit-depth-lighting-system-preview": true,
+  "/cockpit-data-density-tuning-preview": true,
+  "/cockpit-mobile-command-layout-preview": true,
+  "/cockpit-high-end-ux-summary": true,
+  "/first-jarvis-cockpit-candidate": true,
+  "/controlled-jarvis-cockpit-release-candidate": true,
+  "/jarvis-cockpit-safety-regression-guard": true,
+  "/jarvis-cockpit-navigation-regression-guard": true,
+  "/jarvis-cockpit-smoke-coverage-guard": true,
+  "/jarvis-cockpit-checkpoint-completion-guard": true,
+  "/first-backend-wiring-readiness-after-visual-upgrade": true,
+  "/controlled-jarvis-cockpit-completion-candidate": true,
   "/task-router": true,
   "/credentials": true,
   "/provider-setup": true,
@@ -2205,13 +2236,11 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/validation": true,
   "/stabilization": true,
 };
-
 export function buildCodexForgeCommand(input: CodexForgeCommandInput): CodexForgeCommand {
   const noMutation = input.noMutation ?? true;
   const disabledReason =
     input.disabledReason ??
     (noMutation ? undefined : "Mutation commands are blocked from the global command palette.");
-
   return {
     description: "",
     group: "Safety",
@@ -2225,14 +2254,12 @@ export function buildCodexForgeCommand(input: CodexForgeCommandInput): CodexForg
     disabledReason,
   };
 }
-
 function routeAvailable(
   availability: CodexForgeCommandRouteAvailability,
   href: NonNullable<CodexForgeCommand["href"]>
 ): boolean {
   return availability[href] === true;
 }
-
 function buildRouteCommand(
   availability: CodexForgeCommandRouteAvailability,
   input: CodexForgeCommandInput & { href: NonNullable<CodexForgeCommand["href"]> }
@@ -2247,7 +2274,6 @@ function buildRouteCommand(
     ...input,
   });
 }
-
 export function buildCodexForgeCommands(
   options: CodexForgeCommandRegistryOptions = {}
 ): CodexForgeCommand[] {
@@ -19863,6 +19889,294 @@ export function buildCodexForgeCommands(
       priority: 25.17033786,
     }),
     buildRouteCommand(availability, {
+      id: "go-jarvis-cockpit-visual-system",
+      label: "Go to Jarvis Cockpit Visual System",
+      description: "Review Jarvis Cockpit Visual System as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/jarvis-cockpit-visual-system",
+      keywords: ["Jarvis Cockpit Visual System", "Denied Jarvis cockpit execution paths remain blocked", "Jarvis cockpit visual system checklist"],
+      priority: 25.1703786,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-mission-control-hero-preview",
+      label: "Go to Mission Control Hero Preview",
+      description: "Review Mission Control Hero Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/mission-control-hero-preview",
+      keywords: ["Mission Control Hero Preview", "Denied mission control hero execution paths remain blocked", "Mission control hero checklist"],
+      priority: 25.1703787,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-holographic-command-grid-preview",
+      label: "Go to Holographic Command Grid Preview",
+      description: "Review Holographic Command Grid Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/holographic-command-grid-preview",
+      keywords: ["Holographic Command Grid Preview", "Denied holographic command grid execution paths remain blocked", "Holographic command grid checklist"],
+      priority: 25.1703788,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-readiness-orb-cluster-preview",
+      label: "Go to Readiness Orb Cluster Preview",
+      description: "Review Readiness Orb Cluster Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/readiness-orb-cluster-preview",
+      keywords: ["Readiness Orb Cluster Preview", "Denied readiness orb execution paths remain blocked", "Readiness orb cluster checklist"],
+      priority: 25.1703789,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cinematic-workflow-timeline-preview",
+      label: "Go to Cinematic Workflow Timeline Preview",
+      description: "Review Cinematic Workflow Timeline Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cinematic-workflow-timeline-preview",
+      keywords: ["Cinematic Workflow Timeline Preview", "Denied cinematic timeline execution paths remain blocked", "Cinematic workflow timeline checklist"],
+      priority: 25.1703790,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-project-command-brief-panel-preview",
+      label: "Go to Project Command Brief Panel Preview",
+      description: "Review Project Command Brief Panel Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/project-command-brief-panel-preview",
+      keywords: ["Project Command Brief Panel Preview", "Denied project command brief execution paths remain blocked", "Project command brief panel checklist"],
+      priority: 25.1703791,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-storyboard-orbit-panel-preview",
+      label: "Go to Storyboard Orbit Panel Preview",
+      description: "Review Storyboard Orbit Panel Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/storyboard-orbit-panel-preview",
+      keywords: ["Storyboard Orbit Panel Preview", "Denied storyboard orbit execution paths remain blocked", "Storyboard orbit panel checklist"],
+      priority: 25.1703792,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-asset-audio-status-matrix-preview",
+      label: "Go to Asset Audio Status Matrix Preview",
+      description: "Review Asset Audio Status Matrix Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/asset-audio-status-matrix-preview",
+      keywords: ["Asset Audio Status Matrix Preview", "Denied asset audio matrix execution paths remain blocked", "Asset audio status matrix checklist"],
+      priority: 25.1703793,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-approval-rights-safety-rail-preview",
+      label: "Go to Approval Rights Safety Rail Preview",
+      description: "Review Approval Rights Safety Rail Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/approval-rights-safety-rail-preview",
+      keywords: ["Approval Rights Safety Rail Preview", "Denied approval rights safety rail execution paths remain blocked", "Approval rights safety rail checklist"],
+      priority: 25.1703794,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-backend-systems-health-wall-preview",
+      label: "Go to Backend Systems Health Wall Preview",
+      description: "Review Backend Systems Health Wall Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/backend-systems-health-wall-preview",
+      keywords: ["Backend Systems Health Wall Preview", "Denied backend systems wall execution paths remain blocked", "Backend systems health wall checklist"],
+      priority: 25.1703795,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-blocked-action-command-deck-preview",
+      label: "Go to Blocked Action Command Deck Preview",
+      description: "Review Blocked Action Command Deck Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/blocked-action-command-deck-preview",
+      keywords: ["Blocked Action Command Deck Preview", "Denied blocked command deck execution paths remain blocked", "Blocked action command deck checklist"],
+      priority: 25.1703796,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-contract-status-drawer-preview",
+      label: "Go to Contract Status Drawer Preview",
+      description: "Review Contract Status Drawer Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/contract-status-drawer-preview",
+      keywords: ["Contract Status Drawer Preview", "Denied contract drawer regression paths remain blocked", "Contract status drawer checklist"],
+      priority: 25.1703797,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-premium-dark-glass-theme-preview",
+      label: "Go to Premium Dark Glass Theme Preview",
+      description: "Review Premium Dark Glass Theme Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/premium-dark-glass-theme-preview",
+      keywords: ["Premium Dark Glass Theme Preview", "Denied premium theme unsafe paths remain blocked", "Premium dark glass theme checklist"],
+      priority: 25.1703798,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-responsive-command-centre-layout-preview",
+      label: "Go to Responsive Command Centre Layout Preview",
+      description: "Review Responsive Command Centre Layout Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/responsive-command-centre-layout-preview",
+      keywords: ["Responsive Command Centre Layout Preview", "Denied responsive layout regression paths remain blocked", "Responsive command centre layout checklist"],
+      priority: 25.1703799,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cockpit-visual-accessibility-guard",
+      label: "Go to Cockpit Visual Accessibility Guard",
+      description: "Review Cockpit Visual Accessibility Guard as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cockpit-visual-accessibility-guard",
+      keywords: ["Cockpit Visual Accessibility Guard", "Denied accessibility regression paths remain blocked", "Cockpit visual accessibility checklist"],
+      priority: 25.1703800,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cockpit-animation-safety-guard",
+      label: "Go to Cockpit Animation Safety Guard",
+      description: "Review Cockpit Animation Safety Guard as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cockpit-animation-safety-guard",
+      keywords: ["Cockpit Animation Safety Guard", "Denied animation safety regression paths remain blocked", "Cockpit animation safety checklist"],
+      priority: 25.1703801,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cockpit-performance-budget-guard",
+      label: "Go to Cockpit Performance Budget Guard",
+      description: "Review Cockpit Performance Budget Guard as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cockpit-performance-budget-guard",
+      keywords: ["Cockpit Performance Budget Guard", "Denied cockpit performance regression paths remain blocked", "Cockpit performance budget checklist"],
+      priority: 25.1703802,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cockpit-empty-loading-states-preview",
+      label: "Go to Cockpit Empty Loading States Preview",
+      description: "Review Cockpit Empty Loading States Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cockpit-empty-loading-states-preview",
+      keywords: ["Cockpit Empty Loading States Preview", "Denied cockpit empty loading execution paths remain blocked", "Cockpit empty loading states checklist"],
+      priority: 25.1703803,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cockpit-microcopy-polish-preview",
+      label: "Go to Cockpit Microcopy Polish Preview",
+      description: "Review Cockpit Microcopy Polish Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cockpit-microcopy-polish-preview",
+      keywords: ["Cockpit Microcopy Polish Preview", "Denied cockpit microcopy regression paths remain blocked", "Cockpit microcopy polish checklist"],
+      priority: 25.1703804,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cockpit-iconography-system-preview",
+      label: "Go to Cockpit Iconography System Preview",
+      description: "Review Cockpit Iconography System Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cockpit-iconography-system-preview",
+      keywords: ["Cockpit Iconography System Preview", "Denied cockpit iconography unsafe paths remain blocked", "Cockpit iconography checklist"],
+      priority: 25.1703805,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cockpit-depth-lighting-system-preview",
+      label: "Go to Cockpit Depth Lighting System Preview",
+      description: "Review Cockpit Depth Lighting System Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cockpit-depth-lighting-system-preview",
+      keywords: ["Cockpit Depth Lighting System Preview", "Denied cockpit lighting regression paths remain blocked", "Cockpit depth lighting checklist"],
+      priority: 25.1703806,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cockpit-data-density-tuning-preview",
+      label: "Go to Cockpit Data Density Tuning Preview",
+      description: "Review Cockpit Data Density Tuning Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cockpit-data-density-tuning-preview",
+      keywords: ["Cockpit Data Density Tuning Preview", "Denied data density regression paths remain blocked", "Cockpit data density checklist"],
+      priority: 25.1703807,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cockpit-mobile-command-layout-preview",
+      label: "Go to Cockpit Mobile Command Layout Preview",
+      description: "Review Cockpit Mobile Command Layout Preview as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cockpit-mobile-command-layout-preview",
+      keywords: ["Cockpit Mobile Command Layout Preview", "Denied mobile command layout regression paths remain blocked", "Cockpit mobile command layout checklist"],
+      priority: 25.1703808,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-cockpit-high-end-ux-summary",
+      label: "Go to Cockpit High End UX Summary",
+      description: "Review Cockpit High End UX Summary as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/cockpit-high-end-ux-summary",
+      keywords: ["Cockpit High End UX Summary", "Denied high end UX summary regression paths remain blocked", "Cockpit high end UX summary checklist"],
+      priority: 25.1703809,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-first-jarvis-cockpit-candidate",
+      label: "Go to First Jarvis Cockpit Candidate",
+      description: "Review First Jarvis Cockpit Candidate as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/first-jarvis-cockpit-candidate",
+      keywords: ["First Jarvis Cockpit Candidate", "Denied first Jarvis cockpit execution paths remain blocked", "First Jarvis cockpit checklist"],
+      priority: 25.1703810,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-controlled-jarvis-cockpit-release-candidate",
+      label: "Go to Controlled Jarvis Cockpit Release Candidate",
+      description: "Review Controlled Jarvis Cockpit Release Candidate as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/controlled-jarvis-cockpit-release-candidate",
+      keywords: ["Controlled Jarvis Cockpit Release Candidate", "Denied controlled Jarvis cockpit paths remain blocked", "Controlled Jarvis cockpit checklist"],
+      priority: 25.1703811,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-jarvis-cockpit-safety-regression-guard",
+      label: "Go to Jarvis Cockpit Safety Regression Guard",
+      description: "Review Jarvis Cockpit Safety Regression Guard as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/jarvis-cockpit-safety-regression-guard",
+      keywords: ["Jarvis Cockpit Safety Regression Guard", "Denied Jarvis safety regression paths remain blocked", "Jarvis cockpit safety regression checklist"],
+      priority: 25.1703812,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-jarvis-cockpit-navigation-regression-guard",
+      label: "Go to Jarvis Cockpit Navigation Regression Guard",
+      description: "Review Jarvis Cockpit Navigation Regression Guard as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/jarvis-cockpit-navigation-regression-guard",
+      keywords: ["Jarvis Cockpit Navigation Regression Guard", "Denied Jarvis navigation regression paths remain blocked", "Jarvis cockpit navigation regression checklist"],
+      priority: 25.1703813,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-jarvis-cockpit-smoke-coverage-guard",
+      label: "Go to Jarvis Cockpit Smoke Coverage Guard",
+      description: "Review Jarvis Cockpit Smoke Coverage Guard as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/jarvis-cockpit-smoke-coverage-guard",
+      keywords: ["Jarvis Cockpit Smoke Coverage Guard", "Denied Jarvis smoke coverage regression paths remain blocked", "Jarvis cockpit smoke coverage checklist"],
+      priority: 25.1703814,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-jarvis-cockpit-checkpoint-completion-guard",
+      label: "Go to Jarvis Cockpit Checkpoint Completion Guard",
+      description: "Review Jarvis Cockpit Checkpoint Completion Guard as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/jarvis-cockpit-checkpoint-completion-guard",
+      keywords: ["Jarvis Cockpit Checkpoint Completion Guard", "Denied Jarvis checkpoint regression paths remain blocked", "Jarvis cockpit checkpoint completion checklist"],
+      priority: 25.1703815,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-first-backend-wiring-readiness-after-visual-upgrade",
+      label: "Go to First Backend Wiring Readiness After Visual Upgrade",
+      description: "Review First Backend Wiring Readiness After Visual Upgrade as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/first-backend-wiring-readiness-after-visual-upgrade",
+      keywords: ["First Backend Wiring Readiness After Visual Upgrade", "Denied backend wiring preview execution paths remain blocked", "First backend wiring readiness after visual upgrade checklist"],
+      priority: 25.1703816,
+    }),
+    buildRouteCommand(availability, {
+      id: "go-controlled-jarvis-cockpit-completion-candidate",
+      label: "Go to Controlled Jarvis Cockpit Completion Candidate",
+      description: "Review Controlled Jarvis Cockpit Completion Candidate as a premium Jarvis cockpit visual upgrade with local React state only, synthetic data only, no backend execution, no frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no command execution, and backend wiring required.",
+      group: "Developer diagnostics",
+      href: "/controlled-jarvis-cockpit-completion-candidate",
+      keywords: ["Controlled Jarvis Cockpit Completion Candidate", "Denied Jarvis cockpit completion paths remain blocked", "Controlled Jarvis cockpit completion checklist"],
+      priority: 25.1703817,
+    }),
+    buildRouteCommand(availability, {
       id: "go-change-plan-live-context",
       label: "Go to Change Plan Live Context",
       description: "Use reviewed project intelligence as planning context without modifying files or browsing arbitrary paths.",
@@ -20295,7 +20609,6 @@ export function buildCodexForgeCommands(
       priority: 90,
     }),
   ].filter((command): command is CodexForgeCommand => command !== null);
-
   const commands: CodexForgeCommand[] = [
     ...routeCommands,
     buildCodexForgeCommand({
@@ -21199,7 +21512,6 @@ export function buildCodexForgeCommands(
       priority: 240,
     }),
   ];
-
   if (options.includeEducationalBlockedCommands) {
     for (const blocked of [
       { slug: "patch-application", label: "patch application" },
@@ -21224,7 +21536,6 @@ export function buildCodexForgeCommands(
       );
     }
   }
-
   return commands
     .map((command) =>
       isCodexForgeCommandMutationBlocked(command)
@@ -21237,7 +21548,6 @@ export function buildCodexForgeCommands(
     )
     .sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id));
 }
-
 export function summarizeCodexForgeCommands(commands = buildCodexForgeCommands()): string {
   const disabled = commands.filter((command) => command.disabledReason).length;
   return `${commands.length} deterministic commands, ${commands.length - disabled} enabled, ${disabled} disabled, no mutation commands executable.`;

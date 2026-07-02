@@ -4,7 +4,6 @@ param(
   [switch]$ContinueOnMissingOptional,
   [switch]$StopOnFirstFailure
 )
-
 $ErrorActionPreference = "Stop"
 $scriptRoot = $PSScriptRoot
 . (Join-Path $scriptRoot "codexforge-smoke-runner.ps1")
@@ -12,7 +11,6 @@ $fullSmokeStartedAt = Get-Date
 $script:CodexForgeSmokeLastSummary = $null
 $fullSmokeFailure = $null
 $fullSmokeShouldExitFailure = $false
-
 # Coverage metadata for legacy smoke assertions. The executable suite below runs
 # grouped runners only; these entries keep existing smoke scripts able to verify
 # their coverage without re-flattening all-smoke.
@@ -96,7 +94,6 @@ $fullSmokeShouldExitFailure = $false
 # Name = "Model router"; Path = "smoke-codexforge-model-router.ps1"
 # Name = "AI Router"; Path = "smoke-codexforge-ai-router.ps1"
 # Name = "Brand cleanup"; Path = "smoke-codexforge-brand-clean.ps1"
-
 try {
   Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts @(
   @{ Name = "Core"; File = "smoke-codexforge-core.ps1"; Required = $true },
@@ -2261,6 +2258,38 @@ try {
   @{ Name = "Phase 2215 UX Checkpoint Completion Guard"; File = "smoke-codexforge-ux-checkpoint-completion-guard.ps1"; Required = $true },
   @{ Name = "Phase 2216 First Backend Wiring Readiness Preview"; File = "smoke-codexforge-first-backend-wiring-readiness-preview.ps1"; Required = $true },
   @{ Name = "Phase 2217 Controlled Interactive Video Workspace Completion Candidate"; File = "smoke-codexforge-controlled-interactive-video-workspace-completion-candidate.ps1"; Required = $true },
+  @{ Name = "Phase 2218 Jarvis Cockpit Visual System"; File = "smoke-codexforge-jarvis-cockpit-visual-system.ps1"; Required = $true },
+  @{ Name = "Phase 2219 Mission Control Hero Preview"; File = "smoke-codexforge-mission-control-hero-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2220 Holographic Command Grid Preview"; File = "smoke-codexforge-holographic-command-grid-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2221 Readiness Orb Cluster Preview"; File = "smoke-codexforge-readiness-orb-cluster-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2222 Cinematic Workflow Timeline Preview"; File = "smoke-codexforge-cinematic-workflow-timeline-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2223 Project Command Brief Panel Preview"; File = "smoke-codexforge-project-command-brief-panel-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2224 Storyboard Orbit Panel Preview"; File = "smoke-codexforge-storyboard-orbit-panel-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2225 Asset Audio Status Matrix Preview"; File = "smoke-codexforge-asset-audio-status-matrix-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2226 Approval Rights Safety Rail Preview"; File = "smoke-codexforge-approval-rights-safety-rail-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2227 Backend Systems Health Wall Preview"; File = "smoke-codexforge-backend-systems-health-wall-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2228 Blocked Action Command Deck Preview"; File = "smoke-codexforge-blocked-action-command-deck-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2229 Contract Status Drawer Preview"; File = "smoke-codexforge-contract-status-drawer-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2230 Premium Dark Glass Theme Preview"; File = "smoke-codexforge-premium-dark-glass-theme-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2231 Responsive Command Centre Layout Preview"; File = "smoke-codexforge-responsive-command-centre-layout-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2232 Cockpit Visual Accessibility Guard"; File = "smoke-codexforge-cockpit-visual-accessibility-guard.ps1"; Required = $true },
+  @{ Name = "Phase 2233 Cockpit Animation Safety Guard"; File = "smoke-codexforge-cockpit-animation-safety-guard.ps1"; Required = $true },
+  @{ Name = "Phase 2234 Cockpit Performance Budget Guard"; File = "smoke-codexforge-cockpit-performance-budget-guard.ps1"; Required = $true },
+  @{ Name = "Phase 2235 Cockpit Empty Loading States Preview"; File = "smoke-codexforge-cockpit-empty-loading-states-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2236 Cockpit Microcopy Polish Preview"; File = "smoke-codexforge-cockpit-microcopy-polish-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2237 Cockpit Iconography System Preview"; File = "smoke-codexforge-cockpit-iconography-system-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2238 Cockpit Depth Lighting System Preview"; File = "smoke-codexforge-cockpit-depth-lighting-system-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2239 Cockpit Data Density Tuning Preview"; File = "smoke-codexforge-cockpit-data-density-tuning-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2240 Cockpit Mobile Command Layout Preview"; File = "smoke-codexforge-cockpit-mobile-command-layout-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2241 Cockpit High End UX Summary"; File = "smoke-codexforge-cockpit-high-end-ux-summary.ps1"; Required = $true },
+  @{ Name = "Phase 2242 First Jarvis Cockpit Candidate"; File = "smoke-codexforge-first-jarvis-cockpit-candidate.ps1"; Required = $true },
+  @{ Name = "Phase 2243 Controlled Jarvis Cockpit Release Candidate"; File = "smoke-codexforge-controlled-jarvis-cockpit-release-candidate.ps1"; Required = $true },
+  @{ Name = "Phase 2244 Jarvis Cockpit Safety Regression Guard"; File = "smoke-codexforge-jarvis-cockpit-safety-regression-guard.ps1"; Required = $true },
+  @{ Name = "Phase 2245 Jarvis Cockpit Navigation Regression Guard"; File = "smoke-codexforge-jarvis-cockpit-navigation-regression-guard.ps1"; Required = $true },
+  @{ Name = "Phase 2246 Jarvis Cockpit Smoke Coverage Guard"; File = "smoke-codexforge-jarvis-cockpit-smoke-coverage-guard.ps1"; Required = $true },
+  @{ Name = "Phase 2247 Jarvis Cockpit Checkpoint Completion Guard"; File = "smoke-codexforge-jarvis-cockpit-checkpoint-completion-guard.ps1"; Required = $true },
+  @{ Name = "Phase 2248 First Backend Wiring Readiness After Visual Upgrade"; File = "smoke-codexforge-first-backend-wiring-readiness-after-visual-upgrade.ps1"; Required = $true },
+  @{ Name = "Phase 2249 Controlled Jarvis Cockpit Completion Candidate"; File = "smoke-codexforge-controlled-jarvis-cockpit-completion-candidate.ps1"; Required = $true },
   @{ Name = "Provider Connection Test UX"; File = "smoke-codexforge-provider-connection-test-ux.ps1"; Required = $true },
   @{ Name = "Artifacts Suite"; File = "smoke-codexforge-artifacts-suite.ps1"; Required = $true },
   @{ Name = "Creative Suite"; File = "smoke-codexforge-creative-suite.ps1"; Required = $true },
@@ -2299,7 +2328,6 @@ try {
   $fullSmokeFailure = $_
 } finally {
   $fullSmokeSummary = $script:CodexForgeSmokeLastSummary
-
   if ($fullSmokeSummary) {
     $passed = [int]$fullSmokeSummary.Passed
     $failed = [int]$fullSmokeSummary.Failed
@@ -2313,13 +2341,10 @@ try {
     $missingOptional = 0
     $elapsed = (Get-Date) - $fullSmokeStartedAt
   }
-
   if ($fullSmokeFailure -and (($failed + $missingRequired) -eq 0)) {
     $failed = 1
   }
-
   $fullSmokeShouldExitFailure = (($failed + $missingRequired) -gt 0)
-
   Write-Host ""
   Write-Host "=== CodexForge full smoke complete ==="
   Write-Host "Passed:           $passed"
@@ -2328,14 +2353,12 @@ try {
   Write-Host "Missing optional: $missingOptional"
   Write-Host "Elapsed: $([math]::Round($elapsed.TotalSeconds, 2))s"
   Write-Host ""
-
   if ($fullSmokeShouldExitFailure) {
     Write-Host "[FAIL] CodexForge full smoke failed."
   } else {
     Write-Host "[PASS] CodexForge full smoke passed."
   }
 }
-
 if ($fullSmokeShouldExitFailure) {
   exit 1
 }

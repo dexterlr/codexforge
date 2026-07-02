@@ -3,31 +3,52 @@
 ## Existing Safety Guarantees To Preserve
 
 - Build passes with `npm run build`.
+
 - Dev server works with `npm run dev`.
+
 - Operator loop remains approval-oriented.
+
 - Checkpoint and snapshot routes remain available.
+
 - No writes outside repo path allowlists.
+
 - Mutation-capable operations require explicit approval.
+
 - `apply-diff` requires explicit tool-policy approval.
+
 - `write-file` and `run-command` remain blocked unless future explicit approval paths exist.
+
 - Local deterministic logic remains available without AI.
 
 ## Current CodexForge Surface Area
 
-- Checkpoint through detected phase 2217 in `scripts/smoke-codexforge-all.ps1`.
+- Checkpoint through detected phase 2249 in `scripts/smoke-codexforge-all.ps1`.
+
 - Brain runtime, memory review, runtime journal/replay, snapshots, continuity, mutation governance, memory inbox, and promotion gates.
+
 - Files, evidence, project intelligence, codebase change planning, patch preview, patch apply approval review, patch result capture, test planning, test result summary, and test failure triage review.
+
 - Provider governance, provider live call guard review, first provider live call trial review, provider response capture review, and provider live trial release candidate.
+
 - Local model runtime boundary review, local model live call guard review, first local model live trial review, local model output capture review, and local model release candidate.
+
 - Connector permission/redaction/evidence review, connector live access guard review, first connector live access trial review, connector evidence capture review, and connector release candidate.
+
 - Automation dry-run review, approval queue review, schedule safety review, live execution guard review, automation replay/approval trial review, and automation release candidate.
+
 - Unified live workflow trial 2, result review, failure recovery review, and hardening review.
+
 - Beta operator daily workflow trial, workflow review, friction patch review, and release candidate.
+
 - Beta workflow release regression review, safety signoff review, documentation review, and onboarding final pass.
+
 - Beta 2 release candidate, controlled operator trial review, operator feedback review, and hardening pass.
+
 - Unified operator cohesion and final policy polish for cross-lane cohesion, approval policy, evidence policy, result policy, recovery policy, settings/preferences, cockpit readiness, and command palette discoverability.
+
 - Creative and artifact review surfaces remain preview/review oriented unless an approved boundary is explicitly documented.
-- Model router/provider/local bridge/specialist worker/game server builder/domain pack runner/cockpit domain workspace/trading research/trading mandate/strategy lab/backtest paper trading/profit lockbox reinvestment/cockpit navigation cleanup/broker execution boundary/paper broker adapter simulator/paper trading result ledger/paper trading review dashboard/strategy performance review loop/strategy change control/strategy version registry/paper strategy promotion gate/paper trading end-to-end/cockpit trading workflow polish/controlled paper trading workspace release-candidate/video creation domain boundary/script and storyboard workspace/asset and shot planning workspace/voiceover and caption planning workspace/render job boundary/video review and export boundary/controlled video creation workspace/video backend service contract boundary/provider gateway contract/asset storage/audio storage/render queue contract/worker orchestration contract/approval rights audit contract/interactive video workspace surfaces remain preview-only, local-state, dry-run, and approval-gated. Current checkpoint coverage extends through phase 2217, including Controlled Interactive Video Workspace Completion Candidate. /codexforge-cockpit remains the one normal user UX and now includes a prominent interactive video workspace with project setup, brief, script, storyboard, shot, asset, audio, caption, brand, rights, approval, readiness, timeline, blocked backend actions, and first backend wiring readiness preview. Phase pages remain dev test diagnostics only. No routes were deleted. No smoke coverage was deleted. No backend execution was enabled. The interactive UX remains local React state only and synthetic data only; frontend persistence, browser storage writes, provider calls, model calls, connector calls, prompt sending, uploads, downloads, render, export, publish, schedule, generation, command execution, process spawning, port binding, runtime deployment, service deployment, API creation, artifact creation, artifact persistence, approval persistence, rights persistence, consent persistence, audit persistence, credential storage, token storage, and performance guarantee claims remain blocked. Latest completed batch: 2186-2217 - Interactive Video Workspace UX Mega Batch v1. Latest release candidate: Controlled Interactive Video Workspace Completion Candidate. Backend-owned persistence, provider gateway, asset/audio storage, render queue, worker orchestration, artifact export, publish gateway, approval capture, and rights consent audit ledger remain required. Operator review and explicit operator approval remain required. Next likely batch: 2218-2249 - First Backend Wiring Boundary Mega Batch v1. Models are workers; CodexForge is the brain with shared memory, knowledge, evidence, result, audit, and approval.
+
+- Model router/provider/local bridge/specialist worker/game server builder/domain pack runner/cockpit domain workspace/trading research/trading mandate/strategy lab/backtest paper trading/profit lockbox reinvestment/cockpit navigation cleanup/broker execution boundary/paper broker adapter simulator/paper trading result ledger/paper trading review dashboard/strategy performance review loop/strategy change control/strategy version registry/paper strategy promotion gate/paper trading end-to-end/cockpit trading workflow polish/controlled paper trading workspace release-candidate/video creation domain boundary/script and storyboard workspace/asset and shot planning workspace/voiceover and caption planning workspace/render job boundary/video review and export boundary/controlled video creation workspace/video backend service contract boundary/provider gateway contract/asset storage/audio storage/render queue contract/worker orchestration contract/approval rights audit contract/interactive video workspace surfaces remain preview-only, local-state, dry-run, and approval-gated. Current checkpoint coverage extends through phase 2249, including Controlled Interactive Video Workspace Completion Candidate. /codexforge-cockpit remains the one normal user UX and now includes a prominent interactive video workspace with project setup, brief, script, storyboard, shot, asset, audio, caption, brand, rights, approval, readiness, timeline, blocked backend actions, and first backend wiring readiness preview. Phase pages remain dev test diagnostics only. No routes were deleted. No smoke coverage was deleted. No backend execution was enabled. The interactive UX remains local React state only and synthetic data only; frontend persistence, browser storage writes, provider calls, model calls, connector calls, prompt sending, uploads, downloads, render, export, publish, schedule, generation, command execution, process spawning, port binding, runtime deployment, service deployment, API creation, artifact creation, artifact persistence, approval persistence, rights persistence, consent persistence, audit persistence, credential storage, token storage, and performance guarantee claims remain blocked. Latest completed batch: 2218-2249 - Jarvis Cockpit Visual Upgrade Mega Batch v1. Latest release candidate: Controlled Jarvis Cockpit Completion Candidate. Backend-owned persistence, provider gateway, asset/audio storage, render queue, worker orchestration, artifact export, publish gateway, approval capture, and rights consent audit ledger remain required. Operator review and explicit operator approval remain required. Next likely batch: 2250-2281 - First Backend Wiring Boundary Mega Batch v1. Models are workers; CodexForge is the brain with shared memory, knowledge, evidence, result, audit, and approval.
 
 ## Goals
 
@@ -66,19 +87,32 @@ Improve graph scale and clustering without weakening deterministic layout or fal
 ## Explicit Non-Goals
 
 - No unapproved file mutation.
+
 - No uncontrolled apply executor.
+
 - No LLM dependency for core safety.
+
 - No background broker execution.
+
 - No Blender execution.
+
 - No Unreal execution.
+
 - No ComfyUI execution.
+
 - No render execution.
+
 - No PC/camera control.
+
 - No provider/local/connector/automation execution without explicit operator approval and an approved boundary.
+
 - No credential/output storage in browser storage.
+
 - No memory auto-promotion.
+
 - No CI or live execution claims without terminal, CI, or approved-boundary evidence.
 
 ## Success Definition
 
 CodexForge can explain every proposed write, show every risk and approval boundary, assemble the evidence needed before guarded apply, resume interrupted operator work, and keep preview-only systems clearly separated from execution systems.
+

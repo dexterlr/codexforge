@@ -1,5 +1,4 @@
 "use client";
-
 import type { CSSProperties } from "react";
 import { ApplyRunTransactionCockpitSummaryPanel } from "../../apply-run-transaction/components";
 import { BackendExecutionQueueCockpitSummaryPanel } from "../../backend-execution-queue/components";
@@ -45,7 +44,7 @@ import { AudioStorageContractBoundaryCockpitSummaryPanel } from "../../audio-sto
 import { RenderQueueContractBoundaryCockpitSummaryPanel, WorkerOrchestrationContractBoundaryCockpitSummaryPanel } from "../../render-queue-contract-boundary/components";
 import { ArtifactExportContractBoundaryCockpitSummaryPanel, PublishGatewayContractBoundaryCockpitSummaryPanel } from "../../artifact-export-contract-boundary/components";
 import { ApprovalCaptureContractBoundaryCockpitSummaryPanel, FoundationContractsCompletionCandidateCockpitSummaryPanel, RightsConsentAuditContractBoundaryCockpitSummaryPanel } from "../../approval-capture-contract-boundary/components";
-import { InteractiveVideoWorkspaceCockpitPanel } from "../../interactive-video-workspace-shell/components";
+import { JarvisCockpitVisualCockpitPanel } from "../../jarvis-cockpit-visual-system/components";
 import { VideoCreationDomainCockpitSummaryPanel } from "../../video-creation-domain/components";
 import { TradingMandateRiskGovernorCockpitPanel } from "../../trading-mandate-risk-governor/components";
 import { TradingResearchDomainPackCockpitPanel } from "../../trading-research-domain-pack/components";
@@ -55,34 +54,42 @@ import {
   type UnifiedCockpitPanelState,
   type UnifiedCockpitRouteSlug,
 } from "../unified-cockpit-model";
-
 export function UnifiedCodexForgeCockpitPanel() {
   return (
     <section
       style={mainCockpitStack}
-      data-codexforge-cockpit-interactive-video-workspace="Interactive Video Workspace Cockpit Interactive Video Workspace Summary Local React state only Synthetic data only No backend execution No frontend persistence No browser storage writes No provider calls No model calls No connector calls No prompt sending No upload No download No render No export No publish No schedule Backend wiring required Operator review required Explicit operator approval required"
+      data-codexforge-cockpit-interactive-video-workspace="Jarvis Cockpit Visual Upgrade Interactive Video Workspace Cockpit Interactive Video Workspace Summary Local React state only Synthetic data only No backend execution No frontend persistence No browser storage writes No provider calls No model calls No connector calls No prompt sending No upload No download No render No export No publish No schedule Backend wiring required Operator review required Explicit operator approval required"
     >
-      <InteractiveVideoWorkspaceCockpitPanel />
-      <CockpitNavigationCleanupUserUxCockpitPanel />
-      <VideoBackendServiceContractBoundaryCockpitSummaryPanel />
-      <ProviderGatewayContractBoundaryCockpitSummaryPanel />
-      <AssetStorageContractBoundaryCockpitSummaryPanel />
-      <AudioStorageContractBoundaryCockpitSummaryPanel />
-      <RenderQueueContractBoundaryCockpitSummaryPanel />
-      <WorkerOrchestrationContractBoundaryCockpitSummaryPanel />
-      <ArtifactExportContractBoundaryCockpitSummaryPanel />
-      <PublishGatewayContractBoundaryCockpitSummaryPanel />
-      <ApprovalCaptureContractBoundaryCockpitSummaryPanel />
-      <RightsConsentAuditContractBoundaryCockpitSummaryPanel />
-      <FoundationContractsCompletionCandidateCockpitSummaryPanel />
+      <JarvisCockpitVisualCockpitPanel />
+      <section style={contractStatusStack} aria-label="Lower priority backend contract and diagnostic status">
+        <div style={contractStatusHeader}>
+          <p style={contractStatusEyebrow}>Contract Status Drawer</p>
+          <h2 style={contractStatusTitle}>Backend foundation status remains visible below the premium cockpit</h2>
+          <p style={contractStatusText}>
+            Provider gateway, asset and audio storage, render queue, worker orchestration, artifact export, publish
+            gateway, approval capture, rights consent, audit ledger, foundation completion, and diagnostic navigation
+            remain preserved as secondary status surfaces.
+          </p>
+        </div>
+        <CockpitNavigationCleanupUserUxCockpitPanel />
+        <VideoBackendServiceContractBoundaryCockpitSummaryPanel />
+        <ProviderGatewayContractBoundaryCockpitSummaryPanel />
+        <AssetStorageContractBoundaryCockpitSummaryPanel />
+        <AudioStorageContractBoundaryCockpitSummaryPanel />
+        <RenderQueueContractBoundaryCockpitSummaryPanel />
+        <WorkerOrchestrationContractBoundaryCockpitSummaryPanel />
+        <ArtifactExportContractBoundaryCockpitSummaryPanel />
+        <PublishGatewayContractBoundaryCockpitSummaryPanel />
+        <ApprovalCaptureContractBoundaryCockpitSummaryPanel />
+        <RightsConsentAuditContractBoundaryCockpitSummaryPanel />
+        <FoundationContractsCompletionCandidateCockpitSummaryPanel />
+      </section>
     </section>
   );
 }
-
 export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCockpitRouteSlug }) {
   const model = buildUnifiedCockpitRouteModel(routeSlug);
   const isMainCockpit = model.route.slug === "codexforge-cockpit";
-
   return (
     <section
       style={page}
@@ -100,7 +107,6 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
           blocked until explicit operator approval. Commands remain blocked until explicit operator approval.
         </p>
       </header>
-
       <section style={noticeBand} aria-label="Unified cockpit safety boundary">
         {model.globalSafetyCopy.map((copy, index) => (
           <p key={buildUnifiedCockpitStableKey(["global-safety", model.route.slug, String(index)])} style={noticeText}>
@@ -108,7 +114,6 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
           </p>
         ))}
       </section>
-
       <section style={markerBand} aria-label="Page-level cockpit markers">
         {model.route.markerPhrases.map((marker, index) => (
           <span key={buildUnifiedCockpitStableKey(["marker", model.route.slug, String(index)])} style={markerPill}>
@@ -116,7 +121,6 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
           </span>
         ))}
       </section>
-
       <section style={splitBand} aria-label="Approval and denied paths">
         <article style={plainPanel}>
           <h2 style={sectionTitle}>Operator Approval Boundary</h2>
@@ -127,7 +131,6 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
           <p style={bodyText}>{model.route.deniedCopy}</p>
         </article>
       </section>
-
       {isMainCockpit ? <CockpitDomainWorkspaceCockpitPanel /> : null}
       {isMainCockpit ? <TradingResearchDomainPackCockpitPanel /> : null}
       {isMainCockpit ? <TradingMandateRiskGovernorCockpitPanel /> : null}
@@ -178,7 +181,6 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <SpecialistWorkerRegistryCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GameServerBuilderCockpitSummaryPanel /> : null}
       {isMainCockpit ? <DomainPackRunnerCockpitSummaryPanel /> : null}
-
       {!isMainCockpit ? (
         <>
           <section style={panelStack} aria-label="Unified cockpit checklist">
@@ -216,7 +218,6 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
               </article>
             ))}
           </section>
-
           <section style={integrationBand} aria-label="Guarded spine cockpit integration">
             <h2 style={sectionTitle}>Guarded Spine Integration</h2>
             <p style={bodyText}>
@@ -233,7 +234,6 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
               </a>
             </div>
           </section>
-
           <section style={devDrawer} aria-label="Cockpit dev surface drawer">
             <div style={panelHeader}>
               <div>
@@ -267,14 +267,12 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
     </section>
   );
 }
-
 function formatState(state: UnifiedCockpitPanelState): string {
   if (state === "approval-required") return "Approval required";
   if (state === "preview-only") return "Preview only";
   if (state === "dev-test-only") return "Dev/test only";
   return "Blocked";
 }
-
 function stateStyle(state: UnifiedCockpitPanelState): CSSProperties {
   return {
     ...stateBadge,
@@ -287,7 +285,6 @@ function stateStyle(state: UnifiedCockpitPanelState): CSSProperties {
           : previewBadge),
   };
 }
-
 function smallStateStyle(state: UnifiedCockpitPanelState): CSSProperties {
   return {
     ...smallStateBadge,
@@ -300,7 +297,6 @@ function smallStateStyle(state: UnifiedCockpitPanelState): CSSProperties {
           : previewBadge),
   };
 }
-
 const page: CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -308,27 +304,59 @@ const page: CSSProperties = {
   padding: "28px",
   color: "#172026",
 };
-
 const mainCockpitStack: CSSProperties = {
   display: "grid",
   gap: 18,
   padding: 20,
-  color: "#172026",
+  color: "#e5f6ff",
+  background:
+    "radial-gradient(circle at top left, rgba(34, 211, 238, 0.14), transparent 30%), radial-gradient(circle at top right, rgba(168, 85, 247, 0.12), transparent 34%), #020617",
 };
-
+const contractStatusStack: CSSProperties = {
+  display: "grid",
+  gap: 14,
+  border: "1px solid rgba(148, 163, 184, 0.22)",
+  borderRadius: 8,
+  padding: 16,
+  background: "linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.62))",
+};
+const contractStatusHeader: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 6,
+};
+const contractStatusEyebrow: CSSProperties = {
+  margin: 0,
+  color: "#67e8f9",
+  fontSize: 12,
+  fontWeight: 900,
+  textTransform: "uppercase",
+  letterSpacing: 0,
+};
+const contractStatusTitle: CSSProperties = {
+  margin: 0,
+  color: "#f8fafc",
+  fontSize: 22,
+  lineHeight: 1.2,
+  letterSpacing: 0,
+};
+const contractStatusText: CSSProperties = {
+  margin: 0,
+  color: "#b7d7e8",
+  fontSize: 14,
+  lineHeight: 1.55,
+};
 const hero: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: 12,
   padding: "4px 0 10px",
 };
-
 const eyebrowRow: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
   gap: 8,
 };
-
 const phaseBadge: CSSProperties = {
   display: "inline-flex",
   border: "1px solid #8aa4b8",
@@ -339,21 +367,18 @@ const phaseBadge: CSSProperties = {
   color: "#233746",
   background: "#f2f7fa",
 };
-
 const devBadge: CSSProperties = {
   ...phaseBadge,
   borderColor: "#c7a553",
   color: "#5c4512",
   background: "#fff7df",
 };
-
 const title: CSSProperties = {
   margin: 0,
   fontSize: 34,
   lineHeight: 1.08,
   letterSpacing: 0,
 };
-
 const summary: CSSProperties = {
   margin: 0,
   maxWidth: 920,
@@ -361,7 +386,6 @@ const summary: CSSProperties = {
   lineHeight: 1.5,
   color: "#344854",
 };
-
 const safetyLead: CSSProperties = {
   margin: 0,
   maxWidth: 980,
@@ -369,7 +393,6 @@ const safetyLead: CSSProperties = {
   lineHeight: 1.55,
   color: "#4b5f6b",
 };
-
 const noticeBand: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
@@ -379,20 +402,17 @@ const noticeBand: CSSProperties = {
   borderRadius: 8,
   background: "#f7fbf9",
 };
-
 const noticeText: CSSProperties = {
   margin: 0,
   color: "#27423d",
   fontSize: 13,
   lineHeight: 1.45,
 };
-
 const markerBand: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
   gap: 8,
 };
-
 const markerPill: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
@@ -404,47 +424,40 @@ const markerPill: CSSProperties = {
   fontSize: 12,
   lineHeight: 1.3,
 };
-
 const splitBand: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
   gap: 14,
 };
-
 const plainPanel: CSSProperties = {
   border: "1px solid #d8dee4",
   borderRadius: 8,
   padding: 16,
   background: "#ffffff",
 };
-
 const sectionTitle: CSSProperties = {
   margin: 0,
   fontSize: 18,
   lineHeight: 1.25,
   letterSpacing: 0,
 };
-
 const bodyText: CSSProperties = {
   margin: "8px 0 0",
   color: "#425563",
   fontSize: 14,
   lineHeight: 1.55,
 };
-
 const targetBand: CSSProperties = {
   borderTop: "1px solid #e1e7ec",
   borderBottom: "1px solid #e1e7ec",
   padding: "16px 0",
 };
-
 const targetGrid: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
   gap: 8,
   marginTop: 12,
 };
-
 const targetPill: CSSProperties = {
   border: "1px solid #c9d7e3",
   borderRadius: 6,
@@ -453,19 +466,16 @@ const targetPill: CSSProperties = {
   color: "#223645",
   fontSize: 13,
 };
-
 const panelStack: CSSProperties = {
   display: "grid",
   gap: 14,
 };
-
 const panelBlock: CSSProperties = {
   border: "1px solid #d8dee4",
   borderRadius: 8,
   padding: 16,
   background: "#ffffff",
 };
-
 const panelHeader: CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
@@ -473,7 +483,6 @@ const panelHeader: CSSProperties = {
   gap: 12,
   flexWrap: "wrap",
 };
-
 const panelEyebrow: CSSProperties = {
   margin: "0 0 4px",
   color: "#60717d",
@@ -482,14 +491,12 @@ const panelEyebrow: CSSProperties = {
   textTransform: "uppercase",
   letterSpacing: 0,
 };
-
 const panelTitle: CSSProperties = {
   margin: 0,
   fontSize: 20,
   lineHeight: 1.25,
   letterSpacing: 0,
 };
-
 const stateBadge: CSSProperties = {
   border: "1px solid",
   borderRadius: 6,
@@ -497,45 +504,38 @@ const stateBadge: CSSProperties = {
   fontSize: 12,
   fontWeight: 700,
 };
-
 const smallStateBadge: CSSProperties = {
   ...stateBadge,
   flex: "0 0 auto",
   padding: "4px 6px",
   fontSize: 11,
 };
-
 const blockedBadge: CSSProperties = {
   borderColor: "#d29a9a",
   background: "#fff3f1",
   color: "#7d2c26",
 };
-
 const approvalBadge: CSSProperties = {
   borderColor: "#c7a553",
   background: "#fff8e6",
   color: "#5c4512",
 };
-
 const previewBadge: CSSProperties = {
   borderColor: "#9db8d0",
   background: "#eef6fc",
   color: "#244862",
 };
-
 const devOnlyBadge: CSSProperties = {
   borderColor: "#a8aeb8",
   background: "#f4f5f7",
   color: "#3f4852",
 };
-
 const checklistGrid: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
   gap: 12,
   marginTop: 14,
 };
-
 const checklistRow: CSSProperties = {
   display: "flex",
   alignItems: "flex-start",
@@ -543,28 +543,24 @@ const checklistRow: CSSProperties = {
   borderTop: "1px solid #edf1f4",
   paddingTop: 10,
 };
-
 const checkLabel: CSSProperties = {
   margin: 0,
   fontSize: 14,
   fontWeight: 700,
   color: "#263640",
 };
-
 const checkDetail: CSSProperties = {
   margin: "4px 0 0",
   fontSize: 13,
   lineHeight: 1.45,
   color: "#5a6a76",
 };
-
 const evidenceRail: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
   gap: 8,
   marginTop: 14,
 };
-
 const evidenceChip: CSSProperties = {
   display: "inline-flex",
   border: "1px solid #d8dee4",
@@ -574,21 +570,18 @@ const evidenceChip: CSSProperties = {
   color: "#40505c",
   fontSize: 12,
 };
-
 const integrationBand: CSSProperties = {
   border: "1px solid #cddbd7",
   borderRadius: 8,
   padding: 16,
   background: "#f8fbfa",
 };
-
 const linkRow: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
   gap: 10,
   marginTop: 12,
 };
-
 const safeLink: CSSProperties = {
   display: "inline-flex",
   border: "1px solid #b7c9d7",
@@ -600,25 +593,21 @@ const safeLink: CSSProperties = {
   fontSize: 13,
   fontWeight: 700,
 };
-
 const devDrawer: CSSProperties = {
   borderTop: "2px solid #d8dee4",
   paddingTop: 16,
 };
-
 const mainCockpitLink: CSSProperties = {
   ...safeLink,
   borderColor: "#8fb6a7",
   color: "#1f5947",
 };
-
 const devRouteGrid: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
   gap: 10,
   marginTop: 14,
 };
-
 const devRouteLink: CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -632,18 +621,15 @@ const devRouteLink: CSSProperties = {
   color: "#24333d",
   textDecoration: "none",
 };
-
 const routePhase: CSSProperties = {
   color: "#677783",
   fontSize: 12,
   fontWeight: 700,
 };
-
 const routeLabel: CSSProperties = {
   fontSize: 14,
   fontWeight: 700,
 };
-
 const routeCommand: CSSProperties = {
   color: "#51626e",
   fontSize: 12,
