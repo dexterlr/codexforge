@@ -23,6 +23,9 @@ import { ProviderGatewayContractBoundaryCockpitSummaryPanel } from "../../provid
 import { AssetStorageContractBoundaryCockpitSummaryPanel } from "../../asset-storage-contract-boundary/components";
 import { AudioStorageContractBoundaryCockpitSummaryPanel } from "../../audio-storage-contract-boundary/components";
 import { ScriptAndStoryboardWorkspaceCockpitSummaryPanel } from "../../script-and-storyboard-workspace/components";
+import { RenderQueueContractBoundaryCockpitSummaryPanel, WorkerOrchestrationContractBoundaryCockpitSummaryPanel } from "../../render-queue-contract-boundary/components";
+import { ArtifactExportContractBoundaryCockpitSummaryPanel, PublishGatewayContractBoundaryCockpitSummaryPanel } from "../../artifact-export-contract-boundary/components";
+import { ApprovalCaptureContractBoundaryCockpitSummaryPanel, FoundationContractsCompletionCandidateCockpitSummaryPanel, RightsConsentAuditContractBoundaryCockpitSummaryPanel } from "../../approval-capture-contract-boundary/components";
 import { VideoCreationDomainCockpitSummaryPanel } from "../../video-creation-domain/components";
 import {
   buildCockpitNavigationCleanupRouteModel,
@@ -117,7 +120,7 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
         />
         <WorkspacePanel
           title="Creative Workspace"
-          summary="Creative Workspace starts with the Video Creation Domain as a review-only, planning-only lane, keeps Script And Storyboard Workspace, Asset And Shot Planning Workspace, Voiceover And Caption Planning Workspace, Render Job Boundary, and Video Review And Export Boundary intact, keeps Controlled Video Creation Workspace and Provider Gateway Contract grouped as backend contract review content, and now adds Asset Storage Contract and Audio Storage Contract summaries. It shows asset intake schema, asset metadata schema, asset rights tagging, malware scan, deduplication, access policy, retention and redaction, asset handoff and audit, frontend asset persistence blocked, audio intake schema, audio metadata schema, consent and rights tagging, transcript and caption links, audio redaction retention access, audio handoff and audit, frontend audio persistence blocked, and denied paths. No upload controls, download controls, storage controls, API controls, service controls, command controls, provider controls, model controls, connector controls, voice controls, transcription controls, caption controls, or hidden execution affordances are present."
+          summary="Creative Workspace starts with the Video Creation Domain as a review-only, planning-only lane, keeps Script And Storyboard Workspace, Asset And Shot Planning Workspace, Voiceover And Caption Planning Workspace, Render Job Boundary, and Video Review And Export Boundary intact, keeps Controlled Video Creation Workspace and Provider Gateway Contract grouped as backend contract review content, and now adds Asset Storage Contract, Audio Storage Contract, Render Queue Contract, Worker Orchestration Contract, Artifact Export Contract, Publish Gateway Contract, Approval Capture Contract, Rights Consent Audit Contract, and Foundation Contracts Completion summaries. It shows approval request schema, operator attestation, multi-step approval chain, expiration and revocation, evidence packet, denial ledger, escalation policy, approval audit, frontend approval persistence blocked, rights evidence, consent evidence, likeness consent, music rights, brand/legal review, license policy, consent expiration and revocation, immutable audit ledger, audit redaction and retention, frontend rights consent persistence blocked, unified release gate, foundation contracts completion candidate, and denied paths. No upload controls, download controls, storage controls, approval controls, signature controls, rights clearance controls, consent approval controls, license grant controls, legal approval controls, audit persistence controls, export controls, publish controls, render controls, API controls, service controls, command controls, provider controls, model controls, connector controls, token controls, account authorization controls, voice controls, transcription controls, caption controls, or hidden execution affordances are present."
           items={[
             "Video Creation Domain",
             "Script And Storyboard Workspace",
@@ -146,6 +149,33 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             "Audio Redaction Retention Access",
             "Audio Handoff And Audit",
             "Frontend Audio Persistence Blocked",
+            "Render Queue Contract",
+            "Worker Orchestration Contract",
+            "Artifact Export Contract",
+            "Publish Gateway Contract",
+            "Approval Capture Contract",
+            "Approval Request Schema",
+            "Operator Attestation",
+            "Multi Step Approval Chain",
+            "Approval Expiration And Revocation",
+            "Approval Evidence Packet",
+            "Approval Denial Ledger",
+            "Approval Escalation Policy",
+            "Approval Audit Event",
+            "Frontend Approval Persistence Blocked",
+            "Rights Consent Audit Contract",
+            "Rights Evidence Schema",
+            "Consent Evidence Schema",
+            "Likeness Consent Contract",
+            "Music Rights Contract",
+            "Brand Legal Review Contract",
+            "Usage License Policy",
+            "Consent Expiration And Revocation",
+            "Immutable Audit Ledger",
+            "Audit Redaction And Retention",
+            "Frontend Rights Consent Persistence Blocked",
+            "Unified Approval Rights Audit Release Gate",
+            "Controlled Foundation Contracts Completion Candidate",
             "Video Workspace Release Map",
             "Video Workspace Safe State Overview",
             "Video Script Lane Summary",
@@ -246,6 +276,13 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
       <ProviderGatewayContractBoundaryCockpitSummaryPanel />
       <AssetStorageContractBoundaryCockpitSummaryPanel />
       <AudioStorageContractBoundaryCockpitSummaryPanel />
+      <RenderQueueContractBoundaryCockpitSummaryPanel />
+      <WorkerOrchestrationContractBoundaryCockpitSummaryPanel />
+      <ArtifactExportContractBoundaryCockpitSummaryPanel />
+      <PublishGatewayContractBoundaryCockpitSummaryPanel />
+      <ApprovalCaptureContractBoundaryCockpitSummaryPanel />
+      <RightsConsentAuditContractBoundaryCockpitSummaryPanel />
+      <FoundationContractsCompletionCandidateCockpitSummaryPanel />
 
       <section style={quickActionBand} aria-label="Cockpit quick actions">
         <div style={panelHeader}>
@@ -296,10 +333,8 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             </a>
           </div>
           <p style={bodyText}>
-            Current checkpoint: through phase 2025. Latest batch: 2010-2025 - Controlled Video Creation Workspace
-            Release Candidate v1. Latest release candidate: Controlled Video Creation Workspace Release Candidate. The
-            cockpit now includes the complete safe controlled video creation workspace release candidate below Video
-            Review And Export Boundary. Controlled video creation workspace remains review-only, video creation remains
+            Current checkpoint: through phase 2185. Latest batch: 2154-2185 - Approval Capture + Rights Consent + Audit Ledger Mega Batch v1. Latest release candidate: Controlled Foundation Contracts Completion Candidate. The
+            cockpit now includes safe approval capture, rights consent, audit ledger, unified release gate, and foundation contracts completion previews below Publish Gateway Contract. Controlled video creation workspace remains review-only, video creation remains
             planning-only, and synthetic data only. Frontend generation, prompt sending, provider calls, model calls,
             connector calls, image generation, video generation, voice generation, final script generation, rendering,
             render queue creation, worker dispatch, artifact creation, artifact persistence, export, download, upload,
@@ -309,8 +344,8 @@ export function CockpitNavigationCleanupUserUxCockpitPanel() {
             persistence, and performance guarantees remain blocked. Backend-owned asset storage, audio storage, render
             service, export service, provider gateway, rights review, consent review, approval capture, script
             persistence, storyboard persistence, caption persistence, render queue, worker orchestration, artifact
-            storage, publish gateway, paper workflow, promotion workflow, broker adapter, credential vault, and audit
-            trail remain required. Full smoke is not claimed here unless full smoke has passed.
+            storage, publish gateway, approval capture, rights workflow, consent workflow, legal review, immutable audit ledger, redaction policy, retention policy, paper workflow, promotion workflow, broker adapter, credential vault, and audit
+            trail remain required. No approval persistence from frontend, no signature capture from frontend, no identity verification from frontend, no rights clearance from frontend, no consent approval from frontend, no license grant from frontend, no legal approval from frontend, no audit persistence from frontend, no evidence storage from frontend, and no export publish render from frontend. Full smoke is not claimed here unless full smoke has passed.
           </p>
         </article>
       </section>

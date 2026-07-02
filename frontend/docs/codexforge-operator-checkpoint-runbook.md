@@ -59,7 +59,42 @@ $phases | Sort-Object -Descending | Select-Object -First 1
 
 Update checkpoint docs to the actual highest detected phase. If phases 1114-1129 are present and no higher phase exists, document the checkpoint as through phase 1129 and describe the simulated command execution dry-run review layer: Simulated Command Execution Boundary, Simulated Command Intent Packet, Simulated Command Plan Packet, Simulated Command Argument Review, Simulated Command Environment Review, Simulated Command Working Directory Review, Simulated Command Risk Review, Simulated Command Evidence Preview, Simulated Command Result Preview, Simulated Command Failure Preview, Simulated Command Recovery Preview, Simulated Command Operator Review, Simulated Command Execution Hold State, Simulated Command Validation Preview, First Simulated Command Candidate, and Controlled Simulated Command Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, not auto-approved, not persisted as approval decisions, and not allowed to create queue jobs, persist queue state, release locks, run dry-runs, run validation, make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, project adapter execution, game adapter execution, domain adapter execution, file writes, file updates, file deletes, file moves, patch applies, command execution, shell execution, git execution, test execution, build execution, smoke execution, runtime starts, app scaffolds, website publishing, live data connections, tool creation, research browsing, automation creation, asset rendering, trading or broker calls, data ingestion, documentation export, integration connections, evidence/result/model-output persistence, recovery triggers, packaging/export, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, arbitrary path crawling, arbitrary local file browsing, auto-open local files, real path mutation, environment value reads, secret display, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported target language must remain broad and cover games, apps, websites, dashboards, tools, research packs, automation workflows, creative workflows, trading workspaces, data workspaces, documentation packs, integrations, and general local projects.
 
-Current checkpoint note: through phase 2121 with the latest completed batch recorded as 2090-2121 - Render Queue + Worker Orchestration Contract Mega Batch v1 and latest release candidate recorded as Controlled Worker Orchestration Contract Release Candidate. The cockpit now includes safe render queue and worker orchestration contract previews below Audio Storage Contract inside Creative Workspace / Backend Contracts. Render and worker contracts remain review-only. No queue creation from frontend, no job creation from frontend, no job persistence from frontend, no worker dispatch from frontend, no command execution from frontend, no process spawning from frontend, no port binding from frontend, no runtime deployment from frontend, no service deployment from frontend, no artifact creation from frontend, no artifact persistence from frontend, no telemetry persistence from frontend, and no audit persistence from frontend. Backend-owned render queue remains required, backend-owned worker orchestration remains required, backend-owned runtime isolation remains required, backend-owned sandbox policy remains required, backend-owned telemetry remains required, backend-owned failure ledger remains required, backend-owned artifact storage remains required, backend-owned approval capture remains required, operator review remains required, and explicit operator approval remains required. Video creation workspace remains review-only and planning-only. Trading workspace remains review-only and no-live-transition. Next likely batch: 2122-2153 - Artifact Export + Publish Gateway Contract Mega Batch v1.
+Current checkpoint note: through phase 2185 with the latest completed batch recorded as 2154-2185 - Approval Capture + Rights Consent + Audit Ledger Mega Batch v1 and latest release candidate recorded as Controlled Foundation Contracts Completion Candidate. The cockpit now includes safe approval capture rights consent and audit ledger contract previews below Publish Gateway Contract inside Creative Workspace / Backend Contracts. Approval rights consent audit contracts remain review-only. No approval persistence from frontend, no signature capture from frontend, no identity verification from frontend, no rights clearance from frontend, no consent approval from frontend, no license grant from frontend, no legal approval from frontend, no audit persistence from frontend, no evidence storage from frontend, and no export publish render from frontend. Backend-owned approval capture remains required, backend-owned rights workflow remains required, backend-owned consent workflow remains required, backend-owned legal review remains required, backend-owned immutable audit ledger remains required, backend-owned redaction and retention policy remains required, operator review remains required, and explicit operator approval remains required. Video creation workspace remains review-only and planning-only. Trading workspace remains review-only and no-live-transition. Next likely batch: 2186-2217 - Interactive Video Workspace UX Mega Batch v1.
+
+The current phase ledger includes the latest approval rights audit contract batch:
+
+- Phase 2154 - Approval Capture Contract Boundary.
+- Phase 2155 - Approval Request Schema Preview.
+- Phase 2156 - Operator Attestation Preview.
+- Phase 2157 - Multi Step Approval Chain Preview.
+- Phase 2158 - Approval Expiration Policy Preview.
+- Phase 2159 - Approval Revocation Policy Preview.
+- Phase 2160 - Approval Evidence Packet Preview.
+- Phase 2161 - Approval Denial Ledger Preview.
+- Phase 2162 - Approval Escalation Policy Preview.
+- Phase 2163 - Approval Audit Event Preview.
+- Phase 2164 - Frontend Approval Persistence Blocked Preview.
+- Phase 2165 - Cockpit Approval Capture Contract Summary.
+- Phase 2166 - First Approval Capture Contract Candidate.
+- Phase 2167 - Controlled Approval Capture Contract Release Candidate.
+- Phase 2168 - Rights Consent Audit Contract Boundary.
+- Phase 2169 - Rights Evidence Schema Preview.
+- Phase 2170 - Consent Evidence Schema Preview.
+- Phase 2171 - Likeness Consent Contract Preview.
+- Phase 2172 - Music Rights Contract Preview.
+- Phase 2173 - Brand Legal Review Contract Preview.
+- Phase 2174 - Usage License Policy Preview.
+- Phase 2175 - Consent Expiration Policy Preview.
+- Phase 2176 - Consent Revocation Policy Preview.
+- Phase 2177 - Immutable Audit Ledger Preview.
+- Phase 2178 - Audit Redaction Policy Preview.
+- Phase 2179 - Audit Retention Policy Preview.
+- Phase 2180 - Frontend Rights Consent Persistence Blocked Preview.
+- Phase 2181 - Cockpit Rights Consent Audit Contract Summary.
+- Phase 2182 - First Rights Consent Audit Contract Candidate.
+- Phase 2183 - Controlled Rights Consent Audit Contract Release Candidate.
+- Phase 2184 - Unified Approval Rights Audit Release Gate Preview.
+- Phase 2185 - Controlled Foundation Contracts Completion Candidate.
 
 The current phase ledger is:
 
