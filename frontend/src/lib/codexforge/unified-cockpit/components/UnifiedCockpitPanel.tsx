@@ -37,6 +37,7 @@ import { AssetAndShotPlanningWorkspaceCockpitSummaryPanel } from "../../asset-an
 import { VoiceoverAndCaptionPlanningWorkspaceCockpitSummaryPanel } from "../../voiceover-and-caption-planning-workspace/components";
 import { RenderJobBoundaryCockpitSummaryPanel } from "../../render-job-boundary/components";
 import { VideoReviewAndExportBoundaryCockpitSummaryPanel } from "../../video-review-and-export-boundary/components";
+import { ControlledVideoCreationWorkspaceCockpitSummaryPanel } from "../../controlled-video-creation-workspace/components";
 import { VideoCreationDomainCockpitSummaryPanel } from "../../video-creation-domain/components";
 import { TradingMandateRiskGovernorCockpitPanel } from "../../trading-mandate-risk-governor/components";
 import { TradingResearchDomainPackCockpitPanel } from "../../trading-research-domain-pack/components";
@@ -123,6 +124,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <VoiceoverAndCaptionPlanningWorkspaceCockpitSummaryPanel /> : null}
       {isMainCockpit ? <RenderJobBoundaryCockpitSummaryPanel /> : null}
       {isMainCockpit ? <VideoReviewAndExportBoundaryCockpitSummaryPanel /> : null}
+      {isMainCockpit ? <ControlledVideoCreationWorkspaceCockpitSummaryPanel /> : null}
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}
