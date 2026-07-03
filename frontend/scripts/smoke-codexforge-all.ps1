@@ -145,6 +145,7 @@ try {
   @{ Name = "Validation Runner"; File = "smoke-codexforge-validation-runner.ps1"; Required = $true },
   @{ Name = "Brain Mutation Governance"; File = "smoke-codexforge-brain-mutation-governance.ps1"; Required = $true },
   @{ Name = "Command Palette"; File = "smoke-codexforge-command-palette.ps1"; Required = $true },
+  @{ Name = "Main Pages God Tier UX Upgrade"; File = "smoke-codexforge-main-pages-god-tier-ux.ps1"; Required = $true },
   @{ Name = "Regression Triage"; File = "smoke-codexforge-regression-triage.ps1"; Required = $true },
   @{ Name = "Regression Fix Queue"; File = "smoke-codexforge-regression-fix-queue.ps1"; Required = $true },
   @{ Name = "Noninteractive Smoke Runner"; File = "smoke-codexforge-noninteractive-smoke-runner.ps1"; Required = $true },

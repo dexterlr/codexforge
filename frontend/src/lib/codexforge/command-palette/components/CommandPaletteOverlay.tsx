@@ -27,7 +27,8 @@ export function CommandPaletteOverlay({
 
 const backdrop: CSSProperties = {
   alignItems: "start",
-  background: "rgba(2,6,23,0.74)",
+  background:
+    "radial-gradient(720px 420px at 24% 12%, rgba(45,212,191,0.16), transparent 60%), rgba(2,6,23,0.82)",
   display: "grid",
   inset: 0,
   justifyItems: "center",
@@ -38,10 +39,11 @@ const backdrop: CSSProperties = {
 };
 
 const panel: CSSProperties = {
-  border: "1px solid rgba(125,211,252,0.2)",
-  background: "linear-gradient(145deg, rgba(3,7,18,0.98), rgba(15,23,42,0.96))",
+  border: "1px solid rgba(94,234,212,0.26)",
+  background:
+    "linear-gradient(145deg, rgba(3,7,18,0.98), rgba(15,23,42,0.96) 56%, rgba(8,47,73,0.82))",
   borderRadius: 8,
-  boxShadow: "0 28px 80px rgba(0,0,0,0.44)",
+  boxShadow: "0 34px 110px rgba(0,0,0,0.52), 0 0 34px rgba(45,212,191,0.08)",
   color: "#f8fafc",
   display: "grid",
   gap: 12,

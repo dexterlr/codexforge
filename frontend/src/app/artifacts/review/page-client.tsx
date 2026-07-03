@@ -3,6 +3,10 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { CreativeArtifactReviewBoard } from "@/lib/codexforge/creative-artifact-review";
+import {
+  GuardedVideoPipelineRail,
+  MainPagesGodTierUxStatusRail,
+} from "@/lib/codexforge/main-pages-god-tier-ux";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 
 export default function ArtifactsReviewPageClient() {
@@ -19,6 +23,8 @@ export default function ArtifactsReviewPageClient() {
       showSidebarSafetyNotice={false}
     >
       <span hidden data-codexforge-artifact-review-friendly-copy="Review artifact provenance safety handoff Review first" />
+      <MainPagesGodTierUxStatusRail title="Artifact review safety posture" tone="review" />
+      <GuardedVideoPipelineRail title="Artifact review guarded pipeline" compact />
       <Link href="/start" style={wizardLink}>Back to wizard: artifact review flow</Link>
       <CreativeArtifactReviewBoard />
     </CodexForgeAppShell>

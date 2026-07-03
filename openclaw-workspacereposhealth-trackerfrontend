@@ -1,0 +1,61 @@
+warning: in the working copy of 'frontend/scripts/smoke-codexforge-all.ps1', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/ai-providers/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/ai-router/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/artifacts/review/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/assist/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/codexforge-cockpit/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/first-task/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/local-creative/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/local-machine/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/onboarding/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/render-queue/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/result-history/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/review-inbox/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/run-history/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/start/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/storyboard/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/video-export/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/video-jobs/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/video-projects/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/video-review/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/workflow-results/page-client.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/command-palette/components/CodexForgeCommandPalette.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/command-palette/components/CommandPaletteOverlay.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/command-palette/components/CommandPaletteTrigger.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/jarvis-cockpit-visual-system/components/JarvisCockpitVisualPanel.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/navigation-shell/components/CodexForgeAppShell.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/operator-home/components/OperatorHomeDashboard.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/operator-home/components/OperatorHomeHero.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/lib/codexforge/unified-cockpit/components/UnifiedCockpitPanel.tsx', LF will be replaced by CRLF the next time Git touches it
+ frontend/scripts/smoke-codexforge-all.ps1          |   1 [32m+[m
+ frontend/src/app/ai-providers/page-client.tsx      |  14 [32m+[m[31m-[m
+ frontend/src/app/ai-router/page-client.tsx         |  13 [32m++[m
+ frontend/src/app/artifacts/review/page-client.tsx  |   6 [32m+[m
+ frontend/src/app/assist/page-client.tsx            |  20 [32m+[m[31m-[m
+ .../src/app/codexforge-cockpit/page-client.tsx     |   2 [32m+[m
+ frontend/src/app/first-task/page-client.tsx        |  11 [32m++[m
+ frontend/src/app/local-creative/page-client.tsx    |   6 [32m+[m
+ frontend/src/app/local-machine/page-client.tsx     |   6 [32m+[m
+ frontend/src/app/onboarding/page-client.tsx        |  26 [32m++[m[31m-[m
+ frontend/src/app/page-client.tsx                   |   2 [32m+[m
+ frontend/src/app/render-queue/page-client.tsx      |   2 [32m+[m
+ frontend/src/app/result-history/page-client.tsx    |  11 [32m++[m
+ frontend/src/app/review-inbox/page-client.tsx      |  20 [32m+[m[31m-[m
+ frontend/src/app/run-history/page-client.tsx       |  29 [32m++[m[31m-[m
+ frontend/src/app/start/page-client.tsx             |  25 [32m+[m[31m--[m
+ frontend/src/app/storyboard/page-client.tsx        |   3 [32m+[m[31m-[m
+ frontend/src/app/video-export/page-client.tsx      |   2 [32m+[m
+ frontend/src/app/video-jobs/page-client.tsx        |   2 [32m+[m
+ frontend/src/app/video-projects/page-client.tsx    |   2 [32m+[m
+ frontend/src/app/video-review/page-client.tsx      |   2 [32m+[m
+ frontend/src/app/workflow-results/page-client.tsx  |  26 [32m+[m[31m--[m
+ .../components/CodexForgeCommandPalette.tsx        |   2 [32m+[m[31m-[m
+ .../components/CommandPaletteOverlay.tsx           |  10 [32m+[m[31m-[m
+ .../components/CommandPaletteTrigger.tsx           |   5 [32m+[m[31m-[m
+ .../components/JarvisCockpitVisualPanel.tsx        |   2 [32m+[m[31m-[m
+ .../components/CodexForgeAppShell.tsx              |   2 [32m+[m[31m-[m
+ .../components/OperatorHomeDashboard.tsx           |  10 [32m+[m[31m-[m
+ .../operator-home/components/OperatorHomeHero.tsx  | 217 [32m+++++[m[31m----------------[m
+ .../components/UnifiedCockpitPanel.tsx             |   1 [32m+[m
+ 30 files changed, 226 insertions(+), 254 deletions(-)

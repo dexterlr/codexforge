@@ -97,7 +97,7 @@ export function CodexForgeAppShell({
 
   return (
     <main
-      data-codexforge-app-shell="CodexForgeAppShell renders unified navigation shell local-first operator-safe no auto-fix no command execution without approval no file writes without approval preserve latest-message authority"
+      data-codexforge-app-shell="CodexForgeAppShell renders unified navigation shell local-first operator-safe no auto-fix no command execution without approval no file writes without approval preserve latest-message authority Main Pages God Tier UX Upgrade operator-grade navigation review-only UX upgrade"
       style={page}
     >
       <div

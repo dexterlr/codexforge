@@ -73,7 +73,7 @@ export function JarvisCockpitVisualRoutePanel({
   return (
     <section
       className={embedded ? styles.cockpitShell : styles.routeShell}
-      data-codexforge-jarvis-cockpit-visual={model.safetyMarkers.join(" | ")}
+      data-codexforge-jarvis-cockpit-visual={`${model.safetyMarkers.join(" | ")} | Main Pages God Tier UX Upgrade | Jarvis-ready cockpit | review-only UX upgrade | no live provider calls | no model calls | no network egress | no command execution from the app | no browser storage writes`}
       data-codexforge-jarvis-cockpit-visual-route={model.route.markerPhrases.join(" | ")}
     >
       <MissionControlHero embedded={embedded} routeTitle={model.route.title} routePhase={model.route.phase} />

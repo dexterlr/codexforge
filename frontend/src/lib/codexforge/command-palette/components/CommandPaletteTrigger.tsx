@@ -20,8 +20,8 @@ export function CommandPaletteTrigger({ onOpen }: { onOpen: () => void }) {
 
 const trigger: CSSProperties = {
   alignItems: "center",
-  border: "1px solid rgba(45,212,191,0.22)",
-  background: "rgba(20,184,166,0.09)",
+  border: "1px solid rgba(94,234,212,0.3)",
+  background: "linear-gradient(135deg, rgba(20,184,166,0.16), rgba(14,165,233,0.1))",
   borderRadius: 8,
   color: "#ecfeff",
   cursor: "pointer",
@@ -31,6 +31,7 @@ const trigger: CSSProperties = {
   justifyContent: "space-between",
   minWidth: 0,
   padding: "9px 10px",
+  boxShadow: "0 14px 36px rgba(20,184,166,0.08)",
 };
 
 const label: CSSProperties = {

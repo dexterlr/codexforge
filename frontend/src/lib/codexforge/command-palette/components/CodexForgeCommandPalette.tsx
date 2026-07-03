@@ -105,7 +105,7 @@ export function CodexForgeCommandPalette({
 
   return (
     <div
-      data-codexforge-command-palette="CodexForgeCommandPalette renders Command Palette Ctrl+K Cmd+K Escape no command execution without approval no file writes without approval preserve latest-message authority"
+      data-codexforge-command-palette="CodexForgeCommandPalette renders Command Palette Ctrl+K Cmd+K Escape no command execution without approval no file writes without approval preserve latest-message authority Main Pages God Tier UX Upgrade premium command center review-only UX upgrade"
       style={root}
     >
       <CommandPaletteTrigger onOpen={() => setOpen(true)} />

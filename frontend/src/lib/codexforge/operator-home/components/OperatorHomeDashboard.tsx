@@ -2,6 +2,10 @@
 
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
+import {
+  GuardedVideoPipelineRail,
+  MainPagesGodTierUxStatusRail,
+} from "@/lib/codexforge/main-pages-god-tier-ux";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import {
   buildOperatorHomeSummary,
@@ -42,7 +46,7 @@ export function OperatorHomeDashboard({ summary: providedSummary }: OperatorHome
     >
       <div
         style={contentShell}
-        data-codexforge-operator-home-dashboard="OperatorHomeDashboard renders CodexForgeAppShell Command Palette local-first operator-safe no auto-fix no command execution without approval no file writes without approval preserve latest-message authority"
+        data-codexforge-operator-home-dashboard="OperatorHomeDashboard renders CodexForgeAppShell Command Palette local-first operator-safe no auto-fix no command execution without approval no file writes without approval preserve latest-message authority Main Pages God Tier UX Upgrade operator-grade navigation"
       >
         <OperatorHomeHero
           surface={summary.surface}
@@ -52,6 +56,8 @@ export function OperatorHomeDashboard({ summary: providedSummary }: OperatorHome
         />
 
         <OperatorHomeStatusStrip health={summary.health} />
+        <MainPagesGodTierUxStatusRail title="Operator-grade navigation and execution boundaries" tone="home" />
+        <GuardedVideoPipelineRail compact />
 
         <div style={layout}>
           <div style={mainColumn}>
@@ -101,7 +107,7 @@ const layout: CSSProperties = {
   alignItems: "start",
   display: "grid",
   gap: 16,
-  gridTemplateColumns: "minmax(0, 1fr) minmax(280px, 420px)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
   minWidth: 0,
   width: "100%",
 };
