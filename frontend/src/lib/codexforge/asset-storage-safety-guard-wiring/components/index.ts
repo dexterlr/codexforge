@@ -1,0 +1,1 @@
+export { AssetStorageSafetyGuardWiringPanel } from "./AssetStorageSafetyGuardWiringPanel";

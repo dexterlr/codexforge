@@ -1,0 +1,1 @@
+export { AssetStorageCockpitAlignmentWiringPanel } from "./AssetStorageCockpitAlignmentWiringPanel";

@@ -1,0 +1,1 @@
+export { AssetStorageApprovalBoundaryWiringPanel } from "./AssetStorageApprovalBoundaryWiringPanel";
