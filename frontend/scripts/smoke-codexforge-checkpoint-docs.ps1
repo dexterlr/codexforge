@@ -199,9 +199,19 @@ foreach ($needle in @(
   "No prompt sending",
   "No streaming",
   "No credential storage",
-  "No token storage"
+  "No token storage",
+  "2538-2569 - First Approved Provider Trial Mega Batch v1",
+  "First Approved Provider Trial Completion Candidate",
+  "First Approved Provider Trial",
+  "Review-only first approved provider trial",
+  "Synthetic approved provider trial data only",
+  "first approved provider trial remains synthetic and review-only",
+  "approved provider trial remains backend-owned and blocked",
+  "Provider Result Review + Recovery Mega Batch v1",
+  "explicit operator approval required",
+  "audit trail required"
 )) {
-  Assert-Contains $docsCombined $needle "docs mention provider mock result checkpoint $needle"
+  Assert-Contains $docsCombined $needle "docs mention checkpoint $needle"
 }
 
 Assert-Contains $docsCombined "C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend" "canonical workspace path"
