@@ -5,6 +5,7 @@ import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { InteractiveVideoWorkspaceCockpitPanel } from "../../interactive-video-workspace-shell/components";
 import { BackendWiringReadinessCockpitSection } from "../../first-backend-wiring-boundary-map/components";
 import { ProviderGatewayReadinessCockpitSection } from "../../provider-gateway-wiring-map/components";
+import { ProviderBackendAdapterContractCockpitSection } from "../../provider-backend-adapter-contract-map/components";
 import {
   JARVIS_BLOCKED_COMMANDS,
   JARVIS_COMMAND_SURFACES,
@@ -108,6 +109,7 @@ export function JarvisCockpitVisualRoutePanel({
       </section>
       <BackendWiringReadinessCockpitSection />
       <ProviderGatewayReadinessCockpitSection />
+      <ProviderBackendAdapterContractCockpitSection />
       <ReadinessOrbCluster />
       <WorkflowTimeline />
       <section className={styles.cockpitGrid} aria-label="Project brief storyboard and status matrix">
