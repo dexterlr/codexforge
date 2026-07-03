@@ -6,7 +6,7 @@ CodexForge is a local-first AI developer/operator workspace. It provides fronten
 
 ## Current State
 
-Current checkpoint: through phase 2377, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest completed batch is 2346-2377 - First Provider Adapter Dry Run Harness Mega Batch v1. Latest release candidate: Controlled Provider Adapter Dry Run Completion Candidate. /codexforge-cockpit keeps the premium Jarvis command area, backend wiring readiness rail, Provider Gateway Wiring readiness section, Provider Backend Adapter Contract readiness section, and Provider Adapter Dry Run Harness section. No live provider execution exists yet. No provider calls from frontend. No model calls from frontend. No prompt sending. No streaming. No credential storage. No token storage. The dry run harness remains synthetic and review-only. Provider dry run remains backend-owned. Explicit operator approval required. Audit trail required. Next likely batch: 2378-2409 - Provider Adapter Mock Result Harness Mega Batch v1.
+Current checkpoint: through phase 2409, detected from the local `frontend/scripts/smoke-codexforge-all.ps1` registry by taking the highest `Phase N` entry. The latest completed batch is 2378-2409 - Provider Adapter Mock Result Harness Mega Batch v1. Latest release candidate: Controlled Provider Mock Result Harness Completion Candidate. /codexforge-cockpit keeps the premium Jarvis command area, backend wiring readiness rail, Provider Gateway Wiring readiness section, Provider Backend Adapter Contract readiness section, Provider Adapter Dry Run Harness section, and Provider Adapter Mock Result Harness section. No live provider execution exists yet. No provider calls from frontend. No model calls from frontend. No prompt sending. No streaming. No credential storage. No token storage. The dry run harness remains synthetic and review-only. Provider dry run remains backend-owned. The mock result harness remains synthetic and review-only. Synthetic provider mock result data only. Provider mock result handling remains backend-owned. Explicit operator approval required. Audit trail required. Next likely batch: 2410-2441 - Provider Approval/Audit Enforcement Boundary Mega Batch v1.
 
 CodexForge currently includes deterministic frontend review and approval surfaces for:
 
@@ -80,8 +80,8 @@ git diff --stat
 
 ## Roadmap
 
-- Current checkpoint: documentation and hygiene alignment through detected phase 1785.
-- Next milestone: 1786-1801 - Paper Trading Review Dashboard. Keep paper trading result ledger, backend execution queue, model/provider/router, local model, connector, automation, trading, backtest, paper trading, profit lockbox, reinvestment rules, unified workflow, and beta operator surfaces preview-only or review-only while defining any approved backend/local/provider/broker/result-ledger/evidence boundaries before claiming execution.
+- Current checkpoint: documentation and hygiene alignment through detected phase 2409.
+- Next milestone: 2410-2441 - Provider Approval/Audit Enforcement Boundary Mega Batch v1. Keep the provider mock result harness synthetic and review-only and do not enable live provider execution, provider calls, model calls, prompt sending, streaming, credential storage, token storage, frontend persistence, browser storage writes, connector calls, queue dispatch, worker dispatch, service creation, API creation, hidden execution affordances, or performance guarantee claims.
 - Do not claim live execution unless an approved local/backend/provider boundary exists.
 - Do not claim CI passed unless actual CI or terminal logs prove it.
 

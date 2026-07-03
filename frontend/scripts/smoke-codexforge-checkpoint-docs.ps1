@@ -170,8 +170,13 @@ foreach ($needle in @(
   "2346-2377 - First Provider Adapter Dry Run Harness Mega Batch v1",
   "Controlled Provider Adapter Dry Run Completion Candidate",
   "2378-2409 - Provider Adapter Mock Result Harness Mega Batch v1",
+  "Controlled Provider Mock Result Harness Completion Candidate",
+  "2410-2441 - Provider Approval/Audit Enforcement Boundary Mega Batch v1",
   "The dry run harness remains synthetic and review-only",
   "Provider dry run remains backend-owned",
+  "The mock result harness remains synthetic and review-only",
+  "Synthetic provider mock result data only",
+  "Provider mock result handling remains backend-owned",
   "No live provider execution exists yet",
   "No model calls from frontend",
   "No prompt sending",
@@ -179,7 +184,7 @@ foreach ($needle in @(
   "No credential storage",
   "No token storage"
 )) {
-  Assert-Contains $docsCombined $needle "docs mention provider adapter dry run checkpoint $needle"
+  Assert-Contains $docsCombined $needle "docs mention provider mock result checkpoint $needle"
 }
 
 Assert-Contains $docsCombined "C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend" "canonical workspace path"
