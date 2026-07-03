@@ -1,0 +1,1 @@
+export { ProviderGatewayCockpitAlignmentHardeningPanel } from "./ProviderGatewayCockpitAlignmentHardeningPanel";
