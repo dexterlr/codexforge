@@ -54,18 +54,19 @@ import {
   type UnifiedCockpitPanelState,
   type UnifiedCockpitRouteSlug,
 } from "../unified-cockpit-model";
+import styles from "./UnifiedCockpitPanel.module.css";
 export function UnifiedCodexForgeCockpitPanel() {
   return (
     <section
-      style={mainCockpitStack}
+      className={styles.mainCockpitStack}
       data-codexforge-cockpit-interactive-video-workspace="Jarvis Cockpit Visual Upgrade Interactive Video Workspace Cockpit Interactive Video Workspace Summary Local React state only Synthetic data only No backend execution No frontend persistence No browser storage writes No provider calls No model calls No connector calls No prompt sending No upload No download No render No export No publish No schedule Backend wiring required Operator review required Explicit operator approval required"
     >
       <JarvisCockpitVisualCockpitPanel />
-      <section style={contractStatusStack} aria-label="Lower priority backend contract and diagnostic status">
-        <div style={contractStatusHeader}>
-          <p style={contractStatusEyebrow}>Contract Status Drawer</p>
-          <h2 style={contractStatusTitle}>Backend foundation status remains visible below the premium cockpit</h2>
-          <p style={contractStatusText}>
+      <section className={styles.contractStatusStack} aria-label="Lower priority backend contract and diagnostic status">
+        <div className={styles.contractStatusHeader}>
+          <p className={styles.contractStatusEyebrow}>Contract Status Drawer</p>
+          <h2 className={styles.contractStatusTitle}>Backend foundation status remains visible below the premium cockpit</h2>
+          <p className={styles.contractStatusText}>
             Provider gateway, asset and audio storage, render queue, worker orchestration, artifact export, publish
             gateway, approval capture, rights consent, audit ledger, foundation completion, and diagnostic navigation
             remain preserved as secondary status surfaces.
@@ -303,48 +304,6 @@ const page: CSSProperties = {
   gap: 18,
   padding: "28px",
   color: "#172026",
-};
-const mainCockpitStack: CSSProperties = {
-  display: "grid",
-  gap: 18,
-  padding: 20,
-  color: "#e5f6ff",
-  background:
-    "radial-gradient(circle at top left, rgba(34, 211, 238, 0.14), transparent 30%), radial-gradient(circle at top right, rgba(168, 85, 247, 0.12), transparent 34%), #020617",
-};
-const contractStatusStack: CSSProperties = {
-  display: "grid",
-  gap: 14,
-  border: "1px solid rgba(148, 163, 184, 0.22)",
-  borderRadius: 8,
-  padding: 16,
-  background: "linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.62))",
-};
-const contractStatusHeader: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 6,
-};
-const contractStatusEyebrow: CSSProperties = {
-  margin: 0,
-  color: "#67e8f9",
-  fontSize: 12,
-  fontWeight: 900,
-  textTransform: "uppercase",
-  letterSpacing: 0,
-};
-const contractStatusTitle: CSSProperties = {
-  margin: 0,
-  color: "#f8fafc",
-  fontSize: 22,
-  lineHeight: 1.2,
-  letterSpacing: 0,
-};
-const contractStatusText: CSSProperties = {
-  margin: 0,
-  color: "#b7d7e8",
-  fontSize: 14,
-  lineHeight: 1.55,
 };
 const hero: CSSProperties = {
   display: "flex",

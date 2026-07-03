@@ -1,0 +1,640 @@
+.routeShell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  color: #e5f6ff;
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.18), transparent 30%),
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.16), transparent 34%),
+    #030712;
+}
+
+.cockpitShell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px;
+  color: #e5f6ff;
+  border: 1px solid rgba(125, 211, 252, 0.22);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.18), transparent 30%),
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.16), transparent 34%),
+    #030712;
+  box-shadow: 0 24px 80px rgba(2, 6, 23, 0.48);
+}
+
+.heroPanel {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(125, 211, 252, 0.24);
+  border-radius: 8px;
+  padding: 22px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(17, 24, 39, 0.9) 52%, rgba(30, 41, 59, 0.82));
+}
+
+.heroGlow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 12%, rgba(56, 189, 248, 0.22), transparent 28%),
+    radial-gradient(circle at 88% 28%, rgba(192, 132, 252, 0.18), transparent 30%);
+  pointer-events: none;
+}
+
+.heroContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.eyebrowRow,
+.markerBand,
+.contractGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.phaseBadge,
+.safeBadge,
+.blockedBadge {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid rgba(34, 211, 238, 0.45);
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #cffafe;
+  background: rgba(8, 47, 73, 0.72);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.safeBadge {
+  border-color: rgba(74, 222, 128, 0.42);
+  color: #dcfce7;
+  background: rgba(20, 83, 45, 0.52);
+}
+
+.blockedBadge {
+  border-color: rgba(251, 146, 60, 0.52);
+  color: #ffedd5;
+  background: rgba(124, 45, 18, 0.54);
+}
+
+.heroTitle {
+  margin: 0;
+  max-width: 940px;
+  color: #f8fafc;
+  font-size: 42px;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.heroLead {
+  margin: 0;
+  max-width: 920px;
+  color: #b7d7e8;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.heroMetricGrid,
+.cockpitGrid,
+.orbGrid,
+.timelineGrid,
+.matrixGrid,
+.safetyRail,
+.systemsGrid,
+.blockedDeckGrid,
+.diagnosticGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.heroMetricGrid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.cockpitGrid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.missionPreview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 260px;
+  border: 1px solid rgba(125, 211, 252, 0.22);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(8, 47, 73, 0.58), rgba(15, 23, 42, 0.72));
+}
+
+.missionOrbOuter {
+  display: grid;
+  place-items: center;
+  width: 164px;
+  height: 164px;
+  border-radius: 999px;
+  background: conic-gradient(#22d3ee 72%, rgba(148, 163, 184, 0.18) 0);
+  box-shadow: 0 0 44px rgba(34, 211, 238, 0.28);
+}
+
+.missionOrbInner {
+  display: grid;
+  place-items: center;
+  width: 118px;
+  height: 118px;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 999px;
+  color: #f8fafc;
+  background: #020617;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.missionLabel {
+  margin: 0;
+  color: #ecfeff;
+  font-weight: 900;
+}
+
+.missionDetail {
+  margin: 0;
+  max-width: 260px;
+  text-align: center;
+  color: #a7c4d7;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.metricCard,
+.orbCard,
+.timelineStep,
+.matrixCell,
+.systemCard {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(15, 23, 42, 0.68);
+}
+
+.metricLabel {
+  display: block;
+  color: #8fb6c8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.metricValue {
+  display: block;
+  margin-top: 4px;
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.metricDetail {
+  display: block;
+  margin-top: 4px;
+  color: #a9c4d3;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.markerPill {
+  border: 1px solid rgba(125, 211, 252, 0.22);
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #dbeafe;
+  background: rgba(15, 23, 42, 0.72);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.glassPanel,
+.wideGlassPanel,
+.workspaceCorePanel,
+.summaryPanel,
+.diagnosticPanel {
+  min-width: 0;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(2, 6, 23, 0.78));
+  box-shadow: 0 18px 60px rgba(2, 6, 23, 0.34);
+}
+
+.workspaceCorePanel {
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.86), rgba(15, 23, 42, 0.82));
+}
+
+.summaryPanel {
+  border-color: rgba(74, 222, 128, 0.22);
+}
+
+.diagnosticPanel {
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+.panelHeader,
+.workspaceCoreHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.eyebrow {
+  margin: 0 0 5px;
+  color: #67e8f9;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.bodyText {
+  margin: 0;
+  color: #c6d9e8;
+  font-size: 14px;
+  line-height: 1.58;
+}
+
+.mutedText {
+  margin: 8px 0 0;
+  color: #93aebf;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.commandGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
+  gap: 10px;
+}
+
+.commandCard,
+.selectedCommandCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 118px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: left;
+  color: #dbeafe;
+  background: rgba(15, 23, 42, 0.64);
+  cursor: pointer;
+}
+
+.selectedCommandCard {
+  border-color: rgba(34, 211, 238, 0.72);
+  background: linear-gradient(180deg, rgba(8, 47, 73, 0.72), rgba(30, 41, 59, 0.72));
+  box-shadow: 0 0 26px rgba(34, 211, 238, 0.16);
+}
+
+.commandIcon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(125, 211, 252, 0.26);
+  border-radius: 999px;
+  color: #ecfeff;
+  background: rgba(14, 165, 233, 0.22);
+  font-weight: 900;
+}
+
+.commandLabel {
+  color: #f8fafc;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.commandState {
+  color: #a9c4d3;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.activeSurfacePanel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  border: 1px solid rgba(74, 222, 128, 0.24);
+  border-radius: 8px;
+  padding: 10px;
+  color: #dcfce7;
+  background: rgba(20, 83, 45, 0.22);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.surfaceStatusDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #4ade80;
+  box-shadow: 0 0 18px rgba(74, 222, 128, 0.7);
+}
+
+.orbGrid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.orbCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  text-align: center;
+  border-color: rgba(148, 163, 184, 0.18);
+  background: rgba(2, 6, 23, 0.42);
+}
+
+.orbRing {
+  --orb-accent: #22d3ee;
+  --orb-progress: 0%;
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  background: conic-gradient(var(--orb-accent) var(--orb-progress), rgba(148, 163, 184, 0.18) 0);
+}
+
+.orbCore {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border: 1px solid rgba(226, 232, 240, 0.14);
+  border-radius: 999px;
+  color: #f8fafc;
+  background: #020617;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.orbLabel,
+.orbState,
+.orbNeed {
+  margin: 0;
+}
+
+.orbLabel {
+  color: #f8fafc;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.orbState {
+  color: #bae6fd;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.orbNeed {
+  color: #9fb6c6;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.timelineGrid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.timelineStep {
+  position: relative;
+  min-height: 150px;
+  border-color: rgba(148, 163, 184, 0.18);
+  background: rgba(2, 6, 23, 0.42);
+}
+
+.timelineIndex {
+  color: #67e8f9;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.timelineLine {
+  height: 2px;
+  margin: 9px 0;
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.8), rgba(168, 85, 247, 0.18));
+}
+
+.timelineTitle {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.timelineStatus {
+  margin: 6px 0 0;
+  color: #bae6fd;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.briefList {
+  display: grid;
+  gap: 10px;
+}
+
+.briefRow {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 10px;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+  padding-top: 10px;
+}
+
+.briefLabel {
+  color: #67e8f9;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.briefValue {
+  color: #dbeafe;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.orbitShell {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.orbitCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 82px;
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: 8px;
+  padding: 10px;
+  color: #e0f2fe;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(168, 85, 247, 0.12));
+}
+
+.orbitNumber,
+.matrixSignal,
+.systemTier {
+  color: #67e8f9;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.matrixGrid {
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+
+.matrixCell {
+  border-color: rgba(148, 163, 184, 0.18);
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.58);
+}
+
+.matrixSignal {
+  display: block;
+  margin-bottom: 5px;
+  color: #fde68a;
+}
+
+.safetyRail {
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+}
+
+.safetyRailCard {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  border-radius: 8px;
+  padding: 12px;
+  color: #fef3c7;
+  background: rgba(69, 26, 3, 0.18);
+}
+
+.railDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #fbbf24;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.52);
+}
+
+.systemsGrid {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.systemCard {
+  border-color: rgba(125, 211, 252, 0.18);
+  color: #e0f2fe;
+  background: rgba(2, 6, 23, 0.44);
+}
+
+.systemTier {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.systemStatus {
+  margin: 6px 0 0;
+  color: #9fb6c6;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.blockedDeckGrid {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.blockedCommandButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 128px;
+  border: 1px solid rgba(251, 146, 60, 0.28);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: left;
+  color: #fed7aa;
+  background: linear-gradient(180deg, rgba(124, 45, 18, 0.24), rgba(15, 23, 42, 0.7));
+  opacity: 1;
+}
+
+.drawerPanel {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  padding: 14px;
+  color: #dbeafe;
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.drawerSummary {
+  color: #f8fafc;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.contractGrid {
+  margin-top: 12px;
+}
+
+.contractChip {
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #bfdbfe;
+  background: rgba(2, 6, 23, 0.46);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.diagnosticGrid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.diagnosticLink {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  padding: 10px;
+  color: #dbeafe;
+  background: rgba(2, 6, 23, 0.38);
+  text-decoration: none;
+  font-size: 12px;
+}

@@ -1,0 +1,49 @@
+.mainCockpitStack {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+  color: #e5f6ff;
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.14), transparent 30%),
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.12), transparent 34%),
+    #020617;
+}
+
+.contractStatusStack {
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 8px;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.62));
+}
+
+.contractStatusHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contractStatusEyebrow {
+  margin: 0;
+  color: #67e8f9;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.contractStatusTitle {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.contractStatusText {
+  margin: 0;
+  color: #b7d7e8;
+  font-size: 14px;
+  line-height: 1.55;
+}
