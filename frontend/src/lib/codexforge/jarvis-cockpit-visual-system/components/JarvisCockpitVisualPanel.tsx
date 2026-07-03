@@ -9,6 +9,7 @@ import { ProviderBackendAdapterContractCockpitSection } from "../../provider-bac
 import { ProviderAdapterDryRunHarnessCockpitSection } from "../../provider-adapter-dry-run-harness-map/components";
 import { ProviderMockResultHarnessCockpitSection } from "../../provider-mock-result-harness-map/components";
 import { ProviderApprovalAuditEnforcementCockpitSection } from "../../provider-approval-audit-enforcement-map/components";
+import { ControlledProviderDryRunCandidateCockpitSection } from "../../controlled-provider-dry-run-candidate-map/components";
 import {
   JARVIS_BLOCKED_COMMANDS,
   JARVIS_COMMAND_SURFACES,
@@ -116,6 +117,7 @@ export function JarvisCockpitVisualRoutePanel({
       <ProviderAdapterDryRunHarnessCockpitSection />
       <ProviderMockResultHarnessCockpitSection />
       <ProviderApprovalAuditEnforcementCockpitSection />
+      <ControlledProviderDryRunCandidateCockpitSection />
       <ReadinessOrbCluster />
       <WorkflowTimeline />
       <section className={styles.cockpitGrid} aria-label="Project brief storyboard and status matrix">

@@ -80,9 +80,46 @@ $phases | Sort-Object -Descending | Select-Object -First 1
 
 Update checkpoint docs to the actual highest detected phase. If phases 1114-1129 are present and no higher phase exists, document the checkpoint as through phase 1129 and describe the simulated command execution dry-run review layer: Simulated Command Execution Boundary, Simulated Command Intent Packet, Simulated Command Plan Packet, Simulated Command Argument Review, Simulated Command Environment Review, Simulated Command Working Directory Review, Simulated Command Risk Review, Simulated Command Evidence Preview, Simulated Command Result Preview, Simulated Command Failure Preview, Simulated Command Recovery Preview, Simulated Command Operator Review, Simulated Command Execution Hold State, Simulated Command Validation Preview, First Simulated Command Candidate, and Controlled Simulated Command Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, not auto-approved, not persisted as approval decisions, and not allowed to create queue jobs, persist queue state, release locks, run dry-runs, run validation, make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, project adapter execution, game adapter execution, domain adapter execution, file writes, file updates, file deletes, file moves, patch applies, command execution, shell execution, git execution, test execution, build execution, smoke execution, runtime starts, app scaffolds, website publishing, live data connections, tool creation, research browsing, automation creation, asset rendering, trading or broker calls, data ingestion, documentation export, integration connections, evidence/result/model-output persistence, recovery triggers, packaging/export, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, arbitrary path crawling, arbitrary local file browsing, auto-open local files, real path mutation, environment value reads, secret display, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported target language must remain broad and cover games, apps, websites, dashboards, tools, research packs, automation workflows, creative workflows, trading workspaces, data workspaces, documentation packs, integrations, and general local projects.
 
-Current checkpoint note: through phase 2441 with the latest completed batch recorded as 2410-2441 - Provider Approval/Audit Enforcement Boundary Mega Batch v1 and latest release candidate recorded as Controlled Provider Approval Audit Completion Candidate. /codexforge-cockpit keeps the premium Jarvis command area, First Backend Wiring Boundary readiness rail, Provider Gateway Wiring readiness section, Provider Backend Adapter Contract readiness section, Provider Adapter Dry Run Harness section, Provider Adapter Mock Result Harness section, and now includes the Provider Approval Audit Enforcement section: approval request envelope: synthetic only, approval decision envelope: review-only, audit intent envelope: required, audit result envelope: required, operator approval gate: required, denial enforcement matrix: required, expiry/revocation: policy-only, audit redaction: required, audit integrity: required, replay prevention: required, approval execution lane: disabled, and next batch 2442-2473 - First Controlled Provider Dry Run Candidate Mega Batch v1. No live provider execution exists yet. No provider calls from frontend. No model calls from frontend. No prompt sending. No streaming. No credential storage. No token storage. The dry run harness remains synthetic and review-only. Provider dry run remains backend-owned. The mock result harness remains synthetic and review-only. Provider mock result handling remains backend-owned. Approval audit enforcement remains synthetic and review-only. Synthetic provider approval audit data only. Provider approval audit handling remains backend-owned. Explicit operator approval required. Audit trail required. Next likely batch: 2442-2473 - First Controlled Provider Dry Run Candidate Mega Batch v1.
+Current checkpoint note: through phase 2473 with the latest completed batch recorded as 2442-2473 - First Controlled Provider Dry Run Candidate Mega Batch v1 and latest release candidate recorded as Controlled Provider Dry Run Completion Candidate. /codexforge-cockpit keeps the premium Jarvis command area, First Backend Wiring Boundary readiness rail, Provider Gateway Wiring readiness section, Provider Backend Adapter Contract readiness section, Provider Adapter Dry Run Harness section, Provider Adapter Mock Result Harness section, Provider Approval Audit Enforcement section, and now includes the Controlled Provider Dry Run Candidate section: run intent packet: synthetic only, approval-bound packet: review-only, audit-bound packet: review-only, preflight summary: required, fixture selection: synthetic only, transcript assembly: deterministic only, mock result handoff: review-only, denied execution summary: required, operator review panel: disabled actions, execution lane: disabled, and next batch 2474-2505 - Provider Backend Execution Readiness Mega Batch v1. No live provider execution exists yet. No provider calls from frontend. No model calls from frontend. No prompt sending. No streaming. No credential storage. No token storage. No frontend persistence. No browser storage writes. The dry run harness remains synthetic and review-only. Provider dry run remains backend-owned. The mock result harness remains synthetic and review-only. Provider mock result handling remains backend-owned. Approval audit enforcement remains synthetic and review-only. Provider approval audit handling remains backend-owned. The controlled provider dry run candidate remains synthetic and review-only. Review-only controlled provider dry run candidate. Synthetic controlled provider dry run data only. Backend-owned provider adapter remains required. Explicit operator approval required. Audit trail required. Next likely batch: 2474-2505 - Provider Backend Execution Readiness Mega Batch v1.
 
-The current phase ledger includes the latest Provider Approval/Audit Enforcement Boundary batch:
+The current phase ledger includes the latest First Controlled Provider Dry Run Candidate batch:
+
+- Phase 2442 - Controlled Provider Dry Run Candidate Map.
+- Phase 2443 - Controlled Provider Run Intent Packet Preview.
+- Phase 2444 - Controlled Provider Approval Bound Packet Preview.
+- Phase 2445 - Controlled Provider Audit Bound Packet Preview.
+- Phase 2446 - Controlled Provider Preflight Summary Preview.
+- Phase 2447 - Controlled Provider Dry Run Fixture Selection Preview.
+- Phase 2448 - Controlled Provider Dry Run Transcript Assembly Preview.
+- Phase 2449 - Controlled Provider Mock Result Handoff Preview.
+- Phase 2450 - Controlled Provider Denied Execution Summary.
+- Phase 2451 - Controlled Provider Operator Review Panel.
+- Phase 2452 - Controlled Provider Safety Gate Summary.
+- Phase 2453 - Controlled Provider Privacy Gate Summary.
+- Phase 2454 - Controlled Provider Cost Gate Summary.
+- Phase 2455 - Controlled Provider Rate Gate Summary.
+- Phase 2456 - Controlled Provider Timeout Gate Summary.
+- Phase 2457 - Controlled Provider Fallback Gate Summary.
+- Phase 2458 - Controlled Provider Redaction Gate Summary.
+- Phase 2459 - Controlled Provider Audit Gate Summary.
+- Phase 2460 - Disabled Controlled Provider Execution Lane.
+- Phase 2461 - Controlled Provider Dry Run Cockpit Readiness Rail.
+- Phase 2462 - Controlled Provider Dry Run State Preview.
+- Phase 2463 - Controlled Provider Dry Run Recovery Preview.
+- Phase 2464 - Controlled Provider Dry Run Acceptance Criteria Preview.
+- Phase 2465 - Controlled Provider Dry Run Fixture Safety Guard.
+- Phase 2466 - Controlled Provider Dry Run Prompt Transmission Blocker.
+- Phase 2467 - Controlled Provider Dry Run Credential Token Blocker.
+- Phase 2468 - Controlled Provider Dry Run Streaming Blocker.
+- Phase 2469 - Controlled Provider Dry Run Safety Regression Guard.
+- Phase 2470 - Controlled Provider Dry Run Navigation Regression Guard.
+- Phase 2471 - Controlled Provider Dry Run Smoke Coverage Guard.
+- Phase 2472 - Controlled Provider Dry Run Checkpoint Completion Guard.
+- Phase 2473 - Controlled Provider Dry Run Completion Candidate.
+
+## Previous Provider Approval/Audit Enforcement Boundary Ledger
+
+The previous phase ledger preserves the Provider Approval/Audit Enforcement Boundary batch:
 
 - Phase 2410 - Provider Approval Audit Enforcement Map.
 - Phase 2411 - Provider Approval Request Envelope Preview.
