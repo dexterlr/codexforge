@@ -166,6 +166,22 @@ foreach ($needle in @(
   Assert-Contains $docsCombined $needle "docs mention $needle"
 }
 
+foreach ($needle in @(
+  "2346-2377 - First Provider Adapter Dry Run Harness Mega Batch v1",
+  "Controlled Provider Adapter Dry Run Completion Candidate",
+  "2378-2409 - Provider Adapter Mock Result Harness Mega Batch v1",
+  "The dry run harness remains synthetic and review-only",
+  "Provider dry run remains backend-owned",
+  "No live provider execution exists yet",
+  "No model calls from frontend",
+  "No prompt sending",
+  "No streaming",
+  "No credential storage",
+  "No token storage"
+)) {
+  Assert-Contains $docsCombined $needle "docs mention provider adapter dry run checkpoint $needle"
+}
+
 Assert-Contains $docsCombined "C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend" "canonical workspace path"
 Assert-Contains $docsCombined "npm run build" "validation command npm run build"
 Assert-Contains $docsCombined "smoke-codexforge-checkpoint-docs.ps1" "validation command checkpoint smoke"
