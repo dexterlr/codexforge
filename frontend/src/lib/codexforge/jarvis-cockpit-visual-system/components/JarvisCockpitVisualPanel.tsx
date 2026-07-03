@@ -15,6 +15,7 @@ import { ProviderGatewayHardeningCockpitSection } from "../../provider-gateway-h
 import { AssetStorageBackendWiringCockpitSection } from "../../asset-storage-backend-wiring-map/components";
 import { AudioStorageBackendWiringCockpitSection } from "../../audio-storage-backend-wiring-map/components";
 import { RenderQueueBackendWiringCockpitSection } from "../../render-queue-backend-wiring-map/components";
+import { WorkerOrchestrationBackendWiringCockpitSection } from "../../worker-orchestration-backend-wiring-map/components";
 import {
   JARVIS_BLOCKED_COMMANDS,
   JARVIS_COMMAND_SURFACES,
@@ -128,6 +129,7 @@ export function JarvisCockpitVisualRoutePanel({
       <AssetStorageBackendWiringCockpitSection />
       <AudioStorageBackendWiringCockpitSection />
       <RenderQueueBackendWiringCockpitSection />
+      <WorkerOrchestrationBackendWiringCockpitSection />
       <ReadinessOrbCluster />
       <WorkflowTimeline />
       <section className={styles.cockpitGrid} aria-label="Project brief storyboard and status matrix">
