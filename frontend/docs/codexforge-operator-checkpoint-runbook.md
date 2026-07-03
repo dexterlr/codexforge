@@ -80,9 +80,44 @@ $phases | Sort-Object -Descending | Select-Object -First 1
 
 Update checkpoint docs to the actual highest detected phase. If phases 1114-1129 are present and no higher phase exists, document the checkpoint as through phase 1129 and describe the simulated command execution dry-run review layer: Simulated Command Execution Boundary, Simulated Command Intent Packet, Simulated Command Plan Packet, Simulated Command Argument Review, Simulated Command Environment Review, Simulated Command Working Directory Review, Simulated Command Risk Review, Simulated Command Evidence Preview, Simulated Command Result Preview, Simulated Command Failure Preview, Simulated Command Recovery Preview, Simulated Command Operator Review, Simulated Command Execution Hold State, Simulated Command Validation Preview, First Simulated Command Candidate, and Controlled Simulated Command Release Candidate surfaces. Keep the package preview-only, dry-run, approval-required, not executable from UI, not routed live, not auto-approved, not persisted as approval decisions, and not allowed to create queue jobs, persist queue state, release locks, run dry-runs, run validation, make live model calls, provider calls, credential reads, secret reads, network calls, prompt sends, backend adapter execution, project adapter execution, game adapter execution, domain adapter execution, file writes, file updates, file deletes, file moves, patch applies, command execution, shell execution, git execution, test execution, build execution, smoke execution, runtime starts, app scaffolds, website publishing, live data connections, tool creation, research browsing, automation creation, asset rendering, trading or broker calls, data ingestion, documentation export, integration connections, evidence/result/model-output persistence, recovery triggers, packaging/export, scaffolding, automatic memory promotions, browser credential writes, browser credential storage, hidden model calls, arbitrary path crawling, arbitrary local file browsing, auto-open local files, real path mutation, environment value reads, secret display, or hidden execution unless future approved backend-owned bounded implementations and evidence exist. Models are workers; CodexForge is the brain and owns the shared memory, knowledge, evidence, result, audit, and approval layer. Supported target language must remain broad and cover games, apps, websites, dashboards, tools, research packs, automation workflows, creative workflows, trading workspaces, data workspaces, documentation packs, integrations, and general local projects.
 
-Current checkpoint note: through phase 2281 with the latest completed batch recorded as 2250-2281 - First Backend Wiring Boundary Mega Batch v1 and latest release candidate recorded as Controlled First Backend Wiring Boundary Completion Candidate. The cockpit now includes the First Backend Wiring Boundary readiness section below the main Jarvis command area: disabled backend adapter layer, provider gateway boundary, asset storage boundary, audio storage boundary, render queue boundary, worker orchestration boundary, artifact export boundary, publish gateway boundary, approval capture boundary, rights consent audit boundary, endpoint inventory preview, contract-to-service mapping preview, request boundary review-only, audit envelope required, permission envelope required, and secret handling server-only. No live backend execution exists yet. The frontend remains review-only/local-state-only and synthetic data only. No frontend persistence, no browser storage writes, no provider calls, no model calls, no connector calls, no prompt sending, no upload, no download, no render, no export, no publish, no schedule, no queue dispatch, no worker dispatch, no database writes, no credential storage, no token storage, no command execution, no service creation, and no API creation from frontend. Backend-owned services remain required. Operator review remains required. Explicit operator approval remains required. Audit trail required. Next likely batch: 2282-2313 - Provider Gateway Wiring Mega Batch v1.
+Current checkpoint note: through phase 2313 with the latest completed batch recorded as 2282-2313 - Provider Gateway Wiring Mega Batch v1 and latest release candidate recorded as Controlled Provider Gateway Wiring Completion Candidate. /codexforge-cockpit keeps the premium Jarvis command area and First Backend Wiring Boundary readiness rail, and now includes the Provider Gateway Wiring readiness section: Provider Gateway Wiring status, request envelope review-only, response envelope synthetic only, provider capability catalog preview only, model family catalog preview only, approval gate required, audit envelope required, credential boundary backend-only, token boundary backend-only, streaming boundary blocked, fallback/retry/timeout policy-only, adapter registry disabled, execution state blocked, and next batch 2314-2345 - Provider Gateway Backend Adapter Contract Mega Batch v1. No live provider execution exists yet. No provider calls from frontend. No model calls from frontend. No prompt sending. No streaming. No credential storage. No token storage. Provider gateway remains backend-owned. Explicit operator approval required. Audit trail required. Next likely batch: 2314-2345 - Provider Gateway Backend Adapter Contract Mega Batch v1.
 
-The current phase ledger includes the latest First Backend Wiring Boundary batch:
+The current phase ledger includes the latest Provider Gateway Wiring batch:
+
+- Phase 2282 - Provider Gateway Wiring Map.
+- Phase 2283 - Provider Request Envelope Preview.
+- Phase 2284 - Provider Response Envelope Preview.
+- Phase 2285 - Provider Capability Catalog Preview.
+- Phase 2286 - Provider Model Family Catalog Preview.
+- Phase 2287 - Provider Selection Policy Preview.
+- Phase 2288 - Provider Privacy Class Boundary Preview.
+- Phase 2289 - Provider Cost Class Boundary Preview.
+- Phase 2290 - Provider Rate Limit Boundary Preview.
+- Phase 2291 - Provider Error Taxonomy Preview.
+- Phase 2292 - Provider Audit Envelope Preview.
+- Phase 2293 - Provider Approval Gate Preview.
+- Phase 2294 - Disabled Provider Adapter Registry Preview.
+- Phase 2295 - Provider Gateway Cockpit Readiness Rail.
+- Phase 2296 - Provider Gateway Prompt Boundary Preview.
+- Phase 2297 - Provider Gateway Credential Boundary Preview.
+- Phase 2298 - Provider Gateway Token Boundary Preview.
+- Phase 2299 - Provider Gateway Streaming Boundary Preview.
+- Phase 2300 - Provider Gateway Retry Boundary Preview.
+- Phase 2301 - Provider Gateway Timeout Boundary Preview.
+- Phase 2302 - Provider Gateway Fallback Boundary Preview.
+- Phase 2303 - Provider Gateway Observability Boundary Preview.
+- Phase 2304 - Provider Gateway Safety Regression Guard.
+- Phase 2305 - Provider Gateway Navigation Regression Guard.
+- Phase 2306 - Provider Gateway Smoke Coverage Guard.
+- Phase 2307 - Provider Gateway Checkpoint Completion Guard.
+- Phase 2308 - First Provider Gateway Wiring Candidate.
+- Phase 2309 - Provider Gateway Backend Readiness Preview.
+- Phase 2310 - Provider Gateway Adapter Implementation Readiness.
+- Phase 2311 - Provider Gateway Execution Still Blocked Guard.
+- Phase 2312 - Controlled Provider Gateway Wiring Release Candidate.
+- Phase 2313 - Controlled Provider Gateway Wiring Completion Candidate.
+
+The previous phase ledger includes the latest First Backend Wiring Boundary batch:
 
 - Phase 2250 - First Backend Wiring Boundary Map.
 - Phase 2251 - Server Only Module Boundary Preview.
@@ -117,7 +152,7 @@ The current phase ledger includes the latest First Backend Wiring Boundary batch
 - Phase 2280 - Controlled Backend Wiring Boundary Release Candidate.
 - Phase 2281 - Controlled First Backend Wiring Boundary Completion Candidate.
 
-The previous phase ledger includes the latest Jarvis cockpit visual upgrade batch:
+The earlier phase ledger includes the latest Jarvis cockpit visual upgrade batch:
 
 - Phase 2218 - Jarvis Cockpit Visual System.
 - Phase 2219 - Mission Control Hero Preview.

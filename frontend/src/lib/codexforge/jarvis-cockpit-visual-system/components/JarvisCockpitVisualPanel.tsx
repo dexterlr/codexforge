@@ -4,6 +4,7 @@ import { useMemo, useState, type CSSProperties } from "react";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { InteractiveVideoWorkspaceCockpitPanel } from "../../interactive-video-workspace-shell/components";
 import { BackendWiringReadinessCockpitSection } from "../../first-backend-wiring-boundary-map/components";
+import { ProviderGatewayReadinessCockpitSection } from "../../provider-gateway-wiring-map/components";
 import {
   JARVIS_BLOCKED_COMMANDS,
   JARVIS_COMMAND_SURFACES,
@@ -106,6 +107,7 @@ export function JarvisCockpitVisualRoutePanel({
         </article>
       </section>
       <BackendWiringReadinessCockpitSection />
+      <ProviderGatewayReadinessCockpitSection />
       <ReadinessOrbCluster />
       <WorkflowTimeline />
       <section className={styles.cockpitGrid} aria-label="Project brief storyboard and status matrix">

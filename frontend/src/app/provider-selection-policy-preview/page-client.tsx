@@ -1,8 +1,7 @@
 "use client";
 
-import { ProviderGatewayContractBoundaryPageClientShell } from "@/lib/codexforge/provider-gateway-contract-boundary/components";
+import { ProviderGatewayWiringPageClientShell } from "@/lib/codexforge/provider-gateway-wiring-map/components";
 
-export default function ProviderSelectionPolicyPreviewPageClient() {
-  return <ProviderGatewayContractBoundaryPageClientShell routeSlug="provider-selection-policy-preview" />;
+export default function ProviderGatewayWiringPageClient() {
+  return <ProviderGatewayWiringPageClientShell routeSlug="provider-selection-policy-preview" />;
 }
-

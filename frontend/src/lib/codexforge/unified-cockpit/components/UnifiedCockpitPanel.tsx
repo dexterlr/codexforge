@@ -59,7 +59,7 @@ export function UnifiedCodexForgeCockpitPanel() {
   return (
     <section
       className={styles.mainCockpitStack}
-      data-codexforge-cockpit-interactive-video-workspace="Jarvis Cockpit Visual Upgrade Interactive Video Workspace Cockpit Interactive Video Workspace Summary Local React state only Synthetic data only No backend execution No frontend persistence No browser storage writes No provider calls No model calls No connector calls No prompt sending No upload No download No render No export No publish No schedule Backend wiring required Operator review required Explicit operator approval required"
+      data-codexforge-cockpit-interactive-video-workspace="Jarvis Cockpit Visual Upgrade Interactive Video Workspace Cockpit Interactive Video Workspace Summary Provider Gateway Wiring Provider Gateway Cockpit Readiness Rail request envelope review-only response envelope synthetic only provider capability catalog preview only model family catalog preview only approval gate required audit envelope required credential boundary backend-only token boundary backend-only streaming boundary blocked fallback retry timeout policy-only adapter registry disabled execution state blocked Local React state only Synthetic data only No backend execution No frontend persistence No browser storage writes No provider calls No model calls No connector calls No prompt sending No upload No download No render No export No publish No schedule Backend wiring required Backend-owned provider gateway remains required Operator review required Explicit operator approval required Audit trail required"
     >
       <JarvisCockpitVisualCockpitPanel />
       <section className={styles.contractStatusStack} aria-label="Lower priority backend contract and diagnostic status">
