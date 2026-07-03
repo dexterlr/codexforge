@@ -1,0 +1,91 @@
+param([string]$BaseUrl = "http://localhost:3000")
+
+$ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "codexforge-artifact-export-backend-wiring-smoke-helper.ps1")
+
+Invoke-CodexForgeArtifactExportBackendWiringSmoke `
+  -SmokeName "Phase 2785 Artifact Export Redaction Boundary Wiring" `
+  -ScriptFile "smoke-codexforge-artifact-export-redaction-boundary-wiring.ps1" `
+  -Route "artifact-export-redaction-boundary-wiring" `
+  -CommandLabel "Go to Artifact Export Redaction Boundary Wiring" `
+  -RouteHref "/artifact-export-redaction-boundary-wiring" `
+  -Phase "2785" `
+  -Title "Artifact Export Redaction Boundary Wiring" `
+  -Markers @(
+  "2762-2793 - Artifact Export Backend Wiring Mega Batch v1",
+  "Artifact Export Backend Wiring",
+  "review-only artifact export diagnostic",
+  "blocked artifact export execution",
+  "protected artifact export boundary",
+  "artifact export contract",
+  "artifact export job envelope",
+  "artifact export validation boundary",
+  "artifact format policy",
+  "artifact manifest policy",
+  "artifact packaging policy",
+  "asset linkage boundary",
+  "audio linkage boundary",
+  "render linkage boundary",
+  "worker handoff boundary",
+  "file creation blocked",
+  "download generation blocked",
+  "archive creation blocked",
+  "signed URL creation blocked",
+  "publish handoff blocked",
+  "artifact export persistence blocked",
+  "no live artifact export",
+  "no file export",
+  "no download generation",
+  "no archive creation",
+  "no signed URL creation",
+  "no publish handoff execution",
+  "no queue dispatch",
+  "no worker dispatch",
+  "no worker execution",
+  "no job execution",
+  "no scheduler execution",
+  "no orchestration execution",
+  "no render execution",
+  "no video rendering",
+  "no process spawning",
+  "no shell execution",
+  "no command execution from the app",
+  "no file system writes from the app",
+  "no frontend persistence",
+  "no browser storage writes",
+  "no live provider calls",
+  "no model calls",
+  "no prompt sending",
+  "no streaming",
+  "no provider SDK imports",
+  "no audio provider imports",
+  "no storage provider imports",
+  "no render provider imports",
+  "no worker provider imports",
+  "no export provider imports",
+  "no network egress",
+  "no fetch/network calls",
+  "no connector calls",
+  "no upload/download",
+  "no render/export/publish/schedule",
+  "no API creation from frontend",
+  "no service creation",
+  "no port binding",
+  "no runtime deploy",
+  "no credential storage",
+  "no token storage",
+  "approval and audit enforcement",
+  "redaction boundary",
+  "observability trace markers",
+  "retry and fallback policy",
+  "rate guard",
+  "cost guard",
+  "privacy guard",
+  "safety guard",
+  "artifact export state",
+  "artifact export recovery",
+  "operator review",
+  "completion guard",
+  "next likely batch: 2794-2825 - Publish Gateway Backend Wiring"
+  )
+

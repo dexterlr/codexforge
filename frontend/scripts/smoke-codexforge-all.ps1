@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$BaseUrl = "http://localhost:3000",
   [switch]$Interactive,
   [switch]$ContinueOnMissingOptional,
@@ -2807,6 +2807,39 @@ try {
   @{ Name = "Phase 2760 Worker Orchestration Cockpit Alignment Wiring"; File = "smoke-codexforge-worker-orchestration-cockpit-alignment-wiring.ps1"; Required = $true },
   @{ Name = "Phase 2761 Worker Orchestration Backend Wiring Completion"; File = "smoke-codexforge-worker-orchestration-backend-wiring-completion.ps1"; Required = $true },
   @{ Name = "Worker Orchestration Backend Wiring Mega Batch"; File = "smoke-codexforge-worker-orchestration-backend-wiring-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 2762 Artifact Export Intake Boundary Wiring"; File = "smoke-codexforge-artifact-export-intake-boundary-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2763 Artifact Export Contract Wiring"; File = "smoke-codexforge-artifact-export-contract-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2764 Artifact Export Job Envelope Wiring"; File = "smoke-codexforge-artifact-export-job-envelope-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2765 Artifact Export Validation Boundary Wiring"; File = "smoke-codexforge-artifact-export-validation-boundary-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2766 Artifact Export Format Policy Wiring"; File = "smoke-codexforge-artifact-export-format-policy-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2767 Artifact Export Manifest Policy Wiring"; File = "smoke-codexforge-artifact-export-manifest-policy-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2768 Artifact Export Packaging Policy Wiring"; File = "smoke-codexforge-artifact-export-packaging-policy-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2769 Artifact Export Asset Linkage Wiring"; File = "smoke-codexforge-artifact-export-asset-linkage-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2770 Artifact Export Audio Linkage Wiring"; File = "smoke-codexforge-artifact-export-audio-linkage-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2771 Artifact Export Render Linkage Wiring"; File = "smoke-codexforge-artifact-export-render-linkage-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2772 Artifact Export Worker Handoff Wiring"; File = "smoke-codexforge-artifact-export-worker-handoff-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2773 Artifact Export File Creation Block Wiring"; File = "smoke-codexforge-artifact-export-file-creation-block-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2774 Artifact Export Download Block Boundary Wiring"; File = "smoke-codexforge-artifact-export-download-block-boundary-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2775 Artifact Export Archive Block Boundary Wiring"; File = "smoke-codexforge-artifact-export-archive-block-boundary-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2776 Artifact Export Signed URL Block Wiring"; File = "smoke-codexforge-artifact-export-signed-url-block-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2777 Artifact Export Publish Handoff Guard Wiring"; File = "smoke-codexforge-artifact-export-publish-handoff-guard-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2778 Artifact Export Persistence Guard Wiring"; File = "smoke-codexforge-artifact-export-persistence-guard-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2779 Artifact Export Credential Isolation Wiring"; File = "smoke-codexforge-artifact-export-credential-isolation-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2780 Artifact Export Token Isolation Wiring"; File = "smoke-codexforge-artifact-export-token-isolation-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2781 Artifact Export Provider Import Guard Wiring"; File = "smoke-codexforge-artifact-export-provider-import-guard-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2782 Artifact Export Network Egress Guard Wiring"; File = "smoke-codexforge-artifact-export-network-egress-guard-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2783 Artifact Export Audit Boundary Wiring"; File = "smoke-codexforge-artifact-export-audit-boundary-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2784 Artifact Export Approval Boundary Wiring"; File = "smoke-codexforge-artifact-export-approval-boundary-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2785 Artifact Export Redaction Boundary Wiring"; File = "smoke-codexforge-artifact-export-redaction-boundary-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2786 Artifact Export Observability Trace Wiring"; File = "smoke-codexforge-artifact-export-observability-trace-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2787 Artifact Export Retry Policy Wiring"; File = "smoke-codexforge-artifact-export-retry-policy-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2788 Artifact Export Fallback Policy Wiring"; File = "smoke-codexforge-artifact-export-fallback-policy-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2789 Artifact Export Rate Guard Wiring"; File = "smoke-codexforge-artifact-export-rate-guard-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2790 Artifact Export Cost Guard Wiring"; File = "smoke-codexforge-artifact-export-cost-guard-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2791 Artifact Export Privacy Guard Wiring"; File = "smoke-codexforge-artifact-export-privacy-guard-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2792 Artifact Export Safety Guard Wiring"; File = "smoke-codexforge-artifact-export-safety-guard-wiring.ps1"; Required = $true },
+  @{ Name = "Phase 2793 Artifact Export Backend Wiring Completion"; File = "smoke-codexforge-artifact-export-backend-wiring-completion.ps1"; Required = $true },
+  @{ Name = "Artifact Export Backend Wiring Mega Batch"; File = "smoke-codexforge-artifact-export-backend-wiring-mega-batch.ps1"; Required = $true },
   @{ Name = "Provider Connection Test UX"; File = "smoke-codexforge-provider-connection-test-ux.ps1"; Required = $true },
   @{ Name = "Artifacts Suite"; File = "smoke-codexforge-artifacts-suite.ps1"; Required = $true },
   @{ Name = "Creative Suite"; File = "smoke-codexforge-creative-suite.ps1"; Required = $true },
@@ -2879,4 +2912,5 @@ try {
 if ($fullSmokeShouldExitFailure) {
   exit 1
 }
+
 

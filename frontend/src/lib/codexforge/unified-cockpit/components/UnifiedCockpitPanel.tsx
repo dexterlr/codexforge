@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import type { CSSProperties } from "react";
 import { ApplyRunTransactionCockpitSummaryPanel } from "../../apply-run-transaction/components";
 import { BackendExecutionQueueCockpitSummaryPanel } from "../../backend-execution-queue/components";
@@ -52,6 +52,7 @@ import { AssetStorageBackendWiringCockpitSection } from "../../asset-storage-bac
 import { AudioStorageBackendWiringCockpitSection } from "../../audio-storage-backend-wiring-map/components";
 import { RenderQueueBackendWiringCockpitSection } from "../../render-queue-backend-wiring-map/components";
 import { WorkerOrchestrationBackendWiringCockpitSection } from "../../worker-orchestration-backend-wiring-map/components";
+import { ArtifactExportBackendWiringCockpitSection } from "../../artifact-export-backend-wiring-map/components";
 import { FirstRealProviderCallGuardCockpitSection } from "../../first-real-provider-call-guard-map/components";
 import { VideoCreationDomainCockpitSummaryPanel } from "../../video-creation-domain/components";
 import { TradingMandateRiskGovernorCockpitPanel } from "../../trading-mandate-risk-governor/components";
@@ -104,6 +105,7 @@ export function UnifiedCodexForgeCockpitPanel() {
         <AudioStorageBackendWiringCockpitSection />
         <RenderQueueBackendWiringCockpitSection />
         <WorkerOrchestrationBackendWiringCockpitSection />
+        <ArtifactExportBackendWiringCockpitSection />
       </section>
     </section>
   );
@@ -195,6 +197,7 @@ export function UnifiedCockpitRoutePanel({ routeSlug }: { routeSlug: UnifiedCock
       {isMainCockpit ? <AudioStorageBackendWiringCockpitSection /> : null}
       {isMainCockpit ? <RenderQueueBackendWiringCockpitSection /> : null}
       {isMainCockpit ? <WorkerOrchestrationBackendWiringCockpitSection /> : null}
+      {isMainCockpit ? <ArtifactExportBackendWiringCockpitSection /> : null}
       {isMainCockpit ? <DailyTestableCockpitMvpPanel embedded /> : null}
       {isMainCockpit ? <ProjectContextBrainCockpitSummaryPanel /> : null}
       {isMainCockpit ? <GoalCompilerCockpitSummaryPanel /> : null}
@@ -622,4 +625,7 @@ const routeCommand: CSSProperties = {
   fontSize: 12,
   lineHeight: 1.35,
 };
+
+
+
 
