@@ -1,0 +1,1 @@
+﻿export { AudioStorageWaveformMetadataWiringPanel } from "./AudioStorageWaveformMetadataWiringPanel";

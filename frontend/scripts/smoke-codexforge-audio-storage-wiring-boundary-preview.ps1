@@ -1,4 +1,4 @@
-param([string]$BaseUrl = "http://localhost:3000")
+﻿param([string]$BaseUrl = "http://localhost:3000")
 
 $ErrorActionPreference = "Stop"
 $params = @{
@@ -11,3 +11,5 @@ $params = @{
   Markers = @("Audio Storage Wiring Boundary", "audio storage boundary", "No upload", "No download", "No frontend persistence")
 }
 & (Join-Path $PSScriptRoot "codexforge-backend-wiring-boundary-smoke-helper.ps1") @params
+
+
