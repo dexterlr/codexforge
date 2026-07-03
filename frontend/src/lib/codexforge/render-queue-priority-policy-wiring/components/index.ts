@@ -1,0 +1,1 @@
+export { RenderQueuePriorityPolicyWiringPanel } from "./RenderQueuePriorityPolicyWiringPanel";

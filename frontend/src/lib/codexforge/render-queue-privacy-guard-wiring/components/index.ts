@@ -1,0 +1,1 @@
+export { RenderQueuePrivacyGuardWiringPanel } from "./RenderQueuePrivacyGuardWiringPanel";
