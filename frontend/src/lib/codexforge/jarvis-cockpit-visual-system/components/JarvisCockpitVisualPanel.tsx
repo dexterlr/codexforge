@@ -18,6 +18,7 @@ import { RenderQueueBackendWiringCockpitSection } from "../../render-queue-backe
 import { WorkerOrchestrationBackendWiringCockpitSection } from "../../worker-orchestration-backend-wiring-map/components";
 import { ArtifactExportBackendWiringCockpitSection } from "../../artifact-export-backend-wiring-map/components";
 import { PublishGatewayBackendWiringCockpitSection } from "../../publish-gateway-backend-wiring-map/components";
+import { EndToEndVideoCreationDryRunCockpitSection } from "../../end-to-end-video-creation-dry-run-map/components";
 import {
   JARVIS_BLOCKED_COMMANDS,
   JARVIS_COMMAND_SURFACES,
@@ -134,6 +135,7 @@ export function JarvisCockpitVisualRoutePanel({
       <WorkerOrchestrationBackendWiringCockpitSection />
       <ArtifactExportBackendWiringCockpitSection />
       <PublishGatewayBackendWiringCockpitSection />
+      <EndToEndVideoCreationDryRunCockpitSection />
       <ReadinessOrbCluster />
       <WorkflowTimeline />
       <section className={styles.cockpitGrid} aria-label="Project brief storyboard and status matrix">
