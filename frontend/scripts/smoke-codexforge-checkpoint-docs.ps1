@@ -85,6 +85,11 @@ function Get-DuplicateValues {
     ForEach-Object { $_.Name }
 }
 
+function Get-AllSmokeRouteEntryText {
+  param([hashtable]$Entry)
+  return '@{ Name = "' + $Entry.Name + '"; File = "' + $Entry.File + '"; Required = $true }'
+}
+
 Write-Host "=== CodexForge Checkpoint Documentation smoke ==="
 
 $rootReadmePath = Join-Path $repoRoot "README.md"
@@ -975,7 +980,35 @@ try {
 } catch {
   $allSmokeDiff = @()
 }
-$removedCoverage = @($allSmokeDiff | Where-Object { $_ -match "^-\s*@\{\s*Name\s*=" })
+$expectedAllSmokeRouteCoverage = @(
+  @{ Name = "Phase 2043 Provider Selection Policy Preview"; File = "smoke-codexforge-provider-selection-policy-preview-contract.ps1"; Required = $true }
+)
+
+foreach ($expectedCoverage in $expectedAllSmokeRouteCoverage) {
+  $expectedCoverageText = Get-AllSmokeRouteEntryText $expectedCoverage
+  Assert-Contains $allSmoke $expectedCoverageText "all-smoke preserves $($expectedCoverage.Name)"
+}
+
+$removedCoverage = @(
+  $allSmokeDiff |
+    Where-Object { $_ -match "^-\s*@\{\s*Name\s*=" } |
+    Where-Object {
+      $removedCoverageLine = $_
+      $hasCanonicalReplacement = $false
+      foreach ($expectedCoverage in $expectedAllSmokeRouteCoverage) {
+        $expectedCoverageText = Get-AllSmokeRouteEntryText $expectedCoverage
+        if (
+          $removedCoverageLine -match [regex]::Escape('Name = "' + $expectedCoverage.Name + '"') -and
+          $removedCoverageLine -notmatch [regex]::Escape('File = "' + $expectedCoverage.File + '"') -and
+          $allSmoke.IndexOf($expectedCoverageText, [StringComparison]::OrdinalIgnoreCase) -ge 0
+        ) {
+          $hasCanonicalReplacement = $true
+          break
+        }
+      }
+      -not $hasCanonicalReplacement
+    }
+)
 if ($removedCoverage.Count -gt 0) {
   throw "[FAIL] all-smoke route/smoke coverage removal detected: $($removedCoverage -join '; ')"
 }

@@ -2082,7 +2082,7 @@ try {
   @{ Name = "Phase 2040 First Video Backend Service Contract Boundary Candidate"; File = "smoke-codexforge-first-video-backend-service-contract-boundary-candidate.ps1"; Required = $true },
   @{ Name = "Phase 2041 Controlled Video Backend Service Contract Boundary Release Candidate"; File = "smoke-codexforge-controlled-video-backend-service-contract-boundary-release-candidate.ps1"; Required = $true },
   @{ Name = "Phase 2042 Provider Gateway Contract Boundary"; File = "smoke-codexforge-provider-gateway-contract-boundary.ps1"; Required = $true },
-  @{ Name = "Phase 2043 Provider Selection Policy Preview"; File = "smoke-codexforge-provider-selection-policy-preview.ps1"; Required = $true },
+  @{ Name = "Phase 2043 Provider Selection Policy Preview"; File = "smoke-codexforge-provider-selection-policy-preview-contract.ps1"; Required = $true },
   @{ Name = "Phase 2044 Model Routing Policy Preview"; File = "smoke-codexforge-model-routing-policy-preview.ps1"; Required = $true },
   @{ Name = "Phase 2045 Prompt Review Packet Preview"; File = "smoke-codexforge-prompt-review-packet-preview.ps1"; Required = $true },
   @{ Name = "Phase 2046 Credential Vault Boundary Preview"; File = "smoke-codexforge-credential-vault-boundary-preview.ps1"; Required = $true },
