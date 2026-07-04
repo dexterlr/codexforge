@@ -1,0 +1,1 @@
+export { PublishGatewayRedactionBoundaryWiringPanel } from "./PublishGatewayRedactionBoundaryWiringPanel";

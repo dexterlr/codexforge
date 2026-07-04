@@ -1,0 +1,1 @@
+export { PublishGatewayThumbnailPolicyWiringPanel } from "./PublishGatewayThumbnailPolicyWiringPanel";

@@ -1,0 +1,1 @@
+export { PublishGatewayFallbackPolicyWiringPanel } from "./PublishGatewayFallbackPolicyWiringPanel";

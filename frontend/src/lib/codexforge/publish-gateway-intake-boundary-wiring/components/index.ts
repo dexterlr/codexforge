@@ -1,0 +1,1 @@
+export { PublishGatewayIntakeBoundaryWiringPanel } from "./PublishGatewayIntakeBoundaryWiringPanel";

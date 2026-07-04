@@ -1,0 +1,1 @@
+export { PublishGatewayPrivacyGuardWiringPanel } from "./PublishGatewayPrivacyGuardWiringPanel";

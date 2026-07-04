@@ -1,0 +1,1 @@
+export { PublishGatewayMetadataPolicyWiringPanel } from "./PublishGatewayMetadataPolicyWiringPanel";

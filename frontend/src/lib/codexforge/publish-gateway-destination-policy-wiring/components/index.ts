@@ -1,0 +1,1 @@
+export { PublishGatewayDestinationPolicyWiringPanel } from "./PublishGatewayDestinationPolicyWiringPanel";
