@@ -1,0 +1,551 @@
+﻿[FAILED] Phase 836 Model Capability Registry Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-model-capability-registry-preview.ps1
+[FAILED] Phase 1182 Command Working Directory Guard - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-working-directory-guard.ps1
+[FAILED] Unified CodexForge Cockpit - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-unified-cockpit.ps1
+[FAILED] Phase 1194 Unified Cockpit Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-unified-cockpit-boundary.ps1
+[FAILED] Phase 1195 Cockpit Goal Intake Panel - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-goal-intake-panel.ps1
+[FAILED] Phase 1196 Cockpit Plan Summary Panel - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-plan-summary-panel.ps1
+[FAILED] Phase 1197 Cockpit File-Write Diff Panel - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-file-write-diff-panel.ps1
+[FAILED] Phase 1198 Cockpit Command Preview Panel - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-command-preview-panel.ps1
+[FAILED] Phase 1199 Cockpit Approval Queue Panel - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-approval-queue-panel.ps1
+[FAILED] Phase 1200 Cockpit Execution State Panel - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-execution-state-panel.ps1
+[FAILED] Phase 1201 Cockpit Evidence Panel - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-evidence-panel.ps1
+[FAILED] Phase 1202 Cockpit Result Panel - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-result-panel.ps1
+[FAILED] Phase 1203 Cockpit Recovery Panel - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-recovery-panel.ps1
+[FAILED] Phase 1204 Cockpit Safety Coach Panel - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-safety-coach-panel.ps1
+[FAILED] Phase 1205 Cockpit Dev Surface Drawer - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-dev-surface-drawer.ps1
+[FAILED] Phase 1206 Cockpit Single-Page Navigation Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-single-page-navigation-contract.ps1
+[FAILED] Phase 1207 Cockpit MVP Empty State - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-mvp-empty-state.ps1
+[FAILED] Phase 1208 First Unified Cockpit Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-unified-cockpit-candidate.ps1
+[FAILED] Phase 1209 Controlled Unified Cockpit Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-unified-cockpit-release-candidate.ps1
+[FAILED] Phase 1210 Cockpit Evidence Result Recovery Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-evidence-result-recovery-boundary.ps1
+[FAILED] Phase 1211 Cockpit Evidence Stream Model - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-evidence-stream-model.ps1
+[FAILED] Phase 1212 Cockpit File Evidence View - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-file-evidence-view.ps1
+[FAILED] Phase 1213 Cockpit Command Evidence View - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-command-evidence-view.ps1
+[FAILED] Phase 1214 Cockpit Result Summary Model - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-result-summary-model.ps1
+[FAILED] Phase 1215 Cockpit Result Decision View - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-result-decision-view.ps1
+[FAILED] Phase 1216 Cockpit Recovery Option Model - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-recovery-option-model.ps1
+[FAILED] Phase 1217 Cockpit Rollback Preview View - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-rollback-preview-view.ps1
+[FAILED] Phase 1218 Cockpit Retry Preview View - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-retry-preview-view.ps1
+[FAILED] Phase 1219 Cockpit Explain Failure View - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-explain-failure-view.ps1
+[FAILED] Phase 1220 Cockpit Audit Trail View - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-audit-trail-view.ps1
+[FAILED] Phase 1221 Cockpit Run Timeline View - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-run-timeline-view.ps1
+[FAILED] Phase 1222 Cockpit Evidence Export Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-evidence-export-preview.ps1
+[FAILED] Phase 1223 Cockpit Recovery Safety Gate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-recovery-safety-gate.ps1
+[FAILED] Phase 1224 First Cockpit Evidence Result Recovery Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-cockpit-evidence-result-recovery-candidate.ps1
+[FAILED] Phase 1225 Controlled Cockpit Evidence Result Recovery Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-cockpit-evidence-result-recovery-release-candidate.ps1
+[FAILED] Phase 1226 First Local Change Trial Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-local-change-trial-boundary.ps1
+[FAILED] Phase 1227 Local Change Goal Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-goal-packet.ps1
+[FAILED] Phase 1228 Local Change Plan Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-plan-packet.ps1
+[FAILED] Phase 1229 Local Change File Diff Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-file-diff-packet.ps1
+[FAILED] Phase 1230 Local Change Command Preview Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-command-preview-packet.ps1
+[FAILED] Phase 1231 Local Change Approval Ticket - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-approval-ticket.ps1
+[FAILED] Phase 1232 Local Change Apply Hold - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-apply-hold.ps1
+[FAILED] Phase 1233 Local Change Command Hold - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-command-hold.ps1
+[FAILED] Phase 1234 Local Change Evidence Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-evidence-preview.ps1
+[FAILED] Phase 1235 Local Change Result Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-result-preview.ps1
+[FAILED] Phase 1236 Local Change Recovery Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-recovery-preview.ps1
+[FAILED] Phase 1237 Local Change Audit Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-audit-preview.ps1
+[FAILED] Phase 1238 Local Change Cockpit Trial View - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-cockpit-trial-view.ps1
+[FAILED] Phase 1239 Local Change Denied Path Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-change-denied-path-review.ps1
+[FAILED] Phase 1240 First Approved Local Change Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-approved-local-change-candidate.ps1
+[FAILED] Phase 1241 Controlled First Local Change Trial Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-first-local-change-trial-release-candidate.ps1
+[FAILED] Phase 1242 End-to-End Build Fix Workflow Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-end-to-end-build-fix-workflow-boundary.ps1
+[FAILED] Phase 1243 Build Fix Goal Intake Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-goal-intake-packet.ps1
+[FAILED] Phase 1244 Build Fix Project Context Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-project-context-packet.ps1
+[FAILED] Phase 1245 Build Fix Plan Summary Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-plan-summary-packet.ps1
+[FAILED] Phase 1246 Build Fix File Diff Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-file-diff-packet.ps1
+[FAILED] Phase 1247 Build Fix Command Preview Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-command-preview-packet.ps1
+[FAILED] Phase 1248 Build Fix Risk Review Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-risk-review-packet.ps1
+[FAILED] Phase 1249 Build Fix Approval Ticket Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-approval-ticket-packet.ps1
+[FAILED] Phase 1250 Build Fix Apply Hold Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-apply-hold-packet.ps1
+[FAILED] Phase 1251 Build Fix Command Hold Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-command-hold-packet.ps1
+[FAILED] Phase 1252 Build Fix Evidence Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-evidence-packet.ps1
+[FAILED] Phase 1253 Build Fix Result Decision Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-result-decision-packet.ps1
+[FAILED] Phase 1254 Build Fix Recovery Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-recovery-packet.ps1
+[FAILED] Phase 1255 Build Fix Audit Timeline Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-fix-audit-timeline-packet.ps1
+[FAILED] Phase 1256 First End-to-End Build Fix Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-end-to-end-build-fix-candidate.ps1
+[FAILED] Phase 1257 Controlled End-to-End Build Fix Workflow Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-end-to-end-build-fix-workflow-release-candidate.ps1
+[FAILED] Phase 1258 Guided Operator Run Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-run-boundary.ps1
+[FAILED] Phase 1259 Guided Operator Goal Confirmation - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-goal-confirmation.ps1
+[FAILED] Phase 1260 Guided Operator Plan Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-plan-review.ps1
+[FAILED] Phase 1261 Guided Operator Diff Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-diff-review.ps1
+[FAILED] Phase 1262 Guided Operator Command Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-command-review.ps1
+[FAILED] Phase 1263 Guided Operator Approval Confirmation - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-approval-confirmation.ps1
+[FAILED] Phase 1264 Guided Operator Hold State Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-hold-state-review.ps1
+[FAILED] Phase 1265 Guided Operator Evidence Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-evidence-review.ps1
+[FAILED] Phase 1266 Guided Operator Result Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-result-review.ps1
+[FAILED] Phase 1267 Guided Operator Recovery Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-recovery-review.ps1
+[FAILED] Phase 1268 Guided Operator Timeline Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-timeline-review.ps1
+[FAILED] Phase 1269 Guided Operator Friction Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-friction-review.ps1
+[FAILED] Phase 1270 Guided Operator Safety Interlocks - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-safety-interlocks.ps1
+[FAILED] Phase 1271 Guided Operator Completion Checklist - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guided-operator-completion-checklist.ps1
+[FAILED] Phase 1272 First Guided Operator Run Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-guided-operator-run-candidate.ps1
+[FAILED] Phase 1273 Controlled Guided Operator Run Hardening Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-guided-operator-run-hardening-release-candidate.ps1
+[FAILED] Phase 1274 Controlled Execution Readiness Gate Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-execution-readiness-gate-boundary.ps1
+[FAILED] Phase 1275 Execution Readiness Goal Lock - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-goal-lock.ps1
+[FAILED] Phase 1276 Execution Readiness Plan Lock - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-plan-lock.ps1
+[FAILED] Phase 1277 Execution Readiness Diff Lock - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-diff-lock.ps1
+[FAILED] Phase 1278 Execution Readiness Command Lock - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-command-lock.ps1
+[FAILED] Phase 1279 Execution Readiness Approval Lock - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-approval-lock.ps1
+[FAILED] Phase 1280 Execution Readiness Evidence Lock - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-evidence-lock.ps1
+[FAILED] Phase 1281 Execution Readiness Result Lock - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-result-lock.ps1
+[FAILED] Phase 1282 Execution Readiness Recovery Lock - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-recovery-lock.ps1
+[FAILED] Phase 1283 Execution Readiness Audit Lock - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-audit-lock.ps1
+[FAILED] Phase 1284 Execution Readiness Safety Lock - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-safety-lock.ps1
+[FAILED] Phase 1285 Execution Readiness Operator Signoff - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-operator-signoff.ps1
+[FAILED] Phase 1286 Execution Readiness Denied Path Matrix - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-denied-path-matrix.ps1
+[FAILED] Phase 1287 Execution Readiness Go No-Go Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-readiness-go-no-go-summary.ps1
+[FAILED] Phase 1288 First Controlled Execution Readiness Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-controlled-execution-readiness-candidate.ps1
+[FAILED] Phase 1289 Controlled Execution Readiness Gate Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-execution-readiness-gate-release-candidate.ps1
+[FAILED] Phase 1290 Real Controlled Operator Trial Packet Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-controlled-operator-trial-packet-boundary.ps1
+[FAILED] Phase 1291 Real Trial Goal Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-goal-packet.ps1
+[FAILED] Phase 1292 Real Trial Project Context Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-project-context-packet.ps1
+[FAILED] Phase 1293 Real Trial File Write Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-file-write-packet.ps1
+[FAILED] Phase 1294 Real Trial Command Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-command-packet.ps1
+[FAILED] Phase 1295 Real Trial Approval Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-approval-packet.ps1
+[FAILED] Phase 1296 Real Trial Execution Hold Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-execution-hold-packet.ps1
+[FAILED] Phase 1297 Real Trial Evidence Capture Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-evidence-capture-packet.ps1
+[FAILED] Phase 1298 Real Trial Result Capture Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-result-capture-packet.ps1
+[FAILED] Phase 1299 Real Trial Recovery Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-recovery-packet.ps1
+[FAILED] Phase 1300 Real Trial Audit Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-audit-packet.ps1
+[FAILED] Phase 1301 Real Trial Operator Checklist - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-operator-checklist.ps1
+[FAILED] Phase 1302 Real Trial Denied Path Checklist - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-denied-path-checklist.ps1
+[FAILED] Phase 1303 Real Trial Go No-Go Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-go-no-go-review.ps1
+[FAILED] Phase 1304 First Real Controlled Operator Trial Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-real-controlled-operator-trial-candidate.ps1
+[FAILED] Phase 1305 Controlled Real Operator Trial Packet Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-real-operator-trial-packet-release-candidate.ps1
+[FAILED] Phase 1306 Backend Approval Handoff Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-approval-handoff-boundary.ps1
+[FAILED] Phase 1307 Backend Approval Ticket Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-approval-ticket-contract.ps1
+[FAILED] Phase 1308 Backend File Write Handoff Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-file-write-handoff-contract.ps1
+[FAILED] Phase 1309 Backend Command Handoff Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-command-handoff-contract.ps1
+[FAILED] Phase 1310 Backend Evidence Handoff Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-evidence-handoff-contract.ps1
+[FAILED] Phase 1311 Backend Result Handoff Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-result-handoff-contract.ps1
+[FAILED] Phase 1312 Backend Recovery Handoff Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-recovery-handoff-contract.ps1
+[FAILED] Phase 1313 Backend Audit Handoff Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-audit-handoff-contract.ps1
+[FAILED] Phase 1314 Backend Queue Handoff Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-queue-handoff-contract.ps1
+[FAILED] Phase 1315 Backend Approval Denied Path Matrix - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-approval-denied-path-matrix.ps1
+[FAILED] Phase 1316 Backend Approval Operator Signoff - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-approval-operator-signoff.ps1
+[FAILED] Phase 1317 Backend Approval Go No-Go Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-approval-go-no-go-review.ps1
+[FAILED] Phase 1318 Backend Handoff Security Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-handoff-security-review.ps1
+[FAILED] Phase 1319 Backend Handoff Failure Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-handoff-failure-review.ps1
+[FAILED] Phase 1320 First Backend Approval Handoff Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-backend-approval-handoff-candidate.ps1
+[FAILED] Phase 1321 Controlled Backend Approval Handoff Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-backend-approval-handoff-release-candidate.ps1
+[FAILED] Phase 1322 Backend Guarded Apply Run Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-apply-run-boundary.ps1
+[FAILED] Phase 1323 Backend Guarded Apply Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-apply-contract.ps1
+[FAILED] Phase 1324 Backend Guarded Run Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-run-contract.ps1
+[FAILED] Phase 1325 Backend Guarded Combined Apply Run Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-combined-apply-run-contract.ps1
+[FAILED] Phase 1326 Backend Guarded Path Guard Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-path-guard-contract.ps1
+[FAILED] Phase 1327 Backend Guarded Command Guard Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-command-guard-contract.ps1
+[FAILED] Phase 1328 Backend Guarded Approval Enforcement Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-approval-enforcement-contract.ps1
+[FAILED] Phase 1329 Backend Guarded Evidence Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-evidence-contract.ps1
+[FAILED] Phase 1330 Backend Guarded Result Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-result-contract.ps1
+[FAILED] Phase 1331 Backend Guarded Recovery Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-recovery-contract.ps1
+[FAILED] Phase 1332 Backend Guarded Audit Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-audit-contract.ps1
+[FAILED] Phase 1333 Backend Guarded Queue State Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-queue-state-contract.ps1
+[FAILED] Phase 1334 Backend Guarded Denied Path Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-denied-path-review.ps1
+[FAILED] Phase 1335 Backend Guarded Go No-Go Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guarded-go-no-go-review.ps1
+[FAILED] Phase 1336 First Backend Guarded Apply Run Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-backend-guarded-apply-run-candidate.ps1
+[FAILED] Phase 1337 Controlled Backend Guarded Apply Run Preview Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-backend-guarded-apply-run-preview-release-candidate.ps1
+[FAILED] Phase 1338 Guarded Apply Run Dry-Run Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guarded-apply-run-dry-run-boundary.ps1
+[FAILED] Phase 1339 Dry-Run Apply Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-apply-packet.ps1
+[FAILED] Phase 1340 Dry-Run Run Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-run-packet.ps1
+[FAILED] Phase 1341 Dry-Run Combined Apply Run Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-combined-apply-run-packet.ps1
+[FAILED] Phase 1342 Dry-Run Path Guard Evaluation - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-path-guard-evaluation.ps1
+[FAILED] Phase 1343 Dry-Run Command Guard Evaluation - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-command-guard-evaluation.ps1
+[FAILED] Phase 1344 Dry-Run Approval Verification - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-approval-verification.ps1
+[FAILED] Phase 1345 Dry-Run Evidence Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-evidence-preview.ps1
+[FAILED] Phase 1346 Dry-Run Result Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-result-preview.ps1
+[FAILED] Phase 1347 Dry-Run Recovery Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-recovery-preview.ps1
+[FAILED] Phase 1348 Dry-Run Audit Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-audit-preview.ps1
+[FAILED] Phase 1349 Dry-Run Queue Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-queue-preview.ps1
+[FAILED] Phase 1350 Dry-Run Denied Path Matrix - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-denied-path-matrix.ps1
+[FAILED] Phase 1351 Dry-Run Go No-Go Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dry-run-go-no-go-review.ps1
+[FAILED] Phase 1352 First Guarded Apply Run Dry-Run Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-guarded-apply-run-dry-run-candidate.ps1
+[FAILED] Phase 1353 Controlled Guarded Apply Run Dry-Run Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-guarded-apply-run-dry-run-release-candidate.ps1
+[FAILED] Phase 1354 Tiny Real Controlled Trial Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-controlled-trial-boundary.ps1
+[FAILED] Phase 1355 Tiny Real File Write Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-file-write-candidate.ps1
+[FAILED] Phase 1356 Tiny Real Command Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-command-candidate.ps1
+[FAILED] Phase 1357 Tiny Real Approval Ticket - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-approval-ticket.ps1
+[FAILED] Phase 1358 Tiny Real Backend Execution Hold - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-backend-execution-hold.ps1
+[FAILED] Phase 1359 Tiny Real Path Guard - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-path-guard.ps1
+[FAILED] Phase 1360 Tiny Real Command Guard - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-command-guard.ps1
+[FAILED] Phase 1361 Tiny Real Preflight Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-preflight-review.ps1
+[FAILED] Phase 1362 Tiny Real Evidence Capture Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-evidence-capture-contract.ps1
+[FAILED] Phase 1363 Tiny Real Result Capture Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-result-capture-contract.ps1
+[FAILED] Phase 1364 Tiny Real Audit Capture Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-audit-capture-contract.ps1
+[FAILED] Phase 1365 Tiny Real Recovery Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-recovery-contract.ps1
+[FAILED] Phase 1366 Tiny Real Denied Path Matrix - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-denied-path-matrix.ps1
+[FAILED] Phase 1367 Tiny Real Operator Signoff - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-tiny-real-operator-signoff.ps1
+[FAILED] Phase 1368 First Tiny Real Controlled Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-tiny-real-controlled-candidate.ps1
+[FAILED] Phase 1369 Controlled Tiny Real Operator Trial Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-tiny-real-operator-trial-release-candidate.ps1
+[FAILED] Phase 1370 Real Trial Hardening Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-real-trial-hardening-boundary.ps1
+[FAILED] Phase 1371 Denied Path Failure Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-denied-path-failure-handling.ps1
+[FAILED] Phase 1372 Denied Command Failure Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-denied-command-failure-handling.ps1
+[FAILED] Phase 1373 Approval Expiry Failure Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-approval-expiry-failure-handling.ps1
+[FAILED] Phase 1374 Dirty Workspace Failure Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dirty-workspace-failure-handling.ps1
+[FAILED] Phase 1375 Preflight Failure Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-preflight-failure-handling.ps1
+[FAILED] Phase 1376 Backend Guard Mismatch Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-guard-mismatch-handling.ps1
+[FAILED] Phase 1377 Evidence Capture Failure Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-evidence-capture-failure-handling.ps1
+[FAILED] Phase 1378 Result Capture Failure Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-result-capture-failure-handling.ps1
+[FAILED] Phase 1379 Audit Capture Failure Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-audit-capture-failure-handling.ps1
+[FAILED] Phase 1380 Operator Stop Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-operator-stop-handling.ps1
+[FAILED] Phase 1381 Manual Review Handling - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-manual-review-handling.ps1
+[FAILED] Phase 1382 Recovery Review Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-recovery-review-packet.ps1
+[FAILED] Phase 1383 Rollback Readiness Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-rollback-readiness-preview.ps1
+[FAILED] Phase 1384 Retry Readiness Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-retry-readiness-preview.ps1
+[FAILED] Phase 1385 Controlled Real Trial Hardening Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-real-trial-hardening-release-candidate.ps1
+[FAILED] Phase 1386 Daily-Testable Cockpit Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-daily-testable-cockpit-boundary.ps1
+[FAILED] Phase 1387 Cockpit Goal Composer Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-goal-composer-polish.ps1
+[FAILED] Phase 1388 Cockpit Plan Summary Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-plan-summary-polish.ps1
+[FAILED] Phase 1389 Cockpit Diff Preview Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-diff-preview-polish.ps1
+[FAILED] Phase 1390 Cockpit Command Preview Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-command-preview-polish.ps1
+[FAILED] Phase 1391 Cockpit Approval Gate Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-approval-gate-polish.ps1
+[FAILED] Phase 1392 Cockpit Execution State Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-execution-state-polish.ps1
+[FAILED] Phase 1393 Cockpit Evidence Result Recovery Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-evidence-result-recovery-polish.ps1
+[FAILED] Phase 1394 Cockpit Audit Timeline Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-audit-timeline-polish.ps1
+[FAILED] Phase 1395 Cockpit Safety Coach Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-safety-coach-polish.ps1
+[FAILED] Phase 1396 Cockpit Dev Diagnostics Drawer Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-dev-diagnostics-drawer-polish.ps1
+[FAILED] Phase 1397 Cockpit Empty Loading Error Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-empty-loading-error-polish.ps1
+[FAILED] Phase 1398 Cockpit Copy Trust Polish - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-copy-trust-polish.ps1
+[FAILED] Phase 1399 Cockpit Daily Test Checklist - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-daily-test-checklist.ps1
+[FAILED] Phase 1400 First Daily-Testable Cockpit MVP Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-daily-testable-cockpit-mvp-candidate.ps1
+[FAILED] Phase 1401 Controlled Daily-Testable Cockpit MVP Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-daily-testable-cockpit-mvp-release-candidate.ps1
+[FAILED] Phase 1402 Project Context Brain Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-project-context-brain-boundary.ps1
+[FAILED] Phase 1403 Workspace Identity Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-workspace-identity-packet.ps1
+[FAILED] Phase 1404 Project Map Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-project-map-preview.ps1
+[FAILED] Phase 1405 Framework Runtime Detection Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-framework-runtime-detection-preview.ps1
+[FAILED] Phase 1406 Package Tooling Detection Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-package-tooling-detection-preview.ps1
+[FAILED] Phase 1407 Important Files Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-important-files-preview.ps1
+[FAILED] Phase 1408 Command Candidate Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-candidate-preview.ps1
+[FAILED] Phase 1409 Risk Zone Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-risk-zone-preview.ps1
+[FAILED] Phase 1410 Denied Context Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-denied-context-boundary.ps1
+[FAILED] Phase 1411 Evidence Needs Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-evidence-needs-preview.ps1
+[FAILED] Phase 1412 Result Expectation Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-result-expectation-preview.ps1
+[FAILED] Phase 1413 Recovery Implication Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-recovery-implication-preview.ps1
+[FAILED] Phase 1414 Context Confidence Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-context-confidence-review.ps1
+[FAILED] Phase 1415 Cockpit Project Context Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-project-context-summary.ps1
+[FAILED] Phase 1416 First Project Context Brain Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-project-context-brain-candidate.ps1
+[FAILED] Phase 1417 Controlled Project Context Brain Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-project-context-brain-release-candidate.ps1
+[FAILED] Phase 1418 Goal Compiler Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-goal-compiler-boundary.ps1
+[FAILED] Phase 1419 Raw Goal Intake Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-raw-goal-intake-packet.ps1
+[FAILED] Phase 1420 Goal Domain Classifier Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-goal-domain-classifier-preview.ps1
+[FAILED] Phase 1421 Task Type Classifier Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-task-type-classifier-preview.ps1
+[FAILED] Phase 1422 Target Artifact Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-target-artifact-preview.ps1
+[FAILED] Phase 1423 Context Requirement Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-context-requirement-preview.ps1
+[FAILED] Phase 1424 File Impact Expectation Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-file-impact-expectation-preview.ps1
+[FAILED] Phase 1425 Command Expectation Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-expectation-preview.ps1
+[FAILED] Phase 1426 Risk Level Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-risk-level-preview.ps1
+[FAILED] Phase 1427 Approval Scope Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-approval-scope-preview.ps1
+[FAILED] Phase 1428 Evidence Requirement Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-evidence-requirement-preview.ps1
+[FAILED] Phase 1429 Done Criteria Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-done-criteria-preview.ps1
+[FAILED] Phase 1430 Goal Recovery Implication Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-goal-recovery-implication-preview.ps1
+[FAILED] Phase 1431 Model Tool Routing Hint Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-model-tool-routing-hint-preview.ps1
+[FAILED] Phase 1432 First Goal Compiler Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-goal-compiler-candidate.ps1
+[FAILED] Phase 1433 Controlled Goal Compiler Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-goal-compiler-release-candidate.ps1
+[FAILED] Phase 1434 Plan Diff Command Composer Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-plan-diff-command-composer-boundary.ps1
+[FAILED] Phase 1435 Plan Step Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-plan-step-packet.ps1
+[FAILED] Phase 1436 File Impact Plan Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-file-impact-plan-preview.ps1
+[FAILED] Phase 1437 Diff Preview Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-diff-preview-packet.ps1
+[FAILED] Phase 1438 Command Preview Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-preview-packet.ps1
+[FAILED] Phase 1439 Risk Review Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-risk-review-packet.ps1
+[FAILED] Phase 1440 Approval Packet Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-approval-packet-preview.ps1
+[FAILED] Phase 1441 Execution Hold Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-execution-hold-preview.ps1
+[FAILED] Phase 1442 Evidence Expectation Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-evidence-expectation-packet.ps1
+[FAILED] Phase 1443 Result Expectation Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-result-expectation-packet.ps1
+[FAILED] Phase 1444 Recovery Plan Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-recovery-plan-preview.ps1
+[FAILED] Phase 1445 Audit Timeline Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-audit-timeline-preview.ps1
+[FAILED] Phase 1446 Model Tool Handoff Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-model-tool-handoff-preview.ps1
+[FAILED] Phase 1447 Cockpit Work Proposal Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-work-proposal-summary.ps1
+[FAILED] Phase 1448 First Plan Diff Command Composer Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-plan-diff-command-composer-candidate.ps1
+[FAILED] Phase 1449 Controlled Plan Diff Command Composer Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-plan-diff-command-composer-release-candidate.ps1
+[FAILED] Phase 1450 Evidence Memory Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-evidence-memory-boundary.ps1
+[FAILED] Phase 1451 Goal Memory Snapshot Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-goal-memory-snapshot-preview.ps1
+[FAILED] Phase 1452 Context Memory Snapshot Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-context-memory-snapshot-preview.ps1
+[FAILED] Phase 1453 Plan Memory Snapshot Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-plan-memory-snapshot-preview.ps1
+[FAILED] Phase 1454 Diff Memory Snapshot Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-diff-memory-snapshot-preview.ps1
+[FAILED] Phase 1455 Command Memory Snapshot Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-memory-snapshot-preview.ps1
+[FAILED] Phase 1456 Approval Memory Snapshot Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-approval-memory-snapshot-preview.ps1
+[FAILED] Phase 1457 Evidence Memory Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-evidence-memory-packet.ps1
+[FAILED] Phase 1458 Result Memory Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-result-memory-packet.ps1
+[FAILED] Phase 1459 Recovery Memory Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-recovery-memory-packet.ps1
+[FAILED] Phase 1460 Audit Memory Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-audit-memory-packet.ps1
+[FAILED] Phase 1461 Denied Memory Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-denied-memory-boundary.ps1
+[FAILED] Phase 1462 Memory Promotion Review - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-memory-promotion-review.ps1
+[FAILED] Phase 1463 Cockpit Evidence Memory Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-evidence-memory-summary.ps1
+[FAILED] Phase 1464 First Evidence Memory Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-evidence-memory-candidate.ps1
+[FAILED] Phase 1465 Controlled Evidence Memory Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-evidence-memory-release-candidate.ps1
+[FAILED] Phase 1466 Backend Execution Queue Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backend-execution-queue-boundary.ps1
+[FAILED] Phase 1467 Queue Item Model Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-item-model-preview.ps1
+[FAILED] Phase 1468 Queue Approval State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-approval-state-preview.ps1
+[FAILED] Phase 1469 Queue Preflight State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-preflight-state-preview.ps1
+[FAILED] Phase 1470 Queue Apply State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-apply-state-preview.ps1
+[FAILED] Phase 1471 Queue Run State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-run-state-preview.ps1
+[FAILED] Phase 1472 Queue Evidence Capture State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-evidence-capture-state-preview.ps1
+[FAILED] Phase 1473 Queue Result Capture State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-result-capture-state-preview.ps1
+[FAILED] Phase 1474 Queue Audit Capture State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-audit-capture-state-preview.ps1
+[FAILED] Phase 1475 Queue Blocked Denied State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-blocked-denied-state-preview.ps1
+[FAILED] Phase 1476 Queue Failed Canceled State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-failed-canceled-state-preview.ps1
+[FAILED] Phase 1477 Queue Manual Review State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-manual-review-state-preview.ps1
+[FAILED] Phase 1478 Queue Recovery State Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-recovery-state-preview.ps1
+[FAILED] Phase 1479 Cockpit Queue Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-queue-summary.ps1
+[FAILED] Phase 1480 First Backend Execution Queue Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-backend-execution-queue-candidate.ps1
+[FAILED] Phase 1481 Controlled Backend Execution Queue Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-backend-execution-queue-release-candidate.ps1
+[FAILED] Phase 1482 Apply Run Transaction Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-apply-run-transaction-boundary.ps1
+[FAILED] Phase 1483 Transaction Intent Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-transaction-intent-packet.ps1
+[FAILED] Phase 1484 Transaction Preflight Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-transaction-preflight-preview.ps1
+[FAILED] Phase 1485 Workspace Snapshot Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-workspace-snapshot-preview.ps1
+[FAILED] Phase 1486 Guarded Apply Transaction Step - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guarded-apply-transaction-step.ps1
+[FAILED] Phase 1487 Guarded Run Transaction Step - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-guarded-run-transaction-step.ps1
+[FAILED] Phase 1488 Transaction Validation Step - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-transaction-validation-step.ps1
+[FAILED] Phase 1489 Transaction Evidence Capture Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-transaction-evidence-capture-preview.ps1
+[FAILED] Phase 1490 Transaction Result Capture Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-transaction-result-capture-preview.ps1
+[FAILED] Phase 1491 Transaction Audit Capture Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-transaction-audit-capture-preview.ps1
+[FAILED] Phase 1492 Transaction Rollback Readiness Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-transaction-rollback-readiness-preview.ps1
+[FAILED] Phase 1493 Transaction Retry Readiness Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-transaction-retry-readiness-preview.ps1
+[FAILED] Phase 1494 Transaction Recovery Decision Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-transaction-recovery-decision-preview.ps1
+[FAILED] Phase 1495 Cockpit Transaction Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-transaction-summary.ps1
+[FAILED] Phase 1496 First Apply Run Transaction Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-apply-run-transaction-candidate.ps1
+[FAILED] Phase 1497 Controlled Apply Run Transaction Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-apply-run-transaction-release-candidate.ps1
+[FAILED] Phase 1498 Command Runner Safety Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-runner-safety-boundary.ps1
+[FAILED] Phase 1499 Command Allowlist Policy v2 - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-allowlist-policy-v2.ps1
+[FAILED] Phase 1500 Command Argument Parser Guard - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-argument-parser-guard.ps1
+[FAILED] Phase 1502 Command Environment Redaction Guard - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-environment-redaction-guard.ps1
+[FAILED] Phase 1503 Command Timeout Cancellation Guard - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-timeout-cancellation-guard.ps1
+[FAILED] Phase 1504 Stdout Stderr Capture Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-stdout-stderr-capture-contract.ps1
+[FAILED] Phase 1505 Exit Code Normalization Contract - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-exit-code-normalization-contract.ps1
+[FAILED] Phase 1506 Shell Escalation Denial - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-shell-escalation-denial.ps1
+[FAILED] Phase 1507 Dangerous Command Denial - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dangerous-command-denial.ps1
+[FAILED] Phase 1508 Install Deploy Port Runtime Denial - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-install-deploy-port-runtime-denial.ps1
+[FAILED] Phase 1509 Command Evidence Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-evidence-packet.ps1
+[FAILED] Phase 1510 Command Result Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-command-result-packet.ps1
+[FAILED] Phase 1511 Cockpit Command Safety Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-command-safety-summary.ps1
+[FAILED] Phase 1512 First Command Runner Safety v2 Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-command-runner-safety-v2-candidate.ps1
+[FAILED] Phase 1513 Controlled Command Runner Safety v2 Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-command-runner-safety-v2-release-candidate.ps1
+[FAILED] Phase 1514 Release-Grade Audit Trail Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-release-grade-audit-trail-boundary.ps1
+[FAILED] Phase 1515 Goal Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-goal-audit-record-preview.ps1
+[FAILED] Phase 1516 Context Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-context-audit-record-preview.ps1
+[FAILED] Phase 1517 Compiler Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-compiler-audit-record-preview.ps1
+[FAILED] Phase 1518 Proposal Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-proposal-audit-record-preview.ps1
+[FAILED] Phase 1519 Approval Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-approval-audit-record-preview.ps1
+[FAILED] Phase 1520 Queue Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-queue-audit-record-preview.ps1
+[FAILED] Phase 1521 Transaction Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-transaction-audit-record-preview.ps1
+[FAILED] Phase 1522 Apply Command Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-apply-command-audit-record-preview.ps1
+[FAILED] Phase 1523 Evidence Result Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-evidence-result-audit-record-preview.ps1
+[FAILED] Phase 1524 Recovery Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-recovery-audit-record-preview.ps1
+[FAILED] Phase 1525 Memory Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-memory-audit-record-preview.ps1
+[FAILED] Phase 1526 Denied Path Audit Record Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-denied-path-audit-record-preview.ps1
+[FAILED] Phase 1527 Cockpit Audit Trail Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-audit-trail-summary.ps1
+[FAILED] Phase 1528 First Release-Grade Audit Trail Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-release-grade-audit-trail-candidate.ps1
+[FAILED] Phase 1529 Controlled Release-Grade Audit Trail Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-release-grade-audit-trail-release-candidate.ps1
+[FAILED] Phase 1530 Model Router v2 Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-model-router-v2-boundary.ps1
+[FAILED] Phase 1532 Local Private Model Preference Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-private-model-preference-preview.ps1
+[FAILED] Phase 1533 Cheapest Capable Model Policy Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cheapest-capable-model-policy-preview.ps1
+[FAILED] Phase 1534 Paid Pro Model Justification Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-paid-pro-model-justification-preview.ps1
+[FAILED] Phase 1535 Specialist Model Domain Fit Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-specialist-model-domain-fit-preview.ps1
+[FAILED] Phase 1536 Model Privacy Class Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-model-privacy-class-preview.ps1
+[FAILED] Phase 1537 Model Cost Class Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-model-cost-class-preview.ps1
+[FAILED] Phase 1538 Prompt Payload Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-prompt-payload-preview.ps1
+[FAILED] Phase 1539 Model Approval Gate Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-model-approval-gate-preview.ps1
+[FAILED] Phase 1540 Model Fallback Route Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-model-fallback-route-preview.ps1
+[FAILED] Phase 1541 Model Denial Route Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-model-denial-route-preview.ps1
+[FAILED] Phase 1542 Model Evidence Result Audit Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-model-evidence-result-audit-preview.ps1
+[FAILED] Phase 1543 Cockpit Model Router Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-model-router-summary.ps1
+[FAILED] Phase 1544 First Model Router v2 Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-model-router-v2-candidate.ps1
+[FAILED] Phase 1545 Controlled Model Router v2 Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-model-router-v2-release-candidate.ps1
+[FAILED] Phase 1546 Provider Approval Gate Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-provider-approval-gate-boundary.ps1
+[FAILED] Phase 1547 Provider Request Packet - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-provider-request-packet.ps1
+[FAILED] Phase 1548 Provider Identity Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-provider-identity-preview.ps1
+[FAILED] Phase 1549 Prompt Payload Approval Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-prompt-payload-approval-preview.ps1
+[FAILED] Phase 1550 Data Boundary Approval Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-data-boundary-approval-preview.ps1
+[FAILED] Phase 1551 Privacy Class Approval Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-privacy-class-approval-preview.ps1
+[FAILED] Phase 1552 Cost Class Approval Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cost-class-approval-preview.ps1
+[FAILED] Phase 1553 Capability Justification Approval Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-capability-justification-approval-preview.ps1
+[FAILED] Phase 1554 Expiry Replay Protection Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-expiry-replay-protection-preview.ps1
+[FAILED] Phase 1555 Provider Fallback Approval Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-provider-fallback-approval-preview.ps1
+[FAILED] Phase 1556 Provider Denial Route Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-provider-denial-route-preview.ps1
+[FAILED] Phase 1557 Provider Evidence Capture Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-provider-evidence-capture-preview.ps1
+[FAILED] Phase 1558 Provider Result Capture Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-provider-result-capture-preview.ps1
+[FAILED] Phase 1559 Cockpit Provider Approval Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-provider-approval-summary.ps1
+[FAILED] Phase 1560 First Provider Approval Gate Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-provider-approval-gate-candidate.ps1
+[FAILED] Phase 1561 Controlled Provider Approval Gate Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-provider-approval-gate-release-candidate.ps1
+[FAILED] Phase 1562 Local Model Bridge Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-model-bridge-boundary.ps1
+[FAILED] Phase 1563 Local Runtime Identity Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-runtime-identity-preview.ps1
+[FAILED] Phase 1564 Local Model Registry Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-model-registry-preview.ps1
+[FAILED] Phase 1565 Local Endpoint Boundary Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-endpoint-boundary-preview.ps1
+[FAILED] Phase 1566 Local Prompt Handoff Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-prompt-handoff-preview.ps1
+[FAILED] Phase 1567 Local Context Redaction Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-context-redaction-preview.ps1
+[FAILED] Phase 1568 Local Capability Fit Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-capability-fit-preview.ps1
+[FAILED] Phase 1569 Local Timeout Cancellation Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-timeout-cancellation-preview.ps1
+[FAILED] Phase 1570 Local Response Capture Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-response-capture-preview.ps1
+[FAILED] Phase 1571 Local Fallback Route Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-fallback-route-preview.ps1
+[FAILED] Phase 1572 Local Denial Route Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-denial-route-preview.ps1
+[FAILED] Phase 1573 Local Evidence Capture Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-evidence-capture-preview.ps1
+[FAILED] Phase 1574 Local Result Audit Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-local-result-audit-preview.ps1
+[FAILED] Phase 1575 Cockpit Local Model Bridge Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-local-model-bridge-summary.ps1
+[FAILED] Phase 1576 First Local Model Bridge Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-local-model-bridge-candidate.ps1
+[FAILED] Phase 1577 Controlled Local Model Bridge Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-local-model-bridge-release-candidate.ps1
+[FAILED] Phase 1578 Specialist Worker Registry Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-specialist-worker-registry-boundary.ps1
+[FAILED] Phase 1579 Coding Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-coding-worker-profile-preview.ps1
+[FAILED] Phase 1580 Research Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-research-worker-profile-preview.ps1
+[FAILED] Phase 1581 Game Server Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-game-server-worker-profile-preview.ps1
+[FAILED] Phase 1582 Web App Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-web-app-worker-profile-preview.ps1
+[FAILED] Phase 1583 Docs Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-docs-worker-profile-preview.ps1
+[FAILED] Phase 1584 Data Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-data-worker-profile-preview.ps1
+[FAILED] Phase 1585 Creative Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-creative-worker-profile-preview.ps1
+[FAILED] Phase 1586 Video Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-video-worker-profile-preview.ps1
+[FAILED] Phase 1587 Trading Analysis Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-analysis-worker-profile-preview.ps1
+[FAILED] Phase 1588 QA Validation Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-qa-validation-worker-profile-preview.ps1
+[FAILED] Phase 1589 Audit Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-audit-worker-profile-preview.ps1
+[FAILED] Phase 1590 Recovery Worker Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-recovery-worker-profile-preview.ps1
+[FAILED] Phase 1591 Worker Routing Fit Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-worker-routing-fit-preview.ps1
+[FAILED] Cockpit Specialist Worker Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-specialist-worker-summary.ps1
+[FAILED] Phase 1592 First Specialist Worker Registry Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-specialist-worker-registry-candidate.ps1
+[FAILED] Phase 1593 Controlled Specialist Worker Registry Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-specialist-worker-registry-release-candidate.ps1
+[FAILED] Phase 1594 Game Server Builder Domain Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-game-server-builder-domain-boundary.ps1
+[FAILED] Phase 1595 Game Server Goal Intake Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-game-server-goal-intake-preview.ps1
+[FAILED] Phase 1596 Server Type Classifier Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-server-type-classifier-preview.ps1
+[FAILED] Phase 1597 Theme Lore Pack Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-theme-lore-pack-preview.ps1
+[FAILED] Phase 1598 Minecraft Server Profile Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-minecraft-server-profile-preview.ps1
+[FAILED] Phase 1599 Plugin Mod Intent Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-plugin-mod-intent-preview.ps1
+[FAILED] Phase 1600 World Rules Config Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-world-rules-config-preview.ps1
+[FAILED] Phase 1601 Roles Permissions Economy Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-roles-permissions-economy-preview.ps1
+[FAILED] Phase 1602 Quest Region Faction Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-quest-region-faction-preview.ps1
+[FAILED] Phase 1603 Server File Plan Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-server-file-plan-preview.ps1
+[FAILED] Phase 1604 Server Command Plan Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-server-command-plan-preview.ps1
+[FAILED] Phase 1605 Server Validation Evidence Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-server-validation-evidence-preview.ps1
+[FAILED] Phase 1606 Server Recovery Audit Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-server-recovery-audit-preview.ps1
+[FAILED] Phase 1607 Cockpit Game Server Builder Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-game-server-builder-summary.ps1
+[FAILED] Phase 1608 First Game Server Builder Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-game-server-builder-candidate.ps1
+[FAILED] Phase 1609 Controlled Game Server Builder Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-game-server-builder-release-candidate.ps1
+[FAILED] Phase 1610 Domain Pack Runner Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-pack-runner-boundary.ps1
+[FAILED] Phase 1611 Domain Pack Catalog Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-pack-catalog-preview.ps1
+[FAILED] Phase 1612 Domain Goal Intake Runner Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-goal-intake-runner-preview.ps1
+[FAILED] Phase 1613 Domain Classifier Runner Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-classifier-runner-preview.ps1
+[FAILED] Phase 1614 Domain Worker Route Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-worker-route-preview.ps1
+[FAILED] Phase 1615 Domain Plan Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-plan-preview.ps1
+[FAILED] Phase 1616 Domain Artifact Plan Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-artifact-plan-preview.ps1
+[FAILED] Phase 1617 Domain Command Plan Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-command-plan-preview.ps1
+[FAILED] Phase 1618 Domain Approval Gate Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-approval-gate-preview.ps1
+[FAILED] Phase 1619 Domain Evidence Result Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-evidence-result-preview.ps1
+[FAILED] Phase 1620 Domain Audit Trail Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-audit-trail-preview.ps1
+[FAILED] Phase 1621 Domain Recovery Route Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-recovery-route-preview.ps1
+[FAILED] Phase 1622 Cockpit Domain Runner Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-domain-runner-summary.ps1
+[FAILED] Phase 1623 Front User-Facing Runner Shell - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-front-user-facing-runner-shell.ps1
+[FAILED] Phase 1624 First Domain Pack Runner Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-domain-pack-runner-candidate.ps1
+[FAILED] Phase 1625 Controlled Domain Pack Runner Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-domain-pack-runner-release-candidate.ps1
+[FAILED] Phase 1626 Cockpit Domain Workspace Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-domain-workspace-boundary.ps1
+[FAILED] Phase 1627 Front Goal Composer Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-front-goal-composer-preview.ps1
+[FAILED] Phase 1628 Domain Cards Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-domain-cards-preview.ps1
+[FAILED] Phase 1629 Active Domain Workspace Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-active-domain-workspace-preview.ps1
+[FAILED] Phase 1630 Generated Plan Workspace Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-generated-plan-workspace-preview.ps1
+[FAILED] Phase 1631 Worker Route Workspace Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-worker-route-workspace-preview.ps1
+[FAILED] Phase 1632 Approval Gates Workspace Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-approval-gates-workspace-preview.ps1
+[FAILED] Phase 1633 Artifact Command Workspace Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-artifact-command-workspace-preview.ps1
+[FAILED] Phase 1634 Evidence Result Workspace Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-evidence-result-workspace-preview.ps1
+[FAILED] Phase 1635 Recovery Audit Workspace Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-recovery-audit-workspace-preview.ps1
+[FAILED] Phase 1636 Memory Context Workspace Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-memory-context-workspace-preview.ps1
+[FAILED] Phase 1637 Trading Automation Domain Teaser Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-automation-domain-teaser-preview.ps1
+[FAILED] Phase 1638 Game Server Builder Workspace Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-game-server-builder-workspace-preview.ps1
+[FAILED] Phase 1639 Next Action Rail Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-next-action-rail-preview.ps1
+[FAILED] Phase 1640 First Cockpit Domain Workspace Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-cockpit-domain-workspace-candidate.ps1
+[FAILED] Phase 1641 Controlled Cockpit Domain Workspace Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-cockpit-domain-workspace-release-candidate.ps1
+[FAILED] Phase 1642 Trading Research Domain Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-research-domain-boundary.ps1
+[FAILED] Phase 1643 Trading Research Goal Intake Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-research-goal-intake-preview.ps1
+[FAILED] Phase 1644 Trading Watchlist Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-watchlist-preview.ps1
+[FAILED] Phase 1645 Trading Thesis Builder Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-thesis-builder-preview.ps1
+[FAILED] Phase 1646 Trading Catalyst Tracker Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-catalyst-tracker-preview.ps1
+[FAILED] Phase 1647 Trading Risk Notes Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-risk-notes-preview.ps1
+[FAILED] Phase 1648 Trading Strategy Candidate Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-strategy-candidate-preview.ps1
+[FAILED] Phase 1649 Trading Backtest Readiness Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-backtest-readiness-preview.ps1
+[FAILED] Phase 1650 Trading Paper Trade Readiness Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-paper-trade-readiness-preview.ps1
+[FAILED] Phase 1651 Trading Profit Lockbox Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-profit-lockbox-preview.ps1
+[FAILED] Phase 1652 Trading Mandate Draft Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-mandate-draft-preview.ps1
+[FAILED] Phase 1653 Trading Broker Boundary Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-broker-boundary-preview.ps1
+[FAILED] Phase 1654 Trading Evidence Audit Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-evidence-audit-preview.ps1
+[FAILED] Phase 1655 Cockpit Trading Research Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-trading-research-summary.ps1
+[FAILED] Phase 1656 First Trading Research Domain Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-trading-research-domain-candidate.ps1
+[FAILED] Phase 1657 Controlled Trading Research Domain Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-trading-research-domain-release-candidate.ps1
+[FAILED] Phase 1658 Trading Mandate Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-mandate-boundary.ps1
+[FAILED] Phase 1659 Capital Allocation Rules Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-capital-allocation-rules-preview.ps1
+[FAILED] Phase 1660 Active Capital Ledger Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-active-capital-ledger-preview.ps1
+[FAILED] Phase 1661 Protected Profit Bucket Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-protected-profit-bucket-preview.ps1
+[FAILED] Phase 1662 Reinvestable Profit Rules Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-reinvestable-profit-rules-preview.ps1
+[FAILED] Phase 1663 Max Daily Loss Guard Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-max-daily-loss-guard-preview.ps1
+[FAILED] Phase 1664 Max Drawdown Guard Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-max-drawdown-guard-preview.ps1
+[FAILED] Phase 1665 Position Risk Guard Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-position-risk-guard-preview.ps1
+[FAILED] Phase 1666 Approved Market Universe Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-approved-market-universe-preview.ps1
+[FAILED] Phase 1667 Approved Symbol Universe Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-approved-symbol-universe-preview.ps1
+[FAILED] Phase 1668 Approved Strategy Class Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-approved-strategy-class-preview.ps1
+[FAILED] Phase 1669 Trade Thesis Requirement Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trade-thesis-requirement-preview.ps1
+[FAILED] Phase 1670 Trading Evidence Requirement Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-evidence-requirement-preview.ps1
+[FAILED] Phase 1671 Trading Kill Switch Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-kill-switch-preview.ps1
+[FAILED] Phase 1672 First Trading Mandate Risk Governor Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-trading-mandate-risk-governor-candidate.ps1
+[FAILED] Phase 1673 Controlled Trading Mandate Risk Governor Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-trading-mandate-risk-governor-release-candidate.ps1
+[FAILED] Phase 1674 Strategy Lab Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-strategy-lab-boundary.ps1
+[FAILED] Phase 1675 Strategy Idea Intake Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-strategy-idea-intake-preview.ps1
+[FAILED] Phase 1676 Strategy Hypothesis Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-strategy-hypothesis-preview.ps1
+[FAILED] Phase 1677 Indicator Concept Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-indicator-concept-preview.ps1
+[FAILED] Phase 1678 Signal Rule Draft Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-signal-rule-draft-preview.ps1
+[FAILED] Phase 1679 Entry Rule Draft Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-entry-rule-draft-preview.ps1
+[FAILED] Phase 1680 Exit Rule Draft Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-exit-rule-draft-preview.ps1
+[FAILED] Phase 1681 Stop Loss Rule Draft Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-stop-loss-rule-draft-preview.ps1
+[FAILED] Phase 1682 Take Profit Rule Draft Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-take-profit-rule-draft-preview.ps1
+[FAILED] Phase 1683 Position Sizing Concept Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-position-sizing-concept-preview.ps1
+[FAILED] Phase 1684 Signal Confidence Notes Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-signal-confidence-notes-preview.ps1
+[FAILED] Phase 1685 Signal Invalidation Notes Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-signal-invalidation-notes-preview.ps1
+[FAILED] Phase 1686 Strategy Evidence Map Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-strategy-evidence-map-preview.ps1
+[FAILED] Phase 1687 Cockpit Strategy Lab Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-strategy-lab-summary.ps1
+[FAILED] Phase 1688 First Strategy Lab Signal Engine Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-strategy-lab-signal-engine-candidate.ps1
+[FAILED] Phase 1689 Controlled Strategy Lab Signal Engine Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-strategy-lab-signal-engine-release-candidate.ps1
+[FAILED] Phase 1690 Backtest Paper Trading Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backtest-paper-trading-boundary.ps1
+[FAILED] Phase 1691 Dataset Requirement Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-dataset-requirement-preview.ps1
+[FAILED] Phase 1692 Historical Data Quality Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-historical-data-quality-preview.ps1
+[FAILED] Phase 1693 Fees Slippage Assumption Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-fees-slippage-assumption-preview.ps1
+[FAILED] Phase 1694 Survivorship Bias Check Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-survivorship-bias-check-preview.ps1
+[FAILED] Phase 1695 Sample Period Definition Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-sample-period-definition-preview.ps1
+[FAILED] Phase 1696 Backtest Metric Definition Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backtest-metric-definition-preview.ps1
+[FAILED] Phase 1697 Backtest Run Packet Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backtest-run-packet-preview.ps1
+[FAILED] Phase 1698 Backtest Result Review Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-backtest-result-review-preview.ps1
+[FAILED] Phase 1699 Paper Account Boundary Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-paper-account-boundary-preview.ps1
+[FAILED] Phase 1700 Paper Trade Journal Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-paper-trade-journal-preview.ps1
+[FAILED] Phase 1701 Paper Trading Metrics Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-paper-trading-metrics-preview.ps1
+[FAILED] Phase 1702 Paper Evidence Map Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-paper-evidence-map-preview.ps1
+[FAILED] Phase 1703 Cockpit Backtest Paper Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-backtest-paper-summary.ps1
+[FAILED] Phase 1704 First Backtest Paper Trading Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-backtest-paper-trading-candidate.ps1
+[FAILED] Phase 1705 Controlled Backtest Paper Trading Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-backtest-paper-trading-release-candidate.ps1
+[FAILED] Phase 1706 Profit Lockbox Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-profit-lockbox-boundary.ps1
+[FAILED] Phase 1707 Realised Profit Definition Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-realised-profit-definition-preview.ps1
+[FAILED] Phase 1708 Protected Profit Bucket Rules Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-protected-profit-bucket-rules-preview.ps1
+[FAILED] Phase 1709 Reinvestable Profit Bucket Rules Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-reinvestable-profit-bucket-rules-preview.ps1
+[FAILED] Phase 1710 Lock Percentage Rule Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-lock-percentage-rule-preview.ps1
+[FAILED] Phase 1711 Release Condition Rule Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-release-condition-rule-preview.ps1
+[FAILED] Phase 1712 Reinvestment Ceiling Rule Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-reinvestment-ceiling-rule-preview.ps1
+[FAILED] Phase 1713 Loss Handling Rule Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-loss-handling-rule-preview.ps1
+[FAILED] Phase 1714 Active Capital Update Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-active-capital-update-preview.ps1
+[FAILED] Phase 1715 Protected Profit Audit Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-protected-profit-audit-preview.ps1
+[FAILED] Phase 1716 Reinvestment Approval Gate Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-reinvestment-approval-gate-preview.ps1
+[FAILED] Phase 1717 Profit Evidence Map Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-profit-evidence-map-preview.ps1
+[FAILED] Phase 1718 Cockpit Profit Lockbox Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-profit-lockbox-summary.ps1
+[FAILED] Phase 1719 Denied Money Movement Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-denied-money-movement-boundary.ps1
+[FAILED] Phase 1720 First Profit Lockbox Reinvestment Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-profit-lockbox-reinvestment-candidate.ps1
+[FAILED] Phase 1721 Controlled Profit Lockbox Reinvestment Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-profit-lockbox-reinvestment-release-candidate.ps1
+[FAILED] Phase 1724 Trading Workspace Hub Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-trading-workspace-hub-preview.ps1
+[FAILED] Phase 1725 Build Workspace Hub Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-build-workspace-hub-preview.ps1
+[FAILED] Phase 1726 Approvals Hub Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-approvals-hub-preview.ps1
+[FAILED] Phase 1727 Evidence Audit Hub Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-evidence-audit-hub-preview.ps1
+[FAILED] Phase 1738 Broker Execution Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-execution-boundary.ps1
+[FAILED] Phase 1739 Broker Adapter Contract Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-adapter-contract-preview.ps1
+[FAILED] Phase 1740 Broker Credential Boundary Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-credential-boundary-preview.ps1
+[FAILED] Phase 1741 Broker Account Read Boundary Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-account-read-boundary-preview.ps1
+[FAILED] Phase 1742 Broker Order Preview Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-order-preview-boundary.ps1
+[FAILED] Phase 1743 Broker Order Validation Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-order-validation-boundary.ps1
+[FAILED] Phase 1744 Broker Order Approval Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-order-approval-boundary.ps1
+[FAILED] Phase 1745 Broker Order Dispatch Boundary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-order-dispatch-boundary.ps1
+[FAILED] Phase 1746 Broker Result Boundary Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-result-boundary-preview.ps1
+[FAILED] Phase 1747 Broker Error Boundary Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-error-boundary-preview.ps1
+[FAILED] Phase 1748 Broker Kill Switch Integration Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-kill-switch-integration-preview.ps1
+[FAILED] Phase 1749 Broker Risk Governor Enforcement Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-risk-governor-enforcement-preview.ps1
+[FAILED] Phase 1750 Broker Audit Evidence Boundary Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-broker-audit-evidence-boundary-preview.ps1
+[FAILED] Phase 1751 Cockpit Broker Boundary Summary - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-cockpit-broker-boundary-summary.ps1
+[FAILED] Phase 1752 First Broker Execution Boundary Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-first-broker-execution-boundary-candidate.ps1
+[FAILED] Phase 1753 Controlled Broker Execution Boundary Release Candidate - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-controlled-broker-execution-boundary-release-candidate.ps1
+[FAILED] Phase 2287 Provider Selection Policy Preview - C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\scripts\smoke-codexforge-provider-selection-policy-preview.ps1

@@ -2906,7 +2906,7 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-codexforge-cockpit",
-      label: "Open CodexForge Cockpit",
+      label: "Go to Unified CodexForge Cockpit",
       description: "Open the one normal CodexForge Cockpit user UX for goal, plan, approval, execution-state, evidence, result, and recovery review.",
       group: "User features",
       href: "/codexforge-cockpit",
@@ -2926,7 +2926,7 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-trading-workspace",
-      label: "Open Trading Workspace",
+      label: "Go to Trading Workspace Hub Preview",
       description: "Open the grouped Trading Workspace hub preview.",
       group: "User features",
       href: "/trading-workspace-hub-preview",
@@ -2945,7 +2945,7 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-build-workspace",
-      label: "Open Build Workspace",
+      label: "Go to Build Workspace Hub Preview",
       description: "Open the grouped Build Workspace hub preview.",
       group: "User features",
       href: "/build-workspace-hub-preview",
@@ -2965,7 +2965,7 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "review-approvals-hub",
-      label: "Review Approvals Hub",
+      label: "Go to Approvals Hub Preview",
       description: "Review the Approvals Hub for approvals, risk approvals, broker boundary approvals, reinvestment approvals, and execution holds.",
       group: "User features",
       href: "/approvals-hub-preview",
@@ -2986,7 +2986,7 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "review-evidence-and-audit",
-      label: "Review Evidence Audit Hub",
+      label: "Go to Evidence Audit Hub Preview",
       description: "Review the Evidence Audit Hub for evidence results, audit continuity, redaction, checkpoint status, and backend-owned capture notes.",
       group: "User features",
       href: "/evidence-audit-hub-preview",
