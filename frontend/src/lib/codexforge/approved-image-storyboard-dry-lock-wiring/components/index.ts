@@ -1,0 +1,1 @@
+export { ApprovedImageStoryboardDryLockWiringPanel } from './ApprovedImageStoryboardDryLockWiringPanel';

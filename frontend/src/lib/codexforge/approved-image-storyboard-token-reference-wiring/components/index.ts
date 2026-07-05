@@ -1,0 +1,1 @@
+export { ApprovedImageStoryboardTokenReferenceWiringPanel } from './ApprovedImageStoryboardTokenReferenceWiringPanel';

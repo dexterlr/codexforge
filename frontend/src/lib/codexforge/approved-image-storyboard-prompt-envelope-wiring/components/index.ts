@@ -1,0 +1,1 @@
+export { ApprovedImageStoryboardPromptEnvelopeWiringPanel } from './ApprovedImageStoryboardPromptEnvelopeWiringPanel';

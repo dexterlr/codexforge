@@ -1,0 +1,1 @@
+export { ApprovedImageStoryboardDataRetentionPolicyWiringPanel } from './ApprovedImageStoryboardDataRetentionPolicyWiringPanel';

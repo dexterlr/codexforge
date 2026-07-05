@@ -1,0 +1,1 @@
+export { ApprovedImageStoryboardShotListWiringPanel } from './ApprovedImageStoryboardShotListWiringPanel';

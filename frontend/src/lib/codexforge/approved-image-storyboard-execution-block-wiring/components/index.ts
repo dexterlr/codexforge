@@ -1,0 +1,1 @@
+export { ApprovedImageStoryboardExecutionBlockWiringPanel } from './ApprovedImageStoryboardExecutionBlockWiringPanel';

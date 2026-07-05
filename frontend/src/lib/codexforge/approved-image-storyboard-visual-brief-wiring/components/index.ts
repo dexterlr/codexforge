@@ -1,0 +1,1 @@
+export { ApprovedImageStoryboardVisualBriefWiringPanel } from './ApprovedImageStoryboardVisualBriefWiringPanel';
