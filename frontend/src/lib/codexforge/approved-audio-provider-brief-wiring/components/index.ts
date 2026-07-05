@@ -1,0 +1,1 @@
+export { ApprovedAudioProviderBriefWiringPanel } from './ApprovedAudioProviderBriefWiringPanel';

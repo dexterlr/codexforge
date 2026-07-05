@@ -1,0 +1,1 @@
+export { ApprovedAudioProviderUploadBlockWiringPanel } from './ApprovedAudioProviderUploadBlockWiringPanel';

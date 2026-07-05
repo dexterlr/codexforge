@@ -1,0 +1,1 @@
+export { ApprovedAudioProviderIntentWiringPanel } from './ApprovedAudioProviderIntentWiringPanel';

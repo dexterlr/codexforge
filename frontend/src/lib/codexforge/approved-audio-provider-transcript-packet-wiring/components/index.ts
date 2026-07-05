@@ -1,0 +1,1 @@
+export { ApprovedAudioProviderTranscriptPacketWiringPanel } from './ApprovedAudioProviderTranscriptPacketWiringPanel';
