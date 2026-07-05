@@ -107,7 +107,7 @@ export function CodexForgeAppShell({
           maxWidth: resolvedMaxWidth,
         }}
         data-codexforge-focus-mode={focusMode ? "focus-mode compact-sidebar workflow-layout right-rail-opt-out readable-sidebar home-grade-unified-shell" : "standard-shell home-grade-unified-shell"}
-        data-codexforge-home-grade-unified-shell="UnifiedCodexForgeShell readable sidebar marker no cramped sidebar no duplicate route chip cloud primary Home Start Code Flow Files Apply Validate Results History Brain Demo secondary Memory Runtime Creative Governance Admin Readiness"
+        data-codexforge-home-grade-unified-shell="UnifiedCodexForgeShell readable sidebar marker no cramped sidebar; CodexForge Primary Navigation, README, and Workspace Layout Upgrade; god-tier product shell consolidation; primary navigation product areas Home / Operator Cockpit Generate Projects Assets Providers Workflows Trading Audit / Runs Settings / Safety Developer / Checkpoints; user action first safety state second evidence audit third technical implementation details last; phase checkpoint routes remain preserved; phase checkpoint routes do not dominate primary navigation"
       >
         <CodexForgeSidebar
           sections={sections}

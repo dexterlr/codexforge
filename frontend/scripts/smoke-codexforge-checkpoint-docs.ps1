@@ -172,6 +172,39 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+  "3210-3241 - CodexForge Primary Navigation, README, and Workspace Layout Upgrade"
+  "CodexForge Primary Navigation, README, and Workspace Layout Upgrade"
+  "god-tier product shell consolidation"
+  "primary navigation product areas"
+  "Home / Operator Cockpit"
+  "Generate"
+  "Projects"
+  "Assets"
+  "Providers"
+  "Workflows"
+  "Trading"
+  "Audit / Runs"
+  "Settings / Safety"
+  "Developer / Checkpoints"
+  "user action first"
+  "safety state second"
+  "evidence audit third"
+  "technical implementation details last"
+  "generation chat box appears first on generation pages"
+  "approval state appears above technical metadata"
+  "output preview appears above technical checkpoint details"
+  "phase checkpoint routes remain preserved"
+  "phase checkpoint routes do not dominate primary navigation"
+  "README explains current live readiness status"
+  "README explains provider key never exposed to frontend"
+  "README explains first live text provider bridge"
+  "Return OK and the approved dry-run id."
+  "next likely batch: 3242-3273 - First Live Image Provider Call Backend Bridge"
+)) {
+  Assert-Contains $docsCombined $needle "docs mention primary navigation README workspace marker $needle"
+}
+
+foreach ($needle in @(
   "3178-3209 - First Live Text Provider Call Backend Bridge"
   "3178-3209 - First Live Text Provider Call Backend Bridge Mega Batch v1"
   "First Live Text Provider Call Backend Bridge"

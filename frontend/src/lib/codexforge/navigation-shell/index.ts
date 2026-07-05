@@ -5,6 +5,7 @@ export * from "./navigation-safety-posture";
 export * from "./navigation-next-action";
 export * from "./navigation-route-state";
 export * from "./navigation-shell-summary";
+export * from "./primary-product-area-model";
 
 export {
   buildCodexForgeNavigationRoute,

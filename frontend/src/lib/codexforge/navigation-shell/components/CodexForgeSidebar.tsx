@@ -1,19 +1,10 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import type { CodexForgeNavigationRoute, CodexForgeNavigationSection } from "../navigation-shell-types";
+import type { CodexForgeNavigationRoute, CodexForgeNavigationRouteHref, CodexForgeNavigationSection } from "../navigation-shell-types";
+import { CODEXFORGE_PRIMARY_PRODUCT_AREAS, CODEXFORGE_PRIMARY_PRODUCT_AREA_HREFS } from "../primary-product-area-model";
 import { CodexForgeShellSafetyNotice } from "./CodexForgeShellSafetyNotice";
 
-const PRIMARY_ROUTE_HREFS = [
-  "/codexforge-cockpit",
-  "/trading-workspace-hub-preview",
-  "/build-workspace-hub-preview",
-  "/approvals-hub-preview",
-  "/evidence-audit-hub-preview",
-  "/next-action-rail-cleanup-preview",
-  "/developer-diagnostics-hub-preview",
-] as const;
-
-const USER_NAV_ROUTE_HREFS = new Set<string>(PRIMARY_ROUTE_HREFS);
+const USER_NAV_ROUTE_HREFS: ReadonlySet<CodexForgeNavigationRouteHref> = new Set(CODEXFORGE_PRIMARY_PRODUCT_AREA_HREFS);
 
 const SECONDARY_GROUP_LABELS: Record<string, string> = {
   Brain: "Governance",
@@ -41,10 +32,11 @@ export function CodexForgeSidebar({
 }) {
   const compact = mode !== "full";
   const routes = sections.flatMap((section) => section.routes);
-  const primaryRoutes = PRIMARY_ROUTE_HREFS.map((href) => routes.find((route) => route.href === href)).filter(
-    (route): route is CodexForgeNavigationRoute => Boolean(route)
-  );
-  const primaryHrefSet = new Set(primaryRoutes.map((route) => route.href));
+  const primaryAreaRoutes = CODEXFORGE_PRIMARY_PRODUCT_AREAS.map((area) => ({
+    area,
+    route: routes.find((route) => route.href === area.href),
+  })).filter((entry): entry is { area: (typeof CODEXFORGE_PRIMARY_PRODUCT_AREAS)[number]; route: CodexForgeNavigationRoute } => Boolean(entry.route));
+  const primaryHrefSet = new Set(primaryAreaRoutes.map((entry) => entry.route.href));
   const secondarySections = sections
     .map((section) => ({
       ...section,
@@ -56,7 +48,7 @@ export function CodexForgeSidebar({
   return (
     <aside
       aria-label="CodexForge command-deck navigation"
-      data-codexforge-sidebar="CodexForgeSidebar renders home-grade readable sidebar marker; compact sidebar mode remains explicit but focus pages use readable labels; no cramped sidebar; labels never intentionally wrap into vertical fragments; primary routes Home Start Code Flow Files Apply Validate Results History Brain Demo; secondary groups Memory Runtime Creative Governance Admin Readiness"
+      data-codexforge-sidebar="CodexForgeSidebar renders CodexForge Primary Navigation, README, and Workspace Layout Upgrade markers; god-tier product shell consolidation; primary navigation product areas: Home / Operator Cockpit, Generate, Projects, Assets, Providers, Workflows, Trading, Audit / Runs, Settings / Safety, Developer / Checkpoints; phase checkpoint routes remain preserved; phase checkpoint routes do not dominate primary navigation"
       style={{ ...sidebar, ...(compact ? compactSidebar : null) }}
     >
       <Link href="/" style={brand}>
@@ -70,7 +62,7 @@ export function CodexForgeSidebar({
       <nav style={nav}>
         <div style={sectionBlock}>
           <div style={{ ...sectionLabel, ...(compact ? compactSectionLabel : null) }}>Primary</div>
-          {primaryRoutes.map((route) => renderRouteLink(route, activeHref, compact, showBadges))}
+          {primaryAreaRoutes.map((entry) => renderPrimaryAreaLink(entry.area.label, entry.route, activeHref, compact, showBadges))}
         </div>
 
         <details style={advancedDetails}>
@@ -116,6 +108,31 @@ export function CodexForgeSidebar({
 
 function isPhaseDiagnosticRoute(route: CodexForgeNavigationRoute): boolean {
   return route.badge.startsWith("Phase ") && !USER_NAV_ROUTE_HREFS.has(route.href);
+}
+
+function renderPrimaryAreaLink(
+  label: string,
+  route: CodexForgeNavigationRoute,
+  activeHref: string,
+  compact: boolean,
+  showBadges: boolean
+) {
+  return (
+    <Link
+      key={`primary-product-area-${route.href}`}
+      href={route.href}
+      title={`${label}: ${route.description}`}
+      aria-current={route.href === activeHref ? "page" : undefined}
+      data-codexforge-primary-product-area={label}
+      style={{
+        ...(route.href === activeHref ? activeLink : link),
+        ...(compact ? compactLink : null),
+      }}
+    >
+      <span style={routeLabel}>{label}</span>
+      {showBadges && !compact ? <span style={badge}>{route.shortLabel}</span> : null}
+    </Link>
+  );
 }
 
 function renderRouteLink(
