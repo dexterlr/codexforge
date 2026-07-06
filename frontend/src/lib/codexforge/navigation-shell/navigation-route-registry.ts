@@ -166,6 +166,56 @@ function buildControlledRenderArtifactExportReviewTrialRouteDefaults(): Partial<
     return routes;
   }, {});
 }
+const CONTROLLED_RENDER_ARTIFACT_PUBLISH_REVIEW_TRIAL_NAV_DESCRIPTION = "Review 3402-3433 - Controlled Render Artifact Publish Review Trial as a review-only controlled render artifact publish review trial surface. It models review, gating, publish eligibility, platform policy, account authorization review, scheduling policy, metadata readiness, upload/publish blocking, operator approval, and backend runtime readiness for publish review only. It defines approved export reference, approved destination policy, approved platform policy, approved account authorization review, approved metadata policy, approved caption policy, approved thumbnail policy, approved schedule policy, privacy gate, safety gate, lineage packet, audit packet, observability trace, result preview, result review, media upload block, account authorization block, OAuth flow block, webhook block, schedule block, execution block, worker dispatch block, idempotency key, replay block, retry policy, fallback policy, backend runtime check, operator review, and trial completion. Render artifact publish remains blocked until explicit operator approval. Backend-owned runtime check remains required. Operator review remains required before artifact publish execution. Controlled render artifact publish review trial completion does not enable render/export/publish/workers. Safety markers: no provider execution, no network execution, no render execution, no export execution, no publish execution, no worker dispatch, no file export, no download generation, no archive creation, no signed URL creation, no platform upload, no media upload, no OAuth flow creation, no webhook creation, no schedule execution, no account authorization execution, no file writes from the app, no shell/process/command execution from the app, no fetch/network calls, no provider SDK imports in frontend, no browser storage for secrets, no localStorage, no sessionStorage, no IndexedDB, no cookies. Static route only; next likely batch: 3434-3465 - Backend-Owned Video Provider Execution Runtime Readiness.";
+const CONTROLLED_RENDER_ARTIFACT_PUBLISH_REVIEW_TRIAL_ROUTE_INPUTS = [
+  { id: "controlled-render-artifact-publish-boundary-wiring", href: "/controlled-render-artifact-publish-boundary-wiring", label: "Controlled Render Artifact Publish Boundary Wiring", shortLabel: "Pub 3402", badge: "Phase 3402", priority: 25.3402 },
+  { id: "controlled-render-artifact-publish-intent-wiring", href: "/controlled-render-artifact-publish-intent-wiring", label: "Controlled Render Artifact Publish Intent Wiring", shortLabel: "Pub 3403", badge: "Phase 3403", priority: 25.3403 },
+  { id: "controlled-render-artifact-publish-approval-gate-wiring", href: "/controlled-render-artifact-publish-approval-gate-wiring", label: "Controlled Render Artifact Publish Approval Gate Wiring", shortLabel: "Pub 3404", badge: "Phase 3404", priority: 25.3404 },
+  { id: "controlled-render-artifact-publish-source-export-ref-wiring", href: "/controlled-render-artifact-publish-source-export-ref-wiring", label: "Controlled Render Artifact Publish Source Export Ref Wiring", shortLabel: "Pub 3405", badge: "Phase 3405", priority: 25.3405 },
+  { id: "controlled-render-artifact-publish-destination-policy-wiring", href: "/controlled-render-artifact-publish-destination-policy-wiring", label: "Controlled Render Artifact Publish Destination Policy Wiring", shortLabel: "Pub 3406", badge: "Phase 3406", priority: 25.3406 },
+  { id: "controlled-render-artifact-publish-platform-policy-wiring", href: "/controlled-render-artifact-publish-platform-policy-wiring", label: "Controlled Render Artifact Publish Platform Policy Wiring", shortLabel: "Pub 3407", badge: "Phase 3407", priority: 25.3407 },
+  { id: "controlled-render-artifact-publish-account-authorization-review-wiring", href: "/controlled-render-artifact-publish-account-authorization-review-wiring", label: "Controlled Render Artifact Publish Account Authorization Review Wiring", shortLabel: "Pub 3408", badge: "Phase 3408", priority: 25.3408 },
+  { id: "controlled-render-artifact-publish-metadata-policy-wiring", href: "/controlled-render-artifact-publish-metadata-policy-wiring", label: "Controlled Render Artifact Publish Metadata Policy Wiring", shortLabel: "Pub 3409", badge: "Phase 3409", priority: 25.3409 },
+  { id: "controlled-render-artifact-publish-caption-policy-wiring", href: "/controlled-render-artifact-publish-caption-policy-wiring", label: "Controlled Render Artifact Publish Caption Policy Wiring", shortLabel: "Pub 3410", badge: "Phase 3410", priority: 25.3410 },
+  { id: "controlled-render-artifact-publish-thumbnail-policy-wiring", href: "/controlled-render-artifact-publish-thumbnail-policy-wiring", label: "Controlled Render Artifact Publish Thumbnail Policy Wiring", shortLabel: "Pub 3411", badge: "Phase 3411", priority: 25.3411 },
+  { id: "controlled-render-artifact-publish-schedule-policy-wiring", href: "/controlled-render-artifact-publish-schedule-policy-wiring", label: "Controlled Render Artifact Publish Schedule Policy Wiring", shortLabel: "Pub 3412", badge: "Phase 3412", priority: 25.3412 },
+  { id: "controlled-render-artifact-publish-privacy-gate-wiring", href: "/controlled-render-artifact-publish-privacy-gate-wiring", label: "Controlled Render Artifact Publish Privacy Gate Wiring", shortLabel: "Pub 3413", badge: "Phase 3413", priority: 25.3413 },
+  { id: "controlled-render-artifact-publish-safety-gate-wiring", href: "/controlled-render-artifact-publish-safety-gate-wiring", label: "Controlled Render Artifact Publish Safety Gate Wiring", shortLabel: "Pub 3414", badge: "Phase 3414", priority: 25.3414 },
+  { id: "controlled-render-artifact-publish-lineage-packet-wiring", href: "/controlled-render-artifact-publish-lineage-packet-wiring", label: "Controlled Render Artifact Publish Lineage Packet Wiring", shortLabel: "Pub 3415", badge: "Phase 3415", priority: 25.3415 },
+  { id: "controlled-render-artifact-publish-audit-packet-wiring", href: "/controlled-render-artifact-publish-audit-packet-wiring", label: "Controlled Render Artifact Publish Audit Packet Wiring", shortLabel: "Pub 3416", badge: "Phase 3416", priority: 25.3416 },
+  { id: "controlled-render-artifact-publish-observability-trace-wiring", href: "/controlled-render-artifact-publish-observability-trace-wiring", label: "Controlled Render Artifact Publish Observability Trace Wiring", shortLabel: "Pub 3417", badge: "Phase 3417", priority: 25.3417 },
+  { id: "controlled-render-artifact-publish-result-preview-wiring", href: "/controlled-render-artifact-publish-result-preview-wiring", label: "Controlled Render Artifact Publish Result Preview Wiring", shortLabel: "Pub 3418", badge: "Phase 3418", priority: 25.3418 },
+  { id: "controlled-render-artifact-publish-result-review-wiring", href: "/controlled-render-artifact-publish-result-review-wiring", label: "Controlled Render Artifact Publish Result Review Wiring", shortLabel: "Pub 3419", badge: "Phase 3419", priority: 25.3419 },
+  { id: "controlled-render-artifact-publish-media-upload-block-wiring", href: "/controlled-render-artifact-publish-media-upload-block-wiring", label: "Controlled Render Artifact Publish Media Upload Block Wiring", shortLabel: "Pub 3420", badge: "Phase 3420", priority: 25.3420 },
+  { id: "controlled-render-artifact-publish-account-auth-block-wiring", href: "/controlled-render-artifact-publish-account-auth-block-wiring", label: "Controlled Render Artifact Publish Account Auth Block Wiring", shortLabel: "Pub 3421", badge: "Phase 3421", priority: 25.3421 },
+  { id: "controlled-render-artifact-publish-oauth-flow-block-wiring", href: "/controlled-render-artifact-publish-oauth-flow-block-wiring", label: "Controlled Render Artifact Publish OAuth Flow Block Wiring", shortLabel: "Pub 3422", badge: "Phase 3422", priority: 25.3422 },
+  { id: "controlled-render-artifact-publish-webhook-block-wiring", href: "/controlled-render-artifact-publish-webhook-block-wiring", label: "Controlled Render Artifact Publish Webhook Block Wiring", shortLabel: "Pub 3423", badge: "Phase 3423", priority: 25.3423 },
+  { id: "controlled-render-artifact-publish-schedule-block-wiring", href: "/controlled-render-artifact-publish-schedule-block-wiring", label: "Controlled Render Artifact Publish Schedule Block Wiring", shortLabel: "Pub 3424", badge: "Phase 3424", priority: 25.3424 },
+  { id: "controlled-render-artifact-publish-execution-block-wiring", href: "/controlled-render-artifact-publish-execution-block-wiring", label: "Controlled Render Artifact Publish Execution Block Wiring", shortLabel: "Pub 3425", badge: "Phase 3425", priority: 25.3425 },
+  { id: "controlled-render-artifact-publish-worker-dispatch-block-wiring", href: "/controlled-render-artifact-publish-worker-dispatch-block-wiring", label: "Controlled Render Artifact Publish Worker Dispatch Block Wiring", shortLabel: "Pub 3426", badge: "Phase 3426", priority: 25.3426 },
+  { id: "controlled-render-artifact-publish-idempotency-key-wiring", href: "/controlled-render-artifact-publish-idempotency-key-wiring", label: "Controlled Render Artifact Publish Idempotency Key Wiring", shortLabel: "Pub 3427", badge: "Phase 3427", priority: 25.3427 },
+  { id: "controlled-render-artifact-publish-replay-block-wiring", href: "/controlled-render-artifact-publish-replay-block-wiring", label: "Controlled Render Artifact Publish Replay Block Wiring", shortLabel: "Pub 3428", badge: "Phase 3428", priority: 25.3428 },
+  { id: "controlled-render-artifact-publish-retry-policy-wiring", href: "/controlled-render-artifact-publish-retry-policy-wiring", label: "Controlled Render Artifact Publish Retry Policy Wiring", shortLabel: "Pub 3429", badge: "Phase 3429", priority: 25.3429 },
+  { id: "controlled-render-artifact-publish-fallback-policy-wiring", href: "/controlled-render-artifact-publish-fallback-policy-wiring", label: "Controlled Render Artifact Publish Fallback Policy Wiring", shortLabel: "Pub 3430", badge: "Phase 3430", priority: 25.3430 },
+  { id: "controlled-render-artifact-publish-backend-runtime-check-wiring", href: "/controlled-render-artifact-publish-backend-runtime-check-wiring", label: "Controlled Render Artifact Publish Backend Runtime Check Wiring", shortLabel: "Pub 3431", badge: "Phase 3431", priority: 25.3431 },
+  { id: "controlled-render-artifact-publish-operator-review-wiring", href: "/controlled-render-artifact-publish-operator-review-wiring", label: "Controlled Render Artifact Publish Operator Review Wiring", shortLabel: "Pub 3432", badge: "Phase 3432", priority: 25.3432 },
+  { id: "controlled-render-artifact-publish-review-trial-completion", href: "/controlled-render-artifact-publish-review-trial-completion", label: "Controlled Render Artifact Publish Review Trial Completion", shortLabel: "Pub 3433", badge: "Phase 3433", priority: 25.3433 },
+] satisfies readonly Pick<CodexForgeNavigationRoute, "id" | "href" | "label" | "shortLabel" | "badge" | "priority">[];
+function buildControlledRenderArtifactPublishReviewTrialRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return CONTROLLED_RENDER_ARTIFACT_PUBLISH_REVIEW_TRIAL_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      description: CONTROLLED_RENDER_ARTIFACT_PUBLISH_REVIEW_TRIAL_NAV_DESCRIPTION,
+      group: "Creative",
+      readiness: "preview-only",
+      safetyPosture: "review-gated",
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
 const MULTI_PROVIDER_CAPABILITY_ROUTING_NAV_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/",
@@ -2709,6 +2759,7 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   ...FIRST_LIVE_VIDEO_PROVIDER_CALL_BACKEND_BRIDGE_ROUTE_INPUTS.map((route) => route.href),
   ...CONTROLLED_RENDER_ARTIFACT_ASSEMBLY_TRIAL_ROUTE_INPUTS.map((route) => route.href),
   ...CONTROLLED_RENDER_ARTIFACT_EXPORT_REVIEW_TRIAL_ROUTE_INPUTS.map((route) => route.href),
+  ...CONTROLLED_RENDER_ARTIFACT_PUBLISH_REVIEW_TRIAL_ROUTE_INPUTS.map((route) => route.href),
   "/change-plan-live-context",
   "/patch-preview-live-context",
   "/test-planner-live-context",
@@ -51048,6 +51099,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   ...buildFirstLiveVideoProviderCallBackendBridgeRouteDefaults(),
   ...buildControlledRenderArtifactAssemblyTrialRouteDefaults(),
   ...buildControlledRenderArtifactExportReviewTrialRouteDefaults(),
+  ...buildControlledRenderArtifactPublishReviewTrialRouteDefaults(),
   "/change-plan-live-context": {
     id: "change-plan-live-context",
     href: "/change-plan-live-context",
