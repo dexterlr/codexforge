@@ -1,20 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 /* ---------------- FONTS ---------------- */
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
+type RootFontVariables = React.CSSProperties & {
+  "--font-geist-sans": string;
+  "--font-geist-mono": string;
+};
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
+const rootFontVariables: RootFontVariables = {
+  "--font-geist-sans":
+    'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  "--font-geist-mono":
+    'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+};
 
 /* ---------------- META ---------------- */
 
@@ -73,9 +72,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning style={rootFontVariables}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable}`}
         style={{
           margin: 0,
         }}
