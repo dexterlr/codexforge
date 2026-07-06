@@ -66,6 +66,56 @@ function buildFirstLiveVideoProviderCallBackendBridgeRouteDefaults(): Partial<Re
     return routes;
   }, {});
 }
+const CONTROLLED_RENDER_ARTIFACT_ASSEMBLY_TRIAL_NAV_DESCRIPTION = "Review 3338-3369 - Controlled Render Artifact Assembly Trial as a review-only controlled render artifact assembly trial surface. It models assembly of already-approved source references into an artifact assembly plan only. It defines approved source refs, text plan ref, image asset ref, audio asset ref, video clip ref, timeline manifest, scene order, duration budget, resolution budget, size budget, cost budget, privacy gate, safety gate, lineage packet, audit packet, observability trace, result preview, result review, export block, publish block, worker dispatch block, render execution block, idempotency key, replay block, retry policy, fallback policy, backend runtime check, operator review, and trial completion. Render artifact assembly remains blocked until explicit operator approval. Backend-owned runtime check remains required. Operator review remains required before artifact assembly execution. Controlled render artifact assembly trial completion does not enable render/export/publish/workers. Safety markers: no provider execution, no network execution, no render execution, no export execution, no publish execution, no worker dispatch, no file export, no download generation, no archive creation, no signed URL creation, no platform upload, no OAuth flow creation, no webhook creation, no file writes from the app, no shell/process/command execution from the app, no fetch/network calls, no provider SDK imports in frontend, no browser storage for secrets, no localStorage, no sessionStorage, no IndexedDB, no cookies. Static route only; next likely batch: 3370-3401 - Controlled Render Artifact Export Review Trial.";
+const CONTROLLED_RENDER_ARTIFACT_ASSEMBLY_TRIAL_ROUTE_INPUTS = [
+  { id: "controlled-render-artifact-assembly-boundary-wiring", href: "/controlled-render-artifact-assembly-boundary-wiring", label: "Controlled Render Artifact Assembly Boundary Wiring", shortLabel: "Asm 3338", badge: "Phase 3338", priority: 25.3338 },
+  { id: "controlled-render-artifact-assembly-intent-wiring", href: "/controlled-render-artifact-assembly-intent-wiring", label: "Controlled Render Artifact Assembly Intent Wiring", shortLabel: "Asm 3339", badge: "Phase 3339", priority: 25.3339 },
+  { id: "controlled-render-artifact-assembly-approval-gate-wiring", href: "/controlled-render-artifact-assembly-approval-gate-wiring", label: "Controlled Render Artifact Assembly Approval Gate Wiring", shortLabel: "Asm 3340", badge: "Phase 3340", priority: 25.3340 },
+  { id: "controlled-render-artifact-assembly-source-refs-wiring", href: "/controlled-render-artifact-assembly-source-refs-wiring", label: "Controlled Render Artifact Assembly Source Refs Wiring", shortLabel: "Asm 3341", badge: "Phase 3341", priority: 25.3341 },
+  { id: "controlled-render-artifact-assembly-text-plan-ref-wiring", href: "/controlled-render-artifact-assembly-text-plan-ref-wiring", label: "Controlled Render Artifact Assembly Text Plan Ref Wiring", shortLabel: "Asm 3342", badge: "Phase 3342", priority: 25.3342 },
+  { id: "controlled-render-artifact-assembly-image-asset-ref-wiring", href: "/controlled-render-artifact-assembly-image-asset-ref-wiring", label: "Controlled Render Artifact Assembly Image Asset Ref Wiring", shortLabel: "Asm 3343", badge: "Phase 3343", priority: 25.3343 },
+  { id: "controlled-render-artifact-assembly-audio-asset-ref-wiring", href: "/controlled-render-artifact-assembly-audio-asset-ref-wiring", label: "Controlled Render Artifact Assembly Audio Asset Ref Wiring", shortLabel: "Asm 3344", badge: "Phase 3344", priority: 25.3344 },
+  { id: "controlled-render-artifact-assembly-video-clip-ref-wiring", href: "/controlled-render-artifact-assembly-video-clip-ref-wiring", label: "Controlled Render Artifact Assembly Video Clip Ref Wiring", shortLabel: "Asm 3345", badge: "Phase 3345", priority: 25.3345 },
+  { id: "controlled-render-artifact-assembly-timeline-manifest-wiring", href: "/controlled-render-artifact-assembly-timeline-manifest-wiring", label: "Controlled Render Artifact Assembly Timeline Manifest Wiring", shortLabel: "Asm 3346", badge: "Phase 3346", priority: 25.3346 },
+  { id: "controlled-render-artifact-assembly-scene-order-wiring", href: "/controlled-render-artifact-assembly-scene-order-wiring", label: "Controlled Render Artifact Assembly Scene Order Wiring", shortLabel: "Asm 3347", badge: "Phase 3347", priority: 25.3347 },
+  { id: "controlled-render-artifact-assembly-duration-budget-wiring", href: "/controlled-render-artifact-assembly-duration-budget-wiring", label: "Controlled Render Artifact Assembly Duration Budget Wiring", shortLabel: "Asm 3348", badge: "Phase 3348", priority: 25.3348 },
+  { id: "controlled-render-artifact-assembly-resolution-budget-wiring", href: "/controlled-render-artifact-assembly-resolution-budget-wiring", label: "Controlled Render Artifact Assembly Resolution Budget Wiring", shortLabel: "Asm 3349", badge: "Phase 3349", priority: 25.3349 },
+  { id: "controlled-render-artifact-assembly-size-budget-wiring", href: "/controlled-render-artifact-assembly-size-budget-wiring", label: "Controlled Render Artifact Assembly Size Budget Wiring", shortLabel: "Asm 3350", badge: "Phase 3350", priority: 25.3350 },
+  { id: "controlled-render-artifact-assembly-cost-budget-wiring", href: "/controlled-render-artifact-assembly-cost-budget-wiring", label: "Controlled Render Artifact Assembly Cost Budget Wiring", shortLabel: "Asm 3351", badge: "Phase 3351", priority: 25.3351 },
+  { id: "controlled-render-artifact-assembly-privacy-gate-wiring", href: "/controlled-render-artifact-assembly-privacy-gate-wiring", label: "Controlled Render Artifact Assembly Privacy Gate Wiring", shortLabel: "Asm 3352", badge: "Phase 3352", priority: 25.3352 },
+  { id: "controlled-render-artifact-assembly-safety-gate-wiring", href: "/controlled-render-artifact-assembly-safety-gate-wiring", label: "Controlled Render Artifact Assembly Safety Gate Wiring", shortLabel: "Asm 3353", badge: "Phase 3353", priority: 25.3353 },
+  { id: "controlled-render-artifact-assembly-lineage-packet-wiring", href: "/controlled-render-artifact-assembly-lineage-packet-wiring", label: "Controlled Render Artifact Assembly Lineage Packet Wiring", shortLabel: "Asm 3354", badge: "Phase 3354", priority: 25.3354 },
+  { id: "controlled-render-artifact-assembly-audit-packet-wiring", href: "/controlled-render-artifact-assembly-audit-packet-wiring", label: "Controlled Render Artifact Assembly Audit Packet Wiring", shortLabel: "Asm 3355", badge: "Phase 3355", priority: 25.3355 },
+  { id: "controlled-render-artifact-assembly-observability-trace-wiring", href: "/controlled-render-artifact-assembly-observability-trace-wiring", label: "Controlled Render Artifact Assembly Observability Trace Wiring", shortLabel: "Asm 3356", badge: "Phase 3356", priority: 25.3356 },
+  { id: "controlled-render-artifact-assembly-result-preview-wiring", href: "/controlled-render-artifact-assembly-result-preview-wiring", label: "Controlled Render Artifact Assembly Result Preview Wiring", shortLabel: "Asm 3357", badge: "Phase 3357", priority: 25.3357 },
+  { id: "controlled-render-artifact-assembly-result-review-wiring", href: "/controlled-render-artifact-assembly-result-review-wiring", label: "Controlled Render Artifact Assembly Result Review Wiring", shortLabel: "Asm 3358", badge: "Phase 3358", priority: 25.3358 },
+  { id: "controlled-render-artifact-assembly-export-block-wiring", href: "/controlled-render-artifact-assembly-export-block-wiring", label: "Controlled Render Artifact Assembly Export Block Wiring", shortLabel: "Asm 3359", badge: "Phase 3359", priority: 25.3359 },
+  { id: "controlled-render-artifact-assembly-publish-block-wiring", href: "/controlled-render-artifact-assembly-publish-block-wiring", label: "Controlled Render Artifact Assembly Publish Block Wiring", shortLabel: "Asm 3360", badge: "Phase 3360", priority: 25.3360 },
+  { id: "controlled-render-artifact-assembly-worker-dispatch-block-wiring", href: "/controlled-render-artifact-assembly-worker-dispatch-block-wiring", label: "Controlled Render Artifact Assembly Worker Dispatch Block Wiring", shortLabel: "Asm 3361", badge: "Phase 3361", priority: 25.3361 },
+  { id: "controlled-render-artifact-assembly-render-execution-block-wiring", href: "/controlled-render-artifact-assembly-render-execution-block-wiring", label: "Controlled Render Artifact Assembly Render Execution Block Wiring", shortLabel: "Asm 3362", badge: "Phase 3362", priority: 25.3362 },
+  { id: "controlled-render-artifact-assembly-idempotency-key-wiring", href: "/controlled-render-artifact-assembly-idempotency-key-wiring", label: "Controlled Render Artifact Assembly Idempotency Key Wiring", shortLabel: "Asm 3363", badge: "Phase 3363", priority: 25.3363 },
+  { id: "controlled-render-artifact-assembly-replay-block-wiring", href: "/controlled-render-artifact-assembly-replay-block-wiring", label: "Controlled Render Artifact Assembly Replay Block Wiring", shortLabel: "Asm 3364", badge: "Phase 3364", priority: 25.3364 },
+  { id: "controlled-render-artifact-assembly-retry-policy-wiring", href: "/controlled-render-artifact-assembly-retry-policy-wiring", label: "Controlled Render Artifact Assembly Retry Policy Wiring", shortLabel: "Asm 3365", badge: "Phase 3365", priority: 25.3365 },
+  { id: "controlled-render-artifact-assembly-fallback-policy-wiring", href: "/controlled-render-artifact-assembly-fallback-policy-wiring", label: "Controlled Render Artifact Assembly Fallback Policy Wiring", shortLabel: "Asm 3366", badge: "Phase 3366", priority: 25.3366 },
+  { id: "controlled-render-artifact-assembly-backend-runtime-check-wiring", href: "/controlled-render-artifact-assembly-backend-runtime-check-wiring", label: "Controlled Render Artifact Assembly Backend Runtime Check Wiring", shortLabel: "Asm 3367", badge: "Phase 3367", priority: 25.3367 },
+  { id: "controlled-render-artifact-assembly-operator-review-wiring", href: "/controlled-render-artifact-assembly-operator-review-wiring", label: "Controlled Render Artifact Assembly Operator Review Wiring", shortLabel: "Asm 3368", badge: "Phase 3368", priority: 25.3368 },
+  { id: "controlled-render-artifact-assembly-trial-completion", href: "/controlled-render-artifact-assembly-trial-completion", label: "Controlled Render Artifact Assembly Trial Completion", shortLabel: "Asm 3369", badge: "Phase 3369", priority: 25.3369 },
+] satisfies readonly Pick<CodexForgeNavigationRoute, "id" | "href" | "label" | "shortLabel" | "badge" | "priority">[];
+function buildControlledRenderArtifactAssemblyTrialRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return CONTROLLED_RENDER_ARTIFACT_ASSEMBLY_TRIAL_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      description: CONTROLLED_RENDER_ARTIFACT_ASSEMBLY_TRIAL_NAV_DESCRIPTION,
+      group: "Creative",
+      readiness: "preview-only",
+      safetyPosture: "review-gated",
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
 const MULTI_PROVIDER_CAPABILITY_ROUTING_NAV_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/",
@@ -2607,6 +2657,7 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/first-live-audio-provider-backend-runtime-check-wiring",
   "/first-live-audio-provider-call-backend-bridge-completion",
   ...FIRST_LIVE_VIDEO_PROVIDER_CALL_BACKEND_BRIDGE_ROUTE_INPUTS.map((route) => route.href),
+  ...CONTROLLED_RENDER_ARTIFACT_ASSEMBLY_TRIAL_ROUTE_INPUTS.map((route) => route.href),
   "/change-plan-live-context",
   "/patch-preview-live-context",
   "/test-planner-live-context",
@@ -50944,6 +50995,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
     commandDeckRole: "workspace",
   },
   ...buildFirstLiveVideoProviderCallBackendBridgeRouteDefaults(),
+  ...buildControlledRenderArtifactAssemblyTrialRouteDefaults(),
   "/change-plan-live-context": {
     id: "change-plan-live-context",
     href: "/change-plan-live-context",

@@ -297,6 +297,34 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+  "3338-3369 - Controlled Render Artifact Assembly Trial"
+  "3338-3369 - Controlled Render Artifact Assembly Trial Mega Batch v1"
+  "Controlled Render Artifact Assembly Trial"
+  "review-only controlled render artifact assembly trial"
+  "assembly plan only"
+  "no render execution"
+  "no export execution"
+  "no publish execution"
+  "no worker dispatch"
+  "no file export"
+  "no download generation"
+  "no archive creation"
+  "no signed URL creation"
+  "no platform upload"
+  "no OAuth flow creation"
+  "no webhook creation"
+  "no file writes from the app"
+  "no shell/process/command execution from the app"
+  "render artifact assembly remains blocked until explicit operator approval"
+  "backend-owned runtime check remains required"
+  "operator review remains required before artifact assembly execution"
+  "controlled render artifact assembly trial completion does not enable render/export/publish/workers"
+  "next likely batch: 3370-3401 - Controlled Render Artifact Export Review Trial"
+)) {
+  Assert-Contains $docsCombined $needle "docs mention controlled render artifact assembly trial checkpoint $needle"
+}
+
+foreach ($needle in @(
   "3274-3305 - First Live Audio Provider Call Backend Bridge"
   "3274-3305 - First Live Audio Provider Call Backend Bridge Mega Batch v1"
   "First Live Audio Provider Call Backend Bridge"
