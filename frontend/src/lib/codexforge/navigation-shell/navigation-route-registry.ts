@@ -216,6 +216,56 @@ function buildControlledRenderArtifactPublishReviewTrialRouteDefaults(): Partial
     return routes;
   }, {});
 }
+const VIDEO_PROVIDER_RUNTIME_READINESS_NAV_DESCRIPTION = "Review 3434-3465 - Backend-Owned Video Provider Execution Runtime Readiness as a review-only backend-owned video provider execution runtime readiness surface. It models the backend-only runtime path needed before a first real controlled video provider execution can exist. It defines runtime boundary, provider selection review, credential reference, token reference, request envelope, response envelope, error envelope, prompt redaction gate, cost guard, rate guard, timeout guard, duration resolution size cap, privacy gate, safety gate, lineage packet, audit packet, observability trace, result capture readiness, artifact handoff readiness, kill switch, single-call lock, idempotency key, replay block, retry policy, fallback policy, backend check, server-only boundary, execution block, operator review, and readiness completion. Controlled video provider execution remains blocked. Backend-owned runtime check remains required. Server-only boundary remains required. Operator review remains required before video provider execution. Backend-owned video provider execution runtime readiness completion does not enable provider/render/export/publish/workers. Safety markers: review-only backend-owned video provider execution runtime readiness, backend-owned video runtime only, video provider runtime readiness only, backend runtime readiness only, approved video provider only, approved credential reference only, approved token reference only, approved request envelope only, approved response envelope only, approved error envelope only, approved prompt redaction gate only, approved cost guard only, approved rate guard only, approved timeout guard only, approved duration resolution size cap only, backend-owned video provider privacy gate, backend-owned video provider safety gate, backend-owned video provider lineage packet, backend-owned video provider audit packet, backend-owned video provider observability trace, backend-owned video provider result capture readiness, backend-owned video provider artifact handoff readiness, backend-owned video provider kill switch, backend-owned video provider single-call lock, backend-owned video provider idempotency key, backend-owned video provider replay remains blocked, backend-owned video provider retry policy, backend-owned video provider fallback policy, disabled by default, hard kill switch, no provider execution, no video provider execution, no network execution, no render execution, no export execution, no publish execution, no worker dispatch, no file export, no download generation, no archive creation, no signed URL creation, no platform upload, no media upload, no OAuth flow creation, no webhook creation, no schedule execution, no account authorization execution, no API route execution, no service creation, no runtime deploy, no file writes from the app, no shell/process/command execution from the app, no fetch/network calls, no provider SDK imports in frontend, no frontend provider key reads, no plaintext secrets, no localStorage, no sessionStorage, no IndexedDB, no cookies, no browser storage for secrets. Static route only; next likely batch: 3466-3497 - First Backend-Owned Video Provider Execution Dry Run.";
+const VIDEO_PROVIDER_RUNTIME_READINESS_ROUTE_INPUTS = [
+  { id: "video-provider-runtime-boundary-wiring", href: "/video-provider-runtime-boundary-wiring", label: "Video Provider Runtime Boundary Wiring", shortLabel: "VPR 3434", badge: "Phase 3434", priority: 25.3434 },
+  { id: "video-provider-runtime-intent-wiring", href: "/video-provider-runtime-intent-wiring", label: "Video Provider Runtime Intent Wiring", shortLabel: "VPR 3435", badge: "Phase 3435", priority: 25.3435 },
+  { id: "video-provider-runtime-approval-gate-wiring", href: "/video-provider-runtime-approval-gate-wiring", label: "Video Provider Runtime Approval Gate Wiring", shortLabel: "VPR 3436", badge: "Phase 3436", priority: 25.3436 },
+  { id: "video-provider-runtime-provider-selection-wiring", href: "/video-provider-runtime-provider-selection-wiring", label: "Video Provider Runtime Provider Selection Wiring", shortLabel: "VPR 3437", badge: "Phase 3437", priority: 25.3437 },
+  { id: "video-provider-runtime-credential-reference-wiring", href: "/video-provider-runtime-credential-reference-wiring", label: "Video Provider Runtime Credential Reference Wiring", shortLabel: "VPR 3438", badge: "Phase 3438", priority: 25.3438 },
+  { id: "video-provider-runtime-token-reference-wiring", href: "/video-provider-runtime-token-reference-wiring", label: "Video Provider Runtime Token Reference Wiring", shortLabel: "VPR 3439", badge: "Phase 3439", priority: 25.3439 },
+  { id: "video-provider-runtime-request-envelope-wiring", href: "/video-provider-runtime-request-envelope-wiring", label: "Video Provider Runtime Request Envelope Wiring", shortLabel: "VPR 3440", badge: "Phase 3440", priority: 25.3440 },
+  { id: "video-provider-runtime-response-envelope-wiring", href: "/video-provider-runtime-response-envelope-wiring", label: "Video Provider Runtime Response Envelope Wiring", shortLabel: "VPR 3441", badge: "Phase 3441", priority: 25.3441 },
+  { id: "video-provider-runtime-error-envelope-wiring", href: "/video-provider-runtime-error-envelope-wiring", label: "Video Provider Runtime Error Envelope Wiring", shortLabel: "VPR 3442", badge: "Phase 3442", priority: 25.3442 },
+  { id: "video-provider-runtime-prompt-redaction-gate-wiring", href: "/video-provider-runtime-prompt-redaction-gate-wiring", label: "Video Provider Runtime Prompt Redaction Gate Wiring", shortLabel: "VPR 3443", badge: "Phase 3443", priority: 25.3443 },
+  { id: "video-provider-runtime-cost-guard-wiring", href: "/video-provider-runtime-cost-guard-wiring", label: "Video Provider Runtime Cost Guard Wiring", shortLabel: "VPR 3444", badge: "Phase 3444", priority: 25.3444 },
+  { id: "video-provider-runtime-rate-guard-wiring", href: "/video-provider-runtime-rate-guard-wiring", label: "Video Provider Runtime Rate Guard Wiring", shortLabel: "VPR 3445", badge: "Phase 3445", priority: 25.3445 },
+  { id: "video-provider-runtime-timeout-guard-wiring", href: "/video-provider-runtime-timeout-guard-wiring", label: "Video Provider Runtime Timeout Guard Wiring", shortLabel: "VPR 3446", badge: "Phase 3446", priority: 25.3446 },
+  { id: "video-provider-runtime-duration-resolution-size-cap-wiring", href: "/video-provider-runtime-duration-resolution-size-cap-wiring", label: "Video Provider Runtime Duration Resolution Size Cap Wiring", shortLabel: "VPR 3447", badge: "Phase 3447", priority: 25.3447 },
+  { id: "video-provider-runtime-privacy-gate-wiring", href: "/video-provider-runtime-privacy-gate-wiring", label: "Video Provider Runtime Privacy Gate Wiring", shortLabel: "VPR 3448", badge: "Phase 3448", priority: 25.3448 },
+  { id: "video-provider-runtime-safety-gate-wiring", href: "/video-provider-runtime-safety-gate-wiring", label: "Video Provider Runtime Safety Gate Wiring", shortLabel: "VPR 3449", badge: "Phase 3449", priority: 25.3449 },
+  { id: "video-provider-runtime-lineage-packet-wiring", href: "/video-provider-runtime-lineage-packet-wiring", label: "Video Provider Runtime Lineage Packet Wiring", shortLabel: "VPR 3450", badge: "Phase 3450", priority: 25.3450 },
+  { id: "video-provider-runtime-audit-packet-wiring", href: "/video-provider-runtime-audit-packet-wiring", label: "Video Provider Runtime Audit Packet Wiring", shortLabel: "VPR 3451", badge: "Phase 3451", priority: 25.3451 },
+  { id: "video-provider-runtime-observability-trace-wiring", href: "/video-provider-runtime-observability-trace-wiring", label: "Video Provider Runtime Observability Trace Wiring", shortLabel: "VPR 3452", badge: "Phase 3452", priority: 25.3452 },
+  { id: "video-provider-runtime-result-capture-readiness-wiring", href: "/video-provider-runtime-result-capture-readiness-wiring", label: "Video Provider Runtime Result Capture Readiness Wiring", shortLabel: "VPR 3453", badge: "Phase 3453", priority: 25.3453 },
+  { id: "video-provider-runtime-artifact-handoff-readiness-wiring", href: "/video-provider-runtime-artifact-handoff-readiness-wiring", label: "Video Provider Runtime Artifact Handoff Readiness Wiring", shortLabel: "VPR 3454", badge: "Phase 3454", priority: 25.3454 },
+  { id: "video-provider-runtime-kill-switch-wiring", href: "/video-provider-runtime-kill-switch-wiring", label: "Video Provider Runtime Kill Switch Wiring", shortLabel: "VPR 3455", badge: "Phase 3455", priority: 25.3455 },
+  { id: "video-provider-runtime-single-call-lock-wiring", href: "/video-provider-runtime-single-call-lock-wiring", label: "Video Provider Runtime Single Call Lock Wiring", shortLabel: "VPR 3456", badge: "Phase 3456", priority: 25.3456 },
+  { id: "video-provider-runtime-idempotency-key-wiring", href: "/video-provider-runtime-idempotency-key-wiring", label: "Video Provider Runtime Idempotency Key Wiring", shortLabel: "VPR 3457", badge: "Phase 3457", priority: 25.3457 },
+  { id: "video-provider-runtime-replay-block-wiring", href: "/video-provider-runtime-replay-block-wiring", label: "Video Provider Runtime Replay Block Wiring", shortLabel: "VPR 3458", badge: "Phase 3458", priority: 25.3458 },
+  { id: "video-provider-runtime-retry-policy-wiring", href: "/video-provider-runtime-retry-policy-wiring", label: "Video Provider Runtime Retry Policy Wiring", shortLabel: "VPR 3459", badge: "Phase 3459", priority: 25.3459 },
+  { id: "video-provider-runtime-fallback-policy-wiring", href: "/video-provider-runtime-fallback-policy-wiring", label: "Video Provider Runtime Fallback Policy Wiring", shortLabel: "VPR 3460", badge: "Phase 3460", priority: 25.3460 },
+  { id: "video-provider-runtime-backend-check-wiring", href: "/video-provider-runtime-backend-check-wiring", label: "Video Provider Runtime Backend Check Wiring", shortLabel: "VPR 3461", badge: "Phase 3461", priority: 25.3461 },
+  { id: "video-provider-runtime-server-only-boundary-wiring", href: "/video-provider-runtime-server-only-boundary-wiring", label: "Video Provider Runtime Server Only Boundary Wiring", shortLabel: "VPR 3462", badge: "Phase 3462", priority: 25.3462 },
+  { id: "video-provider-runtime-execution-block-wiring", href: "/video-provider-runtime-execution-block-wiring", label: "Video Provider Runtime Execution Block Wiring", shortLabel: "VPR 3463", badge: "Phase 3463", priority: 25.3463 },
+  { id: "video-provider-runtime-operator-review-wiring", href: "/video-provider-runtime-operator-review-wiring", label: "Video Provider Runtime Operator Review Wiring", shortLabel: "VPR 3464", badge: "Phase 3464", priority: 25.3464 },
+  { id: "video-provider-runtime-readiness-completion", href: "/video-provider-runtime-readiness-completion", label: "Video Provider Runtime Readiness Completion", shortLabel: "VPR 3465", badge: "Phase 3465", priority: 25.3465 },
+] satisfies readonly Pick<CodexForgeNavigationRoute, "id" | "href" | "label" | "shortLabel" | "badge" | "priority">[];
+function buildVideoProviderRuntimeReadinessRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return VIDEO_PROVIDER_RUNTIME_READINESS_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      description: VIDEO_PROVIDER_RUNTIME_READINESS_NAV_DESCRIPTION,
+      group: "Creative",
+      readiness: "preview-only",
+      safetyPosture: "review-gated",
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
 const MULTI_PROVIDER_CAPABILITY_ROUTING_NAV_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/",
@@ -2760,6 +2810,7 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   ...CONTROLLED_RENDER_ARTIFACT_ASSEMBLY_TRIAL_ROUTE_INPUTS.map((route) => route.href),
   ...CONTROLLED_RENDER_ARTIFACT_EXPORT_REVIEW_TRIAL_ROUTE_INPUTS.map((route) => route.href),
   ...CONTROLLED_RENDER_ARTIFACT_PUBLISH_REVIEW_TRIAL_ROUTE_INPUTS.map((route) => route.href),
+  ...VIDEO_PROVIDER_RUNTIME_READINESS_ROUTE_INPUTS.map((route) => route.href),
   "/change-plan-live-context",
   "/patch-preview-live-context",
   "/test-planner-live-context",
@@ -51100,6 +51151,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   ...buildControlledRenderArtifactAssemblyTrialRouteDefaults(),
   ...buildControlledRenderArtifactExportReviewTrialRouteDefaults(),
   ...buildControlledRenderArtifactPublishReviewTrialRouteDefaults(),
+  ...buildVideoProviderRuntimeReadinessRouteDefaults(),
   "/change-plan-live-context": {
     id: "change-plan-live-context",
     href: "/change-plan-live-context",
