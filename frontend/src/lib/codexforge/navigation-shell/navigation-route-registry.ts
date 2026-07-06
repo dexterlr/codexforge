@@ -116,6 +116,56 @@ function buildControlledRenderArtifactAssemblyTrialRouteDefaults(): Partial<Reco
     return routes;
   }, {});
 }
+const CONTROLLED_RENDER_ARTIFACT_EXPORT_REVIEW_TRIAL_NAV_DESCRIPTION = "Review 3370-3401 - Controlled Render Artifact Export Review Trial as a review-only controlled render artifact export review trial surface. It models review, gating, eligibility, packaging policy, and operator approval for export readiness only. It defines approved assembly ref, approved export format policy, approved container policy, approved codec policy, approved resolution export policy, approved duration export policy, approved size export policy, approved cost export policy, privacy gate, safety gate, lineage packet, audit packet, observability trace, result preview, result review, download block, archive block, signed URL block, platform upload block, publish block, worker dispatch block, execution block, idempotency key, replay block, retry policy, fallback policy, backend runtime check, operator review, and trial completion. Render artifact export remains blocked until explicit operator approval. Backend-owned runtime check remains required. Operator review remains required before artifact export execution. Controlled render artifact export review trial completion does not enable render/export/publish/workers. Safety markers: no provider execution, no network execution, no render execution, no export execution, no publish execution, no worker dispatch, no file export, no download generation, no archive creation, no signed URL creation, no platform upload, no OAuth flow creation, no webhook creation, no file writes from the app, no shell/process/command execution from the app, no fetch/network calls, no provider SDK imports in frontend, no browser storage for secrets, no localStorage, no sessionStorage, no IndexedDB, no cookies. Static route only; next likely batch: 3402-3433 - Controlled Render Artifact Publish Review Trial.";
+const CONTROLLED_RENDER_ARTIFACT_EXPORT_REVIEW_TRIAL_ROUTE_INPUTS = [
+  { id: "controlled-render-artifact-export-boundary-wiring", href: "/controlled-render-artifact-export-boundary-wiring", label: "Controlled Render Artifact Export Boundary Wiring", shortLabel: "Exp 3370", badge: "Phase 3370", priority: 25.3370 },
+  { id: "controlled-render-artifact-export-intent-wiring", href: "/controlled-render-artifact-export-intent-wiring", label: "Controlled Render Artifact Export Intent Wiring", shortLabel: "Exp 3371", badge: "Phase 3371", priority: 25.3371 },
+  { id: "controlled-render-artifact-export-approval-gate-wiring", href: "/controlled-render-artifact-export-approval-gate-wiring", label: "Controlled Render Artifact Export Approval Gate Wiring", shortLabel: "Exp 3372", badge: "Phase 3372", priority: 25.3372 },
+  { id: "controlled-render-artifact-export-source-assembly-ref-wiring", href: "/controlled-render-artifact-export-source-assembly-ref-wiring", label: "Controlled Render Artifact Export Source Assembly Ref Wiring", shortLabel: "Exp 3373", badge: "Phase 3373", priority: 25.3373 },
+  { id: "controlled-render-artifact-export-format-policy-wiring", href: "/controlled-render-artifact-export-format-policy-wiring", label: "Controlled Render Artifact Export Format Policy Wiring", shortLabel: "Exp 3374", badge: "Phase 3374", priority: 25.3374 },
+  { id: "controlled-render-artifact-export-container-policy-wiring", href: "/controlled-render-artifact-export-container-policy-wiring", label: "Controlled Render Artifact Export Container Policy Wiring", shortLabel: "Exp 3375", badge: "Phase 3375", priority: 25.3375 },
+  { id: "controlled-render-artifact-export-codec-policy-wiring", href: "/controlled-render-artifact-export-codec-policy-wiring", label: "Controlled Render Artifact Export Codec Policy Wiring", shortLabel: "Exp 3376", badge: "Phase 3376", priority: 25.3376 },
+  { id: "controlled-render-artifact-export-resolution-policy-wiring", href: "/controlled-render-artifact-export-resolution-policy-wiring", label: "Controlled Render Artifact Export Resolution Policy Wiring", shortLabel: "Exp 3377", badge: "Phase 3377", priority: 25.3377 },
+  { id: "controlled-render-artifact-export-duration-policy-wiring", href: "/controlled-render-artifact-export-duration-policy-wiring", label: "Controlled Render Artifact Export Duration Policy Wiring", shortLabel: "Exp 3378", badge: "Phase 3378", priority: 25.3378 },
+  { id: "controlled-render-artifact-export-size-policy-wiring", href: "/controlled-render-artifact-export-size-policy-wiring", label: "Controlled Render Artifact Export Size Policy Wiring", shortLabel: "Exp 3379", badge: "Phase 3379", priority: 25.3379 },
+  { id: "controlled-render-artifact-export-cost-policy-wiring", href: "/controlled-render-artifact-export-cost-policy-wiring", label: "Controlled Render Artifact Export Cost Policy Wiring", shortLabel: "Exp 3380", badge: "Phase 3380", priority: 25.3380 },
+  { id: "controlled-render-artifact-export-privacy-gate-wiring", href: "/controlled-render-artifact-export-privacy-gate-wiring", label: "Controlled Render Artifact Export Privacy Gate Wiring", shortLabel: "Exp 3381", badge: "Phase 3381", priority: 25.3381 },
+  { id: "controlled-render-artifact-export-safety-gate-wiring", href: "/controlled-render-artifact-export-safety-gate-wiring", label: "Controlled Render Artifact Export Safety Gate Wiring", shortLabel: "Exp 3382", badge: "Phase 3382", priority: 25.3382 },
+  { id: "controlled-render-artifact-export-lineage-packet-wiring", href: "/controlled-render-artifact-export-lineage-packet-wiring", label: "Controlled Render Artifact Export Lineage Packet Wiring", shortLabel: "Exp 3383", badge: "Phase 3383", priority: 25.3383 },
+  { id: "controlled-render-artifact-export-audit-packet-wiring", href: "/controlled-render-artifact-export-audit-packet-wiring", label: "Controlled Render Artifact Export Audit Packet Wiring", shortLabel: "Exp 3384", badge: "Phase 3384", priority: 25.3384 },
+  { id: "controlled-render-artifact-export-observability-trace-wiring", href: "/controlled-render-artifact-export-observability-trace-wiring", label: "Controlled Render Artifact Export Observability Trace Wiring", shortLabel: "Exp 3385", badge: "Phase 3385", priority: 25.3385 },
+  { id: "controlled-render-artifact-export-result-preview-wiring", href: "/controlled-render-artifact-export-result-preview-wiring", label: "Controlled Render Artifact Export Result Preview Wiring", shortLabel: "Exp 3386", badge: "Phase 3386", priority: 25.3386 },
+  { id: "controlled-render-artifact-export-result-review-wiring", href: "/controlled-render-artifact-export-result-review-wiring", label: "Controlled Render Artifact Export Result Review Wiring", shortLabel: "Exp 3387", badge: "Phase 3387", priority: 25.3387 },
+  { id: "controlled-render-artifact-export-download-block-wiring", href: "/controlled-render-artifact-export-download-block-wiring", label: "Controlled Render Artifact Export Download Block Wiring", shortLabel: "Exp 3388", badge: "Phase 3388", priority: 25.3388 },
+  { id: "controlled-render-artifact-export-archive-block-wiring", href: "/controlled-render-artifact-export-archive-block-wiring", label: "Controlled Render Artifact Export Archive Block Wiring", shortLabel: "Exp 3389", badge: "Phase 3389", priority: 25.3389 },
+  { id: "controlled-render-artifact-export-signed-url-block-wiring", href: "/controlled-render-artifact-export-signed-url-block-wiring", label: "Controlled Render Artifact Export Signed URL Block Wiring", shortLabel: "Exp 3390", badge: "Phase 3390", priority: 25.3390 },
+  { id: "controlled-render-artifact-export-platform-upload-block-wiring", href: "/controlled-render-artifact-export-platform-upload-block-wiring", label: "Controlled Render Artifact Export Platform Upload Block Wiring", shortLabel: "Exp 3391", badge: "Phase 3391", priority: 25.3391 },
+  { id: "controlled-render-artifact-export-publish-block-wiring", href: "/controlled-render-artifact-export-publish-block-wiring", label: "Controlled Render Artifact Export Publish Block Wiring", shortLabel: "Exp 3392", badge: "Phase 3392", priority: 25.3392 },
+  { id: "controlled-render-artifact-export-worker-dispatch-block-wiring", href: "/controlled-render-artifact-export-worker-dispatch-block-wiring", label: "Controlled Render Artifact Export Worker Dispatch Block Wiring", shortLabel: "Exp 3393", badge: "Phase 3393", priority: 25.3393 },
+  { id: "controlled-render-artifact-export-execution-block-wiring", href: "/controlled-render-artifact-export-execution-block-wiring", label: "Controlled Render Artifact Export Execution Block Wiring", shortLabel: "Exp 3394", badge: "Phase 3394", priority: 25.3394 },
+  { id: "controlled-render-artifact-export-idempotency-key-wiring", href: "/controlled-render-artifact-export-idempotency-key-wiring", label: "Controlled Render Artifact Export Idempotency Key Wiring", shortLabel: "Exp 3395", badge: "Phase 3395", priority: 25.3395 },
+  { id: "controlled-render-artifact-export-replay-block-wiring", href: "/controlled-render-artifact-export-replay-block-wiring", label: "Controlled Render Artifact Export Replay Block Wiring", shortLabel: "Exp 3396", badge: "Phase 3396", priority: 25.3396 },
+  { id: "controlled-render-artifact-export-retry-policy-wiring", href: "/controlled-render-artifact-export-retry-policy-wiring", label: "Controlled Render Artifact Export Retry Policy Wiring", shortLabel: "Exp 3397", badge: "Phase 3397", priority: 25.3397 },
+  { id: "controlled-render-artifact-export-fallback-policy-wiring", href: "/controlled-render-artifact-export-fallback-policy-wiring", label: "Controlled Render Artifact Export Fallback Policy Wiring", shortLabel: "Exp 3398", badge: "Phase 3398", priority: 25.3398 },
+  { id: "controlled-render-artifact-export-backend-runtime-check-wiring", href: "/controlled-render-artifact-export-backend-runtime-check-wiring", label: "Controlled Render Artifact Export Backend Runtime Check Wiring", shortLabel: "Exp 3399", badge: "Phase 3399", priority: 25.3399 },
+  { id: "controlled-render-artifact-export-operator-review-wiring", href: "/controlled-render-artifact-export-operator-review-wiring", label: "Controlled Render Artifact Export Operator Review Wiring", shortLabel: "Exp 3400", badge: "Phase 3400", priority: 25.3400 },
+  { id: "controlled-render-artifact-export-review-trial-completion", href: "/controlled-render-artifact-export-review-trial-completion", label: "Controlled Render Artifact Export Review Trial Completion", shortLabel: "Exp 3401", badge: "Phase 3401", priority: 25.3401 },
+] satisfies readonly Pick<CodexForgeNavigationRoute, "id" | "href" | "label" | "shortLabel" | "badge" | "priority">[];
+function buildControlledRenderArtifactExportReviewTrialRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return CONTROLLED_RENDER_ARTIFACT_EXPORT_REVIEW_TRIAL_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      description: CONTROLLED_RENDER_ARTIFACT_EXPORT_REVIEW_TRIAL_NAV_DESCRIPTION,
+      group: "Creative",
+      readiness: "preview-only",
+      safetyPosture: "review-gated",
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
 const MULTI_PROVIDER_CAPABILITY_ROUTING_NAV_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/",
@@ -2658,6 +2708,7 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/first-live-audio-provider-call-backend-bridge-completion",
   ...FIRST_LIVE_VIDEO_PROVIDER_CALL_BACKEND_BRIDGE_ROUTE_INPUTS.map((route) => route.href),
   ...CONTROLLED_RENDER_ARTIFACT_ASSEMBLY_TRIAL_ROUTE_INPUTS.map((route) => route.href),
+  ...CONTROLLED_RENDER_ARTIFACT_EXPORT_REVIEW_TRIAL_ROUTE_INPUTS.map((route) => route.href),
   "/change-plan-live-context",
   "/patch-preview-live-context",
   "/test-planner-live-context",
@@ -50996,6 +51047,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   },
   ...buildFirstLiveVideoProviderCallBackendBridgeRouteDefaults(),
   ...buildControlledRenderArtifactAssemblyTrialRouteDefaults(),
+  ...buildControlledRenderArtifactExportReviewTrialRouteDefaults(),
   "/change-plan-live-context": {
     id: "change-plan-live-context",
     href: "/change-plan-live-context",
