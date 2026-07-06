@@ -366,6 +366,56 @@ function buildVideoProviderExecutionApprovalPacketRouteDefaults(): Partial<Recor
     return routes;
   }, {});
 }
+const VIDEO_PROVIDER_EXECUTION_ADAPTER_READINESS_NAV_DESCRIPTION = "Review 3530-3561 - First Backend-Owned Video Provider Execution Adapter Readiness as a backend-owned video provider execution adapter readiness surface. It stays adapter readiness only, backend-owned adapter contract only, disabled by default, and blocked until explicit operator approval. It defines provider adapter identity, approved provider reference, credential reference only, token reference only, dry-run reference, approval packet reference, request envelope readiness, response envelope readiness, error envelope readiness, prompt redaction gate readiness, cost guard readiness, rate guard readiness, timeout guard readiness, duration resolution size guard readiness, privacy gate readiness, safety gate readiness, lineage packet readiness, audit packet readiness, observability trace readiness, result capture readiness, artifact handoff readiness, kill switch enforcement, single-call lock, idempotency key, replay block, retry policy review, fallback policy review, backend runtime check, operator review, and completion. Safety markers: no live provider call, no real video generation, no live video generation, real video provider execution remains blocked, no provider execution, no live provider execution, no video provider execution, no network execution, no render execution, no export execution, no publish execution, no worker dispatch, no file export, no download generation, no archive creation, no signed URL creation, no platform upload, no media upload, no OAuth flow creation, no webhook creation, no schedule execution, no account authorization execution, no API route execution, no service creation, no runtime deploy, no file writes from the app, no shell/process/command execution from the app, no fetch/network calls, no provider SDK imports in frontend, no frontend provider key reads, no plaintext secrets, no localStorage, no sessionStorage, no IndexedDB, no cookies, no browser storage for secrets, backend-owned runtime check remains required, server-only boundary remains required, operator review remains required before real video provider execution, and first backend-owned video provider execution adapter readiness completion does not enable live provider/render/export/publish/workers. Static route only; next likely batch: 3562-3593 - Jarvis Operator Control Plane Foundation.";
+const VIDEO_PROVIDER_EXECUTION_ADAPTER_READINESS_ROUTE_INPUTS = [
+  { id: "video-provider-adapter-readiness-boundary-wiring", href: "/video-provider-adapter-readiness-boundary-wiring", label: "Video Provider Adapter Readiness Boundary Wiring", shortLabel: "VPAR 3530", badge: "Phase 3530", priority: 25.3530 },
+  { id: "video-provider-adapter-readiness-intent-wiring", href: "/video-provider-adapter-readiness-intent-wiring", label: "Video Provider Adapter Readiness Intent Wiring", shortLabel: "VPAR 3531", badge: "Phase 3531", priority: 25.3531 },
+  { id: "video-provider-adapter-readiness-provider-identity-wiring", href: "/video-provider-adapter-readiness-provider-identity-wiring", label: "Video Provider Adapter Readiness Provider Identity Wiring", shortLabel: "VPAR 3532", badge: "Phase 3532", priority: 25.3532 },
+  { id: "video-provider-adapter-readiness-approved-provider-ref-wiring", href: "/video-provider-adapter-readiness-approved-provider-ref-wiring", label: "Video Provider Adapter Readiness Approved Provider Ref Wiring", shortLabel: "VPAR 3533", badge: "Phase 3533", priority: 25.3533 },
+  { id: "video-provider-adapter-readiness-credential-ref-wiring", href: "/video-provider-adapter-readiness-credential-ref-wiring", label: "Video Provider Adapter Readiness Credential Ref Wiring", shortLabel: "VPAR 3534", badge: "Phase 3534", priority: 25.3534 },
+  { id: "video-provider-adapter-readiness-token-ref-wiring", href: "/video-provider-adapter-readiness-token-ref-wiring", label: "Video Provider Adapter Readiness Token Ref Wiring", shortLabel: "VPAR 3535", badge: "Phase 3535", priority: 25.3535 },
+  { id: "video-provider-adapter-readiness-dry-run-link-wiring", href: "/video-provider-adapter-readiness-dry-run-link-wiring", label: "Video Provider Adapter Readiness Dry Run Link Wiring", shortLabel: "VPAR 3536", badge: "Phase 3536", priority: 25.3536 },
+  { id: "video-provider-adapter-readiness-approval-packet-link-wiring", href: "/video-provider-adapter-readiness-approval-packet-link-wiring", label: "Video Provider Adapter Readiness Approval Packet Link Wiring", shortLabel: "VPAR 3537", badge: "Phase 3537", priority: 25.3537 },
+  { id: "video-provider-adapter-readiness-request-envelope-wiring", href: "/video-provider-adapter-readiness-request-envelope-wiring", label: "Video Provider Adapter Readiness Request Envelope Wiring", shortLabel: "VPAR 3538", badge: "Phase 3538", priority: 25.3538 },
+  { id: "video-provider-adapter-readiness-response-envelope-wiring", href: "/video-provider-adapter-readiness-response-envelope-wiring", label: "Video Provider Adapter Readiness Response Envelope Wiring", shortLabel: "VPAR 3539", badge: "Phase 3539", priority: 25.3539 },
+  { id: "video-provider-adapter-readiness-error-envelope-wiring", href: "/video-provider-adapter-readiness-error-envelope-wiring", label: "Video Provider Adapter Readiness Error Envelope Wiring", shortLabel: "VPAR 3540", badge: "Phase 3540", priority: 25.3540 },
+  { id: "video-provider-adapter-readiness-prompt-redaction-gate-wiring", href: "/video-provider-adapter-readiness-prompt-redaction-gate-wiring", label: "Video Provider Adapter Readiness Prompt Redaction Gate Wiring", shortLabel: "VPAR 3541", badge: "Phase 3541", priority: 25.3541 },
+  { id: "video-provider-adapter-readiness-cost-guard-wiring", href: "/video-provider-adapter-readiness-cost-guard-wiring", label: "Video Provider Adapter Readiness Cost Guard Wiring", shortLabel: "VPAR 3542", badge: "Phase 3542", priority: 25.3542 },
+  { id: "video-provider-adapter-readiness-rate-guard-wiring", href: "/video-provider-adapter-readiness-rate-guard-wiring", label: "Video Provider Adapter Readiness Rate Guard Wiring", shortLabel: "VPAR 3543", badge: "Phase 3543", priority: 25.3543 },
+  { id: "video-provider-adapter-readiness-timeout-guard-wiring", href: "/video-provider-adapter-readiness-timeout-guard-wiring", label: "Video Provider Adapter Readiness Timeout Guard Wiring", shortLabel: "VPAR 3544", badge: "Phase 3544", priority: 25.3544 },
+  { id: "video-provider-adapter-readiness-duration-resolution-size-guard-wiring", href: "/video-provider-adapter-readiness-duration-resolution-size-guard-wiring", label: "Video Provider Adapter Readiness Duration Resolution Size Guard Wiring", shortLabel: "VPAR 3545", badge: "Phase 3545", priority: 25.3545 },
+  { id: "video-provider-adapter-readiness-privacy-gate-wiring", href: "/video-provider-adapter-readiness-privacy-gate-wiring", label: "Video Provider Adapter Readiness Privacy Gate Wiring", shortLabel: "VPAR 3546", badge: "Phase 3546", priority: 25.3546 },
+  { id: "video-provider-adapter-readiness-safety-gate-wiring", href: "/video-provider-adapter-readiness-safety-gate-wiring", label: "Video Provider Adapter Readiness Safety Gate Wiring", shortLabel: "VPAR 3547", badge: "Phase 3547", priority: 25.3547 },
+  { id: "video-provider-adapter-readiness-lineage-packet-wiring", href: "/video-provider-adapter-readiness-lineage-packet-wiring", label: "Video Provider Adapter Readiness Lineage Packet Wiring", shortLabel: "VPAR 3548", badge: "Phase 3548", priority: 25.3548 },
+  { id: "video-provider-adapter-readiness-audit-packet-wiring", href: "/video-provider-adapter-readiness-audit-packet-wiring", label: "Video Provider Adapter Readiness Audit Packet Wiring", shortLabel: "VPAR 3549", badge: "Phase 3549", priority: 25.3549 },
+  { id: "video-provider-adapter-readiness-observability-trace-wiring", href: "/video-provider-adapter-readiness-observability-trace-wiring", label: "Video Provider Adapter Readiness Observability Trace Wiring", shortLabel: "VPAR 3550", badge: "Phase 3550", priority: 25.3550 },
+  { id: "video-provider-adapter-readiness-result-capture-wiring", href: "/video-provider-adapter-readiness-result-capture-wiring", label: "Video Provider Adapter Readiness Result Capture Wiring", shortLabel: "VPAR 3551", badge: "Phase 3551", priority: 25.3551 },
+  { id: "video-provider-adapter-readiness-artifact-handoff-wiring", href: "/video-provider-adapter-readiness-artifact-handoff-wiring", label: "Video Provider Adapter Readiness Artifact Handoff Wiring", shortLabel: "VPAR 3552", badge: "Phase 3552", priority: 25.3552 },
+  { id: "video-provider-adapter-readiness-kill-switch-wiring", href: "/video-provider-adapter-readiness-kill-switch-wiring", label: "Video Provider Adapter Readiness Kill Switch Wiring", shortLabel: "VPAR 3553", badge: "Phase 3553", priority: 25.3553 },
+  { id: "video-provider-adapter-readiness-single-call-lock-wiring", href: "/video-provider-adapter-readiness-single-call-lock-wiring", label: "Video Provider Adapter Readiness Single Call Lock Wiring", shortLabel: "VPAR 3554", badge: "Phase 3554", priority: 25.3554 },
+  { id: "video-provider-adapter-readiness-idempotency-key-wiring", href: "/video-provider-adapter-readiness-idempotency-key-wiring", label: "Video Provider Adapter Readiness Idempotency Key Wiring", shortLabel: "VPAR 3555", badge: "Phase 3555", priority: 25.3555 },
+  { id: "video-provider-adapter-readiness-replay-block-wiring", href: "/video-provider-adapter-readiness-replay-block-wiring", label: "Video Provider Adapter Readiness Replay Block Wiring", shortLabel: "VPAR 3556", badge: "Phase 3556", priority: 25.3556 },
+  { id: "video-provider-adapter-readiness-retry-policy-wiring", href: "/video-provider-adapter-readiness-retry-policy-wiring", label: "Video Provider Adapter Readiness Retry Policy Wiring", shortLabel: "VPAR 3557", badge: "Phase 3557", priority: 25.3557 },
+  { id: "video-provider-adapter-readiness-fallback-policy-wiring", href: "/video-provider-adapter-readiness-fallback-policy-wiring", label: "Video Provider Adapter Readiness Fallback Policy Wiring", shortLabel: "VPAR 3558", badge: "Phase 3558", priority: 25.3558 },
+  { id: "video-provider-adapter-readiness-backend-runtime-check-wiring", href: "/video-provider-adapter-readiness-backend-runtime-check-wiring", label: "Video Provider Adapter Readiness Backend Runtime Check Wiring", shortLabel: "VPAR 3559", badge: "Phase 3559", priority: 25.3559 },
+  { id: "video-provider-adapter-readiness-operator-review-wiring", href: "/video-provider-adapter-readiness-operator-review-wiring", label: "Video Provider Adapter Readiness Operator Review Wiring", shortLabel: "VPAR 3560", badge: "Phase 3560", priority: 25.3560 },
+  { id: "video-provider-adapter-readiness-completion", href: "/video-provider-adapter-readiness-completion", label: "Video Provider Adapter Readiness Completion", shortLabel: "VPAR 3561", badge: "Phase 3561", priority: 25.3561 },
+] satisfies readonly Pick<CodexForgeNavigationRoute, "id" | "href" | "label" | "shortLabel" | "badge" | "priority">[];
+function buildVideoProviderExecutionAdapterReadinessRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return VIDEO_PROVIDER_EXECUTION_ADAPTER_READINESS_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      description: VIDEO_PROVIDER_EXECUTION_ADAPTER_READINESS_NAV_DESCRIPTION,
+      group: "Creative",
+      readiness: "preview-only",
+      safetyPosture: "review-gated",
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
 const MULTI_PROVIDER_CAPABILITY_ROUTING_NAV_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/",
@@ -2913,6 +2963,7 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   ...VIDEO_PROVIDER_RUNTIME_READINESS_ROUTE_INPUTS.map((route) => route.href),
   ...VIDEO_PROVIDER_EXECUTION_DRY_RUN_ROUTE_INPUTS.map((route) => route.href),
   ...VIDEO_PROVIDER_EXECUTION_APPROVAL_PACKET_ROUTE_INPUTS.map((route) => route.href),
+  ...VIDEO_PROVIDER_EXECUTION_ADAPTER_READINESS_ROUTE_INPUTS.map((route) => route.href),
   "/change-plan-live-context",
   "/patch-preview-live-context",
   "/test-planner-live-context",
@@ -51256,6 +51307,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   ...buildVideoProviderRuntimeReadinessRouteDefaults(),
   ...buildVideoProviderExecutionDryRunRouteDefaults(),
   ...buildVideoProviderExecutionApprovalPacketRouteDefaults(),
+  ...buildVideoProviderExecutionAdapterReadinessRouteDefaults(),
   "/change-plan-live-context": {
     id: "change-plan-live-context",
     href: "/change-plan-live-context",
