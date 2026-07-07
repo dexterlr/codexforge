@@ -4,6 +4,7 @@ import type {
   CodexForgeCommandRegistryOptions,
   CodexForgeCommandRouteAvailability,
 } from "./command-palette-types";
+import { JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_SPECS } from "../jarvis-task-planner-tool-router-map/jarvis-task-planner-tool-router-model";
 import {
   buildCodexForgeContinuityHandoffPromptPayload,
   buildCodexForgeContinuityValidationChecklistPayload,
@@ -820,6 +821,58 @@ const JARVIS_PERMISSION_APPROVAL_ENGINE_ROUTE_COMMANDS = [
   { id: "go-jarvis-permission-approval-operator-review-wiring", label: "Go to Jarvis Permission Approval Operator Review Wiring", href: "/jarvis-permission-approval-operator-review-wiring", priority: 25.3656 },
   { id: "go-jarvis-permission-approval-engine-completion", label: "Go to Jarvis Permission Approval Engine Completion", href: "/jarvis-permission-approval-engine-completion", priority: 25.3657 },
 ] satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & { href: NonNullable<CodexForgeCommand["href"]> })[];
+const JARVIS_TASK_PLANNER_TOOL_ROUTER_COMMAND_DESCRIPTION = "Review 3658-3689 - Jarvis Task Planner and Tool Router as a review-only Jarvis task planner and tool router foundation surface. Jarvis is the operating system / top-level control plane. The task planner sits above the permission and approval engine, and the tool router sits above the shared backend adapter contract. It stays Jarvis task planner and tool router only, task planner foundation, tool router foundation, one Jarvis brain with shared task planning, one Jarvis brain with shared tool routing, disabled by default, approval-required, backend-only, and execution-blocked. It defines user goal review only, request envelope review only, plan graph review only, plan step review only, capability selection review only, risk check required, permission check required, approval check required, dry-run routing required, tool router contract review only, backend adapter routing review only, video route review only, website route review only, avatar route review only, chatbot brain route review only, trading route review only, workflow route review only, render publish route review only, operator decision preview only, blocked action summary only, approval packet request readiness only, audit preview only, result ledger preview only, memory boundary preview only, kill switch check required, lock manager check required, idempotency check required, replay block check required, and human review required before any execution. Safety markers: no direct frontend execution, no frontend execution of backend adapters, no live provider call, no provider execution, no live provider execution, no video provider execution, no image provider execution, no audio provider execution, no website creation execution, no avatar generation execution, no chatbot autonomous execution, no trading execution, no paper trading execution, no real-money trading execution, no tool execution, no autonomous tool execution, no network execution, no render execution, no export execution, no publish execution, no worker dispatch, no file export, no download generation, no archive creation, no signed URL creation, no platform upload, no media upload, no OAuth flow creation, no webhook creation, no schedule execution, no account authorization execution, no API route execution, no service creation, no runtime deploy, no file writes from the app, no shell/process/command execution from the app, no fetch/network calls, no provider SDK imports in frontend, no frontend provider key reads, no frontend secrets, no plaintext secrets, no localStorage, no sessionStorage, no IndexedDB, no cookies, and no browser storage for secrets. Task planner and tool router completion does not enable provider/render/export/publish/workers/trading/automation. Static route only; next likely batch: 3690-3721 - Jarvis Audit Result Ledger and Status Dashboard.";
+const JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_AVAILABILITY =
+  JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_SPECS.reduce<CodexForgeCommandRouteAvailability>(
+    (routes, [, , href]) => {
+      routes[href] = true;
+      return routes;
+    },
+    {}
+  );
+const JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_COMMANDS = JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_SPECS.map(
+  ([phaseNumber, id, href, label]) => ({
+    id: `go-${id}`,
+    label: `Go to ${label}`,
+    href,
+    priority: 25 + phaseNumber / 10000,
+  })
+) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & { href: NonNullable<CodexForgeCommand["href"]> })[];
+/*
+ * Jarvis Task Planner and Tool Router command markers:
+ * | href: "/jarvis-task-planner-router-boundary-wiring" | label: "Go to Jarvis Task Planner Router Boundary Wiring"
+ * | href: "/jarvis-task-planner-router-intent-wiring" | label: "Go to Jarvis Task Planner Router Intent Wiring"
+ * | href: "/jarvis-task-planner-goal-model-wiring" | label: "Go to Jarvis Task Planner Goal Model Wiring"
+ * | href: "/jarvis-task-planner-user-request-envelope-wiring" | label: "Go to Jarvis Task Planner User Request Envelope Wiring"
+ * | href: "/jarvis-task-planner-capability-selection-wiring" | label: "Go to Jarvis Task Planner Capability Selection Wiring"
+ * | href: "/jarvis-task-planner-step-graph-wiring" | label: "Go to Jarvis Task Planner Step Graph Wiring"
+ * | href: "/jarvis-task-planner-risk-check-wiring" | label: "Go to Jarvis Task Planner Risk Check Wiring"
+ * | href: "/jarvis-task-planner-permission-check-wiring" | label: "Go to Jarvis Task Planner Permission Check Wiring"
+ * | href: "/jarvis-task-planner-approval-check-wiring" | label: "Go to Jarvis Task Planner Approval Check Wiring"
+ * | href: "/jarvis-task-planner-dry-run-routing-wiring" | label: "Go to Jarvis Task Planner Dry Run Routing Wiring"
+ * | href: "/jarvis-task-planner-tool-router-contract-wiring" | label: "Go to Jarvis Task Planner Tool Router Contract Wiring"
+ * | href: "/jarvis-task-planner-backend-adapter-routing-wiring" | label: "Go to Jarvis Task Planner Backend Adapter Routing Wiring"
+ * | href: "/jarvis-task-planner-video-route-wiring" | label: "Go to Jarvis Task Planner Video Route Wiring"
+ * | href: "/jarvis-task-planner-website-route-wiring" | label: "Go to Jarvis Task Planner Website Route Wiring"
+ * | href: "/jarvis-task-planner-avatar-route-wiring" | label: "Go to Jarvis Task Planner Avatar Route Wiring"
+ * | href: "/jarvis-task-planner-chatbot-brain-route-wiring" | label: "Go to Jarvis Task Planner Chatbot Brain Route Wiring"
+ * | href: "/jarvis-task-planner-trading-route-wiring" | label: "Go to Jarvis Task Planner Trading Route Wiring"
+ * | href: "/jarvis-task-planner-workflow-route-wiring" | label: "Go to Jarvis Task Planner Workflow Route Wiring"
+ * | href: "/jarvis-task-planner-render-publish-route-wiring" | label: "Go to Jarvis Task Planner Render Publish Route Wiring"
+ * | href: "/jarvis-task-planner-operator-decision-wiring" | label: "Go to Jarvis Task Planner Operator Decision Wiring"
+ * | href: "/jarvis-task-planner-blocked-action-summary-wiring" | label: "Go to Jarvis Task Planner Blocked Action Summary Wiring"
+ * | href: "/jarvis-task-planner-approval-packet-request-wiring" | label: "Go to Jarvis Task Planner Approval Packet Request Wiring"
+ * | href: "/jarvis-task-planner-audit-preview-wiring" | label: "Go to Jarvis Task Planner Audit Preview Wiring"
+ * | href: "/jarvis-task-planner-result-ledger-preview-wiring" | label: "Go to Jarvis Task Planner Result Ledger Preview Wiring"
+ * | href: "/jarvis-task-planner-memory-boundary-preview-wiring" | label: "Go to Jarvis Task Planner Memory Boundary Preview Wiring"
+ * | href: "/jarvis-task-planner-kill-switch-check-wiring" | label: "Go to Jarvis Task Planner Kill Switch Check Wiring"
+ * | href: "/jarvis-task-planner-lock-idempotency-check-wiring" | label: "Go to Jarvis Task Planner Lock Idempotency Check Wiring"
+ * | href: "/jarvis-task-planner-replay-block-check-wiring" | label: "Go to Jarvis Task Planner Replay Block Check Wiring"
+ * | href: "/jarvis-task-planner-router-status-dashboard-wiring" | label: "Go to Jarvis Task Planner Router Status Dashboard Wiring"
+ * | href: "/jarvis-task-planner-human-review-wiring" | label: "Go to Jarvis Task Planner Human Review Wiring"
+ * | href: "/jarvis-task-planner-no-execution-guard-wiring" | label: "Go to Jarvis Task Planner No Execution Guard Wiring"
+ * | href: "/jarvis-task-planner-tool-router-completion" | label: "Go to Jarvis Task Planner Tool Router Completion"
+ */
 const MULTI_PROVIDER_CAPABILITY_ROUTING_COMMAND_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/": true,
@@ -3391,6 +3444,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   ...JARVIS_OPERATOR_CONTROL_PLANE_FOUNDATION_ROUTE_AVAILABILITY,
   ...JARVIS_SHARED_BACKEND_ADAPTER_CONTRACT_ROUTE_AVAILABILITY,
   ...JARVIS_PERMISSION_APPROVAL_ENGINE_ROUTE_AVAILABILITY,
+  ...JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_AVAILABILITY,
   "/change-plan-live-context": true,
   "/patch-preview-live-context": true,
   "/test-planner-live-context": true,
@@ -31235,6 +31289,13 @@ export function buildCodexForgeCommands(
         ...command,
         description: JARVIS_PERMISSION_APPROVAL_ENGINE_COMMAND_DESCRIPTION,
         keywords: ["Jarvis Permission and Approval Engine", "centralized permission decision model", "approval packet readiness only", "disabled"],
+      })
+    ),
+    ...JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_COMMANDS.map((command) =>
+      buildRouteCommand(availability, {
+        ...command,
+        description: JARVIS_TASK_PLANNER_TOOL_ROUTER_COMMAND_DESCRIPTION,
+        keywords: ["Jarvis Task Planner and Tool Router", "user goal review only", "dry-run routing required", "disabled"],
       })
     ),
 
