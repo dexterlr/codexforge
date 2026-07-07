@@ -12,6 +12,10 @@ import {
 } from "../jarvis-unified-workspace-shells-map/jarvis-unified-workspace-shells-model";
 import { JARVIS_UNIFIED_WORKSPACE_SHELL_WORKSPACES } from "../jarvis-unified-workspace-shells-map/jarvis-unified-workspace-shells-workspaces";
 import {
+  JARVIS_VIDEO_ADAPTER_PLUGIN_REVIEW_DESCRIPTION,
+  JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_SPECS,
+} from "../jarvis-video-adapter-plugin-map/jarvis-video-adapter-plugin-model";
+import {
   buildCodexForgeContinuityHandoffPromptPayload,
   buildCodexForgeContinuityValidationChecklistPayload,
   buildCodexForgeApplyGateHandoffPromptPayload,
@@ -888,6 +892,25 @@ const JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_AVAILABILITY =
   );
 const JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_COMMANDS =
   JARVIS_UNIFIED_WORKSPACE_SHELLS_ROUTE_SPECS.map(
+    ([phaseNumber, id, href, label]) => ({
+      id: `go-${id}`,
+      label: `Go to ${label}`,
+      href,
+      priority: 25 + phaseNumber / 10000,
+    })
+  ) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & {
+    href: NonNullable<CodexForgeCommand["href"]>;
+  })[];
+const JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_AVAILABILITY =
+  JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_SPECS.reduce<CodexForgeCommandRouteAvailability>(
+    (routes, [, , href]) => {
+      routes[href] = true;
+      return routes;
+    },
+    {}
+  );
+const JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_COMMANDS =
+  JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_SPECS.map(
     ([phaseNumber, id, href, label]) => ({
       id: `go-${id}`,
       label: `Go to ${label}`,
@@ -3540,6 +3563,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   ...JARVIS_AUDIT_RESULT_STATUS_ROUTE_AVAILABILITY,
   ...JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_AVAILABILITY,
   ...JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_AVAILABILITY,
+  ...JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_AVAILABILITY,
   "/change-plan-live-context": true,
   "/patch-preview-live-context": true,
   "/test-planner-live-context": true,
@@ -31412,6 +31436,13 @@ export function buildCodexForgeCommands(
         ...command,
         description: JARVIS_UNIFIED_WORKSPACE_SHELLS_REVIEW_DESCRIPTION,
         keywords: ["Jarvis Unified Workspace Shells", "shared capability grid only", "operator review required before any execution", "disabled"],
+      })
+    ),
+    ...JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_COMMANDS.map((command) =>
+      buildRouteCommand(availability, {
+        ...command,
+        description: JARVIS_VIDEO_ADAPTER_PLUGIN_REVIEW_DESCRIPTION,
+        keywords: ["First Jarvis-Controlled Video Adapter Plug-in", "video.generate plugs into Jarvis", "disabled"],
       })
     ),
 
