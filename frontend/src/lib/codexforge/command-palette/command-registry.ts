@@ -4,6 +4,7 @@ import type {
   CodexForgeCommandRegistryOptions,
   CodexForgeCommandRouteAvailability,
 } from "./command-palette-types";
+import { JARVIS_AUDIT_RESULT_STATUS_ROUTE_SPECS } from "../jarvis-audit-result-status-map/jarvis-audit-result-status-model";
 import { JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_SPECS } from "../jarvis-task-planner-tool-router-map/jarvis-task-planner-tool-router-model";
 import {
   buildCodexForgeContinuityHandoffPromptPayload,
@@ -838,6 +839,23 @@ const JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_COMMANDS = JARVIS_TASK_PLANNER_TOOL_
     priority: 25 + phaseNumber / 10000,
   })
 ) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & { href: NonNullable<CodexForgeCommand["href"]> })[];
+const JARVIS_AUDIT_RESULT_STATUS_COMMAND_DESCRIPTION = "Review 3690-3721 - Jarvis Audit Result Ledger and Status Dashboard as a review-only Jarvis audit result ledger and status dashboard foundation surface. Jarvis is the operating system / top-level control plane. The audit/result/status layer sits above the operator control plane foundation, shared backend adapter contract, permission and approval engine, and task planner and tool router. It stays Jarvis audit result ledger and status dashboard only, audit ledger foundation, result ledger foundation, status dashboard foundation, one Jarvis cockpit with shared evidence, disabled by default, approval-required, backend-only, and execution-blocked. It defines audit event review only, approval event review only, permission event review only, planner event review only, router event review only, blocked action event review only, dry-run record review only, approval record review only, blocked record review only, artifact placeholder review only, capability status review only, workspace status review only, adapter status review only, permission status review only, approval status review only, dry-run status review only, risk status review only, trading status review only, provider status review only, website avatar status review only, workflow status review only, memory boundary status review only, kill switch status review only, lock manager status review only, idempotency status review only, replay block status review only, and operator review status required. Safety markers: no direct frontend execution, no frontend execution of backend adapters, no live provider call, no provider execution, no video provider execution, no image provider execution, no audio provider execution, no website creation execution, no avatar generation execution, no chatbot autonomous execution, no trading execution, no paper trading execution, no real-money trading execution, no tool execution, no autonomous tool execution, no network execution, no render execution, no export execution, no publish execution, no worker dispatch, no file export, no download generation, no archive creation, no signed URL creation, no platform upload, no media upload, no OAuth flow creation, no webhook creation, no schedule execution, no account authorization execution, no API route execution, no service creation, no runtime deploy, no file writes from the app, no shell/process/command execution from the app, no fetch/network calls, no provider SDK imports in frontend, no frontend provider key reads, no plaintext secrets, no localStorage, no sessionStorage, no IndexedDB, no cookies, and no browser storage for secrets. Audit result status completion does not enable provider/render/export/publish/workers/trading/automation. Static route only; next likely batch: 3722-3753 - Jarvis Unified Workspace Shells.";
+const JARVIS_AUDIT_RESULT_STATUS_ROUTE_AVAILABILITY =
+  JARVIS_AUDIT_RESULT_STATUS_ROUTE_SPECS.reduce<CodexForgeCommandRouteAvailability>(
+    (routes, [, , href]) => {
+      routes[href] = true;
+      return routes;
+    },
+    {}
+  );
+const JARVIS_AUDIT_RESULT_STATUS_ROUTE_COMMANDS = JARVIS_AUDIT_RESULT_STATUS_ROUTE_SPECS.map(
+  ([phaseNumber, id, href, label]) => ({
+    id: `go-${id}`,
+    label: `Go to ${label}`,
+    href,
+    priority: 25 + phaseNumber / 10000,
+  })
+) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & { href: NonNullable<CodexForgeCommand["href"]> })[];
 /*
  * Jarvis Task Planner and Tool Router command markers:
  * | href: "/jarvis-task-planner-router-boundary-wiring" | label: "Go to Jarvis Task Planner Router Boundary Wiring"
@@ -872,6 +890,39 @@ const JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_COMMANDS = JARVIS_TASK_PLANNER_TOOL_
  * | href: "/jarvis-task-planner-human-review-wiring" | label: "Go to Jarvis Task Planner Human Review Wiring"
  * | href: "/jarvis-task-planner-no-execution-guard-wiring" | label: "Go to Jarvis Task Planner No Execution Guard Wiring"
  * | href: "/jarvis-task-planner-tool-router-completion" | label: "Go to Jarvis Task Planner Tool Router Completion"
+ * Jarvis Audit Result Ledger and Status Dashboard command markers:
+ * | href: "/jarvis-audit-result-status-boundary-wiring" | label: "Go to Jarvis Audit Result Status Boundary Wiring"
+ * | href: "/jarvis-audit-result-status-intent-wiring" | label: "Go to Jarvis Audit Result Status Intent Wiring"
+ * | href: "/jarvis-audit-event-model-wiring" | label: "Go to Jarvis Audit Event Model Wiring"
+ * | href: "/jarvis-audit-approval-event-wiring" | label: "Go to Jarvis Audit Approval Event Wiring"
+ * | href: "/jarvis-audit-permission-event-wiring" | label: "Go to Jarvis Audit Permission Event Wiring"
+ * | href: "/jarvis-audit-planner-event-wiring" | label: "Go to Jarvis Audit Planner Event Wiring"
+ * | href: "/jarvis-audit-router-event-wiring" | label: "Go to Jarvis Audit Router Event Wiring"
+ * | href: "/jarvis-audit-blocked-action-event-wiring" | label: "Go to Jarvis Audit Blocked Action Event Wiring"
+ * | href: "/jarvis-result-ledger-model-wiring" | label: "Go to Jarvis Result Ledger Model Wiring"
+ * | href: "/jarvis-result-ledger-dry-run-record-wiring" | label: "Go to Jarvis Result Ledger Dry Run Record Wiring"
+ * | href: "/jarvis-result-ledger-approval-record-wiring" | label: "Go to Jarvis Result Ledger Approval Record Wiring"
+ * | href: "/jarvis-result-ledger-blocked-record-wiring" | label: "Go to Jarvis Result Ledger Blocked Record Wiring"
+ * | href: "/jarvis-result-ledger-artifact-placeholder-wiring" | label: "Go to Jarvis Result Ledger Artifact Placeholder Wiring"
+ * | href: "/jarvis-status-dashboard-overview-wiring" | label: "Go to Jarvis Status Dashboard Overview Wiring"
+ * | href: "/jarvis-status-dashboard-capability-status-wiring" | label: "Go to Jarvis Status Dashboard Capability Status Wiring"
+ * | href: "/jarvis-status-dashboard-workspace-status-wiring" | label: "Go to Jarvis Status Dashboard Workspace Status Wiring"
+ * | href: "/jarvis-status-dashboard-adapter-status-wiring" | label: "Go to Jarvis Status Dashboard Adapter Status Wiring"
+ * | href: "/jarvis-status-dashboard-permission-status-wiring" | label: "Go to Jarvis Status Dashboard Permission Status Wiring"
+ * | href: "/jarvis-status-dashboard-approval-status-wiring" | label: "Go to Jarvis Status Dashboard Approval Status Wiring"
+ * | href: "/jarvis-status-dashboard-dry-run-status-wiring" | label: "Go to Jarvis Status Dashboard Dry Run Status Wiring"
+ * | href: "/jarvis-status-dashboard-risk-status-wiring" | label: "Go to Jarvis Status Dashboard Risk Status Wiring"
+ * | href: "/jarvis-status-dashboard-trading-status-wiring" | label: "Go to Jarvis Status Dashboard Trading Status Wiring"
+ * | href: "/jarvis-status-dashboard-provider-status-wiring" | label: "Go to Jarvis Status Dashboard Provider Status Wiring"
+ * | href: "/jarvis-status-dashboard-website-avatar-status-wiring" | label: "Go to Jarvis Status Dashboard Website Avatar Status Wiring"
+ * | href: "/jarvis-status-dashboard-workflow-status-wiring" | label: "Go to Jarvis Status Dashboard Workflow Status Wiring"
+ * | href: "/jarvis-status-dashboard-memory-boundary-status-wiring" | label: "Go to Jarvis Status Dashboard Memory Boundary Status Wiring"
+ * | href: "/jarvis-status-dashboard-kill-switch-status-wiring" | label: "Go to Jarvis Status Dashboard Kill Switch Status Wiring"
+ * | href: "/jarvis-status-dashboard-lock-idempotency-status-wiring" | label: "Go to Jarvis Status Dashboard Lock Idempotency Status Wiring"
+ * | href: "/jarvis-status-dashboard-replay-block-status-wiring" | label: "Go to Jarvis Status Dashboard Replay Block Status Wiring"
+ * | href: "/jarvis-status-dashboard-operator-review-wiring" | label: "Go to Jarvis Status Dashboard Operator Review Wiring"
+ * | href: "/jarvis-status-dashboard-no-execution-guard-wiring" | label: "Go to Jarvis Status Dashboard No Execution Guard Wiring"
+ * | href: "/jarvis-audit-result-status-completion" | label: "Go to Jarvis Audit Result Status Completion"
  */
 const MULTI_PROVIDER_CAPABILITY_ROUTING_COMMAND_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
@@ -3445,6 +3496,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   ...JARVIS_SHARED_BACKEND_ADAPTER_CONTRACT_ROUTE_AVAILABILITY,
   ...JARVIS_PERMISSION_APPROVAL_ENGINE_ROUTE_AVAILABILITY,
   ...JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_AVAILABILITY,
+  ...JARVIS_AUDIT_RESULT_STATUS_ROUTE_AVAILABILITY,
   "/change-plan-live-context": true,
   "/patch-preview-live-context": true,
   "/test-planner-live-context": true,
@@ -31296,6 +31348,13 @@ export function buildCodexForgeCommands(
         ...command,
         description: JARVIS_TASK_PLANNER_TOOL_ROUTER_COMMAND_DESCRIPTION,
         keywords: ["Jarvis Task Planner and Tool Router", "user goal review only", "dry-run routing required", "disabled"],
+      })
+    ),
+    ...JARVIS_AUDIT_RESULT_STATUS_ROUTE_COMMANDS.map((command) =>
+      buildRouteCommand(availability, {
+        ...command,
+        description: JARVIS_AUDIT_RESULT_STATUS_COMMAND_DESCRIPTION,
+        keywords: ["Jarvis Audit Result Ledger and Status Dashboard", "one Jarvis cockpit with shared evidence", "audit event review only", "disabled"],
       })
     ),
 

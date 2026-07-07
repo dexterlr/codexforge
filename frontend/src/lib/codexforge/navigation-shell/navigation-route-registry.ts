@@ -5,6 +5,7 @@ import type {
   CodexForgeNavigationRouteId,
   CodexForgeNavigationRouteInput,
 } from "./navigation-shell-types";
+import { JARVIS_AUDIT_RESULT_STATUS_ROUTE_SPECS } from "../jarvis-audit-result-status-map/jarvis-audit-result-status-model";
 import { JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_SPECS } from "../jarvis-task-planner-tool-router-map/jarvis-task-planner-tool-router-model";
 const PROVIDER_ADAPTER_REGISTRY_BACKEND_CONTRACT_NAV_DESCRIPTION = "Review Provider Adapter Registry Backend Contract as a review-only provider adapter registry contract with synthetic provider adapter registry data only. Provider adapter registry remains disabled until explicit operator approval. It defines disabled provider adapter catalog, provider capability map, text provider capability remains disabled, image provider capability remains disabled, audio provider capability remains disabled, video provider capability remains disabled, transcription provider capability remains disabled, editing provider capability remains disabled, metadata provider capability remains disabled, safety provider capability remains disabled, provider credential boundary, provider token boundary, provider request envelope, provider response envelope, provider error envelope, provider approval gate, provider audit envelope, provider redaction envelope, provider cost guard, provider rate guard, provider privacy guard, provider safety guard, provider region policy, provider data retention policy, provider retry policy, provider fallback policy, provider observability trace, provider runner handoff remains review-only, provider adapter readiness gate, and provider adapter registry completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no fetch/network calls, no connector calls, no upload/download, no frontend persistence, no credential storage, no token storage, no provider key storage, no database writes, no service creation, no API creation from frontend, no port binding, no runtime deploy. Static route only; next likely batch: 2954-2985 - First Approved Provider Execution Bridge.";
 const FIRST_APPROVED_PROVIDER_EXECUTION_BRIDGE_NAV_DESCRIPTION = "Review 2954-2985 - First Approved Provider Execution Bridge as a review-only approved provider execution bridge with synthetic approved provider execution bridge data only. The approved provider execution bridge remains disabled until explicit operator approval. It defines approved provider execution intent, approved provider approval packet, approved provider credential reference boundary, approved provider token reference boundary, approved provider request envelope, approved provider response envelope, approved provider error envelope, approved provider dry execution lock, approved provider execution remains blocked, approved provider replay remains blocked, approved provider idempotency key, approved provider audit packet, approved provider redaction packet, approved provider observability trace, approved provider cost guard, approved provider rate guard, approved provider privacy guard, approved provider safety guard, approved provider region policy, approved provider data retention policy, approved provider retry policy, approved provider fallback policy, approved provider recovery policy, approved provider timeout policy, approved provider result review, approved provider runner handoff remains review-only, approved provider adapter registry handoff remains review-only, approved provider operator review remains required, approved provider readiness gate, disabled approved provider execution candidate, and first approved provider execution bridge completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no fetch/network calls, no connector calls, no upload/download, no frontend persistence, no credential storage, no token storage, no provider key storage, no database writes, no service creation, no API creation from frontend, no port binding, no runtime deploy. Static route only; next likely batch: 2986-3017 - Multi-Provider Capability Routing.";
@@ -593,6 +594,32 @@ function buildJarvisTaskPlannerToolRouterRouteDefaults(): Partial<Record<CodexFo
     return routes;
   }, {});
 }
+const JARVIS_AUDIT_RESULT_STATUS_NAV_DESCRIPTION = "Review 3690-3721 - Jarvis Audit Result Ledger and Status Dashboard as a review-only Jarvis audit result ledger and status dashboard foundation surface. Jarvis is the operating system / top-level control plane. The audit/result/status layer sits above the operator control plane foundation, shared backend adapter contract, permission and approval engine, and task planner and tool router. It stays Jarvis audit result ledger and status dashboard only, audit ledger foundation, result ledger foundation, status dashboard foundation, one Jarvis cockpit with shared evidence, disabled by default, approval-required, backend-only, and execution-blocked. It defines audit event review only, approval event review only, permission event review only, planner event review only, router event review only, blocked action event review only, dry-run record review only, approval record review only, blocked record review only, artifact placeholder review only, capability status review only, workspace status review only, adapter status review only, permission status review only, approval status review only, dry-run status review only, risk status review only, trading status review only, provider status review only, website avatar status review only, workflow status review only, memory boundary status review only, kill switch status review only, lock manager status review only, idempotency status review only, replay block status review only, and operator review status required. Safety markers: no direct frontend execution, no frontend execution of backend adapters, no live provider call, no provider execution, no video provider execution, no image provider execution, no audio provider execution, no website creation execution, no avatar generation execution, no chatbot autonomous execution, no trading execution, no paper trading execution, no real-money trading execution, no tool execution, no autonomous tool execution, no network execution, no render execution, no export execution, no publish execution, no worker dispatch, no file export, no download generation, no archive creation, no signed URL creation, no platform upload, no media upload, no OAuth flow creation, no webhook creation, no schedule execution, no account authorization execution, no API route execution, no service creation, no runtime deploy, no file writes from the app, no shell/process/command execution from the app, no fetch/network calls, no provider SDK imports in frontend, no frontend provider key reads, no plaintext secrets, no localStorage, no sessionStorage, no IndexedDB, no cookies, and no browser storage for secrets. Audit result status completion does not enable provider/render/export/publish/workers/trading/automation. Static route only; next likely batch: 3722-3753 - Jarvis Unified Workspace Shells.";
+const JARVIS_AUDIT_RESULT_STATUS_ROUTE_INPUTS = JARVIS_AUDIT_RESULT_STATUS_ROUTE_SPECS.map(
+  ([phaseNumber, id, href, label]) => ({
+    id,
+    href,
+    label,
+    shortLabel: `JAR ${phaseNumber}`,
+    badge: `Phase ${phaseNumber}`,
+    priority: 25 + phaseNumber / 10000,
+  })
+) satisfies readonly Pick<CodexForgeNavigationRoute, "id" | "href" | "label" | "shortLabel" | "badge" | "priority">[];
+function buildJarvisAuditResultStatusRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return JARVIS_AUDIT_RESULT_STATUS_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      description: JARVIS_AUDIT_RESULT_STATUS_NAV_DESCRIPTION,
+      group: "Advanced",
+      readiness: "preview-only",
+      safetyPosture: "approval-gated",
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
 /*
  * Jarvis Task Planner and Tool Router route markers:
  * | "/jarvis-task-planner-router-boundary-wiring"
@@ -627,6 +654,39 @@ function buildJarvisTaskPlannerToolRouterRouteDefaults(): Partial<Record<CodexFo
  * | "/jarvis-task-planner-human-review-wiring"
  * | "/jarvis-task-planner-no-execution-guard-wiring"
  * | "/jarvis-task-planner-tool-router-completion"
+ * Jarvis Audit Result Ledger and Status Dashboard:
+ * | "/jarvis-audit-result-status-boundary-wiring"
+ * | "/jarvis-audit-result-status-intent-wiring"
+ * | "/jarvis-audit-event-model-wiring"
+ * | "/jarvis-audit-approval-event-wiring"
+ * | "/jarvis-audit-permission-event-wiring"
+ * | "/jarvis-audit-planner-event-wiring"
+ * | "/jarvis-audit-router-event-wiring"
+ * | "/jarvis-audit-blocked-action-event-wiring"
+ * | "/jarvis-result-ledger-model-wiring"
+ * | "/jarvis-result-ledger-dry-run-record-wiring"
+ * | "/jarvis-result-ledger-approval-record-wiring"
+ * | "/jarvis-result-ledger-blocked-record-wiring"
+ * | "/jarvis-result-ledger-artifact-placeholder-wiring"
+ * | "/jarvis-status-dashboard-overview-wiring"
+ * | "/jarvis-status-dashboard-capability-status-wiring"
+ * | "/jarvis-status-dashboard-workspace-status-wiring"
+ * | "/jarvis-status-dashboard-adapter-status-wiring"
+ * | "/jarvis-status-dashboard-permission-status-wiring"
+ * | "/jarvis-status-dashboard-approval-status-wiring"
+ * | "/jarvis-status-dashboard-dry-run-status-wiring"
+ * | "/jarvis-status-dashboard-risk-status-wiring"
+ * | "/jarvis-status-dashboard-trading-status-wiring"
+ * | "/jarvis-status-dashboard-provider-status-wiring"
+ * | "/jarvis-status-dashboard-website-avatar-status-wiring"
+ * | "/jarvis-status-dashboard-workflow-status-wiring"
+ * | "/jarvis-status-dashboard-memory-boundary-status-wiring"
+ * | "/jarvis-status-dashboard-kill-switch-status-wiring"
+ * | "/jarvis-status-dashboard-lock-idempotency-status-wiring"
+ * | "/jarvis-status-dashboard-replay-block-status-wiring"
+ * | "/jarvis-status-dashboard-operator-review-wiring"
+ * | "/jarvis-status-dashboard-no-execution-guard-wiring"
+ * | "/jarvis-audit-result-status-completion"
  */
 const MULTI_PROVIDER_CAPABILITY_ROUTING_NAV_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
@@ -51528,6 +51588,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   ...buildJarvisSharedBackendAdapterContractRouteDefaults(),
   ...buildJarvisPermissionApprovalEngineRouteDefaults(),
   ...buildJarvisTaskPlannerToolRouterRouteDefaults(),
+  ...buildJarvisAuditResultStatusRouteDefaults(),
   "/change-plan-live-context": {
     id: "change-plan-live-context",
     href: "/change-plan-live-context",
