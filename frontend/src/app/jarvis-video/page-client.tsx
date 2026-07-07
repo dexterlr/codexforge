@@ -1,7 +1,7 @@
 'use client';
-import { JarvisVideoApprovalPacketWorkspacePageClientShell } from "@/lib/codexforge/jarvis-video-approval-packet-workspace-map/components";
+import { JarvisVideoBackendExecutionReadinessPageClientShell } from "@/lib/codexforge/jarvis-video-backend-execution-readiness-map/components";
 export default function JarvisVideoWorkspacePageClient() {
   return (
-    <JarvisVideoApprovalPacketWorkspacePageClientShell workspaceId="jarvis-video" />
+    <JarvisVideoBackendExecutionReadinessPageClientShell workspaceId="jarvis-video" />
   );
 }

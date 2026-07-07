@@ -1,0 +1,3 @@
+param([string]$BaseUrl = 'http://localhost:3000')
+. (Join-Path $PSScriptRoot 'codexforge-jarvis-video-backend-execution-readiness-smoke-helper.ps1')
+Invoke-CodexForgeJarvisVideoBackendExecutionReadinessSmoke -SmokeName 'Phase 3890 Jarvis Video Backend Execution Readiness Credential Reference Wiring' -ScriptFile 'smoke-codexforge-jarvis-video-backend-execution-readiness-credential-reference-wiring.ps1' -Route 'jarvis-video-backend-execution-readiness-credential-reference-wiring' -CommandLabel 'Go to Jarvis Video Backend Execution Readiness Credential Reference Wiring' -RouteHref '/jarvis-video-backend-execution-readiness-credential-reference-wiring' -Phase 'Phase 3890' -Title 'Jarvis Video Backend Execution Readiness Credential Reference Wiring'

@@ -1,5 +1,6 @@
 import type { Route } from "next";
 import type { ReactNode } from "react";
+import type { JarvisVideoBackendExecutionReadinessRouteSlug } from "../jarvis-video-backend-execution-readiness-map/jarvis-video-backend-execution-readiness-model";
 export type CodexForgePhaseDiagnosticRouteId =
   | "evidence-memory-boundary"
   | "goal-memory-snapshot-preview"
@@ -3773,6 +3774,7 @@ export type CodexForgeNavigationRouteId =
   | "jarvis-video-approval-packet-workspace-jarvis-video-update-wiring"
   | "jarvis-video-approval-packet-workspace-no-execution-guard-wiring"
   | "jarvis-video-approval-packet-workspace-completion"
+  | JarvisVideoBackendExecutionReadinessRouteSlug
   | "change-plan-live-context"
   | "patch-preview-live-context"
   | "test-planner-live-context"
@@ -4398,6 +4400,39 @@ export type CodexForgeNavigationRouteHref = Route;
  * | "/jarvis-video-approval-packet-workspace-jarvis-video-update-wiring"
  * | "/jarvis-video-approval-packet-workspace-no-execution-guard-wiring"
  * | "/jarvis-video-approval-packet-workspace-completion"
+ * First Jarvis-Controlled Video Backend Execution Readiness:
+ * | "/jarvis-video-backend-execution-readiness-boundary-wiring"
+ * | "/jarvis-video-backend-execution-readiness-intent-wiring"
+ * | "/jarvis-video-backend-execution-readiness-backend-only-contract-wiring"
+ * | "/jarvis-video-backend-execution-readiness-server-runtime-boundary-wiring"
+ * | "/jarvis-video-backend-execution-readiness-approved-dry-run-reference-wiring"
+ * | "/jarvis-video-backend-execution-readiness-approved-approval-packet-reference-wiring"
+ * | "/jarvis-video-backend-execution-readiness-approved-adapter-reference-wiring"
+ * | "/jarvis-video-backend-execution-readiness-provider-runtime-wiring"
+ * | "/jarvis-video-backend-execution-readiness-credential-reference-wiring"
+ * | "/jarvis-video-backend-execution-readiness-token-redaction-wiring"
+ * | "/jarvis-video-backend-execution-readiness-request-envelope-wiring"
+ * | "/jarvis-video-backend-execution-readiness-response-envelope-wiring"
+ * | "/jarvis-video-backend-execution-readiness-error-envelope-wiring"
+ * | "/jarvis-video-backend-execution-readiness-prompt-redaction-wiring"
+ * | "/jarvis-video-backend-execution-readiness-cost-rate-timeout-wiring"
+ * | "/jarvis-video-backend-execution-readiness-duration-resolution-size-wiring"
+ * | "/jarvis-video-backend-execution-readiness-privacy-safety-gate-wiring"
+ * | "/jarvis-video-backend-execution-readiness-audit-persistence-wiring"
+ * | "/jarvis-video-backend-execution-readiness-observability-trace-wiring"
+ * | "/jarvis-video-backend-execution-readiness-result-capture-wiring"
+ * | "/jarvis-video-backend-execution-readiness-artifact-handoff-wiring"
+ * | "/jarvis-video-backend-execution-readiness-render-export-publish-block-wiring"
+ * | "/jarvis-video-backend-execution-readiness-worker-dispatch-block-wiring"
+ * | "/jarvis-video-backend-execution-readiness-network-egress-block-wiring"
+ * | "/jarvis-video-backend-execution-readiness-kill-switch-lock-wiring"
+ * | "/jarvis-video-backend-execution-readiness-idempotency-replay-block-wiring"
+ * | "/jarvis-video-backend-execution-readiness-operator-preflight-checklist-wiring"
+ * | "/jarvis-video-backend-execution-readiness-dashboard-wiring"
+ * | "/jarvis-video-backend-execution-readiness-jarvis-video-update-wiring"
+ * | "/jarvis-video-backend-execution-readiness-no-execution-guard-wiring"
+ * | "/jarvis-video-backend-execution-readiness-regression-coverage-wiring"
+ * | "/jarvis-video-backend-execution-readiness-completion"
  */
 export type CodexForgeNavigationGroup =
   | "Start"

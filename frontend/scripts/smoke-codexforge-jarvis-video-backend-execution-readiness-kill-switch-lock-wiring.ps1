@@ -1,0 +1,3 @@
+param([string]$BaseUrl = 'http://localhost:3000')
+. (Join-Path $PSScriptRoot 'codexforge-jarvis-video-backend-execution-readiness-smoke-helper.ps1')
+Invoke-CodexForgeJarvisVideoBackendExecutionReadinessSmoke -SmokeName 'Phase 3906 Jarvis Video Backend Execution Readiness Kill Switch Lock Wiring' -ScriptFile 'smoke-codexforge-jarvis-video-backend-execution-readiness-kill-switch-lock-wiring.ps1' -Route 'jarvis-video-backend-execution-readiness-kill-switch-lock-wiring' -CommandLabel 'Go to Jarvis Video Backend Execution Readiness Kill Switch Lock Wiring' -RouteHref '/jarvis-video-backend-execution-readiness-kill-switch-lock-wiring' -Phase 'Phase 3906' -Title 'Jarvis Video Backend Execution Readiness Kill Switch Lock Wiring'

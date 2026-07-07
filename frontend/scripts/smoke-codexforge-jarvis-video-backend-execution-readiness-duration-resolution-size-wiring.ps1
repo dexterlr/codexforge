@@ -1,0 +1,3 @@
+param([string]$BaseUrl = 'http://localhost:3000')
+. (Join-Path $PSScriptRoot 'codexforge-jarvis-video-backend-execution-readiness-smoke-helper.ps1')
+Invoke-CodexForgeJarvisVideoBackendExecutionReadinessSmoke -SmokeName 'Phase 3897 Jarvis Video Backend Execution Readiness Duration Resolution Size Wiring' -ScriptFile 'smoke-codexforge-jarvis-video-backend-execution-readiness-duration-resolution-size-wiring.ps1' -Route 'jarvis-video-backend-execution-readiness-duration-resolution-size-wiring' -CommandLabel 'Go to Jarvis Video Backend Execution Readiness Duration Resolution Size Wiring' -RouteHref '/jarvis-video-backend-execution-readiness-duration-resolution-size-wiring' -Phase 'Phase 3897' -Title 'Jarvis Video Backend Execution Readiness Duration Resolution Size Wiring'
