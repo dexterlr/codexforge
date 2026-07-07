@@ -1,0 +1,76 @@
+export const JARVIS_CONTROL_PLANE_CAPABILITY_AREAS = [
+  "capability registry foundation",
+  "permission posture foundation",
+  "approval router foundation",
+  "backend adapter contract foundation",
+  "feature oversight only",
+  "operator control plane only",
+  "Jarvis sits above all CodexForge features",
+  "shared backend adapter system foundation",
+] as const;
+
+export const JARVIS_CONTROL_PLANE_ADAPTER_AWARENESS_AREAS = [
+  "video adapter awareness only",
+  "website adapter awareness only",
+  "avatar adapter awareness only",
+  "chatbot brain awareness only",
+  "trading adapter awareness only",
+  "workflow adapter awareness only",
+  "render export publish awareness only",
+  "task planner readiness only",
+] as const;
+
+export const JARVIS_CONTROL_PLANE_APPROVAL_AREAS = [
+  "human approval gate required",
+  "risk tier review only",
+  "dry-run first policy required",
+  "operator review remains required before any execution",
+  "disabled by default",
+  "hard kill switch",
+] as const;
+
+export const JARVIS_CONTROL_PLANE_AUDIT_AREAS = [
+  "audit readiness only",
+  "observability readiness only",
+  "result ledger readiness only",
+  "memory boundary review only",
+  "lock manager readiness only",
+  "idempotency readiness only",
+  "replay block remains required",
+  "kill switch remains enforced",
+] as const;
+
+export const JARVIS_CONTROL_PLANE_EXECUTION_BLOCKS = [
+  "no direct frontend execution",
+  "no live provider call",
+  "no provider execution",
+  "no video provider execution",
+  "no image provider execution",
+  "no audio provider execution",
+  "no website creation execution",
+  "no avatar generation execution",
+  "no trading execution",
+  "no paper trading execution",
+  "no real-money trading execution",
+  "no network execution",
+  "no render execution",
+  "no export execution",
+  "no publish execution",
+  "no worker dispatch",
+  "no file export",
+  "no download generation",
+  "no archive creation",
+  "no signed URL creation",
+  "no platform upload",
+  "no media upload",
+  "no OAuth flow creation",
+  "no webhook creation",
+  "no schedule execution",
+  "no account authorization execution",
+  "no API route execution",
+  "no service creation",
+  "no runtime deploy",
+  "no file writes from the app",
+  "no shell/process/command execution from the app",
+  "no fetch/network calls",
+] as const;

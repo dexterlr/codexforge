@@ -416,6 +416,56 @@ function buildVideoProviderExecutionAdapterReadinessRouteDefaults(): Partial<Rec
     return routes;
   }, {});
 }
+const JARVIS_OPERATOR_CONTROL_PLANE_FOUNDATION_NAV_DESCRIPTION = "Review 3562-3593 - Jarvis Operator Control Plane Foundation as a top-level Jarvis operator control plane foundation surface. Jarvis sits above all CodexForge features. It stays Jarvis control plane only, shared backend adapter system foundation, disabled by default, approval-required, and execution-blocked. It defines capability registry foundation, permission posture foundation, approval router foundation, backend adapter contract foundation, video adapter awareness only, website adapter awareness only, avatar adapter awareness only, chatbot brain awareness only, trading adapter awareness only, workflow adapter awareness only, render export publish awareness only, task planner readiness only, human approval gate required, risk tier review only, dry-run first policy required, audit readiness only, observability readiness only, result ledger readiness only, memory boundary review only, kill switch remains enforced, lock manager readiness only, idempotency readiness only, replay block remains required, and operator review remains required before any execution. Safety markers: no direct frontend execution, no live provider call, no provider execution, no video provider execution, no image provider execution, no audio provider execution, no website creation execution, no avatar generation execution, no trading execution, no paper trading execution, no real-money trading execution, no network execution, no render execution, no export execution, no publish execution, no worker dispatch, no file export, no download generation, no archive creation, no signed URL creation, no platform upload, no media upload, no OAuth flow creation, no webhook creation, no schedule execution, no account authorization execution, no API route execution, no service creation, no runtime deploy, no file writes from the app, no shell/process/command execution from the app, no fetch/network calls, no provider SDK imports in frontend, no frontend provider key reads, no plaintext secrets, no localStorage, no sessionStorage, no IndexedDB, no cookies, and no browser storage for secrets. Jarvis foundation completion does not enable provider/render/export/publish/workers/trading/automation. Static route only; next likely batch: 3594-3625 - Jarvis Shared Backend Adapter Contract.";
+const JARVIS_OPERATOR_CONTROL_PLANE_FOUNDATION_ROUTE_INPUTS = [
+  { id: "jarvis-control-plane-boundary-wiring", href: "/jarvis-control-plane-boundary-wiring", label: "Jarvis Control Plane Boundary Wiring", shortLabel: "JCP 3562", badge: "Phase 3562", priority: 25.3562 },
+  { id: "jarvis-control-plane-intent-wiring", href: "/jarvis-control-plane-intent-wiring", label: "Jarvis Control Plane Intent Wiring", shortLabel: "JCP 3563", badge: "Phase 3563", priority: 25.3563 },
+  { id: "jarvis-control-plane-capability-registry-wiring", href: "/jarvis-control-plane-capability-registry-wiring", label: "Jarvis Control Plane Capability Registry Wiring", shortLabel: "JCP 3564", badge: "Phase 3564", priority: 25.3564 },
+  { id: "jarvis-control-plane-feature-map-wiring", href: "/jarvis-control-plane-feature-map-wiring", label: "Jarvis Control Plane Feature Map Wiring", shortLabel: "JCP 3565", badge: "Phase 3565", priority: 25.3565 },
+  { id: "jarvis-control-plane-permission-posture-wiring", href: "/jarvis-control-plane-permission-posture-wiring", label: "Jarvis Control Plane Permission Posture Wiring", shortLabel: "JCP 3566", badge: "Phase 3566", priority: 25.3566 },
+  { id: "jarvis-control-plane-approval-router-wiring", href: "/jarvis-control-plane-approval-router-wiring", label: "Jarvis Control Plane Approval Router Wiring", shortLabel: "JCP 3567", badge: "Phase 3567", priority: 25.3567 },
+  { id: "jarvis-control-plane-backend-adapter-contract-wiring", href: "/jarvis-control-plane-backend-adapter-contract-wiring", label: "Jarvis Control Plane Backend Adapter Contract Wiring", shortLabel: "JCP 3568", badge: "Phase 3568", priority: 25.3568 },
+  { id: "jarvis-control-plane-video-adapter-awareness-wiring", href: "/jarvis-control-plane-video-adapter-awareness-wiring", label: "Jarvis Control Plane Video Adapter Awareness Wiring", shortLabel: "JCP 3569", badge: "Phase 3569", priority: 25.3569 },
+  { id: "jarvis-control-plane-website-adapter-awareness-wiring", href: "/jarvis-control-plane-website-adapter-awareness-wiring", label: "Jarvis Control Plane Website Adapter Awareness Wiring", shortLabel: "JCP 3570", badge: "Phase 3570", priority: 25.3570 },
+  { id: "jarvis-control-plane-avatar-adapter-awareness-wiring", href: "/jarvis-control-plane-avatar-adapter-awareness-wiring", label: "Jarvis Control Plane Avatar Adapter Awareness Wiring", shortLabel: "JCP 3571", badge: "Phase 3571", priority: 25.3571 },
+  { id: "jarvis-control-plane-chatbot-brain-awareness-wiring", href: "/jarvis-control-plane-chatbot-brain-awareness-wiring", label: "Jarvis Control Plane Chatbot Brain Awareness Wiring", shortLabel: "JCP 3572", badge: "Phase 3572", priority: 25.3572 },
+  { id: "jarvis-control-plane-trading-adapter-awareness-wiring", href: "/jarvis-control-plane-trading-adapter-awareness-wiring", label: "Jarvis Control Plane Trading Adapter Awareness Wiring", shortLabel: "JCP 3573", badge: "Phase 3573", priority: 25.3573 },
+  { id: "jarvis-control-plane-workflow-adapter-awareness-wiring", href: "/jarvis-control-plane-workflow-adapter-awareness-wiring", label: "Jarvis Control Plane Workflow Adapter Awareness Wiring", shortLabel: "JCP 3574", badge: "Phase 3574", priority: 25.3574 },
+  { id: "jarvis-control-plane-render-export-publish-awareness-wiring", href: "/jarvis-control-plane-render-export-publish-awareness-wiring", label: "Jarvis Control Plane Render Export Publish Awareness Wiring", shortLabel: "JCP 3575", badge: "Phase 3575", priority: 25.3575 },
+  { id: "jarvis-control-plane-task-planner-readiness-wiring", href: "/jarvis-control-plane-task-planner-readiness-wiring", label: "Jarvis Control Plane Task Planner Readiness Wiring", shortLabel: "JCP 3576", badge: "Phase 3576", priority: 25.3576 },
+  { id: "jarvis-control-plane-human-approval-gate-wiring", href: "/jarvis-control-plane-human-approval-gate-wiring", label: "Jarvis Control Plane Human Approval Gate Wiring", shortLabel: "JCP 3577", badge: "Phase 3577", priority: 25.3577 },
+  { id: "jarvis-control-plane-risk-tier-wiring", href: "/jarvis-control-plane-risk-tier-wiring", label: "Jarvis Control Plane Risk Tier Wiring", shortLabel: "JCP 3578", badge: "Phase 3578", priority: 25.3578 },
+  { id: "jarvis-control-plane-dry-run-first-policy-wiring", href: "/jarvis-control-plane-dry-run-first-policy-wiring", label: "Jarvis Control Plane Dry Run First Policy Wiring", shortLabel: "JCP 3579", badge: "Phase 3579", priority: 25.3579 },
+  { id: "jarvis-control-plane-audit-readiness-wiring", href: "/jarvis-control-plane-audit-readiness-wiring", label: "Jarvis Control Plane Audit Readiness Wiring", shortLabel: "JCP 3580", badge: "Phase 3580", priority: 25.3580 },
+  { id: "jarvis-control-plane-observability-readiness-wiring", href: "/jarvis-control-plane-observability-readiness-wiring", label: "Jarvis Control Plane Observability Readiness Wiring", shortLabel: "JCP 3581", badge: "Phase 3581", priority: 25.3581 },
+  { id: "jarvis-control-plane-result-ledger-readiness-wiring", href: "/jarvis-control-plane-result-ledger-readiness-wiring", label: "Jarvis Control Plane Result Ledger Readiness Wiring", shortLabel: "JCP 3582", badge: "Phase 3582", priority: 25.3582 },
+  { id: "jarvis-control-plane-memory-boundary-wiring", href: "/jarvis-control-plane-memory-boundary-wiring", label: "Jarvis Control Plane Memory Boundary Wiring", shortLabel: "JCP 3583", badge: "Phase 3583", priority: 25.3583 },
+  { id: "jarvis-control-plane-kill-switch-wiring", href: "/jarvis-control-plane-kill-switch-wiring", label: "Jarvis Control Plane Kill Switch Wiring", shortLabel: "JCP 3584", badge: "Phase 3584", priority: 25.3584 },
+  { id: "jarvis-control-plane-lock-manager-readiness-wiring", href: "/jarvis-control-plane-lock-manager-readiness-wiring", label: "Jarvis Control Plane Lock Manager Readiness Wiring", shortLabel: "JCP 3585", badge: "Phase 3585", priority: 25.3585 },
+  { id: "jarvis-control-plane-idempotency-readiness-wiring", href: "/jarvis-control-plane-idempotency-readiness-wiring", label: "Jarvis Control Plane Idempotency Readiness Wiring", shortLabel: "JCP 3586", badge: "Phase 3586", priority: 25.3586 },
+  { id: "jarvis-control-plane-replay-block-wiring", href: "/jarvis-control-plane-replay-block-wiring", label: "Jarvis Control Plane Replay Block Wiring", shortLabel: "JCP 3587", badge: "Phase 3587", priority: 25.3587 },
+  { id: "jarvis-control-plane-operator-review-wiring", href: "/jarvis-control-plane-operator-review-wiring", label: "Jarvis Control Plane Operator Review Wiring", shortLabel: "JCP 3588", badge: "Phase 3588", priority: 25.3588 },
+  { id: "jarvis-control-plane-status-dashboard-wiring", href: "/jarvis-control-plane-status-dashboard-wiring", label: "Jarvis Control Plane Status Dashboard Wiring", shortLabel: "JCP 3589", badge: "Phase 3589", priority: 25.3589 },
+  { id: "jarvis-control-plane-adapter-plugin-roadmap-wiring", href: "/jarvis-control-plane-adapter-plugin-roadmap-wiring", label: "Jarvis Control Plane Adapter Plugin Roadmap Wiring", shortLabel: "JCP 3590", badge: "Phase 3590", priority: 25.3590 },
+  { id: "jarvis-control-plane-no-execution-guard-wiring", href: "/jarvis-control-plane-no-execution-guard-wiring", label: "Jarvis Control Plane No Execution Guard Wiring", shortLabel: "JCP 3591", badge: "Phase 3591", priority: 25.3591 },
+  { id: "jarvis-control-plane-foundation-readiness-wiring", href: "/jarvis-control-plane-foundation-readiness-wiring", label: "Jarvis Control Plane Foundation Readiness Wiring", shortLabel: "JCP 3592", badge: "Phase 3592", priority: 25.3592 },
+  { id: "jarvis-control-plane-foundation-completion", href: "/jarvis-control-plane-foundation-completion", label: "Jarvis Control Plane Foundation Completion", shortLabel: "JCP 3593", badge: "Phase 3593", priority: 25.3593 },
+] satisfies readonly Pick<CodexForgeNavigationRoute, "id" | "href" | "label" | "shortLabel" | "badge" | "priority">[];
+function buildJarvisOperatorControlPlaneFoundationRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return JARVIS_OPERATOR_CONTROL_PLANE_FOUNDATION_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      description: JARVIS_OPERATOR_CONTROL_PLANE_FOUNDATION_NAV_DESCRIPTION,
+      group: "Advanced",
+      readiness: "preview-only",
+      safetyPosture: "approval-gated",
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
 const MULTI_PROVIDER_CAPABILITY_ROUTING_NAV_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/",
@@ -2964,6 +3014,7 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   ...VIDEO_PROVIDER_EXECUTION_DRY_RUN_ROUTE_INPUTS.map((route) => route.href),
   ...VIDEO_PROVIDER_EXECUTION_APPROVAL_PACKET_ROUTE_INPUTS.map((route) => route.href),
   ...VIDEO_PROVIDER_EXECUTION_ADAPTER_READINESS_ROUTE_INPUTS.map((route) => route.href),
+  ...JARVIS_OPERATOR_CONTROL_PLANE_FOUNDATION_ROUTE_INPUTS.map((route) => route.href),
   "/change-plan-live-context",
   "/patch-preview-live-context",
   "/test-planner-live-context",
@@ -51308,6 +51359,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   ...buildVideoProviderExecutionDryRunRouteDefaults(),
   ...buildVideoProviderExecutionApprovalPacketRouteDefaults(),
   ...buildVideoProviderExecutionAdapterReadinessRouteDefaults(),
+  ...buildJarvisOperatorControlPlaneFoundationRouteDefaults(),
   "/change-plan-live-context": {
     id: "change-plan-live-context",
     href: "/change-plan-live-context",
