@@ -119,7 +119,7 @@ export type JarvisVideoBackendExecutionReadinessSharedRecord = Readonly<{
   operatorRoles: readonly string[];
   blockedActions: readonly string[];
   operatorReviewStatus: string;
-  nextLikelyBatch: "next likely batch: 3914-3945 - First Jarvis-Controlled Video Controlled Execution Trial";
+  nextLikelyBatch: "next likely batch: 3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial";
 }>;
 
 function requireJarvisVideoBackendExecutionReadinessRecord<T>(
@@ -268,7 +268,7 @@ export const JARVIS_VIDEO_BACKEND_EXECUTION_READINESS_SHARED_RECORD = {
   blockedActions: permissionPolicyRecord.blockedActionCategories,
   operatorReviewStatus: auditStatusRecord.operatorReviewStatus,
   nextLikelyBatch:
-    "next likely batch: 3914-3945 - First Jarvis-Controlled Video Controlled Execution Trial",
+    "next likely batch: 3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial",
 } satisfies JarvisVideoBackendExecutionReadinessSharedRecord;
 
 export const JARVIS_VIDEO_BACKEND_EXECUTION_READINESS_REVIEW_CARDS = [

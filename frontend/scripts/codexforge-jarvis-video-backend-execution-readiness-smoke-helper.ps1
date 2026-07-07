@@ -154,7 +154,7 @@ $CodexForgeJarvisVideoBackendExecutionReadinessRequiredMarkers = @(
   "no IndexedDB"
   "no cookies"
   "no browser storage for secrets"
-  "next likely batch: 3914-3945 - First Jarvis-Controlled Video Controlled Execution Trial"
+  "next likely batch: 3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial"
 )
 
 $CodexForgeJarvisVideoBackendExecutionReadinessSharedNeedles = @(
@@ -357,7 +357,7 @@ function Invoke-CodexForgeJarvisVideoBackendExecutionReadinessSmoke {
     "3882-3913 - First Jarvis-Controlled Video Backend Execution Readiness"
     "3882-3913 - First Jarvis-Controlled Video Backend Execution Readiness Mega Batch v1"
     "First Jarvis-Controlled Video Backend Execution Readiness"
-    "next likely batch: 3914-3945 - First Jarvis-Controlled Video Controlled Execution Trial"
+    "next likely batch: 3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial"
   )) {
     Assert-CodexForgeJarvisVideoBackendExecutionReadinessContains $docsCombined $docMarker "docs marker $docMarker"
   }

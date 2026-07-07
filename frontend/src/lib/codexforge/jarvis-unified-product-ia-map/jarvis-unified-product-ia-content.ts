@@ -165,11 +165,11 @@ export const JARVIS_UNIFIED_PRODUCT_NEXT_ACTION_RAIL = [
     id: "advance-video-trial",
     label: "Advance Video Studio toward the next trial",
     summary:
-      "Video studio remains primary active workspace. Review storyboard, approval packet, backend readiness, and blocked execution before the controlled trial batch.",
+      "Video studio remains primary active workspace. Review the controlled trial console, confirm dry-run and approval references, and keep execution blocked before the backend trial runner contract batch.",
     routeHref: "/jarvis-video",
     tone: "approval-required",
     backendRequired:
-      "Adapter, runtime, approval packet, audit capture, and controlled execution bridge remain backend requirements.",
+      "A dedicated backend-owned Jarvis video trial runner contract, start service, audit persistence path, credential isolation runtime, lock and idempotency store, and result handoff service remain backend requirements.",
   },
   {
     id: "review-trading-safety",
@@ -319,7 +319,7 @@ export const JARVIS_UNIFIED_PRODUCT_READINESS_SUMMARY = [
     id: "video-readiness",
     label: "Video trial readiness",
     summary:
-      "Video studio stays premium and visible while backend-owned trial prerequisites remain review-only.",
+      "Video studio stays premium and visible while the locked controlled trial console shows backend-owned trial prerequisites as review-only markers.",
     tone: "approval-required",
   },
   {
@@ -340,7 +340,7 @@ export const JARVIS_UNIFIED_PRODUCT_READINESS_SUMMARY = [
     id: "next-batch",
     label: "Next likely batch",
     summary:
-      "next likely batch: 3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial",
+      "next likely batch: 3978-4009 - First Jarvis-Controlled Video Backend Trial Runner Contract",
     tone: "ready",
   },
 ] as const satisfies readonly JarvisUnifiedProductSummaryRecord[];
@@ -579,7 +579,7 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       {
         label: "Next action",
         value: "Video Studio review",
-        detail: "next likely batch stays behind this polish batch",
+        detail: "controlled trial console only",
       },
       {
         label: "Approvals",

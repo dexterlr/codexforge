@@ -1,4 +1,4 @@
-param([string]$BaseUrl = "http://localhost:3000")
+﻿param([string]$BaseUrl = "http://localhost:3000")
 
 $ErrorActionPreference = "Stop"
 $scriptRoot = $PSScriptRoot
@@ -815,7 +815,7 @@ foreach ($needle in @(
   "no IndexedDB"
   "no cookies"
   "no browser storage for secrets"
-  "next likely batch: 3914-3945 - First Jarvis-Controlled Video Controlled Execution Trial"
+  "next likely batch: 3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial"
 )) {
   Assert-Contains $docsCombined $needle "docs mention First Jarvis-Controlled Video Backend Execution Readiness checkpoint $needle"
 }
@@ -3531,6 +3531,46 @@ foreach ($needle in @(
   "next likely batch: 3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial"
 )) {
   Assert-Contains $docsCombined $needle "docs mention Jarvis unified product IA checkpoint $needle"
+}
+foreach ($needle in @(
+  "3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial"
+  "3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial Mega Batch v1"
+  "First Jarvis-Controlled Video Controlled Execution Trial"
+  "Jarvis-controlled video controlled execution trial only"
+  "controlled trial console only"
+  "/jarvis-video controlled trial remains review-only"
+  "controlled execution trial remains disabled"
+  "controlled execution trial remains backend-owned"
+  "controlled execution trial requires explicit operator approval"
+  "approved dry-run reference required"
+  "approved approval packet reference required"
+  "approved video adapter reference required"
+  "backend execution readiness reference required"
+  "operator preflight checklist required"
+  "provider reference review only"
+  "credential reference review only"
+  "token redaction review only"
+  "request envelope review only"
+  "response envelope review only"
+  "error envelope review only"
+  "prompt redaction review only"
+  "cost rate timeout review only"
+  "duration resolution size review only"
+  "privacy safety gate review only"
+  "audit observability review only"
+  "result placeholder only"
+  "artifact handoff placeholder only"
+  "kill switch remains enforced"
+  "single-call lock required"
+  "idempotency required"
+  "replay block required"
+  "disabled launch lane"
+  "blocked action summary only"
+  "operator review required before video execution"
+  "controlled execution trial completion does not enable provider/render/export/publish/workers/trading/automation"
+  "next likely batch: 3978-4009 - First Jarvis-Controlled Video Backend Trial Runner Contract"
+)) {
+  Assert-Contains $docsCombined $needle "docs mention First Jarvis-Controlled Video Controlled Execution Trial checkpoint $needle"
 }
 Write-Host "[PASS] ignored/generated directories are not required"
 Write-Host "[PASS] no package install behavior added by checkpoint smoke"

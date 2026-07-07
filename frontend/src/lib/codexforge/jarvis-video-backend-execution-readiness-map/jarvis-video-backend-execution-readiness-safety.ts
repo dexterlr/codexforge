@@ -83,7 +83,7 @@ export const JARVIS_VIDEO_BACKEND_EXECUTION_READINESS_SHARED_MARKERS = [
   "no IndexedDB",
   "no cookies",
   "no browser storage for secrets",
-  "next likely batch: 3914-3945 - First Jarvis-Controlled Video Controlled Execution Trial",
+  "next likely batch: 3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial",
 ] as const;
 
 export const JARVIS_VIDEO_BACKEND_EXECUTION_READINESS_DISPLAY_MARKERS = [

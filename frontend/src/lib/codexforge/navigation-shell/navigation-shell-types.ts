@@ -2,6 +2,7 @@ import type { Route } from "next";
 import type { ReactNode } from "react";
 import type { JarvisUnifiedProductIaRouteSlug } from "../jarvis-unified-product-ia-map/jarvis-unified-product-ia-model";
 import type { JarvisVideoBackendExecutionReadinessRouteSlug } from "../jarvis-video-backend-execution-readiness-map/jarvis-video-backend-execution-readiness-model";
+import type { JarvisVideoControlledExecutionTrialRouteSlug } from "../jarvis-video-controlled-execution-trial-map/jarvis-video-controlled-execution-trial-model";
 export type CodexForgePhaseDiagnosticRouteId =
   | "evidence-memory-boundary"
   | "goal-memory-snapshot-preview"
@@ -3777,6 +3778,7 @@ export type CodexForgeNavigationRouteId =
   | "jarvis-video-approval-packet-workspace-completion"
   | JarvisUnifiedProductIaRouteSlug
   | JarvisVideoBackendExecutionReadinessRouteSlug
+  | JarvisVideoControlledExecutionTrialRouteSlug
   | "change-plan-live-context"
   | "patch-preview-live-context"
   | "test-planner-live-context"
@@ -4435,6 +4437,40 @@ export type CodexForgeNavigationRouteHref = Route;
  * | "/jarvis-video-backend-execution-readiness-no-execution-guard-wiring"
  * | "/jarvis-video-backend-execution-readiness-regression-coverage-wiring"
  * | "/jarvis-video-backend-execution-readiness-completion"
+ *
+ * First Jarvis-Controlled Video Controlled Execution Trial:
+ * | "/jarvis-video-controlled-execution-trial-boundary-wiring"
+ * | "/jarvis-video-controlled-execution-trial-intent-wiring"
+ * | "/jarvis-video-controlled-execution-trial-console-wiring"
+ * | "/jarvis-video-controlled-execution-trial-readiness-state-wiring"
+ * | "/jarvis-video-controlled-execution-trial-dry-run-reference-wiring"
+ * | "/jarvis-video-controlled-execution-trial-approval-packet-reference-wiring"
+ * | "/jarvis-video-controlled-execution-trial-adapter-reference-wiring"
+ * | "/jarvis-video-controlled-execution-trial-backend-readiness-reference-wiring"
+ * | "/jarvis-video-controlled-execution-trial-operator-preflight-wiring"
+ * | "/jarvis-video-controlled-execution-trial-provider-reference-wiring"
+ * | "/jarvis-video-controlled-execution-trial-credential-token-boundary-wiring"
+ * | "/jarvis-video-controlled-execution-trial-request-envelope-wiring"
+ * | "/jarvis-video-controlled-execution-trial-response-envelope-wiring"
+ * | "/jarvis-video-controlled-execution-trial-error-envelope-wiring"
+ * | "/jarvis-video-controlled-execution-trial-prompt-redaction-wiring"
+ * | "/jarvis-video-controlled-execution-trial-cost-rate-timeout-wiring"
+ * | "/jarvis-video-controlled-execution-trial-duration-resolution-size-wiring"
+ * | "/jarvis-video-controlled-execution-trial-privacy-safety-gate-wiring"
+ * | "/jarvis-video-controlled-execution-trial-audit-observability-wiring"
+ * | "/jarvis-video-controlled-execution-trial-result-placeholder-wiring"
+ * | "/jarvis-video-controlled-execution-trial-artifact-handoff-placeholder-wiring"
+ * | "/jarvis-video-controlled-execution-trial-kill-switch-lock-wiring"
+ * | "/jarvis-video-controlled-execution-trial-idempotency-replay-block-wiring"
+ * | "/jarvis-video-controlled-execution-trial-disabled-launch-lane-wiring"
+ * | "/jarvis-video-controlled-execution-trial-blocked-action-summary-wiring"
+ * | "/jarvis-video-controlled-execution-trial-jarvis-video-update-wiring"
+ * | "/jarvis-video-controlled-execution-trial-product-ia-link-wiring"
+ * | "/jarvis-video-controlled-execution-trial-no-execution-guard-wiring"
+ * | "/jarvis-video-controlled-execution-trial-regression-coverage-wiring"
+ * | "/jarvis-video-controlled-execution-trial-operator-review-wiring"
+ * | "/jarvis-video-controlled-execution-trial-readiness-wiring"
+ * | "/jarvis-video-controlled-execution-trial-completion"
  *
  * Jarvis Unified Product IA and God-Tier UX Polish:
  * | "/jarvis-unified-product-ia-boundary-wiring"

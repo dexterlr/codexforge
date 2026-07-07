@@ -87,22 +87,23 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     label: "Video Studio",
     shortLabel: "Video",
     description:
-      "The most polished active specialist workspace for mission brief review, storyboard control, approval packet review, backend readiness, and result placeholders.",
+      "The most polished active specialist workspace now pairs mission brief review, storyboard control, approval packet review, backend readiness, a locked controlled trial console, and premium audit and result placeholders.",
     status: "approval-required",
     riskTier: "tier-2-creative",
     approvalPosture: "Operator approval required",
     executionPosture: "Execution blocked",
     primaryNextAction:
-      "Review the controlled execution trial packet, confirm backend readiness, and keep render, export, and publish blocked.",
+      "Review the controlled trial console, confirm which backend prerequisites are still missing, and keep provider, render, export, and publish blocked.",
     placeholderState: {
       label: "video studio remains primary active workspace",
       summary:
-        "A premium review shell keeps the visible video product path strong while controlled execution stays backend-only and approval-required.",
+        "A premium review shell keeps the visible video product path strong while the controlled trial console stays locked, approval-gated, backend-only, and execution-blocked.",
       steps: [
         "mission brief",
         "storyboard",
         "approval packet",
         "backend readiness",
+        "controlled trial console",
         "result placeholder",
         "audit and status rail",
       ],
@@ -120,7 +121,7 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
       "no worker dispatch",
     ],
     backendRequirementSummary:
-      "Backend-owned adapter, runtime, audit, and approval bridge remain required before any controlled video execution trial.",
+      "A dedicated backend-owned Jarvis video trial runner contract, start service, audit persistence path, credential isolation runtime, lock and idempotency store, and result handoff service remain required before any controlled video trial can execute.",
     reviewPanels: [
       {
         id: "mission-brief",
@@ -151,10 +152,17 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
         state: "approval-required",
       },
       {
+        id: "controlled-trial-console",
+        label: "Controlled trial console",
+        summary:
+          "Readiness state, dry-run reference, approval packet reference, backend gates, audit preview, and disabled launch lane stay visible in one premium review surface.",
+        state: "approval-required",
+      },
+      {
         id: "result-placeholder",
         label: "Result placeholder",
         summary:
-          "Result, artifact handoff, and evidence packet stay intentional placeholders instead of a diagnostic wall.",
+          "Result, artifact handoff, audit preview, and evidence packet stay intentional placeholders instead of a diagnostic wall.",
         state: "blocked",
       },
       {
