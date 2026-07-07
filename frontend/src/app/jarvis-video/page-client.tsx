@@ -1,7 +1,7 @@
 'use client';
-import { JarvisVideoDryRunWorkspacePageClientShell } from "@/lib/codexforge/jarvis-video-dry-run-workspace-map/components";
+import { JarvisVideoApprovalPacketWorkspacePageClientShell } from "@/lib/codexforge/jarvis-video-approval-packet-workspace-map/components";
 export default function JarvisVideoWorkspacePageClient() {
   return (
-    <JarvisVideoDryRunWorkspacePageClientShell workspaceId="jarvis-video" />
+    <JarvisVideoApprovalPacketWorkspacePageClientShell workspaceId="jarvis-video" />
   );
 }

@@ -356,7 +356,9 @@ const eyebrowRow: CSSProperties = {
 };
 const phaseBadge: CSSProperties = {
   display: "inline-flex",
-  border: "1px solid #8aa4b8",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "#8aa4b8",
   borderRadius: 6,
   padding: "5px 8px",
   fontSize: 12,
@@ -495,7 +497,9 @@ const panelTitle: CSSProperties = {
   letterSpacing: 0,
 };
 const stateBadge: CSSProperties = {
-  border: "1px solid",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "currentColor",
   borderRadius: 6,
   padding: "6px 8px",
   fontSize: 12,
@@ -581,7 +585,9 @@ const linkRow: CSSProperties = {
 };
 const safeLink: CSSProperties = {
   display: "inline-flex",
-  border: "1px solid #b7c9d7",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "#b7c9d7",
   borderRadius: 6,
   padding: "8px 10px",
   color: "#164666",

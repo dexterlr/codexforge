@@ -520,7 +520,9 @@ const summaryLabel: CSSProperties = {
 };
 
 const stateBadge: CSSProperties = {
-  border: "1px solid",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "currentColor",
   borderRadius: 6,
   fontSize: 12,
   fontWeight: 700,

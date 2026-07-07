@@ -426,7 +426,9 @@ const eyebrowRow: CSSProperties = {
 
 const phaseBadge: CSSProperties = {
   display: "inline-flex",
-  border: "1px solid #8aa4b8",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "#8aa4b8",
   borderRadius: 6,
   padding: "5px 8px",
   fontSize: 12,
@@ -563,7 +565,9 @@ const chipRow: CSSProperties = {
 };
 
 const chip: CSSProperties = {
-  border: "1px solid #ccd6dd",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "#ccd6dd",
   borderRadius: 6,
   padding: "6px 8px",
   background: "#f7fafc",
@@ -637,7 +641,9 @@ const continuityBand: CSSProperties = {
 };
 
 const stateBadge: CSSProperties = {
-  border: "1px solid",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "currentColor",
   borderRadius: 6,
   padding: "6px 8px",
   fontSize: 12,
