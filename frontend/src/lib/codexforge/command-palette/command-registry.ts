@@ -7,6 +7,11 @@ import type {
 import { JARVIS_AUDIT_RESULT_STATUS_ROUTE_SPECS } from "../jarvis-audit-result-status-map/jarvis-audit-result-status-model";
 import { JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_SPECS } from "../jarvis-task-planner-tool-router-map/jarvis-task-planner-tool-router-model";
 import {
+  JARVIS_UNIFIED_WORKSPACE_SHELLS_REVIEW_DESCRIPTION,
+  JARVIS_UNIFIED_WORKSPACE_SHELLS_ROUTE_SPECS,
+} from "../jarvis-unified-workspace-shells-map/jarvis-unified-workspace-shells-model";
+import { JARVIS_UNIFIED_WORKSPACE_SHELL_WORKSPACES } from "../jarvis-unified-workspace-shells-map/jarvis-unified-workspace-shells-workspaces";
+import {
   buildCodexForgeContinuityHandoffPromptPayload,
   buildCodexForgeContinuityValidationChecklistPayload,
   buildCodexForgeApplyGateHandoffPromptPayload,
@@ -856,6 +861,42 @@ const JARVIS_AUDIT_RESULT_STATUS_ROUTE_COMMANDS = JARVIS_AUDIT_RESULT_STATUS_ROU
     priority: 25 + phaseNumber / 10000,
   })
 ) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & { href: NonNullable<CodexForgeCommand["href"]> })[];
+const JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_AVAILABILITY =
+  JARVIS_UNIFIED_WORKSPACE_SHELL_WORKSPACES.reduce<CodexForgeCommandRouteAvailability>(
+    (routes, workspace) => {
+      routes[workspace.routeHref] = true;
+      return routes;
+    },
+    {}
+  );
+const JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_COMMANDS =
+  JARVIS_UNIFIED_WORKSPACE_SHELL_WORKSPACES.map((workspace) => ({
+    id: `go-${workspace.id}`,
+    label: `Go to ${workspace.label}`,
+    href: workspace.routeHref,
+    priority: workspace.navigationPriority,
+  })) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & {
+    href: NonNullable<CodexForgeCommand["href"]>;
+  })[];
+const JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_AVAILABILITY =
+  JARVIS_UNIFIED_WORKSPACE_SHELLS_ROUTE_SPECS.reduce<CodexForgeCommandRouteAvailability>(
+    (routes, [, , href]) => {
+      routes[href] = true;
+      return routes;
+    },
+    {}
+  );
+const JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_COMMANDS =
+  JARVIS_UNIFIED_WORKSPACE_SHELLS_ROUTE_SPECS.map(
+    ([phaseNumber, id, href, label]) => ({
+      id: `go-${id}`,
+      label: `Go to ${label}`,
+      href,
+      priority: 25 + phaseNumber / 10000,
+    })
+  ) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & {
+    href: NonNullable<CodexForgeCommand["href"]>;
+  })[];
 /*
  * Jarvis Task Planner and Tool Router command markers:
  * | href: "/jarvis-task-planner-router-boundary-wiring" | label: "Go to Jarvis Task Planner Router Boundary Wiring"
@@ -3497,6 +3538,8 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   ...JARVIS_PERMISSION_APPROVAL_ENGINE_ROUTE_AVAILABILITY,
   ...JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_AVAILABILITY,
   ...JARVIS_AUDIT_RESULT_STATUS_ROUTE_AVAILABILITY,
+  ...JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_AVAILABILITY,
+  ...JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_AVAILABILITY,
   "/change-plan-live-context": true,
   "/patch-preview-live-context": true,
   "/test-planner-live-context": true,
@@ -31355,6 +31398,20 @@ export function buildCodexForgeCommands(
         ...command,
         description: JARVIS_AUDIT_RESULT_STATUS_COMMAND_DESCRIPTION,
         keywords: ["Jarvis Audit Result Ledger and Status Dashboard", "one Jarvis cockpit with shared evidence", "audit event review only", "disabled"],
+      })
+    ),
+    ...JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_COMMANDS.map((command) =>
+      buildRouteCommand(availability, {
+        ...command,
+        description: JARVIS_UNIFIED_WORKSPACE_SHELLS_REVIEW_DESCRIPTION,
+        keywords: ["Jarvis Unified Workspace Shells", "one Jarvis command center", "one Jarvis brain with specialist workspaces", "disabled"],
+      })
+    ),
+    ...JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_COMMANDS.map((command) =>
+      buildRouteCommand(availability, {
+        ...command,
+        description: JARVIS_UNIFIED_WORKSPACE_SHELLS_REVIEW_DESCRIPTION,
+        keywords: ["Jarvis Unified Workspace Shells", "shared capability grid only", "operator review required before any execution", "disabled"],
       })
     ),
 

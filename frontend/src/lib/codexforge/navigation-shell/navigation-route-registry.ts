@@ -7,6 +7,14 @@ import type {
 } from "./navigation-shell-types";
 import { JARVIS_AUDIT_RESULT_STATUS_ROUTE_SPECS } from "../jarvis-audit-result-status-map/jarvis-audit-result-status-model";
 import { JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_SPECS } from "../jarvis-task-planner-tool-router-map/jarvis-task-planner-tool-router-model";
+import {
+  JARVIS_UNIFIED_WORKSPACE_SHELLS_REVIEW_DESCRIPTION,
+  JARVIS_UNIFIED_WORKSPACE_SHELLS_ROUTE_SPECS,
+} from "../jarvis-unified-workspace-shells-map/jarvis-unified-workspace-shells-model";
+import {
+  JARVIS_UNIFIED_WORKSPACE_SHELL_WORKSPACES,
+  type JarvisUnifiedWorkspaceShellWorkspaceId,
+} from "../jarvis-unified-workspace-shells-map/jarvis-unified-workspace-shells-workspaces";
 const PROVIDER_ADAPTER_REGISTRY_BACKEND_CONTRACT_NAV_DESCRIPTION = "Review Provider Adapter Registry Backend Contract as a review-only provider adapter registry contract with synthetic provider adapter registry data only. Provider adapter registry remains disabled until explicit operator approval. It defines disabled provider adapter catalog, provider capability map, text provider capability remains disabled, image provider capability remains disabled, audio provider capability remains disabled, video provider capability remains disabled, transcription provider capability remains disabled, editing provider capability remains disabled, metadata provider capability remains disabled, safety provider capability remains disabled, provider credential boundary, provider token boundary, provider request envelope, provider response envelope, provider error envelope, provider approval gate, provider audit envelope, provider redaction envelope, provider cost guard, provider rate guard, provider privacy guard, provider safety guard, provider region policy, provider data retention policy, provider retry policy, provider fallback policy, provider observability trace, provider runner handoff remains review-only, provider adapter readiness gate, and provider adapter registry completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no fetch/network calls, no connector calls, no upload/download, no frontend persistence, no credential storage, no token storage, no provider key storage, no database writes, no service creation, no API creation from frontend, no port binding, no runtime deploy. Static route only; next likely batch: 2954-2985 - First Approved Provider Execution Bridge.";
 const FIRST_APPROVED_PROVIDER_EXECUTION_BRIDGE_NAV_DESCRIPTION = "Review 2954-2985 - First Approved Provider Execution Bridge as a review-only approved provider execution bridge with synthetic approved provider execution bridge data only. The approved provider execution bridge remains disabled until explicit operator approval. It defines approved provider execution intent, approved provider approval packet, approved provider credential reference boundary, approved provider token reference boundary, approved provider request envelope, approved provider response envelope, approved provider error envelope, approved provider dry execution lock, approved provider execution remains blocked, approved provider replay remains blocked, approved provider idempotency key, approved provider audit packet, approved provider redaction packet, approved provider observability trace, approved provider cost guard, approved provider rate guard, approved provider privacy guard, approved provider safety guard, approved provider region policy, approved provider data retention policy, approved provider retry policy, approved provider fallback policy, approved provider recovery policy, approved provider timeout policy, approved provider result review, approved provider runner handoff remains review-only, approved provider adapter registry handoff remains review-only, approved provider operator review remains required, approved provider readiness gate, disabled approved provider execution candidate, and first approved provider execution bridge completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no fetch/network calls, no connector calls, no upload/download, no frontend persistence, no credential storage, no token storage, no provider key storage, no database writes, no service creation, no API creation from frontend, no port binding, no runtime deploy. Static route only; next likely batch: 2986-3017 - Multi-Provider Capability Routing.";
 const FIRST_REAL_PROVIDER_CALL_GUARD_NAV_DESCRIPTION = "Review 3018-3049 - First Real Provider Call Guard as a review-only first real provider call guard surface with synthetic first real provider call guard data only. The first real provider call remains blocked until explicit operator approval. It defines provider call intent, provider call approval packet, provider credential reference boundary, provider token reference boundary, provider call request envelope, provider call response envelope, provider call error envelope, provider call dry lock, provider call execution remains blocked, provider call preflight checklist, prompt redaction preview, provider call cost estimate, provider call rate estimate, provider call privacy gate, provider call safety gate, provider call region policy, provider call data retention policy, provider call timeout policy, provider call retry policy, provider call fallback policy, provider call recovery policy, provider call audit packet, provider call observability trace, provider call result review, provider registry handoff remains review-only, multi-provider routing handoff remains review-only, execution bridge handoff remains review-only, runner handoff remains review-only, operator review remains required before first real provider call, first real provider call readiness gate, and first real provider call guard completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no fetch/network calls, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3050-3081 - First Approved Text Planning Provider Trial.";
@@ -610,6 +618,96 @@ function buildJarvisAuditResultStatusRouteDefaults(): Partial<Record<CodexForgeN
     routes[route.href] = {
       ...route,
       description: JARVIS_AUDIT_RESULT_STATUS_NAV_DESCRIPTION,
+      group: "Advanced",
+      readiness: "preview-only",
+      safetyPosture: "approval-gated",
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
+function resolveJarvisUnifiedWorkspaceShellPrimaryRouteGroup(
+  workspaceId: JarvisUnifiedWorkspaceShellWorkspaceId
+) {
+  switch (workspaceId) {
+    case "jarvis":
+      return "Start";
+    case "jarvis-audit":
+      return "Audit";
+    case "jarvis-video":
+    case "jarvis-websites":
+    case "jarvis-avatar":
+    case "jarvis-render-publish":
+      return "Creative";
+    default:
+      return "Advanced";
+  }
+}
+function resolveJarvisUnifiedWorkspaceShellPrimaryRouteBadge(
+  workspaceId: JarvisUnifiedWorkspaceShellWorkspaceId
+) {
+  switch (workspaceId) {
+    case "jarvis":
+      return "Command";
+    case "jarvis-trading":
+      return "Paper review";
+    default:
+      return "Review only";
+  }
+}
+const JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_INPUTS =
+  JARVIS_UNIFIED_WORKSPACE_SHELL_WORKSPACES.map((workspace) => ({
+    id: workspace.id,
+    href: workspace.routeHref,
+    label: workspace.label,
+    shortLabel: workspace.shortLabel,
+    badge: resolveJarvisUnifiedWorkspaceShellPrimaryRouteBadge(workspace.id),
+    priority: workspace.navigationPriority,
+  })) satisfies readonly Pick<
+    CodexForgeNavigationRoute,
+    "id" | "href" | "label" | "shortLabel" | "badge" | "priority"
+  >[];
+function buildJarvisUnifiedWorkspaceShellPrimaryRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return JARVIS_UNIFIED_WORKSPACE_SHELL_WORKSPACES.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, workspace) => {
+    routes[workspace.routeHref] = {
+      id: workspace.id,
+      href: workspace.routeHref,
+      label: workspace.label,
+      shortLabel: workspace.shortLabel,
+      description: JARVIS_UNIFIED_WORKSPACE_SHELLS_REVIEW_DESCRIPTION,
+      group: resolveJarvisUnifiedWorkspaceShellPrimaryRouteGroup(workspace.id),
+      readiness: "preview-only",
+      safetyPosture: "approval-gated",
+      badge: resolveJarvisUnifiedWorkspaceShellPrimaryRouteBadge(workspace.id),
+      priority: workspace.navigationPriority,
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
+const JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_INPUTS =
+  JARVIS_UNIFIED_WORKSPACE_SHELLS_ROUTE_SPECS.map(
+    ([phaseNumber, id, href, label]) => ({
+      id,
+      href,
+      label,
+      shortLabel: `JWS ${phaseNumber}`,
+      badge: `Phase ${phaseNumber}`,
+      priority: 25 + phaseNumber / 10000,
+    })
+  ) satisfies readonly Pick<
+    CodexForgeNavigationRoute,
+    "id" | "href" | "label" | "shortLabel" | "badge" | "priority"
+  >[];
+function buildJarvisUnifiedWorkspaceShellRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      description: JARVIS_UNIFIED_WORKSPACE_SHELLS_REVIEW_DESCRIPTION,
       group: "Advanced",
       readiness: "preview-only",
       safetyPosture: "approval-gated",
@@ -3240,6 +3338,9 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   ...JARVIS_SHARED_BACKEND_ADAPTER_CONTRACT_ROUTE_INPUTS.map((route) => route.href),
   ...JARVIS_PERMISSION_APPROVAL_ENGINE_ROUTE_INPUTS.map((route) => route.href),
   ...JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_INPUTS.map((route) => route.href),
+  ...JARVIS_AUDIT_RESULT_STATUS_ROUTE_INPUTS.map((route) => route.href),
+  ...JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_INPUTS.map((route) => route.href),
+  ...JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_INPUTS.map((route) => route.href),
   "/change-plan-live-context",
   "/patch-preview-live-context",
   "/test-planner-live-context",
@@ -51589,6 +51690,8 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   ...buildJarvisPermissionApprovalEngineRouteDefaults(),
   ...buildJarvisTaskPlannerToolRouterRouteDefaults(),
   ...buildJarvisAuditResultStatusRouteDefaults(),
+  ...buildJarvisUnifiedWorkspaceShellPrimaryRouteDefaults(),
+  ...buildJarvisUnifiedWorkspaceShellRouteDefaults(),
   "/change-plan-live-context": {
     id: "change-plan-live-context",
     href: "/change-plan-live-context",
