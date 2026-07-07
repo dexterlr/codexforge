@@ -1,0 +1,4 @@
+$ErrorActionPreference = 'Stop'
+. "$PSScriptRoot\codexforge-jarvis-unified-product-ia-smoke-helper.ps1"
+
+Invoke-CodexForgeJarvisUnifiedProductIaSmoke -SmokeName 'Phase 3933 Jarvis Unified Product IA Developer Diagnostics Secondary Wiring' -ScriptFile $MyInvocation.MyCommand.Name -Route 'jarvis-unified-product-ia-developer-diagnostics-secondary-wiring' -CommandLabel 'Go to Jarvis Unified Product IA Developer Diagnostics Secondary Wiring' -RouteHref '/jarvis-unified-product-ia-developer-diagnostics-secondary-wiring' -Phase 'Phase 3933' -Title 'Jarvis Unified Product IA Developer Diagnostics Secondary Wiring'

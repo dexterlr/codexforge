@@ -1,7 +1,10 @@
 'use client';
-import { JarvisUnifiedWorkspaceShellPageClientShell } from "@/lib/codexforge/jarvis-unified-workspace-shells-map/components";
+
+import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-unified-product-ia-map/components";
+
+// 3914-3945 - Jarvis Unified Product IA and God-Tier UX Polish
+// Jarvis command center order upgraded
+// normal user path is primary
 export default function JarvisCommandCenterPageClient() {
-  return (
-    <JarvisUnifiedWorkspaceShellPageClientShell workspaceId="jarvis" />
-  );
+  return <JarvisUnifiedProductPageClientShell surfaceId="jarvis" />;
 }

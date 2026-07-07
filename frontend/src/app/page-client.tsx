@@ -1,20 +1,11 @@
 "use client";
 
-import { MainPagesGodTierUxBoundaryMarker } from "@/lib/codexforge/main-pages-god-tier-ux";
-import { OperatorHomeDashboard } from "@/lib/codexforge/operator-home/components";
-import type { OperatorHomeSummary } from "@/lib/codexforge/operator-home";
+import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-unified-product-ia-map/components";
 
-type OperatorHomePageClientProps = {
-  initialData: OperatorHomeSummary;
-};
-
-export default function OperatorHomePageClient({
-  initialData,
-}: OperatorHomePageClientProps) {
-  return (
-    <div style={{ minWidth: 0, width: "100%" }}>
-      <MainPagesGodTierUxBoundaryMarker label="root home page imports shared UX marker" />
-      <OperatorHomeDashboard summary={initialData} />
-    </div>
-  );
+// 3914-3945 - Jarvis Unified Product IA and God-Tier UX Polish
+// home product order upgraded
+// normal user path is primary
+// developer diagnostics are secondary
+export default function OperatorHomePageClient() {
+  return <JarvisUnifiedProductPageClientShell surfaceId="home" />;
 }

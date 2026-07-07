@@ -6,6 +6,13 @@ import type {
   CodexForgeNavigationRouteInput,
 } from "./navigation-shell-types";
 import { JARVIS_AUDIT_RESULT_STATUS_ROUTE_SPECS } from "../jarvis-audit-result-status-map/jarvis-audit-result-status-model";
+import {
+  JARVIS_UNIFIED_PRODUCT_PRIMARY_NAVIGATION_ORDER,
+} from "../jarvis-unified-product-ia-map/jarvis-unified-product-ia-content";
+import {
+  JARVIS_UNIFIED_PRODUCT_IA_REVIEW_DESCRIPTION,
+  JARVIS_UNIFIED_PRODUCT_IA_ROUTE_SPECS,
+} from "../jarvis-unified-product-ia-map/jarvis-unified-product-ia-model";
 import { JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_SPECS } from "../jarvis-task-planner-tool-router-map/jarvis-task-planner-tool-router-model";
 import {
   JARVIS_UNIFIED_WORKSPACE_SHELLS_REVIEW_DESCRIPTION,
@@ -734,6 +741,150 @@ function buildJarvisUnifiedWorkspaceShellRouteDefaults(): Partial<Record<CodexFo
     return routes;
   }, {});
 }
+const JARVIS_UNIFIED_PRODUCT_PRIMARY_ROUTE_INPUTS = [
+  {
+    id: "jarvis",
+    href: "/jarvis",
+    label: "Jarvis Command Center",
+    shortLabel: "Jarvis",
+    badge: "Command",
+    priority: 9.93,
+    group: "Brain",
+    commandDeckRole: "workspace",
+    description:
+      "Jarvis command center order upgraded. Jarvis is the operating system / top-level control plane, and this central AI command center keeps capability, approval, audit, and safety review ahead of diagnostics.",
+  },
+  {
+    id: "jarvis-video",
+    href: "/jarvis-video",
+    label: "Jarvis Video Studio",
+    shortLabel: "Video",
+    badge: "Primary",
+    priority: 9.94,
+    group: "Creative",
+    commandDeckRole: "workspace",
+    description:
+      "video studio remains primary active workspace. Mission brief, storyboard, approval packet, backend readiness, result placeholder, and audit rail stay polished while execution remains blocked.",
+  },
+  {
+    id: "jarvis-trading",
+    href: "/jarvis-trading",
+    label: "Jarvis Trading Desk",
+    shortLabel: "Trading",
+    badge: "Paper review",
+    priority: 9.95,
+    group: "Advanced",
+    commandDeckRole: "workspace",
+    description:
+      "trading workspace has dedicated polished page. Paper-review-only, no financial advice, no personalised recommendations, no buy sell instructions, no broker execution, and no real-money trading.",
+  },
+  {
+    id: "jarvis-websites",
+    href: "/jarvis-websites",
+    label: "Jarvis Website Builder",
+    shortLabel: "Websites",
+    badge: "Placeholder",
+    priority: 9.96,
+    group: "Creative",
+    commandDeckRole: "workspace",
+    description:
+      "websites workspace placeholder only. Idea, sitemap, design system, pages, preview, and export or publish approval remain visible while execution stays blocked.",
+  },
+  {
+    id: "jarvis-avatar",
+    href: "/jarvis-avatar",
+    label: "Jarvis Avatar Studio",
+    shortLabel: "Avatar",
+    badge: "Placeholder",
+    priority: 9.97,
+    group: "Creative",
+    commandDeckRole: "workspace",
+    description:
+      "avatar workspace placeholder only. Persona, consent, voice and visual style, safety, preview, and approval remain visible while likeness and generation stay blocked.",
+  },
+  {
+    id: "jarvis-workflows",
+    href: "/jarvis-workflows",
+    label: "Jarvis Workflows",
+    shortLabel: "Flows",
+    badge: "Blocked",
+    priority: 9.98,
+    group: "Advanced",
+    commandDeckRole: "workspace",
+    description:
+      "workflows workspace placeholder only. Trigger, plan, permission, dry run, approval, and audit stay visible while scheduling, automation, and worker dispatch remain blocked.",
+  },
+  {
+    id: "jarvis-audit",
+    href: "/jarvis-audit",
+    label: "Jarvis Audit and Runs",
+    shortLabel: "Audit",
+    badge: "Ledger",
+    priority: 9.99,
+    group: "Audit",
+    commandDeckRole: "workspace",
+    description:
+      "audit workspace placeholder only. Run timeline, approvals ledger, blocked action log, result ledger, and evidence packets stay product-facing and non-persistent.",
+  },
+  {
+    id: "jarvis-safety",
+    href: "/jarvis-safety",
+    label: "Jarvis Safety and Settings",
+    shortLabel: "Settings",
+    badge: "Boundary",
+    priority: 10,
+    group: "Audit",
+    commandDeckRole: "workspace",
+    description:
+      "safety workspace placeholder only. Permission posture, kill switch, approval mode, credential boundary, browser storage boundary, and blocked execution state remain compact and review-only.",
+  },
+] as const satisfies readonly (Pick<
+  CodexForgeNavigationRoute,
+  "id" | "href" | "label" | "shortLabel" | "badge" | "priority" | "group" | "commandDeckRole"
+> & {
+  description: string;
+})[];
+function buildJarvisUnifiedProductPrimaryRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return JARVIS_UNIFIED_PRODUCT_PRIMARY_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      readiness: "preview-only",
+      safetyPosture: "approval-gated",
+      requiresReview: true,
+      noMutation: true,
+    };
+    return routes;
+  }, {});
+}
+const JARVIS_UNIFIED_PRODUCT_IA_ROUTE_INPUTS =
+  JARVIS_UNIFIED_PRODUCT_IA_ROUTE_SPECS.map(
+    ([phaseNumber, id, href, label]) => ({
+      id,
+      href,
+      label,
+      shortLabel: `JUP ${phaseNumber}`,
+      badge: `Phase ${phaseNumber}`,
+      priority: 25 + phaseNumber / 10000,
+    })
+  ) satisfies readonly Pick<
+    CodexForgeNavigationRoute,
+    "id" | "href" | "label" | "shortLabel" | "badge" | "priority"
+  >[];
+function buildJarvisUnifiedProductIaRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return JARVIS_UNIFIED_PRODUCT_IA_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      description: JARVIS_UNIFIED_PRODUCT_IA_REVIEW_DESCRIPTION,
+      group: "Advanced",
+      readiness: "preview-only",
+      safetyPosture: "approval-gated",
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
 const JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_INPUTS =
   JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_SPECS.map(
     ([phaseNumber, id, href, label]) => ({
@@ -921,6 +1072,11 @@ function buildJarvisVideoBackendExecutionReadinessRouteDefaults(): Partial<Recor
 const MULTI_PROVIDER_CAPABILITY_ROUTING_NAV_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/",
+  ...JARVIS_UNIFIED_PRODUCT_PRIMARY_NAVIGATION_ORDER.filter(
+    (href) =>
+      href !== "/" &&
+      href !== "/jarvis-unified-product-ia-developer-diagnostics-secondary-wiring"
+  ),
   "/start",
   "/onboarding",
   "/first-task",
@@ -3471,8 +3627,8 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   ...JARVIS_PERMISSION_APPROVAL_ENGINE_ROUTE_INPUTS.map((route) => route.href),
   ...JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_INPUTS.map((route) => route.href),
   ...JARVIS_AUDIT_RESULT_STATUS_ROUTE_INPUTS.map((route) => route.href),
-  ...JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_INPUTS.map((route) => route.href),
   ...JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_INPUTS.map((route) => route.href),
+  ...JARVIS_UNIFIED_PRODUCT_IA_ROUTE_INPUTS.map((route) => route.href),
   ...JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_INPUTS.map((route) => route.href),
   ...JARVIS_VIDEO_DRY_RUN_WORKSPACE_ROUTE_INPUTS.map((route) => route.href),
   ...JARVIS_VIDEO_APPROVAL_PACKET_WORKSPACE_ROUTE_INPUTS.map((route) => route.href),
@@ -3590,14 +3746,15 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   "/": {
     id: "home",
     href: "/",
-    label: "Operator Home",
+    label: "Home",
     shortLabel: "Home",
-    description: "Command overview for CodexForge readiness, launch surfaces, and next safe action.",
+    description:
+      "Jarvis Unified Product IA and God-Tier UX Polish home route. home product order upgraded, world-class Jarvis product order, normal user path is primary, and developer diagnostics are secondary.",
     group: "Start",
     readiness: "available",
     safetyPosture: "local-first",
-    badge: "Command",
-    priority: 10,
+    badge: "Start",
+    priority: 9.91,
     requiresReview: false,
     noMutation: true,
     commandDeckRole: "overview",
@@ -20135,14 +20292,15 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   "/codexforge-cockpit": {
     id: "codexforge-cockpit",
     href: "/codexforge-cockpit",
-    label: "Unified CodexForge Cockpit",
+    label: "CodexForge Cockpit",
     shortLabel: "Cockpit",
-    description: "Use the unified CodexForge Cockpit for normal goal, plan, approval, execution-state, evidence, result, and recovery review without command execution, file mutation, model calls, provider calls, connector calls, runtime execution, or adapter execution.",
-    group: "Build",
-    readiness: "review-required",
+    description:
+      "Premium CodexForge cockpit order upgraded. Current focus, next action rail, approvals, readiness, and developer diagnostics secondary all stay visible in one review-only cockpit.",
+    group: "Start",
+    readiness: "preview-only",
     safetyPosture: "approval-gated",
     badge: "Cockpit",
-    priority: 35.6300789,
+    priority: 9.92,
     requiresReview: true,
     noMutation: true,
     commandDeckRole: "codexforge-cockpit",
@@ -51827,7 +51985,9 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   ...buildJarvisTaskPlannerToolRouterRouteDefaults(),
   ...buildJarvisAuditResultStatusRouteDefaults(),
   ...buildJarvisUnifiedWorkspaceShellPrimaryRouteDefaults(),
+  ...buildJarvisUnifiedProductPrimaryRouteDefaults(),
   ...buildJarvisUnifiedWorkspaceShellRouteDefaults(),
+  ...buildJarvisUnifiedProductIaRouteDefaults(),
   ...buildJarvisVideoAdapterPluginRouteDefaults(),
   ...buildJarvisVideoDryRunWorkspaceRouteDefaults(),
   ...buildJarvisVideoApprovalPacketWorkspaceRouteDefaults(),

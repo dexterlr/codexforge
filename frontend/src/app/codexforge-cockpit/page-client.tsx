@@ -1,24 +1,10 @@
 "use client";
 
-import { MainPagesGodTierUxStatusRail } from "@/lib/codexforge/main-pages-god-tier-ux";
-import { UnifiedCodexForgeCockpitPanel } from "@/lib/codexforge/unified-cockpit/components";
-import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
+import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-unified-product-ia-map/components";
 
+// 3914-3945 - Jarvis Unified Product IA and God-Tier UX Polish
+// premium CodexForge cockpit order upgraded
+// developer diagnostics are secondary
 export default function CodexForgeCockpitPageClient() {
-  return (
-    <CodexForgeAppShell
-      activePath="/codexforge-cockpit"
-      workspaceLabel="CodexForge Cockpit"
-      nextActionContext={{ wantsOperatorOverview: false }}
-      focusMode
-      contentMaxWidth="wide"
-      pageChrome="minimal"
-      showRightRail={false}
-      showSidebarSafetyNotice={false}
-      showHeroRouteChips={false}
-    >
-      <MainPagesGodTierUxStatusRail title="CodexForge cockpit command-center boundary" tone="cockpit" />
-      <UnifiedCodexForgeCockpitPanel />
-    </CodexForgeAppShell>
-  );
+  return <JarvisUnifiedProductPageClientShell surfaceId="codexforge-cockpit" />;
 }

@@ -1,0 +1,4 @@
+$ErrorActionPreference = 'Stop'
+. "$PSScriptRoot\codexforge-jarvis-unified-product-ia-smoke-helper.ps1"
+
+Invoke-CodexForgeJarvisUnifiedProductIaSmoke -SmokeName 'Phase 3931 Jarvis Unified Product IA Blocked Action Simplification Wiring' -ScriptFile $MyInvocation.MyCommand.Name -Route 'jarvis-unified-product-ia-blocked-action-simplification-wiring' -CommandLabel 'Go to Jarvis Unified Product IA Blocked Action Simplification Wiring' -RouteHref '/jarvis-unified-product-ia-blocked-action-simplification-wiring' -Phase 'Phase 3931' -Title 'Jarvis Unified Product IA Blocked Action Simplification Wiring'

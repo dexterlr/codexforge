@@ -1,7 +1,9 @@
 'use client';
-import { JarvisUnifiedWorkspaceShellPageClientShell } from "@/lib/codexforge/jarvis-unified-workspace-shells-map/components";
+
+import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-unified-product-ia-map/components";
+
+// 3914-3945 - Jarvis Unified Product IA and God-Tier UX Polish
+// audit workspace placeholder only
 export default function JarvisAuditWorkspacePageClient() {
-  return (
-    <JarvisUnifiedWorkspaceShellPageClientShell workspaceId="jarvis-audit" />
-  );
+  return <JarvisUnifiedProductPageClientShell surfaceId="jarvis-audit" />;
 }

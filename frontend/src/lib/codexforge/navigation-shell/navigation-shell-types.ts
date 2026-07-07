@@ -1,5 +1,6 @@
 import type { Route } from "next";
 import type { ReactNode } from "react";
+import type { JarvisUnifiedProductIaRouteSlug } from "../jarvis-unified-product-ia-map/jarvis-unified-product-ia-model";
 import type { JarvisVideoBackendExecutionReadinessRouteSlug } from "../jarvis-video-backend-execution-readiness-map/jarvis-video-backend-execution-readiness-model";
 export type CodexForgePhaseDiagnosticRouteId =
   | "evidence-memory-boundary"
@@ -3774,6 +3775,7 @@ export type CodexForgeNavigationRouteId =
   | "jarvis-video-approval-packet-workspace-jarvis-video-update-wiring"
   | "jarvis-video-approval-packet-workspace-no-execution-guard-wiring"
   | "jarvis-video-approval-packet-workspace-completion"
+  | JarvisUnifiedProductIaRouteSlug
   | JarvisVideoBackendExecutionReadinessRouteSlug
   | "change-plan-live-context"
   | "patch-preview-live-context"
@@ -4433,6 +4435,40 @@ export type CodexForgeNavigationRouteHref = Route;
  * | "/jarvis-video-backend-execution-readiness-no-execution-guard-wiring"
  * | "/jarvis-video-backend-execution-readiness-regression-coverage-wiring"
  * | "/jarvis-video-backend-execution-readiness-completion"
+ *
+ * Jarvis Unified Product IA and God-Tier UX Polish:
+ * | "/jarvis-unified-product-ia-boundary-wiring"
+ * | "/jarvis-unified-product-ia-intent-wiring"
+ * | "/jarvis-unified-product-ia-home-order-wiring"
+ * | "/jarvis-unified-product-ia-cockpit-order-wiring"
+ * | "/jarvis-unified-product-ia-jarvis-command-center-wiring"
+ * | "/jarvis-unified-product-ia-primary-workspace-navigation-wiring"
+ * | "/jarvis-unified-product-ia-video-workspace-polish-wiring"
+ * | "/jarvis-unified-product-ia-trading-workspace-polish-wiring"
+ * | "/jarvis-unified-product-ia-website-workspace-placeholder-wiring"
+ * | "/jarvis-unified-product-ia-avatar-workspace-placeholder-wiring"
+ * | "/jarvis-unified-product-ia-workflow-workspace-placeholder-wiring"
+ * | "/jarvis-unified-product-ia-audit-workspace-polish-wiring"
+ * | "/jarvis-unified-product-ia-safety-workspace-polish-wiring"
+ * | "/jarvis-unified-product-ia-next-action-rail-wiring"
+ * | "/jarvis-unified-product-ia-capability-grid-wiring"
+ * | "/jarvis-unified-product-ia-approval-summary-wiring"
+ * | "/jarvis-unified-product-ia-readiness-summary-wiring"
+ * | "/jarvis-unified-product-ia-blocked-action-simplification-wiring"
+ * | "/jarvis-unified-product-ia-placeholder-state-system-wiring"
+ * | "/jarvis-unified-product-ia-developer-diagnostics-secondary-wiring"
+ * | "/jarvis-unified-product-ia-command-palette-order-wiring"
+ * | "/jarvis-unified-product-ia-navigation-shell-order-wiring"
+ * | "/jarvis-unified-product-ia-mobile-responsive-polish-wiring"
+ * | "/jarvis-unified-product-ia-accessibility-guard-wiring"
+ * | "/jarvis-unified-product-ia-motion-safety-wiring"
+ * | "/jarvis-unified-product-ia-performance-budget-wiring"
+ * | "/jarvis-unified-product-ia-no-execution-guard-wiring"
+ * | "/jarvis-unified-product-ia-regression-coverage-wiring"
+ * | "/jarvis-unified-product-ia-checkpoint-alignment-wiring"
+ * | "/jarvis-unified-product-ia-operator-review-wiring"
+ * | "/jarvis-unified-product-ia-readiness-wiring"
+ * | "/jarvis-unified-product-ia-completion"
  */
 export type CodexForgeNavigationGroup =
   | "Start"

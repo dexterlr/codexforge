@@ -5,6 +5,10 @@ import type {
   CodexForgeCommandRouteAvailability,
 } from "./command-palette-types";
 import { JARVIS_AUDIT_RESULT_STATUS_ROUTE_SPECS } from "../jarvis-audit-result-status-map/jarvis-audit-result-status-model";
+import {
+  JARVIS_UNIFIED_PRODUCT_IA_REVIEW_DESCRIPTION,
+  JARVIS_UNIFIED_PRODUCT_IA_ROUTE_SPECS,
+} from "../jarvis-unified-product-ia-map/jarvis-unified-product-ia-model";
 import { JARVIS_TASK_PLANNER_TOOL_ROUTER_ROUTE_SPECS } from "../jarvis-task-planner-tool-router-map/jarvis-task-planner-tool-router-model";
 import {
   JARVIS_UNIFIED_WORKSPACE_SHELLS_REVIEW_DESCRIPTION,
@@ -904,6 +908,25 @@ const JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_AVAILABILITY =
   );
 const JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_COMMANDS =
   JARVIS_UNIFIED_WORKSPACE_SHELLS_ROUTE_SPECS.map(
+    ([phaseNumber, id, href, label]) => ({
+      id: `go-${id}`,
+      label: `Go to ${label}`,
+      href,
+      priority: 25 + phaseNumber / 10000,
+    })
+  ) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & {
+    href: NonNullable<CodexForgeCommand["href"]>;
+  })[];
+const JARVIS_UNIFIED_PRODUCT_IA_ROUTE_AVAILABILITY =
+  JARVIS_UNIFIED_PRODUCT_IA_ROUTE_SPECS.reduce<CodexForgeCommandRouteAvailability>(
+    (routes, [, , href]) => {
+      routes[href] = true;
+      return routes;
+    },
+    {}
+  );
+const JARVIS_UNIFIED_PRODUCT_IA_ROUTE_COMMANDS =
+  JARVIS_UNIFIED_PRODUCT_IA_ROUTE_SPECS.map(
     ([phaseNumber, id, href, label]) => ({
       id: `go-${id}`,
       label: `Go to ${label}`,
@@ -3632,6 +3655,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   ...JARVIS_AUDIT_RESULT_STATUS_ROUTE_AVAILABILITY,
   ...JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_AVAILABILITY,
   ...JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_AVAILABILITY,
+  ...JARVIS_UNIFIED_PRODUCT_IA_ROUTE_AVAILABILITY,
   ...JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_AVAILABILITY,
   ...JARVIS_VIDEO_DRY_RUN_WORKSPACE_ROUTE_AVAILABILITY,
   ...JARVIS_VIDEO_APPROVAL_PACKET_WORKSPACE_ROUTE_AVAILABILITY,
@@ -4381,23 +4405,148 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-codexforge-cockpit",
-      label: "Go to Unified CodexForge Cockpit",
-      description: "Open the one normal CodexForge Cockpit user UX for goal, plan, approval, execution-state, evidence, result, and recovery review.",
+      label: "Go to CodexForge Cockpit",
+      description: "Open the premium CodexForge cockpit for current focus, specialist workspace order, next actions, approval state, readiness, and secondary diagnostics.",
       group: "User features",
       href: "/codexforge-cockpit",
       keywords: [
         "CodexForge Cockpit",
         "Unified CodexForge Cockpit",
-        "Cockpit Navigation Cleanup User UX",
-        "One user cockpit",
-        "normal user ux",
-        "home",
-        "one cockpit",
-        "normal users start at /codexforge-cockpit",
-        "normal users should not need to navigate phase pages",
+        "premium CodexForge cockpit order upgraded",
+        "normal user path is primary",
+        "next action rail",
         "approval required",
+        "developer diagnostics are secondary",
       ],
       priority: 10.1,
+    }),
+    buildRouteCommand(availability, {
+      id: "open-jarvis-command-center",
+      label: "Go to Jarvis Command Center",
+      description: "Open Jarvis as the central AI command center with capability grid, workspace order, approval summary, audit preview, and safety state.",
+      group: "User features",
+      href: "/jarvis",
+      keywords: [
+        "Jarvis command center",
+        "Jarvis OS",
+        "Jarvis command center order upgraded",
+        "central AI command center",
+        "capability grid",
+        "normal user path is primary",
+      ],
+      priority: 10.11,
+    }),
+    buildRouteCommand(availability, {
+      id: "open-jarvis-video-studio",
+      label: "Go to Jarvis Video Studio",
+      description: "Open the most polished active specialist workspace for mission brief, storyboard, approval packet, backend readiness, and result placeholders.",
+      group: "User features",
+      href: "/jarvis-video",
+      keywords: [
+        "Jarvis Video Studio",
+        "video studio remains primary active workspace",
+        "storyboard",
+        "approval packet",
+        "backend readiness",
+        "controlled execution trial",
+      ],
+      priority: 10.12,
+    }),
+    buildRouteCommand(availability, {
+      id: "open-jarvis-trading-desk",
+      label: "Go to Jarvis Trading Desk",
+      description: "Open the dedicated paper-review-only trading shell for strategy review, risk posture, and approval state.",
+      group: "User features",
+      href: "/jarvis-trading",
+      keywords: [
+        "Jarvis Trading Desk",
+        "trading workspace has dedicated polished page",
+        "paper review only",
+        "no financial advice",
+        "no personalised recommendations",
+        "no buy sell instructions",
+      ],
+      priority: 10.13,
+    }),
+    buildRouteCommand(availability, {
+      id: "open-jarvis-website-builder",
+      label: "Go to Jarvis Website Builder",
+      description: "Open the website builder placeholder for idea, sitemap, design system, pages, preview, and publish approval review.",
+      group: "User features",
+      href: "/jarvis-websites",
+      keywords: [
+        "Jarvis Website Builder",
+        "websites workspace placeholder only",
+        "idea",
+        "sitemap",
+        "design system",
+        "publish approval",
+      ],
+      priority: 10.14,
+    }),
+    buildRouteCommand(availability, {
+      id: "open-jarvis-avatar-studio",
+      label: "Go to Jarvis Avatar Studio",
+      description: "Open the avatar studio placeholder for persona, consent, style, safety, preview, and approval review.",
+      group: "User features",
+      href: "/jarvis-avatar",
+      keywords: [
+        "Jarvis Avatar Studio",
+        "avatar workspace placeholder only",
+        "persona",
+        "consent",
+        "voice visual style",
+        "preview placeholder",
+      ],
+      priority: 10.15,
+    }),
+    buildRouteCommand(availability, {
+      id: "open-jarvis-workflows",
+      label: "Go to Jarvis Workflows",
+      description: "Open the workflow automation placeholder for trigger, plan, permission, dry run, approval, and audit review.",
+      group: "User features",
+      href: "/jarvis-workflows",
+      keywords: [
+        "Jarvis Workflows",
+        "workflows workspace placeholder only",
+        "trigger",
+        "dry run",
+        "approval",
+        "audit",
+      ],
+      priority: 10.16,
+    }),
+    buildRouteCommand(availability, {
+      id: "open-jarvis-audit-runs",
+      label: "Go to Jarvis Audit and Runs",
+      description: "Open the audit workspace for approvals ledger, blocked action log, result ledger, evidence packets, and run timeline review.",
+      group: "User features",
+      href: "/jarvis-audit",
+      keywords: [
+        "Jarvis Audit and Runs",
+        "audit workspace placeholder only",
+        "approvals ledger",
+        "blocked action log",
+        "result ledger",
+        "evidence packets",
+      ],
+      priority: 10.17,
+    }),
+    buildRouteCommand(availability, {
+      id: "open-jarvis-safety-settings",
+      label: "Go to Jarvis Safety and Settings",
+      description: "Open the safety workspace for kill switch, permission tiers, approval mode, credential boundary, and browser storage boundary review.",
+      group: "User features",
+      href: "/jarvis-safety",
+      keywords: [
+        "Jarvis Safety and Settings",
+        "safety workspace placeholder only",
+        "kill switch",
+        "permission tiers",
+        "browser storage boundary",
+        "no browser storage for secrets",
+      ],
+      priority: 10.18,
     }),
     buildRouteCommand(availability, {
       id: "open-trading-workspace",
@@ -31508,6 +31657,13 @@ export function buildCodexForgeCommands(
         ...command,
         description: JARVIS_UNIFIED_WORKSPACE_SHELLS_REVIEW_DESCRIPTION,
         keywords: ["Jarvis Unified Workspace Shells", "shared capability grid only", "operator review required before any execution", "disabled"],
+      })
+    ),
+    ...JARVIS_UNIFIED_PRODUCT_IA_ROUTE_COMMANDS.map((command) =>
+      buildRouteCommand(availability, {
+        ...command,
+        description: JARVIS_UNIFIED_PRODUCT_IA_REVIEW_DESCRIPTION,
+        keywords: ["Jarvis Unified Product IA and God-Tier UX Polish", "normal user path is primary", "developer diagnostics are secondary", "disabled"],
       })
     ),
     ...JARVIS_VIDEO_ADAPTER_PLUGIN_ROUTE_COMMANDS.map((command) =>
