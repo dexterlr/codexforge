@@ -516,6 +516,56 @@ function buildJarvisSharedBackendAdapterContractRouteDefaults(): Partial<Record<
     return routes;
   }, {});
 }
+const JARVIS_PERMISSION_APPROVAL_ENGINE_NAV_DESCRIPTION = "Review 3626-3657 - Jarvis Permission and Approval Engine as a review-only Jarvis permission and approval engine foundation surface. It stays Jarvis permission and approval engine only, permission engine foundation, approval engine foundation, centralized permission decision model, one Jarvis brain with shared permissions, disabled by default, approval-required, backend-only, and execution-blocked. It defines allowed for review only, dry-run only decision, approval required decision, blocked decision, kill-switch blocked decision, unsupported decision, human operator review required, capability permission policy required, adapter permission policy required, workspace permission policy required, operator role review only, human approval gate required, dry-run required before execution, approval mode required, deny reason required, blocked action category required, approval packet readiness only, cost limit posture required, rate limit posture required, timeout posture required, data sensitivity posture required, secret boundary posture required, trading risk remains critical, provider risk remains approval-gated, website creation risk remains approval-gated, avatar risk remains approval-gated, workflow risk remains approval-gated, audit hook readiness only, result ledger hook readiness only, memory boundary hook readiness only, kill switch hook required, replay block hook required, and operator review required before any execution. Safety markers: no direct frontend execution, no live provider call, no provider execution, no video provider execution, no image provider execution, no audio provider execution, no website creation execution, no avatar generation execution, no chatbot autonomous execution, no trading execution, no paper trading execution, no real-money trading execution, no network execution, no render execution, no export execution, no publish execution, no worker dispatch, no file export, no download generation, no archive creation, no signed URL creation, no platform upload, no media upload, no OAuth flow creation, no webhook creation, no schedule execution, no account authorization execution, no API route execution, no service creation, no runtime deploy, no file writes from the app, no shell/process/command execution from the app, no fetch/network calls, no provider SDK imports in frontend, no frontend provider key reads, no plaintext secrets, no localStorage, no sessionStorage, no IndexedDB, no cookies, and no browser storage for secrets. Permission and approval engine completion does not enable provider/render/export/publish/workers/trading/automation. Static route only; next likely batch: 3658-3689 - Jarvis Task Planner and Tool Router.";
+const JARVIS_PERMISSION_APPROVAL_ENGINE_ROUTE_INPUTS = [
+  { id: "jarvis-permission-approval-boundary-wiring", href: "/jarvis-permission-approval-boundary-wiring", label: "Jarvis Permission Approval Boundary Wiring", shortLabel: "JPA 3626", badge: "Phase 3626", priority: 25.3626 },
+  { id: "jarvis-permission-approval-intent-wiring", href: "/jarvis-permission-approval-intent-wiring", label: "Jarvis Permission Approval Intent Wiring", shortLabel: "JPA 3627", badge: "Phase 3627", priority: 25.3627 },
+  { id: "jarvis-permission-approval-policy-model-wiring", href: "/jarvis-permission-approval-policy-model-wiring", label: "Jarvis Permission Approval Policy Model Wiring", shortLabel: "JPA 3628", badge: "Phase 3628", priority: 25.3628 },
+  { id: "jarvis-permission-approval-risk-tier-wiring", href: "/jarvis-permission-approval-risk-tier-wiring", label: "Jarvis Permission Approval Risk Tier Wiring", shortLabel: "JPA 3629", badge: "Phase 3629", priority: 25.3629 },
+  { id: "jarvis-permission-approval-capability-permission-wiring", href: "/jarvis-permission-approval-capability-permission-wiring", label: "Jarvis Permission Approval Capability Permission Wiring", shortLabel: "JPA 3630", badge: "Phase 3630", priority: 25.3630 },
+  { id: "jarvis-permission-approval-adapter-permission-wiring", href: "/jarvis-permission-approval-adapter-permission-wiring", label: "Jarvis Permission Approval Adapter Permission Wiring", shortLabel: "JPA 3631", badge: "Phase 3631", priority: 25.3631 },
+  { id: "jarvis-permission-approval-workspace-permission-wiring", href: "/jarvis-permission-approval-workspace-permission-wiring", label: "Jarvis Permission Approval Workspace Permission Wiring", shortLabel: "JPA 3632", badge: "Phase 3632", priority: 25.3632 },
+  { id: "jarvis-permission-approval-operator-role-wiring", href: "/jarvis-permission-approval-operator-role-wiring", label: "Jarvis Permission Approval Operator Role Wiring", shortLabel: "JPA 3633", badge: "Phase 3633", priority: 25.3633 },
+  { id: "jarvis-permission-approval-human-gate-wiring", href: "/jarvis-permission-approval-human-gate-wiring", label: "Jarvis Permission Approval Human Gate Wiring", shortLabel: "JPA 3634", badge: "Phase 3634", priority: 25.3634 },
+  { id: "jarvis-permission-approval-dry-run-required-wiring", href: "/jarvis-permission-approval-dry-run-required-wiring", label: "Jarvis Permission Approval Dry Run Required Wiring", shortLabel: "JPA 3635", badge: "Phase 3635", priority: 25.3635 },
+  { id: "jarvis-permission-approval-approval-mode-wiring", href: "/jarvis-permission-approval-approval-mode-wiring", label: "Jarvis Permission Approval Approval Mode Wiring", shortLabel: "JPA 3636", badge: "Phase 3636", priority: 25.3636 },
+  { id: "jarvis-permission-approval-deny-reason-wiring", href: "/jarvis-permission-approval-deny-reason-wiring", label: "Jarvis Permission Approval Deny Reason Wiring", shortLabel: "JPA 3637", badge: "Phase 3637", priority: 25.3637 },
+  { id: "jarvis-permission-approval-blocked-action-wiring", href: "/jarvis-permission-approval-blocked-action-wiring", label: "Jarvis Permission Approval Blocked Action Wiring", shortLabel: "JPA 3638", badge: "Phase 3638", priority: 25.3638 },
+  { id: "jarvis-permission-approval-review-packet-wiring", href: "/jarvis-permission-approval-review-packet-wiring", label: "Jarvis Permission Approval Review Packet Wiring", shortLabel: "JPA 3639", badge: "Phase 3639", priority: 25.3639 },
+  { id: "jarvis-permission-approval-cost-limit-wiring", href: "/jarvis-permission-approval-cost-limit-wiring", label: "Jarvis Permission Approval Cost Limit Wiring", shortLabel: "JPA 3640", badge: "Phase 3640", priority: 25.3640 },
+  { id: "jarvis-permission-approval-rate-limit-wiring", href: "/jarvis-permission-approval-rate-limit-wiring", label: "Jarvis Permission Approval Rate Limit Wiring", shortLabel: "JPA 3641", badge: "Phase 3641", priority: 25.3641 },
+  { id: "jarvis-permission-approval-timeout-limit-wiring", href: "/jarvis-permission-approval-timeout-limit-wiring", label: "Jarvis Permission Approval Timeout Limit Wiring", shortLabel: "JPA 3642", badge: "Phase 3642", priority: 25.3642 },
+  { id: "jarvis-permission-approval-data-sensitivity-wiring", href: "/jarvis-permission-approval-data-sensitivity-wiring", label: "Jarvis Permission Approval Data Sensitivity Wiring", shortLabel: "JPA 3643", badge: "Phase 3643", priority: 25.3643 },
+  { id: "jarvis-permission-approval-secret-boundary-wiring", href: "/jarvis-permission-approval-secret-boundary-wiring", label: "Jarvis Permission Approval Secret Boundary Wiring", shortLabel: "JPA 3644", badge: "Phase 3644", priority: 25.3644 },
+  { id: "jarvis-permission-approval-trading-risk-wiring", href: "/jarvis-permission-approval-trading-risk-wiring", label: "Jarvis Permission Approval Trading Risk Wiring", shortLabel: "JPA 3645", badge: "Phase 3645", priority: 25.3645 },
+  { id: "jarvis-permission-approval-provider-risk-wiring", href: "/jarvis-permission-approval-provider-risk-wiring", label: "Jarvis Permission Approval Provider Risk Wiring", shortLabel: "JPA 3646", badge: "Phase 3646", priority: 25.3646 },
+  { id: "jarvis-permission-approval-website-risk-wiring", href: "/jarvis-permission-approval-website-risk-wiring", label: "Jarvis Permission Approval Website Risk Wiring", shortLabel: "JPA 3647", badge: "Phase 3647", priority: 25.3647 },
+  { id: "jarvis-permission-approval-avatar-risk-wiring", href: "/jarvis-permission-approval-avatar-risk-wiring", label: "Jarvis Permission Approval Avatar Risk Wiring", shortLabel: "JPA 3648", badge: "Phase 3648", priority: 25.3648 },
+  { id: "jarvis-permission-approval-workflow-risk-wiring", href: "/jarvis-permission-approval-workflow-risk-wiring", label: "Jarvis Permission Approval Workflow Risk Wiring", shortLabel: "JPA 3649", badge: "Phase 3649", priority: 25.3649 },
+  { id: "jarvis-permission-approval-audit-hook-wiring", href: "/jarvis-permission-approval-audit-hook-wiring", label: "Jarvis Permission Approval Audit Hook Wiring", shortLabel: "JPA 3650", badge: "Phase 3650", priority: 25.3650 },
+  { id: "jarvis-permission-approval-result-ledger-hook-wiring", href: "/jarvis-permission-approval-result-ledger-hook-wiring", label: "Jarvis Permission Approval Result Ledger Hook Wiring", shortLabel: "JPA 3651", badge: "Phase 3651", priority: 25.3651 },
+  { id: "jarvis-permission-approval-memory-boundary-hook-wiring", href: "/jarvis-permission-approval-memory-boundary-hook-wiring", label: "Jarvis Permission Approval Memory Boundary Hook Wiring", shortLabel: "JPA 3652", badge: "Phase 3652", priority: 25.3652 },
+  { id: "jarvis-permission-approval-kill-switch-hook-wiring", href: "/jarvis-permission-approval-kill-switch-hook-wiring", label: "Jarvis Permission Approval Kill Switch Hook Wiring", shortLabel: "JPA 3653", badge: "Phase 3653", priority: 25.3653 },
+  { id: "jarvis-permission-approval-replay-block-hook-wiring", href: "/jarvis-permission-approval-replay-block-hook-wiring", label: "Jarvis Permission Approval Replay Block Hook Wiring", shortLabel: "JPA 3654", badge: "Phase 3654", priority: 25.3654 },
+  { id: "jarvis-permission-approval-status-dashboard-wiring", href: "/jarvis-permission-approval-status-dashboard-wiring", label: "Jarvis Permission Approval Status Dashboard Wiring", shortLabel: "JPA 3655", badge: "Phase 3655", priority: 25.3655 },
+  { id: "jarvis-permission-approval-operator-review-wiring", href: "/jarvis-permission-approval-operator-review-wiring", label: "Jarvis Permission Approval Operator Review Wiring", shortLabel: "JPA 3656", badge: "Phase 3656", priority: 25.3656 },
+  { id: "jarvis-permission-approval-engine-completion", href: "/jarvis-permission-approval-engine-completion", label: "Jarvis Permission Approval Engine Completion", shortLabel: "JPA 3657", badge: "Phase 3657", priority: 25.3657 },
+] satisfies readonly Pick<CodexForgeNavigationRoute, "id" | "href" | "label" | "shortLabel" | "badge" | "priority">[];
+function buildJarvisPermissionApprovalEngineRouteDefaults(): Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>> {
+  return JARVIS_PERMISSION_APPROVAL_ENGINE_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
+    routes[route.href] = {
+      ...route,
+      description: JARVIS_PERMISSION_APPROVAL_ENGINE_NAV_DESCRIPTION,
+      group: "Advanced",
+      readiness: "preview-only",
+      safetyPosture: "approval-gated",
+      requiresReview: true,
+      noMutation: true,
+      commandDeckRole: "workspace",
+    };
+    return routes;
+  }, {});
+}
 const MULTI_PROVIDER_CAPABILITY_ROUTING_NAV_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/",
@@ -3066,6 +3116,7 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   ...VIDEO_PROVIDER_EXECUTION_ADAPTER_READINESS_ROUTE_INPUTS.map((route) => route.href),
   ...JARVIS_OPERATOR_CONTROL_PLANE_FOUNDATION_ROUTE_INPUTS.map((route) => route.href),
   ...JARVIS_SHARED_BACKEND_ADAPTER_CONTRACT_ROUTE_INPUTS.map((route) => route.href),
+  ...JARVIS_PERMISSION_APPROVAL_ENGINE_ROUTE_INPUTS.map((route) => route.href),
   "/change-plan-live-context",
   "/patch-preview-live-context",
   "/test-planner-live-context",
@@ -51412,6 +51463,7 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   ...buildVideoProviderExecutionAdapterReadinessRouteDefaults(),
   ...buildJarvisOperatorControlPlaneFoundationRouteDefaults(),
   ...buildJarvisSharedBackendAdapterContractRouteDefaults(),
+  ...buildJarvisPermissionApprovalEngineRouteDefaults(),
   "/change-plan-live-context": {
     id: "change-plan-live-context",
     href: "/change-plan-live-context",
