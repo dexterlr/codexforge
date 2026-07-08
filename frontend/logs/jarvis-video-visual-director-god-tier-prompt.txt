@@ -1,0 +1,150 @@
+﻿JARVIS VIDEO — GOD-TIER VISUAL DIRECTOR PASS
+
+You are implementing a premium UI upgrade, but the visual direction is already decided.
+
+Target route:
+http://localhost:3000/jarvis-video
+
+Core creative direction:
+Make this page feel like a flagship Jarvis-controlled video production command center.
+
+It should feel:
+- cinematic
+- premium
+- technical
+- operator-grade
+- high trust
+- dense but readable
+- futuristic without being gimmicky
+- production-ready even while locked/dry-run only
+
+Important safety/product truth:
+- Do NOT imply real video generation is live if it is not.
+- Do NOT enable provider execution.
+- Do NOT unlock backend actions.
+- Locked actions must remain locked.
+- Dry-run / approval-gated backend wording must remain clear.
+- The page can look powerful, but it must not pretend unavailable capabilities are working.
+
+Inspect first:
+1. Find the /jarvis-video route/page file.
+2. Find all imported components.
+3. Inspect nearby high-quality routes/pages for design language.
+4. Inspect shared cards, buttons, chips, badges, panels, timeline, audit, provider, and Jarvis/CodexForge components.
+5. Inspect Tailwind/global styles.
+6. Inspect existing tests and build scripts.
+7. If possible, run or use the existing dev server and inspect the live page visually.
+8. Take note of the current layout weaknesses before editing.
+
+Design outcome:
+Rebuild the page into a premium production console with these sections:
+
+1. Cinematic Hero / Command Header
+- Big clear title: Jarvis Video Studio or similar existing product wording.
+- Strong subtitle explaining this is a safe video command workspace.
+- Status chips:
+  - Video generation locked
+  - Backend dry-run available/locked, depending on current actual behavior
+  - Approval required
+  - Provider safe mode
+- Include a concise "Next operator action" card or callout.
+
+2. Main Production Workspace
+Create a strong two-column desktop layout:
+Left/main:
+- Video brief
+- Prompt/concept panel
+- Shot direction
+- Script/scene intent
+- Operator notes or brief quality state
+
+Right/side:
+- Output preview
+- Generation readiness
+- Locked action rail
+- Backend handoff state
+
+3. Output Preview Panel
+Make this visually impressive while honest:
+- Large preview frame
+- Empty/locked state with premium treatment
+- Show metadata placeholders such as aspect ratio, duration target, style profile, provider mode, safety gate
+- Do not show fake successful generation.
+
+4. Storyboard / Shot Planner
+Add a horizontal or grid-based storyboard strip:
+- Scene 01: Opening frame
+- Scene 02: System action
+- Scene 03: Product detail
+- Scene 04: Final review/output
+Use local constants/data if the page does not already have this data.
+This is a planning UI, not real generated output.
+
+5. Readiness Checklist
+Show a clear checklist:
+- Brief captured
+- Prompt quality checked
+- Safety policy gate
+- Provider selected or pending
+- Backend dry-run required
+- Human approval required
+- Output review pending
+Use truthful states based on current implementation.
+
+6. Backend Handoff / Approval Panel
+- Explain dry-run and approval-gated handoff.
+- Keep dangerous/live actions locked.
+- Buttons should look premium but clearly disabled/locked where appropriate.
+- Add microcopy that builds trust.
+
+7. Lifecycle Timeline
+Show:
+Brief → Validate → Dry-run → Approval packet → Backend handoff → Output review
+Make it visually aligned with the existing app style.
+
+8. Microcopy Upgrade
+Rewrite weak placeholder text into confident operator-grade copy.
+Examples of tone:
+- "Prepare a cinematic brief before requesting provider execution."
+- "Backend handoff remains locked until the dry-run packet is approved."
+- "Output preview is reserved for reviewed generation artifacts."
+Avoid hype that claims real generation happened.
+
+9. Responsive Quality
+- Desktop should feel like a serious control room.
+- Tablet/narrow screens should stack cleanly.
+- No overflow bugs.
+- No tiny unreadable text.
+- Semantic headings and accessible labels.
+
+Implementation rules:
+- Prefer existing components and Tailwind conventions.
+- Do not add new dependencies unless absolutely necessary.
+- Do not refactor unrelated routes.
+- Do not change backend APIs unless the existing page already safely does so.
+- Keep TypeScript strict.
+- Keep the page maintainable with small local arrays/constants where helpful.
+- No massive hard-to-read JSX blob if extraction is clearly better.
+- Do not commit.
+
+Validation:
+Run the strongest available checks:
+- npm run lint
+- npm run typecheck, if available
+- npm test, if relevant/available
+- npm run build
+
+If there are unrelated existing failures, clearly separate them from this page change.
+
+Final response must include:
+1. Files changed
+2. What visual/UX upgrades were made
+3. Safety/locked behavior preserved
+4. Validation commands run
+5. Results
+6. Known limitations
+7. Whether /jarvis-video should now be manually reviewed in browser
+
+Start by printing:
+"Jarvis Video god-tier visual director pass starting"
+Then inspect first, edit second, validate third.

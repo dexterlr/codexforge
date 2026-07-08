@@ -63,12 +63,12 @@ export type JarvisVideoStudioReleaseCandidateMilestoneReference = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_HERO_STATE = {
   eyebrow: "Jarvis Video Studio",
-  stageLabel: "Runner contract hardening",
+  stageLabel: "Dry-run admission foundation",
   title: "Jarvis Video Studio",
   summary:
-    "Premium review workspace for mission planning, approvals, runner contract hardening, and backend-only dry-run admission preparation.",
+    "Premium review workspace for mission planning, approvals, backend runner contract hardening, and a newly defined backend-only dry-run admission foundation.",
   detail:
-    "Jarvis Video Studio is hardening the backend runner contract while generation stays locked. Backend-only runner required. Operator approval required. Credential isolation required. Queue, worker, and job execution remain disabled.",
+    "Jarvis Video Studio now carries a typed backend dry-run admission foundation while generation stays locked. Backend-only runner required. Operator approval required. Credential isolation required. Queue, worker, and job execution remain disabled.",
   metrics: [
     {
       label: "Workspace",
@@ -77,13 +77,13 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_HERO_STATE = {
     },
     {
       label: "Workflow",
-      value: "Studio plus runner hardening",
-      detail: "Mission brief to backend runner contract hardening stays visible in one surface.",
+      value: "Studio plus dry-run admission",
+      detail: "Mission brief to backend dry-run admission stays visible in one surface.",
     },
     {
       label: "Readiness",
-      value: "Dry-run admission next",
-      detail: "The next backend-only step remains a dry-run admission foundation, not live provider execution.",
+      value: "Runner skeleton next",
+      detail: "The next backend-only step remains the server-only runner skeleton and synthetic dry run, not live provider execution.",
     },
     {
       label: "Safety",
@@ -96,13 +96,13 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_HERO_STATE = {
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_MISSION_BRIEF = {
   title: "Mission brief",
   audience:
-    "Operator-led review of the studio and its hardened backend-only runner admission contract.",
+    "Operator-led review of the studio, its hardened backend-only runner contract, and the new dry-run admission foundation.",
   objective:
-    "Consolidate planning, prerequisites, approval, dry run, backend readiness, controlled trial, backend runner contract hardening, result review recovery, the backend implementation readiness follow-up, and the earlier backend execution implementation plan into one coherent premium studio surface.",
+    "Consolidate planning, prerequisites, approval, dry run, backend readiness, controlled trial, backend runner contract hardening, backend dry-run admission foundation, result review recovery, the backend implementation readiness follow-up, and the earlier backend execution implementation plan into one coherent premium studio surface.",
   operatorPosture:
     "Operator approval required before any backend-owned execution path can move forward.",
   handoffState:
-    "Plan, review, approve, then hand off to backend. This batch is backend runner contract hardening only. No provider call from frontend.",
+    "Plan, review, approve, then hand off to backend. This batch is backend dry-run admission foundation only. No provider call from frontend.",
 } as const satisfies JarvisVideoStudioReleaseCandidateMissionBrief;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_PRODUCTION_TIMELINE = [
@@ -174,9 +174,9 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_PRODUCTION_TIMELINE = [
   {
     id: "backend-runner",
     phase: "Step 8",
-    title: "Backend runner contract",
+    title: "Backend dry-run admission",
     summary:
-      "Harden the backend runner contract as precise typed backend architecture without enabling execution.",
+      "Define the backend dry-run admission foundation as precise typed backend architecture without enabling execution.",
     posture: "backend runner lane",
     routeHref:
       "/jarvis-video-studio-release-candidate-backend-runner-wiring" as Route,
@@ -277,9 +277,9 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_CONTROLLED_TRIAL_LANE = {
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_BACKEND_RUNNER_LANE = {
   id: "backend-runner-lane",
-  title: "Backend runner contract",
+  title: "Backend dry-run admission",
   summary:
-    "The backend runner contract is being hardened as typed backend architecture and review markers only.",
+    "The backend dry-run admission foundation is now defined as typed backend architecture and review markers only.",
   posture: "backend-only runner required",
   detail: "No queue dispatch. No worker dispatch. No job execution.",
   routeHref:
@@ -402,5 +402,29 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_MILESTONE_REFERENCES = [
     href:
       "/jarvis-video-studio-release-candidate-boundary-wiring" as Route,
     summary: "release candidate review-only evidence",
+  },
+  {
+    phaseRange: "4074-4105",
+    label: "Jarvis Video Backend Execution Implementation Plan",
+    href: "/jarvis-video" as Route,
+    summary: "implementation-plan review-only evidence",
+  },
+  {
+    phaseRange: "4106-4137",
+    label: "Jarvis Video Backend Implementation Readiness Follow-Up",
+    href: "/jarvis-video" as Route,
+    summary: "implementation-readiness review-only evidence",
+  },
+  {
+    phaseRange: "4138-4169",
+    label: "Jarvis Video Backend Runner Contract Hardening",
+    href: "/jarvis-video" as Route,
+    summary: "runner-contract-hardening review-only evidence",
+  },
+  {
+    phaseRange: "4170-4201",
+    label: "Jarvis Video Backend Runner Foundation Dry-Run Admission",
+    href: "/jarvis-video" as Route,
+    summary: "dry-run-admission review-only evidence",
   },
 ] as const satisfies readonly JarvisVideoStudioReleaseCandidateMilestoneReference[];

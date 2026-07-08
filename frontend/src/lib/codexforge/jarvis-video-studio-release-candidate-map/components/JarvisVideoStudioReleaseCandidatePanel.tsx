@@ -5,6 +5,7 @@ import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-backend-trial-runner-contract-map/components";
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
 import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-trial-result-review-recovery-map/components";
+import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../jarvis-video-backend-runner-foundation-dry-run-admission-preview";
 import { buildJarvisVideoBackendRunnerContractHardeningStableKey } from "../jarvis-video-backend-runner-contract-hardening";
 import {
   buildJarvisVideoStudioReleaseCandidateRouteModel,
@@ -16,15 +17,22 @@ import {
 } from "../jarvis-video-studio-release-candidate-model";
 import styles from "./JarvisVideoStudioReleaseCandidatePanel.module.css";
 
+type JarvisVideoStudioReleaseCandidatePanelDataProps = Readonly<{
+  backendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
+}>;
+
 type JarvisVideoStudioReleaseCandidatePanelProps =
-  | {
-      workspaceId: JarvisVideoStudioReleaseCandidateId;
-      routeSlug?: never;
-    }
-  | {
-      routeSlug: JarvisVideoStudioReleaseCandidateRouteSlug;
-      workspaceId?: never;
-    };
+  JarvisVideoStudioReleaseCandidatePanelDataProps &
+    (
+      | {
+          workspaceId: JarvisVideoStudioReleaseCandidateId;
+          routeSlug?: never;
+        }
+      | {
+          routeSlug: JarvisVideoStudioReleaseCandidateRouteSlug;
+          workspaceId?: never;
+        }
+    );
 
 const JARVIS_VIDEO_BRIEF_FIELDS = [
   {
@@ -206,6 +214,82 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               </ol>
             </section>
           </section>
+
+          {props.backendDryRunAdmissionPreview ? (
+            <section className={styles.panel} aria-label="Backend dry-run admission">
+              <div className={styles.panelHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Backend-only admission</p>
+                  <h2 className={styles.panelTitle}>
+                    {props.backendDryRunAdmissionPreview.title}
+                  </h2>
+                </div>
+                <span className={styles.statBadge}>
+                  {props.backendDryRunAdmissionPreview.statusBadge}
+                </span>
+              </div>
+              <p className={styles.panelBody}>
+                {props.backendDryRunAdmissionPreview.summary}
+              </p>
+              <div className={styles.statusStrip}>
+                {props.backendDryRunAdmissionPreview.highlights.map((item) => (
+                  <span key={item} className={styles.statusPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.summaryGrid}>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Current admission decision</p>
+                  <h3 className={styles.summaryTitle}>
+                    {props.backendDryRunAdmissionPreview.decision.label}
+                  </h3>
+                  <p className={styles.summaryText}>
+                    {props.backendDryRunAdmissionPreview.decision.summary}
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {(props.backendDryRunAdmissionPreview.decision.blockers.length > 0
+                      ? props.backendDryRunAdmissionPreview.decision.blockers
+                      : [
+                          "Synthetic dry-run review can be prepared without live execution.",
+                        ]).map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Checkpoint state</p>
+                  <h3 className={styles.summaryTitle}>
+                    Phase {props.backendDryRunAdmissionPreview.checkpoint.highestDetectedPhase}
+                  </h3>
+                  <p className={styles.summaryText}>
+                    {props.backendDryRunAdmissionPreview.completenessLabel}.{" "}
+                    {props.backendDryRunAdmissionPreview.requiredGateCount} static
+                    gates are tracked and{" "}
+                    {props.backendDryRunAdmissionPreview.blockerCount} blockers remain.
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      `Latest completed batch: ${props.backendDryRunAdmissionPreview.checkpoint.latestCompletedBatch}`,
+                      `Previous completed batch: ${props.backendDryRunAdmissionPreview.checkpoint.previousCompletedBatch}`,
+                      `Next likely batch: ${props.backendDryRunAdmissionPreview.checkpoint.nextLikelyBatch.replace(
+                        /^next likely batch:\s*/i,
+                        ""
+                      )}`,
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              </div>
+            </section>
+          ) : null}
 
           <section className={styles.panel} aria-label="Backend runner contract">
             <div className={styles.panelHeader}>

@@ -23,6 +23,7 @@ import { JarvisNextActionRail } from "./JarvisNextActionRail";
 import { JarvisProductHero } from "./JarvisProductHero";
 import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-backend-trial-runner-contract-map/components";
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
+import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-backend-runner-foundation-dry-run-admission-preview";
 import { JarvisVideoStudioReleaseCandidatePanel } from "../../jarvis-video-studio-release-candidate-map/components";
 import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-trial-result-review-recovery-map/components";
 import { JarvisWorkspaceGrid } from "./JarvisWorkspaceGrid";
@@ -112,10 +113,12 @@ type JarvisUnifiedProductShellProps =
   | {
       surfaceId: JarvisUnifiedProductPrimarySurfaceId;
       routeSlug?: never;
+      jarvisVideoBackendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
     }
   | {
       routeSlug: JarvisUnifiedProductIaRouteSlug;
       surfaceId?: never;
+      jarvisVideoBackendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
     };
 
 export function JarvisUnifiedProductPageClientShell(
@@ -174,7 +177,12 @@ export function JarvisUnifiedProductPanel(
         data-codexforge-jarvis-unified-product-ia={context.batchMarkers.join(" | ")}
         data-codexforge-jarvis-unified-product-ia-focus={context.focus}
       >
-        <JarvisVideoStudioReleaseCandidatePanel workspaceId="jarvis-video" />
+        <JarvisVideoStudioReleaseCandidatePanel
+          workspaceId="jarvis-video"
+          backendDryRunAdmissionPreview={
+            props.jarvisVideoBackendDryRunAdmissionPreview
+          }
+        />
       </section>
     );
   }

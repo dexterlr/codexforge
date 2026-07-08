@@ -16,6 +16,11 @@ export type JarvisVideoStudioReleaseCandidateReviewRail = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
   ...JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS,
+  "4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission",
+  "Jarvis Video Backend Runner Foundation Dry-Run Admission",
+  "backend dry-run admission foundation only",
+  "synthetic dry-run admission only",
+  "server-only runner skeleton only in a future batch",
   "Backend implementation readiness",
   "Backend implementation readiness only",
   "Review backend readiness",
@@ -33,6 +38,11 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REQUIRED_MARKERS = [
   ...JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS,
+  "4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission",
+  "Jarvis Video Backend Runner Foundation Dry-Run Admission",
+  "backend dry-run admission foundation only",
+  "synthetic dry-run admission only",
+  "server-only runner skeleton only in a future batch",
   "4106-4137 - Jarvis Video Backend Implementation Readiness Follow-Up",
   "Jarvis Video Backend Implementation Readiness Follow-Up",
   "Backend implementation readiness",
@@ -76,6 +86,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REQUIRED_MARKERS = [
   "credential isolation required",
   "next likely batch: 4138-4169 - Jarvis Video Backend Runner Contract Hardening",
   "next likely batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission",
+  "next likely batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
   "4042-4073 - Jarvis Video Studio Release Candidate",
   "4042-4073 - Jarvis Video Studio Release Candidate Mega Batch v1",
   "Jarvis Video Studio Release Candidate",

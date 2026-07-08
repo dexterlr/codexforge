@@ -260,7 +260,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_SHARED_RECORD = {
   readinessPosture: JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_POSTURE,
   executionPosture: JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_EXECUTION_POSTURE,
   nextLikelyBatch:
-    "next likely batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission",
+    "next likely batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
   milestoneReferences: JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_MILESTONE_REFERENCES,
 } as const satisfies JarvisVideoStudioReleaseCandidateSharedRecord;
 

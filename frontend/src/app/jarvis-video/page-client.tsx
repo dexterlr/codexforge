@@ -1,6 +1,7 @@
 'use client';
 
 import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-unified-product-ia-map/components";
+import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-backend-runner-foundation-dry-run-admission-preview";
 
 // 3914-3945 - Jarvis Unified Product IA and God-Tier UX Polish
 // 3946-3977 - First Jarvis-Controlled Video Controlled Execution Trial
@@ -13,10 +14,12 @@ import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-uni
 // 4106-4137 - Jarvis Video Backend Implementation Readiness Follow-Up
 // 4106-4137 - Jarvis Video Backend Implementation Readiness Follow-Up Mega Batch v1
 // 4138-4169 - Jarvis Video Backend Runner Contract Hardening
+// 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission
 // Jarvis Video Studio Release Candidate
 // Jarvis Video Backend Execution Implementation Plan
 // Jarvis Video Backend Implementation Readiness Follow-Up
 // Jarvis Video Backend Runner Contract Hardening
+// Jarvis Video Backend Runner Foundation Dry-Run Admission
 // video studio remains primary active workspace
 // /jarvis-video release candidate remains review-only
 // premium video studio release candidate
@@ -53,6 +56,8 @@ import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-uni
 // controlled execution trial remains disabled
 // runner contract drafted
 // runner contract is being hardened
+// backend dry-run admission foundation only
+// synthetic dry-run admission only
 // result review is staged
 // synthetic result only
 // recovery remains backend-owned
@@ -60,6 +65,17 @@ import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-uni
 // no retry or fallback execution
 // operator acceptance required
 // JarvisVideoBackendExecutionReadinessPageClientShell
-export default function JarvisVideoWorkspacePageClient() {
-  return <JarvisUnifiedProductPageClientShell surfaceId="jarvis-video" />;
+type JarvisVideoWorkspacePageClientProps = Readonly<{
+  backendDryRunAdmissionPreview: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
+}>;
+
+export default function JarvisVideoWorkspacePageClient({
+  backendDryRunAdmissionPreview,
+}: JarvisVideoWorkspacePageClientProps) {
+  return (
+    <JarvisUnifiedProductPageClientShell
+      surfaceId="jarvis-video"
+      jarvisVideoBackendDryRunAdmissionPreview={backendDryRunAdmissionPreview}
+    />
+  );
 }

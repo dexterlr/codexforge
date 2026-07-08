@@ -49,14 +49,14 @@ export type JarvisVideoStudioReleaseCandidateDiagnosticsGrouping = Readonly<{
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_SCORE = {
   label: "video readiness score",
   value: 89,
-  posture: "runner contract hardening only",
+  posture: "backend dry-run admission foundation only",
   summary:
-    "Jarvis Video Studio is ready for backend runner contract hardening, but execution stays blocked behind approval, credential isolation, and safety gates.",
+    "Jarvis Video Studio now carries the backend dry-run admission foundation, but execution stays blocked behind approval, credential isolation, backend runner readiness, and safety gates.",
   detail: [
     "mission brief and storyboard path are coherent",
     "approval packet and dry-run references are visible",
-    "backend runner contract hardening is visible without live execution",
-    "controlled trial, dry-run admission, and result review remain locked",
+    "backend runner contract hardening and dry-run admission are visible without live execution",
+    "controlled trial, server-only runner skeleton, and result review remain locked",
   ],
 } as const satisfies JarvisVideoStudioReleaseCandidateReadinessScore;
 
@@ -106,11 +106,11 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_BLOCKED_ACTION_DECK = [
 ] as const satisfies readonly JarvisVideoStudioReleaseCandidateBlockedActionCard[];
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_NEXT_ACTION_CARD = {
-  title: "Prepare backend dry-run admission",
+  title: "Prepare the server-only runner skeleton",
   summary:
-    "Review the hardened server-only runner contract, approval packet digest, credential isolation, and dry-run admission criteria before any future backend foundation batch is proposed.",
+    "Review the defined server-only dry-run admission foundation, approval packet digest, credential isolation, and synthetic-review blockers before the runner skeleton batch is proposed.",
   posture:
-    "This batch hardens the contract only; no queue, worker, job, provider, or persistence path exists yet.",
+    "This batch defines the dry-run admission foundation only; no queue, worker, job, provider, or persistence path exists yet.",
   routeHref:
     "/jarvis-video-studio-release-candidate-next-action-wiring" as Route,
 } as const satisfies JarvisVideoStudioReleaseCandidateNextActionCard;
@@ -151,10 +151,10 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_WORKSPACE_NAVIGATION_CARD = {
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_RELEASE_SUMMARY = {
   title: "Studio at a glance",
   summary:
-    "Jarvis Video Studio stays coherent and product-first while backend runner contract hardening lands below the console instead of taking over the hero.",
+    "Jarvis Video Studio stays coherent and product-first while backend runner contract hardening and the dry-run admission foundation land below the console instead of taking over the hero.",
   highlights: [
     "Human hero with a clear operator path and compact safety state",
-    "Video production timeline, readiness score, and backend runner contract hardening",
+    "Video production timeline, readiness score, backend runner contract hardening, and backend dry-run admission",
     "Prerequisite cards for script, assets, approval packet, and dry run",
     "Backend readiness, controlled trial, runner contract, result review, and server-only dry-run admission preparation",
     "Blocked actions and diagnostics stay visible without taking over the main workspace",
@@ -165,7 +165,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DEVELOPER_DIAGNOSTICS_GROUPIN
   {
     title: "Developer diagnostics",
     summary:
-      "Traceability, prior milestones, and runner-contract-hardening markers stay reachable, but they no longer lead the workspace.",
+      "Traceability, prior milestones, runner-contract-hardening markers, and dry-run-admission markers stay reachable, but they no longer lead the workspace.",
     links: [
       {
         label: "Boundary markers",
