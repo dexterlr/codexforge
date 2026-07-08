@@ -4,6 +4,7 @@ import type { JarvisUnifiedProductIaRouteSlug } from "../jarvis-unified-product-
 import type { JarvisVideoBackendExecutionReadinessRouteSlug } from "../jarvis-video-backend-execution-readiness-map/jarvis-video-backend-execution-readiness-model";
 import type { JarvisVideoBackendTrialRunnerContractRouteSlug } from "../jarvis-video-backend-trial-runner-contract-map/jarvis-video-backend-trial-runner-contract-model";
 import type { JarvisVideoControlledExecutionTrialRouteSlug } from "../jarvis-video-controlled-execution-trial-map/jarvis-video-controlled-execution-trial-model";
+import type { JarvisVideoTrialResultReviewRecoveryRouteSlug } from "../jarvis-video-trial-result-review-recovery-map/jarvis-video-trial-result-review-recovery-model";
 export type CodexForgePhaseDiagnosticRouteId =
   | "evidence-memory-boundary"
   | "goal-memory-snapshot-preview"
@@ -3781,6 +3782,7 @@ export type CodexForgeNavigationRouteId =
   | JarvisVideoBackendExecutionReadinessRouteSlug
   | JarvisVideoBackendTrialRunnerContractRouteSlug
   | JarvisVideoControlledExecutionTrialRouteSlug
+  | JarvisVideoTrialResultReviewRecoveryRouteSlug
   | "change-plan-live-context"
   | "patch-preview-live-context"
   | "test-planner-live-context"
@@ -4473,6 +4475,40 @@ export type CodexForgeNavigationRouteHref = Route;
  * | "/jarvis-video-backend-trial-runner-contract-operator-review-wiring"
  * | "/jarvis-video-backend-trial-runner-contract-readiness-wiring"
  * | "/jarvis-video-backend-trial-runner-contract-completion"
+ *
+ * First Jarvis-Controlled Video Trial Result Review and Recovery:
+ * | "/jarvis-video-trial-result-review-recovery-boundary-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-intent-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-result-envelope-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-result-receipt-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-safety-review-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-privacy-review-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-redaction-review-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-approval-audit-join-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-observability-trace-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-quality-checklist-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-failure-taxonomy-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-recovery-plan-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-retry-review-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-fallback-review-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-timeout-recovery-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-cost-rate-recovery-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-rollback-review-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-artifact-handoff-review-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-export-publish-blocker-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-operator-acceptance-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-disabled-promotion-lane-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-status-timeline-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-jarvis-video-update-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-backend-runner-link-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-controlled-trial-link-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-product-ia-link-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-no-persistence-guard-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-no-execution-guard-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-regression-coverage-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-operator-review-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-readiness-wiring"
+ * | "/jarvis-video-trial-result-review-recovery-completion"
  *
  * First Jarvis-Controlled Video Controlled Execution Trial:
  * | "/jarvis-video-controlled-execution-trial-boundary-wiring"
