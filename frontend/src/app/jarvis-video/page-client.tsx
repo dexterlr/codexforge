@@ -12,9 +12,11 @@ import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-uni
 // 4074-4105 - Jarvis Video Backend Execution Implementation Plan Mega Batch v1
 // 4106-4137 - Jarvis Video Backend Implementation Readiness Follow-Up
 // 4106-4137 - Jarvis Video Backend Implementation Readiness Follow-Up Mega Batch v1
+// 4138-4169 - Jarvis Video Backend Runner Contract Hardening
 // Jarvis Video Studio Release Candidate
 // Jarvis Video Backend Execution Implementation Plan
 // Jarvis Video Backend Implementation Readiness Follow-Up
+// Jarvis Video Backend Runner Contract Hardening
 // video studio remains primary active workspace
 // /jarvis-video release candidate remains review-only
 // premium video studio release candidate
@@ -43,12 +45,14 @@ import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-uni
 // next backend implementation must be server-only
 // controlled trial console only
 // backend trial runner contract only
+// backend runner contract hardening only
 // trial result review recovery only
 // /jarvis-video backend trial runner remains review-only
 // /jarvis-video controlled trial remains review-only
 // /jarvis-video trial result review remains review-only
 // controlled execution trial remains disabled
 // runner contract drafted
+// runner contract is being hardened
 // result review is staged
 // synthetic result only
 // recovery remains backend-owned

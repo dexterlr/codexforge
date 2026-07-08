@@ -1,3 +1,5 @@
+import { JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS } from "./jarvis-video-backend-runner-contract-hardening";
+
 export type JarvisVideoStudioReleaseCandidateGuardRecord = Readonly<{
   title: string;
   posture: string;
@@ -13,6 +15,7 @@ export type JarvisVideoStudioReleaseCandidateReviewRail = Readonly<{
 }>;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
+  ...JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS,
   "Backend implementation readiness",
   "Backend implementation readiness only",
   "Review backend readiness",
@@ -29,6 +32,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
 ] as const;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REQUIRED_MARKERS = [
+  ...JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS,
   "4106-4137 - Jarvis Video Backend Implementation Readiness Follow-Up",
   "Jarvis Video Backend Implementation Readiness Follow-Up",
   "Backend implementation readiness",
@@ -71,6 +75,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REQUIRED_MARKERS = [
   "server-only boundary required",
   "credential isolation required",
   "next likely batch: 4138-4169 - Jarvis Video Backend Runner Contract Hardening",
+  "next likely batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission",
   "4042-4073 - Jarvis Video Studio Release Candidate",
   "4042-4073 - Jarvis Video Studio Release Candidate Mega Batch v1",
   "Jarvis Video Studio Release Candidate",
@@ -178,7 +183,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_SAFETY_RAIL = {
   title: "Safety and approval",
   posture: "Kill switch engaged",
   summary:
-    "The studio stays frontend-safe: review-only, backend-only, approval-required, disabled by default, execution-blocked, and plan-only.",
+    "The studio stays frontend-safe: review-only, backend-only, approval-required, disabled by default, execution-blocked, and contract-hardening-only.",
   items: [
     "no generation guard",
     "no execution guard",
@@ -193,7 +198,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_AUDIT_RAIL = {
   title: "Audit and result review",
   posture: "Review evidence before backend handoff",
   summary:
-    "Approval evidence, readiness posture, blocked action posture, and result review stay visible without storing or promoting any result.",
+    "Approval evidence, hardening posture, blocked action posture, and result review stay visible without storing or promoting any result.",
   items: [
     "approval packet lane",
     "backend readiness lane",
@@ -267,7 +272,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_OPERATOR_REVIEW_POSTURE =
   "Operator approval required";
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_POSTURE =
-  "Backend implementation readiness only";
+  "Backend runner contract hardening only";
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_EXECUTION_POSTURE =
-  "Backend-owned execution required";
+  "Backend-only runner required";

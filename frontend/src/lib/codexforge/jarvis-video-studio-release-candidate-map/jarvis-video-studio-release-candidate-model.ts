@@ -51,6 +51,10 @@ import {
   type JarvisVideoStudioReleaseCandidateReviewRail,
 } from "./jarvis-video-studio-release-candidate-safety";
 import {
+  JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_MODEL,
+  type JarvisVideoBackendRunnerContractHardeningModel,
+} from "./jarvis-video-backend-runner-contract-hardening";
+import {
   JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_CHECKPOINT,
   JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_EVIDENCE_RECORDS,
   JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_EVIDENCE_SOURCES,
@@ -163,6 +167,7 @@ export type JarvisVideoStudioReleaseCandidateSharedRecord = Readonly<{
   noExecutionGuard: JarvisVideoStudioReleaseCandidateGuardRecord;
   noPersistenceGuard: JarvisVideoStudioReleaseCandidateGuardRecord;
   noProviderNetworkGuard: JarvisVideoStudioReleaseCandidateGuardRecord;
+  backendRunnerContractHardening: JarvisVideoBackendRunnerContractHardeningModel;
   backendImplementationReadinessOverview: JarvisVideoBackendImplementationReadinessOverview;
   backendImplementationReadinessWorkflow: readonly JarvisVideoBackendImplementationReadinessRecord[];
   backendImplementationReadinessSafety: readonly JarvisVideoBackendImplementationReadinessRecord[];
@@ -224,6 +229,8 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_SHARED_RECORD = {
     JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_NO_PERSISTENCE_GUARD,
   noProviderNetworkGuard:
     JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_NO_PROVIDER_NETWORK_GUARD,
+  backendRunnerContractHardening:
+    JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_MODEL,
   backendImplementationReadinessOverview:
     JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_OVERVIEW,
   backendImplementationReadinessWorkflow:
@@ -253,7 +260,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_SHARED_RECORD = {
   readinessPosture: JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_POSTURE,
   executionPosture: JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_EXECUTION_POSTURE,
   nextLikelyBatch:
-    "next likely batch: 4138-4169 - Jarvis Video Backend Runner Contract Hardening",
+    "next likely batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission",
   milestoneReferences: JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_MILESTONE_REFERENCES,
 } as const satisfies JarvisVideoStudioReleaseCandidateSharedRecord;
 

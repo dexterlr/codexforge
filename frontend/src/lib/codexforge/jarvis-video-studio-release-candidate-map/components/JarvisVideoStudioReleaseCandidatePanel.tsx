@@ -5,6 +5,7 @@ import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-backend-trial-runner-contract-map/components";
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
 import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-trial-result-review-recovery-map/components";
+import { buildJarvisVideoBackendRunnerContractHardeningStableKey } from "../jarvis-video-backend-runner-contract-hardening";
 import {
   buildJarvisVideoStudioReleaseCandidateRouteModel,
   buildJarvisVideoStudioReleaseCandidateStableKey,
@@ -108,102 +109,146 @@ export function JarvisVideoStudioReleaseCandidatePanel(
       data-codexforge-jarvis-video-studio-release-candidate-focus={context.focus}
     >
       {!context.route ? (
-        <section className={styles.controlConsole} aria-label="Video generation control">
-          <div className={styles.consoleHeader}>
-            <div className={styles.consoleCopy}>
-              <span className={styles.consoleKicker}>Video Studio console</span>
-              <h1 className={styles.consoleTitle}>Video generation control</h1>
-              <p className={styles.consoleSummary}>
-                Put your video brief here. Jarvis will use this surface to
-                prepare the approval packet and, in a future backend-only batch,
-                hand the request to the backend runner. Generation is locked
-                until backend execution, audit capture, credential isolation,
-                and operator approval are implemented.
-              </p>
-              <p className={styles.consoleUrl}>Video Studio URL: /jarvis-video</p>
-            </div>
-          </div>
-
-          <div className={styles.consoleColumns}>
-            <section className={styles.consoleColumn} aria-label="Video brief">
-              <div className={styles.consoleColumnHeader}>
-                <p className={styles.panelEyebrow}>Input workspace</p>
-                <h2 className={styles.consoleColumnTitle}>Video brief</h2>
+        <>
+          <section className={styles.controlConsole} aria-label="Video generation control">
+            <div className={styles.consoleHeader}>
+              <div className={styles.consoleCopy}>
+                <span className={styles.consoleKicker}>Video Studio console</span>
+                <h1 className={styles.consoleTitle}>Video generation control</h1>
+                <p className={styles.consoleSummary}>
+                  Put your video brief here. Jarvis will use this surface to
+                  prepare the approval packet and, in a future backend-only batch,
+                  hand the request to the backend runner. Generation is locked
+                  until backend execution, audit capture, credential isolation,
+                  and operator approval are implemented.
+                </p>
+                <p className={styles.consoleUrl}>Video Studio URL: /jarvis-video</p>
               </div>
-              <div className={styles.fieldStack}>
-                <label className={styles.fieldGroup}>
-                  <span className={styles.fieldLabel}>Prompt / concept</span>
-                  <textarea
-                    className={styles.promptField}
-                    rows={9}
-                    placeholder="Describe the concept, audience, shots, pacing, mood, and approval context for the future backend runner."
-                  />
-                </label>
-                {JARVIS_VIDEO_BRIEF_FIELDS.map((field) => (
-                  <label key={field.label} className={styles.fieldGroup}>
-                    <span className={styles.fieldLabel}>{field.label}</span>
-                    <input
-                      className={styles.inputField}
-                      type="text"
-                      placeholder={field.placeholder}
+            </div>
+
+            <div className={styles.consoleColumns}>
+              <section className={styles.consoleColumn} aria-label="Video brief">
+                <div className={styles.consoleColumnHeader}>
+                  <p className={styles.panelEyebrow}>Input workspace</p>
+                  <h2 className={styles.consoleColumnTitle}>Video brief</h2>
+                </div>
+                <div className={styles.fieldStack}>
+                  <label className={styles.fieldGroup}>
+                    <span className={styles.fieldLabel}>Prompt / concept</span>
+                    <textarea
+                      className={styles.promptField}
+                      rows={9}
+                      placeholder="Describe the concept, audience, shots, pacing, mood, and approval context for the future backend runner."
                     />
                   </label>
-                ))}
-              </div>
-            </section>
-
-            <section className={styles.consoleColumn} aria-label="Output preview">
-              <div className={styles.consoleColumnHeader}>
-                <p className={styles.panelEyebrow}>Result surface</p>
-                <h2 className={styles.consoleColumnTitle}>Output preview</h2>
-              </div>
-              <div className={styles.previewFrame}>
-                <div className={styles.previewFrameInner}>
-                  <span className={styles.previewFrameLabel}>
-                    Preview will appear here after future backend result capture.
-                  </span>
+                  {JARVIS_VIDEO_BRIEF_FIELDS.map((field) => (
+                    <label key={field.label} className={styles.fieldGroup}>
+                      <span className={styles.fieldLabel}>{field.label}</span>
+                      <input
+                        className={styles.inputField}
+                        type="text"
+                        placeholder={field.placeholder}
+                      />
+                    </label>
+                  ))}
                 </div>
-              </div>
-              <div className={styles.previewStatusGrid}>
-                {JARVIS_VIDEO_OUTPUT_PREVIEW_STATUS.map((item) => (
-                  <div key={item} className={styles.previewStatusRow}>
-                    {item}
-                  </div>
-                ))}
-              </div>
-              <div className={styles.lockedActionGrid}>
-                {[
-                  "Generate video - locked",
-                  "Run backend dry-run - locked",
-                  "Approve backend handoff - locked",
-                ].map((label) => (
-                  <button
-                    key={label}
-                    type="button"
-                    className={styles.lockedButton}
-                    disabled
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </section>
-          </div>
+              </section>
 
-          <section className={styles.safeFlowCard} aria-label="Safe handoff flow">
-            <div className={styles.consoleColumnHeader}>
-              <p className={styles.panelEyebrow}>Operator sequence</p>
-              <h2 className={styles.consoleColumnTitle}>Safe handoff flow</h2>
+              <section className={styles.consoleColumn} aria-label="Output preview">
+                <div className={styles.consoleColumnHeader}>
+                  <p className={styles.panelEyebrow}>Result surface</p>
+                  <h2 className={styles.consoleColumnTitle}>Output preview</h2>
+                </div>
+                <div className={styles.previewFrame}>
+                  <div className={styles.previewFrameInner}>
+                    <span className={styles.previewFrameLabel}>
+                      Preview will appear here after future backend result capture.
+                    </span>
+                  </div>
+                </div>
+                <div className={styles.previewStatusGrid}>
+                  {JARVIS_VIDEO_OUTPUT_PREVIEW_STATUS.map((item) => (
+                    <div key={item} className={styles.previewStatusRow}>
+                      {item}
+                    </div>
+                  ))}
+                </div>
+                <div className={styles.lockedActionGrid}>
+                  {[
+                    "Generate video - locked",
+                    "Run backend dry-run - locked",
+                    "Approve backend handoff - locked",
+                  ].map((label) => (
+                    <button
+                      key={label}
+                      type="button"
+                      className={styles.lockedButton}
+                      disabled
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </section>
             </div>
-            <ol className={styles.safeFlowList}>
-              {JARVIS_VIDEO_SAFE_HANDOFF_FLOW.map((step) => (
-                <li key={step} className={styles.safeFlowItem}>
-                  {step}
-                </li>
-              ))}
-            </ol>
+
+            <section className={styles.safeFlowCard} aria-label="Safe handoff flow">
+              <div className={styles.consoleColumnHeader}>
+                <p className={styles.panelEyebrow}>Operator sequence</p>
+                <h2 className={styles.consoleColumnTitle}>Safe handoff flow</h2>
+              </div>
+              <ol className={styles.safeFlowList}>
+                {JARVIS_VIDEO_SAFE_HANDOFF_FLOW.map((step) => (
+                  <li key={step} className={styles.safeFlowItem}>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </section>
           </section>
-        </section>
+
+          <section className={styles.panel} aria-label="Backend runner contract">
+            <div className={styles.panelHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>
+                  {record.backendRunnerContractHardening.overview.eyebrow}
+                </p>
+                <h2 className={styles.panelTitle}>
+                  {record.backendRunnerContractHardening.overview.title}
+                </h2>
+              </div>
+              <span className={styles.statBadge}>Backend-only runner required</span>
+            </div>
+            <p className={styles.panelBody}>
+              {record.backendRunnerContractHardening.overview.summary}{" "}
+              {record.backendRunnerContractHardening.overview.detail}
+            </p>
+            <div className={styles.statusStrip}>
+              {record.backendRunnerContractHardening.overview.productStatus.map(
+                (item) => (
+                  <span key={item} className={styles.statusPill}>
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+            <div className={styles.metricGrid}>
+              {record.backendRunnerContractHardening.metrics.map((metric) => (
+                <article
+                  key={buildJarvisVideoBackendRunnerContractHardeningStableKey([
+                    "metric",
+                    metric.label,
+                  ])}
+                  className={styles.metricCard}
+                >
+                  <p className={styles.metricLabel}>{metric.label}</p>
+                  <span className={styles.metricValue}>{metric.value}</span>
+                  <span className={styles.metricDetail}>{metric.detail}</span>
+                </article>
+              ))}
+            </div>
+          </section>
+        </>
       ) : null}
 
       <header className={styles.hero}>
@@ -227,7 +272,7 @@ export function JarvisVideoStudioReleaseCandidatePanel(
             {context.route ? `Diagnostic focus: ${context.route.focus}.` : ""}
           </p>
           <p className={styles.heroDetail}>
-            Review the backend execution implementation plan, mission brief,
+            Review the hardened backend runner contract, mission brief,
             approval packet, backend readiness, and result recovery path
             without enabling generation, uploads, persistence, or execution.
           </p>
@@ -250,10 +295,10 @@ export function JarvisVideoStudioReleaseCandidatePanel(
         <aside className={styles.heroAside}>
           <article className={styles.card}>
             <p className={styles.panelEyebrow}>Primary action</p>
-            <h2 className={styles.heroAsideTitle}>Plan backend execution</h2>
+            <h2 className={styles.heroAsideTitle}>Harden backend runner contract</h2>
             <p className={styles.heroDetail}>
               Review the server-only path, approval gates, credential
-              isolation, and future backend handoff plan.
+              isolation, and the future dry-run admission foundation.
             </p>
             <div className={styles.statGrid}>
               <article className={styles.metricCard}>
@@ -269,15 +314,14 @@ export function JarvisVideoStudioReleaseCandidatePanel(
                   {record.readinessScore.value} / 100
                 </span>
                 <span className={styles.metricDetail}>
-                  Approval, backend readiness, and safety gates remain visible.
+                  Approval, contract hardening, and safety gates remain visible.
                 </span>
               </article>
               <article className={styles.metricCard}>
                 <p className={styles.metricLabel}>Handoff</p>
-                <span className={styles.metricValue}>Backend only</span>
+                <span className={styles.metricValue}>Dry-run admission next</span>
                 <span className={styles.metricDetail}>
-                  Execution planning and result review stay review-only from
-                  here.
+                  Execution hardening and result review stay review-only from here.
                 </span>
               </article>
             </div>
@@ -297,12 +341,12 @@ export function JarvisVideoStudioReleaseCandidatePanel(
 
       <section className={styles.statusStrip} aria-label="Studio safety and approval state">
         {[
-          "Generation locked",
+          "Runner contract is being hardened",
           record.executionPosture,
           record.operatorReviewPosture,
-          "No provider call from frontend",
-          "This batch is a plan only",
-          "No queue/worker/provider/persistence exists yet",
+          "Credential isolation required",
+          "Provider execution remains locked",
+          "Queue/worker/job remain disabled",
         ].map((item) => (
           <span key={item} className={styles.statusPill}>
             {item}
@@ -473,6 +517,83 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               <h3 className={styles.commandTitle}>{card.title}</h3>
               <p className={styles.commandText}>{card.summary}</p>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Backend runner contract hardening">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Current backend-only contract batch</p>
+            <h2 className={styles.panelTitle}>
+              Typed contract surfaces, execution guards, and dry-run admission criteria
+            </h2>
+          </div>
+          <span className={styles.statBadge}>Contract hardening only</span>
+        </div>
+        <p className={styles.panelBody}>
+          The hardened runner contract keeps every backend surface static and typed:
+          envelopes, approval joins, credential references, queue and worker
+          boundaries, idempotency, kill switch posture, trace joins, and dry-run
+          admission criteria all remain inert.
+        </p>
+        <div className={styles.summaryGrid}>
+          <ReadinessListCard
+            eyebrow="Foundation contracts"
+            title="Runner envelopes and backend-only references"
+            summary="Input, output, error, approval, prompt, settings, safety, credential, adapter, queue, worker, and job markers remain typed review-only contract surfaces."
+            items={record.backendRunnerContractHardening.foundationRecords.map(
+              (item) => item.title
+            )}
+          />
+          <ReadinessListCard
+            eyebrow="Execution guards"
+            title="Admission locks and denial-by-default posture"
+            summary="Idempotency, single-call lock, replay block, kill switch, timeout, cost, egress, safety, and redaction remain explicit typed guards."
+            items={record.backendRunnerContractHardening.executionGuardRecords.map(
+              (item) => item.title
+            )}
+          />
+          <ReadinessListCard
+            eyebrow="Handoff and trace"
+            title="Result, audit, artifact, retry, rollback, and trace remain inert"
+            summary="No persistence, no render/export/download, no retry or fallback execution, and no live logging implementation are introduced by this batch."
+            items={record.backendRunnerContractHardening.handoffRecords.map(
+              (item) => item.title
+            )}
+          />
+          <ReadinessListCard
+            eyebrow="Next batch gate"
+            title="Backend runner foundation dry-run admission only"
+            summary="The next backend-only batch must still stay dry-run-only, backend-only, operator-approved, credential-isolated, and execution-locked by default."
+            items={record.backendRunnerContractHardening.acceptanceChecklist}
+          />
+        </div>
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Evidence inputs</p>
+            <h3 className={styles.panelTitle}>
+              Review-only milestones that inform the hardened contract
+            </h3>
+          </div>
+          <span className={styles.statBadge}>
+            {record.backendRunnerContractHardening.evidenceSources.length} inert inputs
+          </span>
+        </div>
+        <div className={styles.milestoneGrid}>
+          {record.backendRunnerContractHardening.evidenceSources.map((source) => (
+            <Link
+              key={buildJarvisVideoBackendRunnerContractHardeningStableKey([
+                source.phaseRange,
+                source.label,
+              ])}
+              href={source.href}
+              className={styles.milestoneCard}
+            >
+              <p className={styles.phaseEyebrow}>{source.phaseRange}</p>
+              <h3 className={styles.phaseTitle}>{source.label}</h3>
+              <p className={styles.phaseSummary}>{source.summary}</p>
+            </Link>
           ))}
         </div>
       </section>
@@ -790,11 +911,11 @@ export function JarvisVideoStudioReleaseCandidatePanel(
           <div>
             <p className={styles.panelEyebrow}>{record.releaseSummary.title}</p>
             <h2 className={styles.panelTitle}>
-              Jarvis Video Studio stays product-first while backend planning
+              Jarvis Video Studio stays product-first while backend hardening
               lands
             </h2>
           </div>
-          <span className={styles.statBadge}>Plan-only studio follow-up</span>
+          <span className={styles.statBadge}>Contract hardening only</span>
         </div>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
