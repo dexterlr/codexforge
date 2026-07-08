@@ -1,0 +1,392 @@
+.routeShell {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  color: #eff7ff;
+  font-family: "Space Grotesk", "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.9fr);
+  gap: 18px;
+  padding: 26px;
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(56, 189, 248, 0.18), transparent 36%),
+    radial-gradient(circle at 82% 12%, rgba(251, 191, 36, 0.16), transparent 24%),
+    linear-gradient(145deg, rgba(5, 13, 24, 0.98), rgba(8, 17, 31, 0.94) 58%, rgba(13, 25, 45, 0.9));
+  box-shadow: 0 28px 90px rgba(1, 7, 18, 0.45);
+}
+
+.heroGlow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 14% 16%, rgba(34, 211, 238, 0.18), transparent 24%),
+    radial-gradient(circle at 86% 18%, rgba(245, 158, 11, 0.14), transparent 24%);
+  pointer-events: none;
+  animation: pulseGlow 8s ease-in-out infinite;
+}
+
+.heroContent,
+.heroAside {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip,
+.chipReady,
+.chipApproval,
+.chipBlocked,
+.statBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(12, 21, 36, 0.7);
+  color: #d9e8f5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.chipReady {
+  border-color: rgba(45, 212, 191, 0.32);
+  color: #cffaf4;
+  background: rgba(15, 68, 67, 0.54);
+}
+
+.chipApproval {
+  border-color: rgba(251, 191, 36, 0.32);
+  color: #fff1c4;
+  background: rgba(123, 55, 18, 0.5);
+}
+
+.chipBlocked {
+  border-color: rgba(251, 146, 60, 0.32);
+  color: #ffe4d4;
+  background: rgba(104, 42, 16, 0.56);
+}
+
+.heroTitle {
+  margin: 0;
+  color: #f8fbff;
+  font-size: clamp(2.4rem, 4vw, 3.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  font-family: "Sora", "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.heroSummary,
+.heroDetail,
+.panelBody,
+.laneDetail,
+.railBody,
+.commandText,
+.summaryText,
+.linkSummary,
+.phaseSummary {
+  margin: 0;
+  color: #b8d2e1;
+  line-height: 1.65;
+}
+
+.heroSummary {
+  font-size: 1rem;
+}
+
+.heroDetail {
+  font-size: 0.86rem;
+  color: #96b5c6;
+}
+
+.statGrid,
+.statusStrip,
+.metricGrid,
+.laneGrid,
+.guardGrid,
+.summaryGrid,
+.linkGrid,
+.milestoneGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.statGrid {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.statusStrip {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.metricGrid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.laneGrid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.guardGrid {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.summaryGrid,
+.linkGrid,
+.milestoneGrid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.card,
+.panel,
+.metricCard,
+.laneCard,
+.railCard,
+.commandCard,
+.summaryCard,
+.linkCard,
+.milestoneCard {
+  min-width: 0;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(7, 16, 30, 0.8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(7, 16, 30, 0.78);
+  color: #e6f2fb;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.heroAside .card {
+  background: rgba(6, 14, 28, 0.88);
+}
+
+.panel {
+  display: grid;
+  gap: 14px;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.panelEyebrow,
+.metricLabel,
+.laneKicker,
+.railKicker,
+.summaryEyebrow,
+.linkLabel,
+.phaseEyebrow {
+  margin: 0;
+  color: #7db4c7;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.panelTitle,
+.laneTitle,
+.railTitle,
+.commandTitle,
+.summaryTitle,
+.linkTitle,
+.phaseTitle,
+.heroAsideTitle {
+  margin: 0;
+  color: #f7fbff;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.panelTitle {
+  font-size: 1.25rem;
+}
+
+.heroAsideTitle {
+  font-size: 1.15rem;
+}
+
+.metricValue {
+  display: block;
+  margin-top: 6px;
+  color: #f8fbff;
+  font-size: 1.18rem;
+  font-weight: 700;
+}
+
+.metricDetail {
+  display: block;
+  margin-top: 6px;
+  color: #9cc0d1;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.progressBar {
+  position: relative;
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(25, 42, 61, 0.9);
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #14b8a6, #38bdf8, #f59e0b);
+}
+
+.checkList,
+.railList,
+.summaryList {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.checkItem,
+.railItem,
+.summaryItem {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: #b6cfde;
+  line-height: 1.5;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: #38bdf8;
+  flex: 0 0 auto;
+}
+
+.phaseLink,
+.linkCard {
+  color: inherit;
+  text-decoration: none;
+}
+
+.linkCard:hover,
+.summaryCard:hover,
+.milestoneCard:hover,
+.laneCard:hover {
+  border-color: rgba(34, 211, 238, 0.28);
+  background: rgba(9, 20, 35, 0.88);
+  transform: translateY(-2px);
+}
+
+.summaryCard,
+.linkCard,
+.milestoneCard,
+.laneCard {
+  display: grid;
+  gap: 8px;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.railColumns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.detailsBlock {
+  display: grid;
+  gap: 14px;
+}
+
+.details {
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(7, 15, 28, 0.82);
+}
+
+.details[open] {
+  background: rgba(8, 18, 34, 0.9);
+}
+
+.detailsSummary {
+  cursor: pointer;
+  padding: 14px 16px;
+  color: #e8f4ff;
+  font-weight: 700;
+}
+
+.detailsContent {
+  padding: 0 16px 16px;
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 980px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .routeShell {
+    gap: 14px;
+  }
+
+  .hero,
+  .panel {
+    padding: 18px;
+  }
+
+  .heroTitle {
+    font-size: 2.25rem;
+  }
+
+  .panelHeader {
+    flex-direction: column;
+  }
+}

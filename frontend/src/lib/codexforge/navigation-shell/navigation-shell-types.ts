@@ -4,6 +4,7 @@ import type { JarvisUnifiedProductIaRouteSlug } from "../jarvis-unified-product-
 import type { JarvisVideoBackendExecutionReadinessRouteSlug } from "../jarvis-video-backend-execution-readiness-map/jarvis-video-backend-execution-readiness-model";
 import type { JarvisVideoBackendTrialRunnerContractRouteSlug } from "../jarvis-video-backend-trial-runner-contract-map/jarvis-video-backend-trial-runner-contract-model";
 import type { JarvisVideoControlledExecutionTrialRouteSlug } from "../jarvis-video-controlled-execution-trial-map/jarvis-video-controlled-execution-trial-model";
+import type { JarvisVideoStudioReleaseCandidateRouteSlug } from "../jarvis-video-studio-release-candidate-map/jarvis-video-studio-release-candidate-model";
 import type { JarvisVideoTrialResultReviewRecoveryRouteSlug } from "../jarvis-video-trial-result-review-recovery-map/jarvis-video-trial-result-review-recovery-model";
 export type CodexForgePhaseDiagnosticRouteId =
   | "evidence-memory-boundary"
@@ -3782,6 +3783,7 @@ export type CodexForgeNavigationRouteId =
   | JarvisVideoBackendExecutionReadinessRouteSlug
   | JarvisVideoBackendTrialRunnerContractRouteSlug
   | JarvisVideoControlledExecutionTrialRouteSlug
+  | JarvisVideoStudioReleaseCandidateRouteSlug
   | JarvisVideoTrialResultReviewRecoveryRouteSlug
   | "change-plan-live-context"
   | "patch-preview-live-context"
@@ -4543,6 +4545,38 @@ export type CodexForgeNavigationRouteHref = Route;
  * | "/jarvis-video-controlled-execution-trial-operator-review-wiring"
  * | "/jarvis-video-controlled-execution-trial-readiness-wiring"
  * | "/jarvis-video-controlled-execution-trial-completion"
+ * | "/jarvis-video-studio-release-candidate-boundary-wiring"
+ * | "/jarvis-video-studio-release-candidate-hero-wiring"
+ * | "/jarvis-video-studio-release-candidate-mission-brief-wiring"
+ * | "/jarvis-video-studio-release-candidate-production-timeline-wiring"
+ * | "/jarvis-video-studio-release-candidate-readiness-score-wiring"
+ * | "/jarvis-video-studio-release-candidate-script-storyboard-wiring"
+ * | "/jarvis-video-studio-release-candidate-asset-audio-caption-wiring"
+ * | "/jarvis-video-studio-release-candidate-approval-packet-wiring"
+ * | "/jarvis-video-studio-release-candidate-dry-run-wiring"
+ * | "/jarvis-video-studio-release-candidate-backend-readiness-wiring"
+ * | "/jarvis-video-studio-release-candidate-controlled-trial-wiring"
+ * | "/jarvis-video-studio-release-candidate-backend-runner-wiring"
+ * | "/jarvis-video-studio-release-candidate-result-review-wiring"
+ * | "/jarvis-video-studio-release-candidate-safety-rail-wiring"
+ * | "/jarvis-video-studio-release-candidate-audit-rail-wiring"
+ * | "/jarvis-video-studio-release-candidate-blocked-action-deck-wiring"
+ * | "/jarvis-video-studio-release-candidate-next-action-wiring"
+ * | "/jarvis-video-studio-release-candidate-workspace-navigation-wiring"
+ * | "/jarvis-video-studio-release-candidate-product-ia-link-wiring"
+ * | "/jarvis-video-studio-release-candidate-jarvis-home-link-wiring"
+ * | "/jarvis-video-studio-release-candidate-cockpit-link-wiring"
+ * | "/jarvis-video-studio-release-candidate-release-summary-wiring"
+ * | "/jarvis-video-studio-release-candidate-developer-diagnostics-wiring"
+ * | "/jarvis-video-studio-release-candidate-no-generation-guard-wiring"
+ * | "/jarvis-video-studio-release-candidate-no-execution-guard-wiring"
+ * | "/jarvis-video-studio-release-candidate-no-persistence-guard-wiring"
+ * | "/jarvis-video-studio-release-candidate-no-provider-network-guard-wiring"
+ * | "/jarvis-video-studio-release-candidate-regression-coverage-wiring"
+ * | "/jarvis-video-studio-release-candidate-operator-review-wiring"
+ * | "/jarvis-video-studio-release-candidate-readiness-wiring"
+ * | "/jarvis-video-studio-release-candidate-ux-polish-wiring"
+ * | "/jarvis-video-studio-release-candidate-completion"
  *
  * Jarvis Unified Product IA and God-Tier UX Polish:
  * | "/jarvis-unified-product-ia-boundary-wiring"

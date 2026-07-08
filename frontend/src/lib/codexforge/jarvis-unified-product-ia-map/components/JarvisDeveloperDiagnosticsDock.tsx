@@ -17,15 +17,15 @@ export function JarvisDeveloperDiagnosticsDock({
         <div className={styles.diagnosticSummaryRow}>
           <div>
             <p className={styles.panelEyebrow}>Developer diagnostics</p>
-            <h3 className={styles.panelTitle}>Secondary diagnostic dock</h3>
+            <h3 className={styles.panelTitle}>Secondary diagnostics</h3>
           </div>
           <span className={`${styles.dockBadge} ${styles.metricStateSecondary}`}>
-            phase pages remain diagnostics only
+            Secondary only
           </span>
         </div>
         <p className={styles.panelBody}>
-          Developer diagnostics remain available, grouped, and clearly separate
-          from the normal user and product flow.
+          Wiring, smoke, and traceability pages stay grouped here and out of the
+          main product flow.
         </p>
       </summary>
       <div className={styles.diagnosticBody}>
@@ -37,7 +37,7 @@ export function JarvisDeveloperDiagnosticsDock({
                 <h4 className={styles.panelTitle}>{group.label}</h4>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
-                developer diagnostics are secondary
+                Secondary
               </span>
             </div>
             <p className={styles.panelBody}>{group.summary}</p>

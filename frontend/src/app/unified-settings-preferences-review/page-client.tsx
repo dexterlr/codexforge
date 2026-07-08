@@ -7,7 +7,7 @@ export default function PageClient() {
   return (
     <CodexForgeAppShell
       activePath="/unified-settings-preferences-review"
-      workspaceLabel="Settings Review"
+      workspaceLabel="Safety and Settings"
       nextActionContext={{ wantsOperatorOverview: false }}
       focusMode
       contentMaxWidth="wide"

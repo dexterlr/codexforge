@@ -62,7 +62,7 @@ export function CodexForgeSidebar({
       <nav style={nav}>
         <div style={sectionBlock}>
           <div style={{ ...sectionLabel, ...(compact ? compactSectionLabel : null) }}>Primary</div>
-          {primaryAreaRoutes.map((entry) => renderPrimaryAreaLink(entry.area.label, entry.route, activeHref, compact, showBadges))}
+          {primaryAreaRoutes.map((entry) => renderPrimaryAreaLink(entry.area, entry.route, activeHref, compact, showBadges))}
         </div>
 
         <details style={advancedDetails}>
@@ -81,8 +81,8 @@ export function CodexForgeSidebar({
           <summary style={advancedSummary}>Developer Diagnostics</summary>
           <div style={diagnosticsBlock}>
             <p style={diagnosticsText}>
-              Phase routes remain diagnostics. Main menu hides phase spam while diagnostics remain searchable and direct
-              phase route access remains available.
+              Wiring, smoke, and traceability routes stay grouped here after the
+              main product path.
             </p>
             {renderRouteLink(
               routes.find((route) => route.href === "/developer-diagnostics-hub-preview") ??
@@ -111,7 +111,7 @@ function isPhaseDiagnosticRoute(route: CodexForgeNavigationRoute): boolean {
 }
 
 function renderPrimaryAreaLink(
-  label: string,
+  area: (typeof CODEXFORGE_PRIMARY_PRODUCT_AREAS)[number],
   route: CodexForgeNavigationRoute,
   activeHref: string,
   compact: boolean,
@@ -121,16 +121,16 @@ function renderPrimaryAreaLink(
     <Link
       key={`primary-product-area-${route.href}`}
       href={route.href}
-      title={`${label}: ${route.description}`}
+      title={`${area.label}: ${route.description}`}
       aria-current={route.href === activeHref ? "page" : undefined}
-      data-codexforge-primary-product-area={label}
+      data-codexforge-primary-product-area={area.label}
       style={{
         ...(route.href === activeHref ? activeLink : link),
         ...(compact ? compactLink : null),
       }}
     >
-      <span style={routeLabel}>{label}</span>
-      {showBadges && !compact ? <span style={badge}>{route.shortLabel}</span> : null}
+      <span style={routeLabel}>{area.label}</span>
+      {showBadges && !compact ? <span style={badge}>{area.badge}</span> : null}
     </Link>
   );
 }

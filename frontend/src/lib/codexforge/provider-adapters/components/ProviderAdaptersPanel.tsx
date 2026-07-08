@@ -25,15 +25,16 @@ export function ProviderAdaptersPanel() {
     >
       <section style={hero}>
         <div style={{ minWidth: 0 }}>
-          <span style={eyebrow}>Phases 118-121</span>
-          <h1 style={headline}>Provider adapters</h1>
+          <span style={eyebrow}>Provider readiness</span>
+          <h1 style={headline}>Providers</h1>
           <p style={lede}>
-            Understand how CodexForge can safely talk to AI providers later. Adapters describe capabilities and safe
-            setup only. No live provider calls yet.
+            Understand how CodexForge can safely connect to providers later.
+            Adapters describe capabilities, setup, and guardrails only. No live
+            provider calls yet.
           </p>
         </div>
         <div style={linkRow}>
-          <Link href="#readiness" style={primaryLink}>Review adapter readiness</Link>
+          <Link href="#readiness" style={primaryLink}>Open provider readiness</Link>
           <Link href="/ai-providers" style={link}>Provider profiles</Link>
           <Link href="/provider-health" style={link}>Provider health</Link>
           <Link href="/local-machine" style={link}>Local machine</Link>
@@ -94,7 +95,7 @@ export function ProviderAdaptersPanel() {
 
 const shell: CSSProperties = { color: "#f8fafc", display: "grid", gap: 16, minWidth: 0, width: "100%" };
 const hero: CSSProperties = { background: "rgba(15,23,42,0.72)", border: "1px solid rgba(45,212,191,0.22)", borderRadius: 8, display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "space-between", padding: 18 };
-const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 11, fontWeight: 900, textTransform: "uppercase" };
+const eyebrow: CSSProperties = { color: "#5eead4", fontSize: 11, fontWeight: 900 };
 const headline: CSSProperties = { fontSize: "clamp(28px, 5vw, 48px)", letterSpacing: 0, lineHeight: 1, margin: "8px 0", overflowWrap: "anywhere" };
 const lede: CSSProperties = { color: "rgba(226,232,240,0.76)", fontSize: 14, lineHeight: 1.55, margin: 0, maxWidth: 780 };
 const linkRow: CSSProperties = { alignContent: "flex-start", display: "flex", flexWrap: "wrap", gap: 8 };

@@ -68,14 +68,13 @@ export const JARVIS_UNIFIED_PRODUCT_IA_SAFETY_MARKERS = [
 ] as const;
 
 export const JARVIS_UNIFIED_PRODUCT_SAFETY_POSTURE = {
-  killSwitchState: "Global kill switch engaged by default",
-  permissionMode: "Approval required for every future backend execution path",
+  killSwitchState: "Kill switch engaged by default",
+  permissionMode: "Operator approval required before any backend execution path",
   riskState: "Video stays review-only, trading stays paper-review-only, and automation stays blocked",
-  credentialBoundary: "Credentials remain backend-only and no frontend provider key reads are allowed",
+  credentialBoundary: "Credentials stay backend-only with no frontend provider key reads",
   storageBoundary:
-    "Browser storage for secrets remains blocked across localStorage, sessionStorage, IndexedDB, and cookies",
+    "No browser storage for secrets across localStorage, sessionStorage, IndexedDB, or cookies",
   blockedExecutionState:
-    "All provider, network, render, export, publish, worker, broker, and runtime actions remain execution-blocked",
+    "Provider, broker, render, export, publish, worker, and runtime actions stay execution-blocked",
   markerPhrases: JARVIS_UNIFIED_PRODUCT_IA_SAFETY_MARKERS,
 } as const satisfies JarvisUnifiedProductSafetyPosture;
-

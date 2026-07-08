@@ -150,28 +150,29 @@ export const previewStyles: Record<string, CSSProperties> = {
     width: "100%",
   },
   hero: {
-    background: "rgba(15,23,42,0.72)",
-    border: "1px solid rgba(45,212,191,0.22)",
-    borderRadius: 8,
+    background:
+      "radial-gradient(circle at 16% 0%, rgba(34,211,238,0.12), transparent 34%)," +
+      "linear-gradient(145deg, rgba(7,16,30,0.94), rgba(9,18,34,0.9) 58%, rgba(15,23,42,0.84))",
+    border: "1px solid rgba(45,212,191,0.2)",
+    borderRadius: 18,
     display: "flex",
     flexWrap: "wrap",
     gap: 16,
     justifyContent: "space-between",
-    padding: 18,
+    padding: 22,
   },
   eyebrow: {
     color: "#5eead4",
     fontSize: 11,
     fontWeight: 900,
-    textTransform: "uppercase",
   },
   headline: {
-    fontSize: "clamp(26px, 4vw, 44px)",
+    fontSize: "clamp(28px, 4vw, 48px)",
     letterSpacing: 0,
-    lineHeight: 1,
+    lineHeight: 1.02,
     margin: "8px 0",
     overflowWrap: "normal",
-    whiteSpace: "nowrap",
+    whiteSpace: "normal",
   },
   lede: {
     color: "rgba(226,232,240,0.78)",
@@ -188,7 +189,7 @@ export const previewStyles: Record<string, CSSProperties> = {
   },
   link: {
     border: "1px solid rgba(125,211,252,0.18)",
-    borderRadius: 8,
+    borderRadius: 12,
     color: "#dbeafe",
     fontSize: 12,
     fontWeight: 900,
@@ -198,7 +199,7 @@ export const previewStyles: Record<string, CSSProperties> = {
   primaryLink: {
     background: "#5eead4",
     border: "1px solid rgba(45,212,191,0.4)",
-    borderRadius: 8,
+    borderRadius: 12,
     color: "#042f2e",
     fontSize: 12,
     fontWeight: 900,
@@ -213,7 +214,7 @@ export const previewStyles: Record<string, CSSProperties> = {
   card: {
     background: "rgba(2,6,23,0.68)",
     border: "1px solid rgba(148,163,184,0.16)",
-    borderRadius: 8,
+    borderRadius: 16,
     display: "grid",
     gap: 10,
     padding: 14,
@@ -232,7 +233,7 @@ export const previewStyles: Record<string, CSSProperties> = {
   safetyStrip: {
     background: "rgba(20,83,45,0.24)",
     border: "1px solid rgba(74,222,128,0.22)",
-    borderRadius: 8,
+    borderRadius: 16,
     display: "flex",
     flexWrap: "wrap",
     gap: 8,
@@ -241,7 +242,7 @@ export const previewStyles: Record<string, CSSProperties> = {
   safetyPill: {
     background: "rgba(22,101,52,0.34)",
     border: "1px solid rgba(134,239,172,0.24)",
-    borderRadius: 8,
+    borderRadius: 999,
     color: "#dcfce7",
     fontSize: 12,
     fontWeight: 900,
@@ -250,7 +251,7 @@ export const previewStyles: Record<string, CSSProperties> = {
   empty: {
     background: "rgba(15,23,42,0.5)",
     border: "1px dashed rgba(148,163,184,0.28)",
-    borderRadius: 8,
+    borderRadius: 16,
     display: "grid",
     gap: 8,
     padding: 14,
@@ -263,7 +264,7 @@ export const previewStyles: Record<string, CSSProperties> = {
   pill: {
     background: "rgba(14,165,233,0.14)",
     border: "1px solid rgba(125,211,252,0.22)",
-    borderRadius: 8,
+    borderRadius: 999,
     color: "#e0f2fe",
     fontSize: 12,
     fontWeight: 800,
@@ -271,7 +272,7 @@ export const previewStyles: Record<string, CSSProperties> = {
   },
   advanced: {
     border: "1px solid rgba(125,211,252,0.16)",
-    borderRadius: 8,
+    borderRadius: 16,
     color: "#cbd5e1",
     padding: 12,
   },

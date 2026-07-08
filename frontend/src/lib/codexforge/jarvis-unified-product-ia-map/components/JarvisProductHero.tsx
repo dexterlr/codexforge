@@ -39,10 +39,12 @@ export function JarvisProductHero({
       <div className={styles.heroGlow} aria-hidden="true" />
       <div className={styles.heroContent}>
         <div className={styles.heroEyebrowRow}>
-          <span className={styles.eyebrowChip}>{phaseLabel}</span>
+          <span className={styles.eyebrowChip}>
+            {isPhaseRoute ? phaseLabel : "CodexForge"}
+          </span>
           <span className={styles.safeChip}>{eyebrow}</span>
           <span className={styles.blockedChip}>
-            {isPhaseRoute ? "phase pages remain diagnostics only" : badge}
+            {isPhaseRoute ? "Diagnostics only" : badge}
           </span>
         </div>
         <h1 className={styles.heroTitle}>{title}</h1>
@@ -60,13 +62,13 @@ export function JarvisProductHero({
       <div className={styles.heroRail}>
         <section className={styles.heroPanel} aria-label="Product order">
           <div className={styles.heroEyebrowRow}>
-            <span className={styles.safeChip}>normal user path is primary</span>
-            <span className={styles.blockedChip}>developer diagnostics are secondary</span>
+            <span className={styles.safeChip}>Operator path first</span>
+            <span className={styles.blockedChip}>Diagnostics lower down</span>
           </div>
-          <h2 className={styles.heroPanelTitle}>World-class product order</h2>
+          <h2 className={styles.heroPanelTitle}>Open the premium route first</h2>
           <p className={styles.heroPanelBody}>
-            Home to CodexForge Cockpit to Jarvis command center to specialist
-            workspaces. Phase pages remain diagnostics only.
+            Start from the main product surfaces, then move into the workspace
+            you need. Developer diagnostics stay secondary and traceable.
           </p>
         </section>
         <nav className={styles.primaryNav} aria-label="Primary navigation order">

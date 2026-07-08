@@ -22,6 +22,7 @@ import { JarvisNextActionRail } from "./JarvisNextActionRail";
 import { JarvisProductHero } from "./JarvisProductHero";
 import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-backend-trial-runner-contract-map/components";
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
+import { JarvisVideoStudioReleaseCandidatePanel } from "../../jarvis-video-studio-release-candidate-map/components";
 import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-trial-result-review-recovery-map/components";
 import { JarvisWorkspaceGrid } from "./JarvisWorkspaceGrid";
 import { JarvisWorkspacePlaceholder } from "./JarvisWorkspacePlaceholder";
@@ -71,6 +72,11 @@ export function JarvisUnifiedProductPanel(
   props: JarvisUnifiedProductShellProps
 ) {
   const context = resolveJarvisUnifiedProductContext(props);
+  const workspaceCount = context.workspaces.filter(
+    (candidate) => candidate.id !== "developer-diagnostics"
+  ).length;
+  const isPrimaryJarvisVideoStudioSurface =
+    context.surface.id === "jarvis-video" && !context.route;
   const workspace =
     context.surface.id !== "home" &&
     context.surface.id !== "codexforge-cockpit" &&
@@ -79,6 +85,18 @@ export function JarvisUnifiedProductPanel(
           (candidate) => candidate.routeHref === context.surface.routeHref
         ) ?? context.workspaces[0]
       : null;
+
+  if (isPrimaryJarvisVideoStudioSurface) {
+    return (
+      <section
+        className={styles.shell}
+        data-codexforge-jarvis-unified-product-ia={context.batchMarkers.join(" | ")}
+        data-codexforge-jarvis-unified-product-ia-focus={context.focus}
+      >
+        <JarvisVideoStudioReleaseCandidatePanel workspaceId="jarvis-video" />
+      </section>
+    );
+  }
 
   return (
     <section
@@ -91,7 +109,7 @@ export function JarvisUnifiedProductPanel(
         badge={context.surface.badge}
         title={context.route ? context.route.title : context.surface.title}
         summary={context.route ? context.route.summary : context.surface.summary}
-        phaseLabel={context.route ? context.route.phase : "Jarvis unified product IA"}
+        phaseLabel={context.route ? context.route.phase : "CodexForge"}
         isPhaseRoute={Boolean(context.route)}
         metrics={context.surface.heroMetrics}
         navigationCards={context.primaryNavigationCards}
@@ -101,11 +119,21 @@ export function JarvisUnifiedProductPanel(
         <section className={styles.panel} aria-label="Current focus">
           <div className={styles.panelHeader}>
             <div>
-              <p className={styles.panelEyebrow}>Current focus</p>
-              <h2 className={styles.panelTitle}>Platform focus stays product-first</h2>
+              <p className={styles.panelEyebrow}>
+                {context.surface.id === "codexforge-cockpit"
+                  ? "Current mission"
+                  : "Current focus"}
+              </p>
+              <h2 className={styles.panelTitle}>
+                {context.surface.id === "codexforge-cockpit"
+                  ? "Jarvis Video Studio Release Candidate"
+                  : "Platform focus stays product-first"}
+              </h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
-              normal user path is primary
+              {context.surface.id === "codexforge-cockpit"
+                ? "Mission control"
+                : "Normal user path first"}
             </span>
           </div>
           <p className={styles.panelBody}>{context.surface.currentFocus}</p>
@@ -116,11 +144,11 @@ export function JarvisUnifiedProductPanel(
         <section className={styles.panel} aria-label="Capability grid">
           <div className={styles.panelHeader}>
             <div>
-              <p className={styles.panelEyebrow}>Capability grid</p>
+              <p className={styles.panelEyebrow}>Capabilities</p>
               <h2 className={styles.panelTitle}>What Jarvis can review now</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
-              Jarvis command center order upgraded
+              Capability launcher
             </span>
           </div>
           <div className={styles.capabilityGrid}>
@@ -166,11 +194,11 @@ export function JarvisUnifiedProductPanel(
         <section className={styles.panel} aria-label="Workspace grid">
           <div className={styles.panelHeader}>
             <div>
-              <p className={styles.panelEyebrow}>Workspace grid</p>
-              <h2 className={styles.panelTitle}>Specialist workspaces in product order</h2>
+              <p className={styles.panelEyebrow}>Workspace launcher</p>
+              <h2 className={styles.panelTitle}>Open the right workspace</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
-              placeholders are intentional
+              {`${workspaceCount} workspaces`}
             </span>
           </div>
           <JarvisWorkspaceGrid
@@ -184,7 +212,7 @@ export function JarvisUnifiedProductPanel(
         <section className={styles.panel} aria-label={workspace.label}>
           <div className={styles.panelHeader}>
             <div>
-              <p className={styles.panelEyebrow}>Workspace shell</p>
+              <p className={styles.panelEyebrow}>Workspace overview</p>
               <h2 className={styles.panelTitle}>{workspace.label}</h2>
             </div>
             <span
@@ -230,14 +258,14 @@ export function JarvisUnifiedProductPanel(
       ) : null}
 
       {context.surface.sectionOrder.includes("next-actions") ? (
-        <section className={styles.panel} aria-label="Next action rail">
+        <section className={styles.panel} aria-label="Primary action">
           <div className={styles.panelHeader}>
             <div>
-              <p className={styles.panelEyebrow}>Next action rail</p>
-              <h2 className={styles.panelTitle}>Clear next actions</h2>
+              <p className={styles.panelEyebrow}>Primary action</p>
+              <h2 className={styles.panelTitle}>What to do next</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
-              clear next-action rail
+              Start here
             </span>
           </div>
           <JarvisNextActionRail actions={context.nextActionRail} />
@@ -249,10 +277,10 @@ export function JarvisUnifiedProductPanel(
           <div className={styles.panelHeader}>
             <div>
               <p className={styles.panelEyebrow}>Approval and readiness</p>
-              <h2 className={styles.panelTitle}>What needs approval and what backend is required next</h2>
+              <h2 className={styles.panelTitle}>Approval state and backend handoff</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
-              approval-required
+              Approval required
             </span>
           </div>
           <JarvisApprovalReadinessSummary
@@ -267,10 +295,10 @@ export function JarvisUnifiedProductPanel(
           <div className={styles.panelHeader}>
             <div>
               <p className={styles.panelEyebrow}>Blocked actions</p>
-              <h2 className={styles.panelTitle}>What is blocked right now</h2>
+              <h2 className={styles.panelTitle}>What stays blocked right now</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
-              no direct frontend execution
+              Execution blocked
             </span>
           </div>
           <JarvisBlockedActionSummary
@@ -284,10 +312,10 @@ export function JarvisUnifiedProductPanel(
           <div className={styles.panelHeader}>
             <div>
               <p className={styles.panelEyebrow}>Audit preview</p>
-              <h2 className={styles.panelTitle}>Audit and result review remain visible</h2>
+              <h2 className={styles.panelTitle}>Audit and result review stay visible</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
-              audit workspace placeholder only
+              Review surface
             </span>
           </div>
           <div className={styles.timelineGrid}>
@@ -312,10 +340,10 @@ export function JarvisUnifiedProductPanel(
           <div className={styles.panelHeader}>
             <div>
               <p className={styles.panelEyebrow}>Safety posture</p>
-              <h2 className={styles.panelTitle}>Compact safety state</h2>
+              <h2 className={styles.panelTitle}>Safety state at a glance</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
-              no browser storage for secrets
+              Locked boundaries
             </span>
           </div>
           <div className={styles.summaryGrid}>
@@ -395,11 +423,9 @@ function buildPrimaryNavigationCards(
       return {
         href,
         label:
-          surface.id === activeSurfaceId
-            ? `${surface.label} / current`
-            : surface.label,
+          surface.label,
         description: surface.currentFocus,
-        badge: surface.badge,
+        badge: surface.id === activeSurfaceId ? "Current" : surface.badge,
       };
     }
   );

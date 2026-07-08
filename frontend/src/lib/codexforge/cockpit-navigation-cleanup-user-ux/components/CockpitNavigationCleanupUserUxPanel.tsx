@@ -32,10 +32,37 @@ import {
   buildCockpitNavigationCleanupStableKey,
   type CockpitNavigationCleanupItem,
   type CockpitNavigationCleanupRouteFamily,
+  type CockpitNavigationCleanupRouteModel,
   type CockpitNavigationCleanupSection,
   type CockpitNavigationCleanupState,
   type CockpitNavigationCleanupUserUxRouteSlug,
 } from "../cockpit-navigation-cleanup-user-ux-model";
+
+type CockpitNavigationCleanupRouteSurfaceCard = Readonly<{
+  eyebrow: string;
+  title: string;
+  summary: string;
+  tags: readonly string[];
+}>;
+
+type CockpitNavigationCleanupRouteSurface = Readonly<{
+  shellLabel: string;
+  eyebrow: string;
+  badge: string;
+  title: string;
+  summary: string;
+  primaryAction: Readonly<{
+    href: string;
+    label: string;
+    summary: string;
+  }>;
+  cards: readonly CockpitNavigationCleanupRouteSurfaceCard[];
+  statusPills: readonly string[];
+  blockedActions: readonly string[];
+  safetyNotes: readonly string[];
+  diagnosticsSummary: string;
+  openDiagnosticsByDefault: boolean;
+}>;
 
 export function CockpitNavigationCleanupPageClientShell({
   routeSlug,
@@ -43,11 +70,12 @@ export function CockpitNavigationCleanupPageClientShell({
   routeSlug: CockpitNavigationCleanupUserUxRouteSlug;
 }) {
   const model = buildCockpitNavigationCleanupRouteModel(routeSlug);
+  const surface = buildCockpitNavigationCleanupRouteSurface(model);
 
   return (
     <CodexForgeAppShell
       activePath={model.route.href}
-      workspaceLabel={model.route.title}
+      workspaceLabel={surface.shellLabel}
       nextActionContext={{ wantsOperatorOverview: false }}
       focusMode
       contentMaxWidth="wide"
@@ -393,6 +421,17 @@ export function CockpitNavigationCleanupRoutePanel({
 }) {
   const model = buildCockpitNavigationCleanupRouteModel(routeSlug);
   const ux = model.cockpitNavigationCleanupUserUx;
+  const surface = buildCockpitNavigationCleanupRouteSurface(model);
+  const diagnosticsLink =
+    model.route.slug === "developer-diagnostics-hub-preview"
+      ? {
+          href: "/codexforge-cockpit",
+          label: "Return to CodexForge Cockpit",
+        }
+      : {
+          href: "/developer-diagnostics-hub-preview",
+          label: "Open developer diagnostics",
+        };
 
   return (
     <section
@@ -401,94 +440,91 @@ export function CockpitNavigationCleanupRoutePanel({
     >
       <header style={hero}>
         <div style={eyebrowRow}>
-          <span style={phaseBadge}>{model.route.phase}</span>
-          <span style={surfaceBadge}>{model.route.devOnly ? "Dev test diagnostics only" : "Cockpit surface"}</span>
-          <span style={approvalBadge}>Review only</span>
+          <span style={phaseBadge}>CodexForge</span>
+          <span style={surfaceBadge}>{surface.eyebrow}</span>
+          <span style={approvalBadge}>{surface.badge}</span>
         </div>
-        {embedded ? <h2 style={title}>{model.route.title}</h2> : <h1 style={title}>{model.route.title}</h1>}
-        <p style={summary}>{model.route.summary}</p>
+        {embedded ? <h2 style={title}>{surface.title}</h2> : <h1 style={title}>{surface.title}</h1>}
+        <p style={summary}>{surface.summary}</p>
         <p style={bodyText}>
-          Cockpit Navigation Cleanup User UX is navigation and UX only. Phase routes remain diagnostics, phase pages
-          remain dev test diagnostics only, normal users start at /codexforge-cockpit, feature labels replace phase
-          labels, main menu hides phase spam, diagnostics remain searchable, direct phase route access remains available,
-          smoke coverage remains preserved, and command palette groups diagnostics.
+          {surface.primaryAction.summary}
         </p>
       </header>
 
-      <section style={markerBand} aria-label="Cockpit navigation cleanup markers">
-        {model.route.markerPhrases.map((marker, index) => (
+      <section style={statusBand} aria-label={`${surface.title} safety and status`}>
+        {surface.statusPills.map((pill, index) => (
           <span
-            key={buildCockpitNavigationCleanupStableKey(["route-marker", model.route.slug, String(index), marker])}
-            style={markerPill}
+            key={buildCockpitNavigationCleanupStableKey(["route-status", model.route.slug, String(index), pill])}
+            style={statusPill}
           >
-            {marker}
+            {pill}
           </span>
         ))}
       </section>
 
-      <section style={identityBand} aria-label="Cockpit navigation cleanup model fields">
-        <div>
-          <p style={panelEyebrow}>Model fields</p>
-          <h2 style={sectionTitle}>
-            cockpitNavigationCleanupUserUxId: {ux.cockpitNavigationCleanupUserUxId}
-          </h2>
-        </div>
-        <p style={bodyText}>cockpitNavigationCleanupUserUxKind: {ux.cockpitNavigationCleanupUserUxKind}</p>
-        <div style={chipRow}>
-          {[
-            "cockpitNavigationCleanupUserUxId",
-            "cockpitNavigationCleanupUserUxKind",
-            "userCockpitHome",
-            "tradingWorkspaceHub",
-            "buildWorkspaceHub",
-            "approvalsHub",
-            "evidenceAuditHub",
-            "developerDiagnosticsHub",
-            "phaseRouteGrouping",
-            "userFeatureLabelMap",
-            "cockpitQuickActions",
-            "nextActionRailCleanup",
-            "commandPaletteGrouping",
-            "cockpitStatusSummary",
-            "cockpitOnboardingHelp",
-            "deniedNavigationCleanupBoundaries",
-            "cockpitSummary",
-            "explicitSafetyLimits",
-          ].map((field, index) => (
-            <span
-              key={buildCockpitNavigationCleanupStableKey(["field", String(index), field])}
-              style={chip}
-            >
-              {field}
-            </span>
-          ))}
-        </div>
+      <section style={splitBand} aria-label={`${surface.title} next action and safety`}>
+        <article style={primaryActionPanel}>
+          <div style={panelHeader}>
+            <div>
+              <p style={panelEyebrow}>Primary action</p>
+              <h2 style={sectionTitle}>{surface.primaryAction.label}</h2>
+            </div>
+            <span style={stateStyle("approval-required")}>Start here</span>
+          </div>
+          <p style={bodyText}>{surface.primaryAction.summary}</p>
+          <a style={primaryLink} href={surface.primaryAction.href}>
+            {surface.primaryAction.label}
+          </a>
+        </article>
+
+        <article style={panel}>
+          <div style={panelHeader}>
+            <div>
+              <p style={panelEyebrow}>Safety and approval</p>
+              <h2 style={sectionTitle}>Keep the workspace concise and controlled</h2>
+            </div>
+            <span style={stateStyle("blocked")}>Locked</span>
+          </div>
+          <div style={checklistGrid}>
+            {surface.safetyNotes.map((note, index) => (
+              <div
+                key={buildCockpitNavigationCleanupStableKey(["route-safety-note", model.route.slug, String(index), note])}
+                style={checkRow}
+              >
+                <span style={smallStateStyle("review-only")}>Review only</span>
+                <p style={checkDetail}>{note}</p>
+              </div>
+            ))}
+          </div>
+        </article>
       </section>
 
-      <section style={sectionGrid} aria-label="Cockpit navigation cleanup route sections">
-        {model.sections.map((section, index) => (
-          <SectionCard
-            key={buildCockpitNavigationCleanupStableKey(["section", model.route.slug, String(index), section.sectionId])}
-            section={section}
+      <section style={featureGrid} aria-label={`${surface.title} workspace cards`}>
+        {surface.cards.map((card, index) => (
+          <SurfaceCard
+            key={buildCockpitNavigationCleanupStableKey(["surface-card", model.route.slug, String(index), card.title])}
+            card={card}
           />
         ))}
       </section>
 
-      <section style={splitBand} aria-label="Cockpit navigation cleanup summary and route families">
+      <section style={splitBand} aria-label={`${surface.title} blocked actions and diagnostics`}>
         <article style={panel}>
           <div style={panelHeader}>
             <div>
-              <p style={panelEyebrow}>Cockpit Summary</p>
-              <h2 style={sectionTitle}>Current checkpoint/status summary</h2>
+              <p style={panelEyebrow}>What stays blocked</p>
+              <h2 style={sectionTitle}>No hidden execution from this route</h2>
             </div>
-            <span style={stateStyle("review-only")}>Review only</span>
+            <span style={stateStyle("blocked")}>Blocked</span>
           </div>
-          <div style={checklistGrid}>
-            {ux.cockpitSummary.map((item, index) => (
-              <CheckRow
-                key={buildCockpitNavigationCleanupStableKey(["route-summary", String(index), item.id])}
-                item={item}
-              />
+          <div style={chipRow}>
+            {surface.blockedActions.map((action, index) => (
+              <span
+                key={buildCockpitNavigationCleanupStableKey(["route-blocked-action", model.route.slug, String(index), action])}
+                style={dangerChip}
+              >
+                {action}
+              </span>
             ))}
           </div>
         </article>
@@ -496,39 +532,96 @@ export function CockpitNavigationCleanupRoutePanel({
         <article style={panel}>
           <div style={panelHeader}>
             <div>
-              <p style={panelEyebrow}>Developer Diagnostics</p>
-              <h2 style={sectionTitle}>Route families, not flat phase spam</h2>
+              <p style={panelEyebrow}>Secondary diagnostics</p>
+              <h2 style={sectionTitle}>Developer detail stays lower down</h2>
             </div>
-            <span style={stateStyle("diagnostic")}>Searchable</span>
+            <span style={stateStyle("diagnostic")}>Secondary</span>
           </div>
-          <div style={routeFamilyGrid}>
-            {ux.routeFamilies.map((family, index) => (
-              <RouteFamilyCard
-                key={buildCockpitNavigationCleanupStableKey(["route-family", String(index), family.id])}
-                family={family}
-              />
-            ))}
-          </div>
+          <p style={bodyText}>{surface.diagnosticsSummary}</p>
+          <a style={safeLink} href={diagnosticsLink.href}>
+            {diagnosticsLink.label}
+          </a>
         </article>
       </section>
 
-      <section style={noticeBand} aria-label="Cockpit navigation cleanup explicit safety limits">
-        {ux.explicitSafetyLimits.map((limit, index) => (
-          <span
-            key={buildCockpitNavigationCleanupStableKey(["route-limit", String(index), limit])}
-            style={dangerChip}
-          >
-            {limit}
-          </span>
-        ))}
-      </section>
+      <details
+        style={diagnosticsDrawer}
+        open={surface.openDiagnosticsByDefault && !embedded}
+      >
+        <summary style={diagnosticsSummary}>Secondary diagnostics</summary>
+        <p style={bodyText}>{surface.diagnosticsSummary}</p>
 
-      <details style={diagnosticsDrawer} open={!embedded}>
-        <summary style={diagnosticsSummary}>Phase diagnostics</summary>
-        <p style={bodyText}>
-          Direct phase route access remains available. Phase pages remain dev test diagnostics only. Smoke coverage
-          remains preserved.
-        </p>
+        <section style={splitBand} aria-label="Diagnostics metadata">
+          <article style={identityBand}>
+            <div>
+              <p style={panelEyebrow}>Route metadata</p>
+              <h2 style={sectionTitle}>{model.route.title}</h2>
+            </div>
+            <div style={fieldRow}>
+              <span style={fieldLabel}>Phase marker</span>
+              <span style={fieldValue}>{model.route.phase}</span>
+            </div>
+            <div style={fieldRow}>
+              <span style={fieldLabel}>Model id</span>
+              <span style={fieldValue}>{ux.cockpitNavigationCleanupUserUxId}</span>
+            </div>
+            <div style={fieldRow}>
+              <span style={fieldLabel}>Model kind</span>
+              <span style={fieldValue}>{ux.cockpitNavigationCleanupUserUxKind}</span>
+            </div>
+            <FieldList label="Section ids" values={model.route.sectionIds} />
+          </article>
+
+          <article style={panel}>
+            <div style={panelHeader}>
+              <div>
+                <p style={panelEyebrow}>Marker phrases</p>
+                <h2 style={sectionTitle}>Smoke and traceability markers</h2>
+              </div>
+              <span style={stateStyle("diagnostic")}>Traceable</span>
+            </div>
+            <div style={markerBand}>
+              {model.route.markerPhrases.map((marker, index) => (
+                <span
+                  key={buildCockpitNavigationCleanupStableKey(["route-marker", model.route.slug, String(index), marker])}
+                  style={markerPill}
+                >
+                  {marker}
+                </span>
+              ))}
+            </div>
+          </article>
+        </section>
+
+        <section style={routeFamilyGrid} aria-label="Route families">
+          {ux.routeFamilies.map((family, index) => (
+            <RouteFamilyCard
+              key={buildCockpitNavigationCleanupStableKey(["route-family", model.route.slug, String(index), family.id])}
+              family={family}
+            />
+          ))}
+        </section>
+
+        <section style={sectionGrid} aria-label="Detailed route sections">
+          {model.sections.map((section, index) => (
+            <SectionCard
+              key={buildCockpitNavigationCleanupStableKey(["section", model.route.slug, String(index), section.sectionId])}
+              section={section}
+            />
+          ))}
+        </section>
+
+        <section style={noticeBand} aria-label="Compact safety limit list">
+          {ux.explicitSafetyLimits.slice(0, 10).map((limit, index) => (
+            <span
+              key={buildCockpitNavigationCleanupStableKey(["route-limit", model.route.slug, String(index), limit])}
+              style={dangerChip}
+            >
+              {limit}
+            </span>
+          ))}
+        </section>
+
         <div style={diagnosticRouteGrid}>
           {model.diagnosticRoutes.map((route, index) => (
             <a
@@ -545,6 +638,255 @@ export function CockpitNavigationCleanupRoutePanel({
       </details>
     </section>
   );
+}
+
+function buildCockpitNavigationCleanupRouteSurface(
+  model: CockpitNavigationCleanupRouteModel
+): CockpitNavigationCleanupRouteSurface {
+  const { route, cockpitNavigationCleanupUserUx: ux } = model;
+
+  switch (route.slug) {
+    case "trading-workspace-hub-preview":
+      return {
+        shellLabel: "Trading Desk",
+        eyebrow: "Trading Desk",
+        badge: "Paper-review only",
+        title: "Trading Desk",
+        summary:
+          "Review strategy notes, risk governor posture, paper workflow, and approval state in one premium workspace. Live trading, broker execution, and personalised recommendations stay blocked.",
+        primaryAction: {
+          href: "/jarvis-trading",
+          label: "Open Jarvis Trading",
+          summary:
+            "Continue with the product-facing trading workspace for strategy review, risk posture, approvals, and paper-only audit trails.",
+        },
+        cards: [
+          buildRouteSurfaceCard(
+            "Strategy review",
+            "Research and thesis",
+            "Research, strategy notes, and scenario review stay visible without turning into a diagnostic wall.",
+            ["Research", "Thesis", "Signals", "Scenario review"]
+          ),
+          buildRouteSurfaceCard(
+            "Risk governor",
+            "Approval and control",
+            "Risk posture, kill switch state, and execution boundaries stay concise and easy to scan.",
+            ["Approval state", "Kill switch", "Blocked execution", "Broker boundary"]
+          ),
+          buildRouteSurfaceCard(
+            "Paper ledger",
+            "Review-only outcomes",
+            "Paper results, review notes, and audit continuity remain visible with no broker execution path.",
+            ["Paper ledger", "Review notes", "Audit continuity", "No broker execution"]
+          ),
+        ],
+        statusPills: [
+          "Paper-review only",
+          "Broker execution blocked",
+          "Operator approval required",
+          "No financial advice",
+        ],
+        blockedActions: [
+          "No broker execution",
+          "No live market data call from the frontend",
+          "No buy or sell instructions",
+          "No money movement or order dispatch",
+        ],
+        safetyNotes: [
+          "Risk governor approval remains required before any future backend-owned paper workflow.",
+          "Credentials, broker access, and execution stay backend-owned.",
+          "Diagnostics stay reachable without leading the normal workspace path.",
+        ],
+        diagnosticsSummary:
+          "Legacy preview markers, route families, and traceability details stay grouped here for developers and smoke coverage.",
+        openDiagnosticsByDefault: false,
+      };
+    case "evidence-audit-hub-preview":
+      return {
+        shellLabel: "Audit and Runs",
+        eyebrow: "Audit and Runs",
+        badge: "Review-only workspace",
+        title: "Audit and Runs",
+        summary:
+          "Review evidence packets, approvals, blocked actions, and result continuity in one place. Capture, joins, and persistence remain backend-owned.",
+        primaryAction: {
+          href: "/jarvis-audit",
+          label: "Open Jarvis Audit",
+          summary:
+            "Continue with the product-facing audit workspace to review evidence, approvals, blocked actions, and result ledger posture.",
+        },
+        cards: [
+          buildRouteSurfaceCard(
+            "Evidence",
+            "Evidence packets",
+            "Evidence and supporting notes stay visible without claiming capture or persistence from the frontend.",
+            ["Evidence packets", "Review notes", "Redaction", "Continuity"]
+          ),
+          buildRouteSurfaceCard(
+            "Approvals",
+            "Approval timeline",
+            "Approval history and blocked actions remain visible without becoming a disclaimer wall.",
+            ["Approval history", "Blocked actions", "Operator review", "Holds"]
+          ),
+          buildRouteSurfaceCard(
+            "Results",
+            "Result review",
+            "Result ledger placeholders keep the next review step clear while storage and joins stay backend-owned.",
+            ["Result ledger", "Recovery notes", "Audit join", "No persistence"]
+          ),
+        ],
+        statusPills: [
+          "Review-only workspace",
+          "Backend-owned capture required",
+          "Blocked actions visible",
+          "No frontend persistence",
+        ],
+        blockedActions: [
+          "No evidence persistence from the frontend",
+          "No audit ledger writes",
+          "No result or memory persistence",
+          "No execution claims beyond review state",
+        ],
+        safetyNotes: [
+          "Evidence capture, run correlation, and approval joins stay backend-owned.",
+          "The route remains a review surface and does not persist evidence or results.",
+          "Diagnostics stay lower so the audit path remains readable.",
+        ],
+        diagnosticsSummary:
+          "Preview markers, route families, and compact safety limits remain available here for traceability and smoke coverage.",
+        openDiagnosticsByDefault: false,
+      };
+    case "developer-diagnostics-hub-preview":
+      return {
+        shellLabel: "Developer Diagnostics",
+        eyebrow: "Developer Diagnostics",
+        badge: "Secondary only",
+        title: "Developer Diagnostics",
+        summary:
+          "Use this secondary hub for route families, smoke coverage, and deep links. It stays out of the normal product path and does not enable execution.",
+        primaryAction: {
+          href: "/",
+          label: "Return to CodexForge",
+          summary:
+            "Go back to the main product route when you want a user-facing workspace. Use this page only for developer traceability and grouped diagnostics.",
+        },
+        cards: [
+          buildRouteSurfaceCard(
+            "Route families",
+            "Grouped deep links",
+            "Browse grouped diagnostic families instead of hunting through a flat phase list.",
+            ["Route families", "Deep links", "Searchable", "Grouped"]
+          ),
+          buildRouteSurfaceCard(
+            "Smoke coverage",
+            "Traceability markers",
+            "Route markers, smoke references, and preview metadata remain visible for developer review.",
+            ["Markers", "Smoke coverage", "Metadata", "Route map"]
+          ),
+          buildRouteSurfaceCard(
+            "Product path",
+            "Normal user path stays clean",
+            "Diagnostics remain reachable without polluting the home, cockpit, Jarvis, or workspace routes.",
+            ["Home", "Cockpit", "Jarvis", "Workspace routes"]
+          ),
+        ],
+        statusPills: [
+          "Secondary only",
+          "Searchable route families",
+          "Normal user path stays clean",
+          "No execution from diagnostics",
+        ],
+        blockedActions: [
+          "No execution from diagnostics",
+          "No provider or model calls",
+          "No persistence or route mutation",
+          "No hidden automation or worker dispatch",
+        ],
+        safetyNotes: [
+          "Developer diagnostics remain accessible without becoming the default user journey.",
+          "Direct route access and smoke coverage stay preserved.",
+          "This route stays review-only and traceability-focused.",
+        ],
+        diagnosticsSummary:
+          "This page is already the secondary diagnostic layer, so route metadata, markers, families, and deep links are expanded by default.",
+        openDiagnosticsByDefault: true,
+      };
+    default: {
+      const cards =
+        model.sections.length > 0
+          ? model.sections.slice(0, 3).map((section, index) =>
+              buildRouteSurfaceCard(
+                index === 0 ? "Workspace overview" : "Supporting detail",
+                section.title,
+                section.humanReadableSummary,
+                section.featureLabels.slice(0, 4)
+              )
+            )
+          : [
+              buildRouteSurfaceCard(
+                "Workspace overview",
+                stripPreviewSuffix(route.title),
+                route.summary,
+                ["Review only", "Diagnostics lower down", "Execution blocked"]
+              ),
+            ];
+
+      return {
+        shellLabel: stripPreviewSuffix(route.title),
+        eyebrow: route.devOnly ? "Secondary preview" : "Workspace review",
+        badge: route.devOnly ? "Review-only route" : "Product route",
+        title: stripPreviewSuffix(route.title),
+        summary:
+          route.summary +
+          " The main product path stays clean while developer traceability remains reachable lower down.",
+        primaryAction: {
+          href: "/codexforge-cockpit",
+          label: "Open CodexForge Cockpit",
+          summary:
+            "Return to the cockpit for the main product journey, then open the workspace or diagnostic route you need.",
+        },
+        cards,
+        statusPills: [
+          "Review-only route",
+          "Operator approval required",
+          "Diagnostics lower down",
+          "Execution blocked",
+        ],
+        blockedActions: [
+          "No execution from the frontend",
+          "No provider or model calls",
+          "No persistence or hidden automation",
+          "No route deletion or smoke removal",
+        ],
+        safetyNotes: [
+          "Operator approval remains required.",
+          "Backend-owned services remain required before any future execution path.",
+          "Direct diagnostic access and smoke coverage stay preserved.",
+        ],
+        diagnosticsSummary:
+          "Markers, grouped route families, safety limits, and preview-only section details stay compact and secondary here.",
+        openDiagnosticsByDefault: false,
+      };
+    }
+  }
+}
+
+function buildRouteSurfaceCard(
+  eyebrow: string,
+  title: string,
+  summary: string,
+  tags: readonly string[]
+): CockpitNavigationCleanupRouteSurfaceCard {
+  return {
+    eyebrow,
+    title,
+    summary,
+    tags,
+  };
+}
+
+function stripPreviewSuffix(title: string): string {
+  return title.replace(/ Preview$/u, "");
 }
 
 function FeatureCard({
@@ -579,6 +921,35 @@ function FeatureCard({
       <a style={safeLink} href={href}>
         {actionLabel}
       </a>
+    </article>
+  );
+}
+
+function SurfaceCard({
+  card,
+}: {
+  card: CockpitNavigationCleanupRouteSurfaceCard;
+}) {
+  return (
+    <article style={panel}>
+      <div style={panelHeader}>
+        <div>
+          <p style={panelEyebrow}>{card.eyebrow}</p>
+          <h2 style={sectionTitle}>{card.title}</h2>
+        </div>
+        <span style={stateStyle("review-only")}>Review only</span>
+      </div>
+      <p style={bodyText}>{card.summary}</p>
+      <div style={chipRow}>
+        {card.tags.map((tag, index) => (
+          <span
+            key={buildCockpitNavigationCleanupStableKey(["surface-card-tag", card.title, String(index), tag])}
+            style={chip}
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
     </article>
   );
 }
@@ -621,6 +992,12 @@ function WorkspacePanel({
 }
 
 function SectionCard({ section }: { section: CockpitNavigationCleanupSection }) {
+  const featuredInputs = section.plannedInputs.slice(0, 3);
+  const featuredOutputs = section.plannedOutputs.slice(0, 3);
+  const featuredSafetyNotes = section.safetyNotes.slice(0, 3);
+  const featuredDeniedActions = section.deniedActions.slice(0, 2);
+  const featuredChecklist = section.checklist.slice(0, 3);
+
   return (
     <article style={panel}>
       <div style={panelHeader}>
@@ -631,12 +1008,18 @@ function SectionCard({ section }: { section: CockpitNavigationCleanupSection }) 
         <span style={stateStyle(section.state)}>{formatState(section.state)}</span>
       </div>
       <p style={bodyText}>{section.humanReadableSummary}</p>
-      <FieldList label="featureLabels" values={section.featureLabels} />
-      <FieldList label="plannedInputs" values={section.plannedInputs} />
-      <FieldList label="plannedOutputs" values={section.plannedOutputs} />
-      <FieldList label="safetyNotes" values={section.safetyNotes} />
+      <FieldList label="Highlights" values={section.featureLabels.slice(0, 6)} />
+      {featuredInputs.length > 0 ? (
+        <FieldList label="Planned inputs" values={featuredInputs} />
+      ) : null}
+      {featuredOutputs.length > 0 ? (
+        <FieldList label="Planned outputs" values={featuredOutputs} />
+      ) : null}
+      {featuredSafetyNotes.length > 0 ? (
+        <FieldList label="Safety notes" values={featuredSafetyNotes} />
+      ) : null}
       <div style={chipRow}>
-        {section.deniedActions.map((action, index) => (
+        {featuredDeniedActions.map((action, index) => (
           <span
             key={buildCockpitNavigationCleanupStableKey(["denied-action", section.sectionId, String(index), action])}
             style={dangerChip}
@@ -646,7 +1029,7 @@ function SectionCard({ section }: { section: CockpitNavigationCleanupSection }) 
         ))}
       </div>
       <div style={checklistGrid}>
-        {section.checklist.map((item, index) => (
+        {featuredChecklist.map((item, index) => (
           <CheckRow
             key={buildCockpitNavigationCleanupStableKey(["section-check", section.sectionId, String(index), item.id])}
             item={item}
@@ -753,21 +1136,28 @@ const page: CSSProperties = {
   flexDirection: "column",
   gap: 18,
   padding: "28px",
-  color: "#172026",
+  color: "#e2e8f0",
 };
 
 const embeddedPage: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: 16,
-  color: "#172026",
+  color: "#e2e8f0",
 };
 
 const hero: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: 12,
-  padding: "4px 0 10px",
+  padding: 20,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(45, 212, 191, 0.2)",
+  borderRadius: 22,
+  background:
+    "radial-gradient(circle at 18% 0%, rgba(34, 211, 238, 0.14), transparent 36%), linear-gradient(145deg, rgba(7, 16, 30, 0.94), rgba(9, 18, 34, 0.9) 58%, rgba(15, 23, 42, 0.84))",
+  boxShadow: "0 24px 60px rgba(2, 6, 23, 0.3)",
 };
 
 const eyebrowRow: CSSProperties = {
@@ -778,27 +1168,30 @@ const eyebrowRow: CSSProperties = {
 
 const phaseBadge: CSSProperties = {
   display: "inline-flex",
-  border: "1px solid #8aa4b8",
-  borderRadius: 6,
-  padding: "5px 8px",
+  alignItems: "center",
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(125, 211, 252, 0.26)",
+  borderRadius: 999,
+  padding: "6px 10px",
   fontSize: 12,
   fontWeight: 700,
-  color: "#233746",
-  background: "#f2f7fa",
+  color: "#dbeafe",
+  background: "rgba(14, 165, 233, 0.12)",
 };
 
 const surfaceBadge: CSSProperties = {
   ...phaseBadge,
-  borderColor: "#8ab7a3",
-  color: "#24533f",
-  background: "#f0faf5",
+  borderColor: "rgba(74, 222, 128, 0.24)",
+  color: "#dcfce7",
+  background: "rgba(21, 128, 61, 0.16)",
 };
 
 const approvalBadge: CSSProperties = {
   ...phaseBadge,
-  borderColor: "#c7a553",
-  color: "#5c4512",
-  background: "#fff7df",
+  borderColor: "rgba(250, 204, 21, 0.26)",
+  color: "#fef3c7",
+  background: "rgba(120, 53, 15, 0.18)",
 };
 
 const title: CSSProperties = {
@@ -806,6 +1199,7 @@ const title: CSSProperties = {
   fontSize: 38,
   lineHeight: 1.08,
   letterSpacing: 0,
+  color: "#f8fafc",
 };
 
 const summary: CSSProperties = {
@@ -813,12 +1207,12 @@ const summary: CSSProperties = {
   maxWidth: 1080,
   fontSize: 18,
   lineHeight: 1.5,
-  color: "#344854",
+  color: "rgba(226, 232, 240, 0.88)",
 };
 
 const bodyText: CSSProperties = {
   margin: "8px 0 0",
-  color: "#425563",
+  color: "rgba(203, 213, 225, 0.82)",
   fontSize: 14,
   lineHeight: 1.55,
 };
@@ -827,10 +1221,12 @@ const statusBand: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
   gap: 12,
-  border: "1px solid #cfd8df",
-  borderRadius: 8,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(74, 222, 128, 0.18)",
+  borderRadius: 18,
   padding: 14,
-  background: "#f7fafc",
+  background: "rgba(9, 20, 34, 0.82)",
 };
 
 const featureGrid: CSSProperties = {
@@ -852,10 +1248,13 @@ const splitBand: CSSProperties = {
 };
 
 const panel: CSSProperties = {
-  border: "1px solid #d8dee4",
-  borderRadius: 8,
-  padding: 16,
-  background: "#ffffff",
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(148, 163, 184, 0.16)",
+  borderRadius: 18,
+  padding: 18,
+  background: "rgba(7, 15, 28, 0.78)",
+  boxShadow: "0 18px 42px rgba(2, 6, 23, 0.24)",
 };
 
 const panelHeader: CSSProperties = {
@@ -868,11 +1267,10 @@ const panelHeader: CSSProperties = {
 
 const panelEyebrow: CSSProperties = {
   margin: "0 0 4px",
-  color: "#60717d",
+  color: "#8bd2e4",
   fontSize: 12,
   fontWeight: 700,
-  textTransform: "uppercase",
-  letterSpacing: 0,
+  letterSpacing: 0.02,
 };
 
 const sectionTitle: CSSProperties = {
@@ -880,13 +1278,16 @@ const sectionTitle: CSSProperties = {
   fontSize: 20,
   lineHeight: 1.25,
   letterSpacing: 0,
+  color: "#f8fafc",
 };
 
 const quickActionBand: CSSProperties = {
-  border: "1px solid #d3e0dd",
-  borderRadius: 8,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(148, 163, 184, 0.16)",
+  borderRadius: 18,
   padding: 16,
-  background: "#f8fbfa",
+  background: "rgba(7, 15, 28, 0.78)",
 };
 
 const quickActionGrid: CSSProperties = {
@@ -905,20 +1306,24 @@ const markerBand: CSSProperties = {
 const markerPill: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
-  border: "1px solid #d8dee4",
-  borderRadius: 6,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(125, 211, 252, 0.18)",
+  borderRadius: 12,
   padding: "7px 9px",
-  background: "#ffffff",
-  color: "#2f3b43",
+  background: "rgba(15, 23, 42, 0.82)",
+  color: "#cbd5e1",
   fontSize: 12,
   lineHeight: 1.3,
 };
 
 const identityBand: CSSProperties = {
-  border: "1px solid #cfd8df",
-  borderRadius: 8,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(148, 163, 184, 0.16)",
+  borderRadius: 18,
   padding: 14,
-  background: "#f7fafc",
+  background: "rgba(7, 15, 28, 0.78)",
 };
 
 const chipRow: CSSProperties = {
@@ -929,49 +1334,53 @@ const chipRow: CSSProperties = {
 };
 
 const chip: CSSProperties = {
-  border: "1px solid #ccd6dd",
-  borderRadius: 6,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(125, 211, 252, 0.18)",
+  borderRadius: 999,
   padding: "6px 8px",
-  background: "#f7fafc",
-  color: "#2b3b46",
+  background: "rgba(8, 47, 73, 0.24)",
+  color: "#e0f2fe",
   fontSize: 12,
   lineHeight: 1.3,
 };
 
 const dangerChip: CSSProperties = {
   ...chip,
-  borderColor: "#d29a9a",
-  background: "#fff3f1",
-  color: "#7d2c26",
+  borderColor: "rgba(248, 113, 113, 0.24)",
+  background: "rgba(127, 29, 29, 0.22)",
+  color: "#fecaca",
 };
 
 const noticeBand: CSSProperties = {
   display: "flex",
   flexWrap: "wrap",
   gap: 8,
-  border: "1px solid #d8c7c2",
-  borderRadius: 8,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(248, 113, 113, 0.2)",
+  borderRadius: 18,
   padding: 14,
-  background: "#fff8f6",
+  background: "rgba(32, 12, 12, 0.54)",
 };
 
 const fieldRow: CSSProperties = {
   display: "grid",
   gap: 3,
-  borderTop: "1px solid #edf1f4",
+  borderTop: "1px solid rgba(148, 163, 184, 0.14)",
   paddingTop: 8,
   marginTop: 8,
 };
 
 const fieldLabel: CSSProperties = {
-  color: "#60717d",
+  color: "#7dd3fc",
   fontSize: 12,
   fontWeight: 800,
 };
 
 const fieldValue: CSSProperties = {
   margin: "7px 0 0",
-  color: "#344854",
+  color: "#cbd5e1",
   fontSize: 13,
   lineHeight: 1.45,
 };
@@ -987,27 +1396,29 @@ const checkRow: CSSProperties = {
   gridTemplateColumns: "auto 1fr",
   gap: 10,
   alignItems: "start",
-  borderTop: "1px solid #edf1f4",
+  borderTop: "1px solid rgba(148, 163, 184, 0.14)",
   paddingTop: 8,
 };
 
 const checkLabel: CSSProperties = {
   margin: 0,
-  color: "#25313a",
+  color: "#f8fafc",
   fontSize: 13,
   fontWeight: 700,
 };
 
 const checkDetail: CSSProperties = {
   margin: "3px 0 0",
-  color: "#526572",
+  color: "rgba(203, 213, 225, 0.82)",
   fontSize: 13,
   lineHeight: 1.45,
 };
 
 const stateBadge: CSSProperties = {
-  border: "1px solid",
-  borderRadius: 6,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "transparent",
+  borderRadius: 999,
   padding: "6px 8px",
   fontSize: 12,
   fontWeight: 700,
@@ -1021,52 +1432,54 @@ const smallStateBadge: CSSProperties = {
 };
 
 const blockedBadge: CSSProperties = {
-  borderColor: "#d29a9a",
-  background: "#fff3f1",
-  color: "#7d2c26",
+  borderColor: "rgba(248, 113, 113, 0.24)",
+  background: "rgba(127, 29, 29, 0.22)",
+  color: "#fecaca",
 };
 
 const approvalStateBadge: CSSProperties = {
-  borderColor: "#c7a553",
-  background: "#fff8e6",
-  color: "#5c4512",
+  borderColor: "rgba(250, 204, 21, 0.26)",
+  background: "rgba(120, 53, 15, 0.18)",
+  color: "#fef3c7",
 };
 
 const reviewBadge: CSSProperties = {
-  borderColor: "#91b9a8",
-  background: "#f0faf5",
-  color: "#235342",
+  borderColor: "rgba(74, 222, 128, 0.24)",
+  background: "rgba(20, 83, 45, 0.22)",
+  color: "#dcfce7",
 };
 
 const userFacingBadge: CSSProperties = {
-  borderColor: "#81b3c9",
-  background: "#eff8fc",
-  color: "#1f5269",
+  borderColor: "rgba(125, 211, 252, 0.26)",
+  background: "rgba(8, 47, 73, 0.24)",
+  color: "#dbeafe",
 };
 
 const diagnosticBadge: CSSProperties = {
-  borderColor: "#a8aeb8",
-  background: "#f4f5f7",
-  color: "#3f4852",
+  borderColor: "rgba(148, 163, 184, 0.24)",
+  background: "rgba(30, 41, 59, 0.56)",
+  color: "#cbd5e1",
 };
 
 const candidateBadge: CSSProperties = {
-  borderColor: "#8aa4b8",
-  background: "#f2f7fa",
-  color: "#233746",
+  borderColor: "rgba(34, 211, 238, 0.24)",
+  background: "rgba(12, 74, 110, 0.24)",
+  color: "#bae6fd",
 };
 
 const diagnosticsDrawer: CSSProperties = {
-  border: "1px solid #d8dee4",
-  borderRadius: 8,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(148, 163, 184, 0.16)",
+  borderRadius: 18,
   padding: 14,
-  background: "#fbfcfd",
+  background: "rgba(6, 11, 22, 0.84)",
 };
 
 const diagnosticsSummary: CSSProperties = {
   cursor: "pointer",
   fontWeight: 800,
-  color: "#263540",
+  color: "#e2e8f0",
 };
 
 const routeFamilyGrid: CSSProperties = {
@@ -1077,10 +1490,12 @@ const routeFamilyGrid: CSSProperties = {
 };
 
 const familyCard: CSSProperties = {
-  border: "1px solid #d8dee4",
-  borderRadius: 8,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(148, 163, 184, 0.16)",
+  borderRadius: 16,
   padding: 12,
-  background: "#ffffff",
+  background: "rgba(7, 15, 28, 0.78)",
 };
 
 const diagnosticRouteGrid: CSSProperties = {
@@ -1093,16 +1508,18 @@ const diagnosticRouteGrid: CSSProperties = {
 const routeLink: CSSProperties = {
   display: "grid",
   gap: 4,
-  border: "1px solid #d8dee4",
-  borderRadius: 8,
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(148, 163, 184, 0.16)",
+  borderRadius: 16,
   padding: 12,
-  color: "#25313a",
+  color: "#e2e8f0",
   textDecoration: "none",
-  background: "#ffffff",
+  background: "rgba(7, 15, 28, 0.78)",
 };
 
 const routePhase: CSSProperties = {
-  color: "#60717d",
+  color: "#7dd3fc",
   fontSize: 12,
   fontWeight: 700,
 };
@@ -1110,23 +1527,58 @@ const routePhase: CSSProperties = {
 const routeLabel: CSSProperties = {
   fontSize: 14,
   fontWeight: 800,
+  color: "#f8fafc",
 };
 
 const routeCommand: CSSProperties = {
-  color: "#526572",
+  color: "rgba(203, 213, 225, 0.72)",
   fontSize: 12,
 };
 
 const safeLink: CSSProperties = {
   display: "inline-flex",
   width: "fit-content",
-  border: "1px solid #b7c9d7",
-  borderRadius: 6,
+  alignItems: "center",
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(125, 211, 252, 0.22)",
+  borderRadius: 12,
   padding: "8px 10px",
-  color: "#164666",
-  background: "#ffffff",
+  color: "#dbeafe",
+  background: "rgba(8, 47, 73, 0.24)",
   textDecoration: "none",
   fontSize: 13,
   fontWeight: 700,
   marginTop: 12,
+};
+
+const primaryActionPanel: CSSProperties = {
+  ...panel,
+  borderColor: "rgba(45, 212, 191, 0.22)",
+  background:
+    "radial-gradient(circle at 78% 18%, rgba(34, 211, 238, 0.12), transparent 24%), linear-gradient(145deg, rgba(8, 27, 38, 0.94), rgba(9, 18, 34, 0.9))",
+};
+
+const primaryLink: CSSProperties = {
+  ...safeLink,
+  borderColor: "rgba(45, 212, 191, 0.28)",
+  background: "rgba(20, 83, 45, 0.22)",
+  color: "#dcfce7",
+};
+
+const statusPill: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 42,
+  padding: "10px 12px",
+  borderWidth: 1,
+  borderStyle: "solid",
+  borderColor: "rgba(74, 222, 128, 0.18)",
+  borderRadius: 14,
+  background: "rgba(20, 83, 45, 0.18)",
+  color: "#dcfce7",
+  fontSize: 12,
+  fontWeight: 700,
+  lineHeight: 1.4,
 };

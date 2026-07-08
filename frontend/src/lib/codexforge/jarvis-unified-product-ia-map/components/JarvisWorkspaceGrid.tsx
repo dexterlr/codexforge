@@ -53,17 +53,34 @@ export function JarvisWorkspaceGrid({
             </div>
             <p className={styles.workspaceDescription}>{workspace.description}</p>
             <div className={styles.workspaceMeta}>
-              <span className={styles.metaPill}>{workspace.shortLabel}</span>
-              <span className={styles.metaPill}>{workspace.riskTier}</span>
+              {workspace.id === activeWorkspaceId ? (
+                <span className={styles.metaPill}>Current</span>
+              ) : null}
+              <span className={styles.metaPill}>{workspace.approvalPosture}</span>
+              <span className={styles.metaPill}>
+                {formatRiskTierLabel(workspace.riskTier)}
+              </span>
               <span className={styles.metaPill}>{workspace.executionPosture}</span>
             </div>
             <div className={styles.workspaceFooter}>
               <span>{workspace.primaryNextAction}</span>
-              <span>{workspace.backendRequirementSummary}</span>
             </div>
           </Link>
         );
       })}
     </div>
   );
+}
+
+function formatRiskTierLabel(
+  riskTier: JarvisUnifiedProductWorkspaceRecord["riskTier"]
+): string {
+  switch (riskTier) {
+    case "tier-1-platform":
+      return "Platform";
+    case "tier-2-creative":
+      return "Creative";
+    default:
+      return "Market";
+  }
 }

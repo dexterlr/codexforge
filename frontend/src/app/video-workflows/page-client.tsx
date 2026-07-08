@@ -5,7 +5,7 @@ import { LocalVideoWorkflowCatalogPanel } from "@/lib/codexforge/local-video-wor
 
 export default function VideoWorkflowsPageClient() {
   return (
-    <CodexForgeAppShell activePath="/video-workflows" workspaceLabel="Video Workflows" nextActionContext={{ hasCreativeWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarSafetyNotice={false} showHeroRouteChips={false}>
+    <CodexForgeAppShell activePath="/video-workflows" workspaceLabel="Workflows" nextActionContext={{ hasCreativeWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarSafetyNotice={false} showHeroRouteChips={false}>
       <LocalVideoWorkflowCatalogPanel />
     </CodexForgeAppShell>
   );

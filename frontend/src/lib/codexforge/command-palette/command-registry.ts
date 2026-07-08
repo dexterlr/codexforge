@@ -44,6 +44,10 @@ import {
   JARVIS_VIDEO_TRIAL_RESULT_REVIEW_RECOVERY_ROUTE_SPECS,
 } from "../jarvis-video-trial-result-review-recovery-map/jarvis-video-trial-result-review-recovery-model";
 import {
+  JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REVIEW_DESCRIPTION,
+  JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_ROUTE_SPECS,
+} from "../jarvis-video-studio-release-candidate-map/jarvis-video-studio-release-candidate-model";
+import {
   buildCodexForgeContinuityHandoffPromptPayload,
   buildCodexForgeContinuityValidationChecklistPayload,
   buildCodexForgeApplyGateHandoffPromptPayload,
@@ -1072,6 +1076,25 @@ const JARVIS_VIDEO_TRIAL_RESULT_REVIEW_RECOVERY_ROUTE_AVAILABILITY =
   );
 const JARVIS_VIDEO_TRIAL_RESULT_REVIEW_RECOVERY_ROUTE_COMMANDS =
   JARVIS_VIDEO_TRIAL_RESULT_REVIEW_RECOVERY_ROUTE_SPECS.map(
+    ([phaseNumber, id, href, label]) => ({
+      id: `go-${id}`,
+      label: `Go to ${label}`,
+      href,
+      priority: 25 + phaseNumber / 10000,
+    })
+  ) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & {
+    href: NonNullable<CodexForgeCommand["href"]>;
+  })[];
+const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_ROUTE_AVAILABILITY =
+  JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_ROUTE_SPECS.reduce<CodexForgeCommandRouteAvailability>(
+    (routes, [, , href]) => {
+      routes[href] = true;
+      return routes;
+    },
+    {}
+  );
+const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_ROUTE_COMMANDS =
+  JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_ROUTE_SPECS.map(
     ([phaseNumber, id, href, label]) => ({
       id: `go-${id}`,
       label: `Go to ${label}`,
@@ -3732,6 +3755,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   ...JARVIS_VIDEO_CONTROLLED_EXECUTION_TRIAL_ROUTE_AVAILABILITY,
   ...JARVIS_VIDEO_BACKEND_TRIAL_RUNNER_CONTRACT_ROUTE_AVAILABILITY,
   ...JARVIS_VIDEO_TRIAL_RESULT_REVIEW_RECOVERY_ROUTE_AVAILABILITY,
+  ...JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_ROUTE_AVAILABILITY,
   "/change-plan-live-context": true,
   "/patch-preview-live-context": true,
   "/test-planner-live-context": true,
@@ -31790,6 +31814,18 @@ export function buildCodexForgeCommands(
           "trial result review recovery only",
           "result review is staged",
           "recovery remains backend-owned",
+        ],
+      })
+    ),
+    ...JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_ROUTE_COMMANDS.map((command) =>
+      buildRouteCommand(availability, {
+        ...command,
+        description: JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REVIEW_DESCRIPTION,
+        keywords: [
+          "Jarvis Video Studio Release Candidate",
+          "premium video studio release candidate",
+          "release candidate only",
+          "generation remains locked",
         ],
       })
     ),

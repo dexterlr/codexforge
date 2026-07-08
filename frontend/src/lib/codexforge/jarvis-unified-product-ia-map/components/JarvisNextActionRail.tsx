@@ -13,9 +13,17 @@ export function JarvisNextActionRail({
 }: JarvisNextActionRailProps) {
   return (
     <ol className={styles.nextActionList}>
-      {actions.map((action) => (
+      {actions.map((action, index) => (
         <li key={action.id}>
-          <Link className={styles.railCard} href={action.routeHref}>
+          <Link
+            className={
+              index === 0 ? styles.primaryActionCard : styles.secondaryActionCard
+            }
+            href={action.routeHref}
+          >
+            <span className={styles.actionKicker}>
+              {index === 0 ? "Primary action" : "Also useful"}
+            </span>
             <span
               className={`${styles.timelineState} ${
                 action.tone === "ready"

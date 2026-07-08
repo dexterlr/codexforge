@@ -26,10 +26,10 @@ export function UnifiedSettingsPreferencesReviewPanel() {
       data-codexforge-unified-settings-preferences-review={`${UNIFIED_SETTINGS_PREFERENCES_REVIEW_MARKERS} buildUnifiedSettingsPreferencesReviewStableKey UnifiedSettingsPreferencesReviewPanel route imports/renders main panel`}
     >
       <PreviewFoundationHero
-        phase="Phase 495"
-        title="Settings review"
-        subtitle="Unified settings and preferences review checks lane preferences and privacy defaults without persisting settings. Settings changes require explicit operator approval, and unsafe preference defaults remain blocked."
-        primary={{ href: "#unified-settings-preferences-review", label: "Review settings" }}
+        phase="Safety and settings"
+        title="Safety and Settings"
+        subtitle="Review privacy defaults, approval mode, and workspace preferences without persisting settings. Unsafe defaults stay blocked."
+        primary={{ href: "#unified-settings-preferences-review", label: "Open safety review" }}
         links={[
           { href: "/unified-recovery-policy-final-review", label: "Recovery policy" },
           { href: "/daily-operator-cockpit-final-polish", label: "Cockpit polish" },

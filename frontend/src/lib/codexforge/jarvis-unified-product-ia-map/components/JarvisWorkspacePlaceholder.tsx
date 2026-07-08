@@ -15,7 +15,7 @@ export function JarvisWorkspacePlaceholder({
       <article className={styles.focusCard}>
         <div className={styles.placeholderHeader}>
           <div>
-            <p className={styles.panelEyebrow}>What this workspace is</p>
+            <p className={styles.panelEyebrow}>Workspace overview</p>
             <h3 className={styles.focusTitle}>{workspace.label}</h3>
           </div>
           <span className={styles.panelBadge}>{workspace.emphasisLabel}</span>
@@ -48,7 +48,7 @@ export function JarvisWorkspacePlaceholder({
           <article key={panel.id} className={styles.placeholderCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Review panel</p>
+                <p className={styles.panelEyebrow}>Review card</p>
                 <h3 className={styles.placeholderTitle}>{panel.label}</h3>
               </div>
               <span
@@ -78,4 +78,3 @@ export function JarvisWorkspacePlaceholder({
     </div>
   );
 }
-

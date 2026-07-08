@@ -6,7 +6,7 @@ import { VideoProjectWorkspacePanel } from "@/lib/codexforge/video-project-works
 
 export default function VideoProjectsPageClient() {
   return (
-    <CodexForgeAppShell activePath="/video-projects" workspaceLabel="Video Projects" nextActionContext={{ hasCreativeWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarSafetyNotice={false} showHeroRouteChips={false}>
+    <CodexForgeAppShell activePath="/video-projects" workspaceLabel="Projects" nextActionContext={{ hasCreativeWork: true }} focusMode contentMaxWidth="wide" pageChrome="minimal" showRightRail={false} showSidebarSafetyNotice={false} showHeroRouteChips={false}>
       <GuardedVideoPipelineRail title="Video project guarded pipeline" />
       <VideoProjectWorkspacePanel />
     </CodexForgeAppShell>

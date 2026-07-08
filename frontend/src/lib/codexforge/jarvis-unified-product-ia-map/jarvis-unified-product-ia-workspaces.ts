@@ -87,26 +87,30 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     label: "Video Studio",
     shortLabel: "Video",
     description:
-      "The most polished active specialist workspace now pairs mission brief review, storyboard control, approval packet review, backend readiness, a locked controlled trial console, the drafted backend trial runner contract, and premium audit and result placeholders.",
+      "Jarvis Video Studio Release Candidate is the premium video studio release candidate workspace. It leads with mission brief, video production timeline, video readiness score, script storyboard lane, asset audio caption lane, approval packet lane, dry-run lane, backend readiness lane, controlled trial lane, backend runner lane, result review recovery lane, blocked action command deck, next action card, and release summary review only before developer diagnostics grouped lower.",
     status: "approval-required",
     riskTier: "tier-2-creative",
     approvalPosture: "Operator approval required",
-    executionPosture: "Execution blocked",
+    executionPosture: "Backend-owned execution required",
     primaryNextAction:
-      "Review the controlled trial console and backend trial runner contract, confirm the backend-owned execution lane remains locked, and keep provider, render, export, and publish blocked.",
+      "Plan, review, approve, then hand off to backend. Generation remains locked. No provider call from frontend.",
     placeholderState: {
-      label: "video studio remains primary active workspace",
+      label: "Video Studio workflow",
       summary:
-        "A premium review shell keeps the visible video product path strong while the controlled trial console and drafted backend trial runner contract stay locked, approval-gated, backend-only, and execution-blocked.",
+        "Review the studio workflow from brief to backend handoff in one place, with diagnostics kept secondary.",
       steps: [
         "mission brief",
-        "storyboard",
-        "approval packet",
-        "backend readiness",
-        "controlled trial console",
-        "backend trial runner contract",
-        "result placeholder",
-        "audit and status rail",
+        "video production timeline",
+        "video readiness score",
+        "script storyboard lane",
+        "asset audio caption lane",
+        "approval packet lane",
+        "dry-run lane",
+        "backend readiness lane",
+        "controlled trial lane",
+        "backend runner lane",
+        "result review recovery lane",
+        "next action card",
       ],
     },
     blockedActionSummary: [
@@ -122,66 +126,87 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
       "no worker dispatch",
     ],
     backendRequirementSummary:
-      "A drafted backend-owned Jarvis video trial runner contract now exists for review, but backend runner creation, start service, audit persistence, credential isolation runtime, queue and worker ownership, lock and idempotency store, and result handoff service remain required before any controlled video trial can execute.",
+      "Backend-owned execution required. The release candidate keeps the workflow coherent while backend runner creation, runtime isolation, audit persistence, credential isolation, lock and idempotency stores, result capture, artifact handoff, and execution services remain future backend work only.",
     reviewPanels: [
       {
         id: "mission-brief",
         label: "Mission brief",
         summary:
-          "Audience, objective, format, and operator constraints stay reviewable at the top of the workspace.",
+          "Audience, objective, and approval posture stay visible at the top of the studio.",
         state: "ready",
       },
       {
-        id: "storyboard",
-        label: "Storyboard plan",
+        id: "video-timeline",
+        label: "Video production timeline",
         summary:
-          "Scene order, pacing, and result intent remain visible without starting any provider or render path.",
+          "The studio answers the operator workflow from brief to backend handoff before any diagnostics.",
         state: "ready",
+      },
+      {
+        id: "readiness-score",
+        label: "Video readiness score",
+        summary:
+          "A compact readiness score keeps the backend-only execution posture obvious.",
+        state: "approval-required",
+      },
+      {
+        id: "script-storyboard",
+        label: "Script storyboard lane",
+        summary:
+          "Script and storyboard planning remain premium review-only cards with no generation lane.",
+        state: "ready",
+      },
+      {
+        id: "asset-audio-caption",
+        label: "Asset audio caption lane",
+        summary:
+          "Prerequisites stay visible without upload, media mutation, or audio generation.",
+        state: "approval-required",
       },
       {
         id: "approval-packet",
-        label: "Approval packet",
+        label: "Approval packet lane",
         summary:
-          "Approval posture, prompt envelope, and operator packet remain the gating artifact before any backend trial.",
+          "Operator packet and approval evidence remain the gate before backend handoff.",
         state: "approval-required",
       },
       {
         id: "backend-readiness",
-        label: "Backend readiness",
+        label: "Backend readiness lane",
         summary:
           "Runtime, adapter, audit, credential, token, and redaction requirements stay visible and backend-only.",
         state: "approval-required",
       },
       {
         id: "controlled-trial-console",
-        label: "Controlled trial console",
+        label: "Controlled trial lane",
         summary:
-          "Readiness state, dry-run reference, approval packet reference, backend gates, audit preview, and disabled launch lane stay visible in one premium review surface.",
+          "Controlled trial posture stays visible as a locked backend-owned lane with no launch affordance.",
         state: "approval-required",
       },
       {
         id: "backend-trial-runner-contract",
-        label: "Backend trial runner contract",
+        label: "Backend runner lane",
         summary:
-          "Runner interface, runner envelopes, lease and queue and worker boundaries, approval and audit join, kill switch, idempotency, result capture, artifact handoff, and recovery remain drafted as review-only backend-owned contract data.",
+          "Runner interface, envelopes, queue and worker boundaries, kill switch, idempotency, and recovery remain drafted as review-only backend contract data.",
         state: "approval-required",
       },
       {
-        id: "result-placeholder",
-        label: "Result placeholder",
+        id: "result-review-recovery",
+        label: "Result review recovery lane",
         summary:
-          "Result, artifact handoff, audit preview, and evidence packet stay intentional placeholders instead of a diagnostic wall.",
+          "Result review and recovery remain staged, backend-owned, and review-only with no persistence path.",
         state: "blocked",
       },
       {
-        id: "audit-rail",
-        label: "Audit and status rail",
+        id: "next-action",
+        label: "Next action card",
         summary:
-          "Approval hold, blocked action state, and readiness cues stay visible in the right order.",
+          "A single next action closes the workspace instead of a diagnostic wall.",
         state: "ready",
       },
     ],
-    emphasisLabel: "video studio remains primary active workspace",
+    emphasisLabel: "Release candidate workspace",
   },
   {
     id: "jarvis-websites",
@@ -189,17 +214,17 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     label: "Website Builder",
     shortLabel: "Websites",
     description:
-      "A polished website creation workspace shell placeholder that shows the future build flow without creating files, previews, or deploys.",
+      "A review-first website builder workspace that shows the future build flow without creating files, previews, or deploys.",
     status: "blocked",
     riskTier: "tier-2-creative",
-    approvalPosture: "Approval required",
-    executionPosture: "Execution blocked",
+    approvalPosture: "Operator approval required",
+    executionPosture: "Preview and publish blocked",
     primaryNextAction:
-      "Review the brief to sitemap to design system flow and confirm export and publish remain blocked.",
+      "Review the brief, sitemap, design system, and page plan while preview and publish remain blocked.",
     placeholderState: {
-      label: "websites workspace placeholder only",
+      label: "Planned website workflow",
       summary:
-        "The product path is intentional: idea to sitemap to design system to pages to preview to export and publish approval.",
+        "The workflow is clear and reviewable: brief to sitemap to design system to pages to preview and publish approval.",
       steps: [
         "idea",
         "sitemap",
@@ -264,7 +289,7 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
         state: "approval-required",
       },
     ],
-    emphasisLabel: "placeholders are intentional",
+    emphasisLabel: "Review-only workspace",
   },
   {
     id: "jarvis-avatar",
@@ -272,15 +297,15 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     label: "Avatar Studio",
     shortLabel: "Avatar",
     description:
-      "A polished avatar and media identity workspace shell placeholder built around persona, consent, style, safety, and preview review.",
+      "A review-first avatar studio built around persona, consent, style, safety, and preview planning.",
     status: "blocked",
     riskTier: "tier-2-creative",
-    approvalPosture: "Approval required",
-    executionPosture: "Execution blocked",
+    approvalPosture: "Operator approval required",
+    executionPosture: "Preview blocked",
     primaryNextAction:
       "Review persona, consent, and safety posture while voice, likeness, and generation remain blocked.",
     placeholderState: {
-      label: "avatar workspace placeholder only",
+      label: "Planned avatar workflow",
       summary:
         "The future flow is persona to consent to voice and visual style to safety to preview to approval without identity execution.",
       steps: [
@@ -346,7 +371,7 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
         state: "approval-required",
       },
     ],
-    emphasisLabel: "placeholders are intentional",
+    emphasisLabel: "Review-only workspace",
   },
   {
     id: "jarvis-trading",
@@ -358,11 +383,11 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     status: "approval-required",
     riskTier: "tier-3-market",
     approvalPosture: "Explicit operator approval required",
-    executionPosture: "Paper-review-only and execution blocked",
+    executionPosture: "Paper-review-only",
     primaryNextAction:
       "Review risk governor posture, strategy notes, and paper ledger while live trading, live market data, and broker execution remain blocked.",
     placeholderState: {
-      label: "trading workspace has dedicated polished page",
+      label: "Trading review workflow",
       summary:
         "This desk is elegant and compact: paper-review-only, no financial advice, no personalised recommendations, no buy sell instructions, and no live execution.",
       steps: [
@@ -430,7 +455,7 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
         state: "blocked",
       },
     ],
-    emphasisLabel: "paper-review-only trading shell",
+    emphasisLabel: "Paper-review-only workspace",
   },
   {
     id: "jarvis-workflows",
@@ -438,15 +463,15 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     label: "Workflows",
     shortLabel: "Workflows",
     description:
-      "A polished workflow automation shell placeholder that makes triggers, planner, permissions, dry run, approval, and audit visible without dispatching anything.",
+      "A review-first workflow planning workspace that makes triggers, planner, permissions, dry run, approval, and audit visible without dispatching anything.",
     status: "blocked",
     riskTier: "tier-1-platform",
-    approvalPosture: "Approval required",
-    executionPosture: "Execution blocked",
+    approvalPosture: "Operator approval required",
+    executionPosture: "Dispatch blocked",
     primaryNextAction:
       "Review the trigger to plan to permission to dry run to approval to audit path while scheduling and worker dispatch remain blocked.",
     placeholderState: {
-      label: "workflows workspace placeholder only",
+      label: "Planned workflow path",
       summary:
         "The future flow is trigger to plan to permission to dry run to approval to audit with no automation, no scheduling, and no worker dispatch.",
       steps: [
@@ -513,7 +538,7 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
         state: "ready",
       },
     ],
-    emphasisLabel: "placeholders are intentional",
+    emphasisLabel: "Review-only workspace",
   },
   {
     id: "jarvis-audit",
@@ -521,15 +546,15 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     label: "Audit and Runs",
     shortLabel: "Audit",
     description:
-      "A polished audit workspace for run history, approvals, evidence, blocked actions, and result ledger placeholders with no persistence.",
+      "A polished audit workspace for run history, approvals, evidence, blocked actions, and result review with no persistence.",
     status: "ready",
     riskTier: "tier-1-platform",
     approvalPosture: "Review only",
-    executionPosture: "Execution blocked",
+    executionPosture: "Review-only workspace",
     primaryNextAction:
       "Review approvals ledger, blocked action log, evidence packets, and result ledger placeholders before moving toward any execution batch.",
     placeholderState: {
-      label: "audit workspace placeholder only",
+      label: "Audit and run review",
       summary:
         "This workspace is intentionally clean and product-facing: it shows runs, approvals, evidence, blocked actions, and results without persistence.",
       steps: [
@@ -594,7 +619,7 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
         state: "approval-required",
       },
     ],
-    emphasisLabel: "developer diagnostics are secondary",
+    emphasisLabel: "Review-only workspace",
   },
   {
     id: "jarvis-safety",
@@ -602,15 +627,15 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     label: "Safety and Settings",
     shortLabel: "Safety",
     description:
-      "A polished safety workspace for permission posture, kill switch, risk tiers, approval mode, credential boundaries, and storage boundaries.",
+      "A polished safety dashboard for approval mode, kill switch, credential boundaries, and storage boundaries.",
     status: "ready",
     riskTier: "tier-1-platform",
     approvalPosture: "Review only",
-    executionPosture: "Execution blocked",
+    executionPosture: "Safety control plane",
     primaryNextAction:
       "Review kill switch state, approval mode, credential boundary, and browser storage boundary before any backend trial is proposed.",
     placeholderState: {
-      label: "safety workspace placeholder only",
+      label: "Safety dashboard",
       summary:
         "Safety is compact and explicit: permission tiers, kill switch, approval mode, credential boundary, storage boundary, and blocked execution state.",
       steps: [
@@ -677,7 +702,7 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
         state: "ready",
       },
     ],
-    emphasisLabel: "developer diagnostics are secondary",
+    emphasisLabel: "Review-only workspace",
   },
   {
     id: "developer-diagnostics",
@@ -693,7 +718,7 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     primaryNextAction:
       "Open diagnostics only when the product-facing routes do not answer the review question.",
     placeholderState: {
-      label: "phase pages remain diagnostics only",
+      label: "Diagnostics and traceability",
       summary:
         "Developer diagnostics are secondary. Placeholders are intentional. Normal user path is primary.",
       steps: [
@@ -756,7 +781,7 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
         state: "blocked",
       },
     ],
-    emphasisLabel: "developer diagnostics are secondary",
+    emphasisLabel: "Secondary only",
   },
 ] as const satisfies readonly JarvisUnifiedProductWorkspaceRecord[];
 
