@@ -13,6 +13,8 @@ export type JarvisVideoStudioReleaseCandidateReviewRail = Readonly<{
 }>;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
+  "Backend execution implementation plan",
+  "implementation plan only",
   "Jarvis Video Studio Release Candidate",
   "release candidate only",
   "generation remains locked",
@@ -129,7 +131,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_SAFETY_RAIL = {
   title: "Safety and approval",
   posture: "Kill switch engaged",
   summary:
-    "The studio stays frontend-safe: review-only, backend-only, approval-required, disabled by default, and execution-blocked.",
+    "The studio stays frontend-safe: review-only, backend-only, approval-required, disabled by default, execution-blocked, and plan-only.",
   items: [
     "no generation guard",
     "no execution guard",
@@ -218,7 +220,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_OPERATOR_REVIEW_POSTURE =
   "Operator approval required";
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_POSTURE =
-  "Release candidate";
+  "Implementation plan only";
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_EXECUTION_POSTURE =
   "Backend-owned execution required";

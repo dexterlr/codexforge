@@ -63,45 +63,45 @@ export type JarvisVideoStudioReleaseCandidateMilestoneReference = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_HERO_STATE = {
   eyebrow: "Jarvis Video Studio",
-  stageLabel: "Release candidate",
+  stageLabel: "Implementation plan",
   title: "Jarvis Video Studio",
   summary:
-    "Premium review workspace for mission planning, approvals, readiness, and backend handoff.",
+    "Premium review workspace for mission planning, approvals, readiness, and backend execution planning.",
   detail:
-    "Generation stays locked. Backend-owned execution requires operator approval. No provider call from frontend.",
+    "Jarvis Video Studio is ready for backend execution planning. Generation stays locked. Backend-owned execution requires operator approval. This batch is a plan only. No provider call from frontend.",
   metrics: [
     {
       label: "Workspace",
-      value: "Release candidate",
-      detail: "Mission brief, readiness, approvals, and handoff stay on one surface.",
+      value: "Plan-only handoff",
+      detail: "Mission brief, readiness, approvals, and backend planning stay on one surface.",
     },
     {
       label: "Workflow",
-      value: "10-step studio flow",
-      detail: "Mission brief to result review and recovery in one surface.",
+      value: "Studio plus backend plan",
+      detail: "Mission brief to implementation-plan review in one surface.",
     },
     {
       label: "Readiness",
-      value: "Studio readiness",
-      detail: "Backend-only execution path required before any real run exists.",
+      value: "Plan-ready studio",
+      detail: "Backend-only execution path remains required before any real run exists.",
     },
     {
       label: "Safety",
       value: "Generation locked",
-      detail: "Kill switch engaged and no direct frontend execution.",
+      detail: "Kill switch engaged, no direct frontend execution, and no provider call from frontend.",
     },
   ],
 } as const satisfies JarvisVideoStudioReleaseCandidateHeroState;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_MISSION_BRIEF = {
   title: "Mission brief",
-  audience: "Operator-led review of the release-candidate studio.",
+  audience: "Operator-led review of the studio and its next backend plan.",
   objective:
-    "Consolidate planning, prerequisites, approval, dry run, backend readiness, controlled trial, backend runner contract, and result review recovery into one coherent premium studio surface.",
+    "Consolidate planning, prerequisites, approval, dry run, backend readiness, controlled trial, backend runner contract, result review recovery, and the next backend execution implementation plan into one coherent premium studio surface.",
   operatorPosture:
     "Operator approval required before any backend-owned execution path can move forward.",
   handoffState:
-    "Plan, review, approve, then hand off to backend. No provider call from frontend.",
+    "Plan, review, approve, then hand off to backend. This batch is a plan only. No provider call from frontend.",
 } as const satisfies JarvisVideoStudioReleaseCandidateMissionBrief;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_PRODUCTION_TIMELINE = [
@@ -253,9 +253,9 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_BACKEND_READINESS_LANE = {
   id: "backend-readiness-lane",
   title: "Backend readiness",
   summary:
-    "Backend runtime readiness, credential isolation, redaction, and audit ownership remain prerequisites only.",
+    "Backend runtime readiness, credential isolation, redaction, audit ownership, and server-only execution planning remain prerequisites only.",
   posture: "backend-only execution required",
-  detail: "No frontend execution of backend adapters. No API route execution.",
+  detail: "No frontend execution of backend adapters. No queue, worker, or provider execution.",
   routeHref:
     "/jarvis-video-studio-release-candidate-backend-readiness-wiring" as Route,
   tone: "approval-required",
@@ -393,5 +393,12 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_MILESTONE_REFERENCES = [
     label: "First Jarvis-Controlled Video Trial Result Review and Recovery",
     href: "/jarvis-video-trial-result-review-recovery-boundary-wiring" as Route,
     summary: "result review recovery link review only",
+  },
+  {
+    phaseRange: "4042-4073",
+    label: "Jarvis Video Studio Release Candidate",
+    href:
+      "/jarvis-video-studio-release-candidate-boundary-wiring" as Route,
+    summary: "release candidate review-only evidence",
   },
 ] as const satisfies readonly JarvisVideoStudioReleaseCandidateMilestoneReference[];

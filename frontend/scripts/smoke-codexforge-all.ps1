@@ -4127,6 +4127,7 @@ try {
   @{ Name = "Phase 4071 Jarvis Video Studio Release Candidate Readiness Wiring"; File = "smoke-codexforge-jarvis-video-studio-release-candidate-readiness-wiring.ps1"; Required = $true },
   @{ Name = "Phase 4072 Jarvis Video Studio Release Candidate UX Polish Wiring"; File = "smoke-codexforge-jarvis-video-studio-release-candidate-ux-polish-wiring.ps1"; Required = $true },
   @{ Name = "Phase 4073 Jarvis Video Studio Release Candidate Completion"; File = "smoke-codexforge-jarvis-video-studio-release-candidate-completion.ps1"; Required = $true },
+  @{ Name = "Phase 4105 Jarvis Video Backend Execution Implementation Plan"; File = "smoke-codexforge-jarvis-video-backend-execution-implementation-plan-mega-batch.ps1"; Required = $true },
   @{ Name = "Jarvis Video Studio Release Candidate Mega Batch"; File = "smoke-codexforge-jarvis-video-studio-release-candidate-mega-batch.ps1"; Required = $true },
   @{ Name = "Provider Connection Test UX"; File = "smoke-codexforge-provider-connection-test-ux.ps1"; Required = $true },
   @{ Name = "Artifacts Suite"; File = "smoke-codexforge-artifacts-suite.ps1"; Required = $true },

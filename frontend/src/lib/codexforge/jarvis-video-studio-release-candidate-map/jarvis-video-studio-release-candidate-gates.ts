@@ -48,15 +48,15 @@ export type JarvisVideoStudioReleaseCandidateDiagnosticsGrouping = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_SCORE = {
   label: "video readiness score",
-  value: 82,
-  posture: "backend-owned execution required",
+  value: 86,
+  posture: "implementation plan only",
   summary:
-    "The release candidate is ready for operator review, but execution stays blocked behind backend readiness, approval, and safety gates.",
+    "Jarvis Video Studio is ready for backend execution planning, but execution stays blocked behind backend readiness, approval, and safety gates.",
   detail: [
     "mission brief and storyboard path are coherent",
     "approval packet and dry-run references are visible",
-    "controlled trial and backend runner remain locked",
-    "result review recovery stays staged and review-only",
+    "backend execution implementation plan is visible without live execution",
+    "controlled trial, backend runner, and result review remain locked",
   ],
 } as const satisfies JarvisVideoStudioReleaseCandidateReadinessScore;
 
@@ -99,17 +99,18 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_BLOCKED_ACTION_DECK = [
   {
     id: "automation",
     title: "Automate follow-up",
-    summary: "No worker, scheduler, queue, tool, or orchestration path can be triggered from the studio.",
+    summary: "No queue, worker, scheduler, tool, or orchestration path exists yet from the studio.",
     guard: "hard kill switch",
     tone: "blocked",
   },
 ] as const satisfies readonly JarvisVideoStudioReleaseCandidateBlockedActionCard[];
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_NEXT_ACTION_CARD = {
-  title: "Continue Video Studio",
+  title: "Plan backend execution",
   summary:
-    "Review the mission brief, approval packet, backend readiness, and result recovery plan before backend planning.",
-  posture: "Backend handoff follows operator approval and locked safety rails.",
+    "Review the server-only path, approval packet join, credential isolation, and rollout checks before any backend implementation follow-up is proposed.",
+  posture:
+    "This batch is a plan only; no queue, worker, provider, or persistence path exists yet.",
   routeHref:
     "/jarvis-video-studio-release-candidate-next-action-wiring" as Route,
 } as const satisfies JarvisVideoStudioReleaseCandidateNextActionCard;
@@ -150,13 +151,13 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_WORKSPACE_NAVIGATION_CARD = {
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_RELEASE_SUMMARY = {
   title: "Studio at a glance",
   summary:
-    "The release candidate turns /jarvis-video into a coherent premium studio workspace with workflow-first navigation, concise next actions, and diagnostics pushed lower.",
+    "Jarvis Video Studio stays coherent and product-first while the backend execution implementation plan lands lower in the workflow instead of taking over the hero.",
   highlights: [
     "Human hero with a clear operator path and compact safety state",
-    "Video production timeline and studio readiness score",
+    "Video production timeline, readiness score, and backend execution implementation plan",
     "Prerequisite cards for script, assets, approval packet, and dry run",
-    "Backend readiness, controlled trial, runner contract, and result review rails",
-    "Blocked actions stay visible without taking over the main workspace",
+    "Backend readiness, controlled trial, runner contract, result review, and server-only implementation planning",
+    "Blocked actions and diagnostics stay visible without taking over the main workspace",
   ],
 } as const satisfies JarvisVideoStudioReleaseCandidateReleaseSummary;
 
@@ -164,7 +165,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DEVELOPER_DIAGNOSTICS_GROUPIN
   {
     title: "Developer diagnostics",
     summary:
-      "Traceability, prior milestones, and wiring routes stay reachable, but they no longer lead the workspace.",
+      "Traceability, prior milestones, and implementation-plan markers stay reachable, but they no longer lead the workspace.",
     links: [
       {
         label: "Boundary markers",
