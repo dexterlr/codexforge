@@ -51,6 +51,18 @@ import {
   type JarvisVideoStudioReleaseCandidateReviewRail,
 } from "./jarvis-video-studio-release-candidate-safety";
 import {
+  JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_CHECKPOINT,
+  JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_EVIDENCE_RECORDS,
+  JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_EVIDENCE_SOURCES,
+  JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_OVERVIEW,
+  JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_SAFETY_RECORDS,
+  JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_WORKFLOW_RECORDS,
+  type JarvisVideoBackendImplementationReadinessCheckpoint,
+  type JarvisVideoBackendImplementationReadinessEvidenceSource,
+  type JarvisVideoBackendImplementationReadinessOverview,
+  type JarvisVideoBackendImplementationReadinessRecord,
+} from "./jarvis-video-backend-implementation-readiness-follow-up";
+import {
   JARVIS_VIDEO_BACKEND_EXECUTION_IMPLEMENTATION_PLAN_CHECKPOINT,
   JARVIS_VIDEO_BACKEND_EXECUTION_IMPLEMENTATION_PLAN_EVIDENCE_RECORDS,
   JARVIS_VIDEO_BACKEND_EXECUTION_IMPLEMENTATION_PLAN_EVIDENCE_SOURCES,
@@ -151,6 +163,12 @@ export type JarvisVideoStudioReleaseCandidateSharedRecord = Readonly<{
   noExecutionGuard: JarvisVideoStudioReleaseCandidateGuardRecord;
   noPersistenceGuard: JarvisVideoStudioReleaseCandidateGuardRecord;
   noProviderNetworkGuard: JarvisVideoStudioReleaseCandidateGuardRecord;
+  backendImplementationReadinessOverview: JarvisVideoBackendImplementationReadinessOverview;
+  backendImplementationReadinessWorkflow: readonly JarvisVideoBackendImplementationReadinessRecord[];
+  backendImplementationReadinessSafety: readonly JarvisVideoBackendImplementationReadinessRecord[];
+  backendImplementationReadinessEvidence: readonly JarvisVideoBackendImplementationReadinessRecord[];
+  backendImplementationReadinessEvidenceSources: readonly JarvisVideoBackendImplementationReadinessEvidenceSource[];
+  backendImplementationReadinessCheckpoint: JarvisVideoBackendImplementationReadinessCheckpoint;
   implementationPlanOverview: JarvisVideoBackendExecutionImplementationPlanOverview;
   implementationPlanWorkflow: readonly JarvisVideoBackendExecutionImplementationPlanRecord[];
   implementationPlanSafety: readonly JarvisVideoBackendExecutionImplementationPlanRecord[];
@@ -206,6 +224,18 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_SHARED_RECORD = {
     JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_NO_PERSISTENCE_GUARD,
   noProviderNetworkGuard:
     JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_NO_PROVIDER_NETWORK_GUARD,
+  backendImplementationReadinessOverview:
+    JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_OVERVIEW,
+  backendImplementationReadinessWorkflow:
+    JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_WORKFLOW_RECORDS,
+  backendImplementationReadinessSafety:
+    JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_SAFETY_RECORDS,
+  backendImplementationReadinessEvidence:
+    JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_EVIDENCE_RECORDS,
+  backendImplementationReadinessEvidenceSources:
+    JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_EVIDENCE_SOURCES,
+  backendImplementationReadinessCheckpoint:
+    JARVIS_VIDEO_BACKEND_IMPLEMENTATION_READINESS_CHECKPOINT,
   implementationPlanOverview:
     JARVIS_VIDEO_BACKEND_EXECUTION_IMPLEMENTATION_PLAN_OVERVIEW,
   implementationPlanWorkflow:
@@ -223,7 +253,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_SHARED_RECORD = {
   readinessPosture: JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_POSTURE,
   executionPosture: JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_EXECUTION_POSTURE,
   nextLikelyBatch:
-    "next likely batch: 4106-4137 - Jarvis Video Backend Implementation Readiness Follow-Up",
+    "next likely batch: 4138-4169 - Jarvis Video Backend Runner Contract Hardening",
   milestoneReferences: JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_MILESTONE_REFERENCES,
 } as const satisfies JarvisVideoStudioReleaseCandidateSharedRecord;
 

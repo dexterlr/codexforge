@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { Route } from "next";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import {
   buildJarvisUnifiedProductIaRouteModel,
@@ -27,6 +28,85 @@ import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-tr
 import { JarvisWorkspaceGrid } from "./JarvisWorkspaceGrid";
 import { JarvisWorkspacePlaceholder } from "./JarvisWorkspacePlaceholder";
 import styles from "./JarvisUnifiedProductShell.module.css";
+
+type HomeOperatorCard = Readonly<{
+  title: string;
+  href: Route;
+  summary: string;
+  badge: string;
+}>;
+
+type HomeOperatorSummaryCard = Readonly<{
+  title: string;
+  summary: string;
+}>;
+
+const HOME_OPERATOR_SECONDARY_CARDS = [
+  {
+    title: "Jarvis Command Center",
+    href: "/jarvis",
+    summary:
+      "Open the control plane for workspace launchers, approvals, audit preview, and safety state.",
+    badge: "/jarvis",
+  },
+  {
+    title: "Website Builder",
+    href: "/jarvis-websites",
+    summary:
+      "Review website briefs, structure, and publish gates without preview, export, or deploy execution.",
+    badge: "/jarvis-websites",
+  },
+  {
+    title: "Avatar Studio",
+    href: "/jarvis-avatar",
+    summary:
+      "Review persona, consent, voice, and likeness boundaries while preview and generation remain locked.",
+    badge: "/jarvis-avatar",
+  },
+  {
+    title: "Workflows",
+    href: "/jarvis-workflows",
+    summary:
+      "Review triggers, permissions, dry-run planning, approval, and audit while dispatch stays blocked.",
+    badge: "/jarvis-workflows",
+  },
+] as const satisfies readonly HomeOperatorCard[];
+
+const HOME_OPERATOR_AVAILABLE_ACTIONS = [
+  {
+    title: "Prepare a video brief",
+    summary:
+      "Use Video Studio to stage prompt, settings, safety notes, and the future approval packet without any backend execution.",
+  },
+  {
+    title: "Review specialist surfaces",
+    summary:
+      "Open Jarvis, websites, avatars, and workflows as product surfaces instead of checkpoint walls.",
+  },
+  {
+    title: "Keep handoff controlled",
+    summary:
+      "Review approval state, locked execution boundaries, and operator posture before any backend-only batch advances.",
+  },
+] as const satisfies readonly HomeOperatorSummaryCard[];
+
+const HOME_OPERATOR_LOCKED_ACTIONS = [
+  {
+    title: "Generation and provider execution",
+    summary:
+      "Video generation, provider SDK calls, and direct frontend execution remain locked across the product shell.",
+  },
+  {
+    title: "Backend dry runs and approvals",
+    summary:
+      "Backend runner handoff, audit capture, credential isolation, and approval joins remain future backend-only work.",
+  },
+  {
+    title: "Persistence and browser storage",
+    summary:
+      "No localStorage, sessionStorage, IndexedDB, cookies, result persistence, or audit persistence are enabled from the cockpit.",
+  },
+] as const satisfies readonly HomeOperatorSummaryCard[];
 
 type JarvisUnifiedProductShellProps =
   | {
@@ -77,6 +157,7 @@ export function JarvisUnifiedProductPanel(
   ).length;
   const isPrimaryJarvisVideoStudioSurface =
     context.surface.id === "jarvis-video" && !context.route;
+  const isPrimaryHomeSurface = context.surface.id === "home" && !context.route;
   const workspace =
     context.surface.id !== "home" &&
     context.surface.id !== "codexforge-cockpit" &&
@@ -94,6 +175,97 @@ export function JarvisUnifiedProductPanel(
         data-codexforge-jarvis-unified-product-ia-focus={context.focus}
       >
         <JarvisVideoStudioReleaseCandidatePanel workspaceId="jarvis-video" />
+      </section>
+    );
+  }
+
+  if (isPrimaryHomeSurface) {
+    return (
+      <section
+        className={styles.shell}
+        data-codexforge-jarvis-unified-product-ia={context.batchMarkers.join(" | ")}
+        data-codexforge-jarvis-unified-product-ia-focus={context.focus}
+      >
+        <section className={styles.homeHero} aria-label="CodexForge Operator Cockpit">
+          <div className={styles.homeHeroLayout}>
+            <div className={styles.homeHeroCopy}>
+              <span className={styles.eyebrowChip}>Controlled workspace</span>
+              <h1 className={styles.homeHeroTitle}>CodexForge Operator Cockpit</h1>
+              <p className={styles.homeHeroSummary}>
+                Build, review, and safely hand off AI workflows from one
+                controlled workspace.
+              </p>
+            </div>
+            <Link className={styles.homePrimaryCta} href="/jarvis-video">
+              <span className={`${styles.navBadge} ${styles.metricStateApproval}`}>
+                Primary action
+              </span>
+              <strong className={styles.homePrimaryCtaTitle}>
+                Open Jarvis Video Studio -&gt; /jarvis-video
+              </strong>
+              <span className={styles.homePrimaryCtaBody}>
+                Open the product console for video briefs, locked controls,
+                approval packet preparation, and future backend handoff review.
+              </span>
+            </Link>
+          </div>
+
+          <div className={styles.homeSecondaryGrid}>
+            {HOME_OPERATOR_SECONDARY_CARDS.map((card) => (
+              <Link key={card.href} className={styles.homeSecondaryCard} href={card.href}>
+                <span className={styles.navBadge}>{card.badge}</span>
+                <strong className={styles.homeSecondaryTitle}>{card.title}</strong>
+                <span className={styles.homeSecondaryBody}>{card.summary}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.panel} aria-label="What can I do now?">
+          <div className={styles.panelHeader}>
+            <div>
+              <p className={styles.panelEyebrow}>Operator actions</p>
+              <h2 className={styles.panelTitle}>What can I do now?</h2>
+            </div>
+            <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+              Review-first
+            </span>
+          </div>
+          <div className={styles.homeSummaryGrid}>
+            {HOME_OPERATOR_AVAILABLE_ACTIONS.map((card) => (
+              <article key={card.title} className={styles.summaryCard}>
+                <p className={styles.panelEyebrow}>Available now</p>
+                <h3 className={styles.placeholderTitle}>{card.title}</h3>
+                <p className={styles.placeholderSummary}>{card.summary}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.panel} aria-label="What is still locked?">
+          <div className={styles.panelHeader}>
+            <div>
+              <p className={styles.panelEyebrow}>Locked boundaries</p>
+              <h2 className={styles.panelTitle}>What is still locked?</h2>
+            </div>
+            <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+              Execution blocked
+            </span>
+          </div>
+          <div className={styles.homeSummaryGrid}>
+            {HOME_OPERATOR_LOCKED_ACTIONS.map((card) => (
+              <article key={card.title} className={styles.blockedCard}>
+                <p className={styles.panelEyebrow}>Still locked</p>
+                <h3 className={styles.blockedTitle}>{card.title}</h3>
+                <p className={styles.blockedSummary}>{card.summary}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <JarvisDeveloperDiagnosticsDock
+          groups={context.developerDiagnosticGroups}
+        />
       </section>
     );
   }

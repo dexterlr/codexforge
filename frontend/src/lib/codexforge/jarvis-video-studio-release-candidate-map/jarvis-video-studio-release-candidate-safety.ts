@@ -13,6 +13,11 @@ export type JarvisVideoStudioReleaseCandidateReviewRail = Readonly<{
 }>;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
+  "Backend implementation readiness",
+  "Backend implementation readiness only",
+  "Review backend readiness",
+  "Confirm server-only boundary",
+  "Prepare runner contract",
   "Backend execution implementation plan",
   "implementation plan only",
   "Jarvis Video Studio Release Candidate",
@@ -24,6 +29,48 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
 ] as const;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REQUIRED_MARKERS = [
+  "4106-4137 - Jarvis Video Backend Implementation Readiness Follow-Up",
+  "Jarvis Video Backend Implementation Readiness Follow-Up",
+  "Backend implementation readiness",
+  "Review backend readiness",
+  "Confirm server-only boundary",
+  "Prepare runner contract",
+  "Keep generation locked",
+  "Provider calls remain blocked",
+  "Queue and worker dispatch remain disabled",
+  "Result and audit persistence remain unimplemented",
+  "backend implementation readiness only",
+  "server-only module boundary",
+  "backend contract inventory",
+  "runner admission contract readiness",
+  "operator approval readiness",
+  "approval packet join readiness",
+  "credential isolation readiness",
+  "provider adapter shell readiness",
+  "queue admission readiness",
+  "worker isolation readiness",
+  "job lease readiness",
+  "result envelope readiness",
+  "audit envelope readiness",
+  "artifact handoff readiness",
+  "egress policy readiness",
+  "safety gate readiness",
+  "privacy/redaction gate readiness",
+  "cost/rate/duration guard readiness",
+  "timeout/cancel guard readiness",
+  "idempotency key readiness",
+  "single-call lock readiness",
+  "replay block readiness",
+  "retry/fallback policy readiness",
+  "rollback readiness",
+  "observability trace readiness",
+  "acceptance criteria for the next backend-only contract batch",
+  "no approval persistence",
+  "no artifact persistence",
+  "no retry/fallback execution",
+  "server-only boundary required",
+  "credential isolation required",
+  "next likely batch: 4138-4169 - Jarvis Video Backend Runner Contract Hardening",
   "4042-4073 - Jarvis Video Studio Release Candidate",
   "4042-4073 - Jarvis Video Studio Release Candidate Mega Batch v1",
   "Jarvis Video Studio Release Candidate",
@@ -220,7 +267,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_OPERATOR_REVIEW_POSTURE =
   "Operator approval required";
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_POSTURE =
-  "Implementation plan only";
+  "Backend implementation readiness only";
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_EXECUTION_POSTURE =
   "Backend-owned execution required";

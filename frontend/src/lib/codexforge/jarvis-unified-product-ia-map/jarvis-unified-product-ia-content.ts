@@ -539,11 +539,11 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     id: "home",
     routeHref: "/",
     label: "Home",
-    title: "CodexForge",
-    eyebrow: "Your Jarvis command center",
-    badge: "Product entry",
+    title: "CodexForge Operator Cockpit",
+    eyebrow: "Controlled workspace",
+    badge: "Start here",
     summary:
-      "Your Jarvis command center for video, websites, avatars, workflows, trading review, audit, and safety.",
+      "Build, review, and safely hand off AI workflows from one controlled workspace.",
     summaryMarkers: [
       "world-class Jarvis product order",
       "home product order upgraded",
@@ -565,27 +565,27 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "diagnostics",
     ],
     currentFocus:
-      "Start with Video Studio, then open the workspace you need with approval and safety state visible from the start.",
+      "Open Jarvis Video Studio first, then review the other specialist surfaces without leaving the controlled workspace.",
     heroMetrics: [
       {
-        label: "Product",
-        value: "Jarvis command center",
-        detail: "Video, websites, avatars, workflows, trading review, audit, and safety.",
+        label: "Workspace",
+        value: "Operator cockpit",
+        detail: "Video, websites, avatars, workflows, approvals, and safety in one controlled entry point.",
       },
       {
         label: "Start here",
         value: "Video Studio",
-        detail: "Mission brief, approvals, readiness, and backend handoff stay in one studio.",
+        detail: "Open the video brief console, preview surface, and locked handoff controls first.",
       },
       {
-        label: "Workspace order",
-        value: "Clean and clear",
-        detail: "Video first, then websites, avatars, trading, workflows, audit, and safety.",
+        label: "Route order",
+        value: "Action first",
+        detail: "Useful product routes stay above diagnostics, checkpoints, and technical traceability.",
       },
       {
         label: "Safety",
-        value: "Approval required",
-        detail: "Execution stays locked and provider calls stay blocked from the frontend.",
+        value: "Locked by default",
+        detail: "Execution stays blocked and backend-only handoff remains approval-gated from the frontend.",
       },
     ],
   },

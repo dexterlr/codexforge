@@ -25,6 +25,51 @@ type JarvisVideoStudioReleaseCandidatePanelProps =
       workspaceId?: never;
     };
 
+const JARVIS_VIDEO_BRIEF_FIELDS = [
+  {
+    label: "Style / look",
+    placeholder: "Cinematic, documentary, animated, editorial, or product-forward direction",
+  },
+  {
+    label: "Duration",
+    placeholder: "30 seconds, 60 seconds, or another target runtime",
+  },
+  {
+    label: "Aspect ratio",
+    placeholder: "16:9, 9:16, 1:1, or another delivery frame",
+  },
+  {
+    label: "Audio / voice notes",
+    placeholder: "Voiceover tone, narration intent, music posture, and caption notes",
+  },
+  {
+    label: "Asset notes",
+    placeholder: "Reference footage, B-roll, stills, logos, or supporting materials",
+  },
+  {
+    label: "Safety notes",
+    placeholder: "Policy, consent, rights, privacy, brand, and review constraints",
+  },
+] as const;
+
+const JARVIS_VIDEO_OUTPUT_PREVIEW_STATUS = [
+  "Status: Waiting for backend runner",
+  "Result: No video generated yet",
+  "Provider: Not called",
+  "Artifact: None",
+  "Audit: Not persisted",
+  "Approval: Required before backend handoff",
+] as const;
+
+const JARVIS_VIDEO_SAFE_HANDOFF_FLOW = [
+  "Write video brief",
+  "Review settings and safety notes",
+  "Prepare approval packet",
+  "Backend runner required",
+  "Provider execution locked",
+  "Output appears here after future backend result capture",
+] as const;
+
 export function JarvisVideoStudioReleaseCandidatePageClientShell(
   props: JarvisVideoStudioReleaseCandidatePanelProps
 ) {
@@ -62,6 +107,105 @@ export function JarvisVideoStudioReleaseCandidatePanel(
       )}
       data-codexforge-jarvis-video-studio-release-candidate-focus={context.focus}
     >
+      {!context.route ? (
+        <section className={styles.controlConsole} aria-label="Video generation control">
+          <div className={styles.consoleHeader}>
+            <div className={styles.consoleCopy}>
+              <span className={styles.consoleKicker}>Video Studio console</span>
+              <h1 className={styles.consoleTitle}>Video generation control</h1>
+              <p className={styles.consoleSummary}>
+                Put your video brief here. Jarvis will use this surface to
+                prepare the approval packet and, in a future backend-only batch,
+                hand the request to the backend runner. Generation is locked
+                until backend execution, audit capture, credential isolation,
+                and operator approval are implemented.
+              </p>
+              <p className={styles.consoleUrl}>Video Studio URL: /jarvis-video</p>
+            </div>
+          </div>
+
+          <div className={styles.consoleColumns}>
+            <section className={styles.consoleColumn} aria-label="Video brief">
+              <div className={styles.consoleColumnHeader}>
+                <p className={styles.panelEyebrow}>Input workspace</p>
+                <h2 className={styles.consoleColumnTitle}>Video brief</h2>
+              </div>
+              <div className={styles.fieldStack}>
+                <label className={styles.fieldGroup}>
+                  <span className={styles.fieldLabel}>Prompt / concept</span>
+                  <textarea
+                    className={styles.promptField}
+                    rows={9}
+                    placeholder="Describe the concept, audience, shots, pacing, mood, and approval context for the future backend runner."
+                  />
+                </label>
+                {JARVIS_VIDEO_BRIEF_FIELDS.map((field) => (
+                  <label key={field.label} className={styles.fieldGroup}>
+                    <span className={styles.fieldLabel}>{field.label}</span>
+                    <input
+                      className={styles.inputField}
+                      type="text"
+                      placeholder={field.placeholder}
+                    />
+                  </label>
+                ))}
+              </div>
+            </section>
+
+            <section className={styles.consoleColumn} aria-label="Output preview">
+              <div className={styles.consoleColumnHeader}>
+                <p className={styles.panelEyebrow}>Result surface</p>
+                <h2 className={styles.consoleColumnTitle}>Output preview</h2>
+              </div>
+              <div className={styles.previewFrame}>
+                <div className={styles.previewFrameInner}>
+                  <span className={styles.previewFrameLabel}>
+                    Preview will appear here after future backend result capture.
+                  </span>
+                </div>
+              </div>
+              <div className={styles.previewStatusGrid}>
+                {JARVIS_VIDEO_OUTPUT_PREVIEW_STATUS.map((item) => (
+                  <div key={item} className={styles.previewStatusRow}>
+                    {item}
+                  </div>
+                ))}
+              </div>
+              <div className={styles.lockedActionGrid}>
+                {[
+                  "Generate video - locked",
+                  "Run backend dry-run - locked",
+                  "Approve backend handoff - locked",
+                ].map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    className={styles.lockedButton}
+                    disabled
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <section className={styles.safeFlowCard} aria-label="Safe handoff flow">
+            <div className={styles.consoleColumnHeader}>
+              <p className={styles.panelEyebrow}>Operator sequence</p>
+              <h2 className={styles.consoleColumnTitle}>Safe handoff flow</h2>
+            </div>
+            <ol className={styles.safeFlowList}>
+              {JARVIS_VIDEO_SAFE_HANDOFF_FLOW.map((step) => (
+                <li key={step} className={styles.safeFlowItem}>
+                  {step}
+                </li>
+              ))}
+            </ol>
+          </section>
+        </section>
+      ) : null}
+
       <header className={styles.hero}>
         <div className={styles.heroGlow} aria-hidden="true" />
         <div className={styles.heroContent}>
@@ -77,7 +221,7 @@ export function JarvisVideoStudioReleaseCandidatePanel(
             </span>
             <span className={styles.chipBlocked}>Generation locked</span>
           </div>
-          <h1 className={styles.heroTitle}>{record.heroState.title}</h1>
+          <h2 className={styles.heroTitle}>{record.heroState.title}</h2>
           <p className={styles.heroSummary}>
             {record.heroState.summary} {record.heroState.detail}{" "}
             {context.route ? `Diagnostic focus: ${context.route.focus}.` : ""}
@@ -331,6 +475,170 @@ export function JarvisVideoStudioReleaseCandidatePanel(
             </article>
           ))}
         </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Backend implementation readiness">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>
+              {record.backendImplementationReadinessOverview.eyebrow}
+            </p>
+            <h2 className={styles.panelTitle}>
+              {record.backendImplementationReadinessOverview.title}
+            </h2>
+          </div>
+          <span className={styles.statBadge}>Operator approval required</span>
+        </div>
+        <p className={styles.panelBody}>
+          {record.backendImplementationReadinessOverview.summary}{" "}
+          {record.backendImplementationReadinessOverview.detail}
+        </p>
+        <div className={styles.statusStrip}>
+          {[
+            "Review backend readiness",
+            "Confirm server-only boundary",
+            "Prepare runner contract",
+            "Operator approval required",
+          ].map((item) => (
+            <span key={item} className={styles.statusPill}>
+              {item}
+            </span>
+          ))}
+        </div>
+        <div className={styles.summaryGrid}>
+          <ReadinessListCard
+            eyebrow="Ready to design next"
+            title="Prepare the backend-only contract path"
+            summary="These contracts can be designed next without enabling live generation, provider execution, queue dispatch, worker dispatch, job execution, or persistence."
+            items={record.backendImplementationReadinessOverview.readyNext}
+          />
+          <ReadinessListCard
+            eyebrow="Still blocked"
+            title="Keep generation locked"
+            summary="Provider calls, queue and worker dispatch, job execution, and persistence remain disabled while the studio stays product-first and review-only."
+            items={record.backendImplementationReadinessOverview.stillBlocked}
+          />
+          <ReadinessListCard
+            eyebrow="Next backend-only contract step"
+            title="Prepare runner contract hardening"
+            summary="The next backend-only contract step should harden runner admission, approval joins, and server-held credential boundaries while execution stays disabled by default."
+            items={record.backendImplementationReadinessOverview.nextContractStep}
+          />
+        </div>
+        <div className={styles.summaryGrid}>
+          {record.backendImplementationReadinessWorkflow.map((plan) => (
+            <ImplementationPlanCard
+              key={plan.id}
+              plan={plan}
+              variant="summary"
+            />
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend readiness safety and approval state"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Safety and approval state</p>
+            <h2 className={styles.panelTitle}>
+              Why backend-only implementation is required before any runner
+              exists
+            </h2>
+          </div>
+          <span className={styles.statBadge}>Credential isolation required</span>
+        </div>
+        <p className={styles.panelBody}>
+          Credential isolation is required, operator approval is required, and
+          queue, worker, job, provider, render, export, publish, upload,
+          download, retry, fallback, and persistence execution remain disabled.
+        </p>
+        <div className={styles.railColumns}>
+          {record.backendImplementationReadinessSafety.map((plan) => (
+            <ImplementationPlanCard key={plan.id} plan={plan} variant="rail" />
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend readiness evidence and contract inputs"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Evidence and contract inputs</p>
+            <h2 className={styles.panelTitle}>
+              Review-only evidence stays linked while result and audit
+              contracts remain inert
+            </h2>
+          </div>
+          <span className={styles.statBadge}>
+            Result and audit persistence remain unimplemented
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {record.backendImplementationReadinessEvidence.map((plan) => (
+            <ImplementationPlanCard
+              key={plan.id}
+              plan={plan}
+              variant="summary"
+            />
+          ))}
+          <article className={styles.summaryCard}>
+            <p className={styles.summaryEyebrow}>Checkpoint state</p>
+            <h3 className={styles.summaryTitle}>
+              Phase {record.backendImplementationReadinessCheckpoint.highestDetectedPhase}
+            </h3>
+            <p className={styles.summaryText}>
+              Latest completed batch:{" "}
+              {record.backendImplementationReadinessCheckpoint.latestCompletedBatch}
+            </p>
+            <ul className={styles.summaryList}>
+              {[
+                `Previous completed batch: ${record.backendImplementationReadinessCheckpoint.previousCompletedBatch}`,
+                `Next likely batch: ${record.backendImplementationReadinessCheckpoint.nextLikelyBatch.replace(
+                  /^next likely batch:\s*/i,
+                  ""
+                )}`,
+                "Backend implementation readiness only; no provider execution, queue dispatch, worker dispatch, job execution, or persistence.",
+              ].map((item) => (
+                <li key={item} className={styles.summaryItem}>
+                  <span className={styles.dot} aria-hidden="true" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        </div>
+        <article className={styles.summaryCard}>
+          <p className={styles.summaryEyebrow}>Review-only evidence inputs</p>
+          <h3 className={styles.summaryTitle}>
+            Prior backend and studio checkpoints remain inert
+          </h3>
+          <p className={styles.summaryText}>
+            These records are review-only evidence inputs. They do not execute
+            providers, queues, workers, jobs, persistence, uploads, downloads,
+            render, export, or publish flows.
+          </p>
+          <div className={styles.linkGrid}>
+            {record.backendImplementationReadinessEvidenceSources.map((source) => (
+              <Link
+                key={buildJarvisVideoStudioReleaseCandidateStableKey([
+                  source.phaseRange,
+                  source.label,
+                ])}
+                href={source.href}
+                className={styles.linkCard}
+              >
+                <span className={styles.linkLabel}>{source.phaseRange}</span>
+                <span className={styles.linkTitle}>{source.label}</span>
+                <span className={styles.linkSummary}>{source.summary}</span>
+              </Link>
+            ))}
+          </div>
+        </article>
       </section>
 
       <section
@@ -652,11 +960,47 @@ function RailCard({
   );
 }
 
+function ReadinessListCard({
+  eyebrow,
+  title,
+  summary,
+  items,
+}: {
+  eyebrow: string;
+  title: string;
+  summary: string;
+  items: readonly string[];
+}) {
+  return (
+    <article className={styles.summaryCard}>
+      <p className={styles.summaryEyebrow}>{eyebrow}</p>
+      <h3 className={styles.summaryTitle}>{title}</h3>
+      <p className={styles.summaryText}>{summary}</p>
+      <ul className={styles.summaryList}>
+        {items.map((item) => (
+          <li
+            key={buildJarvisVideoStudioReleaseCandidateStableKey([
+              eyebrow,
+              item,
+            ])}
+            className={styles.summaryItem}
+          >
+            <span className={styles.dot} aria-hidden="true" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </article>
+  );
+}
+
 function ImplementationPlanCard({
   plan,
   variant,
 }: {
-  plan: JarvisVideoStudioReleaseCandidateSharedRecord["implementationPlanWorkflow"][number];
+  plan:
+    | JarvisVideoStudioReleaseCandidateSharedRecord["backendImplementationReadinessWorkflow"][number]
+    | JarvisVideoStudioReleaseCandidateSharedRecord["implementationPlanWorkflow"][number];
   variant: "summary" | "rail";
 }) {
   if (variant === "rail") {

@@ -63,12 +63,12 @@ export type JarvisVideoStudioReleaseCandidateMilestoneReference = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_HERO_STATE = {
   eyebrow: "Jarvis Video Studio",
-  stageLabel: "Implementation plan",
+  stageLabel: "Implementation readiness",
   title: "Jarvis Video Studio",
   summary:
-    "Premium review workspace for mission planning, approvals, readiness, and backend execution planning.",
+    "Premium review workspace for mission planning, approvals, readiness, and backend-only implementation follow-up.",
   detail:
-    "Jarvis Video Studio is ready for backend execution planning. Generation stays locked. Backend-owned execution requires operator approval. This batch is a plan only. No provider call from frontend.",
+    "Jarvis Video Studio is ready for backend execution planning and backend implementation readiness follow-up. Generation stays locked. Backend-owned execution requires operator approval. This batch is readiness-only and review-only. No provider call from frontend.",
   metrics: [
     {
       label: "Workspace",
@@ -97,11 +97,11 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_MISSION_BRIEF = {
   title: "Mission brief",
   audience: "Operator-led review of the studio and its next backend plan.",
   objective:
-    "Consolidate planning, prerequisites, approval, dry run, backend readiness, controlled trial, backend runner contract, result review recovery, and the next backend execution implementation plan into one coherent premium studio surface.",
+    "Consolidate planning, prerequisites, approval, dry run, backend readiness, controlled trial, backend runner contract, result review recovery, the backend implementation readiness follow-up, and the earlier backend execution implementation plan into one coherent premium studio surface.",
   operatorPosture:
     "Operator approval required before any backend-owned execution path can move forward.",
   handoffState:
-    "Plan, review, approve, then hand off to backend. This batch is a plan only. No provider call from frontend.",
+    "Plan, review, approve, then hand off to backend. This batch is backend implementation readiness only. No provider call from frontend.",
 } as const satisfies JarvisVideoStudioReleaseCandidateMissionBrief;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_PRODUCTION_TIMELINE = [
