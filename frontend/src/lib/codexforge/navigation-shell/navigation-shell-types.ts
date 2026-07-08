@@ -2,6 +2,7 @@ import type { Route } from "next";
 import type { ReactNode } from "react";
 import type { JarvisUnifiedProductIaRouteSlug } from "../jarvis-unified-product-ia-map/jarvis-unified-product-ia-model";
 import type { JarvisVideoBackendExecutionReadinessRouteSlug } from "../jarvis-video-backend-execution-readiness-map/jarvis-video-backend-execution-readiness-model";
+import type { JarvisVideoBackendTrialRunnerContractRouteSlug } from "../jarvis-video-backend-trial-runner-contract-map/jarvis-video-backend-trial-runner-contract-model";
 import type { JarvisVideoControlledExecutionTrialRouteSlug } from "../jarvis-video-controlled-execution-trial-map/jarvis-video-controlled-execution-trial-model";
 export type CodexForgePhaseDiagnosticRouteId =
   | "evidence-memory-boundary"
@@ -3778,6 +3779,7 @@ export type CodexForgeNavigationRouteId =
   | "jarvis-video-approval-packet-workspace-completion"
   | JarvisUnifiedProductIaRouteSlug
   | JarvisVideoBackendExecutionReadinessRouteSlug
+  | JarvisVideoBackendTrialRunnerContractRouteSlug
   | JarvisVideoControlledExecutionTrialRouteSlug
   | "change-plan-live-context"
   | "patch-preview-live-context"
@@ -4437,6 +4439,40 @@ export type CodexForgeNavigationRouteHref = Route;
  * | "/jarvis-video-backend-execution-readiness-no-execution-guard-wiring"
  * | "/jarvis-video-backend-execution-readiness-regression-coverage-wiring"
  * | "/jarvis-video-backend-execution-readiness-completion"
+ *
+ * First Jarvis-Controlled Video Backend Trial Runner Contract:
+ * | "/jarvis-video-backend-trial-runner-contract-boundary-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-intent-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-runner-interface-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-input-envelope-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-output-envelope-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-error-envelope-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-job-lease-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-queue-admission-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-worker-isolation-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-provider-adapter-handoff-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-approval-audit-join-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-credential-token-boundary-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-network-egress-policy-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-timeout-policy-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-retry-fallback-policy-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-cost-rate-guard-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-duration-resolution-size-guard-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-privacy-safety-gate-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-result-capture-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-artifact-handoff-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-recovery-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-kill-switch-lock-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-idempotency-replay-block-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-disabled-runner-lane-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-jarvis-video-update-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-controlled-trial-link-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-product-ia-link-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-no-execution-guard-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-regression-coverage-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-operator-review-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-readiness-wiring"
+ * | "/jarvis-video-backend-trial-runner-contract-completion"
  *
  * First Jarvis-Controlled Video Controlled Execution Trial:
  * | "/jarvis-video-controlled-execution-trial-boundary-wiring"

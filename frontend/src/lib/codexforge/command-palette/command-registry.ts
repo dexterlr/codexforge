@@ -36,6 +36,10 @@ import {
   JARVIS_VIDEO_CONTROLLED_EXECUTION_TRIAL_ROUTE_SPECS,
 } from "../jarvis-video-controlled-execution-trial-map/jarvis-video-controlled-execution-trial-model";
 import {
+  JARVIS_VIDEO_BACKEND_TRIAL_RUNNER_CONTRACT_REVIEW_DESCRIPTION,
+  JARVIS_VIDEO_BACKEND_TRIAL_RUNNER_CONTRACT_ROUTE_SPECS,
+} from "../jarvis-video-backend-trial-runner-contract-map/jarvis-video-backend-trial-runner-contract-model";
+import {
   buildCodexForgeContinuityHandoffPromptPayload,
   buildCodexForgeContinuityValidationChecklistPayload,
   buildCodexForgeApplyGateHandoffPromptPayload,
@@ -1026,6 +1030,25 @@ const JARVIS_VIDEO_CONTROLLED_EXECUTION_TRIAL_ROUTE_AVAILABILITY =
   );
 const JARVIS_VIDEO_CONTROLLED_EXECUTION_TRIAL_ROUTE_COMMANDS =
   JARVIS_VIDEO_CONTROLLED_EXECUTION_TRIAL_ROUTE_SPECS.map(
+    ([phaseNumber, id, href, label]) => ({
+      id: `go-${id}`,
+      label: `Go to ${label}`,
+      href,
+      priority: 25 + phaseNumber / 10000,
+    })
+  ) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & {
+    href: NonNullable<CodexForgeCommand["href"]>;
+  })[];
+const JARVIS_VIDEO_BACKEND_TRIAL_RUNNER_CONTRACT_ROUTE_AVAILABILITY =
+  JARVIS_VIDEO_BACKEND_TRIAL_RUNNER_CONTRACT_ROUTE_SPECS.reduce<CodexForgeCommandRouteAvailability>(
+    (routes, [, , href]) => {
+      routes[href] = true;
+      return routes;
+    },
+    {}
+  );
+const JARVIS_VIDEO_BACKEND_TRIAL_RUNNER_CONTRACT_ROUTE_COMMANDS =
+  JARVIS_VIDEO_BACKEND_TRIAL_RUNNER_CONTRACT_ROUTE_SPECS.map(
     ([phaseNumber, id, href, label]) => ({
       id: `go-${id}`,
       label: `Go to ${label}`,
@@ -3684,6 +3707,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   ...JARVIS_VIDEO_APPROVAL_PACKET_WORKSPACE_ROUTE_AVAILABILITY,
   ...JARVIS_VIDEO_BACKEND_EXECUTION_READINESS_ROUTE_AVAILABILITY,
   ...JARVIS_VIDEO_CONTROLLED_EXECUTION_TRIAL_ROUTE_AVAILABILITY,
+  ...JARVIS_VIDEO_BACKEND_TRIAL_RUNNER_CONTRACT_ROUTE_AVAILABILITY,
   "/change-plan-live-context": true,
   "/patch-preview-live-context": true,
   "/test-planner-live-context": true,
@@ -31723,6 +31747,13 @@ export function buildCodexForgeCommands(
         ...command,
         description: JARVIS_VIDEO_CONTROLLED_EXECUTION_TRIAL_REVIEW_DESCRIPTION,
         keywords: ["First Jarvis-Controlled Video Controlled Execution Trial", "controlled trial console only", "Backend-owned execution required", "disabled"],
+      })
+    ),
+    ...JARVIS_VIDEO_BACKEND_TRIAL_RUNNER_CONTRACT_ROUTE_COMMANDS.map((command) =>
+      buildRouteCommand(availability, {
+        ...command,
+        description: JARVIS_VIDEO_BACKEND_TRIAL_RUNNER_CONTRACT_REVIEW_DESCRIPTION,
+        keywords: ["First Jarvis-Controlled Video Backend Trial Runner Contract", "backend trial runner contract only", "backend-owned runner required", "disabled"],
       })
     ),
 

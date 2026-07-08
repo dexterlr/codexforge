@@ -20,6 +20,7 @@ import { JarvisBlockedActionSummary } from "./JarvisBlockedActionSummary";
 import { JarvisDeveloperDiagnosticsDock } from "./JarvisDeveloperDiagnosticsDock";
 import { JarvisNextActionRail } from "./JarvisNextActionRail";
 import { JarvisProductHero } from "./JarvisProductHero";
+import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-backend-trial-runner-contract-map/components";
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
 import { JarvisWorkspaceGrid } from "./JarvisWorkspaceGrid";
 import { JarvisWorkspacePlaceholder } from "./JarvisWorkspacePlaceholder";
@@ -206,6 +207,14 @@ export function JarvisUnifiedProductPanel(
       {context.surface.sectionOrder.includes("workspace-shell") &&
       workspace?.id === "jarvis-video" ? (
         <JarvisVideoControlledExecutionTrialPanel
+          workspaceId="jarvis-video"
+          embedded
+        />
+      ) : null}
+
+      {context.surface.sectionOrder.includes("workspace-shell") &&
+      workspace?.id === "jarvis-video" ? (
+        <JarvisVideoBackendTrialRunnerContractPanel
           workspaceId="jarvis-video"
           embedded
         />

@@ -87,23 +87,24 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     label: "Video Studio",
     shortLabel: "Video",
     description:
-      "The most polished active specialist workspace now pairs mission brief review, storyboard control, approval packet review, backend readiness, a locked controlled trial console, and premium audit and result placeholders.",
+      "The most polished active specialist workspace now pairs mission brief review, storyboard control, approval packet review, backend readiness, a locked controlled trial console, the drafted backend trial runner contract, and premium audit and result placeholders.",
     status: "approval-required",
     riskTier: "tier-2-creative",
     approvalPosture: "Operator approval required",
     executionPosture: "Execution blocked",
     primaryNextAction:
-      "Review the controlled trial console, confirm which backend prerequisites are still missing, and keep provider, render, export, and publish blocked.",
+      "Review the controlled trial console and backend trial runner contract, confirm the backend-owned execution lane remains locked, and keep provider, render, export, and publish blocked.",
     placeholderState: {
       label: "video studio remains primary active workspace",
       summary:
-        "A premium review shell keeps the visible video product path strong while the controlled trial console stays locked, approval-gated, backend-only, and execution-blocked.",
+        "A premium review shell keeps the visible video product path strong while the controlled trial console and drafted backend trial runner contract stay locked, approval-gated, backend-only, and execution-blocked.",
       steps: [
         "mission brief",
         "storyboard",
         "approval packet",
         "backend readiness",
         "controlled trial console",
+        "backend trial runner contract",
         "result placeholder",
         "audit and status rail",
       ],
@@ -121,7 +122,7 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
       "no worker dispatch",
     ],
     backendRequirementSummary:
-      "A dedicated backend-owned Jarvis video trial runner contract, start service, audit persistence path, credential isolation runtime, lock and idempotency store, and result handoff service remain required before any controlled video trial can execute.",
+      "A drafted backend-owned Jarvis video trial runner contract now exists for review, but backend runner creation, start service, audit persistence, credential isolation runtime, queue and worker ownership, lock and idempotency store, and result handoff service remain required before any controlled video trial can execute.",
     reviewPanels: [
       {
         id: "mission-brief",
@@ -156,6 +157,13 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
         label: "Controlled trial console",
         summary:
           "Readiness state, dry-run reference, approval packet reference, backend gates, audit preview, and disabled launch lane stay visible in one premium review surface.",
+        state: "approval-required",
+      },
+      {
+        id: "backend-trial-runner-contract",
+        label: "Backend trial runner contract",
+        summary:
+          "Runner interface, runner envelopes, lease and queue and worker boundaries, approval and audit join, kill switch, idempotency, result capture, artifact handoff, and recovery remain drafted as review-only backend-owned contract data.",
         state: "approval-required",
       },
       {
