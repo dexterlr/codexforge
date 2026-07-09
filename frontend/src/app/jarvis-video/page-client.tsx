@@ -1,6 +1,7 @@
 'use client';
 
 import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-unified-product-ia-map/components";
+import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-gated-provider-execution-trial-preparation-preview";
 import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-result-capture-audit-envelope-approval-join-preview";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-backend-runner-foundation-dry-run-admission-preview";
 import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-server-only-runner-synthetic-dry-run-preview";
@@ -19,6 +20,7 @@ import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/co
 // 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission
 // 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run
 // 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join
+// 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation
 // Jarvis Video Studio Release Candidate
 // Jarvis Video Backend Execution Implementation Plan
 // Jarvis Video Backend Implementation Readiness Follow-Up
@@ -26,6 +28,7 @@ import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/co
 // Jarvis Video Backend Runner Foundation Dry-Run Admission
 // Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run
 // Jarvis Video Result Capture Audit Envelope and Approval Join
+// Jarvis Video First Gated Provider Execution Trial Preparation
 // video studio remains primary active workspace
 // /jarvis-video release candidate remains review-only
 // premium video studio release candidate
@@ -75,12 +78,14 @@ import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/co
 // operator acceptance required
 // JarvisVideoBackendExecutionReadinessPageClientShell
 type JarvisVideoWorkspacePageClientProps = Readonly<{
+  firstGatedProviderTrialPreparationPreview: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
   resultCaptureAuditApprovalJoinPreview: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
   backendDryRunAdmissionPreview: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
   serverOnlySyntheticDryRunPreview: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
 }>;
 
 export default function JarvisVideoWorkspacePageClient({
+  firstGatedProviderTrialPreparationPreview,
   resultCaptureAuditApprovalJoinPreview,
   backendDryRunAdmissionPreview,
   serverOnlySyntheticDryRunPreview,
@@ -88,6 +93,9 @@ export default function JarvisVideoWorkspacePageClient({
   return (
     <JarvisUnifiedProductPageClientShell
       surfaceId="jarvis-video"
+      jarvisVideoFirstGatedProviderTrialPreparationPreview={
+        firstGatedProviderTrialPreparationPreview
+      }
       jarvisVideoResultCaptureAuditApprovalJoinPreview={
         resultCaptureAuditApprovalJoinPreview
       }

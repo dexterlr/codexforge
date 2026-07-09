@@ -23,6 +23,7 @@ import { JarvisNextActionRail } from "./JarvisNextActionRail";
 import { JarvisProductHero } from "./JarvisProductHero";
 import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-backend-trial-runner-contract-map/components";
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
+import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-first-gated-provider-execution-trial-preparation-preview";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-backend-runner-foundation-dry-run-admission-preview";
 import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-result-capture-audit-envelope-approval-join-preview";
 import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-server-only-runner-synthetic-dry-run-preview";
@@ -115,6 +116,7 @@ type JarvisUnifiedProductShellProps =
   | {
       surfaceId: JarvisUnifiedProductPrimarySurfaceId;
       routeSlug?: never;
+      jarvisVideoFirstGatedProviderTrialPreparationPreview?: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
       jarvisVideoResultCaptureAuditApprovalJoinPreview?: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
       jarvisVideoBackendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
       jarvisVideoServerOnlySyntheticDryRunPreview?: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
@@ -122,6 +124,7 @@ type JarvisUnifiedProductShellProps =
   | {
       routeSlug: JarvisUnifiedProductIaRouteSlug;
       surfaceId?: never;
+      jarvisVideoFirstGatedProviderTrialPreparationPreview?: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
       jarvisVideoResultCaptureAuditApprovalJoinPreview?: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
       jarvisVideoBackendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
       jarvisVideoServerOnlySyntheticDryRunPreview?: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
@@ -185,6 +188,9 @@ export function JarvisUnifiedProductPanel(
       >
         <JarvisVideoStudioReleaseCandidatePanel
           workspaceId="jarvis-video"
+          firstGatedProviderTrialPreparationPreview={
+            props.jarvisVideoFirstGatedProviderTrialPreparationPreview
+          }
           resultCaptureAuditApprovalJoinPreview={
             props.jarvisVideoResultCaptureAuditApprovalJoinPreview
           }

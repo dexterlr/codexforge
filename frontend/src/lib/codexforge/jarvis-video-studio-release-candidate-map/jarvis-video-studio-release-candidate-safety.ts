@@ -16,6 +16,13 @@ export type JarvisVideoStudioReleaseCandidateReviewRail = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
   ...JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS,
+  "4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation",
+  "Jarvis Video First Gated Provider Execution Trial Preparation",
+  "first gated provider trial preparation only",
+  "Provider trial preparation is defined",
+  "Provider execution is still locked",
+  "Result capture, audit envelope, and approval join are ready as handoff references",
+  "Next step is the first backend-only gated provider execution runtime",
   "4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join",
   "Jarvis Video Result Capture Audit Envelope and Approval Join",
   "result capture envelope only",
@@ -51,6 +58,21 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REQUIRED_MARKERS = [
   ...JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS,
+  "4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation",
+  "Jarvis Video First Gated Provider Execution Trial Preparation",
+  "first gated provider trial preparation only",
+  "provider execution trial mode: preparation only",
+  "provider preflight gate envelope",
+  "safety preflight gate envelope",
+  "privacy/redaction preflight gate envelope",
+  "cost/rate/duration/resolution preflight gate envelope",
+  "timeout/cancel preflight gate envelope",
+  "network egress policy requirement",
+  "result state: not persisted",
+  "audit state: not persisted",
+  "approval state: not persisted",
+  "retry/fallback state: disabled",
+  "Next likely batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime",
   "4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join",
   "Jarvis Video Result Capture Audit Envelope and Approval Join",
   "result capture envelope version",
@@ -321,7 +343,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_OPERATOR_REVIEW_POSTURE =
   "Operator approval required";
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_POSTURE =
-  "Result capture and audit join defined";
+  "First gated provider trial preparation defined";
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_EXECUTION_POSTURE =
-  "Backend-only runner required";
+  "Preparation only; backend-only runtime required";

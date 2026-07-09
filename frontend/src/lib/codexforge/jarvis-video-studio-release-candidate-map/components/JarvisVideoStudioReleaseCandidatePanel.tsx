@@ -5,6 +5,7 @@ import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-backend-trial-runner-contract-map/components";
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
 import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-trial-result-review-recovery-map/components";
+import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "../jarvis-video-first-gated-provider-execution-trial-preparation-preview";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../jarvis-video-backend-runner-foundation-dry-run-admission-preview";
 import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "../jarvis-video-result-capture-audit-envelope-approval-join-preview";
 import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "../jarvis-video-server-only-runner-synthetic-dry-run-preview";
@@ -20,6 +21,7 @@ import {
 import styles from "./JarvisVideoStudioReleaseCandidatePanel.module.css";
 
 type JarvisVideoStudioReleaseCandidatePanelDataProps = Readonly<{
+  firstGatedProviderTrialPreparationPreview?: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
   resultCaptureAuditApprovalJoinPreview?: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
   backendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
   serverOnlySyntheticDryRunPreview?: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
@@ -218,6 +220,132 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               </ol>
             </section>
           </section>
+
+          {props.firstGatedProviderTrialPreparationPreview ? (
+            <section
+              className={styles.panel}
+              aria-label="First gated provider trial preparation"
+            >
+              <div className={styles.panelHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Runtime preparation</p>
+                  <h2 className={styles.panelTitle}>
+                    {props.firstGatedProviderTrialPreparationPreview.title}
+                  </h2>
+                </div>
+                <span className={styles.statBadge}>
+                  {props.firstGatedProviderTrialPreparationPreview.statusBadge}
+                </span>
+              </div>
+              <p className={styles.panelBody}>
+                {props.firstGatedProviderTrialPreparationPreview.summary}
+              </p>
+              <div className={styles.statusStrip}>
+                {props.firstGatedProviderTrialPreparationPreview.highlights.map(
+                  (item) => (
+                    <span key={item} className={styles.statusPill}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <div className={styles.summaryGrid}>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Preflight and approvals</p>
+                  <h3 className={styles.summaryTitle}>
+                    Provider preflight stays preparation-only
+                  </h3>
+                  <p className={styles.summaryText}>
+                    {
+                      props.firstGatedProviderTrialPreparationPreview
+                        .providerPreflightGateSummary
+                    }
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      ...props.firstGatedProviderTrialPreparationPreview.approvalReadinessChecklist.slice(
+                        0,
+                        4
+                      ),
+                      ...props.firstGatedProviderTrialPreparationPreview.runtimeBlockers.slice(
+                        0,
+                        1
+                      ),
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Isolation and handoff</p>
+                  <h3 className={styles.summaryTitle}>
+                    Credential boundaries and handoff refs are ready
+                  </h3>
+                  <p className={styles.summaryText}>
+                    Credential isolation remains server-only, and the next batch
+                    receives result capture, audit envelope, and approval join
+                    as review-only handoff references only.
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      ...props.firstGatedProviderTrialPreparationPreview.credentialIsolationChecklist.slice(
+                        0,
+                        3
+                      ),
+                      ...props.firstGatedProviderTrialPreparationPreview.resultAuditApprovalHandoffChecklist.slice(
+                        0,
+                        3
+                      ),
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Next runtime</p>
+                  <h3 className={styles.summaryTitle}>
+                    Phase{" "}
+                    {
+                      props.firstGatedProviderTrialPreparationPreview.checkpoint
+                        .highestDetectedPhase
+                    }
+                  </h3>
+                  <p className={styles.summaryText}>
+                    {
+                      props.firstGatedProviderTrialPreparationPreview
+                        .nextRuntimeReadinessSummary
+                    }
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      `Latest completed batch: ${props.firstGatedProviderTrialPreparationPreview.checkpoint.latestCompletedBatch}`,
+                      `Previous completed batch: ${props.firstGatedProviderTrialPreparationPreview.checkpoint.previousCompletedBatch}`,
+                      `Next likely batch: ${props.firstGatedProviderTrialPreparationPreview.checkpoint.nextLikelyBatch.replace(
+                        /^next likely batch:\s*/i,
+                        ""
+                      )}`,
+                      `Review-only evidence inputs: ${props.firstGatedProviderTrialPreparationPreview.evidenceInputCount}`,
+                      ...props.firstGatedProviderTrialPreparationPreview.nextRuntimeAcceptanceChecklist.slice(
+                        0,
+                        3
+                      ),
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              </div>
+            </section>
+          ) : null}
 
           {props.resultCaptureAuditApprovalJoinPreview ? (
             <section className={styles.panel} aria-label="Result capture and audit join">

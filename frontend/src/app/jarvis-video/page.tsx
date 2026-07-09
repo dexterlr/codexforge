@@ -1,4 +1,5 @@
 import {
+  buildStaticJarvisVideoFirstGatedProviderExecutionTrialPreparationPreview,
   buildStaticJarvisVideoBackendRunnerFoundationDryRunAdmissionPreview,
   buildStaticResultCaptureAuditEnvelopeApprovalJoinPreview,
   buildStaticJarvisVideoServerOnlyRunnerSyntheticDryRunPreview,
@@ -6,6 +7,8 @@ import {
 import JarvisVideoWorkspacePageClient from "./page-client";
 
 export default function JarvisVideoWorkspacePage() {
+  const firstGatedProviderTrialPreparationPreview =
+    buildStaticJarvisVideoFirstGatedProviderExecutionTrialPreparationPreview();
   const resultCaptureAuditApprovalJoinPreview =
     buildStaticResultCaptureAuditEnvelopeApprovalJoinPreview();
   const backendDryRunAdmissionPreview =
@@ -15,6 +18,9 @@ export default function JarvisVideoWorkspacePage() {
 
   return (
     <JarvisVideoWorkspacePageClient
+      firstGatedProviderTrialPreparationPreview={
+        firstGatedProviderTrialPreparationPreview
+      }
       resultCaptureAuditApprovalJoinPreview={
         resultCaptureAuditApprovalJoinPreview
       }

@@ -159,23 +159,54 @@ Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README operat
 Assert-Matches $docsCombined "(highest detected phase:\s*$highestPhase|through phase\s+$highestPhase)" "docs mention latest detected phase"
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 4265. Latest completed batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join. Previous completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run."
+  "Current checkpoint: Highest detected phase: 4297. Latest completed batch: 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation. Previous completed batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join."
+  "Highest detected phase: 4297. Latest completed batch: 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation. Previous completed batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join."
+  "Next likely batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime"
+  "first gated provider trial preparation only"
+  "provider preflight only"
+  "provider adapter reference only"
+  "no provider call"
+  "no provider execution"
+  "no live video generation"
+  "no queue dispatch"
+  "no worker dispatch"
+  "no job execution"
+  "no result persistence"
+  "no audit persistence"
+  "no approval persistence"
+  "no artifact persistence"
+  "no retry/fallback execution"
+  "disabled by default"
+  "hard kill switch"
+  "backend-only execution path required"
+  "server-only boundary required"
+  "operator approval required"
+  "credential isolation required"
+  "first gated provider execution runtime only in a future batch"
+)) {
+  Assert-Contains $docsCombined $needle "docs mention current first gated provider trial preparation checkpoint $needle"
+}
+
+foreach ($needle in @(
   "Highest detected phase: 4265. Latest completed batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join. Previous completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run."
   "Next likely batch: 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation"
   "result capture envelope only"
   "audit envelope only"
   "approval join envelope only"
   "synthetic dry-run capture only"
-  "Current checkpoint: Highest detected phase: 4233. Latest completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run. Previous completed batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission."
+)) {
+  Assert-Contains $docsCombined $needle "docs preserve historical result capture checkpoint $needle"
+}
+
+foreach ($needle in @(
   "Highest detected phase: 4233. Latest completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run. Previous completed batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission."
   "Next likely batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join"
   "server-only runner skeleton only"
   "synthetic dry run only"
   "static result envelope only"
-  "provider adapter reference only"
   "result capture/audit/approval join only in a future batch"
 )) {
-  Assert-Contains $docsCombined $needle "docs mention current server-only synthetic dry-run checkpoint $needle"
+  Assert-Contains $docsCombined $needle "docs preserve historical server-only synthetic dry-run checkpoint $needle"
 }
 
 foreach ($needle in @(
