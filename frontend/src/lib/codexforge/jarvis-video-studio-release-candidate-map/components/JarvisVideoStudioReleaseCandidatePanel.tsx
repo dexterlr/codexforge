@@ -6,6 +6,7 @@ import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-b
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
 import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-trial-result-review-recovery-map/components";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../jarvis-video-backend-runner-foundation-dry-run-admission-preview";
+import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "../jarvis-video-server-only-runner-synthetic-dry-run-preview";
 import { buildJarvisVideoBackendRunnerContractHardeningStableKey } from "../jarvis-video-backend-runner-contract-hardening";
 import {
   buildJarvisVideoStudioReleaseCandidateRouteModel,
@@ -19,6 +20,7 @@ import styles from "./JarvisVideoStudioReleaseCandidatePanel.module.css";
 
 type JarvisVideoStudioReleaseCandidatePanelDataProps = Readonly<{
   backendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
+  serverOnlySyntheticDryRunPreview?: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
 }>;
 
 type JarvisVideoStudioReleaseCandidatePanelProps =
@@ -215,6 +217,90 @@ export function JarvisVideoStudioReleaseCandidatePanel(
             </section>
           </section>
 
+          {props.serverOnlySyntheticDryRunPreview ? (
+            <section className={styles.panel} aria-label="Server-only synthetic dry run">
+              <div className={styles.panelHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Server-only runner preview</p>
+                  <h2 className={styles.panelTitle}>
+                    {props.serverOnlySyntheticDryRunPreview.title}
+                  </h2>
+                </div>
+                <span className={styles.statBadge}>
+                  {props.serverOnlySyntheticDryRunPreview.statusBadge}
+                </span>
+              </div>
+              <p className={styles.panelBody}>
+                {props.serverOnlySyntheticDryRunPreview.summary}
+              </p>
+              <div className={styles.statusStrip}>
+                {props.serverOnlySyntheticDryRunPreview.highlights.map((item) => (
+                  <span key={item} className={styles.statusPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.summaryGrid}>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Static preview envelope</p>
+                  <h3 className={styles.summaryTitle}>
+                    {props.serverOnlySyntheticDryRunPreview.resultId}
+                  </h3>
+                  <p className={styles.summaryText}>
+                    {props.serverOnlySyntheticDryRunPreview.blockedExecutionSummary}
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      `Request id: ${props.serverOnlySyntheticDryRunPreview.requestId}`,
+                      `Disabled surfaces: ${props.serverOnlySyntheticDryRunPreview.disabledSurfaceCount}`,
+                      ...props.serverOnlySyntheticDryRunPreview.nextCaptureRequirements.slice(
+                        0,
+                        3
+                      ),
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Checkpoint state</p>
+                  <h3 className={styles.summaryTitle}>
+                    Phase{" "}
+                    {
+                      props.serverOnlySyntheticDryRunPreview.checkpoint
+                        .highestDetectedPhase
+                    }
+                  </h3>
+                  <p className={styles.summaryText}>
+                    Latest completed batch:{" "}
+                    {
+                      props.serverOnlySyntheticDryRunPreview.checkpoint
+                        .latestCompletedBatch
+                    }
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      `Previous completed batch: ${props.serverOnlySyntheticDryRunPreview.checkpoint.previousCompletedBatch}`,
+                      `Next likely batch: ${props.serverOnlySyntheticDryRunPreview.checkpoint.nextLikelyBatch.replace(
+                        /^next likely batch:\s*/i,
+                        ""
+                      )}`,
+                      `${props.serverOnlySyntheticDryRunPreview.evidenceInputCount} review-only evidence inputs remain inert`,
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              </div>
+            </section>
+          ) : null}
+
           {props.backendDryRunAdmissionPreview ? (
             <section className={styles.panel} aria-label="Backend dry-run admission">
               <div className={styles.panelHeader}>
@@ -382,7 +468,8 @@ export function JarvisVideoStudioReleaseCandidatePanel(
             <h2 className={styles.heroAsideTitle}>Harden backend runner contract</h2>
             <p className={styles.heroDetail}>
               Review the server-only path, approval gates, credential
-              isolation, and the future dry-run admission foundation.
+              isolation, and the next result capture, audit envelope, and
+              approval join requirements.
             </p>
             <div className={styles.statGrid}>
               <article className={styles.metricCard}>
@@ -403,9 +490,10 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               </article>
               <article className={styles.metricCard}>
                 <p className={styles.metricLabel}>Handoff</p>
-                <span className={styles.metricValue}>Dry-run admission next</span>
+                <span className={styles.metricValue}>Result capture next</span>
                 <span className={styles.metricDetail}>
-                  Execution hardening and result review stay review-only from here.
+                  Execution hardening, result capture, and approval join stay
+                  review-only from here.
                 </span>
               </article>
             </div>

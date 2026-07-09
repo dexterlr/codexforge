@@ -49,14 +49,14 @@ export type JarvisVideoStudioReleaseCandidateDiagnosticsGrouping = Readonly<{
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_SCORE = {
   label: "video readiness score",
   value: 89,
-  posture: "backend dry-run admission foundation only",
+  posture: "server-only runner skeleton only",
   summary:
-    "Jarvis Video Studio now carries the backend dry-run admission foundation, but execution stays blocked behind approval, credential isolation, backend runner readiness, and safety gates.",
+    "Jarvis Video Studio now carries the backend dry-run admission foundation plus the first server-only runner skeleton, but execution stays blocked behind approval, credential isolation, result capture, audit envelope, and approval join work.",
   detail: [
     "mission brief and storyboard path are coherent",
     "approval packet and dry-run references are visible",
-    "backend runner contract hardening and dry-run admission are visible without live execution",
-    "controlled trial, server-only runner skeleton, and result review remain locked",
+    "backend runner contract hardening, dry-run admission, and the server-only synthetic preview are visible without live execution",
+    "controlled trial, result capture, audit envelope, and approval join remain locked",
   ],
 } as const satisfies JarvisVideoStudioReleaseCandidateReadinessScore;
 
@@ -106,11 +106,11 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_BLOCKED_ACTION_DECK = [
 ] as const satisfies readonly JarvisVideoStudioReleaseCandidateBlockedActionCard[];
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_NEXT_ACTION_CARD = {
-  title: "Prepare the server-only runner skeleton",
+  title: "Prepare result capture, audit envelope, and approval join",
   summary:
-    "Review the defined server-only dry-run admission foundation, approval packet digest, credential isolation, and synthetic-review blockers before the runner skeleton batch is proposed.",
+    "Review the defined server-only runner skeleton, the static synthetic result envelope, and the placeholder audit and approval joins before the next backend-only capture batch is proposed.",
   posture:
-    "This batch defines the dry-run admission foundation only; no queue, worker, job, provider, or persistence path exists yet.",
+    "This batch adds the server-only runner skeleton and static synthetic dry run only; no queue, worker, job, provider, or persistence path exists yet.",
   routeHref:
     "/jarvis-video-studio-release-candidate-next-action-wiring" as Route,
 } as const satisfies JarvisVideoStudioReleaseCandidateNextActionCard;
@@ -151,12 +151,12 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_WORKSPACE_NAVIGATION_CARD = {
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_RELEASE_SUMMARY = {
   title: "Studio at a glance",
   summary:
-    "Jarvis Video Studio stays coherent and product-first while backend runner contract hardening and the dry-run admission foundation land below the console instead of taking over the hero.",
+    "Jarvis Video Studio stays coherent and product-first while backend runner contract hardening, the dry-run admission foundation, and the server-only synthetic dry run land below the console instead of taking over the hero.",
   highlights: [
     "Human hero with a clear operator path and compact safety state",
-    "Video production timeline, readiness score, backend runner contract hardening, and backend dry-run admission",
+    "Video production timeline, readiness score, backend runner contract hardening, backend dry-run admission, and a server-only synthetic dry run",
     "Prerequisite cards for script, assets, approval packet, and dry run",
-    "Backend readiness, controlled trial, runner contract, result review, and server-only dry-run admission preparation",
+    "Backend readiness, controlled trial, runner contract, result review, and the next result-capture-focused batch",
     "Blocked actions and diagnostics stay visible without taking over the main workspace",
   ],
 } as const satisfies JarvisVideoStudioReleaseCandidateReleaseSummary;

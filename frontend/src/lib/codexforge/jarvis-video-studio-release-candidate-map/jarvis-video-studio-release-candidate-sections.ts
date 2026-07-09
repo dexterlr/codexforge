@@ -63,27 +63,27 @@ export type JarvisVideoStudioReleaseCandidateMilestoneReference = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_HERO_STATE = {
   eyebrow: "Jarvis Video Studio",
-  stageLabel: "Dry-run admission foundation",
+  stageLabel: "Server-only synthetic dry run",
   title: "Jarvis Video Studio",
   summary:
-    "Premium review workspace for mission planning, approvals, backend runner contract hardening, and a newly defined backend-only dry-run admission foundation.",
+    "Premium review workspace for mission planning, approvals, backend runner contract hardening, the backend dry-run admission foundation, and the first server-only synthetic dry run preview.",
   detail:
-    "Jarvis Video Studio now carries a typed backend dry-run admission foundation while generation stays locked. Backend-only runner required. Operator approval required. Credential isolation required. Queue, worker, and job execution remain disabled.",
+    "Jarvis Video Studio now carries a typed backend dry-run admission foundation plus the first server-only runner skeleton while generation stays locked. Backend-only runner required. Operator approval required. Credential isolation required. Queue, worker, and job execution remain disabled.",
   metrics: [
     {
       label: "Workspace",
       value: "Contract-first handoff",
-      detail: "Mission brief, approvals, hardening, and dry-run admission preparation stay on one surface.",
+      detail: "Mission brief, approvals, hardening, and the server-only synthetic preview stay on one surface.",
     },
     {
       label: "Workflow",
-      value: "Studio plus dry-run admission",
-      detail: "Mission brief to backend dry-run admission stays visible in one surface.",
+      value: "Studio plus server-only preview",
+      detail: "Mission brief to static synthetic result envelope stays visible in one surface.",
     },
     {
       label: "Readiness",
-      value: "Runner skeleton next",
-      detail: "The next backend-only step remains the server-only runner skeleton and synthetic dry run, not live provider execution.",
+      value: "Capture and join next",
+      detail: "The next backend-only step is result capture, audit envelope, and approval join, not live provider execution.",
     },
     {
       label: "Safety",
@@ -96,13 +96,13 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_HERO_STATE = {
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_MISSION_BRIEF = {
   title: "Mission brief",
   audience:
-    "Operator-led review of the studio, its hardened backend-only runner contract, and the new dry-run admission foundation.",
+    "Operator-led review of the studio, its hardened backend-only runner contract, the dry-run admission foundation, and the new server-only synthetic preview.",
   objective:
-    "Consolidate planning, prerequisites, approval, dry run, backend readiness, controlled trial, backend runner contract hardening, backend dry-run admission foundation, result review recovery, the backend implementation readiness follow-up, and the earlier backend execution implementation plan into one coherent premium studio surface.",
+    "Consolidate planning, prerequisites, approval, dry run, backend readiness, controlled trial, backend runner contract hardening, backend dry-run admission foundation, the server-only synthetic preview, result review recovery, the backend implementation readiness follow-up, and the earlier backend execution implementation plan into one coherent premium studio surface.",
   operatorPosture:
     "Operator approval required before any backend-owned execution path can move forward.",
   handoffState:
-    "Plan, review, approve, then hand off to backend. This batch is backend dry-run admission foundation only. No provider call from frontend.",
+    "Plan, review, approve, then hand off to backend. This batch is server-only runner skeleton only and synthetic dry run only. No provider call from frontend.",
 } as const satisfies JarvisVideoStudioReleaseCandidateMissionBrief;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_PRODUCTION_TIMELINE = [

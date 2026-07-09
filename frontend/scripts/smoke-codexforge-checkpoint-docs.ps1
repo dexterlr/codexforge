@@ -159,14 +159,16 @@ Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README operat
 Assert-Matches $docsCombined "(highest detected phase:\s*$highestPhase|through phase\s+$highestPhase)" "docs mention latest detected phase"
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 4201. Latest completed batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission. Previous completed batch: 4138-4169 - Jarvis Video Backend Runner Contract Hardening."
-  "Highest detected phase: 4201. Latest completed batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission. Previous completed batch: 4138-4169 - Jarvis Video Backend Runner Contract Hardening."
-  "Next likely batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run"
-  "backend dry-run admission foundation only"
-  "synthetic dry-run admission only"
-  "server-only runner skeleton only in a future batch"
+  "Current checkpoint: Highest detected phase: 4233. Latest completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run. Previous completed batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission."
+  "Highest detected phase: 4233. Latest completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run. Previous completed batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission."
+  "Next likely batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join"
+  "server-only runner skeleton only"
+  "synthetic dry run only"
+  "static result envelope only"
+  "provider adapter reference only"
+  "result capture/audit/approval join only in a future batch"
 )) {
-  Assert-Contains $docsCombined $needle "docs mention current dry-run admission checkpoint $needle"
+  Assert-Contains $docsCombined $needle "docs mention current server-only synthetic dry-run checkpoint $needle"
 }
 
 foreach ($needle in @(

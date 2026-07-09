@@ -24,6 +24,7 @@ import { JarvisProductHero } from "./JarvisProductHero";
 import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-backend-trial-runner-contract-map/components";
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-backend-runner-foundation-dry-run-admission-preview";
+import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-server-only-runner-synthetic-dry-run-preview";
 import { JarvisVideoStudioReleaseCandidatePanel } from "../../jarvis-video-studio-release-candidate-map/components";
 import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-trial-result-review-recovery-map/components";
 import { JarvisWorkspaceGrid } from "./JarvisWorkspaceGrid";
@@ -114,11 +115,13 @@ type JarvisUnifiedProductShellProps =
       surfaceId: JarvisUnifiedProductPrimarySurfaceId;
       routeSlug?: never;
       jarvisVideoBackendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
+      jarvisVideoServerOnlySyntheticDryRunPreview?: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
     }
   | {
       routeSlug: JarvisUnifiedProductIaRouteSlug;
       surfaceId?: never;
       jarvisVideoBackendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
+      jarvisVideoServerOnlySyntheticDryRunPreview?: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
     };
 
 export function JarvisUnifiedProductPageClientShell(
@@ -181,6 +184,9 @@ export function JarvisUnifiedProductPanel(
           workspaceId="jarvis-video"
           backendDryRunAdmissionPreview={
             props.jarvisVideoBackendDryRunAdmissionPreview
+          }
+          serverOnlySyntheticDryRunPreview={
+            props.jarvisVideoServerOnlySyntheticDryRunPreview
           }
         />
       </section>

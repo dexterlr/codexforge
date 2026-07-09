@@ -16,6 +16,12 @@ export type JarvisVideoStudioReleaseCandidateReviewRail = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
   ...JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS,
+  "4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
+  "Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
+  "server-only runner skeleton only",
+  "synthetic dry run only",
+  "static result envelope only",
+  "result capture/audit/approval join only in a future batch",
   "4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission",
   "Jarvis Video Backend Runner Foundation Dry-Run Admission",
   "backend dry-run admission foundation only",
@@ -38,6 +44,12 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REQUIRED_MARKERS = [
   ...JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS,
+  "4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
+  "Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
+  "server-only runner skeleton only",
+  "synthetic dry run only",
+  "static result envelope only",
+  "result capture/audit/approval join only in a future batch",
   "4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission",
   "Jarvis Video Backend Runner Foundation Dry-Run Admission",
   "backend dry-run admission foundation only",
@@ -87,6 +99,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REQUIRED_MARKERS = [
   "next likely batch: 4138-4169 - Jarvis Video Backend Runner Contract Hardening",
   "next likely batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission",
   "next likely batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
+  "next likely batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join",
   "4042-4073 - Jarvis Video Studio Release Candidate",
   "4042-4073 - Jarvis Video Studio Release Candidate Mega Batch v1",
   "Jarvis Video Studio Release Candidate",
