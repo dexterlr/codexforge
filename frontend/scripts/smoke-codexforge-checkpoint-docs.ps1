@@ -159,6 +159,38 @@ Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README operat
 Assert-Matches $docsCombined "(highest detected phase:\s*$highestPhase|through phase\s+$highestPhase)" "docs mention latest detected phase"
 
 foreach ($needle in @(
+  "Current checkpoint: Highest detected phase: 4457. Latest completed batch: 4426-4457 - Jarvis Video Manual Provider Trial Execution Enablement. Previous completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review."
+  "Highest detected phase: 4457. Latest completed batch: 4426-4457 - Jarvis Video Manual Provider Trial Execution Enablement. Previous completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review."
+  "Latest completed batch: 4426-4457 - Jarvis Video Manual Provider Trial Execution Enablement"
+  "Previous completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review"
+  "Next likely batch: 4458-4489 - Jarvis Video First Manual Provider Trial Run Capture and Recovery"
+  "manual provider trial execution enablement only"
+  "blocked by default"
+  "provider call not executed during validation"
+  "no live video generation during validation"
+  "no frontend provider call"
+  "manual confirmation required"
+  "operator approval required"
+  "credential isolation required"
+  "hard kill switch required"
+  "cost acknowledgement required"
+  "no queue dispatch"
+  "no worker dispatch"
+  "no job execution"
+  "no result persistence"
+  "no audit persistence"
+  "no approval persistence"
+  "no artifact persistence"
+  "retry/fallback disabled"
+  "export/publish blocked"
+  "backend-only execution path required"
+  "server-only boundary required"
+  "first manual provider trial run capture/recovery in a future batch"
+)) {
+  Assert-Contains $docsCombined $needle "docs mention current manual execution enablement checkpoint $needle"
+}
+
+foreach ($needle in @(
   "Current checkpoint: Highest detected phase: 4425. Latest completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review. Previous completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial."
   "Highest detected phase: 4425. Latest completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review. Previous completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial."
   "Next likely batch: 4426-4457 - Jarvis Video Manual Provider Trial Execution Enablement"
@@ -188,7 +220,7 @@ foreach ($needle in @(
   "server-only boundary required"
   "manual provider trial capture/UX review in a future batch"
 )) {
-  Assert-Contains $docsCombined $needle "docs mention current first real provider adapter wiring checkpoint $needle"
+  Assert-Contains $docsCombined $needle "docs preserve historical manual provider trial checkpoint $needle"
 }
 
 foreach ($needle in @(

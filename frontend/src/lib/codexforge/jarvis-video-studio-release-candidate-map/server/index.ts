@@ -1,4 +1,16 @@
 export {
+  JARVIS_VIDEO_MANUAL_PROVIDER_TRIAL_EXECUTION_ENABLEMENT_DISPLAY_MARKERS,
+  JARVIS_VIDEO_MANUAL_PROVIDER_TRIAL_EXECUTION_ENABLEMENT_EVIDENCE_INPUTS,
+  JARVIS_VIDEO_MANUAL_PROVIDER_TRIAL_EXECUTION_ENABLEMENT_MODEL,
+  buildBlockedManualExecutionResult,
+  buildManualExecutionReadinessSummary,
+  buildNextManualRunCaptureRecoveryChecklist,
+  buildStableManualExecutionEnablementKey,
+  buildStaticJarvisVideoManualProviderTrialExecutionEnablementPreview,
+  evaluateManualExecutionGates,
+  listManualExecutionBlockers,
+} from "./jarvis-video-manual-provider-trial-execution-enablement";
+export {
   JARVIS_VIDEO_FIRST_MANUAL_PROVIDER_TRIAL_RESULT_CAPTURE_MODEL,
   JARVIS_VIDEO_FIRST_MANUAL_PROVIDER_TRIAL_RESULT_CAPTURE_UX_REVIEW_CHECKPOINT,
   JARVIS_VIDEO_FIRST_MANUAL_PROVIDER_TRIAL_RESULT_CAPTURE_UX_REVIEW_DISPLAY_MARKERS,

@@ -1,6 +1,7 @@
 'use client';
 
 import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-unified-product-ia-map/components";
+import type { JarvisVideoManualProviderTrialExecutionEnablementPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-manual-provider-trial-execution-enablement-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-gated-provider-execution-trial-runtime-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-gated-provider-execution-trial-preparation-preview";
 import type { JarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-manual-provider-trial-result-capture-ux-review-preview";
@@ -29,6 +30,7 @@ import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/co
 // 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery
 // 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial
 // 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review
+// 4426-4457 - Jarvis Video Manual Provider Trial Execution Enablement
 // Jarvis Video Studio Release Candidate
 // Jarvis Video Backend Execution Implementation Plan
 // Jarvis Video Backend Implementation Readiness Follow-Up
@@ -86,8 +88,12 @@ import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/co
 // no result persistence
 // no retry or fallback execution
 // operator acceptance required
+// manual provider trial execution enablement only
+// blocked by default
+// manual run capture next
 // JarvisVideoBackendExecutionReadinessPageClientShell
 type JarvisVideoWorkspacePageClientProps = Readonly<{
+  manualProviderTrialExecutionEnablementPreview: JarvisVideoManualProviderTrialExecutionEnablementPreview;
   firstGatedProviderTrialRuntimePreview: JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview;
   firstGatedProviderTrialPreparationPreview: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
   firstManualProviderTrialResultCaptureUxReviewPreview: JarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview;
@@ -99,6 +105,7 @@ type JarvisVideoWorkspacePageClientProps = Readonly<{
 }>;
 
 export default function JarvisVideoWorkspacePageClient({
+  manualProviderTrialExecutionEnablementPreview,
   firstGatedProviderTrialRuntimePreview,
   firstGatedProviderTrialPreparationPreview,
   firstManualProviderTrialResultCaptureUxReviewPreview,
@@ -111,6 +118,9 @@ export default function JarvisVideoWorkspacePageClient({
   return (
     <JarvisUnifiedProductPageClientShell
       surfaceId="jarvis-video"
+      jarvisVideoManualProviderTrialExecutionEnablementPreview={
+        manualProviderTrialExecutionEnablementPreview
+      }
       jarvisVideoFirstGatedProviderTrialRuntimePreview={
         firstGatedProviderTrialRuntimePreview
       }

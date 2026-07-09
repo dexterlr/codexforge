@@ -5,6 +5,7 @@ import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-backend-trial-runner-contract-map/components";
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
 import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-trial-result-review-recovery-map/components";
+import type { JarvisVideoManualProviderTrialExecutionEnablementPreview } from "../jarvis-video-manual-provider-trial-execution-enablement-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview } from "../jarvis-video-first-gated-provider-execution-trial-runtime-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "../jarvis-video-first-gated-provider-execution-trial-preparation-preview";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../jarvis-video-backend-runner-foundation-dry-run-admission-preview";
@@ -25,6 +26,7 @@ import {
 import styles from "./JarvisVideoStudioReleaseCandidatePanel.module.css";
 
 type JarvisVideoStudioReleaseCandidatePanelDataProps = Readonly<{
+  manualProviderTrialExecutionEnablementPreview?: JarvisVideoManualProviderTrialExecutionEnablementPreview;
   firstGatedProviderTrialRuntimePreview?: JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview;
   firstGatedProviderTrialPreparationPreview?: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
   firstManualProviderTrialResultCaptureUxReviewPreview?: JarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview;
@@ -228,6 +230,89 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               </ol>
             </section>
           </section>
+
+          {props.manualProviderTrialExecutionEnablementPreview ? (
+            <section className={styles.panel} aria-label="Manual execution enablement">
+              <div className={styles.panelHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gated operator review</p>
+                  <h2 className={styles.panelTitle}>
+                    {props.manualProviderTrialExecutionEnablementPreview.title}
+                  </h2>
+                </div>
+                <span className={styles.statBadge}>
+                  {props.manualProviderTrialExecutionEnablementPreview.statusBadge}
+                </span>
+              </div>
+              <p className={styles.panelBody}>
+                {props.manualProviderTrialExecutionEnablementPreview.summary}
+              </p>
+              <div className={styles.statusStrip}>
+                {props.manualProviderTrialExecutionEnablementPreview.highlights.map(
+                  (item) => (
+                    <span key={item} className={styles.statusPill}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <div className={styles.summaryGrid}>
+                <ReadinessListCard
+                  eyebrow="Blocked by default"
+                  title="Manual provider path stays non-executing"
+                  summary="Manual execution enablement is a typed server-only review layer only. Provider calls never run during validation, never run from frontend, and stay blocked until explicit manual confirmations are present."
+                  items={props.manualProviderTrialExecutionEnablementPreview.productStatements.slice(
+                    0,
+                    6
+                  )}
+                />
+                <ReadinessListCard
+                  eyebrow="Manual gates remain explicit"
+                  title="Approval, credential isolation, and cost controls stay required"
+                  summary="Manual confirmation, operator approval, credential isolation, cost acknowledgement, kill-switch posture, idempotency, and network egress approval all remain explicit blockers before any future backend-only operator run."
+                  items={[
+                    ...props.manualProviderTrialExecutionEnablementPreview.manualExecutionGateChecklist.slice(
+                      0,
+                      6
+                    ),
+                    ...props.manualProviderTrialExecutionEnablementPreview.credentialIsolationChecklist.slice(
+                      0,
+                      2
+                    ),
+                    ...props.manualProviderTrialExecutionEnablementPreview.operatorApprovalChecklist.slice(
+                      0,
+                      2
+                    ),
+                    ...props.manualProviderTrialExecutionEnablementPreview.costAcknowledgementChecklist.slice(
+                      0,
+                      2
+                    ),
+                  ]}
+                />
+                <ReadinessListCard
+                  eyebrow="Manual run capture next"
+                  title={`Phase ${props.manualProviderTrialExecutionEnablementPreview.checkpoint.highestDetectedPhase}`}
+                  summary="Queue/worker/job dispatch remain disabled. Result, audit, approval persistence remain unimplemented. Artifact handoff remains placeholder only. Manual run capture next stays reserved for the follow-up run capture and recovery batch."
+                  items={[
+                    `Latest completed batch: ${props.manualProviderTrialExecutionEnablementPreview.checkpoint.latestCompletedBatch}`,
+                    `Previous completed batch: ${props.manualProviderTrialExecutionEnablementPreview.checkpoint.previousCompletedBatch}`,
+                    `Next likely batch: ${props.manualProviderTrialExecutionEnablementPreview.checkpoint.nextLikelyBatch.replace(
+                      /^next likely batch:\s*/i,
+                      ""
+                    )}`,
+                    ...props.manualProviderTrialExecutionEnablementPreview.manualRunBlockers.slice(
+                      0,
+                      4
+                    ),
+                    ...props.manualProviderTrialExecutionEnablementPreview.nextManualRunCaptureRecoveryChecklist.slice(
+                      0,
+                      2
+                    ),
+                  ]}
+                />
+              </div>
+            </section>
+          ) : null}
 
           {props.firstManualProviderTrialResultCaptureUxReviewPreview ? (
             <section className={styles.panel} aria-label="Manual provider trial capture">
