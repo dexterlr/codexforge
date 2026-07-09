@@ -678,17 +678,17 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "diagnostics",
     ],
     currentFocus:
-      "Athena can plan, route, review, and prepare backend-only handoff paths while execution stays locked.",
+      "Athena can map commands into the plugin registry, preview command routing, review blockers, and prepare backend-only handoff paths while execution stays locked.",
     heroMetrics: [
       {
         label: "Control plane",
         value: "Athena over Jarvis",
-        detail: "Athena is the upper chat control layer above specialist Jarvis workspaces.",
+        detail: "Athena is the upper chat control layer above specialist Jarvis workspaces and approval-gated product lanes.",
       },
       {
         label: "Operator posture",
-        value: "Plan and route",
-        detail: "Athena can classify requests, open the right workspace, and keep execution review-only.",
+        value: "Plan, route, preview",
+        detail: "Athena can classify requests, match the plugin registry, preview the route, and keep execution review-only.",
       },
       {
         label: "Execution",
