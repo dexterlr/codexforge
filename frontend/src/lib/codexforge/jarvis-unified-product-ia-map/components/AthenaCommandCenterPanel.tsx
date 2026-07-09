@@ -3,15 +3,20 @@
 import Link from "next/link";
 import styles from "./JarvisUnifiedProductShell.module.css";
 import {
+  buildAuditRequirementsSummary,
   buildAthenaApprovalRequirementsSummary,
   buildAthenaAuditRequirementsSummary,
   buildAthenaBlockedActionSummary,
   buildAthenaRoutePreview,
+  buildBackendHandoffSummary,
+  buildBlockedBridgeSummary,
+  buildSafetyRequirementsSummary,
   buildStableAthenaPluginKey,
   type AthenaCommandCenterModel,
   type AthenaCommandIntentState,
   type AthenaExecutionPosture,
   type AthenaLauncherStatus,
+  listApprovalBridgeRequirements,
 } from "../athena-control-plane-model";
 
 type AthenaCommandCenterPanelProps = Readonly<{
@@ -21,6 +26,9 @@ type AthenaCommandCenterPanelProps = Readonly<{
 export function AthenaCommandCenterPanel({
   commandCenter,
 }: AthenaCommandCenterPanelProps) {
+  const representativeBridge =
+    commandCenter.approvalGatedToolBridgePreviews[0] ?? null;
+
   return (
     <>
       <section className={styles.athenaConsole} aria-label="Athena Command Center">
@@ -232,6 +240,179 @@ export function AthenaCommandCenterPanel({
               </article>
             );
           })}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Approval-gated tool bridge">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Bridge foundation</p>
+            <h2 className={styles.panelTitle}>Approval-gated tool bridge</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Blocked by default
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can prepare approval-gated handoff packets. Every plugin
+          command remains blocked by default. Operator approval is required.
+          Kill switch is required. Audit is required. Backend-only execution is
+          required. No plugin execution from chat yet.
+        </p>
+        {representativeBridge ? (
+          <div className={styles.summaryGrid}>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative bridge</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeBridge.userFacingPhrase}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  {representativeBridge.bridgeVersion}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Plugin: ${representativeBridge.matchedPluginLabel}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`Route: ${representativeBridge.routeTargetReference}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`Packet: ${representativeBridge.approvalPacketPreviewReference}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {buildBackendHandoffSummary(representativeBridge)}
+              </p>
+              <p className={styles.railBody}>
+                {buildBlockedBridgeSummary(representativeBridge)}
+              </p>
+            </article>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval requirements</p>
+                  <h3 className={styles.placeholderTitle}>Required control gates</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  Approval required
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {listApprovalBridgeRequirements(representativeBridge).map(
+                  (requirement) => (
+                    <span key={requirement} className={styles.metaPill}>
+                      {requirement}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Safety and audit</p>
+                  <h3 className={styles.placeholderTitle}>Locked backend handoff</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  Inert bridge
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {buildSafetyRequirementsSummary(representativeBridge)}
+              </p>
+              <p className={styles.railBody}>
+                {buildAuditRequirementsSummary(representativeBridge)}
+              </p>
+            </article>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Next memory lane</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {commandCenter.nextLikelyBatch}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                  Next likely batch
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeBridge.nextTimelineAuditMemoryChecklist.map(
+                  (item) => (
+                    <span key={item} className={styles.blockedPill}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
+          </div>
+        ) : null}
+      </section>
+
+      <section className={styles.panel} aria-label="Handoff packet preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only packet</p>
+            <h2 className={styles.panelTitle}>Handoff packet preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Executes nothing
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Sample command. Target plugin. Target route. Approval requirements.
+          Safety gates. Audit gates. Backend handoff state. Current
+          blocked/default reason.
+        </p>
+        <div className={styles.summaryGrid}>
+          {commandCenter.handoffPacketPreviews.map((packet) => (
+            <article key={packet.packetId} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Sample command</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {packet.userFacingCommandPhrase}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {packet.source}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Target plugin: ${packet.targetPluginLabel}`}
+                </span>
+                <Link className={styles.metaPill} href={packet.targetRoute}>
+                  {`Target route: ${packet.targetRoute}`}
+                </Link>
+              </div>
+              <p className={styles.railBody}>
+                {`Approval requirements: ${packet.approvalSummary}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Safety gates: ${packet.safetySummary}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Audit gates: ${packet.auditSummary}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Backend handoff state: ${packet.backendHandoffSummary}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Current blocked/default reason: ${packet.blockedDefaultReason}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Required operator action: ${packet.requiredOperatorAction}`}
+              </p>
+              <p className={styles.railFooter}>{packet.requiredNextSystemAction}</p>
+              <p className={styles.railFooter}>{packet.noExecutionStatement}</p>
+            </article>
+          ))}
         </div>
       </section>
 

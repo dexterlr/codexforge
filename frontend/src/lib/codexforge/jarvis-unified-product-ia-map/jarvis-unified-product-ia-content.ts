@@ -565,7 +565,7 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "diagnostics",
     ],
     currentFocus:
-      "Open Athena Command Center first, then move into Jarvis Video Studio and the other specialist surfaces without leaving the controlled workspace.",
+      "Open Athena Command Center first, review approval-gated handoff packets, then move into Jarvis Video Studio and the other specialist surfaces without leaving the controlled workspace.",
     heroMetrics: [
       {
         label: "Primary route",
@@ -678,7 +678,7 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "diagnostics",
     ],
     currentFocus:
-      "Athena can map commands into the plugin registry, preview command routing, review blockers, and prepare backend-only handoff paths while execution stays locked.",
+      "Athena can map commands into the plugin registry, preview command routing, prepare approval-gated handoff packets, review blockers, and keep backend-only handoff paths locked by default.",
     heroMetrics: [
       {
         label: "Control plane",

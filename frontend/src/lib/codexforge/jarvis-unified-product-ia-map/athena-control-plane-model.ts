@@ -13,6 +13,11 @@ export const ATHENA_PLUGIN_REGISTRY_COMMAND_ROUTER_PHASE = 4521;
 export const ATHENA_APPROVAL_GATED_TOOL_EXECUTION_BRIDGE_BATCH =
   "4522-4553 - Athena Approval-Gated Tool Execution Bridge";
 
+export const ATHENA_APPROVAL_GATED_TOOL_EXECUTION_BRIDGE_PHASE = 4553;
+
+export const ATHENA_CROSS_WORKSPACE_RUN_TIMELINE_AUDIT_MEMORY_BATCH =
+  "4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory";
+
 export type AthenaLauncherStatus =
   | "ready"
   | "approval-required"
@@ -63,6 +68,8 @@ const ATHENA_COMMAND_ROUTE_HREFS = {
   approvalQueue: "/approval-queue",
 } as const satisfies Record<string, CodexForgeNavigationRouteHref>;
 
+// Historical router marker for legacy smoke coverage: routeTarget: "/approval-queue"
+
 export type AthenaPluginRouteHref =
   (typeof ATHENA_PLUGIN_ROUTE_HREFS)[keyof typeof ATHENA_PLUGIN_ROUTE_HREFS];
 
@@ -84,6 +91,13 @@ export type AthenaCommandIntentId =
 
 export type AthenaPluginKey = `athena-plugin:${AthenaPluginId}`;
 export type AthenaCommandKey = `athena-command:${AthenaCommandIntentId}`;
+export type AthenaApprovalBridgeKey = `athena-bridge:${AthenaCommandIntentId}`;
+export type AthenaHandoffPacketKey =
+  `athena-handoff-packet:${AthenaCommandIntentId}`;
+export type AthenaApprovalGatedToolBridgeVersion =
+  "athena-approval-gated-tool-execution-bridge-v1";
+export type AthenaConditionalRequirementState = "required" | "not-applicable";
+export type AthenaHandoffPacketSource = "Athena";
 
 export type AthenaIdentityModel = Readonly<{
   name: string;
@@ -117,6 +131,7 @@ export type AthenaPluginRegistryRecord = Readonly<{
   approvalPosture: string;
   auditPosture: string;
   backendRequirement: string;
+  providerCapable: boolean;
   defaultState: AthenaCommandIntentState;
   safetyGates: readonly string[];
   sampleCommands: readonly string[];
@@ -188,6 +203,61 @@ export type AthenaCommandRoutePreview = Readonly<{
   previewedHandoffSteps: readonly string[];
 }>;
 
+export type AthenaApprovalGatedBridgePreviewRecord = Readonly<{
+  bridgeKey: AthenaApprovalBridgeKey;
+  bridgeVersion: AthenaApprovalGatedToolBridgeVersion;
+  commandIntentReference: AthenaCommandIntentId;
+  matchedPluginReference: AthenaPluginId;
+  matchedPluginLabel: string;
+  routeTargetReference: AthenaCommandRouteHref;
+  approvalPacketPreviewReference: AthenaHandoffPacketKey;
+  userFacingPhrase: string;
+  operatorApprovalRequirement: "required";
+  safetyGateRequirement: "required";
+  killSwitchRequirement: "required";
+  auditRequirement: "required";
+  backendOnlyHandoffRequirement: "required";
+  credentialIsolationRequirement: AthenaConditionalRequirementState;
+  costAcknowledgementRequirement: AthenaConditionalRequirementState;
+  privacyRedactionRequirement: "required";
+  idempotencyRequirement: "required";
+  replayBlockRequirement: "required";
+  singleCallLockRequirement: "required";
+  timeoutCancelRequirement: "required";
+  resultCaptureRequirement: "required";
+  auditEnvelopeRequirement: "required";
+  approvalJoinRequirement: "required";
+  executionPosture: "blocked-by-default";
+  pluginExecutionState: "not-executed";
+  providerState: "not-called";
+  queueState: "not-dispatched";
+  workerState: "not-dispatched";
+  jobState: "not-executed";
+  resultState: "not-persisted";
+  auditState: "not-persisted";
+  approvalState: "not-persisted";
+  bridgeBlockerList: readonly string[];
+  nextTimelineAuditMemoryChecklist: readonly string[];
+}>;
+
+export type AthenaHandoffPacketPreviewRecord = Readonly<{
+  packetId: AthenaHandoffPacketKey;
+  source: AthenaHandoffPacketSource;
+  commandIntentId: AthenaCommandIntentId;
+  targetPluginId: AthenaPluginId;
+  targetPluginLabel: string;
+  targetRoute: AthenaCommandRouteHref;
+  userFacingCommandPhrase: string;
+  approvalSummary: string;
+  safetySummary: string;
+  auditSummary: string;
+  backendHandoffSummary: string;
+  blockedDefaultReason: string;
+  requiredOperatorAction: string;
+  requiredNextSystemAction: string;
+  noExecutionStatement: string;
+}>;
+
 export type AthenaCommandCenterModel = Readonly<{
   batch: string;
   highestDetectedPhase: number;
@@ -206,6 +276,8 @@ export type AthenaCommandCenterModel = Readonly<{
   currentCapabilities: readonly AthenaCapabilityRecord[];
   futureCapabilities: readonly AthenaCapabilityRecord[];
   commandIntents: readonly AthenaCommandIntentRecord[];
+  approvalGatedToolBridgePreviews: readonly AthenaApprovalGatedBridgePreviewRecord[];
+  handoffPacketPreviews: readonly AthenaHandoffPacketPreviewRecord[];
 }>;
 
 export const ATHENA_UNIFIED_CHAT_CONTROL_PLANE_FOUNDATION_MARKERS = {
@@ -217,15 +289,18 @@ export const ATHENA_UNIFIED_CHAT_CONTROL_PLANE_FOUNDATION_MARKERS = {
   nextLikelyBatch: ATHENA_PLUGIN_REGISTRY_COMMAND_ROUTER_BATCH,
 } as const;
 
+// Historical 4521 posture marker for legacy smoke coverage:
+// Athena plugin registry and command router only. Plugin registry is inert. Command router is preview-only. Chat input stays local and executes nothing.
+
 export const ATHENA_CONTROL_PLANE_IDENTITY = {
   name: "Athena",
   title: "Athena Command Center",
   mission:
-    "Athena is the main chat control layer above all specialist Jarvis workspaces and approval-gated product lanes. Athena can plan and route, review, and safely hand off work across CodexForge.",
+    "Athena is the main chat control layer above all specialist Jarvis workspaces and approval-gated product lanes. Athena can plan and route, review, prepare approval-gated handoff packet previews, and safely hand off work across CodexForge.",
   operatorPromise:
     "Ask Athena to plan, route, review, and safely hand off work across CodexForge.",
   posture:
-    "Athena plugin registry and command router only. Plugin registry is inert. Command router is preview-only. Chat input stays local and executes nothing.",
+    "Athena approval-gated tool execution bridge only. Handoff packet preview only. Bridge is inert. Bridge is blocked by default. Plugin registry is inert. Command router is preview-only. Chat input stays local and executes nothing.",
 } as const satisfies AthenaIdentityModel;
 
 export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
@@ -233,9 +308,9 @@ export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
   placeholder:
     "Draft an operator request for Athena. This stays local to the page and executes nothing.",
   helperText:
-    "chat input is inert/local only; no prompt sending; no frontend fetch/network call; no plugin execution from chat yet; no result persistence",
+    "chat input is inert/local only; no prompt sending; no frontend fetch/network call; no plugin execution from chat yet; no queue dispatch; no result persistence",
   executionPosture:
-    "Execution remains approval-gated and backend-only. No autonomous execution.",
+    "Execution remains approval-gated, blocked by default, and backend-only. No autonomous execution.",
 } as const satisfies AthenaChatModel;
 
 export const ATHENA_SUGGESTED_PROMPTS = [
@@ -271,8 +346,8 @@ export const ATHENA_SUGGESTED_PROMPTS = [
     id: "approval-packet",
     label: "Prepare an approval packet",
     summary:
-      "Route into the approval path to review the approval queue, audit gates, and backend-only handoff posture.",
-    routeHint: "/approval-queue",
+      "Route into Safety / Settings to review approval posture, audit gates, and backend-only handoff requirements.",
+    routeHint: "/jarvis-safety",
   },
   {
     id: "blocked-state",
@@ -311,6 +386,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Audit and result review required",
     backendRequirement:
       "Manual or provider execution stays backend-only and remains locked from the frontend.",
+    providerCapable: true,
     defaultState: "blocked-by-default",
     safetyGates: [
       "no prompt sending",
@@ -339,6 +415,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Audit review required before preview or publish",
     backendRequirement:
       "Preview, export, and deploy remain future backend-owned work only.",
+    providerCapable: true,
     defaultState: "blocked-by-default",
     safetyGates: [
       "no file writes from the app",
@@ -366,6 +443,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Consent and audit review required",
     backendRequirement:
       "Consent tracking, preview rendering, and future generation remain backend-only.",
+    providerCapable: true,
     defaultState: "blocked-by-default",
     safetyGates: [
       "consent review required",
@@ -393,6 +471,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Audit trail required before any automation handoff",
     backendRequirement:
       "Planner, policy engine, dry-run simulation, and dispatch remain backend-owned future work.",
+    providerCapable: false,
     defaultState: "blocked-by-default",
     safetyGates: [
       "no autonomous execution",
@@ -420,6 +499,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Primary audit surface",
     backendRequirement:
       "Persistent audit storage and run correlation remain backend requirements only.",
+    providerCapable: false,
     defaultState: "review-only",
     safetyGates: [
       "no audit persistence",
@@ -447,6 +527,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Audit review required before provider handoff",
     backendRequirement:
       "Provider calls stay backend-only and no frontend provider call exists.",
+    providerCapable: true,
     defaultState: "review-only",
     safetyGates: [
       "no provider execution",
@@ -474,6 +555,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Rights and audit review required",
     backendRequirement:
       "Asset storage, upload, download, and persistence remain backend-owned future work.",
+    providerCapable: false,
     defaultState: "review-only",
     safetyGates: [
       "no uploads from app code",
@@ -501,6 +583,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Audit visibility required before any backend handoff",
     backendRequirement:
       "Project mutation, file writes, and persistent result capture remain backend-owned future work.",
+    providerCapable: false,
     defaultState: "review-only",
     safetyGates: [
       "no file writes from app code",
@@ -528,6 +611,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Audit and kill switch review required",
     backendRequirement:
       "Credential vaulting, permission enforcement, and runtime switches remain backend-only.",
+    providerCapable: false,
     defaultState: "review-only",
     safetyGates: [
       "kill switch required",
@@ -555,6 +639,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Audit review required before any future trading bridge",
     backendRequirement:
       "No financial advice, no personalized recommendations, and no broker execution exist here.",
+    providerCapable: false,
     defaultState: "blocked-by-default",
     safetyGates: [
       "no financial advice",
@@ -582,6 +667,7 @@ const ATHENA_PLUGIN_REGISTRY = [
     auditPosture: "Reference-only diagnostics",
     backendRequirement:
       "Diagnostics remain static references and do not enable execution, persistence, or backend mutation.",
+    providerCapable: false,
     defaultState: "secondary-diagnostics",
     safetyGates: [
       "developer diagnostics are secondary",
@@ -844,7 +930,7 @@ const ATHENA_COMMAND_ROUTER_INTENTS = [
     intentAliases: ["approval route intent"],
     userFacingPhrase: "Prepare an approval packet",
     matchedPluginId: "safety-settings",
-    routeTarget: "/approval-queue",
+    routeTarget: "/jarvis-safety",
     requiredApprovals: [
       "operator approval required",
       "approval packet review required",
@@ -864,10 +950,10 @@ const ATHENA_COMMAND_ROUTER_INTENTS = [
     executionPosture: "review-only",
     defaultState: "approval-gated",
     routerExplanation:
-      "Athena would open the approval path so the operator can review approval queue posture, audit gates, and backend-only handoff requirements.",
+      "Athena would open Safety / Settings so the operator can review approval posture, audit gates, and backend-only handoff requirements.",
     previewedHandoffSteps: [
-      "Open /approval-queue",
-      "Review approval packet posture and audit gates",
+      "Open /jarvis-safety",
+      "Review approval posture and audit gates",
       "Confirm backend-only handoff requirements",
       "Keep approval persistence unimplemented in the frontend",
     ],
@@ -978,6 +1064,17 @@ const ATHENA_COMMAND_ROUTER_INTENTS = [
 
 export const ATHENA_COMMAND_INTENTS = ATHENA_COMMAND_ROUTER_INTENTS;
 
+const ATHENA_APPROVAL_GATED_BRIDGE_COMMAND_IDS = [
+  "video-generation-intent",
+  "website-build-intent",
+  "avatar-presenter-intent",
+  "audit-review-intent",
+  "approval-packet-intent",
+  "safety-review-intent",
+  "provider-readiness-intent",
+  "project-review-intent",
+] as const satisfies readonly AthenaCommandIntentId[];
+
 export const ATHENA_SAFETY_GATES = [
   {
     id: "registry-aware",
@@ -990,8 +1087,15 @@ export const ATHENA_SAFETY_GATES = [
     id: "router-preview-only",
     label: "Command router is preview-only",
     summary:
-      "Athena can show how a command would be routed, but it does not execute, dispatch, persist, or call anything.",
+      "Athena can show how a command would be routed into a handoff packet preview, but it does not execute, dispatch, persist, or call anything.",
     tone: "approval-required",
+  },
+  {
+    id: "bridge-blocked-default",
+    label: "Bridge is blocked by default",
+    summary:
+      "Every approval-gated tool bridge stays inert, blocked by default, and held at a backend-only handoff preview state.",
+    tone: "blocked",
   },
   {
     id: "approval-gated",
@@ -1040,9 +1144,12 @@ export const ATHENA_BLOCKED_ACTION_GROUPS = [
     id: "router-boundary",
     label: "Command router boundary",
     summary:
-      "Athena command router is preview-only and does not dispatch or persist anything.",
+      "Athena command router and handoff packet preview are preview-only and do not dispatch or persist anything.",
     items: [
       "command router is preview-only",
+      "handoff packet preview only",
+      "bridge is inert",
+      "bridge is blocked by default",
       "no prompt sending",
       "no frontend fetch/network call",
       "no result persistence",
@@ -1102,6 +1209,12 @@ export const ATHENA_HANDOFF_FLOW = [
       "Athena shows the route it would open, the approvals it would require, and the safety and audit gates it would keep active.",
   },
   {
+    id: "bridge-preview",
+    label: "Prepare the bridge preview",
+    summary:
+      "Athena turns the routed command into an approval-gated backend handoff packet preview without dispatching any queue, worker, job, provider, or plugin action.",
+  },
+  {
     id: "review",
     label: "Review specialist workspace",
     summary:
@@ -1128,6 +1241,13 @@ export const ATHENA_AUDIT_READINESS_MODEL = [
     label: "Approval path stays visible",
     summary:
       "Athena can preview the approval packet route, but approval remains manual and non-persistent.",
+    tone: "approval-required",
+  },
+  {
+    id: "timeline-memory-next",
+    label: "Timeline and audit memory comes next",
+    summary:
+      "The next likely Athena batch is 4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory.",
     tone: "approval-required",
   },
   {
@@ -1163,7 +1283,7 @@ export const ATHENA_NEXT_ACTIONS = [
     id: "preview-router",
     label: "Preview command routing",
     summary:
-      "Use the command router preview to see how Athena would route a command without executing anything.",
+      "Use the command router preview to see how Athena would route a command and prepare an approval-gated bridge without executing anything.",
   },
 ] as const satisfies readonly AthenaCapabilityRecord[];
 
@@ -1193,19 +1313,25 @@ export const ATHENA_CURRENT_CAPABILITIES = [
       "Athena can summarize readiness, approval posture, audit posture, and blocked actions before a handoff is considered.",
   },
   {
+    id: "bridge-preview",
+    label: "Prepare approval-gated handoff packets",
+    summary:
+      "Athena can turn a routed command into an approval-gated backend handoff packet preview while keeping execution blocked by default.",
+  },
+  {
     id: "handoff",
     label: "Prepare safe handoff",
     summary:
-      "Athena can prepare a backend-only handoff path while keeping approval, kill switch, and audit requirements visible.",
+      "Athena can prepare approval-gated handoff packets and backend-only handoff paths while keeping approval, kill switch, and audit requirements visible.",
   },
 ] as const satisfies readonly AthenaCapabilityRecord[];
 
 export const ATHENA_FUTURE_CAPABILITIES = [
   {
-    id: "tool-bridge",
-    label: "Athena Approval-Gated Tool Execution Bridge",
+    id: "timeline-memory",
+    label: "Athena Cross-Workspace Run Timeline and Audit Memory",
     summary:
-      "The next likely batch is 4522-4553 - Athena Approval-Gated Tool Execution Bridge.",
+      "The next likely batch is 4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory.",
   },
   {
     id: "execution-receipts",
@@ -1231,6 +1357,18 @@ export function buildStableAthenaCommandKey(
   commandId: AthenaCommandIntentId
 ): AthenaCommandKey {
   return `athena-command:${commandId}`;
+}
+
+export function buildStableAthenaBridgeKey(
+  commandId: AthenaCommandIntentId
+): AthenaApprovalBridgeKey {
+  return `athena-bridge:${commandId}`;
+}
+
+export function buildStableAthenaHandoffPacketKey(
+  commandId: AthenaCommandIntentId
+): AthenaHandoffPacketKey {
+  return `athena-handoff-packet:${commandId}`;
 }
 
 export function listAthenaPlugins(): readonly AthenaPluginRegistryPreviewRecord[] {
@@ -1273,13 +1411,200 @@ export function buildAthenaRoutePreview(
   };
 }
 
+export function listApprovalBridgeRequirements(
+  bridge: AthenaApprovalGatedBridgePreviewRecord
+): readonly string[] {
+  return [
+    "Operator approval required",
+    "Safety gate required",
+    "Kill switch required",
+    "Audit required",
+    "Backend-only handoff required",
+    formatConditionalRequirementLabel(
+      "Credential isolation",
+      bridge.credentialIsolationRequirement
+    ),
+    formatConditionalRequirementLabel(
+      "Cost acknowledgement",
+      bridge.costAcknowledgementRequirement
+    ),
+    "Privacy/redaction required",
+    "Idempotency required",
+    "Replay block required",
+    "Single-call lock required",
+    "Timeout/cancel required",
+    "Result capture required",
+    "Audit envelope required",
+    "Approval join required",
+  ] as const;
+}
+
+export function buildNextTimelineAuditMemoryChecklist(
+  command: AthenaCommandIntentRecord
+): readonly string[] {
+  return [
+    `Add a cross-workspace run timeline marker for ${command.routeTarget}`,
+    "Carry the approval packet preview into a future audit memory envelope",
+    "Join operator approval, result capture, and audit envelope references later",
+    "Keep queue, worker, and job dispatch blocked until backend-only memory surfaces exist",
+  ] as const;
+}
+
+export function buildApprovalGatedBridgePreview(
+  command: AthenaCommandIntentRecord
+): AthenaApprovalGatedBridgePreviewRecord {
+  const matchedPlugin = resolveStaticAthenaPlugin(command.matchedPluginId);
+  const providerRequirementState = matchedPlugin.providerCapable
+    ? "required"
+    : "not-applicable";
+
+  return {
+    bridgeKey: buildStableAthenaBridgeKey(command.commandId),
+    bridgeVersion: "athena-approval-gated-tool-execution-bridge-v1",
+    commandIntentReference: command.commandId,
+    matchedPluginReference: matchedPlugin.pluginId,
+    matchedPluginLabel: matchedPlugin.label,
+    routeTargetReference: command.routeTarget,
+    approvalPacketPreviewReference: buildStableAthenaHandoffPacketKey(
+      command.commandId
+    ),
+    userFacingPhrase: command.userFacingPhrase,
+    operatorApprovalRequirement: "required",
+    safetyGateRequirement: "required",
+    killSwitchRequirement: "required",
+    auditRequirement: "required",
+    backendOnlyHandoffRequirement: "required",
+    credentialIsolationRequirement: providerRequirementState,
+    costAcknowledgementRequirement: providerRequirementState,
+    privacyRedactionRequirement: "required",
+    idempotencyRequirement: "required",
+    replayBlockRequirement: "required",
+    singleCallLockRequirement: "required",
+    timeoutCancelRequirement: "required",
+    resultCaptureRequirement: "required",
+    auditEnvelopeRequirement: "required",
+    approvalJoinRequirement: "required",
+    executionPosture: "blocked-by-default",
+    pluginExecutionState: "not-executed",
+    providerState: "not-called",
+    queueState: "not-dispatched",
+    workerState: "not-dispatched",
+    jobState: "not-executed",
+    resultState: "not-persisted",
+    auditState: "not-persisted",
+    approvalState: "not-persisted",
+    bridgeBlockerList: [
+      "Bridge is inert",
+      "Bridge is blocked by default",
+      "No plugin execution from chat yet",
+      "No provider execution",
+      "No queue dispatch",
+      "No worker dispatch",
+      "No job execution",
+      "No result persistence",
+      "No audit persistence",
+      "No approval persistence",
+    ],
+    nextTimelineAuditMemoryChecklist:
+      buildNextTimelineAuditMemoryChecklist(command),
+  };
+}
+
+export function buildBlockedBridgeSummary(
+  bridge: AthenaApprovalGatedBridgePreviewRecord
+): string {
+  return [
+    "Blocked by default.",
+    "Plugin execution state: not executed.",
+    "Provider state: not called.",
+    "Queue state: not dispatched.",
+    "Worker state: not dispatched.",
+    "Job state: not executed.",
+    "Result, audit, and approval states: not persisted.",
+  ].join(" ");
+}
+
+export function buildSafetyRequirementsSummary(
+  bridge: AthenaApprovalGatedBridgePreviewRecord
+): string {
+  return [
+    "Safety gate required",
+    "Kill switch required",
+    formatConditionalRequirementLabel(
+      "Credential isolation",
+      bridge.credentialIsolationRequirement
+    ),
+    formatConditionalRequirementLabel(
+      "Cost acknowledgement",
+      bridge.costAcknowledgementRequirement
+    ),
+    "Privacy/redaction required",
+    "Idempotency required",
+    "Replay block required",
+    "Single-call lock required",
+    "Timeout/cancel required",
+  ].join(" | ");
+}
+
+export function buildAuditRequirementsSummary(
+  bridge: AthenaApprovalGatedBridgePreviewRecord
+): string {
+  return [
+    "Audit required",
+    "Result capture required",
+    "Audit envelope required",
+    "Approval join required",
+  ].join(" | ");
+}
+
+export function buildBackendHandoffSummary(
+  bridge: AthenaApprovalGatedBridgePreviewRecord
+): string {
+  return [
+    "Backend-only handoff required",
+    "Execution posture: blocked by default",
+    "Plugin execution state: not executed",
+    "Provider state: not called",
+    "Queue state: not dispatched",
+    "Worker state: not dispatched",
+    "Job state: not executed",
+  ].join(" | ");
+}
+
+export function buildHandoffPacketPreview(
+  command: AthenaCommandIntentRecord
+): AthenaHandoffPacketPreviewRecord {
+  const bridge = buildApprovalGatedBridgePreview(command);
+
+  return {
+    packetId: buildStableAthenaHandoffPacketKey(command.commandId),
+    source: "Athena",
+    commandIntentId: command.commandId,
+    targetPluginId: bridge.matchedPluginReference,
+    targetPluginLabel: bridge.matchedPluginLabel,
+    targetRoute: bridge.routeTargetReference,
+    userFacingCommandPhrase: command.userFacingPhrase,
+    approvalSummary: buildAthenaApprovalRequirementsSummary(command),
+    safetySummary: buildSafetyRequirementsSummary(bridge),
+    auditSummary: buildAuditRequirementsSummary(bridge),
+    backendHandoffSummary: buildBackendHandoffSummary(bridge),
+    blockedDefaultReason: buildBlockedBridgeSummary(bridge),
+    requiredOperatorAction:
+      "Review the specialist workspace, confirm operator approval, keep the kill switch engaged until ready, and preserve the audit requirement.",
+    requiredNextSystemAction:
+      "Prepare a backend-only approval join, future run timeline link, and audit memory handoff without dispatching any queue, worker, or job.",
+    noExecutionStatement:
+      "No execution, dispatch, provider call, plugin call, or persistence occurs from this preview.",
+  };
+}
+
 export function buildAthenaBlockedActionSummary(
   command: AthenaCommandIntentRecord
 ): string {
   return [
     "Command router is preview-only.",
     formatDefaultState(command.defaultState),
-    command.backendOnlyRequirement,
+    buildBlockedBridgeSummary(buildApprovalGatedBridgePreview(command)),
   ].join(" ");
 }
 
@@ -1295,12 +1620,26 @@ export function buildAthenaAuditRequirementsSummary(
   return command.requiredAuditGates.join(" | ");
 }
 
+export const ATHENA_APPROVAL_GATED_TOOL_BRIDGE_PREVIEWS:
+  readonly AthenaApprovalGatedBridgePreviewRecord[] =
+  ATHENA_APPROVAL_GATED_BRIDGE_COMMAND_IDS.map((commandId) =>
+    buildApprovalGatedBridgePreview(
+      resolveRequiredStaticAthenaCommandIntent(commandId)
+    )
+  );
+
+export const ATHENA_HANDOFF_PACKET_PREVIEWS:
+  readonly AthenaHandoffPacketPreviewRecord[] =
+  ATHENA_APPROVAL_GATED_BRIDGE_COMMAND_IDS.map((commandId) =>
+    buildHandoffPacketPreview(resolveRequiredStaticAthenaCommandIntent(commandId))
+  );
+
 export const ATHENA_COMMAND_CENTER_MODEL = {
-  batch: ATHENA_PLUGIN_REGISTRY_COMMAND_ROUTER_BATCH,
-  highestDetectedPhase: ATHENA_PLUGIN_REGISTRY_COMMAND_ROUTER_PHASE,
-  latestCompletedBatch: ATHENA_PLUGIN_REGISTRY_COMMAND_ROUTER_BATCH,
-  previousCompletedBatch: ATHENA_UNIFIED_CHAT_CONTROL_PLANE_FOUNDATION_BATCH,
-  nextLikelyBatch: ATHENA_APPROVAL_GATED_TOOL_EXECUTION_BRIDGE_BATCH,
+  batch: ATHENA_APPROVAL_GATED_TOOL_EXECUTION_BRIDGE_BATCH,
+  highestDetectedPhase: ATHENA_APPROVAL_GATED_TOOL_EXECUTION_BRIDGE_PHASE,
+  latestCompletedBatch: ATHENA_APPROVAL_GATED_TOOL_EXECUTION_BRIDGE_BATCH,
+  previousCompletedBatch: ATHENA_PLUGIN_REGISTRY_COMMAND_ROUTER_BATCH,
+  nextLikelyBatch: ATHENA_CROSS_WORKSPACE_RUN_TIMELINE_AUDIT_MEMORY_BATCH,
   identity: ATHENA_CONTROL_PLANE_IDENTITY,
   chat: ATHENA_CHAT_PLACEHOLDER_MODEL,
   suggestedPrompts: ATHENA_SUGGESTED_PROMPTS,
@@ -1313,6 +1652,8 @@ export const ATHENA_COMMAND_CENTER_MODEL = {
   currentCapabilities: ATHENA_CURRENT_CAPABILITIES,
   futureCapabilities: ATHENA_FUTURE_CAPABILITIES,
   commandIntents: ATHENA_COMMAND_INTENTS,
+  approvalGatedToolBridgePreviews: ATHENA_APPROVAL_GATED_TOOL_BRIDGE_PREVIEWS,
+  handoffPacketPreviews: ATHENA_HANDOFF_PACKET_PREVIEWS,
 } as const satisfies AthenaCommandCenterModel;
 
 function resolveStaticAthenaPlugin(
@@ -1329,6 +1670,18 @@ function resolveStaticAthenaPlugin(
   return plugin;
 }
 
+function resolveRequiredStaticAthenaCommandIntent(
+  commandId: AthenaCommandIntentId
+): AthenaCommandIntentRecord {
+  const command = resolveStaticAthenaCommandIntent(commandId);
+
+  if (!command) {
+    throw new Error(`Missing Athena command intent: ${commandId}`);
+  }
+
+  return command;
+}
+
 function formatDefaultState(state: AthenaCommandIntentState): string {
   switch (state) {
     case "approval-gated":
@@ -1340,4 +1693,15 @@ function formatDefaultState(state: AthenaCommandIntentState): string {
     default:
       return "Blocked by default.";
   }
+}
+
+function formatConditionalRequirementLabel(
+  label: string,
+  state: AthenaConditionalRequirementState
+): string {
+  if (state === "required") {
+    return `${label} required`;
+  }
+
+  return `${label} not applicable for this plugin`;
 }
