@@ -159,6 +159,7 @@ foreach ($needle in @(
   "Run backend dry-run - locked",
   "Approve backend handoff - locked",
   "Video Studio URL: /jarvis-video",
+  "Real provider adapter wiring",
   "First gated provider trial runtime"
 )) {
   Assert-Contains $panelSource $needle "video studio panel contains $needle"
@@ -166,6 +167,7 @@ foreach ($needle in @(
 
 Assert-Ordered $panelSource @(
   'aria-label="Video generation control"',
+  'aria-label="Real provider adapter wiring"',
   'aria-label="Provider trial result review and recovery"',
   'aria-label="First gated provider trial runtime"',
   'aria-label="First gated provider trial preparation"',
@@ -307,22 +309,23 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 4361. Latest completed batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery. Previous completed batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime.",
-  "Highest detected phase: 4361. Latest completed batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery. Previous completed batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime.",
-  "Latest completed batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery",
-  "Previous completed batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime",
-  "Next likely batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial",
-  "first provider trial result review and recovery only",
-  "provider result review path defined",
-  "recovery review only",
-  "provider adapter injection required",
-  "operator acceptance required",
+  "Current checkpoint: Highest detected phase: 4393. Latest completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial. Previous completed batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery.",
+  "Highest detected phase: 4393. Latest completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial. Previous completed batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery.",
+  "Latest completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial",
+  "Previous completed batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery",
+  "Next likely batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review",
+  "first real provider adapter wiring only",
+  "manual gated trial path only",
+  "provider adapter wiring path defined",
+  "manual gated trial disabled by default",
+  "hard kill switch",
+  "provider call not executed during validation",
+  "manual confirmation required",
+  "operator approval required",
+  "credential isolation required",
   "no frontend provider call",
   "no provider call during validation",
   "no live video generation during validation",
-  "retry/fallback review only",
-  "no retry execution",
-  "no fallback execution",
   "no queue dispatch",
   "no worker dispatch",
   "no job execution",
@@ -330,10 +333,11 @@ foreach ($needle in @(
   "no audit persistence",
   "no approval persistence",
   "no artifact persistence",
+  "retry/fallback disabled",
   "export/publish blocked",
   "backend-only execution path required",
   "server-only boundary required",
-  "first real provider adapter wiring/manual gated trial in a future batch"
+  "manual provider trial capture/UX review in a future batch"
 )) {
   Assert-Contains $docsSource $needle "checkpoint docs contain $needle"
   Assert-Contains $checkpointSmokeSource $needle "checkpoint docs smoke expects $needle"

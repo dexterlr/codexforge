@@ -8,6 +8,7 @@ import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-tr
 import type { JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview } from "../jarvis-video-first-gated-provider-execution-trial-runtime-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "../jarvis-video-first-gated-provider-execution-trial-preparation-preview";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../jarvis-video-backend-runner-foundation-dry-run-admission-preview";
+import type { JarvisVideoFirstRealProviderAdapterWiringPreview } from "../jarvis-video-first-real-provider-adapter-wiring-preview";
 import type { JarvisVideoFirstProviderTrialResultReviewRecoveryPreview } from "../jarvis-video-first-provider-trial-result-review-recovery-preview";
 import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "../jarvis-video-result-capture-audit-envelope-approval-join-preview";
 import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "../jarvis-video-server-only-runner-synthetic-dry-run-preview";
@@ -25,6 +26,7 @@ import styles from "./JarvisVideoStudioReleaseCandidatePanel.module.css";
 type JarvisVideoStudioReleaseCandidatePanelDataProps = Readonly<{
   firstGatedProviderTrialRuntimePreview?: JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview;
   firstGatedProviderTrialPreparationPreview?: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
+  firstRealProviderAdapterWiringPreview?: JarvisVideoFirstRealProviderAdapterWiringPreview;
   firstProviderTrialResultReviewRecoveryPreview?: JarvisVideoFirstProviderTrialResultReviewRecoveryPreview;
   resultCaptureAuditApprovalJoinPreview?: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
   backendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
@@ -224,6 +226,82 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               </ol>
             </section>
           </section>
+
+          {props.firstRealProviderAdapterWiringPreview ? (
+            <section className={styles.panel} aria-label="Real provider adapter wiring">
+              <div className={styles.panelHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Server-only adapter path</p>
+                  <h2 className={styles.panelTitle}>
+                    {props.firstRealProviderAdapterWiringPreview.title}
+                  </h2>
+                </div>
+                <span className={styles.statBadge}>
+                  {props.firstRealProviderAdapterWiringPreview.statusBadge}
+                </span>
+              </div>
+              <p className={styles.panelBody}>
+                {props.firstRealProviderAdapterWiringPreview.summary}
+              </p>
+              <div className={styles.statusStrip}>
+                {props.firstRealProviderAdapterWiringPreview.highlights.map(
+                  (item) => (
+                    <span key={item} className={styles.statusPill}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <div className={styles.summaryGrid}>
+                <ReadinessListCard
+                  eyebrow="Adapter wiring path defined"
+                  title="Manual provider path stays backend-only"
+                  summary="The first real provider adapter wiring path is defined as typed server-only product data only. It is not callable from frontend, does not claim live generation, and does not execute during validation."
+                  items={props.firstRealProviderAdapterWiringPreview.productStatements.slice(
+                    0,
+                    5
+                  )}
+                />
+                <ReadinessListCard
+                  eyebrow="Manual gated trial stays blocked"
+                  title="Approval, credential isolation, and blockers remain explicit"
+                  summary="Manual gated trial is disabled by default. Operator approval, credential isolation, kill-switch enforcement, idempotency, single-call lock, and replay block all remain required before any future server-only call path."
+                  items={[
+                    ...props.firstRealProviderAdapterWiringPreview.manualTrialBlockers.slice(
+                      0,
+                      5
+                    ),
+                    ...props.firstRealProviderAdapterWiringPreview.operatorApprovalChecklist.slice(
+                      0,
+                      2
+                    ),
+                    ...props.firstRealProviderAdapterWiringPreview.credentialIsolationChecklist.slice(
+                      0,
+                      2
+                    ),
+                  ]}
+                />
+                <ReadinessListCard
+                  eyebrow="Capture review next"
+                  title={`Phase ${props.firstRealProviderAdapterWiringPreview.checkpoint.highestDetectedPhase}`}
+                  summary="Result capture, audit, approval persistence, and artifact capture remain unimplemented. Capture review next stays reserved for the future manual provider trial result capture and UX review batch."
+                  items={[
+                    `Latest completed batch: ${props.firstRealProviderAdapterWiringPreview.checkpoint.latestCompletedBatch}`,
+                    `Previous completed batch: ${props.firstRealProviderAdapterWiringPreview.checkpoint.previousCompletedBatch}`,
+                    `Next likely batch: ${props.firstRealProviderAdapterWiringPreview.checkpoint.nextLikelyBatch.replace(
+                      /^next likely batch:\s*/i,
+                      ""
+                    )}`,
+                    ...props.firstRealProviderAdapterWiringPreview.nextCaptureUxReviewChecklist.slice(
+                      0,
+                      2
+                    ),
+                    `Review-only evidence inputs: ${props.firstRealProviderAdapterWiringPreview.evidenceInputCount}`,
+                  ]}
+                />
+              </div>
+            </section>
+          ) : null}
 
           {props.firstProviderTrialResultReviewRecoveryPreview ? (
             <section

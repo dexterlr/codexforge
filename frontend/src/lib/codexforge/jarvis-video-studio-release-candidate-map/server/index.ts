@@ -1,4 +1,21 @@
 export {
+  JARVIS_VIDEO_FIRST_REAL_PROVIDER_ADAPTER_WIRING_CHECKPOINT,
+  JARVIS_VIDEO_FIRST_REAL_PROVIDER_ADAPTER_WIRING_DISPLAY_MARKERS,
+  JARVIS_VIDEO_FIRST_REAL_PROVIDER_ADAPTER_WIRING_EVIDENCE_INPUTS,
+  JARVIS_VIDEO_FIRST_REAL_PROVIDER_ADAPTER_WIRING_MODEL,
+  JARVIS_VIDEO_FIRST_REAL_PROVIDER_ADAPTER_WIRING_VERSION,
+  JARVIS_VIDEO_FIRST_REAL_PROVIDER_ADAPTER_BLOCKED_DEFAULT_ADAPTER,
+  buildBlockedManualTrialResult,
+  buildManualTrialReadinessSummary,
+  buildNextCaptureUxReviewChecklist,
+  buildStableProviderAdapterWiringKey,
+  buildStaticJarvisVideoFirstRealProviderAdapterWiringPreview,
+  listManualGatedTrialBlockers,
+  listRequiredCredentialIsolationGates,
+  listRequiredManualApprovalGates,
+  runJarvisVideoFirstRealProviderManualTrialWithAdapter,
+} from "./jarvis-video-first-real-provider-adapter-wiring-manual-gated-trial";
+export {
   JARVIS_VIDEO_FIRST_GATED_PROVIDER_EXECUTION_TRIAL_RUNTIME_CHECKPOINT,
   JARVIS_VIDEO_FIRST_GATED_PROVIDER_EXECUTION_TRIAL_RUNTIME_DISPLAY_MARKERS,
   JARVIS_VIDEO_FIRST_GATED_PROVIDER_EXECUTION_TRIAL_RUNTIME_EVIDENCE_INPUTS,
