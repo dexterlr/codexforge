@@ -26,6 +26,18 @@ function Assert-Contains {
   Write-Host "[PASS] $Name"
 }
 
+function Assert-NotContains {
+  param(
+    [AllowEmptyString()][string]$Haystack,
+    [string]$Needle,
+    [string]$Name
+  )
+  if ($Haystack.IndexOf($Needle, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
+    throw "[FAIL] Unexpected $Name`: $Needle"
+  }
+  Write-Host "[PASS] $Name"
+}
+
 function Assert-NotMatches {
   param(
     [AllowEmptyString()][string]$Haystack,
@@ -63,14 +75,14 @@ function Get-CombinedFileText {
   return ($Paths | ForEach-Object { Get-Content -Raw $_ }) -join "`n"
 }
 
-Write-Host "=== CodexForge Jarvis Video First Gated Provider Execution Trial Runtime Mega Batch smoke ==="
+Write-Host "=== CodexForge Jarvis Video First Manual Provider Trial Result Capture and UX Review Mega Batch smoke ==="
 
 $pagePath = Join-Path $root "src\app\jarvis-video\page.tsx"
 $pageClientPath = Join-Path $root "src\app\jarvis-video\page-client.tsx"
 $panelPath = Join-Path $root "src\lib\codexforge\jarvis-video-studio-release-candidate-map\components\JarvisVideoStudioReleaseCandidatePanel.tsx"
-$runtimePreviewPath = Join-Path $root "src\lib\codexforge\jarvis-video-studio-release-candidate-map\jarvis-video-first-gated-provider-execution-trial-runtime-preview.ts"
+$previewTypePath = Join-Path $root "src\lib\codexforge\jarvis-video-studio-release-candidate-map\jarvis-video-first-manual-provider-trial-result-capture-ux-review-preview.ts"
 $serverIndexPath = Join-Path $root "src\lib\codexforge\jarvis-video-studio-release-candidate-map\server\index.ts"
-$serverRuntimePath = Join-Path $root "src\lib\codexforge\jarvis-video-studio-release-candidate-map\server\jarvis-video-first-gated-provider-execution-trial-runtime.ts"
+$serverCapturePath = Join-Path $root "src\lib\codexforge\jarvis-video-studio-release-candidate-map\server\jarvis-video-first-manual-provider-trial-result-capture-ux-review.ts"
 $checkpointPath = Join-Path $root "docs\codexforge-checkpoint-current.md"
 $runbookPath = Join-Path $root "docs\codexforge-operator-checkpoint-runbook.md"
 $allSmokePath = Join-Path $root "scripts\smoke-codexforge-all.ps1"
@@ -86,9 +98,9 @@ $requiredPaths = @(
   $pagePath,
   $pageClientPath,
   $panelPath,
-  $runtimePreviewPath,
+  $previewTypePath,
   $serverIndexPath,
-  $serverRuntimePath,
+  $serverCapturePath,
   $checkpointPath,
   $runbookPath,
   $allSmokePath,
@@ -106,47 +118,48 @@ foreach ($path in $requiredPaths) {
 }
 
 $routeSource = Get-CombinedFileText @($pagePath, $pageClientPath, $panelPath)
-$serverSource = Get-CombinedFileText @($runtimePreviewPath, $serverIndexPath, $serverRuntimePath)
+$serverSource = Get-CombinedFileText @($previewTypePath, $serverIndexPath, $serverCapturePath)
 $panelSource = Get-Content -Raw $panelPath
 $docsSource = Get-CombinedFileText @($checkpointPath, $runbookPath)
 $allSmokeSource = Get-Content -Raw $allSmokePath
 $checkpointSmokeSource = Get-Content -Raw $checkpointSmokePath
 $homeSource = Get-CombinedFileText @($homePageClientPath, $homeShellPath, $homeContentPath)
 $navigationSource = Get-CombinedFileText @($navigationTypesPath, $navigationRegistryPath, $commandRegistryPath)
+$reviewSource = Get-CombinedFileText @(
+  $pagePath,
+  $pageClientPath,
+  $panelPath,
+  $previewTypePath,
+  $serverIndexPath,
+  $serverCapturePath
+)
 
 Assert-Contains $serverSource 'import "server-only";' "server-only boundary marker exists"
 
 foreach ($needle in @(
-  "4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime",
-  "Jarvis Video First Gated Provider Execution Trial Runtime",
-  "4329"
+  "4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review",
+  "Jarvis Video First Manual Provider Trial Result Capture and UX Review",
+  "4425",
+  "buildStaticJarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview",
+  "firstManualProviderTrialResultCaptureUxReviewPreview",
+  "jarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview",
+  "Manual provider trial capture"
 )) {
-  Assert-Contains $routeSource $needle "route source contains $needle"
-  Assert-Contains $serverSource $needle "server source contains $needle"
-  Assert-Contains $docsSource $needle "docs contain $needle"
+  Assert-Contains $reviewSource $needle "review source contains $needle"
 }
 
 foreach ($needle in @(
-  "4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery"
-)) {
-  Assert-Contains $serverSource $needle "server source contains $needle"
-  Assert-Contains $docsSource $needle "docs contain $needle"
-}
-
-foreach ($needle in @(
-  "buildStaticJarvisVideoFirstGatedProviderExecutionTrialRuntimePreview",
-  "firstGatedProviderTrialRuntimePreview",
-  "jarvisVideoFirstGatedProviderTrialRuntimePreview"
-)) {
-  Assert-Contains $routeSource $needle "route wiring contains $needle"
-}
-
-foreach ($needle in @(
-  "Phase 4329 Jarvis Video First Gated Provider Execution Trial Runtime",
-  "smoke-codexforge-jarvis-video-first-gated-provider-execution-trial-runtime-mega-batch.ps1"
+  "Phase 4425 Jarvis Video First Manual Provider Trial Result Capture and UX Review",
+  "smoke-codexforge-jarvis-video-first-manual-provider-trial-result-capture-ux-review-mega-batch.ps1"
 )) {
   Assert-Contains $allSmokeSource $needle "all-smoke contains $needle"
 }
+
+Assert-Ordered $allSmokeSource @(
+  "Phase 4393 Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial",
+  "Phase 4425 Jarvis Video First Manual Provider Trial Result Capture and UX Review",
+  "Jarvis Video Studio Release Candidate Mega Batch"
+) "aggregate smoke keeps the new 4425 smoke in sequence"
 
 foreach ($needle in @(
   "Video generation control",
@@ -159,14 +172,14 @@ foreach ($needle in @(
   "Run backend dry-run - locked",
   "Approve backend handoff - locked",
   "Video Studio URL: /jarvis-video",
-  "Real provider adapter wiring",
-  "First gated provider trial runtime"
-)) {
+  "Manual provider trial capture"
+) ) {
   Assert-Contains $panelSource $needle "video studio panel contains $needle"
 }
 
 Assert-Ordered $panelSource @(
   'aria-label="Video generation control"',
+  'aria-label="Manual provider trial capture"',
   'aria-label="Real provider adapter wiring"',
   'aria-label="Provider trial result review and recovery"',
   'aria-label="First gated provider trial runtime"',
@@ -174,88 +187,110 @@ Assert-Ordered $panelSource @(
   'aria-label="Result capture and audit join"',
   'aria-label="Server-only synthetic dry run"',
   'aria-label="Backend dry-run admission"'
-) "/jarvis-video keeps the control console above the fold and places first gated provider trial runtime ahead of deeper diagnostics"
+) "/jarvis-video keeps the control console first and the manual provider trial capture section above deeper diagnostics"
 
 foreach ($needle in @(
-  "runtime version",
-  "runtime mode: disabled by default",
-  "runtime input envelope",
-  "runtime gate envelope",
-  "runtime rejection envelope",
-  "runtime blocked result envelope",
-  "runtime provider adapter injection contract",
-  "runtime provider adapter reference only by default",
-  "provider credential slot reference using opaque token labels only, no secrets",
-  "operator approval reference",
-  "approval packet digest reference",
-  "result capture envelope reference",
-  "audit envelope reference",
-  "approval join envelope reference",
-  "prompt/brief digest reference",
-  "settings digest reference",
-  "safety notes digest reference",
-  "provider preflight gate reference",
-  "safety preflight gate reference",
-  "privacy/redaction gate reference",
-  "cost/rate/duration/resolution gate reference",
-  "timeout/cancel gate reference",
-  "idempotency key requirement",
-  "single-call lock requirement",
-  "replay block requirement",
-  "kill switch requirement",
-  "network egress policy requirement",
-  "queue state: not dispatched",
-  "worker state: not dispatched",
-  "job state: not executed",
-  "persistence state: not persisted",
-  "artifact state: placeholder until capture/review",
-  "retry/fallback state: disabled",
-  "runtime blocker list",
-  "runtime acceptance checklist",
-  "next result review/recovery acceptance criteria",
-  "Runtime path defined",
-  "provider trial remains gated",
-  "Provider execution requires injected server-only adapter",
+  "manual provider trial capture version",
+  "manual capture mode: review only",
+  "manual capture input envelope",
+  "manual capture decision envelope",
+  "manual capture rejection envelope",
+  "manual provider result metadata placeholder, no secrets",
+  "manual provider artifact metadata placeholder, no download/upload",
+  "manual provider status envelope",
+  "manual provider duration/resolution/cost placeholder",
+  "manual provider safety status placeholder",
+  "manual provider privacy/redaction status placeholder",
+  "manual artifact handoff placeholder",
+  "capture operator review reference",
+  "capture approval packet digest reference",
+  "capture audit envelope reference",
+  "capture approval join reference",
+  "capture result quality checklist",
+  "capture blocker list",
+  "UX review checklist",
+  "next execution enablement checklist",
+  "UX review version",
+  "output preview state",
+  "empty result state",
+  "manually captured result state",
+  "blocked result state",
+  "provider not-called validation state",
+  "artifact unavailable state",
+  "artifact pending review state",
+  "result quality review state",
+  "safety review state",
+  "privacy/redaction review state",
+  "cost/rate/duration/resolution review state",
+  "operator acceptance review state",
+  "export/publish blocked state",
+  "recovery review state",
+  "next manual execution enablement requirements",
+  "first manual provider trial result capture summary",
+  "manual capture lanes",
+  "UX review lanes",
+  "output preview review state",
+  "empty/captured/blocked result review states",
+  "quality/safety/privacy/cost review states",
+  "operator acceptance checklist",
+  "artifact handoff placeholder checklist",
+  "export/publish blockers",
+  "next manual execution enablement checklist"
+)) {
+  Assert-Contains $serverSource $needle "server-only capture and review model contains $needle"
+}
+
+foreach ($needle in @(
+  "Manual provider trial capture path is defined",
+  "UX review path is defined",
+  "Provider call is not executed during validation",
+  "Manual gated trial remains disabled by default",
   "Operator approval is required",
   "Credential isolation is required",
-  "Kill switch remains enforced",
-  "Queue/worker/job dispatch remain disabled",
+  "Output preview can show empty, blocked, or manually captured review states",
   "Result/audit/approval persistence remain unimplemented",
-  "Next step is provider trial result review and recovery",
-  "Next likely batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery"
+  "Artifact handoff remains placeholder only",
+  "Export/publish remains blocked",
+  "Next step is manual provider trial execution enablement",
+  "first manual provider trial result capture only",
+  "UX review path only",
+  "manual review only",
+  "provider call not executed during validation",
+  "no live video generation during validation",
+  "no frontend provider call",
+  "manual gated trial disabled by default",
+  "manual confirmation required",
+  "operator approval required",
+  "credential isolation required",
+  "no queue dispatch",
+  "no worker dispatch",
+  "no job execution",
+  "no result persistence",
+  "no audit persistence",
+  "no approval persistence",
+  "no artifact persistence",
+  "retry/fallback disabled",
+  "export/publish blocked",
+  "backend-only execution path required",
+  "server-only boundary required",
+  "manual provider trial execution enablement in a future batch"
 )) {
-  Assert-Contains $serverSource $needle "server-only runtime model contains $needle"
+  Assert-Contains $serverSource $needle "server-only review markers contain $needle"
 }
 
 foreach ($needle in @(
-  "JarvisVideoFirstGatedProviderExecutionTrialRuntimePreviewCheckpoint",
-  "JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview",
-  "runtimeMode",
-  "statusBadge",
-  "highlights",
-  "acceptanceChecklist",
-  "disabledExecutionSurfaces",
-  "resultReviewRecoverySummary",
-  "evidenceInputCount"
-)) {
-  Assert-Contains $serverSource $needle "typed runtime preview model contains $needle"
-}
-
-foreach ($needle in @(
-  "buildStableGatedProviderRuntimeKey",
-  "listRequiredRuntimeGates",
-  "listMissingRuntimeGates",
-  "listDisabledExecutionSurfaces",
-  "buildProviderTrialAcceptanceChecklist",
-  "buildResultReviewRecoveryHandoffSummary",
-  "buildGatedProviderTrialRuntimeEnvelope",
-  "evaluateGatedProviderRuntimeGates",
-  "buildBlockedProviderTrialRuntimeResult",
-  "buildProviderTrialBlockedResult",
-  "buildProviderTrialRuntimeAttempt",
-  "evaluateStaticRuntimeReadiness",
-  "runGatedProviderTrialRuntimeWithInjectedAdapter",
-  "buildStaticJarvisVideoFirstGatedProviderExecutionTrialRuntimePreview"
+  "buildStableManualProviderCaptureKey",
+  "buildStableManualProviderUxReviewKey",
+  "normalizeManualCaptureInput",
+  "classifyManualProviderCaptureState",
+  "buildStaticManualCaptureEnvelope",
+  "buildEmptyUxReviewPreview",
+  "buildCapturedUxReviewPreviewFromTypedStaticInput",
+  "listManualCaptureBlockers",
+  "listUxReviewBlockers",
+  "listNextManualExecutionEnablementRequirements",
+  "buildManualCaptureUxReviewHandoffSummary",
+  "buildStaticJarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview"
 )) {
   Assert-Contains $serverSource $needle "pure helper exists: $needle"
 }
@@ -279,9 +314,12 @@ foreach ($needle in @(
   "4170-4201",
   "4202-4233",
   "4234-4265",
-  "4266-4297"
+  "4266-4297",
+  "4298-4329",
+  "4330-4361",
+  "4362-4393"
 )) {
-  Assert-Contains $serverSource $needle "server-only runtime evidence phase contains $needle"
+  Assert-Contains $serverSource $needle "server-only evidence phase contains $needle"
 }
 
 foreach ($needle in @(
@@ -303,9 +341,12 @@ foreach ($needle in @(
   "Jarvis Video Backend Runner Foundation Dry-Run Admission",
   "Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
   "Jarvis Video Result Capture Audit Envelope and Approval Join",
-  "Jarvis Video First Gated Provider Execution Trial Preparation"
+  "Jarvis Video First Gated Provider Execution Trial Preparation",
+  "Jarvis Video First Gated Provider Execution Trial Runtime",
+  "Jarvis Video First Provider Trial Result Review and Recovery",
+  "Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial"
 )) {
-  Assert-Contains $serverSource $needle "server-only runtime evidence label contains $needle"
+  Assert-Contains $serverSource $needle "server-only evidence label contains $needle"
 }
 
 foreach ($needle in @(
@@ -314,18 +355,16 @@ foreach ($needle in @(
   "Latest completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review",
   "Previous completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial",
   "Next likely batch: 4426-4457 - Jarvis Video Manual Provider Trial Execution Enablement",
-  "first real provider adapter wiring only",
-  "manual gated trial path only",
-  "provider adapter wiring path defined",
-  "manual gated trial disabled by default",
-  "hard kill switch",
+  "first manual provider trial result capture only",
+  "UX review path only",
+  "manual review only",
   "provider call not executed during validation",
+  "no live video generation during validation",
+  "no frontend provider call",
+  "manual gated trial disabled by default",
   "manual confirmation required",
   "operator approval required",
   "credential isolation required",
-  "no frontend provider call",
-  "no provider call during validation",
-  "no live video generation during validation",
   "no queue dispatch",
   "no worker dispatch",
   "no job execution",
@@ -337,40 +376,17 @@ foreach ($needle in @(
   "export/publish blocked",
   "backend-only execution path required",
   "server-only boundary required",
-  "manual provider trial capture/UX review in a future batch"
+  "manual provider trial execution enablement in a future batch"
 )) {
   Assert-Contains $docsSource $needle "checkpoint docs contain $needle"
-  Assert-Contains $checkpointSmokeSource $needle "checkpoint docs smoke expects $needle"
 }
 
 foreach ($needle in @(
-  "Highest detected phase: 4329. Latest completed batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime. Previous completed batch: 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation.",
-  "Latest completed batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime",
-  "Previous completed batch: 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation",
-  "Next likely batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery",
-  "first gated provider execution trial runtime only",
-  "server-only runtime path defined",
-  "disabled by default",
-  "hard kill switch",
-  "provider adapter injection required",
-  "operator approval required",
-  "credential isolation required",
-  "no frontend provider call",
-  "no provider call during validation",
-  "no live video generation during validation",
-  "no queue dispatch",
-  "no worker dispatch",
-  "no job execution",
-  "no result persistence",
-  "no audit persistence",
-  "no approval persistence",
-  "no artifact persistence",
-  "no retry/fallback execution",
-  "backend-only execution path required",
-  "server-only boundary required",
-  "provider trial result review/recovery in a future batch"
+  "Current checkpoint: Highest detected phase: 4425. Latest completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review. Previous completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial.",
+  "Highest detected phase: 4425. Latest completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review. Previous completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial.",
+  "Next likely batch: 4426-4457 - Jarvis Video Manual Provider Trial Execution Enablement"
 )) {
-  Assert-Contains $docsSource $needle "checkpoint docs preserve runtime checkpoint $needle"
+  Assert-Contains $checkpointSmokeSource $needle "checkpoint docs smoke expects $needle"
 }
 
 foreach ($needle in @(
@@ -449,4 +465,4 @@ foreach ($pattern in @(
   Assert-NotMatches $navigationSource $pattern "navigation typing stays strict"
 }
 
-Write-Host "[OK] CodexForge Jarvis Video First Gated Provider Execution Trial Runtime Mega Batch smoke passed."
+Write-Host "[OK] CodexForge Jarvis Video First Manual Provider Trial Result Capture and UX Review Mega Batch smoke passed."

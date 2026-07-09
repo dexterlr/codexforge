@@ -2,6 +2,7 @@ import {
   buildStaticJarvisVideoFirstGatedProviderExecutionTrialRuntimePreview,
   buildStaticJarvisVideoFirstGatedProviderExecutionTrialPreparationPreview,
   buildStaticJarvisVideoBackendRunnerFoundationDryRunAdmissionPreview,
+  buildStaticJarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview,
   buildStaticJarvisVideoFirstRealProviderAdapterWiringPreview,
   buildStaticJarvisVideoFirstProviderTrialResultReviewRecoveryPreview,
   buildStaticResultCaptureAuditEnvelopeApprovalJoinPreview,
@@ -14,6 +15,8 @@ export default function JarvisVideoWorkspacePage() {
     buildStaticJarvisVideoFirstGatedProviderExecutionTrialRuntimePreview();
   const firstGatedProviderTrialPreparationPreview =
     buildStaticJarvisVideoFirstGatedProviderExecutionTrialPreparationPreview();
+  const firstManualProviderTrialResultCaptureUxReviewPreview =
+    buildStaticJarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview();
   const firstRealProviderAdapterWiringPreview =
     buildStaticJarvisVideoFirstRealProviderAdapterWiringPreview();
   const firstProviderTrialResultReviewRecoveryPreview =
@@ -32,6 +35,9 @@ export default function JarvisVideoWorkspacePage() {
       }
       firstGatedProviderTrialPreparationPreview={
         firstGatedProviderTrialPreparationPreview
+      }
+      firstManualProviderTrialResultCaptureUxReviewPreview={
+        firstManualProviderTrialResultCaptureUxReviewPreview
       }
       firstRealProviderAdapterWiringPreview={
         firstRealProviderAdapterWiringPreview

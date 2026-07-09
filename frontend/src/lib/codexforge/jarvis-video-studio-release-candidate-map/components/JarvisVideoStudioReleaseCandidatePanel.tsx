@@ -8,6 +8,7 @@ import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-tr
 import type { JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview } from "../jarvis-video-first-gated-provider-execution-trial-runtime-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "../jarvis-video-first-gated-provider-execution-trial-preparation-preview";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../jarvis-video-backend-runner-foundation-dry-run-admission-preview";
+import type { JarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview } from "../jarvis-video-first-manual-provider-trial-result-capture-ux-review-preview";
 import type { JarvisVideoFirstRealProviderAdapterWiringPreview } from "../jarvis-video-first-real-provider-adapter-wiring-preview";
 import type { JarvisVideoFirstProviderTrialResultReviewRecoveryPreview } from "../jarvis-video-first-provider-trial-result-review-recovery-preview";
 import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "../jarvis-video-result-capture-audit-envelope-approval-join-preview";
@@ -26,6 +27,7 @@ import styles from "./JarvisVideoStudioReleaseCandidatePanel.module.css";
 type JarvisVideoStudioReleaseCandidatePanelDataProps = Readonly<{
   firstGatedProviderTrialRuntimePreview?: JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview;
   firstGatedProviderTrialPreparationPreview?: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
+  firstManualProviderTrialResultCaptureUxReviewPreview?: JarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview;
   firstRealProviderAdapterWiringPreview?: JarvisVideoFirstRealProviderAdapterWiringPreview;
   firstProviderTrialResultReviewRecoveryPreview?: JarvisVideoFirstProviderTrialResultReviewRecoveryPreview;
   resultCaptureAuditApprovalJoinPreview?: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
@@ -226,6 +228,83 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               </ol>
             </section>
           </section>
+
+          {props.firstManualProviderTrialResultCaptureUxReviewPreview ? (
+            <section className={styles.panel} aria-label="Manual provider trial capture">
+              <div className={styles.panelHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Manual review layer</p>
+                  <h2 className={styles.panelTitle}>
+                    {props.firstManualProviderTrialResultCaptureUxReviewPreview.title}
+                  </h2>
+                </div>
+                <span className={styles.statBadge}>
+                  {
+                    props.firstManualProviderTrialResultCaptureUxReviewPreview
+                      .statusBadge
+                  }
+                </span>
+              </div>
+              <p className={styles.panelBody}>
+                {
+                  props.firstManualProviderTrialResultCaptureUxReviewPreview
+                    .summary
+                }
+              </p>
+              <div className={styles.statusStrip}>
+                {props.firstManualProviderTrialResultCaptureUxReviewPreview.highlights.map(
+                  (item) => (
+                    <span key={item} className={styles.statusPill}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <div className={styles.summaryGrid}>
+                <ReadinessListCard
+                  eyebrow="Capture path defined"
+                  title="Manual review only"
+                  summary="Manual provider trial capture path is defined as inert typed data. No provider call is executed during validation, no live video generation is claimed, and the capture path remains review-only."
+                  items={props.firstManualProviderTrialResultCaptureUxReviewPreview.productStatements.slice(
+                    0,
+                    6
+                  )}
+                />
+                <ReadinessListCard
+                  eyebrow="UX review path defined"
+                  title="Output preview stays review-only"
+                  summary="Output preview can show empty, blocked, or manually captured review states while artifact handoff, persistence, export, and publish remain placeholder or blocked only."
+                  items={[
+                    ...props.firstManualProviderTrialResultCaptureUxReviewPreview.outputPreviewStates,
+                    ...props.firstManualProviderTrialResultCaptureUxReviewPreview.reviewStates.slice(
+                      0,
+                      3
+                    ),
+                  ]}
+                />
+                <ReadinessListCard
+                  eyebrow="Execution enablement next"
+                  title={`Phase ${props.firstManualProviderTrialResultCaptureUxReviewPreview.checkpoint.highestDetectedPhase}`}
+                  summary="Manual gated trial remains disabled by default. Operator approval, credential isolation, capture blockers, UX review blockers, and backend-only execution enablement remain explicit and non-executing."
+                  items={[
+                    ...props.firstManualProviderTrialResultCaptureUxReviewPreview.productStatements.slice(
+                      6
+                    ),
+                    `Latest completed batch: ${props.firstManualProviderTrialResultCaptureUxReviewPreview.checkpoint.latestCompletedBatch}`,
+                    `Previous completed batch: ${props.firstManualProviderTrialResultCaptureUxReviewPreview.checkpoint.previousCompletedBatch}`,
+                    `Next likely batch: ${props.firstManualProviderTrialResultCaptureUxReviewPreview.checkpoint.nextLikelyBatch.replace(
+                      /^next likely batch:\s*/i,
+                      ""
+                    )}`,
+                    ...props.firstManualProviderTrialResultCaptureUxReviewPreview.nextManualExecutionEnablementChecklist.slice(
+                      0,
+                      2
+                    ),
+                  ]}
+                />
+              </div>
+            </section>
+          ) : null}
 
           {props.firstRealProviderAdapterWiringPreview ? (
             <section className={styles.panel} aria-label="Real provider adapter wiring">

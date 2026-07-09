@@ -3,6 +3,7 @@
 import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-unified-product-ia-map/components";
 import type { JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-gated-provider-execution-trial-runtime-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-gated-provider-execution-trial-preparation-preview";
+import type { JarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-manual-provider-trial-result-capture-ux-review-preview";
 import type { JarvisVideoFirstRealProviderAdapterWiringPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-real-provider-adapter-wiring-preview";
 import type { JarvisVideoFirstProviderTrialResultReviewRecoveryPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-provider-trial-result-review-recovery-preview";
 import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-result-capture-audit-envelope-approval-join-preview";
@@ -27,6 +28,7 @@ import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/co
 // 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime
 // 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery
 // 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial
+// 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review
 // Jarvis Video Studio Release Candidate
 // Jarvis Video Backend Execution Implementation Plan
 // Jarvis Video Backend Implementation Readiness Follow-Up
@@ -88,6 +90,7 @@ import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/co
 type JarvisVideoWorkspacePageClientProps = Readonly<{
   firstGatedProviderTrialRuntimePreview: JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview;
   firstGatedProviderTrialPreparationPreview: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
+  firstManualProviderTrialResultCaptureUxReviewPreview: JarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview;
   firstRealProviderAdapterWiringPreview: JarvisVideoFirstRealProviderAdapterWiringPreview;
   firstProviderTrialResultReviewRecoveryPreview: JarvisVideoFirstProviderTrialResultReviewRecoveryPreview;
   resultCaptureAuditApprovalJoinPreview: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
@@ -98,6 +101,7 @@ type JarvisVideoWorkspacePageClientProps = Readonly<{
 export default function JarvisVideoWorkspacePageClient({
   firstGatedProviderTrialRuntimePreview,
   firstGatedProviderTrialPreparationPreview,
+  firstManualProviderTrialResultCaptureUxReviewPreview,
   firstRealProviderAdapterWiringPreview,
   firstProviderTrialResultReviewRecoveryPreview,
   resultCaptureAuditApprovalJoinPreview,
@@ -112,6 +116,9 @@ export default function JarvisVideoWorkspacePageClient({
       }
       jarvisVideoFirstGatedProviderTrialPreparationPreview={
         firstGatedProviderTrialPreparationPreview
+      }
+      jarvisVideoFirstManualProviderTrialResultCaptureUxReviewPreview={
+        firstManualProviderTrialResultCaptureUxReviewPreview
       }
       jarvisVideoFirstRealProviderAdapterWiringPreview={
         firstRealProviderAdapterWiringPreview

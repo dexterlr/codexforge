@@ -1,4 +1,4 @@
-﻿param([string]$BaseUrl = "http://localhost:3000")
+param([string]$BaseUrl = "http://localhost:3000")
 
 $ErrorActionPreference = "Stop"
 $scriptRoot = $PSScriptRoot
@@ -159,9 +159,9 @@ Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README operat
 Assert-Matches $docsCombined "(highest detected phase:\s*$highestPhase|through phase\s+$highestPhase)" "docs mention latest detected phase"
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 4393. Latest completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial. Previous completed batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery."
-  "Highest detected phase: 4393. Latest completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial. Previous completed batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery."
-  "Next likely batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review"
+  "Current checkpoint: Highest detected phase: 4425. Latest completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review. Previous completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial."
+  "Highest detected phase: 4425. Latest completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review. Previous completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial."
+  "Next likely batch: 4426-4457 - Jarvis Video Manual Provider Trial Execution Enablement"
   "first real provider adapter wiring only"
   "manual gated trial path only"
   "provider adapter wiring path defined"
