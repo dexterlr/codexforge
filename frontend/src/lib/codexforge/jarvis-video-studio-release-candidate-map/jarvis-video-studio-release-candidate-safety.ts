@@ -16,6 +16,13 @@ export type JarvisVideoStudioReleaseCandidateReviewRail = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
   ...JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS,
+  "4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join",
+  "Jarvis Video Result Capture Audit Envelope and Approval Join",
+  "result capture envelope only",
+  "audit envelope only",
+  "approval join envelope only",
+  "synthetic dry-run capture only",
+  "first gated provider execution trial preparation only in a future batch",
   "4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
   "Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
   "server-only runner skeleton only",
@@ -44,6 +51,23 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_DISPLAY_MARKERS = [
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REQUIRED_MARKERS = [
   ...JARVIS_VIDEO_BACKEND_RUNNER_CONTRACT_HARDENING_DISPLAY_MARKERS,
+  "4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join",
+  "Jarvis Video Result Capture Audit Envelope and Approval Join",
+  "result capture envelope version",
+  "audit envelope version",
+  "approval join envelope version",
+  "result capture envelope only",
+  "audit envelope only",
+  "approval join envelope only",
+  "synthetic dry-run capture only",
+  "provider not called",
+  "queue state: not dispatched",
+  "worker state: not dispatched",
+  "job state: not executed",
+  "persistence state: not persisted",
+  "artifact state: placeholder only",
+  "result state: captured envelope only",
+  "first gated provider execution trial preparation only in a future batch",
   "4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
   "Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
   "server-only runner skeleton only",
@@ -100,6 +124,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_REQUIRED_MARKERS = [
   "next likely batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission",
   "next likely batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run",
   "next likely batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join",
+  "next likely batch: 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation",
   "4042-4073 - Jarvis Video Studio Release Candidate",
   "4042-4073 - Jarvis Video Studio Release Candidate Mega Batch v1",
   "Jarvis Video Studio Release Candidate",
@@ -296,7 +321,7 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_OPERATOR_REVIEW_POSTURE =
   "Operator approval required";
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_POSTURE =
-  "Backend runner contract hardening only";
+  "Result capture and audit join defined";
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_EXECUTION_POSTURE =
   "Backend-only runner required";

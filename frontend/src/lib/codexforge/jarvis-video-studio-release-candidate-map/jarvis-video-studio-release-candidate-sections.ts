@@ -63,12 +63,12 @@ export type JarvisVideoStudioReleaseCandidateMilestoneReference = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_HERO_STATE = {
   eyebrow: "Jarvis Video Studio",
-  stageLabel: "Server-only synthetic dry run",
+  stageLabel: "Result capture and audit join",
   title: "Jarvis Video Studio",
   summary:
-    "Premium review workspace for mission planning, approvals, backend runner contract hardening, the backend dry-run admission foundation, and the first server-only synthetic dry run preview.",
+    "Premium review workspace for mission planning, approvals, backend runner contract hardening, the backend dry-run admission foundation, the server-only synthetic dry run preview, and the new result capture and audit join layer.",
   detail:
-    "Jarvis Video Studio now carries a typed backend dry-run admission foundation plus the first server-only runner skeleton while generation stays locked. Backend-only runner required. Operator approval required. Credential isolation required. Queue, worker, and job execution remain disabled.",
+    "Jarvis Video Studio now carries typed server-only result capture, audit envelope, and approval join records while generation stays locked. Backend-only runner required. Operator approval required. Credential isolation required. Queue, worker, and job execution remain disabled.",
   metrics: [
     {
       label: "Workspace",
@@ -82,8 +82,8 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_HERO_STATE = {
     },
     {
       label: "Readiness",
-      value: "Capture and join next",
-      detail: "The next backend-only step is result capture, audit envelope, and approval join, not live provider execution.",
+      value: "Envelope join defined",
+      detail: "The next backend-only step is first gated provider execution trial preparation, not live provider execution.",
     },
     {
       label: "Safety",
@@ -96,13 +96,13 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_HERO_STATE = {
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_MISSION_BRIEF = {
   title: "Mission brief",
   audience:
-    "Operator-led review of the studio, its hardened backend-only runner contract, the dry-run admission foundation, and the new server-only synthetic preview.",
+    "Operator-led review of the studio, its hardened backend-only runner contract, the dry-run admission foundation, the server-only synthetic preview, and the typed result capture, audit, and approval join envelopes.",
   objective:
-    "Consolidate planning, prerequisites, approval, dry run, backend readiness, controlled trial, backend runner contract hardening, backend dry-run admission foundation, the server-only synthetic preview, result review recovery, the backend implementation readiness follow-up, and the earlier backend execution implementation plan into one coherent premium studio surface.",
+    "Consolidate planning, prerequisites, approval, dry run, backend readiness, controlled trial, backend runner contract hardening, backend dry-run admission foundation, the server-only synthetic preview, the result capture and audit join layer, result review recovery, the backend implementation readiness follow-up, and the earlier backend execution implementation plan into one coherent premium studio surface.",
   operatorPosture:
     "Operator approval required before any backend-owned execution path can move forward.",
   handoffState:
-    "Plan, review, approve, then hand off to backend. This batch is server-only runner skeleton only and synthetic dry run only. No provider call from frontend.",
+    "Plan, review, approve, then hand off to backend. This batch adds result capture envelope only, audit envelope only, and approval join envelope only. No provider call from frontend.",
 } as const satisfies JarvisVideoStudioReleaseCandidateMissionBrief;
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_PRODUCTION_TIMELINE = [

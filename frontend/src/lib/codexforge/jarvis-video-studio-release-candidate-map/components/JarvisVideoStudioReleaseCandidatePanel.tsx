@@ -6,6 +6,7 @@ import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-b
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
 import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-trial-result-review-recovery-map/components";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../jarvis-video-backend-runner-foundation-dry-run-admission-preview";
+import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "../jarvis-video-result-capture-audit-envelope-approval-join-preview";
 import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "../jarvis-video-server-only-runner-synthetic-dry-run-preview";
 import { buildJarvisVideoBackendRunnerContractHardeningStableKey } from "../jarvis-video-backend-runner-contract-hardening";
 import {
@@ -19,6 +20,7 @@ import {
 import styles from "./JarvisVideoStudioReleaseCandidatePanel.module.css";
 
 type JarvisVideoStudioReleaseCandidatePanelDataProps = Readonly<{
+  resultCaptureAuditApprovalJoinPreview?: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
   backendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
   serverOnlySyntheticDryRunPreview?: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
 }>;
@@ -216,6 +218,127 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               </ol>
             </section>
           </section>
+
+          {props.resultCaptureAuditApprovalJoinPreview ? (
+            <section className={styles.panel} aria-label="Result capture and audit join">
+              <div className={styles.panelHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Server-only envelope layer</p>
+                  <h2 className={styles.panelTitle}>
+                    {props.resultCaptureAuditApprovalJoinPreview.title}
+                  </h2>
+                </div>
+                <span className={styles.statBadge}>
+                  {props.resultCaptureAuditApprovalJoinPreview.statusBadge}
+                </span>
+              </div>
+              <p className={styles.panelBody}>
+                {props.resultCaptureAuditApprovalJoinPreview.summary}
+              </p>
+              <div className={styles.statusStrip}>
+                {props.resultCaptureAuditApprovalJoinPreview.highlights.map((item) => (
+                  <span key={item} className={styles.statusPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.summaryGrid}>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Defined envelopes</p>
+                  <h3 className={styles.summaryTitle}>
+                    Server-only capture, audit, and join
+                  </h3>
+                  <p className={styles.summaryText}>
+                    {
+                      props.resultCaptureAuditApprovalJoinPreview
+                        .resultCaptureEnvelopeSummary
+                    }
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      props.resultCaptureAuditApprovalJoinPreview
+                        .auditEnvelopeSummary,
+                      props.resultCaptureAuditApprovalJoinPreview
+                        .approvalJoinSummary,
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Still locked</p>
+                  <h3 className={styles.summaryTitle}>
+                    Review-only posture remains intact
+                  </h3>
+                  <p className={styles.summaryText}>
+                    Provider execution stays locked, queue/worker/job dispatch
+                    stay disabled, and persistence is still intentionally
+                    absent.
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      ...props.resultCaptureAuditApprovalJoinPreview.captureBlockers.slice(
+                        0,
+                        2
+                      ),
+                      ...props.resultCaptureAuditApprovalJoinPreview.auditBlockers.slice(
+                        0,
+                        1
+                      ),
+                      ...props.resultCaptureAuditApprovalJoinPreview.approvalJoinBlockers.slice(
+                        0,
+                        1
+                      ),
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Next batch gate</p>
+                  <h3 className={styles.summaryTitle}>
+                    Phase{" "}
+                    {
+                      props.resultCaptureAuditApprovalJoinPreview.checkpoint
+                        .highestDetectedPhase
+                    }
+                  </h3>
+                  <p className={styles.summaryText}>
+                    Latest completed batch:{" "}
+                    {
+                      props.resultCaptureAuditApprovalJoinPreview.checkpoint
+                        .latestCompletedBatch
+                    }
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      `Previous completed batch: ${props.resultCaptureAuditApprovalJoinPreview.checkpoint.previousCompletedBatch}`,
+                      `Next likely batch: ${props.resultCaptureAuditApprovalJoinPreview.checkpoint.nextLikelyBatch.replace(
+                        /^next likely batch:\s*/i,
+                        ""
+                      )}`,
+                      `Review-only evidence inputs: ${props.resultCaptureAuditApprovalJoinPreview.evidenceInputCount}`,
+                      ...props.resultCaptureAuditApprovalJoinPreview.nextGatedProviderTrialPreparationChecklist.slice(
+                        0,
+                        2
+                      ),
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              </div>
+            </section>
+          ) : null}
 
           {props.serverOnlySyntheticDryRunPreview ? (
             <section className={styles.panel} aria-label="Server-only synthetic dry run">
@@ -443,8 +566,9 @@ export function JarvisVideoStudioReleaseCandidatePanel(
           </p>
           <p className={styles.heroDetail}>
             Review the hardened backend runner contract, mission brief,
-            approval packet, backend readiness, and result recovery path
-            without enabling generation, uploads, persistence, or execution.
+            approval packet, backend readiness, result capture and audit join
+            layer, and result recovery path without enabling generation,
+            uploads, persistence, or execution.
           </p>
           <div className={styles.metricGrid}>
             {record.heroState.metrics.map((metric) => (
@@ -490,10 +614,11 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               </article>
               <article className={styles.metricCard}>
                 <p className={styles.metricLabel}>Handoff</p>
-                <span className={styles.metricValue}>Result capture next</span>
+                <span className={styles.metricValue}>Trial preparation next</span>
                 <span className={styles.metricDetail}>
-                  Execution hardening, result capture, and approval join stay
-                  review-only from here.
+                  Server-only capture, audit, and approval join stay
+                  review-only before the first gated provider trial
+                  preparation batch.
                 </span>
               </article>
             </div>

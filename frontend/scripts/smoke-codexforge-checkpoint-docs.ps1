@@ -159,6 +159,13 @@ Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README operat
 Assert-Matches $docsCombined "(highest detected phase:\s*$highestPhase|through phase\s+$highestPhase)" "docs mention latest detected phase"
 
 foreach ($needle in @(
+  "Current checkpoint: Highest detected phase: 4265. Latest completed batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join. Previous completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run."
+  "Highest detected phase: 4265. Latest completed batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join. Previous completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run."
+  "Next likely batch: 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation"
+  "result capture envelope only"
+  "audit envelope only"
+  "approval join envelope only"
+  "synthetic dry-run capture only"
   "Current checkpoint: Highest detected phase: 4233. Latest completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run. Previous completed batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission."
   "Highest detected phase: 4233. Latest completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run. Previous completed batch: 4170-4201 - Jarvis Video Backend Runner Foundation Dry-Run Admission."
   "Next likely batch: 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join"

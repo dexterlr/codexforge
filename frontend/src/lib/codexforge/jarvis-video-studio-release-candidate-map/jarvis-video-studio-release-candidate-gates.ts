@@ -48,15 +48,15 @@ export type JarvisVideoStudioReleaseCandidateDiagnosticsGrouping = Readonly<{
 
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_READINESS_SCORE = {
   label: "video readiness score",
-  value: 89,
-  posture: "server-only runner skeleton only",
+  value: 92,
+  posture: "result capture envelope only",
   summary:
-    "Jarvis Video Studio now carries the backend dry-run admission foundation plus the first server-only runner skeleton, but execution stays blocked behind approval, credential isolation, result capture, audit envelope, and approval join work.",
+    "Jarvis Video Studio now carries the backend dry-run admission foundation, the server-only runner skeleton, and the typed result capture, audit envelope, and approval join layer, but execution still stays blocked behind approval, credential isolation, and the future gated provider trial preparation batch.",
   detail: [
     "mission brief and storyboard path are coherent",
     "approval packet and dry-run references are visible",
-    "backend runner contract hardening, dry-run admission, and the server-only synthetic preview are visible without live execution",
-    "controlled trial, result capture, audit envelope, and approval join remain locked",
+    "backend runner contract hardening, dry-run admission, server-only synthetic preview, and result capture/audit/join envelopes are visible without live execution",
+    "controlled trial remains locked and first gated provider execution trial preparation stays future-only",
   ],
 } as const satisfies JarvisVideoStudioReleaseCandidateReadinessScore;
 
@@ -108,9 +108,9 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_BLOCKED_ACTION_DECK = [
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_NEXT_ACTION_CARD = {
   title: "Prepare result capture, audit envelope, and approval join",
   summary:
-    "Review the defined server-only runner skeleton, the static synthetic result envelope, and the placeholder audit and approval joins before the next backend-only capture batch is proposed.",
+    "Review the defined result capture envelope, audit envelope, and approval join records before the first gated provider execution trial preparation batch is proposed.",
   posture:
-    "This batch adds the server-only runner skeleton and static synthetic dry run only; no queue, worker, job, provider, or persistence path exists yet.",
+    "This batch adds result capture envelope only, audit envelope only, and approval join envelope only; no queue, worker, job, provider, or persistence path exists yet.",
   routeHref:
     "/jarvis-video-studio-release-candidate-next-action-wiring" as Route,
 } as const satisfies JarvisVideoStudioReleaseCandidateNextActionCard;
@@ -151,12 +151,12 @@ export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_WORKSPACE_NAVIGATION_CARD = {
 export const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_RELEASE_SUMMARY = {
   title: "Studio at a glance",
   summary:
-    "Jarvis Video Studio stays coherent and product-first while backend runner contract hardening, the dry-run admission foundation, and the server-only synthetic dry run land below the console instead of taking over the hero.",
+    "Jarvis Video Studio stays coherent and product-first while backend runner contract hardening, the dry-run admission foundation, the server-only synthetic dry run, and the new result capture and audit join layer land below the console instead of taking over the hero.",
   highlights: [
     "Human hero with a clear operator path and compact safety state",
-    "Video production timeline, readiness score, backend runner contract hardening, backend dry-run admission, and a server-only synthetic dry run",
+    "Video production timeline, readiness score, backend runner contract hardening, backend dry-run admission, a server-only synthetic dry run, and result capture plus audit join",
     "Prerequisite cards for script, assets, approval packet, and dry run",
-    "Backend readiness, controlled trial, runner contract, result review, and the next result-capture-focused batch",
+    "Backend readiness, controlled trial, runner contract, result review, and the next first-gated-provider-trial-preparation batch",
     "Blocked actions and diagnostics stay visible without taking over the main workspace",
   ],
 } as const satisfies JarvisVideoStudioReleaseCandidateReleaseSummary;

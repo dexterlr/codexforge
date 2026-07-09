@@ -1,4 +1,22 @@
 export {
+  JARVIS_VIDEO_RESULT_CAPTURE_AUDIT_ENVELOPE_APPROVAL_JOIN_CHECKPOINT,
+  JARVIS_VIDEO_RESULT_CAPTURE_AUDIT_ENVELOPE_APPROVAL_JOIN_DISPLAY_MARKERS,
+  JARVIS_VIDEO_RESULT_CAPTURE_AUDIT_ENVELOPE_APPROVAL_JOIN_MODEL,
+  buildStableApprovalJoinKey,
+  buildStableAuditEnvelopeKey,
+  buildStableResultCaptureKey,
+  buildStaticApprovalJoinEnvelope,
+  buildStaticAuditEnvelope,
+  buildStaticResultCaptureAuditEnvelopeApprovalJoinPreview,
+  buildStaticResultCaptureEnvelope,
+  evaluateStaticCaptureCompleteness,
+  listApprovalJoinBlockers,
+  listAuditBlockers,
+  listCaptureBlockers,
+  listNextGatedProviderTrialPreparationRequirements,
+  normalizeSyntheticResultCaptureInput,
+} from "./jarvis-video-result-capture-audit-envelope-approval-join";
+export {
   JARVIS_VIDEO_BACKEND_RUNNER_FOUNDATION_DRY_RUN_ADMISSION_CHECKPOINT,
   JARVIS_VIDEO_BACKEND_RUNNER_FOUNDATION_DRY_RUN_ADMISSION_DISPLAY_MARKERS,
   JARVIS_VIDEO_BACKEND_RUNNER_FOUNDATION_DRY_RUN_ADMISSION_MODEL,
