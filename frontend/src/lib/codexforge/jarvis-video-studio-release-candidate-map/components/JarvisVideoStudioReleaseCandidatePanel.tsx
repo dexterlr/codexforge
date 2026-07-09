@@ -8,6 +8,7 @@ import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-tr
 import type { JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview } from "../jarvis-video-first-gated-provider-execution-trial-runtime-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "../jarvis-video-first-gated-provider-execution-trial-preparation-preview";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../jarvis-video-backend-runner-foundation-dry-run-admission-preview";
+import type { JarvisVideoFirstProviderTrialResultReviewRecoveryPreview } from "../jarvis-video-first-provider-trial-result-review-recovery-preview";
 import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "../jarvis-video-result-capture-audit-envelope-approval-join-preview";
 import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "../jarvis-video-server-only-runner-synthetic-dry-run-preview";
 import { buildJarvisVideoBackendRunnerContractHardeningStableKey } from "../jarvis-video-backend-runner-contract-hardening";
@@ -24,6 +25,7 @@ import styles from "./JarvisVideoStudioReleaseCandidatePanel.module.css";
 type JarvisVideoStudioReleaseCandidatePanelDataProps = Readonly<{
   firstGatedProviderTrialRuntimePreview?: JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview;
   firstGatedProviderTrialPreparationPreview?: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
+  firstProviderTrialResultReviewRecoveryPreview?: JarvisVideoFirstProviderTrialResultReviewRecoveryPreview;
   resultCaptureAuditApprovalJoinPreview?: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
   backendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
   serverOnlySyntheticDryRunPreview?: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
@@ -222,6 +224,74 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               </ol>
             </section>
           </section>
+
+          {props.firstProviderTrialResultReviewRecoveryPreview ? (
+            <section
+              className={styles.panel}
+              aria-label="Provider trial result review and recovery"
+            >
+              <div className={styles.panelHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Manual gated trial review lane</p>
+                  <h2 className={styles.panelTitle}>
+                    {props.firstProviderTrialResultReviewRecoveryPreview.title}
+                  </h2>
+                </div>
+                <span className={styles.statBadge}>
+                  {props.firstProviderTrialResultReviewRecoveryPreview.statusBadge}
+                </span>
+              </div>
+              <p className={styles.panelBody}>
+                {props.firstProviderTrialResultReviewRecoveryPreview.summary}
+              </p>
+              <div className={styles.statusStrip}>
+                {props.firstProviderTrialResultReviewRecoveryPreview.highlights.map(
+                  (item) => (
+                    <span key={item} className={styles.statusPill}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <div className={styles.summaryGrid}>
+                <ReadinessListCard
+                  eyebrow="Review path defined"
+                  title="Operator review stays explicit"
+                  summary="Provider trial result review is defined as typed product data only. No provider call happens during validation, no artifact is claimed, and promotion remains operator-gated."
+                  items={props.firstProviderTrialResultReviewRecoveryPreview.productStatements.slice(
+                    0,
+                    5
+                  )}
+                />
+                <ReadinessListCard
+                  eyebrow="Recovery review only"
+                  title="Success, failure, and blocked lanes remain inert"
+                  summary="Recovery review remains static and deterministic. Retry and fallback stay review-only while success, failure, and blocked result lanes remain ready for a future server-only adapter batch."
+                  items={[
+                    ...props.firstProviderTrialResultReviewRecoveryPreview.productStatements.slice(
+                      5
+                    ),
+                    ...props.firstProviderTrialResultReviewRecoveryPreview.reviewLanes,
+                    ...props.firstProviderTrialResultReviewRecoveryPreview.recoveryLanes.slice(
+                      0,
+                      2
+                    ),
+                  ]}
+                />
+                <ReadinessListCard
+                  eyebrow="Manual gated trial next"
+                  title={`Phase ${props.firstProviderTrialResultReviewRecoveryPreview.checkpoint.highestDetectedPhase}`}
+                  summary="Result, audit, approval, artifact handoff, export, and publish remain blocked until the first real provider adapter wiring and manual gated trial batch exists behind the server-only boundary."
+                  items={[
+                    `Latest completed batch: ${props.firstProviderTrialResultReviewRecoveryPreview.checkpoint.latestCompletedBatch}`,
+                    `Previous completed batch: ${props.firstProviderTrialResultReviewRecoveryPreview.checkpoint.previousCompletedBatch}`,
+                    `Next likely batch: ${props.firstProviderTrialResultReviewRecoveryPreview.checkpoint.nextLikelyBatch}`,
+                    `Review-only evidence inputs: ${props.firstProviderTrialResultReviewRecoveryPreview.evidenceInputCount}`,
+                  ]}
+                />
+              </div>
+            </section>
+          ) : null}
 
           {props.firstGatedProviderTrialRuntimePreview ? (
             <section

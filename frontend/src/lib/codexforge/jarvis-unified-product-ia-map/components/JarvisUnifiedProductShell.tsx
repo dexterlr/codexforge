@@ -26,6 +26,7 @@ import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-con
 import type { JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-first-gated-provider-execution-trial-runtime-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-first-gated-provider-execution-trial-preparation-preview";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-backend-runner-foundation-dry-run-admission-preview";
+import type { JarvisVideoFirstProviderTrialResultReviewRecoveryPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-first-provider-trial-result-review-recovery-preview";
 import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-result-capture-audit-envelope-approval-join-preview";
 import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "../../jarvis-video-studio-release-candidate-map/jarvis-video-server-only-runner-synthetic-dry-run-preview";
 import { JarvisVideoStudioReleaseCandidatePanel } from "../../jarvis-video-studio-release-candidate-map/components";
@@ -119,6 +120,7 @@ type JarvisUnifiedProductShellProps =
       routeSlug?: never;
       jarvisVideoFirstGatedProviderTrialRuntimePreview?: JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview;
       jarvisVideoFirstGatedProviderTrialPreparationPreview?: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
+      jarvisVideoFirstProviderTrialResultReviewRecoveryPreview?: JarvisVideoFirstProviderTrialResultReviewRecoveryPreview;
       jarvisVideoResultCaptureAuditApprovalJoinPreview?: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
       jarvisVideoBackendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
       jarvisVideoServerOnlySyntheticDryRunPreview?: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
@@ -128,6 +130,7 @@ type JarvisUnifiedProductShellProps =
       surfaceId?: never;
       jarvisVideoFirstGatedProviderTrialRuntimePreview?: JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview;
       jarvisVideoFirstGatedProviderTrialPreparationPreview?: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
+      jarvisVideoFirstProviderTrialResultReviewRecoveryPreview?: JarvisVideoFirstProviderTrialResultReviewRecoveryPreview;
       jarvisVideoResultCaptureAuditApprovalJoinPreview?: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
       jarvisVideoBackendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
       jarvisVideoServerOnlySyntheticDryRunPreview?: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
@@ -196,6 +199,9 @@ export function JarvisUnifiedProductPanel(
           }
           firstGatedProviderTrialPreparationPreview={
             props.jarvisVideoFirstGatedProviderTrialPreparationPreview
+          }
+          firstProviderTrialResultReviewRecoveryPreview={
+            props.jarvisVideoFirstProviderTrialResultReviewRecoveryPreview
           }
           resultCaptureAuditApprovalJoinPreview={
             props.jarvisVideoResultCaptureAuditApprovalJoinPreview

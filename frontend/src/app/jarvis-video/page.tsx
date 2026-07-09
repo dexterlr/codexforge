@@ -2,6 +2,7 @@ import {
   buildStaticJarvisVideoFirstGatedProviderExecutionTrialRuntimePreview,
   buildStaticJarvisVideoFirstGatedProviderExecutionTrialPreparationPreview,
   buildStaticJarvisVideoBackendRunnerFoundationDryRunAdmissionPreview,
+  buildStaticJarvisVideoFirstProviderTrialResultReviewRecoveryPreview,
   buildStaticResultCaptureAuditEnvelopeApprovalJoinPreview,
   buildStaticJarvisVideoServerOnlyRunnerSyntheticDryRunPreview,
 } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/server";
@@ -12,6 +13,8 @@ export default function JarvisVideoWorkspacePage() {
     buildStaticJarvisVideoFirstGatedProviderExecutionTrialRuntimePreview();
   const firstGatedProviderTrialPreparationPreview =
     buildStaticJarvisVideoFirstGatedProviderExecutionTrialPreparationPreview();
+  const firstProviderTrialResultReviewRecoveryPreview =
+    buildStaticJarvisVideoFirstProviderTrialResultReviewRecoveryPreview();
   const resultCaptureAuditApprovalJoinPreview =
     buildStaticResultCaptureAuditEnvelopeApprovalJoinPreview();
   const backendDryRunAdmissionPreview =
@@ -26,6 +29,9 @@ export default function JarvisVideoWorkspacePage() {
       }
       firstGatedProviderTrialPreparationPreview={
         firstGatedProviderTrialPreparationPreview
+      }
+      firstProviderTrialResultReviewRecoveryPreview={
+        firstProviderTrialResultReviewRecoveryPreview
       }
       resultCaptureAuditApprovalJoinPreview={
         resultCaptureAuditApprovalJoinPreview

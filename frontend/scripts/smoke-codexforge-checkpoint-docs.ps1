@@ -159,12 +159,43 @@ Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README operat
 Assert-Matches $docsCombined "(highest detected phase:\s*$highestPhase|through phase\s+$highestPhase)" "docs mention latest detected phase"
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 4329. Latest completed batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime. Previous completed batch: 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation."
+  "Current checkpoint: Highest detected phase: 4361. Latest completed batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery. Previous completed batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime."
+  "Highest detected phase: 4361. Latest completed batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery. Previous completed batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime."
+  "Next likely batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial"
+  "first provider trial result review and recovery only"
+  "provider result review path defined"
+  "recovery review only"
+  "provider adapter injection required"
+  "operator acceptance required"
+  "no frontend provider call"
+  "no provider call during validation"
+  "no live video generation during validation"
+  "retry/fallback review only"
+  "no retry execution"
+  "no fallback execution"
+  "no queue dispatch"
+  "no worker dispatch"
+  "no job execution"
+  "no result persistence"
+  "no audit persistence"
+  "no approval persistence"
+  "no artifact persistence"
+  "export/publish blocked"
+  "backend-only execution path required"
+  "server-only boundary required"
+  "first real provider adapter wiring/manual gated trial in a future batch"
+)) {
+  Assert-Contains $docsCombined $needle "docs mention current first provider trial result review and recovery checkpoint $needle"
+}
+
+foreach ($needle in @(
   "Highest detected phase: 4329. Latest completed batch: 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime. Previous completed batch: 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation."
   "Next likely batch: 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery"
   "first gated provider execution trial runtime only"
   "server-only runtime path defined"
   "provider adapter injection required"
+  "operator approval required"
+  "credential isolation required"
   "no frontend provider call"
   "no provider call during validation"
   "no live video generation during validation"
@@ -180,11 +211,9 @@ foreach ($needle in @(
   "hard kill switch"
   "backend-only execution path required"
   "server-only boundary required"
-  "operator approval required"
-  "credential isolation required"
   "provider trial result review/recovery in a future batch"
 )) {
-  Assert-Contains $docsCombined $needle "docs mention current first gated provider trial runtime checkpoint $needle"
+  Assert-Contains $docsCombined $needle "docs preserve historical first gated provider trial runtime checkpoint $needle"
 }
 
 foreach ($needle in @(

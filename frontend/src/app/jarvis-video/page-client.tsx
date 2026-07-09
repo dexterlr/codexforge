@@ -3,6 +3,7 @@
 import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-unified-product-ia-map/components";
 import type { JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-gated-provider-execution-trial-runtime-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-gated-provider-execution-trial-preparation-preview";
+import type { JarvisVideoFirstProviderTrialResultReviewRecoveryPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-first-provider-trial-result-review-recovery-preview";
 import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-result-capture-audit-envelope-approval-join-preview";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-backend-runner-foundation-dry-run-admission-preview";
 import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/codexforge/jarvis-video-studio-release-candidate-map/jarvis-video-server-only-runner-synthetic-dry-run-preview";
@@ -23,6 +24,7 @@ import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/co
 // 4234-4265 - Jarvis Video Result Capture Audit Envelope and Approval Join
 // 4266-4297 - Jarvis Video First Gated Provider Execution Trial Preparation
 // 4298-4329 - Jarvis Video First Gated Provider Execution Trial Runtime
+// 4330-4361 - Jarvis Video First Provider Trial Result Review and Recovery
 // Jarvis Video Studio Release Candidate
 // Jarvis Video Backend Execution Implementation Plan
 // Jarvis Video Backend Implementation Readiness Follow-Up
@@ -32,6 +34,7 @@ import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/co
 // Jarvis Video Result Capture Audit Envelope and Approval Join
 // Jarvis Video First Gated Provider Execution Trial Preparation
 // Jarvis Video First Gated Provider Execution Trial Runtime
+// Jarvis Video First Provider Trial Result Review and Recovery
 // video studio remains primary active workspace
 // /jarvis-video release candidate remains review-only
 // premium video studio release candidate
@@ -83,6 +86,7 @@ import type { JarvisVideoServerOnlyRunnerSyntheticDryRunPreview } from "@/lib/co
 type JarvisVideoWorkspacePageClientProps = Readonly<{
   firstGatedProviderTrialRuntimePreview: JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview;
   firstGatedProviderTrialPreparationPreview: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
+  firstProviderTrialResultReviewRecoveryPreview: JarvisVideoFirstProviderTrialResultReviewRecoveryPreview;
   resultCaptureAuditApprovalJoinPreview: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
   backendDryRunAdmissionPreview: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
   serverOnlySyntheticDryRunPreview: JarvisVideoServerOnlyRunnerSyntheticDryRunPreview;
@@ -91,6 +95,7 @@ type JarvisVideoWorkspacePageClientProps = Readonly<{
 export default function JarvisVideoWorkspacePageClient({
   firstGatedProviderTrialRuntimePreview,
   firstGatedProviderTrialPreparationPreview,
+  firstProviderTrialResultReviewRecoveryPreview,
   resultCaptureAuditApprovalJoinPreview,
   backendDryRunAdmissionPreview,
   serverOnlySyntheticDryRunPreview,
@@ -103,6 +108,9 @@ export default function JarvisVideoWorkspacePageClient({
       }
       jarvisVideoFirstGatedProviderTrialPreparationPreview={
         firstGatedProviderTrialPreparationPreview
+      }
+      jarvisVideoFirstProviderTrialResultReviewRecoveryPreview={
+        firstProviderTrialResultReviewRecoveryPreview
       }
       jarvisVideoResultCaptureAuditApprovalJoinPreview={
         resultCaptureAuditApprovalJoinPreview
