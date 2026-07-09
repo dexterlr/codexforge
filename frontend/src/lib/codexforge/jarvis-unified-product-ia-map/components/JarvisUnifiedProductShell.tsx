@@ -15,6 +15,12 @@ import {
   type JarvisUnifiedProductPrimaryNavigationHref,
   type JarvisUnifiedProductPrimarySurfaceId,
 } from "../jarvis-unified-product-ia-content";
+import {
+  ATHENA_BLOCKED_ACTION_GROUPS,
+  ATHENA_COMMAND_CENTER_MODEL,
+  ATHENA_CURRENT_CAPABILITIES,
+} from "../athena-control-plane-model";
+import { AthenaCommandCenterPanel } from "./AthenaCommandCenterPanel";
 import type { JarvisUnifiedProductWorkspaceRecord } from "../jarvis-unified-product-ia-workspaces";
 import { JarvisApprovalReadinessSummary } from "./JarvisApprovalReadinessSummary";
 import { JarvisBlockedActionSummary } from "./JarvisBlockedActionSummary";
@@ -45,77 +51,22 @@ type HomeOperatorCard = Readonly<{
   badge: string;
 }>;
 
-type HomeOperatorSummaryCard = Readonly<{
-  title: string;
-  summary: string;
-}>;
-
-const HOME_OPERATOR_SECONDARY_CARDS = [
+const HOME_OPERATOR_CALL_TO_ACTIONS = [
   {
-    title: "Jarvis Command Center",
+    title: "Open Athena Command Center",
     href: "/jarvis",
     summary:
-      "Open the control plane for workspace launchers, approvals, audit preview, and safety state.",
+      "Open Athena as the upper Jarvis chat control layer to plan, route, review, and safely hand off AI work across CodexForge.",
     badge: "/jarvis",
   },
   {
-    title: "Website Builder",
-    href: "/jarvis-websites",
+    title: "Open Jarvis Video Studio",
+    href: "/jarvis-video",
     summary:
-      "Review website briefs, structure, and publish gates without preview, export, or deploy execution.",
-    badge: "/jarvis-websites",
-  },
-  {
-    title: "Avatar Studio",
-    href: "/jarvis-avatar",
-    summary:
-      "Review persona, consent, voice, and likeness boundaries while preview and generation remain locked.",
-    badge: "/jarvis-avatar",
-  },
-  {
-    title: "Workflows",
-    href: "/jarvis-workflows",
-    summary:
-      "Review triggers, permissions, dry-run planning, approval, and audit while dispatch stays blocked.",
-    badge: "/jarvis-workflows",
+      "Open the above-the-fold video generation control console for briefs, locked controls, and future backend handoff review.",
+    badge: "/jarvis-video",
   },
 ] as const satisfies readonly HomeOperatorCard[];
-
-const HOME_OPERATOR_AVAILABLE_ACTIONS = [
-  {
-    title: "Prepare a video brief",
-    summary:
-      "Use Video Studio to stage prompt, settings, safety notes, and the future approval packet without any backend execution.",
-  },
-  {
-    title: "Review specialist surfaces",
-    summary:
-      "Open Jarvis, websites, avatars, and workflows as product surfaces instead of checkpoint walls.",
-  },
-  {
-    title: "Keep handoff controlled",
-    summary:
-      "Review approval state, locked execution boundaries, and operator posture before any backend-only batch advances.",
-  },
-] as const satisfies readonly HomeOperatorSummaryCard[];
-
-const HOME_OPERATOR_LOCKED_ACTIONS = [
-  {
-    title: "Generation and provider execution",
-    summary:
-      "Video generation, provider SDK calls, and direct frontend execution remain locked across the product shell.",
-  },
-  {
-    title: "Backend dry runs and approvals",
-    summary:
-      "Backend runner handoff, audit capture, credential isolation, and approval joins remain future backend-only work.",
-  },
-  {
-    title: "Persistence and browser storage",
-    summary:
-      "No localStorage, sessionStorage, IndexedDB, cookies, result persistence, or audit persistence are enabled from the cockpit.",
-  },
-] as const satisfies readonly HomeOperatorSummaryCard[];
 
 type JarvisUnifiedProductShellProps =
   | {
@@ -185,6 +136,7 @@ export function JarvisUnifiedProductPanel(
   const isPrimaryJarvisVideoStudioSurface =
     context.surface.id === "jarvis-video" && !context.route;
   const isPrimaryHomeSurface = context.surface.id === "home" && !context.route;
+  const isPrimaryAthenaSurface = context.surface.id === "jarvis" && !context.route;
   const workspace =
     context.surface.id !== "home" &&
     context.surface.id !== "codexforge-cockpit" &&
@@ -245,80 +197,123 @@ export function JarvisUnifiedProductPanel(
         <section className={styles.homeHero} aria-label="CodexForge Operator Cockpit">
           <div className={styles.homeHeroLayout}>
             <div className={styles.homeHeroCopy}>
-              <span className={styles.eyebrowChip}>Controlled workspace</span>
+              <span className={styles.eyebrowChip}>Athena entry point</span>
               <h1 className={styles.homeHeroTitle}>CodexForge Operator Cockpit</h1>
               <p className={styles.homeHeroSummary}>
-                Build, review, and safely hand off AI workflows from one
-                controlled workspace.
+                Athena helps you plan, route, review, and safely hand off AI
+                work across CodexForge.
               </p>
             </div>
-            <Link className={styles.homePrimaryCta} href="/jarvis-video">
-              <span className={`${styles.navBadge} ${styles.metricStateApproval}`}>
-                Primary action
-              </span>
-              <strong className={styles.homePrimaryCtaTitle}>
-                Open Jarvis Video Studio -&gt; /jarvis-video
-              </strong>
-              <span className={styles.homePrimaryCtaBody}>
-                Open the product console for video briefs, locked controls,
-                approval packet preparation, and future backend handoff review.
-              </span>
-            </Link>
-          </div>
-
-          <div className={styles.homeSecondaryGrid}>
-            {HOME_OPERATOR_SECONDARY_CARDS.map((card) => (
-              <Link key={card.href} className={styles.homeSecondaryCard} href={card.href}>
-                <span className={styles.navBadge}>{card.badge}</span>
-                <strong className={styles.homeSecondaryTitle}>{card.title}</strong>
-                <span className={styles.homeSecondaryBody}>{card.summary}</span>
-              </Link>
-            ))}
+            <div className={styles.athenaCtaStack}>
+              {HOME_OPERATOR_CALL_TO_ACTIONS.map((card, index) => (
+                <Link
+                  key={card.href}
+                  className={
+                    index === 0 ? styles.homePrimaryCta : styles.homeSecondaryCard
+                  }
+                  href={card.href}
+                >
+                  <span
+                    className={`${styles.navBadge} ${
+                      index === 0 ? styles.metricStateReady : styles.metricStateApproval
+                    }`}
+                  >
+                    {index === 0 ? "Primary CTA" : "Secondary CTA"}
+                  </span>
+                  <strong className={styles.homePrimaryCtaTitle}>
+                    {card.title} -&gt; {card.href}
+                  </strong>
+                  <span className={styles.homePrimaryCtaBody}>{card.summary}</span>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 
-        <section className={styles.panel} aria-label="What can I do now?">
+        <section className={styles.panel} aria-label="What can Athena do now?">
           <div className={styles.panelHeader}>
             <div>
-              <p className={styles.panelEyebrow}>Operator actions</p>
-              <h2 className={styles.panelTitle}>What can I do now?</h2>
+              <p className={styles.panelEyebrow}>What can I do now?</p>
+              <h2 className={styles.panelTitle}>What can Athena do now?</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
               Review-first
             </span>
           </div>
           <div className={styles.homeSummaryGrid}>
-            {HOME_OPERATOR_AVAILABLE_ACTIONS.map((card) => (
-              <article key={card.title} className={styles.summaryCard}>
+            {ATHENA_CURRENT_CAPABILITIES.map((capability) => (
+              <article key={capability.id} className={styles.summaryCard}>
                 <p className={styles.panelEyebrow}>Available now</p>
-                <h3 className={styles.placeholderTitle}>{card.title}</h3>
-                <p className={styles.placeholderSummary}>{card.summary}</p>
+                <h3 className={styles.placeholderTitle}>{capability.label}</h3>
+                <p className={styles.placeholderSummary}>{capability.summary}</p>
               </article>
             ))}
           </div>
         </section>
 
-        <section className={styles.panel} aria-label="What is still locked?">
+        <section className={styles.panel} aria-label="What stays locked?">
           <div className={styles.panelHeader}>
             <div>
-              <p className={styles.panelEyebrow}>Locked boundaries</p>
-              <h2 className={styles.panelTitle}>What is still locked?</h2>
+              <p className={styles.panelEyebrow}>What is still locked?</p>
+              <h2 className={styles.panelTitle}>What stays locked?</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
               Execution blocked
             </span>
           </div>
           <div className={styles.homeSummaryGrid}>
-            {HOME_OPERATOR_LOCKED_ACTIONS.map((card) => (
-              <article key={card.title} className={styles.blockedCard}>
+            {ATHENA_BLOCKED_ACTION_GROUPS.map((blocked) => (
+              <article key={blocked.id} className={styles.blockedCard}>
                 <p className={styles.panelEyebrow}>Still locked</p>
-                <h3 className={styles.blockedTitle}>{card.title}</h3>
-                <p className={styles.blockedSummary}>{card.summary}</p>
+                <h3 className={styles.blockedTitle}>{blocked.label}</h3>
+                <p className={styles.blockedSummary}>{blocked.summary}</p>
               </article>
             ))}
           </div>
         </section>
 
+        <section className={styles.panel} aria-label="Product launchers">
+          <div className={styles.panelHeader}>
+            <div>
+              <p className={styles.panelEyebrow}>Product cards</p>
+              <h2 className={styles.panelTitle}>Open the right CodexForge workspace</h2>
+            </div>
+            <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+              Product-first
+            </span>
+          </div>
+          <JarvisWorkspaceGrid
+            workspaces={context.workspaces.filter(
+              (candidate) => candidate.id !== "developer-diagnostics"
+            )}
+          />
+        </section>
+
+        <JarvisDeveloperDiagnosticsDock
+          groups={context.developerDiagnosticGroups}
+        />
+      </section>
+    );
+  }
+
+  if (isPrimaryAthenaSurface) {
+    return (
+      <section
+        className={styles.shell}
+        data-codexforge-jarvis-unified-product-ia={context.batchMarkers.join(" | ")}
+        data-codexforge-jarvis-unified-product-ia-focus={context.focus}
+      >
+        <JarvisProductHero
+          eyebrow={context.surface.eyebrow}
+          badge={context.surface.badge}
+          title={context.surface.title}
+          summary={context.surface.summary}
+          phaseLabel="CodexForge"
+          isPhaseRoute={false}
+          metrics={context.surface.heroMetrics}
+          navigationCards={context.primaryNavigationCards}
+        />
+        <AthenaCommandCenterPanel commandCenter={ATHENA_COMMAND_CENTER_MODEL} />
         <JarvisDeveloperDiagnosticsDock
           groups={context.developerDiagnosticGroups}
         />

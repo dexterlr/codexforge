@@ -768,7 +768,7 @@ const JARVIS_UNIFIED_PRODUCT_PRIMARY_ROUTE_INPUTS = [
     group: "Brain",
     commandDeckRole: "workspace",
     description:
-      "Jarvis command center order upgraded. Jarvis is the operating system / top-level control plane, and this central AI command center keeps capability, approval, audit, and safety review ahead of diagnostics.",
+      "Jarvis command center order upgraded. Athena is the main operator brain above Jarvis specialist workspaces, Jarvis remains the operating system / top-level control plane, and this central AI command center keeps capability, approval, audit, and safety review ahead of diagnostics.",
   },
   {
     id: "jarvis-video",

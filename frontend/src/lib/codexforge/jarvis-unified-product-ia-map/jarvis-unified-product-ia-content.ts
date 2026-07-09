@@ -164,13 +164,13 @@ export const JARVIS_UNIFIED_PRODUCT_NEXT_ACTION_RAIL = [
   },
   {
     id: "review-command-center",
-    label: "Open Jarvis Command Center",
+    label: "Open Athena Command Center",
     summary:
-      "Launch the right workspace from Jarvis OS and review capability, audit, and safety state.",
+      "Launch the upper Jarvis chat control plane and review routing, audit, approvals, and safety state.",
     routeHref: "/jarvis",
     tone: "ready",
     backendRequired:
-      "Jarvis remains a review and routing surface only.",
+      "Athena remains a review and routing surface only.",
   },
   {
     id: "advance-video-trial",
@@ -540,10 +540,10 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     routeHref: "/",
     label: "Home",
     title: "CodexForge Operator Cockpit",
-    eyebrow: "Controlled workspace",
+    eyebrow: "Athena entry point",
     badge: "Start here",
     summary:
-      "Build, review, and safely hand off AI workflows from one controlled workspace.",
+      "Athena helps you plan, route, review, and safely hand off AI work across CodexForge.",
     summaryMarkers: [
       "world-class Jarvis product order",
       "home product order upgraded",
@@ -565,17 +565,17 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "diagnostics",
     ],
     currentFocus:
-      "Open Jarvis Video Studio first, then review the other specialist surfaces without leaving the controlled workspace.",
+      "Open Athena Command Center first, then move into Jarvis Video Studio and the other specialist surfaces without leaving the controlled workspace.",
     heroMetrics: [
       {
-        label: "Workspace",
-        value: "Operator cockpit",
-        detail: "Video, websites, avatars, workflows, approvals, and safety in one controlled entry point.",
+        label: "Primary route",
+        value: "Athena",
+        detail: "Athena sits above Jarvis specialist workspaces as the operator chat control layer.",
       },
       {
-        label: "Start here",
+        label: "Secondary route",
         value: "Video Studio",
-        detail: "Open the video brief console, preview surface, and locked handoff controls first.",
+        detail: "Jarvis Video Studio keeps the video brief console, output preview, and locked handoff controls above the fold.",
       },
       {
         label: "Route order",
@@ -648,14 +648,16 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     id: "jarvis",
     routeHref: "/jarvis",
     label: "Jarvis Command Center",
-    title: "Jarvis",
-    eyebrow: "Jarvis OS command center",
-    badge: "Capability launcher",
+    title: "Athena",
+    eyebrow: "Athena Command Center",
+    badge: "Upper control plane",
     summary:
-      "Jarvis OS brings together capability launchers, workspace order, approval state, audit preview, and safety state in one control plane.",
+      "Ask Athena to plan, route, review, and safely hand off work across CodexForge.",
     summaryMarkers: [
       "Jarvis command center order upgraded",
       "Jarvis is the operating system / top-level control plane.",
+      "Jarvis Command Center",
+      "Athena Command Center",
       "developer diagnostics are secondary",
     ],
     workspaceOrder: JARVIS_UNIFIED_PRODUCT_COMMAND_CENTER_ORDER,
@@ -676,27 +678,27 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "diagnostics",
     ],
     currentFocus:
-      "Choose the right workspace, confirm approval state, and keep execution locked until backend handoff is approved.",
+      "Athena can plan, route, review, and prepare backend-only handoff paths while execution stays locked.",
     heroMetrics: [
       {
         label: "Control plane",
-        value: "Jarvis OS",
-        detail: "Capability launchers, audit preview, and safety state stay in one control plane.",
+        value: "Athena over Jarvis",
+        detail: "Athena is the upper chat control layer above specialist Jarvis workspaces.",
       },
       {
-        label: "Primary workspace",
-        value: "Video Studio",
-        detail: "Video Studio remains the main release candidate workspace.",
+        label: "Operator posture",
+        value: "Plan and route",
+        detail: "Athena can classify requests, open the right workspace, and keep execution review-only.",
       },
       {
-        label: "Audit",
-        value: "Visible",
-        detail: "Run timeline, approvals, evidence, and result review stay easy to scan.",
+        label: "Execution",
+        value: "Inert local UI",
+        detail: "Chat input stays local to the page, sends nothing, and executes nothing.",
       },
       {
         label: "Safety",
-        value: "Approval required",
-        detail: "Execution stays blocked across provider, broker, render, publish, and workflow paths.",
+        value: "Backend-only required",
+        detail: "Execution stays blocked across provider, plugin, broker, render, publish, and workflow paths.",
       },
     ],
   },

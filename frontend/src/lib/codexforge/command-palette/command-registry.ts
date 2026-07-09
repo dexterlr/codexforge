@@ -4519,10 +4519,12 @@ export function buildCodexForgeCommands(
     buildRouteCommand(availability, {
       id: "open-jarvis-command-center",
       label: "Go to Jarvis Command Center",
-      description: "Open Jarvis as the central AI command center with capability grid, workspace order, approval summary, audit preview, and safety state.",
+      description: "Open Athena in /jarvis as the upper Jarvis chat control plane with capability grid, workspace order, approval summary, audit preview, and safety state.",
       group: "User features",
       href: "/jarvis",
       keywords: [
+        "Athena",
+        "Athena command center",
         "Jarvis command center",
         "Jarvis OS",
         "Jarvis command center order upgraded",

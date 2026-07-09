@@ -2,6 +2,7 @@ export {
   JarvisUnifiedProductPageClientShell,
   JarvisUnifiedProductPhasePanel,
 } from "./JarvisUnifiedProductShell";
+export { AthenaCommandCenterPanel } from "./AthenaCommandCenterPanel";
 export { JarvisProductHero } from "./JarvisProductHero";
 export { JarvisWorkspaceGrid } from "./JarvisWorkspaceGrid";
 export { JarvisNextActionRail } from "./JarvisNextActionRail";

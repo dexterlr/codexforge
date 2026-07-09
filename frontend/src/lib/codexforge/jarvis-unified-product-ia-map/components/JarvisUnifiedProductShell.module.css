@@ -108,6 +108,11 @@
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.athenaCtaStack {
+  display: grid;
+  gap: 12px;
+}
+
 .homeSecondaryCard {
   padding: 14px;
   border-radius: 16px;
@@ -385,6 +390,82 @@
   color: #a7c3d4;
   font-size: 0.92rem;
   line-height: 1.6;
+}
+
+.athenaConsole {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(45, 212, 191, 0.2);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(20, 184, 166, 0.18), transparent 30%),
+    radial-gradient(circle at 90% 14%, rgba(251, 191, 36, 0.12), transparent 24%),
+    linear-gradient(145deg, rgba(7, 16, 28, 0.98), rgba(9, 17, 30, 0.92) 58%, rgba(12, 21, 38, 0.9));
+}
+
+.athenaConsoleHeader,
+.athenaConsoleCopy {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.athenaConsoleHeader {
+  grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.8fr);
+  align-items: start;
+}
+
+.athenaConsoleBody,
+.athenaInputMeta {
+  margin: 0;
+  color: #a7c3d4;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.athenaInputLabel {
+  color: #dffaff;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.athenaTextarea {
+  min-height: 150px;
+  width: 100%;
+  resize: vertical;
+  padding: 16px;
+  border: 1px solid rgba(45, 212, 191, 0.2);
+  border-radius: 16px;
+  background: rgba(4, 12, 23, 0.94);
+  color: #f6fbff;
+  font: inherit;
+  line-height: 1.55;
+}
+
+.athenaTextarea::placeholder {
+  color: #7fa6bb;
+}
+
+.athenaTextarea:focus {
+  outline: 2px solid rgba(34, 211, 238, 0.34);
+  outline-offset: 2px;
+}
+
+.athenaPromptGrid,
+.athenaSectionGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.athenaPromptGrid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.athenaSectionGrid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .workspaceGrid,
@@ -704,6 +785,7 @@
   }
 
   .homeHeroLayout,
+  .athenaConsoleHeader,
   .hero {
     grid-template-columns: 1fr;
     padding: 20px;

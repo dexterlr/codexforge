@@ -4139,6 +4139,7 @@ try {
   @{ Name = "Phase 4393 Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial"; File = "smoke-codexforge-jarvis-video-first-real-provider-adapter-wiring-manual-gated-trial-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4425 Jarvis Video First Manual Provider Trial Result Capture and UX Review"; File = "smoke-codexforge-jarvis-video-first-manual-provider-trial-result-capture-ux-review-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4457 Jarvis Video Manual Provider Trial Execution Enablement"; File = "smoke-codexforge-jarvis-video-manual-provider-trial-execution-enablement-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4489 Athena Unified Chat Control Plane Foundation"; File = "smoke-codexforge-athena-unified-chat-control-plane-foundation-mega-batch.ps1"; Required = $true },
   @{ Name = "Jarvis Video Studio Release Candidate Mega Batch"; File = "smoke-codexforge-jarvis-video-studio-release-candidate-mega-batch.ps1"; Required = $true },
   @{ Name = "Provider Connection Test UX"; File = "smoke-codexforge-provider-connection-test-ux.ps1"; Required = $true },
   @{ Name = "Artifacts Suite"; File = "smoke-codexforge-artifacts-suite.ps1"; Required = $true },
