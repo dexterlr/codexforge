@@ -4134,6 +4134,7 @@ try {
   @{ Name = "Phase 4233 Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run"; File = "smoke-codexforge-jarvis-video-server-only-runner-skeleton-synthetic-dry-run-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4265 Jarvis Video Result Capture Audit Envelope and Approval Join"; File = "smoke-codexforge-jarvis-video-result-capture-audit-envelope-approval-join-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4297 Jarvis Video First Gated Provider Execution Trial Preparation"; File = "smoke-codexforge-jarvis-video-first-gated-provider-execution-trial-preparation-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4329 Jarvis Video First Gated Provider Execution Trial Runtime"; File = "smoke-codexforge-jarvis-video-first-gated-provider-execution-trial-runtime-mega-batch.ps1"; Required = $true },
   @{ Name = "Jarvis Video Studio Release Candidate Mega Batch"; File = "smoke-codexforge-jarvis-video-studio-release-candidate-mega-batch.ps1"; Required = $true },
   @{ Name = "Provider Connection Test UX"; File = "smoke-codexforge-provider-connection-test-ux.ps1"; Required = $true },
   @{ Name = "Artifacts Suite"; File = "smoke-codexforge-artifacts-suite.ps1"; Required = $true },

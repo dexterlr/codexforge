@@ -5,6 +5,7 @@ import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { JarvisVideoBackendTrialRunnerContractPanel } from "../../jarvis-video-backend-trial-runner-contract-map/components";
 import { JarvisVideoControlledExecutionTrialPanel } from "../../jarvis-video-controlled-execution-trial-map/components";
 import { JarvisVideoTrialResultReviewRecoveryPanel } from "../../jarvis-video-trial-result-review-recovery-map/components";
+import type { JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview } from "../jarvis-video-first-gated-provider-execution-trial-runtime-preview";
 import type { JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview } from "../jarvis-video-first-gated-provider-execution-trial-preparation-preview";
 import type { JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview } from "../jarvis-video-backend-runner-foundation-dry-run-admission-preview";
 import type { JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview } from "../jarvis-video-result-capture-audit-envelope-approval-join-preview";
@@ -21,6 +22,7 @@ import {
 import styles from "./JarvisVideoStudioReleaseCandidatePanel.module.css";
 
 type JarvisVideoStudioReleaseCandidatePanelDataProps = Readonly<{
+  firstGatedProviderTrialRuntimePreview?: JarvisVideoFirstGatedProviderExecutionTrialRuntimePreview;
   firstGatedProviderTrialPreparationPreview?: JarvisVideoFirstGatedProviderExecutionTrialPreparationPreview;
   resultCaptureAuditApprovalJoinPreview?: JarvisVideoResultCaptureAuditEnvelopeApprovalJoinPreview;
   backendDryRunAdmissionPreview?: JarvisVideoBackendRunnerFoundationDryRunAdmissionPreview;
@@ -220,6 +222,121 @@ export function JarvisVideoStudioReleaseCandidatePanel(
               </ol>
             </section>
           </section>
+
+          {props.firstGatedProviderTrialRuntimePreview ? (
+            <section
+              className={styles.panel}
+              aria-label="First gated provider trial runtime"
+            >
+              <div className={styles.panelHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Server-only runtime path</p>
+                  <h2 className={styles.panelTitle}>
+                    {props.firstGatedProviderTrialRuntimePreview.title}
+                  </h2>
+                </div>
+                <span className={styles.statBadge}>
+                  {props.firstGatedProviderTrialRuntimePreview.statusBadge}
+                </span>
+              </div>
+              <p className={styles.panelBody}>
+                {props.firstGatedProviderTrialRuntimePreview.summary}
+              </p>
+              <div className={styles.statusStrip}>
+                {props.firstGatedProviderTrialRuntimePreview.highlights.map(
+                  (item) => (
+                    <span key={item} className={styles.statusPill}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <div className={styles.summaryGrid}>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Blocked by default</p>
+                  <h3 className={styles.summaryTitle}>
+                    Provider trial remains gated
+                  </h3>
+                  <p className={styles.summaryText}>
+                    {
+                      props.firstGatedProviderTrialRuntimePreview
+                        .blockedResultSummary
+                    }
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      props.firstGatedProviderTrialRuntimePreview
+                        .missingGateSummary,
+                      `Runtime blockers: ${props.firstGatedProviderTrialRuntimePreview.blockerCount}`,
+                      `Missing gates: ${props.firstGatedProviderTrialRuntimePreview.missingGateCount}`,
+                      ...props.firstGatedProviderTrialRuntimePreview.acceptanceChecklist.slice(
+                        0,
+                        2
+                      ),
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Execution boundaries</p>
+                  <h3 className={styles.summaryTitle}>
+                    Disabled surfaces remain explicit
+                  </h3>
+                  <p className={styles.summaryText}>
+                    Runtime path defined does not mean live execution. The
+                    blocked surfaces stay explicit for frontend, validation,
+                    queue, worker, job, persistence, and public-route paths.
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {props.firstGatedProviderTrialRuntimePreview.disabledExecutionSurfaces
+                      .slice(0, 5)
+                      .map((item) => (
+                        <li key={item} className={styles.summaryItem}>
+                          <span className={styles.dot} aria-hidden="true" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                  </ul>
+                </article>
+                <article className={styles.summaryCard}>
+                  <p className={styles.summaryEyebrow}>Next review lane</p>
+                  <h3 className={styles.summaryTitle}>
+                    Phase{" "}
+                    {
+                      props.firstGatedProviderTrialRuntimePreview.checkpoint
+                        .highestDetectedPhase
+                    }
+                  </h3>
+                  <p className={styles.summaryText}>
+                    {
+                      props.firstGatedProviderTrialRuntimePreview
+                        .resultReviewRecoverySummary
+                    }
+                  </p>
+                  <ul className={styles.summaryList}>
+                    {[
+                      `Latest completed batch: ${props.firstGatedProviderTrialRuntimePreview.checkpoint.latestCompletedBatch}`,
+                      `Previous completed batch: ${props.firstGatedProviderTrialRuntimePreview.checkpoint.previousCompletedBatch}`,
+                      `Next likely batch: ${props.firstGatedProviderTrialRuntimePreview.checkpoint.nextLikelyBatch.replace(
+                        /^next likely batch:\s*/i,
+                        ""
+                      )}`,
+                      `Review-only evidence inputs: ${props.firstGatedProviderTrialRuntimePreview.evidenceInputCount}`,
+                    ].map((item) => (
+                      <li key={item} className={styles.summaryItem}>
+                        <span className={styles.dot} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              </div>
+            </section>
+          ) : null}
 
           {props.firstGatedProviderTrialPreparationPreview ? (
             <section
