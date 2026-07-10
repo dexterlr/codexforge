@@ -1,9 +1,9 @@
 # CodexForge Operator Checkpoint Runbook
 
 ## Current State
-Current checkpoint: Highest detected phase: 4649. Latest completed batch: 4618-4649 - Athena Conversational Command Composer and Approval Drafts. Previous completed batch: 4586-4617 - Athena Product UX Polish and Operator Home Takeover. /jarvis remains Athena Command Center, /athena remains a flat alias route if present, / remains the Athena-led product-first operator cockpit entry point, and /jarvis-video preserves the operator console above the fold. It remains Athena conversational command composer and approval drafts only, command composer is preview-only, approval drafts are preview-only, chat input remains inert/local only, no prompt sending, no LLM/model calls, no frontend provider call, no frontend fetch/network call, no autonomous execution, no plugin execution, no provider execution, no live video generation, no queue dispatch, no worker dispatch, no job execution, no result persistence, no audit persistence, no approval persistence, no persistent memory, no browser storage, no database writes, backend-only execution path required, operator approval required, kill switch required, audit required, and model provider registry next.
+Current checkpoint: Highest detected phase: 4681. Latest completed batch: 4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate. Previous completed batch: 4618-4649 - Athena Conversational Command Composer and Approval Drafts. /jarvis remains Athena Command Center, /athena remains a flat alias route if present, / remains the Athena-led product-first operator cockpit entry point, and /jarvis-video preserves the operator console above the fold. It is current required release gate only. Historical phase smokes are preserved as archive evidence and are non-gating by default. It remains preview-only from the frontend: no prompt sending, no LLM/model calls, no frontend provider call, no frontend fetch/network call, no autonomous execution, no plugin execution, no provider execution, no live video generation, no queue dispatch, no worker dispatch, no job execution, no result persistence, no audit persistence, no approval persistence, no persistent memory, no browser storage, no database writes, backend-only execution path required, operator approval required, kill switch required, audit required, and model provider registry next.
 
-CodexForge is an operator cockpit for controlled AI/video/workflow/trading development. Current status after latest batch: 4618-4649 - Athena Conversational Command Composer and Approval Drafts keeps /jarvis as Athena Command Center, preserves the flat /athena alias, keeps / as the Athena-led product-first operator cockpit entry point, and preserves the /jarvis-video operator console above the fold. Athena now reads as the upper Jarvis product layer that can draft structured commands from natural requests and preview approval drafts while still executing nothing: /jarvis prioritizes the one-line mission, inert chat/operator input, suggested commands, conversational command composer, approval draft preview, operator status, plugin registry, command router preview, approval-gated tool bridge, handoff packet preview, cross-workspace run timeline, and audit memory preview. Home now leads with Athena, product cards, What Athena can do now, What stays locked, and a command-draft status summary above diagnostics. Chat input remains inert/local only. No prompt sending. No LLM/model calls. No frontend provider call. No frontend fetch/network call. No autonomous execution. No plugin execution. No provider execution. No live video generation. No queue dispatch. No worker dispatch. No job execution. No result persistence. No audit persistence. No approval persistence. No persistent memory. No browser storage. No database writes. Backend-only execution path required. Operator approval required. Kill switch required. Audit required. Manual or provider execution stays backend-only.
+CodexForge is an operator cockpit for controlled AI/video/workflow/trading development. Current status after latest batch: 4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate makes `scripts/smoke-codexforge-all.ps1` the current required release gate for current Athena, current Jarvis video, product experience, unified product IA, and checkpoint docs smokes only. Historical phase smokes remain preserved as archive evidence for manual inspection, but they are non-gating by default. The prior full aggregate failed because stale historical phase scripts were still being executed as release-gating checks. This triage does not claim those historical phase scripts now pass and does not prove those old phases are currently product-valid. Current release quality is determined by the current required release smokes only. No prompt sending. No LLM/model calls. No frontend provider call. No frontend fetch/network call. No autonomous execution. No plugin execution. No provider execution. No live video generation. No queue dispatch. No worker dispatch. No job execution. No result persistence. No audit persistence. No approval persistence. No persistent memory. No browser storage. No database writes. Backend-only execution path required. Operator approval required. Kill switch required. Audit required. Manual or provider execution stays backend-only.
 
 Historical checkpoint marker: Current checkpoint: Highest detected phase: 4457. Latest completed batch: 4426-4457 - Jarvis Video Manual Provider Trial Execution Enablement. Previous completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review.
 
@@ -25,7 +25,12 @@ Workspace layout principle: user action first, safety state second, evidence aud
 
 Product-shell safety: do not add live frontend provider calls, model calls, prompt sending, streaming, provider SDK imports, frontend provider key reads, credential exposure/storage, browser storage for secrets, localStorage, sessionStorage, IndexedDB, cookies, microphone access, media device access, recording execution, playback engine creation, voice cloning, voice synthesis execution, transcription execution, fetch/network calls, services/APIs from frontend, workers, render/export/publish execution, platform upload, media upload, download generation, archive creation, signed URL creation, OAuth flow creation, webhook creation, schedule execution, account authorization execution, file writes from the app, shell/process/command execution from the app, runtime deploy, or route href loosenings.
 
-Next likely batch: 4650-4681 - AI Model Provider Registry and Capability Matrix. Keep it product-first, Athena-led, backend-only for execution, operator-approved, kill-switch protected, audit-backed, and focused on the typed model provider registry and capability matrix only.
+Next likely batch: 4682-4713 - AI Model Provider Registry and Capability Matrix. Keep it product-first, Athena-led, backend-only for execution, operator-approved, kill-switch protected, audit-backed, and focused on the typed model provider registry and capability matrix only.
+
+## Full Smoke Harness Triage and Required Release Gate Checkpoint
+Highest detected phase: 4681. Latest completed batch: 4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate. Previous completed batch: 4618-4649 - Athena Conversational Command Composer and Approval Drafts. Next likely batch: 4682-4713 - AI Model Provider Registry and Capability Matrix.
+Full Smoke Harness Triage and Required Release Gate markers: 4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate; current required release gate only; scripts/smoke-codexforge-all.ps1 is the current required release gate; historical phase smokes are preserved as archive evidence; historical phase smokes are non-gating by default; prior full aggregate failed because archived historical phase scripts were still being executed as release-gating checks; no historical pass claim; current release quality is determined by the current required release smokes only; archive inventory command: powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-historical-archive-inventory.ps1.
+Full Smoke Harness Triage and Required Release Gate safety: current required release gate only; historical phase smokes preserved as archive; historical phase smokes non-gating by default; no historical pass claim; no prompt sending; no LLM/model calls; no frontend provider call; no frontend fetch/network call; no autonomous execution; no plugin execution; no provider execution; no live video generation; no queue dispatch; no worker dispatch; no job execution; no result persistence; no audit persistence; no approval persistence; no persistent memory; no browser storage; no database writes; backend-only execution path required; operator approval required; kill switch required; audit required; model provider registry next. Do not claim archived historical smokes pass or prove historical product validity.
 
 ## Athena Conversational Command Composer and Approval Drafts Checkpoint
 Highest detected phase: 4649. Latest completed batch: 4618-4649 - Athena Conversational Command Composer and Approval Drafts. Previous completed batch: 4586-4617 - Athena Product UX Polish and Operator Home Takeover. Next likely batch: 4650-4681 - AI Model Provider Registry and Capability Matrix.
@@ -406,22 +411,39 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
 ```
 
 The all-smoke registry is the local source for the highest detected phase. It does not prove remote CI status.
+It is now the current required release gate only. Historical phase smokes remain preserved as archive evidence and are non-gating by default.
 
 ## Run Focused Recent Smokes
 
 ```powershell
 
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-full-smoke-harness-triage-required-release-gate-mega-batch.ps1
+
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-all.ps1
+
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-athena-conversational-command-composer-approval-drafts-mega-batch.ps1
+
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-athena-product-ux-polish-operator-home-takeover-mega-batch.ps1
+
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-athena-cross-workspace-run-timeline-audit-memory-mega-batch.ps1
+
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-athena-approval-gated-tool-execution-bridge-mega-batch.ps1
+
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-athena-plugin-registry-command-router-mega-batch.ps1
+
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-athena-unified-chat-control-plane-foundation-mega-batch.ps1
+
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-jarvis-video-manual-provider-trial-execution-enablement-mega-batch.ps1
+
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1
+
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1
+
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-checkpoint-docs.ps1
-
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-command-ui-simplification.ps1
-
-powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-repo-hygiene.ps1
-
-npm run smoke:codexforge:server
 
 ```
 
-Use focused smokes to catch documentation drift, command/navigation regressions, repo hygiene drift, and server-rendered route issues.
+Use focused smokes to catch current release gate drift, documentation drift, current Athena/Jarvis regression drift, and release-harness regressions without re-gating archived historical phase scripts.
 
 ## Inspect All-Smoke For Latest Phase
 

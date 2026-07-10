@@ -12,6 +12,7 @@ function Invoke-CodexForgeSmokeGroup {
   $repoRoot = Split-Path -Parent $ScriptRoot
   $startedAt = Get-Date
   $script:CodexForgeSmokeLastSummary = $null
+  $script:CodexForgeSmokeLastResults = @()
   $results = @()
   $seen = @{}
   $previousBaseUrl = $env:CODEXFORGE_SMOKE_BASE_URL
@@ -131,6 +132,7 @@ function Invoke-CodexForgeSmokeGroup {
   $failed = @($results | Where-Object { $_.Status -eq "FAILED" }).Count
   $missingRequired = @($results | Where-Object { $_.Status -eq "MISSING_REQUIRED" }).Count
   $missingOptional = @($results | Where-Object { $_.Status -eq "MISSING_OPTIONAL" }).Count
+  $script:CodexForgeSmokeLastResults = @($results)
   $script:CodexForgeSmokeLastSummary = [pscustomobject]@{
     GroupName = $GroupName
     Passed = $passed

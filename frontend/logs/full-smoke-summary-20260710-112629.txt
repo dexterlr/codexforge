@@ -1,0 +1,150 @@
+﻿Full smoke summary: 20260710-112629
+Repo: C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend
+
+Step results:
+
+Step                       Status ExitCode
+----                       ------ --------
+Build                      PASS          0
+Checkpoint docs smoke      PASS          0
+Diff check non-CRLF output PASS          0
+Full aggregate smoke       FAIL          1
+Meaningful diff stat       PASS          0
+Status                     PASS          0
+
+
+
+
+FAILED STEPS:
+
+Step                 ExitCode
+----                 --------
+Full aggregate smoke        1
+
+
+
+
+Potential error/fail lines from log:
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:15:     + CategoryInfo          : NotSpecified: (Turbopack build encountered 6 warnings::String) [], RemoteException
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:16:     + FullyQualifiedErrorId : NativeCommandError
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:66: error[33m:[39m [32m"Requested path is not a file."[39m }[33m,[39m { status[33m:[39m [35m400[39m })[33m;[39m
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:112: [36mfalse[39m[33m,[39m error[33m:[39m [32m"Requested project path is not a directory."[39m }[33m,[39m { 
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:230: Ôö£ Ôùï /adapter-execution-failure-packet
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:237: Ôö£ Ôùï /adapter-implementation-failure-modes
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:296: Ôö£ Ôùï /approval-expiry-failure-handling
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:316: Ôö£ Ôùï /approved-audio-provider-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:347: Ôö£ Ôùï /approved-image-storyboard-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:380: Ôö£ Ôùï /approved-provider-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:442: Ôö£ Ôùï /approved-text-planning-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:619: Ôö£ Ôùï /audit-capture-failure-handling
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:662: Ôö£ Ôùï /backend-error-envelope-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:682: Ôö£ Ôùï /backend-handoff-failure-review
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:741: Ôö£ Ôùï /broker-error-boundary-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:860: Ôö£ Ôùï /cockpit-empty-loading-error-polish
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:870: Ôö£ Ôùï /cockpit-explain-failure-view
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1010: Ôö£ Ôùï /command-failure-recovery
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1354: Ôö£ Ôùï /cross-model-failure-recovery-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1425: Ôö£ Ôùï /denied-command-failure-handling
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1430: Ôö£ Ôùï /denied-path-failure-handling
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1434: Ôö£ Ôùï /dirty-workspace-failure-handling
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1522: Ôö£ Ôùï /evidence-capture-failure-handling
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1561: Ôö£ Ôùï /export-failure-ledger-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1576: Ôö£ Ôùï /failure-recovery-playbook-finalization
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1714: Ôö£ Ôùï /first-live-audio-provider-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1745: Ôö£ Ôùï /first-live-image-provider-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1776: Ôö£ Ôùï /first-live-text-provider-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1810: Ôö£ Ôùï /first-live-video-provider-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:1883: Ôö£ Ôùï /first-real-provider-call-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2176: Ôö£ Ôùï /jarvis-shared-adapter-contract-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2326: Ôö£ Ôùï /jarvis-video-adapter-plugin-error-envelope-review-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2360: Ôö£ Ôùï /jarvis-video-approval-packet-workspace-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2390: Ôö£ Ôùï /jarvis-video-backend-execution-readiness-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2419: Ôö£ Ôùï /jarvis-video-backend-trial-runner-contract-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2456: Ôö£ Ôùï /jarvis-video-controlled-execution-trial-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2547: Ôö£ Ôùï /jarvis-video-trial-result-review-recovery-failure-taxonomy-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2637: Ôö£ Ôùï /live-trial-failure-recovery-review
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2640: Ôö£ Ôùï /live-workflow-failure-patch-review
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2690: Ôö£ Ôùï /local-model-failover-review
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:2943: Ôö£ Ôùï /preflight-failure-handling
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3045: Ôö£ Ôùï /provider-adapter-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3046: Ôö£ Ôùï /provider-adapter-error-mapping-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3153: Ôö£ Ôùï /provider-dry-run-failure-recovery-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3174: Ôö£ Ôùï /provider-error-taxonomy-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3178: Ôö£ Ôùï /provider-failover-policy-review
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3179: Ôö£ Ôùï /provider-failure-recovery
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3180: Ôö£ Ôùï /provider-failure-retry-boundary-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3181: Ôö£ Ôùï /provider-failure-retry-trial
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3357: Ôö£ Ôùï /publish-failure-ledger-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3406: Ôö£ Ôùï /queue-failed-canceled-state-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3513: Ôö£ Ôùï /render-failure-ledger-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3514: Ôö£ Ôùï /render-failure-review-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3594: Ôö£ Ôùï /result-capture-failure-handling
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3683: Ôö£ Ôùï /simulated-adapter-failure-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3701: Ôö£ Ôùï /simulated-command-failure-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3718: Ôö£ Ôùï /simulated-exception-queue-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3758: Ôö£ Ôùï /simulated-runtime-failure-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3835: Ôö£ Ôùï /test-failure-recovery-bridge
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3836: Ôö£ Ôùï /test-failure-triage
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:3900: Ôö£ Ôùï /unified-live-workflow-trial-2-failure-recovery
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4013: Ôö£ Ôùï /video-provider-adapter-readiness-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4062: Ôö£ Ôùï /video-provider-approval-packet-synthetic-error-review-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4094: Ôö£ Ôùï /video-provider-dry-run-synthetic-error-response-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4106: Ôö£ Ôùï /video-provider-runtime-error-envelope-wiring
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4163: Ôö£ Ôùï /worker-failure-quarantine-preview
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4286: powershell : [FAIL] home page references global nav or route registry
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4290:     + CategoryInfo          : NotSpecified: ([FAIL] home pag... route registry:String) [], RemoteException
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4291:     + FullyQualifiedErrorId : NativeCommandError
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4296: +     throw "[FAIL] $Message"
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4298:     + CategoryInfo          : OperationStopped: ([FAIL] home pag... route registry:String) [], RuntimeException
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4299:     + FullyQualifiedErrorId : [FAIL] home page references global nav or route registry
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4301: [FAIL] Global Navigation
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4302: [FAIL] Global Navigation exited with code 1
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4691: [PASS] tool-policy guard includes behavior: CodexForgeToolPolicyError
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4980: [PASS] .\src\app\adapter-execution-failure-packet\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4981: [PASS] .\src\app\adapter-execution-failure-packet\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4982: [PASS] .\src\app\adapter-execution-failure-packet\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4983: [PASS] .\src\app\adapter-execution-failure-packet\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4984: [PASS] .\src\app\adapter-execution-failure-packet\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4985: [PASS] .\src\app\adapter-execution-failure-packet\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4986: [PASS] .\src\app\adapter-execution-failure-packet\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4987: [PASS] .\src\app\adapter-execution-failure-packet\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4988: [PASS] .\src\app\adapter-execution-failure-packet\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:4989: [PASS] .\src\app\adapter-execution-failure-packet\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5050: [PASS] .\src\app\adapter-implementation-failure-modes\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5051: [PASS] .\src\app\adapter-implementation-failure-modes\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5052: [PASS] .\src\app\adapter-implementation-failure-modes\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5053: [PASS] .\src\app\adapter-implementation-failure-modes\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5054: [PASS] .\src\app\adapter-implementation-failure-modes\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5055: [PASS] .\src\app\adapter-implementation-failure-modes\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5056: [PASS] .\src\app\adapter-implementation-failure-modes\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5057: [PASS] .\src\app\adapter-implementation-failure-modes\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5058: [PASS] .\src\app\adapter-implementation-failure-modes\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5059: [PASS] .\src\app\adapter-implementation-failure-modes\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5490: [PASS] .\src\app\approval-expiry-failure-handling\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5491: [PASS] .\src\app\approval-expiry-failure-handling\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5492: [PASS] .\src\app\approval-expiry-failure-handling\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5493: [PASS] .\src\app\approval-expiry-failure-handling\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5494: [PASS] .\src\app\approval-expiry-failure-handling\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5495: [PASS] .\src\app\approval-expiry-failure-handling\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5496: [PASS] .\src\app\approval-expiry-failure-handling\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5497: [PASS] .\src\app\approval-expiry-failure-handling\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5498: [PASS] .\src\app\approval-expiry-failure-handling\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5499: [PASS] .\src\app\approval-expiry-failure-handling\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5690: [PASS] .\src\app\approved-audio-provider-error-envelope-wiring\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5691: [PASS] .\src\app\approved-audio-provider-error-envelope-wiring\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5692: [PASS] .\src\app\approved-audio-provider-error-envelope-wiring\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5693: [PASS] .\src\app\approved-audio-provider-error-envelope-wiring\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5694: [PASS] .\src\app\approved-audio-provider-error-envelope-wiring\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5695: [PASS] .\src\app\approved-audio-provider-error-envelope-wiring\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5696: [PASS] .\src\app\approved-audio-provider-error-envelope-wiring\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5697: [PASS] .\src\app\approved-audio-provider-error-envelope-wiring\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5698: [PASS] .\src\app\approved-audio-provider-error-envelope-wiring\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:5699: [PASS] .\src\app\approved-audio-provider-error-envelope-wiring\page.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:6000: [PASS] .\src\app\approved-image-storyboard-error-envelope-wiring\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:6001: [PASS] .\src\app\approved-image-storyboard-error-envelope-wiring\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:6002: [PASS] .\src\app\approved-image-storyboard-error-envelope-wiring\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:6003: [PASS] .\src\app\approved-image-storyboard-error-envelope-wiring\page-client.tsx excludes legacy brand
+C:\ai-lab\projects\openclaw-workspace\repos\health-tracker\frontend\logs\full-smoke-20260710-112629.log:6004: [PASS] .\src\app\approved-image-storyboard-error-envelope-wiring\page-client.tsx excludes legacy brand
+
+Full log:
+.\logs\full-smoke-20260710-112629.log

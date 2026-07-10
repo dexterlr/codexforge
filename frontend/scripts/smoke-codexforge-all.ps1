@@ -457,6 +457,123 @@ $fullSmokeShouldExitFailure = $false
 # Name = "Phase 3688 Jarvis Task Planner No Execution Guard Wiring"; Path = "smoke-codexforge-jarvis-task-planner-no-execution-guard-wiring.ps1"
 # Name = "Phase 3689 Jarvis Task Planner Tool Router Completion"; Path = "smoke-codexforge-jarvis-task-planner-tool-router-completion.ps1"
 # Name = "Jarvis Task Planner and Tool Router Mega Batch"; Path = "smoke-codexforge-jarvis-task-planner-tool-router-mega-batch.ps1"
+function Get-CodexForgeCurrentReleaseGateStatusLabel {
+  param([string]$Status)
+
+  switch ($Status) {
+    "PASS" { return "PASS" }
+    "MISSING_OPTIONAL" { return "SKIP" }
+    "MISSING_REQUIRED" { return "FAIL" }
+    "FAILED" { return "FAIL" }
+    default { return "NOT_RUN" }
+  }
+}
+
+$currentReleaseGateBatch = "4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate"
+$currentReleaseGateName = "CodexForge Current Required Release Gate"
+$currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
+$historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
+$historicalArchiveInventoryCommand = "powershell -ExecutionPolicy Bypass -File .\scripts\" + $historicalArchiveInventoryFile
+$currentReleaseGateScripts = @(
+  @{ Name = "Phase 4361 Jarvis Video First Provider Trial Result Review and Recovery"; File = "smoke-codexforge-jarvis-video-first-provider-trial-result-review-recovery-mega-batch.ps1"; Required = $false },
+  @{ Name = "Phase 4393 Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial"; File = "smoke-codexforge-jarvis-video-first-real-provider-adapter-wiring-manual-gated-trial-mega-batch.ps1"; Required = $false },
+  @{ Name = "Phase 4425 Jarvis Video First Manual Provider Trial Result Capture and UX Review"; File = "smoke-codexforge-jarvis-video-first-manual-provider-trial-result-capture-ux-review-mega-batch.ps1"; Required = $false },
+  @{ Name = "Phase 4457 Jarvis Video Manual Provider Trial Execution Enablement"; File = "smoke-codexforge-jarvis-video-manual-provider-trial-execution-enablement-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4489 Athena Unified Chat Control Plane Foundation"; File = "smoke-codexforge-athena-unified-chat-control-plane-foundation-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4521 Athena Plugin Registry and Command Router"; File = "smoke-codexforge-athena-plugin-registry-command-router-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4553 Athena Approval-Gated Tool Execution Bridge"; File = "smoke-codexforge-athena-approval-gated-tool-execution-bridge-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4585 Athena Cross-Workspace Run Timeline and Audit Memory"; File = "smoke-codexforge-athena-cross-workspace-run-timeline-audit-memory-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4617 Athena Product UX Polish and Operator Home Takeover"; File = "smoke-codexforge-athena-product-ux-polish-operator-home-takeover-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4649 Athena Conversational Command Composer and Approval Drafts"; File = "smoke-codexforge-athena-conversational-command-composer-approval-drafts-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4681 CodexForge Full Smoke Harness Triage and Required Release Gate"; File = "smoke-codexforge-full-smoke-harness-triage-required-release-gate-mega-batch.ps1"; Required = $true },
+  @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
+  @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
+  @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }
+)
+# Current release gate wording:
+# scripts/smoke-codexforge-all.ps1 is the current required release gate.
+# Historical archived smokes are preserved as evidence and are non-gating by default.
+# Name = "Jarvis Video Studio Release Candidate Mega Batch"; Path = "smoke-codexforge-jarvis-video-studio-release-candidate-mega-batch.ps1"
+
+try {
+  Write-Host ""
+  Write-Host "=== CodexForge current required release gate ==="
+  Write-Host "Gate: $currentReleaseGateBatch"
+  Write-Host "Historical archived smokes are preserved as evidence and are not run by default."
+  Write-Host "Archive inventory command: $historicalArchiveInventoryCommand"
+  Write-Host ""
+
+  Invoke-CodexForgeSmokeGroup -GroupName $currentReleaseGateName -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts $currentReleaseGateScripts
+} catch {
+  $fullSmokeFailure = $_
+} finally {
+  $fullSmokeSummary = $script:CodexForgeSmokeLastSummary
+  $currentReleaseGateResults = @()
+  if ($script:CodexForgeSmokeLastResults) {
+    $currentReleaseGateResults = @($script:CodexForgeSmokeLastResults)
+  }
+
+  if ($fullSmokeSummary) {
+    $passed = [int]$fullSmokeSummary.Passed
+    $failed = [int]$fullSmokeSummary.Failed
+    $missingRequired = [int]$fullSmokeSummary.MissingRequired
+    $missingOptional = [int]$fullSmokeSummary.MissingOptional
+    $elapsed = $fullSmokeSummary.Elapsed
+  } else {
+    $passed = 0
+    $failed = 1
+    $missingRequired = 0
+    $missingOptional = 0
+    $elapsed = (Get-Date) - $fullSmokeStartedAt
+  }
+
+  if ($fullSmokeFailure -and (($failed + $missingRequired) -eq 0)) {
+    $failed = 1
+  }
+
+  $failedRequiredSteps = @(
+    $currentReleaseGateResults |
+      Where-Object { $_.Status -eq "FAILED" -or $_.Status -eq "MISSING_REQUIRED" }
+  )
+  $fullSmokeShouldExitFailure = (($failed + $missingRequired) -gt 0)
+
+  Write-Host ""
+  Write-Host "=== CodexForge current required release gate summary ==="
+  Write-Host "Current release gate: $currentReleaseGateBatch"
+  Write-Host "Current required smoke lane:"
+  foreach ($step in $currentReleaseGateScripts) {
+    $stepResult = $currentReleaseGateResults | Where-Object { $_.Name -eq $step.Name } | Select-Object -First 1
+    $status = if ($stepResult) { Get-CodexForgeCurrentReleaseGateStatusLabel -Status $stepResult.Status } else { "NOT_RUN" }
+    Write-Host ("[{0}] {1}" -f $status, $step.Name)
+  }
+  Write-Host ""
+  Write-Host "Pass count: $passed"
+  Write-Host "Fail count: $failed"
+  Write-Host "Missing required: $missingRequired"
+  Write-Host "Missing optional: $missingOptional"
+  Write-Host "Elapsed: $([math]::Round($elapsed.TotalSeconds, 2))s"
+  if ($failedRequiredSteps.Count -gt 0) {
+    Write-Host "Failed required steps:"
+    foreach ($failedStep in $failedRequiredSteps) {
+      Write-Host (" - {0}" -f $failedStep.Name)
+    }
+  } else {
+    Write-Host "Failed required steps: none"
+  }
+  Write-Host "Historical archived smokes are preserved and are not run by default."
+  Write-Host "Archive inventory command: $historicalArchiveInventoryCommand"
+  Write-Host ""
+  if ($fullSmokeShouldExitFailure) {
+    Write-Host "[FAIL] CodexForge current required release gate failed."
+  } else {
+    Write-Host "[PASS] CodexForge current required release gate passed."
+  }
+}
+if ($fullSmokeShouldExitFailure) {
+  exit 1
+}
+return
+
 try {
   Invoke-CodexForgeSmokeGroup -GroupName "All Suites" -BaseUrl $BaseUrl -ScriptRoot $scriptRoot -Interactive:$Interactive -ContinueOnMissingOptional:$ContinueOnMissingOptional -StopOnFirstFailure:$StopOnFirstFailure -Scripts @(
   @{ Name = "Core"; File = "smoke-codexforge-core.ps1"; Required = $true },
