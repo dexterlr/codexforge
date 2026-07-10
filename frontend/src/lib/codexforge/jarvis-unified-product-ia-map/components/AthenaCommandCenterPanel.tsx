@@ -8,10 +8,14 @@ import {
   buildAthenaAuditRequirementsSummary,
   buildAthenaBlockedActionSummary,
   buildAthenaRoutePreview,
+  buildBlockedStateSummary,
   buildBackendHandoffSummary,
+  buildNextActionSummary,
   buildBlockedBridgeSummary,
   buildSafetyRequirementsSummary,
   buildStableAthenaPluginKey,
+  groupTimelineItemsByBlockedState,
+  groupTimelineItemsByPlugin,
   type AthenaCommandCenterModel,
   type AthenaCommandIntentState,
   type AthenaExecutionPosture,
@@ -28,6 +32,12 @@ export function AthenaCommandCenterPanel({
 }: AthenaCommandCenterPanelProps) {
   const representativeBridge =
     commandCenter.approvalGatedToolBridgePreviews[0] ?? null;
+  const timelineItems = commandCenter.crossWorkspaceRunTimeline;
+  const representativeTimeline = timelineItems[0] ?? null;
+  const timelineByPlugin = groupTimelineItemsByPlugin(timelineItems);
+  const timelineByBlockedState = groupTimelineItemsByBlockedState(timelineItems);
+  const auditMemoryEntries = commandCenter.auditMemoryPreview;
+  const representativeAuditMemory = auditMemoryEntries[0] ?? null;
 
   return (
     <>
@@ -411,6 +421,286 @@ export function AthenaCommandCenterPanel({
               </p>
               <p className={styles.railFooter}>{packet.requiredNextSystemAction}</p>
               <p className={styles.railFooter}>{packet.noExecutionStatement}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Cross-workspace run timeline">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only run lane</p>
+            <h2 className={styles.panelTitle}>Cross-workspace run timeline</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview routed work across specialist plugins. Every item is
+          preview-only. No runs have executed from chat. Approval, kill switch,
+          safety, and audit gates are visible. Backend-only handoff is required.
+          Result capture is pending until approved backend execution exists.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Preview posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  No runs have executed from chat
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Not executed
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              Every routed item remains preview-only, backend-only handoff
+              remains required, and result capture stays pending until approved
+              backend execution exists.
+            </p>
+            <div className={styles.workspaceMeta}>
+              <span className={styles.metaPill}>Every item is preview-only</span>
+              <span className={styles.metaPill}>Backend-only handoff required</span>
+              <span className={styles.metaPill}>Result capture pending</span>
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Grouped by plugin</p>
+                <h3 className={styles.placeholderTitle}>
+                  Routed work stays unified
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Visible
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {timelineByPlugin.map((group) => (
+                <span
+                  key={group.pluginId}
+                  className={styles.metaPill}
+                >{`${group.pluginLabel}: ${group.itemCount}`}</span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Grouped by blocked state</p>
+                <h3 className={styles.placeholderTitle}>
+                  Blocked and review states stay explicit
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                Gate-aware
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {timelineByBlockedState.map((group) => (
+                <span
+                  key={group.blockedState}
+                  className={styles.metaPill}
+                >{`${group.blockedStateLabel}: ${group.itemCount}`}</span>
+              ))}
+            </div>
+          </article>
+          {representativeTimeline ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Next product polish</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {commandCenter.nextLikelyBatch}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  Next likely batch
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeTimeline.nextProductPolishChecklist.map((item) => (
+                  <span key={item} className={styles.blockedPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {timelineItems.map((timeline) => (
+            <article key={timeline.timelineKey} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Previewed routed command</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {timeline.userFacingCommandPhrase}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  Run status: not executed
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Plugin: ${timeline.matchedPluginLabel}`}
+                </span>
+                <Link className={styles.metaPill} href={timeline.targetRouteReference}>
+                  {`Route: ${timeline.targetRouteReference}`}
+                </Link>
+                <span className={styles.metaPill}>{timeline.runId}</span>
+              </div>
+              <p className={styles.railBody}>
+                {`Approval gate: ${timeline.approvalGateSnapshot.summary}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Safety and kill switch: ${timeline.safetyGateSnapshot.summary} | ${timeline.killSwitchSnapshot.summary}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Audit and backend handoff: ${timeline.auditGateSnapshot.summary} | ${timeline.backendOnlyHandoffSnapshot.summary}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Current blocked/default state: ${buildBlockedStateSummary(
+                  timeline
+                )}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Next action: ${buildNextActionSummary(timeline)}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {timeline.eventList.map((event) => (
+                  <span key={event.milestoneId} className={styles.blockedPill}>
+                    {event.label}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Audit memory preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Static preview only</p>
+            <h2 className={styles.panelTitle}>Audit memory preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            Static preview only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can show what would be remembered for audit. Audit memory is
+          static preview only. No persistent memory. No browser storage. No
+          database writes. Operator action required. Next handoff requirement
+          stays visible.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Memory posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  Audit memory is static preview only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                No persistence
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              <span className={styles.metaPill}>No persistent memory</span>
+              <span className={styles.metaPill}>No browser storage</span>
+              <span className={styles.metaPill}>No database writes</span>
+            </div>
+          </article>
+          {representativeAuditMemory ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative action</p>
+                  <h3 className={styles.placeholderTitle}>
+                    Operator action required
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  Review-first
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {representativeAuditMemory.operatorActionRequired}
+              </p>
+              <p className={styles.railBody}>
+                {`Next handoff requirement: ${representativeAuditMemory.nextHandoffRequirement}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {auditMemoryEntries.map((memory) => (
+            <article key={memory.memoryKey} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Static audit memory record</p>
+                  <h3 className={styles.placeholderTitle}>{memory.commandPhrase}</h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {memory.memoryMode}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>{`Plugin: ${memory.pluginLabel}`}</span>
+                <span className={styles.metaPill}>{`Plugin id: ${memory.pluginId}`}</span>
+                <Link className={styles.metaPill} href={memory.routeTarget}>
+                  {`Route: ${memory.routeTarget}`}
+                </Link>
+              </div>
+              <p className={styles.railBody}>
+                {`Approval requirement: ${memory.approvalRequirement}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Safety requirement: ${memory.safetyRequirement}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Audit requirement: ${memory.auditRequirement}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Blocked/default state: ${memory.lastKnownStateLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Result state: ${memory.resultState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Operator action required: ${memory.operatorActionRequired}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`Next handoff requirement: ${memory.nextHandoffRequirement}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {[
+                  memory.persistentMemory,
+                  memory.browserStorage,
+                  memory.localStorage,
+                  memory.sessionStorage,
+                  memory.indexedDb,
+                  memory.cookies,
+                  memory.databaseWrites,
+                ].map((item) => (
+                  <span key={item} className={styles.blockedPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
             </article>
           ))}
         </div>

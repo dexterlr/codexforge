@@ -56,7 +56,7 @@ const HOME_OPERATOR_CALL_TO_ACTIONS = [
     title: "Open Athena Command Center",
     href: "/jarvis",
     summary:
-      "Open Athena as the main Jarvis chat control layer to plan, route, review, and prepare approval-gated handoffs across CodexForge while plugin execution stays blocked until approvals and backend gates are satisfied.",
+      "Open Athena as the main Jarvis chat control layer to plan, route, review, preview cross-workspace run timelines, inspect static audit memory previews, and prepare approval-gated handoffs across CodexForge while plugin execution stays blocked until approvals and backend gates are satisfied.",
     badge: "/jarvis",
   },
   {
@@ -204,10 +204,7 @@ export function JarvisUnifiedProductPanel(
                 work across CodexForge.
               </p>
               <p className={styles.athenaConsoleBody}>
-                Athena is the main chat control layer. Athena can prepare
-                approval-gated handoffs. Plugin execution remains blocked until
-                approvals and backend gates are satisfied, and manual or
-                provider execution stays backend-only.
+                Athena is the main chat control layer. Athena can prepare approval-gated handoffs. Athena can preview cross-workspace run timelines and show audit memory previews. Plugin execution remains blocked until approvals and backend gates are satisfied, and manual or provider execution stays backend-only.
               </p>
             </div>
             <div className={styles.athenaCtaStack}>
