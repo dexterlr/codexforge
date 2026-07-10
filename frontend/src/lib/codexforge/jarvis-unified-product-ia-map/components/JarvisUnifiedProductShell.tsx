@@ -213,10 +213,13 @@ export function JarvisUnifiedProductPanel(
                 Athena can draft approval packets. Athena can plan and route
                 commands. Athena can preview approval-gated handoffs. Athena
                 can preview cross-workspace run timelines and show audit memory
-                previews. Model provider registry comes next. Plugin execution
-                remains blocked until approvals and backend gates are
-                satisfied. Manual/provider execution stays backend-only. No
-                autonomous execution yet.
+                previews. Athena can now preview AI model provider slots.
+                Athena can compare model capability families. Model provider
+                registry is preview-only. Server-only adapter contracts come
+                next. No model calls yet. Plugin/provider execution remains
+                blocked until approvals and backend gates are satisfied.
+                Manual/provider execution stays backend-only. No autonomous
+                execution yet.
               </p>
               <div className={styles.workspaceMeta}>
                 {productUx.heroCopy.postureChips.map((item) => (
@@ -269,7 +272,12 @@ export function JarvisUnifiedProductPanel(
                 <p className={styles.railBody}>
                   {productUx.safetyPostureSummary}
                 </p>
-                <p className={styles.railBody}>Model provider registry comes next.</p>
+                <p className={styles.railBody}>
+                  Athena can now preview AI model provider slots.
+                </p>
+                <p className={styles.railBody}>
+                  Server-only adapter contracts come next.
+                </p>
               </article>
             </div>
           </div>

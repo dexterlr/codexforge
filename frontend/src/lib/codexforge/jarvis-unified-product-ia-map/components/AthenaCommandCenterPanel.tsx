@@ -1,6 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import {
+  buildAthenaProviderSelectionPreviewFromExactStaticExamples,
+  buildBlockedProviderExecutionSummary,
+  buildCapabilityMatrixPreview,
+  buildProviderReadinessSummary,
+  groupCapabilitiesByWorkspaceTarget,
+  groupProvidersByCapability,
+  listModelProviderSlots,
+} from "@/lib/codexforge/ai-provider-registry";
 import styles from "./JarvisUnifiedProductShell.module.css";
 import {
   buildAuditRequirementsSummary,
@@ -37,6 +46,20 @@ export function AthenaCommandCenterPanel({
   commandCenter,
 }: AthenaCommandCenterPanelProps) {
   const productUx = commandCenter.productUx;
+  const providerSlots = listModelProviderSlots();
+  const providerReadinessSummary = buildProviderReadinessSummary();
+  const blockedProviderExecutionSummary = buildBlockedProviderExecutionSummary();
+  const capabilityMatrixPreview = buildCapabilityMatrixPreview();
+  const providerSelectionPreview =
+    buildAthenaProviderSelectionPreviewFromExactStaticExamples();
+  const capabilityWorkspaceGroups = groupCapabilitiesByWorkspaceTarget();
+  const providersByCapability = groupProvidersByCapability();
+  const providersByCapabilityId = new Map(
+    providersByCapability.map((group) => [
+      group.capabilityId,
+      group.providerSlots.map((slot) => slot.label),
+    ])
+  );
   const commandComposerDrafts = commandCenter.commandComposerDrafts;
   const approvalDraftPreviews = commandCenter.approvalDraftPreviews;
   const representativeBridge =
@@ -254,17 +277,17 @@ export function AthenaCommandCenterPanel({
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Next foundation</p>
+                <p className={styles.panelEyebrow}>Next server-only work</p>
                 <h3 className={styles.placeholderTitle}>
                   {commandCenter.nextLikelyBatch}
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
-                Model provider registry next
+                Adapter contracts next
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextModelProviderRegistryChecklist.map((item) => (
+              {commandCenter.nextServerOnlyAdapterChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -467,6 +490,329 @@ export function AthenaCommandCenterPanel({
               </article>
             );
           })}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="AI model provider registry">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Model Gateway preview</p>
+            <h2 className={styles.panelTitle}>AI model provider registry</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Registry-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can see model provider slots. Provider slots are registry-only.
+          No model calls yet. No prompt sending. No provider SDKs imported.
+          Server-only adapters required. Credential isolation required.
+          Operator approval required. Kill switch required. Audit required.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Registry posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  Provider slots are registry-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Not connected
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {`${providerReadinessSummary.providerSlotCount} provider slots | ${providerReadinessSummary.capabilityCount} capability families | ${providerReadinessSummary.workspaceTargetCount} workspace targets`}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {providerReadinessSummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Blocked posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  No provider execution
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Blocked
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {blockedProviderExecutionSummary.summary}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {blockedProviderExecutionSummary.blockedLines.map((item) => (
+                <span key={item} className={styles.blockedPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next server-only work</p>
+                <h3 className={styles.placeholderTitle}>
+                  {commandCenter.nextLikelyBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Contracts next
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {commandCenter.nextServerOnlyAdapterChecklist.slice(0, 6).map((item) => (
+                <article key={item} className={styles.railCard}>
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {providerSlots.map((slot) => (
+            <article key={slot.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Provider slot</p>
+                  <h3 className={styles.placeholderTitle}>{slot.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {slot.currentState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{slot.description}</p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>{slot.providerStatus}</span>
+                {slot.capabilityFamilies.map((family) => (
+                  <span key={family} className={styles.metaPill}>
+                    {family}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>
+                {`Workspace targets: ${slot.workspaceTargets.join(" | ")}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Blocked by: ${slot.blockedBy.join(" | ")}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`Next adapter requirement: ${slot.nextAdapterRequirement}`}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Capability matrix">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Capability families</p>
+            <h2 className={styles.panelTitle}>Capability matrix</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Capability matrix shows text/chat, code, image, video, audio/voice,
+          transcription, embeddings/search, safety/moderation, and local
+          inference alongside planning / reasoning, image editing, audio
+          generation, voice / narration, and metadata / summarization. Each
+          capability is not connected yet. Each capability requires a
+          server-only adapter before execution.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Matrix posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  Capability matrix is preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${capabilityMatrixPreview.blockedCapabilityCount}/${capabilityMatrixPreview.capabilityCount} blocked`}
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {`${capabilityMatrixPreview.capabilityCount} capability rows stay blocked / registry-only across ${capabilityMatrixPreview.workspaceTargetCount} workspace targets.`}
+            </p>
+            <div className={styles.workspaceMeta}>
+              <span className={styles.blockedPill}>No model calls yet</span>
+              <span className={styles.blockedPill}>No prompt sending</span>
+              <span className={styles.blockedPill}>Server-only adapters required</span>
+              <span className={styles.blockedPill}>
+                Credential isolation required
+              </span>
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Workspace coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Which plugin/workspace each capability can serve
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Product-first
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {capabilityWorkspaceGroups.map((group) => (
+                <span key={group.workspaceTarget} className={styles.metaPill}>
+                  {`${group.workspaceTarget}: ${group.capabilityRows.length}`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {capabilityMatrixPreview.matrixRows.map((row) => (
+            <article key={row.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Capability row</p>
+                  <h3 className={styles.placeholderTitle}>{row.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {row.currentState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{row.description}</p>
+              <p className={styles.railBody}>
+                {`Provider slots: ${(providersByCapabilityId.get(row.capabilityId) ?? []).join(" | ")}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Workspace targets: ${row.workspaceTargets.join(" | ")}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.blockedPill}>{row.approvalRequirement}</span>
+                <span className={styles.blockedPill}>{row.safetyRequirement}</span>
+                <span className={styles.blockedPill}>{row.auditRequirement}</span>
+                <span className={styles.blockedPill}>
+                  {row.credentialIsolationRequirement}
+                </span>
+                <span className={styles.blockedPill}>
+                  {row.backendOnlyAdapterRequirement}
+                </span>
+                <span className={styles.blockedPill}>{row.executionPosture}</span>
+              </div>
+              <p className={styles.railFooter}>
+                {`Next adapter requirement: ${row.nextAdapterRequirement}`}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Provider selection preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Routing-readiness preview</p>
+            <h2 className={styles.panelTitle}>Provider selection preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Blocked by default
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview blocked provider-family choices without sending
+          prompts or calling providers. command planning -&gt;
+          text/planning capability. product video -&gt; video capability.
+          storyboard -&gt; image capability. narration -&gt; audio/voice
+          capability. captions -&gt; transcription capability. private/local
+          task -&gt; local inference capability.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Sample Athena choices</p>
+                <h3 className={styles.placeholderTitle}>
+                  Provider families stay blocked and registry-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                No execution
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {[
+                "command planning -> text/planning capability",
+                "product video -> video capability",
+                "storyboard -> image capability",
+                "narration -> audio/voice capability",
+                "captions -> transcription capability",
+                "private/local task -> local inference capability",
+              ].map((item) => (
+                <article key={item} className={styles.railCard}>
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Blocked posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  What server-only adapter work comes next
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {commandCenter.nextLikelyBatch}
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {blockedProviderExecutionSummary.summary}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {commandCenter.nextServerOnlyAdapterChecklist.slice(0, 5).map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {providerSelectionPreview.map((preview) => (
+            <article key={preview.id} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Static example</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {preview.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {preview.currentState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {`${preview.providerFamilyLabel} -> ${preview.capabilityLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Workspace targets: ${preview.workspaceTargets.join(" | ")}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Blocked by: ${preview.blockedBy.join(" | ")}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`Next adapter requirement: ${preview.nextAdapterRequirement}`}
+              </p>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -1209,7 +1555,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next conversational composer checklist
+                  Next server-only adapter checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -1217,7 +1563,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {productUx.nextConversationalComposerChecklist.map((item) => (
+              {productUx.nextServerOnlyAdapterChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>

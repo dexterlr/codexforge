@@ -171,7 +171,7 @@ foreach ($needle in @(
   "buildAthenaMissingInformationPrompts",
   "buildAthenaApprovalDraftPreview",
   "buildAthenaBlockedComposerSummary",
-  "buildNextModelProviderRegistryChecklist",
+  "nextServerOnlyAdapterChecklist",
   'commandComposerVersion: "athena-conversational-command-composer-v1"',
   'composerMode: "preview-only"',
   'approvalDraftVersion: "athena-approval-draft-preview-v1"',
@@ -185,7 +185,7 @@ foreach ($needle in @(
   "No plugin execution from chat yet",
   "no persistent memory",
   "no browser storage",
-  "Model provider registry comes next"
+  "AI model provider registry"
 )) {
   Assert-Contains $athenaModelSource $needle "typed Athena conversational composer model contains $needle"
 }
@@ -227,7 +227,8 @@ foreach ($needle in @(
   "Open Jarvis Video Studio",
   "Athena can draft structured commands",
   "Athena can draft approval packets",
-  "Model provider registry comes next",
+  "Athena can now preview AI model provider slots",
+  "server-only adapter contracts come next",
   "Plugin execution remains blocked until approvals and backend gates are satisfied"
 )) {
   Assert-Contains $homeNormalized $needle "home source contains $needle"
@@ -252,7 +253,7 @@ foreach ($needle in @(
   "Highest detected phase: 4649",
   "Latest completed batch: 4618-4649 - Athena Conversational Command Composer and Approval Drafts",
   "Previous completed batch: 4586-4617 - Athena Product UX Polish and Operator Home Takeover",
-  "Next likely batch: 4650-4681 - AI Model Provider Registry and Capability Matrix",
+  "Next likely batch: 4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate",
   "Athena conversational command composer and approval drafts only",
   "command composer is preview-only",
   "approval drafts are preview-only",
