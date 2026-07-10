@@ -270,6 +270,14 @@
   font-weight: 700;
 }
 
+.statusValue {
+  margin: 0;
+  color: #f8fbff;
+  font-size: 1.18rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
 .metricDetail {
   display: block;
   margin-top: 6px;
@@ -425,6 +433,22 @@
   line-height: 1.6;
 }
 
+.athenaMissionLine {
+  margin: 0;
+  color: #f5fbff;
+  font-size: 1rem;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.athenaPromptLead {
+  margin: 0;
+  color: #d8eef8;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  font-weight: 700;
+}
+
 .athenaInputLabel {
   color: #dffaff;
   font-size: 0.84rem;
@@ -455,7 +479,9 @@
 }
 
 .athenaPromptGrid,
-.athenaSectionGrid {
+.athenaSectionGrid,
+.athenaActionGrid,
+.athenaLaunchGrid {
   display: grid;
   gap: 12px;
 }
@@ -466,6 +492,52 @@
 
 .athenaSectionGrid {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.athenaActionGrid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.athenaLaunchGrid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.athenaActionCard {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(45, 212, 191, 0.18);
+  background:
+    linear-gradient(145deg, rgba(8, 24, 36, 0.92), rgba(10, 19, 34, 0.88)),
+    radial-gradient(circle at 84% 16%, rgba(34, 211, 238, 0.12), transparent 24%);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.athenaActionCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(34, 211, 238, 0.28);
+  background: rgba(10, 20, 35, 0.9);
+}
+
+.athenaActionTitle {
+  margin: 0;
+  color: #f6fbff;
+  font-size: 1rem;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.athenaActionBody {
+  margin: 0;
+  color: #b7d2e1;
+  font-size: 0.84rem;
+  line-height: 1.55;
 }
 
 .workspaceGrid,

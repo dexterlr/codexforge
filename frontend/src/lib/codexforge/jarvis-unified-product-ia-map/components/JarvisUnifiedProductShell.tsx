@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import type { Route } from "next";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import {
   buildJarvisUnifiedProductIaRouteModel,
@@ -19,9 +18,13 @@ import {
   ATHENA_BLOCKED_ACTION_GROUPS,
   ATHENA_COMMAND_CENTER_MODEL,
   ATHENA_CURRENT_CAPABILITIES,
+  resolveRequiredAthenaPluginLauncherGroup,
+  resolveRequiredAthenaPrimaryOperatorAction,
+  type AthenaPluginLauncherGroupId,
+  type AthenaPrimaryOperatorActionId,
 } from "../athena-control-plane-model";
 import { AthenaCommandCenterPanel } from "./AthenaCommandCenterPanel";
-import type { JarvisUnifiedProductWorkspaceRecord } from "../jarvis-unified-product-ia-workspaces";
+import { AthenaOperatorStatusPanel } from "./AthenaOperatorStatusPanel";
 import { JarvisApprovalReadinessSummary } from "./JarvisApprovalReadinessSummary";
 import { JarvisBlockedActionSummary } from "./JarvisBlockedActionSummary";
 import { JarvisDeveloperDiagnosticsDock } from "./JarvisDeveloperDiagnosticsDock";
@@ -44,29 +47,15 @@ import { JarvisWorkspaceGrid } from "./JarvisWorkspaceGrid";
 import { JarvisWorkspacePlaceholder } from "./JarvisWorkspacePlaceholder";
 import styles from "./JarvisUnifiedProductShell.module.css";
 
-type HomeOperatorCard = Readonly<{
-  title: string;
-  href: Route;
-  summary: string;
-  badge: string;
-}>;
+const HOME_HERO_ACTION_IDS = [
+  "open-athena-command-center",
+  "open-jarvis-video-studio",
+] as const satisfies readonly AthenaPrimaryOperatorActionId[];
 
-const HOME_OPERATOR_CALL_TO_ACTIONS = [
-  {
-    title: "Open Athena Command Center",
-    href: "/jarvis",
-    summary:
-      "Open Athena as the main Jarvis chat control layer to plan, route, review, preview cross-workspace run timelines, inspect static audit memory previews, and prepare approval-gated handoffs across CodexForge while plugin execution stays blocked until approvals and backend gates are satisfied.",
-    badge: "/jarvis",
-  },
-  {
-    title: "Open Jarvis Video Studio",
-    href: "/jarvis-video",
-    summary:
-      "Open the above-the-fold video generation control console for briefs, locked controls, and future backend handoff review.",
-    badge: "/jarvis-video",
-  },
-] as const satisfies readonly HomeOperatorCard[];
+const HOME_PRODUCT_LAUNCHER_GROUP_IDS = [
+  "operator-cockpit-launchers",
+  "specialist-plugin-launchers",
+] as const satisfies readonly AthenaPluginLauncherGroupId[];
 
 type JarvisUnifiedProductShellProps =
   | {
@@ -145,6 +134,13 @@ export function JarvisUnifiedProductPanel(
           (candidate) => candidate.routeHref === context.surface.routeHref
         ) ?? context.workspaces[0]
       : null;
+  const productUx = ATHENA_COMMAND_CENTER_MODEL.productUx;
+  const homeHeroActions = HOME_HERO_ACTION_IDS.map((actionId) =>
+    resolveRequiredAthenaPrimaryOperatorAction(actionId)
+  );
+  const homeLauncherGroups = HOME_PRODUCT_LAUNCHER_GROUP_IDS.map((groupId) =>
+    resolveRequiredAthenaPluginLauncherGroup(groupId)
+  );
 
   if (isPrimaryJarvisVideoStudioSurface) {
     return (
@@ -197,20 +193,49 @@ export function JarvisUnifiedProductPanel(
         <section className={styles.homeHero} aria-label="CodexForge Operator Cockpit">
           <div className={styles.homeHeroLayout}>
             <div className={styles.homeHeroCopy}>
-              <span className={styles.eyebrowChip}>Athena entry point</span>
+              <div className={styles.heroEyebrowRow}>
+                <span className={styles.eyebrowChip}>Athena entry point</span>
+                <span className={styles.safeChip}>
+                  {productUx.heroCopy.homeSummary}
+                </span>
+                <span className={styles.blockedChip}>No autonomous execution yet</span>
+              </div>
               <h1 className={styles.homeHeroTitle}>CodexForge Operator Cockpit</h1>
               <p className={styles.homeHeroSummary}>
-                Athena helps you plan, route, review, and safely hand off AI
-                work across CodexForge.
+                {productUx.heroCopy.homeSupportLine}
+              </p>
+              <p className={styles.homeHeroSummary}>
+                {productUx.heroCopy.homeAskCopy}
               </p>
               <p className={styles.athenaConsoleBody}>
-                Athena is the main chat control layer. Athena can prepare approval-gated handoffs. Athena can preview cross-workspace run timelines and show audit memory previews. Plugin execution remains blocked until approvals and backend gates are satisfied, and manual or provider execution stays backend-only.
+                {productUx.cockpitSummary} Athena can plan and route commands.
+                Athena can preview approval-gated handoffs. Athena can preview
+                cross-workspace run timelines and show audit memory previews.
+                Plugin execution remains blocked until approvals and backend
+                gates are satisfied. Manual/provider execution stays
+                backend-only. No autonomous execution yet.
+              </p>
+              <div className={styles.workspaceMeta}>
+                {productUx.heroCopy.postureChips.map((item) => (
+                  <span key={item} className={styles.blockedPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.panelBody}>{productUx.currentReadinessSummary}</p>
+              <p className={styles.panelBody}>
+                {productUx.blockedDefaultExecutionSummary}
               </p>
             </div>
             <div className={styles.athenaCtaStack}>
-              {HOME_OPERATOR_CALL_TO_ACTIONS.map((card, index) => (
+              {homeHeroActions.map((card, index) => (
                 <Link
-                  key={card.href}
+                  key={card.id}
+                  aria-label={
+                    card.id === "open-jarvis-video-studio"
+                      ? "Open Jarvis Video Studio"
+                      : "Open Athena Command Center"
+                  }
                   className={
                     index === 0 ? styles.homePrimaryCta : styles.homeSecondaryCard
                   }
@@ -224,19 +249,41 @@ export function JarvisUnifiedProductPanel(
                     {index === 0 ? "Primary CTA" : "Secondary CTA"}
                   </span>
                   <strong className={styles.homePrimaryCtaTitle}>
-                    {card.title} -&gt; {card.href}
+                    {card.label}
                   </strong>
                   <span className={styles.homePrimaryCtaBody}>{card.summary}</span>
                 </Link>
               ))}
+              <article className={styles.summaryCard}>
+                <p className={styles.panelEyebrow}>Athena cockpit summary</p>
+                <h2 className={styles.placeholderTitle}>
+                  {productUx.heroCopy.homeSummary}
+                </h2>
+                <p className={styles.placeholderSummary}>
+                  {productUx.approvalPostureSummary}
+                </p>
+                <p className={styles.railBody}>{productUx.auditPostureSummary}</p>
+                <p className={styles.railBody}>
+                  {productUx.safetyPostureSummary}
+                </p>
+              </article>
             </div>
           </div>
         </section>
 
+        <AthenaOperatorStatusPanel
+          title="Athena operator status"
+          eyebrow="Athena status"
+          badge="Summary"
+          summary={productUx.currentReadinessSummary}
+          detail={productUx.blockedDefaultExecutionSummary}
+          items={productUx.operatorStatusPanel}
+        />
+
         <section className={styles.panel} aria-label="What can Athena do now?">
           <div className={styles.panelHeader}>
             <div>
-              <p className={styles.panelEyebrow}>What can I do now?</p>
+              <p className={styles.panelEyebrow}>What Athena can do now</p>
               <h2 className={styles.panelTitle}>What can Athena do now?</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
@@ -257,7 +304,7 @@ export function JarvisUnifiedProductPanel(
         <section className={styles.panel} aria-label="What stays locked?">
           <div className={styles.panelHeader}>
             <div>
-              <p className={styles.panelEyebrow}>What is still locked?</p>
+              <p className={styles.panelEyebrow}>What stays locked</p>
               <h2 className={styles.panelTitle}>What stays locked?</h2>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
@@ -285,11 +332,51 @@ export function JarvisUnifiedProductPanel(
               Product-first
             </span>
           </div>
-          <JarvisWorkspaceGrid
-            workspaces={context.workspaces.filter(
-              (candidate) => candidate.id !== "developer-diagnostics"
-            )}
-          />
+          <div className={styles.athenaLaunchGrid}>
+            {homeLauncherGroups.map((group) => (
+              <section key={group.id} className={styles.summaryCard}>
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>Launcher group</p>
+                    <h3 className={styles.placeholderTitle}>{group.label}</h3>
+                  </div>
+                  <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                    Product cards
+                  </span>
+                </div>
+                <p className={styles.placeholderSummary}>{group.description}</p>
+                <div className={styles.workspaceGrid}>
+                  {group.cards.map((card) => (
+                    <Link
+                      key={card.id}
+                      className={styles.workspaceCard}
+                      href={card.href}
+                    >
+                      <div className={styles.workspaceHeader}>
+                        <div>
+                          <p className={styles.panelEyebrow}>{card.label}</p>
+                          <h3 className={styles.workspaceTitle}>
+                            {card.shortLabel}
+                          </h3>
+                        </div>
+                        <span
+                          className={`${styles.metricState} ${resolveToneClass(
+                            card.tone
+                          )}`}
+                        >
+                          {formatToneLabel(card.tone)}
+                        </span>
+                      </div>
+                      <p className={styles.workspaceDescription}>{card.summary}</p>
+                      <div className={styles.workspaceMeta}>
+                        <span className={styles.metaPill}>{card.badge}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
         </section>
 
         <JarvisDeveloperDiagnosticsDock
@@ -306,16 +393,6 @@ export function JarvisUnifiedProductPanel(
         data-codexforge-jarvis-unified-product-ia={context.batchMarkers.join(" | ")}
         data-codexforge-jarvis-unified-product-ia-focus={context.focus}
       >
-        <JarvisProductHero
-          eyebrow={context.surface.eyebrow}
-          badge={context.surface.badge}
-          title={context.surface.title}
-          summary={context.surface.summary}
-          phaseLabel="CodexForge"
-          isPhaseRoute={false}
-          metrics={context.surface.heroMetrics}
-          navigationCards={context.primaryNavigationCards}
-        />
         <AthenaCommandCenterPanel commandCenter={ATHENA_COMMAND_CENTER_MODEL} />
         <JarvisDeveloperDiagnosticsDock
           groups={context.developerDiagnosticGroups}
@@ -655,6 +732,32 @@ function buildPrimaryNavigationCards(
       };
     }
   );
+}
+
+function resolveToneClass(tone: "ready" | "approval-required" | "blocked" | "secondary") {
+  switch (tone) {
+    case "ready":
+      return styles.metricStateReady;
+    case "approval-required":
+      return styles.metricStateApproval;
+    case "secondary":
+      return styles.metricStateSecondary;
+    default:
+      return styles.metricStateBlocked;
+  }
+}
+
+function formatToneLabel(tone: "ready" | "approval-required" | "blocked" | "secondary") {
+  switch (tone) {
+    case "ready":
+      return "Ready";
+    case "approval-required":
+      return "Approval required";
+    case "secondary":
+      return "Secondary";
+    default:
+      return "Blocked";
+  }
 }
 
 function resolveSurfaceFromHref(href: JarvisUnifiedProductPrimaryNavigationHref) {

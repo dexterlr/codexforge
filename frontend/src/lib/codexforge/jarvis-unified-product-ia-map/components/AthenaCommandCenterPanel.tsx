@@ -20,8 +20,11 @@ import {
   type AthenaCommandIntentState,
   type AthenaExecutionPosture,
   type AthenaLauncherStatus,
+  type AthenaPrimaryOperatorActionId,
+  type AthenaProductUxActionRecord,
   listApprovalBridgeRequirements,
 } from "../athena-control-plane-model";
+import { AthenaOperatorStatusPanel } from "./AthenaOperatorStatusPanel";
 
 type AthenaCommandCenterPanelProps = Readonly<{
   commandCenter: AthenaCommandCenterModel;
@@ -30,6 +33,7 @@ type AthenaCommandCenterPanelProps = Readonly<{
 export function AthenaCommandCenterPanel({
   commandCenter,
 }: AthenaCommandCenterPanelProps) {
+  const productUx = commandCenter.productUx;
   const representativeBridge =
     commandCenter.approvalGatedToolBridgePreviews[0] ?? null;
   const timelineItems = commandCenter.crossWorkspaceRunTimeline;
@@ -38,6 +42,15 @@ export function AthenaCommandCenterPanel({
   const timelineByBlockedState = groupTimelineItemsByBlockedState(timelineItems);
   const auditMemoryEntries = commandCenter.auditMemoryPreview;
   const representativeAuditMemory = auditMemoryEntries[0] ?? null;
+  const primaryActionIds = [
+    "open-jarvis-video-studio",
+    "review-blocked-actions",
+    "check-provider-readiness",
+    "open-audit-timeline",
+  ] as const satisfies readonly AthenaPrimaryOperatorActionId[];
+  const primaryActions = primaryActionIds.map((actionId) =>
+    resolveRequiredProductAction(actionId, productUx.primaryOperatorActions)
+  );
 
   return (
     <>
@@ -51,32 +64,53 @@ export function AthenaCommandCenterPanel({
               <span className={styles.safeChip}>
                 {commandCenter.identity.title}
               </span>
-              <span className={styles.blockedChip}>Local only</span>
+              <span className={styles.blockedChip}>
+                {productUx.heroCopy.upperJarvisLayerLabel}
+              </span>
             </div>
             <h2 className={styles.homePrimaryCtaTitle}>
               {commandCenter.identity.title}
             </h2>
+            <p className={styles.athenaMissionLine}>
+              {productUx.heroCopy.missionLine}
+            </p>
             <p className={styles.homeHeroSummary}>
               {commandCenter.identity.operatorPromise}
             </p>
             <p className={styles.athenaConsoleBody}>
+              {productUx.cockpitSummary}
+            </p>
+            <p className={styles.athenaConsoleBody}>
               {commandCenter.identity.mission}
             </p>
+            <div className={styles.workspaceMeta}>
+              {productUx.heroCopy.postureChips.map((item) => (
+                <span key={item} className={styles.blockedPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
           <div className={styles.summaryCard}>
-            <p className={styles.panelEyebrow}>Execution posture</p>
+            <p className={styles.panelEyebrow}>Current batch</p>
             <h3 className={styles.placeholderTitle}>
-              {commandCenter.identity.posture}
+              {commandCenter.latestCompletedBatch}
             </h3>
             <p className={styles.placeholderSummary}>
-              {commandCenter.chat.executionPosture}
+              {productUx.currentReadinessSummary}
             </p>
             <p className={styles.railFooter}>
-              {`Phase ${commandCenter.highestDetectedPhase} | ${commandCenter.latestCompletedBatch}`}
+              {`Phase ${commandCenter.highestDetectedPhase} | ${commandCenter.previousCompletedBatch}`}
+            </p>
+            <p className={styles.railFooter}>
+              {`${productUx.productUxVersion} | ${productUx.operatorHomeTakeoverVersion}`}
             </p>
           </div>
         </div>
 
+        <p className={styles.athenaPromptLead}>
+          {productUx.heroCopy.operatorInputLead}
+        </p>
         <label className={styles.athenaInputLabel} htmlFor="athena-operator-input">
           {commandCenter.chat.label}
         </label>
@@ -109,7 +143,77 @@ export function AthenaCommandCenterPanel({
             </article>
           ))}
         </div>
+
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Immediate status</p>
+            <h3 className={styles.panelTitle}>Athena status at first glance</h3>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only cockpit
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {productUx.immediateStatusCards.map((card) => (
+            <article key={card.id} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>{card.label}</p>
+                  <h3 className={styles.statusValue}>{card.value}</h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${resolveToneClass(card.tone)}`}
+                >
+                  {formatToneLabel(card.tone)}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{card.summary}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Primary operator actions</p>
+            <h3 className={styles.panelTitle}>Open the right lane next</h3>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Product-first
+          </span>
+        </div>
+        <div className={styles.athenaActionGrid}>
+          {primaryActions.map((action) => (
+            <Link
+              key={action.id}
+              className={styles.athenaActionCard}
+              href={action.href}
+            >
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Primary action</p>
+                  <h3 className={styles.athenaActionTitle}>{action.label}</h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${resolveToneClass(action.tone)}`}
+                >
+                  {action.badge}
+                </span>
+              </div>
+              <p className={styles.athenaActionBody}>{action.summary}</p>
+            </Link>
+          ))}
+        </div>
       </section>
+
+      <AthenaOperatorStatusPanel
+        title="Athena operator status"
+        eyebrow="Operator status"
+        badge="Preview-only"
+        summary={productUx.currentReadinessSummary}
+        detail={productUx.blockedDefaultExecutionSummary}
+        items={productUx.operatorStatusPanel}
+        nextActions={productUx.nextOperatorActions}
+      />
 
       <section className={styles.panel} aria-label="Athena plugin registry preview">
         <div className={styles.panelHeader}>
@@ -835,10 +939,43 @@ export function AthenaCommandCenterPanel({
               ))}
             </div>
           </section>
+          <section className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next likely batch</p>
+                <h3 className={styles.placeholderTitle}>
+                  Next conversational composer checklist
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {commandCenter.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {productUx.nextConversationalComposerChecklist.map((item) => (
+                <article key={item} className={styles.railCard}>
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </section>
         </div>
       </section>
     </>
   );
+}
+
+function resolveRequiredProductAction(
+  actionId: AthenaPrimaryOperatorActionId,
+  actions: readonly AthenaProductUxActionRecord[]
+): AthenaProductUxActionRecord {
+  const action = actions.find((candidate) => candidate.id === actionId);
+
+  if (!action) {
+    throw new Error(`Missing Athena product action: ${actionId}`);
+  }
+
+  return action;
 }
 
 function resolveToneClass(tone: AthenaLauncherStatus): string {

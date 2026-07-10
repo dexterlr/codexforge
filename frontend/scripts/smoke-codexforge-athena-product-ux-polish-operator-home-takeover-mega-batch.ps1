@@ -63,7 +63,12 @@ function Get-CombinedFileText {
   return ($Paths | ForEach-Object { Get-Content -Raw $_ }) -join "`n"
 }
 
-Write-Host "=== CodexForge Athena Plugin Registry and Command Router Mega Batch smoke ==="
+function Normalize-Whitespace {
+  param([AllowEmptyString()][string]$Text)
+  return ([regex]::Replace($Text, "\s+", " ")).Trim()
+}
+
+Write-Host "=== CodexForge Athena Product UX Polish and Operator Home Takeover Mega Batch smoke ==="
 
 $jarvisPagePath = Join-Path $root "src\app\jarvis\page.tsx"
 $jarvisPageClientPath = Join-Path $root "src\app\jarvis\page-client.tsx"
@@ -72,6 +77,7 @@ $homePagePath = Join-Path $root "src\app\page.tsx"
 $homePageClientPath = Join-Path $root "src\app\page-client.tsx"
 $homeShellPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisUnifiedProductShell.tsx"
 $athenaPanelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\components\AthenaCommandCenterPanel.tsx"
+$athenaStatusPanelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\components\AthenaOperatorStatusPanel.tsx"
 $athenaModelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\athena-control-plane-model.ts"
 $contentPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\jarvis-unified-product-ia-content.ts"
 $videoPagePath = Join-Path $root "src\app\jarvis-video\page.tsx"
@@ -93,6 +99,7 @@ $requiredPaths = @(
   $homePageClientPath,
   $homeShellPath,
   $athenaPanelPath,
+  $athenaStatusPanelPath,
   $athenaModelPath,
   $contentPath,
   $videoPagePath,
@@ -117,6 +124,7 @@ $jarvisSource = Get-CombinedFileText @(
   $athenaPagePath,
   $homeShellPath,
   $athenaPanelPath,
+  $athenaStatusPanelPath,
   $athenaModelPath,
   $contentPath
 )
@@ -124,6 +132,7 @@ $homeSource = Get-CombinedFileText @(
   $homePagePath,
   $homePageClientPath,
   $homeShellPath,
+  $athenaStatusPanelPath,
   $athenaModelPath,
   $contentPath
 )
@@ -132,9 +141,13 @@ $videoSource = Get-CombinedFileText @(
   $videoPageClientPath,
   $videoPanelPath
 )
+$jarvisNormalized = Normalize-Whitespace $jarvisSource
+$homeNormalized = Normalize-Whitespace $homeSource
+$videoNormalized = Normalize-Whitespace $videoSource
 $athenaModelSource = Get-Content -Raw $athenaModelPath
 $athenaPageSource = Get-Content -Raw $athenaPagePath
 $docsSource = Get-CombinedFileText @($checkpointPath, $runbookPath)
+$docsNormalized = Normalize-Whitespace $docsSource
 $allSmokeSource = Get-Content -Raw $allSmokePath
 $navigationSource = Get-CombinedFileText @(
   $navigationTypesPath,
@@ -144,23 +157,40 @@ $navigationSource = Get-CombinedFileText @(
 )
 
 foreach ($needle in @(
-  "4490-4521 - Athena Plugin Registry and Command Router",
-  "Athena Plugin Registry and Command Router",
-  "ATHENA_PLUGIN_REGISTRY_COMMAND_ROUTER_PHASE = 4521",
-  "ATHENA_PLUGIN_REGISTRY_PREVIEW",
-  "ATHENA_COMMAND_INTENTS",
-  "buildStableAthenaPluginKey",
-  "buildStableAthenaCommandKey",
-  "listAthenaPlugins",
-  "listAthenaCommandIntents",
-  "resolveStaticAthenaCommandIntent",
-  "resolveStaticAthenaCommandIntentByExactSamplePhrase",
-  "buildAthenaRoutePreview",
-  "buildAthenaBlockedActionSummary",
-  "buildAthenaApprovalRequirementsSummary",
-  "buildAthenaAuditRequirementsSummary"
+  "4586-4617 - Athena Product UX Polish and Operator Home Takeover",
+  "Athena Product UX Polish and Operator Home Takeover",
+  "ATHENA_PRODUCT_UX_POLISH_OPERATOR_HOME_TAKEOVER_PHASE = 4617",
+  "ATHENA_PRODUCT_UX_POLISH_OPERATOR_HOME_TAKEOVER_MARKERS",
+  "ATHENA_PRODUCT_UX_POLISH_MODEL",
+  "ATHENA_PRODUCT_UX_HERO_COPY",
+  "ATHENA_PRIMARY_OPERATOR_ACTIONS",
+  "ATHENA_PLUGIN_LAUNCHER_GROUPS",
+  "ATHENA_OPERATOR_STATUS_PANEL",
+  'productUxVersion: "athena-product-ux-polish-v1"',
+  'operatorHomeTakeoverVersion: "athena-operator-home-takeover-v1"',
+  "Your upper Jarvis layer",
+  "Athena is the main Jarvis control layer.",
+  "Athena can prepare approval-gated handoffs.",
+  "Chat control",
+  "Plugin routing",
+  "Approval handoff",
+  "Timeline/audit memory",
+  "Provider execution",
+  "Plugin execution",
+  "Autonomous execution",
+  "Persistence",
+  "Backend-only execution",
+  'value: "locked"',
+  'value: "not implemented"',
+  'value: "required"',
+  "Plugin execution remains blocked.",
+  "Provider execution is locked.",
+  "Autonomous execution is locked.",
+  "no persistent memory",
+  "no browser storage",
+  "Next likely batch: 4618-4649 - Athena Conversational Command Composer and Approval Drafts"
 )) {
-  Assert-Contains $jarvisSource $needle "Athena router foundation source contains $needle"
+  Assert-Contains $athenaModelSource $needle "typed Athena product UX model contains $needle"
 }
 
 Assert-Contains $athenaPageSource 'export { default } from "../jarvis/page";' "/athena aliases /jarvis"
@@ -168,128 +198,55 @@ Assert-Contains $athenaPageSource 'export { default } from "../jarvis/page";' "/
 foreach ($needle in @(
   "Athena",
   "Athena Command Center",
-  "Ask Athena to plan, route, review, and safely hand off work across CodexForge.",
+  "Your upper Jarvis layer",
+  "Plan, route, review, and safely hand off work across CodexForge",
+  "Ask Athena what you want to build or control",
+  "No plugin execution from chat yet",
+  "Approval-gated handoffs only",
+  "Backend-only execution required",
+  "Audit required",
+  "Kill switch required",
   "Athena plugin registry",
   "Command router preview",
-  "Make a cinematic product video",
-  "Jarvis Video Studio",
-  "Build a landing page",
-  "Jarvis Websites",
-  "Create an avatar presenter",
-  "Jarvis Avatar",
-  "Review the audit trail",
-  "Audit / Runs",
-  "Prepare an approval packet",
-  "Show what is blocked",
-  "Check provider readiness",
-  "Review my projects",
-  "No plugin execution from chat yet"
+  "Approval-gated tool bridge",
+  "Handoff packet preview",
+  "Cross-workspace run timeline",
+  "Audit memory preview",
+  "Open Jarvis Video Studio",
+  "Check provider readiness"
 )) {
-  Assert-Contains $jarvisSource $needle "/jarvis Athena source contains $needle"
-}
-
-foreach ($needle in @(
-  'routeHref: "/jarvis-video"',
-  'routeHref: "/jarvis-websites"',
-  'routeHref: "/jarvis-avatar"',
-  'routeHref: "/jarvis-workflows"',
-  'routeHref: "/jarvis-audit"',
-  'routeHref: "/ai-providers"',
-  'routeHref: "/video-assets"',
-  'routeHref: "/video-projects"',
-  'routeHref: "/jarvis-safety"',
-  'routeHref: "/jarvis-trading"',
-  'routeHref: "/jarvis-unified-product-ia-developer-diagnostics-secondary-wiring"',
-  'routeTarget: "/approval-queue"'
-)) {
-  Assert-Contains $athenaModelSource $needle "Athena registry or router route exists for $needle"
-}
-
-foreach ($needle in @(
-  "Jarvis Video Studio",
-  "Jarvis Websites",
-  "Jarvis Avatar",
-  "Jarvis Workflows",
-  "Audit / Runs",
-  "Providers",
-  "Assets",
-  "Projects",
-  "Safety / Settings",
-  "Trading",
-  "Developer / Checkpoints",
-  "Athena knows the specialist workspaces",
-  "Execution remains approval-gated",
-  "Backend-only execution required",
-  "No plugin execution from chat yet"
-)) {
-  Assert-Contains $jarvisSource $needle "Athena registry or posture marker contains $needle"
+  Assert-Contains $jarvisNormalized $needle "/jarvis Athena product UX source contains $needle"
 }
 
 foreach ($needle in @(
   "CodexForge Operator Cockpit",
+  "Athena is the main Jarvis control layer",
   "Open Athena Command Center",
   "Open Jarvis Video Studio",
-  "Athena helps you plan, route, review, and safely hand off AI work across CodexForge.",
-  "Athena is the main chat control layer.",
-  "backend-only"
+  "What Athena can do now",
+  "What stays locked",
+  "Plugin execution remains blocked",
+  "Ask Athena to plan, route, review, and safely hand off AI work across CodexForge."
 )) {
-  Assert-Contains $homeSource $needle "home source contains $needle"
+  Assert-Contains $homeNormalized $needle "home source contains $needle"
 }
 
 foreach ($needle in @(
   "Video generation control",
-  "Video brief",
   "Prompt / concept",
   "Output preview",
-  "Waiting for backend runner",
-  "No video generated yet",
-  "Generate video - locked",
-  "Run backend dry-run - locked",
-  "Approve backend handoff - locked",
-  "Video Studio URL: /jarvis-video"
+  "Generate video - locked"
 )) {
-  Assert-Contains $videoSource $needle "/jarvis-video preserves $needle"
+  Assert-Contains $videoNormalized $needle "/jarvis-video preserves $needle"
 }
 
 foreach ($needle in @(
-  "Athena plugin registry and command router only. Plugin registry is inert. Command router is preview-only. Chat input stays local and executes nothing.",
-  "Jarvis Video Studio",
-  "Jarvis Websites",
-  "Jarvis Avatar",
-  "Jarvis Workflows",
-  "Audit / Runs",
-  "Providers",
-  "Assets",
-  "Projects",
-  "Safety / Settings",
-  "Trading",
-  "Developer / Checkpoints",
-  "video-generation-intent",
-  "website-build-intent",
-  "avatar-presenter-intent",
-  "audit-review-intent",
-  "provider-readiness-intent",
-  "safety-review-intent",
-  "video brief intent",
-  "website build intent",
-  "avatar presenter intent",
-  "audit review intent",
-  "provider readiness intent",
-  "safety review intent",
-  "preview-only",
-  "no autonomous execution"
-)) {
-  Assert-Contains $athenaModelSource $needle "typed Athena model contains $needle"
-}
-
-foreach ($needle in @(
-  "Highest detected phase: 4521",
-  "Latest completed batch: 4490-4521 - Athena Plugin Registry and Command Router",
-  "Previous completed batch: 4458-4489 - Athena Unified Chat Control Plane Foundation",
-  "Next likely batch: 4522-4553 - Athena Approval-Gated Tool Execution Bridge",
-  "Athena plugin registry and command router only",
-  "plugin registry is inert",
-  "command router is preview-only",
+  "Highest detected phase: 4617",
+  "Latest completed batch: 4586-4617 - Athena Product UX Polish and Operator Home Takeover",
+  "Previous completed batch: 4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory",
+  "Next likely batch: 4618-4649 - Athena Conversational Command Composer and Approval Drafts",
+  "Athena product UX polish and operator home takeover only",
+  "chat input remains inert/local only",
   "no prompt sending",
   "no frontend provider call",
   "no frontend fetch/network call",
@@ -303,17 +260,20 @@ foreach ($needle in @(
   "no result persistence",
   "no audit persistence",
   "no approval persistence",
+  "no persistent memory",
+  "no browser storage",
+  "no database writes",
   "backend-only execution path required",
   "operator approval required",
   "kill switch required",
   "audit required"
 )) {
-  Assert-Contains $docsSource $needle "checkpoint docs contain $needle"
+  Assert-Contains $docsNormalized $needle "checkpoint docs contain $needle"
 }
 
 foreach ($needle in @(
-  "Phase 4521 Athena Plugin Registry and Command Router",
-  "smoke-codexforge-athena-plugin-registry-command-router-mega-batch.ps1"
+  "Phase 4617 Athena Product UX Polish and Operator Home Takeover",
+  "smoke-codexforge-athena-product-ux-polish-operator-home-takeover-mega-batch.ps1"
 )) {
   Assert-Contains $allSmokeSource $needle "aggregate smoke contains $needle"
 }
@@ -322,8 +282,11 @@ Assert-Ordered $allSmokeSource @(
   "Phase 4457 Jarvis Video Manual Provider Trial Execution Enablement",
   "Phase 4489 Athena Unified Chat Control Plane Foundation",
   "Phase 4521 Athena Plugin Registry and Command Router",
+  "Phase 4553 Athena Approval-Gated Tool Execution Bridge",
+  "Phase 4585 Athena Cross-Workspace Run Timeline and Audit Memory",
+  "Phase 4617 Athena Product UX Polish and Operator Home Takeover",
   "Jarvis Video Studio Release Candidate Mega Batch"
-) "aggregate smoke keeps the Athena router batch in sequence"
+) "aggregate smoke keeps the Athena product UX batch in sequence"
 
 foreach ($pattern in @(
   '\bfetch\s*\(',
@@ -361,7 +324,7 @@ foreach ($pattern in @(
   'readFile',
   'writeFile'
 )) {
-  Assert-NotMatches $athenaModelSource $pattern "Athena router helpers stay deterministic and in-memory only"
+  Assert-NotMatches $athenaModelSource $pattern "Athena product UX helpers stay deterministic and in-memory only"
 }
 
 foreach ($pattern in @(
@@ -378,9 +341,10 @@ foreach ($pattern in @(
 foreach ($pattern in @(
   '\bhref\s*:\s*string\b',
   '\bhref\?\s*:\s*string\b',
-  '\bcommandDeckRole\s*:\s*string\b'
+  '\bcommandDeckRole\s*:\s*string\b',
+  '\bcommandDeckRole\?\s*:\s*string\b'
 )) {
   Assert-NotMatches $navigationSource $pattern "navigation typing stays strict"
 }
 
-Write-Host "[OK] CodexForge Athena Plugin Registry and Command Router Mega Batch smoke passed."
+Write-Host "[OK] CodexForge Athena Product UX Polish and Operator Home Takeover Mega Batch smoke passed."

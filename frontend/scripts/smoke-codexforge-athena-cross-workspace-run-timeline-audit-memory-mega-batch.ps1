@@ -333,7 +333,7 @@ foreach ($pattern in @(
   'Math\.random\s*\(',
   'crypto\.',
   'process\.env',
-  'fs\.',
+  '\bfs\.',
   'readFile',
   'writeFile'
 )) {

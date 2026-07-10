@@ -543,10 +543,12 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     eyebrow: "Athena entry point",
     badge: "Start here",
     summary:
-      "Athena helps you plan, route, review, and safely hand off AI work across CodexForge.",
+      "Athena is the main Jarvis control layer and helps you plan, route, review, and safely hand off AI work across CodexForge.",
     summaryMarkers: [
       "world-class Jarvis product order",
       "home product order upgraded",
+      "4586-4617 - Athena Product UX Polish and Operator Home Takeover",
+      "Athena is the main Jarvis control layer",
       "normal user path is primary",
       "developer diagnostics are secondary",
     ],
@@ -565,12 +567,12 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "diagnostics",
     ],
     currentFocus:
-      "Open Athena Command Center first, review approval-gated handoff packets, then move into Jarvis Video Studio and the other specialist surfaces without leaving the controlled workspace.",
+      "Open Athena Command Center first, keep product cards above diagnostics, review approval-gated handoff packets, and move into Jarvis Video Studio or the other specialist surfaces without enabling execution.",
     heroMetrics: [
       {
         label: "Primary route",
-        value: "Athena",
-        detail: "Athena sits above Jarvis specialist workspaces as the operator chat control layer.",
+        value: "Athena Command Center",
+        detail: "Athena is the main Jarvis control layer and sits above specialist workspaces as the operator brain.",
       },
       {
         label: "Secondary route",
@@ -650,14 +652,16 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     label: "Jarvis Command Center",
     title: "Athena",
     eyebrow: "Athena Command Center",
-    badge: "Upper control plane",
+    badge: "Your upper Jarvis layer",
     summary:
-      "Ask Athena to plan, route, review, and safely hand off work across CodexForge.",
+      "Athena Command Center is your upper Jarvis layer for preview-only planning, routing, review, and safe handoff across CodexForge.",
     summaryMarkers: [
       "Jarvis command center order upgraded",
       "Jarvis is the operating system / top-level control plane.",
       "Jarvis Command Center",
       "Athena Command Center",
+      "4586-4617 - Athena Product UX Polish and Operator Home Takeover",
+      "Your upper Jarvis layer",
       "developer diagnostics are secondary",
     ],
     workspaceOrder: JARVIS_UNIFIED_PRODUCT_COMMAND_CENTER_ORDER,
@@ -678,11 +682,11 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "diagnostics",
     ],
     currentFocus:
-      "Athena can map commands into the plugin registry, preview command routing, prepare approval-gated handoff packets, review blockers, and keep backend-only handoff paths locked by default.",
+      "Athena now leads /jarvis as the main product brain, with inert chat near the top, product-first status cards, operator actions, and lower-priority registry, router, bridge, timeline, and audit sections.",
     heroMetrics: [
       {
-        label: "Control plane",
-        value: "Athena over Jarvis",
+        label: "Mission",
+        value: "Your upper Jarvis layer",
         detail: "Athena is the upper chat control layer above specialist Jarvis workspaces and approval-gated product lanes.",
       },
       {
