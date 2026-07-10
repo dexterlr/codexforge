@@ -128,6 +128,9 @@ $frontEndSourceFiles = Get-SourceFiles @(
 $frontEndSource = Get-CombinedFileText $frontEndSourceFiles
 
 foreach ($needle in @(
+  "4714-4745 - Server-Only Model Adapter Contracts",
+  "Phase 4745 Server-Only Model Adapter Contracts",
+  "smoke-codexforge-server-only-model-adapter-contracts-mega-batch.ps1",
   "4682-4713 - AI Model Provider Registry and Capability Matrix",
   "Phase 4713 AI Model Provider Registry and Capability Matrix",
   "smoke-codexforge-ai-model-provider-registry-capability-matrix-mega-batch.ps1",
@@ -178,15 +181,18 @@ foreach ($needle in @(
 Assert-NotContains $archiveDocSource "archived historical smokes passed" "archive doc does not claim archived historical smokes passed"
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 4713. Latest completed batch: 4682-4713 - AI Model Provider Registry and Capability Matrix. Previous completed batch: 4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate.",
-  "Highest detected phase: 4713. Latest completed batch: 4682-4713 - AI Model Provider Registry and Capability Matrix. Previous completed batch: 4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate. Next likely batch: 4714-4745 - Server-Only Model Adapter Contracts.",
-  "Latest completed batch: 4682-4713 - AI Model Provider Registry and Capability Matrix",
-  "Previous completed batch: 4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate",
-  "Next likely batch: 4714-4745 - Server-Only Model Adapter Contracts",
+  "Current checkpoint: Highest detected phase: 4745. Latest completed batch: 4714-4745 - Server-Only Model Adapter Contracts. Previous completed batch: 4682-4713 - AI Model Provider Registry and Capability Matrix.",
+  "Highest detected phase: 4745. Latest completed batch: 4714-4745 - Server-Only Model Adapter Contracts. Previous completed batch: 4682-4713 - AI Model Provider Registry and Capability Matrix. Next likely batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness.",
+  "Latest completed batch: 4714-4745 - Server-Only Model Adapter Contracts",
+  "Previous completed batch: 4682-4713 - AI Model Provider Registry and Capability Matrix",
+  "Next likely batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness",
   "current required release gate only",
   "historical phase smokes are preserved as archive evidence",
   "historical phase smokes are non-gating by default",
   "no historical pass claim",
+  "server-only model adapter contracts only",
+  "adapter contracts are preview-only",
+  "adapter envelopes are preview-only",
   "no prompt sending",
   "no LLM/model calls",
   "no frontend provider call",
@@ -205,10 +211,13 @@ foreach ($needle in @(
   "no browser storage",
   "no database writes",
   "backend-only execution path required",
+  "server-only adapters required",
   "operator approval required",
   "kill switch required",
   "audit required",
-  "model provider registry next"
+  "opaque credential references only",
+  "no plaintext secrets",
+  "manual gated dry-run harness next"
 )) {
   Assert-Contains $docsSource $needle "checkpoint docs or runbook contain $needle"
 }

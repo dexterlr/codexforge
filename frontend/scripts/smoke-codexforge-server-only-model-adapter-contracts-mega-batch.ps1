@@ -48,7 +48,7 @@ function Normalize-Whitespace {
   return ([regex]::Replace($Text, "\s+", " ")).Trim()
 }
 
-Write-Host "=== CodexForge AI Model Provider Registry and Capability Matrix Mega Batch smoke ==="
+Write-Host "=== CodexForge Server-Only Model Adapter Contracts Mega Batch smoke ==="
 
 $jarvisPagePath = Join-Path $root "src\app\jarvis\page.tsx"
 $jarvisPageClientPath = Join-Path $root "src\app\jarvis\page-client.tsx"
@@ -62,9 +62,11 @@ $athenaPanelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia
 $homeShellPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisUnifiedProductShell.tsx"
 $athenaModelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\athena-control-plane-model.ts"
 $providerPanelPath = Join-Path $root "src\lib\codexforge\ai-provider-registry\components\AiProviderRegistryPanel.tsx"
-$providerTypesPath = Join-Path $root "src\lib\codexforge\ai-provider-registry\ai-provider-registry-types.ts"
 $providerCatalogPath = Join-Path $root "src\lib\codexforge\ai-provider-registry\ai-model-provider-registry-catalog.ts"
 $videoPanelPath = Join-Path $root "src\lib\codexforge\jarvis-video-studio-release-candidate-map\components\JarvisVideoStudioReleaseCandidatePanel.tsx"
+$adapterTypesPath = Join-Path $root "src\lib\codexforge\server-only-model-adapter-contracts\server-only-model-adapter-contracts-types.ts"
+$adapterCatalogPath = Join-Path $root "src\lib\codexforge\server-only-model-adapter-contracts\server-only-model-adapter-contracts-catalog.ts"
+$adapterIndexPath = Join-Path $root "src\lib\codexforge\server-only-model-adapter-contracts\index.ts"
 $allSmokePath = Join-Path $root "scripts\smoke-codexforge-all.ps1"
 $checkpointCurrentPath = Join-Path $root "docs\codexforge-checkpoint-current.md"
 $runbookPath = Join-Path $root "docs\codexforge-operator-checkpoint-runbook.md"
@@ -83,9 +85,11 @@ $requiredPaths = @(
   $homeShellPath,
   $athenaModelPath,
   $providerPanelPath,
-  $providerTypesPath,
   $providerCatalogPath,
   $videoPanelPath,
+  $adapterTypesPath,
+  $adapterCatalogPath,
+  $adapterIndexPath,
   $allSmokePath,
   $checkpointCurrentPath,
   $runbookPath,
@@ -118,13 +122,14 @@ $videoSource = Get-CombinedFileText @(
 $providerSource = Get-CombinedFileText @(
   $providersPageClientPath,
   $providerPanelPath,
-  $providerTypesPath,
   $providerCatalogPath
 )
 $typedModelSource = Get-CombinedFileText @(
-  $providerTypesPath,
-  $providerCatalogPath,
-  $athenaModelPath
+  $adapterTypesPath,
+  $adapterCatalogPath,
+  $adapterIndexPath,
+  $athenaModelPath,
+  $providerPanelPath
 )
 $frontendPreviewSource = Get-CombinedFileText @(
   $jarvisPagePath,
@@ -136,7 +141,10 @@ $frontendPreviewSource = Get-CombinedFileText @(
   $athenaPanelPath,
   $homeShellPath,
   $athenaModelPath,
-  $providerPanelPath
+  $providerPanelPath,
+  $providerCatalogPath,
+  $adapterTypesPath,
+  $adapterCatalogPath
 )
 $allSmokeSource = Get-Content -Raw $allSmokePath
 $checkpointCurrentSource = Get-Content -Raw $checkpointCurrentPath
@@ -152,11 +160,11 @@ $checkpointNormalized = Normalize-Whitespace $checkpointCurrentSource
 $runbookNormalized = Normalize-Whitespace $runbookSource
 
 foreach ($needle in @(
-  "4682-4713 - AI Model Provider Registry and Capability Matrix",
-  "4713",
-  "AI Model Provider Registry and Capability Matrix"
+  "4714-4745 - Server-Only Model Adapter Contracts",
+  "4745",
+  "Server-Only Model Adapter Contracts"
 )) {
-  Assert-Contains ($jarvisNormalized + " " + $providerNormalized + " " + $checkpointNormalized) $needle "batch marker contains $needle"
+  Assert-Contains ($jarvisNormalized + " " + $providerNormalized + " " + $typedModelNormalized + " " + $checkpointNormalized) $needle "batch marker contains $needle"
 }
 
 foreach ($needle in @(
@@ -164,25 +172,22 @@ foreach ($needle in @(
   "Athena Command Center",
   "AI model provider registry",
   "Capability matrix",
-  "Provider selection preview",
-  "Provider slots are registry-only",
+  "Server-only model adapter contracts",
+  "Adapter envelope preview",
+  "Server-only adapter gates",
+  "model adapters must run server-only",
+  "frontend provider calls are blocked",
   "No model calls yet",
   "No prompt sending",
   "No provider SDKs imported",
-  "Server-only adapters required",
-  "Credential isolation required",
-  "Operator approval required",
-  "Kill switch required",
-  "Audit required",
-  "text/chat",
-  "code",
-  "image",
-  "video",
-  "audio/voice",
-  "transcription",
-  "embeddings/search",
-  "safety/moderation",
-  "local inference"
+  "opaque credential references only",
+  "operator approval required",
+  "kill switch required",
+  "audit required",
+  "manual gated dry-run harness comes next",
+  "request envelope preview",
+  "response envelope preview",
+  "error envelope preview"
 )) {
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
@@ -192,10 +197,10 @@ foreach ($needle in @(
   "Athena is the main Jarvis control layer",
   "Open Athena Command Center",
   "Open Jarvis Video Studio",
-  "Athena can now preview AI model provider slots",
   "Athena can now preview server-only model adapter contracts",
   "manual gated dry-run harness comes next",
-  "no model calls yet"
+  "no model calls yet",
+  "no prompt sending"
 )) {
   Assert-Contains $homeNormalized $needle "home contains $needle"
 }
@@ -210,29 +215,52 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  'registryVersion: "athena-jarvis-model-gateway-registry-v1"',
-  'source: "Athena / Jarvis Model Gateway"',
-  'registryMode: "preview-only"',
-  'providerStatus: "registry-only / not connected"',
-  'capabilityMatrix: CAPABILITY_MATRIX',
-  'providerSelectionPreview: PROVIDER_SELECTION_PREVIEW',
-  "Provider slots are registry-only",
-  "No model calls yet",
-  "No prompt sending",
-  "No provider SDKs imported",
-  "Server-only adapters required",
-  "Credential isolation required",
-  "4714-4745 - Server-Only Model Adapter Contracts",
-  "Define request and response envelopes for each provider family.",
-  "Keep credentials as opaque backend-only references."
+  'SERVER_ONLY_MODEL_ADAPTER_CONTRACTS_BATCH =',
+  'SERVER_ONLY_MODEL_ADAPTER_CONTRACTS_PHASE = 4745',
+  'MANUAL_GATED_MODEL_ADAPTER_DRY_RUN_HARNESS_BATCH =',
+  'contractVersion: "jarvis-model-gateway-server-only-model-adapter-contract-v1"',
+  'source: "Jarvis Model Gateway / Athena"',
+  'contractMode: "preview-only"',
+  'adapterPosture: "server-only required"',
+  'frontendPosture: "blocked"',
+  'providerCallPosture: "not implemented"',
+  'modelCallPosture: "not implemented"',
+  'promptSendingPosture: "not implemented"',
+  'sdkPosture: "no SDK imports"',
+  'credentialPosture: "opaque credential references only"',
+  'secretPosture: "no plaintext secrets"',
+  'environmentPosture: "no env var reads"',
+  'executionPosture: "blocked by default"',
+  'requestEnvelopeVersion: "jarvis-model-gateway-request-envelope-preview-v1"',
+  'responseEnvelopeVersion: "jarvis-model-gateway-response-envelope-preview-v1"',
+  'errorEnvelopeVersion: "jarvis-model-gateway-error-envelope-preview-v1"',
+  'promptPayloadPosture: "redacted placeholder only"',
+  'providerResponseState: "not received"',
+  'resultState: "placeholder only"',
+  'retryFallbackPosture: "disabled"',
+  "manual gated dry-run harness comes next",
+  "buildStableModelAdapterContractKey",
+  "buildStableModelAdapterRequestEnvelopeKey",
+  "buildStableModelAdapterResponseEnvelopeKey",
+  "buildStableModelAdapterErrorEnvelopeKey",
+  "listServerOnlyModelAdapterContracts",
+  "listModelAdapterRequestEnvelopePreviews",
+  "listModelAdapterResponseEnvelopePreviews",
+  "listModelAdapterErrorEnvelopePreviews",
+  "listServerOnlyAdapterGateChecklist",
+  "groupAdapterContractsByCapabilityFamily",
+  "groupAdapterContractsByWorkspaceTarget",
+  "buildAdapterReadinessSummary",
+  "buildBlockedModelExecutionSummary",
+  "buildNextManualGatedDryRunChecklist"
 )) {
   Assert-Contains $typedModelNormalized $needle "typed model/data contains $needle"
 }
 
 foreach ($needle in @(
-  'Phase 4713 AI Model Provider Registry and Capability Matrix',
-  'smoke-codexforge-ai-model-provider-registry-capability-matrix-mega-batch.ps1',
-  '4682-4713 - AI Model Provider Registry and Capability Matrix'
+  'Phase 4745 Server-Only Model Adapter Contracts',
+  'smoke-codexforge-server-only-model-adapter-contracts-mega-batch.ps1',
+  '4714-4745 - Server-Only Model Adapter Contracts'
 )) {
   Assert-Contains $allSmokeSource $needle "all-smoke references $needle"
 }
@@ -256,11 +284,11 @@ Assert-NotMatches $frontendPreviewSource '\bwindow\.localStorage\b|\blocalStorag
 Assert-NotMatches $frontendPreviewSource '\bwindow\.sessionStorage\b|\bsessionStorage\.' "frontend Athena/Jarvis files do not use sessionStorage"
 Assert-NotMatches $frontendPreviewSource '\bwindow\.indexedDB\b|\bindexedDB\.' "frontend Athena/Jarvis files do not use IndexedDB"
 Assert-NotMatches $frontendPreviewSource '\bdocument\.cookie\b|\bcookieStore\.' "frontend Athena/Jarvis files do not use cookies"
-Assert-NotMatches $frontendPreviewSource '\bchild_process\b|\bexec\s*\(|\bspawn\s*\(|\bexeca\b|\bBun\.spawn\b|\bDeno\.Command\b' "frontend Athena/Jarvis files do not execute shell or process commands"
+Assert-NotMatches $frontendPreviewSource '\bchild_process\b|\bexec\s*\(|\bspawn\s*\(|\bexeca\b|\bBun\.spawn\b|\bDeno\.Command\b|\bStart-Process\b' "frontend Athena/Jarvis files do not execute shell or process commands"
 
 Assert-Contains $navigationTypesSource "export type CodexForgeNavigationRouteHref = Route;" "route href typing stays Route"
 Assert-Contains $navigationTypesSource "commandDeckRole: CodexForgeCommandDeckRole;" "commandDeckRole typing stays strict"
 Assert-NotMatches $navigationTypesSource 'export type CodexForgeNavigationRouteHref\s*=\s*string;' "route href typing is not loosened to string"
 Assert-NotMatches $navigationTypesSource 'commandDeckRole:\s*string\b' "commandDeckRole is not loosened to string"
 
-Write-Host "[PASS] CodexForge AI model provider registry and capability matrix smoke completed"
+Write-Host "[PASS] CodexForge Server-Only Model Adapter Contracts smoke completed"

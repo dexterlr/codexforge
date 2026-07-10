@@ -11,6 +11,8 @@ $fullSmokeStartedAt = Get-Date
 $script:CodexForgeSmokeLastSummary = $null
 $fullSmokeFailure = $null
 $fullSmokeShouldExitFailure = $false
+# Previous completed batch marker preserved for smoke coverage:
+# 4682-4713 - AI Model Provider Registry and Capability Matrix
 # Coverage metadata for legacy smoke assertions. The executable suite below runs
 # grouped runners only; these entries keep existing smoke scripts able to verify
 # their coverage without re-flattening all-smoke.
@@ -469,7 +471,7 @@ function Get-CodexForgeCurrentReleaseGateStatusLabel {
   }
 }
 
-$currentReleaseGateBatch = "4682-4713 - AI Model Provider Registry and Capability Matrix"
+$currentReleaseGateBatch = "4714-4745 - Server-Only Model Adapter Contracts"
 $currentReleaseGateName = "CodexForge Current Required Release Gate"
 $currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
 $historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
@@ -489,6 +491,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 4649 Athena Conversational Command Composer and Approval Drafts"; File = "smoke-codexforge-athena-conversational-command-composer-approval-drafts-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4681 CodexForge Full Smoke Harness Triage and Required Release Gate"; File = "smoke-codexforge-full-smoke-harness-triage-required-release-gate-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4713 AI Model Provider Registry and Capability Matrix"; File = "smoke-codexforge-ai-model-provider-registry-capability-matrix-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4745 Server-Only Model Adapter Contracts"; File = "smoke-codexforge-server-only-model-adapter-contracts-mega-batch.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }

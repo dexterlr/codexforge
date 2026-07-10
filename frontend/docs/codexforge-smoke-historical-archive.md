@@ -2,7 +2,7 @@
 
 ## Current Release Gate
 Current release gate is `scripts/smoke-codexforge-all.ps1`.
-It runs only the current required release smokes and current critical regressions for `4682-4713 - AI Model Provider Registry and Capability Matrix`.
+It runs only the current required release smokes and current critical regressions for `4714-4745 - Server-Only Model Adapter Contracts`.
 
 ## Historical Archive
 Historical phase smokes are preserved as evidence.
@@ -36,4 +36,4 @@ Backend-only execution path required.
 Operator approval required.
 Kill switch required.
 Audit required.
-Next likely batch: `4714-4745 - Server-Only Model Adapter Contracts`.
+Next likely batch: `4746-4777 - Manual Gated Model Adapter Dry-Run Harness`.

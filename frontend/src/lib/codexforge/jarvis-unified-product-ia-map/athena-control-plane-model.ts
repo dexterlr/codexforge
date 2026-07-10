@@ -1,5 +1,9 @@
 import type { CodexForgeNavigationRouteHref } from "../navigation-shell/navigation-shell-types";
-import { buildNextServerOnlyAdapterChecklist } from "@/lib/codexforge/ai-provider-registry";
+import {
+  buildNextManualGatedDryRunChecklist,
+  MANUAL_GATED_MODEL_ADAPTER_DRY_RUN_HARNESS_BATCH,
+  SERVER_ONLY_MODEL_ADAPTER_CONTRACTS_PHASE,
+} from "@/lib/codexforge/server-only-model-adapter-contracts";
 
 export const ATHENA_UNIFIED_CHAT_CONTROL_PLANE_FOUNDATION_BATCH =
   "4458-4489 - Athena Unified Chat Control Plane Foundation";
@@ -45,6 +49,12 @@ export const ATHENA_MODEL_PROVIDER_REGISTRY_CAPABILITY_MATRIX_PHASE = 4713;
 
 export const ATHENA_SERVER_ONLY_MODEL_ADAPTER_CONTRACTS_BATCH =
   "4714-4745 - Server-Only Model Adapter Contracts";
+
+export const ATHENA_SERVER_ONLY_MODEL_ADAPTER_CONTRACTS_PHASE =
+  SERVER_ONLY_MODEL_ADAPTER_CONTRACTS_PHASE;
+
+export const ATHENA_MANUAL_GATED_MODEL_ADAPTER_DRY_RUN_HARNESS_BATCH =
+  MANUAL_GATED_MODEL_ADAPTER_DRY_RUN_HARNESS_BATCH;
 
 export type AthenaLauncherStatus =
   | "ready"
@@ -484,6 +494,7 @@ export type AthenaCommandCenterModel = Readonly<{
   crossWorkspaceRunTimeline: readonly AthenaCrossWorkspaceRunTimelineRecord[];
   auditMemoryPreview: readonly AthenaAuditMemoryPreviewRecord[];
   nextServerOnlyAdapterChecklist: readonly string[];
+  nextManualGatedDryRunChecklist: readonly string[];
 }>;
 
 export type AthenaPrimaryOperatorActionId =
@@ -575,6 +586,7 @@ export type AthenaProductUxModel = Readonly<{
   blockedDefaultExecutionSummary: string;
   nextOperatorActions: readonly string[];
   nextServerOnlyAdapterChecklist: readonly string[];
+  nextManualGatedDryRunChecklist: readonly string[];
   operatorStatusPanel: readonly AthenaOperatorStatusRecord[];
 }>;
 
@@ -686,7 +698,7 @@ export const ATHENA_PRIMARY_OPERATOR_ACTIONS = [
     label: "Check provider readiness",
     shortLabel: "Providers and readiness",
     summary:
-      "Inspect the AI model provider registry, capability matrix, blocked routing preview, and backend-only adapter requirements from the operator cockpit.",
+      "Inspect the AI model provider registry, capability matrix, server-only model adapter contracts, adapter envelope previews, and backend-only dry-run requirements from the operator cockpit.",
     href: "/ai-providers",
     badge: "/ai-providers",
     tone: "approval-required",
@@ -972,29 +984,30 @@ export const ATHENA_PRODUCT_UX_POLISH_MODEL = {
   operatorHomeTakeoverVersion: "athena-operator-home-takeover-v1",
   heroCopy: ATHENA_PRODUCT_UX_HERO_COPY,
   cockpitSummary:
-    "Athena is the main Jarvis control layer. Athena is the main chat control layer. Athena can draft structured commands. Athena can draft approval packets. Athena can now preview AI model provider slots and compare capability families without sending prompts or calling models. Jarvis is the operating system / safety control plane, and specialist plugin pages stay preview-only tools Athena can route to and later control with approvals and backend gates.",
+    "Athena is the main Jarvis control layer. Athena is the main chat control layer. Athena can draft structured commands. Athena can draft approval packets. Athena can now preview AI model provider slots, compare capability families, preview server-only model adapter contracts, and review adapter envelope previews without sending prompts or calling models. Jarvis is the operating system / safety control plane, and specialist plugin pages stay preview-only tools Athena can route to and later control with approvals and backend gates.",
   commandComposerPlaceholderCopy: "Ask Athena what you want to build or control.",
   immediateStatusCards: ATHENA_IMMEDIATE_STATUS_CARDS,
   primaryOperatorActions: ATHENA_PRIMARY_OPERATOR_ACTIONS,
   pluginLauncherGroups: ATHENA_PLUGIN_LAUNCHER_GROUPS,
   safetyPostureSummary:
-    "Athena conversational command composer, AI model provider registry, and capability matrix only. Command composer is preview-only. Provider slots are registry-only. Capability matrix is preview-only. No prompt sending. No LLM/model calls. No frontend provider call. No frontend fetch/network call. No provider SDKs imported. Kill switch required. No browser storage. No persistent memory.",
+    "Athena conversational command composer, AI model provider registry, capability matrix, server-only model adapter contracts, and adapter envelope previews only. Command composer is preview-only. Provider slots are registry-only. Capability matrix is preview-only. Adapter contracts are preview-only. Adapter envelopes are preview-only. No prompt sending. No LLM/model calls. No frontend provider call. No frontend fetch/network call. No provider SDKs imported. Kill switch required. No browser storage. No persistent memory.",
   approvalPostureSummary:
-    "Approval-gated handoffs only. Operator approval required. Backend-only execution required. Server-only model adapter contracts come next.",
+    "Approval-gated handoffs only. Operator approval required. Backend-only execution required. Server-only model adapters must run backend-only. Manual gated dry-run harness comes next.",
   auditPostureSummary:
     "Audit required. Audit memory preview is static preview only. No audit persistence.",
   currentReadinessSummary:
-    "Command drafting: preview-only. Approval drafts: preview-only. Provider registry: preview available. Capability matrix: preview available. Model calls: not connected yet.",
+    "Command drafting: preview-only. Approval drafts: preview-only. Provider registry: preview available. Capability matrix: preview available. Server-only adapter contracts: preview available. Adapter envelopes: preview available. Model calls: not connected yet.",
   blockedDefaultExecutionSummary:
-    "Provider execution: locked. Plugin execution: locked. Autonomous execution: locked. Persistence: not implemented. Backend-only execution: required. Server-only adapters required.",
+    "Frontend provider calls: blocked. Provider execution: locked. Plugin execution: locked. Autonomous execution: locked. Persistence: not implemented. Backend-only execution: required.",
   nextOperatorActions: [
     "Open Athena Command Center and draft the operator request locally.",
     "Review the conversational command composer preview before opening a specialist workspace.",
     "Review the approval draft preview and keep backend-only execution blocked by default.",
-    "Review the AI model provider registry, capability matrix, and provider selection preview before discussing adapters.",
-    "Keep operator approval, kill switch, audit, credential isolation, and provider-readiness requirements visible.",
+    "Review the AI model provider registry, capability matrix, provider selection preview, and server-only model adapter contracts before discussing dry runs.",
+    "Keep operator approval, kill switch, audit, credential isolation, adapter envelope preview posture, and provider-readiness requirements visible.",
   ],
-  nextServerOnlyAdapterChecklist: buildNextServerOnlyAdapterChecklist(),
+  nextServerOnlyAdapterChecklist: buildNextManualGatedDryRunChecklist(),
+  nextManualGatedDryRunChecklist: buildNextManualGatedDryRunChecklist(),
   operatorStatusPanel: ATHENA_OPERATOR_STATUS_PANEL,
 } as const satisfies AthenaProductUxModel;
 
@@ -1002,11 +1015,11 @@ export const ATHENA_CONTROL_PLANE_IDENTITY = {
   name: "Athena",
   title: "Athena Command Center",
   mission:
-    "Athena is the main chat control layer above all specialist Jarvis workspaces and approval-gated product lanes. Athena is the main Jarvis control layer. Athena can draft structured commands from natural requests, prepare preview-only approval drafts, review routed work, preview AI model provider slots, compare capability families, preview cross-workspace run timelines, show static audit memory previews, and safely hand off work across CodexForge.",
+    "Athena is the main chat control layer above all specialist Jarvis workspaces and approval-gated product lanes. Athena is the main Jarvis control layer. Athena can draft structured commands from natural requests, prepare preview-only approval drafts, review routed work, preview AI model provider slots, compare capability families, preview server-only model adapter contracts, review adapter request/response/error envelopes, preview cross-workspace run timelines, show static audit memory previews, and safely hand off work across CodexForge.",
   operatorPromise:
     "Ask Athena to plan, route, review, and safely hand off work across CodexForge.",
   posture:
-    "Athena conversational command composer, AI model provider registry, and capability matrix only. Command composer is preview-only. Approval drafts are preview-only. Provider slots are registry-only. Capability matrix is preview-only. Bridge is inert. Execution is blocked by default. Plugin registry is inert. Command router is preview-only. Chat input remains inert/local only and executes nothing.",
+    "Athena conversational command composer, AI model provider registry, capability matrix, server-only model adapter contracts, and adapter envelope previews only. Command composer is preview-only. Approval drafts are preview-only. Provider slots are registry-only. Capability matrix is preview-only. Adapter contracts are preview-only. Adapter envelopes are preview-only. Bridge is inert. Execution is blocked by default. Plugin registry is inert. Command router is preview-only. Chat input remains inert/local only and executes nothing.",
 } as const satisfies AthenaIdentityModel;
 
 export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
@@ -1014,9 +1027,9 @@ export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
   placeholder:
     "Ask Athena what you want to build or control. Draft an operator request for Athena. This stays local to the page and executes nothing.",
   helperText:
-    "Chat input remains inert/local only. No prompt sending. No model calls yet. No provider SDKs imported. No frontend fetch/network call. No browser storage. No persistent memory. No plugin execution from chat yet. Approval-gated handoffs only. Backend-only execution required. Audit required. Kill switch required. No queue dispatch. No result persistence.",
+    "Chat input remains inert/local only. No prompt sending. No model calls yet. No provider SDKs imported. No frontend fetch/network call. Server-only adapter contracts are preview-only. Adapter envelopes are preview-only. No browser storage. No persistent memory. No plugin execution from chat yet. Approval-gated handoffs only. Backend-only execution required. Audit required. Kill switch required. No queue dispatch. No result persistence.",
   executionPosture:
-    "Execution remains approval-gated, blocked by default, and backend-only. Command composer is preview-only. Approval drafts are preview-only. Timeline is preview-only. Audit memory is static preview only. No autonomous execution.",
+    "Execution remains approval-gated, blocked by default, and backend-only. Command composer is preview-only. Approval drafts are preview-only. Adapter contracts are preview-only. Adapter envelopes are preview-only. Timeline is preview-only. Audit memory is static preview only. No autonomous execution.",
 } as const satisfies AthenaChatModel;
 
 export const ATHENA_SUGGESTED_PROMPTS = [
@@ -1066,7 +1079,7 @@ export const ATHENA_SUGGESTED_PROMPTS = [
     id: "provider-readiness",
     label: "Check provider readiness",
     summary:
-      "Route into Providers to review the AI model provider registry, capability matrix, blocked provider selection preview, and backend-only adapter requirements.",
+      "Route into Providers to review the AI model provider registry, capability matrix, server-only model adapter contracts, adapter envelope preview, and backend-only dry-run requirements.",
     routeHint: "/ai-providers",
   },
   {
@@ -2088,6 +2101,18 @@ export const ATHENA_CURRENT_CAPABILITIES = [
       "Athena can compare text/chat, code, image, video, audio/voice, transcription, embeddings/search, safety/moderation, local inference, and metadata/summarization families as preview-only rows.",
   },
   {
+    id: "server-only-model-adapter-contracts",
+    label: "Athena can now preview server-only model adapter contracts",
+    summary:
+      "Athena can review typed preview-only server-only model adapter contracts, blocked frontend posture, and backend-only dry-run prerequisites without executing anything.",
+  },
+  {
+    id: "adapter-envelope-preview",
+    label: "Athena can preview adapter envelopes and gates",
+    summary:
+      "Athena can review request envelope preview, response envelope preview, error envelope preview, and server-only adapter gates while prompt payloads stay redacted placeholders only.",
+  },
+  {
     id: "readiness-review",
     label: "Athena can review readiness and blockers",
     summary:
@@ -2105,16 +2130,16 @@ export const ATHENA_CURRENT_CAPABILITIES = [
 
 export const ATHENA_FUTURE_CAPABILITIES = [
   {
-    id: "server-only-model-adapters",
-    label: "Server-only model adapter contracts come next",
+    id: "manual-gated-dry-run-harness",
+    label: "Manual gated model adapter dry-run harness comes next",
     summary:
-      "The next likely batch is 4714-4745 - Server-Only Model Adapter Contracts.",
+      "The next likely batch is 4746-4777 - Manual Gated Model Adapter Dry-Run Harness.",
   },
   {
-    id: "capability-matrix",
-    label: "Capability matrix stays preview-only until adapters exist",
+    id: "dry-run-keeps-adapters-inert",
+    label: "Adapter contracts and envelopes stay preview-only until dry runs exist",
     summary:
-      "Provider capability fit, workspace targeting, safety posture, and credential isolation stay registry-only until server-only adapters define request and response envelopes.",
+      "Server-only model adapter contracts, request envelope preview, response envelope preview, and error envelope preview stay inert until a backend-only manual dry-run harness exists.",
   },
   {
     id: "execution-remains-locked",
@@ -3040,12 +3065,11 @@ export const ATHENA_AUDIT_MEMORY_PREVIEW_ITEMS:
 // The next likely Athena batch is 4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory.
 
 export const ATHENA_COMMAND_CENTER_MODEL = {
-  batch: ATHENA_MODEL_PROVIDER_REGISTRY_CAPABILITY_MATRIX_BATCH,
-  highestDetectedPhase: ATHENA_MODEL_PROVIDER_REGISTRY_CAPABILITY_MATRIX_PHASE,
-  latestCompletedBatch: ATHENA_MODEL_PROVIDER_REGISTRY_CAPABILITY_MATRIX_BATCH,
-  previousCompletedBatch:
-    ATHENA_FULL_SMOKE_HARNESS_TRIAGE_REQUIRED_RELEASE_GATE_BATCH,
-  nextLikelyBatch: ATHENA_SERVER_ONLY_MODEL_ADAPTER_CONTRACTS_BATCH,
+  batch: ATHENA_SERVER_ONLY_MODEL_ADAPTER_CONTRACTS_BATCH,
+  highestDetectedPhase: ATHENA_SERVER_ONLY_MODEL_ADAPTER_CONTRACTS_PHASE,
+  latestCompletedBatch: ATHENA_SERVER_ONLY_MODEL_ADAPTER_CONTRACTS_BATCH,
+  previousCompletedBatch: ATHENA_MODEL_PROVIDER_REGISTRY_CAPABILITY_MATRIX_BATCH,
+  nextLikelyBatch: ATHENA_MANUAL_GATED_MODEL_ADAPTER_DRY_RUN_HARNESS_BATCH,
   identity: ATHENA_CONTROL_PLANE_IDENTITY,
   chat: ATHENA_CHAT_PLACEHOLDER_MODEL,
   productUx: ATHENA_PRODUCT_UX_POLISH_MODEL,
@@ -3066,7 +3090,8 @@ export const ATHENA_COMMAND_CENTER_MODEL = {
   handoffPacketPreviews: ATHENA_HANDOFF_PACKET_PREVIEWS,
   crossWorkspaceRunTimeline: ATHENA_CROSS_WORKSPACE_RUN_TIMELINE_PREVIEW_ITEMS,
   auditMemoryPreview: ATHENA_AUDIT_MEMORY_PREVIEW_ITEMS,
-  nextServerOnlyAdapterChecklist: buildNextServerOnlyAdapterChecklist(),
+  nextServerOnlyAdapterChecklist: buildNextManualGatedDryRunChecklist(),
+  nextManualGatedDryRunChecklist: buildNextManualGatedDryRunChecklist(),
 } as const satisfies AthenaCommandCenterModel;
 
 function resolveStaticAthenaPlugin(

@@ -10,6 +10,18 @@ import {
   groupProvidersByCapability,
   listModelProviderSlots,
 } from "@/lib/codexforge/ai-provider-registry";
+import {
+  buildAdapterReadinessSummary,
+  buildBlockedModelExecutionSummary,
+  buildNextManualGatedDryRunChecklist,
+  groupAdapterContractsByCapabilityFamily,
+  groupAdapterContractsByWorkspaceTarget,
+  listModelAdapterErrorEnvelopePreviews,
+  listModelAdapterRequestEnvelopePreviews,
+  listModelAdapterResponseEnvelopePreviews,
+  listServerOnlyAdapterGateChecklist,
+  listServerOnlyModelAdapterContracts,
+} from "@/lib/codexforge/server-only-model-adapter-contracts";
 import styles from "./JarvisUnifiedProductShell.module.css";
 import {
   buildAuditRequirementsSummary,
@@ -54,6 +66,25 @@ export function AthenaCommandCenterPanel({
     buildAthenaProviderSelectionPreviewFromExactStaticExamples();
   const capabilityWorkspaceGroups = groupCapabilitiesByWorkspaceTarget();
   const providersByCapability = groupProvidersByCapability();
+  const adapterContracts = listServerOnlyModelAdapterContracts();
+  const adapterRequestEnvelopePreviews = listModelAdapterRequestEnvelopePreviews();
+  const adapterResponseEnvelopePreviews =
+    listModelAdapterResponseEnvelopePreviews();
+  const adapterErrorEnvelopePreviews = listModelAdapterErrorEnvelopePreviews();
+  const serverOnlyAdapterGateChecklist = listServerOnlyAdapterGateChecklist();
+  const adapterReadinessSummary = buildAdapterReadinessSummary();
+  const blockedModelExecutionSummary = buildBlockedModelExecutionSummary();
+  const adapterContractsByCapabilityFamily =
+    groupAdapterContractsByCapabilityFamily();
+  const adapterContractsByWorkspaceTarget =
+    groupAdapterContractsByWorkspaceTarget();
+  const nextManualGatedDryRunChecklist = buildNextManualGatedDryRunChecklist();
+  const representativeAdapterRequestEnvelope =
+    adapterRequestEnvelopePreviews[0] ?? null;
+  const representativeAdapterResponseEnvelope =
+    adapterResponseEnvelopePreviews[0] ?? null;
+  const representativeAdapterErrorEnvelope =
+    adapterErrorEnvelopePreviews[0] ?? null;
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -277,17 +308,17 @@ export function AthenaCommandCenterPanel({
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Next server-only work</p>
+                <p className={styles.panelEyebrow}>Next manual dry-run work</p>
                 <h3 className={styles.placeholderTitle}>
                   {commandCenter.nextLikelyBatch}
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
-                Adapter contracts next
+                Dry-run harness next
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextServerOnlyAdapterChecklist.map((item) => (
+              {commandCenter.nextManualGatedDryRunChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -559,17 +590,17 @@ export function AthenaCommandCenterPanel({
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Next server-only work</p>
+                <p className={styles.panelEyebrow}>Next manual dry-run work</p>
                 <h3 className={styles.placeholderTitle}>
                   {commandCenter.nextLikelyBatch}
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
-                Contracts next
+                Dry-run harness next
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextServerOnlyAdapterChecklist.slice(0, 6).map((item) => (
+              {commandCenter.nextManualGatedDryRunChecklist.slice(0, 6).map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -766,7 +797,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Blocked posture</p>
                 <h3 className={styles.placeholderTitle}>
-                  What server-only adapter work comes next
+                  What manual dry-run work comes next
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -777,7 +808,7 @@ export function AthenaCommandCenterPanel({
               {blockedProviderExecutionSummary.summary}
             </p>
             <div className={styles.workspaceMeta}>
-              {commandCenter.nextServerOnlyAdapterChecklist.slice(0, 5).map((item) => (
+              {commandCenter.nextManualGatedDryRunChecklist.slice(0, 5).map((item) => (
                 <span key={item} className={styles.metaPill}>
                   {item}
                 </span>
@@ -811,6 +842,371 @@ export function AthenaCommandCenterPanel({
               <p className={styles.railFooter}>
                 {`Next adapter requirement: ${preview.nextAdapterRequirement}`}
               </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Server-only model adapter contracts"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Model Gateway contract layer</p>
+            <h2 className={styles.panelTitle}>
+              Server-only model adapter contracts
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          model adapters must run server-only. frontend provider calls are
+          blocked. no model calls yet. no prompt sending. no provider SDKs
+          imported. opaque credential references only. operator approval
+          required. kill switch required. audit required. manual gated dry-run
+          harness comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Contract posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  model adapters must run server-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Blocked by default
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {blockedModelExecutionSummary.summary}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {blockedModelExecutionSummary.blockedLines.map((item) => (
+                <span key={item} className={styles.blockedPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Contract coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Typed capability families stay inert
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`${adapterReadinessSummary.contractCount} contracts`}
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {`${adapterContractsByCapabilityFamily.length} capability families | ${adapterContractsByWorkspaceTarget.length} workspace targets | ${adapterReadinessSummary.requestEnvelopeCount} request envelope previews`}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {adapterContractsByCapabilityFamily.map((group) => (
+                <span key={group.capabilityFamilyId} className={styles.metaPill}>
+                  {`${group.capabilityFamilyLabel}: ${group.contractCount}`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Current checkpoint</p>
+                <h3 className={styles.placeholderTitle}>
+                  {adapterReadinessSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {`Phase ${adapterReadinessSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`Previous completed batch: ${adapterReadinessSummary.previousCompletedBatch}`}
+            </p>
+            <p className={styles.railBody}>
+              {`Next likely batch: ${adapterReadinessSummary.nextLikelyBatch}`}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {commandCenter.nextManualGatedDryRunChecklist.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {adapterContracts.map((contract) => (
+            <article key={contract.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Capability family</p>
+                  <h3 className={styles.placeholderTitle}>{contract.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {contract.contractMode}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{contract.summary}</p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>{contract.contractVersion}</span>
+                <span className={styles.metaPill}>{contract.source}</span>
+                <span className={styles.metaPill}>
+                  {`Provider slot: ${contract.targetProviderSlotId}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`Workspace targets: ${contract.workspaceTargets.join(" | ")}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {[
+                  contract.adapterPosture,
+                  contract.frontendPosture,
+                  contract.sdkPosture,
+                  contract.credentialPosture,
+                  contract.operatorApprovalRequired,
+                  contract.killSwitchRequired,
+                  contract.auditRequired,
+                ].map((item) => (
+                  <span key={item} className={styles.blockedPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {contract.nextDryRunHarnessRequirement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Adapter envelope preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only envelopes</p>
+            <h2 className={styles.panelTitle}>Adapter envelope preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Blocked by default
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          request envelope preview. response envelope preview. error envelope
+          preview. prompt payload is redacted placeholder only. provider
+          response is not received. result is placeholder only.
+          audit/approval/result persistence not implemented. execution is
+          blocked by default.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Envelope posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  adapter envelopes are preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`${adapterReadinessSummary.requestEnvelopeCount}/${adapterReadinessSummary.responseEnvelopeCount}/${adapterReadinessSummary.errorEnvelopeCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {adapterReadinessSummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeAdapterRequestEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>request envelope preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAdapterRequestEnvelope.capabilityLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAdapterRequestEnvelope.promptTransmissionState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`request envelope version: ${representativeAdapterRequestEnvelope.requestEnvelopeVersion}`}
+              </p>
+              <p className={styles.railBody}>
+                {`workspace target: ${representativeAdapterRequestEnvelope.workspaceTarget}`}
+              </p>
+              <p className={styles.railBody}>
+                {`operator objective: ${representativeAdapterRequestEnvelope.operatorObjective}`}
+              </p>
+              <p className={styles.railBody}>
+                {`prompt payload posture: ${representativeAdapterRequestEnvelope.promptPayloadPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`credential reference posture: ${representativeAdapterRequestEnvelope.credentialReferencePosture}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeAdapterRequestEnvelope.noExecutionStatement}
+              </p>
+            </article>
+          ) : null}
+          {representativeAdapterResponseEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>response envelope preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    result is placeholder only
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAdapterResponseEnvelope.providerResponseState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`response envelope version: ${representativeAdapterResponseEnvelope.responseEnvelopeVersion}`}
+              </p>
+              <p className={styles.railBody}>
+                {`request envelope reference: ${representativeAdapterResponseEnvelope.requestEnvelopeReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`token/cost accounting state: ${representativeAdapterResponseEnvelope.tokenCostAccountingState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit join state: ${representativeAdapterResponseEnvelope.auditJoinState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeAdapterResponseEnvelope.noResultStatement}
+              </p>
+            </article>
+          ) : null}
+          {representativeAdapterErrorEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>error envelope preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    provider error state is not received
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAdapterErrorEnvelope.retryFallbackPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`error envelope version: ${representativeAdapterErrorEnvelope.errorEnvelopeVersion}`}
+              </p>
+              <p className={styles.railBody}>
+                {`timeout/cancel posture: ${representativeAdapterErrorEnvelope.timeoutCancelPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`recovery posture: ${representativeAdapterErrorEnvelope.recoveryPosture}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {representativeAdapterErrorEnvelope.localValidationErrorExamples.map(
+                  (item) => (
+                    <span key={item} className={styles.metaPill}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeAdapterErrorEnvelope.noProviderErrorReceivedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Server-only adapter gates">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Release gate posture</p>
+            <h2 className={styles.panelTitle}>Server-only adapter gates</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Required
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          server-only boundary. no frontend provider call. no provider SDK
+          import in frontend. no prompt sending from frontend. opaque
+          credential reference. no plaintext secrets. no env var reads from
+          frontend. operator approval. kill switch. audit. privacy/redaction.
+          cost/rate/timeout. idempotency/replay block. result capture. manual
+          review. no persistence until future backend batch.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Blocked model execution</p>
+                <h3 className={styles.placeholderTitle}>
+                  frontend provider calls are blocked
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                No execution
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {blockedModelExecutionSummary.summary}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {blockedModelExecutionSummary.blockedLines.map((item) => (
+                <span key={item} className={styles.blockedPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next manual gated step</p>
+                <h3 className={styles.placeholderTitle}>
+                  manual gated dry-run harness comes next
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {commandCenter.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {nextManualGatedDryRunChecklist.map((item) => (
+                <article key={item} className={styles.railCard}>
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {serverOnlyAdapterGateChecklist.map((gate) => (
+            <article key={gate.id} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Required gate</p>
+                  <h3 className={styles.placeholderTitle}>{gate.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  Required
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{gate.summary}</p>
             </article>
           ))}
         </div>
@@ -1555,7 +1951,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next server-only adapter checklist
+                  Next manual gated dry-run checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -1563,7 +1959,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {productUx.nextServerOnlyAdapterChecklist.map((item) => (
+              {productUx.nextManualGatedDryRunChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>

@@ -6,11 +6,22 @@ import {
   buildAthenaProviderSelectionPreviewFromExactStaticExamples,
   buildBlockedProviderExecutionSummary,
   buildCapabilityMatrixPreview,
-  buildNextServerOnlyAdapterChecklist,
   buildProviderReadinessSummary,
   groupCapabilitiesByWorkspaceTarget,
   listModelProviderSlots,
 } from "@/lib/codexforge/ai-provider-registry";
+import {
+  buildAdapterReadinessSummary,
+  buildBlockedModelExecutionSummary,
+  buildNextManualGatedDryRunChecklist,
+  groupAdapterContractsByCapabilityFamily,
+  groupAdapterContractsByWorkspaceTarget,
+  listModelAdapterErrorEnvelopePreviews,
+  listModelAdapterRequestEnvelopePreviews,
+  listModelAdapterResponseEnvelopePreviews,
+  listServerOnlyAdapterGateChecklist,
+  listServerOnlyModelAdapterContracts,
+} from "@/lib/codexforge/server-only-model-adapter-contracts";
 
 export function AiProviderRegistryPanel() {
   const providerSlots = listModelProviderSlots();
@@ -20,7 +31,23 @@ export function AiProviderRegistryPanel() {
   const selectionPreview =
     buildAthenaProviderSelectionPreviewFromExactStaticExamples();
   const workspaceCapabilityGroups = groupCapabilitiesByWorkspaceTarget();
-  const nextServerOnlyAdapterChecklist = buildNextServerOnlyAdapterChecklist();
+  const adapterContracts = listServerOnlyModelAdapterContracts();
+  const adapterRequestEnvelopePreviews = listModelAdapterRequestEnvelopePreviews();
+  const adapterResponseEnvelopePreviews =
+    listModelAdapterResponseEnvelopePreviews();
+  const adapterErrorEnvelopePreviews = listModelAdapterErrorEnvelopePreviews();
+  const adapterReadinessSummary = buildAdapterReadinessSummary();
+  const blockedModelExecutionSummary = buildBlockedModelExecutionSummary();
+  const nextManualGatedDryRunChecklist = buildNextManualGatedDryRunChecklist();
+  const adapterContractsByCapabilityFamily =
+    groupAdapterContractsByCapabilityFamily();
+  const adapterContractsByWorkspaceTarget =
+    groupAdapterContractsByWorkspaceTarget();
+  const serverOnlyAdapterGateChecklist = listServerOnlyAdapterGateChecklist();
+  const representativeRequestEnvelope = adapterRequestEnvelopePreviews[0] ?? null;
+  const representativeResponseEnvelope =
+    adapterResponseEnvelopePreviews[0] ?? null;
+  const representativeErrorEnvelope = adapterErrorEnvelopePreviews[0] ?? null;
   const providerLabelsById = new Map(
     providerSlots.map((slot) => [slot.id, slot.label] as const)
   );
@@ -28,18 +55,22 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix AI model provider registry Capability matrix Provider selection preview Provider slots are registry-only No model calls yet No prompt sending No provider SDKs imported Server-only adapters required Credential isolation required Operator approval required Kill switch required Audit required 4714-4745 - Server-Only Model Adapter Contracts"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Provider slots are registry-only No model calls yet No prompt sending No provider SDKs imported Server-only adapters required Credential isolation required Operator approval required Kill switch required Audit required manual gated dry-run harness comes next"
     >
       <section style={hero}>
         <div>
-          <span style={eyebrow}>Phase 4713</span>
+          <span style={eyebrow}>Phase 4745</span>
           <h1 style={headline}>AI model provider registry</h1>
           <p style={lede}>
             Athena can see model provider slots, capability families, workspace
-            targets, blocked routing posture, and the next server-only adapter
-            requirements. Provider slots are registry-only. Capability matrix is
-            preview-only. No model calls yet. No prompt sending. No provider SDKs
-            imported. No frontend provider call. Server-only adapters required.
+            targets, blocked routing posture, server-only model adapter
+            contracts, adapter envelope previews, and the next manual gated
+            dry-run requirements. Provider slots are registry-only. Capability
+            matrix is preview-only. Server-only model adapter contracts are
+            preview-only. Adapter envelope preview is preview-only. No model
+            calls yet. No prompt sending. No provider SDKs imported. Frontend
+            provider calls are blocked. Manual gated dry-run harness comes
+            next.
           </p>
         </div>
         <div style={linkRow}>
@@ -108,12 +139,12 @@ export function AiProviderRegistryPanel() {
           </article>
           <article style={card}>
             <span style={tag}>Next batch</span>
-            <h3 style={cardTitle}>Server-only model adapter contracts</h3>
+            <h3 style={cardTitle}>Manual gated model adapter dry-run harness</h3>
             <p style={copy}>
-              4714-4745 - Server-Only Model Adapter Contracts comes next.
+              4746-4777 - Manual Gated Model Adapter Dry-Run Harness comes next.
             </p>
             <div style={list}>
-              {nextServerOnlyAdapterChecklist.slice(0, 6).map((item) => (
+              {nextManualGatedDryRunChecklist.slice(0, 6).map((item) => (
                 <span key={item} style={pill}>
                   {item}
                 </span>
@@ -257,8 +288,195 @@ export function AiProviderRegistryPanel() {
         </div>
       </section>
 
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Model Gateway contract layer</span>
+            <h2 style={sectionTitle}>Server-only model adapter contracts</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          Server-only model adapter contracts. model adapters must run
+          server-only. Frontend provider calls are blocked. No model calls yet.
+          No prompt sending. No provider SDKs imported. Opaque credential
+          references only. Manual gated dry-run harness comes next.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Contract posture</span>
+            <h3 style={cardTitle}>model adapters must run server-only</h3>
+            <p style={copy}>{blockedModelExecutionSummary.summary}</p>
+            <div style={list}>
+              {blockedModelExecutionSummary.blockedLines.map((item) => (
+                <span key={item} style={pill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article style={card}>
+            <span style={tag}>Coverage</span>
+            <h3 style={cardTitle}>Typed capability families stay inert</h3>
+            <p style={copy}>
+              {`${adapterReadinessSummary.contractCount} contracts | ${adapterContractsByCapabilityFamily.length} capability families | ${adapterContractsByWorkspaceTarget.length} workspace targets.`}
+            </p>
+            <div style={list}>
+              {adapterContractsByCapabilityFamily.map((group) => (
+                <span key={group.capabilityFamilyId} style={pill}>
+                  {`${group.capabilityFamilyLabel}: ${group.contractCount}`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article style={card}>
+            <span style={tag}>Next likely batch</span>
+            <h3 style={cardTitle}>
+              Manual gated model adapter dry-run harness
+            </h3>
+            <p style={copy}>
+              {`Latest completed batch: ${adapterReadinessSummary.latestCompletedBatch}. Previous completed batch: ${adapterReadinessSummary.previousCompletedBatch}.`}
+            </p>
+            <div style={list}>
+              {nextManualGatedDryRunChecklist.map((item) => (
+                <span key={item} style={pill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div style={grid}>
+          {adapterContracts.map((contract) => (
+            <article key={contract.key} style={card}>
+              <span style={tag}>Capability family</span>
+              <h3 style={cardTitle}>{contract.label}</h3>
+              <p style={copy}>{contract.summary}</p>
+              <p style={copy}>
+                {`Workspace targets: ${contract.workspaceTargets.join(" | ")}`}
+              </p>
+              <div style={list}>
+                <span style={pill}>{contract.contractVersion}</span>
+                <span style={pill}>{contract.contractMode}</span>
+                <span style={pill}>{contract.adapterPosture}</span>
+                <span style={pill}>{contract.credentialPosture}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only envelopes</span>
+            <h2 style={sectionTitle}>Adapter envelope preview</h2>
+          </div>
+          <span style={sectionBadge}>Blocked by default</span>
+        </div>
+        <p style={copy}>
+          Adapter envelope preview. request envelope preview. response envelope
+          preview. error envelope preview. prompt payload is redacted placeholder
+          only. provider response is not received. result is placeholder only.
+          audit/approval/result persistence not implemented.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Envelope summary</span>
+            <h3 style={cardTitle}>adapter envelopes are preview-only</h3>
+            <p style={copy}>
+              {`${adapterReadinessSummary.requestEnvelopeCount} request envelope previews | ${adapterReadinessSummary.responseEnvelopeCount} response envelope previews | ${adapterReadinessSummary.errorEnvelopeCount} error envelope previews.`}
+            </p>
+            <div style={list}>
+              {adapterReadinessSummary.summaryLines.map((item) => (
+                <span key={item} style={pill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeRequestEnvelope ? (
+            <article style={card}>
+              <span style={tag}>request envelope preview</span>
+              <h3 style={cardTitle}>
+                {representativeRequestEnvelope.capabilityLabel}
+              </h3>
+              <p style={copy}>
+                {`request envelope version: ${representativeRequestEnvelope.requestEnvelopeVersion}.`}
+              </p>
+              <p style={copy}>
+                {`prompt payload posture: ${representativeRequestEnvelope.promptPayloadPosture}.`}
+              </p>
+              <p style={copy}>
+                {`workspace target: ${representativeRequestEnvelope.workspaceTarget}.`}
+              </p>
+            </article>
+          ) : null}
+          {representativeResponseEnvelope ? (
+            <article style={card}>
+              <span style={tag}>response envelope preview</span>
+              <h3 style={cardTitle}>result is placeholder only</h3>
+              <p style={copy}>
+                {`response envelope version: ${representativeResponseEnvelope.responseEnvelopeVersion}.`}
+              </p>
+              <p style={copy}>
+                {`provider response state: ${representativeResponseEnvelope.providerResponseState}.`}
+              </p>
+              <p style={copy}>
+                {`result capture state: ${representativeResponseEnvelope.resultCaptureState}.`}
+              </p>
+            </article>
+          ) : null}
+          {representativeErrorEnvelope ? (
+            <article style={card}>
+              <span style={tag}>error envelope preview</span>
+              <h3 style={cardTitle}>provider error state is not received</h3>
+              <p style={copy}>
+                {`error envelope version: ${representativeErrorEnvelope.errorEnvelopeVersion}.`}
+              </p>
+              <p style={copy}>
+                {`retry/fallback posture: ${representativeErrorEnvelope.retryFallbackPosture}.`}
+              </p>
+              <div style={list}>
+                {representativeErrorEnvelope.localValidationErrorExamples.map(
+                  (item) => (
+                    <span key={item} style={pill}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Release gate posture</span>
+            <h2 style={sectionTitle}>Server-only adapter gates</h2>
+          </div>
+          <span style={sectionBadge}>Required</span>
+        </div>
+        <p style={copy}>
+          Server-only adapter gates. No model calls yet. No prompt sending. No
+          provider SDKs imported. Frontend provider calls are blocked. Opaque
+          credential references only. Manual gated dry-run harness comes next.
+        </p>
+        <div style={grid}>
+          {serverOnlyAdapterGateChecklist.map((gate) => (
+            <article key={gate.id} style={card}>
+              <span style={tag}>Required gate</span>
+              <h3 style={cardTitle}>{gate.label}</h3>
+              <p style={copy}>{gate.summary}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section style={notice}>
-        {nextServerOnlyAdapterChecklist.map((item) => (
+        {nextManualGatedDryRunChecklist.map((item) => (
           <p key={item}>{item}</p>
         ))}
       </section>
