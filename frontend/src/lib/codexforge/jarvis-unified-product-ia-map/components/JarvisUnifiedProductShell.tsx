@@ -135,6 +135,7 @@ export function JarvisUnifiedProductPanel(
         ) ?? context.workspaces[0]
       : null;
   const productUx = ATHENA_COMMAND_CENTER_MODEL.productUx;
+  const commandDraftStatusPanel = ATHENA_COMMAND_CENTER_MODEL.commandDraftStatusPanel;
   const homeHeroActions = HOME_HERO_ACTION_IDS.map((actionId) =>
     resolveRequiredAthenaPrimaryOperatorAction(actionId)
   );
@@ -208,12 +209,14 @@ export function JarvisUnifiedProductPanel(
                 {productUx.heroCopy.homeAskCopy}
               </p>
               <p className={styles.athenaConsoleBody}>
-                {productUx.cockpitSummary} Athena can plan and route commands.
-                Athena can preview approval-gated handoffs. Athena can preview
-                cross-workspace run timelines and show audit memory previews.
-                Plugin execution remains blocked until approvals and backend
-                gates are satisfied. Manual/provider execution stays
-                backend-only. No autonomous execution yet.
+                {productUx.cockpitSummary} Athena can draft structured commands.
+                Athena can draft approval packets. Athena can plan and route
+                commands. Athena can preview approval-gated handoffs. Athena
+                can preview cross-workspace run timelines and show audit memory
+                previews. Model provider registry comes next. Plugin execution
+                remains blocked until approvals and backend gates are
+                satisfied. Manual/provider execution stays backend-only. No
+                autonomous execution yet.
               </p>
               <div className={styles.workspaceMeta}>
                 {productUx.heroCopy.postureChips.map((item) => (
@@ -266,6 +269,7 @@ export function JarvisUnifiedProductPanel(
                 <p className={styles.railBody}>
                   {productUx.safetyPostureSummary}
                 </p>
+                <p className={styles.railBody}>Model provider registry comes next.</p>
               </article>
             </div>
           </div>
@@ -277,7 +281,7 @@ export function JarvisUnifiedProductPanel(
           badge="Summary"
           summary={productUx.currentReadinessSummary}
           detail={productUx.blockedDefaultExecutionSummary}
-          items={productUx.operatorStatusPanel}
+          items={commandDraftStatusPanel}
         />
 
         <section className={styles.panel} aria-label="What can Athena do now?">

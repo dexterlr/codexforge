@@ -16,10 +16,13 @@ import {
   buildStableAthenaPluginKey,
   groupTimelineItemsByBlockedState,
   groupTimelineItemsByPlugin,
+  type AthenaCommandComposerDraftRecord,
   type AthenaCommandCenterModel,
+  type AthenaConditionalRequirementState,
   type AthenaCommandIntentState,
   type AthenaExecutionPosture,
   type AthenaLauncherStatus,
+  type AthenaPluginRegistryPreviewRecord,
   type AthenaPrimaryOperatorActionId,
   type AthenaProductUxActionRecord,
   listApprovalBridgeRequirements,
@@ -34,6 +37,8 @@ export function AthenaCommandCenterPanel({
   commandCenter,
 }: AthenaCommandCenterPanelProps) {
   const productUx = commandCenter.productUx;
+  const commandComposerDrafts = commandCenter.commandComposerDrafts;
+  const approvalDraftPreviews = commandCenter.approvalDraftPreviews;
   const representativeBridge =
     commandCenter.approvalGatedToolBridgePreviews[0] ?? null;
   const timelineItems = commandCenter.crossWorkspaceRunTimeline;
@@ -205,13 +210,273 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Conversational command composer"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only drafting</p>
+            <h2 className={styles.panelTitle}>Conversational command composer</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can draft structured commands from natural requests. Composer is
+          preview-only. Chat input remains inert/local only. No prompt sending.
+          No model calls yet. No plugin execution from chat yet.
+          Approval-gated handoffs only.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Composer posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  Chat stays local and drafts stay blocked
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Executes nothing
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              <span className={styles.metaPill}>Composer is preview-only</span>
+              <span className={styles.metaPill}>
+                Chat input remains inert/local only
+              </span>
+              <span className={styles.metaPill}>No prompt sending</span>
+              <span className={styles.metaPill}>No model calls yet</span>
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next foundation</p>
+                <h3 className={styles.placeholderTitle}>
+                  {commandCenter.nextLikelyBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Model provider registry next
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {commandCenter.nextModelProviderRegistryChecklist.map((item) => (
+                <article key={item} className={styles.railCard}>
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {commandComposerDrafts.map((draft) => (
+            <article key={draft.commandDraftKey} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Sample natural request</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {draft.naturalLanguageRequestPhrase}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  {draft.composerMode}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {`Structured command draft: ${draft.normalizedOperatorObjective}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>{draft.commandDraftKey}</span>
+                <span className={styles.metaPill}>
+                  {`Intent: ${draft.matchedCommandIntentReference}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`Plugin: ${resolvePluginLabel(
+                    draft.matchedPluginReference,
+                    commandCenter.pluginRegistryPreview
+                  )}`}
+                </span>
+                <Link className={styles.metaPill} href={draft.targetRouteReference}>
+                  {`Route: ${draft.targetRouteReference}`}
+                </Link>
+              </div>
+              <p className={styles.railBody}>
+                {`Suggested brief fields: ${draft.suggestedBriefFields.join(" | ")}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Missing information prompts: ${draft.missingInformationPrompts.join(
+                  " | "
+                )}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Required approvals: ${draft.requiredApprovals.join(" | ")}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Required safety gates: ${draft.requiredSafetyGates.join(" | ")}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Required audit gates: ${draft.requiredAuditGates.join(" | ")}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Backend-only handoff requirement: ${draft.backendOnlyHandoffRequirement}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Current blocked/default reason: ${draft.blockedDefaultReason}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Next operator action: ${draft.nextOperatorAction}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`Next system action: ${draft.nextSystemAction}`}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Approval draft preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only approvals</p>
+            <h2 className={styles.panelTitle}>Approval draft preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            No execution
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Sample natural request. Structured command draft. Target plugin.
+          Target route. Missing information prompts. Approval requirements.
+          Safety gates. Audit gates. Backend-only handoff requirement. Current
+          blocked/default reason.
+        </p>
+        <div className={styles.summaryGrid}>
+          {approvalDraftPreviews.map((approvalDraft) => {
+            const sourceDraft = resolveRequiredCommandDraft(
+              approvalDraft.sourceCommandDraftReference,
+              commandComposerDrafts
+            );
+
+            return (
+              <article
+                key={approvalDraft.approvalDraftKey}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>Sample natural request</p>
+                    <h3 className={styles.placeholderTitle}>
+                      {sourceDraft.naturalLanguageRequestPhrase}
+                    </h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                  >
+                    {approvalDraft.approvalDraftMode}
+                  </span>
+                </div>
+                <p className={styles.placeholderSummary}>
+                  {`Structured command draft: ${sourceDraft.normalizedOperatorObjective}`}
+                </p>
+                <div className={styles.workspaceMeta}>
+                  <span className={styles.metaPill}>
+                    {approvalDraft.approvalDraftKey}
+                  </span>
+                  <span className={styles.metaPill}>
+                    {`Target plugin: ${resolvePluginLabel(
+                      approvalDraft.targetPluginReference,
+                      commandCenter.pluginRegistryPreview
+                    )}`}
+                  </span>
+                  <Link
+                    className={styles.metaPill}
+                    href={approvalDraft.targetRouteReference}
+                  >
+                    {`Target route: ${approvalDraft.targetRouteReference}`}
+                  </Link>
+                </div>
+                <p className={styles.railBody}>
+                  {`Missing information prompts: ${sourceDraft.missingInformationPrompts.join(
+                    " | "
+                  )}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`Approval requirements: ${sourceDraft.requiredApprovals.join(
+                    " | "
+                  )}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`Safety gates: ${sourceDraft.requiredSafetyGates.join(" | ")} | ${approvalDraft.safetyGateSummary}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`Audit gates: ${sourceDraft.requiredAuditGates.join(" | ")}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`Backend-only handoff requirement: ${sourceDraft.backendOnlyHandoffRequirement}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`Current blocked/default reason: ${approvalDraft.blockedDefaultReason}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`Approval packet title: ${approvalDraft.approvalPacketTitle}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`Artifact handoff posture: ${approvalDraft.artifactHandoffPosture}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`Persistence posture: ${approvalDraft.persistencePosture}`}
+                </p>
+                <div className={styles.workspaceMeta}>
+                  <span className={styles.blockedPill}>
+                    Operator approval required
+                  </span>
+                  <span className={styles.blockedPill}>Kill switch required</span>
+                  <span className={styles.blockedPill}>Audit required</span>
+                  <span className={styles.blockedPill}>
+                    Backend-only handoff required
+                  </span>
+                  <span className={styles.blockedPill}>
+                    {formatConditionalRequirementSummary(
+                      "Credential isolation",
+                      approvalDraft.credentialIsolationRequirement
+                    )}
+                  </span>
+                  <span className={styles.blockedPill}>
+                    {formatConditionalRequirementSummary(
+                      "Cost acknowledgement",
+                      approvalDraft.costAcknowledgementRequirement
+                    )}
+                  </span>
+                  <span className={styles.blockedPill}>
+                    Privacy/redaction required
+                  </span>
+                  <span className={styles.blockedPill}>Idempotency required</span>
+                  <span className={styles.blockedPill}>Replay block required</span>
+                  <span className={styles.blockedPill}>Timeout/cancel required</span>
+                  <span className={styles.blockedPill}>Result capture required</span>
+                </div>
+                <p className={styles.railFooter}>
+                  {approvalDraft.explicitNoExecutionStatement}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
       <AthenaOperatorStatusPanel
         title="Athena operator status"
         eyebrow="Operator status"
         badge="Preview-only"
         summary={productUx.currentReadinessSummary}
         detail={productUx.blockedDefaultExecutionSummary}
-        items={productUx.operatorStatusPanel}
+        items={commandCenter.commandDraftStatusPanel}
         nextActions={productUx.nextOperatorActions}
       />
 
@@ -1039,4 +1304,41 @@ function formatDefaultStateLabel(state: AthenaCommandIntentState): string {
     default:
       return "Blocked by default";
   }
+}
+
+function resolveRequiredCommandDraft(
+  commandDraftKey: AthenaCommandComposerDraftRecord["commandDraftKey"],
+  drafts: readonly AthenaCommandComposerDraftRecord[]
+): AthenaCommandComposerDraftRecord {
+  const draft = drafts.find((candidate) => candidate.commandDraftKey === commandDraftKey);
+
+  if (!draft) {
+    throw new Error(`Missing Athena command draft: ${commandDraftKey}`);
+  }
+
+  return draft;
+}
+
+function resolvePluginLabel(
+  pluginId: AthenaPluginRegistryPreviewRecord["pluginId"],
+  plugins: readonly AthenaPluginRegistryPreviewRecord[]
+): string {
+  const plugin = plugins.find((candidate) => candidate.pluginId === pluginId);
+
+  if (!plugin) {
+    return pluginId;
+  }
+
+  return plugin.label;
+}
+
+function formatConditionalRequirementSummary(
+  label: string,
+  state: AthenaConditionalRequirementState
+): string {
+  if (state === "required") {
+    return `${label} required`;
+  }
+
+  return `${label} not applicable for this plugin`;
 }

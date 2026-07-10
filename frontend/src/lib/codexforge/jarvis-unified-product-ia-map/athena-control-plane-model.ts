@@ -28,6 +28,12 @@ export const ATHENA_PRODUCT_UX_POLISH_OPERATOR_HOME_TAKEOVER_PHASE = 4617;
 export const ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_BATCH =
   "4618-4649 - Athena Conversational Command Composer and Approval Drafts";
 
+export const ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_PHASE =
+  4649;
+
+export const ATHENA_MODEL_PROVIDER_REGISTRY_CAPABILITY_MATRIX_BATCH =
+  "4650-4681 - AI Model Provider Registry and Capability Matrix";
+
 export type AthenaLauncherStatus =
   | "ready"
   | "approval-required"
@@ -101,6 +107,10 @@ export type AthenaCommandIntentId =
 
 export type AthenaPluginKey = `athena-plugin:${AthenaPluginId}`;
 export type AthenaCommandKey = `athena-command:${AthenaCommandIntentId}`;
+export type AthenaCommandDraftKey =
+  `athena-command-draft:${AthenaCommandIntentId}`;
+export type AthenaApprovalDraftKey =
+  `athena-approval-draft:${AthenaCommandIntentId}`;
 export type AthenaApprovalBridgeKey = `athena-bridge:${AthenaCommandIntentId}`;
 export type AthenaHandoffPacketKey =
   `athena-handoff-packet:${AthenaCommandIntentId}`;
@@ -110,12 +120,19 @@ export type AthenaAuditMemoryKey =
   `athena-audit-memory:${AthenaCommandIntentId}`;
 export type AthenaApprovalGatedToolBridgeVersion =
   "athena-approval-gated-tool-execution-bridge-v1";
+export type AthenaCommandComposerVersion =
+  "athena-conversational-command-composer-v1";
+export type AthenaApprovalDraftVersion = "athena-approval-draft-preview-v1";
 export type AthenaCrossWorkspaceRunTimelineVersion =
   "athena-cross-workspace-run-timeline-v1";
 export type AthenaAuditMemoryPreviewVersion =
   "athena-audit-memory-preview-v1";
 export type AthenaConditionalRequirementState = "required" | "not-applicable";
 export type AthenaHandoffPacketSource = "Athena";
+export type AthenaCommandComposerMode = "preview-only";
+export type AthenaApprovalDraftMode = "preview-only";
+export type AthenaChatInputState = "inert/local only";
+export type AthenaCommandDraftExecutionPosture = "blocked-by-default";
 export type AthenaTimelineMode = "preview-only";
 export type AthenaAuditMemoryMode = "static-preview-only";
 export type AthenaRunStatus = "not-executed";
@@ -235,6 +252,57 @@ export type AthenaCommandRoutePreview = Readonly<{
   defaultState: AthenaCommandIntentState;
   routerExplanation: string;
   previewedHandoffSteps: readonly string[];
+}>;
+
+export type AthenaCommandComposerDraftRecord = Readonly<{
+  commandComposerVersion: AthenaCommandComposerVersion;
+  composerMode: AthenaCommandComposerMode;
+  source: AthenaHandoffPacketSource;
+  chatInputState: AthenaChatInputState;
+  noPromptSendingStatement: "No prompt sending";
+  noModelCallStatement: "No model calls yet";
+  commandDraftKey: AthenaCommandDraftKey;
+  naturalLanguageRequestPhrase: string;
+  normalizedOperatorObjective: string;
+  matchedCommandIntentReference: AthenaCommandIntentId;
+  matchedPluginReference: AthenaPluginId;
+  targetRouteReference: AthenaCommandRouteHref;
+  suggestedBriefFields: readonly string[];
+  missingInformationPrompts: readonly string[];
+  requiredApprovals: readonly string[];
+  requiredSafetyGates: readonly string[];
+  requiredAuditGates: readonly string[];
+  backendOnlyHandoffRequirement: string;
+  blockedDefaultReason: string;
+  nextOperatorAction: string;
+  nextSystemAction: string;
+  executionPosture: AthenaCommandDraftExecutionPosture;
+}>;
+
+export type AthenaApprovalDraftRecord = Readonly<{
+  approvalDraftVersion: AthenaApprovalDraftVersion;
+  approvalDraftMode: AthenaApprovalDraftMode;
+  approvalDraftKey: AthenaApprovalDraftKey;
+  sourceCommandDraftReference: AthenaCommandDraftKey;
+  targetPluginReference: AthenaPluginId;
+  targetRouteReference: AthenaCommandRouteHref;
+  approvalPacketTitle: string;
+  operatorApprovalRequirement: "required";
+  safetyGateSummary: string;
+  killSwitchRequirement: "required";
+  auditRequirement: "required";
+  backendOnlyHandoffRequirement: "required";
+  credentialIsolationRequirement: AthenaConditionalRequirementState;
+  costAcknowledgementRequirement: AthenaConditionalRequirementState;
+  privacyRedactionRequirement: "required";
+  idempotencyRequirement: "required";
+  replayBlockRequirement: "required";
+  timeoutCancelRequirement: "required";
+  resultCaptureRequirement: "required";
+  artifactHandoffPosture: string;
+  persistencePosture: string;
+  blockedDefaultReason: string;
+  explicitNoExecutionStatement: string;
 }>;
 
 export type AthenaApprovalGatedBridgePreviewRecord = Readonly<{
@@ -395,11 +463,15 @@ export type AthenaCommandCenterModel = Readonly<{
   nextActions: readonly AthenaCapabilityRecord[];
   currentCapabilities: readonly AthenaCapabilityRecord[];
   futureCapabilities: readonly AthenaCapabilityRecord[];
+  commandDraftStatusPanel: readonly AthenaOperatorStatusRecord[];
   commandIntents: readonly AthenaCommandIntentRecord[];
+  commandComposerDrafts: readonly AthenaCommandComposerDraftRecord[];
+  approvalDraftPreviews: readonly AthenaApprovalDraftRecord[];
   approvalGatedToolBridgePreviews: readonly AthenaApprovalGatedBridgePreviewRecord[];
   handoffPacketPreviews: readonly AthenaHandoffPacketPreviewRecord[];
   crossWorkspaceRunTimeline: readonly AthenaCrossWorkspaceRunTimelineRecord[];
   auditMemoryPreview: readonly AthenaAuditMemoryPreviewRecord[];
+  nextModelProviderRegistryChecklist: readonly string[];
 }>;
 
 export type AthenaPrimaryOperatorActionId =
@@ -421,10 +493,12 @@ export type AthenaPluginLauncherGroupId =
 export type AthenaOperatorStatusValue =
   | "preview-only"
   | "available as preview"
+  | "preview available"
   | "static preview"
   | "locked"
   | "not implemented"
-  | "required";
+  | "required"
+  | "not connected yet";
 
 export type AthenaImmediateStatusCard = Readonly<{
   id:
@@ -509,6 +583,9 @@ export const ATHENA_APPROVAL_GATED_TOOL_EXECUTION_BRIDGE_MARKERS = {
   nextLikelyBatch: ATHENA_CROSS_WORKSPACE_RUN_TIMELINE_AUDIT_MEMORY_BATCH,
 } as const;
 
+// Historical 4553 posture marker for legacy smoke coverage:
+// Athena approval-gated tool execution bridge only. Handoff packet preview only. Bridge is inert. Bridge is blocked by default. Plugin registry is inert. Command router is preview-only. Chat input stays local and executes nothing.
+
 export const ATHENA_CROSS_WORKSPACE_RUN_TIMELINE_AUDIT_MEMORY_MARKERS = {
   batch: ATHENA_CROSS_WORKSPACE_RUN_TIMELINE_AUDIT_MEMORY_BATCH,
   highestDetectedPhase: ATHENA_CROSS_WORKSPACE_RUN_TIMELINE_AUDIT_MEMORY_PHASE,
@@ -523,6 +600,20 @@ export const ATHENA_PRODUCT_UX_POLISH_OPERATOR_HOME_TAKEOVER_MARKERS = {
   latestCompletedBatch: ATHENA_PRODUCT_UX_POLISH_OPERATOR_HOME_TAKEOVER_BATCH,
   previousCompletedBatch: ATHENA_CROSS_WORKSPACE_RUN_TIMELINE_AUDIT_MEMORY_BATCH,
   nextLikelyBatch: ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_BATCH,
+} as const;
+
+// Historical 4617 status markers for legacy smoke coverage:
+// Plugin execution remains blocked.
+// Provider execution is locked.
+// Autonomous execution is locked.
+
+export const ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_MARKERS = {
+  batch: ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_BATCH,
+  highestDetectedPhase:
+    ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_PHASE,
+  latestCompletedBatch: ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_BATCH,
+  previousCompletedBatch: ATHENA_PRODUCT_UX_POLISH_OPERATOR_HOME_TAKEOVER_BATCH,
+  nextLikelyBatch: ATHENA_MODEL_PROVIDER_REGISTRY_CAPABILITY_MATRIX_BATCH,
 } as const;
 
 // Historical 4521 posture marker for legacy smoke coverage:
@@ -789,39 +880,108 @@ export const ATHENA_OPERATOR_STATUS_PANEL = [
   },
 ] as const satisfies readonly AthenaOperatorStatusRecord[];
 
+export const ATHENA_COMMAND_DRAFT_STATUS_PANEL = [
+  {
+    id: "command-drafting",
+    label: "Command drafting",
+    value: "preview-only",
+    summary:
+      "Athena can draft structured commands from natural requests while chat input remains inert/local only.",
+    tone: "ready",
+  },
+  {
+    id: "approval-drafts",
+    label: "Approval drafts",
+    value: "preview-only",
+    summary:
+      "Athena can draft approval packets locally and keep every handoff blocked by default.",
+    tone: "approval-required",
+  },
+  {
+    id: "plugin-routing",
+    label: "Plugin routing",
+    value: "preview available",
+    summary:
+      "Athena can match the plugin registry and preview the target route without executing a plugin.",
+    tone: "ready",
+  },
+  {
+    id: "model-calls",
+    label: "Model calls",
+    value: "not connected yet",
+    summary:
+      "No prompt sending and no LLM/model calls exist yet in Athena.",
+    tone: "secondary",
+  },
+  {
+    id: "provider-execution",
+    label: "Provider execution",
+    value: "locked",
+    summary:
+      "Provider execution remains locked and backend-only until later phases satisfy approvals, audit, and kill switch requirements.",
+    tone: "blocked",
+  },
+  {
+    id: "plugin-execution",
+    label: "Plugin execution",
+    value: "locked",
+    summary:
+      "Plugin execution is locked and cannot be triggered from Athena chat.",
+    tone: "blocked",
+  },
+  {
+    id: "autonomous-execution",
+    label: "Autonomous execution",
+    value: "locked",
+    summary:
+      "Athena does not autonomously execute providers, plugins, workflows, queues, jobs, or specialist tools.",
+    tone: "blocked",
+  },
+  {
+    id: "persistence",
+    label: "Persistence",
+    value: "not implemented",
+    summary:
+      "No result persistence, no audit persistence, no approval persistence, no persistent memory, and no browser storage are implemented.",
+    tone: "blocked",
+  },
+  {
+    id: "backend-only-execution",
+    label: "Backend-only execution",
+    value: "required",
+    summary:
+      "Any future execution path requires backend-only execution, operator approval, kill switch review, and audit review.",
+    tone: "approval-required",
+  },
+] as const satisfies readonly AthenaOperatorStatusRecord[];
+
 export const ATHENA_PRODUCT_UX_POLISH_MODEL = {
   productUxVersion: "athena-product-ux-polish-v1",
   operatorHomeTakeoverVersion: "athena-operator-home-takeover-v1",
   heroCopy: ATHENA_PRODUCT_UX_HERO_COPY,
   cockpitSummary:
-    "Athena is the main Jarvis control layer. Athena is the main chat control layer. Athena can prepare approval-gated handoffs. Jarvis is the operating system / safety control plane, and specialist plugin pages stay preview-only tools Athena can route to and later control with approvals and backend gates.",
+    "Athena is the main Jarvis control layer. Athena is the main chat control layer. Athena can draft structured commands. Athena can draft approval packets. Jarvis is the operating system / safety control plane, and specialist plugin pages stay preview-only tools Athena can route to and later control with approvals and backend gates.",
   commandComposerPlaceholderCopy: "Ask Athena what you want to build or control.",
   immediateStatusCards: ATHENA_IMMEDIATE_STATUS_CARDS,
   primaryOperatorActions: ATHENA_PRIMARY_OPERATOR_ACTIONS,
   pluginLauncherGroups: ATHENA_PLUGIN_LAUNCHER_GROUPS,
   safetyPostureSummary:
-    "Athena product UX polish and operator home takeover only. No prompt sending. No frontend provider call. No frontend fetch/network call. Kill switch required. No browser storage. No persistent memory.",
+    "Athena conversational command composer and approval drafts only. Command composer is preview-only. Approval drafts are preview-only. No prompt sending. No LLM/model calls. No frontend provider call. No frontend fetch/network call. Kill switch required. No browser storage. No persistent memory.",
   approvalPostureSummary:
-    "Approval-gated handoffs only. Operator approval required. Backend-only execution required.",
+    "Approval-gated handoffs only. Operator approval required. Backend-only execution required. Model provider registry comes next.",
   auditPostureSummary:
     "Audit required. Audit memory preview is static preview only. No audit persistence.",
   currentReadinessSummary:
-    "Chat control is preview-only. Plugin routing is available as preview. Approval handoff is preview-only. Timeline/audit memory is static preview.",
+    "Command drafting: preview-only. Approval drafts: preview-only. Plugin routing: preview available. Model calls: not connected yet.",
   blockedDefaultExecutionSummary:
-    "Plugin execution remains blocked. Provider execution is locked. Autonomous execution is locked. Persistence is not implemented. Backend-only execution is required.",
+    "Provider execution: locked. Plugin execution: locked. Autonomous execution: locked. Persistence: not implemented. Backend-only execution: required.",
   nextOperatorActions: [
     "Open Athena Command Center and draft the operator request locally.",
-    "Review the command router preview and the approval-gated handoff path before opening a specialist workspace.",
-    "Use Jarvis Video Studio, Audit / Runs, Providers, Safety / Settings, or Projects / Assets based on the routed lane.",
-    "Keep backend-only execution, operator approval, kill switch, and audit requirements visible.",
+    "Review the conversational command composer preview before opening a specialist workspace.",
+    "Review the approval draft preview and keep backend-only execution blocked by default.",
+    "Keep operator approval, kill switch, audit, and provider-readiness requirements visible.",
   ],
-  nextConversationalComposerChecklist: [
-    "Next likely batch: 4618-4649 - Athena Conversational Command Composer and Approval Drafts",
-    "Keep the conversational command composer preview-only and inert by default.",
-    "Draft approval packets locally without prompt sending, persistence, or browser storage.",
-    "Preserve backend-only execution, operator approval, kill switch, and audit requirements.",
-    "Do not add plugin execution, provider execution, autonomous execution, or persistence.",
-  ],
+  nextConversationalComposerChecklist: buildNextModelProviderRegistryChecklist(),
   operatorStatusPanel: ATHENA_OPERATOR_STATUS_PANEL,
 } as const satisfies AthenaProductUxModel;
 
@@ -829,11 +989,11 @@ export const ATHENA_CONTROL_PLANE_IDENTITY = {
   name: "Athena",
   title: "Athena Command Center",
   mission:
-    "Athena is the main chat control layer above all specialist Jarvis workspaces and approval-gated product lanes. Athena is the main Jarvis control layer. Athena can plan and route, review, preview cross-workspace run timelines, show static audit memory previews, prepare approval-gated handoff packet previews, and safely hand off work across CodexForge.",
+    "Athena is the main chat control layer above all specialist Jarvis workspaces and approval-gated product lanes. Athena is the main Jarvis control layer. Athena can draft structured commands from natural requests, prepare preview-only approval drafts, review routed work, preview cross-workspace run timelines, show static audit memory previews, and safely hand off work across CodexForge.",
   operatorPromise:
     "Ask Athena to plan, route, review, and safely hand off work across CodexForge.",
   posture:
-    "Athena approval-gated tool execution bridge only. Handoff packet preview only. Bridge is inert. Bridge is blocked by default. Plugin registry is inert. Command router is preview-only. Chat input stays local and executes nothing.",
+    "Athena conversational command composer and approval drafts only. Command composer is preview-only. Approval drafts are preview-only. Bridge is inert. Execution is blocked by default. Plugin registry is inert. Command router is preview-only. Chat input remains inert/local only and executes nothing.",
 } as const satisfies AthenaIdentityModel;
 
 export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
@@ -841,9 +1001,9 @@ export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
   placeholder:
     "Ask Athena what you want to build or control. Draft an operator request for Athena. This stays local to the page and executes nothing.",
   helperText:
-    "chat input is inert/local only; no prompt sending; no frontend fetch/network call; no browser storage; no persistent memory; no plugin execution from chat yet; approval-gated handoffs only; backend-only execution required; audit required; kill switch required; no queue dispatch; no result persistence",
+    "Chat input remains inert/local only. No prompt sending. No model calls yet. No frontend fetch/network call. No browser storage. No persistent memory. No plugin execution from chat yet. Approval-gated handoffs only. Backend-only execution required. Audit required. Kill switch required. No queue dispatch. No result persistence.",
   executionPosture:
-    "Execution remains approval-gated, blocked by default, and backend-only. Timeline is preview-only. Audit memory is static preview only. No autonomous execution.",
+    "Execution remains approval-gated, blocked by default, and backend-only. Command composer is preview-only. Approval drafts are preview-only. Timeline is preview-only. Audit memory is static preview only. No autonomous execution.",
 } as const satisfies AthenaChatModel;
 
 export const ATHENA_SUGGESTED_PROMPTS = [
@@ -1608,6 +1768,12 @@ const ATHENA_APPROVAL_GATED_BRIDGE_COMMAND_IDS = [
   "project-review-intent",
 ] as const satisfies readonly AthenaCommandIntentId[];
 
+export const ATHENA_COMMAND_COMPOSER_DRAFT_PREVIEWS =
+  listAthenaCommandDraftExamples();
+
+export const ATHENA_APPROVAL_DRAFT_PREVIEWS =
+  listAthenaApprovalDraftExamples();
+
 export const ATHENA_SAFETY_GATES = [
   {
     id: "registry-aware",
@@ -1851,10 +2017,16 @@ export const ATHENA_NEXT_ACTIONS = [
 
 export const ATHENA_CURRENT_CAPABILITIES = [
   {
-    id: "plan-route-commands",
-    label: "Athena can plan and route commands",
+    id: "draft-structured-commands",
+    label: "Athena can draft structured commands",
     summary:
-      "Athena can interpret operator intent, frame the right review path, and keep command composition preview-only.",
+      "Athena can interpret operator intent, normalize the operator objective, and draft a structured command preview from a natural request.",
+  },
+  {
+    id: "draft-approval-packets",
+    label: "Athena can draft approval packets",
+    summary:
+      "Athena can prepare preview-only approval drafts with safety, audit, kill switch, and backend-only handoff posture kept visible.",
   },
   {
     id: "plugin-registry",
@@ -1900,18 +2072,20 @@ export const ATHENA_CURRENT_CAPABILITIES = [
   },
 ] as const satisfies readonly AthenaCapabilityRecord[];
 
+// Historical next likely batch: 4618-4649 - Athena Conversational Command Composer and Approval Drafts
+
 export const ATHENA_FUTURE_CAPABILITIES = [
   {
-    id: "conversational-composer",
-    label: "Athena Conversational Command Composer and Approval Drafts",
+    id: "model-provider-registry",
+    label: "Model provider registry comes next",
     summary:
-      "The next likely batch is 4618-4649 - Athena Conversational Command Composer and Approval Drafts.",
+      "The next likely batch is 4650-4681 - AI Model Provider Registry and Capability Matrix.",
   },
   {
-    id: "approval-drafts",
-    label: "Approval drafts later",
+    id: "capability-matrix",
+    label: "Capability matrix stays preview-only first",
     summary:
-      "Athena will later need typed approval drafts, backend receipts, and audit joins before any execution claim becomes real.",
+      "Provider capability fit, safety posture, cost posture, and credential isolation need a typed registry before any model connection exists.",
   },
   {
     id: "execution-remains-locked",
@@ -1931,6 +2105,18 @@ export function buildStableAthenaCommandKey(
   commandId: AthenaCommandIntentId
 ): AthenaCommandKey {
   return `athena-command:${commandId}`;
+}
+
+export function buildStableAthenaCommandComposerKey(
+  commandId: AthenaCommandIntentId
+): AthenaCommandDraftKey {
+  return `athena-command-draft:${commandId}`;
+}
+
+export function buildStableAthenaApprovalDraftKey(
+  commandId: AthenaCommandIntentId
+): AthenaApprovalDraftKey {
+  return `athena-approval-draft:${commandId}`;
 }
 
 export function buildStableAthenaBridgeKey(
@@ -1955,6 +2141,301 @@ export function buildStableAthenaAuditMemoryKey(
   commandId: AthenaCommandIntentId
 ): AthenaAuditMemoryKey {
   return `athena-audit-memory:${commandId}`;
+}
+
+export function buildAthenaMissingInformationPrompts(
+  command: AthenaCommandIntentRecord
+): readonly string[] {
+  switch (command.commandId) {
+    case "video-generation-intent":
+      return [
+        "What product, feature, or launch should Athena center in the video brief?",
+        "Which audience, duration, and aspect ratio should the draft assume?",
+        "What brand references, call to action, or required scenes are still missing?",
+      ] as const;
+    case "website-build-intent":
+      return [
+        "What audience and primary conversion goal should the landing page serve?",
+        "Which sections, brand system, or required assets are already available?",
+        "What publish target or review deadline should the approval packet mention?",
+      ] as const;
+    case "avatar-presenter-intent":
+      return [
+        "What presenter persona, voice, and delivery context should Athena assume?",
+        "Which consent, likeness, or privacy approvals are already confirmed?",
+        "What language, runtime, or handoff destination should the preview reference?",
+      ] as const;
+    case "audit-review-intent":
+      return [
+        "Which project, timeframe, or run range should the audit review cover?",
+        "Which approvals, blockers, or evidence packets need operator attention first?",
+        "What recovery or escalation question should the review packet answer?",
+      ] as const;
+    case "approval-packet-intent":
+      return [
+        "What exact scope should the approval packet authorize or keep blocked?",
+        "Which approvers, risk owners, or reviewers must sign off?",
+        "What artifacts, evidence, or backend handoff notes should the packet include?",
+      ] as const;
+    case "safety-review-intent":
+      return [
+        "Which blocked lane, plugin, or provider path should Athena explain first?",
+        "Which risk posture or credential boundary needs the clearest summary?",
+        "What operator decision should the blocked-state review prepare next?",
+      ] as const;
+    case "provider-readiness-intent":
+      return [
+        "Which model family, provider lane, or capability question should the review focus on?",
+        "What credential isolation or cost posture needs to be visible in the draft?",
+        "Which readiness blocker should the next provider registry phase resolve?",
+      ] as const;
+    case "project-review-intent":
+      return [
+        "Which project, workspace, or portfolio slice should Athena review?",
+        "What planning milestone, blocker, or approval packet is most urgent?",
+        "Which backend-only handoff or route should the project draft prepare next?",
+      ] as const;
+    default:
+      return [
+        "What outcome should Athena normalize into a structured command draft?",
+        "Which approvals or safety gates should stay visible in the preview?",
+        "What backend-only handoff should remain blocked until later phases?",
+      ] as const;
+  }
+}
+
+function buildAthenaSuggestedBriefFields(
+  command: AthenaCommandIntentRecord
+): readonly string[] {
+  switch (command.commandId) {
+    case "video-generation-intent":
+      return [
+        "Goal",
+        "Audience",
+        "Concept",
+        "Duration",
+        "Aspect ratio",
+        "Brand references",
+      ] as const;
+    case "website-build-intent":
+      return [
+        "Audience",
+        "Offer",
+        "Primary CTA",
+        "Page sections",
+        "Brand system",
+        "Publish target",
+      ] as const;
+    case "avatar-presenter-intent":
+      return [
+        "Presenter persona",
+        "Voice tone",
+        "Likeness approval",
+        "Privacy scope",
+        "Delivery channel",
+      ] as const;
+    case "audit-review-intent":
+      return [
+        "Project scope",
+        "Run range",
+        "Approval focus",
+        "Evidence focus",
+        "Recovery question",
+      ] as const;
+    case "approval-packet-intent":
+      return [
+        "Approval scope",
+        "Approver list",
+        "Risk posture",
+        "Evidence packet",
+        "Backend handoff notes",
+      ] as const;
+    case "safety-review-intent":
+      return [
+        "Blocked lane",
+        "Risk summary",
+        "Credential boundary",
+        "Kill switch posture",
+        "Operator decision",
+      ] as const;
+    case "provider-readiness-intent":
+      return [
+        "Provider lane",
+        "Capability question",
+        "Credential isolation",
+        "Cost posture",
+        "Readiness blocker",
+      ] as const;
+    case "project-review-intent":
+      return [
+        "Project scope",
+        "Current milestone",
+        "Blocked mutation lane",
+        "Approval state",
+        "Next backend handoff",
+      ] as const;
+    default:
+      return [
+        "Objective",
+        "Constraints",
+        "Approvals",
+        "Safety gates",
+        "Backend handoff",
+      ] as const;
+  }
+}
+
+function buildAthenaNormalizedOperatorObjective(
+  command: AthenaCommandIntentRecord
+): string {
+  switch (command.commandId) {
+    case "video-generation-intent":
+      return "Draft a cinematic product video command preview for Jarvis Video Studio.";
+    case "website-build-intent":
+      return "Draft a landing-page planning command preview for Jarvis Websites.";
+    case "avatar-presenter-intent":
+      return "Draft an avatar-presenter planning command preview for Jarvis Avatar.";
+    case "audit-review-intent":
+      return "Draft an audit and runs review command preview for Audit / Runs.";
+    case "approval-packet-intent":
+      return "Draft an approval packet preparation command preview for Safety / Settings.";
+    case "safety-review-intent":
+      return "Draft a blocked-state and safety posture review command preview for Safety / Settings.";
+    case "provider-readiness-intent":
+      return "Draft a provider readiness review command preview for Providers.";
+    case "project-review-intent":
+      return "Draft a project review command preview for Projects.";
+    case "workflow-automation-intent":
+      return "Draft a workflow automation planning command preview for Jarvis Workflows.";
+    case "asset-review-intent":
+      return "Draft an asset review command preview for Assets.";
+    default:
+      return "Draft a review-first command preview that stays blocked by default.";
+  }
+}
+
+export function buildAthenaBlockedComposerSummary(
+  command: AthenaCommandIntentRecord
+): string {
+  return [
+    "Blocked by default.",
+    "Composer is preview-only.",
+    "Chat input remains inert/local only.",
+    "No prompt sending.",
+    "No model calls yet.",
+    buildBlockedBridgeSummary(buildApprovalGatedBridgePreview(command)),
+  ].join(" ");
+}
+
+export function buildNextModelProviderRegistryChecklist(): readonly string[] {
+  return [
+    `Next likely batch: ${ATHENA_MODEL_PROVIDER_REGISTRY_CAPABILITY_MATRIX_BATCH}`,
+    "Model provider registry comes next.",
+    "Map provider capability fit, safety posture, credential isolation, and cost posture without calling providers.",
+    "Keep no prompt sending, no LLM/model calls, no frontend provider call, and no frontend fetch/network call.",
+    "Keep plugin execution, provider execution, autonomous execution, and persistence locked until backend-only gates exist.",
+  ] as const;
+}
+
+export function composeStaticAthenaCommandDraftByIntentId(
+  commandId: AthenaCommandIntentId
+): AthenaCommandComposerDraftRecord {
+  const command = resolveRequiredStaticAthenaCommandIntent(commandId);
+
+  return {
+    commandComposerVersion: "athena-conversational-command-composer-v1",
+    composerMode: "preview-only",
+    source: "Athena",
+    chatInputState: "inert/local only",
+    noPromptSendingStatement: "No prompt sending",
+    noModelCallStatement: "No model calls yet",
+    commandDraftKey: buildStableAthenaCommandComposerKey(command.commandId),
+    naturalLanguageRequestPhrase: command.userFacingPhrase,
+    normalizedOperatorObjective: buildAthenaNormalizedOperatorObjective(command),
+    matchedCommandIntentReference: command.commandId,
+    matchedPluginReference: command.matchedPluginId,
+    targetRouteReference: command.routeTarget,
+    suggestedBriefFields: buildAthenaSuggestedBriefFields(command),
+    missingInformationPrompts: buildAthenaMissingInformationPrompts(command),
+    requiredApprovals: command.requiredApprovals,
+    requiredSafetyGates: command.requiredSafetyGates,
+    requiredAuditGates: command.requiredAuditGates,
+    backendOnlyHandoffRequirement: command.backendOnlyRequirement,
+    blockedDefaultReason: buildAthenaBlockedComposerSummary(command),
+    nextOperatorAction:
+      "Review the structured command draft, fill the missing brief details, and confirm the operator approval posture.",
+    nextSystemAction:
+      "Prepare a preview-only approval draft and keep the backend-only handoff blocked until later phases connect provider registry and runtime gates.",
+    executionPosture: "blocked-by-default",
+  };
+}
+
+export function composeStaticAthenaCommandDraftByExactSamplePhrase(
+  phrase: string
+): AthenaCommandComposerDraftRecord | undefined {
+  const command = resolveStaticAthenaCommandIntentByExactSamplePhrase(phrase);
+
+  if (!command) {
+    return undefined;
+  }
+
+  return composeStaticAthenaCommandDraftByIntentId(command.commandId);
+}
+
+export function buildAthenaApprovalDraftPreview(
+  commandDraft: AthenaCommandComposerDraftRecord
+): AthenaApprovalDraftRecord {
+  const command = resolveRequiredStaticAthenaCommandIntent(
+    commandDraft.matchedCommandIntentReference
+  );
+  const plugin = resolveStaticAthenaPlugin(commandDraft.matchedPluginReference);
+  const bridge = buildApprovalGatedBridgePreview(command);
+  const providerRequirementState = plugin.providerCapable
+    ? "required"
+    : "not-applicable";
+
+  return {
+    approvalDraftVersion: "athena-approval-draft-preview-v1",
+    approvalDraftMode: "preview-only",
+    approvalDraftKey: buildStableAthenaApprovalDraftKey(command.commandId),
+    sourceCommandDraftReference: commandDraft.commandDraftKey,
+    targetPluginReference: commandDraft.matchedPluginReference,
+    targetRouteReference: commandDraft.targetRouteReference,
+    approvalPacketTitle: `${plugin.label} approval packet draft`,
+    operatorApprovalRequirement: "required",
+    safetyGateSummary: buildSafetyRequirementsSummary(bridge),
+    killSwitchRequirement: "required",
+    auditRequirement: "required",
+    backendOnlyHandoffRequirement: "required",
+    credentialIsolationRequirement: providerRequirementState,
+    costAcknowledgementRequirement: providerRequirementState,
+    privacyRedactionRequirement: "required",
+    idempotencyRequirement: "required",
+    replayBlockRequirement: "required",
+    timeoutCancelRequirement: "required",
+    resultCaptureRequirement: "required",
+    artifactHandoffPosture:
+      "Artifact handoff remains preview-only and backend-owned. No render, export, publish, or download execution exists here.",
+    persistencePosture:
+      "No result persistence. No audit persistence. No approval persistence. No persistent memory. No browser storage.",
+    blockedDefaultReason: buildAthenaBlockedComposerSummary(command),
+    explicitNoExecutionStatement:
+      "No execution, dispatch, prompt sending, model call, provider call, plugin call, or persistence occurs from this approval draft.",
+  };
+}
+
+export function listAthenaCommandDraftExamples():
+  readonly AthenaCommandComposerDraftRecord[] {
+  return ATHENA_APPROVAL_GATED_BRIDGE_COMMAND_IDS.map((commandId) =>
+    composeStaticAthenaCommandDraftByIntentId(commandId)
+  );
+}
+
+export function listAthenaApprovalDraftExamples():
+  readonly AthenaApprovalDraftRecord[] {
+  return listAthenaCommandDraftExamples().map((draft) =>
+    buildAthenaApprovalDraftPreview(draft)
+  );
 }
 
 export function listAthenaPrimaryOperatorActions():
@@ -2000,9 +2481,11 @@ export function buildProductPolishChecklist(
 ): readonly string[] {
   return [
     "Keep /jarvis as Athena Command Center with the chat/operator input near the top.",
+    "Keep the conversational command composer preview-only and inert by default.",
     `Keep ${command.routeTarget} aligned with Athena's preview-only cross-workspace run timeline.`,
     "Show approval, kill switch, safety, audit, and backend-only handoff gates together.",
     "Keep result capture pending until approved backend execution exists.",
+    "Keep model provider registry next and avoid adding frontend model or provider calls.",
     "Do not add persistence, browser storage, or frontend execution.",
   ] as const;
 }
@@ -2332,6 +2815,7 @@ export function buildNextTimelineAuditMemoryChecklist(
     "Keep audit memory static preview only with no persistent memory",
     "Keep operator approval, result capture, and audit linkage visible together",
     "Keep queue, worker, and job dispatch blocked until backend-only execution exists",
+    "Keep model provider registry next and do not connect model calls from the frontend",
   ] as const;
 }
 
@@ -2537,11 +3021,12 @@ export const ATHENA_AUDIT_MEMORY_PREVIEW_ITEMS:
 // The next likely Athena batch is 4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory.
 
 export const ATHENA_COMMAND_CENTER_MODEL = {
-  batch: ATHENA_PRODUCT_UX_POLISH_OPERATOR_HOME_TAKEOVER_BATCH,
-  highestDetectedPhase: ATHENA_PRODUCT_UX_POLISH_OPERATOR_HOME_TAKEOVER_PHASE,
-  latestCompletedBatch: ATHENA_PRODUCT_UX_POLISH_OPERATOR_HOME_TAKEOVER_BATCH,
-  previousCompletedBatch: ATHENA_CROSS_WORKSPACE_RUN_TIMELINE_AUDIT_MEMORY_BATCH,
-  nextLikelyBatch: ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_BATCH,
+  batch: ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_BATCH,
+  highestDetectedPhase:
+    ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_PHASE,
+  latestCompletedBatch: ATHENA_CONVERSATIONAL_COMMAND_COMPOSER_APPROVAL_DRAFTS_BATCH,
+  previousCompletedBatch: ATHENA_PRODUCT_UX_POLISH_OPERATOR_HOME_TAKEOVER_BATCH,
+  nextLikelyBatch: ATHENA_MODEL_PROVIDER_REGISTRY_CAPABILITY_MATRIX_BATCH,
   identity: ATHENA_CONTROL_PLANE_IDENTITY,
   chat: ATHENA_CHAT_PLACEHOLDER_MODEL,
   productUx: ATHENA_PRODUCT_UX_POLISH_MODEL,
@@ -2554,11 +3039,15 @@ export const ATHENA_COMMAND_CENTER_MODEL = {
   nextActions: ATHENA_NEXT_ACTIONS,
   currentCapabilities: ATHENA_CURRENT_CAPABILITIES,
   futureCapabilities: ATHENA_FUTURE_CAPABILITIES,
+  commandDraftStatusPanel: ATHENA_COMMAND_DRAFT_STATUS_PANEL,
   commandIntents: ATHENA_COMMAND_INTENTS,
+  commandComposerDrafts: ATHENA_COMMAND_COMPOSER_DRAFT_PREVIEWS,
+  approvalDraftPreviews: ATHENA_APPROVAL_DRAFT_PREVIEWS,
   approvalGatedToolBridgePreviews: ATHENA_APPROVAL_GATED_TOOL_BRIDGE_PREVIEWS,
   handoffPacketPreviews: ATHENA_HANDOFF_PACKET_PREVIEWS,
   crossWorkspaceRunTimeline: ATHENA_CROSS_WORKSPACE_RUN_TIMELINE_PREVIEW_ITEMS,
   auditMemoryPreview: ATHENA_AUDIT_MEMORY_PREVIEW_ITEMS,
+  nextModelProviderRegistryChecklist: buildNextModelProviderRegistryChecklist(),
 } as const satisfies AthenaCommandCenterModel;
 
 function resolveStaticAthenaPlugin(
