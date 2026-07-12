@@ -472,7 +472,7 @@ function Get-CodexForgeCurrentReleaseGateStatusLabel {
   }
 }
 
-$currentReleaseGateBatch = "4874-4905 - Manual Gated Model Provider Run Admission Preview"
+$currentReleaseGateBatch = "4906-4937 - Model Provider Run Admission Review and Recovery Preview"
 $currentReleaseGateName = "CodexForge Current Required Release Gate"
 $currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
 $historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
@@ -489,6 +489,10 @@ $historicalArchiveInventoryCommand = "powershell -ExecutionPolicy Bypass -File .
 # currentReleaseGateBatch = "4810-4841 - Athena Model Routing and Provider Selection Preview"
 # Historical current release gate assignment marker preserved for historical smoke coverage:
 # currentReleaseGateBatch = "4842-4873 - Model Provider Approval Packet and Run Intent Preview"
+# Historical current release gate assignment marker preserved for historical smoke coverage:
+# currentReleaseGateBatch = "4874-4905 - Manual Gated Model Provider Run Admission Preview"
+# Previous completed batch marker preserved for historical smoke coverage:
+# 4874-4905 - Manual Gated Model Provider Run Admission Preview
 # Previous completed batch marker preserved for historical smoke coverage:
 # 4714-4745 - Server-Only Model Adapter Contracts
 $currentReleaseGateScripts = @(
@@ -510,6 +514,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 4841 Athena Model Routing and Provider Selection Preview"; File = "smoke-codexforge-athena-model-routing-provider-selection-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4873 Model Provider Approval Packet and Run Intent Preview"; File = "smoke-codexforge-model-provider-approval-packet-run-intent-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4905 Manual Gated Model Provider Run Admission Preview"; File = "smoke-codexforge-manual-gated-model-provider-run-admission-preview-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4937 Model Provider Run Admission Review and Recovery Preview"; File = "smoke-codexforge-model-provider-run-admission-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }

@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 4905) {
-  throw "[FAIL] Highest detected phase expected 4905 found $highestPhase"
+if ($highestPhase -ne 4937) {
+  throw "[FAIL] Highest detected phase expected 4937 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,7 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "4874-4905 - Manual Gated Model Provider Run Admission Preview"',
+  'currentReleaseGateBatch = "4906-4937 - Model Provider Run Admission Review and Recovery Preview"',
+  "Phase 4937 Model Provider Run Admission Review and Recovery Preview",
+  "smoke-codexforge-model-provider-run-admission-review-recovery-preview-mega-batch.ps1",
   "Phase 4905 Manual Gated Model Provider Run Admission Preview",
   "smoke-codexforge-manual-gated-model-provider-run-admission-preview-mega-batch.ps1",
   'currentReleaseGateBatch = "4842-4873 - Model Provider Approval Packet and Run Intent Preview"',
@@ -99,6 +101,24 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+  "Current checkpoint: Highest detected phase: 4937. Latest completed batch: 4906-4937 - Model Provider Run Admission Review and Recovery Preview. Previous completed batch: 4874-4905 - Manual Gated Model Provider Run Admission Preview.",
+  "Highest detected phase: 4937",
+  "Latest completed batch: 4906-4937 - Model Provider Run Admission Review and Recovery Preview",
+  "Previous completed batch: 4874-4905 - Manual Gated Model Provider Run Admission Preview",
+  "Next likely batch: 4938-4969 - Backend-Owned Model Provider Run Admission Contract",
+  "model provider run admission review and recovery preview only",
+  "admission review is preview-only",
+  "decision review is preview-only",
+  "gate failure review is preview-only",
+  "recovery plan is preview-only",
+  "recovery readiness is preview-only",
+  "run admission state is not admitted",
+  "admission decision remains held",
+  "admission token is not issued",
+  "admission lease is not created",
+  "admission ticket is not issued",
+  "recovery is manual review only",
+  "backend-owned model provider run admission contract next",
   "Current checkpoint: Highest detected phase: 4905. Latest completed batch: 4874-4905 - Manual Gated Model Provider Run Admission Preview. Previous completed batch: 4842-4873 - Model Provider Approval Packet and Run Intent Preview.",
   "Highest detected phase: 4905",
   "Latest completed batch: 4874-4905 - Manual Gated Model Provider Run Admission Preview",

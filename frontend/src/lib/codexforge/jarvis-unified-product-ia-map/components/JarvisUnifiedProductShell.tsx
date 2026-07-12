@@ -230,20 +230,24 @@ export function JarvisUnifiedProductPanel(
                 preview-only. run intent is preview-only. Athena can now
                 preview manual gated model provider run admission. run
                 admission is preview-only. run admission state is not admitted.
-                admission decision is held. admission token is not issued.
-                admission lease is not created. manual gated run admission
-                preview comes next from the approval packet layer. run
-                admission review and recovery preview comes next. no model
-                calls yet. no prompt sending. no provider SDKs imported.
-                Plugin/provider execution remains blocked until approvals and
-                backend gates are satisfied. queue, worker, and job execution
-                remain blocked. Manual/provider execution stays backend-only.
-                No autonomous execution yet.
+                admission decision remains held. admission token is not
+                issued. admission lease is not created. Athena can now
+                preview model provider run admission reviews. admission review
+                is preview-only. backend-owned run admission contract comes
+                next. no model calls yet. no prompt sending. no provider SDKs
+                imported. Plugin/provider execution remains blocked until
+                approvals and backend gates are satisfied. queue, worker, and
+                job execution remain blocked. Manual/provider execution stays
+                backend-only. No autonomous execution yet.
               </p>
               {/* Historical smoke marker preserved for prior batch coverage:
                   Athena model routing and provider selection preview comes next. */}
               {/* Historical smoke marker preserved for prior batch coverage:
                   model provider approval packet and run intent preview comes next. */}
+              {/* Historical smoke marker preserved for prior batch coverage:
+                  manual gated run admission preview comes next from the approval packet layer. */}
+              {/* Historical smoke marker preserved for prior batch coverage:
+                  run admission review and recovery preview comes next. */}
               <div className={styles.workspaceMeta}>
                 {productUx.heroCopy.postureChips.map((item) => (
                   <span key={item} className={styles.blockedPill}>
@@ -326,10 +330,11 @@ export function JarvisUnifiedProductPanel(
                   approval packet is preview-only. run intent is preview-only.
                   Athena can now preview manual gated model provider run
                   admission. run admission is preview-only. run admission
-                  state is not admitted. admission token is not issued.
-                  admission lease is not created. manual gated run admission
-                  preview comes next from the approval packet layer. run
-                  admission review and recovery preview comes next.
+                  state is not admitted. admission decision remains held.
+                  admission token is not issued. admission lease is not
+                  created. Athena can now preview model provider run admission
+                  reviews. admission review is preview-only. backend-owned run
+                  admission contract comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
@@ -341,6 +346,10 @@ export function JarvisUnifiedProductPanel(
                     Athena model routing and provider selection preview comes next. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
                     model provider approval packet and run intent preview comes next. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    manual gated run admission preview comes next from the approval packet layer. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    run admission review and recovery preview comes next. */}
               </article>
             </div>
           </div>

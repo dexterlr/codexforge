@@ -50,6 +50,20 @@ import {
   uniqueManualRunAdmissionDisplayStrings,
 } from "@/lib/codexforge/manual-gated-model-provider-run-admission-preview";
 import {
+  buildAdmissionRecoverySummary,
+  buildAdmissionReviewSummary,
+  buildBackendOwnedRunAdmissionContractChecklist,
+  buildGateFailureSummary,
+  groupAdmissionReviewsByCapabilityFamily,
+  groupAdmissionReviewsByWorkspaceTarget,
+  listAdmissionDecisionReviews,
+  listAdmissionRecoveryPlanPreviews,
+  listAdmissionRecoveryReadinessChecklistRecords,
+  listAdmissionReviewAuditSummaries,
+  listGateFailureReviewRecords,
+  listModelProviderRunAdmissionReviews,
+} from "@/lib/codexforge/model-provider-run-admission-review-recovery-preview";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -136,6 +150,23 @@ function uniqueRecordsById<T extends Readonly<{ id: string }>>(
   for (const record of records) {
     if (!uniqueRecords.has(record.id)) {
       uniqueRecords.set(record.id, record);
+    }
+  }
+
+  return Array.from(uniqueRecords.values());
+}
+
+function uniqueRecordsByString<T>(
+  records: readonly T[],
+  resolveKey: (record: T) => string
+): readonly T[] {
+  const uniqueRecords = new Map<string, T>();
+
+  for (const record of records) {
+    const key = resolveKey(record);
+
+    if (!uniqueRecords.has(key)) {
+      uniqueRecords.set(key, record);
     }
   }
 
@@ -281,6 +312,40 @@ export function AthenaCommandCenterPanel({
     admissionDenialRecoveryPreviews[0] ?? null;
   const representativeManualAdmissionAuditPreview =
     manualAdmissionAuditPreviews[0] ?? null;
+  const modelProviderRunAdmissionReviews =
+    listModelProviderRunAdmissionReviews();
+  const admissionDecisionReviews = listAdmissionDecisionReviews();
+  const gateFailureReviewRecords = listGateFailureReviewRecords();
+  const gateFailureReviewsForDisplay = uniqueRecordsByString(
+    gateFailureReviewRecords,
+    (record) => record.failedGateId
+  );
+  const admissionRecoveryPlanPreviews = listAdmissionRecoveryPlanPreviews();
+  const admissionRecoveryReadinessChecklistRecords =
+    listAdmissionRecoveryReadinessChecklistRecords();
+  const admissionReviewAuditSummaries = listAdmissionReviewAuditSummaries();
+  const admissionReviewSummary = buildAdmissionReviewSummary();
+  const gateFailureSummary = buildGateFailureSummary();
+  const admissionRecoverySummary = buildAdmissionRecoverySummary();
+  const backendOwnedRunAdmissionContractChecklist =
+    buildBackendOwnedRunAdmissionContractChecklist();
+  const admissionReviewCapabilityGroups =
+    groupAdmissionReviewsByCapabilityFamily();
+  const admissionReviewWorkspaceGroups =
+    groupAdmissionReviewsByWorkspaceTarget();
+  const representativeAdmissionReview =
+    modelProviderRunAdmissionReviews[0] ?? null;
+  const representativeAdmissionDecisionReview =
+    admissionDecisionReviews[0] ?? null;
+  const representativeGateFailureReview = gateFailureReviewsForDisplay[0] ?? null;
+  const representativeAdmissionRecoveryPlan =
+    admissionRecoveryPlanPreviews[0] ?? null;
+  const representativeAdmissionRecoveryAuditSummary =
+    admissionReviewAuditSummaries[0] ?? null;
+  const blockedAdmissionRecoveryReadinessChecklistRecords =
+    admissionRecoveryReadinessChecklistRecords.filter(
+      (record) => record.state === "blocked"
+    );
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -3737,6 +3802,799 @@ export function AthenaCommandCenterPanel({
               </div>
               <p className={styles.railBody}>{blocker.requiredRecoveryAction}</p>
               <p className={styles.railFooter}>{blocker.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Model provider run admission review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held admission review</p>
+            <h2 className={styles.panelTitle}>
+              Model provider run admission review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Held / not admitted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review why model provider run admission is held. admission
+          review is preview-only. run admission state: not admitted. admission
+          decision state: held. admission token is not issued. admission lease
+          is not created. admission ticket is not issued. provider execution is
+          blocked. queue dispatch is blocked. worker dispatch is blocked. job
+          execution is blocked. No prompt sending. No model calls yet. No
+          provider SDKs imported. backend-owned run admission contract comes
+          next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {admissionReviewSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Reviews: ${admissionReviewSummary.reviewCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {admissionReviewSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "admission-review-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.metaPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Decision reviews: ${admissionReviewSummary.decisionReviewCount} | Gate failures: ${admissionReviewSummary.gateFailureReviewCount} | Recovery plans: ${admissionReviewSummary.recoveryPlanCount} | Readiness checks: ${admissionReviewSummary.recoveryReadinessChecklistCount}`}
+            </p>
+          </article>
+          {representativeAdmissionReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAdmissionReview.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAdmissionReview.admissionReviewPosture}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {representativeAdmissionReview.operatorRequestPhrase}
+              </p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${representativeAdmissionReview.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`selected capability family: ${representativeAdmissionReview.selectedCapabilityFamily.label}`}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.blockedPill}>
+                  {`provider slot label: ${representativeAdmissionReview.providerSlotLabel}`}
+                </span>
+                <span className={styles.blockedPill}>
+                  {`backup provider slot label: ${representativeAdmissionReview.backupProviderSlotLabel}`}
+                </span>
+                <span className={styles.blockedPill}>
+                  {`local/private alternative label: ${representativeAdmissionReview.localPrivateAlternativeLabel}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`admission decision state: ${representativeAdmissionReview.admissionDecisionState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission token state: ${representativeAdmissionReview.admissionTokenState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission lease state: ${representativeAdmissionReview.admissionLeaseState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeAdmissionReview.nextBackendOwnedRunAdmissionContractRequirement}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe batch</p>
+                <h3 className={styles.placeholderTitle}>
+                  {admissionReviewSummary.nextLikelyBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Next likely batch
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {backendOwnedRunAdmissionContractChecklist.map((item, index) => (
+                <article
+                  key={buildScopedItemKey(
+                    "backend-owned-run-admission-contract-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.railCard}
+                >
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Grouped by capability family</p>
+                <h3 className={styles.placeholderTitle}>
+                  Admission review stays capability-aware
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Visible
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {admissionReviewCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "admission-review-capability-group",
+                    "group",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.metaPill}
+                >{`${group.capabilityFamilyLabel}: ${group.reviewCount}`}</span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Grouped by workspace target</p>
+                <h3 className={styles.placeholderTitle}>
+                  Admission review stays workspace-specific
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Visible
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {admissionReviewWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "admission-review-workspace-group",
+                    "group",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.metaPill}
+                >{`${group.workspaceTarget}: ${group.reviewCount}`}</span>
+              ))}
+            </div>
+          </article>
+          {representativeAdmissionRecoveryAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit summary</p>
+                  <h3 className={styles.placeholderTitle}>preview-only audit</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                  {representativeAdmissionRecoveryAuditSummary.auditPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeAdmissionRecoveryAuditSummary.evidenceSummary}
+              </p>
+              <p className={styles.railBody}>
+                {representativeAdmissionRecoveryAuditSummary.failedGateSummary}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeAdmissionRecoveryAuditSummary
+                    .backendOwnedContractRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Admission decision review">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held decision review</p>
+            <h2 className={styles.panelTitle}>Admission decision review</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Held / not admitted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          decision state: held / not admitted. admission reason summary. top
+          blocking gates. top missing evidence. operator review notes. manual
+          recovery requirement. next safe action. explicit
+          no-admission-no-execution statement.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Decision review posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  preview-only decision reviews
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Decision reviews: ${admissionDecisionReviews.length}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              decision review is preview-only. decision state: held / not
+              admitted.
+            </p>
+            <p className={styles.railBody}>
+              top blocking gates and top missing evidence remain review-only.
+            </p>
+            <p className={styles.railFooter}>
+              No admission. No execution. No provider execution. No model
+              calls.
+            </p>
+          </article>
+          {representativeAdmissionDecisionReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative decision</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAdmissionDecisionReview.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAdmissionDecisionReview.decisionState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {representativeAdmissionDecisionReview.admissionReasonSummary}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {representativeAdmissionDecisionReview.topBlockingGates.map(
+                  (gate, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeAdmissionDecisionReview.key,
+                        "top-blocking-gate",
+                        index,
+                        gate
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {gate}
+                    </span>
+                  )
+                )}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeAdmissionDecisionReview.topMissingEvidence.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeAdmissionDecisionReview.key,
+                        "top-missing-evidence",
+                        index,
+                        item
+                      )}
+                      className={styles.metaPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railBody}>
+                {`manual recovery requirement: ${representativeAdmissionDecisionReview.manualRecoveryRequirement}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeAdmissionDecisionReview.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {admissionDecisionReviews.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Decision review</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.decisionState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {record.admissionReasonSummary}
+              </p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${record.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`selected capability family: ${record.selectedCapabilityFamily.label}`}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {record.topBlockingGates.map((gate, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      record.key,
+                      "top-blocking-gate",
+                      index,
+                      gate
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {gate}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {record.topMissingEvidence.map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      record.key,
+                      "top-missing-evidence",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.nextActionList}>
+                {record.operatorReviewNotes.map((note, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      record.key,
+                      "operator-review-note",
+                      index,
+                      note
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{note}</p>
+                  </article>
+                ))}
+              </div>
+              <p className={styles.railBody}>
+                {`manual recovery requirement: ${record.manualRecoveryRequirement}`}
+              </p>
+              <p className={styles.railBody}>
+                {`next safe action: ${record.nextSafeAction}`}
+              </p>
+              <p className={styles.railFooter}>
+                {record.explicitNoAdmissionNoExecutionStatement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Gate failure review">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held gate failures</p>
+            <h2 className={styles.panelTitle}>Gate failure review</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Held / not admitted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          operator approval gate failure. manual confirmation gate failure.
+          kill switch gate failure. audit gate failure. server-only adapter
+          gate failure. opaque credential gate failure. prompt payload review
+          gate failure. privacy/redaction gate failure. cost/rate/timeout gate
+          failure. idempotency/replay gate failure. single-run lock gate
+          failure. dry-run result review gate failure. acceptance matrix gate
+          failure. approval expiry/revocation gate failure. persistence gate
+          failure. queue/worker/job gates blocked.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate failure posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  preview-only gate failures
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Gate failures: ${gateFailureSummary.gateFailureReviewCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {gateFailureSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "gate-failure-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.metaPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Critical: ${gateFailureSummary.criticalGateFailureCount} | High: ${gateFailureSummary.highGateFailureCount} | Medium: ${gateFailureSummary.mediumGateFailureCount}`}
+            </p>
+          </article>
+          {representativeGateFailureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative gate</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeGateFailureReview.failedGateLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeGateFailureReview.severity}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {representativeGateFailureReview.operatorFacingExplanation}
+              </p>
+              <p className={styles.railBody}>
+                {`gate state: ${representativeGateFailureReview.gateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`required evidence to unblock: ${representativeGateFailureReview.requiredEvidenceToUnblock}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeGateFailureReview.explicitNoGatePassStatement}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {gateFailureReviewsForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate failure review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.failedGateLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.severity}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {record.operatorFacingExplanation}
+              </p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`affected capability family: ${record.affectedCapabilityFamily.label}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`affected workspace target: ${record.affectedWorkspaceTarget}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>{`gate state: ${record.gateState}`}</p>
+              <p className={styles.railBody}>
+                {`required evidence to unblock: ${record.requiredEvidenceToUnblock}`}
+              </p>
+              <p className={styles.railBody}>
+                {`required recovery action: ${record.requiredRecoveryAction}`}
+              </p>
+              <p className={styles.railBody}>
+                {`next safe action: ${record.nextSafeAction}`}
+              </p>
+              <p className={styles.railFooter}>
+                {record.explicitNoGatePassStatement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Admission recovery plan">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Manual review recovery</p>
+            <h2 className={styles.panelTitle}>Admission recovery plan</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Manual review only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          recovery is manual review only. retry disabled. fallback disabled.
+          missing approval recovery. kill switch active recovery. approval
+          expiry/revocation recovery. missing opaque credential recovery.
+          prompt payload review recovery. privacy/redaction recovery.
+          cost/rate/timeout recovery. dry-run review recovery. acceptance
+          matrix recovery. persistence recovery. queue/worker/job blocked
+          recovery. backend-owned run admission contract comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Recovery posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  preview-only recovery plans
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Recovery plans: ${admissionRecoverySummary.recoveryPlanCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {admissionRecoverySummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "admission-recovery-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.metaPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Manual review only: ${admissionRecoverySummary.manualReviewOnlyCount} | Retry disabled: ${admissionRecoverySummary.retryDisabledCount} | Fallback disabled: ${admissionRecoverySummary.fallbackDisabledCount}`}
+            </p>
+          </article>
+          {representativeAdmissionRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative recovery</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAdmissionRecoveryPlan.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAdmissionRecoveryPlan.recoveryPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeAdmissionRecoveryPlan.missingManualApprovalRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeAdmissionRecoveryPlan.killSwitchActiveRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeAdmissionRecoveryPlan
+                    .acceptanceMatrixUnresolvedRecovery
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeAdmissionRecoveryPlan
+                    .explicitNoRetryNoFallbackNoExecutionStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe batch</p>
+                <h3 className={styles.placeholderTitle}>
+                  {admissionRecoverySummary.nextLikelyBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Next likely batch
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {backendOwnedRunAdmissionContractChecklist.map((item, index) => (
+                <article
+                  key={buildScopedItemKey(
+                    "admission-recovery-backend-contract-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.railCard}
+                >
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {admissionRecoveryPlanPreviews.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Recovery plan</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.retryPosture}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${record.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`selected capability family: ${record.selectedCapabilityFamily.label}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {record.missingManualApprovalRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {record.promptPayloadNotReviewedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {record.costRateTimeoutIncompleteRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {record.queueDispatchBlockedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {record.workerDispatchBlockedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {record.jobExecutionBlockedRecovery}
+              </p>
+              <p className={styles.railFooter}>
+                {record.explicitNoRetryNoFallbackNoExecutionStatement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Admission recovery readiness">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Compact readiness review</p>
+            <h2 className={styles.panelTitle}>Admission recovery readiness</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Current blocked posture
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          recovery readiness is preview-only. readiness checklist records stay
+          visible while queue dispatch, worker dispatch, job execution, and
+          persistence remain blocked until the backend-owned admission contract
+          exists.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  preview-only readiness checklist
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Checklist records: ${admissionRecoveryReadinessChecklistRecords.length}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              current blocked posture remains explicit. backend contract
+              dependency remains explicit.
+            </p>
+            <div className={styles.workspaceMeta}>
+              {blockedAdmissionRecoveryReadinessChecklistRecords.map(
+                (record, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "admission-recovery-readiness-blocked",
+                      "item",
+                      index,
+                      record.checklistId
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {record.label}
+                  </span>
+                )
+              )}
+            </div>
+            <p className={styles.railFooter}>
+              {`Blocked records: ${blockedAdmissionRecoveryReadinessChecklistRecords.length}`}
+            </p>
+          </article>
+          {representativeAdmissionRecoveryAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit-ready summary</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAdmissionRecoveryAuditSummary.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                  {representativeAdmissionRecoveryAuditSummary.auditPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeAdmissionRecoveryAuditSummary.recoverySummary}
+              </p>
+              <p className={styles.railBody}>
+                {representativeAdmissionRecoveryAuditSummary.blockedActionSummary}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeAdmissionRecoveryAuditSummary
+                    .backendOwnedContractRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {admissionRecoveryReadinessChecklistRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Readiness checklist</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.state}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{record.evidenceRequired}</p>
+              <p className={styles.railBody}>
+                {`recovery action: ${record.recoveryAction}`}
+              </p>
+              <p className={styles.railBody}>{`owner: ${record.owner}`}</p>
+              <p className={styles.railBody}>
+                {`current posture: ${record.currentPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`backend contract dependency: ${record.backendContractDependency}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`next safe action: ${record.nextSafeAction}`}
+              </p>
             </article>
           ))}
         </div>
