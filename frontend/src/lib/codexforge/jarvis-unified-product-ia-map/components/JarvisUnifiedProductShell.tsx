@@ -217,12 +217,14 @@ export function JarvisUnifiedProductPanel(
                 {/* Historical smoke marker: server-only adapter contracts come next */}
                 Athena can compare model capability families. Athena can now
                 preview server-only model adapter contracts. model adapter
-                envelopes are preview-only. model adapters must run
-                backend-only. manual gated dry-run harness comes next. no model
-                calls yet. no prompt sending. no provider SDKs imported.
-                Plugin/provider execution remains blocked until approvals and
-                backend gates are satisfied. Manual/provider execution stays
-                backend-only. No autonomous execution yet.
+                envelopes are preview-only. Athena can now preview manual gated
+                model adapter dry-runs. dry-run harness is fixture-only. model
+                adapter dry-run packets are preview-only. dry-run result review
+                and recovery comes next. no model calls yet. no prompt
+                sending. no provider SDKs imported. Plugin/provider execution
+                remains blocked until approvals and backend gates are
+                satisfied. Manual/provider execution stays backend-only. No
+                autonomous execution yet.
               </p>
               <div className={styles.workspaceMeta}>
                 {productUx.heroCopy.postureChips.map((item) => (
@@ -285,7 +287,11 @@ export function JarvisUnifiedProductPanel(
                   model adapter envelopes are preview-only.
                 </p>
                 <p className={styles.railBody}>
-                  manual gated dry-run harness comes next.
+                  Athena can now preview manual gated model adapter dry-runs.
+                </p>
+                <p className={styles.railBody}>
+                  dry-run harness is fixture-only. dry-run result review and
+                  recovery comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs

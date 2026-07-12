@@ -471,13 +471,15 @@ function Get-CodexForgeCurrentReleaseGateStatusLabel {
   }
 }
 
-$currentReleaseGateBatch = "4714-4745 - Server-Only Model Adapter Contracts"
+$currentReleaseGateBatch = "4746-4777 - Manual Gated Model Adapter Dry-Run Harness"
 $currentReleaseGateName = "CodexForge Current Required Release Gate"
 $currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
 $historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
 $historicalArchiveInventoryCommand = "powershell -ExecutionPolicy Bypass -File .\scripts\" + $historicalArchiveInventoryFile
 # Previous current required release gate marker preserved for historical smoke coverage:
 # 4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate
+# Previous completed batch marker preserved for historical smoke coverage:
+# 4714-4745 - Server-Only Model Adapter Contracts
 $currentReleaseGateScripts = @(
   @{ Name = "Phase 4361 Jarvis Video First Provider Trial Result Review and Recovery"; File = "smoke-codexforge-jarvis-video-first-provider-trial-result-review-recovery-mega-batch.ps1"; Required = $false },
   @{ Name = "Phase 4393 Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial"; File = "smoke-codexforge-jarvis-video-first-real-provider-adapter-wiring-manual-gated-trial-mega-batch.ps1"; Required = $false },
@@ -492,6 +494,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 4681 CodexForge Full Smoke Harness Triage and Required Release Gate"; File = "smoke-codexforge-full-smoke-harness-triage-required-release-gate-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4713 AI Model Provider Registry and Capability Matrix"; File = "smoke-codexforge-ai-model-provider-registry-capability-matrix-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4745 Server-Only Model Adapter Contracts"; File = "smoke-codexforge-server-only-model-adapter-contracts-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4777 Manual Gated Model Adapter Dry-Run Harness"; File = "smoke-codexforge-manual-gated-model-adapter-dry-run-harness-mega-batch.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }

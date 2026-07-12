@@ -1050,7 +1050,7 @@ export function buildBlockedProviderExecutionSummary(
 ): AiModelProviderBlockedExecutionSummary {
   return {
     summary:
-      "Provider execution remains blocked and registry-only until manual gated dry-run harness work, approval hooks, kill-switch controls, audit joins, and backend-only execution paths exist.",
+      "Provider execution remains blocked and registry-only until dry-run result review and recovery, approval hooks, kill-switch controls, audit joins, and backend-only execution paths exist.",
     blockedLines: [
       registry.noModelCallsStatement,
       registry.noPromptSendingStatement,

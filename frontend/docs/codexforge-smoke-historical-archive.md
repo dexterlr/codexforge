@@ -2,7 +2,7 @@
 
 ## Current Release Gate
 Current release gate is `scripts/smoke-codexforge-all.ps1`.
-It runs only the current required release smokes and current critical regressions for `4714-4745 - Server-Only Model Adapter Contracts`.
+It runs only the current required release smokes and current critical regressions for `4746-4777 - Manual Gated Model Adapter Dry-Run Harness`.
 
 ## Historical Archive
 Historical phase smokes are preserved as evidence.

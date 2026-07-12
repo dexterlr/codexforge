@@ -194,8 +194,11 @@ foreach ($needle in @(
   "Open Jarvis Video Studio",
   "Athena can now preview AI model provider slots",
   "Athena can now preview server-only model adapter contracts",
-  "manual gated dry-run harness comes next",
-  "no model calls yet"
+  "Athena can now preview manual gated model adapter dry-runs",
+  "dry-run harness is fixture-only",
+  "dry-run result review and recovery comes next",
+  "no model calls yet",
+  "no prompt sending"
 )) {
   Assert-Contains $homeNormalized $needle "home contains $needle"
 }
@@ -224,7 +227,9 @@ foreach ($needle in @(
   "Credential isolation required",
   "4714-4745 - Server-Only Model Adapter Contracts",
   "Define request and response envelopes for each provider family.",
-  "Keep credentials as opaque backend-only references."
+  "Keep credentials as opaque backend-only references.",
+  "Manual gated model adapter dry-run harness",
+  "Dry-run result review and recovery comes next"
 )) {
   Assert-Contains $typedModelNormalized $needle "typed model/data contains $needle"
 }
@@ -238,10 +243,10 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Highest detected phase: 4745",
-  "Latest completed batch: 4714-4745 - Server-Only Model Adapter Contracts",
-  "Previous completed batch: 4682-4713 - AI Model Provider Registry and Capability Matrix",
-  "Next likely batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness"
+  "Highest detected phase: 4777",
+  "Latest completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness",
+  "Previous completed batch: 4714-4745 - Server-Only Model Adapter Contracts",
+  "Next likely batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery"
 )) {
   Assert-Contains $checkpointNormalized $needle "checkpoint current doc contains $needle"
   Assert-Contains $runbookNormalized $needle "runbook contains $needle"

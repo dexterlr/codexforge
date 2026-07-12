@@ -171,7 +171,7 @@ foreach ($needle in @(
   "buildAthenaMissingInformationPrompts",
   "buildAthenaApprovalDraftPreview",
   "buildAthenaBlockedComposerSummary",
-  "nextServerOnlyAdapterChecklist",
+  "nextResultReviewRecoveryChecklist",
   'commandComposerVersion: "athena-conversational-command-composer-v1"',
   'composerMode: "preview-only"',
   'approvalDraftVersion: "athena-approval-draft-preview-v1"',

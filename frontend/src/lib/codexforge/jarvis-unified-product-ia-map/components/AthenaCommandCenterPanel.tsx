@@ -13,7 +13,6 @@ import {
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
-  buildNextManualGatedDryRunChecklist,
   groupAdapterContractsByCapabilityFamily,
   groupAdapterContractsByWorkspaceTarget,
   listModelAdapterErrorEnvelopePreviews,
@@ -22,6 +21,17 @@ import {
   listServerOnlyAdapterGateChecklist,
   listServerOnlyModelAdapterContracts,
 } from "@/lib/codexforge/server-only-model-adapter-contracts";
+import {
+  buildBlockedDryRunExecutionSummary,
+  buildDryRunReadinessSummary,
+  getManualGatedModelAdapterDryRunHarness,
+  groupDryRunScenariosByWorkspaceTarget,
+  listDryRunDenialFailurePreviews,
+  listDryRunFixtureResultPreviews,
+  listDryRunRequestPacketPreviews,
+  listManualDryRunGateChecklist,
+  listManualGatedModelAdapterDryRunScenarios,
+} from "@/lib/codexforge/manual-gated-model-adapter-dry-run-harness";
 import styles from "./JarvisUnifiedProductShell.module.css";
 import {
   buildAuditRequirementsSummary,
@@ -78,13 +88,26 @@ export function AthenaCommandCenterPanel({
     groupAdapterContractsByCapabilityFamily();
   const adapterContractsByWorkspaceTarget =
     groupAdapterContractsByWorkspaceTarget();
-  const nextManualGatedDryRunChecklist = buildNextManualGatedDryRunChecklist();
   const representativeAdapterRequestEnvelope =
     adapterRequestEnvelopePreviews[0] ?? null;
   const representativeAdapterResponseEnvelope =
     adapterResponseEnvelopePreviews[0] ?? null;
   const representativeAdapterErrorEnvelope =
     adapterErrorEnvelopePreviews[0] ?? null;
+  const dryRunHarness = getManualGatedModelAdapterDryRunHarness();
+  const dryRunReadinessSummary = buildDryRunReadinessSummary();
+  const blockedDryRunExecutionSummary = buildBlockedDryRunExecutionSummary();
+  const dryRunScenarios = listManualGatedModelAdapterDryRunScenarios();
+  const dryRunScenarioWorkspaceGroups = groupDryRunScenariosByWorkspaceTarget();
+  const dryRunRequestPacketPreviews = listDryRunRequestPacketPreviews();
+  const dryRunFixtureResultPreviews = listDryRunFixtureResultPreviews();
+  const dryRunDenialFailurePreviews = listDryRunDenialFailurePreviews();
+  const manualDryRunGateChecklist = listManualDryRunGateChecklist();
+  const representativeDryRunRequestPacket = dryRunRequestPacketPreviews[0] ?? null;
+  const representativeDryRunFixtureResult =
+    dryRunFixtureResultPreviews[0] ?? null;
+  const representativeDryRunDenialFailure =
+    dryRunDenialFailurePreviews[0] ?? null;
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -308,17 +331,17 @@ export function AthenaCommandCenterPanel({
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Next manual dry-run work</p>
+                <p className={styles.panelEyebrow}>Next review work</p>
                 <h3 className={styles.placeholderTitle}>
                   {commandCenter.nextLikelyBatch}
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
-                Dry-run harness next
+                Review/recovery next
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextManualGatedDryRunChecklist.map((item) => (
+              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -590,17 +613,17 @@ export function AthenaCommandCenterPanel({
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Next manual dry-run work</p>
+                <p className={styles.panelEyebrow}>Current dry-run checkpoint</p>
                 <h3 className={styles.placeholderTitle}>
-                  {commandCenter.nextLikelyBatch}
+                  {dryRunReadinessSummary.latestCompletedBatch}
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
-                Dry-run harness next
+                {`Phase ${dryRunReadinessSummary.highestDetectedPhase}`}
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextManualGatedDryRunChecklist.slice(0, 6).map((item) => (
+              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -797,7 +820,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Blocked posture</p>
                 <h3 className={styles.placeholderTitle}>
-                  What manual dry-run work comes next
+                  What review and recovery work comes next
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -808,7 +831,7 @@ export function AthenaCommandCenterPanel({
               {blockedProviderExecutionSummary.summary}
             </p>
             <div className={styles.workspaceMeta}>
-              {commandCenter.nextManualGatedDryRunChecklist.slice(0, 5).map((item) => (
+              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
                 <span key={item} className={styles.metaPill}>
                   {item}
                 </span>
@@ -867,7 +890,8 @@ export function AthenaCommandCenterPanel({
           blocked. no model calls yet. no prompt sending. no provider SDKs
           imported. opaque credential references only. operator approval
           required. kill switch required. audit required. manual gated dry-run
-          harness comes next.
+          harness is now available as fixture-only preview. dry-run result
+          review and recovery comes next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -932,10 +956,10 @@ export function AthenaCommandCenterPanel({
               {`Previous completed batch: ${adapterReadinessSummary.previousCompletedBatch}`}
             </p>
             <p className={styles.railBody}>
-              {`Next likely batch: ${adapterReadinessSummary.nextLikelyBatch}`}
+              {`Next likely batch: ${commandCenter.nextLikelyBatch}`}
             </p>
             <div className={styles.workspaceMeta}>
-              {commandCenter.nextManualGatedDryRunChecklist.map((item) => (
+              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
                 <span key={item} className={styles.metaPill}>
                   {item}
                 </span>
@@ -1176,9 +1200,9 @@ export function AthenaCommandCenterPanel({
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Next manual gated step</p>
+                <p className={styles.panelEyebrow}>Next review step</p>
                 <h3 className={styles.placeholderTitle}>
-                  manual gated dry-run harness comes next
+                  dry-run result review and recovery comes next
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -1186,7 +1210,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextManualGatedDryRunChecklist.map((item) => (
+              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -1196,6 +1220,371 @@ export function AthenaCommandCenterPanel({
         </div>
         <div className={styles.summaryGrid}>
           {serverOnlyAdapterGateChecklist.map((gate) => (
+            <article key={gate.id} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Required gate</p>
+                  <h3 className={styles.placeholderTitle}>{gate.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  Required
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{gate.summary}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual gated model adapter dry-run harness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Fixture-only harness</p>
+            <h2 className={styles.panelTitle}>
+              Manual gated model adapter dry-run harness
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Fixture-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          dry-run harness is fixture-only. manual operator approval is required.
+          manual confirmation is required. kill switch required. audit required.
+          server-only adapter contract required. No model calls yet. No prompt
+          sending. No provider SDKs imported. provider execution is blocked.
+          dry-run result review and recovery comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Harness posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {dryRunHarness.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {`Phase ${dryRunHarness.highestDetectedPhase}`}
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {`Source: ${dryRunHarness.source}. Harness mode: ${dryRunHarness.harnessMode}. Fixture mode: ${dryRunHarness.fixtureMode}.`}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {[
+                "dry-run harness is fixture-only",
+                dryRunHarness.manualOperatorApprovalRequired,
+                dryRunHarness.manualConfirmationRequired,
+                dryRunHarness.killSwitchRequired,
+                dryRunHarness.auditRequired,
+                "server-only adapter contract required",
+              ].map((item) => (
+                <span key={item} className={styles.blockedPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Blocked execution posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  provider execution is blocked
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                No execution
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {blockedDryRunExecutionSummary.summary}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {blockedDryRunExecutionSummary.blockedLines.map((item) => (
+                <span key={item} className={styles.blockedPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>What comes next</p>
+                <h3 className={styles.placeholderTitle}>
+                  {dryRunReadinessSummary.nextLikelyBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Review/recovery next
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
+                <article key={item} className={styles.railCard}>
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Dry-run scenario preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked scenario catalog</p>
+            <h2 className={styles.panelTitle}>Dry-run scenario preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Blocked by default
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          text planning. code assistance. image storyboard. video prompt
+          planning. audio narration. transcription/caption. embeddings/search.
+          safety/moderation. local/private inference. each scenario is blocked
+          by default. each scenario uses fixture-only packets.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Scenario readiness</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${dryRunReadinessSummary.scenarioCount} dry-run scenarios`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Fixture-only
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {`${dryRunReadinessSummary.requestPacketCount} request packets | ${dryRunReadinessSummary.fixtureResultCount} fixture results | ${dryRunReadinessSummary.denialFailureCount} denial/failure previews`}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {dryRunReadinessSummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeDryRunRequestPacket ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Fixture packet posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeDryRunRequestPacket.operatorObjective}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeDryRunRequestPacket.fixtureInputState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`prompt payload posture: ${representativeDryRunRequestPacket.promptPayloadPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`prompt transmission state: ${representativeDryRunRequestPacket.promptTransmissionState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval reference posture: ${representativeDryRunRequestPacket.approvalReferencePosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit reference posture: ${representativeDryRunRequestPacket.auditReferencePosture}`}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Workspace coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Which workspace each scenario serves
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Product-first
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {dryRunScenarioWorkspaceGroups.map((group) => (
+                <span key={group.workspaceTarget} className={styles.metaPill}>
+                  {`${group.workspaceTarget}: ${group.scenarioCount}`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {dryRunScenarios.map((scenario) => (
+            <article key={scenario.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Static scenario</p>
+                  <h3 className={styles.placeholderTitle}>{scenario.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {scenario.defaultState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{scenario.summary}</p>
+              <p className={styles.railBody}>
+                {`Workspace target: ${scenario.workspaceTarget}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {scenario.capabilityFamilyLabel}
+                </span>
+                <span className={styles.metaPill}>
+                  {scenario.fixturePacketPosture}
+                </span>
+                <span className={styles.metaPill}>
+                  {`Provider slot: ${scenario.providerSlotId}`}
+                </span>
+              </div>
+              <p className={styles.railFooter}>{scenario.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Fixture result preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Static placeholder outputs</p>
+            <h2 className={styles.panelTitle}>Fixture result preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Static preview only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          static fixture result only. provider response is not received. model
+          output is not generated. audit/approval/result persistence not
+          implemented. denial/failure preview remains static. recovery is future
+          manual review only.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeDryRunFixtureResult ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Fixture result posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    static fixture result only
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeDryRunFixtureResult.fixtureResultState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`provider response state: ${representativeDryRunFixtureResult.providerResponseState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`model output state: ${representativeDryRunFixtureResult.modelOutputState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`token/cost accounting state: ${representativeDryRunFixtureResult.tokenCostAccountingState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit join state: ${representativeDryRunFixtureResult.auditJoinState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeDryRunFixtureResult.noLiveResultStatement}
+              </p>
+            </article>
+          ) : null}
+          {representativeDryRunDenialFailure ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Denial/failure preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    recovery is future manual review only
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeDryRunDenialFailure.retryFallbackPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeDryRunDenialFailure.killSwitchBlockedExample}
+              </p>
+              <p className={styles.railBody}>
+                {representativeDryRunDenialFailure.missingApprovalExample}
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeDryRunDenialFailure
+                    .missingOpaqueCredentialReferenceExample
+                }
+              </p>
+              <div className={styles.workspaceMeta}>
+                {representativeDryRunDenialFailure.localValidationErrorExamples.map(
+                  (item) => (
+                    <span key={item} className={styles.metaPill}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Preview-only joins</p>
+                <h3 className={styles.placeholderTitle}>
+                  audit/approval/result persistence not implemented
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Not persisted
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {[
+                "provider response is not received",
+                "model output is not generated",
+                "audit/approval/result persistence not implemented",
+                "denial/failure preview",
+                "recovery is future manual review only",
+              ].map((item) => (
+                <span key={item} className={styles.blockedPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Manual dry-run gates">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Manual approval and audit gates</p>
+            <h2 className={styles.panelTitle}>Manual dry-run gates</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Required
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Required gate checklist for operator approval, manual confirmation,
+          kill switch, audit preview, server-only boundary, fixture-only
+          packets, and blocked execution posture.
+        </p>
+        <div className={styles.summaryGrid}>
+          {manualDryRunGateChecklist.map((gate) => (
             <article key={gate.id} className={styles.summaryCard}>
               <div className={styles.placeholderHeader}>
                 <div>
@@ -1951,7 +2340,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next manual gated dry-run checklist
+                  Next result review and recovery checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -1959,7 +2348,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {productUx.nextManualGatedDryRunChecklist.map((item) => (
+              {productUx.nextResultReviewRecoveryChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>

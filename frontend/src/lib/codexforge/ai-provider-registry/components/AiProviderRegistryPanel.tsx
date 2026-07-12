@@ -13,7 +13,6 @@ import {
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
-  buildNextManualGatedDryRunChecklist,
   groupAdapterContractsByCapabilityFamily,
   groupAdapterContractsByWorkspaceTarget,
   listModelAdapterErrorEnvelopePreviews,
@@ -22,6 +21,17 @@ import {
   listServerOnlyAdapterGateChecklist,
   listServerOnlyModelAdapterContracts,
 } from "@/lib/codexforge/server-only-model-adapter-contracts";
+import {
+  buildBlockedDryRunExecutionSummary,
+  buildDryRunReadinessSummary,
+  buildNextResultReviewAndRecoveryChecklist,
+  getManualGatedModelAdapterDryRunHarness,
+  listDryRunDenialFailurePreviews,
+  listDryRunFixtureResultPreviews,
+  listDryRunRequestPacketPreviews,
+  listManualDryRunGateChecklist,
+  listManualGatedModelAdapterDryRunScenarios,
+} from "@/lib/codexforge/manual-gated-model-adapter-dry-run-harness";
 
 export function AiProviderRegistryPanel() {
   const providerSlots = listModelProviderSlots();
@@ -38,16 +48,30 @@ export function AiProviderRegistryPanel() {
   const adapterErrorEnvelopePreviews = listModelAdapterErrorEnvelopePreviews();
   const adapterReadinessSummary = buildAdapterReadinessSummary();
   const blockedModelExecutionSummary = buildBlockedModelExecutionSummary();
-  const nextManualGatedDryRunChecklist = buildNextManualGatedDryRunChecklist();
   const adapterContractsByCapabilityFamily =
     groupAdapterContractsByCapabilityFamily();
   const adapterContractsByWorkspaceTarget =
     groupAdapterContractsByWorkspaceTarget();
   const serverOnlyAdapterGateChecklist = listServerOnlyAdapterGateChecklist();
+  const dryRunHarness = getManualGatedModelAdapterDryRunHarness();
+  const dryRunReadinessSummary = buildDryRunReadinessSummary();
+  const blockedDryRunExecutionSummary = buildBlockedDryRunExecutionSummary();
+  const nextResultReviewRecoveryChecklist =
+    buildNextResultReviewAndRecoveryChecklist();
+  const dryRunScenarios = listManualGatedModelAdapterDryRunScenarios();
+  const dryRunRequestPacketPreviews = listDryRunRequestPacketPreviews();
+  const dryRunFixtureResultPreviews = listDryRunFixtureResultPreviews();
+  const dryRunDenialFailurePreviews = listDryRunDenialFailurePreviews();
+  const manualDryRunGateChecklist = listManualDryRunGateChecklist();
   const representativeRequestEnvelope = adapterRequestEnvelopePreviews[0] ?? null;
   const representativeResponseEnvelope =
     adapterResponseEnvelopePreviews[0] ?? null;
   const representativeErrorEnvelope = adapterErrorEnvelopePreviews[0] ?? null;
+  const representativeDryRunRequestPacket = dryRunRequestPacketPreviews[0] ?? null;
+  const representativeDryRunFixtureResult =
+    dryRunFixtureResultPreviews[0] ?? null;
+  const representativeDryRunDenialFailure =
+    dryRunDenialFailurePreviews[0] ?? null;
   const providerLabelsById = new Map(
     providerSlots.map((slot) => [slot.id, slot.label] as const)
   );
@@ -55,22 +79,22 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Provider slots are registry-only No model calls yet No prompt sending No provider SDKs imported Server-only adapters required Credential isolation required Operator approval required Kill switch required Audit required manual gated dry-run harness comes next"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Provider slots are registry-only dry-run harness is fixture-only No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked Dry-run result review and recovery comes next"
     >
       <section style={hero}>
         <div>
-          <span style={eyebrow}>Phase 4745</span>
+          <span style={eyebrow}>{`Phase ${dryRunHarness.highestDetectedPhase}`}</span>
           <h1 style={headline}>AI model provider registry</h1>
           <p style={lede}>
             Athena can see model provider slots, capability families, workspace
             targets, blocked routing posture, server-only model adapter
-            contracts, adapter envelope previews, and the next manual gated
-            dry-run requirements. Provider slots are registry-only. Capability
-            matrix is preview-only. Server-only model adapter contracts are
-            preview-only. Adapter envelope preview is preview-only. No model
-            calls yet. No prompt sending. No provider SDKs imported. Frontend
-            provider calls are blocked. Manual gated dry-run harness comes
-            next.
+            contracts, adapter envelope previews, and the live fixture-only
+            manual gated dry-run harness previews. Provider slots are
+            registry-only. Capability matrix is preview-only. Server-only model
+            adapter contracts are preview-only. Adapter envelope preview is
+            preview-only. dry-run harness is fixture-only. No model calls yet.
+            No prompt sending. No provider SDKs imported. Frontend provider
+            calls are blocked. Dry-run result review and recovery comes next.
           </p>
         </div>
         <div style={linkRow}>
@@ -141,10 +165,18 @@ export function AiProviderRegistryPanel() {
             <span style={tag}>Next batch</span>
             <h3 style={cardTitle}>Manual gated model adapter dry-run harness</h3>
             <p style={copy}>
-              4746-4777 - Manual Gated Model Adapter Dry-Run Harness comes next.
+              Fixture-only dry-run harness previews are now visible in the
+              provider hub.
             </p>
             <div style={list}>
-              {nextManualGatedDryRunChecklist.slice(0, 6).map((item) => (
+              {[
+                "dry-run harness is fixture-only",
+                "manual operator approval is required",
+                "manual confirmation is required",
+                "kill switch required",
+                "audit required",
+                "Dry-run result review and recovery comes next",
+              ].map((item) => (
                 <span key={item} style={pill}>
                   {item}
                 </span>
@@ -300,7 +332,9 @@ export function AiProviderRegistryPanel() {
           Server-only model adapter contracts. model adapters must run
           server-only. Frontend provider calls are blocked. No model calls yet.
           No prompt sending. No provider SDKs imported. Opaque credential
-          references only. Manual gated dry-run harness comes next.
+          references only. Manual gated model adapter dry-run harness is now
+          available as a fixture-only preview. Dry-run result review and
+          recovery comes next.
         </p>
         <div style={grid}>
           <article style={card}>
@@ -338,7 +372,7 @@ export function AiProviderRegistryPanel() {
               {`Latest completed batch: ${adapterReadinessSummary.latestCompletedBatch}. Previous completed batch: ${adapterReadinessSummary.previousCompletedBatch}.`}
             </p>
             <div style={list}>
-              {nextManualGatedDryRunChecklist.map((item) => (
+              {nextResultReviewRecoveryChecklist.map((item) => (
                 <span key={item} style={pill}>
                   {item}
                 </span>
@@ -462,7 +496,9 @@ export function AiProviderRegistryPanel() {
         <p style={copy}>
           Server-only adapter gates. No model calls yet. No prompt sending. No
           provider SDKs imported. Frontend provider calls are blocked. Opaque
-          credential references only. Manual gated dry-run harness comes next.
+          credential references only. Manual gated model adapter dry-run
+          harness is fixture-only. Dry-run result review and recovery comes
+          next.
         </p>
         <div style={grid}>
           {serverOnlyAdapterGateChecklist.map((gate) => (
@@ -475,8 +511,215 @@ export function AiProviderRegistryPanel() {
         </div>
       </section>
 
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Fixture-only harness</span>
+            <h2 style={sectionTitle}>Manual gated model adapter dry-run harness</h2>
+          </div>
+          <span style={sectionBadge}>Fixture-only</span>
+        </div>
+        <p style={copy}>
+          dry-run harness is fixture-only. manual operator approval is
+          required. manual confirmation is required. kill switch required.
+          audit required. server-only adapter contract required. No model calls
+          yet. No prompt sending. No provider SDKs imported. Provider
+          execution is blocked. Dry-run result review and recovery comes next.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Harness posture</span>
+            <h3 style={cardTitle}>{dryRunHarness.currentBatch}</h3>
+            <p style={copy}>
+              {`Source: ${dryRunHarness.source}. Harness mode: ${dryRunHarness.harnessMode}. Fixture mode: ${dryRunHarness.fixtureMode}.`}
+            </p>
+            <div style={list}>
+              {[
+                "dry-run harness is fixture-only",
+                dryRunHarness.manualOperatorApprovalRequired,
+                dryRunHarness.manualConfirmationRequired,
+                dryRunHarness.killSwitchRequired,
+                dryRunHarness.auditRequired,
+                "server-only adapter contract required",
+              ].map((item) => (
+                <span key={item} style={pill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article style={card}>
+            <span style={tag}>Blocked execution</span>
+            <h3 style={cardTitle}>Provider execution is blocked</h3>
+            <p style={copy}>{blockedDryRunExecutionSummary.summary}</p>
+            <div style={list}>
+              {blockedDryRunExecutionSummary.blockedLines.map((item) => (
+                <span key={item} style={pill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article style={card}>
+            <span style={tag}>What comes next</span>
+            <h3 style={cardTitle}>{dryRunReadinessSummary.nextLikelyBatch}</h3>
+            <div style={list}>
+              {nextResultReviewRecoveryChecklist.map((item) => (
+                <span key={item} style={pill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Blocked scenario catalog</span>
+            <h2 style={sectionTitle}>Dry-run scenario preview</h2>
+          </div>
+          <span style={sectionBadge}>Blocked by default</span>
+        </div>
+        <p style={copy}>
+          text planning. code assistance. image storyboard. video prompt
+          planning. audio narration. transcription/caption. embeddings/search.
+          safety/moderation. local/private inference. each scenario is blocked
+          by default. each scenario uses fixture-only packets.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Scenario readiness</span>
+            <h3 style={cardTitle}>
+              {`${dryRunReadinessSummary.scenarioCount} dry-run scenarios`}
+            </h3>
+            <p style={copy}>
+              {`${dryRunReadinessSummary.requestPacketCount} request packets | ${dryRunReadinessSummary.fixtureResultCount} fixture results | ${dryRunReadinessSummary.denialFailureCount} denial/failure previews.`}
+            </p>
+            <div style={list}>
+              {dryRunReadinessSummary.summaryLines.map((item) => (
+                <span key={item} style={pill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeDryRunRequestPacket ? (
+            <article style={card}>
+              <span style={tag}>Fixture packet posture</span>
+              <h3 style={cardTitle}>
+                {representativeDryRunRequestPacket.operatorObjective}
+              </h3>
+              <p style={copy}>
+                {`Prompt payload posture: ${representativeDryRunRequestPacket.promptPayloadPosture}.`}
+              </p>
+              <p style={copy}>
+                {`Prompt transmission state: ${representativeDryRunRequestPacket.promptTransmissionState}.`}
+              </p>
+              <p style={copy}>
+                {`Approval reference posture: ${representativeDryRunRequestPacket.approvalReferencePosture}.`}
+              </p>
+              <p style={copy}>
+                {`Audit reference posture: ${representativeDryRunRequestPacket.auditReferencePosture}.`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div style={grid}>
+          {dryRunScenarios.map((scenario) => (
+            <article key={scenario.key} style={card}>
+              <span style={tag}>Static scenario</span>
+              <h3 style={cardTitle}>{scenario.label}</h3>
+              <p style={copy}>{scenario.summary}</p>
+              <p style={copy}>{`Workspace target: ${scenario.workspaceTarget}`}</p>
+              <div style={list}>
+                <span style={pill}>{scenario.capabilityFamilyLabel}</span>
+                <span style={pill}>{scenario.fixturePacketPosture}</span>
+                <span style={pill}>{`Provider slot: ${scenario.providerSlotId}`}</span>
+              </div>
+              <p style={copy}>{scenario.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Static placeholder outputs</span>
+            <h2 style={sectionTitle}>Fixture result preview</h2>
+          </div>
+          <span style={sectionBadge}>Static preview only</span>
+        </div>
+        <p style={copy}>
+          static fixture result only. provider response is not received. model
+          output is not generated. audit/approval/result persistence not
+          implemented. denial/failure preview remains static. recovery is
+          future manual review only.
+        </p>
+        <div style={grid}>
+          {representativeDryRunFixtureResult ? (
+            <article style={card}>
+              <span style={tag}>Fixture result posture</span>
+              <h3 style={cardTitle}>
+                {representativeDryRunFixtureResult.fixtureResultState}
+              </h3>
+              <p style={copy}>
+                {`Provider response state: ${representativeDryRunFixtureResult.providerResponseState}.`}
+              </p>
+              <p style={copy}>
+                {`Model output state: ${representativeDryRunFixtureResult.modelOutputState}.`}
+              </p>
+              <p style={copy}>
+                {`Result capture state: ${representativeDryRunFixtureResult.resultCaptureState}.`}
+              </p>
+            </article>
+          ) : null}
+          {representativeDryRunDenialFailure ? (
+            <article style={card}>
+              <span style={tag}>Denial/failure preview</span>
+              <h3 style={cardTitle}>Future manual review only</h3>
+              <p style={copy}>
+                {representativeDryRunDenialFailure.promptNotSentReason}
+              </p>
+              <p style={copy}>
+                {representativeDryRunDenialFailure.providerNotCalledReason}
+              </p>
+              <p style={copy}>
+                {representativeDryRunDenialFailure.noProviderErrorReceivedStatement}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Required gate checklist</span>
+            <h2 style={sectionTitle}>Manual dry-run gates</h2>
+          </div>
+          <span style={sectionBadge}>Required</span>
+        </div>
+        <p style={copy}>
+          Manual dry-run gates keep approval, confirmation, kill switch, audit,
+          server-only boundary, prompt redaction, credential isolation,
+          fixture-only result posture, and non-persistence visible together.
+        </p>
+        <div style={grid}>
+          {manualDryRunGateChecklist.map((gate) => (
+            <article key={gate.id} style={card}>
+              <span style={tag}>Required gate</span>
+              <h3 style={cardTitle}>{gate.label}</h3>
+              <p style={copy}>{gate.summary}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section style={notice}>
-        {nextManualGatedDryRunChecklist.map((item) => (
+        {nextResultReviewRecoveryChecklist.map((item) => (
           <p key={item}>{item}</p>
         ))}
       </section>
