@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 4937) {
-  throw "[FAIL] Highest detected phase expected 4937 found $highestPhase"
+if ($highestPhase -ne 4969) {
+  throw "[FAIL] Highest detected phase expected 4969 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "4938-4969 - Backend-Owned Model Provider Run Admission Contract"',
+  "Phase 4969 Backend-Owned Model Provider Run Admission Contract",
+  "smoke-codexforge-backend-owned-model-provider-run-admission-contract-mega-batch.ps1",
   'currentReleaseGateBatch = "4906-4937 - Model Provider Run Admission Review and Recovery Preview"',
   "Phase 4937 Model Provider Run Admission Review and Recovery Preview",
   "smoke-codexforge-model-provider-run-admission-review-recovery-preview-mega-batch.ps1",
@@ -101,6 +104,25 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+  "Current checkpoint: Highest detected phase: 4969. Latest completed batch: 4938-4969 - Backend-Owned Model Provider Run Admission Contract. Previous completed batch: 4906-4937 - Model Provider Run Admission Review and Recovery Preview. Next likely batch: 4970-5001 - Backend-Owned Model Provider Dry-Run Runner Contract.",
+  "Highest detected phase: 4969",
+  "Latest completed batch: 4938-4969 - Backend-Owned Model Provider Run Admission Contract",
+  "Previous completed batch: 4906-4937 - Model Provider Run Admission Review and Recovery Preview",
+  "Next likely batch: 4970-5001 - Backend-Owned Model Provider Dry-Run Runner Contract",
+  "backend-owned model provider run admission contract only",
+  "backend-owned contract is preview-only",
+  "contract state is draft / preview-only",
+  "admission request is not created",
+  "backend response is not received",
+  "backend error is not received",
+  "admission token is not issued",
+  "admission lease is not created",
+  "admission ticket is not issued",
+  "request/response/error contracts are preview-only",
+  "gate schema is preview-only",
+  "readiness matrix is preview-only",
+  "current readiness is not executable / contract-only",
+  "backend-owned dry-run runner contract next",
   "Current checkpoint: Highest detected phase: 4937. Latest completed batch: 4906-4937 - Model Provider Run Admission Review and Recovery Preview. Previous completed batch: 4874-4905 - Manual Gated Model Provider Run Admission Preview.",
   "Highest detected phase: 4937",
   "Latest completed batch: 4906-4937 - Model Provider Run Admission Review and Recovery Preview",

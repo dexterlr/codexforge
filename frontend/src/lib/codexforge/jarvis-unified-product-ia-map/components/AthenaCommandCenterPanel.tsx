@@ -64,6 +64,20 @@ import {
   listModelProviderRunAdmissionReviews,
 } from "@/lib/codexforge/model-provider-run-admission-review-recovery-preview";
 import {
+  buildBackendAdmissionContractSummary,
+  buildBackendContractGateSummary,
+  buildBackendContractReadinessSummary,
+  buildNextBackendOwnedDryRunRunnerContractChecklist,
+  groupBackendContractsByCapabilityFamily,
+  groupBackendContractsByWorkspaceTarget,
+  listBackendAdmissionErrorContracts,
+  listBackendAdmissionRequestContracts,
+  listBackendAdmissionResponseContracts,
+  listBackendContractReadinessMatrixRecords,
+  listBackendOwnedContractGateSchemaRecords,
+  listBackendOwnedModelProviderRunAdmissionContracts,
+} from "@/lib/codexforge/backend-owned-model-provider-run-admission-contract";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -346,6 +360,72 @@ export function AthenaCommandCenterPanel({
     admissionRecoveryReadinessChecklistRecords.filter(
       (record) => record.state === "blocked"
     );
+  const backendAdmissionContracts =
+    listBackendOwnedModelProviderRunAdmissionContracts();
+  const backendAdmissionRequestContracts =
+    listBackendAdmissionRequestContracts();
+  const backendAdmissionResponseContracts =
+    listBackendAdmissionResponseContracts();
+  const backendAdmissionErrorContracts = listBackendAdmissionErrorContracts();
+  const backendContractGateSchemaRecords =
+    listBackendOwnedContractGateSchemaRecords();
+  const backendContractReadinessMatrixRecords =
+    listBackendContractReadinessMatrixRecords();
+  const backendAdmissionContractSummary =
+    buildBackendAdmissionContractSummary();
+  const backendContractGateSummary = buildBackendContractGateSummary();
+  const backendContractReadinessSummary =
+    buildBackendContractReadinessSummary();
+  const nextBackendOwnedDryRunRunnerContractChecklist =
+    buildNextBackendOwnedDryRunRunnerContractChecklist();
+  const backendCapabilityGroups = groupBackendContractsByCapabilityFamily();
+  const backendWorkspaceGroups = groupBackendContractsByWorkspaceTarget();
+  const backendRequestContractsById = new Map(
+    backendAdmissionRequestContracts.map((record) => [record.id, record] as const)
+  );
+  const backendResponseContractsById = new Map(
+    backendAdmissionResponseContracts.map((record) => [record.id, record] as const)
+  );
+  const backendErrorContractsById = new Map(
+    backendAdmissionErrorContracts.map((record) => [record.id, record] as const)
+  );
+  const backendAdmissionTripletRecords = backendAdmissionContracts.map(
+    (contract) => ({
+      contract,
+      request: backendRequestContractsById.get(contract.id) ?? null,
+      response: backendResponseContractsById.get(contract.id) ?? null,
+      error: backendErrorContractsById.get(contract.id) ?? null,
+    })
+  );
+  const representativeBackendAdmissionContract =
+    backendAdmissionContracts[0] ?? null;
+  const representativeBackendAdmissionTriplet =
+    backendAdmissionTripletRecords[0] ?? null;
+  const representativeBackendContractReadiness =
+    backendContractReadinessMatrixRecords[0] ?? null;
+  const backendContractGateOwnerGroups = [
+    {
+      owner: "backend-owned contract",
+      label: "Backend-owned contract",
+      records: backendContractGateSchemaRecords.filter(
+        (record) => record.owner === "backend-owned contract"
+      ),
+    },
+    {
+      owner: "operator",
+      label: "Operator",
+      records: backendContractGateSchemaRecords.filter(
+        (record) => record.owner === "operator"
+      ),
+    },
+    {
+      owner: "safety review",
+      label: "Safety review",
+      records: backendContractGateSchemaRecords.filter(
+        (record) => record.owner === "safety review"
+      ),
+    },
+  ] as const;
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -4600,6 +4680,727 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned model provider run admission contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Backend-owned contract layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned model provider run admission contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Draft / preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview the backend-owned run admission contract.
+          backend-owned contract is preview-only. contract state: draft /
+          preview-only. admission request is not created. backend response is
+          not received. admission token is not issued. admission lease is not
+          created. provider execution is blocked. queue dispatch is blocked.
+          worker dispatch is blocked. job execution is blocked. No prompt
+          sending. No model calls yet. No provider SDKs imported.
+          backend-owned dry-run runner contract comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Preview-only contract</p>
+                <h3 className={styles.placeholderTitle}>
+                  Athena can preview the backend-owned run admission contract
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {backendAdmissionContractSummary.contractState}
+              </span>
+            </div>
+            <p className={styles.railBody}>backend-owned contract is preview-only</p>
+            <p className={styles.railBody}>contract state: draft / preview-only</p>
+            <p className={styles.railBody}>admission request is not created</p>
+            <p className={styles.railBody}>backend response is not received</p>
+            <p className={styles.railBody}>admission token is not issued</p>
+            <p className={styles.railBody}>admission lease is not created</p>
+            <p className={styles.railBody}>provider execution is blocked</p>
+            <p className={styles.railBody}>queue dispatch is blocked</p>
+            <p className={styles.railBody}>worker dispatch is blocked</p>
+            <p className={styles.railBody}>job execution is blocked</p>
+            <p className={styles.railFooter}>
+              backend-owned dry-run runner contract comes next
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Batch identity</p>
+                <h3 className={styles.placeholderTitle}>
+                  {backendAdmissionContractSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`Phase ${backendAdmissionContractSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`Previous completed batch: ${backendAdmissionContractSummary.previousCompletedBatch}`}
+            </p>
+            <p className={styles.railBody}>
+              {`Next likely batch: ${backendAdmissionContractSummary.nextLikelyBatch}`}
+            </p>
+            <div className={styles.workspaceMeta}>
+              <span className={styles.metaPill}>
+                {`Contracts: ${backendAdmissionContractSummary.contractCount}`}
+              </span>
+              <span className={styles.metaPill}>
+                {`Request previews: ${backendAdmissionContractSummary.requestContractCount}`}
+              </span>
+              <span className={styles.metaPill}>
+                {`Response previews: ${backendAdmissionContractSummary.responseContractCount}`}
+              </span>
+              <span className={styles.metaPill}>
+                {`Error previews: ${backendAdmissionContractSummary.errorContractCount}`}
+              </span>
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Covered capability families</p>
+                <h3 className={styles.placeholderTitle}>
+                  Backend-owned contract coverage
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${backendCapabilityGroups.length} capability families`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {backendCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-contract-capability-group",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.contractCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Workspace coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Backend-owned contract workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${backendWorkspaceGroups.length} workspace targets`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {backendWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-contract-workspace-group",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.workspaceTarget} (${group.contractCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        {representativeBackendAdmissionContract ? (
+          <div className={styles.summaryGrid}>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative contract</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeBackendAdmissionContract.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeBackendAdmissionContract.executionPosture}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${representativeBackendAdmissionContract.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`selected capability family: ${representativeBackendAdmissionContract.selectedCapabilityFamily.label}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`Provider slot: ${representativeBackendAdmissionContract.providerSlotLabel}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`Backup provider slot label: ${representativeBackendAdmissionContract.backupProviderSlotLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`Local/private alternative label: ${representativeBackendAdmissionContract.localPrivateAlternativeLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source admission review reference: ${representativeBackendAdmissionContract.sourceAdmissionReviewReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source admission decision review reference: ${representativeBackendAdmissionContract.sourceAdmissionDecisionReviewReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source gate failure review reference: ${representativeBackendAdmissionContract.sourceGateFailureReviewReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeBackendAdmissionContract.nextBackendOwnedDryRunRunnerContractRequirement}
+              </p>
+            </article>
+          </div>
+        ) : null}
+        <div className={styles.summaryGrid}>
+          {backendAdmissionContracts.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Backend-owned contract</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.admissionContractState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${record.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {record.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>{record.providerSlotLabel}</span>
+              </div>
+              <p className={styles.railBody}>{record.previewOnlyStatement}</p>
+              <p className={styles.railBody}>
+                {`run admission posture: ${record.runAdmissionPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`provider call posture: ${record.providerCallPosture} | model call posture: ${record.modelCallPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`frontend posture: ${record.frontendPosture} | backend posture: ${record.backendPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission request state: ${record.admissionRequestState} | admission ticket state: ${record.admissionTicketState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`queue dispatch state: ${record.queueDispatchState} | worker dispatch state: ${record.workerDispatchState} | job execution state: ${record.jobExecutionState}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {[
+                  record.manualApprovalRequired,
+                  record.manualConfirmationRequired,
+                  record.killSwitchRequired,
+                  record.auditRequired,
+                  record.privacyRedactionRequired,
+                  record.costAcknowledgementRequired,
+                  record.rateLimitGuardRequired,
+                  record.timeoutCancelGuardRequired,
+                  record.idempotencyRequired,
+                  record.replayBlockRequired,
+                  record.singleRunLockRequired,
+                  record.dryRunResultReviewRequired,
+                  record.acceptanceMatrixReviewRequired,
+                  record.approvalExpiryReviewRequired,
+                  record.approvalRevocationReviewRequired,
+                  record.noRetryExecution,
+                  record.noFallbackExecution,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(record.key, "requirement", index, item)}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend admission request/response contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Backend request boundary</p>
+            <h2 className={styles.panelTitle}>
+              Backend admission request/response contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only triplets
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          request contract preview. response contract preview. error contract
+          preview. prompt payload is redacted placeholder only. prompt
+          transmission state: not sent. credential reference posture: opaque
+          label only. backend admission request is not created. backend
+          admission response is not received. backend admission error is not
+          received.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Request posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  request contract preview
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Not created
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              prompt payload is redacted placeholder only
+            </p>
+            <p className={styles.railBody}>prompt transmission state: not sent</p>
+            <p className={styles.railBody}>
+              credential reference posture: opaque label only
+            </p>
+            <p className={styles.railFooter}>
+              backend admission request is not created
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Response and error posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  response contract preview
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Not received
+              </span>
+            </div>
+            <p className={styles.railBody}>backend admission response is not received</p>
+            <p className={styles.railBody}>error contract preview</p>
+            <p className={styles.railBody}>backend admission error is not received</p>
+            <p className={styles.railFooter}>
+              request/response/error contracts stay preview-only
+            </p>
+          </article>
+          {representativeBackendAdmissionTriplet ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative triplet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeBackendAdmissionTriplet.contract.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  Redacted request only
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeBackendAdmissionTriplet.request?.explicitNoBackendRequestCreatedStatement ??
+                  "No backend admission request is created from the frontend preview."}
+              </p>
+              <p className={styles.railBody}>
+                {representativeBackendAdmissionTriplet.response?.explicitNoBackendResponseReceivedStatement ??
+                  "No backend admission response is received from the frontend preview."}
+              </p>
+              <p className={styles.railBody}>
+                {representativeBackendAdmissionTriplet.error?.explicitNoBackendErrorReceivedStatement ??
+                  "No backend admission error is received from the frontend preview."}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeBackendAdmissionTriplet.contract.nextBackendOwnedDryRunRunnerContractRequirement}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {backendAdmissionTripletRecords.map(({ contract, request, response, error }) => (
+            <article key={contract.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Request/response/error preview</p>
+                  <h3 className={styles.placeholderTitle}>{contract.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {contract.workspaceTarget}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {contract.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>{contract.providerSlotLabel}</span>
+                <span className={styles.metaPill}>
+                  {request?.requestContractVersion ?? "request preview missing"}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`request contract preview: ${request?.requestCreationState ?? "not created"}`}
+              </p>
+              <p className={styles.railBody}>
+                {`prompt payload posture: ${request?.promptPayloadPosture ?? "redacted placeholder only"}`}
+              </p>
+              <p className={styles.railBody}>
+                {`response contract preview: ${response?.responseState ?? "not received"} | admission decision state: ${response?.admissionDecisionState ?? "not evaluated"}`}
+              </p>
+              <p className={styles.railBody}>
+                {`error contract preview: ${error?.errorState ?? "not received"} | retry posture: ${error?.retryPosture ?? "disabled"} | fallback posture: ${error?.fallbackPosture ?? "disabled"}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {[
+                  request?.promptTransmissionState ?? "not sent",
+                  request?.credentialReferencePosture ?? "opaque label only",
+                  response?.queueDispatchState ?? "not dispatched",
+                  response?.workerDispatchState ?? "not dispatched",
+                  response?.jobExecutionState ?? "not executed",
+                  error?.recoveryPosture ?? "manual review only",
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(contract.key, "triplet", index, item)}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              {error ? (
+                <div className={styles.workspaceMeta}>
+                  {error.validationErrorExamples.map((item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        contract.key,
+                        "validation-error",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+              <p className={styles.railFooter}>
+                {request?.blockedDefaultReason ??
+                  contract.blockedDefaultReason}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Backend admission gate schema">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Backend gate contract</p>
+            <h2 className={styles.panelTitle}>Backend admission gate schema</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only gates
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          operator approval. manual confirmation. approval expiry/revocation.
+          kill switch. audit. server-only boundary. no frontend provider call.
+          no provider SDK import in frontend. no prompt sending from frontend.
+          opaque credential reference. privacy/redaction. cost/rate/timeout.
+          idempotency/replay block. single-run lock. dry-run result review.
+          acceptance matrix review. no queue dispatch until backend runner
+          contract. no worker dispatch until backend runner contract. no job
+          execution until backend runner contract.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate schema posture</p>
+                <h3 className={styles.placeholderTitle}>Gate schema is preview-only</h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${backendContractGateSummary.gateCount} gates`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {backendContractGateSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-gate-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate ownership</p>
+                <h3 className={styles.placeholderTitle}>
+                  Backend-owned contract review lanes
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+              >
+                Review-first
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`backend-owned contract gates: ${backendContractGateSummary.backendOwnedGateCount}`}
+            </p>
+            <p className={styles.railBody}>
+              {`operator gates: ${backendContractGateSummary.operatorOwnedGateCount}`}
+            </p>
+            <p className={styles.railBody}>
+              {`safety review gates: ${backendContractGateSummary.safetyReviewGateCount}`}
+            </p>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${backendContractGateSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {backendContractGateOwnerGroups.map((ownerGroup, ownerIndex) => (
+            <article
+              key={buildScopedItemKey(
+                "backend-gate-owner-group",
+                "item",
+                ownerIndex,
+                ownerGroup.owner
+              )}
+              className={styles.summaryCard}
+            >
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate owner</p>
+                  <h3 className={styles.placeholderTitle}>{ownerGroup.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {`${ownerGroup.records.length} gates`}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {ownerGroup.records.map((record, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      ownerGroup.owner,
+                      "gate-label",
+                      index,
+                      record.id
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {record.label}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className={styles.summaryGrid}>
+          {backendContractGateSchemaRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate schema record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentFrontendState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{`owner: ${record.owner}`}</p>
+              <p className={styles.railBody}>
+                {`required state: ${record.requiredState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`evidence requirement: ${record.evidenceRequirement}`}
+              </p>
+              <p className={styles.railBody}>{record.blockedDefaultReason}</p>
+              <p className={styles.railFooter}>
+                {record.nextBackendContractRequirement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend contract readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Backend readiness review</p>
+            <h2 className={styles.panelTitle}>Backend contract readiness matrix</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Contract-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          contract draft state. request contract state. response contract state.
+          error contract state. gate schema state. credential boundary state.
+          safety boundary state. audit boundary state. approval boundary state.
+          queue/worker/job boundary state. persistence boundary state. current
+          readiness: not executable / contract-only. next safe action.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  current readiness: not executable / contract-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${backendContractReadinessSummary.readinessMatrixCount} readiness records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {backendContractReadinessSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-readiness-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe action</p>
+                <h3 className={styles.placeholderTitle}>
+                  Dry-run runner contract is next
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {backendContractReadinessSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {backendContractReadinessSummary.nextSafeAction}
+            </p>
+          </article>
+          {representativeBackendContractReadiness ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative readiness</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeBackendContractReadiness.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeBackendContractReadiness.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`contract draft state: ${representativeBackendContractReadiness.contractDraftState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`request contract state: ${representativeBackendContractReadiness.requestContractState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`response contract state: ${representativeBackendContractReadiness.responseContractState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`error contract state: ${representativeBackendContractReadiness.errorContractState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeBackendContractReadiness.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {backendContractReadinessMatrixRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Readiness matrix record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentReadiness}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${record.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {record.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>{record.dryRunRunnerDependency}</span>
+              </div>
+              <p className={styles.railBody}>
+                {`contract draft state: ${record.contractDraftState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`request contract state: ${record.requestContractState} | response contract state: ${record.responseContractState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`error contract state: ${record.errorContractState} | gate schema state: ${record.gateSchemaState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`credential boundary state: ${record.credentialBoundaryState} | safety boundary state: ${record.safetyBoundaryState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit boundary state: ${record.auditBoundaryState} | approval boundary state: ${record.approvalBoundaryState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`queue boundary state: ${record.queueBoundaryState} | worker boundary state: ${record.workerBoundaryState} | job boundary state: ${record.jobBoundaryState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`persistence boundary state: ${record.persistenceBoundaryState}`}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <AthenaOperatorStatusPanel
         title="Athena operator status"
         eyebrow="Operator status"
@@ -5400,7 +6201,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next manual gated run admission checklist
+                  Next backend-owned dry-run runner contract checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -5408,7 +6209,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextManualGatedRunAdmissionChecklist.map((item, index) => (
+              {nextBackendOwnedDryRunRunnerContractChecklist.map((item, index) => (
                 <article key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>

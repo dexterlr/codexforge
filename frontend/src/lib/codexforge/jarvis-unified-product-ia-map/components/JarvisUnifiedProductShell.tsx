@@ -209,36 +209,24 @@ export function JarvisUnifiedProductPanel(
                 {productUx.heroCopy.homeAskCopy}
               </p>
               <p className={styles.athenaConsoleBody}>
-                {productUx.cockpitSummary} Athena can draft structured commands.
-                Athena can draft approval packets. Athena can plan and route
-                commands. Athena can preview approval-gated handoffs. Athena
-                can preview cross-workspace run timelines and show audit memory
-                previews. Athena can now preview AI model provider slots.
-                {/* Historical smoke marker: server-only adapter contracts come next */}
-                Athena can compare model capability families. Athena can now
-                preview server-only model adapter contracts. model adapter
-                envelopes are preview-only. Athena can now preview manual gated
-                model adapter dry-runs. dry-run harness is fixture-only. model
-                adapter dry-run packets are preview-only. Athena can now
-                preview model adapter dry-run result reviews. dry-run review is
-                fixture-only. quality, safety, redaction, recovery, and
-                acceptance reviews are static previews. Athena can now preview
-                model routing and provider selection. routing is preview-only.
-                provider selection is static preview only. Athena can now
-                preview model provider approval packets. Athena can now preview
-                run intents for selected model routes. approval packet is
-                preview-only. run intent is preview-only. Athena can now
-                preview manual gated model provider run admission. run
-                admission is preview-only. run admission state is not admitted.
-                admission decision remains held. admission token is not
-                issued. admission lease is not created. Athena can now
-                preview model provider run admission reviews. admission review
-                is preview-only. backend-owned run admission contract comes
-                next. no model calls yet. no prompt sending. no provider SDKs
-                imported. Plugin/provider execution remains blocked until
-                approvals and backend gates are satisfied. queue, worker, and
-                job execution remain blocked. Manual/provider execution stays
-                backend-only. No autonomous execution yet.
+                {productUx.cockpitSummary} Athena can plan and route commands.
+                Athena can preview cross-workspace run timelines and show audit
+                memory previews. Athena can now preview manual gated model
+                provider run admission. run admission state is not admitted.
+                Athena can now preview model provider run admission reviews.
+                Athena can now preview backend-owned model provider run
+                admission contracts.
+                backend-owned contract is preview-only. contract state is draft
+                / preview-only. admission request is not created. backend
+                response is not received. backend admission request/response/error
+                contracts are preview-only. backend admission gate schema is
+                preview-only. backend contract readiness matrix is preview-only.
+                backend-owned dry-run runner contract comes next. no model
+                calls yet. no prompt sending. no provider SDKs imported.
+                Plugin/provider execution remains blocked until approvals and
+                backend gates are satisfied. queue, worker, and job execution
+                remain blocked. Manual/provider execution stays backend-only.
+                No autonomous execution yet.
               </p>
               {/* Historical smoke marker preserved for prior batch coverage:
                   Athena model routing and provider selection preview comes next. */}
@@ -248,6 +236,8 @@ export function JarvisUnifiedProductPanel(
                   manual gated run admission preview comes next from the approval packet layer. */}
               {/* Historical smoke marker preserved for prior batch coverage:
                   run admission review and recovery preview comes next. */}
+              {/* Historical smoke marker preserved for prior batch coverage:
+                  backend-owned run admission contract comes next. */}
               <div className={styles.workspaceMeta}>
                 {productUx.heroCopy.postureChips.map((item) => (
                   <span key={item} className={styles.blockedPill}>
@@ -300,41 +290,34 @@ export function JarvisUnifiedProductPanel(
                   {productUx.safetyPostureSummary}
                 </p>
                 <p className={styles.railBody}>
-                  Athena can now preview AI model provider slots.
+                  Athena can plan and route commands. Athena can preview
+                  cross-workspace run timelines and show audit memory previews.
                 </p>
                 <p className={styles.railBody}>
-                  Athena can now preview server-only model adapter contracts.
-                </p>
-                <p className={styles.railBody}>
-                  model adapter envelopes are preview-only.
-                </p>
-                <p className={styles.railBody}>
-                  Athena can now preview manual gated model adapter dry-runs.
-                </p>
-                <p className={styles.railBody}>
-                  Athena can now preview model adapter dry-run result reviews.
-                </p>
-                <p className={styles.railBody}>
-                  dry-run review is fixture-only. quality, safety, redaction,
-                  recovery, and acceptance reviews are static previews.
-                </p>
-                <p className={styles.railBody}>
-                  Athena can now preview model routing and provider selection.
-                </p>
-                <p className={styles.railBody}>
-                  routing is preview-only. provider selection is static preview
-                  only. Athena can now preview model provider approval packets.
-                </p>
-                <p className={styles.railBody}>
-                  Athena can now preview run intents for selected model routes.
-                  approval packet is preview-only. run intent is preview-only.
                   Athena can now preview manual gated model provider run
-                  admission. run admission is preview-only. run admission
-                  state is not admitted. admission decision remains held.
-                  admission token is not issued. admission lease is not
-                  created. Athena can now preview model provider run admission
-                  reviews. admission review is preview-only. backend-owned run
-                  admission contract comes next.
+                  admission. run admission state is not admitted.
+                </p>
+                <p className={styles.railBody}>
+                  Athena can now preview model provider run admission reviews.
+                </p>
+                <p className={styles.railBody}>
+                  Athena can now preview backend-owned model provider run
+                  admission contracts.
+                </p>
+                <p className={styles.railBody}>
+                  backend-owned contract is preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  contract state is draft / preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  admission request is not created.
+                </p>
+                <p className={styles.railBody}>
+                  backend response is not received.
+                </p>
+                <p className={styles.railBody}>
+                  backend-owned dry-run runner contract comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
@@ -350,6 +333,8 @@ export function JarvisUnifiedProductPanel(
                     manual gated run admission preview comes next from the approval packet layer. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
                     run admission review and recovery preview comes next. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    backend-owned run admission contract comes next. */}
               </article>
             </div>
           </div>
