@@ -35,6 +35,21 @@ import {
   listRunIntentBlockerMatrix,
 } from "@/lib/codexforge/model-provider-approval-packet-run-intent-preview";
 import {
+  buildAdmissionBlockerSummary,
+  buildAdmissionGateSummary,
+  buildManualRunAdmissionSummary,
+  buildNextRunAdmissionReviewAndRecoveryChecklist,
+  groupManualRunAdmissionPreviewsByCapabilityFamily,
+  groupManualRunAdmissionPreviewsByWorkspaceTarget,
+  listAdmissionGateEvaluationRecords,
+  listManualAdmissionAuditPreviews,
+  listManualGatedModelProviderRunAdmissionPreviews,
+  listManualRunAdmissionBlockerMatrix,
+  listRunAdmissionDenialRecoveryPreviews,
+  listRunAdmissionTicketPreviews,
+  uniqueManualRunAdmissionDisplayStrings,
+} from "@/lib/codexforge/manual-gated-model-provider-run-admission-preview";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -99,6 +114,33 @@ import { AthenaOperatorStatusPanel } from "./AthenaOperatorStatusPanel";
 type AthenaCommandCenterPanelProps = Readonly<{
   commandCenter: AthenaCommandCenterModel;
 }>;
+
+function buildScopedItemKey(
+  scope: string,
+  category: string,
+  index: number,
+  value: string
+): string {
+  return `${scope}-${category}-${index}-${value}`;
+}
+
+function uniqueStrings<T extends string>(values: readonly T[]): readonly T[] {
+  return Array.from(new Set(values));
+}
+
+function uniqueRecordsById<T extends Readonly<{ id: string }>>(
+  records: readonly T[]
+): readonly T[] {
+  const uniqueRecords = new Map<string, T>();
+
+  for (const record of records) {
+    if (!uniqueRecords.has(record.id)) {
+      uniqueRecords.set(record.id, record);
+    }
+  }
+
+  return Array.from(uniqueRecords.values());
+}
 
 export function AthenaCommandCenterPanel({
   commandCenter,
@@ -167,11 +209,27 @@ export function AthenaCommandCenterPanel({
   const modelRoutingChains = listModelRoutingChainPreviews();
   const modelRoutingChainSummary = buildModelRoutingChainSummary();
   const providerSelectionBlockers = listProviderSelectionBlockerMatrix();
+  const providerSelectionBlockersForDisplay = providerSelectionBlockers.map(
+    (blocker) => ({
+      ...blocker,
+      affectedCapabilityFamilies: uniqueRecordsById(
+        blocker.affectedCapabilityFamilies
+      ),
+      affectedWorkspaceTargets: uniqueStrings(blocker.affectedWorkspaceTargets),
+    })
+  );
   const blockedProviderSelectionSummary = buildBlockedProviderSelectionSummary();
   const approvalPackets = listModelProviderApprovalPackets();
   const runIntentPreviews = listModelProviderRunIntentPreviews();
   const approvalGateChecklistRecords = listApprovalGateChecklistRecords();
   const runIntentBlockerMatrix = listRunIntentBlockerMatrix();
+  const runIntentBlockersForDisplay = runIntentBlockerMatrix.map((blocker) => ({
+    ...blocker,
+    affectedCapabilityFamilies: uniqueRecordsById(
+      blocker.affectedCapabilityFamilies
+    ),
+    affectedWorkspaceTargets: uniqueStrings(blocker.affectedWorkspaceTargets),
+  }));
   const approvalExpiryRevocationPreviews =
     listApprovalExpiryRevocationPreviews();
   const approvalPacketSummary = buildApprovalPacketSummary();
@@ -187,6 +245,42 @@ export function AthenaCommandCenterPanel({
   const representativeRunIntent = runIntentPreviews[0] ?? null;
   const representativeApprovalExpiryRevocation =
     approvalExpiryRevocationPreviews[0] ?? null;
+  const manualRunAdmissionPreviews =
+    listManualGatedModelProviderRunAdmissionPreviews();
+  const admissionGateEvaluations = listAdmissionGateEvaluationRecords();
+  const admissionTicketPreviews = listRunAdmissionTicketPreviews();
+  const admissionDenialRecoveryPreviews =
+    listRunAdmissionDenialRecoveryPreviews();
+  const manualRunAdmissionBlockerMatrix =
+    listManualRunAdmissionBlockerMatrix();
+  const manualRunAdmissionBlockersForDisplay =
+    manualRunAdmissionBlockerMatrix.map((blocker) => ({
+      ...blocker,
+      affectedCapabilityFamilies: uniqueRecordsById(
+        blocker.affectedCapabilityFamilies
+      ),
+      affectedWorkspaceTargets: uniqueManualRunAdmissionDisplayStrings(
+        blocker.affectedWorkspaceTargets
+      ),
+    }));
+  const manualAdmissionAuditPreviews = listManualAdmissionAuditPreviews();
+  const manualRunAdmissionSummary = buildManualRunAdmissionSummary();
+  const admissionGateSummary = buildAdmissionGateSummary();
+  const admissionBlockerSummary = buildAdmissionBlockerSummary();
+  const nextRunAdmissionReviewRecoveryChecklist =
+    buildNextRunAdmissionReviewAndRecoveryChecklist();
+  const manualRunAdmissionCapabilityGroups =
+    groupManualRunAdmissionPreviewsByCapabilityFamily();
+  const manualRunAdmissionWorkspaceGroups =
+    groupManualRunAdmissionPreviewsByWorkspaceTarget();
+  const representativeManualRunAdmission = manualRunAdmissionPreviews[0] ?? null;
+  const representativeAdmissionGateEvaluation =
+    admissionGateEvaluations[0] ?? null;
+  const representativeAdmissionTicket = admissionTicketPreviews[0] ?? null;
+  const representativeAdmissionDenialRecovery =
+    admissionDenialRecoveryPreviews[0] ?? null;
+  const representativeManualAdmissionAuditPreview =
+    manualAdmissionAuditPreviews[0] ?? null;
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -245,8 +339,11 @@ export function AthenaCommandCenterPanel({
               {commandCenter.identity.mission}
             </p>
             <div className={styles.workspaceMeta}>
-              {productUx.heroCopy.postureChips.map((item) => (
-                <span key={item} className={styles.blockedPill}>
+              {productUx.heroCopy.postureChips.map((item, index) => (
+                <span
+                  key={buildScopedItemKey("hero-posture", "chip", index, item)}
+                  className={styles.blockedPill}
+                >
                   {item}
                 </span>
               ))}
@@ -420,8 +517,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextManualGatedRunAdmissionChecklist.map((item) => (
-                <article key={item} className={styles.railCard}>
+              {nextManualGatedRunAdmissionChecklist.map((item, index) => (
+                <article key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
               ))}
@@ -659,8 +756,8 @@ export function AthenaCommandCenterPanel({
               {`${providerReadinessSummary.providerSlotCount} provider slots | ${providerReadinessSummary.capabilityCount} capability families | ${providerReadinessSummary.workspaceTargetCount} workspace targets`}
             </p>
             <div className={styles.workspaceMeta}>
-              {providerReadinessSummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {providerReadinessSummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -682,8 +779,8 @@ export function AthenaCommandCenterPanel({
               {blockedProviderExecutionSummary.summary}
             </p>
             <div className={styles.workspaceMeta}>
-              {blockedProviderExecutionSummary.blockedLines.map((item) => (
-                <span key={item} className={styles.blockedPill}>
+              {blockedProviderExecutionSummary.blockedLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                   {item}
                 </span>
               ))}
@@ -702,8 +799,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextManualGatedRunAdmissionChecklist.map((item) => (
-                <article key={item} className={styles.railCard}>
+              {nextManualGatedRunAdmissionChecklist.map((item, index) => (
+                <article key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
               ))}
@@ -725,8 +822,11 @@ export function AthenaCommandCenterPanel({
               <p className={styles.placeholderSummary}>{slot.description}</p>
               <div className={styles.workspaceMeta}>
                 <span className={styles.metaPill}>{slot.providerStatus}</span>
-                {slot.capabilityFamilies.map((family) => (
-                  <span key={family} className={styles.metaPill}>
+                {slot.capabilityFamilies.map((family, index) => (
+                  <span
+                    key={buildScopedItemKey(slot.key, "capability", index, family)}
+                    className={styles.metaPill}
+                  >
                     {family}
                   </span>
                 ))}
@@ -887,8 +987,8 @@ export function AthenaCommandCenterPanel({
                 "narration -> audio/voice capability",
                 "captions -> transcription capability",
                 "private/local task -> local inference capability",
-              ].map((item) => (
-                <article key={item} className={styles.railCard}>
+              ].map((item, index) => (
+                <article key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
               ))}
@@ -910,8 +1010,8 @@ export function AthenaCommandCenterPanel({
               {blockedProviderExecutionSummary.summary}
             </p>
             <div className={styles.workspaceMeta}>
-              {nextManualGatedRunAdmissionChecklist.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {nextManualGatedRunAdmissionChecklist.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -989,8 +1089,8 @@ export function AthenaCommandCenterPanel({
               {blockedModelExecutionSummary.summary}
             </p>
             <div className={styles.workspaceMeta}>
-              {blockedModelExecutionSummary.blockedLines.map((item) => (
-                <span key={item} className={styles.blockedPill}>
+              {blockedModelExecutionSummary.blockedLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                   {item}
                 </span>
               ))}
@@ -1038,8 +1138,8 @@ export function AthenaCommandCenterPanel({
               {`Next likely batch: ${commandCenter.nextLikelyBatch}`}
             </p>
             <div className={styles.workspaceMeta}>
-              {nextManualGatedRunAdmissionChecklist.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {nextManualGatedRunAdmissionChecklist.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -1078,8 +1178,8 @@ export function AthenaCommandCenterPanel({
                   contract.operatorApprovalRequired,
                   contract.killSwitchRequired,
                   contract.auditRequired,
-                ].map((item) => (
-                  <span key={item} className={styles.blockedPill}>
+                ].map((item, index) => (
+                  <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                     {item}
                   </span>
                 ))}
@@ -1123,8 +1223,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {adapterReadinessSummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {adapterReadinessSummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -1217,8 +1317,8 @@ export function AthenaCommandCenterPanel({
               </p>
               <div className={styles.workspaceMeta}>
                 {representativeAdapterErrorEnvelope.localValidationErrorExamples.map(
-                  (item) => (
-                    <span key={item} className={styles.metaPill}>
+                  (item, index) => (
+                    <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                       {item}
                     </span>
                   )
@@ -1269,8 +1369,8 @@ export function AthenaCommandCenterPanel({
               {blockedModelExecutionSummary.summary}
             </p>
             <div className={styles.workspaceMeta}>
-              {blockedModelExecutionSummary.blockedLines.map((item) => (
-                <span key={item} className={styles.blockedPill}>
+              {blockedModelExecutionSummary.blockedLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                   {item}
                 </span>
               ))}
@@ -1289,8 +1389,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextManualGatedRunAdmissionChecklist.map((item) => (
-                <article key={item} className={styles.railCard}>
+              {nextManualGatedRunAdmissionChecklist.map((item, index) => (
+                <article key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
               ))}
@@ -1362,8 +1462,8 @@ export function AthenaCommandCenterPanel({
                 dryRunHarness.killSwitchRequired,
                 dryRunHarness.auditRequired,
                 "server-only adapter contract required",
-              ].map((item) => (
-                <span key={item} className={styles.blockedPill}>
+              ].map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                   {item}
                 </span>
               ))}
@@ -1385,8 +1485,8 @@ export function AthenaCommandCenterPanel({
               {blockedDryRunExecutionSummary.summary}
             </p>
             <div className={styles.workspaceMeta}>
-              {blockedDryRunExecutionSummary.blockedLines.map((item) => (
-                <span key={item} className={styles.blockedPill}>
+              {blockedDryRunExecutionSummary.blockedLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                   {item}
                 </span>
               ))}
@@ -1405,8 +1505,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextManualGatedRunAdmissionChecklist.map((item) => (
-                <article key={item} className={styles.railCard}>
+              {nextManualGatedRunAdmissionChecklist.map((item, index) => (
+                <article key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
               ))}
@@ -1448,8 +1548,8 @@ export function AthenaCommandCenterPanel({
               {`${dryRunReadinessSummary.requestPacketCount} request packets | ${dryRunReadinessSummary.fixtureResultCount} fixture results | ${dryRunReadinessSummary.denialFailureCount} denial/failure previews`}
             </p>
             <div className={styles.workspaceMeta}>
-              {dryRunReadinessSummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {dryRunReadinessSummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -1610,8 +1710,8 @@ export function AthenaCommandCenterPanel({
               </p>
               <div className={styles.workspaceMeta}>
                 {representativeDryRunDenialFailure.localValidationErrorExamples.map(
-                  (item) => (
-                    <span key={item} className={styles.metaPill}>
+                  (item, index) => (
+                    <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                       {item}
                     </span>
                   )
@@ -1638,8 +1738,8 @@ export function AthenaCommandCenterPanel({
                 "audit/approval/result persistence not implemented",
                 "denial/failure preview",
                 "recovery is future manual review only",
-              ].map((item) => (
-                <span key={item} className={styles.blockedPill}>
+              ].map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                   {item}
                 </span>
               ))}
@@ -1720,8 +1820,8 @@ export function AthenaCommandCenterPanel({
               {`Result reviews: ${resultReviewSummary.resultReviewCount}. Quality reviews: ${resultReviewSummary.qualityReviewCount}. Safety reviews: ${resultReviewSummary.safetyReviewCount}.`}
             </p>
             <div className={styles.workspaceMeta}>
-              {resultReviewSummary.summaryLines.slice(0, 8).map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {resultReviewSummary.summaryLines.slice(0, 8).map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -1828,8 +1928,8 @@ export function AthenaCommandCenterPanel({
                 {representativeQualityReview.noLiveQualityResultStatement}
               </p>
               <div className={styles.workspaceMeta}>
-                {representativeQualityReview.acceptanceCriteria.map((item) => (
-                  <span key={item} className={styles.metaPill}>
+                {representativeQualityReview.acceptanceCriteria.map((item, index) => (
+                  <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                     {item}
                   </span>
                 ))}
@@ -1859,8 +1959,8 @@ export function AthenaCommandCenterPanel({
                   "token leakage check",
                   "unsafe output check",
                   representativeSafetyReview.requiredOperatorReview,
-                ].map((item) => (
-                  <span key={item} className={styles.blockedPill}>
+                ].map((item, index) => (
+                  <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                     {item}
                   </span>
                 ))}
@@ -1900,8 +2000,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {recoverySummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {recoverySummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -1928,8 +2028,8 @@ export function AthenaCommandCenterPanel({
                   representativeRecoveryPlan.missingApprovalRecovery,
                   representativeRecoveryPlan.killSwitchBlockedRecovery,
                   representativeRecoveryPlan.missingOpaqueCredentialRecovery,
-                ].map((item) => (
-                  <span key={item} className={styles.blockedPill}>
+                ].map((item, index) => (
+                  <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                     {item}
                   </span>
                 ))}
@@ -1968,8 +2068,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {acceptanceSummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {acceptanceSummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -1999,8 +2099,8 @@ export function AthenaCommandCenterPanel({
                   "approval criteria",
                   "server-only criteria",
                   "credential isolation criteria",
-                ].map((item) => (
-                  <span key={item} className={styles.blockedPill}>
+                ].map((item, index) => (
+                  <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                     {item}
                   </span>
                 ))}
@@ -2048,8 +2148,8 @@ export function AthenaCommandCenterPanel({
               athena-model-routing-preview-v1.
             </p>
             <div className={styles.workspaceMeta}>
-              {providerSelectionSummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {providerSelectionSummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -2083,15 +2183,31 @@ export function AthenaCommandCenterPanel({
                 {preview.normalizedObjective}
               </p>
               <div className={styles.workspaceMeta}>
-                {preview.selectedCapabilityFamilies.map((family) => (
-                  <span key={family.id} className={styles.metaPill}>
+                {preview.selectedCapabilityFamilies.map((family, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      preview.key,
+                      "capability",
+                      index,
+                      family.id
+                    )}
+                    className={styles.metaPill}
+                  >
                     {family.label}
                   </span>
                 ))}
               </div>
               <div className={styles.workspaceMeta}>
-                {preview.candidateProviderSlots.map((slot) => (
-                  <span key={slot.id} className={styles.blockedPill}>
+                {preview.candidateProviderSlots.map((slot, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      preview.key,
+                      "provider-slot",
+                      index,
+                      slot.id
+                    )}
+                    className={styles.blockedPill}
+                  >
                     {slot.label}
                   </span>
                 ))}
@@ -2161,15 +2277,31 @@ export function AthenaCommandCenterPanel({
                 {rationale.normalizedObjective}
               </p>
               <div className={styles.workspaceMeta}>
-                {rationale.selectedCapabilityFamilies.map((family) => (
-                  <span key={family.id} className={styles.metaPill}>
+                {rationale.selectedCapabilityFamilies.map((family, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      rationale.key,
+                      "capability",
+                      index,
+                      family.id
+                    )}
+                    className={styles.metaPill}
+                  >
                     {family.label}
                   </span>
                 ))}
               </div>
               <div className={styles.workspaceMeta}>
-                {rationale.candidateProviderSlots.map((slot) => (
-                  <span key={slot.id} className={styles.blockedPill}>
+                {rationale.candidateProviderSlots.map((slot, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      rationale.key,
+                      "provider-slot",
+                      index,
+                      slot.id
+                    )}
+                    className={styles.blockedPill}
+                  >
                     {slot.label}
                   </span>
                 ))}
@@ -2221,8 +2353,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {modelRoutingChainSummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {modelRoutingChainSummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -2246,15 +2378,31 @@ export function AthenaCommandCenterPanel({
                 {chain.blockedDefaultReason}
               </p>
               <div className={styles.workspaceMeta}>
-                {chain.orderedCapabilitySteps.map((step) => (
-                  <span key={step.id} className={styles.metaPill}>
+                {chain.orderedCapabilitySteps.map((step, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      chain.key,
+                      "step-label",
+                      index,
+                      step.id
+                    )}
+                    className={styles.metaPill}
+                  >
                     {step.label}
                   </span>
                 ))}
               </div>
               <div className={styles.workspaceMeta}>
-                {chain.orderedCapabilitySteps.map((step) => (
-                  <span key={`${chain.key}:${step.id}`} className={styles.blockedPill}>
+                {chain.orderedCapabilitySteps.map((step, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      chain.key,
+                      "step-requirement",
+                      index,
+                      step.id
+                    )}
+                    className={styles.blockedPill}
+                  >
                     {`${step.label}: ${step.serverOnlyAdapterRequirement}, ${step.approvalRequirement}, ${step.auditRequirement}, ${step.dryRunReviewRequirement}`}
                   </span>
                 ))}
@@ -2293,8 +2441,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {blockedProviderSelectionSummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {blockedProviderSelectionSummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -2303,7 +2451,7 @@ export function AthenaCommandCenterPanel({
               {`Critical: ${blockedProviderSelectionSummary.criticalBlockerCount} | High: ${blockedProviderSelectionSummary.highBlockerCount}`}
             </p>
           </article>
-          {providerSelectionBlockers.map((blocker) => (
+          {providerSelectionBlockersForDisplay.map((blocker) => (
             <article key={blocker.key} className={styles.summaryCard}>
               <div className={styles.placeholderHeader}>
                 <div>
@@ -2318,15 +2466,31 @@ export function AthenaCommandCenterPanel({
                 {blocker.operatorFacingExplanation}
               </p>
               <div className={styles.workspaceMeta}>
-                {blocker.affectedCapabilityFamilies.map((family) => (
-                  <span key={family.id} className={styles.metaPill}>
+                {blocker.affectedCapabilityFamilies.map((family, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      blocker.key,
+                      "capability",
+                      index,
+                      family.id
+                    )}
+                    className={styles.metaPill}
+                  >
                     {family.label}
                   </span>
                 ))}
               </div>
               <div className={styles.workspaceMeta}>
-                {blocker.affectedWorkspaceTargets.map((target) => (
-                  <span key={`${blocker.key}:${target}`} className={styles.blockedPill}>
+                {blocker.affectedWorkspaceTargets.map((target, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      blocker.key,
+                      "workspace",
+                      index,
+                      target
+                    )}
+                    className={styles.blockedPill}
+                  >
                     {target}
                   </span>
                 ))}
@@ -2375,8 +2539,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {approvalPacketSummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {approvalPacketSummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -2518,8 +2682,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextManualGatedRunAdmissionChecklist.map((item) => (
-                <article key={item} className={styles.railCard}>
+              {nextManualGatedRunAdmissionChecklist.map((item, index) => (
+                <article key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
               ))}
@@ -2542,8 +2706,16 @@ export function AthenaCommandCenterPanel({
                 {packet.operatorRequestPhrase}
               </p>
               <div className={styles.workspaceMeta}>
-                {packet.selectedCapabilityFamilies.map((family) => (
-                  <span key={`${packet.key}:${family.id}`} className={styles.metaPill}>
+                {packet.selectedCapabilityFamilies.map((family, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      packet.key,
+                      "capability",
+                      index,
+                      family.id
+                    )}
+                    className={styles.metaPill}
+                  >
                     {family.label}
                   </span>
                 ))}
@@ -2608,8 +2780,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {runIntentSummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {runIntentSummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -2678,8 +2850,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextManualGatedRunAdmissionChecklist.map((item) => (
-                <article key={item} className={styles.railCard}>
+              {nextManualGatedRunAdmissionChecklist.map((item, index) => (
+                <article key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
               ))}
@@ -2808,8 +2980,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {runIntentBlockerSummary.summaryLines.map((item) => (
-                <span key={item} className={styles.metaPill}>
+              {runIntentBlockerSummary.summaryLines.map((item, index) => (
+                <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.metaPill}>
                   {item}
                 </span>
               ))}
@@ -2818,7 +2990,7 @@ export function AthenaCommandCenterPanel({
               {`Critical: ${runIntentBlockerSummary.criticalBlockerCount} | High: ${runIntentBlockerSummary.highBlockerCount} | Medium: ${runIntentBlockerSummary.mediumBlockerCount}`}
             </p>
           </article>
-          {runIntentBlockerMatrix.map((blocker) => (
+          {runIntentBlockersForDisplay.map((blocker) => (
             <article key={blocker.key} className={styles.summaryCard}>
               <div className={styles.placeholderHeader}>
                 <div>
@@ -2833,15 +3005,732 @@ export function AthenaCommandCenterPanel({
                 {blocker.operatorFacingExplanation}
               </p>
               <div className={styles.workspaceMeta}>
-                {blocker.affectedCapabilityFamilies.map((family) => (
-                  <span key={`${blocker.key}:${family.id}`} className={styles.metaPill}>
+                {blocker.affectedCapabilityFamilies.map((family, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      blocker.key,
+                      "capability",
+                      index,
+                      family.id
+                    )}
+                    className={styles.metaPill}
+                  >
                     {family.label}
                   </span>
                 ))}
               </div>
               <div className={styles.workspaceMeta}>
-                {blocker.affectedWorkspaceTargets.map((target) => (
-                  <span key={`${blocker.key}:${target}`} className={styles.blockedPill}>
+                {blocker.affectedWorkspaceTargets.map((target, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      blocker.key,
+                      "workspace",
+                      index,
+                      target
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {target}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>{blocker.requiredRecoveryAction}</p>
+              <p className={styles.railFooter}>{blocker.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual gated model provider run admission preview"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Athena run admission layer</p>
+            <h2 className={styles.panelTitle}>
+              Manual gated model provider run admission preview
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not admitted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview manual model provider run admission. run admission
+          is preview-only. run admission state: not admitted. admission
+          decision is held. admission token is not issued. admission lease is
+          not created. No prompt sending. No model calls yet. No provider SDKs
+          imported. provider execution is blocked. queue dispatch is blocked.
+          worker dispatch is blocked. job execution is blocked. manual approval
+          required. manual confirmation required. kill switch required. audit
+          required. run admission review and recovery preview comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Run admission posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {manualRunAdmissionSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Admissions: ${manualRunAdmissionSummary.admissionPreviewCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualRunAdmissionSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "manual-run-admission-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.metaPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Gate evaluations: ${manualRunAdmissionSummary.gateEvaluationCount} | Tickets: ${manualRunAdmissionSummary.ticketPreviewCount} | Recoveries: ${manualRunAdmissionSummary.denialRecoveryCount} | Audits: ${manualRunAdmissionSummary.auditPreviewCount}`}
+            </p>
+          </article>
+          {representativeManualRunAdmission ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative admission</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualRunAdmission.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualRunAdmission.runAdmissionState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${representativeManualRunAdmission.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`selected capability family: ${representativeManualRunAdmission.selectedCapabilityFamily.label}`}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.blockedPill}>
+                  {`provider slot label: ${representativeManualRunAdmission.providerSlotLabel}`}
+                </span>
+                <span className={styles.blockedPill}>
+                  {`backup provider slot label: ${representativeManualRunAdmission.backupProviderSlotLabel}`}
+                </span>
+                <span className={styles.blockedPill}>
+                  {`local/private alternative: ${representativeManualRunAdmission.localPrivateAlternativeLabel}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`admission decision state: ${representativeManualRunAdmission.admissionDecisionState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission token state: ${representativeManualRunAdmission.admissionTokenState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission lease state: ${representativeManualRunAdmission.admissionLeaseState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeManualRunAdmission.nextRunAdmissionReviewRecoveryRequirement}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>What comes next</p>
+                <h3 className={styles.placeholderTitle}>
+                  {manualRunAdmissionSummary.nextLikelyBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Next likely batch
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {nextRunAdmissionReviewRecoveryChecklist.map((item, index) => (
+                <article
+                  key={buildScopedItemKey(
+                    "manual-run-admission-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.railCard}
+                >
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Grouped by capability family</p>
+                <h3 className={styles.placeholderTitle}>
+                  Run admission stays capability-aware
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Visible
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualRunAdmissionCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "manual-run-admission-capability-group",
+                    "group",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.metaPill}
+                >{`${group.capabilityFamilyLabel}: ${group.admissionPreviewCount}`}</span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Grouped by workspace target</p>
+                <h3 className={styles.placeholderTitle}>
+                  Run admission stays workspace-specific
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Visible
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualRunAdmissionWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "manual-run-admission-workspace-group",
+                    "group",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.metaPill}
+                >{`${group.workspaceTarget}: ${group.admissionPreviewCount}`}</span>
+              ))}
+            </div>
+          </article>
+          {representativeManualAdmissionAuditPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Admission audit posture</p>
+                  <h3 className={styles.placeholderTitle}>preview-only audit</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                  {representativeManualAdmissionAuditPreview.auditPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeManualAdmissionAuditPreview.gateEvidenceSummary}
+              </p>
+              <p className={styles.railBody}>
+                {representativeManualAdmissionAuditPreview.blockedActionSummary}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeManualAdmissionAuditPreview.nextReviewRecoveryRequirement}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {manualRunAdmissionPreviews.map((preview) => (
+            <article key={preview.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Admission preview</p>
+                  <h3 className={styles.placeholderTitle}>{preview.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {preview.admissionMode}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {preview.operatorRequestPhrase}
+              </p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${preview.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`selected capability family: ${preview.selectedCapabilityFamily.label}`}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.blockedPill}>
+                  {`provider slot label: ${preview.providerSlotLabel}`}
+                </span>
+                <span className={styles.blockedPill}>
+                  {`backup provider slot label: ${preview.backupProviderSlotLabel}`}
+                </span>
+                <span className={styles.blockedPill}>
+                  {`local/private alternative: ${preview.localPrivateAlternativeLabel}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`run admission state: ${preview.runAdmissionState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission token state: ${preview.admissionTokenState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission lease state: ${preview.admissionLeaseState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {preview.nextRunAdmissionReviewRecoveryRequirement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Run admission gate evaluation">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held gate review</p>
+            <h2 className={styles.panelTitle}>Run admission gate evaluation</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Held / not admitted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          operator approval gate. manual confirmation gate. kill switch gate.
+          audit gate. server-only adapter gate. opaque credential gate. prompt
+          payload review gate. privacy/redaction gate. cost/rate/timeout gate.
+          idempotency/replay gate. single-run lock gate. dry-run result review
+          gate. acceptance matrix gate. approval expiry gate. approval
+          revocation gate. overall gate decision: held / not admitted.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {admissionGateSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Gate evaluations: ${admissionGateSummary.gateEvaluationCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {admissionGateSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "admission-gate-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.metaPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Held decisions: ${admissionGateSummary.heldDecisionCount}`}
+            </p>
+          </article>
+          {representativeAdmissionGateEvaluation ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative held gates</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAdmissionGateEvaluation.admissionPreviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAdmissionGateEvaluation.overallGateDecision}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`operator approval gate: ${representativeAdmissionGateEvaluation.operatorApprovalGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`manual confirmation gate: ${representativeAdmissionGateEvaluation.manualConfirmationGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`kill switch gate: ${representativeAdmissionGateEvaluation.killSwitchGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit gate: ${representativeAdmissionGateEvaluation.auditGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`server-only adapter gate: ${representativeAdmissionGateEvaluation.serverOnlyAdapterGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`opaque credential gate: ${representativeAdmissionGateEvaluation.opaqueCredentialGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`prompt payload review gate: ${representativeAdmissionGateEvaluation.promptPayloadReviewGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`privacy/redaction gate: ${representativeAdmissionGateEvaluation.privacyRedactionGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`cost/rate/timeout gate: ${representativeAdmissionGateEvaluation.costRateTimeoutGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`idempotency/replay gate: ${representativeAdmissionGateEvaluation.idempotencyReplayGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`single-run lock gate: ${representativeAdmissionGateEvaluation.singleRunLockGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`dry-run result review gate: ${representativeAdmissionGateEvaluation.dryRunResultReviewGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`acceptance matrix gate: ${representativeAdmissionGateEvaluation.acceptanceMatrixGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval expiry gate: ${representativeAdmissionGateEvaluation.approvalExpiryGateState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval revocation gate: ${representativeAdmissionGateEvaluation.approvalRevocationGateState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeAdmissionGateEvaluation.explicitNoAdmissionStatement}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {admissionGateEvaluations.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate evaluation</p>
+                  <h3 className={styles.placeholderTitle}>{record.admissionPreviewId}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.overallGateDecision}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{record.blockedDefaultReason}</p>
+              <p className={styles.railFooter}>
+                {record.explicitNoAdmissionStatement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Admission ticket preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only ticket posture</p>
+            <h2 className={styles.panelTitle}>Admission ticket preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not issued
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          ticket state: not issued. admission token state: not issued.
+          admission lease state: not created. deterministic preview idempotency
+          key only. replay block posture. single-run lock posture.
+          queue dispatch state: not dispatched. worker dispatch state: not
+          dispatched. job execution state: not executed. explicit
+          no-ticket-no-execution statement.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeAdmissionTicket ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative ticket</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAdmissionTicket.admissionPreviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAdmissionTicket.ticketState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`admission token state: ${representativeAdmissionTicket.admissionTokenState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission lease state: ${representativeAdmissionTicket.admissionLeaseState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`idempotency key posture: ${representativeAdmissionTicket.idempotencyKeyPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`replay block posture: ${representativeAdmissionTicket.replayBlockPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`single-run lock posture: ${representativeAdmissionTicket.singleRunLockPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`queue dispatch state: ${representativeAdmissionTicket.queueDispatchState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`worker dispatch state: ${representativeAdmissionTicket.workerDispatchState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`job execution state: ${representativeAdmissionTicket.jobExecutionState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeAdmissionTicket.explicitNoTicketNoExecutionStatement}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Ticket posture</p>
+                <h3 className={styles.placeholderTitle}>preview-only tickets</h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Tickets: ${admissionTicketPreviews.length}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              ticket state: not issued. admission token state: not issued.
+            </p>
+            <p className={styles.railBody}>
+              admission lease state: not created. queue dispatch state: not
+              dispatched.
+            </p>
+            <p className={styles.railBody}>
+              worker dispatch state: not dispatched. job execution state: not
+              executed.
+            </p>
+            <p className={styles.railFooter}>
+              No ticket issued. No queue dispatch. No worker dispatch. No job
+              execution.
+            </p>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {admissionTicketPreviews.map((ticket) => (
+            <article key={ticket.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Ticket preview</p>
+                  <h3 className={styles.placeholderTitle}>{ticket.admissionPreviewId}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {ticket.ticketMode}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{ticket.blockedDefaultReason}</p>
+              <p className={styles.railBody}>
+                {`ticket state: ${ticket.ticketState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission token state: ${ticket.admissionTokenState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission lease state: ${ticket.admissionLeaseState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`queue dispatch state: ${ticket.queueDispatchState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`worker dispatch state: ${ticket.workerDispatchState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`job execution state: ${ticket.jobExecutionState}`}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Admission blockers and recovery">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Manual recovery posture</p>
+            <h2 className={styles.panelTitle}>Admission blockers and recovery</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Manual review only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          retry disabled. fallback disabled. recovery is manual review only. no
+          provider execution. no queue dispatch. no worker dispatch. no job
+          execution. no persistence.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Blocker posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {admissionBlockerSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Blockers: ${admissionBlockerSummary.blockerCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {admissionBlockerSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "manual-run-admission-blocker-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.metaPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Critical: ${admissionBlockerSummary.criticalBlockerCount} | High: ${admissionBlockerSummary.highBlockerCount} | Medium: ${admissionBlockerSummary.mediumBlockerCount}`}
+            </p>
+          </article>
+          {representativeAdmissionDenialRecovery ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative recovery</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAdmissionDenialRecovery.admissionPreviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAdmissionDenialRecovery.recoveryPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeAdmissionDenialRecovery.missingManualApprovalRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeAdmissionDenialRecovery.missingManualConfirmationRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeAdmissionDenialRecovery.killSwitchActiveRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeAdmissionDenialRecovery.acceptanceMatrixUnresolvedRecovery}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeAdmissionDenialRecovery
+                    .explicitNoRetryNoFallbackNoExecutionStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeManualAdmissionAuditPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit preview</p>
+                  <h3 className={styles.placeholderTitle}>not persisted</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                  {representativeManualAdmissionAuditPreview.auditPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeManualAdmissionAuditPreview.gateEvidenceSummary}
+              </p>
+              <p className={styles.railBody}>
+                {representativeManualAdmissionAuditPreview.blockedActionSummary}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeManualAdmissionAuditPreview.noPersistenceStatement}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe checklist</p>
+                <h3 className={styles.placeholderTitle}>
+                  {manualRunAdmissionSummary.nextLikelyBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Next likely batch
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {nextRunAdmissionReviewRecoveryChecklist.map((item, index) => (
+                <article
+                  key={buildScopedItemKey(
+                    "manual-run-admission-recovery-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.railCard}
+                >
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {manualRunAdmissionBlockersForDisplay.map((blocker) => (
+            <article key={blocker.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Admission blocker</p>
+                  <h3 className={styles.placeholderTitle}>{blocker.blockerId}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {blocker.severity}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {blocker.operatorFacingExplanation}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {blocker.affectedCapabilityFamilies.map((family, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      blocker.key,
+                      "capability",
+                      index,
+                      family.id
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {family.label}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {blocker.affectedWorkspaceTargets.map((target, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      blocker.key,
+                      "workspace",
+                      index,
+                      target
+                    )}
+                    className={styles.blockedPill}
+                  >
                     {target}
                   </span>
                 ))}
@@ -2908,15 +3797,31 @@ export function AthenaCommandCenterPanel({
                 </span>
               </div>
               <div className={styles.workspaceMeta}>
-                {plugin.safetyGates.map((gate) => (
-                  <span key={gate} className={styles.blockedPill}>
+                {plugin.safetyGates.map((gate, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      plugin.pluginId,
+                      "safety-gate",
+                      index,
+                      gate
+                    )}
+                    className={styles.blockedPill}
+                  >
                     {gate}
                   </span>
                 ))}
               </div>
               <div className={styles.workspaceMeta}>
-                {plugin.sampleCommands.map((command) => (
-                  <span key={command} className={styles.metaPill}>
+                {plugin.sampleCommands.map((command, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      plugin.pluginId,
+                      "sample-command",
+                      index,
+                      command
+                    )}
+                    className={styles.metaPill}
+                  >
                     {command}
                   </span>
                 ))}
@@ -2993,8 +3898,16 @@ export function AthenaCommandCenterPanel({
                   {buildAthenaBlockedActionSummary(command)}
                 </p>
                 <div className={styles.workspaceMeta}>
-                  {routePreview.previewedHandoffSteps.map((step) => (
-                    <span key={step} className={styles.blockedPill}>
+                  {routePreview.previewedHandoffSteps.map((step, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        routePreview.commandKey,
+                        "handoff-step",
+                        index,
+                        step
+                      )}
+                      className={styles.blockedPill}
+                    >
                       {step}
                     </span>
                   ))}
@@ -3065,8 +3978,16 @@ export function AthenaCommandCenterPanel({
               </div>
               <div className={styles.workspaceMeta}>
                 {listApprovalBridgeRequirements(representativeBridge).map(
-                  (requirement) => (
-                    <span key={requirement} className={styles.metaPill}>
+                  (requirement, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeBridge.bridgeKey,
+                        "bridge-requirement",
+                        index,
+                        requirement
+                      )}
+                      className={styles.metaPill}
+                    >
                       {requirement}
                     </span>
                   )
@@ -3104,8 +4025,16 @@ export function AthenaCommandCenterPanel({
               </div>
               <div className={styles.workspaceMeta}>
                 {representativeBridge.nextTimelineAuditMemoryChecklist.map(
-                  (item) => (
-                    <span key={item} className={styles.blockedPill}>
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeBridge.bridgeKey,
+                        "timeline-memory",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
                       {item}
                     </span>
                   )
@@ -3276,11 +4205,21 @@ export function AthenaCommandCenterPanel({
                 </span>
               </div>
               <div className={styles.workspaceMeta}>
-                {representativeTimeline.nextProductPolishChecklist.map((item) => (
-                  <span key={item} className={styles.blockedPill}>
-                    {item}
-                  </span>
-                ))}
+                {representativeTimeline.nextProductPolishChecklist.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeTimeline.timelineKey,
+                        "product-polish",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
               </div>
             </article>
           ) : null}
@@ -3326,8 +4265,16 @@ export function AthenaCommandCenterPanel({
                 {`Next action: ${buildNextActionSummary(timeline)}`}
               </p>
               <div className={styles.workspaceMeta}>
-                {timeline.eventList.map((event) => (
-                  <span key={event.milestoneId} className={styles.blockedPill}>
+                {timeline.eventList.map((event, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      timeline.timelineKey,
+                      "event",
+                      index,
+                      event.milestoneId
+                    )}
+                    className={styles.blockedPill}
+                  >
                     {event.label}
                   </span>
                 ))}
@@ -3447,8 +4394,8 @@ export function AthenaCommandCenterPanel({
                   memory.indexedDb,
                   memory.cookies,
                   memory.databaseWrites,
-                ].map((item) => (
-                  <span key={item} className={styles.blockedPill}>
+                ].map((item, index) => (
+                  <span key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.blockedPill}>
                     {item}
                   </span>
                 ))}
@@ -3502,8 +4449,11 @@ export function AthenaCommandCenterPanel({
               </div>
               <p className={styles.blockedSummary}>{blocked.summary}</p>
               <div className={styles.workspaceMeta}>
-                {blocked.items.map((item) => (
-                  <span key={item} className={styles.blockedPill}>
+                {blocked.items.map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(blocked.id, "item", index, item)}
+                    className={styles.blockedPill}
+                  >
                     {item}
                   </span>
                 ))}
@@ -3600,8 +4550,8 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextManualGatedRunAdmissionChecklist.map((item) => (
-                <article key={item} className={styles.railCard}>
+              {nextManualGatedRunAdmissionChecklist.map((item, index) => (
+                <article key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
               ))}

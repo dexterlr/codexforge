@@ -23,6 +23,11 @@ import {
   MODEL_PROVIDER_APPROVAL_PACKET_RUN_INTENT_PREVIEW_PHASE as MODEL_PROVIDER_APPROVAL_PACKET_RUN_INTENT_PREVIEW_CURRENT_PHASE,
   NEXT_MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_BATCH,
 } from "@/lib/codexforge/model-provider-approval-packet-run-intent-preview";
+import {
+  MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_BATCH as MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_CURRENT_BATCH,
+  MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_PHASE as MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_CURRENT_PHASE,
+  NEXT_MODEL_PROVIDER_RUN_ADMISSION_REVIEW_RECOVERY_PREVIEW_BATCH,
+} from "@/lib/codexforge/manual-gated-model-provider-run-admission-preview";
 
 export const ATHENA_UNIFIED_CHAT_CONTROL_PLANE_FOUNDATION_BATCH =
   "4458-4489 - Athena Unified Chat Control Plane Foundation";
@@ -104,6 +109,15 @@ export const ATHENA_MODEL_PROVIDER_APPROVAL_PACKET_RUN_INTENT_PREVIEW_PHASE =
 
 export const ATHENA_NEXT_MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_BATCH =
   NEXT_MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_BATCH;
+
+export const ATHENA_MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_BATCH =
+  MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_CURRENT_BATCH;
+
+export const ATHENA_MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_PHASE =
+  MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_CURRENT_PHASE;
+
+export const ATHENA_NEXT_MODEL_PROVIDER_RUN_ADMISSION_REVIEW_RECOVERY_PREVIEW_BATCH =
+  NEXT_MODEL_PROVIDER_RUN_ADMISSION_REVIEW_RECOVERY_PREVIEW_BATCH;
 
 export type AthenaLauncherStatus =
   | "ready"
@@ -1033,21 +1047,21 @@ export const ATHENA_PRODUCT_UX_POLISH_MODEL = {
   operatorHomeTakeoverVersion: "athena-operator-home-takeover-v1",
   heroCopy: ATHENA_PRODUCT_UX_HERO_COPY,
   cockpitSummary:
-    "Athena is the main Jarvis control layer. Athena is the main chat control layer. Athena can draft structured commands. Athena can draft approval packets. Athena can now preview AI model provider slots, compare capability families, preview server-only model adapter contracts, review adapter envelope previews, preview the manual gated model adapter dry-run harness, preview fixture-only model adapter dry-run result reviews, dry-run quality and safety reviews, manual recovery plans, preview-only acceptance matrices, preview-only model routing and provider selection decisions, preview-only model provider approval packets, preview-only run intents, preview-only approval gate checklists, preview-only run intent blockers, and preview-only approval expiry/revocation posture. Routing is preview-only. Provider selection is static preview only. Approval packet is preview-only. Run intent is preview-only. Approval gates are preview-only. Run intent blockers are preview-only. Approval expiry and revocation are preview-only. Jarvis is the operating system / safety control plane, and specialist plugin pages stay preview-only tools Athena can route to and later control with approvals and backend gates.",
+    "Athena is the main Jarvis control layer. Athena is the main chat control layer. Athena can draft structured commands. Athena can draft approval packets. Athena can now preview AI model provider slots, compare capability families, preview server-only model adapter contracts, review adapter envelope previews, preview the manual gated model adapter dry-run harness, preview fixture-only model adapter dry-run result reviews, dry-run quality and safety reviews, manual recovery plans, preview-only acceptance matrices, preview-only model routing and provider selection decisions, preview-only model provider approval packets, preview-only run intents, preview-only approval gate checklists, preview-only run intent blockers, preview-only approval expiry/revocation posture, preview-only manual gated model provider run admission records, preview-only run admission gate evaluations, preview-only admission ticket posture, and preview-only admission blockers and recovery posture. Routing is preview-only. Provider selection is static preview only. Approval packet is preview-only. Run intent is preview-only. Run admission is preview-only. Admission decision is held. Admission token is not issued. Admission lease is not created. Jarvis is the operating system / safety control plane, and specialist plugin pages stay preview-only tools Athena can route to and later control with approvals and backend gates.",
   commandComposerPlaceholderCopy: "Ask Athena what you want to build or control.",
   immediateStatusCards: ATHENA_IMMEDIATE_STATUS_CARDS,
   primaryOperatorActions: ATHENA_PRIMARY_OPERATOR_ACTIONS,
   pluginLauncherGroups: ATHENA_PLUGIN_LAUNCHER_GROUPS,
   safetyPostureSummary:
-    "Athena conversational command composer, AI model provider registry, capability matrix, server-only model adapter contracts, adapter envelope previews, manual gated dry-run harness previews, model adapter dry-run result reviews, dry-run quality and safety reviews, dry-run recovery plans, dry-run acceptance matrices, Athena model routing preview, provider selection rationale, model routing chain previews, provider selection blockers, model provider approval packet previews, run intent previews, approval gate checklist previews, run intent blocker previews, and approval expiry/revocation previews only. Command composer is preview-only. Provider slots are registry-only. Capability matrix is preview-only. Adapter contracts are preview-only. Adapter envelopes are preview-only. Dry-run review is fixture-only. Routing is preview-only. Provider selection is static preview only. Model routing chains are preview-only. Provider selection blockers are preview-only. Approval packet is preview-only. Run intent is preview-only. Approval gates are preview-only. Run intent blockers are preview-only. Approval expiry and revocation are preview-only. Quality review is static preview only. Safety review is static preview only. Recovery is manual review only. No prompt sending. No LLM/model calls. No frontend provider call. No frontend fetch/network call. No provider SDKs imported. Kill switch required. No browser storage. No persistent memory.",
+    "Athena conversational command composer, AI model provider registry, capability matrix, server-only model adapter contracts, adapter envelope previews, manual gated dry-run harness previews, model adapter dry-run result reviews, dry-run quality and safety reviews, dry-run recovery plans, dry-run acceptance matrices, Athena model routing preview, provider selection rationale, model routing chain previews, provider selection blockers, model provider approval packet previews, run intent previews, approval gate checklist previews, run intent blocker previews, approval expiry/revocation previews, manual gated model provider run admission previews, run admission gate evaluations, admission ticket previews, and admission blocker/recovery previews only. Command composer is preview-only. Provider slots are registry-only. Capability matrix is preview-only. Adapter contracts are preview-only. Adapter envelopes are preview-only. Dry-run review is fixture-only. Routing is preview-only. Provider selection is static preview only. Model routing chains are preview-only. Provider selection blockers are preview-only. Approval packet is preview-only. Run intent is preview-only. Run admission is preview-only. Gate evaluation is preview-only. Admission ticket is preview-only. Admission blockers are preview-only. Quality review is static preview only. Safety review is static preview only. Recovery is manual review only. No prompt sending. No LLM/model calls. No frontend provider call. No frontend fetch/network call. No provider SDKs imported. Kill switch required. No browser storage. No persistent memory.",
   approvalPostureSummary:
-    "Approval-gated handoffs only. Manual operator approval required. Manual confirmation required. Backend-only execution required. Server-only model adapters must run backend-only. Dry-run review is fixture-only. Routing is preview-only. Provider selection is static preview only. Approval packet is preview-only. Run intent is preview-only. Approval gates are preview-only. Run intent blockers are preview-only. Approval expiry and revocation are preview-only. Manual gated run admission preview comes next.",
+    "Approval-gated handoffs only. Manual operator approval required. Manual confirmation required. Backend-only execution required. Server-only model adapters must run backend-only. Dry-run review is fixture-only. Routing is preview-only. Provider selection is static preview only. Approval packet is preview-only. Run intent is preview-only. Approval gates are preview-only. Run intent blockers are preview-only. Approval expiry and revocation are preview-only. Run admission is preview-only. Admission decision is held. Admission token is not issued. Admission lease is not created. Run admission review and recovery preview comes next.",
   auditPostureSummary:
     "Audit required. Audit memory preview is static preview only. No audit persistence.",
   currentReadinessSummary:
-    "Command drafting: preview-only. Approval drafts: preview-only. Provider registry: preview available. Capability matrix: preview available. Server-only adapter contracts: preview available. Adapter envelopes: preview available. Manual dry-run harness: preview available. Dry-run result review: fixture-only preview. Quality/safety review: static preview only. Recovery plan: preview available. Acceptance matrix: preview available. Model routing preview: preview available. Provider selection rationale: preview available. Model routing chains: preview-only. Provider selection blockers: preview-only. Approval packet preview: preview available. Run intent preview: preview available. Approval gate checklist: preview-only. Run intent blockers: preview-only. Approval expiry/revocation: preview-only. Model calls: not connected yet.",
+    "Command drafting: preview-only. Approval drafts: preview-only. Provider registry: preview available. Capability matrix: preview available. Server-only adapter contracts: preview available. Adapter envelopes: preview available. Manual dry-run harness: preview available. Dry-run result review: fixture-only preview. Quality/safety review: static preview only. Recovery plan: preview available. Acceptance matrix: preview available. Model routing preview: preview available. Provider selection rationale: preview available. Model routing chains: preview-only. Provider selection blockers: preview-only. Approval packet preview: preview available. Run intent preview: preview available. Approval gate checklist: preview-only. Run intent blockers: preview-only. Approval expiry/revocation: preview-only. Manual run admission preview: preview available. Gate evaluation: preview-only. Admission ticket: preview-only. Admission blockers/recovery: preview-only. Model calls: not connected yet.",
   blockedDefaultExecutionSummary:
-    "Frontend provider calls: blocked. Provider execution: locked. Plugin execution: locked. Autonomous execution: locked. Prompt sending: not implemented. Model calls: not implemented. Persistence: not implemented. Backend-only execution: required.",
+    "Frontend provider calls: blocked. Provider execution: locked. Plugin execution: locked. Autonomous execution: locked. Prompt sending: not implemented. Model calls: not implemented. Queue dispatch: blocked. Worker dispatch: blocked. Job execution: blocked. Persistence: not implemented. Backend-only execution: required.",
   nextOperatorActions: [
     "Open Athena Command Center and draft the operator request locally.",
     "Review the conversational command composer preview before opening a specialist workspace.",
@@ -1055,6 +1069,7 @@ export const ATHENA_PRODUCT_UX_POLISH_MODEL = {
     "Review the AI model provider registry, capability matrix, provider selection preview, server-only model adapter contracts, manual gated dry-run harness, and model adapter dry-run result review before discussing execution.",
     "Review the Athena model routing preview, provider selection rationale, model routing chain preview, and provider selection blockers before drafting the approval packet and run intent preview.",
     "Review the model provider approval packet, run intent preview, approval gate checklist, run intent blockers, and approval expiry/revocation posture before discussing manual gated run admission preview.",
+    "Review the manual gated model provider run admission preview, run admission gate evaluation, admission ticket preview, and admission blockers/recovery posture before the run admission review and recovery preview batch.",
   ],
   nextModelRoutingProviderSelectionChecklist:
     buildNextModelRoutingAndProviderSelectionChecklist(),
@@ -1067,11 +1082,11 @@ export const ATHENA_CONTROL_PLANE_IDENTITY = {
   name: "Athena",
   title: "Athena Command Center",
   mission:
-    "Athena is the main chat control layer above all specialist Jarvis workspaces and approval-gated product lanes. Athena is the main Jarvis control layer. Athena can draft structured commands from natural requests, prepare preview-only approval drafts, review routed work, preview AI model provider slots, compare capability families, preview server-only model adapter contracts, review adapter request/response/error envelopes, preview the manual gated model adapter dry-run harness, review fixture-only dry-run packets, inspect static fixture-result placeholders, review fixture-only dry-run result reviews, preview static quality and safety reviews, inspect manual recovery plans and preview-only acceptance matrices, preview model routing decisions, show provider selection rationale, preview blocked model routing chains, inspect provider selection blockers, draft preview-only model provider approval packets, preview inert run intents, review approval gate checklists, inspect run intent blockers, preview approval expiry/revocation posture, preview cross-workspace run timelines, show static audit memory previews, and safely hand off work across CodexForge.",
+    "Athena is the main chat control layer above all specialist Jarvis workspaces and approval-gated product lanes. Athena is the main Jarvis control layer. Athena can draft structured commands from natural requests, prepare preview-only approval drafts, review routed work, preview AI model provider slots, compare capability families, preview server-only model adapter contracts, review adapter request/response/error envelopes, preview the manual gated model adapter dry-run harness, review fixture-only dry-run packets, inspect static fixture-result placeholders, review fixture-only dry-run result reviews, preview static quality and safety reviews, inspect manual recovery plans and preview-only acceptance matrices, preview model routing decisions, show provider selection rationale, preview blocked model routing chains, inspect provider selection blockers, draft preview-only model provider approval packets, preview inert run intents, review approval gate checklists, inspect run intent blockers, preview approval expiry/revocation posture, preview manual gated model provider run admission records, review preview-only run admission gate evaluations, inspect preview-only admission ticket posture, inspect preview-only blocker and recovery posture, preview cross-workspace run timelines, show static audit memory previews, and safely hand off work across CodexForge.",
   operatorPromise:
     "Ask Athena to plan, route, review, and safely hand off work across CodexForge.",
   posture:
-    "Athena conversational command composer, AI model provider registry, capability matrix, server-only model adapter contracts, adapter envelope previews, manual gated dry-run harness previews, model adapter dry-run result reviews, dry-run quality and safety reviews, dry-run recovery plans, dry-run acceptance matrices, Athena model routing preview, provider selection rationale, model routing chain previews, provider selection blockers, model provider approval packet previews, run intent previews, approval gate checklist previews, run intent blocker previews, and approval expiry/revocation previews only. Command composer is preview-only. Approval drafts are preview-only. Provider slots are registry-only. Capability matrix is preview-only. Adapter contracts are preview-only. Adapter envelopes are preview-only. Dry-run review is fixture-only. Routing is preview-only. Provider selection is static preview only. Model routing chains are preview-only. Provider selection blockers are preview-only. Approval packet is preview-only. Run intent is preview-only. Approval gates are preview-only. Run intent blockers are preview-only. Approval expiry and revocation are preview-only. Quality review is static preview only. Recovery is manual review only. Bridge is inert. Execution is blocked by default. Plugin registry is inert. Command router is preview-only. Chat input remains inert/local only and executes nothing.",
+    "Athena conversational command composer, AI model provider registry, capability matrix, server-only model adapter contracts, adapter envelope previews, manual gated dry-run harness previews, model adapter dry-run result reviews, dry-run quality and safety reviews, dry-run recovery plans, dry-run acceptance matrices, Athena model routing preview, provider selection rationale, model routing chain previews, provider selection blockers, model provider approval packet previews, run intent previews, approval gate checklist previews, run intent blocker previews, approval expiry/revocation previews, manual gated model provider run admission previews, run admission gate evaluations, admission ticket previews, and admission blocker/recovery previews only. Command composer is preview-only. Approval drafts are preview-only. Provider slots are registry-only. Capability matrix is preview-only. Adapter contracts are preview-only. Adapter envelopes are preview-only. Dry-run review is fixture-only. Routing is preview-only. Provider selection is static preview only. Model routing chains are preview-only. Provider selection blockers are preview-only. Approval packet is preview-only. Run intent is preview-only. Run admission is preview-only. Admission decision is held. Admission token is not issued. Admission lease is not created. Quality review is static preview only. Recovery is manual review only. Bridge is inert. Execution is blocked by default. Plugin registry is inert. Command router is preview-only. Chat input remains inert/local only and executes nothing.",
 } as const satisfies AthenaIdentityModel;
 
 export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
@@ -1079,9 +1094,9 @@ export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
   placeholder:
     "Ask Athena what you want to build or control. Draft an operator request for Athena. This stays local to the page and executes nothing.",
   helperText:
-    "Chat input remains inert/local only. No prompt sending. No model calls yet. No provider SDKs imported. No frontend fetch/network call. Server-only adapter contracts are preview-only. Adapter envelopes are preview-only. Manual dry-run harness is fixture-only. Dry-run result review is fixture-only. Quality review is static preview only. Safety review is static preview only. Recovery is manual review only. Dry-run acceptance matrix is preview-only. Model routing preview is preview-only. Provider selection is static preview only. Model routing chains are preview-only. Provider selection blockers are preview-only. Approval packet is preview-only. Run intent is preview-only. Approval gates are preview-only. Run intent blockers are preview-only. Approval expiry and revocation are preview-only. No browser storage. No persistent memory. No plugin execution from chat yet. Approval-gated handoffs only. Backend-only execution required. Audit required. Kill switch required. No queue dispatch. No result persistence.",
+    "Chat input remains inert/local only. No prompt sending. No model calls yet. No provider SDKs imported. No frontend fetch/network call. Server-only adapter contracts are preview-only. Adapter envelopes are preview-only. Manual dry-run harness is fixture-only. Dry-run result review is fixture-only. Quality review is static preview only. Safety review is static preview only. Recovery is manual review only. Dry-run acceptance matrix is preview-only. Model routing preview is preview-only. Provider selection is static preview only. Model routing chains are preview-only. Provider selection blockers are preview-only. Approval packet is preview-only. Run intent is preview-only. Approval gates are preview-only. Run intent blockers are preview-only. Approval expiry and revocation are preview-only. Run admission is preview-only. Admission decision is held. Admission token is not issued. Admission lease is not created. Gate evaluation is preview-only. Admission ticket is preview-only. Admission blockers are preview-only. No browser storage. No persistent memory. No plugin execution from chat yet. Approval-gated handoffs only. Backend-only execution required. Audit required. Kill switch required. No queue dispatch. No worker dispatch. No job execution. No result persistence.",
   executionPosture:
-    "Execution remains approval-gated, blocked by default, and backend-only. Command composer is preview-only. Approval drafts are preview-only. Adapter contracts are preview-only. Adapter envelopes are preview-only. Manual dry-run harness is fixture-only. Dry-run result review is fixture-only. Quality and safety reviews are static preview only. Recovery is manual review only. Model routing preview is preview-only. Provider selection is static preview only. Approval packet is preview-only. Run intent is preview-only. Approval gates are preview-only. Run intent blockers are preview-only. Timeline is preview-only. Audit memory is static preview only. No autonomous execution.",
+    "Execution remains approval-gated, blocked by default, and backend-only. Command composer is preview-only. Approval drafts are preview-only. Adapter contracts are preview-only. Adapter envelopes are preview-only. Manual dry-run harness is fixture-only. Dry-run result review is fixture-only. Quality and safety reviews are static preview only. Recovery is manual review only. Model routing preview is preview-only. Provider selection is static preview only. Approval packet is preview-only. Run intent is preview-only. Run admission is preview-only. Admission tickets are preview-only. Admission blockers are preview-only. Timeline is preview-only. Audit memory is static preview only. No autonomous execution.",
 } as const satisfies AthenaChatModel;
 
 export const ATHENA_SUGGESTED_PROMPTS = [
@@ -2237,6 +2252,30 @@ export const ATHENA_CURRENT_CAPABILITIES = [
       "Athena can show preview-only run intent blockers, operator-facing explanations, recovery actions, and next safe actions before any manual gated admission exists.",
   },
   {
+    id: "manual-run-admission-preview",
+    label: "Athena can now preview manual gated model provider run admission",
+    summary:
+      "Athena can show typed preview-only run admission records with not-admitted posture, held decision state, provider slot labels, opaque credential references, and blocked dispatch state.",
+  },
+  {
+    id: "run-admission-gate-evaluation-preview",
+    label: "Athena can preview run admission gate evaluation",
+    summary:
+      "Athena can review operator approval, manual confirmation, kill switch, audit, server-only adapter, prompt review, privacy, cost/rate/timeout, idempotency, single-run lock, dry-run review, acceptance matrix, expiry, and revocation gates as held preview-only records.",
+  },
+  {
+    id: "admission-ticket-preview",
+    label: "Athena can preview admission ticket posture",
+    summary:
+      "Athena can show preview-only ticket records with ticket state not issued, admission token not issued, admission lease not created, deterministic preview idempotency keys, and blocked queue/worker/job posture.",
+  },
+  {
+    id: "admission-blocker-recovery-preview",
+    label: "Athena can preview admission blockers and recovery",
+    summary:
+      "Athena can review preview-only admission blockers, manual recovery actions, retry-disabled posture, fallback-disabled posture, and no-execution/no-persistence safeguards before any backend recovery flow exists.",
+  },
+  {
     id: "readiness-review",
     label: "Athena can review readiness and blockers",
     summary:
@@ -2256,10 +2295,10 @@ export const ATHENA_CURRENT_CAPABILITIES = [
 
 export const ATHENA_FUTURE_CAPABILITIES = [
   {
-    id: "manual-gated-provider-run-admission-next",
-    label: "Manual gated model provider run admission preview comes next",
+    id: "run-admission-review-recovery-next",
+    label: "Model provider run admission review and recovery preview comes next",
     summary:
-      "The next likely batch is 4874-4905 - Manual Gated Model Provider Run Admission Preview.",
+      "The next likely batch is 4906-4937 - Model Provider Run Admission Review and Recovery Preview.",
   },
   {
     id: "dry-run-reviews-stay-static",
@@ -3191,12 +3230,14 @@ export const ATHENA_AUDIT_MEMORY_PREVIEW_ITEMS:
 // The next likely Athena batch is 4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory.
 
 export const ATHENA_COMMAND_CENTER_MODEL = {
-  batch: ATHENA_MODEL_PROVIDER_APPROVAL_PACKET_RUN_INTENT_PREVIEW_BATCH,
-  highestDetectedPhase: ATHENA_MODEL_PROVIDER_APPROVAL_PACKET_RUN_INTENT_PREVIEW_PHASE,
-  latestCompletedBatch: ATHENA_MODEL_PROVIDER_APPROVAL_PACKET_RUN_INTENT_PREVIEW_BATCH,
-  previousCompletedBatch: ATHENA_MODEL_ROUTING_PROVIDER_SELECTION_PREVIEW_BATCH,
+  batch: ATHENA_MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_BATCH,
+  highestDetectedPhase:
+    ATHENA_MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_PHASE,
+  latestCompletedBatch:
+    ATHENA_MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_BATCH,
+  previousCompletedBatch: ATHENA_MODEL_PROVIDER_APPROVAL_PACKET_RUN_INTENT_PREVIEW_BATCH,
   nextLikelyBatch:
-    ATHENA_NEXT_MANUAL_GATED_MODEL_PROVIDER_RUN_ADMISSION_PREVIEW_BATCH,
+    ATHENA_NEXT_MODEL_PROVIDER_RUN_ADMISSION_REVIEW_RECOVERY_PREVIEW_BATCH,
   identity: ATHENA_CONTROL_PLANE_IDENTITY,
   chat: ATHENA_CHAT_PLACEHOLDER_MODEL,
   productUx: ATHENA_PRODUCT_UX_POLISH_MODEL,

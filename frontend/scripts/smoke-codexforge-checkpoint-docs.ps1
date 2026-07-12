@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 4873) {
-  throw "[FAIL] Highest detected phase expected 4873 found $highestPhase"
+if ($highestPhase -ne 4905) {
+  throw "[FAIL] Highest detected phase expected 4905 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "4874-4905 - Manual Gated Model Provider Run Admission Preview"',
+  "Phase 4905 Manual Gated Model Provider Run Admission Preview",
+  "smoke-codexforge-manual-gated-model-provider-run-admission-preview-mega-batch.ps1",
   'currentReleaseGateBatch = "4842-4873 - Model Provider Approval Packet and Run Intent Preview"',
   "Phase 4777 Manual Gated Model Adapter Dry-Run Harness",
   "Phase 4809 Model Adapter Dry-Run Result Review and Recovery",
@@ -96,6 +99,22 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+  "Current checkpoint: Highest detected phase: 4905. Latest completed batch: 4874-4905 - Manual Gated Model Provider Run Admission Preview. Previous completed batch: 4842-4873 - Model Provider Approval Packet and Run Intent Preview.",
+  "Highest detected phase: 4905",
+  "Latest completed batch: 4874-4905 - Manual Gated Model Provider Run Admission Preview",
+  "Previous completed batch: 4842-4873 - Model Provider Approval Packet and Run Intent Preview",
+  "Next likely batch: 4906-4937 - Model Provider Run Admission Review and Recovery Preview",
+  "manual gated model provider run admission preview only",
+  "run admission is preview-only",
+  "run admission state is not admitted",
+  "admission decision is held",
+  "admission token is not issued",
+  "admission lease is not created",
+  "admission ticket is preview-only",
+  "gate evaluation is preview-only",
+  "admission blockers are preview-only",
+  "recovery is manual review only",
+  "run admission review and recovery preview next",
   "Current checkpoint: Highest detected phase: 4873. Latest completed batch: 4842-4873 - Model Provider Approval Packet and Run Intent Preview. Previous completed batch: 4810-4841 - Athena Model Routing and Provider Selection Preview.",
   "Highest detected phase: 4873",
   "Latest completed batch: 4842-4873 - Model Provider Approval Packet and Run Intent Preview",

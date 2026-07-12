@@ -227,12 +227,18 @@ export function JarvisUnifiedProductPanel(
                 provider selection is static preview only. Athena can now
                 preview model provider approval packets. Athena can now preview
                 run intents for selected model routes. approval packet is
-                preview-only. run intent is preview-only. manual gated run
-                admission preview comes next. no model calls yet. no prompt
-                sending. no provider SDKs imported. Plugin/provider execution
-                remains blocked until approvals and backend gates are satisfied.
-                Manual/provider execution stays backend-only. No autonomous
-                execution yet.
+                preview-only. run intent is preview-only. Athena can now
+                preview manual gated model provider run admission. run
+                admission is preview-only. run admission state is not admitted.
+                admission decision is held. admission token is not issued.
+                admission lease is not created. manual gated run admission
+                preview comes next from the approval packet layer. run
+                admission review and recovery preview comes next. no model
+                calls yet. no prompt sending. no provider SDKs imported.
+                Plugin/provider execution remains blocked until approvals and
+                backend gates are satisfied. queue, worker, and job execution
+                remain blocked. Manual/provider execution stays backend-only.
+                No autonomous execution yet.
               </p>
               {/* Historical smoke marker preserved for prior batch coverage:
                   Athena model routing and provider selection preview comes next. */}
@@ -318,12 +324,18 @@ export function JarvisUnifiedProductPanel(
                 <p className={styles.railBody}>
                   Athena can now preview run intents for selected model routes.
                   approval packet is preview-only. run intent is preview-only.
-                  manual gated run admission preview comes next.
+                  Athena can now preview manual gated model provider run
+                  admission. run admission is preview-only. run admission
+                  state is not admitted. admission token is not issued.
+                  admission lease is not created. manual gated run admission
+                  preview comes next from the approval packet layer. run
+                  admission review and recovery preview comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
                   imported. Plugin/provider execution remains blocked until
-                  approvals and backend gates are satisfied.
+                  approvals and backend gates are satisfied. queue, worker, and
+                  job execution remain blocked.
                 </p>
                 {/* Historical smoke marker preserved for prior batch coverage:
                     Athena model routing and provider selection preview comes next. */}
