@@ -92,6 +92,21 @@ import {
   listBackendOwnedModelProviderDryRunRunnerContracts,
 } from "@/lib/codexforge/backend-owned-model-provider-dry-run-runner-contract";
 import {
+  buildDryRunRunnerGateFailureSummary,
+  buildDryRunRunnerRecoverySummary,
+  buildDryRunRunnerReviewSummary,
+  buildSyntheticDryRunRunnerSkeletonChecklist,
+  groupDryRunRunnerReviewsByCapabilityFamily,
+  groupDryRunRunnerReviewsByWorkspaceTarget,
+  listBackendOwnedModelProviderDryRunRunnerReviews,
+  listDryRunRunnerAcceptancePostureRecords,
+  listDryRunRunnerDecisionReviewRecords,
+  listDryRunRunnerGateFailureReviewRecords,
+  listDryRunRunnerRecoveryPlanPreviews,
+  listDryRunRunnerRecoveryReadinessChecklistRecords,
+  listDryRunRunnerReviewAuditSummaries,
+} from "@/lib/codexforge/backend-owned-model-provider-dry-run-runner-review-recovery-preview";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -513,6 +528,49 @@ export function AthenaCommandCenterPanel({
       ),
     },
   ] as const;
+  const backendOwnedDryRunRunnerReviews =
+    listBackendOwnedModelProviderDryRunRunnerReviews();
+  const dryRunRunnerDecisionReviewRecords =
+    listDryRunRunnerDecisionReviewRecords();
+  const dryRunRunnerGateFailureReviewRecords =
+    listDryRunRunnerGateFailureReviewRecords();
+  const dryRunRunnerGateFailureReviewsForDisplay = uniqueRecordsByString(
+    dryRunRunnerGateFailureReviewRecords,
+    (record) => record.failedGateId
+  );
+  const dryRunRunnerRecoveryPlanPreviews =
+    listDryRunRunnerRecoveryPlanPreviews();
+  const dryRunRunnerRecoveryReadinessChecklistRecords =
+    listDryRunRunnerRecoveryReadinessChecklistRecords();
+  const dryRunRunnerReviewAuditSummaries =
+    listDryRunRunnerReviewAuditSummaries();
+  const dryRunRunnerAcceptancePostureRecords =
+    listDryRunRunnerAcceptancePostureRecords();
+  const dryRunRunnerReviewSummary = buildDryRunRunnerReviewSummary();
+  const dryRunRunnerGateFailureSummary = buildDryRunRunnerGateFailureSummary();
+  const dryRunRunnerRecoverySummary = buildDryRunRunnerRecoverySummary();
+  const syntheticDryRunRunnerSkeletonChecklist =
+    buildSyntheticDryRunRunnerSkeletonChecklist();
+  const dryRunRunnerReviewCapabilityGroups =
+    groupDryRunRunnerReviewsByCapabilityFamily();
+  const dryRunRunnerReviewWorkspaceGroups =
+    groupDryRunRunnerReviewsByWorkspaceTarget();
+  const representativeBackendOwnedDryRunRunnerReview =
+    backendOwnedDryRunRunnerReviews[0] ?? null;
+  const representativeDryRunRunnerDecisionReview =
+    dryRunRunnerDecisionReviewRecords[0] ?? null;
+  const representativeDryRunRunnerGateFailureReview =
+    dryRunRunnerGateFailureReviewsForDisplay[0] ?? null;
+  const representativeDryRunRunnerRecoveryPlan =
+    dryRunRunnerRecoveryPlanPreviews[0] ?? null;
+  const representativeDryRunRunnerReviewAuditSummary =
+    dryRunRunnerReviewAuditSummaries[0] ?? null;
+  const representativeDryRunRunnerAcceptancePosture =
+    dryRunRunnerAcceptancePostureRecords[0] ?? null;
+  const blockedDryRunRunnerRecoveryReadinessChecklistRecords =
+    dryRunRunnerRecoveryReadinessChecklistRecords.filter(
+      (record) => record.state === "blocked"
+    );
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -4789,8 +4847,8 @@ export function AthenaCommandCenterPanel({
           not received. admission token is not issued. admission lease is not
           created. provider execution is blocked. queue dispatch is blocked.
           worker dispatch is blocked. job execution is blocked. No prompt
-          sending. No model calls yet. No provider SDKs imported.
-          backend-owned dry-run runner contract comes next.
+          sending. No model calls yet. No provider SDKs imported. Athena can
+          now preview backend-owned model provider dry-run runner contracts.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -4816,7 +4874,8 @@ export function AthenaCommandCenterPanel({
             <p className={styles.railBody}>worker dispatch is blocked</p>
             <p className={styles.railBody}>job execution is blocked</p>
             <p className={styles.railFooter}>
-              backend-owned dry-run runner contract comes next
+              Athena can now preview backend-owned model provider dry-run
+              runner contracts
             </p>
           </article>
           <article className={styles.summaryCard}>
@@ -5512,7 +5571,8 @@ export function AthenaCommandCenterPanel({
           fixture result is not produced. provider execution is blocked. queue
           dispatch is blocked. worker dispatch is blocked. job execution is
           blocked. No prompt sending. No model calls yet. No provider SDKs
-          imported. dry-run runner review and recovery preview comes next.
+          imported. Athena can now preview backend-owned dry-run runner
+          reviews. synthetic dry-run runner skeleton comes next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -5544,7 +5604,7 @@ export function AthenaCommandCenterPanel({
             <p className={styles.railBody}>worker dispatch is blocked</p>
             <p className={styles.railBody}>job execution is blocked</p>
             <p className={styles.railFooter}>
-              dry-run runner review and recovery preview comes next
+              synthetic dry-run runner skeleton comes next
             </p>
           </article>
           <article className={styles.summaryCard}>
@@ -6180,17 +6240,19 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next safe action</p>
                 <h3 className={styles.placeholderTitle}>
-                  Dry-run runner review/recovery is next
+                  Synthetic dry-run runner skeleton comes next
                 </h3>
               </div>
               <span
                 className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
               >
-                {backendDryRunRunnerReadinessSummary.nextLikelyBatch}
+                {commandCenter.nextLikelyBatch}
               </span>
             </div>
             <p className={styles.placeholderSummary}>
-              {backendDryRunRunnerReadinessSummary.nextSafeAction}
+              Athena can now review why the backend-owned dry-run runner remains
+              held. The next safe batch is the synthetic backend-owned dry-run
+              runner skeleton.
             </p>
           </article>
           {representativeBackendDryRunRunnerReadiness ? (
@@ -6269,6 +6331,1058 @@ export function AthenaCommandCenterPanel({
                 {`persistence boundary state: ${record.persistenceBoundaryState}`}
               </p>
               <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned dry-run runner review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Review-only runner posture</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned dry-run runner review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review why the backend-owned dry-run runner is held.
+          dry-run runner review is preview-only. dry-run request is not created.
+          dry-run invocation is not invoked. dry-run execution is not executed.
+          dry-run response is not received. dry-run error is not received.
+          provider response is not received. model output is not generated.
+          fixture result is not produced. provider execution is blocked. queue
+          dispatch is blocked. worker dispatch is blocked. job execution is
+          blocked. No prompt sending. No model calls yet. No provider SDKs
+          imported. synthetic dry-run runner skeleton comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  dry-run runner review is preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${dryRunRunnerReviewSummary.reviewCount} reviews`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {dryRunRunnerReviewSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-dry-run-runner-review-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Batch identity</p>
+                <h3 className={styles.placeholderTitle}>
+                  {dryRunRunnerReviewSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`Phase ${dryRunRunnerReviewSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`Previous completed batch: ${dryRunRunnerReviewSummary.previousCompletedBatch}`}
+            </p>
+            <p className={styles.railBody}>
+              {`Next likely batch: ${dryRunRunnerReviewSummary.nextLikelyBatch}`}
+            </p>
+            <p className={styles.railBody}>
+              {`Decision reviews: ${dryRunRunnerReviewSummary.decisionReviewCount} | Gate failures: ${dryRunRunnerReviewSummary.gateFailureReviewCount}`}
+            </p>
+            <p className={styles.railFooter}>
+              {`Recovery plans: ${dryRunRunnerReviewSummary.recoveryPlanCount} | Acceptance posture records: ${dryRunRunnerReviewSummary.acceptancePostureCount}`}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Capability coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Review lanes by capability family
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${dryRunRunnerReviewCapabilityGroups.length} capability families`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {dryRunRunnerReviewCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-dry-run-runner-review-capability-group",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.reviewCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Workspace coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Review lanes by workspace
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${dryRunRunnerReviewWorkspaceGroups.length} workspace targets`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {dryRunRunnerReviewWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-dry-run-runner-review-workspace-group",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.workspaceTarget} (${group.reviewCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        {representativeBackendOwnedDryRunRunnerReview ? (
+          <div className={styles.summaryGrid}>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeBackendOwnedDryRunRunnerReview.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeBackendOwnedDryRunRunnerReview.reviewPosture}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${representativeBackendOwnedDryRunRunnerReview.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeBackendOwnedDryRunRunnerReview.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeBackendOwnedDryRunRunnerReview.providerSlotLabel}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`source backend dry-run runner contract reference: ${representativeBackendOwnedDryRunRunnerReview.sourceBackendDryRunRunnerContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source dry-run request contract reference: ${representativeBackendOwnedDryRunRunnerReview.sourceDryRunRequestContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source dry-run response contract reference: ${representativeBackendOwnedDryRunRunnerReview.sourceDryRunResponseContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source dry-run error contract reference: ${representativeBackendOwnedDryRunRunnerReview.sourceDryRunErrorContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source dry-run runner gate schema reference: ${representativeBackendOwnedDryRunRunnerReview.sourceDryRunRunnerGateSchemaReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source dry-run runner readiness matrix reference: ${representativeBackendOwnedDryRunRunnerReview.sourceDryRunRunnerReadinessMatrixReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source dry-run runner handoff preview reference: ${representativeBackendOwnedDryRunRunnerReview.sourceDryRunRunnerHandoffPreviewReference}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeBackendOwnedDryRunRunnerReview.dryRunRunnerContractState,
+                  representativeBackendOwnedDryRunRunnerReview.dryRunRequestState,
+                  representativeBackendOwnedDryRunRunnerReview.dryRunInvocationState,
+                  representativeBackendOwnedDryRunRunnerReview.dryRunExecutionState,
+                  representativeBackendOwnedDryRunRunnerReview.dryRunResponseState,
+                  representativeBackendOwnedDryRunRunnerReview.dryRunErrorState,
+                  representativeBackendOwnedDryRunRunnerReview.providerResponseState,
+                  representativeBackendOwnedDryRunRunnerReview.modelOutputState,
+                  representativeBackendOwnedDryRunRunnerReview.fixtureResultState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      representativeBackendOwnedDryRunRunnerReview.key,
+                      "state",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeBackendOwnedDryRunRunnerReview.nextSyntheticDryRunRunnerSkeletonRequirement
+                }
+              </p>
+            </article>
+            {representativeDryRunRunnerReviewAuditSummary ? (
+              <article className={styles.summaryCard}>
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>Audit summary</p>
+                    <h3 className={styles.placeholderTitle}>
+                      dry-run runner review audit summary is preview-only
+                    </h3>
+                  </div>
+                  <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                    {representativeDryRunRunnerReviewAuditSummary.auditPosture}
+                  </span>
+                </div>
+                <p className={styles.railBody}>
+                  {representativeDryRunRunnerReviewAuditSummary.evidenceSummary}
+                </p>
+                <p className={styles.railBody}>
+                  {`failed gate summary: ${representativeDryRunRunnerReviewAuditSummary.failedGateSummary}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`recovery summary: ${representativeDryRunRunnerReviewAuditSummary.recoverySummary}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`blocked action summary: ${representativeDryRunRunnerReviewAuditSummary.blockedActionSummary}`}
+                </p>
+                <p className={styles.railFooter}>
+                  {
+                    representativeDryRunRunnerReviewAuditSummary.syntheticRunnerSkeletonRequirement
+                  }
+                </p>
+              </article>
+            ) : null}
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Next safe batch</p>
+                  <h3 className={styles.placeholderTitle}>
+                    Synthetic dry-run runner skeleton comes next
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {commandCenter.nextLikelyBatch}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {syntheticDryRunRunnerSkeletonChecklist.map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-dry-run-runner-skeleton-checklist",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+          </div>
+        ) : null}
+        <div className={styles.summaryGrid}>
+          {backendOwnedDryRunRunnerReviews.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Review record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.executionPosture}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>{record.workspaceTarget}</span>
+                <span className={styles.metaPill}>
+                  {record.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>{record.providerSlotLabel}</span>
+              </div>
+              <p className={styles.railBody}>
+                {`dry-run request state: ${record.dryRunRequestState} | dry-run invocation state: ${record.dryRunInvocationState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`dry-run execution state: ${record.dryRunExecutionState} | dry-run response state: ${record.dryRunResponseState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`provider response state: ${record.providerResponseState} | model output state: ${record.modelOutputState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`queue dispatch state: ${record.queueDispatchState} | worker dispatch state: ${record.workerDispatchState} | job execution state: ${record.jobExecutionState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {record.nextSyntheticDryRunRunnerSkeletonRequirement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Dry-run runner decision review">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held decision posture</p>
+            <h2 className={styles.panelTitle}>Dry-run runner decision review</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Held / not executable
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          decision state: held / not executable. runner reason summary. top
+          blocking gates. top missing evidence. operator review notes. manual
+          recovery requirement. backend skeleton dependency. next safe action.
+          explicit no-runner-invocation-no-execution statement.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Decision posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  decision state: held / not executable
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${dryRunRunnerDecisionReviewRecords.length} decision reviews`}
+              </span>
+            </div>
+            <p className={styles.railBody}>runner reason summary</p>
+            <p className={styles.railBody}>top blocking gates</p>
+            <p className={styles.railBody}>top missing evidence</p>
+            <p className={styles.railBody}>operator review notes</p>
+            <p className={styles.railBody}>manual recovery requirement</p>
+            <p className={styles.railBody}>backend skeleton dependency</p>
+            <p className={styles.railBody}>next safe action</p>
+            <p className={styles.railFooter}>
+              explicit no-runner-invocation-no-execution statement
+            </p>
+          </article>
+          {representativeDryRunRunnerDecisionReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative decision</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeDryRunRunnerDecisionReview.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeDryRunRunnerDecisionReview.decisionState}
+                </span>
+              </div>
+              <p className={styles.railBody}>runner reason summary</p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerDecisionReview.runnerReasonSummary}
+              </p>
+              <p className={styles.railBody}>top blocking gates</p>
+              <div className={styles.workspaceMeta}>
+                {representativeDryRunRunnerDecisionReview.topBlockingGates.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeDryRunRunnerDecisionReview.key,
+                        "top-gate",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railBody}>top missing evidence</p>
+              <div className={styles.workspaceMeta}>
+                {representativeDryRunRunnerDecisionReview.topMissingEvidence.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeDryRunRunnerDecisionReview.key,
+                        "missing-evidence",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railBody}>operator review notes</p>
+              <div className={styles.workspaceMeta}>
+                {representativeDryRunRunnerDecisionReview.operatorReviewNotes.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeDryRunRunnerDecisionReview.key,
+                        "operator-note",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railBody}>manual recovery requirement</p>
+              <p className={styles.railBody}>
+                {
+                  representativeDryRunRunnerDecisionReview.manualRecoveryRequirement
+                }
+              </p>
+              <p className={styles.railBody}>backend skeleton dependency</p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerDecisionReview.backendSkeletonDependency}
+              </p>
+              <p className={styles.railBody}>next safe action</p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerDecisionReview.nextSafeAction}
+              </p>
+              <p className={styles.railBody}>
+                explicit no-runner-invocation-no-execution statement
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeDryRunRunnerDecisionReview.explicitNoRunnerInvocationNoExecutionStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {dryRunRunnerDecisionReviewRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Decision record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.workspaceTarget}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.runnerReasonSummary}</p>
+              <div className={styles.workspaceMeta}>
+                {record.topBlockingGates.map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(record.key, "top-gate", index, item)}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>{record.manualRecoveryRequirement}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Dry-run runner gate failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked gate posture</p>
+            <h2 className={styles.panelTitle}>
+              Dry-run runner gate failure review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Blocked by default
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          backend admission contract gate failure. admission token gate
+          failure. admission lease gate failure. operator approval gate failure.
+          manual confirmation gate failure. kill switch gate failure. audit
+          gate failure. server-only boundary gate failure. opaque credential
+          gate failure. prompt payload review gate failure. privacy/redaction
+          gate failure. cost/rate/timeout gate failure. dry-run
+          request/response/error contract gate failure. runner invocation gate
+          failure. provider adapter boundary gate failure. queue/worker/job
+          gates blocked. persistence gate failure.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate failure coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  dry-run runner gate failure review is preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${dryRunRunnerGateFailureSummary.uniqueFailedGateCount} unique failed gates`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {dryRunRunnerGateFailureSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-dry-run-runner-gate-failure-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Severity mix</p>
+                <h3 className={styles.placeholderTitle}>Held gate profile</h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${dryRunRunnerGateFailureSummary.gateFailureReviewCount} total records`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`critical gate failures: ${dryRunRunnerGateFailureSummary.criticalGateCount}`}
+            </p>
+            <p className={styles.railBody}>
+              {`high gate failures: ${dryRunRunnerGateFailureSummary.highGateCount}`}
+            </p>
+            <p className={styles.railBody}>
+              {`medium gate failures: ${dryRunRunnerGateFailureSummary.mediumGateCount}`}
+            </p>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${dryRunRunnerGateFailureSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          {representativeDryRunRunnerGateFailureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative failure</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeDryRunRunnerGateFailureReview.failedGateLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeDryRunRunnerGateFailureReview.gateState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerGateFailureReview.operatorFacingExplanation}
+              </p>
+              <p className={styles.railBody}>
+                {`required evidence to unblock: ${representativeDryRunRunnerGateFailureReview.requiredEvidenceToUnblock}`}
+              </p>
+              <p className={styles.railBody}>
+                {`required recovery action: ${representativeDryRunRunnerGateFailureReview.requiredRecoveryAction}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeDryRunRunnerGateFailureReview.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {dryRunRunnerGateFailureReviewsForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate failure record</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.failedGateLabel}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${
+                    record.severity === "critical"
+                      ? styles.metricStateBlocked
+                      : styles.metricStateApproval
+                  }`}
+                >
+                  {record.severity}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.gateState}</p>
+              <p className={styles.railBody}>
+                {record.operatorFacingExplanation}
+              </p>
+              <p className={styles.railBody}>
+                {record.requiredRecoveryAction}
+              </p>
+              <p className={styles.railFooter}>
+                {record.explicitNoGatePassStatement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Dry-run runner recovery plan">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Manual recovery posture</p>
+            <h2 className={styles.panelTitle}>Dry-run runner recovery plan</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Manual review only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          recovery is manual review only. retry disabled. fallback disabled.
+          runner contract incomplete recovery. dry-run request not created
+          recovery. runner invocation not invoked recovery. dry-run execution
+          not executed recovery. provider response not received recovery. model
+          output not generated recovery. fixture result not produced recovery.
+          queue/worker/job blocked recovery. persistence recovery. synthetic
+          dry-run runner skeleton comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Recovery posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  recovery is manual review only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${dryRunRunnerRecoverySummary.recoveryPlanCount} recovery plans`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {dryRunRunnerRecoverySummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-dry-run-runner-recovery-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  current blocked posture
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${dryRunRunnerRecoverySummary.blockedChecklistCount} blocked checklist items`}
+              </span>
+            </div>
+            <p className={styles.railBody}>retry disabled</p>
+            <p className={styles.railBody}>fallback disabled</p>
+            <p className={styles.railBody}>
+              {`acceptance posture records: ${dryRunRunnerRecoverySummary.acceptancePostureCount}`}
+            </p>
+            <p className={styles.railFooter}>
+              {dryRunRunnerRecoverySummary.nextSafeAction}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next batch checklist</p>
+                <h3 className={styles.placeholderTitle}>
+                  Synthetic dry-run runner skeleton comes next
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {dryRunRunnerRecoverySummary.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticDryRunRunnerSkeletonChecklist.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-dry-run-runner-recovery-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        {representativeDryRunRunnerRecoveryPlan ? (
+          <div className={styles.summaryGrid}>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative recovery</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeDryRunRunnerRecoveryPlan.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeDryRunRunnerRecoveryPlan.recoveryPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerRecoveryPlan.runnerContractIncompleteRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerRecoveryPlan.dryRunRequestNotCreatedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerRecoveryPlan.runnerInvocationNotInvokedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerRecoveryPlan.dryRunExecutionNotExecutedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerRecoveryPlan.providerResponseNotReceivedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerRecoveryPlan.modelOutputNotGeneratedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerRecoveryPlan.fixtureResultNotProducedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerRecoveryPlan.queueDispatchBlockedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerRecoveryPlan.workerDispatchBlockedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {representativeDryRunRunnerRecoveryPlan.jobExecutionBlockedRecovery}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeDryRunRunnerRecoveryPlan.explicitNoRetryNoFallbackNoExecutionStatement
+                }
+              </p>
+            </article>
+          </div>
+        ) : null}
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Dry-run runner recovery readiness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Compact readiness view</p>
+            <h2 className={styles.panelTitle}>
+              Dry-run runner recovery readiness
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only checklist
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          dry-run runner recovery readiness is preview-only. checklist records
+          stay compact. current blocked posture remains visible. synthetic
+          dry-run runner skeleton comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Checklist counts</p>
+                <h3 className={styles.placeholderTitle}>
+                  Recovery readiness checklist records
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${dryRunRunnerRecoveryReadinessChecklistRecords.length} checklist records`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`blocked posture: ${blockedDryRunRunnerRecoveryReadinessChecklistRecords.length} records`}
+            </p>
+            <p className={styles.railBody}>
+              {`manual review required: ${
+                dryRunRunnerRecoveryReadinessChecklistRecords.filter(
+                  (record) => record.state === "manual review required"
+                ).length
+              } records`}
+            </p>
+            <p className={styles.railBody}>
+              {`backend future required: ${
+                dryRunRunnerRecoveryReadinessChecklistRecords.filter(
+                  (record) => record.state === "backend future required"
+                ).length
+              } records`}
+            </p>
+            <p className={styles.railFooter}>current blocked posture</p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Current posture</p>
+                <h3 className={styles.placeholderTitle}>preview-only</h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {commandCenter.nextLikelyBatch}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              queue dispatch still blocked. worker dispatch still blocked. job
+              execution still blocked. persistence still blocked.
+            </p>
+            <p className={styles.railFooter}>
+              provider adapter boundary still blocked
+            </p>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {dryRunRunnerRecoveryReadinessChecklistRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Checklist record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${
+                    record.state === "blocked"
+                      ? styles.metricStateBlocked
+                      : record.state === "manual review required"
+                        ? styles.metricStateApproval
+                        : styles.metricStateSecondary
+                  }`}
+                >
+                  {record.state}
+                </span>
+              </div>
+              <p className={styles.railBody}>{`severity: ${record.severity}`}</p>
+              <p className={styles.railBody}>
+                {`evidence required: ${record.evidenceRequired}`}
+              </p>
+              <p className={styles.railBody}>
+                {`recovery action: ${record.recoveryAction}`}
+              </p>
+              <p className={styles.railBody}>{`owner: ${record.owner}`}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Dry-run runner acceptance posture"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance remains blocked</p>
+            <h2 className={styles.panelTitle}>
+              Dry-run runner acceptance posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not accepted / preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          acceptance state: not accepted / preview-only. acceptance blockers.
+          safety blockers. privacy blockers. cost/rate blockers. audit
+          blockers. approval blockers. runner blockers. queue/worker/job
+          blockers. persistence blockers.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Acceptance posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  acceptance state: not accepted / preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${dryRunRunnerAcceptancePostureRecords.length} posture records`}
+              </span>
+            </div>
+            <p className={styles.railBody}>acceptance blockers</p>
+            <p className={styles.railBody}>safety blockers</p>
+            <p className={styles.railBody}>privacy blockers</p>
+            <p className={styles.railBody}>cost/rate blockers</p>
+            <p className={styles.railBody}>audit blockers</p>
+            <p className={styles.railBody}>approval blockers</p>
+            <p className={styles.railBody}>runner blockers</p>
+            <p className={styles.railBody}>queue/worker/job blockers</p>
+            <p className={styles.railFooter}>persistence blockers</p>
+          </article>
+          {representativeDryRunRunnerAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeDryRunRunnerAcceptancePosture.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeDryRunRunnerAcceptancePosture.acceptanceState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeDryRunRunnerAcceptancePosture.acceptanceBlockers.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeDryRunRunnerAcceptancePosture.key,
+                        "acceptance-blocker",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeDryRunRunnerAcceptancePosture.safetyBlockers.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeDryRunRunnerAcceptancePosture.key,
+                        "safety-blocker",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeDryRunRunnerAcceptancePosture.privacyBlockers.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeDryRunRunnerAcceptancePosture.key,
+                        "privacy-blocker",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeDryRunRunnerAcceptancePosture.explicitNoAcceptanceNoExecutionStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {dryRunRunnerAcceptancePostureRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Acceptance record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.workspaceTarget}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {record.runnerBlockers.map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      record.key,
+                      "runner-blocker",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {record.queueWorkerJobBlockers.map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      record.key,
+                      "dispatch-blocker",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>{record.nextSafeAction}</p>
+              <p className={styles.railFooter}>
+                {record.explicitNoAcceptanceNoExecutionStatement}
+              </p>
             </article>
           ))}
         </div>
