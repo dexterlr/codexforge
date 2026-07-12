@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 4809) {
-  throw "[FAIL] Highest detected phase expected 4809 found $highestPhase"
+if ($highestPhase -ne 4841) {
+  throw "[FAIL] Highest detected phase expected 4841 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,28 +82,27 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "4778-4809 - Model Adapter Dry-Run Result Review and Recovery"',
+  'currentReleaseGateBatch = "4810-4841 - Athena Model Routing and Provider Selection Preview"',
   "Phase 4777 Manual Gated Model Adapter Dry-Run Harness",
   "Phase 4809 Model Adapter Dry-Run Result Review and Recovery",
+  "Phase 4841 Athena Model Routing and Provider Selection Preview",
   "smoke-codexforge-manual-gated-model-adapter-dry-run-harness-mega-batch.ps1",
-  "smoke-codexforge-model-adapter-dry-run-result-review-recovery-mega-batch.ps1"
+  "smoke-codexforge-model-adapter-dry-run-result-review-recovery-mega-batch.ps1",
+  "smoke-codexforge-athena-model-routing-provider-selection-preview-mega-batch.ps1"
 )) {
   Assert-Contains $allSmoke $needle "all-smoke contains $needle"
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 4809. Latest completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery. Previous completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness.",
-  "Highest detected phase: 4809. Latest completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery. Previous completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness. /jarvis remains Athena Command Center",
-  "Latest completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery",
-  "Previous completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness",
-  "Next likely batch: 4810-4841 - Athena Model Routing and Provider Selection Preview",
-  "model adapter dry-run result review and recovery only",
-  "dry-run result review is fixture-only",
-  "quality review is static preview only",
-  "safety review is static preview only",
-  "redaction review is static preview only",
-  "recovery is manual review only",
-  "dry-run acceptance matrix is preview-only",
+  "Current checkpoint: Highest detected phase: 4841. Latest completed batch: 4810-4841 - Athena Model Routing and Provider Selection Preview. Previous completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery.",
+  "Latest completed batch: 4810-4841 - Athena Model Routing and Provider Selection Preview",
+  "Previous completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery",
+  "Next likely batch: 4842-4873 - Model Provider Approval Packet and Run Intent Preview",
+  "Athena model routing and provider selection preview only",
+  "routing is preview-only",
+  "provider selection is static preview only",
+  "model routing chains are preview-only",
+  "provider selection blockers are preview-only",
   "no prompt sending",
   "no LLM/model calls",
   "no frontend provider call",
@@ -132,7 +131,9 @@ foreach ($needle in @(
   "audit required",
   "opaque credential references only",
   "no plaintext secrets",
-  "Athena model routing and provider selection preview next"
+  "model provider approval packet and run intent preview next",
+  "Current checkpoint: Highest detected phase: 4809. Latest completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery. Previous completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness.",
+  "Next likely batch: 4810-4841 - Athena Model Routing and Provider Selection Preview"
 )) {
   Assert-Contains $docsCombined $needle "checkpoint docs contain $needle"
 }

@@ -11,6 +11,17 @@ import {
   listModelProviderSlots,
 } from "@/lib/codexforge/ai-provider-registry";
 import {
+  buildBlockedProviderSelectionSummary,
+  buildModelRoutingChainSummary,
+  buildProviderSelectionSummary,
+  groupRoutingPreviewsByCapabilityFamily,
+  groupRoutingPreviewsByWorkspaceTarget,
+  listAthenaModelRoutingPreviews,
+  listModelRoutingChainPreviews,
+  listProviderSelectionBlockerMatrix,
+  listProviderSelectionRationales,
+} from "@/lib/codexforge/athena-model-routing-provider-selection-preview";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -135,6 +146,15 @@ export function AthenaCommandCenterPanel({
   const representativeSafetyReview = safetyReviews[0] ?? null;
   const representativeRecoveryPlan = recoveryPlanPreviews[0] ?? null;
   const representativeAcceptanceMatrix = acceptanceMatrixRecords[0] ?? null;
+  const routingPreviews = listAthenaModelRoutingPreviews();
+  const routingPreviewCapabilityGroups = groupRoutingPreviewsByCapabilityFamily();
+  const routingPreviewWorkspaceGroups = groupRoutingPreviewsByWorkspaceTarget();
+  const providerSelectionSummary = buildProviderSelectionSummary();
+  const providerSelectionRationales = listProviderSelectionRationales();
+  const modelRoutingChains = listModelRoutingChainPreviews();
+  const modelRoutingChainSummary = buildModelRoutingChainSummary();
+  const providerSelectionBlockers = listProviderSelectionBlockerMatrix();
+  const blockedProviderSelectionSummary = buildBlockedProviderSelectionSummary();
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -1958,6 +1978,331 @@ export function AthenaCommandCenterPanel({
               </p>
             </article>
           ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Athena model routing preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Athena / Jarvis Model Gateway</p>
+            <h2 className={styles.panelTitle}>Athena model routing preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview model capability routing. routing is preview-only.
+          provider selection is static preview only. No model calls yet. No
+          prompt sending. No provider SDKs imported. provider execution is
+          blocked. server-only adapters required. dry-run result review
+          required. approval packet and run intent preview comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Routing posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {providerSelectionSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`Phase ${providerSelectionSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              Source: Athena / Jarvis Model Gateway. routing preview version:
+              athena-model-routing-preview-v1.
+            </p>
+            <div className={styles.workspaceMeta}>
+              {providerSelectionSummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+            <div className={styles.workspaceMeta}>
+              <span className={styles.metaPill}>
+                {`Routing previews: ${providerSelectionSummary.routingPreviewCount}`}
+              </span>
+              <span className={styles.metaPill}>
+                {`Capability groups: ${routingPreviewCapabilityGroups.length}`}
+              </span>
+              <span className={styles.metaPill}>
+                {`Workspace targets: ${routingPreviewWorkspaceGroups.length}`}
+              </span>
+            </div>
+          </article>
+          {routingPreviews.map((preview) => (
+            <article key={preview.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>{preview.operatorGoalLabel}</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {preview.operatorRequestPhrase}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {preview.currentState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {preview.normalizedObjective}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {preview.selectedCapabilityFamilies.map((family) => (
+                  <span key={family.id} className={styles.metaPill}>
+                    {family.label}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {preview.candidateProviderSlots.map((slot) => (
+                  <span key={slot.id} className={styles.blockedPill}>
+                    {slot.label}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>{preview.blockedDefaultReason}</p>
+              <p className={styles.railFooter}>{preview.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Provider selection rationale">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Static provider decision records</p>
+            <h2 className={styles.panelTitle}>Provider selection rationale</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Not connected
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          operator request. normalized objective. selected capability families.
+          candidate provider slots. preferred provider slot label. backup
+          provider slot label. local/private alternative. selection rationale.
+          blocked selection reason. next safe action.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Rationale posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {providerSelectionSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`Rationales: ${providerSelectionSummary.rationaleCount}`}
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              Preferred slot labels stay static preview only. No live provider is
+              selected. current state: preview-only / not connected.
+            </p>
+            <div className={styles.workspaceMeta}>
+              <span className={styles.metaPill}>
+                preferred provider slot label
+              </span>
+              <span className={styles.metaPill}>backup provider slot label</span>
+              <span className={styles.metaPill}>local/private alternative</span>
+            </div>
+          </article>
+          {providerSelectionRationales.map((rationale) => (
+            <article key={rationale.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Operator request</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {rationale.operatorRequestPhrase}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {rationale.currentState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {rationale.normalizedObjective}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {rationale.selectedCapabilityFamilies.map((family) => (
+                  <span key={family.id} className={styles.metaPill}>
+                    {family.label}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {rationale.candidateProviderSlots.map((slot) => (
+                  <span key={slot.id} className={styles.blockedPill}>
+                    {slot.label}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>
+                {`preferred provider slot label: ${rationale.preferredProviderSlotLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`backup provider slot label: ${rationale.backupProviderSlotLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`local/private alternative: ${rationale.localPrivateAlternativeLabel}`}
+              </p>
+              <p className={styles.railBody}>{rationale.selectionRationale}</p>
+              <p className={styles.railBody}>{rationale.blockedSelectionReason}</p>
+              <p className={styles.railFooter}>{rationale.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Model routing chain preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Multi-step static routing</p>
+            <h2 className={styles.panelTitle}>Model routing chain preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Blocked/default
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          product video routing chain. website build routing chain. avatar
+          presenter routing chain. audit review routing chain. local/private
+          routing chain. every step is blocked/default. every step requires
+          server-only adapters, approval, audit, and dry-run review.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Chain posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {modelRoutingChainSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`Chains: ${modelRoutingChainSummary.chainCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {modelRoutingChainSummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Step count: ${modelRoutingChainSummary.stepCount}`}
+            </p>
+          </article>
+          {modelRoutingChains.map((chain) => (
+            <article key={chain.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Routing chain</p>
+                  <h3 className={styles.placeholderTitle}>{chain.chainLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {chain.workspaceTarget}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {chain.blockedDefaultReason}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {chain.orderedCapabilitySteps.map((step) => (
+                  <span key={step.id} className={styles.metaPill}>
+                    {step.label}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {chain.orderedCapabilitySteps.map((step) => (
+                  <span key={`${chain.key}:${step.id}`} className={styles.blockedPill}>
+                    {`${step.label}: ${step.serverOnlyAdapterRequirement}, ${step.approvalRequirement}, ${step.auditRequirement}, ${step.dryRunReviewRequirement}`}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>{chain.noExecutionStatement}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Provider selection blockers">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked selection matrix</p>
+            <h2 className={styles.panelTitle}>Provider selection blockers</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Recovery required
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          blocker matrix entries and recovery actions stay compact, visible, and
+          preview-only while provider execution is blocked by default.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Blocker posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {blockedProviderSelectionSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Blockers: ${blockedProviderSelectionSummary.blockerCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {blockedProviderSelectionSummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Critical: ${blockedProviderSelectionSummary.criticalBlockerCount} | High: ${blockedProviderSelectionSummary.highBlockerCount}`}
+            </p>
+          </article>
+          {providerSelectionBlockers.map((blocker) => (
+            <article key={blocker.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Blocker</p>
+                  <h3 className={styles.placeholderTitle}>{blocker.blockerId}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {blocker.severity}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {blocker.operatorFacingExplanation}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {blocker.affectedCapabilityFamilies.map((family) => (
+                  <span key={family.id} className={styles.metaPill}>
+                    {family.label}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {blocker.affectedWorkspaceTargets.map((target) => (
+                  <span key={`${blocker.key}:${target}`} className={styles.blockedPill}>
+                    {target}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>{blocker.requiredRecoveryAction}</p>
+              <p className={styles.railFooter}>{blocker.nextSafeAction}</p>
+            </article>
+          ))}
         </div>
       </section>
 
