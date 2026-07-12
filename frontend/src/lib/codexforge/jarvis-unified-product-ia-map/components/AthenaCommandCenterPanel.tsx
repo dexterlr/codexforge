@@ -32,6 +32,18 @@ import {
   listManualDryRunGateChecklist,
   listManualGatedModelAdapterDryRunScenarios,
 } from "@/lib/codexforge/manual-gated-model-adapter-dry-run-harness";
+import {
+  buildDryRunAcceptanceSummary,
+  buildDryRunRecoverySummary,
+  buildDryRunResultReviewSummary,
+  groupResultReviewsByCapabilityFamily,
+  groupResultReviewsByWorkspaceTarget,
+  listDryRunAcceptanceMatrixRecords,
+  listDryRunQualityReviews,
+  listDryRunRecoveryPlanPreviews,
+  listDryRunSafetyRedactionReviews,
+  listModelAdapterDryRunResultReviews,
+} from "@/lib/codexforge/model-adapter-dry-run-result-review-recovery";
 import styles from "./JarvisUnifiedProductShell.module.css";
 import {
   buildAuditRequirementsSummary,
@@ -103,11 +115,26 @@ export function AthenaCommandCenterPanel({
   const dryRunFixtureResultPreviews = listDryRunFixtureResultPreviews();
   const dryRunDenialFailurePreviews = listDryRunDenialFailurePreviews();
   const manualDryRunGateChecklist = listManualDryRunGateChecklist();
+  const resultReviewSummary = buildDryRunResultReviewSummary();
+  const recoverySummary = buildDryRunRecoverySummary();
+  const acceptanceSummary = buildDryRunAcceptanceSummary();
+  const resultReviews = listModelAdapterDryRunResultReviews();
+  const qualityReviews = listDryRunQualityReviews();
+  const safetyReviews = listDryRunSafetyRedactionReviews();
+  const recoveryPlanPreviews = listDryRunRecoveryPlanPreviews();
+  const acceptanceMatrixRecords = listDryRunAcceptanceMatrixRecords();
+  const resultReviewCapabilityGroups = groupResultReviewsByCapabilityFamily();
+  const resultReviewWorkspaceGroups = groupResultReviewsByWorkspaceTarget();
   const representativeDryRunRequestPacket = dryRunRequestPacketPreviews[0] ?? null;
   const representativeDryRunFixtureResult =
     dryRunFixtureResultPreviews[0] ?? null;
   const representativeDryRunDenialFailure =
     dryRunDenialFailurePreviews[0] ?? null;
+  const representativeResultReview = resultReviews[0] ?? null;
+  const representativeQualityReview = qualityReviews[0] ?? null;
+  const representativeSafetyReview = safetyReviews[0] ?? null;
+  const representativeRecoveryPlan = recoveryPlanPreviews[0] ?? null;
+  const representativeAcceptanceMatrix = acceptanceMatrixRecords[0] ?? null;
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -331,17 +358,17 @@ export function AthenaCommandCenterPanel({
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Next review work</p>
+                <p className={styles.panelEyebrow}>Next routing preview</p>
                 <h3 className={styles.placeholderTitle}>
                   {commandCenter.nextLikelyBatch}
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
-                Review/recovery next
+                Routing preview next
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
+              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -613,7 +640,7 @@ export function AthenaCommandCenterPanel({
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Current dry-run checkpoint</p>
+                <p className={styles.panelEyebrow}>Previous dry-run checkpoint</p>
                 <h3 className={styles.placeholderTitle}>
                   {dryRunReadinessSummary.latestCompletedBatch}
                 </h3>
@@ -623,7 +650,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
+              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -820,7 +847,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Blocked posture</p>
                 <h3 className={styles.placeholderTitle}>
-                  What review and recovery work comes next
+                  What model routing and provider selection preview comes next
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -831,7 +858,7 @@ export function AthenaCommandCenterPanel({
               {blockedProviderExecutionSummary.summary}
             </p>
             <div className={styles.workspaceMeta}>
-              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
+              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
                 <span key={item} className={styles.metaPill}>
                   {item}
                 </span>
@@ -959,7 +986,7 @@ export function AthenaCommandCenterPanel({
               {`Next likely batch: ${commandCenter.nextLikelyBatch}`}
             </p>
             <div className={styles.workspaceMeta}>
-              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
+              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
                 <span key={item} className={styles.metaPill}>
                   {item}
                 </span>
@@ -1200,9 +1227,9 @@ export function AthenaCommandCenterPanel({
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Next review step</p>
+                <p className={styles.panelEyebrow}>Next routing preview</p>
                 <h3 className={styles.placeholderTitle}>
-                  dry-run result review and recovery comes next
+                  Athena model routing and provider selection preview comes next
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -1210,7 +1237,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
+              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -1256,7 +1283,8 @@ export function AthenaCommandCenterPanel({
           manual confirmation is required. kill switch required. audit required.
           server-only adapter contract required. No model calls yet. No prompt
           sending. No provider SDKs imported. provider execution is blocked.
-          dry-run result review and recovery comes next.
+          Model adapter dry-run result review is now available. Athena model
+          routing and provider selection preview comes next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -1317,15 +1345,15 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>What comes next</p>
                 <h3 className={styles.placeholderTitle}>
-                  {dryRunReadinessSummary.nextLikelyBatch}
+                  {commandCenter.nextLikelyBatch}
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
-                Review/recovery next
+                Routing preview next
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextResultReviewRecoveryChecklist.map((item) => (
+              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -1598,6 +1626,338 @@ export function AthenaCommandCenterPanel({
               <p className={styles.placeholderSummary}>{gate.summary}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Model adapter dry-run result review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Fixture-only review layer</p>
+            <h2 className={styles.panelTitle}>
+              Model adapter dry-run result review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Fixture-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          dry-run result review is fixture-only. provider response is not
+          received. model output is not generated. static fixture result only.
+          manual operator review required. audit required. result persistence
+          not implemented. No model calls yet. No prompt sending. provider
+          execution is blocked.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Current review checkpoint</p>
+                <h3 className={styles.placeholderTitle}>
+                  {resultReviewSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {`Phase ${resultReviewSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {`Result reviews: ${resultReviewSummary.resultReviewCount}. Quality reviews: ${resultReviewSummary.qualityReviewCount}. Safety reviews: ${resultReviewSummary.safetyReviewCount}.`}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {resultReviewSummary.summaryLines.slice(0, 8).map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeResultReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeResultReview.capabilityFamilyLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeResultReview.reviewMode}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {representativeResultReview.noLiveResultReviewStatement}
+              </p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${representativeResultReview.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeResultReview.manualOperatorReviewRequired}
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeResultReview.operatorApprovalRequired}
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeResultReview.auditRequired}
+                </span>
+              </div>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Capability families and workspace targets stay grouped
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Typed only
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {resultReviewCapabilityGroups.map((group) => (
+                <span key={group.capabilityFamilyLabel} className={styles.blockedPill}>
+                  {`${group.capabilityFamilyLabel}: ${group.reviewCount}`}
+                </span>
+              ))}
+            </div>
+            <div className={styles.workspaceMeta}>
+              {resultReviewWorkspaceGroups.map((group) => (
+                <span key={group.workspaceTarget} className={styles.metaPill}>
+                  {`${group.workspaceTarget}: ${group.reviewCount}`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Dry-run quality and safety review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Static review evidence</p>
+            <h2 className={styles.panelTitle}>
+              Dry-run quality and safety review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            Static preview only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          quality review is static preview only. safety review is static preview
+          only. redaction review is static preview only. prompt leakage check.
+          credential leakage check. token leakage check. unsafe output check.
+          operator review required.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeQualityReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Quality posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeQualityReview.capabilityFamilyLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                  {representativeQualityReview.qualityState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {representativeQualityReview.noLiveQualityResultStatement}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {representativeQualityReview.acceptanceCriteria.map((item) => (
+                  <span key={item} className={styles.metaPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ) : null}
+          {representativeSafetyReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Safety posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSafetyReview.capabilityFamilyLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                  {representativeSafetyReview.safetyReviewState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {representativeSafetyReview.noLiveSafetyResultStatement}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {[
+                  "prompt leakage check",
+                  "credential leakage check",
+                  "token leakage check",
+                  "unsafe output check",
+                  representativeSafetyReview.requiredOperatorReview,
+                ].map((item) => (
+                  <span key={item} className={styles.blockedPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Dry-run recovery plan">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Manual recovery only</p>
+            <h2 className={styles.panelTitle}>Dry-run recovery plan</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            No retry / fallback
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          retry disabled. fallback disabled. recovery is manual review only.
+          missing approval recovery. kill switch blocked recovery. missing
+          opaque credential recovery. provider not called recovery. result not
+          generated recovery. next safe batch recommendation.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Recovery posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {recoverySummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {recoverySummary.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {recoverySummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative recovery</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeRecoveryPlan.capabilityFamilyLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  {representativeRecoveryPlan.recoveryPosture}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {representativeRecoveryPlan.noRetryNoFallbackNoExecutionStatement}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeRecoveryPlan.missingApprovalRecovery,
+                  representativeRecoveryPlan.killSwitchBlockedRecovery,
+                  representativeRecoveryPlan.missingOpaqueCredentialRecovery,
+                ].map((item) => (
+                  <span key={item} className={styles.blockedPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Dry-run acceptance matrix">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked / fixture-only criteria</p>
+            <h2 className={styles.panelTitle}>Dry-run acceptance matrix</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Pending manual review
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          acceptance, blocker, safety, privacy, cost/rate, audit, approval,
+          server-only, and credential isolation criteria stay visible together
+          while the current state remains blocked / fixture-only.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Acceptance posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {acceptanceSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`Records: ${acceptanceSummary.acceptanceMatrixCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {acceptanceSummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeAcceptanceMatrix ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative matrix</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAcceptanceMatrix.capabilityFamilyLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  {representativeAcceptanceMatrix.operatorDecisionState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  "acceptance criteria",
+                  "blocker criteria",
+                  "safety criteria",
+                  "privacy criteria",
+                  "cost/rate criteria",
+                  "audit criteria",
+                  "approval criteria",
+                  "server-only criteria",
+                  "credential isolation criteria",
+                ].map((item) => (
+                  <span key={item} className={styles.blockedPill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>
+                {representativeAcceptanceMatrix.nextAction}
+              </p>
+            </article>
+          ) : null}
         </div>
       </section>
 
@@ -2340,7 +2700,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next result review and recovery checklist
+                  Next model routing and provider selection checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -2348,7 +2708,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {productUx.nextResultReviewRecoveryChecklist.map((item) => (
+              {productUx.nextModelRoutingProviderSelectionChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>

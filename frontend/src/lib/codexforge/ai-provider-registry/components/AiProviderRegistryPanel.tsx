@@ -24,7 +24,6 @@ import {
 import {
   buildBlockedDryRunExecutionSummary,
   buildDryRunReadinessSummary,
-  buildNextResultReviewAndRecoveryChecklist,
   getManualGatedModelAdapterDryRunHarness,
   listDryRunDenialFailurePreviews,
   listDryRunFixtureResultPreviews,
@@ -32,6 +31,17 @@ import {
   listManualDryRunGateChecklist,
   listManualGatedModelAdapterDryRunScenarios,
 } from "@/lib/codexforge/manual-gated-model-adapter-dry-run-harness";
+import {
+  buildDryRunAcceptanceSummary,
+  buildDryRunRecoverySummary,
+  buildDryRunResultReviewSummary,
+  buildNextModelRoutingAndProviderSelectionChecklist,
+  listDryRunAcceptanceMatrixRecords,
+  listDryRunQualityReviews,
+  listDryRunRecoveryPlanPreviews,
+  listDryRunSafetyRedactionReviews,
+  listModelAdapterDryRunResultReviews,
+} from "@/lib/codexforge/model-adapter-dry-run-result-review-recovery";
 
 export function AiProviderRegistryPanel() {
   const providerSlots = listModelProviderSlots();
@@ -56,13 +66,21 @@ export function AiProviderRegistryPanel() {
   const dryRunHarness = getManualGatedModelAdapterDryRunHarness();
   const dryRunReadinessSummary = buildDryRunReadinessSummary();
   const blockedDryRunExecutionSummary = buildBlockedDryRunExecutionSummary();
-  const nextResultReviewRecoveryChecklist =
-    buildNextResultReviewAndRecoveryChecklist();
+  const resultReviewSummary = buildDryRunResultReviewSummary();
+  const recoverySummary = buildDryRunRecoverySummary();
+  const acceptanceSummary = buildDryRunAcceptanceSummary();
+  const nextModelRoutingProviderSelectionChecklist =
+    buildNextModelRoutingAndProviderSelectionChecklist();
   const dryRunScenarios = listManualGatedModelAdapterDryRunScenarios();
   const dryRunRequestPacketPreviews = listDryRunRequestPacketPreviews();
   const dryRunFixtureResultPreviews = listDryRunFixtureResultPreviews();
   const dryRunDenialFailurePreviews = listDryRunDenialFailurePreviews();
   const manualDryRunGateChecklist = listManualDryRunGateChecklist();
+  const resultReviews = listModelAdapterDryRunResultReviews();
+  const qualityReviews = listDryRunQualityReviews();
+  const safetyReviews = listDryRunSafetyRedactionReviews();
+  const recoveryPlanPreviews = listDryRunRecoveryPlanPreviews();
+  const acceptanceMatrixRecords = listDryRunAcceptanceMatrixRecords();
   const representativeRequestEnvelope = adapterRequestEnvelopePreviews[0] ?? null;
   const representativeResponseEnvelope =
     adapterResponseEnvelopePreviews[0] ?? null;
@@ -72,6 +90,11 @@ export function AiProviderRegistryPanel() {
     dryRunFixtureResultPreviews[0] ?? null;
   const representativeDryRunDenialFailure =
     dryRunDenialFailurePreviews[0] ?? null;
+  const representativeResultReview = resultReviews[0] ?? null;
+  const representativeQualityReview = qualityReviews[0] ?? null;
+  const representativeSafetyReview = safetyReviews[0] ?? null;
+  const representativeRecoveryPlan = recoveryPlanPreviews[0] ?? null;
+  const representativeAcceptanceMatrix = acceptanceMatrixRecords[0] ?? null;
   const providerLabelsById = new Map(
     providerSlots.map((slot) => [slot.id, slot.label] as const)
   );
@@ -79,22 +102,26 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Provider slots are registry-only dry-run harness is fixture-only No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked Dry-run result review and recovery comes next"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only Provider response is not received Model output is not generated No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked Athena model routing and provider selection preview comes next"
     >
       <section style={hero}>
         <div>
-          <span style={eyebrow}>{`Phase ${dryRunHarness.highestDetectedPhase}`}</span>
+          <span style={eyebrow}>{`Phase ${resultReviewSummary.highestDetectedPhase}`}</span>
           <h1 style={headline}>AI model provider registry</h1>
           <p style={lede}>
             Athena can see model provider slots, capability families, workspace
             targets, blocked routing posture, server-only model adapter
-            contracts, adapter envelope previews, and the live fixture-only
-            manual gated dry-run harness previews. Provider slots are
-            registry-only. Capability matrix is preview-only. Server-only model
-            adapter contracts are preview-only. Adapter envelope preview is
-            preview-only. dry-run harness is fixture-only. No model calls yet.
-            No prompt sending. No provider SDKs imported. Frontend provider
-            calls are blocked. Dry-run result review and recovery comes next.
+            contracts, adapter envelope previews, the current fixture-only manual gated
+            dry-run harness previews, and fixture-only dry-run result review
+            and recovery previews. Provider slots are registry-only.
+            Capability matrix is preview-only. Server-only model adapter
+            contracts are preview-only. Adapter envelope preview is
+            preview-only. dry-run review is fixture-only. quality review is
+            static preview only. safety review is static preview only.
+            redaction review is static preview only. No model calls yet. No
+            prompt sending. No provider SDKs imported. Frontend provider calls
+            are blocked. Athena model routing and provider selection preview
+            comes next.
           </p>
         </div>
         <div style={linkRow}>
@@ -163,19 +190,21 @@ export function AiProviderRegistryPanel() {
           </article>
           <article style={card}>
             <span style={tag}>Next batch</span>
-            <h3 style={cardTitle}>Manual gated model adapter dry-run harness</h3>
+            <h3 style={cardTitle}>
+              Model adapter dry-run result review and recovery
+            </h3>
             <p style={copy}>
-              Fixture-only dry-run harness previews are now visible in the
-              provider hub.
+              Fixture-only dry-run result review and recovery previews are now
+              visible in the provider hub.
             </p>
             <div style={list}>
               {[
-                "dry-run harness is fixture-only",
-                "manual operator approval is required",
-                "manual confirmation is required",
-                "kill switch required",
-                "audit required",
-                "Dry-run result review and recovery comes next",
+                "dry-run result review is fixture-only",
+                "quality review is static preview only",
+                "safety review is static preview only",
+                "recovery is manual review only",
+                "dry-run acceptance matrix is preview-only",
+                "Athena model routing and provider selection preview comes next",
               ].map((item) => (
                 <span key={item} style={pill}>
                   {item}
@@ -333,8 +362,9 @@ export function AiProviderRegistryPanel() {
           server-only. Frontend provider calls are blocked. No model calls yet.
           No prompt sending. No provider SDKs imported. Opaque credential
           references only. Manual gated model adapter dry-run harness is now
-          available as a fixture-only preview. Dry-run result review and
-          recovery comes next.
+          available as a fixture-only preview. Model adapter dry-run result
+          review is now available. Athena model routing and provider selection
+          preview comes next.
         </p>
         <div style={grid}>
           <article style={card}>
@@ -366,13 +396,13 @@ export function AiProviderRegistryPanel() {
           <article style={card}>
             <span style={tag}>Next likely batch</span>
             <h3 style={cardTitle}>
-              Manual gated model adapter dry-run harness
+              Model adapter dry-run result review and recovery
             </h3>
             <p style={copy}>
-              {`Latest completed batch: ${adapterReadinessSummary.latestCompletedBatch}. Previous completed batch: ${adapterReadinessSummary.previousCompletedBatch}.`}
+              {`Latest completed batch: ${resultReviewSummary.latestCompletedBatch}. Previous completed batch: ${resultReviewSummary.previousCompletedBatch}.`}
             </p>
             <div style={list}>
-              {nextResultReviewRecoveryChecklist.map((item) => (
+              {nextModelRoutingProviderSelectionChecklist.map((item) => (
                 <span key={item} style={pill}>
                   {item}
                 </span>
@@ -524,7 +554,9 @@ export function AiProviderRegistryPanel() {
           required. manual confirmation is required. kill switch required.
           audit required. server-only adapter contract required. No model calls
           yet. No prompt sending. No provider SDKs imported. Provider
-          execution is blocked. Dry-run result review and recovery comes next.
+          execution is blocked. Model adapter dry-run result review is now
+          available. Athena model routing and provider selection preview comes
+          next.
         </p>
         <div style={grid}>
           <article style={card}>
@@ -562,9 +594,9 @@ export function AiProviderRegistryPanel() {
           </article>
           <article style={card}>
             <span style={tag}>What comes next</span>
-            <h3 style={cardTitle}>{dryRunReadinessSummary.nextLikelyBatch}</h3>
+            <h3 style={cardTitle}>{resultReviewSummary.nextLikelyBatch}</h3>
             <div style={list}>
-              {nextResultReviewRecoveryChecklist.map((item) => (
+              {nextModelRoutingProviderSelectionChecklist.map((item) => (
                 <span key={item} style={pill}>
                   {item}
                 </span>
@@ -718,8 +750,227 @@ export function AiProviderRegistryPanel() {
         </div>
       </section>
 
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Fixture-only review layer</span>
+            <h2 style={sectionTitle}>Model adapter dry-run result review</h2>
+          </div>
+          <span style={sectionBadge}>Fixture-only</span>
+        </div>
+        <p style={copy}>
+          dry-run result review is fixture-only. Provider response is not
+          received. Model output is not generated. static fixture result only.
+          manual operator review required. audit required. result persistence
+          not implemented. No model calls yet. No prompt sending. Provider
+          execution is blocked.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Review checkpoint</span>
+            <h3 style={cardTitle}>{resultReviewSummary.latestCompletedBatch}</h3>
+            <p style={copy}>
+              {`Result reviews: ${resultReviewSummary.resultReviewCount}. Quality reviews: ${resultReviewSummary.qualityReviewCount}. Safety reviews: ${resultReviewSummary.safetyReviewCount}.`}
+            </p>
+            <div style={list}>
+              {resultReviewSummary.summaryLines.slice(0, 8).map((item) => (
+                <span key={item} style={pill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeResultReview ? (
+            <article style={card}>
+              <span style={tag}>Representative review</span>
+              <h3 style={cardTitle}>
+                {representativeResultReview.capabilityFamilyLabel}
+              </h3>
+              <p style={copy}>
+                {representativeResultReview.noLiveResultReviewStatement}
+              </p>
+              <div style={list}>
+                <span style={pill}>
+                  {`Workspace: ${representativeResultReview.workspaceTarget}`}
+                </span>
+                <span style={pill}>
+                  {representativeResultReview.manualOperatorReviewRequired}
+                </span>
+                <span style={pill}>
+                  {representativeResultReview.operatorApprovalRequired}
+                </span>
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Static quality and safety checks</span>
+            <h2 style={sectionTitle}>Dry-run quality and safety review</h2>
+          </div>
+          <span style={sectionBadge}>Static preview only</span>
+        </div>
+        <p style={copy}>
+          quality review is static preview only. safety review is static
+          preview only. redaction review is static preview only. prompt leakage
+          check. credential leakage check. token leakage check. unsafe output
+          check. operator review required.
+        </p>
+        <div style={grid}>
+          {representativeQualityReview ? (
+            <article style={card}>
+              <span style={tag}>Quality posture</span>
+              <h3 style={cardTitle}>
+                {representativeQualityReview.capabilityFamilyLabel}
+              </h3>
+              <p style={copy}>
+                {representativeQualityReview.noLiveQualityResultStatement}
+              </p>
+              <div style={list}>
+                {representativeQualityReview.acceptanceCriteria.map((item) => (
+                  <span key={item} style={pill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ) : null}
+          {representativeSafetyReview ? (
+            <article style={card}>
+              <span style={tag}>Safety posture</span>
+              <h3 style={cardTitle}>
+                {representativeSafetyReview.capabilityFamilyLabel}
+              </h3>
+              <p style={copy}>
+                {representativeSafetyReview.noLiveSafetyResultStatement}
+              </p>
+              <div style={list}>
+                {[
+                  "prompt leakage check",
+                  "credential leakage check",
+                  "token leakage check",
+                  "unsafe output check",
+                  representativeSafetyReview.requiredOperatorReview,
+                ].map((item) => (
+                  <span key={item} style={pill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Manual recovery only</span>
+            <h2 style={sectionTitle}>Dry-run recovery plan</h2>
+          </div>
+          <span style={sectionBadge}>Retry/fallback disabled</span>
+        </div>
+        <p style={copy}>
+          retry disabled. fallback disabled. recovery is manual review only.
+          missing approval recovery. kill switch blocked recovery. missing
+          opaque credential recovery. provider not called recovery. result not
+          generated recovery. next safe batch recommendation.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Recovery posture</span>
+            <h3 style={cardTitle}>{recoverySummary.currentBatch}</h3>
+            <div style={list}>
+              {recoverySummary.summaryLines.map((item) => (
+                <span key={item} style={pill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeRecoveryPlan ? (
+            <article style={card}>
+              <span style={tag}>Representative recovery</span>
+              <h3 style={cardTitle}>
+                {representativeRecoveryPlan.capabilityFamilyLabel}
+              </h3>
+              <p style={copy}>
+                {representativeRecoveryPlan.noRetryNoFallbackNoExecutionStatement}
+              </p>
+              <div style={list}>
+                {[
+                  representativeRecoveryPlan.missingApprovalRecovery,
+                  representativeRecoveryPlan.killSwitchBlockedRecovery,
+                  representativeRecoveryPlan.missingOpaqueCredentialRecovery,
+                ].map((item) => (
+                  <span key={item} style={pill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Blocked / fixture-only criteria</span>
+            <h2 style={sectionTitle}>Dry-run acceptance matrix</h2>
+          </div>
+          <span style={sectionBadge}>Pending manual review</span>
+        </div>
+        <p style={copy}>
+          acceptance, blocker, safety, privacy, cost/rate, audit, approval,
+          server-only, and credential isolation criteria stay visible together.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Acceptance posture</span>
+            <h3 style={cardTitle}>{acceptanceSummary.currentBatch}</h3>
+            <div style={list}>
+              {acceptanceSummary.summaryLines.map((item) => (
+                <span key={item} style={pill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeAcceptanceMatrix ? (
+            <article style={card}>
+              <span style={tag}>Representative matrix</span>
+              <h3 style={cardTitle}>
+                {representativeAcceptanceMatrix.capabilityFamilyLabel}
+              </h3>
+              <p style={copy}>{representativeAcceptanceMatrix.nextAction}</p>
+              <div style={list}>
+                {[
+                  "acceptance criteria",
+                  "blocker criteria",
+                  "safety criteria",
+                  "privacy criteria",
+                  "cost/rate criteria",
+                  "audit criteria",
+                  "approval criteria",
+                  "server-only criteria",
+                  "credential isolation criteria",
+                ].map((item) => (
+                  <span key={item} style={pill}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section style={notice}>
-        {nextResultReviewRecoveryChecklist.map((item) => (
+        {nextModelRoutingProviderSelectionChecklist.map((item) => (
           <p key={item}>{item}</p>
         ))}
       </section>

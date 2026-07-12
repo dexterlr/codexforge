@@ -352,6 +352,13 @@ foreach ($needle in @(
   "manual provider trial capture/UX review in a future batch"
 )) {
   Assert-Contains $docsSource $needle "checkpoint docs contain $needle"
+}
+
+foreach ($needle in @(
+  "Highest detected phase: 4809",
+  "Latest completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery",
+  "Next likely batch: 4810-4841 - Athena Model Routing and Provider Selection Preview"
+)) {
   Assert-Contains $checkpointSmokeSource $needle "checkpoint docs smoke expects $needle"
 }
 

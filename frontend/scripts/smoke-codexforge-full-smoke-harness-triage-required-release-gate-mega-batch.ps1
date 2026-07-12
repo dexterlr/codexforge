@@ -128,6 +128,9 @@ $frontEndSourceFiles = Get-SourceFiles @(
 $frontEndSource = Get-CombinedFileText $frontEndSourceFiles
 
 foreach ($needle in @(
+  "4778-4809 - Model Adapter Dry-Run Result Review and Recovery",
+  "Phase 4809 Model Adapter Dry-Run Result Review and Recovery",
+  "smoke-codexforge-model-adapter-dry-run-result-review-recovery-mega-batch.ps1",
   "4746-4777 - Manual Gated Model Adapter Dry-Run Harness",
   "Phase 4777 Manual Gated Model Adapter Dry-Run Harness",
   "smoke-codexforge-manual-gated-model-adapter-dry-run-harness-mega-batch.ps1",
@@ -184,15 +187,22 @@ foreach ($needle in @(
 Assert-NotContains $archiveDocSource "archived historical smokes passed" "archive doc does not claim archived historical smokes passed"
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 4777. Latest completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness. Previous completed batch: 4714-4745 - Server-Only Model Adapter Contracts.",
-  "Highest detected phase: 4777. Latest completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness. Previous completed batch: 4714-4745 - Server-Only Model Adapter Contracts. Next likely batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery.",
-  "Latest completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness",
-  "Previous completed batch: 4714-4745 - Server-Only Model Adapter Contracts",
-  "Next likely batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery",
+  "Current checkpoint: Highest detected phase: 4809. Latest completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery. Previous completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness.",
+  "Highest detected phase: 4809. Latest completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery. Previous completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness. Next likely batch: 4810-4841 - Athena Model Routing and Provider Selection Preview.",
+  "Latest completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery",
+  "Previous completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness",
+  "Next likely batch: 4810-4841 - Athena Model Routing and Provider Selection Preview",
   "current required release gate only",
   "historical phase smokes are preserved as archive evidence",
   "historical phase smokes are non-gating by default",
   "no historical pass claim",
+  "model adapter dry-run result review and recovery only",
+  "dry-run result review is fixture-only",
+  "quality review is static preview only",
+  "safety review is static preview only",
+  "redaction review is static preview only",
+  "recovery is manual review only",
+  "dry-run acceptance matrix is preview-only",
   "manual gated model adapter dry-run harness only",
   "dry-run harness is fixture-only",
   "dry-run packets are preview-only",
@@ -208,6 +218,8 @@ foreach ($needle in @(
   "no queue dispatch",
   "no worker dispatch",
   "no job execution",
+  "no retry execution",
+  "no fallback execution",
   "no result persistence",
   "no audit persistence",
   "no approval persistence",
@@ -222,7 +234,7 @@ foreach ($needle in @(
   "audit required",
   "opaque credential references only",
   "no plaintext secrets",
-  "dry-run result review and recovery next"
+  "Athena model routing and provider selection preview next"
 )) {
   Assert-Contains $docsSource $needle "checkpoint docs or runbook contain $needle"
 }

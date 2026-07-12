@@ -195,8 +195,9 @@ foreach ($needle in @(
   "Athena can now preview AI model provider slots",
   "Athena can now preview server-only model adapter contracts",
   "Athena can now preview manual gated model adapter dry-runs",
+  "Athena can now preview model adapter dry-run result reviews",
   "dry-run harness is fixture-only",
-  "dry-run result review and recovery comes next",
+  "Athena model routing and provider selection preview comes next",
   "no model calls yet",
   "no prompt sending"
 )) {
@@ -229,7 +230,8 @@ foreach ($needle in @(
   "Define request and response envelopes for each provider family.",
   "Keep credentials as opaque backend-only references.",
   "Manual gated model adapter dry-run harness",
-  "Dry-run result review and recovery comes next"
+  "Athena can now preview model adapter dry-run result reviews",
+  "Athena model routing and provider selection preview comes next"
 )) {
   Assert-Contains $typedModelNormalized $needle "typed model/data contains $needle"
 }
@@ -243,10 +245,10 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Highest detected phase: 4777",
-  "Latest completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness",
-  "Previous completed batch: 4714-4745 - Server-Only Model Adapter Contracts",
-  "Next likely batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery"
+  "Highest detected phase: 4809",
+  "Latest completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery",
+  "Previous completed batch: 4746-4777 - Manual Gated Model Adapter Dry-Run Harness",
+  "Next likely batch: 4810-4841 - Athena Model Routing and Provider Selection Preview"
 )) {
   Assert-Contains $checkpointNormalized $needle "checkpoint current doc contains $needle"
   Assert-Contains $runbookNormalized $needle "runbook contains $needle"

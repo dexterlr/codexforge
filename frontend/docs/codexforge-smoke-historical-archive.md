@@ -2,7 +2,7 @@
 
 ## Current Release Gate
 Current release gate is `scripts/smoke-codexforge-all.ps1`.
-It runs only the current required release smokes and current critical regressions for `4746-4777 - Manual Gated Model Adapter Dry-Run Harness`.
+It runs only the current required release smokes and current critical regressions for `4778-4809 - Model Adapter Dry-Run Result Review and Recovery`.
 
 ## Historical Archive
 Historical phase smokes are preserved as evidence.
@@ -36,4 +36,4 @@ Backend-only execution path required.
 Operator approval required.
 Kill switch required.
 Audit required.
-Next likely batch: `4746-4777 - Manual Gated Model Adapter Dry-Run Harness`.
+Next likely batch: `4810-4841 - Athena Model Routing and Provider Selection Preview`.

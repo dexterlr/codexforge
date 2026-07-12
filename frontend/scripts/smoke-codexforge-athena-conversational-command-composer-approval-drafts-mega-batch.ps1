@@ -171,7 +171,7 @@ foreach ($needle in @(
   "buildAthenaMissingInformationPrompts",
   "buildAthenaApprovalDraftPreview",
   "buildAthenaBlockedComposerSummary",
-  "nextResultReviewRecoveryChecklist",
+  "nextModelRoutingProviderSelectionChecklist",
   'commandComposerVersion: "athena-conversational-command-composer-v1"',
   'composerMode: "preview-only"',
   'approvalDraftVersion: "athena-approval-draft-preview-v1"',
@@ -228,7 +228,7 @@ foreach ($needle in @(
   "Athena can draft structured commands",
   "Athena can draft approval packets",
   "Athena can now preview AI model provider slots",
-  "server-only adapter contracts come next",
+  "Athena model routing and provider selection preview comes next",
   "Plugin execution remains blocked until approvals and backend gates are satisfied"
 )) {
   Assert-Contains $homeNormalized $needle "home source contains $needle"

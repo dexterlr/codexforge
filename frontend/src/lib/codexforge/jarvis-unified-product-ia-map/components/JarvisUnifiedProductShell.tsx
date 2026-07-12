@@ -219,10 +219,13 @@ export function JarvisUnifiedProductPanel(
                 preview server-only model adapter contracts. model adapter
                 envelopes are preview-only. Athena can now preview manual gated
                 model adapter dry-runs. dry-run harness is fixture-only. model
-                adapter dry-run packets are preview-only. dry-run result review
-                and recovery comes next. no model calls yet. no prompt
-                sending. no provider SDKs imported. Plugin/provider execution
-                remains blocked until approvals and backend gates are
+                adapter dry-run packets are preview-only. Athena can now
+                preview model adapter dry-run result reviews. dry-run review is
+                fixture-only. quality, safety, redaction, recovery, and
+                acceptance reviews are static previews. Athena model routing
+                and provider selection preview comes next. no model calls yet.
+                no prompt sending. no provider SDKs imported. Plugin/provider
+                execution remains blocked until approvals and backend gates are
                 satisfied. Manual/provider execution stays backend-only. No
                 autonomous execution yet.
               </p>
@@ -290,8 +293,15 @@ export function JarvisUnifiedProductPanel(
                   Athena can now preview manual gated model adapter dry-runs.
                 </p>
                 <p className={styles.railBody}>
-                  dry-run harness is fixture-only. dry-run result review and
-                  recovery comes next.
+                  Athena can now preview model adapter dry-run result reviews.
+                </p>
+                <p className={styles.railBody}>
+                  dry-run review is fixture-only. quality, safety, redaction,
+                  recovery, and acceptance reviews are static previews.
+                </p>
+                <p className={styles.railBody}>
+                  Athena model routing and provider selection preview comes
+                  next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs

@@ -382,9 +382,9 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 4425. Latest completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review. Previous completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial.",
-  "Highest detected phase: 4425. Latest completed batch: 4394-4425 - Jarvis Video First Manual Provider Trial Result Capture and UX Review. Previous completed batch: 4362-4393 - Jarvis Video First Real Provider Adapter Wiring and Manual Gated Trial.",
-  "Next likely batch: 4426-4457 - Jarvis Video Manual Provider Trial Execution Enablement"
+  "Highest detected phase: 4809",
+  "Latest completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery",
+  "Next likely batch: 4810-4841 - Athena Model Routing and Provider Selection Preview"
 )) {
   Assert-Contains $checkpointSmokeSource $needle "checkpoint docs smoke expects $needle"
 }
