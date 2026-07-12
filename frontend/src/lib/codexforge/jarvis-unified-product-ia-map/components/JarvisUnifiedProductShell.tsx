@@ -224,15 +224,20 @@ export function JarvisUnifiedProductPanel(
                 fixture-only. quality, safety, redaction, recovery, and
                 acceptance reviews are static previews. Athena can now preview
                 model routing and provider selection. routing is preview-only.
-                provider selection is static preview only. model provider
-                approval packet and run intent preview comes next. no model
-                calls yet. no prompt sending. no provider SDKs imported.
-                Plugin/provider execution remains blocked until approvals and
-                backend gates are satisfied. Manual/provider execution stays
-                backend-only. No autonomous execution yet.
+                provider selection is static preview only. Athena can now
+                preview model provider approval packets. Athena can now preview
+                run intents for selected model routes. approval packet is
+                preview-only. run intent is preview-only. manual gated run
+                admission preview comes next. no model calls yet. no prompt
+                sending. no provider SDKs imported. Plugin/provider execution
+                remains blocked until approvals and backend gates are satisfied.
+                Manual/provider execution stays backend-only. No autonomous
+                execution yet.
               </p>
               {/* Historical smoke marker preserved for prior batch coverage:
                   Athena model routing and provider selection preview comes next. */}
+              {/* Historical smoke marker preserved for prior batch coverage:
+                  model provider approval packet and run intent preview comes next. */}
               <div className={styles.workspaceMeta}>
                 {productUx.heroCopy.postureChips.map((item) => (
                   <span key={item} className={styles.blockedPill}>
@@ -308,8 +313,12 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 <p className={styles.railBody}>
                   routing is preview-only. provider selection is static preview
-                  only. model provider approval packet and run intent preview
-                  comes next.
+                  only. Athena can now preview model provider approval packets.
+                </p>
+                <p className={styles.railBody}>
+                  Athena can now preview run intents for selected model routes.
+                  approval packet is preview-only. run intent is preview-only.
+                  manual gated run admission preview comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
@@ -318,6 +327,8 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 {/* Historical smoke marker preserved for prior batch coverage:
                     Athena model routing and provider selection preview comes next. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    model provider approval packet and run intent preview comes next. */}
               </article>
             </div>
           </div>

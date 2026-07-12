@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 4841) {
-  throw "[FAIL] Highest detected phase expected 4841 found $highestPhase"
+if ($highestPhase -ne 4873) {
+  throw "[FAIL] Highest detected phase expected 4873 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,18 +82,33 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "4810-4841 - Athena Model Routing and Provider Selection Preview"',
+  'currentReleaseGateBatch = "4842-4873 - Model Provider Approval Packet and Run Intent Preview"',
   "Phase 4777 Manual Gated Model Adapter Dry-Run Harness",
   "Phase 4809 Model Adapter Dry-Run Result Review and Recovery",
   "Phase 4841 Athena Model Routing and Provider Selection Preview",
+  "Phase 4873 Model Provider Approval Packet and Run Intent Preview",
   "smoke-codexforge-manual-gated-model-adapter-dry-run-harness-mega-batch.ps1",
   "smoke-codexforge-model-adapter-dry-run-result-review-recovery-mega-batch.ps1",
-  "smoke-codexforge-athena-model-routing-provider-selection-preview-mega-batch.ps1"
+  "smoke-codexforge-athena-model-routing-provider-selection-preview-mega-batch.ps1",
+  "smoke-codexforge-model-provider-approval-packet-run-intent-preview-mega-batch.ps1"
 )) {
   Assert-Contains $allSmoke $needle "all-smoke contains $needle"
 }
 
 foreach ($needle in @(
+  "Current checkpoint: Highest detected phase: 4873. Latest completed batch: 4842-4873 - Model Provider Approval Packet and Run Intent Preview. Previous completed batch: 4810-4841 - Athena Model Routing and Provider Selection Preview.",
+  "Highest detected phase: 4873",
+  "Latest completed batch: 4842-4873 - Model Provider Approval Packet and Run Intent Preview",
+  "Previous completed batch: 4810-4841 - Athena Model Routing and Provider Selection Preview",
+  "Next likely batch: 4874-4905 - Manual Gated Model Provider Run Admission Preview",
+  "model provider approval packet and run intent preview only",
+  "approval packet is preview-only",
+  "run intent is preview-only",
+  "approval gates are preview-only",
+  "run intent blockers are preview-only",
+  "approval expiry and revocation are preview-only",
+  "manual gated run admission preview next",
+  "manual gated model provider run admission preview next",
   "Current checkpoint: Highest detected phase: 4841. Latest completed batch: 4810-4841 - Athena Model Routing and Provider Selection Preview. Previous completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery.",
   "Latest completed batch: 4810-4841 - Athena Model Routing and Provider Selection Preview",
   "Previous completed batch: 4778-4809 - Model Adapter Dry-Run Result Review and Recovery",

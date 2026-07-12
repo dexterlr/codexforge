@@ -472,7 +472,7 @@ function Get-CodexForgeCurrentReleaseGateStatusLabel {
   }
 }
 
-$currentReleaseGateBatch = "4810-4841 - Athena Model Routing and Provider Selection Preview"
+$currentReleaseGateBatch = "4842-4873 - Model Provider Approval Packet and Run Intent Preview"
 $currentReleaseGateName = "CodexForge Current Required Release Gate"
 $currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
 $historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
@@ -483,6 +483,8 @@ $historicalArchiveInventoryCommand = "powershell -ExecutionPolicy Bypass -File .
 # 4778-4809 - Model Adapter Dry-Run Result Review and Recovery
 # Historical current release gate assignment marker preserved for historical smoke coverage:
 # currentReleaseGateBatch = "4778-4809 - Model Adapter Dry-Run Result Review and Recovery"
+# Historical current release gate assignment marker preserved for historical smoke coverage:
+# currentReleaseGateBatch = "4810-4841 - Athena Model Routing and Provider Selection Preview"
 # Previous completed batch marker preserved for historical smoke coverage:
 # 4714-4745 - Server-Only Model Adapter Contracts
 $currentReleaseGateScripts = @(
@@ -502,6 +504,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 4777 Manual Gated Model Adapter Dry-Run Harness"; File = "smoke-codexforge-manual-gated-model-adapter-dry-run-harness-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4809 Model Adapter Dry-Run Result Review and Recovery"; File = "smoke-codexforge-model-adapter-dry-run-result-review-recovery-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 4841 Athena Model Routing and Provider Selection Preview"; File = "smoke-codexforge-athena-model-routing-provider-selection-preview-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 4873 Model Provider Approval Packet and Run Intent Preview"; File = "smoke-codexforge-model-provider-approval-packet-run-intent-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }

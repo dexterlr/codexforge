@@ -7,6 +7,7 @@ import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-uni
 // 4490-4521 - Athena Plugin Registry and Command Router
 // 4522-4553 - Athena Approval-Gated Tool Execution Bridge
 // 4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory
+// 4842-4873 - Model Provider Approval Packet and Run Intent Preview
 // Jarvis command center order upgraded
 // normal user path is primary
 export default function JarvisCommandCenterPageClient() {

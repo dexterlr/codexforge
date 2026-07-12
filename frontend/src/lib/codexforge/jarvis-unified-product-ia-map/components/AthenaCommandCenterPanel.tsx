@@ -22,6 +22,19 @@ import {
   listProviderSelectionRationales,
 } from "@/lib/codexforge/athena-model-routing-provider-selection-preview";
 import {
+  buildApprovalPacketSummary,
+  buildNextManualGatedRunAdmissionChecklist,
+  buildRunIntentBlockerSummary,
+  buildRunIntentSummary,
+  groupApprovalPacketsByCapabilityFamily,
+  groupApprovalPacketsByWorkspaceTarget,
+  listApprovalExpiryRevocationPreviews,
+  listApprovalGateChecklistRecords,
+  listModelProviderApprovalPackets,
+  listModelProviderRunIntentPreviews,
+  listRunIntentBlockerMatrix,
+} from "@/lib/codexforge/model-provider-approval-packet-run-intent-preview";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -155,6 +168,25 @@ export function AthenaCommandCenterPanel({
   const modelRoutingChainSummary = buildModelRoutingChainSummary();
   const providerSelectionBlockers = listProviderSelectionBlockerMatrix();
   const blockedProviderSelectionSummary = buildBlockedProviderSelectionSummary();
+  const approvalPackets = listModelProviderApprovalPackets();
+  const runIntentPreviews = listModelProviderRunIntentPreviews();
+  const approvalGateChecklistRecords = listApprovalGateChecklistRecords();
+  const runIntentBlockerMatrix = listRunIntentBlockerMatrix();
+  const approvalExpiryRevocationPreviews =
+    listApprovalExpiryRevocationPreviews();
+  const approvalPacketSummary = buildApprovalPacketSummary();
+  const runIntentSummary = buildRunIntentSummary();
+  const runIntentBlockerSummary = buildRunIntentBlockerSummary();
+  const approvalPacketsByCapabilityFamily =
+    groupApprovalPacketsByCapabilityFamily();
+  const approvalPacketsByWorkspaceTarget =
+    groupApprovalPacketsByWorkspaceTarget();
+  const nextManualGatedRunAdmissionChecklist =
+    buildNextManualGatedRunAdmissionChecklist();
+  const representativeApprovalPacket = approvalPackets[0] ?? null;
+  const representativeRunIntent = runIntentPreviews[0] ?? null;
+  const representativeApprovalExpiryRevocation =
+    approvalExpiryRevocationPreviews[0] ?? null;
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -388,7 +420,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
+              {nextManualGatedRunAdmissionChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -670,7 +702,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
+              {nextManualGatedRunAdmissionChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -867,7 +899,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Blocked posture</p>
                 <h3 className={styles.placeholderTitle}>
-                  What model routing and provider selection preview comes next
+                  What manual gated run admission preview requires
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -878,7 +910,7 @@ export function AthenaCommandCenterPanel({
               {blockedProviderExecutionSummary.summary}
             </p>
             <div className={styles.workspaceMeta}>
-              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
+              {nextManualGatedRunAdmissionChecklist.map((item) => (
                 <span key={item} className={styles.metaPill}>
                   {item}
                 </span>
@@ -1006,7 +1038,7 @@ export function AthenaCommandCenterPanel({
               {`Next likely batch: ${commandCenter.nextLikelyBatch}`}
             </p>
             <div className={styles.workspaceMeta}>
-              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
+              {nextManualGatedRunAdmissionChecklist.map((item) => (
                 <span key={item} className={styles.metaPill}>
                   {item}
                 </span>
@@ -1249,7 +1281,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next routing preview</p>
                 <h3 className={styles.placeholderTitle}>
-                  Athena model routing and provider selection preview comes next
+                  Manual gated model provider run admission preview comes next
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -1257,7 +1289,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
+              {nextManualGatedRunAdmissionChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -1373,7 +1405,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {commandCenter.nextModelRoutingProviderSelectionChecklist.map((item) => (
+              {nextManualGatedRunAdmissionChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>
@@ -2306,6 +2338,521 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Model provider approval packet"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Athena routing follow-up</p>
+            <h2 className={styles.panelTitle}>Model provider approval packet</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can draft model provider approval packets. approval packet is
+          preview-only. operator review only. prompt payload is redacted
+          placeholder only. No prompt sending. No model calls yet. No provider
+          SDKs imported. provider execution is blocked. opaque credential
+          references only. approval expiry and revocation are preview-only.
+          manual gated run admission preview comes next.
+        </p>
+        {/* Historical smoke marker preserved for prior batch coverage:
+            model provider approval packet and run intent preview comes next. */}
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Approval packet posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {approvalPacketSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`Packets: ${approvalPacketSummary.approvalPacketCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {approvalPacketSummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Run intents: ${approvalPacketSummary.runIntentCount} | Checklists: ${approvalPacketSummary.gateChecklistCount} | Blockers: ${approvalPacketSummary.blockerCount}`}
+            </p>
+          </article>
+          {representativeApprovalPacket ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeApprovalPacket.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeApprovalPacket.approvalPosture}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${representativeApprovalPacket.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`selected provider slot label: ${representativeApprovalPacket.selectedProviderSlotLabel}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`backup provider slot label: ${representativeApprovalPacket.backupProviderSlotLabel}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`local/private alternative: ${representativeApprovalPacket.localPrivateAlternativeLabel}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`approval scope summary: ${representativeApprovalPacket.approvalScopeSummary}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approved action summary: ${representativeApprovalPacket.approvedActionSummary}`}
+              </p>
+              <p className={styles.railBody}>
+                {`disallowed action summary: ${representativeApprovalPacket.disallowedActionSummary}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeApprovalPacket.noExecutionStatement}
+              </p>
+            </article>
+          ) : null}
+          {representativeApprovalExpiryRevocation ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval lifecycle</p>
+                  <h3 className={styles.placeholderTitle}>
+                    approval expiry and revocation are preview-only
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                  Preview-only
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`expiry posture: ${representativeApprovalExpiryRevocation.expiryPosture}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`revocation posture: ${representativeApprovalExpiryRevocation.revocationPosture}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`replay prevention posture: ${representativeApprovalExpiryRevocation.replayPreventionPosture}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`operator re-approval requirement: ${representativeApprovalExpiryRevocation.operatorReApprovalRequirement}`}
+              </p>
+              <p className={styles.railBody}>
+                {`stale approval reason examples: ${representativeApprovalExpiryRevocation.staleApprovalReasonExamples.join(" | ")}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeApprovalExpiryRevocation.explicitNoApprovedRunStatement}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Grouped by capability family</p>
+                <h3 className={styles.placeholderTitle}>
+                  Approval packets stay capability-aware
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Visible
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {approvalPacketsByCapabilityFamily.map((group) => (
+                <span
+                  key={group.capabilityFamilyId}
+                  className={styles.metaPill}
+                >{`${group.capabilityFamilyLabel}: ${group.approvalPacketCount}`}</span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Grouped by workspace target</p>
+                <h3 className={styles.placeholderTitle}>
+                  Approval packets stay workspace-specific
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Visible
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {approvalPacketsByWorkspaceTarget.map((group) => (
+                <span
+                  key={group.workspaceTarget}
+                  className={styles.metaPill}
+                >{`${group.workspaceTarget}: ${group.approvalPacketCount}`}</span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>What comes next</p>
+                <h3 className={styles.placeholderTitle}>
+                  {approvalPacketSummary.nextLikelyBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Next likely batch
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {nextManualGatedRunAdmissionChecklist.map((item) => (
+                <article key={item} className={styles.railCard}>
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {approvalPackets.map((packet) => (
+            <article key={packet.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval packet example</p>
+                  <h3 className={styles.placeholderTitle}>{packet.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  {packet.packetMode}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {packet.operatorRequestPhrase}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {packet.selectedCapabilityFamilies.map((family) => (
+                  <span key={`${packet.key}:${family.id}`} className={styles.metaPill}>
+                    {family.label}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.blockedPill}>
+                  {`selected provider slot label: ${packet.selectedProviderSlotLabel}`}
+                </span>
+                <span className={styles.blockedPill}>
+                  {`backup provider slot label: ${packet.backupProviderSlotLabel}`}
+                </span>
+                <span className={styles.blockedPill}>
+                  {`local/private alternative: ${packet.localPrivateAlternativeLabel}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`prompt payload posture: ${packet.promptPayloadPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`prompt transmission state: ${packet.promptTransmissionState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`credential reference posture: ${packet.credentialReferencePosture}`}
+              </p>
+              <p className={styles.railFooter}>
+                {packet.nextManualGatedRunAdmissionRequirement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Run intent preview">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Inert envelope only</p>
+            <h2 className={styles.panelTitle}>Run intent preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not admitted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          run intent is preview-only. run admission state: not admitted.
+          selected capability family, provider slot label, backup provider slot
+          label, and local/private alternative stay visible without sending any
+          prompt. idempotency key posture, replay block posture, single-run
+          lock posture, manual confirmation state, blocked/default reason, and
+          explicit no-execution statement all stay operator-visible.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Run intent posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {runIntentSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Run intents: ${runIntentSummary.runIntentCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {runIntentSummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Workspace targets: ${runIntentSummary.uniqueWorkspaceTargetCount} | Capability families: ${runIntentSummary.uniqueCapabilityFamilyCount}`}
+            </p>
+          </article>
+          {representativeRunIntent ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative run intent</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeRunIntent.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeRunIntent.runAdmissionState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`selected capability family: ${representativeRunIntent.capabilityFamily.label}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`provider slot label: ${representativeRunIntent.providerSlotLabel}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`backup provider slot label: ${representativeRunIntent.backupProviderSlotLabel}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`local/private alternative: ${representativeRunIntent.localPrivateAlternativeLabel}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`idempotency key posture: ${representativeRunIntent.idempotencyKeyPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`replay block posture: ${representativeRunIntent.replayBlockPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`single-run lock posture: ${representativeRunIntent.singleRunLockPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`manual confirmation state: ${representativeRunIntent.manualConfirmationState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`blocked/default reason: ${representativeRunIntent.blockedDefaultReason}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`explicit no-execution statement: ${representativeRunIntent.explicitNoExecutionStatement}`}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Run admission follow-up</p>
+                <h3 className={styles.placeholderTitle}>
+                  {runIntentSummary.nextLikelyBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Next likely batch
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {nextManualGatedRunAdmissionChecklist.map((item) => (
+                <article key={item} className={styles.railCard}>
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {runIntentPreviews.map((runIntent) => (
+            <article key={runIntent.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Run intent example</p>
+                  <h3 className={styles.placeholderTitle}>{runIntent.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {runIntent.runMode}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {runIntent.operatorRequestPhrase}
+              </p>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${runIntent.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`selected capability family: ${runIntent.capabilityFamily.label}`}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.blockedPill}>
+                  {`provider slot label: ${runIntent.providerSlotLabel}`}
+                </span>
+                <span className={styles.blockedPill}>
+                  {`backup provider slot label: ${runIntent.backupProviderSlotLabel}`}
+                </span>
+                <span className={styles.blockedPill}>
+                  {`local/private alternative: ${runIntent.localPrivateAlternativeLabel}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`prompt payload posture: ${runIntent.promptPayloadPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`prompt transmission state: ${runIntent.promptTransmissionState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval reference posture: ${runIntent.approvalReferencePosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit reference posture: ${runIntent.auditReferencePosture}`}
+              </p>
+              <p className={styles.railFooter}>
+                {runIntent.explicitNoExecutionStatement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Approval gate checklist">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Approval-required controls</p>
+            <h2 className={styles.panelTitle}>Approval gate checklist</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Required review
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          approval gates are preview-only. operator approval, manual
+          confirmation, approval scope, approval expiry, approval revocation,
+          kill switch, audit, server-only boundary, no frontend provider call,
+          no provider SDK import in frontend, no prompt sending, opaque
+          credential reference, no plaintext secrets, privacy/redaction,
+          cost/rate/timeout, idempotency/replay block, single-run lock,
+          dry-run result review, acceptance matrix review, manual recovery
+          state, and no persistence until future backend batch remain visible.
+        </p>
+        <div className={styles.summaryGrid}>
+          {approvalGateChecklistRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Checklist item</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  {record.requirementState}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>{record.summary}</p>
+              <p className={styles.railFooter}>{record.nextOperatorAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Run intent blockers">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Compact blocker matrix</p>
+            <h2 className={styles.panelTitle}>Run intent blockers</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Recovery required
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          run intent blockers are preview-only. blocker matrix entries stay
+          compact, provider execution is blocked by default, and each blocker
+          keeps a required recovery action plus the next safe action visible.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Blocker posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {runIntentBlockerSummary.currentBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`Blockers: ${runIntentBlockerSummary.blockerCount}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {runIntentBlockerSummary.summaryLines.map((item) => (
+                <span key={item} className={styles.metaPill}>
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Critical: ${runIntentBlockerSummary.criticalBlockerCount} | High: ${runIntentBlockerSummary.highBlockerCount} | Medium: ${runIntentBlockerSummary.mediumBlockerCount}`}
+            </p>
+          </article>
+          {runIntentBlockerMatrix.map((blocker) => (
+            <article key={blocker.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Blocker</p>
+                  <h3 className={styles.placeholderTitle}>{blocker.blockerId}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {blocker.severity}
+                </span>
+              </div>
+              <p className={styles.placeholderSummary}>
+                {blocker.operatorFacingExplanation}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {blocker.affectedCapabilityFamilies.map((family) => (
+                  <span key={`${blocker.key}:${family.id}`} className={styles.metaPill}>
+                    {family.label}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.workspaceMeta}>
+                {blocker.affectedWorkspaceTargets.map((target) => (
+                  <span key={`${blocker.key}:${target}`} className={styles.blockedPill}>
+                    {target}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>{blocker.requiredRecoveryAction}</p>
+              <p className={styles.railFooter}>{blocker.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <AthenaOperatorStatusPanel
         title="Athena operator status"
         eyebrow="Operator status"
@@ -3045,7 +3592,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next model routing and provider selection checklist
+                  Next manual gated run admission checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -3053,7 +3600,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {productUx.nextModelRoutingProviderSelectionChecklist.map((item) => (
+              {nextManualGatedRunAdmissionChecklist.map((item) => (
                 <article key={item} className={styles.railCard}>
                   <p className={styles.railBody}>{item}</p>
                 </article>

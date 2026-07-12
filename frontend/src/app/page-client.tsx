@@ -6,6 +6,7 @@ import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-uni
 // 4458-4489 - Athena Unified Chat Control Plane Foundation
 // 4490-4521 - Athena Plugin Registry and Command Router
 // 4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory
+// 4842-4873 - Model Provider Approval Packet and Run Intent Preview
 // home product order upgraded
 // normal user path is primary
 // developer diagnostics are secondary
