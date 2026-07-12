@@ -221,12 +221,18 @@ export function JarvisUnifiedProductPanel(
                 response is not received. backend admission request/response/error
                 contracts are preview-only. backend admission gate schema is
                 preview-only. backend contract readiness matrix is preview-only.
-                backend-owned dry-run runner contract comes next. no model
-                calls yet. no prompt sending. no provider SDKs imported.
-                Plugin/provider execution remains blocked until approvals and
-                backend gates are satisfied. queue, worker, and job execution
-                remain blocked. Manual/provider execution stays backend-only.
-                No autonomous execution yet.
+                backend-owned dry-run runner contract comes next. Athena can
+                now preview backend-owned model provider dry-run runner
+                contracts. backend-owned dry-run runner contract is
+                preview-only. runner contract state is draft / preview-only.
+                dry-run request is not created. dry-run invocation is not
+                invoked. dry-run execution is not executed. dry-run runner
+                review and recovery preview comes next. no model calls yet. no
+                prompt sending. no provider SDKs imported. Plugin/provider
+                execution remains blocked until approvals and backend gates are
+                satisfied. queue, worker, and job execution remain blocked.
+                Manual/provider execution stays backend-only. No autonomous
+                execution yet.
               </p>
               {/* Historical smoke marker preserved for prior batch coverage:
                   Athena model routing and provider selection preview comes next. */}
@@ -318,6 +324,28 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 <p className={styles.railBody}>
                   backend-owned dry-run runner contract comes next.
+                </p>
+                <p className={styles.railBody}>
+                  Athena can now preview backend-owned model provider dry-run
+                  runner contracts.
+                </p>
+                <p className={styles.railBody}>
+                  backend-owned dry-run runner contract is preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  runner contract state is draft / preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  dry-run request is not created.
+                </p>
+                <p className={styles.railBody}>
+                  dry-run invocation is not invoked.
+                </p>
+                <p className={styles.railBody}>
+                  dry-run execution is not executed.
+                </p>
+                <p className={styles.railBody}>
+                  dry-run runner review and recovery preview comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs

@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 4969) {
-  throw "[FAIL] Highest detected phase expected 4969 found $highestPhase"
+if ($highestPhase -ne 5001) {
+  throw "[FAIL] Highest detected phase expected 5001 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "4970-5001 - Backend-Owned Model Provider Dry-Run Runner Contract"',
+  "Phase 5001 Backend-Owned Model Provider Dry-Run Runner Contract",
+  "smoke-codexforge-backend-owned-model-provider-dry-run-runner-contract-mega-batch.ps1",
   'currentReleaseGateBatch = "4938-4969 - Backend-Owned Model Provider Run Admission Contract"',
   "Phase 4969 Backend-Owned Model Provider Run Admission Contract",
   "smoke-codexforge-backend-owned-model-provider-run-admission-contract-mega-batch.ps1",
@@ -104,6 +107,26 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+  "Current checkpoint: Highest detected phase: 5001. Latest completed batch: 4970-5001 - Backend-Owned Model Provider Dry-Run Runner Contract. Previous completed batch: 4938-4969 - Backend-Owned Model Provider Run Admission Contract. Next likely batch: 5002-5033 - Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview.",
+  "Highest detected phase: 5001",
+  "Latest completed batch: 4970-5001 - Backend-Owned Model Provider Dry-Run Runner Contract",
+  "Previous completed batch: 4938-4969 - Backend-Owned Model Provider Run Admission Contract",
+  "Next likely batch: 5002-5033 - Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview",
+  "backend-owned model provider dry-run runner contract only",
+  "backend-owned dry-run runner contract is preview-only",
+  "runner contract state is draft / preview-only",
+  "dry-run request is not created",
+  "dry-run invocation is not invoked",
+  "dry-run execution is not executed",
+  "dry-run response is not received",
+  "dry-run error is not received",
+  "provider response is not received",
+  "model output is not generated",
+  "fixture result is not produced",
+  "dry-run runner request/response/error contracts are preview-only",
+  "dry-run runner gate schema is preview-only",
+  "dry-run runner readiness matrix is preview-only",
+  "backend-owned dry-run runner review and recovery preview next",
   "Current checkpoint: Highest detected phase: 4969. Latest completed batch: 4938-4969 - Backend-Owned Model Provider Run Admission Contract. Previous completed batch: 4906-4937 - Model Provider Run Admission Review and Recovery Preview. Next likely batch: 4970-5001 - Backend-Owned Model Provider Dry-Run Runner Contract.",
   "Highest detected phase: 4969",
   "Latest completed batch: 4938-4969 - Backend-Owned Model Provider Run Admission Contract",

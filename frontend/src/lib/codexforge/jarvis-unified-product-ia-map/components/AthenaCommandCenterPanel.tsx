@@ -67,7 +67,6 @@ import {
   buildBackendAdmissionContractSummary,
   buildBackendContractGateSummary,
   buildBackendContractReadinessSummary,
-  buildNextBackendOwnedDryRunRunnerContractChecklist,
   groupBackendContractsByCapabilityFamily,
   groupBackendContractsByWorkspaceTarget,
   listBackendAdmissionErrorContracts,
@@ -77,6 +76,21 @@ import {
   listBackendOwnedContractGateSchemaRecords,
   listBackendOwnedModelProviderRunAdmissionContracts,
 } from "@/lib/codexforge/backend-owned-model-provider-run-admission-contract";
+import {
+  buildBackendDryRunRunnerContractSummary,
+  buildBackendDryRunRunnerGateSummary,
+  buildBackendDryRunRunnerReadinessSummary,
+  buildNextDryRunRunnerReviewAndRecoveryChecklist,
+  groupBackendDryRunRunnerContractsByCapabilityFamily,
+  groupBackendDryRunRunnerContractsByWorkspaceTarget,
+  listBackendDryRunErrorContracts,
+  listBackendDryRunRequestContracts,
+  listBackendDryRunResponseContracts,
+  listBackendDryRunRunnerGateSchemaRecords,
+  listBackendDryRunRunnerHandoffPreviews,
+  listBackendDryRunRunnerReadinessMatrixRecords,
+  listBackendOwnedModelProviderDryRunRunnerContracts,
+} from "@/lib/codexforge/backend-owned-model-provider-dry-run-runner-contract";
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
@@ -376,8 +390,6 @@ export function AthenaCommandCenterPanel({
   const backendContractGateSummary = buildBackendContractGateSummary();
   const backendContractReadinessSummary =
     buildBackendContractReadinessSummary();
-  const nextBackendOwnedDryRunRunnerContractChecklist =
-    buildNextBackendOwnedDryRunRunnerContractChecklist();
   const backendCapabilityGroups = groupBackendContractsByCapabilityFamily();
   const backendWorkspaceGroups = groupBackendContractsByWorkspaceTarget();
   const backendRequestContractsById = new Map(
@@ -422,6 +434,81 @@ export function AthenaCommandCenterPanel({
       owner: "safety review",
       label: "Safety review",
       records: backendContractGateSchemaRecords.filter(
+        (record) => record.owner === "safety review"
+      ),
+    },
+  ] as const;
+  const backendDryRunRunnerContracts =
+    listBackendOwnedModelProviderDryRunRunnerContracts();
+  const backendDryRunRequestContracts = listBackendDryRunRequestContracts();
+  const backendDryRunResponseContracts = listBackendDryRunResponseContracts();
+  const backendDryRunErrorContracts = listBackendDryRunErrorContracts();
+  const backendDryRunRunnerGateSchemaRecords =
+    listBackendDryRunRunnerGateSchemaRecords();
+  const backendDryRunRunnerReadinessMatrixRecords =
+    listBackendDryRunRunnerReadinessMatrixRecords();
+  const backendDryRunRunnerHandoffPreviews =
+    listBackendDryRunRunnerHandoffPreviews();
+  const backendDryRunRunnerContractSummary =
+    buildBackendDryRunRunnerContractSummary();
+  const backendDryRunRunnerGateSummary =
+    buildBackendDryRunRunnerGateSummary();
+  const backendDryRunRunnerReadinessSummary =
+    buildBackendDryRunRunnerReadinessSummary();
+  const nextDryRunRunnerReviewAndRecoveryChecklist =
+    buildNextDryRunRunnerReviewAndRecoveryChecklist();
+  const backendDryRunRunnerCapabilityGroups =
+    groupBackendDryRunRunnerContractsByCapabilityFamily();
+  const backendDryRunRunnerWorkspaceGroups =
+    groupBackendDryRunRunnerContractsByWorkspaceTarget();
+  const backendDryRunRequestContractsById = new Map(
+    backendDryRunRequestContracts.map((record) => [record.id, record] as const)
+  );
+  const backendDryRunResponseContractsById = new Map(
+    backendDryRunResponseContracts.map((record) => [record.id, record] as const)
+  );
+  const backendDryRunErrorContractsById = new Map(
+    backendDryRunErrorContracts.map((record) => [record.id, record] as const)
+  );
+  const backendDryRunRunnerHandoffPreviewsById = new Map(
+    backendDryRunRunnerHandoffPreviews.map((record) => [record.id, record] as const)
+  );
+  const backendDryRunRunnerTripletRecords = backendDryRunRunnerContracts.map(
+    (contract) => ({
+      contract,
+      request: backendDryRunRequestContractsById.get(contract.id) ?? null,
+      response: backendDryRunResponseContractsById.get(contract.id) ?? null,
+      error: backendDryRunErrorContractsById.get(contract.id) ?? null,
+      handoff: backendDryRunRunnerHandoffPreviewsById.get(contract.id) ?? null,
+    })
+  );
+  const representativeBackendDryRunRunnerContract =
+    backendDryRunRunnerContracts[0] ?? null;
+  const representativeBackendDryRunRunnerTriplet =
+    backendDryRunRunnerTripletRecords[0] ?? null;
+  const representativeBackendDryRunRunnerReadiness =
+    backendDryRunRunnerReadinessMatrixRecords[0] ?? null;
+  const representativeBackendDryRunRunnerHandoff =
+    backendDryRunRunnerHandoffPreviews[0] ?? null;
+  const backendDryRunRunnerGateOwnerGroups = [
+    {
+      owner: "backend-owned runner contract",
+      label: "Backend-owned runner contract",
+      records: backendDryRunRunnerGateSchemaRecords.filter(
+        (record) => record.owner === "backend-owned runner contract"
+      ),
+    },
+    {
+      owner: "operator",
+      label: "Operator",
+      records: backendDryRunRunnerGateSchemaRecords.filter(
+        (record) => record.owner === "operator"
+      ),
+    },
+    {
+      owner: "safety review",
+      label: "Safety review",
+      records: backendDryRunRunnerGateSchemaRecords.filter(
         (record) => record.owner === "safety review"
       ),
     },
@@ -5401,6 +5488,792 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned model provider dry-run runner contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Backend-owned runner layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned model provider dry-run runner contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Draft / preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview the backend-owned dry-run runner contract.
+          backend-owned dry-run runner contract is preview-only. runner
+          contract state: draft / preview-only. dry-run request is not created.
+          dry-run invocation is not invoked. dry-run execution is not executed.
+          provider response is not received. model output is not generated.
+          fixture result is not produced. provider execution is blocked. queue
+          dispatch is blocked. worker dispatch is blocked. job execution is
+          blocked. No prompt sending. No model calls yet. No provider SDKs
+          imported. dry-run runner review and recovery preview comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Preview-only runner</p>
+                <h3 className={styles.placeholderTitle}>
+                  Athena can preview the backend-owned dry-run runner contract
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {backendDryRunRunnerContractSummary.runnerContractState}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              backend-owned dry-run runner contract is preview-only
+            </p>
+            <p className={styles.railBody}>
+              runner contract state: draft / preview-only
+            </p>
+            <p className={styles.railBody}>dry-run request is not created</p>
+            <p className={styles.railBody}>dry-run invocation is not invoked</p>
+            <p className={styles.railBody}>dry-run execution is not executed</p>
+            <p className={styles.railBody}>provider response is not received</p>
+            <p className={styles.railBody}>model output is not generated</p>
+            <p className={styles.railBody}>fixture result is not produced</p>
+            <p className={styles.railBody}>provider execution is blocked</p>
+            <p className={styles.railBody}>queue dispatch is blocked</p>
+            <p className={styles.railBody}>worker dispatch is blocked</p>
+            <p className={styles.railBody}>job execution is blocked</p>
+            <p className={styles.railFooter}>
+              dry-run runner review and recovery preview comes next
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Batch identity</p>
+                <h3 className={styles.placeholderTitle}>
+                  {backendDryRunRunnerContractSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`Phase ${backendDryRunRunnerContractSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`Previous completed batch: ${backendDryRunRunnerContractSummary.previousCompletedBatch}`}
+            </p>
+            <p className={styles.railBody}>
+              {`Next likely batch: ${backendDryRunRunnerContractSummary.nextLikelyBatch}`}
+            </p>
+            <div className={styles.workspaceMeta}>
+              <span className={styles.metaPill}>
+                {`Contracts: ${backendDryRunRunnerContractSummary.contractCount}`}
+              </span>
+              <span className={styles.metaPill}>
+                {`Request previews: ${backendDryRunRunnerContractSummary.requestContractCount}`}
+              </span>
+              <span className={styles.metaPill}>
+                {`Response previews: ${backendDryRunRunnerContractSummary.responseContractCount}`}
+              </span>
+              <span className={styles.metaPill}>
+                {`Error previews: ${backendDryRunRunnerContractSummary.errorContractCount}`}
+              </span>
+              <span className={styles.metaPill}>
+                {`Handoff previews: ${backendDryRunRunnerContractSummary.handoffPreviewCount}`}
+              </span>
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Covered capability families</p>
+                <h3 className={styles.placeholderTitle}>
+                  Dry-run runner coverage
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${backendDryRunRunnerCapabilityGroups.length} capability families`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {backendDryRunRunnerCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-dry-run-runner-capability-group",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.contractCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Workspace coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Dry-run runner workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${backendDryRunRunnerWorkspaceGroups.length} workspace targets`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {backendDryRunRunnerWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-dry-run-runner-workspace-group",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.workspaceTarget} (${group.contractCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        {representativeBackendDryRunRunnerContract ? (
+          <div className={styles.summaryGrid}>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative contract</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeBackendDryRunRunnerContract.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeBackendDryRunRunnerContract.executionPosture}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${representativeBackendDryRunRunnerContract.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`selected capability family: ${representativeBackendDryRunRunnerContract.selectedCapabilityFamily.label}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`Provider slot: ${representativeBackendDryRunRunnerContract.providerSlotLabel}`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`source backend admission contract reference: ${representativeBackendDryRunRunnerContract.sourceBackendAdmissionContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source backend admission request contract reference: ${representativeBackendDryRunRunnerContract.sourceBackendAdmissionRequestContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source backend admission response contract reference: ${representativeBackendDryRunRunnerContract.sourceBackendAdmissionResponseContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source backend admission error contract reference: ${representativeBackendDryRunRunnerContract.sourceBackendAdmissionErrorContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source backend contract readiness matrix reference: ${representativeBackendDryRunRunnerContract.sourceBackendContractReadinessMatrixReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeBackendDryRunRunnerContract.nextDryRunRunnerReviewRecoveryRequirement
+                }
+              </p>
+            </article>
+            {representativeBackendDryRunRunnerHandoff ? (
+              <article className={styles.summaryCard}>
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>Representative handoff</p>
+                    <h3 className={styles.placeholderTitle}>
+                      {representativeBackendDryRunRunnerContract.label}
+                    </h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                  >
+                    {representativeBackendDryRunRunnerHandoff.handoffState}
+                  </span>
+                </div>
+                <p className={styles.railBody}>
+                  {`backend runner target: ${representativeBackendDryRunRunnerHandoff.backendRunnerTarget}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`dry-run request state: ${representativeBackendDryRunRunnerHandoff.dryRunRequestState}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`runner invocation state: ${representativeBackendDryRunRunnerHandoff.runnerInvocationState}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`provider call state: ${representativeBackendDryRunRunnerHandoff.providerCallState}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`queue/worker/job state summary: ${representativeBackendDryRunRunnerHandoff.queueWorkerJobStateSummary}`}
+                </p>
+                <p className={styles.railFooter}>
+                  {
+                    representativeBackendDryRunRunnerHandoff.explicitNoHandoffNoExecutionStatement
+                  }
+                </p>
+              </article>
+            ) : null}
+          </div>
+        ) : null}
+        <div className={styles.summaryGrid}>
+          {backendDryRunRunnerContracts.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Dry-run runner contract</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.dryRunRunnerContractState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${record.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {record.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>{record.providerSlotLabel}</span>
+              </div>
+              <p className={styles.railBody}>{record.previewOnlyStatement}</p>
+              <p className={styles.railBody}>
+                {`dry-run runner posture: ${record.dryRunRunnerPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`runner invocation posture: ${record.runnerInvocationPosture} | provider call posture: ${record.providerCallPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`model call posture: ${record.modelCallPosture} | prompt sending posture: ${record.promptSendingPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`dry-run request state: ${record.dryRunRequestState} | dry-run invocation state: ${record.dryRunInvocationState} | dry-run execution state: ${record.dryRunExecutionState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`provider response state: ${record.providerResponseState} | model output state: ${record.modelOutputState} | fixture result state: ${record.fixtureResultState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`queue dispatch state: ${record.queueDispatchState} | worker dispatch state: ${record.workerDispatchState} | job execution state: ${record.jobExecutionState}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {[
+                  record.manualApprovalRequired,
+                  record.manualConfirmationRequired,
+                  record.killSwitchRequired,
+                  record.auditRequired,
+                  record.privacyRedactionRequired,
+                  record.costAcknowledgementRequired,
+                  record.rateLimitGuardRequired,
+                  record.timeoutCancelGuardRequired,
+                  record.idempotencyRequired,
+                  record.replayBlockRequired,
+                  record.singleRunLockRequired,
+                  record.dryRunResultReviewRequiredInFuture,
+                  record.acceptanceMatrixReviewRequired,
+                  record.approvalExpiryReviewRequired,
+                  record.approvalRevocationReviewRequired,
+                  record.noRetryExecution,
+                  record.noFallbackExecution,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(record.key, "requirement", index, item)}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Dry-run runner request/response contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Dry-run request boundary</p>
+            <h2 className={styles.panelTitle}>
+              Dry-run runner request/response contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only triplets
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          dry-run request contract preview. dry-run response contract preview.
+          dry-run error contract preview. prompt payload is redacted placeholder
+          only. prompt transmission state: not sent. credential reference
+          posture: opaque label only. dry-run request is not created. dry-run
+          response is not received. dry-run error is not received. runner
+          invocation is not invoked.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Request posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  dry-run request contract preview
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Not created
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              prompt payload is redacted placeholder only
+            </p>
+            <p className={styles.railBody}>prompt transmission state: not sent</p>
+            <p className={styles.railBody}>
+              credential reference posture: opaque label only
+            </p>
+            <p className={styles.railBody}>runner invocation is not invoked</p>
+            <p className={styles.railFooter}>dry-run request is not created</p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Response and error posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  dry-run response contract preview
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Not received
+              </span>
+            </div>
+            <p className={styles.railBody}>dry-run response is not received</p>
+            <p className={styles.railBody}>dry-run error contract preview</p>
+            <p className={styles.railBody}>dry-run error is not received</p>
+            <p className={styles.railFooter}>
+              dry-run request/response/error contracts stay preview-only
+            </p>
+          </article>
+          {representativeBackendDryRunRunnerTriplet ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative triplet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeBackendDryRunRunnerTriplet.contract.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  Redacted request only
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeBackendDryRunRunnerTriplet.request?.explicitNoBackendDryRunRequestCreatedStatement ??
+                  "No backend dry-run request is created from the frontend preview."}
+              </p>
+              <p className={styles.railBody}>
+                {representativeBackendDryRunRunnerTriplet.response?.explicitNoBackendDryRunResponseReceivedStatement ??
+                  "No backend dry-run response is received from the frontend preview."}
+              </p>
+              <p className={styles.railBody}>
+                {representativeBackendDryRunRunnerTriplet.error?.explicitNoBackendDryRunErrorReceivedStatement ??
+                  "No backend dry-run error is received from the frontend preview."}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeBackendDryRunRunnerTriplet.handoff?.explicitNoHandoffNoExecutionStatement ??
+                  representativeBackendDryRunRunnerTriplet.contract.nextDryRunRunnerReviewRecoveryRequirement}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {backendDryRunRunnerTripletRecords.map(
+            ({ contract, request, response, error, handoff }) => (
+              <article key={contract.key} className={styles.summaryCard}>
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>
+                      Request/response/error preview
+                    </p>
+                    <h3 className={styles.placeholderTitle}>{contract.label}</h3>
+                  </div>
+                  <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                    {contract.workspaceTarget}
+                  </span>
+                </div>
+                <div className={styles.workspaceMeta}>
+                  <span className={styles.metaPill}>
+                    {contract.selectedCapabilityFamily.label}
+                  </span>
+                  <span className={styles.metaPill}>{contract.providerSlotLabel}</span>
+                  <span className={styles.metaPill}>
+                    {request?.requestContractVersion ?? "request preview missing"}
+                  </span>
+                </div>
+                <p className={styles.railBody}>
+                  {`dry-run request contract preview: ${request?.requestCreationState ?? "not created"}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`prompt payload posture: ${request?.promptPayloadPosture ?? "redacted placeholder only"}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`dry-run response contract preview: ${response?.responseState ?? "not received"} | dry-run decision state: ${response?.dryRunDecisionState ?? "not evaluated"}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`dry-run error contract preview: ${error?.errorState ?? "not received"} | retry posture: ${error?.retryPosture ?? "disabled"} | fallback posture: ${error?.fallbackPosture ?? "disabled"}`}
+                </p>
+                <div className={styles.workspaceMeta}>
+                  {[
+                    request?.runnerInvocationState ?? "not invoked",
+                    request?.promptTransmissionState ?? "not sent",
+                    request?.credentialReferencePosture ?? "opaque label only",
+                    request?.timeoutCancelPosture ?? "timeout/cancel guard required",
+                    response?.queueDispatchState ?? "not dispatched",
+                    response?.workerDispatchState ?? "not dispatched",
+                    response?.jobExecutionState ?? "not executed",
+                    error?.recoveryPosture ?? "manual review only",
+                  ].map((item, index) => (
+                    <span
+                      key={buildScopedItemKey(contract.key, "triplet", index, item)}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+                {error ? (
+                  <div className={styles.workspaceMeta}>
+                    {error.validationErrorExamples.map((item, index) => (
+                      <span
+                        key={buildScopedItemKey(
+                          contract.key,
+                          "validation-error",
+                          index,
+                          item
+                        )}
+                        className={styles.blockedPill}
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <p className={styles.railFooter}>
+                  {handoff?.blockedDefaultReason ??
+                    request?.blockedDefaultReason ??
+                    contract.blockedDefaultReason}
+                </p>
+              </article>
+            )
+          )}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Dry-run runner gate schema">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Dry-run runner gates</p>
+            <h2 className={styles.panelTitle}>Dry-run runner gate schema</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only gates
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          backend admission contract. admission token. admission lease. operator
+          approval. manual confirmation. approval expiry/revocation. kill
+          switch. audit. server-only boundary. no frontend provider call. no
+          provider SDK import in frontend. no prompt sending from frontend.
+          opaque credential reference. privacy/redaction. cost/rate/timeout.
+          idempotency/replay block. single-run lock. no queue dispatch until
+          backend runner implementation. no worker dispatch until backend runner
+          implementation. no job execution until backend runner implementation.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate schema posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  dry-run runner gate schema is preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${backendDryRunRunnerGateSummary.gateCount} gates`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {backendDryRunRunnerGateSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "backend-dry-run-runner-gate-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate ownership</p>
+                <h3 className={styles.placeholderTitle}>
+                  Dry-run runner review lanes
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+              >
+                Review-first
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`backend-owned runner contract gates: ${backendDryRunRunnerGateSummary.backendOwnedGateCount}`}
+            </p>
+            <p className={styles.railBody}>
+              {`operator gates: ${backendDryRunRunnerGateSummary.operatorOwnedGateCount}`}
+            </p>
+            <p className={styles.railBody}>
+              {`safety review gates: ${backendDryRunRunnerGateSummary.safetyReviewGateCount}`}
+            </p>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${backendDryRunRunnerGateSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {backendDryRunRunnerGateOwnerGroups.map((ownerGroup, ownerIndex) => (
+            <article
+              key={buildScopedItemKey(
+                "backend-dry-run-runner-gate-owner-group",
+                "item",
+                ownerIndex,
+                ownerGroup.owner
+              )}
+              className={styles.summaryCard}
+            >
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate owner</p>
+                  <h3 className={styles.placeholderTitle}>{ownerGroup.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {`${ownerGroup.records.length} gates`}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {ownerGroup.records.map((record, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      ownerGroup.owner,
+                      "gate-label",
+                      index,
+                      record.id
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {record.label}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className={styles.summaryGrid}>
+          {backendDryRunRunnerGateSchemaRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate schema record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentFrontendState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{`owner: ${record.owner}`}</p>
+              <p className={styles.railBody}>
+                {`required state: ${record.requiredState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`evidence requirement: ${record.evidenceRequirement}`}
+              </p>
+              <p className={styles.railBody}>{record.blockedDefaultReason}</p>
+              <p className={styles.railFooter}>
+                {record.nextBackendRunnerRequirement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Dry-run runner readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Dry-run runner readiness</p>
+            <h2 className={styles.panelTitle}>Dry-run runner readiness matrix</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Contract-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          runner contract draft state. dry-run request contract state. dry-run
+          response contract state. dry-run error contract state. runner gate
+          schema state. admission dependency state. provider adapter boundary
+          state. queue/worker/job boundary state. persistence boundary state.
+          current readiness: not executable / contract-only. next safe action.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  current readiness: not executable / contract-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${backendDryRunRunnerReadinessSummary.readinessMatrixCount} readiness records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {backendDryRunRunnerReadinessSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "backend-dry-run-runner-readiness-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe action</p>
+                <h3 className={styles.placeholderTitle}>
+                  Dry-run runner review/recovery is next
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {backendDryRunRunnerReadinessSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {backendDryRunRunnerReadinessSummary.nextSafeAction}
+            </p>
+          </article>
+          {representativeBackendDryRunRunnerReadiness ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative readiness</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeBackendDryRunRunnerReadiness.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeBackendDryRunRunnerReadiness.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`runner contract draft state: ${representativeBackendDryRunRunnerReadiness.runnerContractDraftState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`dry-run request contract state: ${representativeBackendDryRunRunnerReadiness.dryRunRequestContractState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`dry-run response contract state: ${representativeBackendDryRunRunnerReadiness.dryRunResponseContractState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`dry-run error contract state: ${representativeBackendDryRunRunnerReadiness.dryRunErrorContractState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeBackendDryRunRunnerReadiness.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {backendDryRunRunnerReadinessMatrixRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Readiness matrix record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentReadiness}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${record.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {record.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>
+                  {record.dryRunReviewRecoveryDependency}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`runner contract draft state: ${record.runnerContractDraftState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`dry-run request contract state: ${record.dryRunRequestContractState} | dry-run response contract state: ${record.dryRunResponseContractState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`dry-run error contract state: ${record.dryRunErrorContractState} | runner gate schema state: ${record.runnerGateSchemaState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission dependency state: ${record.admissionContractDependencyState} | provider adapter boundary state: ${record.providerAdapterBoundaryState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`credential boundary state: ${record.credentialBoundaryState} | safety boundary state: ${record.safetyBoundaryState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`queue boundary state: ${record.queueBoundaryState} | worker boundary state: ${record.workerBoundaryState} | job boundary state: ${record.jobBoundaryState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`persistence boundary state: ${record.persistenceBoundaryState}`}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <AthenaOperatorStatusPanel
         title="Athena operator status"
         eyebrow="Operator status"
@@ -6201,7 +7074,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next backend-owned dry-run runner contract checklist
+                  Next dry-run runner review and recovery checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -6209,8 +7082,11 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextBackendOwnedDryRunRunnerContractChecklist.map((item, index) => (
-                <article key={buildScopedItemKey("athena-panel", "item", index, item)} className={styles.railCard}>
+              {nextDryRunRunnerReviewAndRecoveryChecklist.map((item, index) => (
+                <article
+                  key={buildScopedItemKey("athena-panel", "item", index, item)}
+                  className={styles.railCard}
+                >
                   <p className={styles.railBody}>{item}</p>
                 </article>
               ))}
