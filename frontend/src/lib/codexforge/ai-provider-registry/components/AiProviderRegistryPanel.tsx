@@ -54,6 +54,22 @@ import {
   listSyntheticRunnerSkeletonGates,
   listSyntheticRunnerSkeletonReadinessMatrixRecords,
 } from "@/lib/codexforge/backend-owned-model-provider-synthetic-dry-run-runner-skeleton";
+import {
+  buildNextResultCaptureReviewAndRecoveryChecklist,
+  buildResultCaptureContractSummary,
+  buildResultCaptureGateSummary,
+  buildResultCaptureReadinessSummary,
+  groupResultCaptureContractsByCapabilityFamily,
+  groupResultCaptureContractsByWorkspaceTarget,
+  listBackendOwnedSyntheticDryRunResultCaptureContracts,
+  listResultCaptureAuditApprovalJoinPreviews,
+  listResultCaptureErrorContracts,
+  listResultCaptureGateRecords,
+  listResultCaptureReadinessMatrixRecords,
+  listResultCaptureRequestContracts,
+  listResultCaptureResponseContracts,
+  listSyntheticResultEnvelopeContracts,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-result-capture-contract";
 
 function buildProviderScopedKey(
   scope: string,
@@ -136,6 +152,39 @@ export function AiProviderRegistryPanel() {
   const representativeSyntheticErrorFixture = syntheticErrorFixtures[0] ?? null;
   const representativeSyntheticRunnerReadiness =
     syntheticRunnerReadinessMatrixRecords[0] ?? null;
+  const resultCaptureContracts =
+    listBackendOwnedSyntheticDryRunResultCaptureContracts();
+  const syntheticResultEnvelopes = listSyntheticResultEnvelopeContracts();
+  const resultCaptureRequestContracts = listResultCaptureRequestContracts();
+  const resultCaptureResponseContracts = listResultCaptureResponseContracts();
+  const resultCaptureErrorContracts = listResultCaptureErrorContracts();
+  const resultCaptureGateRecords = listResultCaptureGateRecords();
+  const resultCaptureReadinessMatrixRecords =
+    listResultCaptureReadinessMatrixRecords();
+  const resultCaptureAuditApprovalJoinPreviews =
+    listResultCaptureAuditApprovalJoinPreviews();
+  const resultCaptureContractSummary = buildResultCaptureContractSummary();
+  const resultCaptureGateSummary = buildResultCaptureGateSummary();
+  const resultCaptureReadinessSummary = buildResultCaptureReadinessSummary();
+  const nextResultCaptureReviewAndRecoveryChecklist =
+    buildNextResultCaptureReviewAndRecoveryChecklist();
+  const resultCaptureCapabilityGroups =
+    groupResultCaptureContractsByCapabilityFamily();
+  const resultCaptureWorkspaceGroups =
+    groupResultCaptureContractsByWorkspaceTarget();
+  const representativeResultCaptureContract = resultCaptureContracts[0] ?? null;
+  const representativeSyntheticResultEnvelope =
+    syntheticResultEnvelopes[0] ?? null;
+  const representativeResultCaptureRequest =
+    resultCaptureRequestContracts[0] ?? null;
+  const representativeResultCaptureResponse =
+    resultCaptureResponseContracts[0] ?? null;
+  const representativeResultCaptureError =
+    resultCaptureErrorContracts[0] ?? null;
+  const representativeResultCaptureReadiness =
+    resultCaptureReadinessMatrixRecords[0] ?? null;
+  const representativeResultCaptureJoinPreview =
+    resultCaptureAuditApprovalJoinPreviews[0] ?? null;
   const providerLabelsById = new Map(
     providerSlots.map((slot) => [slot.id, slot.label] as const)
   );
@@ -143,7 +192,7 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only synthetic runner skeleton is preview-only runner state: skeleton / not executable dry-run request is not created runner invocation is not invoked dry-run execution is not executed Provider response is not received Model output is not generated synthetic dry-run result capture contract comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Synthetic result envelope contract Result capture request/response contract Result capture gates Result capture readiness matrix Result capture audit and approval join preview Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only synthetic runner skeleton is preview-only runner state: skeleton / not executable dry-run request is not created runner invocation is not invoked dry-run execution is not executed synthetic result capture contract is preview-only result capture state: not captured result persistence is not implemented audit persistence is not implemented approval persistence is not implemented Provider response is not received Model output is not generated synthetic fixture result is static placeholder only result envelope is preview-only result id is not issued synthetic dry-run result capture review and recovery preview comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
     >
       <section style={hero}>
         <div>
@@ -160,14 +209,15 @@ export function AiProviderRegistryPanel() {
             preview-only. dry-run review is fixture-only. quality review is
             static preview only. safety review is static preview only.
             redaction review is static preview only. Athena can now preview
-            backend-owned synthetic dry-run runner skeletons. synthetic runner
-            skeleton is preview-only. runner state is skeleton / not
-            executable. dry-run request is not created. runner invocation is
-            not invoked. dry-run execution is not executed. provider response
-            is not received. model output is not generated. synthetic dry-run
-            result capture contract comes next. No model calls yet. No prompt
-            sending. No provider SDKs imported. Frontend provider calls are
-            blocked.
+            backend-owned synthetic dry-run result capture contracts. synthetic
+            result capture contract is preview-only. result capture state is not
+            captured. result persistence is not implemented. audit persistence is
+            not implemented. approval persistence is not implemented. provider
+            response is not received. model output is not generated. synthetic
+            fixture result is static placeholder only. result envelope is
+            preview-only. synthetic dry-run result capture review and recovery
+            preview comes next. No model calls yet. No prompt sending. No
+            provider SDKs imported. Frontend provider calls are blocked.
           </p>
         </div>
         <div style={linkRow}>
@@ -240,17 +290,19 @@ export function AiProviderRegistryPanel() {
               Backend-owned synthetic dry-run result capture contract
             </h3>
             <p style={copy}>
-              Synthetic backend-owned runner skeletons are now visible in the
-              provider hub.
+              Athena can now preview backend-owned synthetic dry-run result
+              capture contracts in the provider hub.
             </p>
             <div style={list}>
               {[
-                "Backend-owned synthetic dry-run runner skeleton",
-                "Synthetic dry-run fixture packet",
-                "Synthetic runner skeleton gates",
-                "Synthetic runner readiness matrix",
-                "synthetic runner skeleton is preview-only",
-                "synthetic dry-run result capture contract comes next",
+                "Backend-owned synthetic dry-run result capture contract",
+                "Synthetic result envelope contract",
+                "Result capture request/response contract",
+                "Result capture gates",
+                "Result capture readiness matrix",
+                "Result capture audit and approval join preview",
+                "synthetic result capture contract is preview-only",
+                "synthetic dry-run result capture review and recovery preview comes next",
               ].map((item) => (
                 <span key={item} style={pill}>
                   {item}
@@ -1298,9 +1350,375 @@ export function AiProviderRegistryPanel() {
         </div>
       </section>
 
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Backend-owned contract layer</span>
+            <h2 style={sectionTitle}>
+              Backend-owned synthetic dry-run result capture contract
+            </h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          synthetic result capture contract is preview-only. result capture
+          state: not captured. result persistence is not implemented. audit
+          persistence is not implemented. approval persistence is not
+          implemented. provider response is not received. model output is not
+          generated. synthetic fixture result is static placeholder only.
+          result envelope is preview-only. result id is not issued. synthetic
+          dry-run result capture review and recovery preview comes next.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Contract summary</span>
+            <h3 style={cardTitle}>
+              {resultCaptureContractSummary.latestCompletedBatch}
+            </h3>
+            <p style={copy}>
+              {`Phase ${resultCaptureContractSummary.highestDetectedPhase}. Previous completed batch: ${resultCaptureContractSummary.previousCompletedBatch}.`}
+            </p>
+            <div style={list}>
+              {resultCaptureContractSummary.summaryLines.slice(0, 10).map(
+                (item, index) => (
+                  <span
+                    key={buildProviderScopedKey(
+                      "result-capture-summary",
+                      index,
+                      item
+                    )}
+                    style={pill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          <article style={card}>
+            <span style={tag}>Coverage</span>
+            <h3 style={cardTitle}>Capability and workspace coverage</h3>
+            <p style={copy}>
+              {`${resultCaptureCapabilityGroups.length} capability families. ${resultCaptureWorkspaceGroups.length} workspace targets.`}
+            </p>
+            <div style={list}>
+              {resultCaptureCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildProviderScopedKey(
+                    "result-capture-capability-group",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  style={pill}
+                >
+                  {`${group.capabilityFamilyLabel}: ${group.contractCount}`}
+                </span>
+              ))}
+            </div>
+            <div style={list}>
+              {resultCaptureWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildProviderScopedKey(
+                    "result-capture-workspace-group",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  style={pill}
+                >
+                  {`${group.workspaceTarget}: ${group.contractCount}`}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeResultCaptureContract ? (
+            <article style={card}>
+              <span style={tag}>Representative contract</span>
+              <h3 style={cardTitle}>
+                {representativeResultCaptureContract.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`Workspace: ${representativeResultCaptureContract.workspaceTarget}. Capability: ${representativeResultCaptureContract.selectedCapabilityFamily.label}.`}
+              </p>
+              <p style={copy}>
+                {`result persistence state: ${representativeResultCaptureContract.resultPersistenceState}. audit persistence state: ${representativeResultCaptureContract.auditPersistenceState}.`}
+              </p>
+              <p style={copy}>
+                {`approval persistence state: ${representativeResultCaptureContract.approvalPersistenceState}. artifact persistence state: ${representativeResultCaptureContract.artifactPersistenceState}.`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only envelope</span>
+            <h2 style={sectionTitle}>Synthetic result envelope contract</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          result envelope mode: preview-only. result payload posture: static
+          placeholder only. result digest posture: deterministic preview digest
+          only. no real result. no result persistence. no audit persistence. no
+          approval persistence.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Envelope summary</span>
+            <h3 style={cardTitle}>No real result. No result persistence.</h3>
+            <p style={copy}>{`Envelope count: ${syntheticResultEnvelopes.length}.`}</p>
+            <div style={list}>
+              <span style={pill}>result envelope mode: preview-only</span>
+              <span style={pill}>result payload posture: static placeholder only</span>
+              <span style={pill}>result digest posture: deterministic preview digest only</span>
+            </div>
+          </article>
+          {representativeSyntheticResultEnvelope ? (
+            <article style={card}>
+              <span style={tag}>Representative envelope</span>
+              <h3 style={cardTitle}>
+                {representativeSyntheticResultEnvelope.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`provider response state: ${representativeSyntheticResultEnvelope.providerResponseState}.`}
+              </p>
+              <p style={copy}>
+                {`model output state: ${representativeSyntheticResultEnvelope.modelOutputState}.`}
+              </p>
+              <p style={copy}>
+                {
+                  representativeSyntheticResultEnvelope
+                    .explicitNoRealResultNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only request lifecycle</span>
+            <h2 style={sectionTitle}>Result capture request/response contract</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          capture request is not created. capture invocation is not invoked.
+          capture response is not received. capture error is not received.
+          result capture is not captured. persistence target is not
+          implemented. no database writes. no file writes.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Contract counts</span>
+            <h3 style={cardTitle}>Request / response / error</h3>
+            <p style={copy}>
+              {`requests: ${resultCaptureRequestContracts.length}. responses: ${resultCaptureResponseContracts.length}. errors: ${resultCaptureErrorContracts.length}.`}
+            </p>
+          </article>
+          {representativeResultCaptureRequest ? (
+            <article style={card}>
+              <span style={tag}>Representative request</span>
+              <h3 style={cardTitle}>
+                {representativeResultCaptureRequest.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`capture request state: ${representativeResultCaptureRequest.captureRequestState}.`}
+              </p>
+              <p style={copy}>
+                {`capture invocation state: ${representativeResultCaptureRequest.captureInvocationState}.`}
+              </p>
+            </article>
+          ) : null}
+          {representativeResultCaptureResponse ? (
+            <article style={card}>
+              <span style={tag}>Representative response</span>
+              <h3 style={cardTitle}>
+                {representativeResultCaptureResponse.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`response state: ${representativeResultCaptureResponse.responseState}.`}
+              </p>
+              <p style={copy}>
+                {`capture decision state: ${representativeResultCaptureResponse.captureDecisionState}.`}
+              </p>
+            </article>
+          ) : null}
+          {representativeResultCaptureError ? (
+            <article style={card}>
+              <span style={tag}>Representative error</span>
+              <h3 style={cardTitle}>
+                {representativeResultCaptureError.requestLabel}
+              </h3>
+              <p style={copy}>
+                {representativeResultCaptureError.missingSyntheticOutputExample}
+              </p>
+              <p style={copy}>
+                {representativeResultCaptureError.databaseWriteBlockedExample}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only gate schema</span>
+            <h2 style={sectionTitle}>Result capture gates</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only / blocked</span>
+        </div>
+        <p style={copy}>
+          synthetic runner skeleton. synthetic output fixture. synthetic error
+          fixture. synthetic result envelope. result capture request. result
+          capture response. result capture error. operator approval. manual
+          confirmation. kill switch. audit. server-only boundary. no frontend
+          provider call. no provider SDK import in frontend. no prompt
+          sending. opaque credential reference. no plaintext secrets.
+          privacy/redaction. cost/rate/timeout. idempotency/replay block.
+          single-run lock. no queue dispatch. no worker dispatch. no job
+          execution. no result persistence. no audit persistence. no approval
+          persistence. no database writes. no file writes.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Gate summary</span>
+            <h3 style={cardTitle}>{`${resultCaptureGateSummary.gateCount} result capture gates`}</h3>
+            <p style={copy}>
+              {`backend capture contract: ${resultCaptureGateSummary.backendCaptureContractGateCount}. operator: ${resultCaptureGateSummary.operatorGateCount}. safety review: ${resultCaptureGateSummary.safetyReviewGateCount}.`}
+            </p>
+            <div style={list}>
+              {resultCaptureGateSummary.summaryLines.slice(0, 10).map(
+                (item, index) => (
+                  <span
+                    key={buildProviderScopedKey(
+                      "result-capture-gates",
+                      index,
+                      item
+                    )}
+                    style={pill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {resultCaptureGateRecords.map((record) => (
+            <article key={record.key} style={card}>
+              <span style={tag}>Gate record</span>
+              <h3 style={cardTitle}>{record.label}</h3>
+              <p style={copy}>{`owner: ${record.owner}.`}</p>
+              <p style={copy}>{`current state: ${record.currentState}.`}</p>
+              <p style={copy}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Compact readiness matrix</span>
+            <h2 style={sectionTitle}>Result capture readiness matrix</h2>
+          </div>
+          <span style={sectionBadge}>capture-contract-only / not persistent</span>
+        </div>
+        <p style={copy}>
+          capture contract state. result envelope state. capture request
+          contract state. capture response contract state. capture error
+          contract state. result persistence boundary state. audit persistence
+          boundary state. approval persistence boundary state. database
+          boundary state. file boundary state. current readiness:
+          capture-contract-only / not persistent. next safe action.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Readiness summary</span>
+            <h3 style={cardTitle}>
+              {resultCaptureReadinessSummary.currentReadiness}
+            </h3>
+            <p style={copy}>
+              {`Readiness records: ${resultCaptureReadinessSummary.readinessRecordCount}.`}
+            </p>
+            <p style={copy}>{resultCaptureReadinessSummary.nextSafeAction}</p>
+          </article>
+          {representativeResultCaptureReadiness ? (
+            <article style={card}>
+              <span style={tag}>Representative readiness</span>
+              <h3 style={cardTitle}>
+                {representativeResultCaptureReadiness.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`capture contract state: ${representativeResultCaptureReadiness.captureContractState}.`}
+              </p>
+              <p style={copy}>
+                {`result persistence boundary state: ${representativeResultCaptureReadiness.resultPersistenceBoundaryState}.`}
+              </p>
+              <p style={copy}>
+                {`database boundary state: ${representativeResultCaptureReadiness.databaseBoundaryState}. file boundary state: ${representativeResultCaptureReadiness.fileBoundaryState}.`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only join posture</span>
+            <h2 style={sectionTitle}>
+              Result capture audit and approval join preview
+            </h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          audit join state: not persisted. approval join state: not persisted.
+          result reference state: not persisted. no database write. no file
+          write.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Join summary</span>
+            <h3 style={cardTitle}>Audit and approval joins are not persisted</h3>
+            <p style={copy}>
+              {`Join previews: ${resultCaptureAuditApprovalJoinPreviews.length}.`}
+            </p>
+          </article>
+          {representativeResultCaptureJoinPreview ? (
+            <article style={card}>
+              <span style={tag}>Representative join</span>
+              <h3 style={cardTitle}>
+                {representativeResultCaptureJoinPreview.requestLabel}
+              </h3>
+              <p style={copy}>
+                {representativeResultCaptureJoinPreview.blockedActionSummary}
+              </p>
+              <p style={copy}>
+                {
+                  representativeResultCaptureJoinPreview
+                    .noDatabaseWriteStatement
+                }
+              </p>
+              <p style={copy}>
+                {representativeResultCaptureJoinPreview.noFileWriteStatement}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section style={notice}>
-        {nextSyntheticDryRunResultCaptureContractChecklist.map((item) => (
-          <p key={item}>{item}</p>
+        {nextResultCaptureReviewAndRecoveryChecklist.map((item, index) => (
+          <p key={buildProviderScopedKey("result-capture-next-review", index, item)}>
+            {item}
+          </p>
         ))}
       </section>
     </div>

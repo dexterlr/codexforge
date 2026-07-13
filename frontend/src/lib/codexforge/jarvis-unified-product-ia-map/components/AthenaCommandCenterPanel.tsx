@@ -80,7 +80,6 @@ import {
   buildBackendDryRunRunnerContractSummary,
   buildBackendDryRunRunnerGateSummary,
   buildBackendDryRunRunnerReadinessSummary,
-  buildNextDryRunRunnerReviewAndRecoveryChecklist,
   groupBackendDryRunRunnerContractsByCapabilityFamily,
   groupBackendDryRunRunnerContractsByWorkspaceTarget,
   listBackendDryRunErrorContracts,
@@ -121,6 +120,22 @@ import {
   listSyntheticRunnerSkeletonHandoffPreviews,
   listSyntheticRunnerSkeletonReadinessMatrixRecords,
 } from "@/lib/codexforge/backend-owned-model-provider-synthetic-dry-run-runner-skeleton";
+import {
+  buildNextResultCaptureReviewAndRecoveryChecklist,
+  buildResultCaptureContractSummary,
+  buildResultCaptureGateSummary,
+  buildResultCaptureReadinessSummary,
+  groupResultCaptureContractsByCapabilityFamily,
+  groupResultCaptureContractsByWorkspaceTarget,
+  listBackendOwnedSyntheticDryRunResultCaptureContracts,
+  listResultCaptureAuditApprovalJoinPreviews,
+  listResultCaptureErrorContracts,
+  listResultCaptureGateRecords,
+  listResultCaptureReadinessMatrixRecords,
+  listResultCaptureRequestContracts,
+  listResultCaptureResponseContracts,
+  listSyntheticResultEnvelopeContracts,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-result-capture-contract";
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
@@ -485,8 +500,6 @@ export function AthenaCommandCenterPanel({
     buildBackendDryRunRunnerGateSummary();
   const backendDryRunRunnerReadinessSummary =
     buildBackendDryRunRunnerReadinessSummary();
-  const nextDryRunRunnerReviewAndRecoveryChecklist =
-    buildNextDryRunRunnerReviewAndRecoveryChecklist();
   const backendDryRunRunnerCapabilityGroups =
     groupBackendDryRunRunnerContractsByCapabilityFamily();
   const backendDryRunRunnerWorkspaceGroups =
@@ -638,6 +651,66 @@ export function AthenaCommandCenterPanel({
     syntheticRunnerReadinessMatrixRecords[0] ?? null;
   const representativeSyntheticRunnerHandoff =
     syntheticRunnerHandoffPreviews[0] ?? null;
+  const resultCaptureContracts =
+    listBackendOwnedSyntheticDryRunResultCaptureContracts();
+  const syntheticResultEnvelopes = listSyntheticResultEnvelopeContracts();
+  const resultCaptureRequestContracts = listResultCaptureRequestContracts();
+  const resultCaptureResponseContracts = listResultCaptureResponseContracts();
+  const resultCaptureErrorContracts = listResultCaptureErrorContracts();
+  const resultCaptureGateRecords = listResultCaptureGateRecords();
+  const resultCaptureReadinessMatrixRecords =
+    listResultCaptureReadinessMatrixRecords();
+  const resultCaptureAuditApprovalJoinPreviews =
+    listResultCaptureAuditApprovalJoinPreviews();
+  const resultCaptureContractSummary = buildResultCaptureContractSummary();
+  const resultCaptureGateSummary = buildResultCaptureGateSummary();
+  const resultCaptureReadinessSummary = buildResultCaptureReadinessSummary();
+  const nextResultCaptureReviewAndRecoveryChecklist =
+    buildNextResultCaptureReviewAndRecoveryChecklist();
+  const resultCaptureCapabilityGroups =
+    groupResultCaptureContractsByCapabilityFamily();
+  const resultCaptureWorkspaceGroups =
+    groupResultCaptureContractsByWorkspaceTarget();
+  const syntheticResultEnvelopesById = new Map(
+    syntheticResultEnvelopes.map((record) => [record.id, record] as const)
+  );
+  const resultCaptureRequestsById = new Map(
+    resultCaptureRequestContracts.map((record) => [record.id, record] as const)
+  );
+  const resultCaptureResponsesById = new Map(
+    resultCaptureResponseContracts.map((record) => [record.id, record] as const)
+  );
+  const resultCaptureErrorsById = new Map(
+    resultCaptureErrorContracts.map((record) => [record.id, record] as const)
+  );
+  const resultCaptureReadinessById = new Map(
+    resultCaptureReadinessMatrixRecords.map((record) => [record.id, record] as const)
+  );
+  const resultCaptureJoinPreviewsById = new Map(
+    resultCaptureAuditApprovalJoinPreviews.map((record) => [record.id, record] as const)
+  );
+  const resultCapturePreviewRecords = resultCaptureContracts.map((contract) => ({
+    contract,
+    envelope: syntheticResultEnvelopesById.get(contract.id) ?? null,
+    request: resultCaptureRequestsById.get(contract.id) ?? null,
+    response: resultCaptureResponsesById.get(contract.id) ?? null,
+    error: resultCaptureErrorsById.get(contract.id) ?? null,
+    readiness: resultCaptureReadinessById.get(contract.id) ?? null,
+    join: resultCaptureJoinPreviewsById.get(contract.id) ?? null,
+  }));
+  const representativeResultCaptureContract = resultCaptureContracts[0] ?? null;
+  const representativeSyntheticResultEnvelope =
+    syntheticResultEnvelopes[0] ?? null;
+  const representativeResultCaptureRequest =
+    resultCaptureRequestContracts[0] ?? null;
+  const representativeResultCaptureResponse =
+    resultCaptureResponseContracts[0] ?? null;
+  const representativeResultCaptureError =
+    resultCaptureErrorContracts[0] ?? null;
+  const representativeResultCaptureReadiness =
+    resultCaptureReadinessMatrixRecords[0] ?? null;
+  const representativeResultCaptureJoinPreview =
+    resultCaptureAuditApprovalJoinPreviews[0] ?? null;
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -8212,6 +8285,825 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned synthetic dry-run result capture contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Backend-owned contract layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned synthetic dry-run result capture contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview the backend-owned synthetic dry-run result capture
+          contract. synthetic result capture contract is preview-only. result
+          capture state: not captured. result persistence is not implemented.
+          audit persistence is not implemented. approval persistence is not
+          implemented. database write is not implemented. file write is not
+          implemented. provider response is not received. model output is not
+          generated. synthetic fixture result is static placeholder only. result
+          envelope is preview-only. result id is not issued. No prompt sending.
+          No model calls yet. No provider SDKs imported. synthetic dry-run
+          result capture review and recovery preview comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Contract summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  synthetic result capture contract is preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${resultCaptureContractSummary.contractCount} contracts`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {resultCaptureContractSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "result-capture-contract-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Batch identity</p>
+                <h3 className={styles.placeholderTitle}>
+                  {resultCaptureContractSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`Phase ${resultCaptureContractSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`Previous completed batch: ${resultCaptureContractSummary.previousCompletedBatch}`}
+            </p>
+            <p className={styles.railBody}>
+              {`Next likely batch: ${resultCaptureContractSummary.nextLikelyBatch}`}
+            </p>
+            <p className={styles.railBody}>
+              {`Result envelopes: ${resultCaptureContractSummary.resultEnvelopeCount} | Requests: ${resultCaptureContractSummary.requestContractCount}`}
+            </p>
+            <p className={styles.railFooter}>
+              {`Responses: ${resultCaptureContractSummary.responseContractCount} | Errors: ${resultCaptureContractSummary.errorContractCount}`}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Capability coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Result capture lanes by capability family
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${resultCaptureCapabilityGroups.length} capability families`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {resultCaptureCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "result-capture-capability-group",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.contractCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Workspace coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Result capture lanes by workspace
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${resultCaptureWorkspaceGroups.length} workspace targets`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {resultCaptureWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "result-capture-workspace-group",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.workspaceTarget} (${group.contractCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        {representativeResultCaptureContract ? (
+          <div className={styles.summaryGrid}>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative contract</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeResultCaptureContract.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeResultCaptureContract.resultCaptureState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${representativeResultCaptureContract.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {
+                    representativeResultCaptureContract.selectedCapabilityFamily
+                      .label
+                  }
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeResultCaptureContract.providerSlotLabel}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`source synthetic runner skeleton reference: ${representativeResultCaptureContract.sourceSyntheticRunnerSkeletonReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source synthetic input fixture reference: ${representativeResultCaptureContract.sourceSyntheticInputFixtureReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source synthetic output fixture reference: ${representativeResultCaptureContract.sourceSyntheticOutputFixtureReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source synthetic error fixture reference: ${representativeResultCaptureContract.sourceSyntheticErrorFixtureReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source synthetic runner readiness reference: ${representativeResultCaptureContract.sourceSyntheticRunnerReadinessReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeResultCaptureContract
+                    .nextResultCaptureReviewRecoveryRequirement
+                }
+              </p>
+            </article>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Next review path</p>
+                  <h3 className={styles.placeholderTitle}>
+                    synthetic dry-run result capture review and recovery preview
+                    comes next
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {resultCaptureContractSummary.nextLikelyBatch}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {nextResultCaptureReviewAndRecoveryChecklist.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "result-capture-next-checklist",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
+          </div>
+        ) : null}
+        <div className={styles.summaryGrid}>
+          {resultCaptureContracts.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Capture contract</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.resultCaptureState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>{record.workspaceTarget}</span>
+                <span className={styles.metaPill}>
+                  {record.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>{record.providerSlotLabel}</span>
+              </div>
+              <p className={styles.railBody}>
+                {`result persistence state: ${record.resultPersistenceState} | audit persistence state: ${record.auditPersistenceState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval persistence state: ${record.approvalPersistenceState} | artifact persistence state: ${record.artifactPersistenceState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`database write state: ${record.databaseWriteState} | file write state: ${record.fileWriteState}`}
+              </p>
+              <p className={styles.railFooter}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic result envelope contract">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only envelope</p>
+            <h2 className={styles.panelTitle}>Synthetic result envelope contract</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          result envelope mode: preview-only. result payload posture: static
+          placeholder only. result digest posture: deterministic preview digest
+          only. no real result. no result persistence. no audit persistence. no
+          approval persistence.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Envelope summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  no real result. no result persistence
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${syntheticResultEnvelopes.length} envelopes`}
+              </span>
+            </div>
+            <p className={styles.railBody}>result envelope mode: preview-only</p>
+            <p className={styles.railBody}>
+              result payload posture: static placeholder only
+            </p>
+            <p className={styles.railBody}>
+              result digest posture: deterministic preview digest only
+            </p>
+            <p className={styles.railFooter}>
+              no real result. no result persistence.
+            </p>
+          </article>
+          {representativeSyntheticResultEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative envelope</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticResultEnvelope.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeSyntheticResultEnvelope.resultEnvelopeMode}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`provider response state: ${representativeSyntheticResultEnvelope.providerResponseState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`model output state: ${representativeSyntheticResultEnvelope.modelOutputState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`token/cost accounting state: ${representativeSyntheticResultEnvelope.tokenCostAccountingState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultEnvelope
+                    .explicitNoRealResultNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {syntheticResultEnvelopes.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Result envelope</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.resultEnvelopeMode}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`result payload posture: ${record.resultPayloadPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`result id state: ${record.resultIdState} | result digest posture: ${record.resultDigestPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit join state: ${record.auditJoinState} | approval join state: ${record.approvalJoinState}`}
+              </p>
+              <p className={styles.railFooter}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Result capture request/response contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only request lifecycle</p>
+            <h2 className={styles.panelTitle}>
+              Result capture request/response contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          capture request is not created. capture invocation is not invoked.
+          capture response is not received. capture error is not received.
+          result capture is not captured. persistence target is not
+          implemented. no database writes. no file writes.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Contract counts</p>
+                <h3 className={styles.placeholderTitle}>
+                  preview-only request/response/error contracts
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${resultCaptureRequestContracts.length}/${resultCaptureResponseContracts.length}/${resultCaptureErrorContracts.length}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`requests: ${resultCaptureRequestContracts.length} | responses: ${resultCaptureResponseContracts.length}`}
+            </p>
+            <p className={styles.railBody}>
+              {`errors: ${resultCaptureErrorContracts.length}`}
+            </p>
+            <p className={styles.railFooter}>
+              capture request is not created. capture response is not received.
+            </p>
+          </article>
+          {representativeResultCaptureRequest ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative request</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeResultCaptureRequest.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeResultCaptureRequest.captureRequestState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`capture invocation state: ${representativeResultCaptureRequest.captureInvocationState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`result payload posture: ${representativeResultCaptureRequest.resultPayloadPosture}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeResultCaptureRequest
+                    .explicitNoCaptureRequestCreatedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeResultCaptureResponse ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative response</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeResultCaptureResponse.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeResultCaptureResponse.responseState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`capture decision state: ${representativeResultCaptureResponse.captureDecisionState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`result location state: ${representativeResultCaptureResponse.resultLocationState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeResultCaptureResponse
+                    .explicitNoCaptureResponseNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeResultCaptureError ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative error</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeResultCaptureError.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeResultCaptureError.errorState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeResultCaptureError.missingSyntheticOutputExample}
+              </p>
+              <p className={styles.railBody}>
+                {representativeResultCaptureError.databaseWriteBlockedExample}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeResultCaptureError
+                    .explicitNoCaptureErrorNoRetryNoFallbackStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {resultCapturePreviewRecords.map((record) => (
+            <article key={record.contract.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Capture lifecycle</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.contract.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.contract.resultCaptureState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`request: ${record.request?.captureRequestState ?? "missing"} | invocation: ${record.request?.captureInvocationState ?? "missing"}`}
+              </p>
+              <p className={styles.railBody}>
+                {`response: ${record.response?.responseState ?? "missing"} | decision: ${record.response?.captureDecisionState ?? "missing"}`}
+              </p>
+              <p className={styles.railBody}>
+                {`error: ${record.error?.errorState ?? "missing"} | retry posture: ${record.error?.retryPosture ?? "missing"}`}
+              </p>
+              <p className={styles.railFooter}>
+                {record.request?.blockedDefaultReason ?? record.contract.blockedDefaultReason}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Result capture gates">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only gate schema</p>
+            <h2 className={styles.panelTitle}>Result capture gates</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          synthetic runner skeleton. synthetic output fixture. synthetic error
+          fixture. synthetic result envelope. result capture request. result
+          capture response. result capture error. operator approval. manual
+          confirmation. kill switch. audit. server-only boundary. no frontend
+          provider call. no provider SDK import in frontend. no prompt
+          sending. opaque credential reference. no plaintext secrets.
+          privacy/redaction. cost/rate/timeout. idempotency/replay block.
+          single-run lock. no queue dispatch. no worker dispatch. no job
+          execution. no result persistence. no audit persistence. no approval
+          persistence. no database writes. no file writes.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  result capture gates are preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${resultCaptureGateSummary.gateCount} gates`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {resultCaptureGateSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "result-capture-gate-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Owner counts</p>
+                <h3 className={styles.placeholderTitle}>
+                  Backend contract, operator, safety
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                Required
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`backend capture contract: ${resultCaptureGateSummary.backendCaptureContractGateCount}`}
+            </p>
+            <p className={styles.railBody}>
+              {`operator: ${resultCaptureGateSummary.operatorGateCount}`}
+            </p>
+            <p className={styles.railBody}>
+              {`safety review: ${resultCaptureGateSummary.safetyReviewGateCount}`}
+            </p>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${resultCaptureGateSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {resultCaptureGateRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{`owner: ${record.owner}`}</p>
+              <p className={styles.railBody}>
+                {`required state: ${record.requiredState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`evidence requirement: ${record.evidenceRequirement}`}
+              </p>
+              <p className={styles.railFooter}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Result capture readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Compact readiness matrix</p>
+            <h2 className={styles.panelTitle}>Result capture readiness matrix</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            capture-contract-only / not persistent
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          capture contract state. result envelope state. capture request
+          contract state. capture response contract state. capture error
+          contract state. result persistence boundary state. audit persistence
+          boundary state. approval persistence boundary state. database
+          boundary state. file boundary state. current readiness:
+          capture-contract-only / not persistent. next safe action.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  current readiness: capture-contract-only / not persistent
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${resultCaptureReadinessSummary.readinessRecordCount} readiness records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {resultCaptureReadinessSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "result-capture-readiness-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeResultCaptureReadiness ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative readiness</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeResultCaptureReadiness.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeResultCaptureReadiness.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`capture contract state: ${representativeResultCaptureReadiness.captureContractState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`result envelope state: ${representativeResultCaptureReadiness.resultEnvelopeState} | capture request contract state: ${representativeResultCaptureReadiness.captureRequestContractState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`capture response contract state: ${representativeResultCaptureReadiness.captureResponseContractState} | capture error contract state: ${representativeResultCaptureReadiness.captureErrorContractState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeResultCaptureReadiness.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {resultCaptureReadinessMatrixRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Readiness record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentReadiness}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>{record.workspaceTarget}</span>
+                <span className={styles.metaPill}>
+                  {record.selectedCapabilityFamily.label}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`result persistence boundary state: ${record.resultPersistenceBoundaryState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit persistence boundary state: ${record.auditPersistenceBoundaryState} | approval persistence boundary state: ${record.approvalPersistenceBoundaryState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`database boundary state: ${record.databaseBoundaryState} | file boundary state: ${record.fileBoundaryState}`}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Result capture audit and approval join preview"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only join posture</p>
+            <h2 className={styles.panelTitle}>
+              Result capture audit and approval join preview
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          audit join state: not persisted. approval join state: not persisted.
+          result reference state: not persisted. no database write. no file
+          write.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Join summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  audit and approval joins are not persisted
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${resultCaptureAuditApprovalJoinPreviews.length} join previews`}
+              </span>
+            </div>
+            <p className={styles.railBody}>audit join state: not persisted</p>
+            <p className={styles.railBody}>approval join state: not persisted</p>
+            <p className={styles.railFooter}>
+              result reference state: not persisted
+            </p>
+          </article>
+          {representativeResultCaptureJoinPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative join</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeResultCaptureJoinPreview.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeResultCaptureJoinPreview.auditJoinState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeResultCaptureJoinPreview.evidenceSummary}
+              </p>
+              <p className={styles.railBody}>
+                {representativeResultCaptureJoinPreview.blockedActionSummary}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeResultCaptureJoinPreview
+                    .nextReviewRecoveryRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {resultCaptureAuditApprovalJoinPreviews.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Join preview</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.resultReferenceState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.noResultPersistenceStatement}</p>
+              <p className={styles.railBody}>{record.noAuditPersistenceStatement}</p>
+              <p className={styles.railBody}>
+                {record.noApprovalPersistenceStatement}
+              </p>
+              <p className={styles.railFooter}>
+                {`${record.noDatabaseWriteStatement} ${record.noFileWriteStatement}`}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <AthenaOperatorStatusPanel
         title="Athena operator status"
         eyebrow="Operator status"
@@ -9012,7 +9904,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next dry-run runner review and recovery checklist
+                  Next result capture review and recovery checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -9020,7 +9912,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextDryRunRunnerReviewAndRecoveryChecklist.map((item, index) => (
+              {nextResultCaptureReviewAndRecoveryChecklist.map((item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
                   className={styles.railCard}

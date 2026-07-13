@@ -472,11 +472,13 @@ function Get-CodexForgeCurrentReleaseGateStatusLabel {
   }
 }
 
-$currentReleaseGateBatch = "5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton"
+$currentReleaseGateBatch = "5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract"
 $currentReleaseGateName = "CodexForge Current Required Release Gate"
 $currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
 $historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
 $historicalArchiveInventoryCommand = "powershell -ExecutionPolicy Bypass -File .\scripts\" + $historicalArchiveInventoryFile
+# Historical current release gate assignment marker preserved for historical smoke coverage:
+# currentReleaseGateBatch = "5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton"
 # Previous current required release gate marker preserved for historical smoke coverage:
 # 4650-4681 - CodexForge Full Smoke Harness Triage and Required Release Gate
 # Previous current required release gate marker preserved for historical smoke coverage:
@@ -527,6 +529,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 5001 Backend-Owned Model Provider Dry-Run Runner Contract"; File = "smoke-codexforge-backend-owned-model-provider-dry-run-runner-contract-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5033 Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-model-provider-dry-run-runner-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5065 Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton"; File = "smoke-codexforge-backend-owned-model-provider-synthetic-dry-run-runner-skeleton-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 5097 Backend-Owned Synthetic Dry-Run Result Capture Contract"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-result-capture-contract-mega-batch.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }

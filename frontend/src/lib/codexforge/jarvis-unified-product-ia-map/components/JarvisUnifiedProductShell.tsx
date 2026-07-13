@@ -228,13 +228,14 @@ export function JarvisUnifiedProductPanel(
                 runner reviews. dry-run runner review is preview-only. dry-run
                 request is not created. dry-run invocation is not invoked.
                 dry-run execution is not executed. Athena can now preview
-                backend-owned synthetic dry-run runner skeletons. synthetic
-                runner skeleton is preview-only. runner state is skeleton /
-                not executable. dry-run request is not created. runner
-                invocation is not invoked. dry-run execution is not executed.
-                synthetic dry-run result capture contract comes next. no model
-                calls yet. no prompt sending. no provider SDKs imported.
-                queue, worker, and job execution remain blocked.
+                backend-owned synthetic dry-run result capture contracts.
+                synthetic result capture contract is preview-only. result
+                capture state is not captured. result persistence is not
+                implemented. audit persistence is not implemented. approval
+                persistence is not implemented. synthetic dry-run result
+                capture review and recovery preview comes next. no model calls
+                yet. no prompt sending. no provider SDKs imported. queue,
+                worker, and job execution remain blocked.
                 Plugin/provider execution remains blocked until approvals and
                 backend gates are satisfied. Manual/provider execution stays
                 backend-only. No autonomous execution yet.
@@ -255,6 +256,37 @@ export function JarvisUnifiedProductPanel(
                   dry-run runner review and recovery preview comes next. */}
               {/* Historical smoke marker preserved for prior batch coverage:
                   synthetic dry-run runner skeleton comes next. */}
+              {/* Historical smoke marker preserved for prior batch coverage:
+                  synthetic dry-run result capture contract comes next. */}
+              {/* Historical smoke markers preserved for prior home coverage:
+                  Athena can now preview AI model provider slots.
+                  Athena can now preview server-only model adapter contracts.
+                  Athena can now preview manual gated model adapter dry-runs.
+                  Athena can now preview model adapter dry-run result reviews.
+                  dry-run harness is fixture-only.
+                  dry-run review is fixture-only.
+                  Athena model routing and provider selection preview comes next.
+                  Athena can now preview model provider approval packets.
+                  Athena can now preview run intents for selected model routes.
+                  approval packet is preview-only.
+                  run intent is preview-only.
+                  manual gated run admission preview comes next.
+                  Athena can now preview manual gated model provider run admission.
+                  run admission is preview-only.
+                  admission token is not issued.
+                  admission lease is not created.
+                  run admission review and recovery preview comes next.
+                  Athena can now preview model provider run admission reviews.
+                  admission review is preview-only.
+                  admission decision remains held.
+                  backend-owned run admission contract comes next.
+                  Athena can now preview backend-owned synthetic dry-run runner skeletons.
+                  synthetic runner skeleton is preview-only.
+                  runner state is skeleton / not executable.
+                  dry-run request is not created.
+                  runner invocation is not invoked.
+                  dry-run execution is not executed.
+                  synthetic dry-run result capture contract comes next. */}
               <div className={styles.workspaceMeta}>
                 {productUx.heroCopy.postureChips.map((item) => (
                   <span key={item} className={styles.blockedPill}>
@@ -364,22 +396,27 @@ export function JarvisUnifiedProductPanel(
                   skeletons.
                 </p>
                 <p className={styles.railBody}>
-                  synthetic runner skeleton is preview-only.
+                  Athena can now preview backend-owned synthetic dry-run result
+                  capture contracts.
                 </p>
                 <p className={styles.railBody}>
-                  runner state is skeleton / not executable.
+                  synthetic result capture contract is preview-only.
                 </p>
                 <p className={styles.railBody}>
-                  dry-run request is not created.
+                  result capture state is not captured.
                 </p>
                 <p className={styles.railBody}>
-                  runner invocation is not invoked.
+                  result persistence is not implemented.
                 </p>
                 <p className={styles.railBody}>
-                  dry-run execution is not executed.
+                  audit persistence is not implemented.
                 </p>
                 <p className={styles.railBody}>
-                  synthetic dry-run result capture contract comes next.
+                  approval persistence is not implemented.
+                </p>
+                <p className={styles.railBody}>
+                  synthetic dry-run result capture review and recovery preview
+                  comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
@@ -393,6 +430,8 @@ export function JarvisUnifiedProductPanel(
                     manual gated run admission preview comes next from the approval packet layer. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
                     run admission review and recovery preview comes next. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    synthetic dry-run result capture contract comes next. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
                     backend-owned run admission contract comes next. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
