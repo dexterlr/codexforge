@@ -227,12 +227,17 @@ export function JarvisUnifiedProductPanel(
                 Athena can now preview backend-owned model provider dry-run
                 runner reviews. dry-run runner review is preview-only. dry-run
                 request is not created. dry-run invocation is not invoked.
-                dry-run execution is not executed. synthetic dry-run runner
-                skeleton comes next. no model calls yet. no prompt sending. no
-                provider SDKs imported. Plugin/provider execution remains
-                blocked until approvals and backend gates are satisfied. queue,
-                worker, and job execution remain blocked. Manual/provider
-                execution stays backend-only. No autonomous execution yet.
+                dry-run execution is not executed. Athena can now preview
+                backend-owned synthetic dry-run runner skeletons. synthetic
+                runner skeleton is preview-only. runner state is skeleton /
+                not executable. dry-run request is not created. runner
+                invocation is not invoked. dry-run execution is not executed.
+                synthetic dry-run result capture contract comes next. no model
+                calls yet. no prompt sending. no provider SDKs imported.
+                queue, worker, and job execution remain blocked.
+                Plugin/provider execution remains blocked until approvals and
+                backend gates are satisfied. Manual/provider execution stays
+                backend-only. No autonomous execution yet.
               </p>
               {/* Historical smoke marker preserved for prior batch coverage:
                   Athena model routing and provider selection preview comes next. */}
@@ -248,6 +253,8 @@ export function JarvisUnifiedProductPanel(
                   backend-owned dry-run runner contract comes next. */}
               {/* Historical smoke marker preserved for prior batch coverage:
                   dry-run runner review and recovery preview comes next. */}
+              {/* Historical smoke marker preserved for prior batch coverage:
+                  synthetic dry-run runner skeleton comes next. */}
               <div className={styles.workspaceMeta}>
                 {productUx.heroCopy.postureChips.map((item) => (
                   <span key={item} className={styles.blockedPill}>
@@ -353,13 +360,30 @@ export function JarvisUnifiedProductPanel(
                   dry-run runner review is preview-only.
                 </p>
                 <p className={styles.railBody}>
-                  synthetic dry-run runner skeleton comes next.
+                  Athena can now preview backend-owned synthetic dry-run runner
+                  skeletons.
+                </p>
+                <p className={styles.railBody}>
+                  synthetic runner skeleton is preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  runner state is skeleton / not executable.
+                </p>
+                <p className={styles.railBody}>
+                  dry-run request is not created.
+                </p>
+                <p className={styles.railBody}>
+                  runner invocation is not invoked.
+                </p>
+                <p className={styles.railBody}>
+                  dry-run execution is not executed.
+                </p>
+                <p className={styles.railBody}>
+                  synthetic dry-run result capture contract comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
-                  imported. Plugin/provider execution remains blocked until
-                  approvals and backend gates are satisfied. queue, worker, and
-                  job execution remain blocked.
+                  imported. queue, worker, and job execution remain blocked.
                 </p>
                 {/* Historical smoke marker preserved for prior batch coverage:
                     Athena model routing and provider selection preview comes next. */}
@@ -375,6 +399,8 @@ export function JarvisUnifiedProductPanel(
                     backend-owned dry-run runner contract comes next. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
                     dry-run runner review and recovery preview comes next. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    synthetic dry-run runner skeleton comes next. */}
               </article>
             </div>
           </div>

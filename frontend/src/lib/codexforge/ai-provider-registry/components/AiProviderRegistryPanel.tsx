@@ -42,6 +42,26 @@ import {
   listDryRunSafetyRedactionReviews,
   listModelAdapterDryRunResultReviews,
 } from "@/lib/codexforge/model-adapter-dry-run-result-review-recovery";
+import {
+  buildNextSyntheticDryRunResultCaptureContractChecklist,
+  buildSyntheticRunnerGateSummary,
+  buildSyntheticRunnerReadinessSummary,
+  buildSyntheticRunnerSkeletonSummary,
+  listBackendOwnedModelProviderSyntheticDryRunRunnerSkeletons,
+  listSyntheticDryRunErrorFixtures,
+  listSyntheticDryRunInputFixtures,
+  listSyntheticDryRunOutputFixtures,
+  listSyntheticRunnerSkeletonGates,
+  listSyntheticRunnerSkeletonReadinessMatrixRecords,
+} from "@/lib/codexforge/backend-owned-model-provider-synthetic-dry-run-runner-skeleton";
+
+function buildProviderScopedKey(
+  scope: string,
+  index: number,
+  value: string
+): string {
+  return `${scope}-${index}-${value}`;
+}
 
 export function AiProviderRegistryPanel() {
   const providerSlots = listModelProviderSlots();
@@ -95,6 +115,27 @@ export function AiProviderRegistryPanel() {
   const representativeSafetyReview = safetyReviews[0] ?? null;
   const representativeRecoveryPlan = recoveryPlanPreviews[0] ?? null;
   const representativeAcceptanceMatrix = acceptanceMatrixRecords[0] ?? null;
+  const syntheticRunnerSkeletons =
+    listBackendOwnedModelProviderSyntheticDryRunRunnerSkeletons();
+  const syntheticInputFixtures = listSyntheticDryRunInputFixtures();
+  const syntheticOutputFixtures = listSyntheticDryRunOutputFixtures();
+  const syntheticErrorFixtures = listSyntheticDryRunErrorFixtures();
+  const syntheticRunnerGates = listSyntheticRunnerSkeletonGates();
+  const syntheticRunnerReadinessMatrixRecords =
+    listSyntheticRunnerSkeletonReadinessMatrixRecords();
+  const syntheticRunnerSkeletonSummary = buildSyntheticRunnerSkeletonSummary();
+  const syntheticRunnerGateSummary = buildSyntheticRunnerGateSummary();
+  const syntheticRunnerReadinessSummary = buildSyntheticRunnerReadinessSummary();
+  const nextSyntheticDryRunResultCaptureContractChecklist =
+    buildNextSyntheticDryRunResultCaptureContractChecklist();
+  const representativeSyntheticRunnerSkeleton =
+    syntheticRunnerSkeletons[0] ?? null;
+  const representativeSyntheticInputFixture = syntheticInputFixtures[0] ?? null;
+  const representativeSyntheticOutputFixture =
+    syntheticOutputFixtures[0] ?? null;
+  const representativeSyntheticErrorFixture = syntheticErrorFixtures[0] ?? null;
+  const representativeSyntheticRunnerReadiness =
+    syntheticRunnerReadinessMatrixRecords[0] ?? null;
   const providerLabelsById = new Map(
     providerSlots.map((slot) => [slot.id, slot.label] as const)
   );
@@ -102,7 +143,7 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only Provider response is not received Model output is not generated No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked Athena model routing and provider selection preview comes next"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only synthetic runner skeleton is preview-only runner state: skeleton / not executable dry-run request is not created runner invocation is not invoked dry-run execution is not executed Provider response is not received Model output is not generated synthetic dry-run result capture contract comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
     >
       <section style={hero}>
         <div>
@@ -118,10 +159,15 @@ export function AiProviderRegistryPanel() {
             contracts are preview-only. Adapter envelope preview is
             preview-only. dry-run review is fixture-only. quality review is
             static preview only. safety review is static preview only.
-            redaction review is static preview only. No model calls yet. No
-            prompt sending. No provider SDKs imported. Frontend provider calls
-            are blocked. Athena model routing and provider selection preview
-            comes next.
+            redaction review is static preview only. Athena can now preview
+            backend-owned synthetic dry-run runner skeletons. synthetic runner
+            skeleton is preview-only. runner state is skeleton / not
+            executable. dry-run request is not created. runner invocation is
+            not invoked. dry-run execution is not executed. provider response
+            is not received. model output is not generated. synthetic dry-run
+            result capture contract comes next. No model calls yet. No prompt
+            sending. No provider SDKs imported. Frontend provider calls are
+            blocked.
           </p>
         </div>
         <div style={linkRow}>
@@ -191,20 +237,20 @@ export function AiProviderRegistryPanel() {
           <article style={card}>
             <span style={tag}>Next batch</span>
             <h3 style={cardTitle}>
-              Model adapter dry-run result review and recovery
+              Backend-owned synthetic dry-run result capture contract
             </h3>
             <p style={copy}>
-              Fixture-only dry-run result review and recovery previews are now
-              visible in the provider hub.
+              Synthetic backend-owned runner skeletons are now visible in the
+              provider hub.
             </p>
             <div style={list}>
               {[
-                "dry-run result review is fixture-only",
-                "quality review is static preview only",
-                "safety review is static preview only",
-                "recovery is manual review only",
-                "dry-run acceptance matrix is preview-only",
-                "Athena model routing and provider selection preview comes next",
+                "Backend-owned synthetic dry-run runner skeleton",
+                "Synthetic dry-run fixture packet",
+                "Synthetic runner skeleton gates",
+                "Synthetic runner readiness matrix",
+                "synthetic runner skeleton is preview-only",
+                "synthetic dry-run result capture contract comes next",
               ].map((item) => (
                 <span key={item} style={pill}>
                   {item}
@@ -969,8 +1015,291 @@ export function AiProviderRegistryPanel() {
         </div>
       </section>
 
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only backend skeleton</span>
+            <h2 style={sectionTitle}>
+              Backend-owned synthetic dry-run runner skeleton
+            </h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          Athena can preview the backend-owned synthetic dry-run runner
+          skeleton. synthetic runner skeleton is preview-only. runner state:
+          skeleton / not executable. dry-run request is not created. runner
+          invocation is not invoked. dry-run execution is not executed.
+          provider response is not received. model output is not generated.
+          synthetic fixture result is static placeholder only. provider
+          execution is blocked. queue dispatch is blocked. worker dispatch is
+          blocked. job execution is blocked. No prompt sending. No model calls
+          yet. No provider SDKs imported. synthetic dry-run result capture
+          contract comes next.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Skeleton summary</span>
+            <h3 style={cardTitle}>
+              {syntheticRunnerSkeletonSummary.latestCompletedBatch}
+            </h3>
+            <p style={copy}>
+              {`Phase ${syntheticRunnerSkeletonSummary.highestDetectedPhase}. Previous completed batch: ${syntheticRunnerSkeletonSummary.previousCompletedBatch}.`}
+            </p>
+            <div style={list}>
+              {syntheticRunnerSkeletonSummary.summaryLines.slice(0, 8).map(
+                (item, index) => (
+                  <span
+                    key={buildProviderScopedKey(
+                      "synthetic-runner-summary",
+                      index,
+                      item
+                    )}
+                    style={pill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {representativeSyntheticRunnerSkeleton ? (
+            <article style={card}>
+              <span style={tag}>Representative skeleton</span>
+              <h3 style={cardTitle}>
+                {representativeSyntheticRunnerSkeleton.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`Workspace: ${representativeSyntheticRunnerSkeleton.workspaceTarget}. Capability: ${representativeSyntheticRunnerSkeleton.selectedCapabilityFamily.label}.`}
+              </p>
+              <p style={copy}>
+                {`Provider slot label: ${representativeSyntheticRunnerSkeleton.providerSlotLabel}. Backup provider slot label: ${representativeSyntheticRunnerSkeleton.backupProviderSlotLabel}.`}
+              </p>
+              <p style={copy}>
+                {`dry-run request state: ${representativeSyntheticRunnerSkeleton.dryRunRequestState}. runner invocation state: ${representativeSyntheticRunnerSkeleton.runnerInvocationState}.`}
+              </p>
+              <p style={copy}>
+                {`dry-run execution state: ${representativeSyntheticRunnerSkeleton.dryRunExecutionState}. provider response state: ${representativeSyntheticRunnerSkeleton.providerResponseState}.`}
+              </p>
+            </article>
+          ) : null}
+          <article style={card}>
+            <span style={tag}>What comes next</span>
+            <h3 style={cardTitle}>
+              synthetic dry-run result capture contract comes next
+            </h3>
+            <div style={list}>
+              {nextSyntheticDryRunResultCaptureContractChecklist.map(
+                (item, index) => (
+                  <span
+                    key={buildProviderScopedKey(
+                      "synthetic-runner-next",
+                      index,
+                      item
+                    )}
+                    style={pill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+        <div style={grid}>
+          {syntheticRunnerSkeletons.map((record) => (
+            <article key={record.key} style={card}>
+              <span style={tag}>Synthetic skeleton</span>
+              <h3 style={cardTitle}>{record.requestLabel}</h3>
+              <p style={copy}>{record.blockedDefaultReason}</p>
+              <p style={copy}>
+                {`runner state: ${record.runnerState}. dry-run request state: ${record.dryRunRequestState}.`}
+              </p>
+              <p style={copy}>
+                {`runner invocation state: ${record.runnerInvocationState}. dry-run execution state: ${record.dryRunExecutionState}.`}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Static fixture-only packet</span>
+            <h2 style={sectionTitle}>Synthetic dry-run fixture packet</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          synthetic input fixture. synthetic output fixture. synthetic error
+          fixture. prompt payload is redacted placeholder only. prompt
+          transmission state: not sent. credential reference posture: opaque
+          label only. provider response is not received. model output is not
+          generated. synthetic result is placeholder only. no real input, no
+          real output, no real error.
+        </p>
+        <div style={grid}>
+          {representativeSyntheticInputFixture ? (
+            <article style={card}>
+              <span style={tag}>Synthetic input fixture</span>
+              <h3 style={cardTitle}>
+                {representativeSyntheticInputFixture.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`prompt payload posture: ${representativeSyntheticInputFixture.promptPayloadPosture}.`}
+              </p>
+              <p style={copy}>
+                {`prompt transmission state: ${representativeSyntheticInputFixture.promptTransmissionState}.`}
+              </p>
+              <p style={copy}>
+                {representativeSyntheticInputFixture.explicitNoRealInputNoPromptSentStatement}
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticOutputFixture ? (
+            <article style={card}>
+              <span style={tag}>Synthetic output fixture</span>
+              <h3 style={cardTitle}>
+                {representativeSyntheticOutputFixture.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`provider response state: ${representativeSyntheticOutputFixture.providerResponseState}.`}
+              </p>
+              <p style={copy}>
+                {`model output state: ${representativeSyntheticOutputFixture.modelOutputState}.`}
+              </p>
+              <p style={copy}>
+                {representativeSyntheticOutputFixture.explicitNoRealOutputNoModelOutputStatement}
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticErrorFixture ? (
+            <article style={card}>
+              <span style={tag}>Synthetic error fixture</span>
+              <h3 style={cardTitle}>
+                {representativeSyntheticErrorFixture.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`provider error state: ${representativeSyntheticErrorFixture.providerErrorState}.`}
+              </p>
+              <p style={copy}>
+                {representativeSyntheticErrorFixture.queueDispatchBlockedExample}
+              </p>
+              <p style={copy}>
+                {representativeSyntheticErrorFixture.explicitNoRealErrorNoProviderErrorStatement}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only gate schema</span>
+            <h2 style={sectionTitle}>Synthetic runner skeleton gates</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only / blocked</span>
+        </div>
+        <p style={copy}>
+          backend admission contract. dry-run runner contract. dry-run runner
+          review. synthetic input fixture. synthetic output fixture. synthetic
+          error fixture. operator approval. manual confirmation. kill switch.
+          audit. server-only boundary. no frontend provider call. no provider
+          SDK import in frontend. no prompt sending. opaque credential
+          reference. no plaintext secrets. privacy/redaction. cost/rate/timeout.
+          idempotency/replay block. single-run lock. no queue dispatch. no
+          worker dispatch. no job execution. no persistence until future
+          backend batch.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Gate summary</span>
+            <h3 style={cardTitle}>
+              {`${syntheticRunnerGateSummary.gateCount} synthetic runner gates`}
+            </h3>
+            <p style={copy}>
+              {`backend skeleton: ${syntheticRunnerGateSummary.backendSkeletonGateCount}. operator: ${syntheticRunnerGateSummary.operatorGateCount}. safety review: ${syntheticRunnerGateSummary.safetyReviewGateCount}.`}
+            </p>
+            <div style={list}>
+              {syntheticRunnerGateSummary.summaryLines.slice(0, 8).map(
+                (item, index) => (
+                  <span
+                    key={buildProviderScopedKey(
+                      "synthetic-runner-gates",
+                      index,
+                      item
+                    )}
+                    style={pill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {syntheticRunnerGates.slice(0, 3).map((record) => (
+            <article key={record.key} style={card}>
+              <span style={tag}>Gate record</span>
+              <h3 style={cardTitle}>{record.label}</h3>
+              <p style={copy}>{`owner: ${record.owner}.`}</p>
+              <p style={copy}>{`current state: ${record.currentState}.`}</p>
+              <p style={copy}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Compact readiness matrix</span>
+            <h2 style={sectionTitle}>Synthetic runner readiness matrix</h2>
+          </div>
+          <span style={sectionBadge}>skeleton-only / not executable</span>
+        </div>
+        <p style={copy}>
+          skeleton state. input fixture state. output fixture state. error
+          fixture state. gate schema state. admission dependency state. runner
+          contract dependency state. runner review dependency state.
+          queue/worker/job boundary state. persistence boundary state. result
+          capture dependency. current readiness: skeleton-only / not
+          executable. next safe action.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Readiness summary</span>
+            <h3 style={cardTitle}>
+              {syntheticRunnerReadinessSummary.currentReadiness}
+            </h3>
+            <p style={copy}>
+              {`Readiness records: ${syntheticRunnerReadinessSummary.readinessRecordCount}.`}
+            </p>
+            <p style={copy}>{syntheticRunnerReadinessSummary.nextSafeAction}</p>
+          </article>
+          {representativeSyntheticRunnerReadiness ? (
+            <article style={card}>
+              <span style={tag}>Representative readiness</span>
+              <h3 style={cardTitle}>
+                {representativeSyntheticRunnerReadiness.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`skeleton state: ${representativeSyntheticRunnerReadiness.skeletonState}.`}
+              </p>
+              <p style={copy}>
+                {`queue/worker/job boundary state: ${representativeSyntheticRunnerReadiness.queueBoundaryState} / ${representativeSyntheticRunnerReadiness.workerBoundaryState} / ${representativeSyntheticRunnerReadiness.jobBoundaryState}.`}
+              </p>
+              <p style={copy}>
+                {`result capture dependency: ${representativeSyntheticRunnerReadiness.resultCaptureDependency}.`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section style={notice}>
-        {nextModelRoutingProviderSelectionChecklist.map((item) => (
+        {nextSyntheticDryRunResultCaptureContractChecklist.map((item) => (
           <p key={item}>{item}</p>
         ))}
       </section>

@@ -107,6 +107,21 @@ import {
   listDryRunRunnerReviewAuditSummaries,
 } from "@/lib/codexforge/backend-owned-model-provider-dry-run-runner-review-recovery-preview";
 import {
+  buildNextSyntheticDryRunResultCaptureContractChecklist,
+  buildSyntheticRunnerGateSummary,
+  buildSyntheticRunnerReadinessSummary,
+  buildSyntheticRunnerSkeletonSummary,
+  groupSyntheticRunnerSkeletonsByCapabilityFamily,
+  groupSyntheticRunnerSkeletonsByWorkspaceTarget,
+  listBackendOwnedModelProviderSyntheticDryRunRunnerSkeletons,
+  listSyntheticDryRunErrorFixtures,
+  listSyntheticDryRunInputFixtures,
+  listSyntheticDryRunOutputFixtures,
+  listSyntheticRunnerSkeletonGates,
+  listSyntheticRunnerSkeletonHandoffPreviews,
+  listSyntheticRunnerSkeletonReadinessMatrixRecords,
+} from "@/lib/codexforge/backend-owned-model-provider-synthetic-dry-run-runner-skeleton";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -571,6 +586,58 @@ export function AthenaCommandCenterPanel({
     dryRunRunnerRecoveryReadinessChecklistRecords.filter(
       (record) => record.state === "blocked"
     );
+  const syntheticRunnerSkeletons =
+    listBackendOwnedModelProviderSyntheticDryRunRunnerSkeletons();
+  const syntheticInputFixtures = listSyntheticDryRunInputFixtures();
+  const syntheticOutputFixtures = listSyntheticDryRunOutputFixtures();
+  const syntheticErrorFixtures = listSyntheticDryRunErrorFixtures();
+  const syntheticRunnerGates = listSyntheticRunnerSkeletonGates();
+  const syntheticRunnerReadinessMatrixRecords =
+    listSyntheticRunnerSkeletonReadinessMatrixRecords();
+  const syntheticRunnerHandoffPreviews =
+    listSyntheticRunnerSkeletonHandoffPreviews();
+  const syntheticRunnerSkeletonSummary = buildSyntheticRunnerSkeletonSummary();
+  const syntheticRunnerGateSummary = buildSyntheticRunnerGateSummary();
+  const syntheticRunnerReadinessSummary = buildSyntheticRunnerReadinessSummary();
+  const nextSyntheticDryRunResultCaptureContractChecklist =
+    buildNextSyntheticDryRunResultCaptureContractChecklist();
+  const syntheticRunnerCapabilityGroups =
+    groupSyntheticRunnerSkeletonsByCapabilityFamily();
+  const syntheticRunnerWorkspaceGroups =
+    groupSyntheticRunnerSkeletonsByWorkspaceTarget();
+  const syntheticInputFixturesById = new Map(
+    syntheticInputFixtures.map((record) => [record.id, record] as const)
+  );
+  const syntheticOutputFixturesById = new Map(
+    syntheticOutputFixtures.map((record) => [record.id, record] as const)
+  );
+  const syntheticErrorFixturesById = new Map(
+    syntheticErrorFixtures.map((record) => [record.id, record] as const)
+  );
+  const syntheticReadinessById = new Map(
+    syntheticRunnerReadinessMatrixRecords.map((record) => [record.id, record] as const)
+  );
+  const syntheticHandoffsById = new Map(
+    syntheticRunnerHandoffPreviews.map((record) => [record.id, record] as const)
+  );
+  const syntheticFixturePacketRecords = syntheticRunnerSkeletons.map((skeleton) => ({
+    skeleton,
+    input: syntheticInputFixturesById.get(skeleton.id) ?? null,
+    output: syntheticOutputFixturesById.get(skeleton.id) ?? null,
+    error: syntheticErrorFixturesById.get(skeleton.id) ?? null,
+    readiness: syntheticReadinessById.get(skeleton.id) ?? null,
+    handoff: syntheticHandoffsById.get(skeleton.id) ?? null,
+  }));
+  const representativeSyntheticRunnerSkeleton =
+    syntheticRunnerSkeletons[0] ?? null;
+  const representativeSyntheticInputFixture = syntheticInputFixtures[0] ?? null;
+  const representativeSyntheticOutputFixture =
+    syntheticOutputFixtures[0] ?? null;
+  const representativeSyntheticErrorFixture = syntheticErrorFixtures[0] ?? null;
+  const representativeSyntheticRunnerReadiness =
+    syntheticRunnerReadinessMatrixRecords[0] ?? null;
+  const representativeSyntheticRunnerHandoff =
+    syntheticRunnerHandoffPreviews[0] ?? null;
   const providersByCapabilityId = new Map(
     providersByCapability.map((group) => [
       group.capabilityId,
@@ -7383,6 +7450,763 @@ export function AthenaCommandCenterPanel({
               <p className={styles.railFooter}>
                 {record.explicitNoAcceptanceNoExecutionStatement}
               </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned synthetic dry-run runner skeleton"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only backend skeleton</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned synthetic dry-run runner skeleton
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview the backend-owned synthetic dry-run runner
+          skeleton. synthetic runner skeleton is preview-only. runner state:
+          skeleton / not executable. dry-run request is not created. runner
+          invocation is not invoked. dry-run execution is not executed.
+          provider response is not received. model output is not generated.
+          synthetic fixture result is static placeholder only. provider
+          execution is blocked. queue dispatch is blocked. worker dispatch is
+          blocked. job execution is blocked. No prompt sending. No model calls
+          yet. No provider SDKs imported. synthetic dry-run result capture
+          contract comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Skeleton posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  synthetic runner skeleton is preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${syntheticRunnerSkeletonSummary.skeletonCount} skeletons`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticRunnerSkeletonSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-runner-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Batch identity</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticRunnerSkeletonSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`Phase ${syntheticRunnerSkeletonSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`Previous completed batch: ${syntheticRunnerSkeletonSummary.previousCompletedBatch}`}
+            </p>
+            <p className={styles.railBody}>
+              {`Next likely batch: ${syntheticRunnerSkeletonSummary.nextLikelyBatch}`}
+            </p>
+            <p className={styles.railBody}>
+              {`Input fixtures: ${syntheticRunnerSkeletonSummary.inputFixtureCount} | Output fixtures: ${syntheticRunnerSkeletonSummary.outputFixtureCount}`}
+            </p>
+            <p className={styles.railFooter}>
+              {`Error fixtures: ${syntheticRunnerSkeletonSummary.errorFixtureCount} | Gates: ${syntheticRunnerSkeletonSummary.gateCount}`}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Capability coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Synthetic skeleton lanes by capability family
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${syntheticRunnerCapabilityGroups.length} capability families`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticRunnerCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-runner-capability-group",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.skeletonCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Workspace coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Synthetic skeleton lanes by workspace
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${syntheticRunnerWorkspaceGroups.length} workspace targets`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticRunnerWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-runner-workspace-group",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.workspaceTarget} (${group.skeletonCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        {representativeSyntheticRunnerSkeleton ? (
+          <div className={styles.summaryGrid}>
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative skeleton</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticRunnerSkeleton.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeSyntheticRunnerSkeleton.runnerState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`Workspace: ${representativeSyntheticRunnerSkeleton.workspaceTarget}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeSyntheticRunnerSkeleton.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeSyntheticRunnerSkeleton.providerSlotLabel}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`source dry-run runner contract reference: ${representativeSyntheticRunnerSkeleton.sourceDryRunRunnerContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source dry-run runner review reference: ${representativeSyntheticRunnerSkeleton.sourceDryRunRunnerReviewReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source backend admission contract reference: ${representativeSyntheticRunnerSkeleton.sourceBackendAdmissionContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source run intent reference: ${representativeSyntheticRunnerSkeleton.sourceRunIntentReference}`}
+              </p>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeSyntheticRunnerSkeleton.dryRunRequestState,
+                  representativeSyntheticRunnerSkeleton.runnerInvocationState,
+                  representativeSyntheticRunnerSkeleton.dryRunExecutionState,
+                  representativeSyntheticRunnerSkeleton.providerResponseState,
+                  representativeSyntheticRunnerSkeleton.modelOutputState,
+                  representativeSyntheticRunnerSkeleton.syntheticFixtureResultState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      representativeSyntheticRunnerSkeleton.key,
+                      "state",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticRunnerSkeleton.nextSyntheticDryRunResultCaptureContractRequirement
+                }
+              </p>
+            </article>
+            {representativeSyntheticRunnerHandoff ? (
+              <article className={styles.summaryCard}>
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>Handoff preview</p>
+                    <h3 className={styles.placeholderTitle}>
+                      preview-only / not handed off
+                    </h3>
+                  </div>
+                  <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                    {representativeSyntheticRunnerHandoff.backendRunnerTarget}
+                  </span>
+                </div>
+                <p className={styles.railBody}>
+                  {`dry-run request state: ${representativeSyntheticRunnerHandoff.dryRunRequestState}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`runner invocation state: ${representativeSyntheticRunnerHandoff.runnerInvocationState}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`provider call state: ${representativeSyntheticRunnerHandoff.providerCallState} | model output state: ${representativeSyntheticRunnerHandoff.modelOutputState}`}
+                </p>
+                <p className={styles.railBody}>
+                  {`fixture result state: ${representativeSyntheticRunnerHandoff.fixtureResultState} | queue/worker/job state summary: ${representativeSyntheticRunnerHandoff.queueWorkerJobStateSummary}`}
+                </p>
+                <p className={styles.railFooter}>
+                  {
+                    representativeSyntheticRunnerHandoff.explicitNoHandoffNoExecutionStatement
+                  }
+                </p>
+              </article>
+            ) : null}
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Next contract</p>
+                  <h3 className={styles.placeholderTitle}>
+                    synthetic dry-run result capture contract comes next
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {syntheticRunnerSkeletonSummary.nextLikelyBatch}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {nextSyntheticDryRunResultCaptureContractChecklist.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "synthetic-runner-next-contract-checklist",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
+          </div>
+        ) : null}
+        <div className={styles.summaryGrid}>
+          {syntheticRunnerSkeletons.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Synthetic skeleton</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.runnerState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>{record.workspaceTarget}</span>
+                <span className={styles.metaPill}>
+                  {record.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>{record.providerSlotLabel}</span>
+              </div>
+              <p className={styles.railBody}>
+                {`backup provider slot label: ${record.backupProviderSlotLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`local/private alternative label: ${record.localPrivateAlternativeLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`dry-run request state: ${record.dryRunRequestState} | runner invocation state: ${record.runnerInvocationState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`dry-run execution state: ${record.dryRunExecutionState} | provider response state: ${record.providerResponseState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`model output state: ${record.modelOutputState} | synthetic fixture result state: ${record.syntheticFixtureResultState}`}
+              </p>
+              <p className={styles.railFooter}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic dry-run fixture packet">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Static fixture-only packet</p>
+            <h2 className={styles.panelTitle}>Synthetic dry-run fixture packet</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          synthetic input fixture. synthetic output fixture. synthetic error
+          fixture. prompt payload is redacted placeholder only. prompt
+          transmission state: not sent. credential reference posture: opaque
+          label only. provider response is not received. model output is not
+          generated. synthetic result is placeholder only. no real input, no
+          real output, no real error.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Fixture packet summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  No real input, no real output, no real error
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Preview-only
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`synthetic input fixtures: ${syntheticInputFixtures.length}`}
+            </p>
+            <p className={styles.railBody}>
+              {`synthetic output fixtures: ${syntheticOutputFixtures.length}`}
+            </p>
+            <p className={styles.railBody}>
+              {`synthetic error fixtures: ${syntheticErrorFixtures.length}`}
+            </p>
+            <p className={styles.railFooter}>
+              prompt payload is redacted placeholder only
+            </p>
+          </article>
+          {representativeSyntheticInputFixture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Synthetic input fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticInputFixture.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeSyntheticInputFixture.fixtureMode}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`prompt payload posture: ${representativeSyntheticInputFixture.promptPayloadPosture}`}
+              </p>
+              <p className={styles.railBody}>
+                {`prompt transmission state: ${representativeSyntheticInputFixture.promptTransmissionState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`credential reference posture: ${representativeSyntheticInputFixture.credentialReferencePosture}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticInputFixture.explicitNoRealInputNoPromptSentStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticOutputFixture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Synthetic output fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticOutputFixture.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeSyntheticOutputFixture.outputMode}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`provider response state: ${representativeSyntheticOutputFixture.providerResponseState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`model output state: ${representativeSyntheticOutputFixture.modelOutputState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`synthetic result state: ${representativeSyntheticOutputFixture.syntheticResultState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticOutputFixture.explicitNoRealOutputNoModelOutputStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticErrorFixture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Synthetic error fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticErrorFixture.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeSyntheticErrorFixture.errorMode}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`provider error state: ${representativeSyntheticErrorFixture.providerErrorState}`}
+              </p>
+              <p className={styles.railBody}>
+                {representativeSyntheticErrorFixture.runnerInvocationDeniedExample}
+              </p>
+              <p className={styles.railBody}>
+                {representativeSyntheticErrorFixture.queueDispatchBlockedExample}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticErrorFixture.explicitNoRealErrorNoProviderErrorStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {syntheticFixturePacketRecords.map((record) => (
+            <article key={record.skeleton.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Synthetic fixture packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.skeleton.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.skeleton.workspaceTarget}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`synthetic input fixture: ${record.input?.promptPayloadPosture ?? "missing"}`}
+              </p>
+              <p className={styles.railBody}>
+                {`synthetic output fixture: ${record.output?.syntheticResultState ?? "missing"}`}
+              </p>
+              <p className={styles.railBody}>
+                {`synthetic error fixture: ${record.error?.errorMode ?? "missing"}`}
+              </p>
+              <p className={styles.railBody}>
+                {`readiness: ${record.readiness?.currentReadiness ?? "missing"}`}
+              </p>
+              <p className={styles.railFooter}>
+                {record.handoff?.explicitNoHandoffNoExecutionStatement ?? "No handoff. No execution."}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic runner skeleton gates">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only gate schema</p>
+            <h2 className={styles.panelTitle}>Synthetic runner skeleton gates</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          synthetic runner gates are preview-only. backend admission contract.
+          dry-run runner contract. dry-run runner review. synthetic input
+          fixture. synthetic output fixture. synthetic error fixture. operator
+          approval. manual confirmation. kill switch. audit. server-only
+          boundary. no frontend provider call. no provider SDK import in
+          frontend. no prompt sending. opaque credential reference. no
+          plaintext secrets. privacy/redaction. cost/rate/timeout.
+          idempotency/replay block. single-run lock. no queue dispatch. no
+          worker dispatch. no job execution. no persistence until future
+          backend batch.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  synthetic runner gates are preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${syntheticRunnerGateSummary.gateCount} gates`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticRunnerGateSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-runner-gate-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Owner counts</p>
+                <h3 className={styles.placeholderTitle}>Backend, operator, safety</h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                Required
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`backend skeleton: ${syntheticRunnerGateSummary.backendSkeletonGateCount}`}
+            </p>
+            <p className={styles.railBody}>
+              {`operator: ${syntheticRunnerGateSummary.operatorGateCount}`}
+            </p>
+            <p className={styles.railBody}>
+              {`safety review: ${syntheticRunnerGateSummary.safetyReviewGateCount}`}
+            </p>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${syntheticRunnerGateSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next result capture checklist</p>
+                <h3 className={styles.placeholderTitle}>
+                  synthetic dry-run result capture contract comes next
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                Next likely batch
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {nextSyntheticDryRunResultCaptureContractChecklist.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-runner-gate-next-checklist",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {syntheticRunnerGates.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{`owner: ${record.owner}`}</p>
+              <p className={styles.railBody}>
+                {`required state: ${record.requiredState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`evidence requirement: ${record.evidenceRequirement}`}
+              </p>
+              <p className={styles.railBody}>{record.blockedDefaultReason}</p>
+              <p className={styles.railFooter}>
+                {record.nextResultCaptureContractRequirement}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic runner readiness matrix">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Compact readiness matrix</p>
+            <h2 className={styles.panelTitle}>Synthetic runner readiness matrix</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            skeleton-only / not executable
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          skeleton state. input fixture state. output fixture state. error
+          fixture state. gate schema state. admission dependency state. runner
+          contract dependency state. runner review dependency state.
+          queue/worker/job boundary state. persistence boundary state. result
+          capture dependency. current readiness: skeleton-only / not
+          executable. next safe action.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  current readiness: skeleton-only / not executable
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${syntheticRunnerReadinessSummary.readinessRecordCount} readiness records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticRunnerReadinessSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-runner-readiness-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeSyntheticRunnerReadiness ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative readiness</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticRunnerReadiness.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeSyntheticRunnerReadiness.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`skeleton state: ${representativeSyntheticRunnerReadiness.skeletonState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`input fixture state: ${representativeSyntheticRunnerReadiness.inputFixtureState} | output fixture state: ${representativeSyntheticRunnerReadiness.outputFixtureState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`error fixture state: ${representativeSyntheticRunnerReadiness.errorFixtureState} | gate schema state: ${representativeSyntheticRunnerReadiness.gateSchemaState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticRunnerReadiness.resultCaptureDependency
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe action</p>
+                <h3 className={styles.placeholderTitle}>Keep the skeleton inert</h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {syntheticRunnerReadinessSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <p className={styles.placeholderSummary}>
+              {syntheticRunnerReadinessSummary.nextSafeAction}
+            </p>
+            <p className={styles.railBody}>
+              queue dispatch is blocked. worker dispatch is blocked. job
+              execution is blocked.
+            </p>
+            <p className={styles.railFooter}>
+              persistence boundary state: not implemented
+            </p>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {syntheticRunnerReadinessMatrixRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Readiness record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentReadiness}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>{record.workspaceTarget}</span>
+                <span className={styles.metaPill}>
+                  {record.selectedCapabilityFamily.label}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`skeleton state: ${record.skeletonState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`input fixture state: ${record.inputFixtureState} | output fixture state: ${record.outputFixtureState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`error fixture state: ${record.errorFixtureState} | gate schema state: ${record.gateSchemaState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission dependency state: ${record.admissionContractDependencyState} | runner contract dependency state: ${record.runnerContractDependencyState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`runner review dependency state: ${record.runnerReviewDependencyState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`queue/worker/job boundary state: ${record.queueBoundaryState} / ${record.workerBoundaryState} / ${record.jobBoundaryState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`persistence boundary state: ${record.persistenceBoundaryState}`}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
             </article>
           ))}
         </div>

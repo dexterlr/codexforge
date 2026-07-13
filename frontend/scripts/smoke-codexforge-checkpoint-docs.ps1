@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5033) {
-  throw "[FAIL] Highest detected phase expected 5033 found $highestPhase"
+if ($highestPhase -ne 5065) {
+  throw "[FAIL] Highest detected phase expected 5065 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton"',
+  "Phase 5065 Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton",
+  "smoke-codexforge-backend-owned-model-provider-synthetic-dry-run-runner-skeleton-mega-batch.ps1",
   'currentReleaseGateBatch = "5002-5033 - Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview"',
   "Phase 5033 Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview",
   "smoke-codexforge-backend-owned-model-provider-dry-run-runner-review-recovery-preview-mega-batch.ps1",
@@ -110,6 +113,25 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+  "Current checkpoint: Highest detected phase: 5065. Latest completed batch: 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton. Previous completed batch: 5002-5033 - Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview. Next likely batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract.",
+  "Highest detected phase: 5065",
+  "Latest completed batch: 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton",
+  "Previous completed batch: 5002-5033 - Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview",
+  "Next likely batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract",
+  "backend-owned model provider synthetic dry-run runner skeleton only",
+  "synthetic runner skeleton is preview-only",
+  "runner state is skeleton / not executable",
+  "dry-run request is not created",
+  "runner invocation is not invoked",
+  "dry-run execution is not executed",
+  "provider response is not received",
+  "model output is not generated",
+  "synthetic fixture result is static placeholder only",
+  "synthetic input/output/error fixtures are preview-only",
+  "synthetic runner gates are preview-only",
+  "synthetic runner readiness matrix is preview-only",
+  "current readiness is skeleton-only / not executable",
+  "backend-owned synthetic dry-run result capture contract next",
   "Current checkpoint: Highest detected phase: 5033. Latest completed batch: 5002-5033 - Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview. Previous completed batch: 4970-5001 - Backend-Owned Model Provider Dry-Run Runner Contract. Next likely batch: 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton.",
   "Highest detected phase: 5033",
   "Latest completed batch: 5002-5033 - Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview",
@@ -122,13 +144,9 @@ foreach ($needle in @(
   "dry-run runner recovery plan is preview-only",
   "dry-run runner recovery readiness is preview-only",
   "dry-run runner acceptance posture is preview-only",
-  "dry-run request is not created",
   "dry-run invocation is not invoked",
-  "dry-run execution is not executed",
   "dry-run response is not received",
   "dry-run error is not received",
-  "provider response is not received",
-  "model output is not generated",
   "fixture result is not produced",
   "acceptance state is not accepted / preview-only",
   "recovery is manual review only",

@@ -472,7 +472,7 @@ function Get-CodexForgeCurrentReleaseGateStatusLabel {
   }
 }
 
-$currentReleaseGateBatch = "5002-5033 - Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview"
+$currentReleaseGateBatch = "5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton"
 $currentReleaseGateName = "CodexForge Current Required Release Gate"
 $currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
 $historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
@@ -497,6 +497,8 @@ $historicalArchiveInventoryCommand = "powershell -ExecutionPolicy Bypass -File .
 # currentReleaseGateBatch = "4938-4969 - Backend-Owned Model Provider Run Admission Contract"
 # Historical current release gate assignment marker preserved for historical smoke coverage:
 # currentReleaseGateBatch = "4970-5001 - Backend-Owned Model Provider Dry-Run Runner Contract"
+# Historical current release gate assignment marker preserved for historical smoke coverage:
+# currentReleaseGateBatch = "5002-5033 - Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview"
 # Previous completed batch marker preserved for historical smoke coverage:
 # 4874-4905 - Manual Gated Model Provider Run Admission Preview
 # Previous completed batch marker preserved for historical smoke coverage:
@@ -524,6 +526,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 4969 Backend-Owned Model Provider Run Admission Contract"; File = "smoke-codexforge-backend-owned-model-provider-run-admission-contract-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5001 Backend-Owned Model Provider Dry-Run Runner Contract"; File = "smoke-codexforge-backend-owned-model-provider-dry-run-runner-contract-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5033 Backend-Owned Model Provider Dry-Run Runner Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-model-provider-dry-run-runner-review-recovery-preview-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 5065 Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton"; File = "smoke-codexforge-backend-owned-model-provider-synthetic-dry-run-runner-skeleton-mega-batch.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }
