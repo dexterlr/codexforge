@@ -252,7 +252,7 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Backend-owned synthetic dry-run audit and approval join contract Synthetic audit join contract Synthetic approval join contract Result to audit and approval link contract Audit and approval join request/response contract Audit and approval join gates Audit and approval join readiness matrix Audit and approval evidence packet preview Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only synthetic runner skeleton is preview-only runner state: skeleton / not executable dry-run request is not created runner invocation is not invoked dry-run execution is not executed audit and approval join contract is preview-only audit join state: not persisted approval join state: not persisted result reference state: not persisted audit and approval join review and recovery preview comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Backend-owned synthetic dry-run audit and approval join contract Synthetic audit join contract Synthetic approval join contract Result to audit and approval link contract Audit and approval join request/response contract Audit and approval join gates Audit and approval join readiness matrix Audit and approval evidence packet preview Backend-owned synthetic dry-run audit and approval join review Audit and approval join decision review Audit and approval join gate failure review Audit and approval join recovery plan Audit and approval join recovery readiness Audit and approval join acceptance posture Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only synthetic runner skeleton is preview-only runner state: skeleton / not executable dry-run request is not created runner invocation is not invoked dry-run execution is not executed audit and approval join review is preview-only audit join state: not persisted approval join state: not persisted result reference state: not persisted evidence packet state: preview-only end-to-end packet contract comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
     >
       <section style={hero}>
         <div>
@@ -271,13 +271,16 @@ export function AiProviderRegistryPanel() {
             redaction review is static preview only. Athena can now preview
             backend-owned synthetic dry-run result capture reviews. Athena can
             now preview backend-owned synthetic dry-run audit and approval join
-            contracts. audit and approval join contract is preview-only. audit
-            join state: not persisted. approval join state: not persisted.
-            result reference state: not persisted. evidence packet is
-            preview-only. provider response is not received. model output is
-            not generated. synthetic fixture result is static placeholder only.
-            audit and approval join review and recovery preview comes next. No
-            model calls yet. No prompt sending. No provider SDKs imported.
+            reviews, audit and approval join decision reviews, audit and
+            approval join gate failure reviews, audit and approval join
+            recovery plans, audit and approval join recovery readiness, and
+            audit and approval join acceptance posture. audit and approval join
+            review is preview-only. audit join state: not persisted. approval
+            join state: not persisted. result reference state: not persisted.
+            evidence packet state: preview-only. provider response is not
+            received. model output is not generated. synthetic fixture result
+            is static placeholder only. end-to-end packet contract comes next.
+            No model calls yet. No prompt sending. No provider SDKs imported.
             Frontend provider calls are blocked.
           </p>
         </div>
@@ -1787,14 +1790,19 @@ export function AiProviderRegistryPanel() {
         </div>
         <p style={copy}>
           Athena can preview backend-owned synthetic dry-run audit and approval
-          join contracts. audit and approval join contract is preview-only.
-          audit join state: not persisted. approval join state: not
-          persisted. result reference state: not persisted. evidence packet is
-          preview-only. join request is not created. join invocation is not
-          invoked. join response is not received. join error is not received.
-          database write is not implemented. file write is not implemented. No
-          prompt sending. No model calls yet. No provider SDKs imported. audit
-          and approval join review and recovery preview comes next.
+          join contracts. Athena can preview backend-owned synthetic dry-run
+          audit and approval join review, audit and approval join decision
+          review, audit and approval join gate failure review, audit and
+          approval join recovery plan, audit and approval join recovery
+          readiness, and audit and approval join acceptance posture. audit and
+          approval join review is preview-only. audit join state: not
+          persisted. approval join state: not persisted. result reference
+          state: not persisted. evidence packet state: preview-only. join
+          request is not created. join invocation is not invoked. join
+          response is not received. join error is not received. database write
+          is not implemented. file write is not implemented. No prompt
+          sending. No model calls yet. No provider SDKs imported. end-to-end
+          packet contract comes next.
         </p>
         <div style={grid}>
           <article style={card}>

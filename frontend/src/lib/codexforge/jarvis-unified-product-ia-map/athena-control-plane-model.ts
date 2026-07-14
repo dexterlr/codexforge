@@ -43,6 +43,12 @@ import {
   NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH,
   PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-audit-approval-join-contract";
+import {
+  BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH as BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_CURRENT_BATCH,
+  BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_PHASE as BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_CURRENT_PHASE,
+  NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_END_TO_END_PACKET_CONTRACT_BATCH,
+  PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview";
 
 export const ATHENA_UNIFIED_CHAT_CONTROL_PLANE_FOUNDATION_BATCH =
   "4458-4489 - Athena Unified Chat Control Plane Foundation";
@@ -160,6 +166,18 @@ export const ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVI
 
 export const ATHENA_NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH =
   NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH;
+
+export const ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH =
+  BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_CURRENT_BATCH;
+
+export const ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_PHASE =
+  BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_CURRENT_PHASE;
+
+export const ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH =
+  PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH;
+
+export const ATHENA_NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_END_TO_END_PACKET_CONTRACT_BATCH =
+  NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_END_TO_END_PACKET_CONTRACT_BATCH;
 
 export type AthenaLauncherStatus =
   | "ready"
@@ -1089,19 +1107,19 @@ export const ATHENA_PRODUCT_UX_POLISH_MODEL = {
   operatorHomeTakeoverVersion: "athena-operator-home-takeover-v1",
   heroCopy: ATHENA_PRODUCT_UX_HERO_COPY,
   cockpitSummary:
-    "Athena is the main Jarvis control layer. Athena is the main chat control layer. Athena can draft structured commands, prepare preview-only approval packets, review provider routing posture, inspect backend-owned run admission and dry-run runner layers, preview backend-owned synthetic dry-run result capture contracts, and now preview backend-owned synthetic dry-run result capture reviews, result capture decision reviews, result capture gate failure reviews, result capture recovery plans, result capture recovery readiness checklists, review audit summaries, and acceptance posture previews. synthetic result capture review is preview-only. result capture state is not captured. result persistence is not implemented. audit persistence is not implemented. approval persistence is not implemented. artifact persistence is not implemented. database write is not implemented. file write is not implemented. provider response is not received. model output is not generated. synthetic fixture result is static placeholder only. result id is not issued. No prompt sending. No model calls yet. No provider SDKs imported. Provider execution is blocked. Queue dispatch is blocked. Worker dispatch is blocked. Job execution is blocked. Jarvis is the operating system / safety control plane, and specialist plugin pages stay preview-only tools Athena can route to and later control with approvals and backend gates.",
+    "Athena is the main Jarvis control layer. Athena is the main chat control layer. Athena can draft structured commands, prepare preview-only approval packets, review provider routing posture, inspect backend-owned run admission and dry-run runner layers, preview backend-owned synthetic dry-run result capture contracts, preview backend-owned synthetic dry-run audit and approval join contracts, and now preview backend-owned synthetic dry-run audit and approval join reviews, audit and approval join decision reviews, audit and approval join gate failure reviews, audit and approval join recovery plans, audit and approval join recovery readiness checklists, audit and approval join review audit summaries, and audit and approval join acceptance posture previews. audit and approval join review is preview-only. audit join state is not persisted. approval join state is not persisted. result reference state is not persisted. evidence packet state is preview-only. join request is not created. join invocation is not invoked. join response is not received. join error is not received. audit envelope state is not created. approval envelope state is not created. audit append state is not appended. approval append state is not appended. database write is not implemented. file write is not implemented. No prompt sending. No model calls yet. No provider SDKs imported. end-to-end packet contract comes next. Provider execution is blocked. Queue dispatch is blocked. Worker dispatch is blocked. Job execution is blocked. Jarvis is the operating system / safety control plane, and specialist plugin pages stay preview-only tools Athena can route to and later control with approvals and backend gates.",
   commandComposerPlaceholderCopy: "Ask Athena what you want to build or control.",
   immediateStatusCards: ATHENA_IMMEDIATE_STATUS_CARDS,
   primaryOperatorActions: ATHENA_PRIMARY_OPERATOR_ACTIONS,
   pluginLauncherGroups: ATHENA_PLUGIN_LAUNCHER_GROUPS,
   safetyPostureSummary:
-    "Athena conversational command composer, AI model provider registry, capability matrix, server-only model adapter contracts, adapter envelope previews, manual gated dry-run harness previews, model adapter dry-run result reviews, backend-owned run admission previews, backend-owned dry-run runner previews, backend-owned synthetic dry-run runner skeleton previews, backend-owned synthetic dry-run result capture contract previews, and backend-owned synthetic dry-run result capture review and recovery previews remain frontend-safe and preview-only. synthetic result capture review is preview-only. result capture decision review is preview-only. result capture gate failure review is preview-only. result capture recovery plan is preview-only. result capture recovery readiness is preview-only. result capture acceptance posture is preview-only. audit and approval joins are not persisted. No prompt sending. No LLM/model calls. No frontend provider call. No frontend fetch/network call. No provider SDKs imported. No provider execution. No plugin execution. No autonomous execution. No live video generation. No queue dispatch. No worker dispatch. No job execution. No browser storage. No persistent memory.",
+    "Athena conversational command composer, AI model provider registry, capability matrix, server-only model adapter contracts, adapter envelope previews, manual gated dry-run harness previews, model adapter dry-run result reviews, backend-owned run admission previews, backend-owned dry-run runner previews, backend-owned synthetic dry-run runner skeleton previews, backend-owned synthetic dry-run result capture contract previews, backend-owned synthetic dry-run result capture review and recovery previews, backend-owned synthetic dry-run audit and approval join contract previews, and backend-owned synthetic dry-run audit and approval join review and recovery previews remain frontend-safe and preview-only. audit and approval join review is preview-only. audit and approval join decision review is preview-only. audit and approval join gate failure review is preview-only. audit and approval join recovery plan is preview-only. audit and approval join recovery readiness is preview-only. audit and approval join acceptance posture is preview-only. audit join state is not persisted. approval join state is not persisted. result reference state is not persisted. evidence packet state is preview-only. No prompt sending. No LLM/model calls. No frontend provider call. No frontend fetch/network call. No provider SDKs imported. No provider execution. No plugin execution. No autonomous execution. No live video generation. No queue dispatch. No worker dispatch. No job execution. No browser storage. No persistent memory.",
   approvalPostureSummary:
-    "Approval-gated handoffs only. Manual operator approval required. Manual confirmation required. Backend-only execution required. Server-only model adapters must run backend-only. backend-owned synthetic dry-run result capture review and recovery preview only. synthetic result capture review is preview-only. result capture state is not captured. result persistence is not implemented. audit persistence is not implemented. approval persistence is not implemented. database write is not implemented. file write is not implemented. provider response is not received. model output is not generated. result id is not issued. manual approval required. manual confirmation required. kill switch required. audit required. opaque credential references only. no plaintext secrets. backend-owned synthetic dry-run audit and approval join contract next.",
+    "Approval-gated handoffs only. Manual operator approval required. Manual confirmation required. Backend-only execution required. Server-only model adapters must run backend-only. backend-owned synthetic dry-run audit and approval join review and recovery preview only. audit and approval join review is preview-only. decision state is held / not joined. audit join state is not persisted. approval join state is not persisted. result reference state is not persisted. evidence packet state is preview-only. join request is not created. join response is not received. audit envelope state is not created. approval envelope state is not created. recovery is manual review only. retry disabled. fallback disabled. acceptance state is not accepted / preview-only. database write is not implemented. file write is not implemented. manual approval required. manual confirmation required. kill switch required. audit required. opaque credential references only. no plaintext secrets. backend-owned synthetic dry-run end-to-end packet contract next.",
   auditPostureSummary:
     "Audit required. Audit memory preview is static preview only. No audit persistence.",
   currentReadinessSummary:
-    "Command drafting: preview-only. Approval drafts: preview-only. Provider registry: preview available. Capability matrix: preview available. Server-only adapter contracts: preview available. Backend-owned run admission contract: preview available. Backend-owned dry-run runner contract: preview available. Backend-owned dry-run runner review: preview available. Backend-owned synthetic dry-run runner skeleton: preview available. Backend-owned synthetic dry-run result capture contract: preview available. Backend-owned synthetic dry-run result capture review: preview available. Result capture decision review: preview-only. Result capture gate failure review: preview-only. Result capture recovery plan: preview-only. Result capture recovery readiness: preview-only. Result capture acceptance posture: preview-only. Acceptance state: not accepted / preview-only. Current readiness: review-only / not persistent. Model calls: not connected yet.",
+    "Command drafting: preview-only. Approval drafts: preview-only. Provider registry: preview available. Capability matrix: preview available. Server-only adapter contracts: preview available. Backend-owned run admission contract: preview available. Backend-owned dry-run runner contract: preview available. Backend-owned dry-run runner review: preview available. Backend-owned synthetic dry-run runner skeleton: preview available. Backend-owned synthetic dry-run result capture contract: preview available. Backend-owned synthetic dry-run result capture review: preview available. Backend-owned synthetic dry-run audit and approval join contract: preview available. Backend-owned synthetic dry-run audit and approval join review: preview-only. Audit and approval join decision review: preview-only. Audit and approval join gate failure review: preview-only. Audit and approval join recovery plan: preview-only. Audit and approval join recovery readiness: preview-only. Audit and approval join acceptance posture: preview-only. Acceptance state: not accepted / preview-only. Current readiness: review-only / not persistent. Model calls: not connected yet.",
   blockedDefaultExecutionSummary:
     "Frontend provider calls: blocked. Backend admission request creation: blocked. Backend admission response receipt: blocked. Backend dry-run request creation: blocked. Backend dry-run invocation: blocked. Backend dry-run response receipt: blocked. Provider execution: locked. Plugin execution: locked. Autonomous execution: locked. Prompt sending: not implemented. Model calls: not implemented. Queue dispatch: blocked. Worker dispatch: blocked. Job execution: blocked. Persistence: not implemented. Backend-only execution: required.",
   nextOperatorActions: [
@@ -1113,7 +1131,7 @@ export const ATHENA_PRODUCT_UX_POLISH_MODEL = {
     "Review the model provider approval packet, run intent preview, approval gate checklist, run intent blockers, and approval expiry/revocation posture before discussing manual gated run admission preview.",
     "Review the manual gated model provider run admission preview, run admission gate evaluation, admission ticket preview, and admission blockers/recovery posture before the admission review layer.",
     "Review the model provider run admission review, admission decision review, gate failure review, admission recovery plan, and admission recovery readiness posture before the backend-owned run admission contract layer.",
-    "Review the backend-owned model provider run admission contract, backend admission request/response/error contracts, backend contract readiness matrix, backend-owned dry-run runner contract, backend-owned dry-run runner review, backend-owned synthetic dry-run runner skeleton, backend-owned synthetic dry-run result capture contract, backend-owned synthetic dry-run result capture review, result capture decision review, result capture gate failure review, result capture recovery plan, result capture recovery readiness, result capture acceptance posture, and result capture review audit summary before the backend-owned synthetic dry-run audit and approval join contract batch.",
+    "Review the backend-owned synthetic dry-run audit and approval join contract, synthetic audit join contract, synthetic approval join contract, result-to-audit-approval link contract, join request/response/error contracts, evidence packet preview, audit and approval join review, audit and approval join decision review, audit and approval join gate failure review, audit and approval join recovery plan, audit and approval join recovery readiness, audit and approval join acceptance posture, and audit and approval join review audit summary before the backend-owned synthetic dry-run end-to-end packet contract batch.",
   ],
   nextModelRoutingProviderSelectionChecklist:
     buildNextModelRoutingAndProviderSelectionChecklist(),
@@ -1126,11 +1144,11 @@ export const ATHENA_CONTROL_PLANE_IDENTITY = {
   name: "Athena",
   title: "Athena Command Center",
   mission:
-    "Athena is the main chat control layer above all specialist Jarvis workspaces and approval-gated product lanes. Athena is the main Jarvis control layer. Athena can draft structured commands from natural requests, prepare preview-only approval drafts, review routed work, preview AI model provider slots, compare capability families, review backend-owned run admission and dry-run runner layers, preview backend-owned synthetic dry-run runner skeletons, inspect backend-owned synthetic dry-run result capture contracts, and now inspect backend-owned synthetic dry-run result capture reviews, result capture decision reviews, result capture gate failure reviews, result capture recovery plans, result capture recovery readiness checklists, preview-only review audit summaries, preview-only acceptance posture records, preview cross-workspace run timelines, show static audit memory previews, and safely hand off work across CodexForge.",
+    "Athena is the main chat control layer above all specialist Jarvis workspaces and approval-gated product lanes. Athena is the main Jarvis control layer. Athena can draft structured commands from natural requests, prepare preview-only approval drafts, review routed work, preview AI model provider slots, compare capability families, review backend-owned run admission and dry-run runner layers, preview backend-owned synthetic dry-run runner skeletons, inspect backend-owned synthetic dry-run result capture contracts, inspect backend-owned synthetic dry-run audit and approval join contracts, and now inspect backend-owned synthetic dry-run audit and approval join reviews, audit and approval join decision reviews, audit and approval join gate failure reviews, audit and approval join recovery plans, audit and approval join recovery readiness checklists, preview-only audit and approval join review audit summaries, preview-only audit and approval join acceptance posture records, preview cross-workspace run timelines, show static audit memory previews, and safely hand off work across CodexForge.",
   operatorPromise:
     "Ask Athena to plan, route, review, and safely hand off work across CodexForge.",
   posture:
-    "Athena conversational command composer, AI model provider registry, capability matrix, server-only model adapter contracts, backend-owned run admission previews, backend-owned dry-run runner previews, backend-owned synthetic dry-run runner skeleton previews, backend-owned synthetic dry-run result capture contract previews, backend-owned synthetic dry-run result capture review previews, result capture decision review previews, result capture gate failure review previews, result capture recovery plan previews, result capture recovery readiness previews, and result capture acceptance posture previews remain preview-only. Command composer is preview-only. Approval drafts are preview-only. Provider slots are registry-only. Routing is preview-only. Provider selection is static preview only. Run admission is preview-only. Dry-run runner review is preview-only. synthetic result capture review is preview-only. result capture state is not captured. result persistence is not implemented. audit persistence is not implemented. approval persistence is not implemented. artifact persistence is not implemented. database write is not implemented. file write is not implemented. provider response is not received. model output is not generated. synthetic fixture result is static placeholder only. result id is not issued. acceptance state is not accepted / preview-only. Recovery is manual review only. Execution is blocked by default. Plugin registry is inert. Command router is preview-only. Chat input remains inert/local only and executes nothing.",
+    "Athena conversational command composer, AI model provider registry, capability matrix, server-only model adapter contracts, backend-owned run admission previews, backend-owned dry-run runner previews, backend-owned synthetic dry-run runner skeleton previews, backend-owned synthetic dry-run result capture contract previews, backend-owned synthetic dry-run result capture review previews, backend-owned synthetic dry-run audit and approval join contract previews, backend-owned synthetic dry-run audit and approval join review previews, audit and approval join decision review previews, audit and approval join gate failure review previews, audit and approval join recovery plan previews, audit and approval join recovery readiness previews, and audit and approval join acceptance posture previews remain preview-only. Command composer is preview-only. Approval drafts are preview-only. Provider slots are registry-only. Routing is preview-only. Provider selection is static preview only. Run admission is preview-only. Dry-run runner review is preview-only. audit and approval join review is preview-only. audit join state is not persisted. approval join state is not persisted. result reference state is not persisted. evidence packet state is preview-only. join request is not created. join invocation is not invoked. join response is not received. join error is not received. audit envelope state is not created. approval envelope state is not created. audit append state is not appended. approval append state is not appended. database write is not implemented. file write is not implemented. acceptance state is not accepted / preview-only. Recovery is manual review only. Execution is blocked by default. Plugin registry is inert. Command router is preview-only. Chat input remains inert/local only and executes nothing.",
 } as const satisfies AthenaIdentityModel;
 
 export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
@@ -1138,9 +1156,9 @@ export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
   placeholder:
     "Ask Athena what you want to build or control. Draft an operator request for Athena. This stays local to the page and executes nothing.",
   helperText:
-    "Chat input remains inert/local only. No prompt sending. No model calls yet. No provider SDKs imported. No frontend fetch/network call. Server-only adapter contracts are preview-only. Backend-owned run admission and dry-run runner layers are preview-only. Backend-owned synthetic dry-run result capture review and recovery preview is preview-only. synthetic result capture review is preview-only. result capture decision review is preview-only. result capture gate failure review is preview-only. result capture recovery plan is preview-only. result capture recovery readiness is preview-only. result capture acceptance posture is preview-only. result capture state is not captured. result persistence is not implemented. audit persistence is not implemented. approval persistence is not implemented. artifact persistence is not implemented. database write is not implemented. file write is not implemented. provider response is not received. model output is not generated. synthetic fixture result is static placeholder only. result id is not issued. audit and approval joins are not persisted. acceptance state is not accepted / preview-only. No browser storage. No persistent memory. No plugin execution from chat yet. Approval-gated handoffs only. Backend-only execution required. Audit required. Kill switch required. No queue dispatch. No worker dispatch. No job execution. No result persistence. backend-owned synthetic dry-run audit and approval join contract next.",
+    "Chat input remains inert/local only. No prompt sending. No model calls yet. No provider SDKs imported. No frontend fetch/network call. Server-only adapter contracts are preview-only. Backend-owned run admission and dry-run runner layers are preview-only. Backend-owned synthetic dry-run audit and approval join review and recovery preview is preview-only. audit and approval join review is preview-only. audit and approval join decision review is preview-only. audit and approval join gate failure review is preview-only. audit and approval join recovery plan is preview-only. audit and approval join recovery readiness is preview-only. audit and approval join acceptance posture is preview-only. audit join state is not persisted. approval join state is not persisted. result reference state is not persisted. evidence packet state is preview-only. join request is not created. join invocation is not invoked. join response is not received. join error is not received. audit envelope state is not created. approval envelope state is not created. audit append state is not appended. approval append state is not appended. audit persistence is not implemented. approval persistence is not implemented. result persistence is not implemented. artifact persistence is not implemented. database write is not implemented. file write is not implemented. acceptance state is not accepted / preview-only. No browser storage. No persistent memory. No plugin execution from chat yet. Approval-gated handoffs only. Backend-only execution required. Audit required. Kill switch required. No queue dispatch. No worker dispatch. No job execution. No result persistence. backend-owned synthetic dry-run end-to-end packet contract next.",
   executionPosture:
-    "Execution remains approval-gated, blocked by default, and backend-only. Command composer is preview-only. Approval drafts are preview-only. Adapter contracts are preview-only. Backend-owned run admission and dry-run runner layers are preview-only. Backend-owned synthetic dry-run runner skeleton is preview-only. Backend-owned synthetic dry-run result capture review and recovery preview is preview-only. Result capture decision review is preview-only. Result capture gate failure review is preview-only. Result capture recovery plan is preview-only. Result capture recovery readiness is preview-only. Result capture acceptance posture is preview-only. Result capture audit and approval joins are not persisted. Current readiness is review-only / not persistent. Timeline is preview-only. Audit memory is static preview only. No autonomous execution.",
+    "Execution remains approval-gated, blocked by default, and backend-only. Command composer is preview-only. Approval drafts are preview-only. Adapter contracts are preview-only. Backend-owned run admission and dry-run runner layers are preview-only. Backend-owned synthetic dry-run runner skeleton is preview-only. Backend-owned synthetic dry-run audit and approval join review and recovery preview is preview-only. Audit and approval join decision review is preview-only. Audit and approval join gate failure review is preview-only. Audit and approval join recovery plan is preview-only. Audit and approval join recovery readiness is preview-only. Audit and approval join acceptance posture is preview-only. Audit joins are not persisted. Approval joins are not persisted. Result references are not persisted. Current readiness is review-only / not persistent. Timeline is preview-only. Audit memory is static preview only. No autonomous execution.",
 } as const satisfies AthenaChatModel;
 
 export const ATHENA_SUGGESTED_PROMPTS = [
@@ -2463,6 +2481,43 @@ export const ATHENA_CURRENT_CAPABILITIES = [
       "Athena can review preview-only audit and approval join contracts, synthetic audit join contracts, synthetic approval join contracts, result-to-audit-approval link contracts, preview-only join request/response/error contracts, preview-only join gates, readiness matrices, and preview-only evidence packets while nothing is created, invoked, received, or persisted.",
   },
   {
+    id: "backend-owned-synthetic-dry-run-audit-approval-join-review-preview",
+    label:
+      "Athena can now preview backend-owned synthetic dry-run audit and approval join reviews",
+    summary:
+      "Athena can review why synthetic dry-run audit and approval joins are held while audit and approval join review is preview-only, audit join state is not persisted, approval join state is not persisted, result reference state is not persisted, evidence packet state is preview-only, and nothing is created, invoked, received, or persisted.",
+  },
+  {
+    id: "backend-owned-synthetic-dry-run-audit-approval-join-decision-review-preview",
+    label: "Athena can preview audit and approval join decision reviews",
+    summary:
+      "Athena can summarize held / not joined decisions, top blocking gates, top missing evidence, operator review notes, manual recovery requirements, and the next safe action without creating joins or persistence.",
+  },
+  {
+    id: "backend-owned-synthetic-dry-run-audit-approval-join-gate-failure-review-preview",
+    label: "Athena can preview audit and approval join gate failure reviews",
+    summary:
+      "Athena can review synthetic result envelope, result capture review, audit join, approval join, evidence packet, persistence, database/file, and queue/worker/job gate failures as static held records.",
+  },
+  {
+    id: "backend-owned-synthetic-dry-run-audit-approval-join-recovery-plan-preview",
+    label: "Athena can preview audit and approval join recovery plans",
+    summary:
+      "Athena can review manual-review-only recovery plans for missing audit evidence, missing approval evidence, missing result linkage, missing evidence packets, blocked persistence, and blocked database/file writes while retry and fallback stay disabled.",
+  },
+  {
+    id: "backend-owned-synthetic-dry-run-audit-approval-join-recovery-readiness-preview",
+    label: "Athena can preview audit and approval join recovery readiness",
+    summary:
+      "Athena can show compact audit and approval join recovery readiness checklists with preview-only posture, blocked persistence boundaries, and next safe actions for the operator.",
+  },
+  {
+    id: "backend-owned-synthetic-dry-run-audit-approval-join-acceptance-posture-preview",
+    label: "Athena can preview audit and approval join acceptance posture",
+    summary:
+      "Athena can keep acceptance blockers, safety blockers, privacy blockers, audit blockers, approval blockers, result-link blockers, evidence packet blockers, and queue/worker/job blockers visible while acceptance remains not accepted / preview-only.",
+  },
+  {
     id: "readiness-review",
     label: "Athena can review readiness and blockers",
     summary:
@@ -2484,11 +2539,11 @@ export const ATHENA_CURRENT_CAPABILITIES = [
 
 export const ATHENA_FUTURE_CAPABILITIES = [
   {
-    id: "backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-next",
+    id: "backend-owned-synthetic-dry-run-end-to-end-packet-contract-next",
     label:
-      "Backend-owned synthetic dry-run audit and approval join review and recovery preview comes next",
+      "Backend-owned synthetic dry-run end-to-end packet contract comes next",
     summary:
-      "The next likely batch is 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview.",
+      "The next likely batch is 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract.",
   },
   {
     id: "dry-run-reviews-stay-static",
@@ -3420,15 +3475,16 @@ export const ATHENA_AUDIT_MEMORY_PREVIEW_ITEMS:
 // The next likely Athena batch is 4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory.
 
 export const ATHENA_COMMAND_CENTER_MODEL = {
-  batch: ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH,
+  batch:
+    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH,
   highestDetectedPhase:
-    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_PHASE,
+    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_PHASE,
   latestCompletedBatch:
-    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH,
+    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH,
   previousCompletedBatch:
-    ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH,
+    ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH,
   nextLikelyBatch:
-    ATHENA_NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH,
+    ATHENA_NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_END_TO_END_PACKET_CONTRACT_BATCH,
   identity: ATHENA_CONTROL_PLANE_IDENTITY,
   chat: ATHENA_CHAT_PLACEHOLDER_MODEL,
   productUx: ATHENA_PRODUCT_UX_POLISH_MODEL,

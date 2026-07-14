@@ -234,13 +234,12 @@ export function JarvisUnifiedProductPanel(
                 implemented. audit persistence is not implemented. approval
                 persistence is not implemented. Athena can now preview
                 backend-owned synthetic dry-run audit and approval join
-                contracts. audit and approval join contract is preview-only.
-                audit join state is not persisted. approval join state is not
+                reviews. audit and approval join review is preview-only. audit
+                join state is not persisted. approval join state is not
                 persisted. result reference state is not persisted. evidence
-                packet is preview-only. audit and approval join review and
-                recovery preview comes next. no model calls yet. no prompt
-                sending. no provider SDKs imported. queue, worker, and job
-                execution remain blocked.
+                packet state is preview-only. end-to-end packet contract comes
+                next. no model calls yet. no prompt sending. no provider SDKs
+                imported. queue, worker, and job execution remain blocked.
                 Plugin/provider execution remains blocked until approvals and
                 backend gates are satisfied. Manual/provider execution stays
                 backend-only. No autonomous execution yet.
@@ -423,10 +422,10 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 <p className={styles.railBody}>
                   Athena can now preview backend-owned synthetic dry-run audit
-                  and approval join contracts.
+                  and approval join reviews.
                 </p>
                 <p className={styles.railBody}>
-                  audit and approval join contract is preview-only.
+                  audit and approval join review is preview-only.
                 </p>
                 <p className={styles.railBody}>
                   audit join state is not persisted.
@@ -438,11 +437,10 @@ export function JarvisUnifiedProductPanel(
                   result reference state is not persisted.
                 </p>
                 <p className={styles.railBody}>
-                  evidence packet is preview-only.
+                  evidence packet state is preview-only.
                 </p>
                 <p className={styles.railBody}>
-                  audit and approval join review and recovery preview comes
-                  next.
+                  end-to-end packet contract comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs

@@ -155,7 +155,6 @@ import {
   buildAuditApprovalJoinContractSummary,
   buildAuditApprovalJoinGateSummary,
   buildAuditApprovalJoinReadinessSummary,
-  buildNextAuditApprovalJoinReviewAndRecoveryChecklist,
   groupAuditApprovalJoinContractsByCapabilityFamily,
   groupAuditApprovalJoinContractsByWorkspaceTarget,
   listAuditApprovalEvidencePacketPreviews,
@@ -169,6 +168,21 @@ import {
   listSyntheticApprovalJoinContracts,
   listSyntheticAuditJoinContracts,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-audit-approval-join-contract";
+import {
+  buildAuditApprovalJoinGateFailureSummary,
+  buildAuditApprovalJoinRecoverySummary,
+  buildAuditApprovalJoinReviewSummary,
+  buildEndToEndPacketContractChecklist,
+  groupAuditApprovalJoinReviewsByCapabilityFamily,
+  groupAuditApprovalJoinReviewsByWorkspaceTarget,
+  listAuditApprovalJoinAcceptancePostureRecords,
+  listAuditApprovalJoinDecisionReviewRecords,
+  listAuditApprovalJoinGateFailureReviewRecords,
+  listAuditApprovalJoinRecoveryPlanPreviews,
+  listAuditApprovalJoinRecoveryReadinessChecklistRecords,
+  listAuditApprovalJoinReviewAuditSummaries,
+  listBackendOwnedSyntheticDryRunAuditApprovalJoinReviews,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview";
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
@@ -765,8 +779,6 @@ export function AthenaCommandCenterPanel({
   const auditApprovalJoinGateSummary = buildAuditApprovalJoinGateSummary();
   const auditApprovalJoinReadinessSummary =
     buildAuditApprovalJoinReadinessSummary();
-  const nextAuditApprovalJoinReviewAndRecoveryChecklist =
-    buildNextAuditApprovalJoinReviewAndRecoveryChecklist();
   const auditApprovalJoinCapabilityGroups =
     groupAuditApprovalJoinContractsByCapabilityFamily();
   const auditApprovalJoinWorkspaceGroups =
@@ -789,6 +801,51 @@ export function AthenaCommandCenterPanel({
     auditApprovalJoinReadinessMatrixRecords[0] ?? null;
   const representativeAuditApprovalEvidencePacket =
     auditApprovalEvidencePacketPreviews[0] ?? null;
+  const auditApprovalJoinReviewRecords =
+    listBackendOwnedSyntheticDryRunAuditApprovalJoinReviews();
+  const auditApprovalJoinDecisionReviewRecords =
+    listAuditApprovalJoinDecisionReviewRecords();
+  const auditApprovalJoinGateFailureReviewRecords =
+    listAuditApprovalJoinGateFailureReviewRecords();
+  const auditApprovalJoinGateFailureReviewsForDisplay = uniqueRecordsByString(
+    auditApprovalJoinGateFailureReviewRecords,
+    (record) => record.failedGateId
+  );
+  const auditApprovalJoinRecoveryPlanPreviewRecords =
+    listAuditApprovalJoinRecoveryPlanPreviews();
+  const auditApprovalJoinRecoveryReadinessChecklistRecords =
+    listAuditApprovalJoinRecoveryReadinessChecklistRecords();
+  const auditApprovalJoinReviewAuditSummaryRecords =
+    listAuditApprovalJoinReviewAuditSummaries();
+  const auditApprovalJoinAcceptancePostureRecords =
+    listAuditApprovalJoinAcceptancePostureRecords();
+  const auditApprovalJoinReviewSummary = buildAuditApprovalJoinReviewSummary();
+  const auditApprovalJoinGateFailureSummary =
+    buildAuditApprovalJoinGateFailureSummary();
+  const auditApprovalJoinRecoverySummary =
+    buildAuditApprovalJoinRecoverySummary();
+  const endToEndPacketContractChecklist =
+    buildEndToEndPacketContractChecklist();
+  const auditApprovalJoinReviewCapabilityGroups =
+    groupAuditApprovalJoinReviewsByCapabilityFamily();
+  const auditApprovalJoinReviewWorkspaceGroups =
+    groupAuditApprovalJoinReviewsByWorkspaceTarget();
+  const representativeAuditApprovalJoinReview =
+    auditApprovalJoinReviewRecords[0] ?? null;
+  const representativeAuditApprovalJoinDecisionReview =
+    auditApprovalJoinDecisionReviewRecords[0] ?? null;
+  const representativeAuditApprovalJoinGateFailureReview =
+    auditApprovalJoinGateFailureReviewsForDisplay[0] ?? null;
+  const representativeAuditApprovalJoinRecoveryPlan =
+    auditApprovalJoinRecoveryPlanPreviewRecords[0] ?? null;
+  const representativeAuditApprovalJoinReviewAuditSummary =
+    auditApprovalJoinReviewAuditSummaryRecords[0] ?? null;
+  const representativeAuditApprovalJoinAcceptancePosture =
+    auditApprovalJoinAcceptancePostureRecords[0] ?? null;
+  const blockedAuditApprovalJoinRecoveryReadinessChecklistRecords =
+    auditApprovalJoinRecoveryReadinessChecklistRecords.filter(
+      (record) => record.state === "blocked"
+    );
   const resultCaptureReviewRecords =
     listBackendOwnedSyntheticDryRunResultCaptureReviews();
   const resultCaptureDecisionReviewRecords = listResultCaptureDecisionReviews();
@@ -10893,12 +10950,13 @@ export function AthenaCommandCenterPanel({
           Athena can preview backend-owned synthetic dry-run audit and approval
           join contracts. audit and approval join contract is preview-only.
           audit join state: not persisted. approval join state: not
-          persisted. result reference state: not persisted. evidence packet is
-          preview-only. join request is not created. join invocation is not
-          invoked. join response is not received. join error is not received.
-          database write is not implemented. file write is not implemented. No
-          prompt sending. No model calls yet. No provider SDKs imported. audit
-          and approval join review and recovery preview comes next.
+          persisted. result reference state: not persisted. evidence packet
+          state: preview-only. join request is not created. join invocation is
+          not invoked. join response is not received. join error is not
+          received. database write is not implemented. file write is not
+          implemented. No prompt sending. No model calls yet. No provider SDKs
+          imported. The review layer now sits below. end-to-end packet
+          contract comes next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -11057,23 +11115,24 @@ export function AthenaCommandCenterPanel({
             <article className={styles.summaryCard}>
               <div className={styles.placeholderHeader}>
                 <div>
-                  <p className={styles.panelEyebrow}>Next review path</p>
+                  <p className={styles.panelEyebrow}>Current review layer</p>
                   <h3 className={styles.placeholderTitle}>
-                    audit and approval join review and recovery preview comes next
+                    backend-owned synthetic dry-run audit and approval join review
                   </h3>
                 </div>
                 <span
                   className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
                 >
-                  {auditApprovalJoinContractSummary.nextLikelyBatch}
+                  {auditApprovalJoinReviewSummary.latestCompletedBatch}
                 </span>
               </div>
               <div className={styles.workspaceMeta}>
-                {nextAuditApprovalJoinReviewAndRecoveryChecklist.map(
-                  (item, index) => (
+                {auditApprovalJoinReviewSummary.summaryLines
+                  .slice(0, 6)
+                  .map((item, index) => (
                     <span
                       key={buildScopedItemKey(
-                        "audit-approval-join-next-checklist",
+                        "audit-approval-join-current-review-layer",
                         "item",
                         index,
                         item
@@ -11082,9 +11141,14 @@ export function AthenaCommandCenterPanel({
                     >
                       {item}
                     </span>
-                  )
-                )}
+                  ))}
               </div>
+              <p className={styles.railBody}>
+                {`review count: ${auditApprovalJoinReviewSummary.reviewCount} | decision reviews: ${auditApprovalJoinReviewSummary.decisionReviewCount}`}
+              </p>
+              <p className={styles.railFooter}>
+                Preserve non-persistent joins while the review layer stays frontend-safe and preview-only.
+              </p>
             </article>
           </div>
         ) : null}
@@ -11776,6 +11840,720 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned synthetic dry-run audit and approval join review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only join review</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned synthetic dry-run audit and approval join review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review why synthetic dry-run audit and approval joins are
+          held. audit and approval join review is preview-only. audit join
+          state: not persisted. approval join state: not persisted. result
+          reference state: not persisted. evidence packet state: preview-only.
+          join request is not created. join invocation is not invoked. join
+          response is not received. join error is not received. audit envelope
+          state: not created. approval envelope state: not created. audit
+          append state: not appended. approval append state: not appended.
+          database write is not implemented. file write is not implemented. No
+          prompt sending. No model calls yet. No provider SDKs imported.
+          end-to-end packet contract comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  audit and approval join review is preview-only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${auditApprovalJoinReviewSummary.reviewCount} reviews`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {auditApprovalJoinReviewSummary.summaryLines
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "audit-approval-join-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeAuditApprovalJoinReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAuditApprovalJoinReview.operatorRequestPhrase}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAuditApprovalJoinReview.auditJoinState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {representativeAuditApprovalJoinReview.workspaceTarget}
+                </span>
+                <span className={styles.metaPill}>
+                  {
+                    representativeAuditApprovalJoinReview.selectedCapabilityFamily
+                      .label
+                  }
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeAuditApprovalJoinReview.providerSlotLabel}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`source join contract: ${representativeAuditApprovalJoinReview.sourceAuditApprovalJoinContractReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source evidence packet: ${representativeAuditApprovalJoinReview.sourceAuditApprovalEvidencePacketReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`next packet requirement: ${representativeAuditApprovalJoinReview.nextEndToEndPacketContractRequirement}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeAuditApprovalJoinReviewAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit summary</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAuditApprovalJoinReviewAuditSummary.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeAuditApprovalJoinReviewAuditSummary
+                      .evidencePacketState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeAuditApprovalJoinReviewAuditSummary
+                    .blockedActionSummary
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeAuditApprovalJoinReviewAuditSummary
+                    .endToEndPacketContractRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Capability coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Review lanes by capability family
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${auditApprovalJoinReviewCapabilityGroups.length} families`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {auditApprovalJoinReviewCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "audit-approval-join-review-capability-family",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.reviewCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Workspace coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  Review lanes by workspace
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${auditApprovalJoinReviewWorkspaceGroups.length} targets`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {auditApprovalJoinReviewWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "audit-approval-join-review-workspace",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {`${group.workspaceTarget} (${group.reviewCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {auditApprovalJoinReviewRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Join review record</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.operatorRequestPhrase}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.evidencePacketState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>{record.workspaceTarget}</span>
+                <span className={styles.metaPill}>
+                  {record.selectedCapabilityFamily.label}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`join request: ${record.joinRequestState} | join invocation: ${record.joinInvocationState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`join response: ${record.joinResponseState} | join error: ${record.joinErrorState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit envelope: ${record.auditEnvelopeState} | approval envelope: ${record.approvalEnvelopeState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`result persistence: ${record.resultPersistenceState} | database write: ${record.databaseWriteState}`}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Audit and approval join decision review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held join decisions</p>
+            <h2 className={styles.panelTitle}>
+              Audit and approval join decision review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Held / not joined
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          decision state: held / not joined. audit and approval join decision
+          review is preview-only. No audit/approval join. No persistence.
+          end-to-end packet contract comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Decision count</p>
+                <h3 className={styles.placeholderTitle}>
+                  join decisions remain held
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${auditApprovalJoinDecisionReviewRecords.length} decisions`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`top gate failures visible: ${auditApprovalJoinGateFailureSummary.uniqueFailedGateCount}`}
+            </p>
+            <p className={styles.railFooter}>
+              {auditApprovalJoinReviewSummary.nextLikelyBatch}
+            </p>
+          </article>
+          {representativeAuditApprovalJoinDecisionReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative decision</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAuditApprovalJoinDecisionReview.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAuditApprovalJoinDecisionReview.decisionState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeAuditApprovalJoinDecisionReview.joinReasonSummary}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeAuditApprovalJoinDecisionReview.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {auditApprovalJoinDecisionReviewRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Decision review record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.decisionState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {record.topBlockingGates.map((gate, index) => (
+                  <span
+                    key={buildScopedItemKey(record.key, "blocking-gate", index, gate)}
+                    className={styles.blockedPill}
+                  >
+                    {gate}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>
+                {record.joinReasonSummary}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Audit and approval join gate failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked gate review</p>
+            <h2 className={styles.panelTitle}>
+              Audit and approval join gate failure review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          audit and approval join gate failure review is preview-only. Gate
+          remains blocked. No gate pass is granted. evidence packet state:
+          preview-only. database write is not implemented. file write is not
+          implemented. end-to-end packet contract comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate failure summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  held gate failures stay visible
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${auditApprovalJoinGateFailureSummary.uniqueFailedGateCount} unique gates`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`critical: ${auditApprovalJoinGateFailureSummary.criticalGateCount} | high: ${auditApprovalJoinGateFailureSummary.highGateCount} | medium: ${auditApprovalJoinGateFailureSummary.mediumGateCount}`}
+            </p>
+            <div className={styles.workspaceMeta}>
+              {auditApprovalJoinGateFailureSummary.summaryLines
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "audit-approval-join-gate-failure-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeAuditApprovalJoinGateFailureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative gate</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAuditApprovalJoinGateFailureReview.failedGateLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAuditApprovalJoinGateFailureReview.severity}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeAuditApprovalJoinGateFailureReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {representativeAuditApprovalJoinGateFailureReview.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {auditApprovalJoinGateFailureReviewsForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate failure record</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.failedGateLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.gateState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {record.requiredEvidenceToUnblock}
+              </p>
+              <p className={styles.railFooter}>
+                {record.requiredRecoveryAction}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Audit and approval join recovery plan"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Manual review recovery</p>
+            <h2 className={styles.panelTitle}>
+              Audit and approval join recovery plan
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Manual review only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          recovery is manual review only. audit and approval join recovery plan
+          is preview-only. retry disabled. fallback disabled. No retry. No
+          fallback. No persistence. Manual review only.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Recovery summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  recovery stays manual
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${auditApprovalJoinRecoverySummary.recoveryPlanCount} plans`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {auditApprovalJoinRecoverySummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "audit-approval-join-recovery-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeAuditApprovalJoinRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative recovery</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAuditApprovalJoinRecoveryPlan.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeAuditApprovalJoinRecoveryPlan.recoveryPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeAuditApprovalJoinRecoveryPlan
+                    .missingEvidencePacketRecovery
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {representativeAuditApprovalJoinRecoveryPlan.operatorActionRequired}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {auditApprovalJoinRecoveryPlanPreviewRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Recovery plan record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.retryPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {record.joinRequestNotCreatedRecovery}
+              </p>
+              <p className={styles.railBody}>
+                {record.databaseWriteBlockedRecovery}
+              </p>
+              <p className={styles.railFooter}>
+                {record.nextSafeBatchRecommendation}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Audit and approval join recovery readiness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Checklist review</p>
+            <h2 className={styles.panelTitle}>
+              Audit and approval join recovery readiness
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          audit and approval join recovery readiness is preview-only.
+          checklist posture remains preview-only. end-to-end packet contract
+          dependency stays visible while persistence, database writes, file
+          writes, queue dispatch, worker dispatch, and job execution remain
+          blocked.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Checklist summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  readiness stays blocked or manual
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${auditApprovalJoinRecoveryReadinessChecklistRecords.length} checklist items`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`blocked items: ${blockedAuditApprovalJoinRecoveryReadinessChecklistRecords.length}`}
+            </p>
+            <p className={styles.railFooter}>
+              {auditApprovalJoinRecoverySummary.nextLikelyBatch}
+            </p>
+          </article>
+          {(blockedAuditApprovalJoinRecoveryReadinessChecklistRecords[0] ??
+            null) ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative blocker</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      blockedAuditApprovalJoinRecoveryReadinessChecklistRecords[0]
+                        .label
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    blockedAuditApprovalJoinRecoveryReadinessChecklistRecords[0]
+                      .state
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  blockedAuditApprovalJoinRecoveryReadinessChecklistRecords[0]
+                    .evidenceRequired
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  blockedAuditApprovalJoinRecoveryReadinessChecklistRecords[0]
+                    .recoveryAction
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {auditApprovalJoinRecoveryReadinessChecklistRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Checklist record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.state}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.evidenceRequired}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Audit and approval join acceptance posture"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance review</p>
+            <h2 className={styles.panelTitle}>
+              Audit and approval join acceptance posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not accepted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          acceptance state: not accepted / preview-only. audit and approval
+          join acceptance posture is preview-only. No acceptance. No
+          persistence. Preview-only.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Acceptance summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  acceptance remains blocked
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${auditApprovalJoinAcceptancePostureRecords.length} posture records`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {`queue/worker/job blockers remain visible for ${auditApprovalJoinAcceptancePostureRecords.length} review lanes.`}
+            </p>
+            <p className={styles.railFooter}>
+              {auditApprovalJoinReviewSummary.nextLikelyBatch}
+            </p>
+          </article>
+          {representativeAuditApprovalJoinAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeAuditApprovalJoinAcceptancePosture.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeAuditApprovalJoinAcceptancePosture
+                      .acceptanceState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeAuditApprovalJoinAcceptancePosture.acceptanceBlockers.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeAuditApprovalJoinAcceptancePosture.key,
+                        "acceptance-blocker",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {auditApprovalJoinAcceptancePostureRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Acceptance posture record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.acceptanceState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {record.requiredEvidence.join(" | ")}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Audit memory preview">
         <div className={styles.panelHeader}>
           <div>
@@ -12034,7 +12812,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next audit and approval join review and recovery checklist
+                  Next end-to-end packet contract checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -12042,7 +12820,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextAuditApprovalJoinReviewAndRecoveryChecklist.map((item, index) => (
+              {endToEndPacketContractChecklist.map((item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
                   className={styles.railCard}

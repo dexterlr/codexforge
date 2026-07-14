@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5161) {
-  throw "[FAIL] Highest detected phase expected 5161 found $highestPhase"
+if ($highestPhase -ne 5193) {
+  throw "[FAIL] Highest detected phase expected 5193 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview"',
+  "Phase 5193 Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview-mega-batch.ps1",
   'currentReleaseGateBatch = "5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract"',
   "Phase 5161 Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract",
   "smoke-codexforge-backend-owned-synthetic-dry-run-audit-approval-join-contract-mega-batch.ps1",
@@ -122,17 +125,22 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5161. Latest completed batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract. Previous completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview. Next likely batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview.",
-  "Highest detected phase: 5161",
-  "Latest completed batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract",
-  "Previous completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",
-  "Next likely batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
-  "backend-owned synthetic dry-run audit and approval join contract only",
-  "audit and approval join contract is preview-only",
+  "Current checkpoint: Highest detected phase: 5193. Latest completed batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview. Previous completed batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract. Next likely batch: 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract.",
+  "Highest detected phase: 5193",
+  "Latest completed batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
+  "Previous completed batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract",
+  "Next likely batch: 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract",
+  "backend-owned synthetic dry-run audit and approval join review and recovery preview only",
+  "audit and approval join review is preview-only",
+  "audit and approval join decision review is preview-only",
+  "audit and approval join gate failure review is preview-only",
+  "audit and approval join recovery plan is preview-only",
+  "audit and approval join recovery readiness is preview-only",
+  "audit and approval join acceptance posture is preview-only",
   "audit join state is not persisted",
   "approval join state is not persisted",
   "result reference state is not persisted",
-  "evidence packet is preview-only",
+  "evidence packet state is preview-only",
   "join request is not created",
   "join invocation is not invoked",
   "join response is not received",
@@ -144,11 +152,11 @@ foreach ($needle in @(
   "audit persistence is not implemented",
   "approval persistence is not implemented",
   "result persistence is not implemented",
+  "artifact persistence is not implemented",
   "database write is not implemented",
   "file write is not implemented",
-  "result id is not issued",
-  "result digest is deterministic preview only",
-  "audit and approval joins are not persisted",
+  "acceptance state is not accepted / preview-only",
+  "recovery is manual review only",
   "no prompt sending",
   "no LLM/model calls",
   "no frontend provider call",
@@ -177,7 +185,7 @@ foreach ($needle in @(
   "audit required",
   "opaque credential references only",
   "no plaintext secrets",
-  "backend-owned synthetic dry-run audit and approval join review and recovery preview next",
+  "backend-owned synthetic dry-run end-to-end packet contract next",
   "Current checkpoint: Highest detected phase: 5129. Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview. Previous completed batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract. Next likely batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract.",
   "Highest detected phase: 5129",
   "Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",

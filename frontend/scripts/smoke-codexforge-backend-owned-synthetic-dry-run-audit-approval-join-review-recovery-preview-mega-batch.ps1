@@ -80,7 +80,7 @@ function Normalize-Whitespace {
   return ([regex]::Replace($Text, "\s+", " ")).Trim()
 }
 
-Write-Host "=== CodexForge Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract Mega Batch smoke ==="
+Write-Host "=== CodexForge Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview Mega Batch smoke ==="
 
 $jarvisPagePath = Join-Path $root "src\app\jarvis\page.tsx"
 $jarvisPageClientPath = Join-Path $root "src\app\jarvis\page-client.tsx"
@@ -96,9 +96,9 @@ $athenaPanelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia
 $homeShellPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisUnifiedProductShell.tsx"
 $athenaModelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\athena-control-plane-model.ts"
 $providerPanelPath = Join-Path $root "src\lib\codexforge\ai-provider-registry\components\AiProviderRegistryPanel.tsx"
-$joinTypesPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-audit-approval-join-contract\backend-owned-synthetic-dry-run-audit-approval-join-contract-types.ts"
-$joinCatalogPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-audit-approval-join-contract\backend-owned-synthetic-dry-run-audit-approval-join-contract-catalog.ts"
-$joinIndexPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-audit-approval-join-contract\index.ts"
+$reviewTypesPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview\backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview-types.ts"
+$reviewCatalogPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview\backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview-catalog.ts"
+$reviewIndexPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview\index.ts"
 $allSmokePath = Join-Path $root "scripts\smoke-codexforge-all.ps1"
 $checkpointCurrentPath = Join-Path $root "docs\codexforge-checkpoint-current.md"
 $runbookPath = Join-Path $root "docs\codexforge-operator-checkpoint-runbook.md"
@@ -119,9 +119,9 @@ $requiredPaths = @(
   $homeShellPath,
   $athenaModelPath,
   $providerPanelPath,
-  $joinTypesPath,
-  $joinCatalogPath,
-  $joinIndexPath,
+  $reviewTypesPath,
+  $reviewCatalogPath,
+  $reviewIndexPath,
   $allSmokePath,
   $checkpointCurrentPath,
   $runbookPath,
@@ -146,20 +146,15 @@ $homeSource = Get-CombinedFileText @(
   $homeShellPath,
   $athenaModelPath
 )
-$providersSource = Get-CombinedFileText @(
-  $providersPagePath,
-  $providersPageClientPath,
-  $providerPanelPath
-)
 $videoSource = Get-CombinedFileText @(
   $videoPagePath,
   $videoPageClientPath,
   $videoPanelPath
 )
 $typedModelSource = Get-CombinedFileText @(
-  $joinTypesPath,
-  $joinCatalogPath,
-  $joinIndexPath
+  $reviewTypesPath,
+  $reviewCatalogPath,
+  $reviewIndexPath
 )
 $allSmokeSource = Get-Content -Raw $allSmokePath
 $checkpointCurrentSource = Get-Content -Raw $checkpointCurrentPath
@@ -175,7 +170,7 @@ $frontEndSourceFiles = Get-SourceFiles @(
   (Join-Path $root "src\app\ai-providers"),
   (Join-Path $root "src\app\page.tsx"),
   (Join-Path $root "src\app\page-client.tsx"),
-  (Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-audit-approval-join-contract"),
+  (Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview"),
   (Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map"),
   (Join-Path $root "src\lib\codexforge\ai-provider-registry"),
   (Join-Path $root "src\lib\codexforge\jarvis-video-studio-release-candidate-map"),
@@ -185,18 +180,18 @@ $frontEndSource = Get-CombinedSourceText $frontEndSourceFiles
 
 $jarvisNormalized = Normalize-Whitespace $jarvisSource
 $homeNormalized = Normalize-Whitespace $homeSource
-$providersNormalized = Normalize-Whitespace $providersSource
 $videoNormalized = Normalize-Whitespace $videoSource
 $typedModelNormalized = Normalize-Whitespace $typedModelSource
 $docsNormalized = Normalize-Whitespace $docsSource
+$allSmokeNormalized = Normalize-Whitespace $allSmokeSource
 $athenaPanelNormalized = Normalize-Whitespace $athenaPanelSource
 
 foreach ($needle in @(
-  "5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract",
-  "5161",
-  "Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract"
+  "5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
+  "5193",
+  "Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview"
 )) {
-  Assert-Contains ($jarvisNormalized + " " + $homeNormalized + " " + $providersNormalized + " " + $typedModelNormalized + " " + $docsNormalized + " " + $allSmokeSource) $needle "batch marker contains $needle"
+  Assert-Contains ($jarvisNormalized + " " + $homeNormalized + " " + $typedModelNormalized + " " + $docsNormalized + " " + $allSmokeNormalized) $needle "batch marker contains $needle"
 }
 
 Assert-Contains (Get-Content -Raw $athenaPagePath) 'export { default } from "../jarvis/page";' "/athena aliases /jarvis"
@@ -204,18 +199,16 @@ Assert-Contains (Get-Content -Raw $athenaPagePath) 'export { default } from "../
 foreach ($needle in @(
   "Athena",
   "Athena Command Center",
-  "Backend-owned synthetic dry-run result capture review",
-  "Result capture acceptance posture",
   "Backend-owned synthetic dry-run audit and approval join contract",
-  "Synthetic audit join contract",
-  "Synthetic approval join contract",
-  "Result to audit and approval link contract",
-  "Audit and approval join request/response contract",
-  "Audit and approval join gates",
-  "Audit and approval join readiness matrix",
   "Audit and approval evidence packet preview",
-  "Athena can preview backend-owned synthetic dry-run audit and approval join contracts",
-  "audit and approval join contract is preview-only",
+  "Backend-owned synthetic dry-run audit and approval join review",
+  "Audit and approval join decision review",
+  "Audit and approval join gate failure review",
+  "Audit and approval join recovery plan",
+  "Audit and approval join recovery readiness",
+  "Audit and approval join acceptance posture",
+  "Athena can review why synthetic dry-run audit and approval joins are held",
+  "audit and approval join review is preview-only",
   "audit join state: not persisted",
   "approval join state: not persisted",
   "result reference state: not persisted",
@@ -229,7 +222,12 @@ foreach ($needle in @(
   "No prompt sending",
   "No model calls yet",
   "No provider SDKs imported",
-  "end-to-end packet contract comes next"
+  "end-to-end packet contract comes next",
+  "decision state: held / not joined",
+  "recovery is manual review only",
+  "retry disabled",
+  "fallback disabled",
+  "acceptance state: not accepted / preview-only"
 )) {
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
@@ -252,25 +250,6 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Backend-owned synthetic dry-run audit and approval join contract",
-  "Synthetic audit join contract",
-  "Synthetic approval join contract",
-  "Result to audit and approval link contract",
-  "Audit and approval join request/response contract",
-  "Audit and approval join gates",
-  "Audit and approval join readiness matrix",
-  "Audit and approval evidence packet preview",
-  "audit and approval join review is preview-only",
-  "audit join state: not persisted",
-  "approval join state: not persisted",
-  "result reference state: not persisted",
-  "evidence packet state: preview-only",
-  "end-to-end packet contract comes next"
-)) {
-  Assert-Contains $providersNormalized $needle "providers contains $needle"
-}
-
-foreach ($needle in @(
   "Video generation control",
   "Prompt / concept",
   "Output preview",
@@ -280,171 +259,46 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH",
-  "BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_PHASE",
-  "PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH",
-  "NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH",
-  "backend-owned synthetic dry-run audit and approval join contract only",
-  "audit and approval join contract is preview-only",
-  "audit join state is not persisted",
-  "approval join state is not persisted",
-  "result reference state is not persisted",
-  "evidence packet is preview-only",
-  "join request is not created",
-  "join invocation is not invoked",
-  "join response is not received",
-  "join error is not received",
-  "audit envelope state is not created",
-  "approval envelope state is not created",
-  "audit append state is not appended",
-  "approval append state is not appended",
-  "audit persistence is not implemented",
-  "approval persistence is not implemented",
-  "result persistence is not implemented",
-  "database write is not implemented",
-  "file write is not implemented",
-  "result id is not issued",
-  "result digest is deterministic preview only",
-  "audit and approval joins are not persisted",
-  "no prompt sending",
+  "backend-owned synthetic dry-run audit and approval join review",
+  "audit and approval join decision review",
+  "audit and approval join gate failure review",
+  "audit and approval join recovery plan",
+  "audit and approval join recovery readiness checklist",
+  "audit and approval join review audit summary",
+  "audit and approval join acceptance posture",
   "no LLM/model calls",
+  "no prompt sending",
   "no provider SDK imports",
-  "no queue dispatch",
-  "no worker dispatch",
-  "no job execution",
-  "no retry execution",
-  "no fallback execution",
   "no result persistence",
   "no audit persistence",
   "no approval persistence",
-  "no persistent memory",
-  "no browser storage",
-  "no database writes",
-  "No audit join. No persistence.",
-  "No approval join. No persistence.",
-  "No result-audit-approval link persisted.",
-  "No join request created.",
-  "No join response. No persistence.",
-  "No join error. No retry. No fallback.",
-  "No evidence packet persistence.",
-  "buildStableSyntheticAuditApprovalJoinContractKey",
-  "buildStableSyntheticAuditJoinKey",
-  "buildStableSyntheticApprovalJoinKey",
-  "buildStableResultAuditApprovalLinkKey",
-  "buildStableAuditApprovalJoinRequestKey",
-  "buildStableAuditApprovalJoinResponseKey",
-  "buildStableAuditApprovalJoinErrorKey",
-  "buildStableAuditApprovalJoinGateKey",
-  "buildStableAuditApprovalJoinReadinessKey",
-  "buildStableAuditApprovalEvidencePacketKey",
-  "listBackendOwnedSyntheticDryRunAuditApprovalJoinContracts",
-  "listSyntheticAuditJoinContracts",
-  "listSyntheticApprovalJoinContracts",
-  "listResultAuditApprovalLinkContracts",
-  "listAuditApprovalJoinRequestContracts",
-  "listAuditApprovalJoinResponseContracts",
-  "listAuditApprovalJoinErrorContracts",
-  "listAuditApprovalJoinGateRecords",
-  "listAuditApprovalJoinReadinessMatrixRecords",
-  "listAuditApprovalEvidencePacketPreviews",
-  "groupAuditApprovalJoinContractsByCapabilityFamily",
-  "groupAuditApprovalJoinContractsByWorkspaceTarget",
-  "buildAuditApprovalJoinContractSummary",
-  "buildAuditApprovalJoinGateSummary",
-  "buildAuditApprovalJoinReadinessSummary",
-  "buildNextAuditApprovalJoinReviewAndRecoveryChecklist",
-  "uniqueAuditApprovalJoinDisplayStrings"
+  "no database write",
+  "no file write"
 )) {
   Assert-Contains $typedModelNormalized $needle "typed model/data contains $needle"
 }
 
-foreach ($needle in @(
-  'currentReleaseGateBatch = "5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract"',
-  'currentReleaseGateBatch = "5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview"',
-  "Phase 5161 Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract",
-  "smoke-codexforge-backend-owned-synthetic-dry-run-audit-approval-join-contract-mega-batch.ps1"
-)) {
-  Assert-Contains $allSmokeSource $needle "all-smoke contains $needle"
-}
+Assert-Contains $allSmokeSource 'currentReleaseGateBatch = "5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview"' "all-smoke marks current release gate as 5162-5193"
+Assert-Contains $allSmokeSource "Phase 5193 Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview" "all-smoke contains phase 5193 entry"
+Assert-Contains $allSmokeSource "smoke-codexforge-backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview-mega-batch.ps1" "all-smoke references the new mega-batch smoke"
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5161. Latest completed batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract. Previous completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview. Next likely batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview.",
-  "Highest detected phase: 5161",
-  "Latest completed batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract",
-  "Previous completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",
-  "Next likely batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
-  "backend-owned synthetic dry-run audit and approval join contract only",
-  "audit and approval join contract is preview-only",
-  "audit join state is not persisted",
-  "approval join state is not persisted",
-  "result reference state is not persisted",
-  "evidence packet is preview-only",
-  "join request is not created",
-  "join invocation is not invoked",
-  "join response is not received",
-  "join error is not received",
-  "audit envelope state is not created",
-  "approval envelope state is not created",
-  "audit append state is not appended",
-  "approval append state is not appended",
-  "audit persistence is not implemented",
-  "approval persistence is not implemented",
-  "result persistence is not implemented",
-  "database write is not implemented",
-  "file write is not implemented",
-  "result id is not issued",
-  "result digest is deterministic preview only",
-  "audit and approval joins are not persisted",
-  "no prompt sending",
-  "no LLM/model calls",
-  "no frontend provider call",
-  "no frontend fetch/network call",
-  "no provider SDK imports",
-  "no provider execution",
-  "no plugin execution",
-  "no autonomous execution",
-  "no live video generation",
-  "no queue dispatch",
-  "no worker dispatch",
-  "no job execution",
-  "no retry execution",
-  "no fallback execution",
-  "no result persistence",
-  "no audit persistence",
-  "no approval persistence",
-  "no persistent memory",
-  "no browser storage",
-  "no database writes",
-  "backend-only execution path required",
-  "server-only adapters required",
-  "manual approval required",
-  "manual confirmation required",
-  "kill switch required",
-  "audit required",
-  "opaque credential references only",
-  "no plaintext secrets",
-  "backend-owned synthetic dry-run audit and approval join review and recovery preview next"
+  "Current checkpoint: Highest detected phase: 5193. Latest completed batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview. Previous completed batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract. Next likely batch: 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract.",
+  "Highest detected phase: 5193",
+  "Latest completed batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
+  "Previous completed batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract",
+  "Next likely batch: 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract"
 )) {
-  Assert-Contains $docsNormalized $needle "checkpoint docs contain $needle"
+  Assert-Contains $checkpointCurrentSource $needle "checkpoint current contains $needle"
 }
 
 Assert-Contains $navigationTypesSource "export type CodexForgeNavigationRouteHref = Route;" "route href typing remains Route-based"
 Assert-Contains $navigationTypesSource "export type CodexForgeCommandDeckRole =" "commandDeckRole typing remains enumerated"
 Assert-Contains $navigationTypesSource "commandDeckRole: CodexForgeCommandDeckRole;" "navigation route type still uses commandDeckRole typing"
 
-foreach ($needle in @(
-  '"audit-approval-join-summary",',
-  '"audit-approval-join-capability-group",',
-  '"audit-approval-join-workspace-group",',
-  '"audit-approval-join-current-review-layer",',
-  '"audit-approval-join-gate-summary",',
-  '"audit-approval-join-readiness-summary",'
-)) {
-  Assert-Contains $athenaPanelNormalized $needle "AthenaCommandCenterPanel contains contextual audit/approval join key scope $needle"
-}
-
-Assert-NotMatches $athenaPanelSource 'auditApprovalJoinCapabilityGroups\.map\(\(group,\s*index\)\s*=>\s*\(\s*<span\s+key=\{group\.capabilityFamilyId\}' "AthenaCommandCenterPanel does not use raw repeated capability ids as audit/approval join capability keys"
-Assert-NotMatches $athenaPanelSource 'auditApprovalJoinWorkspaceGroups\.map\(\(group,\s*index\)\s*=>\s*\(\s*<span\s+key=\{group\.workspaceTarget\}' "AthenaCommandCenterPanel does not use raw repeated workspace ids as audit/approval join workspace keys"
+Assert-NotMatches $athenaPanelSource 'auditApprovalJoinReviewCapabilityGroups\.map\(\(group,\s*index\)\s*=>\s*\(\s*<span\s+key=\{group\.capabilityFamilyId\}' "AthenaCommandCenterPanel does not use raw repeated capability ids as audit/approval join review capability keys"
+Assert-NotMatches $athenaPanelSource 'auditApprovalJoinReviewWorkspaceGroups\.map\(\(group,\s*index\)\s*=>\s*\(\s*<span\s+key=\{group\.workspaceTarget\}' "AthenaCommandCenterPanel does not use raw repeated workspace ids as audit/approval join review workspace keys"
+Assert-NotMatches $athenaPanelSource 'auditApprovalJoinReviewRecords\.map\(\(record\)\s*=>\s*\(\s*<article\s+key=\{record\.selectedCapabilityFamily\.id\}' "AthenaCommandCenterPanel review list does not use raw repeated capability ids as sibling keys"
 
 Assert-NotMatches $frontEndSource '(?m)^\s*import\s+.+from\s+["''][^"'']*(openai|anthropic|generative-ai|genai|mistral|replicate|fal-ai|elevenlabs|assemblyai|deepgram|groq|ollama)[^"'']*["'']' "frontend Athena/Jarvis/provider files do not import provider SDKs"
 Assert-NotMatches $frontEndSource '\bfetch\s*\(' "frontend Athena/Jarvis/provider files do not call fetch"
@@ -458,4 +312,4 @@ Assert-NotMatches $frontEndSource '\bchild_process\b|\bexec\s*\(|\bspawn\s*\(|\b
 Assert-NotMatches $navigationTypesSource 'export\s+type\s+CodexForgeNavigationRouteHref\s*=\s*string\b' "route href typing is not loosened to string"
 Assert-NotMatches $navigationTypesSource 'export\s+type\s+CodexForgeCommandDeckRole\s*=\s*string\b' "commandDeckRole typing is not loosened to string"
 
-Write-Host "[PASS] CodexForge backend-owned synthetic dry-run audit and approval join contract checks passed."
+Write-Host "[PASS] Backend-owned synthetic dry-run audit and approval join review and recovery preview smoke passed."
