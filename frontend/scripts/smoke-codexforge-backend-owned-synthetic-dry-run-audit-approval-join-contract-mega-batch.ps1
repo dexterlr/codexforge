@@ -229,20 +229,23 @@ foreach ($needle in @(
   "No prompt sending",
   "No model calls yet",
   "No provider SDKs imported",
-  "end-to-end packet contract comes next"
+  "end-to-end packet review and recovery preview comes next"
 )) {
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
 
 foreach ($needle in @(
   "CodexForge Operator Cockpit",
-  "Athena can now preview backend-owned synthetic dry-run audit and approval join reviews",
-  "audit and approval join review is preview-only",
+  "Athena can now preview backend-owned synthetic dry-run end-to-end packet contracts",
+  "end-to-end packet contract is preview-only",
+  "packet state is draft / preview-only",
+  "packet request is not created",
+  "packet invocation is not invoked",
+  "packet response is not received",
+  "result capture state is not captured",
   "audit join state is not persisted",
   "approval join state is not persisted",
-  "result reference state is not persisted",
-  "evidence packet state is preview-only",
-  "end-to-end packet contract comes next",
+  "end-to-end packet review and recovery preview comes next",
   "no model calls yet",
   "no prompt sending",
   "no provider SDKs imported",
@@ -265,7 +268,7 @@ foreach ($needle in @(
   "approval join state: not persisted",
   "result reference state: not persisted",
   "evidence packet state: preview-only",
-  "end-to-end packet contract comes next"
+  "end-to-end packet review and recovery preview comes next"
 )) {
   Assert-Contains $providersNormalized $needle "providers contains $needle"
 }

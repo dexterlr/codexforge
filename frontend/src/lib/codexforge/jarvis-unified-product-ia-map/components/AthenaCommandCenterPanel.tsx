@@ -172,7 +172,6 @@ import {
   buildAuditApprovalJoinGateFailureSummary,
   buildAuditApprovalJoinRecoverySummary,
   buildAuditApprovalJoinReviewSummary,
-  buildEndToEndPacketContractChecklist,
   groupAuditApprovalJoinReviewsByCapabilityFamily,
   groupAuditApprovalJoinReviewsByWorkspaceTarget,
   listAuditApprovalJoinAcceptancePostureRecords,
@@ -183,6 +182,23 @@ import {
   listAuditApprovalJoinReviewAuditSummaries,
   listBackendOwnedSyntheticDryRunAuditApprovalJoinReviews,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview";
+import {
+  buildNextEndToEndPacketReviewAndRecoveryChecklist,
+  buildSyntheticEndToEndPacketGateSummary,
+  buildSyntheticEndToEndPacketReadinessSummary,
+  buildSyntheticEndToEndPacketSummary,
+  groupSyntheticEndToEndPacketsByCapabilityFamily,
+  groupSyntheticEndToEndPacketsByWorkspaceTarget,
+  listBackendOwnedSyntheticDryRunEndToEndPacketContracts,
+  listSyntheticEndToEndPacketAcceptancePostureRecords,
+  listSyntheticEndToEndPacketErrorContracts,
+  listSyntheticEndToEndPacketGateRecords,
+  listSyntheticEndToEndPacketLineageRecords,
+  listSyntheticEndToEndPacketReadinessMatrixRecords,
+  listSyntheticEndToEndPacketRequestContracts,
+  listSyntheticEndToEndPacketResponseContracts,
+  listSyntheticEndToEndPacketStageRecords,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-end-to-end-packet-contract";
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
@@ -824,8 +840,6 @@ export function AthenaCommandCenterPanel({
     buildAuditApprovalJoinGateFailureSummary();
   const auditApprovalJoinRecoverySummary =
     buildAuditApprovalJoinRecoverySummary();
-  const endToEndPacketContractChecklist =
-    buildEndToEndPacketContractChecklist();
   const auditApprovalJoinReviewCapabilityGroups =
     groupAuditApprovalJoinReviewsByCapabilityFamily();
   const auditApprovalJoinReviewWorkspaceGroups =
@@ -846,6 +860,53 @@ export function AthenaCommandCenterPanel({
     auditApprovalJoinRecoveryReadinessChecklistRecords.filter(
       (record) => record.state === "blocked"
     );
+  const endToEndPacketContracts =
+    listBackendOwnedSyntheticDryRunEndToEndPacketContracts();
+  const endToEndPacketStageRecords = listSyntheticEndToEndPacketStageRecords();
+  const endToEndPacketLineageRecords =
+    listSyntheticEndToEndPacketLineageRecords();
+  const endToEndPacketRequestContracts =
+    listSyntheticEndToEndPacketRequestContracts();
+  const endToEndPacketResponseContracts =
+    listSyntheticEndToEndPacketResponseContracts();
+  const endToEndPacketErrorContracts =
+    listSyntheticEndToEndPacketErrorContracts();
+  const endToEndPacketGateRecords = listSyntheticEndToEndPacketGateRecords();
+  const endToEndPacketReadinessMatrixRecords =
+    listSyntheticEndToEndPacketReadinessMatrixRecords();
+  const endToEndPacketAcceptancePostureRecords =
+    listSyntheticEndToEndPacketAcceptancePostureRecords();
+  const endToEndPacketSummary = buildSyntheticEndToEndPacketSummary();
+  const endToEndPacketGateSummary = buildSyntheticEndToEndPacketGateSummary();
+  const endToEndPacketReadinessSummary =
+    buildSyntheticEndToEndPacketReadinessSummary();
+  const nextEndToEndPacketReviewAndRecoveryChecklist =
+    buildNextEndToEndPacketReviewAndRecoveryChecklist();
+  const endToEndPacketCapabilityGroups =
+    groupSyntheticEndToEndPacketsByCapabilityFamily();
+  const endToEndPacketWorkspaceGroups =
+    groupSyntheticEndToEndPacketsByWorkspaceTarget();
+  const representativeEndToEndPacketContract =
+    endToEndPacketContracts[0] ?? null;
+  const representativeEndToEndPacketLineage =
+    endToEndPacketLineageRecords[0] ?? null;
+  const representativeEndToEndPacketRequest =
+    endToEndPacketRequestContracts[0] ?? null;
+  const representativeEndToEndPacketResponse =
+    endToEndPacketResponseContracts[0] ?? null;
+  const representativeEndToEndPacketError =
+    endToEndPacketErrorContracts[0] ?? null;
+  const representativeEndToEndPacketReadiness =
+    endToEndPacketReadinessMatrixRecords[0] ?? null;
+  const representativeEndToEndPacketAcceptancePosture =
+    endToEndPacketAcceptancePostureRecords[0] ?? null;
+  const representativeEndToEndPacketStageRecords =
+    representativeEndToEndPacketContract
+      ? endToEndPacketStageRecords.filter(
+          (record) =>
+            record.packetContractId === representativeEndToEndPacketContract.id
+        )
+      : [];
   const resultCaptureReviewRecords =
     listBackendOwnedSyntheticDryRunResultCaptureReviews();
   const resultCaptureDecisionReviewRecords = listResultCaptureDecisionReviews();
@@ -11866,7 +11927,8 @@ export function AthenaCommandCenterPanel({
           append state: not appended. approval append state: not appended.
           database write is not implemented. file write is not implemented. No
           prompt sending. No model calls yet. No provider SDKs imported.
-          end-to-end packet contract comes next.
+          end-to-end packet contract is preview-only. end-to-end packet review
+          and recovery preview comes next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -11933,7 +11995,7 @@ export function AthenaCommandCenterPanel({
                 {`source evidence packet: ${representativeAuditApprovalJoinReview.sourceAuditApprovalEvidencePacketReference}`}
               </p>
               <p className={styles.railFooter}>
-                {`next packet requirement: ${representativeAuditApprovalJoinReview.nextEndToEndPacketContractRequirement}`}
+                {`end-to-end packet contract now available: ${endToEndPacketSummary.latestCompletedBatch}`}
               </p>
             </article>
           ) : null}
@@ -11960,10 +12022,7 @@ export function AthenaCommandCenterPanel({
                 }
               </p>
               <p className={styles.railFooter}>
-                {
-                  representativeAuditApprovalJoinReviewAuditSummary
-                    .endToEndPacketContractRequirement
-                }
+                {endToEndPacketSummary.latestCompletedBatch}
               </p>
             </article>
           ) : null}
@@ -12081,7 +12140,7 @@ export function AthenaCommandCenterPanel({
         <p className={styles.panelBody}>
           decision state: held / not joined. audit and approval join decision
           review is preview-only. No audit/approval join. No persistence.
-          end-to-end packet contract comes next.
+          end-to-end packet review and recovery preview comes next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -12100,7 +12159,7 @@ export function AthenaCommandCenterPanel({
               {`top gate failures visible: ${auditApprovalJoinGateFailureSummary.uniqueFailedGateCount}`}
             </p>
             <p className={styles.railFooter}>
-              {auditApprovalJoinReviewSummary.nextLikelyBatch}
+              {endToEndPacketSummary.nextLikelyBatch}
             </p>
           </article>
           {representativeAuditApprovalJoinDecisionReview ? (
@@ -12175,7 +12234,8 @@ export function AthenaCommandCenterPanel({
           audit and approval join gate failure review is preview-only. Gate
           remains blocked. No gate pass is granted. evidence packet state:
           preview-only. database write is not implemented. file write is not
-          implemented. end-to-end packet contract comes next.
+          implemented. end-to-end packet review and recovery preview comes
+          next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -12354,7 +12414,7 @@ export function AthenaCommandCenterPanel({
                 {record.databaseWriteBlockedRecovery}
               </p>
               <p className={styles.railFooter}>
-                {record.nextSafeBatchRecommendation}
+                {endToEndPacketSummary.nextLikelyBatch}
               </p>
             </article>
           ))}
@@ -12400,7 +12460,7 @@ export function AthenaCommandCenterPanel({
               {`blocked items: ${blockedAuditApprovalJoinRecoveryReadinessChecklistRecords.length}`}
             </p>
             <p className={styles.railFooter}>
-              {auditApprovalJoinRecoverySummary.nextLikelyBatch}
+              {endToEndPacketSummary.nextLikelyBatch}
             </p>
           </article>
           {(blockedAuditApprovalJoinRecoveryReadinessChecklistRecords[0] ??
@@ -12494,7 +12554,7 @@ export function AthenaCommandCenterPanel({
               {`queue/worker/job blockers remain visible for ${auditApprovalJoinAcceptancePostureRecords.length} review lanes.`}
             </p>
             <p className={styles.railFooter}>
-              {auditApprovalJoinReviewSummary.nextLikelyBatch}
+              {endToEndPacketSummary.nextLikelyBatch}
             </p>
           </article>
           {representativeAuditApprovalJoinAcceptancePosture ? (
@@ -12547,6 +12607,642 @@ export function AthenaCommandCenterPanel({
               </div>
               <p className={styles.railBody}>
                 {record.requiredEvidence.join(" | ")}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned synthetic dry-run end-to-end packet contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only packet contract</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned synthetic dry-run end-to-end packet contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Draft / preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview backend-owned synthetic dry-run end-to-end packet
+          contracts. end-to-end packet contract is preview-only. packet state:
+          draft / preview-only. packet request is not created. packet
+          invocation is not invoked. packet response is not received. packet
+          error is not received. admission state: not admitted. dry-run
+          execution is not executed. result capture state: not captured. audit
+          join state: not persisted. approval join state: not persisted.
+          evidence packet is preview-only. database write is not implemented.
+          file write is not implemented. queue dispatch is blocked. worker
+          dispatch is blocked. job execution is blocked. No prompt sending. No
+          model calls yet. No provider SDKs imported. end-to-end packet review
+          and recovery preview comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Packet summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {endToEndPacketSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`phase ${endToEndPacketSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {endToEndPacketSummary.summaryLines.slice(0, 10).map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "end-to-end-packet-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeEndToEndPacketContract ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketContract.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketContract.packetState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {representativeEndToEndPacketContract.workspaceTarget}
+                </span>
+                <span className={styles.metaPill}>
+                  {
+                    representativeEndToEndPacketContract.selectedCapabilityFamily
+                      .label
+                  }
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeEndToEndPacketContract.providerSlotLabel}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`packet request: ${representativeEndToEndPacketContract.packetRequestState} | packet invocation: ${representativeEndToEndPacketContract.packetInvocationState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`result capture: ${representativeEndToEndPacketContract.resultCaptureState} | evidence packet: ${representativeEndToEndPacketContract.evidencePacketState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketContract
+                    .nextEndToEndPacketReviewRecoveryRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${endToEndPacketContracts.length} packets`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {endToEndPacketCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "end-to-end-packet-capability",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.metaPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.packetCount})`}
+                </span>
+              ))}
+              {endToEndPacketWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "end-to-end-packet-workspace",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.metaPill}
+                >
+                  {`${group.workspaceTarget} (${group.packetCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {endToEndPacketContracts.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Packet contract record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.packetState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`source run intent: ${record.sourceRunIntentReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source approval packet: ${record.sourceApprovalPacketReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source review: ${record.sourceAuditApprovalJoinReviewReference}`}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic end-to-end stage contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Stage contract</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic end-to-end stage contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic end-to-end stage contract records stay typed, inert, and
+          preview-only. No stage execution. Preview-only.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Stage coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  15 stage records per packet
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${endToEndPacketStageRecords.length} stages`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              run intent, approval packet, admission, runner, fixture, result
+              envelope, result capture, join, evidence, and final packet stages
+              remain linked by typed reference only.
+            </p>
+          </article>
+          {representativeEndToEndPacketContract ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketContract.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {`${representativeEndToEndPacketStageRecords.length} stages`}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeEndToEndPacketContract.blockedDefaultReason}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeEndToEndPacketStageRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Stage record</p>
+                  <h3 className={styles.placeholderTitle}>{record.stageLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.stageState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.requiredEvidence}</p>
+              <p className={styles.railBody}>{record.currentBlockedReason}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic end-to-end lineage">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Static lineage</p>
+            <h2 className={styles.panelTitle}>Synthetic end-to-end lineage</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic end-to-end lineage records stay preview-only and
+          non-persistent. result reference state: not persisted. audit
+          reference state: not persisted. approval reference state: not
+          persisted. database write is not implemented. file write is not
+          implemented.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeEndToEndPacketLineage ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative lineage</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketLineage.packetContractId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketLineage.lineageConsistencyState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`run intent: ${representativeEndToEndPacketLineage.runIntentReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`admission: ${representativeEndToEndPacketLineage.admissionReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`runner: ${representativeEndToEndPacketLineage.runnerReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketLineage
+                    .explicitNoLineagePersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {endToEndPacketLineageRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Lineage record</p>
+                  <h3 className={styles.placeholderTitle}>{record.packetContractId}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.lineagePersistenceState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`result: ${record.resultReference} | audit: ${record.auditReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval: ${record.approvalReference} | evidence: ${record.evidencePacketReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`database write: ${record.databaseWriteState} | file write: ${record.fileWriteState}`}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="End-to-end packet request/response contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Request and response posture</p>
+            <h2 className={styles.panelTitle}>
+              End-to-end packet request/response contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not created / not received
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          packet request is not created. packet invocation is not invoked.
+          packet response is not received. packet error is not received.
+          payload posture is static preview packet only. prompt payload posture
+          is redacted placeholder only. result payload posture is static
+          placeholder only.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeEndToEndPacketRequest ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Request contract</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketRequest.packetContractId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketRequest.packetRequestState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeEndToEndPacketRequest.payloadPosture}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketRequest
+                    .explicitNoPacketRequestCreatedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeEndToEndPacketResponse ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Response contract</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketResponse.packetContractId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketResponse.responseState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`packet acceptance: ${representativeEndToEndPacketResponse.packetAcceptanceState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketResponse
+                    .explicitNoPacketResponseNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeEndToEndPacketError ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Error contract</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketError.packetContractId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketError.errorState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeEndToEndPacketError.missingRunIntentExample}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketError
+                    .explicitNoPacketErrorNoRetryNoFallbackStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="End-to-end packet gates">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked gates</p>
+            <h2 className={styles.panelTitle}>End-to-end packet gates</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          queue dispatch is blocked. worker dispatch is blocked. job execution
+          is blocked. No prompt sending. No model calls yet. No provider SDKs
+          imported.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${endToEndPacketGateSummary.gateCount} blocked gates`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {endToEndPacketSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {endToEndPacketGateSummary.summaryLines.slice(0, 10).map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "end-to-end-packet-gate-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {endToEndPacketGateRecords.slice(0, 8).map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.requiredState}</p>
+              <p className={styles.railBody}>{record.evidenceRequirement}</p>
+              <p className={styles.railFooter}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="End-to-end packet readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness matrix</p>
+            <h2 className={styles.panelTitle}>
+              End-to-end packet readiness matrix
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not executable / not persistent
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          current readiness: end-to-end-packet-contract-only / not executable /
+          not persistent.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {endToEndPacketReadinessSummary.currentReadiness}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${endToEndPacketReadinessSummary.readinessRecordCount} matrices`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {endToEndPacketReadinessSummary.nextSafeAction}
+            </p>
+          </article>
+          {representativeEndToEndPacketReadiness ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative readiness</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketReadiness.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketReadiness.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`safety: ${representativeEndToEndPacketReadiness.safetyBoundaryState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`privacy: ${representativeEndToEndPacketReadiness.privacyBoundaryState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`database: ${representativeEndToEndPacketReadiness.databaseBoundaryState} | file: ${representativeEndToEndPacketReadiness.fileBoundaryState}`}
+              </p>
+            </article>
+          ) : null}
+          {endToEndPacketReadinessMatrixRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Readiness record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`packet contract: ${record.packetContractState} | stage contract: ${record.stageContractState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`request: ${record.requestContractState} | response: ${record.responseContractState} | error: ${record.errorContractState}`}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="End-to-end packet acceptance posture"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance posture</p>
+            <h2 className={styles.panelTitle}>
+              End-to-end packet acceptance posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not accepted / preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          acceptance state: not accepted / preview-only.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeEndToEndPacketAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketAcceptancePosture.packetContractId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketAcceptancePosture.acceptanceState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeEndToEndPacketAcceptancePosture.requiredEvidence.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeEndToEndPacketAcceptancePosture.key,
+                        "required-evidence",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
+          ) : null}
+          {endToEndPacketAcceptancePostureRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Acceptance record</p>
+                  <h3 className={styles.placeholderTitle}>{record.packetContractId}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.acceptanceState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {record.runIntentBlockers.join(" | ")}
+              </p>
+              <p className={styles.railBody}>
+                {record.persistenceBlockers.join(" | ")}
               </p>
               <p className={styles.railFooter}>{record.nextSafeAction}</p>
             </article>
@@ -12812,7 +13508,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next end-to-end packet contract checklist
+                  Next end-to-end packet review and recovery checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -12820,7 +13516,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {endToEndPacketContractChecklist.map((item, index) => (
+              {nextEndToEndPacketReviewAndRecoveryChecklist.map((item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
                   className={styles.railCard}

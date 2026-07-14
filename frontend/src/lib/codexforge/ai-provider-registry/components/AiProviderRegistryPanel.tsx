@@ -87,6 +87,23 @@ import {
   listSyntheticApprovalJoinContracts,
   listSyntheticAuditJoinContracts,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-audit-approval-join-contract";
+import {
+  buildNextEndToEndPacketReviewAndRecoveryChecklist,
+  buildSyntheticEndToEndPacketGateSummary,
+  buildSyntheticEndToEndPacketReadinessSummary,
+  buildSyntheticEndToEndPacketSummary,
+  groupSyntheticEndToEndPacketsByCapabilityFamily,
+  groupSyntheticEndToEndPacketsByWorkspaceTarget,
+  listBackendOwnedSyntheticDryRunEndToEndPacketContracts,
+  listSyntheticEndToEndPacketAcceptancePostureRecords,
+  listSyntheticEndToEndPacketErrorContracts,
+  listSyntheticEndToEndPacketGateRecords,
+  listSyntheticEndToEndPacketLineageRecords,
+  listSyntheticEndToEndPacketReadinessMatrixRecords,
+  listSyntheticEndToEndPacketRequestContracts,
+  listSyntheticEndToEndPacketResponseContracts,
+  listSyntheticEndToEndPacketStageRecords,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-end-to-end-packet-contract";
 
 function buildProviderScopedKey(
   scope: string,
@@ -245,6 +262,53 @@ export function AiProviderRegistryPanel() {
     auditApprovalJoinReadinessMatrixRecords[0] ?? null;
   const representativeAuditApprovalEvidencePacket =
     auditApprovalEvidencePacketPreviews[0] ?? null;
+  const endToEndPacketContracts =
+    listBackendOwnedSyntheticDryRunEndToEndPacketContracts();
+  const endToEndPacketStageRecords = listSyntheticEndToEndPacketStageRecords();
+  const endToEndPacketLineageRecords =
+    listSyntheticEndToEndPacketLineageRecords();
+  const endToEndPacketRequestContracts =
+    listSyntheticEndToEndPacketRequestContracts();
+  const endToEndPacketResponseContracts =
+    listSyntheticEndToEndPacketResponseContracts();
+  const endToEndPacketErrorContracts =
+    listSyntheticEndToEndPacketErrorContracts();
+  const endToEndPacketGateRecords = listSyntheticEndToEndPacketGateRecords();
+  const endToEndPacketReadinessMatrixRecords =
+    listSyntheticEndToEndPacketReadinessMatrixRecords();
+  const endToEndPacketAcceptancePostureRecords =
+    listSyntheticEndToEndPacketAcceptancePostureRecords();
+  const endToEndPacketSummary = buildSyntheticEndToEndPacketSummary();
+  const endToEndPacketGateSummary = buildSyntheticEndToEndPacketGateSummary();
+  const endToEndPacketReadinessSummary =
+    buildSyntheticEndToEndPacketReadinessSummary();
+  const nextEndToEndPacketReviewAndRecoveryChecklist =
+    buildNextEndToEndPacketReviewAndRecoveryChecklist();
+  const endToEndPacketCapabilityGroups =
+    groupSyntheticEndToEndPacketsByCapabilityFamily();
+  const endToEndPacketWorkspaceGroups =
+    groupSyntheticEndToEndPacketsByWorkspaceTarget();
+  const representativeEndToEndPacketContract =
+    endToEndPacketContracts[0] ?? null;
+  const representativeEndToEndPacketLineage =
+    endToEndPacketLineageRecords[0] ?? null;
+  const representativeEndToEndPacketRequest =
+    endToEndPacketRequestContracts[0] ?? null;
+  const representativeEndToEndPacketResponse =
+    endToEndPacketResponseContracts[0] ?? null;
+  const representativeEndToEndPacketError =
+    endToEndPacketErrorContracts[0] ?? null;
+  const representativeEndToEndPacketReadiness =
+    endToEndPacketReadinessMatrixRecords[0] ?? null;
+  const representativeEndToEndPacketAcceptancePosture =
+    endToEndPacketAcceptancePostureRecords[0] ?? null;
+  const representativeEndToEndPacketStageRecords =
+    representativeEndToEndPacketContract
+      ? endToEndPacketStageRecords.filter(
+          (record) =>
+            record.packetContractId === representativeEndToEndPacketContract.id
+        )
+      : [];
   const providerLabelsById = new Map(
     providerSlots.map((slot) => [slot.id, slot.label] as const)
   );
@@ -252,11 +316,11 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Backend-owned synthetic dry-run audit and approval join contract Synthetic audit join contract Synthetic approval join contract Result to audit and approval link contract Audit and approval join request/response contract Audit and approval join gates Audit and approval join readiness matrix Audit and approval evidence packet preview Backend-owned synthetic dry-run audit and approval join review Audit and approval join decision review Audit and approval join gate failure review Audit and approval join recovery plan Audit and approval join recovery readiness Audit and approval join acceptance posture Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only synthetic runner skeleton is preview-only runner state: skeleton / not executable dry-run request is not created runner invocation is not invoked dry-run execution is not executed audit and approval join review is preview-only audit join state: not persisted approval join state: not persisted result reference state: not persisted evidence packet state: preview-only end-to-end packet contract comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Backend-owned synthetic dry-run audit and approval join contract Synthetic audit join contract Synthetic approval join contract Result to audit and approval link contract Audit and approval join request/response contract Audit and approval join gates Audit and approval join readiness matrix Audit and approval evidence packet preview Backend-owned synthetic dry-run audit and approval join review Audit and approval join decision review Audit and approval join gate failure review Audit and approval join recovery plan Audit and approval join recovery readiness Audit and approval join acceptance posture Backend-owned synthetic dry-run end-to-end packet contract Synthetic end-to-end stage contract Synthetic end-to-end lineage End-to-end packet request/response contract End-to-end packet gates End-to-end packet readiness matrix End-to-end packet acceptance posture end-to-end packet contract is preview-only packet state: draft / preview-only packet request is not created packet invocation is not invoked packet response is not received audit join state: not persisted approval join state: not persisted end-to-end packet review and recovery preview comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
     >
       <section style={hero}>
         <div>
-          <span style={eyebrow}>{`Phase ${resultReviewSummary.highestDetectedPhase}`}</span>
+          <span style={eyebrow}>{`Phase ${endToEndPacketSummary.highestDetectedPhase}`}</span>
           <h1 style={headline}>AI model provider registry</h1>
           <p style={lede}>
             Athena can see model provider slots, capability families, workspace
@@ -274,14 +338,18 @@ export function AiProviderRegistryPanel() {
             reviews, audit and approval join decision reviews, audit and
             approval join gate failure reviews, audit and approval join
             recovery plans, audit and approval join recovery readiness, and
-            audit and approval join acceptance posture. audit and approval join
-            review is preview-only. audit join state: not persisted. approval
-            join state: not persisted. result reference state: not persisted.
-            evidence packet state: preview-only. provider response is not
-            received. model output is not generated. synthetic fixture result
-            is static placeholder only. end-to-end packet contract comes next.
-            No model calls yet. No prompt sending. No provider SDKs imported.
-            Frontend provider calls are blocked.
+            audit and approval join acceptance posture. Athena can now preview
+            backend-owned synthetic dry-run end-to-end packet contracts,
+            synthetic end-to-end stage contracts, synthetic end-to-end
+            lineage, end-to-end packet request/response contracts, end-to-end
+            packet gates, end-to-end packet readiness matrices, and end-to-end
+            packet acceptance posture. end-to-end packet contract is
+            preview-only. packet state: draft / preview-only. packet request
+            is not created. packet invocation is not invoked. packet response
+            is not received. audit join state: not persisted. approval join
+            state: not persisted. end-to-end packet review and recovery
+            preview comes next. No model calls yet. No prompt sending. No
+            provider SDKs imported. Frontend provider calls are blocked.
           </p>
         </div>
         <div style={linkRow}>
@@ -2224,9 +2292,312 @@ export function AiProviderRegistryPanel() {
         </div>
       </section>
 
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only packet contract</span>
+            <h2 style={sectionTitle}>
+              Backend-owned synthetic dry-run end-to-end packet contract
+            </h2>
+          </div>
+          <span style={sectionBadge}>Draft / preview-only</span>
+        </div>
+        <p style={copy}>
+          end-to-end packet contract is preview-only. packet state: draft /
+          preview-only. packet request is not created. packet invocation is
+          not invoked. packet response is not received. audit join state: not
+          persisted. approval join state: not persisted. end-to-end packet
+          review and recovery preview comes next.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Packet summary</span>
+            <h3 style={cardTitle}>{endToEndPacketSummary.latestCompletedBatch}</h3>
+            <p style={copy}>
+              {`Packet contracts: ${endToEndPacketSummary.packetContractCount}. stages: ${endToEndPacketSummary.stageContractCount}. lineage: ${endToEndPacketSummary.lineageRecordCount}.`}
+            </p>
+            <p style={copy}>{endToEndPacketSummary.currentReadiness}</p>
+          </article>
+          {representativeEndToEndPacketContract ? (
+            <article style={card}>
+              <span style={tag}>Representative packet</span>
+              <h3 style={cardTitle}>
+                {representativeEndToEndPacketContract.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`packet request: ${representativeEndToEndPacketContract.packetRequestState}. packet invocation: ${representativeEndToEndPacketContract.packetInvocationState}.`}
+              </p>
+              <p style={copy}>
+                {`result capture: ${representativeEndToEndPacketContract.resultCaptureState}. evidence packet: ${representativeEndToEndPacketContract.evidencePacketState}.`}
+              </p>
+            </article>
+          ) : null}
+          <article style={card}>
+            <span style={tag}>Coverage</span>
+            <h3 style={cardTitle}>
+              {`${endToEndPacketCapabilityGroups.length} capability families`}
+            </h3>
+            <p style={copy}>
+              {endToEndPacketCapabilityGroups
+                .map((group) => `${group.capabilityFamilyLabel} (${group.packetCount})`)
+                .join(" | ")}
+            </p>
+            <p style={copy}>
+              {endToEndPacketWorkspaceGroups
+                .map((group) => `${group.workspaceTarget} (${group.packetCount})`)
+                .join(" | ")}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Stage contract</span>
+            <h2 style={sectionTitle}>Synthetic end-to-end stage contract</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only / blocked</span>
+        </div>
+        <p style={copy}>
+          synthetic end-to-end stage contract records stay typed, inert, and
+          preview-only. No stage execution. Preview-only.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Stage coverage</span>
+            <h3 style={cardTitle}>{`${endToEndPacketStageRecords.length} stages`}</h3>
+            <p style={copy}>
+              run intent, approval packet, admission, runner, fixture, result
+              envelope, capture, join, evidence, and final packet stages stay
+              linked by typed reference only.
+            </p>
+          </article>
+          {representativeEndToEndPacketStageRecords.slice(0, 2).map((record) => (
+            <article key={record.key} style={card}>
+              <span style={tag}>Representative stage</span>
+              <h3 style={cardTitle}>{record.stageLabel}</h3>
+              <p style={copy}>{record.requiredEvidence}</p>
+              <p style={copy}>{record.currentBlockedReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Static lineage</span>
+            <h2 style={sectionTitle}>Synthetic end-to-end lineage</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          lineage mode: preview-only. lineage persistence state: not
+          implemented. result reference state: not persisted. audit reference
+          state: not persisted. approval reference state: not persisted.
+        </p>
+        <div style={grid}>
+          {representativeEndToEndPacketLineage ? (
+            <article style={card}>
+              <span style={tag}>Representative lineage</span>
+              <h3 style={cardTitle}>
+                {representativeEndToEndPacketLineage.packetContractId}
+              </h3>
+              <p style={copy}>
+                {`run intent: ${representativeEndToEndPacketLineage.runIntentReference}. admission: ${representativeEndToEndPacketLineage.admissionReference}.`}
+              </p>
+              <p style={copy}>
+                {
+                  representativeEndToEndPacketLineage
+                    .explicitNoLineagePersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article style={card}>
+            <span style={tag}>Lineage count</span>
+            <h3 style={cardTitle}>{`${endToEndPacketLineageRecords.length} records`}</h3>
+            <p style={copy}>
+              evidence packet references stay linked while database and file
+              writes remain blocked.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Request and response posture</span>
+            <h2 style={sectionTitle}>
+              End-to-end packet request/response contract
+            </h2>
+          </div>
+          <span style={sectionBadge}>Not created / not received</span>
+        </div>
+        <p style={copy}>
+          packet request is not created. packet invocation is not invoked.
+          packet response is not received. packet error is not received.
+        </p>
+        <div style={grid}>
+          {representativeEndToEndPacketRequest ? (
+            <article style={card}>
+              <span style={tag}>Request contract</span>
+              <h3 style={cardTitle}>{representativeEndToEndPacketRequest.packetContractId}</h3>
+              <p style={copy}>{representativeEndToEndPacketRequest.payloadPosture}</p>
+              <p style={copy}>
+                {
+                  representativeEndToEndPacketRequest
+                    .explicitNoPacketRequestCreatedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeEndToEndPacketResponse ? (
+            <article style={card}>
+              <span style={tag}>Response contract</span>
+              <h3 style={cardTitle}>
+                {representativeEndToEndPacketResponse.packetContractId}
+              </h3>
+              <p style={copy}>
+                {`packet acceptance state: ${representativeEndToEndPacketResponse.packetAcceptanceState}.`}
+              </p>
+              <p style={copy}>
+                {
+                  representativeEndToEndPacketResponse
+                    .explicitNoPacketResponseNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeEndToEndPacketError ? (
+            <article style={card}>
+              <span style={tag}>Error contract</span>
+              <h3 style={cardTitle}>{representativeEndToEndPacketError.packetContractId}</h3>
+              <p style={copy}>
+                {representativeEndToEndPacketError.missingRunIntentExample}
+              </p>
+              <p style={copy}>
+                {
+                  representativeEndToEndPacketError
+                    .explicitNoPacketErrorNoRetryNoFallbackStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Blocked gates</span>
+            <h2 style={sectionTitle}>End-to-end packet gates</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only / blocked</span>
+        </div>
+        <p style={copy}>
+          No prompt sending. No model calls yet. No provider SDKs imported.
+          queue dispatch is blocked. worker dispatch is blocked. job execution
+          is blocked.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Gate summary</span>
+            <h3 style={cardTitle}>{`${endToEndPacketGateSummary.gateCount} gates`}</h3>
+            <p style={copy}>
+              {endToEndPacketGateSummary.summaryLines.slice(0, 8).join(" | ")}
+            </p>
+          </article>
+          {endToEndPacketGateRecords.slice(0, 2).map((record) => (
+            <article key={record.key} style={card}>
+              <span style={tag}>Representative gate</span>
+              <h3 style={cardTitle}>{record.label}</h3>
+              <p style={copy}>{record.requiredState}</p>
+              <p style={copy}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Readiness matrix</span>
+            <h2 style={sectionTitle}>End-to-end packet readiness matrix</h2>
+          </div>
+          <span style={sectionBadge}>Not executable / not persistent</span>
+        </div>
+        <p style={copy}>
+          current readiness: end-to-end-packet-contract-only / not executable /
+          not persistent.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Readiness summary</span>
+            <h3 style={cardTitle}>{endToEndPacketReadinessSummary.currentReadiness}</h3>
+            <p style={copy}>
+              {`Readiness records: ${endToEndPacketReadinessSummary.readinessRecordCount}.`}
+            </p>
+            <p style={copy}>{endToEndPacketReadinessSummary.nextSafeAction}</p>
+          </article>
+          {representativeEndToEndPacketReadiness ? (
+            <article style={card}>
+              <span style={tag}>Representative readiness</span>
+              <h3 style={cardTitle}>
+                {representativeEndToEndPacketReadiness.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`safety: ${representativeEndToEndPacketReadiness.safetyBoundaryState}. privacy: ${representativeEndToEndPacketReadiness.privacyBoundaryState}.`}
+              </p>
+              <p style={copy}>
+                {`database: ${representativeEndToEndPacketReadiness.databaseBoundaryState}. file: ${representativeEndToEndPacketReadiness.fileBoundaryState}.`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Acceptance posture</span>
+            <h2 style={sectionTitle}>End-to-end packet acceptance posture</h2>
+          </div>
+          <span style={sectionBadge}>Not accepted / preview-only</span>
+        </div>
+        <p style={copy}>acceptance state: not accepted / preview-only.</p>
+        <div style={grid}>
+          {representativeEndToEndPacketAcceptancePosture ? (
+            <article style={card}>
+              <span style={tag}>Representative posture</span>
+              <h3 style={cardTitle}>
+                {representativeEndToEndPacketAcceptancePosture.packetContractId}
+              </h3>
+              <p style={copy}>
+                {representativeEndToEndPacketAcceptancePosture.requiredEvidence.join(
+                  " | "
+                )}
+              </p>
+            </article>
+          ) : null}
+          <article style={card}>
+            <span style={tag}>Acceptance count</span>
+            <h3 style={cardTitle}>
+              {`${endToEndPacketAcceptancePostureRecords.length} posture records`}
+            </h3>
+            <p style={copy}>
+              queue/worker/job blockers remain visible while acceptance stays
+              preview-only.
+            </p>
+          </article>
+        </div>
+      </section>
+
       <section style={notice}>
-        {nextAuditApprovalJoinReviewAndRecoveryChecklist.map((item, index) => (
-          <p key={buildProviderScopedKey("audit-approval-join-next-review", index, item)}>
+        {nextEndToEndPacketReviewAndRecoveryChecklist.map((item, index) => (
+          <p key={buildProviderScopedKey("end-to-end-packet-next-review", index, item)}>
             {item}
           </p>
         ))}
