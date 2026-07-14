@@ -192,7 +192,7 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Synthetic result envelope contract Result capture request/response contract Result capture gates Result capture readiness matrix Result capture audit and approval join preview Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only synthetic runner skeleton is preview-only runner state: skeleton / not executable dry-run request is not created runner invocation is not invoked dry-run execution is not executed synthetic result capture contract is preview-only result capture state: not captured result persistence is not implemented audit persistence is not implemented approval persistence is not implemented Provider response is not received Model output is not generated synthetic fixture result is static placeholder only result envelope is preview-only result id is not issued synthetic dry-run result capture review and recovery preview comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only synthetic runner skeleton is preview-only runner state: skeleton / not executable dry-run request is not created runner invocation is not invoked dry-run execution is not executed synthetic result capture review is preview-only result capture state: not captured result persistence is not implemented audit persistence is not implemented approval persistence is not implemented Provider response is not received Model output is not generated synthetic fixture result is static placeholder only result id is not issued audit and approval join contract comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
     >
       <section style={hero}>
         <div>
@@ -209,15 +209,15 @@ export function AiProviderRegistryPanel() {
             preview-only. dry-run review is fixture-only. quality review is
             static preview only. safety review is static preview only.
             redaction review is static preview only. Athena can now preview
-            backend-owned synthetic dry-run result capture contracts. synthetic
-            result capture contract is preview-only. result capture state is not
-            captured. result persistence is not implemented. audit persistence is
-            not implemented. approval persistence is not implemented. provider
-            response is not received. model output is not generated. synthetic
-            fixture result is static placeholder only. result envelope is
-            preview-only. synthetic dry-run result capture review and recovery
-            preview comes next. No model calls yet. No prompt sending. No
-            provider SDKs imported. Frontend provider calls are blocked.
+            backend-owned synthetic dry-run result capture reviews. synthetic
+            result capture review is preview-only. result capture state is not
+            captured. result persistence is not implemented. audit persistence
+            is not implemented. approval persistence is not implemented.
+            provider response is not received. model output is not generated.
+            synthetic fixture result is static placeholder only. audit and
+            approval join contract comes next. No model calls yet. No prompt
+            sending. No provider SDKs imported. Frontend provider calls are
+            blocked.
           </p>
         </div>
         <div style={linkRow}>
@@ -287,22 +287,22 @@ export function AiProviderRegistryPanel() {
           <article style={card}>
             <span style={tag}>Next batch</span>
             <h3 style={cardTitle}>
-              Backend-owned synthetic dry-run result capture contract
+              Backend-owned synthetic dry-run result capture review
             </h3>
             <p style={copy}>
               Athena can now preview backend-owned synthetic dry-run result
-              capture contracts in the provider hub.
+              capture reviews in the provider hub.
             </p>
             <div style={list}>
               {[
-                "Backend-owned synthetic dry-run result capture contract",
-                "Synthetic result envelope contract",
-                "Result capture request/response contract",
-                "Result capture gates",
-                "Result capture readiness matrix",
-                "Result capture audit and approval join preview",
-                "synthetic result capture contract is preview-only",
-                "synthetic dry-run result capture review and recovery preview comes next",
+                "Backend-owned synthetic dry-run result capture review",
+                "Result capture decision review",
+                "Result capture gate failure review",
+                "Result capture recovery plan",
+                "Result capture recovery readiness",
+                "Result capture acceptance posture",
+                "synthetic result capture review is preview-only",
+                "audit and approval join contract comes next",
               ].map((item) => (
                 <span key={item} style={pill}>
                   {item}
@@ -1361,13 +1361,13 @@ export function AiProviderRegistryPanel() {
           <span style={sectionBadge}>Preview-only</span>
         </div>
         <p style={copy}>
-          synthetic result capture contract is preview-only. result capture
+          synthetic result capture review is preview-only. result capture
           state: not captured. result persistence is not implemented. audit
           persistence is not implemented. approval persistence is not
           implemented. provider response is not received. model output is not
           generated. synthetic fixture result is static placeholder only.
-          result envelope is preview-only. result id is not issued. synthetic
-          dry-run result capture review and recovery preview comes next.
+          result id is not issued. audit and approval join contract comes
+          next.
         </p>
         <div style={grid}>
           <article style={card}>

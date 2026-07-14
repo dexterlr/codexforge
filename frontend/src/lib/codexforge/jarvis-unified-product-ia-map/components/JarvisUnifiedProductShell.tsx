@@ -228,14 +228,14 @@ export function JarvisUnifiedProductPanel(
                 runner reviews. dry-run runner review is preview-only. dry-run
                 request is not created. dry-run invocation is not invoked.
                 dry-run execution is not executed. Athena can now preview
-                backend-owned synthetic dry-run result capture contracts.
-                synthetic result capture contract is preview-only. result
+                backend-owned synthetic dry-run result capture reviews.
+                synthetic result capture review is preview-only. result
                 capture state is not captured. result persistence is not
                 implemented. audit persistence is not implemented. approval
-                persistence is not implemented. synthetic dry-run result
-                capture review and recovery preview comes next. no model calls
-                yet. no prompt sending. no provider SDKs imported. queue,
-                worker, and job execution remain blocked.
+                persistence is not implemented. audit and approval join
+                contract comes next. no model calls yet. no prompt sending. no
+                provider SDKs imported. queue, worker, and job execution
+                remain blocked.
                 Plugin/provider execution remains blocked until approvals and
                 backend gates are satisfied. Manual/provider execution stays
                 backend-only. No autonomous execution yet.
@@ -397,10 +397,10 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 <p className={styles.railBody}>
                   Athena can now preview backend-owned synthetic dry-run result
-                  capture contracts.
+                  capture reviews.
                 </p>
                 <p className={styles.railBody}>
-                  synthetic result capture contract is preview-only.
+                  synthetic result capture review is preview-only.
                 </p>
                 <p className={styles.railBody}>
                   result capture state is not captured.
@@ -415,8 +415,7 @@ export function JarvisUnifiedProductPanel(
                   approval persistence is not implemented.
                 </p>
                 <p className={styles.railBody}>
-                  synthetic dry-run result capture review and recovery preview
-                  comes next.
+                  audit and approval join contract comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs

@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5097) {
-  throw "[FAIL] Highest detected phase expected 5097 found $highestPhase"
+if ($highestPhase -ne 5129) {
+  throw "[FAIL] Highest detected phase expected 5129 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview"',
+  "Phase 5129 Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-synthetic-dry-run-result-capture-review-recovery-preview-mega-batch.ps1",
   'currentReleaseGateBatch = "5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract"',
   "Phase 5097 Backend-Owned Synthetic Dry-Run Result Capture Contract",
   "smoke-codexforge-backend-owned-synthetic-dry-run-result-capture-contract-mega-batch.ps1",
@@ -116,7 +119,62 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5097. Latest completed batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract. Previous completed batch: 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton. Next likely batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview.",
+  "Current checkpoint: Highest detected phase: 5129. Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview. Previous completed batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract. Next likely batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract.",
+  "Highest detected phase: 5129",
+  "Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",
+  "Previous completed batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract",
+  "Next likely batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract",
+  "backend-owned synthetic dry-run result capture review and recovery preview only",
+  "synthetic result capture review is preview-only",
+  "result capture decision review is preview-only",
+  "result capture gate failure review is preview-only",
+  "result capture recovery plan is preview-only",
+  "result capture recovery readiness is preview-only",
+  "result capture acceptance posture is preview-only",
+  "result capture state is not captured",
+  "result persistence is not implemented",
+  "audit persistence is not implemented",
+  "approval persistence is not implemented",
+  "artifact persistence is not implemented",
+  "database write is not implemented",
+  "file write is not implemented",
+  "provider response is not received",
+  "model output is not generated",
+  "synthetic fixture result is static placeholder only",
+  "result id is not issued",
+  "audit and approval joins are not persisted",
+  "acceptance state is not accepted / preview-only",
+  "recovery is manual review only",
+  "no prompt sending",
+  "no LLM/model calls",
+  "no frontend provider call",
+  "no frontend fetch/network call",
+  "no provider SDK imports",
+  "no provider execution",
+  "no plugin execution",
+  "no autonomous execution",
+  "no live video generation",
+  "no queue dispatch",
+  "no worker dispatch",
+  "no job execution",
+  "no retry execution",
+  "no fallback execution",
+  "no result persistence",
+  "no audit persistence",
+  "no approval persistence",
+  "no persistent memory",
+  "no browser storage",
+  "no database writes",
+  "backend-only execution path required",
+  "server-only adapters required",
+  "manual approval required",
+  "manual confirmation required",
+  "kill switch required",
+  "audit required",
+  "opaque credential references only",
+  "no plaintext secrets",
+  "backend-owned synthetic dry-run audit and approval join contract next",
+  "Highest detected phase: 5097. Latest completed batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract. Previous completed batch: 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton. Next likely batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview.",
   "Highest detected phase: 5097",
   "Latest completed batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract",
   "Previous completed batch: 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton",
