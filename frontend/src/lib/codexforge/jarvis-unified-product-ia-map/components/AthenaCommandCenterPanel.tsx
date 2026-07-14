@@ -216,6 +216,23 @@ import {
   listEndToEndPacketStageFailureReviewRecords,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-end-to-end-packet-review-recovery-preview";
 import {
+  buildManualApprovalHandoffGateSummary,
+  buildManualApprovalHandoffReadinessSummary,
+  buildManualApprovalHandoffSummary,
+  buildNextManualApprovalHandoffReviewAndRecoveryChecklist,
+  groupManualApprovalHandoffsByCapabilityFamily,
+  groupManualApprovalHandoffsByWorkspaceTarget,
+  listBackendOwnedSyntheticDryRunManualApprovalHandoffContracts,
+  listManualApprovalHandoffErrorContracts,
+  listManualApprovalHandoffEvidenceSummaries,
+  listManualApprovalHandoffGateRecords,
+  listManualApprovalHandoffPackets,
+  listManualApprovalHandoffReadinessMatrixRecords,
+  listManualApprovalHandoffRequestContracts,
+  listManualApprovalHandoffResponseContracts,
+  listManualApprovalScopeRecords,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-manual-approval-handoff-contract";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -974,6 +991,59 @@ export function AthenaCommandCenterPanel({
     endToEndPacketRecoveryReadinessChecklistRecords.filter(
       (record) => record.state === "blocked"
     );
+  const manualApprovalHandoffContracts =
+    listBackendOwnedSyntheticDryRunManualApprovalHandoffContracts();
+  const manualApprovalHandoffPackets = listManualApprovalHandoffPackets();
+  const manualApprovalHandoffRequestContracts =
+    listManualApprovalHandoffRequestContracts();
+  const manualApprovalHandoffResponseContracts =
+    listManualApprovalHandoffResponseContracts();
+  const manualApprovalHandoffErrorContracts =
+    listManualApprovalHandoffErrorContracts();
+  const manualApprovalScopeRecords = listManualApprovalScopeRecords();
+  const manualApprovalScopeRecordsForDisplay = uniqueRecordsByString(
+    manualApprovalScopeRecords,
+    (record) => record.scopeId
+  );
+  const manualApprovalHandoffGateRecords =
+    listManualApprovalHandoffGateRecords();
+  const manualApprovalHandoffGateRecordsForDisplay = uniqueRecordsByString(
+    manualApprovalHandoffGateRecords,
+    (record) => record.id
+  );
+  const manualApprovalHandoffReadinessMatrixRecords =
+    listManualApprovalHandoffReadinessMatrixRecords();
+  const manualApprovalHandoffEvidenceSummaries =
+    listManualApprovalHandoffEvidenceSummaries();
+  const manualApprovalHandoffSummary = buildManualApprovalHandoffSummary();
+  const manualApprovalHandoffGateSummary =
+    buildManualApprovalHandoffGateSummary();
+  const manualApprovalHandoffReadinessSummary =
+    buildManualApprovalHandoffReadinessSummary();
+  const nextManualApprovalHandoffReviewRecoveryChecklist =
+    buildNextManualApprovalHandoffReviewAndRecoveryChecklist();
+  const manualApprovalHandoffCapabilityGroups =
+    groupManualApprovalHandoffsByCapabilityFamily();
+  const manualApprovalHandoffWorkspaceGroups =
+    groupManualApprovalHandoffsByWorkspaceTarget();
+  const representativeManualApprovalHandoffContract =
+    manualApprovalHandoffContracts[0] ?? null;
+  const representativeManualApprovalHandoffPacket =
+    manualApprovalHandoffPackets[0] ?? null;
+  const representativeManualApprovalHandoffRequest =
+    manualApprovalHandoffRequestContracts[0] ?? null;
+  const representativeManualApprovalHandoffResponse =
+    manualApprovalHandoffResponseContracts[0] ?? null;
+  const representativeManualApprovalHandoffError =
+    manualApprovalHandoffErrorContracts[0] ?? null;
+  const representativeManualApprovalScope =
+    manualApprovalScopeRecordsForDisplay[0] ?? null;
+  const representativeManualApprovalHandoffGate =
+    manualApprovalHandoffGateRecordsForDisplay[0] ?? null;
+  const representativeManualApprovalHandoffReadiness =
+    manualApprovalHandoffReadinessMatrixRecords[0] ?? null;
+  const representativeManualApprovalHandoffEvidenceSummary =
+    manualApprovalHandoffEvidenceSummaries[0] ?? null;
   const resultCaptureReviewRecords =
     listBackendOwnedSyntheticDryRunResultCaptureReviews();
   const resultCaptureDecisionReviewRecords = listResultCaptureDecisionReviews();
@@ -14011,6 +14081,617 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned synthetic dry-run manual approval handoff contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only handoff layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned synthetic dry-run manual approval handoff contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview backend-owned synthetic dry-run manual approval
+          handoff contracts. manual approval handoff contract is preview-only.
+          handoff state: draft / preview-only. handoff request is not created.
+          handoff invocation is not invoked. handoff response is not received.
+          handoff error is not received. operator approval state: not
+          requested. manual confirmation state: not captured. approval decision
+          state: not evaluated. approval token is not issued. approval lease is
+          not created. approval reference is not persisted. audit reference is
+          not persisted. result reference is not persisted. evidence packet is
+          preview-only. database write is not implemented. file write is not
+          implemented. queue dispatch is blocked. worker dispatch is blocked.
+          job execution is blocked. No prompt sending. No model calls yet. No
+          provider SDKs imported. manual approval handoff review and recovery
+          preview comes next. current readiness:
+          manual-approval-handoff-contract-only / not approved / not
+          executable / not persistent.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Contract summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {manualApprovalHandoffSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`phase ${manualApprovalHandoffSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualApprovalHandoffSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "manual-approval-handoff-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeManualApprovalHandoffContract ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative contract</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalHandoffContract.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalHandoffContract.handoffState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {representativeManualApprovalHandoffContract.workspaceTarget}
+                </span>
+                <span className={styles.metaPill}>
+                  {
+                    representativeManualApprovalHandoffContract
+                      .selectedCapabilityFamily.label
+                  }
+                </span>
+                <span className={styles.metaPill}>
+                  {
+                    representativeManualApprovalHandoffContract
+                      .providerSlotLabel
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`operator approval: ${representativeManualApprovalHandoffContract.operatorApprovalState} | manual confirmation: ${representativeManualApprovalHandoffContract.manualConfirmationState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval decision: ${representativeManualApprovalHandoffContract.approvalDecisionState} | result reference: ${representativeManualApprovalHandoffContract.resultReferenceState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeManualApprovalHandoffContract.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${manualApprovalHandoffContracts.length} contracts`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualApprovalHandoffCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey("manual-approval-handoff-capability", "item", index, group.capabilityFamilyId)}
+                  className={styles.metaPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.contractCount})`}
+                </span>
+              ))}
+              {manualApprovalHandoffWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey("manual-approval-handoff-workspace", "item", index, group.workspaceTarget)}
+                  className={styles.metaPill}
+                >
+                  {`${group.workspaceTarget} (${group.contractCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {manualApprovalHandoffContracts.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Handoff contract record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.handoffState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`request: ${record.handoffRequestState} | invocation: ${record.handoffInvocationState} | response: ${record.handoffResponseState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval: ${record.operatorApprovalState} | confirmation: ${record.manualConfirmationState} | decision: ${record.approvalDecisionState}`}
+              </p>
+              <p className={styles.railFooter}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual approval handoff packet"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Operator-facing packet</p>
+            <h2 className={styles.panelTitle}>Manual approval handoff packet</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Manual approval handoff packets remain preview-only. No approval
+          request is created. No persistence is introduced.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeManualApprovalHandoffPacket ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalHandoffPacket.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalHandoffPacket.packetMode}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeManualApprovalHandoffPacket.operatorFacingSummary}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalHandoffPacket
+                    .explicitNoApprovalRequestNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {manualApprovalHandoffPackets.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Packet record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.persistenceState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.requestedApprovalScope}</p>
+              <p className={styles.railBody}>{record.remainingBlockerSummary}</p>
+              <p className={styles.railFooter}>{record.blockedActionSummary}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual approval handoff request/response contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Contract-only envelopes</p>
+            <h2 className={styles.panelTitle}>
+              Manual approval handoff request/response contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not created / not received
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Manual approval handoff request/response/error contracts remain inert.
+          No handoff request is created. No handoff response is received. No
+          approval is issued.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeManualApprovalHandoffRequest ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative request</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalHandoffRequest.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalHandoffRequest.handoffRequestState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`invocation: ${representativeManualApprovalHandoffRequest.handoffInvocationState} | target: ${representativeManualApprovalHandoffRequest.operatorTargetPosture}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalHandoffRequest
+                    .explicitNoHandoffRequestCreatedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeManualApprovalHandoffResponse ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative response</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalHandoffResponse.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalHandoffResponse.responseState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`decision: ${representativeManualApprovalHandoffResponse.approvalDecisionState} | token: ${representativeManualApprovalHandoffResponse.approvalTokenState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalHandoffResponse
+                    .explicitNoHandoffResponseNoApprovalStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeManualApprovalHandoffError ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative error</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalHandoffError.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalHandoffError.errorState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeManualApprovalHandoffError.unresolvedBlockerExample}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalHandoffError
+                    .explicitNoHandoffErrorNoRetryNoFallbackStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Manual approval scope">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Operator review scopes</p>
+            <h2 className={styles.panelTitle}>Manual approval scope</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / not approved
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Manual approval scopes remain preview-only / not approved. No current
+          approval is captured.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeManualApprovalScope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative scope</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalScope.scopeLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalScope.scopeState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeManualApprovalScope.requiredEvidence}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeManualApprovalScope.explicitNoCurrentApprovalStatement}
+              </p>
+            </article>
+          ) : null}
+          {manualApprovalScopeRecordsForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Scope record</p>
+                  <h3 className={styles.placeholderTitle}>{record.scopeLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.scopeState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.operatorActionRequired}</p>
+              <p className={styles.railBody}>{record.blockedActions.join(" | ")}</p>
+              <p className={styles.railFooter}>{record.currentSafetyPosture}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual approval handoff gates"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked by default</p>
+            <h2 className={styles.panelTitle}>Manual approval handoff gates</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Manual approval handoff gates remain preview-only / blocked across
+          operator approval, safety, persistence, and backend-only boundaries.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${manualApprovalHandoffGateSummary.gateCount} gate records`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Blocked
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualApprovalHandoffGateSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "manual-approval-handoff-gate-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeManualApprovalHandoffGate ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative gate</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalHandoffGate.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalHandoffGate.currentState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeManualApprovalHandoffGate.evidenceRequirement}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeManualApprovalHandoffGate.blockedDefaultReason}
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {manualApprovalHandoffGateRecordsForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.owner}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.requiredState}</p>
+              <p className={styles.railFooter}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual approval handoff readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Current readiness</p>
+            <h2 className={styles.panelTitle}>
+              Manual approval handoff readiness matrix
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not approved / not executable
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          current readiness: manual-approval-handoff-contract-only / not
+          approved / not executable / not persistent.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${manualApprovalHandoffReadinessSummary.readinessRecordCount} readiness records`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {manualApprovalHandoffReadinessSummary.currentReadiness}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualApprovalHandoffReadinessSummary.summaryLines
+                .slice(0, 10)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "manual-approval-handoff-readiness-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeManualApprovalHandoffReadiness ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative readiness</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalHandoffReadiness.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalHandoffReadiness.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`operator approval: ${representativeManualApprovalHandoffReadiness.operatorApprovalDependency} | manual confirmation: ${representativeManualApprovalHandoffReadiness.manualConfirmationDependency}`}
+              </p>
+              <p className={styles.railBody}>
+                {`server-only boundary: ${representativeManualApprovalHandoffReadiness.serverOnlyBoundaryState} | queue: ${representativeManualApprovalHandoffReadiness.queueBoundaryState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeManualApprovalHandoffReadiness.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual approval handoff evidence summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Deterministic preview evidence</p>
+            <h2 className={styles.panelTitle}>
+              Manual approval handoff evidence summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Manual approval handoff evidence summaries remain preview-only with a
+          deterministic preview digest only. No evidence is persisted.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeManualApprovalHandoffEvidenceSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative evidence</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeManualApprovalHandoffEvidenceSummary
+                        .requestLabel
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeManualApprovalHandoffEvidenceSummary
+                      .evidenceDigestPosture
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeManualApprovalHandoffEvidenceSummary
+                    .blockerEvidence
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalHandoffEvidenceSummary
+                    .explicitNoEvidencePersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {manualApprovalHandoffEvidenceSummaries.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Evidence record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.persistenceState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.safetyEvidence}</p>
+              <p className={styles.railBody}>{record.privacyEvidence}</p>
+              <p className={styles.railFooter}>{record.recoveryEvidence}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Audit memory preview">
         <div className={styles.panelHeader}>
           <div>
@@ -14269,7 +14950,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Manual approval handoff contract checklist
+                  Manual approval handoff review and recovery checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -14277,7 +14958,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {manualApprovalHandoffContractChecklist.map((item, index) => (
+              {nextManualApprovalHandoffReviewRecoveryChecklist.map((item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
                   className={styles.railCard}

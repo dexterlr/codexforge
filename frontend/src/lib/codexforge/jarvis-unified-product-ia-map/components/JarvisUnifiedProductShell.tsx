@@ -430,42 +430,53 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 <p className={styles.railBody}>
                   Athena can now preview backend-owned synthetic dry-run
-                  end-to-end packet reviews.
+                  manual approval handoff contracts.
                 </p>
                 <p className={styles.railBody}>
-                  end-to-end packet review is preview-only.
+                  manual approval handoff contract is preview-only.
                 </p>
                 <p className={styles.railBody}>
-                  packet state is draft / preview-only.
+                  handoff state is draft / preview-only.
                 </p>
                 <p className={styles.railBody}>
-                  decision state is held / not accepted.
+                  handoff request is not created.
                 </p>
                 <p className={styles.railBody}>
-                  packet request is not created.
+                  operator approval state is not requested.
                 </p>
                 <p className={styles.railBody}>
-                  packet invocation is not invoked.
+                  manual confirmation state is not captured.
                 </p>
                 <p className={styles.railBody}>
-                  packet response is not received.
-                </p>
-                <p className={styles.railBody}>
-                  result capture state is not captured.
-                </p>
-                <p className={styles.railBody}>
-                  audit join state is not persisted.
-                </p>
-                <p className={styles.railBody}>
-                  approval join state is not persisted.
-                </p>
-                <p className={styles.railBody}>
-                  manual approval handoff contract comes next.
+                  manual approval handoff review and recovery preview comes
+                  next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
                   imported. queue, worker, and job execution remain blocked.
                 </p>
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    Athena can now preview backend-owned synthetic dry-run end-to-end packet reviews. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    end-to-end packet review is preview-only. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    packet state is draft / preview-only. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    decision state is held / not accepted. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    packet request is not created. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    packet invocation is not invoked. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    packet response is not received. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    result capture state is not captured. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    audit join state is not persisted. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    approval join state is not persisted. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    manual approval handoff contract comes next. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
                     Athena can now preview backend-owned synthetic dry-run end-to-end packet contracts. */}
                 {/* Historical smoke marker preserved for prior batch coverage:

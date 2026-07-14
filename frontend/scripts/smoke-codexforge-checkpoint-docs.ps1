@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5257) {
-  throw "[FAIL] Highest detected phase expected 5257 found $highestPhase"
+if ($highestPhase -ne 5289) {
+  throw "[FAIL] Highest detected phase expected 5289 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract"',
+  "Phase 5289 Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract",
+  "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-handoff-contract-mega-batch.ps1",
   'currentReleaseGateBatch = "5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview"',
   "Phase 5257 Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
   "smoke-codexforge-backend-owned-synthetic-dry-run-end-to-end-packet-review-recovery-preview-mega-batch.ps1",
@@ -131,47 +134,37 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5257. Latest completed batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview. Previous completed batch: 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract. Next likely batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract.",
-  "Highest detected phase: 5257",
-  "Latest completed batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
-  "Previous completed batch: 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract",
-  "Next likely batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract",
-  "backend-owned synthetic dry-run end-to-end packet review and recovery preview only",
-  "end-to-end packet review is preview-only",
-  "packet decision review is preview-only",
-  "packet stage failure review is preview-only",
-  "packet gate failure review is preview-only",
-  "packet recovery plan is preview-only",
-  "packet recovery readiness is preview-only",
-  "packet acceptance posture is preview-only",
-  "packet state is draft / preview-only",
-  "packet request is not created",
-  "packet invocation is not invoked",
-  "packet response is not received",
-  "packet error is not received",
-  "decision state is held / not accepted",
+  "Current checkpoint: Highest detected phase: 5289. Latest completed batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract. Previous completed batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview. Next likely batch: 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview.",
+  "Highest detected phase: 5289",
+  "Latest completed batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract",
+  "Previous completed batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
+  "Next likely batch: 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview",
+  "backend-owned synthetic dry-run manual approval handoff contract only",
+  "manual approval handoff contract is preview-only",
+  "handoff state is draft / preview-only",
+  "handoff request is not created",
+  "handoff invocation is not invoked",
+  "handoff response is not received",
+  "handoff error is not received",
+  "operator approval state is not requested",
+  "manual confirmation state is not captured",
+  "approval decision state is not evaluated",
+  "approval token is not issued",
+  "approval lease is not created",
+  "approval reference is not persisted",
+  "audit reference is not persisted",
+  "result reference is not persisted",
+  "evidence packet is preview-only",
+  "end-to-end packet state is draft / preview-only",
+  "packet decision state is held / not accepted",
   "admission state is not admitted",
-  "admission token is not issued",
-  "admission lease is not created",
-  "dry-run request is not created",
-  "runner invocation is not invoked",
   "dry-run execution is not executed",
-  "provider response is not received",
-  "model output is not generated",
-  "synthetic fixture result is static placeholder only",
   "result capture state is not captured",
-  "result persistence is not implemented",
   "audit join state is not persisted",
   "approval join state is not persisted",
-  "result reference state is not persisted",
-  "evidence packet is preview-only",
-  "audit envelope state is not created",
-  "approval envelope state is not created",
   "database write is not implemented",
   "file write is not implemented",
-  "current readiness is end-to-end-packet-review-only / not executable / not persistent",
-  "acceptance state is not accepted / preview-only",
-  "recovery is manual review only",
+  "current readiness is manual-approval-handoff-contract-only / not approved / not executable / not persistent",
   "no prompt sending",
   "no LLM/model calls",
   "no frontend provider call",
@@ -200,7 +193,7 @@ foreach ($needle in @(
   "audit required",
   "opaque credential references only",
   "no plaintext secrets",
-  "backend-owned synthetic dry-run manual approval handoff contract next",
+  "backend-owned synthetic dry-run manual approval handoff review and recovery preview next",
   "Current checkpoint: Highest detected phase: 5129. Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview. Previous completed batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract. Next likely batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract.",
   "Highest detected phase: 5129",
   "Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",
