@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5129) {
-  throw "[FAIL] Highest detected phase expected 5129 found $highestPhase"
+if ($highestPhase -ne 5161) {
+  throw "[FAIL] Highest detected phase expected 5161 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract"',
+  "Phase 5161 Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract",
+  "smoke-codexforge-backend-owned-synthetic-dry-run-audit-approval-join-contract-mega-batch.ps1",
   'currentReleaseGateBatch = "5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview"',
   "Phase 5129 Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",
   "smoke-codexforge-backend-owned-synthetic-dry-run-result-capture-review-recovery-preview-mega-batch.ps1",
@@ -119,6 +122,62 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+  "Current checkpoint: Highest detected phase: 5161. Latest completed batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract. Previous completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview. Next likely batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview.",
+  "Highest detected phase: 5161",
+  "Latest completed batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract",
+  "Previous completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",
+  "Next likely batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
+  "backend-owned synthetic dry-run audit and approval join contract only",
+  "audit and approval join contract is preview-only",
+  "audit join state is not persisted",
+  "approval join state is not persisted",
+  "result reference state is not persisted",
+  "evidence packet is preview-only",
+  "join request is not created",
+  "join invocation is not invoked",
+  "join response is not received",
+  "join error is not received",
+  "audit envelope state is not created",
+  "approval envelope state is not created",
+  "audit append state is not appended",
+  "approval append state is not appended",
+  "audit persistence is not implemented",
+  "approval persistence is not implemented",
+  "result persistence is not implemented",
+  "database write is not implemented",
+  "file write is not implemented",
+  "result id is not issued",
+  "result digest is deterministic preview only",
+  "audit and approval joins are not persisted",
+  "no prompt sending",
+  "no LLM/model calls",
+  "no frontend provider call",
+  "no frontend fetch/network call",
+  "no provider SDK imports",
+  "no provider execution",
+  "no plugin execution",
+  "no autonomous execution",
+  "no live video generation",
+  "no queue dispatch",
+  "no worker dispatch",
+  "no job execution",
+  "no retry execution",
+  "no fallback execution",
+  "no result persistence",
+  "no audit persistence",
+  "no approval persistence",
+  "no persistent memory",
+  "no browser storage",
+  "no database writes",
+  "backend-only execution path required",
+  "server-only adapters required",
+  "manual approval required",
+  "manual confirmation required",
+  "kill switch required",
+  "audit required",
+  "opaque credential references only",
+  "no plaintext secrets",
+  "backend-owned synthetic dry-run audit and approval join review and recovery preview next",
   "Current checkpoint: Highest detected phase: 5129. Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview. Previous completed batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract. Next likely batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract.",
   "Highest detected phase: 5129",
   "Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",

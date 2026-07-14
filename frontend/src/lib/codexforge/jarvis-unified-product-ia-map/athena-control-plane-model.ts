@@ -38,11 +38,11 @@ import {
   BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_CONTRACT_PHASE,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-result-capture-contract";
 import {
-  BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH as BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_CURRENT_BATCH,
-  BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_PHASE as BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_CURRENT_PHASE,
-  NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH,
-  PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_CONTRACT_BATCH,
-} from "@/lib/codexforge/backend-owned-synthetic-dry-run-result-capture-review-recovery-preview";
+  BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH as BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_CURRENT_BATCH,
+  BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_PHASE as BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_CURRENT_PHASE,
+  NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH,
+  PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-audit-approval-join-contract";
 
 export const ATHENA_UNIFIED_CHAT_CONTROL_PLANE_FOUNDATION_BATCH =
   "4458-4489 - Athena Unified Chat Control Plane Foundation";
@@ -149,17 +149,17 @@ export const ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_CONTRACT_BATC
 export const ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_CONTRACT_PHASE =
   BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_CONTRACT_PHASE;
 
-export const ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH =
-  BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_CURRENT_BATCH;
+export const ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH =
+  BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_CURRENT_BATCH;
 
-export const ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_PHASE =
-  BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_CURRENT_PHASE;
+export const ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_PHASE =
+  BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_CURRENT_PHASE;
 
-export const ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_CONTRACT_BATCH =
-  PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_CONTRACT_BATCH;
+export const ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH =
+  PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH;
 
-export const ATHENA_NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH =
-  NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH;
+export const ATHENA_NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH =
+  NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH;
 
 export type AthenaLauncherStatus =
   | "ready"
@@ -2456,6 +2456,13 @@ export const ATHENA_CURRENT_CAPABILITIES = [
       "Athena can review why synthetic dry-run result capture remains held with preview-only review posture, held decision reviews, blocked gate failures, manual recovery plans, compact readiness checklists, audit summary previews, and acceptance blockers while nothing is captured or persisted.",
   },
   {
+    id: "backend-owned-synthetic-dry-run-audit-approval-join-contract-preview",
+    label:
+      "Athena can now preview backend-owned synthetic dry-run audit and approval join contracts",
+    summary:
+      "Athena can review preview-only audit and approval join contracts, synthetic audit join contracts, synthetic approval join contracts, result-to-audit-approval link contracts, preview-only join request/response/error contracts, preview-only join gates, readiness matrices, and preview-only evidence packets while nothing is created, invoked, received, or persisted.",
+  },
+  {
     id: "readiness-review",
     label: "Athena can review readiness and blockers",
     summary:
@@ -2477,11 +2484,11 @@ export const ATHENA_CURRENT_CAPABILITIES = [
 
 export const ATHENA_FUTURE_CAPABILITIES = [
   {
-    id: "backend-owned-synthetic-dry-run-audit-approval-join-contract-next",
+    id: "backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-next",
     label:
-      "Backend-owned synthetic dry-run audit and approval join contract comes next",
+      "Backend-owned synthetic dry-run audit and approval join review and recovery preview comes next",
     summary:
-      "The next likely batch is 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract.",
+      "The next likely batch is 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview.",
   },
   {
     id: "dry-run-reviews-stay-static",
@@ -3413,16 +3420,15 @@ export const ATHENA_AUDIT_MEMORY_PREVIEW_ITEMS:
 // The next likely Athena batch is 4554-4585 - Athena Cross-Workspace Run Timeline and Audit Memory.
 
 export const ATHENA_COMMAND_CENTER_MODEL = {
-  batch:
-    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH,
+  batch: ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH,
   highestDetectedPhase:
-    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_PHASE,
+    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_PHASE,
   latestCompletedBatch:
-    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH,
+    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH,
   previousCompletedBatch:
-    ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_CONTRACT_BATCH,
+    ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_REVIEW_RECOVERY_PREVIEW_BATCH,
   nextLikelyBatch:
-    ATHENA_NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_CONTRACT_BATCH,
+    ATHENA_NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_AUDIT_APPROVAL_JOIN_REVIEW_RECOVERY_PREVIEW_BATCH,
   identity: ATHENA_CONTROL_PLANE_IDENTITY,
   chat: ATHENA_CHAT_PLACEHOLDER_MODEL,
   productUx: ATHENA_PRODUCT_UX_POLISH_MODEL,

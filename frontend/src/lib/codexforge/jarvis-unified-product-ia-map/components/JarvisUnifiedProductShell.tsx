@@ -232,10 +232,15 @@ export function JarvisUnifiedProductPanel(
                 synthetic result capture review is preview-only. result
                 capture state is not captured. result persistence is not
                 implemented. audit persistence is not implemented. approval
-                persistence is not implemented. audit and approval join
-                contract comes next. no model calls yet. no prompt sending. no
-                provider SDKs imported. queue, worker, and job execution
-                remain blocked.
+                persistence is not implemented. Athena can now preview
+                backend-owned synthetic dry-run audit and approval join
+                contracts. audit and approval join contract is preview-only.
+                audit join state is not persisted. approval join state is not
+                persisted. result reference state is not persisted. evidence
+                packet is preview-only. audit and approval join review and
+                recovery preview comes next. no model calls yet. no prompt
+                sending. no provider SDKs imported. queue, worker, and job
+                execution remain blocked.
                 Plugin/provider execution remains blocked until approvals and
                 backend gates are satisfied. Manual/provider execution stays
                 backend-only. No autonomous execution yet.
@@ -258,6 +263,8 @@ export function JarvisUnifiedProductPanel(
                   synthetic dry-run runner skeleton comes next. */}
               {/* Historical smoke marker preserved for prior batch coverage:
                   synthetic dry-run result capture contract comes next. */}
+              {/* Historical smoke marker preserved for prior batch coverage:
+                  audit and approval join contract comes next. */}
               {/* Historical smoke markers preserved for prior home coverage:
                   Athena can now preview AI model provider slots.
                   Athena can now preview server-only model adapter contracts.
@@ -415,7 +422,27 @@ export function JarvisUnifiedProductPanel(
                   approval persistence is not implemented.
                 </p>
                 <p className={styles.railBody}>
-                  audit and approval join contract comes next.
+                  Athena can now preview backend-owned synthetic dry-run audit
+                  and approval join contracts.
+                </p>
+                <p className={styles.railBody}>
+                  audit and approval join contract is preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  audit join state is not persisted.
+                </p>
+                <p className={styles.railBody}>
+                  approval join state is not persisted.
+                </p>
+                <p className={styles.railBody}>
+                  result reference state is not persisted.
+                </p>
+                <p className={styles.railBody}>
+                  evidence packet is preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  audit and approval join review and recovery preview comes
+                  next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs

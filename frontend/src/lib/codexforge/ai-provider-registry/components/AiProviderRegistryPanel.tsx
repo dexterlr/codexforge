@@ -55,7 +55,6 @@ import {
   listSyntheticRunnerSkeletonReadinessMatrixRecords,
 } from "@/lib/codexforge/backend-owned-model-provider-synthetic-dry-run-runner-skeleton";
 import {
-  buildNextResultCaptureReviewAndRecoveryChecklist,
   buildResultCaptureContractSummary,
   buildResultCaptureGateSummary,
   buildResultCaptureReadinessSummary,
@@ -70,6 +69,24 @@ import {
   listResultCaptureResponseContracts,
   listSyntheticResultEnvelopeContracts,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-result-capture-contract";
+import {
+  buildAuditApprovalJoinContractSummary,
+  buildAuditApprovalJoinGateSummary,
+  buildAuditApprovalJoinReadinessSummary,
+  buildNextAuditApprovalJoinReviewAndRecoveryChecklist,
+  groupAuditApprovalJoinContractsByCapabilityFamily,
+  groupAuditApprovalJoinContractsByWorkspaceTarget,
+  listAuditApprovalEvidencePacketPreviews,
+  listAuditApprovalJoinErrorContracts,
+  listAuditApprovalJoinGateRecords,
+  listAuditApprovalJoinReadinessMatrixRecords,
+  listAuditApprovalJoinRequestContracts,
+  listAuditApprovalJoinResponseContracts,
+  listBackendOwnedSyntheticDryRunAuditApprovalJoinContracts,
+  listResultAuditApprovalLinkContracts,
+  listSyntheticApprovalJoinContracts,
+  listSyntheticAuditJoinContracts,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-audit-approval-join-contract";
 
 function buildProviderScopedKey(
   scope: string,
@@ -166,8 +183,6 @@ export function AiProviderRegistryPanel() {
   const resultCaptureContractSummary = buildResultCaptureContractSummary();
   const resultCaptureGateSummary = buildResultCaptureGateSummary();
   const resultCaptureReadinessSummary = buildResultCaptureReadinessSummary();
-  const nextResultCaptureReviewAndRecoveryChecklist =
-    buildNextResultCaptureReviewAndRecoveryChecklist();
   const resultCaptureCapabilityGroups =
     groupResultCaptureContractsByCapabilityFamily();
   const resultCaptureWorkspaceGroups =
@@ -185,6 +200,51 @@ export function AiProviderRegistryPanel() {
     resultCaptureReadinessMatrixRecords[0] ?? null;
   const representativeResultCaptureJoinPreview =
     resultCaptureAuditApprovalJoinPreviews[0] ?? null;
+  const auditApprovalJoinContracts =
+    listBackendOwnedSyntheticDryRunAuditApprovalJoinContracts();
+  const syntheticAuditJoinContracts = listSyntheticAuditJoinContracts();
+  const syntheticApprovalJoinContracts = listSyntheticApprovalJoinContracts();
+  const resultAuditApprovalLinkContracts =
+    listResultAuditApprovalLinkContracts();
+  const auditApprovalJoinRequestContracts =
+    listAuditApprovalJoinRequestContracts();
+  const auditApprovalJoinResponseContracts =
+    listAuditApprovalJoinResponseContracts();
+  const auditApprovalJoinErrorContracts = listAuditApprovalJoinErrorContracts();
+  const auditApprovalJoinGateRecords = listAuditApprovalJoinGateRecords();
+  const auditApprovalJoinReadinessMatrixRecords =
+    listAuditApprovalJoinReadinessMatrixRecords();
+  const auditApprovalEvidencePacketPreviews =
+    listAuditApprovalEvidencePacketPreviews();
+  const auditApprovalJoinContractSummary =
+    buildAuditApprovalJoinContractSummary();
+  const auditApprovalJoinGateSummary = buildAuditApprovalJoinGateSummary();
+  const auditApprovalJoinReadinessSummary =
+    buildAuditApprovalJoinReadinessSummary();
+  const nextAuditApprovalJoinReviewAndRecoveryChecklist =
+    buildNextAuditApprovalJoinReviewAndRecoveryChecklist();
+  const auditApprovalJoinCapabilityGroups =
+    groupAuditApprovalJoinContractsByCapabilityFamily();
+  const auditApprovalJoinWorkspaceGroups =
+    groupAuditApprovalJoinContractsByWorkspaceTarget();
+  const representativeAuditApprovalJoinContract =
+    auditApprovalJoinContracts[0] ?? null;
+  const representativeSyntheticAuditJoinContract =
+    syntheticAuditJoinContracts[0] ?? null;
+  const representativeSyntheticApprovalJoinContract =
+    syntheticApprovalJoinContracts[0] ?? null;
+  const representativeResultAuditApprovalLinkContract =
+    resultAuditApprovalLinkContracts[0] ?? null;
+  const representativeAuditApprovalJoinRequestContract =
+    auditApprovalJoinRequestContracts[0] ?? null;
+  const representativeAuditApprovalJoinResponseContract =
+    auditApprovalJoinResponseContracts[0] ?? null;
+  const representativeAuditApprovalJoinErrorContract =
+    auditApprovalJoinErrorContracts[0] ?? null;
+  const representativeAuditApprovalJoinReadiness =
+    auditApprovalJoinReadinessMatrixRecords[0] ?? null;
+  const representativeAuditApprovalEvidencePacket =
+    auditApprovalEvidencePacketPreviews[0] ?? null;
   const providerLabelsById = new Map(
     providerSlots.map((slot) => [slot.id, slot.label] as const)
   );
@@ -192,7 +252,7 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only synthetic runner skeleton is preview-only runner state: skeleton / not executable dry-run request is not created runner invocation is not invoked dry-run execution is not executed synthetic result capture review is preview-only result capture state: not captured result persistence is not implemented audit persistence is not implemented approval persistence is not implemented Provider response is not received Model output is not generated synthetic fixture result is static placeholder only result id is not issued audit and approval join contract comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Backend-owned synthetic dry-run audit and approval join contract Synthetic audit join contract Synthetic approval join contract Result to audit and approval link contract Audit and approval join request/response contract Audit and approval join gates Audit and approval join readiness matrix Audit and approval evidence packet preview Provider slots are registry-only dry-run harness is fixture-only dry-run result review is fixture-only synthetic runner skeleton is preview-only runner state: skeleton / not executable dry-run request is not created runner invocation is not invoked dry-run execution is not executed audit and approval join contract is preview-only audit join state: not persisted approval join state: not persisted result reference state: not persisted audit and approval join review and recovery preview comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
     >
       <section style={hero}>
         <div>
@@ -209,15 +269,16 @@ export function AiProviderRegistryPanel() {
             preview-only. dry-run review is fixture-only. quality review is
             static preview only. safety review is static preview only.
             redaction review is static preview only. Athena can now preview
-            backend-owned synthetic dry-run result capture reviews. synthetic
-            result capture review is preview-only. result capture state is not
-            captured. result persistence is not implemented. audit persistence
-            is not implemented. approval persistence is not implemented.
-            provider response is not received. model output is not generated.
-            synthetic fixture result is static placeholder only. audit and
-            approval join contract comes next. No model calls yet. No prompt
-            sending. No provider SDKs imported. Frontend provider calls are
-            blocked.
+            backend-owned synthetic dry-run result capture reviews. Athena can
+            now preview backend-owned synthetic dry-run audit and approval join
+            contracts. audit and approval join contract is preview-only. audit
+            join state: not persisted. approval join state: not persisted.
+            result reference state: not persisted. evidence packet is
+            preview-only. provider response is not received. model output is
+            not generated. synthetic fixture result is static placeholder only.
+            audit and approval join review and recovery preview comes next. No
+            model calls yet. No prompt sending. No provider SDKs imported.
+            Frontend provider calls are blocked.
           </p>
         </div>
         <div style={linkRow}>
@@ -1714,9 +1775,450 @@ export function AiProviderRegistryPanel() {
         </div>
       </section>
 
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Backend-owned join contract layer</span>
+            <h2 style={sectionTitle}>
+              Backend-owned synthetic dry-run audit and approval join contract
+            </h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          Athena can preview backend-owned synthetic dry-run audit and approval
+          join contracts. audit and approval join contract is preview-only.
+          audit join state: not persisted. approval join state: not
+          persisted. result reference state: not persisted. evidence packet is
+          preview-only. join request is not created. join invocation is not
+          invoked. join response is not received. join error is not received.
+          database write is not implemented. file write is not implemented. No
+          prompt sending. No model calls yet. No provider SDKs imported. audit
+          and approval join review and recovery preview comes next.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Contract summary</span>
+            <h3 style={cardTitle}>
+              {auditApprovalJoinContractSummary.latestCompletedBatch}
+            </h3>
+            <p style={copy}>
+              {`Phase ${auditApprovalJoinContractSummary.highestDetectedPhase}. Previous completed batch: ${auditApprovalJoinContractSummary.previousCompletedBatch}.`}
+            </p>
+            <div style={list}>
+              {auditApprovalJoinContractSummary.summaryLines.slice(0, 12).map(
+                (item, index) => (
+                  <span
+                    key={buildProviderScopedKey(
+                      "audit-approval-join-summary",
+                      index,
+                      item
+                    )}
+                    style={pill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          <article style={card}>
+            <span style={tag}>Coverage</span>
+            <h3 style={cardTitle}>Capability and workspace coverage</h3>
+            <p style={copy}>
+              {`${auditApprovalJoinCapabilityGroups.length} capability families. ${auditApprovalJoinWorkspaceGroups.length} workspace targets.`}
+            </p>
+            <div style={list}>
+              {auditApprovalJoinCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildProviderScopedKey(
+                    "audit-approval-join-capability-group",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  style={pill}
+                >
+                  {`${group.capabilityFamilyLabel}: ${group.contractCount}`}
+                </span>
+              ))}
+            </div>
+            <div style={list}>
+              {auditApprovalJoinWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildProviderScopedKey(
+                    "audit-approval-join-workspace-group",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  style={pill}
+                >
+                  {`${group.workspaceTarget}: ${group.contractCount}`}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeAuditApprovalJoinContract ? (
+            <article style={card}>
+              <span style={tag}>Representative contract</span>
+              <h3 style={cardTitle}>
+                {representativeAuditApprovalJoinContract.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`audit join state: ${representativeAuditApprovalJoinContract.auditJoinState}. approval join state: ${representativeAuditApprovalJoinContract.approvalJoinState}.`}
+              </p>
+              <p style={copy}>
+                {`result reference state: ${representativeAuditApprovalJoinContract.resultReferenceState}. evidence packet posture: ${representativeAuditApprovalJoinContract.evidencePacketPosture}.`}
+              </p>
+              <p style={copy}>
+                {representativeAuditApprovalJoinContract.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only audit join</span>
+            <h2 style={sectionTitle}>Synthetic audit join contract</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          audit join mode: preview-only. audit reference state: not
+          persisted. audit envelope state: not created. audit append state:
+          not appended. audit persistence state: not implemented. no audit
+          persistence. no database write. no file write.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Audit join summary</span>
+            <h3 style={cardTitle}>No audit persistence</h3>
+            <p style={copy}>{`Audit joins: ${syntheticAuditJoinContracts.length}.`}</p>
+          </article>
+          {representativeSyntheticAuditJoinContract ? (
+            <article style={card}>
+              <span style={tag}>Representative audit join</span>
+              <h3 style={cardTitle}>
+                {representativeSyntheticAuditJoinContract.requestLabel}
+              </h3>
+              <p style={copy}>
+                {representativeSyntheticAuditJoinContract.failedGateSummary}
+              </p>
+              <p style={copy}>
+                {
+                  representativeSyntheticAuditJoinContract
+                    .explicitNoAuditJoinNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only approval join</span>
+            <h2 style={sectionTitle}>Synthetic approval join contract</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          approval join mode: preview-only. approval reference state: not
+          persisted. approval envelope state: not created. approval append
+          state: not appended. approval persistence state: not implemented. no
+          approval persistence. operator approval required. manual confirmation
+          required.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Approval join summary</span>
+            <h3 style={cardTitle}>No approval persistence</h3>
+            <p style={copy}>{`Approval joins: ${syntheticApprovalJoinContracts.length}.`}</p>
+          </article>
+          {representativeSyntheticApprovalJoinContract ? (
+            <article style={card}>
+              <span style={tag}>Representative approval join</span>
+              <h3 style={cardTitle}>
+                {representativeSyntheticApprovalJoinContract.requestLabel}
+              </h3>
+              <p style={copy}>
+                {
+                  representativeSyntheticApprovalJoinContract
+                    .approvalBlockerSummary
+                }
+              </p>
+              <p style={copy}>
+                {
+                  representativeSyntheticApprovalJoinContract
+                    .explicitNoApprovalJoinNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only result linkage</span>
+            <h2 style={sectionTitle}>
+              Result to audit and approval link contract
+            </h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          result reference state: not persisted. result id state: not issued.
+          result digest posture: deterministic preview digest only. audit link
+          state: preview-only / not persisted. approval link state:
+          preview-only / not persisted. join consistency state: preview-only.
+          no result-audit-approval link persisted.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Link summary</span>
+            <h3 style={cardTitle}>No result-audit-approval link persisted</h3>
+            <p style={copy}>{`Link contracts: ${resultAuditApprovalLinkContracts.length}.`}</p>
+          </article>
+          {representativeResultAuditApprovalLinkContract ? (
+            <article style={card}>
+              <span style={tag}>Representative link</span>
+              <h3 style={cardTitle}>
+                {representativeResultAuditApprovalLinkContract.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`audit link state: ${representativeResultAuditApprovalLinkContract.auditLinkState}. approval link state: ${representativeResultAuditApprovalLinkContract.approvalLinkState}.`}
+              </p>
+              <p style={copy}>
+                {
+                  representativeResultAuditApprovalLinkContract
+                    .explicitNoResultAuditApprovalLinkPersistedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only join lifecycle</span>
+            <h2 style={sectionTitle}>
+              Audit and approval join request/response contract
+            </h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          join request is not created. join invocation is not invoked. join
+          response is not received. join error is not received. audit join is
+          not persisted. approval join is not persisted. result reference is
+          not persisted. no database writes. no file writes.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Contract counts</span>
+            <h3 style={cardTitle}>Request / response / error</h3>
+            <p style={copy}>
+              {`requests: ${auditApprovalJoinRequestContracts.length}. responses: ${auditApprovalJoinResponseContracts.length}. errors: ${auditApprovalJoinErrorContracts.length}.`}
+            </p>
+          </article>
+          {representativeAuditApprovalJoinRequestContract ? (
+            <article style={card}>
+              <span style={tag}>Representative request</span>
+              <h3 style={cardTitle}>
+                {representativeAuditApprovalJoinRequestContract.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`join request state: ${representativeAuditApprovalJoinRequestContract.joinRequestState}. join invocation state: ${representativeAuditApprovalJoinRequestContract.joinInvocationState}.`}
+              </p>
+            </article>
+          ) : null}
+          {representativeAuditApprovalJoinResponseContract ? (
+            <article style={card}>
+              <span style={tag}>Representative response</span>
+              <h3 style={cardTitle}>
+                {representativeAuditApprovalJoinResponseContract.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`response state: ${representativeAuditApprovalJoinResponseContract.responseState}. join decision state: ${representativeAuditApprovalJoinResponseContract.joinDecisionState}.`}
+              </p>
+            </article>
+          ) : null}
+          {representativeAuditApprovalJoinErrorContract ? (
+            <article style={card}>
+              <span style={tag}>Representative error</span>
+              <h3 style={cardTitle}>
+                {representativeAuditApprovalJoinErrorContract.requestLabel}
+              </h3>
+              <p style={copy}>
+                {
+                  representativeAuditApprovalJoinErrorContract
+                    .databaseWriteBlockedExample
+                }
+              </p>
+              <p style={copy}>
+                {
+                  representativeAuditApprovalJoinErrorContract
+                    .explicitNoJoinErrorNoRetryNoFallbackStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only gate schema</span>
+            <h2 style={sectionTitle}>Audit and approval join gates</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only / blocked</span>
+        </div>
+        <p style={copy}>
+          audit and approval join gates show the synthetic result envelope,
+          result capture review, result capture acceptance posture, audit join
+          contract, approval join contract, result-to-audit-approval link
+          contract, join lifecycle, operator approval, safety gates, backend
+          boundary, and persistence blockers together.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Gate summary</span>
+            <h3 style={cardTitle}>{`${auditApprovalJoinGateSummary.gateCount} join gates`}</h3>
+            <p style={copy}>
+              {`backend join contract: ${auditApprovalJoinGateSummary.backendJoinContractGateCount}. operator: ${auditApprovalJoinGateSummary.operatorGateCount}. safety review: ${auditApprovalJoinGateSummary.safetyReviewGateCount}.`}
+            </p>
+            <div style={list}>
+              {auditApprovalJoinGateSummary.summaryLines.slice(0, 10).map(
+                (item, index) => (
+                  <span
+                    key={buildProviderScopedKey(
+                      "audit-approval-join-gates",
+                      index,
+                      item
+                    )}
+                    style={pill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {auditApprovalJoinGateRecords.map((record) => (
+            <article key={record.key} style={card}>
+              <span style={tag}>Gate record</span>
+              <h3 style={cardTitle}>{record.label}</h3>
+              <p style={copy}>{`owner: ${record.owner}.`}</p>
+              <p style={copy}>{`current state: ${record.currentState}.`}</p>
+              <p style={copy}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Compact readiness matrix</span>
+            <h2 style={sectionTitle}>Audit and approval join readiness matrix</h2>
+          </div>
+          <span style={sectionBadge}>join-contract-only / not persistent</span>
+        </div>
+        <p style={copy}>
+          join contract state. audit join contract state. approval join
+          contract state. result link contract state. join request contract
+          state. join response contract state. join error contract state.
+          result capture review dependency. result envelope dependency.
+          evidence packet dependency. audit persistence boundary state.
+          approval persistence boundary state. database boundary state. file
+          boundary state. current readiness: join-contract-only / not
+          persistent. next safe action.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Readiness summary</span>
+            <h3 style={cardTitle}>
+              {auditApprovalJoinReadinessSummary.currentReadiness}
+            </h3>
+            <p style={copy}>
+              {`Readiness records: ${auditApprovalJoinReadinessSummary.readinessRecordCount}.`}
+            </p>
+            <p style={copy}>{auditApprovalJoinReadinessSummary.nextSafeAction}</p>
+          </article>
+          {representativeAuditApprovalJoinReadiness ? (
+            <article style={card}>
+              <span style={tag}>Representative readiness</span>
+              <h3 style={cardTitle}>
+                {representativeAuditApprovalJoinReadiness.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`join contract state: ${representativeAuditApprovalJoinReadiness.joinContractState}.`}
+              </p>
+              <p style={copy}>
+                {`audit persistence boundary state: ${representativeAuditApprovalJoinReadiness.auditPersistenceBoundaryState}. approval persistence boundary state: ${representativeAuditApprovalJoinReadiness.approvalPersistenceBoundaryState}.`}
+              </p>
+              <p style={copy}>
+                {`database boundary state: ${representativeAuditApprovalJoinReadiness.databaseBoundaryState}. file boundary state: ${representativeAuditApprovalJoinReadiness.fileBoundaryState}.`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Preview-only evidence packet</span>
+            <h2 style={sectionTitle}>Audit and approval evidence packet preview</h2>
+          </div>
+          <span style={sectionBadge}>Preview-only</span>
+        </div>
+        <p style={copy}>
+          evidence packet state: preview-only. evidence digest posture:
+          deterministic preview digest only. approval evidence state:
+          preview-only. audit evidence state: preview-only. result evidence
+          state: preview-only. persistence state: not implemented. no evidence
+          packet persistence.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Evidence packet summary</span>
+            <h3 style={cardTitle}>No evidence packet persistence</h3>
+            <p style={copy}>
+              {`Evidence packets: ${auditApprovalEvidencePacketPreviews.length}.`}
+            </p>
+          </article>
+          {representativeAuditApprovalEvidencePacket ? (
+            <article style={card}>
+              <span style={tag}>Representative packet</span>
+              <h3 style={cardTitle}>
+                {representativeAuditApprovalEvidencePacket.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`result evidence state: ${representativeAuditApprovalEvidencePacket.resultEvidenceState}. blocked action evidence state: ${representativeAuditApprovalEvidencePacket.blockedActionEvidenceState}.`}
+              </p>
+              <p style={copy}>
+                {
+                  representativeAuditApprovalEvidencePacket
+                    .explicitNoEvidencePacketPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section style={notice}>
-        {nextResultCaptureReviewAndRecoveryChecklist.map((item, index) => (
-          <p key={buildProviderScopedKey("result-capture-next-review", index, item)}>
+        {nextAuditApprovalJoinReviewAndRecoveryChecklist.map((item, index) => (
+          <p key={buildProviderScopedKey("audit-approval-join-next-review", index, item)}>
             {item}
           </p>
         ))}
