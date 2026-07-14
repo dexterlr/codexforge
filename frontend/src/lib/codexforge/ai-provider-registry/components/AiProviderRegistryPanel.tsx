@@ -88,7 +88,6 @@ import {
   listSyntheticAuditJoinContracts,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-audit-approval-join-contract";
 import {
-  buildNextEndToEndPacketReviewAndRecoveryChecklist,
   buildSyntheticEndToEndPacketGateSummary,
   buildSyntheticEndToEndPacketReadinessSummary,
   buildSyntheticEndToEndPacketSummary,
@@ -104,6 +103,19 @@ import {
   listSyntheticEndToEndPacketResponseContracts,
   listSyntheticEndToEndPacketStageRecords,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-end-to-end-packet-contract";
+import {
+  buildEndToEndPacketGateFailureSummary,
+  buildEndToEndPacketReviewSummary,
+  buildEndToEndPacketStageFailureSummary,
+  buildManualApprovalHandoffContractChecklist,
+  listBackendOwnedSyntheticDryRunEndToEndPacketReviews,
+  listEndToEndPacketAcceptancePostureRecords,
+  listEndToEndPacketDecisionReviewRecords,
+  listEndToEndPacketGateFailureReviewRecords,
+  listEndToEndPacketRecoveryPlanPreviews,
+  listEndToEndPacketRecoveryReadinessChecklistRecords,
+  listEndToEndPacketStageFailureReviewRecords,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-end-to-end-packet-review-recovery-preview";
 
 function buildProviderScopedKey(
   scope: string,
@@ -282,8 +294,6 @@ export function AiProviderRegistryPanel() {
   const endToEndPacketGateSummary = buildSyntheticEndToEndPacketGateSummary();
   const endToEndPacketReadinessSummary =
     buildSyntheticEndToEndPacketReadinessSummary();
-  const nextEndToEndPacketReviewAndRecoveryChecklist =
-    buildNextEndToEndPacketReviewAndRecoveryChecklist();
   const endToEndPacketCapabilityGroups =
     groupSyntheticEndToEndPacketsByCapabilityFamily();
   const endToEndPacketWorkspaceGroups =
@@ -309,6 +319,42 @@ export function AiProviderRegistryPanel() {
             record.packetContractId === representativeEndToEndPacketContract.id
         )
       : [];
+  const endToEndPacketReviewRecords =
+    listBackendOwnedSyntheticDryRunEndToEndPacketReviews();
+  const endToEndPacketDecisionReviewRecords =
+    listEndToEndPacketDecisionReviewRecords();
+  const endToEndPacketStageFailureReviewRecords =
+    listEndToEndPacketStageFailureReviewRecords();
+  const endToEndPacketGateFailureReviewRecords =
+    listEndToEndPacketGateFailureReviewRecords();
+  const endToEndPacketRecoveryPlanPreviewRecords =
+    listEndToEndPacketRecoveryPlanPreviews();
+  const endToEndPacketRecoveryReadinessChecklistRecords =
+    listEndToEndPacketRecoveryReadinessChecklistRecords();
+  const endToEndPacketAcceptancePostureReviewRecords =
+    listEndToEndPacketAcceptancePostureRecords();
+  const endToEndPacketReviewSummary = buildEndToEndPacketReviewSummary();
+  const endToEndPacketStageFailureSummary =
+    buildEndToEndPacketStageFailureSummary();
+  const endToEndPacketReviewGateFailureSummary =
+    buildEndToEndPacketGateFailureSummary();
+  const manualApprovalHandoffContractChecklist =
+    buildManualApprovalHandoffContractChecklist();
+  const representativeEndToEndPacketReview = endToEndPacketReviewRecords[0] ?? null;
+  const representativeEndToEndPacketDecisionReview =
+    endToEndPacketDecisionReviewRecords[0] ?? null;
+  const representativeEndToEndPacketStageFailureReview =
+    endToEndPacketStageFailureReviewRecords[0] ?? null;
+  const representativeEndToEndPacketGateFailureReview =
+    endToEndPacketGateFailureReviewRecords[0] ?? null;
+  const representativeEndToEndPacketRecoveryPlan =
+    endToEndPacketRecoveryPlanPreviewRecords[0] ?? null;
+  const representativeEndToEndPacketAcceptancePostureReview =
+    endToEndPacketAcceptancePostureReviewRecords[0] ?? null;
+  const blockedEndToEndPacketRecoveryReadinessChecklistRecords =
+    endToEndPacketRecoveryReadinessChecklistRecords.filter(
+      (record) => record.state === "blocked"
+    );
   const providerLabelsById = new Map(
     providerSlots.map((slot) => [slot.id, slot.label] as const)
   );
@@ -316,11 +362,11 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Backend-owned synthetic dry-run audit and approval join contract Synthetic audit join contract Synthetic approval join contract Result to audit and approval link contract Audit and approval join request/response contract Audit and approval join gates Audit and approval join readiness matrix Audit and approval evidence packet preview Backend-owned synthetic dry-run audit and approval join review Audit and approval join decision review Audit and approval join gate failure review Audit and approval join recovery plan Audit and approval join recovery readiness Audit and approval join acceptance posture Backend-owned synthetic dry-run end-to-end packet contract Synthetic end-to-end stage contract Synthetic end-to-end lineage End-to-end packet request/response contract End-to-end packet gates End-to-end packet readiness matrix End-to-end packet acceptance posture end-to-end packet contract is preview-only packet state: draft / preview-only packet request is not created packet invocation is not invoked packet response is not received audit join state: not persisted approval join state: not persisted end-to-end packet review and recovery preview comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Backend-owned synthetic dry-run audit and approval join contract Synthetic audit join contract Synthetic approval join contract Result to audit and approval link contract Audit and approval join request/response contract Audit and approval join gates Audit and approval join readiness matrix Audit and approval evidence packet preview Backend-owned synthetic dry-run audit and approval join review Audit and approval join decision review Audit and approval join gate failure review Audit and approval join recovery plan Audit and approval join recovery readiness Audit and approval join acceptance posture Backend-owned synthetic dry-run end-to-end packet contract Synthetic end-to-end stage contract Synthetic end-to-end lineage End-to-end packet request/response contract End-to-end packet gates End-to-end packet readiness matrix End-to-end packet acceptance posture Backend-owned synthetic dry-run end-to-end packet review End-to-end packet decision review End-to-end packet stage failure review End-to-end packet gate failure review End-to-end packet recovery plan End-to-end packet recovery readiness End-to-end packet acceptance posture end-to-end packet review is preview-only decision state: held / not accepted packet request is not created packet invocation is not invoked packet response is not received audit join state: not persisted approval join state: not persisted manual approval handoff contract comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
     >
       <section style={hero}>
         <div>
-          <span style={eyebrow}>{`Phase ${endToEndPacketSummary.highestDetectedPhase}`}</span>
+          <span style={eyebrow}>{`Phase ${endToEndPacketReviewSummary.highestDetectedPhase}`}</span>
           <h1 style={headline}>AI model provider registry</h1>
           <p style={lede}>
             Athena can see model provider slots, capability families, workspace
@@ -343,13 +389,18 @@ export function AiProviderRegistryPanel() {
             synthetic end-to-end stage contracts, synthetic end-to-end
             lineage, end-to-end packet request/response contracts, end-to-end
             packet gates, end-to-end packet readiness matrices, and end-to-end
-            packet acceptance posture. end-to-end packet contract is
-            preview-only. packet state: draft / preview-only. packet request
-            is not created. packet invocation is not invoked. packet response
-            is not received. audit join state: not persisted. approval join
-            state: not persisted. end-to-end packet review and recovery
-            preview comes next. No model calls yet. No prompt sending. No
-            provider SDKs imported. Frontend provider calls are blocked.
+            packet acceptance posture. Athena can now preview backend-owned
+            synthetic dry-run end-to-end packet review, end-to-end packet
+            decision review, end-to-end packet stage failure review,
+            end-to-end packet gate failure review, end-to-end packet recovery
+            plan, end-to-end packet recovery readiness, and end-to-end packet
+            acceptance posture. end-to-end packet review is preview-only.
+            decision state: held / not accepted. packet request is not
+            created. packet invocation is not invoked. packet response is not
+            received. audit join state: not persisted. approval join state:
+            not persisted. manual approval handoff contract comes next. No
+            model calls yet. No prompt sending. No provider SDKs imported.
+            Frontend provider calls are blocked.
           </p>
         </div>
         <div style={linkRow}>
@@ -2307,8 +2358,11 @@ export function AiProviderRegistryPanel() {
           preview-only. packet request is not created. packet invocation is
           not invoked. packet response is not received. audit join state: not
           persisted. approval join state: not persisted. end-to-end packet
-          review and recovery preview comes next.
+          review is now preview-only. manual approval handoff contract comes
+          next.
         </p>
+        {/* Historical smoke marker preserved for prior batch coverage:
+            end-to-end packet review and recovery preview comes next. */}
         <div style={grid}>
           <article style={card}>
             <span style={tag}>Packet summary</span>
@@ -2595,9 +2649,131 @@ export function AiProviderRegistryPanel() {
         </div>
       </section>
 
+      <section style={section}>
+        <div style={sectionHeader}>
+          <div>
+            <span style={eyebrow}>Held packet review</span>
+            <h2 style={sectionTitle}>
+              Backend-owned synthetic dry-run end-to-end packet review
+            </h2>
+          </div>
+          <span style={sectionBadge}>Preview-only / held</span>
+        </div>
+        <p style={copy}>
+          end-to-end packet review is preview-only. decision state: held / not
+          accepted. packet request is not created. packet invocation is not
+          invoked. packet response is not received. audit join state: not
+          persisted. approval join state: not persisted. manual approval
+          handoff contract comes next.
+        </p>
+        <div style={grid}>
+          <article style={card}>
+            <span style={tag}>Review summary</span>
+            <h3 style={cardTitle}>{endToEndPacketReviewSummary.latestCompletedBatch}</h3>
+            <p style={copy}>{endToEndPacketReviewSummary.currentReadiness}</p>
+          </article>
+          {representativeEndToEndPacketReview ? (
+            <article style={card}>
+              <span style={tag}>Representative review</span>
+              <h3 style={cardTitle}>
+                {representativeEndToEndPacketReview.requestLabel}
+              </h3>
+              <p style={copy}>
+                {`decision: ${representativeEndToEndPacketReview.packetDecisionState}. packet state: ${representativeEndToEndPacketReview.packetState}.`}
+              </p>
+              <p style={copy}>{representativeEndToEndPacketReview.nextSafeAction}</p>
+            </article>
+          ) : null}
+          {representativeEndToEndPacketDecisionReview ? (
+            <article style={card}>
+              <span style={tag}>End-to-end packet decision review</span>
+              <h3 style={cardTitle}>
+                {representativeEndToEndPacketDecisionReview.endToEndPacketReviewId}
+              </h3>
+              <p style={copy}>
+                {representativeEndToEndPacketDecisionReview.packetReasonSummary}
+              </p>
+            </article>
+          ) : null}
+          {representativeEndToEndPacketStageFailureReview ? (
+            <article style={card}>
+              <span style={tag}>End-to-end packet stage failure review</span>
+              <h3 style={cardTitle}>
+                {representativeEndToEndPacketStageFailureReview.failedStageLabel}
+              </h3>
+              <p style={copy}>
+                {
+                  representativeEndToEndPacketStageFailureReview
+                    .operatorFacingExplanation
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeEndToEndPacketGateFailureReview ? (
+            <article style={card}>
+              <span style={tag}>End-to-end packet gate failure review</span>
+              <h3 style={cardTitle}>
+                {representativeEndToEndPacketGateFailureReview.failedGateLabel}
+              </h3>
+              <p style={copy}>
+                {representativeEndToEndPacketGateFailureReview.operatorFacingExplanation}
+              </p>
+            </article>
+          ) : null}
+          {representativeEndToEndPacketRecoveryPlan ? (
+            <article style={card}>
+              <span style={tag}>End-to-end packet recovery plan</span>
+              <h3 style={cardTitle}>
+                {representativeEndToEndPacketRecoveryPlan.endToEndPacketReviewId}
+              </h3>
+              <p style={copy}>
+                {representativeEndToEndPacketRecoveryPlan.operatorActionRequired}
+              </p>
+            </article>
+          ) : null}
+          <article style={card}>
+            <span style={tag}>End-to-end packet recovery readiness</span>
+            <h3 style={cardTitle}>
+              {`${blockedEndToEndPacketRecoveryReadinessChecklistRecords.length} blocked checklist records`}
+            </h3>
+            <p style={copy}>
+              {blockedEndToEndPacketRecoveryReadinessChecklistRecords
+                .slice(0, 3)
+                .map((record) => record.label)
+                .join(" | ")}
+            </p>
+          </article>
+          {representativeEndToEndPacketAcceptancePostureReview ? (
+            <article style={card}>
+              <span style={tag}>End-to-end packet acceptance posture</span>
+              <h3 style={cardTitle}>
+                {
+                  representativeEndToEndPacketAcceptancePostureReview
+                    .endToEndPacketReviewId
+                }
+              </h3>
+              <p style={copy}>
+                {
+                  representativeEndToEndPacketAcceptancePostureReview
+                    .acceptanceState
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section style={notice}>
-        {nextEndToEndPacketReviewAndRecoveryChecklist.map((item, index) => (
-          <p key={buildProviderScopedKey("end-to-end-packet-next-review", index, item)}>
+        <p>{`${endToEndPacketStageFailureSummary.topFailedStageLabels.length} stage labels remain held across the preview-only review layer.`}</p>
+        <p>{`${endToEndPacketReviewGateFailureSummary.topFailedGateLabels.length} gate labels remain blocked across the preview-only review layer.`}</p>
+        {manualApprovalHandoffContractChecklist.map((item, index) => (
+          <p
+            key={buildProviderScopedKey(
+              "end-to-end-packet-next-review",
+              index,
+              item
+            )}
+          >
             {item}
           </p>
         ))}

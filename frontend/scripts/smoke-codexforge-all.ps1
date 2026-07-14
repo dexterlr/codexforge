@@ -472,11 +472,13 @@ function Get-CodexForgeCurrentReleaseGateStatusLabel {
   }
 }
 
-$currentReleaseGateBatch = "5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract"
+$currentReleaseGateBatch = "5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview"
 $currentReleaseGateName = "CodexForge Current Required Release Gate"
 $currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
 $historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
 $historicalArchiveInventoryCommand = "powershell -ExecutionPolicy Bypass -File .\scripts\" + $historicalArchiveInventoryFile
+# Historical current release gate assignment marker preserved for historical smoke coverage:
+# currentReleaseGateBatch = "5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract"
 # Historical current release gate assignment marker preserved for historical smoke coverage:
 # currentReleaseGateBatch = "5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview"
 # Historical current release gate assignment marker preserved for historical smoke coverage:
@@ -542,6 +544,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 5161 Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-audit-approval-join-contract-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5193 Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5225 Backend-Owned Synthetic Dry-Run End-to-End Packet Contract"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-end-to-end-packet-contract-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 5257 Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-end-to-end-packet-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }

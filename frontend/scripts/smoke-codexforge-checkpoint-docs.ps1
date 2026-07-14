@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5225) {
-  throw "[FAIL] Highest detected phase expected 5225 found $highestPhase"
+if ($highestPhase -ne 5257) {
+  throw "[FAIL] Highest detected phase expected 5257 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview"',
+  "Phase 5257 Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-synthetic-dry-run-end-to-end-packet-review-recovery-preview-mega-batch.ps1",
   'currentReleaseGateBatch = "5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract"',
   "Phase 5225 Backend-Owned Synthetic Dry-Run End-to-End Packet Contract",
   "smoke-codexforge-backend-owned-synthetic-dry-run-end-to-end-packet-contract-mega-batch.ps1",
@@ -128,18 +131,25 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5225. Latest completed batch: 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract. Previous completed batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview. Next likely batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview.",
-  "Highest detected phase: 5225",
-  "Latest completed batch: 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract",
-  "Previous completed batch: 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
-  "Next likely batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
-  "backend-owned synthetic dry-run end-to-end packet contract only",
-  "end-to-end packet contract is preview-only",
+  "Current checkpoint: Highest detected phase: 5257. Latest completed batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview. Previous completed batch: 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract. Next likely batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract.",
+  "Highest detected phase: 5257",
+  "Latest completed batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
+  "Previous completed batch: 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract",
+  "Next likely batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract",
+  "backend-owned synthetic dry-run end-to-end packet review and recovery preview only",
+  "end-to-end packet review is preview-only",
+  "packet decision review is preview-only",
+  "packet stage failure review is preview-only",
+  "packet gate failure review is preview-only",
+  "packet recovery plan is preview-only",
+  "packet recovery readiness is preview-only",
+  "packet acceptance posture is preview-only",
   "packet state is draft / preview-only",
   "packet request is not created",
   "packet invocation is not invoked",
   "packet response is not received",
   "packet error is not received",
+  "decision state is held / not accepted",
   "admission state is not admitted",
   "admission token is not issued",
   "admission lease is not created",
@@ -159,8 +169,9 @@ foreach ($needle in @(
   "approval envelope state is not created",
   "database write is not implemented",
   "file write is not implemented",
-  "current readiness is end-to-end-packet-contract-only / not executable / not persistent",
+  "current readiness is end-to-end-packet-review-only / not executable / not persistent",
   "acceptance state is not accepted / preview-only",
+  "recovery is manual review only",
   "no prompt sending",
   "no LLM/model calls",
   "no frontend provider call",
@@ -189,7 +200,7 @@ foreach ($needle in @(
   "audit required",
   "opaque credential references only",
   "no plaintext secrets",
-  "backend-owned synthetic dry-run end-to-end packet review and recovery preview next",
+  "backend-owned synthetic dry-run manual approval handoff contract next",
   "Current checkpoint: Highest detected phase: 5129. Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview. Previous completed batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract. Next likely batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract.",
   "Highest detected phase: 5129",
   "Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",

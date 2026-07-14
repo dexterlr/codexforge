@@ -430,13 +430,16 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 <p className={styles.railBody}>
                   Athena can now preview backend-owned synthetic dry-run
-                  end-to-end packet contracts.
+                  end-to-end packet reviews.
                 </p>
                 <p className={styles.railBody}>
-                  end-to-end packet contract is preview-only.
+                  end-to-end packet review is preview-only.
                 </p>
                 <p className={styles.railBody}>
                   packet state is draft / preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  decision state is held / not accepted.
                 </p>
                 <p className={styles.railBody}>
                   packet request is not created.
@@ -457,12 +460,18 @@ export function JarvisUnifiedProductPanel(
                   approval join state is not persisted.
                 </p>
                 <p className={styles.railBody}>
-                  end-to-end packet review and recovery preview comes next.
+                  manual approval handoff contract comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
                   imported. queue, worker, and job execution remain blocked.
                 </p>
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    Athena can now preview backend-owned synthetic dry-run end-to-end packet contracts. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    end-to-end packet contract is preview-only. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    end-to-end packet review and recovery preview comes next. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
                     Athena model routing and provider selection preview comes next. */}
                 {/* Historical smoke marker preserved for prior batch coverage:

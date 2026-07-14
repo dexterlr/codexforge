@@ -183,7 +183,6 @@ import {
   listBackendOwnedSyntheticDryRunAuditApprovalJoinReviews,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-audit-approval-join-review-recovery-preview";
 import {
-  buildNextEndToEndPacketReviewAndRecoveryChecklist,
   buildSyntheticEndToEndPacketGateSummary,
   buildSyntheticEndToEndPacketReadinessSummary,
   buildSyntheticEndToEndPacketSummary,
@@ -199,6 +198,23 @@ import {
   listSyntheticEndToEndPacketResponseContracts,
   listSyntheticEndToEndPacketStageRecords,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-end-to-end-packet-contract";
+import {
+  buildEndToEndPacketGateFailureSummary,
+  buildEndToEndPacketRecoverySummary,
+  buildEndToEndPacketReviewSummary,
+  buildEndToEndPacketStageFailureSummary,
+  buildManualApprovalHandoffContractChecklist,
+  groupEndToEndPacketReviewsByCapabilityFamily,
+  groupEndToEndPacketReviewsByWorkspaceTarget,
+  listBackendOwnedSyntheticDryRunEndToEndPacketReviews,
+  listEndToEndPacketAcceptancePostureRecords,
+  listEndToEndPacketDecisionReviewRecords,
+  listEndToEndPacketGateFailureReviewRecords,
+  listEndToEndPacketRecoveryPlanPreviews,
+  listEndToEndPacketRecoveryReadinessChecklistRecords,
+  listEndToEndPacketReviewAuditSummaries,
+  listEndToEndPacketStageFailureReviewRecords,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-end-to-end-packet-review-recovery-preview";
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
@@ -880,8 +896,6 @@ export function AthenaCommandCenterPanel({
   const endToEndPacketGateSummary = buildSyntheticEndToEndPacketGateSummary();
   const endToEndPacketReadinessSummary =
     buildSyntheticEndToEndPacketReadinessSummary();
-  const nextEndToEndPacketReviewAndRecoveryChecklist =
-    buildNextEndToEndPacketReviewAndRecoveryChecklist();
   const endToEndPacketCapabilityGroups =
     groupSyntheticEndToEndPacketsByCapabilityFamily();
   const endToEndPacketWorkspaceGroups =
@@ -907,6 +921,59 @@ export function AthenaCommandCenterPanel({
             record.packetContractId === representativeEndToEndPacketContract.id
         )
       : [];
+  const endToEndPacketReviewRecords =
+    listBackendOwnedSyntheticDryRunEndToEndPacketReviews();
+  const endToEndPacketDecisionReviewRecords =
+    listEndToEndPacketDecisionReviewRecords();
+  const endToEndPacketStageFailureReviewRecords =
+    listEndToEndPacketStageFailureReviewRecords();
+  const endToEndPacketStageFailureReviewsForDisplay = uniqueRecordsByString(
+    endToEndPacketStageFailureReviewRecords,
+    (record) => record.failedStageId
+  );
+  const endToEndPacketGateFailureReviewRecords =
+    listEndToEndPacketGateFailureReviewRecords();
+  const endToEndPacketGateFailureReviewsForDisplay = uniqueRecordsByString(
+    endToEndPacketGateFailureReviewRecords,
+    (record) => record.failedGateId
+  );
+  const endToEndPacketRecoveryPlanPreviewRecords =
+    listEndToEndPacketRecoveryPlanPreviews();
+  const endToEndPacketRecoveryReadinessChecklistRecords =
+    listEndToEndPacketRecoveryReadinessChecklistRecords();
+  const endToEndPacketReviewAuditSummaryRecords =
+    listEndToEndPacketReviewAuditSummaries();
+  const endToEndPacketAcceptancePostureReviewRecords =
+    listEndToEndPacketAcceptancePostureRecords();
+  const endToEndPacketReviewSummary = buildEndToEndPacketReviewSummary();
+  const endToEndPacketStageFailureSummary =
+    buildEndToEndPacketStageFailureSummary();
+  const endToEndPacketReviewGateFailureSummary =
+    buildEndToEndPacketGateFailureSummary();
+  const endToEndPacketRecoverySummary = buildEndToEndPacketRecoverySummary();
+  const manualApprovalHandoffContractChecklist =
+    buildManualApprovalHandoffContractChecklist();
+  const endToEndPacketReviewCapabilityGroups =
+    groupEndToEndPacketReviewsByCapabilityFamily();
+  const endToEndPacketReviewWorkspaceGroups =
+    groupEndToEndPacketReviewsByWorkspaceTarget();
+  const representativeEndToEndPacketReview = endToEndPacketReviewRecords[0] ?? null;
+  const representativeEndToEndPacketDecisionReview =
+    endToEndPacketDecisionReviewRecords[0] ?? null;
+  const representativeEndToEndPacketStageFailureReview =
+    endToEndPacketStageFailureReviewsForDisplay[0] ?? null;
+  const representativeEndToEndPacketGateFailureReview =
+    endToEndPacketGateFailureReviewsForDisplay[0] ?? null;
+  const representativeEndToEndPacketRecoveryPlan =
+    endToEndPacketRecoveryPlanPreviewRecords[0] ?? null;
+  const representativeEndToEndPacketReviewAuditSummary =
+    endToEndPacketReviewAuditSummaryRecords[0] ?? null;
+  const representativeEndToEndPacketAcceptancePostureReview =
+    endToEndPacketAcceptancePostureReviewRecords[0] ?? null;
+  const blockedEndToEndPacketRecoveryReadinessChecklistRecords =
+    endToEndPacketRecoveryReadinessChecklistRecords.filter(
+      (record) => record.state === "blocked"
+    );
   const resultCaptureReviewRecords =
     listBackendOwnedSyntheticDryRunResultCaptureReviews();
   const resultCaptureDecisionReviewRecords = listResultCaptureDecisionReviews();
@@ -12641,7 +12708,7 @@ export function AthenaCommandCenterPanel({
           file write is not implemented. queue dispatch is blocked. worker
           dispatch is blocked. job execution is blocked. No prompt sending. No
           model calls yet. No provider SDKs imported. end-to-end packet review
-          and recovery preview comes next.
+          is now preview-only. manual approval handoff contract comes next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -13250,6 +13317,700 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned synthetic dry-run end-to-end packet review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held packet review</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned synthetic dry-run end-to-end packet review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / held
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review why synthetic dry-run end-to-end packets are held.
+          end-to-end packet review is preview-only. packet state: draft /
+          preview-only. packet request is not created. packet invocation is not
+          invoked. packet response is not received. packet error is not
+          received. decision state: held / not accepted. admission state: not
+          admitted. dry-run execution is not executed. result capture state:
+          not captured. audit join state: not persisted. approval join state:
+          not persisted. evidence packet state: preview-only. database write is
+          not implemented. file write is not implemented. queue dispatch is
+          blocked. worker dispatch is blocked. job execution is blocked. No
+          prompt sending. No model calls yet. No provider SDKs imported.
+          current readiness: end-to-end-packet-review-only / not executable /
+          not persistent. acceptance state: not accepted / preview-only.
+          recovery is manual review only. retry disabled. fallback disabled.
+          manual approval handoff contract comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {endToEndPacketReviewSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`phase ${endToEndPacketReviewSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {endToEndPacketReviewSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "end-to-end-packet-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeEndToEndPacketReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketReview.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketReview.packetDecisionState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {representativeEndToEndPacketReview.workspaceTarget}
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeEndToEndPacketReview.selectedCapabilityFamily.label}
+                </span>
+                <span className={styles.metaPill}>
+                  {representativeEndToEndPacketReview.providerSlotLabel}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`packet request: ${representativeEndToEndPacketReview.packetRequestState} | packet invocation: ${representativeEndToEndPacketReview.packetInvocationState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`result capture: ${representativeEndToEndPacketReview.resultCaptureState} | audit join: ${representativeEndToEndPacketReview.auditJoinState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeEndToEndPacketReview.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${endToEndPacketReviewRecords.length} reviews`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {endToEndPacketReviewCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey("end-to-end-packet-review-capability", "item", index, group.capabilityFamilyId)}
+                  className={styles.metaPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.reviewCount})`}
+                </span>
+              ))}
+              {endToEndPacketReviewWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey("end-to-end-packet-review-workspace", "item", index, group.workspaceTarget)}
+                  className={styles.metaPill}
+                >
+                  {`${group.workspaceTarget} (${group.reviewCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {endToEndPacketReviewRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Packet review record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.packetState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`decision: ${record.packetDecisionState} | acceptance: ${record.packetAcceptanceState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source review: ${record.sourceAuditApprovalJoinReviewReference}`}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="End-to-end packet decision review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held packet decision</p>
+            <h2 className={styles.panelTitle}>End-to-end packet decision review</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Held / not accepted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          packet decision review is preview-only. decision state: held / not
+          accepted.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeEndToEndPacketDecisionReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative decision</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketDecisionReview.endToEndPacketReviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketDecisionReview.decisionState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeEndToEndPacketDecisionReview.packetReasonSummary}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketDecisionReview
+                    .explicitNoEndToEndPacketExecutionNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {endToEndPacketDecisionReviewRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Decision record</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.endToEndPacketReviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.decisionState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.topBlockingStages.join(" | ")}</p>
+              <p className={styles.railBody}>{record.topBlockingGates.join(" | ")}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="End-to-end packet stage failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held packet stages</p>
+            <h2 className={styles.panelTitle}>
+              End-to-end packet stage failure review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          packet stage failure review is preview-only. No stage pass. No
+          execution.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Stage failure summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${endToEndPacketStageFailureSummary.stageFailureCount} stage failures`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {endToEndPacketReviewSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {endToEndPacketStageFailureSummary.topFailedStageLabels.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "end-to-end-packet-stage-failure-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {representativeEndToEndPacketStageFailureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative stage</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeEndToEndPacketStageFailureReview.failedStageLabel
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketStageFailureReview.stageState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeEndToEndPacketStageFailureReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketStageFailureReview
+                    .explicitNoStagePassNoExecutionStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {endToEndPacketStageFailureReviewsForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Stage failure record</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.failedStageLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.stageState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.requiredEvidenceToUnblock}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="End-to-end packet gate failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held packet gates</p>
+            <h2 className={styles.panelTitle}>
+              End-to-end packet gate failure review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          packet gate failure review is preview-only. No gate pass is granted.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate failure summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${endToEndPacketReviewGateFailureSummary.gateFailureCount} gate failures`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Blocked
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {endToEndPacketReviewGateFailureSummary.topFailedGateLabels
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "end-to-end-packet-gate-failure-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeEndToEndPacketGateFailureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative gate</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketGateFailureReview.failedGateLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketGateFailureReview.gateState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeEndToEndPacketGateFailureReview.operatorFacingExplanation}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketGateFailureReview
+                    .explicitNoGatePassStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+        <div className={styles.summaryGrid}>
+          {endToEndPacketGateFailureReviewsForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate failure record</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.failedGateLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.gateState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.requiredEvidenceToUnblock}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="End-to-end packet recovery plan"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Manual recovery</p>
+            <h2 className={styles.panelTitle}>End-to-end packet recovery plan</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Manual review only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          packet recovery plan is preview-only. recovery is manual review only.
+          retry disabled. fallback disabled.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeEndToEndPacketRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative recovery</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketRecoveryPlan.endToEndPacketReviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketRecoveryPlan.recoveryPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeEndToEndPacketRecoveryPlan
+                    .operatorActionRequired
+                }
+              </p>
+              <p className={styles.railBody}>
+                {endToEndPacketRecoverySummary.summaryLines.slice(0, 4).join(" | ")}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketRecoveryPlan
+                    .explicitNoRetryNoFallbackNoExecutionNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next checklist</p>
+                <h3 className={styles.placeholderTitle}>
+                  manual approval handoff contract
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Next
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualApprovalHandoffContractChecklist.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "end-to-end-packet-recovery-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {endToEndPacketRecoveryPlanPreviewRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Recovery plan record</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.endToEndPacketReviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.retryPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.runIntentRecovery}</p>
+              <p className={styles.railBody}>{record.resultCaptureRecovery}</p>
+              <p className={styles.railFooter}>
+                {record.nextSafeBatchRecommendation}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="End-to-end packet recovery readiness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Recovery checklist</p>
+            <h2 className={styles.panelTitle}>
+              End-to-end packet recovery readiness
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          packet recovery readiness is preview-only. recovery is manual review
+          only.
+        </p>
+        <div className={styles.summaryGrid}>
+          {blockedEndToEndPacketRecoveryReadinessChecklistRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Blocked checklist record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.state}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.evidenceRequired}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="End-to-end packet review audit summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Audit summary</p>
+            <h2 className={styles.panelTitle}>
+              End-to-end packet review audit summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          packet review audit summary is preview-only. result reference state:
+          not persisted. audit reference state: not persisted. approval
+          reference state: not persisted. evidence packet state: preview-only.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeEndToEndPacketReviewAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative audit summary</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeEndToEndPacketReviewAuditSummary.endToEndPacketReviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeEndToEndPacketReviewAuditSummary.auditPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeEndToEndPacketReviewAuditSummary
+                    .stageEvidenceSummary
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketReviewAuditSummary
+                    .manualApprovalHandoffContractRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+          {endToEndPacketReviewAuditSummaryRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit record</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.endToEndPacketReviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.resultReferenceState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.failedGateSummary}</p>
+              <p className={styles.railFooter}>{record.blockedActionSummary}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="End-to-end packet acceptance posture review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance review</p>
+            <h2 className={styles.panelTitle}>
+              End-to-end packet acceptance posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not accepted / preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          packet acceptance posture is preview-only. acceptance state: not
+          accepted / preview-only.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeEndToEndPacketAcceptancePostureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative acceptance</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeEndToEndPacketAcceptancePostureReview.endToEndPacketReviewId
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeEndToEndPacketAcceptancePostureReview
+                      .acceptanceState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeEndToEndPacketAcceptancePostureReview
+                    .requiredEvidence
+                    .join(" | ")
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeEndToEndPacketAcceptancePostureReview
+                    .explicitNoEndToEndAcceptanceNoExecutionStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {endToEndPacketAcceptancePostureReviewRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Acceptance record</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.endToEndPacketReviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.acceptanceState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.stageBlockers.join(" | ")}</p>
+              <p className={styles.railBody}>
+                {record.queueWorkerJobBlockers.join(" | ")}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Audit memory preview">
         <div className={styles.panelHeader}>
           <div>
@@ -13508,7 +14269,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Next end-to-end packet review and recovery checklist
+                  Manual approval handoff contract checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -13516,7 +14277,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextEndToEndPacketReviewAndRecoveryChecklist.map((item, index) => (
+              {manualApprovalHandoffContractChecklist.map((item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
                   className={styles.railCard}
