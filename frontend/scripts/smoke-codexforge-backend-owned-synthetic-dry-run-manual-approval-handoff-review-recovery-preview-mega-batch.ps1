@@ -80,7 +80,7 @@ function Normalize-Whitespace {
   return ([regex]::Replace($Text, "\s+", " ")).Trim()
 }
 
-Write-Host "=== CodexForge Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract Mega Batch smoke ==="
+Write-Host "=== CodexForge Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview Mega Batch smoke ==="
 
 $jarvisPagePath = Join-Path $root "src\app\jarvis\page.tsx"
 $jarvisPageClientPath = Join-Path $root "src\app\jarvis\page-client.tsx"
@@ -96,9 +96,9 @@ $athenaPanelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia
 $homeShellPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisUnifiedProductShell.tsx"
 $athenaModelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\athena-control-plane-model.ts"
 $providerPanelPath = Join-Path $root "src\lib\codexforge\ai-provider-registry\components\AiProviderRegistryPanel.tsx"
-$handoffTypesPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-handoff-contract\backend-owned-synthetic-dry-run-manual-approval-handoff-contract-types.ts"
-$handoffCatalogPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-handoff-contract\backend-owned-synthetic-dry-run-manual-approval-handoff-contract-catalog.ts"
-$handoffIndexPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-handoff-contract\index.ts"
+$reviewTypesPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview\backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview-types.ts"
+$reviewCatalogPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview\backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview-catalog.ts"
+$reviewIndexPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview\index.ts"
 $allSmokePath = Join-Path $root "scripts\smoke-codexforge-all.ps1"
 $checkpointCurrentPath = Join-Path $root "docs\codexforge-checkpoint-current.md"
 $runbookPath = Join-Path $root "docs\codexforge-operator-checkpoint-runbook.md"
@@ -119,9 +119,9 @@ $requiredPaths = @(
   $homeShellPath,
   $athenaModelPath,
   $providerPanelPath,
-  $handoffTypesPath,
-  $handoffCatalogPath,
-  $handoffIndexPath,
+  $reviewTypesPath,
+  $reviewCatalogPath,
+  $reviewIndexPath,
   $allSmokePath,
   $checkpointCurrentPath,
   $runbookPath,
@@ -152,9 +152,9 @@ $videoSource = Get-CombinedFileText @(
   $videoPanelPath
 )
 $typedModelSource = Get-CombinedFileText @(
-  $handoffTypesPath,
-  $handoffCatalogPath,
-  $handoffIndexPath
+  $reviewTypesPath,
+  $reviewCatalogPath,
+  $reviewIndexPath
 )
 $allSmokeSource = Get-Content -Raw $allSmokePath
 $checkpointCurrentSource = Get-Content -Raw $checkpointCurrentPath
@@ -162,6 +162,7 @@ $runbookSource = Get-Content -Raw $runbookPath
 $docsSource = $checkpointCurrentSource + "`n" + $runbookSource
 $navigationTypesSource = Get-Content -Raw $navigationTypesPath
 $athenaPanelSource = Get-Content -Raw $athenaPanelPath
+$athenaPanelNormalized = Normalize-Whitespace $athenaPanelSource
 
 $frontEndSourceFiles = Get-SourceFiles @(
   (Join-Path $root "src\app\athena"),
@@ -170,7 +171,7 @@ $frontEndSourceFiles = Get-SourceFiles @(
   (Join-Path $root "src\app\ai-providers"),
   (Join-Path $root "src\app\page.tsx"),
   (Join-Path $root "src\app\page-client.tsx"),
-  (Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-handoff-contract"),
+  (Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview"),
   (Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map"),
   (Join-Path $root "src\lib\codexforge\ai-provider-registry"),
   (Join-Path $root "src\lib\codexforge\jarvis-video-studio-release-candidate-map"),
@@ -186,9 +187,9 @@ $docsNormalized = Normalize-Whitespace $docsSource
 $allSmokeNormalized = Normalize-Whitespace $allSmokeSource
 
 foreach ($needle in @(
-  "5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract",
-  "5289",
-  "Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract"
+  "5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview",
+  "5321",
+  "Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview"
 )) {
   Assert-Contains ($jarvisNormalized + " " + $homeNormalized + " " + $typedModelNormalized + " " + $docsNormalized + " " + $allSmokeNormalized) $needle "batch marker contains $needle"
 }
@@ -198,16 +199,15 @@ Assert-Contains (Get-Content -Raw $athenaPagePath) 'export { default } from "../
 foreach ($needle in @(
   "Athena",
   "Athena Command Center",
-  "Backend-owned synthetic dry-run end-to-end packet review",
-  "End-to-end packet acceptance posture",
   "Backend-owned synthetic dry-run manual approval handoff contract",
-  "Manual approval handoff packet",
-  "Manual approval handoff request/response contract",
-  "Manual approval scope",
-  "Manual approval handoff gates",
-  "Manual approval handoff readiness matrix",
   "Manual approval handoff evidence summary",
-  "Athena can preview backend-owned synthetic dry-run manual approval handoff contracts",
+  "Backend-owned synthetic dry-run manual approval handoff review",
+  "Manual approval handoff decision review",
+  "Manual approval handoff gate failure review",
+  "Manual approval handoff recovery plan",
+  "Manual approval handoff recovery readiness",
+  "Manual approval handoff acceptance posture",
+  "Athena can review why synthetic dry-run manual approval handoffs are held",
   "manual approval handoff review is preview-only",
   "handoff state: draft / preview-only",
   "handoff request is not created",
@@ -222,7 +222,7 @@ foreach ($needle in @(
   "approval reference is not persisted",
   "audit reference is not persisted",
   "result reference is not persisted",
-  "evidence packet is preview-only",
+  "evidence packet state: preview-only",
   "database write is not implemented",
   "file write is not implemented",
   "queue dispatch is blocked",
@@ -238,12 +238,11 @@ foreach ($needle in @(
 
 foreach ($needle in @(
   "CodexForge Operator Cockpit",
-  "Athena can now preview backend-owned synthetic dry-run manual approval handoff contracts",
+  "Athena can now preview backend-owned synthetic dry-run manual approval handoff reviews",
   "manual approval handoff review is preview-only",
-  "handoff state is draft / preview-only",
-  "handoff request is not created",
   "operator approval state is not requested",
   "manual confirmation state is not captured",
+  "approval decision state is not evaluated",
   "manual approval decision contract comes next",
   "no model calls yet",
   "no prompt sending",
@@ -263,17 +262,19 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "backend-owned-synthetic-dry-run-manual-approval-handoff-contract-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-handoff-packet-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-handoff-request-contract-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-handoff-response-contract-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-handoff-error-contract-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-scope-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-handoff-gate-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-handoff-readiness-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-handoff-evidence-summary-v1",
-  "backend-owned synthetic dry-run manual approval handoff contract only",
-  "manual approval handoff contract is preview-only",
+  "backend-owned-synthetic-dry-run-manual-approval-handoff-review-preview-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-handoff-decision-review-preview-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-handoff-gate-failure-review-preview-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-handoff-recovery-plan-preview-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-handoff-recovery-readiness-checklist-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-handoff-review-audit-summary-preview-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-handoff-acceptance-posture-preview-v1",
+  "manual approval handoff review is preview-only",
+  "manual approval handoff decision review is preview-only",
+  "manual approval handoff gate failure review is preview-only",
+  "manual approval handoff recovery plan is preview-only",
+  "manual approval handoff recovery readiness is preview-only",
+  "manual approval handoff acceptance posture is preview-only",
   "no prompt sending",
   "no LLM/model calls",
   "no provider SDK imports",
@@ -281,18 +282,18 @@ foreach ($needle in @(
   "no audit persistence",
   "no approval persistence",
   "no database writes",
-  "no file writes"
+  "no file write"
 )) {
   Assert-Contains $typedModelNormalized $needle "typed model/data contains $needle"
 }
 
-Assert-Contains $allSmokeSource "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-handoff-contract-mega-batch.ps1" "scripts/smoke-codexforge-all.ps1 references this new smoke"
+Assert-Contains $allSmokeSource "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview-mega-batch.ps1" "scripts/smoke-codexforge-all.ps1 references this new smoke"
 
 foreach ($needle in @(
-  "Highest detected phase: 5289",
-  "Latest completed batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract",
-  "Previous completed batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
-  "Next likely batch: 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview"
+  "Highest detected phase: 5321",
+  "Latest completed batch: 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview",
+  "Previous completed batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract",
+  "Next likely batch: 5322-5353 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract"
 )) {
   Assert-Contains $checkpointCurrentSource $needle "checkpoint current contains $needle"
 }
@@ -300,25 +301,23 @@ foreach ($needle in @(
 Assert-Contains $navigationTypesSource "export type CodexForgeNavigationRouteHref = Route;" "route href typing remains Route-based"
 Assert-Contains $navigationTypesSource "export type CodexForgeCommandDeckRole =" "commandDeckRole typing remains enumerated"
 Assert-Contains $navigationTypesSource "commandDeckRole: CodexForgeCommandDeckRole;" "navigation route type still uses commandDeckRole typing"
-Assert-Contains $athenaPanelSource 'buildScopedItemKey("manual-approval-handoff-capability"' "AthenaCommandCenterPanel manual approval capability groups use scoped keys"
-Assert-Contains $athenaPanelSource 'buildScopedItemKey("manual-approval-handoff-workspace"' "AthenaCommandCenterPanel manual approval workspace groups use scoped keys"
+Assert-Contains $athenaPanelNormalized 'buildScopedItemKey( "manual-approval-handoff-review-capability"' "AthenaCommandCenterPanel manual approval review capability groups use scoped keys"
+Assert-Contains $athenaPanelNormalized 'buildScopedItemKey( "manual-approval-handoff-review-workspace"' "AthenaCommandCenterPanel manual approval review workspace groups use scoped keys"
 
-Assert-NotMatches $athenaPanelSource 'manualApprovalHandoffCapabilityGroups\.map\(\(group,\s*index\)\s*=>\s*\(\s*<span\s+key=\{group\.capabilityFamilyId\}' "AthenaCommandCenterPanel does not use raw repeated capability ids as manual approval handoff capability keys"
-Assert-NotMatches $athenaPanelSource 'manualApprovalHandoffWorkspaceGroups\.map\(\(group,\s*index\)\s*=>\s*\(\s*<span\s+key=\{group\.workspaceTarget\}' "AthenaCommandCenterPanel does not use raw repeated workspace ids as manual approval handoff workspace keys"
-Assert-NotMatches $athenaPanelSource 'manualApprovalHandoffContracts\.map\(\(record\)\s*=>\s*\(\s*<article\s+key=\{record\.(selectedCapabilityFamily\.id|workspaceTarget|label|id)\}' "AthenaCommandCenterPanel contract list does not use raw repeated fields as sibling keys"
-Assert-NotMatches $athenaPanelSource 'manualApprovalScopeRecordsForDisplay\.map\(\(record\)\s*=>\s*\(\s*<article\s+key=\{record\.(scopeId|scopeLabel|requestLabel|handoffContractId)\}' "AthenaCommandCenterPanel scope list does not use raw repeated fields as sibling keys"
-Assert-NotMatches $athenaPanelSource 'manualApprovalHandoffGateRecordsForDisplay\.map\(\(record\)\s*=>\s*\(\s*<article\s+key=\{record\.(id|label|requestLabel|handoffContractId)\}' "AthenaCommandCenterPanel gate list does not use raw repeated fields as sibling keys"
+Assert-NotMatches $athenaPanelSource 'manualApprovalHandoffReviewCapabilityGroups\.map\(\(group,\s*index\)\s*=>\s*\(\s*<span\s+key=\{group\.capabilityFamilyId\}' "AthenaCommandCenterPanel does not use raw repeated capability ids as manual approval handoff review capability keys"
+Assert-NotMatches $athenaPanelSource 'manualApprovalHandoffReviewWorkspaceGroups\.map\(\(group,\s*index\)\s*=>\s*\(\s*<span\s+key=\{group\.workspaceTarget\}' "AthenaCommandCenterPanel does not use raw repeated workspace ids as manual approval handoff review workspace keys"
+Assert-NotMatches $athenaPanelSource 'manualApprovalHandoffReviewRecords\.map\(\(record\)\s*=>\s*\(\s*<article\s+key=\{record\.(selectedCapabilityFamily\.id|workspaceTarget|label|id)\}' "AthenaCommandCenterPanel manual approval handoff review list does not use raw repeated fields as sibling keys"
 
-Assert-NotMatches $frontEndSource '(?m)^\s*import\s+.+from\s+["''][^"'']*(openai|anthropic|generative-ai|genai|mistral|replicate|fal-ai|elevenlabs|assemblyai|deepgram|groq|ollama)[^"'']*["'']' "frontend Athena/Jarvis/provider files do not import provider SDKs"
-Assert-NotMatches $frontEndSource '\bfetch\s*\(' "frontend Athena/Jarvis/provider files do not call fetch"
-Assert-NotMatches $frontEndSource '\baxios\b' "frontend Athena/Jarvis/provider files do not call axios"
-Assert-NotMatches $frontEndSource '\bXMLHttpRequest\b' "frontend Athena/Jarvis/provider files do not use XMLHttpRequest"
-Assert-NotMatches $frontEndSource '\bwindow\.localStorage\b|\blocalStorage\.' "frontend Athena/Jarvis/provider files do not use localStorage"
-Assert-NotMatches $frontEndSource '\bwindow\.sessionStorage\b|\bsessionStorage\.' "frontend Athena/Jarvis/provider files do not use sessionStorage"
-Assert-NotMatches $frontEndSource '\bwindow\.indexedDB\b|\bindexedDB\.' "frontend Athena/Jarvis/provider files do not use IndexedDB"
-Assert-NotMatches $frontEndSource '\bdocument\.cookie\b|\bcookieStore\.' "frontend Athena/Jarvis/provider files do not use cookies"
-Assert-NotMatches $frontEndSource '\bchild_process\b|\bexec\s*\(|\bspawn\s*\(|\bexeca\b|\bBun\.spawn\b|\bDeno\.Command\b|\bStart-Process\b|\brunCommand\s*\(' "frontend Athena/Jarvis/provider files do not execute shell or process commands"
+Assert-NotMatches $frontEndSource '(?m)^\s*import\s+.+from\s+["''][^"'']*(openai|anthropic|generative-ai|genai|mistral|replicate|fal-ai|elevenlabs|assemblyai|deepgram|groq|ollama)[^"'']*["'']' "frontend Athena/Jarvis files do not import provider SDKs"
+Assert-NotMatches $frontEndSource '\bfetch\s*\(' "frontend Athena/Jarvis files do not call fetch"
+Assert-NotMatches $frontEndSource '\baxios\b' "frontend Athena/Jarvis files do not call axios"
+Assert-NotMatches $frontEndSource '\bXMLHttpRequest\b' "frontend Athena/Jarvis files do not use XMLHttpRequest"
+Assert-NotMatches $frontEndSource '\bwindow\.localStorage\b|\blocalStorage\.' "frontend Athena/Jarvis files do not use localStorage"
+Assert-NotMatches $frontEndSource '\bwindow\.sessionStorage\b|\bsessionStorage\.' "frontend Athena/Jarvis files do not use sessionStorage"
+Assert-NotMatches $frontEndSource '\bwindow\.indexedDB\b|\bindexedDB\.' "frontend Athena/Jarvis files do not use IndexedDB"
+Assert-NotMatches $frontEndSource '\bdocument\.cookie\b|\bcookieStore\.' "frontend Athena/Jarvis files do not use cookies"
+Assert-NotMatches $frontEndSource '\bchild_process\b|\bexec\s*\(|\bspawn\s*\(|\bexeca\b|\bBun\.spawn\b|\bDeno\.Command\b|\bStart-Process\b|\brunCommand\s*\(' "frontend app code does not execute shell or process commands"
 Assert-NotMatches $navigationTypesSource 'export\s+type\s+CodexForgeNavigationRouteHref\s*=\s*string\b' "route href typing is not loosened to string"
 Assert-NotMatches $navigationTypesSource 'export\s+type\s+CodexForgeCommandDeckRole\s*=\s*string\b' "commandDeckRole typing is not loosened to string"
 
-Write-Host "[PASS] Backend-owned synthetic dry-run manual approval handoff contract smoke passed."
+Write-Host "[PASS] Backend-owned synthetic dry-run manual approval handoff review and recovery preview smoke passed."

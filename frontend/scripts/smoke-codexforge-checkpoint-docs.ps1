@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5289) {
-  throw "[FAIL] Highest detected phase expected 5289 found $highestPhase"
+if ($highestPhase -ne 5321) {
+  throw "[FAIL] Highest detected phase expected 5321 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview"',
+  "Phase 5321 Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview-mega-batch.ps1",
   'currentReleaseGateBatch = "5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract"',
   "Phase 5289 Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract",
   "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-handoff-contract-mega-batch.ps1",
@@ -134,13 +137,18 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5289. Latest completed batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract. Previous completed batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview. Next likely batch: 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview.",
-  "Highest detected phase: 5289",
-  "Latest completed batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract",
-  "Previous completed batch: 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
-  "Next likely batch: 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview",
-  "backend-owned synthetic dry-run manual approval handoff contract only",
-  "manual approval handoff contract is preview-only",
+  "Current checkpoint: Highest detected phase: 5321. Latest completed batch: 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview. Previous completed batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract. Next likely batch: 5322-5353 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract.",
+  "Highest detected phase: 5321",
+  "Latest completed batch: 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview",
+  "Previous completed batch: 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract",
+  "Next likely batch: 5322-5353 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract",
+  "backend-owned synthetic dry-run manual approval handoff review and recovery preview only",
+  "manual approval handoff review is preview-only",
+  "manual approval handoff decision review is preview-only",
+  "manual approval handoff gate failure review is preview-only",
+  "manual approval handoff recovery plan is preview-only",
+  "manual approval handoff recovery readiness is preview-only",
+  "manual approval handoff acceptance posture is preview-only",
   "handoff state is draft / preview-only",
   "handoff request is not created",
   "handoff invocation is not invoked",
@@ -155,16 +163,9 @@ foreach ($needle in @(
   "audit reference is not persisted",
   "result reference is not persisted",
   "evidence packet is preview-only",
-  "end-to-end packet state is draft / preview-only",
-  "packet decision state is held / not accepted",
-  "admission state is not admitted",
-  "dry-run execution is not executed",
-  "result capture state is not captured",
-  "audit join state is not persisted",
-  "approval join state is not persisted",
-  "database write is not implemented",
-  "file write is not implemented",
-  "current readiness is manual-approval-handoff-contract-only / not approved / not executable / not persistent",
+  "current readiness is manual-approval-handoff-review-only / not approved / not executable / not persistent",
+  "acceptance state is not accepted / preview-only",
+  "recovery is manual review only",
   "no prompt sending",
   "no LLM/model calls",
   "no frontend provider call",
@@ -193,7 +194,7 @@ foreach ($needle in @(
   "audit required",
   "opaque credential references only",
   "no plaintext secrets",
-  "backend-owned synthetic dry-run manual approval handoff review and recovery preview next",
+  "backend-owned synthetic dry-run manual approval decision contract next",
   "Current checkpoint: Highest detected phase: 5129. Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview. Previous completed batch: 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract. Next likely batch: 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract.",
   "Highest detected phase: 5129",
   "Latest completed batch: 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview",

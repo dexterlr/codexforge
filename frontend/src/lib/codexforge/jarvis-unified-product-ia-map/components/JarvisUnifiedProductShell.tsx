@@ -240,8 +240,13 @@ export function JarvisUnifiedProductPanel(
                 preview-only. packet request is not created. packet
                 invocation is not invoked. packet response is not received.
                 result capture state is not captured. audit join state is not
-                persisted. approval join state is not persisted. end-to-end
-                packet review and recovery preview comes next. no model calls
+                persisted. approval join state is not persisted. Athena can
+                now preview backend-owned synthetic dry-run manual approval
+                handoff reviews. manual approval handoff review is
+                preview-only. handoff state is draft / preview-only. operator
+                approval state is not requested. manual confirmation state is
+                not captured. approval decision state is not evaluated.
+                manual approval decision contract comes next. no model calls
                 yet. no prompt sending. no provider SDKs imported. queue,
                 worker, and job execution remain blocked.
                 Plugin/provider execution remains blocked until approvals and
@@ -430,16 +435,13 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 <p className={styles.railBody}>
                   Athena can now preview backend-owned synthetic dry-run
-                  manual approval handoff contracts.
+                  manual approval handoff reviews.
                 </p>
                 <p className={styles.railBody}>
-                  manual approval handoff contract is preview-only.
+                  manual approval handoff review is preview-only.
                 </p>
                 <p className={styles.railBody}>
                   handoff state is draft / preview-only.
-                </p>
-                <p className={styles.railBody}>
-                  handoff request is not created.
                 </p>
                 <p className={styles.railBody}>
                   operator approval state is not requested.
@@ -448,8 +450,10 @@ export function JarvisUnifiedProductPanel(
                   manual confirmation state is not captured.
                 </p>
                 <p className={styles.railBody}>
-                  manual approval handoff review and recovery preview comes
-                  next.
+                  approval decision state is not evaluated.
+                </p>
+                <p className={styles.railBody}>
+                  manual approval decision contract comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
