@@ -316,6 +316,25 @@ import {
   listSyntheticExecutionReviewAuditSummaries,
 } from "@/lib/codexforge/minimal-synth-exec-review";
 import {
+  buildNextResultCaptureReviewRecoveryChecklist,
+  buildSyntheticResultCaptureGateSummary,
+  buildSyntheticResultCaptureReadinessSummary,
+  buildSyntheticResultCaptureSummary,
+  groupMinimalManualGatedSyntheticDryRunResultCaptureMvpsByCapabilityFamily,
+  groupMinimalManualGatedSyntheticDryRunResultCaptureMvpsByWorkspaceTarget,
+  listMinimalManualGatedSyntheticDryRunResultCaptureMvpRecords,
+  listSyntheticResultCaptureApprovalPreviews,
+  listSyntheticResultCaptureAuditPreviews,
+  listSyntheticResultCaptureBlockedLivePersistenceSummaries,
+  listSyntheticResultCaptureEnvelopes,
+  listSyntheticResultCaptureEvidencePackets,
+  listSyntheticResultCaptureGates,
+  listSyntheticResultCaptureInputs,
+  listSyntheticResultCaptureOutputs,
+  listSyntheticResultCaptureReadinessMatrixRecords,
+  listSyntheticResultCaptureSafetyGateSummaries,
+} from "@/lib/codexforge/min-synth-result-capture";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -1384,6 +1403,61 @@ export function AthenaCommandCenterPanel({
     syntheticExecutionReviewAuditSummaryRecords[0] ?? null;
   const representativeSyntheticExecutionAcceptancePosture =
     syntheticExecutionAcceptancePostureRecords[0] ?? null;
+  const minimalSyntheticResultCaptureMvpRecords =
+    listMinimalManualGatedSyntheticDryRunResultCaptureMvpRecords();
+  const syntheticResultCaptureInputs = listSyntheticResultCaptureInputs();
+  const syntheticResultCaptureOutputs = listSyntheticResultCaptureOutputs();
+  const syntheticResultCaptureEnvelopes = listSyntheticResultCaptureEnvelopes();
+  const syntheticResultCaptureGates = listSyntheticResultCaptureGates();
+  const syntheticResultCaptureGatesForDisplay = uniqueRecordsByString(
+    syntheticResultCaptureGates,
+    (record) => record.gateId
+  );
+  const syntheticResultCaptureReadinessMatrixRecords =
+    listSyntheticResultCaptureReadinessMatrixRecords();
+  const syntheticResultCaptureReadinessForDisplay = uniqueRecordsByString(
+    syntheticResultCaptureReadinessMatrixRecords,
+    (record) => record.readinessId
+  );
+  const syntheticResultCaptureAuditPreviews =
+    listSyntheticResultCaptureAuditPreviews();
+  const syntheticResultCaptureApprovalPreviews =
+    listSyntheticResultCaptureApprovalPreviews();
+  const syntheticResultCaptureEvidencePackets =
+    listSyntheticResultCaptureEvidencePackets();
+  const syntheticResultCaptureSafetyGateSummaries =
+    listSyntheticResultCaptureSafetyGateSummaries();
+  const syntheticResultCaptureBlockedLivePersistenceSummaries =
+    listSyntheticResultCaptureBlockedLivePersistenceSummaries();
+  const syntheticResultCaptureSummary = buildSyntheticResultCaptureSummary();
+  const syntheticResultCaptureGateSummary =
+    buildSyntheticResultCaptureGateSummary();
+  const syntheticResultCaptureReadinessSummary =
+    buildSyntheticResultCaptureReadinessSummary();
+  const nextResultCaptureReviewRecoveryChecklist =
+    buildNextResultCaptureReviewRecoveryChecklist();
+  const minimalSyntheticResultCaptureMvpCapabilityGroups =
+    groupMinimalManualGatedSyntheticDryRunResultCaptureMvpsByCapabilityFamily();
+  const minimalSyntheticResultCaptureMvpWorkspaceGroups =
+    groupMinimalManualGatedSyntheticDryRunResultCaptureMvpsByWorkspaceTarget();
+  const representativeMinimalSyntheticResultCaptureMvp =
+    minimalSyntheticResultCaptureMvpRecords[0] ?? null;
+  const representativeSyntheticResultCaptureInput =
+    syntheticResultCaptureInputs[0] ?? null;
+  const representativeSyntheticResultCaptureOutput =
+    syntheticResultCaptureOutputs[0] ?? null;
+  const representativeSyntheticResultCaptureEnvelope =
+    syntheticResultCaptureEnvelopes[0] ?? null;
+  const representativeSyntheticResultCaptureAuditPreview =
+    syntheticResultCaptureAuditPreviews[0] ?? null;
+  const representativeSyntheticResultCaptureApprovalPreview =
+    syntheticResultCaptureApprovalPreviews[0] ?? null;
+  const representativeSyntheticResultCaptureEvidencePacket =
+    syntheticResultCaptureEvidencePackets[0] ?? null;
+  const representativeSyntheticResultCaptureSafetyGateSummary =
+    syntheticResultCaptureSafetyGateSummaries[0] ?? null;
+  const representativeSyntheticResultCaptureBlockedLivePersistenceSummary =
+    syntheticResultCaptureBlockedLivePersistenceSummaries[0] ?? null;
   const resultCaptureReviewRecords =
     listBackendOwnedSyntheticDryRunResultCaptureReviews();
   const resultCaptureDecisionReviewRecords = listResultCaptureDecisionReviews();
@@ -18381,6 +18455,694 @@ export function AthenaCommandCenterPanel({
                   representativeSyntheticExecutionAcceptancePosture
                     .explicitSyntheticMvpAcceptedLiveExecutionNotAcceptedStatement
                 }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal manual-gated synthetic dry-run result capture MVP"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Current backend-only MVP</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal manual-gated synthetic dry-run result capture
+              MVP
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Backend-only / in-memory only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview the backend-owned minimal manual-gated synthetic
+          dry-run result capture MVP. minimal synthetic result capture MVP is
+          backend-only. synthetic result capture is produced in memory only.
+          server-only synthetic result capture helper exists. deterministic
+          synthetic capture only. no frontend request is created. no API route
+          is created. No prompt sending. No model calls yet. No provider SDKs
+          imported. no provider execution. no queue dispatch. no worker
+          dispatch. no job execution. no result persistence. no audit
+          persistence. no approval persistence. no database write. no file
+          write. approval fixture is preview-only. manual confirmation fixture
+          is preview-only. approval token is not issued. approval lease is not
+          created. current readiness:
+          minimal-synthetic-result-capture-mvp-only / backend-only /
+          in-memory-only / not provider-capable / not persistent. result
+          capture review and recovery preview comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Result capture summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticResultCaptureSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`phase ${syntheticResultCaptureSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticResultCaptureSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeMinimalSyntheticResultCaptureMvp ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative MVP</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeMinimalSyntheticResultCaptureMvp.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeMinimalSyntheticResultCaptureMvp
+                      .serverOnlyPosture
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`provider slot: ${representativeMinimalSyntheticResultCaptureMvp.providerSlotLabel} | local/private alternative: ${representativeMinimalSyntheticResultCaptureMvp.localPrivateAlternativeLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source execution review: ${representativeMinimalSyntheticResultCaptureMvp.sourceMinimalSyntheticExecutionReviewReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeMinimalSyntheticResultCaptureMvp
+                    .nextReviewRecoveryRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${minimalSyntheticResultCaptureMvpRecords.length} capture MVP records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {minimalSyntheticResultCaptureMvpCapabilityGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-mvp-capability",
+                      "item",
+                      index,
+                      group.capabilityFamilyId
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.capabilityFamilyLabel} (${group.captureCount})`}
+                  </span>
+                )
+              )}
+              {minimalSyntheticResultCaptureMvpWorkspaceGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-mvp-workspace",
+                      "item",
+                      index,
+                      group.workspaceTarget
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.workspaceTarget} (${group.captureCount})`}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next checklist</p>
+                <h3 className={styles.placeholderTitle}>
+                  Result capture review and recovery preview
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Next
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {nextResultCaptureReviewRecoveryChecklist.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-result-capture-next-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic result capture input">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Server-only input</p>
+            <h2 className={styles.panelTitle}>Synthetic result capture input</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Deterministic capture request only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic result capture input stays deterministic and server-only. no
+          frontend request is created. no API route is created. result payload
+          posture is deterministic synthetic result fixture only. provider
+          payload posture is none. model output posture is none.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticResultCaptureInput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative input</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticResultCaptureInput.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {representativeSyntheticResultCaptureInput.requestState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureInput
+                    .explicitNoFrontendRequestNoApiRouteNoPersistenceStatement
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {`result payload posture: ${representativeSyntheticResultCaptureInput.resultPayloadPosture} | provider payload posture: ${representativeSyntheticResultCaptureInput.providerPayloadPosture}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticResultCaptureApprovalPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only approval posture
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  {
+                    representativeSyntheticResultCaptureApprovalPreview
+                      .approvalFixtureState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                approval fixture is preview-only. manual confirmation fixture is
+                preview-only.
+              </p>
+              <p className={styles.railFooter}>
+                approval token is not issued. approval lease is not created.
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic result capture output">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>In-memory capture output</p>
+            <h2 className={styles.panelTitle}>Synthetic result capture output</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            In-memory only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          synthetic result capture is produced in memory only. deterministic
+          synthetic capture only. provider response is not received. model output
+          is not generated.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticResultCaptureOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative output</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticResultCaptureOutput.syntheticCaptureId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeSyntheticResultCaptureOutput.captureState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`synthetic result id: ${representativeSyntheticResultCaptureOutput.syntheticResultId}`}
+              </p>
+              <p className={styles.railBody}>
+                {`digest: ${representativeSyntheticResultCaptureOutput.syntheticDigest}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultCaptureOutput
+                    .inMemoryOnlyCaptureStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticResultCaptureSafetyGateSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Safety summary</p>
+                  <h3 className={styles.placeholderTitle}>
+                    backend-only synthetic capture posture
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeSyntheticResultCaptureSafetyGateSummary
+                      .currentReadiness
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeSyntheticResultCaptureSafetyGateSummary.summaryLines
+                  .slice(0, 10)
+                  .map((item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "synthetic-result-capture-safety-summary",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  ))}
+              </div>
+            </article>
+          ) : null}
+          {representativeSyntheticResultCaptureBlockedLivePersistenceSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Blocked live persistence</p>
+                  <h3 className={styles.placeholderTitle}>
+                    live persistence stays blocked
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  blocked
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureBlockedLivePersistenceSummary
+                    .noRealApprovalRequestStatement
+                }
+                .{" "}
+                {
+                  representativeSyntheticResultCaptureBlockedLivePersistenceSummary
+                    .noRealApprovalRecordingStatement
+                }
+                .
+              </p>
+              <p className={styles.railFooter}>
+                {representativeSyntheticResultCaptureBlockedLivePersistenceSummary.blockedLiveActions.join(
+                  " | "
+                )}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic result capture envelope"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Envelope posture</p>
+            <h2 className={styles.panelTitle}>Synthetic result capture envelope</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Preview-only / not persisted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic result capture envelope keeps request, response, error, and
+          output references visible in preview only. no result persistence. no
+          audit persistence. no approval persistence.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticResultCaptureEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative envelope</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticResultCaptureEnvelope.outputReference}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {representativeSyntheticResultCaptureEnvelope.captureState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`request: ${representativeSyntheticResultCaptureEnvelope.requestReference} | response: ${representativeSyntheticResultCaptureEnvelope.responseReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`error: ${representativeSyntheticResultCaptureEnvelope.errorReference} | provider response: ${representativeSyntheticResultCaptureEnvelope.providerResponseState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultCaptureEnvelope
+                    .explicitSyntheticCaptureOnlyNoProviderOutputNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticResultCaptureEvidencePacket ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Evidence packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticResultCaptureEvidencePacket
+                        .evidenceReference
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeSyntheticResultCaptureEvidencePacket
+                      .evidencePacketState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeSyntheticResultCaptureEvidencePacket.evidenceSummaryLines.join(
+                  " | "
+                )}
+              </p>
+              <p className={styles.railFooter}>
+                {`digest: ${representativeSyntheticResultCaptureEvidencePacket.syntheticDigest}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic result capture gates">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Safety gates</p>
+            <h2 className={styles.panelTitle}>Synthetic result capture gates</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Live capture blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic result capture gates keep backend-only boundaries,
+          server-only boundaries, provider/model boundaries, approval-token and
+          approval-lease boundaries, queue/worker/job boundaries, and
+          persistence boundaries blocked.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticResultCaptureGateSummary.gateCount} gate records`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                blocked
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticResultCaptureGateSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-result-capture-gate-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {syntheticResultCaptureGatesForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.evidence}</p>
+              <p className={styles.railFooter}>{record.blockedLiveAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic result capture readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness matrix</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic result capture readiness matrix
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          current readiness:
+          minimal-synthetic-result-capture-mvp-only / backend-only /
+          in-memory-only / not provider-capable / not persistent. server-only
+          capture helper state is implemented. provider, prompt, model,
+          frontend request, API route, queue, worker, job, persistence,
+          database, and file boundaries remain blocked.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticResultCaptureReadinessSummary.currentReadiness}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`${syntheticResultCaptureReadinessSummary.readinessCount} records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticResultCaptureReadinessSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-readiness-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {syntheticResultCaptureReadinessForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Readiness record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  {record.state}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.evidence}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic result capture audit and approval preview"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only references</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic result capture audit and approval preview
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / not persisted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic result capture audit and approval preview stays preview-only
+          / not persisted. audit reference remains preview-only. approval
+          reference remains preview-only. evidence packet remains preview-only.
+          no audit persistence. no approval persistence.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticResultCaptureAuditPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticResultCaptureAuditPreview
+                        .auditReference
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeSyntheticResultCaptureAuditPreview.auditState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeSyntheticResultCaptureAuditPreview.auditSummaryLines.join(
+                  " | "
+                )}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultCaptureAuditPreview
+                    .explicitNoAuditPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticResultCaptureApprovalPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticResultCaptureApprovalPreview
+                        .approvalReference
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  {
+                    representativeSyntheticResultCaptureApprovalPreview
+                      .approvalState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                approval fixture is preview-only. manual confirmation fixture is
+                preview-only.
+              </p>
+              <p className={styles.railBody}>
+                {`approval token: ${representativeSyntheticResultCaptureApprovalPreview.approvalTokenState} | approval lease: ${representativeSyntheticResultCaptureApprovalPreview.approvalLeaseState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultCaptureApprovalPreview
+                    .explicitNoApprovalPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticResultCaptureEvidencePacket ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Evidence preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticResultCaptureEvidencePacket
+                        .evidenceReference
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeSyntheticResultCaptureEvidencePacket
+                      .evidencePacketState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeSyntheticResultCaptureEvidencePacket.evidenceSummaryLines.join(
+                  " | "
+                )}
+              </p>
+              <p className={styles.railFooter}>
+                {`source result reference: ${representativeSyntheticResultCaptureEvidencePacket.sourceSyntheticExecutionResultReference}`}
               </p>
             </article>
           ) : null}

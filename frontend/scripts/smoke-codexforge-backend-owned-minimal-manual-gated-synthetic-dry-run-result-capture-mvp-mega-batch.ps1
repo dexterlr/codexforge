@@ -31,23 +31,6 @@ function Assert-Contains {
   Write-Host "[PASS] $Name"
 }
 
-function Assert-ContainsAny {
-  param(
-    [AllowEmptyString()][string]$Haystack,
-    [string[]]$Needles,
-    [string]$Name
-  )
-
-  foreach ($needle in $Needles) {
-    if ($Haystack.IndexOf($needle, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
-      Write-Host "[PASS] $Name"
-      return
-    }
-  }
-
-  throw "[FAIL] Missing $Name`: $($Needles -join ' | ')"
-}
-
 function Assert-Matches {
   param(
     [AllowEmptyString()][string]$Haystack,
@@ -109,7 +92,7 @@ function Normalize-Whitespace {
   return ([regex]::Replace($Text, "\s+", " ")).Trim()
 }
 
-Write-Host "=== CodexForge Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP Mega Batch smoke ==="
+Write-Host "=== CodexForge Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP Mega Batch smoke ==="
 
 $jarvisPagePath = Join-Path $root "src\app\jarvis\page.tsx"
 $jarvisPageClientPath = Join-Path $root "src\app\jarvis\page-client.tsx"
@@ -123,10 +106,10 @@ $athenaPanelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia
 $homeShellPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisUnifiedProductShell.tsx"
 $athenaModelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\athena-control-plane-model.ts"
 $navigationTypesPath = Join-Path $root "src\lib\codexforge\navigation-shell\navigation-shell-types.ts"
-$newModuleTypesPath = Join-Path $root "src\lib\codexforge\backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp\backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp-types.ts"
-$newModuleCatalogPath = Join-Path $root "src\lib\codexforge\backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp\backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp-catalog.ts"
-$newModuleIndexPath = Join-Path $root "src\lib\codexforge\backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp\index.ts"
-$newModuleRunnerPath = Join-Path $root "src\lib\codexforge\backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp\backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp-runner.server.ts"
+$newModuleTypesPath = Join-Path $root "src\lib\codexforge\min-synth-result-capture\min-synth-result-capture-types.ts"
+$newModuleCatalogPath = Join-Path $root "src\lib\codexforge\min-synth-result-capture\min-synth-result-capture-catalog.ts"
+$newModuleIndexPath = Join-Path $root "src\lib\codexforge\min-synth-result-capture\index.ts"
+$newModuleHelperPath = Join-Path $root "src\lib\codexforge\min-synth-result-capture\min-synth-result-capture-helper.server.ts"
 $allSmokePath = Join-Path $root "scripts\smoke-codexforge-all.ps1"
 $checkpointCurrentPath = Join-Path $root "docs\codexforge-checkpoint-current.md"
 
@@ -146,7 +129,7 @@ $requiredPaths = @(
   $newModuleTypesPath,
   $newModuleCatalogPath,
   $newModuleIndexPath,
-  $newModuleRunnerPath,
+  $newModuleHelperPath,
   $allSmokePath,
   $checkpointCurrentPath
 )
@@ -179,16 +162,15 @@ $typedModelSource = Get-CombinedFileText @(
   $newModuleCatalogPath,
   $newModuleIndexPath
 )
-$serverHelperSource = Get-Content -Raw $newModuleRunnerPath
+$serverHelperSource = Get-Content -Raw $newModuleHelperPath
 $allSmokeSource = Get-Content -Raw $allSmokePath
 $checkpointCurrentSource = Get-Content -Raw $checkpointCurrentPath
 $navigationTypesSource = Get-Content -Raw $navigationTypesPath
 $athenaPanelSource = Get-Content -Raw $athenaPanelPath
 
 $frontEndSourceFiles = Get-SourceFiles @(
-  (Join-Path $root "src\app\athena"),
   (Join-Path $root "src\app\jarvis"),
-  (Join-Path $root "src\app\jarvis-video"),
+  (Join-Path $root "src\app\athena"),
   (Join-Path $root "src\app\page.tsx"),
   (Join-Path $root "src\app\page-client.tsx"),
   (Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map"),
@@ -206,9 +188,9 @@ $allSmokeNormalized = Normalize-Whitespace $allSmokeSource
 $checkpointNormalized = Normalize-Whitespace $checkpointCurrentSource
 
 foreach ($needle in @(
-  "5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP",
-  "5417",
-  "Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP"
+  "5450-5481 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP",
+  "5481",
+  "Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP"
 )) {
   Assert-Contains ($jarvisNormalized + " " + $homeNormalized + " " + $typedModelNormalized + " " + $serverHelperNormalized + " " + $checkpointNormalized + " " + $allSmokeNormalized) $needle "batch marker contains $needle"
 }
@@ -218,19 +200,20 @@ Assert-Contains (Get-Content -Raw $athenaPagePath) 'export { default } from "../
 foreach ($needle in @(
   "Athena",
   "Athena Command Center",
-  "Backend-owned synthetic dry-run manual approval decision review",
-  "Manual approval decision acceptance posture",
-  "Backend-owned minimal manual-gated synthetic dry-run execution MVP",
-  "Synthetic execution input",
-  "Synthetic execution result",
-  "Synthetic MVP result envelope",
-  "Synthetic MVP gates",
-  "Synthetic MVP readiness matrix",
-  "Synthetic MVP audit and approval preview",
-  "Athena can preview the backend-owned minimal manual-gated synthetic dry-run execution MVP",
-  "minimal synthetic execution MVP is backend-only",
-  "synthetic execution result is produced in memory only",
-  "server-only synthetic execution helper exists",
+  "Backend-owned minimal synthetic execution review",
+  "Synthetic execution acceptance posture",
+  "Backend-owned minimal manual-gated synthetic dry-run result capture MVP",
+  "Synthetic result capture input",
+  "Synthetic result capture output",
+  "Synthetic result capture envelope",
+  "Synthetic result capture gates",
+  "Synthetic result capture readiness matrix",
+  "Synthetic result capture audit and approval preview",
+  "Athena can preview the backend-owned minimal manual-gated synthetic dry-run result capture MVP",
+  "minimal synthetic result capture MVP is backend-only",
+  "synthetic result capture is produced in memory only",
+  "server-only synthetic result capture helper exists",
+  "deterministic synthetic capture only",
   "no frontend request is created",
   "no API route is created",
   "No prompt sending",
@@ -243,34 +226,22 @@ foreach ($needle in @(
   "no result persistence",
   "no audit persistence",
   "no approval persistence",
-  "approval fixture is preview-only",
-  "manual confirmation fixture is preview-only",
-  "approval token is not issued",
-  "approval lease is not created",
-  "execution review and recovery preview comes next"
+  "result capture review and recovery preview comes next"
 )) {
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
 
-Assert-Contains $homeNormalized "CodexForge Operator Cockpit" "home contains CodexForge Operator Cockpit"
-Assert-Contains $homeNormalized "no frontend request is created" "home contains no frontend request is created"
-Assert-Contains $homeNormalized "no API route is created" "home contains no API route is created"
-Assert-ContainsAny $homeNormalized @(
-  "Athena can now preview the backend-owned minimal manual-gated synthetic dry-run execution MVP",
-  "Athena can now preview the backend-owned minimal manual-gated synthetic dry-run result capture MVP"
-) "home contains current Athena synthetic dry-run MVP preview copy"
-Assert-ContainsAny $homeNormalized @(
-  "minimal synthetic execution MVP is backend-only",
-  "minimal synthetic result capture MVP is backend-only"
-) "home contains backend-only synthetic MVP posture copy"
-Assert-ContainsAny $homeNormalized @(
-  "synthetic execution result is produced in memory only",
-  "synthetic result capture is produced in memory only"
-) "home contains in-memory-only synthetic copy"
-Assert-ContainsAny $homeNormalized @(
-  "execution review and recovery preview comes next",
+foreach ($needle in @(
+  "CodexForge Operator Cockpit",
+  "Athena can now preview the backend-owned minimal manual-gated synthetic dry-run result capture MVP",
+  "minimal synthetic result capture MVP is backend-only",
+  "synthetic result capture is produced in memory only",
+  "no frontend request is created",
+  "no API route is created",
   "result capture review and recovery preview comes next"
-) "home contains the current synthetic dry-run next-step copy"
+)) {
+  Assert-Contains $homeNormalized $needle "home contains $needle"
+}
 
 foreach ($needle in @(
   "Video generation control",
@@ -282,17 +253,18 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "backend-owned minimal manual-gated synthetic dry-run execution MVP",
-  "synthetic execution input",
-  "synthetic execution result",
-  "synthetic MVP result envelope",
-  "synthetic MVP audit preview",
-  "synthetic MVP approval preview",
-  "synthetic MVP gates",
-  "synthetic MVP readiness matrix",
-  "deterministic synthetic result only",
-  "synthetic execution result is produced in memory only",
-  "server-only synthetic execution helper exists",
+  "backend-owned minimal manual-gated synthetic dry-run result capture MVP",
+  "result-capture-input",
+  "result-capture-output",
+  "result-capture-envelope",
+  "result-capture-audit-preview",
+  "result-capture-approval-preview",
+  "result-capture-evidence-packet",
+  "result-capture-gate",
+  "result-capture-readiness-matrix",
+  "deterministic synthetic capture only",
+  "synthetic result capture is produced in memory only",
+  "server-only synthetic result capture helper exists",
   "no model calls",
   "no prompt sending",
   "no provider SDK imports",
@@ -306,10 +278,14 @@ foreach ($needle in @(
   Assert-Contains ($typedModelNormalized + " " + $serverHelperNormalized) $needle "typed model/data contains $needle"
 }
 
-Assert-Contains $allSmokeNormalized "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp-mega-batch.ps1" "all-smoke references new MVP smoke"
-Assert-Contains $checkpointNormalized "Highest detected phase: 5417" "checkpoint current doc reports phase 5417"
-Assert-Contains $checkpointNormalized "Latest completed batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP" "checkpoint current doc reports latest completed batch"
-Assert-Contains $checkpointNormalized "Next likely batch: 5418-5449 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview" "checkpoint current doc reports next likely batch"
+Assert-Contains $serverHelperNormalized "captureMinimalManualGatedSyntheticDryRunResultMvp" "server-only result capture helper marker exists"
+Assert-Contains $serverHelperNormalized "deterministic synthetic capture only" "deterministic synthetic capture marker exists"
+Assert-Contains $serverHelperNormalized "synthetic result capture is produced in memory only" "in-memory only capture marker exists"
+
+Assert-Contains $allSmokeNormalized "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-result-capture-mvp-mega-batch.ps1" "all-smoke references new result capture MVP smoke"
+Assert-Contains $checkpointNormalized "Highest detected phase: 5481" "checkpoint current doc reports phase 5481"
+Assert-Contains $checkpointNormalized "Latest completed batch: 5450-5481 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP" "checkpoint current doc reports latest completed batch"
+Assert-Contains $checkpointNormalized "Next likely batch: 5482-5513 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview" "checkpoint current doc reports next likely batch"
 
 Assert-NotMatches $frontEndSource 'from\s+["''][^"'']*(openai|anthropic|replicate|fal-ai|elevenlabs|stability|together|groq)[^"'']*["'']' "provider SDK imports in frontend Athena/Jarvis files"
 Assert-NotMatches $frontEndSource '\bfetch\s*\(' "fetch/network calls in frontend Athena/Jarvis files"
@@ -319,8 +295,8 @@ Assert-NotMatches $frontEndSource 'child_process|exec\s*\(|spawn\s*\(|powershell
 Assert-NotMatches $navigationTypesSource 'type\s+CodexForgeNavigationRouteHref\s*=\s*string\b' "route href loosening to string"
 Assert-NotMatches $navigationTypesSource 'commandDeckRole\s*:\s*string\b' "commandDeckRole loosening to string"
 Assert-Contains $athenaPanelSource 'buildScopedItemKey(' "AthenaCommandCenterPanel uses scoped key helper"
-Assert-Contains $athenaPanelSource '"synthetic-mvp-capability"' "AthenaCommandCenterPanel scopes synthetic MVP capability keys"
-Assert-Contains $athenaPanelSource '"synthetic-mvp-workspace"' "AthenaCommandCenterPanel scopes synthetic MVP workspace keys"
+Assert-Contains $athenaPanelSource '"synthetic-result-capture-mvp-capability"' "AthenaCommandCenterPanel scopes synthetic result capture MVP capability keys"
+Assert-Contains $athenaPanelSource '"synthetic-result-capture-mvp-workspace"' "AthenaCommandCenterPanel scopes synthetic result capture MVP workspace keys"
 Assert-NotMatches $athenaPanelSource 'key=\{group\.capabilityFamilyId\}' "AthenaCommandCenterPanel avoids raw capability ids as sibling keys"
 Assert-NotMatches $athenaPanelSource 'key=\{group\.workspaceTarget\}' "AthenaCommandCenterPanel avoids raw workspace ids as sibling keys"
 
@@ -330,8 +306,8 @@ const path = require("path");
 const vm = require("vm");
 const ts = require("typescript");
 
-const runnerPath = process.argv[process.argv.length - 1];
-const source = fs.readFileSync(runnerPath, "utf8");
+const helperPath = process.argv[process.argv.length - 1];
+const source = fs.readFileSync(helperPath, "utf8");
 const compiled = ts.transpileModule(source, {
   compilerOptions: {
     module: ts.ModuleKind.CommonJS,
@@ -349,57 +325,48 @@ const sandbox = {
     }
     throw new Error("Unexpected runtime import: " + name);
   },
-  __filename: runnerPath,
-  __dirname: path.dirname(runnerPath),
+  __filename: helperPath,
+  __dirname: path.dirname(helperPath),
   console
 };
 
-vm.runInNewContext(compiled, sandbox, { filename: runnerPath });
+vm.runInNewContext(compiled, sandbox, { filename: helperPath });
 
-const runMinimalManualGatedSyntheticDryRunMvp =
-  sandboxModule.exports.runMinimalManualGatedSyntheticDryRunMvp;
+const captureMinimalManualGatedSyntheticDryRunResultMvp =
+  sandboxModule.exports.captureMinimalManualGatedSyntheticDryRunResultMvp;
+const runMinimalManualGatedSyntheticDryRunResultCaptureMvpForStaticFixture =
+  sandboxModule.exports.runMinimalManualGatedSyntheticDryRunResultCaptureMvpForStaticFixture;
 
-if (typeof runMinimalManualGatedSyntheticDryRunMvp !== "function") {
-  throw new Error("Missing runMinimalManualGatedSyntheticDryRunMvp export");
+if (typeof captureMinimalManualGatedSyntheticDryRunResultMvp !== "function") {
+  throw new Error("Missing captureMinimalManualGatedSyntheticDryRunResultMvp export");
+}
+if (typeof runMinimalManualGatedSyntheticDryRunResultCaptureMvpForStaticFixture !== "function") {
+  throw new Error("Missing runMinimalManualGatedSyntheticDryRunResultCaptureMvpForStaticFixture export");
 }
 
-const input = {
-  executionMvpId: "conversational-planning-request",
-  executionMode: "synthetic-only",
-  executionOwnership: "backend-owned",
-  manualApprovalDecisionFixtureState: "preview-only",
-  previewOnlyDecisionState: "preview-only",
-  selectedDecisionFixture: "static synthetic approve-preview fixture",
-  manualConfirmationFixtureState: "preview-only",
-  killSwitchFixtureState: "inactive",
-  providerExecutionRequestState: "blocked",
-  promptSendingRequestState: "blocked",
-  modelCallRequestState: "blocked",
-  queueDispatchRequestState: "blocked",
-  workerDispatchRequestState: "blocked",
-  jobExecutionRequestState: "blocked",
-  persistenceRequestState: "blocked"
-};
-
-const first = JSON.stringify(runMinimalManualGatedSyntheticDryRunMvp(input));
-const second = JSON.stringify(runMinimalManualGatedSyntheticDryRunMvp(input));
+const first = JSON.stringify(
+  runMinimalManualGatedSyntheticDryRunResultCaptureMvpForStaticFixture()
+);
+const second = JSON.stringify(
+  runMinimalManualGatedSyntheticDryRunResultCaptureMvpForStaticFixture()
+);
 
 if (first !== second) {
-  throw new Error("Deterministic synthetic result check failed");
+  throw new Error("Deterministic synthetic result capture check failed");
 }
 
 const parsed = JSON.parse(first);
-if (parsed.resultId !== "synthetic-mvp-result-preview:conversational-planning-request") {
-  throw new Error("Unexpected result id: " + parsed.resultId);
+if (parsed.syntheticCaptureId !== "synthetic-result-capture-preview:conversational-planning-request") {
+  throw new Error("Unexpected synthetic capture id: " + parsed.syntheticCaptureId);
 }
-if (parsed.syntheticDigest !== "synthetic-mvp-digest-preview:conversational-planning-request:approve-preview") {
-  throw new Error("Unexpected synthetic digest: " + parsed.syntheticDigest);
+if (parsed.syntheticDigest !== "synthetic-result-capture-digest-preview:conversational-planning-request:in-memory-only") {
+  throw new Error("Unexpected synthetic capture digest: " + parsed.syntheticDigest);
 }
-if (parsed.inMemoryOnlyResultStatement !== "synthetic execution result is produced in memory only") {
-  throw new Error("Unexpected in-memory result statement");
+if (parsed.inMemoryOnlyCaptureStatement !== "synthetic result capture is produced in memory only") {
+  throw new Error("Unexpected in-memory capture statement");
 }
-if (parsed.deterministicSyntheticResultStatement !== "deterministic synthetic result only") {
-  throw new Error("Unexpected deterministic result statement");
+if (parsed.deterministicSyntheticCaptureStatement !== "deterministic synthetic capture only") {
+  throw new Error("Unexpected deterministic capture statement");
 }
 if (parsed.persistenceState !== "not implemented") {
   throw new Error("Unexpected persistence state: " + parsed.persistenceState);
@@ -408,12 +375,12 @@ if (parsed.persistenceState !== "not implemented") {
 console.log(first);
 '@
 
-$runnerJson = $nodeScript | & node - $newModuleRunnerPath
+$runnerJson = $nodeScript | & node - $newModuleHelperPath
 $runnerNormalized = Normalize-Whitespace $runnerJson
-Assert-Contains $runnerNormalized '"executionMvpId":"conversational-planning-request"' "server-only helper executes deterministic fixture"
-Assert-Contains $runnerNormalized '"resultId":"synthetic-mvp-result-preview:conversational-planning-request"' "server-only helper returns deterministic result id"
-Assert-Contains $runnerNormalized '"syntheticDigest":"synthetic-mvp-digest-preview:conversational-planning-request:approve-preview"' "server-only helper returns deterministic digest"
-Assert-Contains $runnerNormalized '"inMemoryOnlyResultStatement":"synthetic execution result is produced in memory only"' "server-only helper returns in-memory-only marker"
+Assert-Contains $runnerNormalized '"resultCaptureMvpId":"conversational-planning-request"' "server-only helper executes deterministic capture fixture"
+Assert-Contains $runnerNormalized '"syntheticCaptureId":"synthetic-result-capture-preview:conversational-planning-request"' "server-only helper returns deterministic capture id"
+Assert-Contains $runnerNormalized '"syntheticDigest":"synthetic-result-capture-digest-preview:conversational-planning-request:in-memory-only"' "server-only helper returns deterministic capture digest"
+Assert-Contains $runnerNormalized '"inMemoryOnlyCaptureStatement":"synthetic result capture is produced in memory only"' "server-only helper returns in-memory-only capture marker"
 Assert-Contains $runnerNormalized '"persistenceState":"not implemented"' "server-only helper returns not-implemented persistence state"
 
-Write-Host "[PASS] Backend-owned minimal manual-gated synthetic dry-run execution MVP smoke passed"
+Write-Host "[PASS] Backend-owned minimal manual-gated synthetic dry-run result capture MVP smoke passed"

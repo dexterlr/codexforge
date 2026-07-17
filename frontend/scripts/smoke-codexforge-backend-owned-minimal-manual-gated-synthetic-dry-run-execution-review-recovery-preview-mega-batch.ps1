@@ -31,6 +31,23 @@ function Assert-Contains {
   Write-Host "[PASS] $Name"
 }
 
+function Assert-ContainsAny {
+  param(
+    [AllowEmptyString()][string]$Haystack,
+    [string[]]$Needles,
+    [string]$Name
+  )
+
+  foreach ($needle in $Needles) {
+    if ($Haystack.IndexOf($needle, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
+      Write-Host "[PASS] $Name"
+      return
+    }
+  }
+
+  throw "[FAIL] Missing $Name`: $($Needles -join ' | ')"
+}
+
 function Assert-Matches {
   param(
     [AllowEmptyString()][string]$Haystack,
@@ -246,18 +263,29 @@ foreach ($needle in @(
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
 
-foreach ($needle in @(
-  "CodexForge Operator Cockpit",
+Assert-Contains $homeNormalized "CodexForge Operator Cockpit" "home contains CodexForge Operator Cockpit"
+Assert-Contains $homeNormalized "no frontend request is created" "home contains no frontend request is created"
+Assert-Contains $homeNormalized "no API route is created" "home contains no API route is created"
+Assert-ContainsAny $homeNormalized @(
   "Athena can now review the backend-owned minimal manual-gated synthetic dry-run execution MVP",
+  "Athena can now preview the backend-owned minimal manual-gated synthetic dry-run result capture MVP"
+) "home contains current Athena synthetic dry-run progress copy"
+Assert-ContainsAny $homeNormalized @(
   "minimal synthetic execution review is preview-only",
+  "minimal synthetic result capture MVP is backend-only"
+) "home contains synthetic dry-run posture copy"
+Assert-ContainsAny $homeNormalized @(
   "server-only synthetic execution helper exists",
+  "server-only synthetic result capture helper exists"
+) "home contains server-only synthetic helper copy"
+Assert-ContainsAny $homeNormalized @(
   "synthetic execution result is produced in memory only",
-  "no frontend request is created",
-  "no API route is created",
-  "result capture MVP comes next"
-)) {
-  Assert-Contains $homeNormalized $needle "home contains $needle"
-}
+  "synthetic result capture is produced in memory only"
+) "home contains in-memory-only synthetic copy"
+Assert-ContainsAny $homeNormalized @(
+  "result capture MVP comes next",
+  "result capture review and recovery preview comes next"
+) "home contains the current synthetic dry-run next-step copy"
 
 foreach ($needle in @(
   "Video generation control",
