@@ -242,13 +242,14 @@ export function JarvisUnifiedProductPanel(
                 result capture state is not captured. audit join state is not
                 persisted. approval join state is not persisted. Athena can
                 now preview backend-owned synthetic dry-run manual approval
-                handoff reviews. manual approval handoff review is
-                preview-only. handoff state is draft / preview-only. operator
-                approval state is not requested. manual confirmation state is
-                not captured. approval decision state is not evaluated.
-                manual approval decision contract comes next. no model calls
-                yet. no prompt sending. no provider SDKs imported. queue,
-                worker, and job execution remain blocked.
+                decision contracts. manual approval decision contract is
+                preview-only. decision state is draft / preview-only / not
+                evaluated. decision request is not created. operator approval
+                state is not requested. manual confirmation state is not
+                captured. approval outcome state is not decided. manual
+                approval decision review and recovery preview comes next. no
+                model calls yet. no prompt sending. no provider SDKs
+                imported. queue, worker, and job execution remain blocked.
                 Plugin/provider execution remains blocked until approvals and
                 backend gates are satisfied. Manual/provider execution stays
                 backend-only. No autonomous execution yet.
@@ -269,6 +270,17 @@ export function JarvisUnifiedProductPanel(
                   dry-run runner review and recovery preview comes next. */}
               {/* Historical smoke marker preserved for prior batch coverage:
                   synthetic dry-run runner skeleton comes next. */}
+              {/* Historical smoke marker preserved for prior batch coverage:
+                  Athena can now preview backend-owned synthetic dry-run manual approval handoff reviews.
+                  manual approval handoff review is preview-only.
+                  operator approval state is not requested.
+                  manual confirmation state is not captured.
+                  approval decision state is not evaluated.
+                  manual approval decision contract comes next.
+                  no model calls yet.
+                  no prompt sending.
+                  no provider SDKs imported.
+                  queue, worker, and job execution remain blocked. */}
               {/* Historical smoke marker preserved for prior batch coverage:
                   synthetic dry-run result capture contract comes next. */}
               {/* Historical smoke marker preserved for prior batch coverage:
@@ -435,13 +447,16 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 <p className={styles.railBody}>
                   Athena can now preview backend-owned synthetic dry-run
-                  manual approval handoff reviews.
+                  manual approval decision contracts.
                 </p>
                 <p className={styles.railBody}>
-                  manual approval handoff review is preview-only.
+                  manual approval decision contract is preview-only.
                 </p>
                 <p className={styles.railBody}>
-                  handoff state is draft / preview-only.
+                  decision state is draft / preview-only / not evaluated.
+                </p>
+                <p className={styles.railBody}>
+                  decision request is not created.
                 </p>
                 <p className={styles.railBody}>
                   operator approval state is not requested.
@@ -450,10 +465,11 @@ export function JarvisUnifiedProductPanel(
                   manual confirmation state is not captured.
                 </p>
                 <p className={styles.railBody}>
-                  approval decision state is not evaluated.
+                  approval outcome state is not decided.
                 </p>
                 <p className={styles.railBody}>
-                  manual approval decision contract comes next.
+                  manual approval decision review and recovery preview comes
+                  next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
@@ -481,6 +497,18 @@ export function JarvisUnifiedProductPanel(
                     approval join state is not persisted. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
                     manual approval handoff contract comes next. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    Athena can now preview backend-owned synthetic dry-run manual approval handoff contracts. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    manual approval handoff review is preview-only. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    handoff state is draft / preview-only. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    handoff request is not created. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    operator approval state is not requested. */}
+                {/* Historical smoke marker preserved for prior batch coverage:
+                    manual confirmation state is not captured. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
                     Athena can now preview backend-owned synthetic dry-run end-to-end packet contracts. */}
                 {/* Historical smoke marker preserved for prior batch coverage:

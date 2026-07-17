@@ -402,7 +402,7 @@ export function AiProviderRegistryPanel() {
   return (
     <div
       style={shell}
-      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Backend-owned synthetic dry-run audit and approval join contract Synthetic audit join contract Synthetic approval join contract Result to audit and approval link contract Audit and approval join request/response contract Audit and approval join gates Audit and approval join readiness matrix Audit and approval evidence packet preview Backend-owned synthetic dry-run audit and approval join review Audit and approval join decision review Audit and approval join gate failure review Audit and approval join recovery plan Audit and approval join recovery readiness Audit and approval join acceptance posture Backend-owned synthetic dry-run end-to-end packet contract Synthetic end-to-end stage contract Synthetic end-to-end lineage End-to-end packet request/response contract End-to-end packet gates End-to-end packet readiness matrix End-to-end packet acceptance posture Backend-owned synthetic dry-run end-to-end packet review End-to-end packet decision review End-to-end packet stage failure review End-to-end packet gate failure review End-to-end packet recovery plan End-to-end packet recovery readiness End-to-end packet acceptance posture Backend-owned synthetic dry-run manual approval handoff contract Manual approval handoff packet Manual approval handoff request/response contract Manual approval scope Manual approval handoff gates Manual approval handoff readiness matrix Manual approval handoff evidence summary Backend-owned synthetic dry-run manual approval handoff review Manual approval handoff decision review Manual approval handoff gate failure review Manual approval handoff recovery plan Manual approval handoff recovery readiness Manual approval handoff acceptance posture manual approval handoff review is preview-only operator approval state: not requested manual confirmation state: not captured approval decision state: not evaluated manual approval decision contract comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
+      data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview 5322-5353 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Backend-owned synthetic dry-run audit and approval join contract Synthetic audit join contract Synthetic approval join contract Result to audit and approval link contract Audit and approval join request/response contract Audit and approval join gates Audit and approval join readiness matrix Audit and approval evidence packet preview Backend-owned synthetic dry-run audit and approval join review Audit and approval join decision review Audit and approval join gate failure review Audit and approval join recovery plan Audit and approval join recovery readiness Audit and approval join acceptance posture Backend-owned synthetic dry-run end-to-end packet contract Synthetic end-to-end stage contract Synthetic end-to-end lineage End-to-end packet request/response contract End-to-end packet gates End-to-end packet readiness matrix End-to-end packet acceptance posture Backend-owned synthetic dry-run end-to-end packet review End-to-end packet decision review End-to-end packet stage failure review End-to-end packet gate failure review End-to-end packet recovery plan End-to-end packet recovery readiness End-to-end packet acceptance posture Backend-owned synthetic dry-run manual approval handoff contract Manual approval handoff packet Manual approval handoff request/response contract Manual approval scope Manual approval handoff gates Manual approval handoff readiness matrix Manual approval handoff evidence summary Backend-owned synthetic dry-run manual approval handoff review Manual approval handoff decision review Manual approval handoff gate failure review Manual approval handoff recovery plan Manual approval handoff recovery readiness Manual approval handoff acceptance posture Backend-owned synthetic dry-run manual approval decision contract Manual approval decision packet Manual approval decision request/response contract Approval outcome preview Manual approval decision gates Manual approval decision readiness matrix Manual approval decision evidence summary manual approval decision contract is preview-only decision request is not created operator approval state: not requested manual confirmation state: not captured approval outcome state: not decided manual approval decision review and recovery preview comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
     >
       <section style={hero}>
         <div>
@@ -439,20 +439,17 @@ export function AiProviderRegistryPanel() {
             created. packet invocation is not invoked. packet response is not
             received. audit join state: not persisted. approval join state:
             not persisted. Athena can now preview backend-owned synthetic
-            dry-run manual approval handoff contract, manual approval handoff
-            packet, manual approval handoff request/response contract, manual
-            approval scope, manual approval handoff gates, manual approval
-            handoff readiness matrix, and manual approval handoff evidence
-            summary. Athena can now preview backend-owned synthetic dry-run
-            manual approval handoff review, manual approval handoff decision
-            review, manual approval handoff gate failure review, manual
-            approval handoff recovery plan, manual approval handoff recovery
-            readiness, and manual approval handoff acceptance posture. manual
-            approval handoff review is preview-only. operator approval state:
-            not requested. manual confirmation state: not captured. approval
-            decision state: not evaluated. manual approval decision contract
-            comes next. No model calls yet. No prompt sending. No provider
-            SDKs imported. Frontend provider calls are blocked.
+            dry-run manual approval decision contract, manual approval
+            decision packet, manual approval decision request/response
+            contract, approval outcome preview, manual approval decision
+            gates, manual approval decision readiness matrix, and manual
+            approval decision evidence summary. manual approval decision
+            contract is preview-only. decision request is not created.
+            operator approval state: not requested. manual confirmation state:
+            not captured. approval outcome state: not decided. manual
+            approval decision review and recovery preview comes next. No
+            model calls yet. No prompt sending. No provider SDKs imported.
+            Frontend provider calls are blocked.
           </p>
         </div>
         <div style={linkRow}>
@@ -2826,10 +2823,11 @@ export function AiProviderRegistryPanel() {
           <span style={sectionBadge}>Preview-only / held</span>
         </div>
         <p style={copy}>
-          manual approval handoff review is preview-only. operator approval
-          state: not requested. manual confirmation state: not captured.
-          approval decision state: not evaluated. manual approval decision
-          contract comes next.
+          manual approval decision contract is preview-only. decision request
+          is not created. operator approval state: not requested. manual
+          confirmation state: not captured. approval outcome state: not
+          decided. manual approval decision review and recovery preview comes
+          next.
         </p>
         <div style={grid}>
           <article style={card}>

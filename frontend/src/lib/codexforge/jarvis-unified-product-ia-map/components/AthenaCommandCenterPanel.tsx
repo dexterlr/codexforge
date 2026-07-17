@@ -248,6 +248,23 @@ import {
   listManualApprovalHandoffReviewAuditSummaries,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview";
 import {
+  buildManualApprovalDecisionGateSummary,
+  buildManualApprovalDecisionReadinessSummary,
+  buildManualApprovalDecisionSummary,
+  buildNextManualApprovalDecisionReviewAndRecoveryChecklist,
+  groupManualApprovalDecisionsByCapabilityFamily,
+  groupManualApprovalDecisionsByWorkspaceTarget,
+  listApprovalOutcomePreviewRecords,
+  listBackendOwnedSyntheticDryRunManualApprovalDecisionContracts,
+  listManualApprovalDecisionErrorContracts,
+  listManualApprovalDecisionEvidenceSummaries,
+  listManualApprovalDecisionGateRecords,
+  listManualApprovalDecisionPackets,
+  listManualApprovalDecisionReadinessMatrixRecords,
+  listManualApprovalDecisionRequestContracts,
+  listManualApprovalDecisionResponseContracts,
+} from "@/lib/codexforge/backend-owned-synthetic-dry-run-manual-approval-decision-contract";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -1105,6 +1122,60 @@ export function AthenaCommandCenterPanel({
     manualApprovalHandoffRecoveryReadinessChecklistRecords.filter(
       (record) => record.state === "blocked"
     );
+  const manualApprovalDecisionContracts =
+    listBackendOwnedSyntheticDryRunManualApprovalDecisionContracts();
+  const manualApprovalDecisionPackets = listManualApprovalDecisionPackets();
+  const manualApprovalDecisionRequestContracts =
+    listManualApprovalDecisionRequestContracts();
+  const manualApprovalDecisionResponseContracts =
+    listManualApprovalDecisionResponseContracts();
+  const manualApprovalDecisionErrorContracts =
+    listManualApprovalDecisionErrorContracts();
+  const manualApprovalOutcomePreviewRecords =
+    listApprovalOutcomePreviewRecords();
+  const manualApprovalOutcomePreviewRecordsForDisplay = uniqueRecordsByString(
+    manualApprovalOutcomePreviewRecords,
+    (record) => record.outcomeId
+  );
+  const manualApprovalDecisionGateRecords =
+    listManualApprovalDecisionGateRecords();
+  const manualApprovalDecisionGateRecordsForDisplay = uniqueRecordsByString(
+    manualApprovalDecisionGateRecords,
+    (record) => record.id
+  );
+  const manualApprovalDecisionReadinessMatrixRecords =
+    listManualApprovalDecisionReadinessMatrixRecords();
+  const manualApprovalDecisionEvidenceSummaries =
+    listManualApprovalDecisionEvidenceSummaries();
+  const manualApprovalDecisionSummary = buildManualApprovalDecisionSummary();
+  const manualApprovalDecisionGateSummary =
+    buildManualApprovalDecisionGateSummary();
+  const manualApprovalDecisionReadinessSummary =
+    buildManualApprovalDecisionReadinessSummary();
+  const nextManualApprovalDecisionReviewRecoveryChecklist =
+    buildNextManualApprovalDecisionReviewAndRecoveryChecklist();
+  const manualApprovalDecisionCapabilityGroups =
+    groupManualApprovalDecisionsByCapabilityFamily();
+  const manualApprovalDecisionWorkspaceGroups =
+    groupManualApprovalDecisionsByWorkspaceTarget();
+  const representativeManualApprovalDecisionContract =
+    manualApprovalDecisionContracts[0] ?? null;
+  const representativeManualApprovalDecisionPacket =
+    manualApprovalDecisionPackets[0] ?? null;
+  const representativeManualApprovalDecisionRequest =
+    manualApprovalDecisionRequestContracts[0] ?? null;
+  const representativeManualApprovalDecisionResponse =
+    manualApprovalDecisionResponseContracts[0] ?? null;
+  const representativeManualApprovalDecisionError =
+    manualApprovalDecisionErrorContracts[0] ?? null;
+  const representativeManualApprovalOutcomePreview =
+    manualApprovalOutcomePreviewRecordsForDisplay[0] ?? null;
+  const representativeManualApprovalDecisionGate =
+    manualApprovalDecisionGateRecordsForDisplay[0] ?? null;
+  const representativeManualApprovalDecisionReadiness =
+    manualApprovalDecisionReadinessMatrixRecords[0] ?? null;
+  const representativeManualApprovalDecisionEvidenceSummary =
+    manualApprovalDecisionEvidenceSummaries[0] ?? null;
   const resultCaptureReviewRecords =
     listBackendOwnedSyntheticDryRunResultCaptureReviews();
   const resultCaptureDecisionReviewRecords = listResultCaptureDecisionReviews();
@@ -14172,8 +14243,10 @@ export function AthenaCommandCenterPanel({
           implemented. queue dispatch is blocked. worker dispatch is blocked.
           job execution is blocked. No prompt sending. No model calls yet. No
           provider SDKs imported. manual approval handoff review is now
-          preview-only. manual approval decision contract comes next. current
-          readiness: manual-approval-handoff-review-only / not approved / not
+          preview-only. manual approval decision contract is now preview-only.
+          manual approval decision review and recovery preview comes next.
+          current readiness:
+          manual-approval-decision-contract-only / not decided / not
           executable / not persistent.
         </p>
         <div className={styles.summaryGrid}>
@@ -14621,8 +14694,9 @@ export function AthenaCommandCenterPanel({
           </span>
         </div>
         <p className={styles.panelBody}>
-          current readiness: manual-approval-handoff-review-only / not
-          approved / not executable / not persistent.
+          current readiness:
+          manual-approval-decision-contract-only / not decided / not
+          executable / not persistent.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -14782,10 +14856,11 @@ export function AthenaCommandCenterPanel({
           preview-only. database write is not implemented. file write is not
           implemented. queue dispatch is blocked. worker dispatch is blocked.
           job execution is blocked. No prompt sending. No model calls yet. No
-          provider SDKs imported. manual approval decision contract comes next.
-          current readiness:
-          manual-approval-handoff-review-only / not approved / not executable /
-          not persistent.
+          provider SDKs imported. manual approval decision contract is now
+          preview-only. manual approval decision review and recovery preview
+          comes next. current readiness:
+          manual-approval-decision-contract-only / not decided / not
+          executable / not persistent.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -15396,6 +15471,789 @@ export function AthenaCommandCenterPanel({
                 {record.queueWorkerJobBlockers.join(" | ")}
               </p>
               <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned synthetic dry-run manual approval decision contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only decision layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned synthetic dry-run manual approval decision contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview backend-owned synthetic dry-run manual approval
+          decision contracts. manual approval decision contract is
+          preview-only. decision state: draft / preview-only / not evaluated.
+          decision request is not created. decision invocation is not invoked.
+          decision response is not received. decision error is not received.
+          operator approval state: not requested. manual confirmation state:
+          not captured. approval outcome state: not decided. approval token is
+          not issued. approval lease is not created. approval reference is not
+          persisted. audit reference is not persisted. result reference is not
+          persisted. evidence packet is preview-only. database write is not
+          implemented. file write is not implemented. queue dispatch is
+          blocked. worker dispatch is blocked. job execution is blocked. No
+          prompt sending. No model calls yet. No provider SDKs imported.
+          manual approval decision review and recovery preview comes next.
+          current readiness:
+          manual-approval-decision-contract-only / not decided / not
+          executable / not persistent.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Contract summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {manualApprovalDecisionSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`phase ${manualApprovalDecisionSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualApprovalDecisionSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "manual-approval-decision-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeManualApprovalDecisionContract ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative contract</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalDecisionContract.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalDecisionContract.decisionState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {representativeManualApprovalDecisionContract.workspaceTarget}
+                </span>
+                <span className={styles.metaPill}>
+                  {
+                    representativeManualApprovalDecisionContract
+                      .selectedCapabilityFamily.label
+                  }
+                </span>
+                <span className={styles.metaPill}>
+                  {
+                    representativeManualApprovalDecisionContract
+                      .providerSlotLabel
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`operator approval: ${representativeManualApprovalDecisionContract.operatorApprovalState} | manual confirmation: ${representativeManualApprovalDecisionContract.manualConfirmationState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`decision request: ${representativeManualApprovalDecisionContract.decisionRequestState} | response: ${representativeManualApprovalDecisionContract.decisionResponseState} | outcome: ${representativeManualApprovalDecisionContract.approvalOutcomeState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeManualApprovalDecisionContract.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${manualApprovalDecisionContracts.length} contracts`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualApprovalDecisionCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "manual-approval-decision-capability",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.metaPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.contractCount})`}
+                </span>
+              ))}
+              {manualApprovalDecisionWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "manual-approval-decision-workspace",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.metaPill}
+                >
+                  {`${group.workspaceTarget} (${group.contractCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next checklist</p>
+                <h3 className={styles.placeholderTitle}>
+                  decision review and recovery preview
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Next
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {nextManualApprovalDecisionReviewRecoveryChecklist.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "manual-approval-decision-next-checklist",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+        <div className={styles.summaryGrid}>
+          {manualApprovalDecisionContracts.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Decision contract record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.decisionState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`request: ${record.decisionRequestState} | invocation: ${record.decisionInvocationState} | response: ${record.decisionResponseState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval: ${record.operatorApprovalState} | confirmation: ${record.manualConfirmationState} | outcome: ${record.approvalOutcomeState}`}
+              </p>
+              <p className={styles.railFooter}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual approval decision packet"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Operator-facing packet</p>
+            <h2 className={styles.panelTitle}>Manual approval decision packet</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Manual approval decision packets remain preview-only. decision request
+          is not created. operator approval state: not requested. manual
+          confirmation state: not captured. approval outcome state: not
+          decided.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeManualApprovalDecisionPacket ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalDecisionPacket.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalDecisionPacket.packetMode}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeManualApprovalDecisionPacket
+                    .operatorFacingDecisionSummary
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeManualApprovalDecisionPacket
+                    .requestedDecisionScope
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalDecisionPacket
+                    .explicitNoApprovalDecisionNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Allowed labels</p>
+                <h3 className={styles.placeholderTitle}>Preview-only choices</h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Not selected
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {representativeManualApprovalDecisionPacket?.allowedDecisionLabels.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "manual-approval-decision-packet-labels",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                )
+              ) ?? null}
+            </div>
+            <p className={styles.railFooter}>
+              selected decision label: not selected
+            </p>
+          </article>
+          {manualApprovalDecisionPackets.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Decision packet record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.selectedDecisionLabel}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.approvalReasonSummary}</p>
+              <p className={styles.railBody}>{record.remainingBlockerSummary}</p>
+              <p className={styles.railFooter}>
+                {record.costRateTimeoutSummary}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual approval decision request/response contract"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Contract-only envelopes</p>
+            <h2 className={styles.panelTitle}>
+              Manual approval decision request/response contract
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not created / not received
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Manual approval decision request/response/error contracts remain
+          inert. decision request is not created. decision invocation is not
+          invoked. decision response is not received. decision error is not
+          received.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeManualApprovalDecisionRequest ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative request</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalDecisionRequest.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeManualApprovalDecisionRequest
+                      .decisionRequestState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`operator target: ${representativeManualApprovalDecisionRequest.operatorTargetPosture} | payload: ${representativeManualApprovalDecisionRequest.decisionPayloadPosture}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalDecisionRequest
+                    .explicitNoDecisionRequestCreatedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeManualApprovalDecisionResponse ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative response</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalDecisionResponse.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalDecisionResponse.responseState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`approval decision: ${representativeManualApprovalDecisionResponse.approvalDecisionState} | selected decision: ${representativeManualApprovalDecisionResponse.selectedDecisionState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalDecisionResponse
+                    .explicitNoDecisionResponseNoApprovalStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeManualApprovalDecisionError ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative error</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalDecisionError.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalDecisionError.errorState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeManualApprovalDecisionError
+                    .missingOperatorApprovalExample
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalDecisionError
+                    .explicitNoDecisionErrorNoRetryNoFallbackStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>Request / response / error</h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${manualApprovalDecisionRequestContracts.length}/${manualApprovalDecisionResponseContracts.length}/${manualApprovalDecisionErrorContracts.length}`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              approval reference posture: not persisted. audit reference
+              posture: not persisted. result reference posture: not persisted.
+            </p>
+            <p className={styles.railFooter}>
+              database write posture: not implemented. file write posture: not
+              implemented.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Approval outcome preview"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held outcome options</p>
+            <h2 className={styles.panelTitle}>Approval outcome preview</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / not selected
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Approval outcome previews remain preview-only / not selected.
+          operator approval state: not requested. manual confirmation state:
+          not captured. approval outcome state: not decided.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeManualApprovalOutcomePreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative outcome</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalOutcomePreview.outcomeLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalOutcomePreview.outcomeState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeManualApprovalOutcomePreview
+                    .operatorActionRequired
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalOutcomePreview
+                    .explicitNoCurrentOutcomeSelectionStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Outcome coverage</p>
+                <h3 className={styles.placeholderTitle}>Six preview outcomes</h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${manualApprovalOutcomePreviewRecordsForDisplay.length} unique outcomes`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {manualApprovalOutcomePreviewRecordsForDisplay.map(
+                (record, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "manual-approval-decision-outcome",
+                      "item",
+                      index,
+                      record.outcomeId
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {record.outcomeLabel}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {manualApprovalOutcomePreviewRecordsForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Outcome record</p>
+                  <h3 className={styles.placeholderTitle}>{record.outcomeLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.approvalTokenPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {record.requiredEvidence.join(" | ")}
+              </p>
+              <p className={styles.railFooter}>
+                {record.currentSafetyPosture}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual approval decision gates"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked by default</p>
+            <h2 className={styles.panelTitle}>Manual approval decision gates</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Manual approval decision gates remain preview-only / blocked across
+          operator approval, safety, persistence, and server-only boundaries.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${manualApprovalDecisionGateSummary.gateCount} gate records`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                Blocked
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {manualApprovalDecisionGateSummary.summaryLines
+                .slice(0, 8)
+                .join(" | ")}
+            </p>
+            <p className={styles.railFooter}>
+              {`operator gates: ${manualApprovalDecisionGateSummary.operatorGateCount} | safety gates: ${manualApprovalDecisionGateSummary.safetyReviewGateCount}`}
+            </p>
+          </article>
+          {representativeManualApprovalDecisionGate ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative gate</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalDecisionGate.label}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeManualApprovalDecisionGate.currentState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeManualApprovalDecisionGate.requiredState}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeManualApprovalDecisionGate.blockedDefaultReason}
+              </p>
+            </article>
+          ) : null}
+          {manualApprovalDecisionGateRecordsForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.owner}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.evidenceRequirement}</p>
+              <p className={styles.railFooter}>{record.blockedDefaultReason}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual approval decision readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Current readiness</p>
+            <h2 className={styles.panelTitle}>
+              Manual approval decision readiness matrix
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not decided / not executable
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          current readiness:
+          manual-approval-decision-contract-only / not decided / not
+          executable / not persistent.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${manualApprovalDecisionReadinessSummary.readinessRecordCount} readiness records`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {manualApprovalDecisionReadinessSummary.currentReadiness}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              {manualApprovalDecisionReadinessSummary.summaryLines.join(" | ")}
+            </p>
+            <p className={styles.railFooter}>
+              {manualApprovalDecisionReadinessSummary.nextSafeAction}
+            </p>
+          </article>
+          {representativeManualApprovalDecisionReadiness ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative readiness</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeManualApprovalDecisionReadiness.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeManualApprovalDecisionReadiness
+                      .decisionContractState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`operator approval: ${representativeManualApprovalDecisionReadiness.operatorApprovalDependency} | manual confirmation: ${representativeManualApprovalDecisionReadiness.manualConfirmationDependency}`}
+              </p>
+              <p className={styles.railBody}>
+                {`server-only boundary: ${representativeManualApprovalDecisionReadiness.serverOnlyBoundaryState} | queue boundary: ${representativeManualApprovalDecisionReadiness.queueBoundaryState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {representativeManualApprovalDecisionReadiness.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+          {manualApprovalDecisionReadinessMatrixRecords.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Readiness record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`decision packet: ${record.decisionPacketState} | response: ${record.decisionResponseContractState} | outcome: ${record.approvalOutcomeState}`}
+              </p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Manual approval decision evidence summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Deterministic preview evidence</p>
+            <h2 className={styles.panelTitle}>
+              Manual approval decision evidence summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Manual approval decision evidence summaries remain preview-only with a
+          deterministic preview digest only. No evidence is persisted.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeManualApprovalDecisionEvidenceSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative evidence</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeManualApprovalDecisionEvidenceSummary
+                        .requestLabel
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeManualApprovalDecisionEvidenceSummary
+                      .evidenceState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeManualApprovalDecisionEvidenceSummary
+                    .safetyEvidence
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeManualApprovalDecisionEvidenceSummary
+                    .explicitNoDecisionEvidencePersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Evidence coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${manualApprovalDecisionEvidenceSummaries.length} evidence summaries`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                Deterministic
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              safety evidence. privacy evidence. audit evidence. approval
+              evidence. result evidence. handoff evidence. gate evidence.
+              blocker evidence. recovery evidence.
+            </p>
+            <p className={styles.railFooter}>
+              evidence digest posture: deterministic preview digest only
+            </p>
+          </article>
+          {manualApprovalDecisionEvidenceSummaries.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Evidence record</p>
+                  <h3 className={styles.placeholderTitle}>{record.requestLabel}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.persistenceState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.handoffEvidence}</p>
+              <p className={styles.railBody}>{record.blockerEvidence}</p>
+              <p className={styles.railFooter}>{record.recoveryEvidence}</p>
             </article>
           ))}
         </div>
