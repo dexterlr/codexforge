@@ -242,12 +242,12 @@ export function JarvisUnifiedProductPanel(
                 result capture state is not captured. audit join state is not
                 persisted. approval join state is not persisted. Athena can
                 now preview backend-owned synthetic dry-run manual approval
-                decision contracts. manual approval decision contract is
+                decision reviews. manual approval decision review is
                 preview-only. decision state is draft / preview-only / not
-                evaluated. decision request is not created. operator approval
-                state is not requested. manual confirmation state is not
-                captured. approval outcome state is not decided. manual
-                approval decision review and recovery preview comes next. no
+                evaluated. selected decision state is not selected. approval
+                outcome state is not decided. operator approval state is not
+                requested. manual confirmation state is not captured. minimal
+                manual-gated synthetic dry-run execution MVP comes next. no
                 model calls yet. no prompt sending. no provider SDKs
                 imported. queue, worker, and job execution remain blocked.
                 Plugin/provider execution remains blocked until approvals and
@@ -447,16 +447,16 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 <p className={styles.railBody}>
                   Athena can now preview backend-owned synthetic dry-run
-                  manual approval decision contracts.
+                  manual approval decision reviews.
                 </p>
                 <p className={styles.railBody}>
-                  manual approval decision contract is preview-only.
+                  manual approval decision review is preview-only.
                 </p>
                 <p className={styles.railBody}>
                   decision state is draft / preview-only / not evaluated.
                 </p>
                 <p className={styles.railBody}>
-                  decision request is not created.
+                  selected decision state is not selected.
                 </p>
                 <p className={styles.railBody}>
                   operator approval state is not requested.
@@ -468,7 +468,7 @@ export function JarvisUnifiedProductPanel(
                   approval outcome state is not decided.
                 </p>
                 <p className={styles.railBody}>
-                  manual approval decision review and recovery preview comes
+                  minimal manual-gated synthetic dry-run execution MVP comes
                   next.
                 </p>
                 <p className={styles.railBody}>

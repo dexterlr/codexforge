@@ -31,6 +31,18 @@ function Assert-Contains {
   Write-Host "[PASS] $Name"
 }
 
+function Assert-Matches {
+  param(
+    [AllowEmptyString()][string]$Haystack,
+    [string]$Pattern,
+    [string]$Name
+  )
+  if (-not [regex]::IsMatch($Haystack, $Pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)) {
+    throw "[FAIL] Missing $Name with pattern $Pattern"
+  }
+  Write-Host "[PASS] $Name"
+}
+
 function Assert-NotMatches {
   param(
     [AllowEmptyString()][string]$Haystack,
@@ -80,7 +92,7 @@ function Normalize-Whitespace {
   return ([regex]::Replace($Text, "\s+", " ")).Trim()
 }
 
-Write-Host "=== CodexForge Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract Mega Batch smoke ==="
+Write-Host "=== CodexForge Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview Mega Batch smoke ==="
 
 $jarvisPagePath = Join-Path $root "src\app\jarvis\page.tsx"
 $jarvisPageClientPath = Join-Path $root "src\app\jarvis\page-client.tsx"
@@ -93,12 +105,11 @@ $videoPanelPath = Join-Path $root "src\lib\codexforge\jarvis-video-studio-releas
 $athenaPanelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\components\AthenaCommandCenterPanel.tsx"
 $homeShellPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisUnifiedProductShell.tsx"
 $athenaModelPath = Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map\athena-control-plane-model.ts"
-$decisionTypesPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-decision-contract\backend-owned-synthetic-dry-run-manual-approval-decision-contract-types.ts"
-$decisionCatalogPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-decision-contract\backend-owned-synthetic-dry-run-manual-approval-decision-contract-catalog.ts"
-$decisionIndexPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-decision-contract\index.ts"
+$reviewTypesPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview\backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview-types.ts"
+$reviewCatalogPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview\backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview-catalog.ts"
+$reviewIndexPath = Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview\index.ts"
 $allSmokePath = Join-Path $root "scripts\smoke-codexforge-all.ps1"
 $checkpointCurrentPath = Join-Path $root "docs\codexforge-checkpoint-current.md"
-$runbookPath = Join-Path $root "docs\codexforge-operator-checkpoint-runbook.md"
 $navigationTypesPath = Join-Path $root "src\lib\codexforge\navigation-shell\navigation-shell-types.ts"
 
 $requiredPaths = @(
@@ -113,12 +124,11 @@ $requiredPaths = @(
   $athenaPanelPath,
   $homeShellPath,
   $athenaModelPath,
-  $decisionTypesPath,
-  $decisionCatalogPath,
-  $decisionIndexPath,
+  $reviewTypesPath,
+  $reviewCatalogPath,
+  $reviewIndexPath,
   $allSmokePath,
   $checkpointCurrentPath,
-  $runbookPath,
   $navigationTypesPath
 )
 
@@ -146,17 +156,14 @@ $videoSource = Get-CombinedFileText @(
   $videoPanelPath
 )
 $typedModelSource = Get-CombinedFileText @(
-  $decisionTypesPath,
-  $decisionCatalogPath,
-  $decisionIndexPath
+  $reviewTypesPath,
+  $reviewCatalogPath,
+  $reviewIndexPath
 )
 $allSmokeSource = Get-Content -Raw $allSmokePath
 $checkpointCurrentSource = Get-Content -Raw $checkpointCurrentPath
-$runbookSource = Get-Content -Raw $runbookPath
-$docsSource = $checkpointCurrentSource + "`n" + $runbookSource
 $navigationTypesSource = Get-Content -Raw $navigationTypesPath
 $athenaPanelSource = Get-Content -Raw $athenaPanelPath
-$athenaPanelNormalized = Normalize-Whitespace $athenaPanelSource
 
 $frontEndSourceFiles = Get-SourceFiles @(
   (Join-Path $root "src\app\athena"),
@@ -164,7 +171,7 @@ $frontEndSourceFiles = Get-SourceFiles @(
   (Join-Path $root "src\app\jarvis-video"),
   (Join-Path $root "src\app\page.tsx"),
   (Join-Path $root "src\app\page-client.tsx"),
-  (Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-decision-contract"),
+  (Join-Path $root "src\lib\codexforge\backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview"),
   (Join-Path $root "src\lib\codexforge\jarvis-unified-product-ia-map"),
   (Join-Path $root "src\lib\codexforge\jarvis-video-studio-release-candidate-map"),
   (Join-Path $root "src\lib\codexforge\navigation-shell")
@@ -175,15 +182,15 @@ $jarvisNormalized = Normalize-Whitespace $jarvisSource
 $homeNormalized = Normalize-Whitespace $homeSource
 $videoNormalized = Normalize-Whitespace $videoSource
 $typedModelNormalized = Normalize-Whitespace $typedModelSource
-$docsNormalized = Normalize-Whitespace $docsSource
 $allSmokeNormalized = Normalize-Whitespace $allSmokeSource
+$checkpointNormalized = Normalize-Whitespace $checkpointCurrentSource
 
 foreach ($needle in @(
-  "5322-5353 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract",
-  "5353",
-  "Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract"
+  "5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview",
+  "5385",
+  "Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview"
 )) {
-  Assert-Contains ($jarvisNormalized + " " + $homeNormalized + " " + $typedModelNormalized + " " + $docsNormalized + " " + $allSmokeNormalized) $needle "batch marker contains $needle"
+  Assert-Contains ($jarvisNormalized + " " + $homeNormalized + " " + $typedModelNormalized + " " + $checkpointNormalized + " " + $allSmokeNormalized) $needle "batch marker contains $needle"
 }
 
 Assert-Contains (Get-Content -Raw $athenaPagePath) 'export { default } from "../jarvis/page";' "/athena aliases /jarvis"
@@ -191,31 +198,32 @@ Assert-Contains (Get-Content -Raw $athenaPagePath) 'export { default } from "../
 foreach ($needle in @(
   "Athena",
   "Athena Command Center",
-  "Backend-owned synthetic dry-run manual approval handoff review",
-  "Manual approval handoff acceptance posture",
   "Backend-owned synthetic dry-run manual approval decision contract",
-  "Manual approval decision packet",
-  "Manual approval decision request/response contract",
-  "Approval outcome preview",
-  "Manual approval decision gates",
-  "Manual approval decision readiness matrix",
   "Manual approval decision evidence summary",
-  "Athena can preview backend-owned synthetic dry-run manual approval decision contracts",
-  "manual approval decision contract is preview-only",
+  "Backend-owned synthetic dry-run manual approval decision review",
+  "Manual approval decision outcome review",
+  "Manual approval decision gate failure review",
+  "Manual approval decision recovery plan",
+  "Manual approval decision recovery readiness",
+  "Manual approval decision review audit summary",
+  "Manual approval decision acceptance posture",
+  "Athena can review why synthetic dry-run manual approval decisions are held",
+  "manual approval decision review is preview-only",
   "decision state: draft / preview-only / not evaluated",
   "decision request is not created",
   "decision invocation is not invoked",
   "decision response is not received",
   "decision error is not received",
+  "selected decision state: not selected",
+  "approval outcome state: not decided",
   "operator approval state: not requested",
   "manual confirmation state: not captured",
-  "approval outcome state: not decided",
   "approval token is not issued",
   "approval lease is not created",
   "approval reference is not persisted",
   "audit reference is not persisted",
   "result reference is not persisted",
-  "evidence packet is preview-only",
+  "evidence packet state: preview-only",
   "database write is not implemented",
   "file write is not implemented",
   "queue dispatch is blocked",
@@ -224,8 +232,12 @@ foreach ($needle in @(
   "No prompt sending",
   "No model calls yet",
   "No provider SDKs imported",
-  "manual approval decision review is now preview-only",
-  "minimal manual-gated synthetic dry-run execution MVP comes next"
+  "minimal manual-gated synthetic dry-run execution MVP comes next",
+  "current readiness: manual-approval-decision-review-only / not decided / not executable / not persistent",
+  "acceptance state: not accepted / preview-only",
+  "recovery is manual review only",
+  "retry disabled",
+  "fallback disabled"
 )) {
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
@@ -236,9 +248,9 @@ foreach ($needle in @(
   "manual approval decision review is preview-only",
   "decision state is draft / preview-only / not evaluated",
   "selected decision state is not selected",
+  "approval outcome state is not decided",
   "operator approval state is not requested",
   "manual confirmation state is not captured",
-  "approval outcome state is not decided",
   "minimal manual-gated synthetic dry-run execution MVP comes next",
   "no model calls yet",
   "no prompt sending",
@@ -258,22 +270,20 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "backend-owned-synthetic-dry-run-manual-approval-decision-contract-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-decision-packet-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-decision-request-contract-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-decision-response-contract-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-decision-error-contract-v1",
-  "backend-owned-synthetic-dry-run-approval-outcome-preview-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-decision-gate-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-decision-readiness-v1",
-  "backend-owned-synthetic-dry-run-manual-approval-decision-evidence-summary-v1",
-  "manual approval decision contract is preview-only",
-  "decision state is draft / preview-only / not evaluated",
-  "decision request is not created",
-  "decision invocation is not invoked",
-  "decision response is not received",
-  "decision error is not received",
-  "approval outcome state is not decided",
+  "backend-owned-synthetic-dry-run-manual-approval-decision-review-preview-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-decision-outcome-review-preview-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-decision-gate-failure-review-preview-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-decision-recovery-plan-preview-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-decision-recovery-readiness-checklist-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-decision-review-audit-summary-preview-v1",
+  "backend-owned-synthetic-dry-run-manual-approval-decision-acceptance-posture-preview-v1",
+  "Backend-owned synthetic dry-run manual approval decision review",
+  "Manual approval decision outcome review",
+  "Manual approval decision gate failure review",
+  "Manual approval decision recovery plan",
+  "Manual approval decision recovery readiness",
+  "Manual approval decision review audit summary",
+  "Manual approval decision acceptance posture",
   "no prompt sending",
   "no LLM/model calls",
   "no provider SDK imports",
@@ -281,18 +291,53 @@ foreach ($needle in @(
   "no audit persistence",
   "no approval persistence",
   "no database writes",
-  "no file write"
+  "no file write gate",
+  "buildStableManualApprovalDecisionReviewKey",
+  "buildStableManualApprovalDecisionOutcomeReviewKey",
+  "buildStableManualApprovalDecisionGateFailureReviewKey",
+  "buildStableManualApprovalDecisionRecoveryPlanKey",
+  "buildStableManualApprovalDecisionRecoveryReadinessChecklistKey",
+  "buildStableManualApprovalDecisionReviewAuditSummaryKey",
+  "buildStableManualApprovalDecisionAcceptancePostureKey",
+  "listBackendOwnedSyntheticDryRunManualApprovalDecisionReviews",
+  "listManualApprovalDecisionOutcomeReviewRecords",
+  "listManualApprovalDecisionGateFailureReviewRecords",
+  "listManualApprovalDecisionRecoveryPlanPreviews",
+  "listManualApprovalDecisionRecoveryReadinessChecklistRecords",
+  "listManualApprovalDecisionReviewAuditSummaries",
+  "listManualApprovalDecisionAcceptancePostureRecords",
+  "groupManualApprovalDecisionReviewsByCapabilityFamily",
+  "groupManualApprovalDecisionReviewsByWorkspaceTarget",
+  "buildManualApprovalDecisionReviewSummary",
+  "buildManualApprovalDecisionOutcomeSummary",
+  "buildManualApprovalDecisionGateFailureSummary",
+  "buildManualApprovalDecisionRecoverySummary",
+  "buildMinimalManualGatedSyntheticDryRunExecutionMvpChecklist",
+  "buildUniqueManualApprovalDecisionReviewDisplayStrings"
 )) {
   Assert-Contains $typedModelNormalized $needle "typed model/data contains $needle"
 }
 
-Assert-Contains $allSmokeSource "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-decision-contract-mega-batch.ps1" "scripts/smoke-codexforge-all.ps1 references this new smoke"
+Assert-Contains $allSmokeSource "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview-mega-batch.ps1" "scripts/smoke-codexforge-all.ps1 references this new smoke"
+Assert-Contains $allSmokeSource 'currentReleaseGateBatch = "5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview"' "scripts/smoke-codexforge-all.ps1 current release gate batch is updated"
 
 foreach ($needle in @(
   "Highest detected phase: 5385",
   "Latest completed batch: 5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview",
   "Previous completed batch: 5322-5353 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract",
-  "Next likely batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP"
+  "Next likely batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP",
+  "backend-owned synthetic dry-run manual approval decision review and recovery preview only",
+  "manual approval decision review is preview-only",
+  "manual approval decision outcome review is preview-only",
+  "manual approval decision gate failure review is preview-only",
+  "manual approval decision recovery plan is preview-only",
+  "manual approval decision recovery readiness is preview-only",
+  "manual approval decision acceptance posture is preview-only",
+  "selected decision state is not selected",
+  "current readiness is manual-approval-decision-review-only / not decided / not executable / not persistent",
+  "acceptance state is not accepted / preview-only",
+  "recovery is manual review only",
+  "backend-owned minimal manual-gated synthetic dry-run execution MVP next"
 )) {
   Assert-Contains $checkpointCurrentSource $needle "checkpoint current contains $needle"
 }
@@ -300,13 +345,13 @@ foreach ($needle in @(
 Assert-Contains $navigationTypesSource "export type CodexForgeNavigationRouteHref = Route;" "route href typing remains Route-based"
 Assert-Contains $navigationTypesSource "export type CodexForgeCommandDeckRole =" "commandDeckRole typing remains enumerated"
 Assert-Contains $navigationTypesSource "commandDeckRole: CodexForgeCommandDeckRole;" "navigation route type still uses commandDeckRole typing"
-Assert-Contains $athenaPanelNormalized 'buildScopedItemKey( "manual-approval-decision-capability"' "AthenaCommandCenterPanel manual approval decision capability groups use scoped keys"
-Assert-Contains $athenaPanelNormalized 'buildScopedItemKey( "manual-approval-decision-workspace"' "AthenaCommandCenterPanel manual approval decision workspace groups use scoped keys"
-Assert-Contains $athenaPanelNormalized 'buildScopedItemKey( "manual-approval-decision-outcome"' "AthenaCommandCenterPanel manual approval decision outcomes use scoped keys"
 
+Assert-Matches $athenaPanelSource 'manualApprovalDecisionReviewRecords\.map\(\(record\)\s*=>\s*\(\s*<article\s+key=\{record\.key\}' "AthenaCommandCenterPanel manual approval decision reviews use stable record keys"
+Assert-Contains $athenaPanelSource 'manual-approval-decision-capability' "AthenaCommandCenterPanel manual approval decision capability group keys are scoped"
+Assert-Contains $athenaPanelSource 'manual-approval-decision-workspace' "AthenaCommandCenterPanel manual approval decision workspace group keys are scoped"
+Assert-NotMatches $athenaPanelSource 'manualApprovalDecisionReviewRecords\.map\(\(record\)\s*=>\s*\(\s*<article\s+key=\{record\.(capabilityFamilyId|workspaceTarget|selectedCapabilityFamily|providerSlotLabel|localPrivateAlternativeLabel)\}' "AthenaCommandCenterPanel does not use raw repeated review fields as sibling React keys"
 Assert-NotMatches $athenaPanelSource 'manualApprovalDecisionCapabilityGroups\.map\(\(group,\s*index\)\s*=>\s*\(\s*<span\s+key=\{group\.capabilityFamilyId\}' "AthenaCommandCenterPanel does not use raw repeated capability ids as manual approval decision capability keys"
 Assert-NotMatches $athenaPanelSource 'manualApprovalDecisionWorkspaceGroups\.map\(\(group,\s*index\)\s*=>\s*\(\s*<span\s+key=\{group\.workspaceTarget\}' "AthenaCommandCenterPanel does not use raw repeated workspace ids as manual approval decision workspace keys"
-Assert-NotMatches $athenaPanelSource 'manualApprovalOutcomePreviewRecordsForDisplay\.map\(\(record\)\s*=>\s*\(\s*<article\s+key=\{record\.(outcomeId|outcomeLabel)\}' "AthenaCommandCenterPanel manual approval decision outcomes do not use raw repeated fields as sibling keys"
 
 Assert-NotMatches $frontEndSource '(?m)^\s*import\s+.+from\s+["''][^"'']*(openai|anthropic|generative-ai|genai|mistral|replicate|fal-ai|elevenlabs|assemblyai|deepgram|groq|ollama)[^"'']*["'']' "frontend Athena/Jarvis files do not import provider SDKs"
 Assert-NotMatches $frontEndSource '\bfetch\s*\(' "frontend Athena/Jarvis files do not call fetch"
@@ -320,4 +365,4 @@ Assert-NotMatches $frontEndSource '\bchild_process\b|\bexec\s*\(|\bspawn\s*\(|\b
 Assert-NotMatches $navigationTypesSource 'export\s+type\s+CodexForgeNavigationRouteHref\s*=\s*string\b' "route href typing is not loosened to string"
 Assert-NotMatches $navigationTypesSource 'export\s+type\s+CodexForgeCommandDeckRole\s*=\s*string\b' "commandDeckRole typing is not loosened to string"
 
-Write-Host "[PASS] Backend-owned synthetic dry-run manual approval decision contract smoke passed."
+Write-Host "[PASS] Backend-owned synthetic dry-run manual approval decision review and recovery preview smoke passed."

@@ -472,7 +472,7 @@ function Get-CodexForgeCurrentReleaseGateStatusLabel {
   }
 }
 
-$currentReleaseGateBatch = "5322-5353 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract"
+$currentReleaseGateBatch = "5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview"
 $currentReleaseGateName = "CodexForge Current Required Release Gate"
 $currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
 $historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
@@ -554,6 +554,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 5289 Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-handoff-contract-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5321 Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5353 Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-decision-contract-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 5385 Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }
