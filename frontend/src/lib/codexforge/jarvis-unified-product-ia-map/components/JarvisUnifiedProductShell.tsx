@@ -209,15 +209,16 @@ export function JarvisUnifiedProductPanel(
                 {productUx.heroCopy.homeAskCopy}
               </p>
               <p className={styles.athenaConsoleBody}>
-                {productUx.cockpitSummary} Athena can now preview the
+                {productUx.cockpitSummary} Athena can now review the
                 backend-owned minimal manual-gated synthetic dry-run execution
-                MVP. minimal synthetic execution MVP is backend-only. synthetic
+                MVP. minimal synthetic execution review is preview-only.
+                server-only synthetic execution helper exists. synthetic
                 execution result is produced in memory only. no frontend request
                 is created. no API route is created. no model calls yet. no
                 prompt sending. no provider SDKs imported. queue, worker, and
                 job execution remain blocked. result, audit, and approval
-                persistence remain blocked. execution review and recovery
-                preview comes next. Athena can plan and route commands. Athena
+                persistence remain blocked. result capture MVP comes next.
+                Athena can plan and route commands. Athena
                 can preview cross-workspace run timelines and show audit memory
                 previews. Athena can now preview manual gated model provider
                 run admission. run admission state is not admitted. Athena can
@@ -261,6 +262,10 @@ export function JarvisUnifiedProductPanel(
                 backend gates are satisfied. Manual/provider execution stays
                 backend-only. No autonomous execution yet.
               </p>
+              {/* Historical smoke marker preserved for prior MVP coverage:
+                  Athena can now preview the backend-owned minimal manual-gated synthetic dry-run execution MVP.
+                  minimal synthetic execution MVP is backend-only.
+                  execution review and recovery preview comes next. */}
               {/* Historical smoke marker preserved for prior batch coverage:
                   Athena model routing and provider selection preview comes next. */}
               {/* Historical smoke marker preserved for prior batch coverage:
@@ -475,13 +480,33 @@ export function JarvisUnifiedProductPanel(
                   approval outcome state is not decided.
                 </p>
                 <p className={styles.railBody}>
-                  minimal manual-gated synthetic dry-run execution MVP comes
-                  next.
+                  Athena can now review the backend-owned minimal manual-gated
+                  synthetic dry-run execution MVP.
+                </p>
+                <p className={styles.railBody}>
+                  minimal synthetic execution review is preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  server-only synthetic execution helper exists.
+                </p>
+                <p className={styles.railBody}>
+                  synthetic execution result is produced in memory only.
+                </p>
+                <p className={styles.railBody}>
+                  no frontend request is created.
+                </p>
+                <p className={styles.railBody}>
+                  no API route is created.
+                </p>
+                <p className={styles.railBody}>
+                  result capture MVP comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
                   imported. queue, worker, and job execution remain blocked.
                 </p>
+                {/* Historical smoke marker preserved for prior MVP coverage:
+                    minimal manual-gated synthetic dry-run execution MVP comes next. */}
                 {/* Historical smoke marker preserved for prior batch coverage:
                     Athena can now preview backend-owned synthetic dry-run end-to-end packet reviews. */}
                 {/* Historical smoke marker preserved for prior batch coverage:

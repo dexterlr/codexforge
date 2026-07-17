@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5417) {
-  throw "[FAIL] Highest detected phase expected 5417 found $highestPhase"
+if ($highestPhase -ne 5449) {
+  throw "[FAIL] Highest detected phase expected 5449 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "5418-5449 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview"',
+  "Phase 5449 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-execution-review-recovery-preview-mega-batch.ps1",
   'currentReleaseGateBatch = "5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP"',
   "Phase 5417 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP",
   "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp-mega-batch.ps1",
@@ -144,7 +147,24 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5417. Latest completed batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP. Previous completed batch: 5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview. Next likely batch: 5418-5449 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview.",
+  "Current checkpoint: Highest detected phase: 5449. Latest completed batch: 5418-5449 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview. Previous completed batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP. Next likely batch: 5450-5481 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP.",
+  "Highest detected phase: 5449",
+  "Latest completed batch: 5418-5449 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview",
+  "Previous completed batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP",
+  "Next likely batch: 5450-5481 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP",
+  "backend-owned minimal manual-gated synthetic dry-run execution review and recovery preview only",
+  "Backend-owned minimal synthetic execution review",
+  "Synthetic execution result review",
+  "Synthetic execution gate failure review",
+  "Synthetic execution recovery plan",
+  "Synthetic execution recovery readiness",
+  "Synthetic execution review audit summary",
+  "Synthetic execution acceptance posture",
+  "minimal synthetic execution review is preview-only",
+  "current readiness is minimal-synthetic-execution-review-only / backend-only / in-memory-only / not provider-capable / not persistent",
+  "acceptance state is not accepted for live execution / synthetic MVP accepted only",
+  "backend-owned minimal manual-gated synthetic dry-run result capture MVP next",
+  "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP Checkpoint",
   "Highest detected phase: 5417",
   "Latest completed batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP",
   "Previous completed batch: 5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview",

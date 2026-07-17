@@ -300,6 +300,22 @@ import {
   listSyntheticMvpSafetyGateSummaries,
 } from "@/lib/codexforge/backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp";
 import {
+  buildMinimalSyntheticResultCaptureMvpChecklist,
+  buildSyntheticExecutionGateFailureSummary,
+  buildSyntheticExecutionRecoverySummary,
+  buildSyntheticExecutionResultReviewSummary,
+  buildSyntheticExecutionReviewSummary,
+  groupSyntheticExecutionReviewsByCapabilityFamily,
+  groupSyntheticExecutionReviewsByWorkspaceTarget,
+  listBackendOwnedMinimalManualGatedSyntheticDryRunExecutionReviews,
+  listSyntheticExecutionAcceptancePostureRecords,
+  listSyntheticExecutionGateFailureReviewRecords,
+  listSyntheticExecutionRecoveryPlanPreviews,
+  listSyntheticExecutionRecoveryReadinessChecklistRecords,
+  listSyntheticExecutionResultReviewRecords,
+  listSyntheticExecutionReviewAuditSummaries,
+} from "@/lib/codexforge/minimal-synth-exec-review";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -1320,6 +1336,54 @@ export function AthenaCommandCenterPanel({
     syntheticMvpAuditPreviews[0] ?? null;
   const representativeSyntheticMvpApprovalPreview =
     syntheticMvpApprovalPreviews[0] ?? null;
+  const syntheticExecutionReviewRecords =
+    listBackendOwnedMinimalManualGatedSyntheticDryRunExecutionReviews();
+  const syntheticExecutionResultReviewRecords =
+    listSyntheticExecutionResultReviewRecords();
+  const syntheticExecutionGateFailureReviewRecords =
+    listSyntheticExecutionGateFailureReviewRecords();
+  const syntheticExecutionGateFailureReviewsForDisplay = uniqueRecordsByString(
+    syntheticExecutionGateFailureReviewRecords,
+    (record) => record.failedGateId
+  );
+  const syntheticExecutionRecoveryPlanPreviewRecords =
+    listSyntheticExecutionRecoveryPlanPreviews();
+  const syntheticExecutionRecoveryReadinessChecklistRecords =
+    listSyntheticExecutionRecoveryReadinessChecklistRecords();
+  const syntheticExecutionRecoveryReadinessForDisplay = uniqueRecordsByString(
+    syntheticExecutionRecoveryReadinessChecklistRecords,
+    (record) => record.checklistId
+  );
+  const syntheticExecutionReviewAuditSummaryRecords =
+    listSyntheticExecutionReviewAuditSummaries();
+  const syntheticExecutionAcceptancePostureRecords =
+    listSyntheticExecutionAcceptancePostureRecords();
+  const syntheticExecutionReviewSummary =
+    buildSyntheticExecutionReviewSummary();
+  const syntheticExecutionResultReviewSummary =
+    buildSyntheticExecutionResultReviewSummary();
+  const syntheticExecutionGateFailureSummary =
+    buildSyntheticExecutionGateFailureSummary();
+  const syntheticExecutionRecoverySummary =
+    buildSyntheticExecutionRecoverySummary();
+  const minimalSyntheticResultCaptureMvpChecklist =
+    buildMinimalSyntheticResultCaptureMvpChecklist();
+  const syntheticExecutionReviewCapabilityGroups =
+    groupSyntheticExecutionReviewsByCapabilityFamily();
+  const syntheticExecutionReviewWorkspaceGroups =
+    groupSyntheticExecutionReviewsByWorkspaceTarget();
+  const representativeSyntheticExecutionReview =
+    syntheticExecutionReviewRecords[0] ?? null;
+  const representativeSyntheticExecutionResultReview =
+    syntheticExecutionResultReviewRecords[0] ?? null;
+  const representativeSyntheticExecutionGateFailureReview =
+    syntheticExecutionGateFailureReviewsForDisplay[0] ?? null;
+  const representativeSyntheticExecutionRecoveryPlan =
+    syntheticExecutionRecoveryPlanPreviewRecords[0] ?? null;
+  const representativeSyntheticExecutionReviewAuditSummary =
+    syntheticExecutionReviewAuditSummaryRecords[0] ?? null;
+  const representativeSyntheticExecutionAcceptancePosture =
+    syntheticExecutionAcceptancePostureRecords[0] ?? null;
   const resultCaptureReviewRecords =
     listBackendOwnedSyntheticDryRunResultCaptureReviews();
   const resultCaptureDecisionReviewRecords = listResultCaptureDecisionReviews();
@@ -17736,6 +17800,586 @@ export function AthenaCommandCenterPanel({
                 {
                   representativeSyntheticMvpApprovalPreview
                     .explicitNoApprovalPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal synthetic execution review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>5449 review layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal synthetic execution review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review the backend-owned minimal manual-gated synthetic
+          dry-run execution MVP. minimal synthetic execution review is
+          preview-only. server-only synthetic execution helper exists. synthetic
+          execution result is produced in memory only. deterministic synthetic
+          result only. no frontend request is created. no API route is created.
+          No prompt sending. No model calls yet. No provider SDKs imported. no
+          provider execution. no queue dispatch. no worker dispatch. no job
+          execution. no result persistence. no audit persistence. no approval
+          persistence. result capture MVP comes next. current readiness:
+          minimal-synthetic-execution-review-only / backend-only / in-memory-only
+          / not provider-capable / not persistent. acceptance state: not
+          accepted for live execution / synthetic MVP accepted only. recovery is
+          manual review only. retry disabled. fallback disabled.
+        </p>
+        {/* Historical smoke marker preserved for prior MVP coverage:
+            execution review and recovery preview comes next. */}
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticExecutionReviewSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`phase ${syntheticExecutionReviewSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticExecutionReviewSummary.summaryLines
+                .slice(0, 14)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-execution-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeSyntheticExecutionReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticExecutionReview.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {representativeSyntheticExecutionReview.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`provider slot: ${representativeSyntheticExecutionReview.providerSlotLabel} | backup provider slot: ${representativeSyntheticExecutionReview.backupProviderSlotLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source MVP: ${representativeSyntheticExecutionReview.sourceMinimalSyntheticExecutionMvpReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source result: ${representativeSyntheticExecutionReview.sourceSyntheticMvpExecutionResultReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticExecutionReview
+                    .nextResultCaptureMvpRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${syntheticExecutionReviewRecords.length} review records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticExecutionReviewCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-execution-review-capability",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.metaPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.reviewCount})`}
+                </span>
+              ))}
+              {syntheticExecutionReviewWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-execution-review-workspace",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.metaPill}
+                >
+                  {`${group.workspaceTarget} (${group.reviewCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next checklist</p>
+                <h3 className={styles.placeholderTitle}>
+                  Minimal synthetic result capture MVP
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Next
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {minimalSyntheticResultCaptureMvpChecklist.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-execution-review-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic execution result review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Result review</p>
+            <h2 className={styles.panelTitle}>Synthetic execution result review</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            In-memory only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic execution result review proves the deterministic synthetic
+          result is produced in memory only. result id posture is deterministic
+          preview id only. result digest posture is deterministic preview digest
+          only. provider response state is not received. model output state is
+          not generated.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Result summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticExecutionResultReviewSummary.resultReviewCount} result reviews`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                synthetic-only
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticExecutionResultReviewSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-execution-result-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {representativeSyntheticExecutionResultReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative result review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticExecutionResultReview.sourceExecutionResultReference}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeSyntheticExecutionResultReview
+                      .outputClassification
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticExecutionResultReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticExecutionResultReview
+                    .remainingBlockers.join(" | ")
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticExecutionResultReview
+                    .explicitSyntheticResultOnlyNoRealOutputStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic execution gate failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Gate review</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic execution gate failure review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            No live gate pass
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic execution gate failure review explains why live execution
+          remains blocked across backend-only boundaries, server-only helper
+          boundaries, provider/model boundaries, and non-persistent result
+          boundaries. No live gate pass.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate failure summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticExecutionGateFailureSummary.gateFailureCount} gate failure reviews`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                blocked
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticExecutionGateFailureSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-execution-gate-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {syntheticExecutionGateFailureReviewsForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate failure</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {record.failedGateLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.severity}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.operatorFacingExplanation}</p>
+              <p className={styles.railBody}>{record.requiredEvidenceToUnblock}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic execution recovery plan"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Recovery preview</p>
+            <h2 className={styles.panelTitle}>Synthetic execution recovery plan</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Manual review only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Recovery is manual review only. retry disabled. fallback disabled.
+          Provider, prompt, model, queue, worker, job, database, file, and
+          persistence boundaries remain blocked in this preview layer.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Recovery summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticExecutionRecoverySummary.recoveryPlanCount} recovery plans`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {syntheticExecutionRecoverySummary.currentReadiness}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticExecutionRecoverySummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-execution-recovery-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.metaPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {representativeSyntheticExecutionRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative recovery plan</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticExecutionRecoveryPlan.executionReviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  {representativeSyntheticExecutionRecoveryPlan.recoveryPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticExecutionRecoveryPlan
+                    .explicitNoRetryNoFallbackNoProviderNoPersistenceStatement
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticExecutionRecoveryPlan
+                    .operatorActionRequired
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticExecutionRecoveryPlan
+                    .nextSafeBatchRecommendation
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic execution recovery readiness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness checklist</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic execution recovery readiness
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Recovery readiness remains preview-only. server-only helper reviewed.
+          deterministic result reviewed. provider boundary reviewed. prompt
+          boundary reviewed. model boundary reviewed. queue dispatch still
+          blocked. worker dispatch still blocked. job execution still blocked.
+        </p>
+        <div className={styles.summaryGrid}>
+          {syntheticExecutionRecoveryReadinessForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Checklist record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  {record.state}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.evidenceRequired}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic execution review audit summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Audit summary</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic execution review audit summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / not persisted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Audit posture is preview-only. synthetic result reference state:
+          preview-only / not persisted. audit reference state: not persisted.
+          approval reference state: not persisted. evidence packet state:
+          preview-only.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticExecutionReviewAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative audit summary</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticExecutionReviewAuditSummary.executionReviewId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeSyntheticExecutionReviewAuditSummary
+                      .auditPosture
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticExecutionReviewAuditSummary
+                    .serverOnlyHelperEvidenceSummary
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticExecutionReviewAuditSummary
+                    .deterministicResultEvidenceSummary
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticExecutionReviewAuditSummary
+                    .blockedActionSummary
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic execution acceptance posture"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance posture</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic execution acceptance posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not accepted for live execution
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          acceptance state: not accepted for live execution / synthetic MVP
+          accepted only. The deterministic fixture result is accepted for
+          synthetic MVP review only, while provider, prompt, model,
+          queue/worker/job, persistence, database, file, approval, and audit
+          blockers all remain in place.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticExecutionAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative acceptance</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticExecutionAcceptancePosture
+                        .acceptanceState
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  review-only
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticExecutionAcceptancePosture
+                    .syntheticOnlyAcceptanceSummary
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticExecutionAcceptancePosture
+                    .providerBlockers.join(" | ")
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticExecutionAcceptancePosture
+                    .persistenceBlockers.join(" | ")
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticExecutionAcceptancePosture
+                    .explicitSyntheticMvpAcceptedLiveExecutionNotAcceptedStatement
                 }
               </p>
             </article>

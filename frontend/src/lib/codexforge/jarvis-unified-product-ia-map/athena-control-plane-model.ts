@@ -79,6 +79,12 @@ import {
   NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH,
   PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_BATCH,
 } from "@/lib/codexforge/backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp";
+import {
+  BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH as BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_CURRENT_BATCH,
+  BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_PHASE as BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_CURRENT_PHASE,
+  NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_MVP_BATCH,
+  PREVIOUS_COMPLETED_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH,
+} from "@/lib/codexforge/minimal-synth-exec-review";
 
 export const ATHENA_UNIFIED_CHAT_CONTROL_PLANE_FOUNDATION_BATCH =
   "4458-4489 - Athena Unified Chat Control Plane Foundation";
@@ -268,6 +274,18 @@ export const ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DEC
 
 export const ATHENA_NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH =
   NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH;
+
+export const ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH =
+  BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_CURRENT_BATCH;
+
+export const ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_PHASE =
+  BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_CURRENT_PHASE;
+
+export const ATHENA_PREVIOUS_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH =
+  PREVIOUS_COMPLETED_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH;
+
+export const ATHENA_NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_MVP_BATCH =
+  NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_MVP_BATCH;
 
 export type AthenaLauncherStatus =
   | "ready"
@@ -1209,7 +1227,7 @@ export const ATHENA_PRODUCT_UX_POLISH_MODEL = {
   auditPostureSummary:
     "Audit required. Audit memory preview is static preview only. No audit persistence.",
   currentReadinessSummary:
-    "Command drafting: preview-only. Approval drafts: preview-only. Provider registry: preview available. Capability matrix: preview available. Server-only adapter contracts: preview available. Backend-owned run admission contract: preview available. Backend-owned dry-run runner contract: preview available. Backend-owned dry-run runner review: preview available. Backend-owned synthetic dry-run runner skeleton: preview available. Backend-owned synthetic dry-run result capture contract: preview available. Backend-owned synthetic dry-run result capture review: preview available. Backend-owned synthetic dry-run audit and approval join contract: preview available. Backend-owned synthetic dry-run audit and approval join review: preview available. Backend-owned synthetic dry-run end-to-end packet contract: preview available. Synthetic end-to-end stage contract: preview available. Synthetic end-to-end lineage: preview available. End-to-end packet request/response contract: preview available. End-to-end packet gates: preview available. End-to-end packet readiness matrix: preview available. End-to-end packet acceptance posture: preview available. Backend-owned synthetic dry-run end-to-end packet review: preview available. End-to-end packet decision review: preview available. End-to-end packet stage failure review: preview available. End-to-end packet gate failure review: preview available. End-to-end packet recovery plan: preview available. End-to-end packet recovery readiness: preview available. End-to-end packet review audit summary: preview available. End-to-end packet acceptance posture review: preview available. Backend-owned synthetic dry-run manual approval handoff contract: preview available. Manual approval handoff packet: preview available. Manual approval handoff request/response contract: preview available. Manual approval scope: preview available. Manual approval handoff gates: preview available. Manual approval handoff readiness matrix: preview available. Manual approval handoff evidence summary: preview available. Backend-owned synthetic dry-run manual approval handoff review: preview available. Manual approval handoff decision review: preview available. Manual approval handoff gate failure review: preview available. Manual approval handoff recovery plan: preview available. Manual approval handoff recovery readiness: preview available. Manual approval handoff review audit summary: preview available. Manual approval handoff acceptance posture: preview available. Backend-owned synthetic dry-run manual approval decision contract: preview available. Manual approval decision packet: preview available. Manual approval decision request/response contract: preview available. Approval outcome preview: preview available. Manual approval decision gates: preview available. Manual approval decision readiness matrix: preview available. Manual approval decision evidence summary: preview available. Backend-owned synthetic dry-run manual approval decision review: preview available. Manual approval decision outcome review: preview available. Manual approval decision gate failure review: preview available. Manual approval decision recovery plan: preview available. Manual approval decision recovery readiness: preview available. Manual approval decision review audit summary: preview available. Manual approval decision acceptance posture: preview available. Current readiness: manual-approval-decision-review-only / not decided / not executable / not persistent. Model calls: not connected yet.",
+    "Backend-owned minimal synthetic execution review: preview available. Synthetic execution result review: preview available. Synthetic execution gate failure review: preview available. Synthetic execution recovery plan: preview available. Synthetic execution recovery readiness: preview available. Synthetic execution review audit summary: preview available. Synthetic execution acceptance posture: preview available. Current readiness: minimal-synthetic-execution-review-only / backend-only / in-memory-only / not provider-capable / not persistent. Command drafting: preview-only. Approval drafts: preview-only. Provider registry: preview available. Capability matrix: preview available. Server-only adapter contracts: preview available. Backend-owned run admission contract: preview available. Backend-owned dry-run runner contract: preview available. Backend-owned dry-run runner review: preview available. Backend-owned synthetic dry-run runner skeleton: preview available. Backend-owned synthetic dry-run result capture contract: preview available. Backend-owned synthetic dry-run result capture review: preview available. Backend-owned synthetic dry-run audit and approval join contract: preview available. Backend-owned synthetic dry-run audit and approval join review: preview available. Backend-owned synthetic dry-run end-to-end packet contract: preview available. Synthetic end-to-end stage contract: preview available. Synthetic end-to-end lineage: preview available. End-to-end packet request/response contract: preview available. End-to-end packet gates: preview available. End-to-end packet readiness matrix: preview available. End-to-end packet acceptance posture: preview available. Backend-owned synthetic dry-run end-to-end packet review: preview available. End-to-end packet decision review: preview available. End-to-end packet stage failure review: preview available. End-to-end packet gate failure review: preview available. End-to-end packet recovery plan: preview available. End-to-end packet recovery readiness: preview available. End-to-end packet review audit summary: preview available. End-to-end packet acceptance posture review: preview available. Backend-owned synthetic dry-run manual approval handoff contract: preview available. Manual approval handoff packet: preview available. Manual approval handoff request/response contract: preview available. Manual approval scope: preview available. Manual approval handoff gates: preview available. Manual approval handoff readiness matrix: preview available. Manual approval handoff evidence summary: preview available. Backend-owned synthetic dry-run manual approval handoff review: preview available. Manual approval handoff decision review: preview available. Manual approval handoff gate failure review: preview available. Manual approval handoff recovery plan: preview available. Manual approval handoff recovery readiness: preview available. Manual approval handoff review audit summary: preview available. Manual approval handoff acceptance posture: preview available. Backend-owned synthetic dry-run manual approval decision contract: preview available. Manual approval decision packet: preview available. Manual approval decision request/response contract: preview available. Approval outcome preview: preview available. Manual approval decision gates: preview available. Manual approval decision readiness matrix: preview available. Manual approval decision evidence summary: preview available. Backend-owned synthetic dry-run manual approval decision review: preview available. Manual approval decision outcome review: preview available. Manual approval decision gate failure review: preview available. Manual approval decision recovery plan: preview available. Manual approval decision recovery readiness: preview available. Manual approval decision review audit summary: preview available. Manual approval decision acceptance posture: preview available. Model calls: not connected yet.",
   blockedDefaultExecutionSummary:
     "Frontend provider calls: blocked. Backend admission request creation: blocked. Backend admission response receipt: blocked. Backend dry-run request creation: blocked. Backend dry-run invocation: blocked. Backend dry-run response receipt: blocked. Provider execution: locked. Plugin execution: locked. Autonomous execution: locked. Prompt sending: not implemented. Model calls: not implemented. Queue dispatch: blocked. Worker dispatch: blocked. Job execution: blocked. Persistence: not implemented. Backend-only execution: required.",
   nextOperatorActions: [
@@ -1221,7 +1239,7 @@ export const ATHENA_PRODUCT_UX_POLISH_MODEL = {
     "Review the model provider approval packet, run intent preview, approval gate checklist, run intent blockers, and approval expiry/revocation posture before discussing manual gated run admission preview.",
     "Review the manual gated model provider run admission preview, run admission gate evaluation, admission ticket preview, and admission blockers/recovery posture before the admission review layer.",
     "Review the model provider run admission review, admission decision review, gate failure review, admission recovery plan, and admission recovery readiness posture before the backend-owned run admission contract layer.",
-    "Review the backend-owned synthetic dry-run manual approval decision review, outcome review, gate failure review, recovery plan, recovery readiness, audit summary, and acceptance posture before the backend-owned minimal manual-gated synthetic dry-run execution MVP batch.",
+    "Review the backend-owned minimal synthetic execution review, result review, gate failure review, recovery plan, recovery readiness, audit summary, and acceptance posture before the backend-owned minimal manual-gated synthetic dry-run result capture MVP batch.",
   ],
   nextModelRoutingProviderSelectionChecklist:
     buildNextModelRoutingAndProviderSelectionChecklist(),
@@ -1246,7 +1264,7 @@ export const ATHENA_CHAT_PLACEHOLDER_MODEL = {
   placeholder:
     "Ask Athena what you want to build or control. Draft an operator request for Athena. This stays local to the page and executes nothing.",
   helperText:
-    "Chat input remains inert/local only. No prompt sending. No model calls yet. No provider SDKs imported. No frontend fetch/network call. Server-only adapter contracts are preview-only. Backend-owned run admission and dry-run runner layers are preview-only. Backend-owned synthetic dry-run manual approval decision review is preview-only. decision state: draft / preview-only / not evaluated. decision request is not created. decision invocation is not invoked. decision response is not received. decision error is not received. selected decision state: not selected. operator approval state: not requested. manual confirmation state: not captured. approval outcome state: not decided. approval token is not issued. approval lease is not created. approval reference is not persisted. audit reference is not persisted. result reference is not persisted. evidence packet state: preview-only. database write is not implemented. file write is not implemented. current readiness: manual-approval-decision-review-only / not decided / not executable / not persistent. No browser storage. No persistent memory. No plugin execution from chat yet. Approval-gated handoffs only. Backend-only execution required. Audit required. Kill switch required. No queue dispatch. No worker dispatch. No job execution. No result persistence. minimal manual-gated synthetic dry-run execution MVP comes next.",
+    "Chat input remains inert/local only. No prompt sending. No model calls yet. No provider SDKs imported. No frontend fetch/network call. Server-only adapter contracts are preview-only. Backend-owned run admission and dry-run runner layers are preview-only. Backend-owned minimal synthetic execution review is preview-only. server-only synthetic execution helper exists. synthetic execution result is produced in memory only. no frontend request is created. no API route is created. approval fixture is preview-only. manual confirmation fixture is preview-only. approval token is not issued. approval lease is not created. result reference state is preview-only / not persisted. database write is not implemented. file write is not implemented. current readiness: minimal-synthetic-execution-review-only / backend-only / in-memory-only / not provider-capable / not persistent. acceptance state: not accepted for live execution / synthetic MVP accepted only. recovery is manual review only. retry disabled. fallback disabled. No browser storage. No persistent memory. No plugin execution from chat yet. Approval-gated handoffs only. Backend-only execution required. Audit required. Kill switch required. No queue dispatch. No worker dispatch. No job execution. No result persistence. result capture MVP comes next.",
   executionPosture:
     "Execution remains approval-gated, blocked by default, and backend-only. Command composer is preview-only. Approval drafts are preview-only. Adapter contracts are preview-only. Backend-owned run admission and dry-run runner layers are preview-only. Backend-owned synthetic dry-run runner skeleton is preview-only. Backend-owned synthetic dry-run end-to-end packet contract is preview-only. Backend-owned synthetic dry-run end-to-end packet review is preview-only. Backend-owned synthetic dry-run manual approval handoff review is preview-only. Backend-owned synthetic dry-run manual approval decision contract is preview-only. Manual approval decision packet is preview-only. Manual approval decision request/response contract is preview-only. Approval outcome preview is preview-only. Manual approval decision gates are preview-only. Manual approval decision readiness matrix is preview-only. Manual approval decision evidence summary is preview-only. Backend-owned synthetic dry-run manual approval decision review is preview-only. Manual approval decision outcome review is preview-only. Manual approval decision gate failure review is preview-only. Manual approval decision recovery plan is preview-only. Manual approval decision recovery readiness is preview-only. Manual approval decision acceptance posture is preview-only. Audit joins are not persisted. Approval joins are not persisted. Result references are not persisted. Current readiness is manual-approval-decision-review-only / not decided / not executable / not persistent. Timeline is preview-only. Audit memory is static preview only. No autonomous execution.",
 } as const satisfies AthenaChatModel;
@@ -2827,6 +2845,13 @@ export const ATHENA_CURRENT_CAPABILITIES = [
       "Athena can keep server-only result envelopes, blocked live execution gates, current readiness, and preview-only audit/approval references visible while provider execution, queue/worker/job dispatch, and persistence remain blocked.",
   },
   {
+    id: "backend-owned-minimal-manual-gated-synthetic-dry-run-execution-review-preview-current",
+    label:
+      "Athena can now review backend-owned minimal synthetic execution review and recovery previews",
+    summary:
+      "Athena can review typed, deterministic, preview-only synthetic execution review, result review, gate failure review, recovery plan, recovery readiness, audit summary, and acceptance posture records while the execution path remains backend-only, in-memory-only, not provider-capable, and not persistent.",
+  },
+  {
     id: "readiness-review",
     label: "Athena can review readiness and blockers",
     summary:
@@ -2848,11 +2873,11 @@ export const ATHENA_CURRENT_CAPABILITIES = [
 
 export const ATHENA_FUTURE_CAPABILITIES = [
   {
-    id: "backend-owned-minimal-manual-gated-synthetic-dry-run-execution-review-recovery-preview-next",
+    id: "backend-owned-minimal-manual-gated-synthetic-dry-run-result-capture-mvp-next",
     label:
-      "Backend-owned minimal manual-gated synthetic dry-run execution review and recovery preview comes next",
+      "Backend-owned minimal manual-gated synthetic dry-run result capture MVP comes next",
     summary:
-      "The next likely batch is 5418-5449 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview.",
+      "The next likely batch is 5450-5481 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP.",
   },
   {
     id: "dry-run-reviews-stay-static",
@@ -3785,15 +3810,15 @@ export const ATHENA_AUDIT_MEMORY_PREVIEW_ITEMS:
 
 export const ATHENA_COMMAND_CENTER_MODEL = {
   batch:
-    ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH,
+    ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH,
   highestDetectedPhase:
-    ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_PHASE,
+    ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_PHASE,
   latestCompletedBatch:
-    ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH,
+    ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH,
   previousCompletedBatch:
-    ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_BATCH,
+    ATHENA_PREVIOUS_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH,
   nextLikelyBatch:
-    ATHENA_NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH,
+    ATHENA_NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_RESULT_CAPTURE_MVP_BATCH,
   identity: ATHENA_CONTROL_PLANE_IDENTITY,
   chat: ATHENA_CHAT_PLACEHOLDER_MODEL,
   productUx: ATHENA_PRODUCT_UX_POLISH_MODEL,
