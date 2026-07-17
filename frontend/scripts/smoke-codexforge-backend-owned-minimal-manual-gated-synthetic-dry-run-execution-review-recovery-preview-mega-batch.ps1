@@ -268,11 +268,13 @@ Assert-Contains $homeNormalized "no frontend request is created" "home contains 
 Assert-Contains $homeNormalized "no API route is created" "home contains no API route is created"
 Assert-ContainsAny $homeNormalized @(
   "Athena can now review the backend-owned minimal manual-gated synthetic dry-run execution MVP",
-  "Athena can now preview the backend-owned minimal manual-gated synthetic dry-run result capture MVP"
+  "Athena can now preview the backend-owned minimal manual-gated synthetic dry-run result capture MVP",
+  "Athena can now review the backend-owned minimal manual-gated synthetic dry-run result capture MVP"
 ) "home contains current Athena synthetic dry-run progress copy"
 Assert-ContainsAny $homeNormalized @(
   "minimal synthetic execution review is preview-only",
-  "minimal synthetic result capture MVP is backend-only"
+  "minimal synthetic result capture MVP is backend-only",
+  "minimal synthetic result capture review is preview-only"
 ) "home contains synthetic dry-run posture copy"
 Assert-ContainsAny $homeNormalized @(
   "server-only synthetic execution helper exists",
@@ -284,7 +286,8 @@ Assert-ContainsAny $homeNormalized @(
 ) "home contains in-memory-only synthetic copy"
 Assert-ContainsAny $homeNormalized @(
   "result capture MVP comes next",
-  "result capture review and recovery preview comes next"
+  "result capture review and recovery preview comes next",
+  "audit and approval join MVP comes next"
 ) "home contains the current synthetic dry-run next-step copy"
 
 foreach ($needle in @(

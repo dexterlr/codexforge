@@ -316,7 +316,6 @@ import {
   listSyntheticExecutionReviewAuditSummaries,
 } from "@/lib/codexforge/minimal-synth-exec-review";
 import {
-  buildNextResultCaptureReviewRecoveryChecklist,
   buildSyntheticResultCaptureGateSummary,
   buildSyntheticResultCaptureReadinessSummary,
   buildSyntheticResultCaptureSummary,
@@ -334,6 +333,22 @@ import {
   listSyntheticResultCaptureReadinessMatrixRecords,
   listSyntheticResultCaptureSafetyGateSummaries,
 } from "@/lib/codexforge/min-synth-result-capture";
+import {
+  buildMinimalAuditAndApprovalJoinMvpChecklist,
+  buildSyntheticResultCaptureGateFailureSummary,
+  buildSyntheticResultCaptureOutputReviewSummary,
+  buildSyntheticResultCaptureRecoverySummary,
+  buildSyntheticResultCaptureReviewSummary,
+  groupSyntheticResultCaptureReviewsByCapabilityFamily,
+  groupSyntheticResultCaptureReviewsByWorkspaceTarget,
+  listBackendOwnedMinimalManualGatedSyntheticDryRunResultCaptureReviews,
+  listSyntheticResultCaptureAcceptancePostureRecords,
+  listSyntheticResultCaptureGateFailureReviewRecords,
+  listSyntheticResultCaptureOutputReviewRecords,
+  listSyntheticResultCaptureRecoveryPlanPreviews,
+  listSyntheticResultCaptureRecoveryReadinessChecklistRecords,
+  listSyntheticResultCaptureReviewAuditSummaries,
+} from "@/lib/codexforge/min-synth-capture-review";
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
@@ -1434,8 +1449,6 @@ export function AthenaCommandCenterPanel({
     buildSyntheticResultCaptureGateSummary();
   const syntheticResultCaptureReadinessSummary =
     buildSyntheticResultCaptureReadinessSummary();
-  const nextResultCaptureReviewRecoveryChecklist =
-    buildNextResultCaptureReviewRecoveryChecklist();
   const minimalSyntheticResultCaptureMvpCapabilityGroups =
     groupMinimalManualGatedSyntheticDryRunResultCaptureMvpsByCapabilityFamily();
   const minimalSyntheticResultCaptureMvpWorkspaceGroups =
@@ -1458,6 +1471,58 @@ export function AthenaCommandCenterPanel({
     syntheticResultCaptureSafetyGateSummaries[0] ?? null;
   const representativeSyntheticResultCaptureBlockedLivePersistenceSummary =
     syntheticResultCaptureBlockedLivePersistenceSummaries[0] ?? null;
+  const syntheticResultCaptureReviewRecords =
+    listBackendOwnedMinimalManualGatedSyntheticDryRunResultCaptureReviews();
+  const syntheticResultCaptureOutputReviewRecords =
+    listSyntheticResultCaptureOutputReviewRecords();
+  const syntheticResultCaptureGateFailureReviewRecords =
+    listSyntheticResultCaptureGateFailureReviewRecords();
+  const syntheticResultCaptureGateFailureReviewsForDisplay = uniqueRecordsByString(
+    syntheticResultCaptureGateFailureReviewRecords,
+    (record) => record.failedGateId
+  );
+  const syntheticResultCaptureRecoveryPlanPreviewRecords =
+    listSyntheticResultCaptureRecoveryPlanPreviews();
+  const syntheticResultCaptureRecoveryReadinessChecklistRecords =
+    listSyntheticResultCaptureRecoveryReadinessChecklistRecords();
+  const syntheticResultCaptureRecoveryReadinessForDisplay = uniqueRecordsByString(
+    syntheticResultCaptureRecoveryReadinessChecklistRecords,
+    (record) => record.checklistId
+  );
+  const syntheticResultCaptureReviewAuditSummaryRecords =
+    listSyntheticResultCaptureReviewAuditSummaries();
+  const syntheticResultCaptureAcceptancePostureRecords =
+    listSyntheticResultCaptureAcceptancePostureRecords();
+  const syntheticResultCaptureReviewSummary =
+    buildSyntheticResultCaptureReviewSummary();
+  const syntheticResultCaptureOutputReviewSummary =
+    buildSyntheticResultCaptureOutputReviewSummary();
+  const syntheticResultCaptureGateFailureSummary =
+    buildSyntheticResultCaptureGateFailureSummary();
+  const syntheticResultCaptureRecoverySummary =
+    buildSyntheticResultCaptureRecoverySummary();
+  const minimalAuditAndApprovalJoinMvpChecklist =
+    buildMinimalAuditAndApprovalJoinMvpChecklist();
+  const syntheticResultCaptureReviewCapabilityGroups =
+    groupSyntheticResultCaptureReviewsByCapabilityFamily();
+  const syntheticResultCaptureReviewWorkspaceGroups =
+    groupSyntheticResultCaptureReviewsByWorkspaceTarget();
+  const representativeSyntheticResultCaptureReview =
+    syntheticResultCaptureReviewRecords[0] ?? null;
+  const representativeSyntheticResultCaptureOutputReview =
+    syntheticResultCaptureOutputReviewRecords[0] ?? null;
+  const representativeSyntheticResultCaptureGateFailureReview =
+    syntheticResultCaptureGateFailureReviewsForDisplay[0] ?? null;
+  const representativeSyntheticResultCaptureRecoveryPlan =
+    syntheticResultCaptureRecoveryPlanPreviewRecords[0] ?? null;
+  const representativeSyntheticResultCaptureReviewAuditSummary =
+    syntheticResultCaptureReviewAuditSummaryRecords[0] ?? null;
+  const representativeSyntheticResultCaptureAcceptancePosture =
+    syntheticResultCaptureAcceptancePostureRecords[0] ?? null;
+  const blockedSyntheticResultCaptureRecoveryReadinessChecklistRecords =
+    syntheticResultCaptureRecoveryReadinessForDisplay.filter(
+      (record) => record.state === "blocked"
+    );
   const resultCaptureReviewRecords =
     listBackendOwnedSyntheticDryRunResultCaptureReviews();
   const resultCaptureDecisionReviewRecords = listResultCaptureDecisionReviews();
@@ -18478,10 +18543,10 @@ export function AthenaCommandCenterPanel({
           </span>
         </div>
         <p className={styles.panelBody}>
-          Athena can preview the backend-owned minimal manual-gated synthetic
-          dry-run result capture MVP. minimal synthetic result capture MVP is
-          backend-only. synthetic result capture is produced in memory only.
-          server-only synthetic result capture helper exists. deterministic
+          Athena can review the backend-owned minimal manual-gated synthetic
+          dry-run result capture MVP. minimal synthetic result capture review
+          is preview-only. server-only synthetic result capture helper exists.
+          synthetic result capture is produced in memory only. deterministic
           synthetic capture only. no frontend request is created. no API route
           is created. No prompt sending. No model calls yet. No provider SDKs
           imported. no provider execution. no queue dispatch. no worker
@@ -18490,9 +18555,9 @@ export function AthenaCommandCenterPanel({
           write. approval fixture is preview-only. manual confirmation fixture
           is preview-only. approval token is not issued. approval lease is not
           created. current readiness:
-          minimal-synthetic-result-capture-mvp-only / backend-only /
-          in-memory-only / not provider-capable / not persistent. result
-          capture review and recovery preview comes next.
+          minimal-synthetic-result-capture-review-only / backend-only /
+          in-memory-only / not provider-capable / not persistent. audit and
+          approval join MVP comes next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -18605,7 +18670,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next checklist</p>
                 <h3 className={styles.placeholderTitle}>
-                  Result capture review and recovery preview
+                  Audit and approval join MVP
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -18613,10 +18678,10 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {nextResultCaptureReviewRecoveryChecklist.map((item, index) => (
+              {minimalAuditAndApprovalJoinMvpChecklist.map((item, index) => (
                 <span
                   key={buildScopedItemKey(
-                    "synthetic-result-capture-next-checklist",
+                    "synthetic-result-capture-audit-join-checklist",
                     "item",
                     index,
                     item
@@ -19149,6 +19214,650 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal synthetic result capture review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only review layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal synthetic result capture review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only / review-safe
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review the backend-owned minimal manual-gated synthetic
+          dry-run result capture MVP. minimal synthetic result capture review
+          is preview-only. server-only synthetic result capture helper exists.
+          synthetic result capture is produced in memory only. deterministic
+          synthetic capture only. no frontend request is created. no API route
+          is created. No prompt sending. No model calls yet. No provider SDKs
+          imported. no provider execution. no queue dispatch. no worker
+          dispatch. no job execution. no result persistence. no audit
+          persistence. no approval persistence. no database write. no file
+          write. current readiness:
+          minimal-synthetic-result-capture-review-only / backend-only /
+          in-memory-only / not provider-capable / not persistent. acceptance
+          state: not accepted for live persistence / synthetic capture MVP
+          accepted only. recovery is manual review only. retry disabled.
+          fallback disabled. audit and approval join MVP comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticResultCaptureReviewSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`phase ${syntheticResultCaptureReviewSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticResultCaptureReviewSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeSyntheticResultCaptureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticResultCaptureReview.requestLabel}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  {representativeSyntheticResultCaptureReview.reviewMode}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`provider slot: ${representativeSyntheticResultCaptureReview.providerSlotLabel} | backup provider slot: ${representativeSyntheticResultCaptureReview.backupProviderSlotLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`local/private alternative: ${representativeSyntheticResultCaptureReview.localPrivateAlternativeLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureReview.previewOnlyStatement
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultCaptureReview
+                    .nextAuditAndApprovalJoinMvpRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`${syntheticResultCaptureReviewRecords.length} review records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticResultCaptureReviewCapabilityGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-review-capability",
+                      "item",
+                      index,
+                      group.capabilityFamilyId
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.capabilityFamilyLabel} (${group.reviewCount})`}
+                  </span>
+                )
+              )}
+              {syntheticResultCaptureReviewWorkspaceGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-review-workspace",
+                      "item",
+                      index,
+                      group.workspaceTarget
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.workspaceTarget} (${group.reviewCount})`}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic result capture output review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Deterministic output review</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic result capture output review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Synthetic-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic result capture output review stays preview-only. capture
+          state: captured-synthetic-in-memory-only. capture id posture:
+          deterministic preview id only. result id posture: deterministic
+          preview id only. digest posture: deterministic preview digest only.
+          provider response state: not received. model output state: not
+          generated. no result persistence. no audit persistence. no approval
+          persistence.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Output review summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  in-memory synthetic capture only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`${syntheticResultCaptureOutputReviewSummary.outputReviewCount} output reviews`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticResultCaptureOutputReviewSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-output-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {representativeSyntheticResultCaptureOutputReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative output review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticResultCaptureOutputReview
+                        .sourceCaptureOutputReference
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  {
+                    representativeSyntheticResultCaptureOutputReview
+                      .captureState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureOutputReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <p className={styles.railBody}>
+                {representativeSyntheticResultCaptureOutputReview.remainingBlockers.join(
+                  " | "
+                )}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultCaptureOutputReview
+                    .explicitSyntheticCaptureOnlyNoRealOutputNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic result capture gate failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Held safety boundaries</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic result capture gate failure review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            No live gate pass
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic result capture gate failure review explains why backend-only
+          boundaries, server-only boundaries, synthetic-only boundaries,
+          provider/model boundaries, queue/worker/job boundaries, and
+          persistence boundaries all remain blocked. no live gate pass.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate failure summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticResultCaptureGateFailureSummary.gateFailureCount} gate failure reviews`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                blocked
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticResultCaptureGateFailureSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-gate-failure-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {representativeSyntheticResultCaptureGateFailureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative gate failure</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticResultCaptureGateFailureReview
+                        .failedGateLabel
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeSyntheticResultCaptureGateFailureReview
+                      .severity
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureGateFailureReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureGateFailureReview
+                    .requiredEvidenceToUnblock
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultCaptureGateFailureReview
+                    .explicitNoLiveGatePassStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic result capture recovery plan"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Manual review only</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic result capture recovery plan
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Recovery is manual review only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Recovery is manual review only. retry disabled. fallback disabled.
+          provider boundary recovery, prompt boundary recovery, model boundary
+          recovery, frontend request boundary recovery, API route boundary
+          recovery, queue/worker/job blocked recovery, and
+          result/audit/approval persistence recovery all remain preview-only.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Recovery summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticResultCaptureRecoverySummary.currentReadiness}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`${syntheticResultCaptureRecoverySummary.recoveryPlanCount} recovery plans`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticResultCaptureRecoverySummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-recovery-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {representativeSyntheticResultCaptureRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative recovery</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticResultCaptureRecoveryPlan
+                        .recoveryPosture
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  review-only
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureRecoveryPlan
+                    .serverOnlyCaptureHelperRecovery
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureRecoveryPlan
+                    .syntheticResultCaptureOutputRecovery
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultCaptureRecoveryPlan
+                    .explicitNoRetryNoFallbackNoProviderNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic result capture recovery readiness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness checkpoints</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic result capture recovery readiness
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only checklist
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          current readiness:
+          minimal-synthetic-result-capture-review-only / backend-only /
+          in-memory-only / not provider-capable / not persistent. server-only
+          capture helper reviewed, capture output reviewed, capture envelope
+          reviewed, audit preview reviewed, approval preview reviewed, and
+          evidence packet reviewed. provider, prompt, model, frontend request,
+          API route, queue, worker, job, persistence, database, and file
+          boundaries remain blocked.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticResultCaptureReviewSummary.currentReadiness}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                {`${syntheticResultCaptureRecoveryReadinessChecklistRecords.length} checklist records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {blockedSyntheticResultCaptureRecoveryReadinessChecklistRecords.map(
+                (record, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-result-capture-recovery-readiness-blocked",
+                      "item",
+                      index,
+                      record.checklistId
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {record.label}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {syntheticResultCaptureRecoveryReadinessForDisplay
+            .slice(0, 8)
+            .map((record) => (
+              <article key={record.key} className={styles.summaryCard}>
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>Readiness record</p>
+                    <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${
+                      record.state === "blocked"
+                        ? styles.metricStateBlocked
+                        : styles.metricStateApproval
+                    }`}
+                  >
+                    {record.state}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.evidenceRequired}</p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic result capture review audit summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only evidence summary</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic result capture review audit summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / not persisted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          synthetic result capture review audit summary is preview-only.
+          synthetic capture reference state: preview-only / not persisted.
+          synthetic result reference state: preview-only / not persisted. audit
+          reference state: not persisted. approval reference state: not
+          persisted. evidence packet state: preview-only.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticResultCaptureReviewAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative audit summary</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticResultCaptureReviewAuditSummary
+                        .auditPosture
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  review-only
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureReviewAuditSummary
+                    .serverOnlyCaptureHelperEvidenceSummary
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureReviewAuditSummary
+                    .deterministicCaptureEvidenceSummary
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultCaptureReviewAuditSummary
+                    .blockedActionSummary
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic result capture acceptance posture"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance posture</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic result capture acceptance posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not accepted for live persistence
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          acceptance state: not accepted for live persistence / synthetic
+          capture MVP accepted only. The deterministic synthetic capture is
+          accepted for MVP review only, while provider, prompt, model,
+          queue/worker/job, result persistence, audit persistence, approval
+          persistence, database, file, approval, and audit blockers remain in
+          place.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticResultCaptureAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative acceptance</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticResultCaptureAcceptancePosture
+                        .acceptanceState
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  review-only
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureAcceptancePosture
+                    .syntheticOnlyAcceptanceSummary
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureAcceptancePosture
+                    .providerBlockers.join(" | ")
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticResultCaptureAcceptancePosture
+                    .resultPersistenceBlockers.join(" | ")
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticResultCaptureAcceptancePosture
+                    .explicitSyntheticCaptureAcceptedLivePersistenceNotAcceptedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Audit memory preview">
         <div className={styles.panelHeader}>
           <div>
@@ -19407,7 +20116,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Execution review and recovery preview checklist
+                  Audit and approval join MVP checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -19415,7 +20124,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextExecutionReviewRecoveryChecklist.map(
+              {minimalAuditAndApprovalJoinMvpChecklist.map(
                 (item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}

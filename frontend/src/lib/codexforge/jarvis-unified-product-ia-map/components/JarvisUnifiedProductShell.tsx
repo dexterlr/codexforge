@@ -209,15 +209,16 @@ export function JarvisUnifiedProductPanel(
                 {productUx.heroCopy.homeAskCopy}
               </p>
               <p className={styles.athenaConsoleBody}>
-                {productUx.cockpitSummary} Athena can now preview the
+                {productUx.cockpitSummary} Athena can now review the
                 backend-owned minimal manual-gated synthetic dry-run result
-                capture MVP. minimal synthetic result capture MVP is
-                backend-only. synthetic result capture is produced in memory
-                only. no frontend request is created. no API route is created.
-                no model calls yet. no prompt sending. no provider SDKs
-                imported. queue, worker, and job execution remain blocked.
-                result, audit, and approval persistence remain blocked. result
-                capture review and recovery preview comes next.
+                capture MVP. minimal synthetic result capture review is
+                preview-only. server-only synthetic result capture helper
+                exists. synthetic result capture is produced in memory only. no
+                frontend request is created. no API route is created. no model
+                calls yet. no prompt sending. no provider SDKs imported.
+                queue, worker, and job execution remain blocked. result,
+                audit, and approval persistence remain blocked. audit and
+                approval join MVP comes next.
                 Athena can plan and route commands. Athena
                 can preview cross-workspace run timelines and show audit memory
                 previews. Athena can now preview manual gated model provider
@@ -480,11 +481,11 @@ export function JarvisUnifiedProductPanel(
                   approval outcome state is not decided.
                 </p>
                 <p className={styles.railBody}>
-                  Athena can now preview the backend-owned minimal manual-gated
+                  Athena can now review the backend-owned minimal manual-gated
                   synthetic dry-run result capture MVP.
                 </p>
                 <p className={styles.railBody}>
-                  minimal synthetic result capture MVP is backend-only.
+                  minimal synthetic result capture review is preview-only.
                 </p>
                 <p className={styles.railBody}>
                   server-only synthetic result capture helper exists.
@@ -499,7 +500,7 @@ export function JarvisUnifiedProductPanel(
                   no API route is created.
                 </p>
                 <p className={styles.railBody}>
-                  result capture review and recovery preview comes next.
+                  audit and approval join MVP comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs

@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5481) {
-  throw "[FAIL] Highest detected phase expected 5481 found $highestPhase"
+if ($highestPhase -ne 5513) {
+  throw "[FAIL] Highest detected phase expected 5513 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,6 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "5482-5513 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview"',
+  "Phase 5513 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-result-capture-review-recovery-preview-mega-batch.ps1",
   'currentReleaseGateBatch = "5450-5481 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP"',
   "Phase 5481 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP",
   "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-result-capture-mvp-mega-batch.ps1",
@@ -149,7 +152,66 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5481. Latest completed batch: 5450-5481 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP. Previous completed batch: 5418-5449 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview. Next likely batch: 5482-5513 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview.",
+  "Current checkpoint: Highest detected phase: 5513. Latest completed batch: 5482-5513 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview. Previous completed batch: 5450-5481 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP. Next likely batch: 5514-5545 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join MVP.",
+  "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review And Recovery Preview Checkpoint",
+  "Highest detected phase: 5513",
+  "Latest completed batch: 5482-5513 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview",
+  "Previous completed batch: 5450-5481 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP",
+  "Next likely batch: 5514-5545 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join MVP",
+  "Backend-owned minimal synthetic result capture review",
+  "Synthetic result capture output review",
+  "Synthetic result capture gate failure review",
+  "Synthetic result capture recovery plan",
+  "Synthetic result capture recovery readiness",
+  "Synthetic result capture review audit summary",
+  "Synthetic result capture acceptance posture",
+  "backend-owned minimal manual-gated synthetic dry-run result capture review and recovery preview only",
+  "minimal synthetic result capture review is preview-only",
+  "server-only synthetic result capture helper exists",
+  "synthetic result capture is produced in memory only",
+  "deterministic synthetic capture only",
+  "no frontend request is created",
+  "no API route is created",
+  "no real approval request",
+  "no real approval recording",
+  "approval fixture is preview-only",
+  "manual confirmation fixture is preview-only",
+  "approval token is not issued",
+  "approval lease is not created",
+  "provider response is not received",
+  "model output is not generated",
+  "no prompt sending",
+  "no LLM/model calls",
+  "no frontend provider call",
+  "no frontend fetch/network call",
+  "no provider SDK imports",
+  "no provider execution",
+  "no plugin execution",
+  "no autonomous execution",
+  "no live video generation",
+  "no queue dispatch",
+  "no worker dispatch",
+  "no job execution",
+  "no retry execution",
+  "no fallback execution",
+  "no result persistence",
+  "no audit persistence",
+  "no approval persistence",
+  "no persistent memory",
+  "no browser storage",
+  "no database writes",
+  "no file writes",
+  "backend-only execution path required",
+  "server-only adapters required",
+  "manual approval fixture required",
+  "manual confirmation fixture required",
+  "kill switch required",
+  "audit preview required",
+  "opaque credential references only",
+  "no plaintext secrets",
+  "current readiness is minimal-synthetic-result-capture-review-only / backend-only / in-memory-only / not provider-capable / not persistent",
+  "acceptance state is not accepted for live persistence / synthetic capture MVP accepted only",
+  "backend-owned minimal manual-gated synthetic dry-run audit and approval join MVP next",
   "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP Checkpoint",
   "Highest detected phase: 5481",
   "Latest completed batch: 5450-5481 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP",
