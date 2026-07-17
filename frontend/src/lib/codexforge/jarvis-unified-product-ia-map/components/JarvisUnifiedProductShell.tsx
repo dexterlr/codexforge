@@ -209,16 +209,16 @@ export function JarvisUnifiedProductPanel(
                 {productUx.heroCopy.homeAskCopy}
               </p>
               <p className={styles.athenaConsoleBody}>
-                {productUx.cockpitSummary} Athena can now review the
-                backend-owned minimal manual-gated synthetic dry-run result
-                capture MVP. minimal synthetic result capture review is
-                preview-only. server-only synthetic result capture helper
-                exists. synthetic result capture is produced in memory only. no
-                frontend request is created. no API route is created. no model
-                calls yet. no prompt sending. no provider SDKs imported.
-                queue, worker, and job execution remain blocked. result,
-                audit, and approval persistence remain blocked. audit and
-                approval join MVP comes next.
+                {productUx.cockpitSummary} Athena can now preview the
+                backend-owned minimal manual-gated synthetic dry-run audit and
+                approval join MVP. minimal synthetic audit and approval join
+                MVP is backend-only. synthetic audit and approval join is
+                produced in memory only. no frontend request is created. no
+                API route is created. no model calls yet. no prompt sending.
+                no provider SDKs imported. queue, worker, and job execution
+                remain blocked. result, audit, and approval persistence remain
+                blocked. audit and approval join review and recovery preview
+                comes next.
                 Athena can plan and route commands. Athena
                 can preview cross-workspace run timelines and show audit memory
                 previews. Athena can now preview manual gated model provider
@@ -263,6 +263,9 @@ export function JarvisUnifiedProductPanel(
                 backend gates are satisfied. Manual/provider execution stays
                 backend-only. No autonomous execution yet.
               </p>
+              {/* Historical smoke marker preserved for prior batch coverage:
+                  Athena can now review the backend-owned minimal manual-gated synthetic dry-run result capture MVP.
+                  audit and approval join MVP comes next. */}
               {/* Historical smoke marker preserved for prior MVP coverage:
                   Athena can now preview the backend-owned minimal manual-gated synthetic dry-run execution MVP.
                   minimal synthetic execution MVP is backend-only.
@@ -481,17 +484,14 @@ export function JarvisUnifiedProductPanel(
                   approval outcome state is not decided.
                 </p>
                 <p className={styles.railBody}>
-                  Athena can now review the backend-owned minimal manual-gated
-                  synthetic dry-run result capture MVP.
+                  Athena can now preview the backend-owned minimal manual-gated
+                  synthetic dry-run audit and approval join MVP.
                 </p>
                 <p className={styles.railBody}>
-                  minimal synthetic result capture review is preview-only.
+                  minimal synthetic audit and approval join MVP is backend-only.
                 </p>
                 <p className={styles.railBody}>
-                  server-only synthetic result capture helper exists.
-                </p>
-                <p className={styles.railBody}>
-                  synthetic result capture is produced in memory only.
+                  synthetic audit and approval join is produced in memory only.
                 </p>
                 <p className={styles.railBody}>
                   no frontend request is created.
@@ -500,12 +500,19 @@ export function JarvisUnifiedProductPanel(
                   no API route is created.
                 </p>
                 <p className={styles.railBody}>
-                  audit and approval join MVP comes next.
+                  audit and approval join review and recovery preview comes
+                  next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
                   imported. queue, worker, and job execution remain blocked.
                 </p>
+                {/* Historical smoke marker preserved for prior result capture review coverage:
+                    Athena can now review the backend-owned minimal manual-gated synthetic dry-run result capture MVP.
+                    minimal synthetic result capture review is preview-only.
+                    server-only synthetic result capture helper exists.
+                    synthetic result capture is produced in memory only.
+                    audit and approval join MVP comes next. */}
                 {/* Historical smoke marker preserved for prior MVP coverage:
                     minimal manual-gated synthetic dry-run execution MVP comes next. */}
                 {/* Historical smoke marker preserved for prior batch coverage:

@@ -350,6 +350,26 @@ import {
   listSyntheticResultCaptureReviewAuditSummaries,
 } from "@/lib/codexforge/min-synth-capture-review";
 import {
+  buildNextAuditApprovalJoinReviewRecoveryChecklist,
+  buildSyntheticAuditApprovalJoinGateSummary,
+  buildSyntheticAuditApprovalJoinReadinessSummary,
+  buildSyntheticAuditApprovalJoinSummary,
+  groupMinimalManualGatedSyntheticDryRunAuditApprovalJoinMvpsByCapabilityFamily,
+  groupMinimalManualGatedSyntheticDryRunAuditApprovalJoinMvpsByWorkspaceTarget,
+  listMinimalManualGatedSyntheticDryRunAuditApprovalJoinMvpRecords,
+  listSyntheticApprovalJoinOutputs,
+  listSyntheticApprovalJoinPreviews,
+  listSyntheticAuditApprovalEvidencePackets,
+  listSyntheticAuditApprovalJoinBlockedLivePersistenceSummaries,
+  listSyntheticAuditApprovalJoinEnvelopes,
+  listSyntheticAuditApprovalJoinGates,
+  listSyntheticAuditApprovalJoinInputs,
+  listSyntheticAuditApprovalJoinReadinessMatrixRecords,
+  listSyntheticAuditApprovalJoinSafetyGateSummaries,
+  listSyntheticAuditJoinOutputs,
+  listSyntheticAuditJoinPreviews,
+} from "@/lib/codexforge/min-synth-audit-join/min-synth-audit-join-catalog";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -1519,6 +1539,65 @@ export function AthenaCommandCenterPanel({
     syntheticResultCaptureReviewAuditSummaryRecords[0] ?? null;
   const representativeSyntheticResultCaptureAcceptancePosture =
     syntheticResultCaptureAcceptancePostureRecords[0] ?? null;
+  const minimalSyntheticAuditApprovalJoinMvpRecords =
+    listMinimalManualGatedSyntheticDryRunAuditApprovalJoinMvpRecords();
+  const syntheticAuditApprovalJoinInputs =
+    listSyntheticAuditApprovalJoinInputs();
+  const syntheticAuditJoinOutputs = listSyntheticAuditJoinOutputs();
+  const syntheticApprovalJoinOutputs = listSyntheticApprovalJoinOutputs();
+  const syntheticAuditApprovalJoinEnvelopes =
+    listSyntheticAuditApprovalJoinEnvelopes();
+  const syntheticAuditApprovalJoinGates = listSyntheticAuditApprovalJoinGates();
+  const syntheticAuditApprovalJoinGatesForDisplay = uniqueRecordsByString(
+    syntheticAuditApprovalJoinGates,
+    (record) => record.id
+  );
+  const syntheticAuditApprovalJoinReadinessMatrixRecords =
+    listSyntheticAuditApprovalJoinReadinessMatrixRecords();
+  const syntheticAuditApprovalJoinReadinessForDisplay = uniqueRecordsByString(
+    syntheticAuditApprovalJoinReadinessMatrixRecords,
+    (record) => record.id
+  );
+  const syntheticAuditJoinPreviews = listSyntheticAuditJoinPreviews();
+  const syntheticApprovalJoinPreviews = listSyntheticApprovalJoinPreviews();
+  const syntheticAuditApprovalEvidencePackets =
+    listSyntheticAuditApprovalEvidencePackets();
+  const syntheticAuditApprovalJoinSafetyGateSummaries =
+    listSyntheticAuditApprovalJoinSafetyGateSummaries();
+  const syntheticAuditApprovalJoinBlockedLivePersistenceSummaries =
+    listSyntheticAuditApprovalJoinBlockedLivePersistenceSummaries();
+  const syntheticAuditApprovalJoinSummary =
+    buildSyntheticAuditApprovalJoinSummary();
+  const syntheticAuditApprovalJoinGateSummary =
+    buildSyntheticAuditApprovalJoinGateSummary();
+  const syntheticAuditApprovalJoinReadinessSummary =
+    buildSyntheticAuditApprovalJoinReadinessSummary();
+  const nextAuditApprovalJoinReviewRecoveryChecklist =
+    buildNextAuditApprovalJoinReviewRecoveryChecklist();
+  const minimalSyntheticAuditApprovalJoinMvpCapabilityGroups =
+    groupMinimalManualGatedSyntheticDryRunAuditApprovalJoinMvpsByCapabilityFamily();
+  const minimalSyntheticAuditApprovalJoinMvpWorkspaceGroups =
+    groupMinimalManualGatedSyntheticDryRunAuditApprovalJoinMvpsByWorkspaceTarget();
+  const representativeMinimalSyntheticAuditApprovalJoinMvp =
+    minimalSyntheticAuditApprovalJoinMvpRecords[0] ?? null;
+  const representativeSyntheticAuditApprovalJoinInput =
+    syntheticAuditApprovalJoinInputs[0] ?? null;
+  const representativeSyntheticAuditJoinOutput =
+    syntheticAuditJoinOutputs[0] ?? null;
+  const representativeSyntheticApprovalJoinOutput =
+    syntheticApprovalJoinOutputs[0] ?? null;
+  const representativeSyntheticAuditApprovalJoinEnvelope =
+    syntheticAuditApprovalJoinEnvelopes[0] ?? null;
+  const representativeSyntheticAuditJoinPreview =
+    syntheticAuditJoinPreviews[0] ?? null;
+  const representativeSyntheticApprovalJoinPreview =
+    syntheticApprovalJoinPreviews[0] ?? null;
+  const representativeSyntheticAuditApprovalEvidencePacket =
+    syntheticAuditApprovalEvidencePackets[0] ?? null;
+  const representativeSyntheticAuditApprovalJoinSafetyGateSummary =
+    syntheticAuditApprovalJoinSafetyGateSummaries[0] ?? null;
+  const representativeSyntheticAuditApprovalJoinBlockedLivePersistenceSummary =
+    syntheticAuditApprovalJoinBlockedLivePersistenceSummaries[0] ?? null;
   const blockedSyntheticResultCaptureRecoveryReadinessChecklistRecords =
     syntheticResultCaptureRecoveryReadinessForDisplay.filter(
       (record) => record.state === "blocked"
@@ -19852,6 +19931,768 @@ export function AthenaCommandCenterPanel({
                   representativeSyntheticResultCaptureAcceptancePosture
                     .explicitSyntheticCaptureAcceptedLivePersistenceNotAcceptedStatement
                 }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal manual-gated synthetic dry-run audit and approval join MVP"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Current backend-only MVP</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal manual-gated synthetic dry-run audit and
+              approval join MVP
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Backend-only / in-memory only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview the backend-owned minimal manual-gated synthetic
+          dry-run audit and approval join MVP. minimal synthetic audit and
+          approval join MVP is backend-only. synthetic audit and approval join
+          is produced in memory only. server-only synthetic audit and approval
+          join helper exists. deterministic synthetic audit and approval join
+          only. no frontend request is created. no API route is created. No
+          prompt sending. No model calls yet. No provider SDKs imported. no
+          provider execution. no queue dispatch. no worker dispatch. no job
+          execution. no result persistence. no audit persistence. no approval
+          persistence. no database write. no file write. approval fixture is
+          preview-only. manual confirmation fixture is preview-only. approval
+          token is not issued. approval lease is not created. current
+          readiness: minimal-synthetic-audit-approval-join-mvp-only /
+          backend-only / in-memory-only / not provider-capable / not
+          persistent. audit and approval join review and recovery preview comes
+          next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Join summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticAuditApprovalJoinSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`phase ${syntheticAuditApprovalJoinSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticAuditApprovalJoinSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-audit-approval-join-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeMinimalSyntheticAuditApprovalJoinMvp ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative MVP</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeMinimalSyntheticAuditApprovalJoinMvp.requestLabel
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeMinimalSyntheticAuditApprovalJoinMvp
+                      .serverOnlyPosture
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`provider slot: ${representativeMinimalSyntheticAuditApprovalJoinMvp.providerSlotLabel} | local/private alternative: ${representativeMinimalSyntheticAuditApprovalJoinMvp.localPrivateAlternativeLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source result capture review: ${representativeMinimalSyntheticAuditApprovalJoinMvp.sourceMinimalSyntheticResultCaptureReviewReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeMinimalSyntheticAuditApprovalJoinMvp
+                    .nextReviewRecoveryRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${minimalSyntheticAuditApprovalJoinMvpRecords.length} join MVP records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {minimalSyntheticAuditApprovalJoinMvpCapabilityGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-audit-approval-join-mvp-capability",
+                      "item",
+                      index,
+                      group.capabilityFamilyId
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.capabilityFamilyLabel} (${group.joinCount})`}
+                  </span>
+                )
+              )}
+              {minimalSyntheticAuditApprovalJoinMvpWorkspaceGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-audit-approval-join-mvp-workspace",
+                      "item",
+                      index,
+                      group.workspaceTarget
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.workspaceTarget} (${group.joinCount})`}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next checklist</p>
+                <h3 className={styles.placeholderTitle}>
+                  Join review and recovery preview
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                Next
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {nextAuditApprovalJoinReviewRecoveryChecklist.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-audit-approval-join-next-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic audit and approval join input"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Server-only input</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic audit and approval join input
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Deterministic synthetic join request only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic audit and approval join input stays deterministic and
+          server-only. no frontend request is created. no API route is created.
+          result capture payload posture is deterministic synthetic capture
+          fixture only. audit payload posture is preview-only. approval payload
+          posture is preview-only.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticAuditApprovalJoinInput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative input</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticAuditApprovalJoinInput
+                        .auditApprovalJoinMvpId
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {representativeSyntheticAuditApprovalJoinInput.requestState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticAuditApprovalJoinInput
+                    .explicitNoFrontendRequestNoApiRouteNoPersistenceStatement
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {`result capture payload posture: ${representativeSyntheticAuditApprovalJoinInput.resultCapturePayloadPosture} | provider payload posture: ${representativeSyntheticAuditApprovalJoinInput.providerPayloadPosture}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticApprovalJoinPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only approval posture
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  {
+                    representativeSyntheticApprovalJoinPreview
+                      .approvalFixtureState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                approval fixture is preview-only. manual confirmation fixture is
+                preview-only.
+              </p>
+              <p className={styles.railFooter}>
+                no real approval request. no real approval recording.
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic audit join output"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>In-memory audit join</p>
+            <h2 className={styles.panelTitle}>Synthetic audit join output</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            In-memory only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          deterministic synthetic audit join in memory only. provider response
+          is not received. model output is not generated. audit reference stays
+          preview-only / not persisted.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticAuditJoinOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative output</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticAuditJoinOutput.syntheticAuditJoinId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {representativeSyntheticAuditJoinOutput.auditJoinState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`result reference: ${representativeSyntheticAuditJoinOutput.resultReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit reference: ${representativeSyntheticAuditJoinOutput.auditReference} | evidence: ${representativeSyntheticAuditJoinOutput.evidenceReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`provider response: ${representativeSyntheticAuditJoinOutput.providerResponseState} | model output: ${representativeSyntheticAuditJoinOutput.modelOutputState}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticAuditJoinPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticAuditJoinPreview.auditReference}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {representativeSyntheticAuditJoinPreview.auditPreviewState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeSyntheticAuditJoinPreview.auditEvidenceSummary}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticAuditJoinPreview
+                    .explicitNoAuditPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic approval join output"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>In-memory approval join</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic approval join output
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            In-memory only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          deterministic synthetic approval join in memory only. provider
+          response is not received. model output is not generated. approval
+          reference stays preview-only / not persisted.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticApprovalJoinOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative output</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticApprovalJoinOutput
+                        .syntheticApprovalJoinId
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeSyntheticApprovalJoinOutput
+                      .approvalJoinState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`result reference: ${representativeSyntheticApprovalJoinOutput.resultReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval reference: ${representativeSyntheticApprovalJoinOutput.approvalReference} | evidence: ${representativeSyntheticApprovalJoinOutput.evidenceReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`provider response: ${representativeSyntheticApprovalJoinOutput.providerResponseState} | model output: ${representativeSyntheticApprovalJoinOutput.modelOutputState}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticApprovalJoinPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticApprovalJoinPreview.approvalReference}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeSyntheticApprovalJoinPreview
+                      .approvalPreviewState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticApprovalJoinPreview
+                    .approvalEvidenceSummary
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticApprovalJoinPreview
+                    .explicitNoApprovalPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic audit and approval join envelope"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Envelope posture</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic audit and approval join envelope
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Preview-only / not persisted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic audit and approval join envelope keeps request, response,
+          error, result, audit, approval, and evidence references visible in
+          preview only. no result persistence. no audit persistence. no
+          approval persistence.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticAuditApprovalJoinEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative envelope</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticAuditApprovalJoinEnvelope
+                        .auditJoinOutputReference
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeSyntheticAuditApprovalJoinEnvelope.joinState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`request: ${representativeSyntheticAuditApprovalJoinEnvelope.requestReference} | response: ${representativeSyntheticAuditApprovalJoinEnvelope.responseReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`error: ${representativeSyntheticAuditApprovalJoinEnvelope.errorReference} | approval output: ${representativeSyntheticAuditApprovalJoinEnvelope.approvalJoinOutputReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticAuditApprovalJoinEnvelope
+                    .explicitSyntheticJoinOnlyNoProviderOutputNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticAuditApprovalJoinSafetyGateSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Safety summary</p>
+                  <h3 className={styles.placeholderTitle}>
+                    backend-only synthetic join posture
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeSyntheticAuditApprovalJoinSafetyGateSummary
+                      .currentReadiness
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeSyntheticAuditApprovalJoinSafetyGateSummary.summaryLines
+                  .slice(0, 10)
+                  .map((item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "synthetic-audit-approval-join-safety-summary",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  ))}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic audit and approval join gates"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Safety gates</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic audit and approval join gates
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Live join blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          synthetic audit and approval join gates keep backend-only,
+          server-only, synthetic-only, approval, persistence, and execution
+          boundaries held. no provider execution. no queue dispatch. no worker
+          dispatch. no job execution.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticAuditApprovalJoinGateSummary.gateCount} join gate records`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                blocked
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticAuditApprovalJoinGateSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-audit-approval-join-gate-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {syntheticAuditApprovalJoinGatesForDisplay.slice(0, 6).map((record, index) => (
+            <article
+              key={buildScopedItemKey(
+                "synthetic-audit-approval-join-gate-record",
+                "item",
+                index,
+                record.id
+              )}
+              className={styles.summaryCard}
+            >
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  blocked
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.currentState}</p>
+              <p className={styles.railBody}>{record.evidence}</p>
+              <p className={styles.railFooter}>{record.blockedLiveAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic audit and approval join readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness checkpoints</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic audit and approval join readiness matrix
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only checklist
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          current readiness:
+          minimal-synthetic-audit-approval-join-mvp-only / backend-only /
+          in-memory-only / not provider-capable / not persistent. server-only
+          join helper, synthetic result capture dependency, audit preview,
+          approval preview, join envelope, and evidence packet stay visible
+          while provider, prompt, model, frontend request, API route, queue,
+          worker, job, persistence, database, and file boundaries remain
+          blocked.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticAuditApprovalJoinReadinessSummary.currentReadiness}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+              >
+                {`${syntheticAuditApprovalJoinReadinessSummary.readinessCount} readiness records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticAuditApprovalJoinReadinessSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-audit-approval-join-readiness-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {syntheticAuditApprovalJoinReadinessForDisplay
+            .slice(0, 6)
+            .map((record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "synthetic-audit-approval-join-readiness-record",
+                  "item",
+                  index,
+                  record.id
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>Readiness record</p>
+                    <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                  >
+                    {record.state}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.evidence}</p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic audit and approval join evidence preview"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only evidence summary</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic audit and approval join evidence preview
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / not persisted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          synthetic audit and approval join evidence preview stays preview-only
+          / not persisted. result reference, audit reference, approval
+          reference, and evidence packet reference all remain deterministic
+          preview-only references.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticAuditApprovalEvidencePacket ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Evidence packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticAuditApprovalEvidencePacket
+                        .evidenceReference
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeSyntheticAuditApprovalEvidencePacket
+                      .evidencePacketState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeSyntheticAuditApprovalEvidencePacket.evidenceSummaryLines.join(
+                  " | "
+                )}
+              </p>
+              <p className={styles.railFooter}>
+                {`digest: ${representativeSyntheticAuditApprovalEvidencePacket.syntheticJoinDigest}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticAuditApprovalJoinBlockedLivePersistenceSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Blocked live join</p>
+                  <h3 className={styles.placeholderTitle}>
+                    live audit and approval persistence stays blocked
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  blocked
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticAuditApprovalJoinBlockedLivePersistenceSummary
+                    .noRealApprovalRequestStatement
+                }
+                .{" "}
+                {
+                  representativeSyntheticAuditApprovalJoinBlockedLivePersistenceSummary
+                    .noRealApprovalRecordingStatement
+                }
+                .
+              </p>
+              <p className={styles.railFooter}>
+                {representativeSyntheticAuditApprovalJoinBlockedLivePersistenceSummary.blockedLiveActions.join(
+                  " | "
+                )}
               </p>
             </article>
           ) : null}
