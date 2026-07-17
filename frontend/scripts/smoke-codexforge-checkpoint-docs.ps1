@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5385) {
-  throw "[FAIL] Highest detected phase expected 5385 found $highestPhase"
+if ($highestPhase -ne 5417) {
+  throw "[FAIL] Highest detected phase expected 5417 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,7 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview"',
+  'currentReleaseGateBatch = "5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP"',
+  "Phase 5417 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp-mega-batch.ps1",
   "Phase 5385 Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview",
   "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview-mega-batch.ps1",
   "Phase 5353 Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract",
@@ -142,11 +144,26 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5385. Latest completed batch: 5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview. Previous completed batch: 5322-5353 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract. Next likely batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP.",
-  "Highest detected phase: 5385",
-  "Latest completed batch: 5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview",
-  "Previous completed batch: 5322-5353 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract",
-  "Next likely batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP",
+  "Current checkpoint: Highest detected phase: 5417. Latest completed batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP. Previous completed batch: 5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview. Next likely batch: 5418-5449 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview.",
+  "Highest detected phase: 5417",
+  "Latest completed batch: 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP",
+  "Previous completed batch: 5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview",
+  "Next likely batch: 5418-5449 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview",
+  "backend-owned minimal manual-gated synthetic dry-run execution MVP only",
+  "minimal synthetic execution MVP is backend-only",
+  "server-only synthetic execution helper exists",
+  "synthetic execution result is produced in memory only",
+  "deterministic synthetic result only",
+  "no frontend request is created",
+  "no API route is created",
+  "no real approval request",
+  "no real approval recording",
+  "approval fixture is preview-only",
+  "manual confirmation fixture is preview-only",
+  "approval token is not issued",
+  "approval lease is not created",
+  "provider response is not received",
+  "model output is not generated",
   "backend-owned synthetic dry-run manual approval decision review and recovery preview only",
   "manual approval decision review is preview-only",
   "manual approval decision outcome review is preview-only",

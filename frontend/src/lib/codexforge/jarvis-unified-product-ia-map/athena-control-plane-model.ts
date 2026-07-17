@@ -74,11 +74,11 @@ import {
   PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_HANDOFF_CONTRACT_BATCH,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview";
 import {
-  BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_BATCH as BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_CURRENT_BATCH,
-  BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_PHASE as BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_CURRENT_PHASE,
-  NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH,
-  PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_CONTRACT_BATCH,
-} from "@/lib/codexforge/backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview";
+  BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH as BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_CURRENT_BATCH,
+  BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_PHASE as BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_CURRENT_PHASE,
+  NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH,
+  PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_BATCH,
+} from "@/lib/codexforge/backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp";
 
 export const ATHENA_UNIFIED_CHAT_CONTROL_PLANE_FOUNDATION_BATCH =
   "4458-4489 - Athena Unified Chat Control Plane Foundation";
@@ -257,17 +257,17 @@ export const ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_HAN
 export const ATHENA_NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_CONTRACT_BATCH =
   NEXT_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_CONTRACT_BATCH;
 
-export const ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_BATCH =
-  BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_CURRENT_BATCH;
+export const ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH =
+  BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_CURRENT_BATCH;
 
-export const ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_PHASE =
-  BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_CURRENT_PHASE;
+export const ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_PHASE =
+  BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_CURRENT_PHASE;
 
-export const ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_CONTRACT_BATCH =
-  PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_CONTRACT_BATCH;
+export const ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_BATCH =
+  PREVIOUS_COMPLETED_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_BATCH;
 
-export const ATHENA_NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH =
-  NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH;
+export const ATHENA_NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH =
+  NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH;
 
 export type AthenaLauncherStatus =
   | "ready"
@@ -2801,6 +2801,32 @@ export const ATHENA_CURRENT_CAPABILITIES = [
       "Athena can keep manual-review-only recovery plans, readiness checklists, audit summaries, and acceptance posture blockers visible while retry and fallback remain disabled.",
   },
   {
+    id: "backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp-current",
+    label:
+      "Athena can now preview backend-owned minimal manual-gated synthetic dry-run execution MVP",
+    summary:
+      "Athena can review typed, deterministic, backend-only synthetic execution MVP records while execution remains in-memory only, provider/model execution remains blocked, and persistence remains unavailable.",
+  },
+  {
+    id: "backend-owned-minimal-manual-gated-synthetic-dry-run-execution-input-preview",
+    label: "Athena can preview synthetic execution input",
+    summary:
+      "Athena can keep deterministic synthetic request posture, preview-only approval fixtures, preview-only manual confirmation fixtures, no frontend request, and no API route visible while execution stays server-only.",
+  },
+  {
+    id: "backend-owned-minimal-manual-gated-synthetic-dry-run-execution-result-preview",
+    label: "Athena can preview synthetic execution result",
+    summary:
+      "Athena can keep accepted fixture-only admission, deterministic preview ids and digests, in-memory-only result posture, and no provider output visible while nothing is persisted.",
+  },
+  {
+    id: "backend-owned-minimal-manual-gated-synthetic-dry-run-execution-gates-readiness-preview",
+    label:
+      "Athena can preview synthetic MVP result envelopes, gates, readiness matrices, and audit/approval previews",
+    summary:
+      "Athena can keep server-only result envelopes, blocked live execution gates, current readiness, and preview-only audit/approval references visible while provider execution, queue/worker/job dispatch, and persistence remain blocked.",
+  },
+  {
     id: "readiness-review",
     label: "Athena can review readiness and blockers",
     summary:
@@ -2822,11 +2848,11 @@ export const ATHENA_CURRENT_CAPABILITIES = [
 
 export const ATHENA_FUTURE_CAPABILITIES = [
   {
-    id: "backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp-next",
+    id: "backend-owned-minimal-manual-gated-synthetic-dry-run-execution-review-recovery-preview-next",
     label:
-      "Backend-owned minimal manual-gated synthetic dry-run execution MVP comes next",
+      "Backend-owned minimal manual-gated synthetic dry-run execution review and recovery preview comes next",
     summary:
-      "The next likely batch is 5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP.",
+      "The next likely batch is 5418-5449 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview.",
   },
   {
     id: "dry-run-reviews-stay-static",
@@ -3759,15 +3785,15 @@ export const ATHENA_AUDIT_MEMORY_PREVIEW_ITEMS:
 
 export const ATHENA_COMMAND_CENTER_MODEL = {
   batch:
-    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_BATCH,
+    ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH,
   highestDetectedPhase:
-    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_PHASE,
+    ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_PHASE,
   latestCompletedBatch:
-    ATHENA_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_BATCH,
+    ATHENA_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH,
   previousCompletedBatch:
-    ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_CONTRACT_BATCH,
+    ATHENA_PREVIOUS_BACKEND_OWNED_SYNTHETIC_DRY_RUN_MANUAL_APPROVAL_DECISION_REVIEW_RECOVERY_PREVIEW_BATCH,
   nextLikelyBatch:
-    ATHENA_NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_MVP_BATCH,
+    ATHENA_NEXT_BACKEND_OWNED_MINIMAL_MANUAL_GATED_SYNTHETIC_DRY_RUN_EXECUTION_REVIEW_RECOVERY_PREVIEW_BATCH,
   identity: ATHENA_CONTROL_PLANE_IDENTITY,
   chat: ATHENA_CHAT_PLACEHOLDER_MODEL,
   productUx: ATHENA_PRODUCT_UX_POLISH_MODEL,

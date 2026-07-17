@@ -209,13 +209,20 @@ export function JarvisUnifiedProductPanel(
                 {productUx.heroCopy.homeAskCopy}
               </p>
               <p className={styles.athenaConsoleBody}>
-                {productUx.cockpitSummary} Athena can plan and route commands.
-                Athena can preview cross-workspace run timelines and show audit
-                memory previews. Athena can now preview manual gated model
-                provider run admission. run admission state is not admitted.
-                Athena can now preview model provider run admission reviews.
-                Athena can now preview backend-owned model provider run
-                admission contracts.
+                {productUx.cockpitSummary} Athena can now preview the
+                backend-owned minimal manual-gated synthetic dry-run execution
+                MVP. minimal synthetic execution MVP is backend-only. synthetic
+                execution result is produced in memory only. no frontend request
+                is created. no API route is created. no model calls yet. no
+                prompt sending. no provider SDKs imported. queue, worker, and
+                job execution remain blocked. result, audit, and approval
+                persistence remain blocked. execution review and recovery
+                preview comes next. Athena can plan and route commands. Athena
+                can preview cross-workspace run timelines and show audit memory
+                previews. Athena can now preview manual gated model provider
+                run admission. run admission state is not admitted. Athena can
+                now preview model provider run admission reviews. Athena can now
+                preview backend-owned model provider run admission contracts.
                 backend-owned contract is preview-only. contract state is draft
                 / preview-only. admission request is not created. backend
                 response is not received. backend admission request/response/error

@@ -472,11 +472,13 @@ function Get-CodexForgeCurrentReleaseGateStatusLabel {
   }
 }
 
-$currentReleaseGateBatch = "5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview"
+$currentReleaseGateBatch = "5386-5417 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP"
 $currentReleaseGateName = "CodexForge Current Required Release Gate"
 $currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
 $historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
 $historicalArchiveInventoryCommand = "powershell -ExecutionPolicy Bypass -File .\scripts\" + $historicalArchiveInventoryFile
+# Historical current release gate assignment marker preserved for historical smoke coverage:
+# currentReleaseGateBatch = "5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview"
 # Historical current release gate assignment marker preserved for historical smoke coverage:
 # currentReleaseGateBatch = "5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview"
 # Historical current release gate assignment marker preserved for historical smoke coverage:
@@ -555,6 +557,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 5321 Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-handoff-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5353 Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-decision-contract-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5385 Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 5417 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp-mega-batch.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }

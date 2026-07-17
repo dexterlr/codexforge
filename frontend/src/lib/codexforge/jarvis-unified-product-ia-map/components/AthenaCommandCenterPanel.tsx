@@ -281,6 +281,25 @@ import {
   listManualApprovalDecisionReviewAuditSummaries,
 } from "@/lib/codexforge/backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview";
 import {
+  buildNextExecutionReviewRecoveryChecklist,
+  buildSyntheticMvpExecutionSummary,
+  buildSyntheticMvpGateSummary,
+  buildSyntheticMvpReadinessSummary,
+  groupMinimalManualGatedSyntheticDryRunExecutionMvpsByCapabilityFamily,
+  groupMinimalManualGatedSyntheticDryRunExecutionMvpsByWorkspaceTarget,
+  listMinimalManualGatedSyntheticDryRunExecutionMvpRecords,
+  listSyntheticMvpApprovalPreviews,
+  listSyntheticMvpAuditPreviews,
+  listSyntheticMvpBlockedLiveExecutionSummaries,
+  listSyntheticMvpExecutionGates,
+  listSyntheticMvpExecutionInputs,
+  listSyntheticMvpExecutionResults,
+  listSyntheticMvpManualApprovalFixtures,
+  listSyntheticMvpReadinessMatrixRecords,
+  listSyntheticMvpResultEnvelopes,
+  listSyntheticMvpSafetyGateSummaries,
+} from "@/lib/codexforge/backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -1251,6 +1270,56 @@ export function AthenaCommandCenterPanel({
     manualApprovalDecisionRecoveryReadinessForDisplay.filter(
       (record) => record.state === "blocked"
     );
+  const minimalSyntheticExecutionMvpRecords =
+    listMinimalManualGatedSyntheticDryRunExecutionMvpRecords();
+  const syntheticMvpExecutionInputs = listSyntheticMvpExecutionInputs();
+  const syntheticMvpManualApprovalFixtures =
+    listSyntheticMvpManualApprovalFixtures();
+  const syntheticMvpExecutionResults = listSyntheticMvpExecutionResults();
+  const syntheticMvpResultEnvelopes = listSyntheticMvpResultEnvelopes();
+  const syntheticMvpExecutionGates = listSyntheticMvpExecutionGates();
+  const syntheticMvpExecutionGatesForDisplay = uniqueRecordsByString(
+    syntheticMvpExecutionGates,
+    (record) => record.gateId
+  );
+  const syntheticMvpReadinessMatrixRecords =
+    listSyntheticMvpReadinessMatrixRecords();
+  const syntheticMvpReadinessMatrixForDisplay = uniqueRecordsByString(
+    syntheticMvpReadinessMatrixRecords,
+    (record) => record.readinessId
+  );
+  const syntheticMvpAuditPreviews = listSyntheticMvpAuditPreviews();
+  const syntheticMvpApprovalPreviews = listSyntheticMvpApprovalPreviews();
+  const syntheticMvpSafetyGateSummaries = listSyntheticMvpSafetyGateSummaries();
+  const syntheticMvpBlockedLiveExecutionSummaries =
+    listSyntheticMvpBlockedLiveExecutionSummaries();
+  const syntheticMvpExecutionSummary = buildSyntheticMvpExecutionSummary();
+  const syntheticMvpGateSummary = buildSyntheticMvpGateSummary();
+  const syntheticMvpReadinessSummary = buildSyntheticMvpReadinessSummary();
+  const nextExecutionReviewRecoveryChecklist =
+    buildNextExecutionReviewRecoveryChecklist();
+  const minimalSyntheticExecutionMvpCapabilityGroups =
+    groupMinimalManualGatedSyntheticDryRunExecutionMvpsByCapabilityFamily();
+  const minimalSyntheticExecutionMvpWorkspaceGroups =
+    groupMinimalManualGatedSyntheticDryRunExecutionMvpsByWorkspaceTarget();
+  const representativeMinimalSyntheticExecutionMvp =
+    minimalSyntheticExecutionMvpRecords[0] ?? null;
+  const representativeSyntheticMvpExecutionInput =
+    syntheticMvpExecutionInputs[0] ?? null;
+  const representativeSyntheticMvpManualApprovalFixture =
+    syntheticMvpManualApprovalFixtures[0] ?? null;
+  const representativeSyntheticMvpExecutionResult =
+    syntheticMvpExecutionResults[0] ?? null;
+  const representativeSyntheticMvpResultEnvelope =
+    syntheticMvpResultEnvelopes[0] ?? null;
+  const representativeSyntheticMvpSafetyGateSummary =
+    syntheticMvpSafetyGateSummaries[0] ?? null;
+  const representativeSyntheticMvpBlockedLiveExecutionSummary =
+    syntheticMvpBlockedLiveExecutionSummaries[0] ?? null;
+  const representativeSyntheticMvpAuditPreview =
+    syntheticMvpAuditPreviews[0] ?? null;
+  const representativeSyntheticMvpApprovalPreview =
+    syntheticMvpApprovalPreviews[0] ?? null;
   const resultCaptureReviewRecords =
     listBackendOwnedSyntheticDryRunResultCaptureReviews();
   const resultCaptureDecisionReviewRecords = listResultCaptureDecisionReviews();
@@ -1914,8 +1983,16 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {capabilityWorkspaceGroups.map((group) => (
-                <span key={group.workspaceTarget} className={styles.metaPill}>
+              {capabilityWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "capability-workspace-group",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.metaPill}
+                >
                   {`${group.workspaceTarget}: ${group.capabilityRows.length}`}
                 </span>
               ))}
@@ -2125,8 +2202,16 @@ export function AthenaCommandCenterPanel({
               {`${adapterContractsByCapabilityFamily.length} capability families | ${adapterContractsByWorkspaceTarget.length} workspace targets | ${adapterReadinessSummary.requestEnvelopeCount} request envelope previews`}
             </p>
             <div className={styles.workspaceMeta}>
-              {adapterContractsByCapabilityFamily.map((group) => (
-                <span key={group.capabilityFamilyId} className={styles.metaPill}>
+              {adapterContractsByCapabilityFamily.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "adapter-contract-capability-group",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.metaPill}
+                >
                   {`${group.capabilityFamilyLabel}: ${group.contractCount}`}
                 </span>
               ))}
@@ -2608,8 +2693,16 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {dryRunScenarioWorkspaceGroups.map((group) => (
-                <span key={group.workspaceTarget} className={styles.metaPill}>
+              {dryRunScenarioWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "dry-run-scenario-workspace-group",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.metaPill}
+                >
                   {`${group.workspaceTarget}: ${group.scenarioCount}`}
                 </span>
               ))}
@@ -2892,8 +2985,16 @@ export function AthenaCommandCenterPanel({
               ))}
             </div>
             <div className={styles.workspaceMeta}>
-              {resultReviewWorkspaceGroups.map((group) => (
-                <span key={group.workspaceTarget} className={styles.metaPill}>
+              {resultReviewWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "result-review-workspace-group",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.metaPill}
+                >
                   {`${group.workspaceTarget}: ${group.reviewCount}`}
                 </span>
               ))}
@@ -3653,9 +3754,14 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {approvalPacketsByCapabilityFamily.map((group) => (
+              {approvalPacketsByCapabilityFamily.map((group, index) => (
                 <span
-                  key={group.capabilityFamilyId}
+                  key={buildScopedItemKey(
+                    "approval-packet-capability-group",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
                   className={styles.metaPill}
                 >{`${group.capabilityFamilyLabel}: ${group.approvalPacketCount}`}</span>
               ))}
@@ -3674,9 +3780,14 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {approvalPacketsByWorkspaceTarget.map((group) => (
+              {approvalPacketsByWorkspaceTarget.map((group, index) => (
                 <span
-                  key={group.workspaceTarget}
+                  key={buildScopedItemKey(
+                    "approval-packet-workspace-group",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
                   className={styles.metaPill}
                 >{`${group.workspaceTarget}: ${group.approvalPacketCount}`}</span>
               ))}
@@ -17038,6 +17149,600 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal manual-gated synthetic dry-run execution MVP"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Current backend-only MVP</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal manual-gated synthetic dry-run execution MVP
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Backend-only / in-memory only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview the backend-owned minimal manual-gated synthetic
+          dry-run execution MVP. minimal synthetic execution MVP is backend-only.
+          synthetic execution result is produced in memory only. server-only
+          synthetic execution helper exists. no frontend request is created. no
+          API route is created. No prompt sending. No model calls yet. No
+          provider SDKs imported. no provider execution. no queue dispatch. no
+          worker dispatch. no job execution. no result persistence. no audit
+          persistence. no approval persistence. approval fixture is preview-only.
+          manual confirmation fixture is preview-only. approval token is not
+          issued. approval lease is not created. current readiness:
+          minimal-synthetic-execution-mvp-only / backend-only / in-memory-only /
+          not provider-capable / not persistent. execution review and recovery
+          preview comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Execution summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticMvpExecutionSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`phase ${syntheticMvpExecutionSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticMvpExecutionSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-mvp-execution-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {representativeMinimalSyntheticExecutionMvp ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative MVP</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeMinimalSyntheticExecutionMvp.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {representativeMinimalSyntheticExecutionMvp.backendOwnedPosture}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`provider slot: ${representativeMinimalSyntheticExecutionMvp.providerSlotLabel} | local/private alternative: ${representativeMinimalSyntheticExecutionMvp.localPrivateAlternativeLabel}`}
+              </p>
+              <p className={styles.railBody}>
+                {`source decision review: ${representativeMinimalSyntheticExecutionMvp.sourceManualApprovalDecisionReviewReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeMinimalSyntheticExecutionMvp
+                    .nextReviewRecoveryRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${minimalSyntheticExecutionMvpRecords.length} MVP records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {minimalSyntheticExecutionMvpCapabilityGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-mvp-capability",
+                    "item",
+                    index,
+                    group.capabilityFamilyId
+                  )}
+                  className={styles.metaPill}
+                >
+                  {`${group.capabilityFamilyLabel} (${group.executionCount})`}
+                </span>
+              ))}
+              {minimalSyntheticExecutionMvpWorkspaceGroups.map((group, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-mvp-workspace",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.metaPill}
+                >
+                  {`${group.workspaceTarget} (${group.executionCount})`}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next checklist</p>
+                <h3 className={styles.placeholderTitle}>
+                  Execution review and recovery preview
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                Next
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {nextExecutionReviewRecoveryChecklist.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-mvp-next-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic execution input">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Server-only input</p>
+            <h2 className={styles.panelTitle}>Synthetic execution input</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Deterministic request only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic execution input stays deterministic and server-only. no
+          frontend request is created. no API route is created. prompt payload
+          posture is redacted placeholder only. provider payload posture is none.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticMvpExecutionInput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative input</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticMvpExecutionInput.requestLabel}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {representativeSyntheticMvpExecutionInput.requestState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`execution mode: ${representativeSyntheticMvpExecutionInput.executionMode} | ownership: ${representativeSyntheticMvpExecutionInput.executionOwnership}`}
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticMvpExecutionInput
+                    .explicitNoFrontendRequestNoApiRouteStatement
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {`prompt payload posture: ${representativeSyntheticMvpExecutionInput.promptPayloadPosture} | provider payload posture: ${representativeSyntheticMvpExecutionInput.providerPayloadPosture}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticMvpManualApprovalFixture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Manual fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only approval fixture
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                  {
+                    representativeSyntheticMvpManualApprovalFixture
+                      .approvalFixtureState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                approval fixture is preview-only. manual confirmation fixture is
+                preview-only.
+              </p>
+              <p className={styles.railBody}>
+                {`selected decision fixture: ${representativeSyntheticMvpManualApprovalFixture.selectedDecisionFixture}`}
+              </p>
+              <p className={styles.railFooter}>
+                approval token is not issued. approval lease is not created.
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic execution result">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>In-memory result</p>
+            <h2 className={styles.panelTitle}>Synthetic execution result</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            In-memory only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          synthetic execution result is produced in memory only. deterministic
+          synthetic result only. provider response is not received. model output
+          is not generated.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticMvpExecutionResult ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative result</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticMvpExecutionResult.resultId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeSyntheticMvpExecutionResult
+                      .acceptedSyntheticAdmission
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`digest: ${representativeSyntheticMvpExecutionResult.syntheticDigest}`}
+              </p>
+              <p className={styles.railBody}>
+                {`execution state: ${representativeSyntheticMvpExecutionResult.executionState} | persistence: ${representativeSyntheticMvpExecutionResult.persistenceState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticMvpExecutionResult
+                    .inMemoryOnlyResultStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticMvpSafetyGateSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Safety summary</p>
+                  <h3 className={styles.placeholderTitle}>
+                    backend-only synthetic posture
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeSyntheticMvpSafetyGateSummary.currentReadiness
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeSyntheticMvpSafetyGateSummary.summaryLines
+                  .slice(0, 10)
+                  .map((item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "synthetic-mvp-safety-summary",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  ))}
+              </div>
+            </article>
+          ) : null}
+          {representativeSyntheticMvpBlockedLiveExecutionSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Blocked live execution</p>
+                  <h3 className={styles.placeholderTitle}>
+                    live execution stays blocked
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  blocked
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticMvpBlockedLiveExecutionSummary
+                    .noRealApprovalRequestStatement
+                }
+                .{" "}
+                {
+                  representativeSyntheticMvpBlockedLiveExecutionSummary
+                    .noRealApprovalRecordingStatement
+                }
+                .
+              </p>
+              <p className={styles.railFooter}>
+                {representativeSyntheticMvpBlockedLiveExecutionSummary.blockedLiveActions.join(
+                  " | "
+                )}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic MVP result envelope">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Envelope posture</p>
+            <h2 className={styles.panelTitle}>Synthetic MVP result envelope</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Server-only response
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic MVP result envelope is returned by a server-only smoke/helper
+          only. provider response state is not received. model output state is
+          not generated. result, audit, and approval persistence stay not
+          implemented.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticMvpResultEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative envelope</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticMvpResultEnvelope.executionMvpId}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {representativeSyntheticMvpResultEnvelope.responseState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`result reference: ${representativeSyntheticMvpResultEnvelope.resultReference} | response reference: ${representativeSyntheticMvpResultEnvelope.responseReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`provider response state: ${representativeSyntheticMvpResultEnvelope.providerResponseState} | model output state: ${representativeSyntheticMvpResultEnvelope.modelOutputState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticMvpResultEnvelope
+                    .explicitSyntheticResultOnlyNoProviderOutputStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Synthetic MVP gates">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Gate posture</p>
+            <h2 className={styles.panelTitle}>Synthetic MVP gates</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Live execution blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic MVP gates preserve backend-only boundaries, preview-only
+          fixtures, blocked live provider/model execution, blocked queue/worker/job
+          dispatch, and blocked persistence.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticMvpGateSummary.gateCount} gates`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                blocked
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticMvpGateSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-mvp-gate-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.blockedPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {syntheticMvpExecutionGatesForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Gate record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {record.currentState}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.evidence}</p>
+              <p className={styles.railFooter}>{record.blockedLiveAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic MVP readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness matrix</p>
+            <h2 className={styles.panelTitle}>Synthetic MVP readiness matrix</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            {syntheticMvpReadinessSummary.currentReadiness}
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          current readiness: minimal-synthetic-execution-mvp-only / backend-only
+          / in-memory-only / not provider-capable / not persistent.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticMvpReadinessSummary.readinessCount} readiness records`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                current
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticMvpReadinessSummary.summaryLines.map((item, index) => (
+                <span
+                  key={buildScopedItemKey(
+                    "synthetic-mvp-readiness-summary",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.metaPill}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          {syntheticMvpReadinessMatrixForDisplay.map((record) => (
+            <article key={record.key} className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Readiness record</p>
+                  <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {record.state}
+                </span>
+              </div>
+              <p className={styles.railBody}>{record.evidence}</p>
+              <p className={styles.railFooter}>{record.nextSafeAction}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic MVP audit and approval preview"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview references</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic MVP audit and approval preview
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            Preview-only / not persisted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Synthetic MVP audit and approval previews remain preview-only. no audit
+          persistence. no approval persistence. no database write. no file write.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticMvpAuditPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticMvpAuditPreview.auditReference}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeSyntheticMvpAuditPreview.auditState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {representativeSyntheticMvpAuditPreview.evidenceSummary}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticMvpAuditPreview
+                    .explicitNoAuditPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeSyntheticMvpApprovalPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticMvpApprovalPreview.approvalReference}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {representativeSyntheticMvpApprovalPreview.approvalState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                approval fixture is preview-only. manual confirmation fixture is
+                preview-only.
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticMvpApprovalPreview
+                    .explicitNoApprovalPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Audit memory preview">
         <div className={styles.panelHeader}>
           <div>
@@ -17296,7 +18001,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Minimal manual-gated synthetic dry-run execution MVP checklist
+                  Execution review and recovery preview checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -17304,7 +18009,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {minimalManualGatedSyntheticDryRunExecutionMvpChecklist.map(
+              {nextExecutionReviewRecoveryChecklist.map(
                 (item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
