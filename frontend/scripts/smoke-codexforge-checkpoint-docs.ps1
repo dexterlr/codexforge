@@ -66,8 +66,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5545) {
-  throw "[FAIL] Highest detected phase expected 5545 found $highestPhase"
+if ($highestPhase -ne 5577) {
+  throw "[FAIL] Highest detected phase expected 5577 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -82,7 +82,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "5514-5545 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join MVP"',
+  'currentReleaseGateBatch = "5546-5577 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview"',
+  "Phase 5577 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-audit-approval-join-review-recovery-preview-mega-batch.ps1",
   "Phase 5545 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join MVP",
   "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-audit-approval-join-mvp-mega-batch.ps1",
   'currentReleaseGateBatch = "5482-5513 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview"',
@@ -155,22 +157,21 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5545. Latest completed batch: 5514-5545 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join MVP. Previous completed batch: 5482-5513 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview. Next likely batch: 5546-5577 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview.",
-  "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit And Approval Join MVP Checkpoint",
-  "Highest detected phase: 5545",
-  "Latest completed batch: 5514-5545 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join MVP",
-  "Previous completed batch: 5482-5513 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview",
-  "Next likely batch: 5546-5577 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
-  "Backend-owned minimal manual-gated synthetic dry-run audit and approval join MVP",
-  "Synthetic audit and approval join input",
-  "Synthetic audit join output",
-  "Synthetic approval join output",
-  "Synthetic audit and approval join envelope",
-  "Synthetic audit and approval join gates",
-  "Synthetic audit and approval join readiness matrix",
-  "Synthetic audit and approval join evidence preview",
-  "backend-owned minimal manual-gated synthetic dry-run audit and approval join MVP only",
-  "minimal synthetic audit and approval join MVP is backend-only",
+  "Current checkpoint: Highest detected phase: 5577. Latest completed batch: 5546-5577 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview. Previous completed batch: 5514-5545 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join MVP. Next likely batch: 5578-5609 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP.",
+  "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit And Approval Join Review And Recovery Preview Checkpoint",
+  "Highest detected phase: 5577",
+  "Latest completed batch: 5546-5577 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
+  "Previous completed batch: 5514-5545 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join MVP",
+  "Next likely batch: 5578-5609 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP",
+  "Backend-owned minimal synthetic audit and approval join review",
+  "Synthetic audit and approval join output review",
+  "Synthetic audit and approval join gate failure review",
+  "Synthetic audit and approval join recovery plan",
+  "Synthetic audit and approval join recovery readiness",
+  "Synthetic audit and approval join review audit summary",
+  "Synthetic audit and approval join acceptance posture",
+  "backend-owned minimal manual-gated synthetic dry-run audit and approval join review and recovery preview only",
+  "minimal synthetic audit and approval join review is preview-only",
   "server-only synthetic audit and approval join helper exists",
   "synthetic audit and approval join is produced in memory only",
   "deterministic synthetic audit and approval join only",
@@ -213,8 +214,23 @@ foreach ($needle in @(
   "audit preview required",
   "opaque credential references only",
   "no plaintext secrets",
-  "current readiness is minimal-synthetic-audit-approval-join-mvp-only / backend-only / in-memory-only / not provider-capable / not persistent",
-  "backend-owned minimal manual-gated synthetic dry-run audit and approval join review and recovery preview next",
+  "current readiness is minimal-synthetic-audit-approval-join-review-only / backend-only / in-memory-only / not provider-capable / not persistent",
+  "acceptance state is not accepted for live persistence / synthetic audit approval join MVP accepted only",
+  "backend-owned minimal manual-gated synthetic dry-run end-to-end packet MVP next",
+  "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit And Approval Join MVP Checkpoint",
+  "Highest detected phase: 5545",
+  "Latest completed batch: 5514-5545 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join MVP",
+  "Next likely batch: 5546-5577 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
+  "Backend-owned minimal manual-gated synthetic dry-run audit and approval join MVP",
+  "Synthetic audit and approval join input",
+  "Synthetic audit join output",
+  "Synthetic approval join output",
+  "Synthetic audit and approval join envelope",
+  "Synthetic audit and approval join gates",
+  "Synthetic audit and approval join readiness matrix",
+  "Synthetic audit and approval join evidence preview",
+  "backend-owned minimal manual-gated synthetic dry-run audit and approval join MVP only",
+  "minimal synthetic audit and approval join MVP is backend-only",
   "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review And Recovery Preview Checkpoint",
   "Highest detected phase: 5513",
   "Latest completed batch: 5482-5513 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview",

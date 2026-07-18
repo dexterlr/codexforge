@@ -484,11 +484,15 @@ export function JarvisUnifiedProductPanel(
                   approval outcome state is not decided.
                 </p>
                 <p className={styles.railBody}>
-                  Athena can now preview the backend-owned minimal manual-gated
+                  Athena can now review the backend-owned minimal manual-gated
                   synthetic dry-run audit and approval join MVP.
                 </p>
                 <p className={styles.railBody}>
-                  minimal synthetic audit and approval join MVP is backend-only.
+                  minimal synthetic audit and approval join review is
+                  preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  server-only synthetic audit and approval join helper exists.
                 </p>
                 <p className={styles.railBody}>
                   synthetic audit and approval join is produced in memory only.
@@ -500,13 +504,19 @@ export function JarvisUnifiedProductPanel(
                   no API route is created.
                 </p>
                 <p className={styles.railBody}>
-                  audit and approval join review and recovery preview comes
-                  next.
+                  end-to-end packet MVP comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
                   imported. queue, worker, and job execution remain blocked.
                 </p>
+                <p className={styles.railBody}>
+                  result, audit, and approval persistence remain blocked.
+                </p>
+                {/* Historical smoke marker preserved for prior audit/approval join MVP coverage:
+                    Athena can now preview the backend-owned minimal manual-gated synthetic dry-run audit and approval join MVP.
+                    minimal synthetic audit and approval join MVP is backend-only.
+                    audit and approval join review and recovery preview comes next. */}
                 {/* Historical smoke marker preserved for prior result capture review coverage:
                     Athena can now review the backend-owned minimal manual-gated synthetic dry-run result capture MVP.
                     minimal synthetic result capture review is preview-only.
