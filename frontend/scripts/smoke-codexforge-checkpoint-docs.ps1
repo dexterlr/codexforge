@@ -36,7 +36,7 @@ Write-Host "=== CodexForge Checkpoint Documentation smoke ==="
 <#
 Legacy smoke compatibility markers preserved for older scripts that inspect the
 raw source of this checkpoint smoke file. These markers are inert here and do
-not change the active 5609 release gate.
+not change the active 5641 release gate.
 
 Highest detected phase: 4233
 Latest completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run
@@ -142,8 +142,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5609) {
-  throw "[FAIL] Highest detected phase expected 5609 found $highestPhase"
+if ($highestPhase -ne 5641) {
+  throw "[FAIL] Highest detected phase expected 5641 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -158,7 +158,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "5578-5609 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP"',
+  'currentReleaseGateBatch = "5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview"',
+  "Phase 5641 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-end-to-end-packet-review-recovery-preview-mega-batch.ps1",
   "Phase 5609 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP",
   "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-end-to-end-packet-mvp-mega-batch.ps1",
   "Phase 5577 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
@@ -178,7 +180,17 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5609. Latest completed batch: 5578-5609 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP. Previous completed batch: 5546-5577 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview. Next likely batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview.",
+  "Current checkpoint: Highest detected phase: 5641. Latest completed batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview. Previous completed batch: 5578-5609 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP. Next likely batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP.",
+  "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-To-End Packet Review And Recovery Preview Checkpoint",
+  "Highest detected phase: 5641",
+  "Latest completed batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
+  "Previous completed batch: 5578-5609 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP",
+  "Next likely batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP",
+  "backend-owned minimal manual-gated synthetic dry-run end-to-end packet review and recovery preview only",
+  "minimal synthetic end-to-end packet review is preview-only",
+  "acceptance state is not accepted for live execution / synthetic end-to-end packet MVP accepted only",
+  "current readiness is minimal-synthetic-end-to-end-packet-review-only / backend-only / in-memory-only / not provider-capable / not persistent",
+  "backend-owned minimal manual-gated text model adapter MVP next",
   "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-To-End Packet MVP Checkpoint",
   "Highest detected phase: 5609",
   "Latest completed batch: 5578-5609 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP",

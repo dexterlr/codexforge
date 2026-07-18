@@ -543,12 +543,20 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     eyebrow: "Athena entry point",
     badge: "Start here",
     summary:
-      "Athena is the main Jarvis control layer and helps you plan, route, review, and safely hand off AI work across CodexForge.",
+      "Athena is the main Jarvis control layer and helps you plan, route, review, and safely hand off AI work across CodexForge. Athena can now review the backend-owned minimal manual-gated synthetic dry-run end-to-end packet MVP. minimal synthetic end-to-end packet review is preview-only. server-only synthetic end-to-end packet helper exists. synthetic end-to-end packet is produced in memory only. synthetic execution, capture, audit join, and approval join are bundled in memory only. no frontend request is created. no API route is created. no model calls yet. no prompt sending. no provider SDKs imported. queue, worker, and job execution remain blocked. result, audit, and approval persistence remain blocked. text model adapter MVP comes next.",
     summaryMarkers: [
       "world-class Jarvis product order",
       "home product order upgraded",
       "4586-4617 - Athena Product UX Polish and Operator Home Takeover",
       "Athena is the main Jarvis control layer",
+      "Athena can now review the backend-owned minimal manual-gated synthetic dry-run end-to-end packet MVP",
+      "minimal synthetic end-to-end packet review is preview-only",
+      "server-only synthetic end-to-end packet helper exists",
+      "synthetic end-to-end packet is produced in memory only",
+      "synthetic execution, capture, audit join, and approval join are bundled in memory only",
+      "no frontend request is created",
+      "no API route is created",
+      "text model adapter MVP comes next",
       "normal user path is primary",
       "developer diagnostics are secondary",
     ],
@@ -587,7 +595,8 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       {
         label: "Safety",
         value: "Locked by default",
-        detail: "Execution stays blocked and backend-only handoff remains approval-gated from the frontend.",
+        detail:
+          "Execution stays blocked, queue/worker/job execution remains blocked, and backend-only handoff remains approval-gated from the frontend.",
       },
     ],
   },
@@ -654,7 +663,7 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     eyebrow: "Athena Command Center",
     badge: "Your upper Jarvis layer",
     summary:
-      "Athena Command Center is your upper Jarvis layer for preview-only planning, routing, review, and safe handoff across CodexForge.",
+      "Athena Command Center is your upper Jarvis layer for preview-only planning, routing, review, and safe handoff across CodexForge. Athena can review the backend-owned minimal manual-gated synthetic dry-run end-to-end packet MVP. minimal synthetic end-to-end packet review is preview-only. server-only synthetic end-to-end packet helper exists. synthetic end-to-end packet is produced in memory only. deterministic synthetic end-to-end packet only. synthetic execution, capture, audit join, and approval join are bundled in memory only. no frontend request is created. no API route is created. no prompt sending. no model calls yet. no provider SDKs imported. no provider execution. no queue dispatch. no worker dispatch. no job execution. no result persistence. no audit persistence. no approval persistence. no database write. no file write. text model adapter MVP comes next. current readiness: minimal-synthetic-end-to-end-packet-review-only / backend-only / in-memory-only / not provider-capable / not persistent. acceptance state: not accepted for live execution / synthetic end-to-end packet MVP accepted only. recovery is manual review only. retry disabled. fallback disabled.",
     summaryMarkers: [
       "Jarvis command center order upgraded",
       "Jarvis is the operating system / top-level control plane.",
@@ -662,6 +671,12 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "Athena Command Center",
       "4586-4617 - Athena Product UX Polish and Operator Home Takeover",
       "Your upper Jarvis layer",
+      "Athena can review the backend-owned minimal manual-gated synthetic dry-run end-to-end packet MVP",
+      "minimal synthetic end-to-end packet review is preview-only",
+      "server-only synthetic end-to-end packet helper exists",
+      "synthetic end-to-end packet is produced in memory only",
+      "deterministic synthetic end-to-end packet only",
+      "text model adapter MVP comes next",
       "developer diagnostics are secondary",
     ],
     workspaceOrder: JARVIS_UNIFIED_PRODUCT_COMMAND_CENTER_ORDER,
@@ -697,12 +712,14 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       {
         label: "Execution",
         value: "Inert local UI",
-        detail: "Chat input stays local to the page, sends nothing, and executes nothing.",
+        detail:
+          "Chat input stays local to the page, sends nothing, executes nothing, and never creates a frontend request or API route.",
       },
       {
         label: "Safety",
         value: "Backend-only required",
-        detail: "Execution stays blocked across provider, plugin, broker, render, publish, and workflow paths.",
+        detail:
+          "Execution stays blocked across provider, plugin, broker, render, publish, workflow, queue, worker, and job paths.",
       },
     ],
   },

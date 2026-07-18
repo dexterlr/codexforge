@@ -189,7 +189,7 @@ import {
   groupSyntheticEndToEndPacketsByCapabilityFamily,
   groupSyntheticEndToEndPacketsByWorkspaceTarget,
   listBackendOwnedSyntheticDryRunEndToEndPacketContracts,
-  listSyntheticEndToEndPacketAcceptancePostureRecords,
+  listSyntheticEndToEndPacketAcceptancePostureRecords as listContractSyntheticEndToEndPacketAcceptancePostureRecords,
   listSyntheticEndToEndPacketErrorContracts,
   listSyntheticEndToEndPacketGateRecords,
   listSyntheticEndToEndPacketLineageRecords,
@@ -404,6 +404,22 @@ import {
   listSyntheticEndToEndPacketSafetyGateSummaries,
   listSyntheticEndToEndPacketStageSummaries,
 } from "@/lib/codexforge/min-synth-e2e-mvp";
+import {
+  buildMinimalTextModelAdapterMvpChecklist,
+  buildSyntheticEndToEndPacketGateFailureSummary as buildMinimalSyntheticEndToEndPacketGateFailureReviewSummary,
+  buildSyntheticEndToEndPacketOutputReviewSummary as buildMinimalSyntheticEndToEndPacketOutputReviewLayerSummary,
+  buildSyntheticEndToEndPacketRecoverySummary as buildMinimalSyntheticEndToEndPacketRecoveryReviewSummary,
+  buildSyntheticEndToEndPacketReviewSummary as buildMinimalSyntheticEndToEndPacketReviewLayerSummary,
+  groupSyntheticEndToEndPacketReviewsByCapabilityFamily,
+  groupSyntheticEndToEndPacketReviewsByWorkspaceTarget,
+  listBackendOwnedMinimalManualGatedSyntheticDryRunEndToEndPacketReviews,
+  listSyntheticEndToEndPacketAcceptancePostureRecords,
+  listSyntheticEndToEndPacketGateFailureReviewRecords,
+  listSyntheticEndToEndPacketOutputReviewRecords,
+  listSyntheticEndToEndPacketRecoveryPlanPreviews,
+  listSyntheticEndToEndPacketRecoveryReadinessChecklistRecords,
+  listSyntheticEndToEndPacketReviewAuditSummaries,
+} from "@/lib/codexforge/min-synth-e2e-review";
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
@@ -1080,7 +1096,7 @@ export function AthenaCommandCenterPanel({
   const endToEndPacketReadinessMatrixRecords =
     listSyntheticEndToEndPacketReadinessMatrixRecords();
   const endToEndPacketAcceptancePostureRecords =
-    listSyntheticEndToEndPacketAcceptancePostureRecords();
+    listContractSyntheticEndToEndPacketAcceptancePostureRecords();
   const endToEndPacketSummary = buildSyntheticEndToEndPacketSummary();
   const endToEndPacketGateSummary = buildSyntheticEndToEndPacketGateSummary();
   const endToEndPacketReadinessSummary =
@@ -1670,6 +1686,8 @@ export function AthenaCommandCenterPanel({
     buildMinimalSyntheticEndToEndPacketReadinessSummary();
   const nextEndToEndPacketReviewRecoveryChecklist =
     buildMinimalSyntheticEndToEndPacketReviewRecoveryChecklist();
+  const minimalTextModelAdapterMvpChecklist =
+    buildMinimalTextModelAdapterMvpChecklist();
   const minimalSyntheticEndToEndPacketMvpCapabilityGroups =
     groupMinimalManualGatedSyntheticDryRunEndToEndPacketMvpsByCapabilityFamily();
   const minimalSyntheticEndToEndPacketMvpWorkspaceGroups =
@@ -1694,6 +1712,58 @@ export function AthenaCommandCenterPanel({
     syntheticEndToEndPacketSafetyGateSummaries[0] ?? null;
   const representativeSyntheticEndToEndPacketBlockedLivePersistenceSummary =
     syntheticEndToEndPacketBlockedLivePersistenceSummaries[0] ?? null;
+  const minimalSyntheticEndToEndPacketReviewRecords =
+    listBackendOwnedMinimalManualGatedSyntheticDryRunEndToEndPacketReviews();
+  const syntheticEndToEndPacketOutputReviewRecords =
+    listSyntheticEndToEndPacketOutputReviewRecords();
+  const syntheticEndToEndPacketGateFailureReviewRecords =
+    listSyntheticEndToEndPacketGateFailureReviewRecords();
+  const syntheticEndToEndPacketGateFailureReviewsForDisplay =
+    uniqueRecordsByString(
+      syntheticEndToEndPacketGateFailureReviewRecords,
+      (record) => record.failedGateId
+    );
+  const syntheticEndToEndPacketRecoveryPlanPreviewRecords =
+    listSyntheticEndToEndPacketRecoveryPlanPreviews();
+  const syntheticEndToEndPacketRecoveryReadinessChecklistRecords =
+    listSyntheticEndToEndPacketRecoveryReadinessChecklistRecords();
+  const syntheticEndToEndPacketRecoveryReadinessForDisplay =
+    uniqueRecordsByString(
+      syntheticEndToEndPacketRecoveryReadinessChecklistRecords,
+      (record) => record.checklistId
+    );
+  const syntheticEndToEndPacketReviewAuditSummaryRecords =
+    listSyntheticEndToEndPacketReviewAuditSummaries();
+  const syntheticEndToEndPacketAcceptancePostureRecords =
+    listSyntheticEndToEndPacketAcceptancePostureRecords();
+  const syntheticEndToEndPacketReviewSummary =
+    buildMinimalSyntheticEndToEndPacketReviewLayerSummary();
+  const syntheticEndToEndPacketOutputReviewSummary =
+    buildMinimalSyntheticEndToEndPacketOutputReviewLayerSummary();
+  const syntheticEndToEndPacketGateFailureReviewSummary =
+    buildMinimalSyntheticEndToEndPacketGateFailureReviewSummary();
+  const syntheticEndToEndPacketRecoveryReviewSummary =
+    buildMinimalSyntheticEndToEndPacketRecoveryReviewSummary();
+  const syntheticEndToEndPacketReviewCapabilityGroups =
+    groupSyntheticEndToEndPacketReviewsByCapabilityFamily();
+  const syntheticEndToEndPacketReviewWorkspaceGroups =
+    groupSyntheticEndToEndPacketReviewsByWorkspaceTarget();
+  const representativeSyntheticEndToEndPacketReview =
+    minimalSyntheticEndToEndPacketReviewRecords[0] ?? null;
+  const representativeSyntheticEndToEndPacketOutputReview =
+    syntheticEndToEndPacketOutputReviewRecords[0] ?? null;
+  const representativeSyntheticEndToEndPacketGateFailureReview =
+    syntheticEndToEndPacketGateFailureReviewsForDisplay[0] ?? null;
+  const representativeSyntheticEndToEndPacketRecoveryPlan =
+    syntheticEndToEndPacketRecoveryPlanPreviewRecords[0] ?? null;
+  const representativeSyntheticEndToEndPacketReviewAuditSummary =
+    syntheticEndToEndPacketReviewAuditSummaryRecords[0] ?? null;
+  const representativeSyntheticEndToEndPacketAcceptancePosture =
+    syntheticEndToEndPacketAcceptancePostureRecords[0] ?? null;
+  const blockedSyntheticEndToEndPacketRecoveryReadinessChecklistRecords =
+    syntheticEndToEndPacketRecoveryReadinessForDisplay.filter(
+      (record) => record.state !== "reviewed"
+    );
   const syntheticAuditApprovalJoinReviewRecords =
     listBackendOwnedMinimalManualGatedSyntheticDryRunAuditApprovalJoinReviews();
   const syntheticAuditApprovalJoinOutputReviewRecords =
@@ -22107,6 +22177,621 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal synthetic end-to-end packet review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Review layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal synthetic end-to-end packet review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review the backend-owned minimal manual-gated synthetic
+          dry-run end-to-end packet MVP. minimal synthetic end-to-end packet
+          review is preview-only. server-only synthetic end-to-end packet helper
+          exists. synthetic end-to-end packet is produced in memory only.
+          deterministic synthetic end-to-end packet only. synthetic execution,
+          capture, audit join, and approval join are bundled in memory only. no
+          frontend request is created. no API route is created. No prompt
+          sending. No model calls yet. No provider SDKs imported. no provider
+          execution. no queue dispatch. no worker dispatch. no job execution. no
+          result persistence. no audit persistence. no approval persistence. no
+          database write. no file write. text model adapter MVP comes next.
+          current readiness:
+          {" "}
+          minimal-synthetic-end-to-end-packet-review-only / backend-only /
+          in-memory-only / not provider-capable / not persistent. acceptance
+          state: not accepted for live execution / synthetic end-to-end packet
+          MVP accepted only. recovery is manual review only. retry disabled.
+          fallback disabled.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {syntheticEndToEndPacketReviewSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`phase ${syntheticEndToEndPacketReviewSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticEndToEndPacketReviewSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-end-to-end-packet-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${syntheticEndToEndPacketReviewSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and workspaces
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${minimalSyntheticEndToEndPacketReviewRecords.length} review records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticEndToEndPacketReviewCapabilityGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-end-to-end-packet-review-capability",
+                      "item",
+                      index,
+                      group.capabilityFamilyId
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.capabilityFamilyLabel}: ${group.reviewCount}`}
+                  </span>
+                )
+              )}
+              {syntheticEndToEndPacketReviewWorkspaceGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-end-to-end-packet-review-workspace",
+                      "item",
+                      index,
+                      group.workspaceTarget
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.workspaceTarget}: ${group.reviewCount}`}
+                  </span>
+                )
+              )}
+            </div>
+            <p className={styles.railFooter}>
+              {`current readiness: ${syntheticEndToEndPacketReviewSummary.currentReadiness}`}
+            </p>
+          </article>
+          {representativeSyntheticEndToEndPacketReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticEndToEndPacketReview.requestLabel}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeSyntheticEndToEndPacketReview
+                      .previewOnlyStatement
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeSyntheticEndToEndPacketReview.providerSlotLabel,
+                  representativeSyntheticEndToEndPacketReview.backupProviderSlotLabel,
+                  representativeSyntheticEndToEndPacketReview.localPrivateAlternativeLabel,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      representativeSyntheticEndToEndPacketReview.key,
+                      "provider",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>
+                {`workspace: ${representativeSyntheticEndToEndPacketReview.workspaceTarget}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`next: ${representativeSyntheticEndToEndPacketReview.nextTextModelAdapterMvpRequirement}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic end-to-end packet output review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Output review</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic end-to-end packet output review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            preview-only / not persisted
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Output posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticEndToEndPacketOutputReviewSummary.outputReviewCount} output reviews`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                synthetic fixture only
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticEndToEndPacketOutputReviewSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-end-to-end-packet-output-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {representativeSyntheticEndToEndPacketOutputReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative output</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeSyntheticEndToEndPacketOutputReview.sourcePacketOutputReference}
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeSyntheticEndToEndPacketOutputReview
+                      .packetState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticEndToEndPacketOutputReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticEndToEndPacketOutputReview
+                    .explicitSyntheticPacketOnlyNoRealOutputNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic end-to-end packet gate failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Gate failures</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic end-to-end packet gate failure review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            No live gate pass
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Failure summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticEndToEndPacketGateFailureReviewSummary.gateFailureCount} gate failure reviews`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                blocked
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticEndToEndPacketGateFailureReviewSummary.topFailedGateLabels
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-end-to-end-packet-gate-failure-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {syntheticEndToEndPacketGateFailureReviewSummary.nextSafeAction}
+            </p>
+          </article>
+          {representativeSyntheticEndToEndPacketGateFailureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative failure</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticEndToEndPacketGateFailureReview
+                        .failedGateLabel
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    representativeSyntheticEndToEndPacketGateFailureReview
+                      .severity
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticEndToEndPacketGateFailureReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticEndToEndPacketGateFailureReview
+                    .explicitNoLiveGatePassStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic end-to-end packet recovery plan"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Recovery plan</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic end-to-end packet recovery plan
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            manual review only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          recovery is manual review only. retry disabled. fallback disabled.
+          text model adapter MVP comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Recovery summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticEndToEndPacketRecoveryReviewSummary.recoveryPlanCount} recovery plans`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+                review-first
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {syntheticEndToEndPacketRecoveryReviewSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "synthetic-end-to-end-packet-recovery-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          {representativeSyntheticEndToEndPacketRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative recovery</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticEndToEndPacketRecoveryPlan
+                        .recoveryPosture
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  retry disabled
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticEndToEndPacketRecoveryPlan
+                    .operatorActionRequired
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticEndToEndPacketRecoveryPlan
+                    .explicitNoRetryNoFallbackNoProviderNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic end-to-end packet recovery readiness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Recovery readiness</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic end-to-end packet recovery readiness
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            preview-only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Checklist coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  {`${syntheticEndToEndPacketRecoveryReadinessChecklistRecords.length} readiness records`}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${blockedSyntheticEndToEndPacketRecoveryReadinessChecklistRecords.length} blocked`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {blockedSyntheticEndToEndPacketRecoveryReadinessChecklistRecords
+                .slice(0, 8)
+                .map((record, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      record.key,
+                      "blocked-readiness",
+                      index,
+                      record.label
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {record.label}
+                  </span>
+                ))}
+            </div>
+          </article>
+          {syntheticEndToEndPacketRecoveryReadinessForDisplay
+            .slice(0, 6)
+            .map((record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "synthetic-end-to-end-packet-recovery-readiness",
+                  "item",
+                  index,
+                  record.checklistId
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>Checklist</p>
+                    <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${
+                      record.state === "reviewed"
+                        ? styles.metricStateReady
+                        : styles.metricStateBlocked
+                    }`}
+                  >
+                    {record.state}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.evidenceRequired}</p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic end-to-end packet review audit summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Audit summary</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic end-to-end packet review audit summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            preview-only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticEndToEndPacketReviewAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative audit</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticEndToEndPacketReviewAuditSummary
+                        .auditPosture
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  No persistence
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticEndToEndPacketReviewAuditSummary
+                    .serverOnlyPacketHelperEvidenceSummary
+                }
+              </p>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticEndToEndPacketReviewAuditSummary
+                    .blockedActionSummary
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticEndToEndPacketReviewAuditSummary
+                    .textModelAdapterMvpRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Synthetic end-to-end packet acceptance posture"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance posture</p>
+            <h2 className={styles.panelTitle}>
+              Synthetic end-to-end packet acceptance posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            not accepted for live execution
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeSyntheticEndToEndPacketAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Acceptance state</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeSyntheticEndToEndPacketAcceptancePosture
+                        .acceptanceState
+                    }
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  preview-only
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeSyntheticEndToEndPacketAcceptancePosture
+                    .executionCaptureAuditApprovalBundleAcceptanceSummary
+                }
+              </p>
+              <div className={styles.workspaceMeta}>
+                {representativeSyntheticEndToEndPacketAcceptancePosture.providerBlockers.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeSyntheticEndToEndPacketAcceptancePosture.key,
+                        "provider-blocker",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeSyntheticEndToEndPacketAcceptancePosture
+                    .explicitSyntheticPacketAcceptedLiveExecutionNotAcceptedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Audit memory preview">
         <div className={styles.panelHeader}>
           <div>
@@ -22365,7 +23050,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Audit and approval join MVP checklist
+                  Text model adapter MVP checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -22373,7 +23058,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {minimalAuditAndApprovalJoinMvpChecklist.map(
+              {minimalTextModelAdapterMvpChecklist.map(
                 (item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
