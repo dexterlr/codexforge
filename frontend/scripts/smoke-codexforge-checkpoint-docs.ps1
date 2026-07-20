@@ -142,8 +142,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5673) {
-  throw "[FAIL] Highest detected phase expected 5673 found $highestPhase"
+if ($highestPhase -ne 5705) {
+  throw "[FAIL] Highest detected phase expected 5705 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -158,7 +158,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP"',
+  'currentReleaseGateBatch = "5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview"',
+  "Phase 5705 Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-review-recovery-preview-mega-batch.ps1",
   "Phase 5673 Backend-Owned Minimal Manual-Gated Text Model Adapter MVP",
   "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-mvp-mega-batch.ps1",
   "Phase 5641 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
@@ -183,14 +185,14 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5673. Latest completed batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP. Previous completed batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview. Next likely batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview.",
-  "## Backend-Owned Minimal Manual-Gated Text Model Adapter MVP Checkpoint",
-  "Highest detected phase: 5673",
-  "Latest completed batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP",
-  "Previous completed batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
-  "Next likely batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview",
-  "backend-owned minimal manual-gated text model adapter MVP only",
-  "minimal text model adapter MVP is backend-only",
+  "Current checkpoint: Highest detected phase: 5705. Latest completed batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview. Previous completed batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP. Next likely batch: 5706-5737 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP.",
+  "## Backend-Owned Minimal Manual-Gated Text Model Adapter Review And Recovery Preview Checkpoint",
+  "Highest detected phase: 5705",
+  "Latest completed batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview",
+  "Previous completed batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP",
+  "Next likely batch: 5706-5737 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP",
+  "backend-owned minimal manual-gated text model adapter review and recovery preview only",
+  "minimal text adapter review is preview-only",
   "server-only text adapter helper exists",
   "text adapter output is deterministic fixture output only",
   "text adapter is not provider-capable yet",
@@ -235,8 +237,9 @@ foreach ($needle in @(
   "audit preview required",
   "opaque credential references only",
   "no plaintext secrets",
-  "current readiness is minimal-text-adapter-mvp-only / backend-only / fixture-only / not provider-capable / not persistent",
-  "backend-owned minimal manual-gated text model adapter review and recovery preview next",
+  "current readiness is minimal-text-adapter-review-only / backend-only / fixture-only / not provider-capable / not persistent",
+  "acceptance state is not accepted for live provider execution / text adapter fixture MVP accepted only",
+  "backend-owned minimal manual-gated text model adapter result capture MVP next",
   "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-To-End Packet Review And Recovery Preview Checkpoint",
   "Highest detected phase: 5641",
   "Latest completed batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",

@@ -513,7 +513,7 @@ export function JarvisUnifiedProductPanel(
                   no API route is created.
                 </p>
                 <p className={styles.railBody}>
-                  text adapter review and recovery preview comes next.
+                  text adapter review and recovery preview is now available.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs

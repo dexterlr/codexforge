@@ -175,7 +175,7 @@ const TEXT_ADAPTER_SUMMARY_LINES = [
   "opaque credential references only",
   "no plaintext secrets",
   `current readiness is ${CURRENT_READINESS}`,
-  "backend-owned minimal manual-gated text model adapter review and recovery preview next",
+  "backend-owned minimal manual-gated text model adapter review and recovery preview available",
 ] as const;
 
 const TEXT_ADAPTER_GATE_SUMMARY_LINES = [

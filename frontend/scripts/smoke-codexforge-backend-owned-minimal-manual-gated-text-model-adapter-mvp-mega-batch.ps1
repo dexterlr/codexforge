@@ -330,8 +330,8 @@ foreach ($needle in @(
   "Text adapter gates",
   "Text adapter readiness matrix",
   "Text adapter evidence preview",
-  "Athena can preview the backend-owned minimal manual-gated text model adapter MVP",
-  "minimal text model adapter MVP is backend-only",
+  "Athena can review the backend-owned minimal manual-gated text model adapter MVP",
+  "minimal text adapter review is preview-only",
   "server-only text adapter helper exists",
   "text adapter output is deterministic fixture output only",
   "text adapter is not provider-capable yet",
@@ -349,15 +349,15 @@ foreach ($needle in @(
   "no result persistence",
   "no audit persistence",
   "no approval persistence",
-  "text adapter review and recovery preview comes next"
+  "text adapter result capture MVP comes next"
 )) {
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
 
 foreach ($needle in @(
   "CodexForge Operator Cockpit",
-  "Athena can now preview the backend-owned minimal manual-gated text model adapter MVP",
-  "minimal text model adapter MVP is backend-only",
+  "Athena can now review the backend-owned minimal manual-gated text model adapter MVP",
+  "minimal text adapter review is preview-only",
   "server-only text adapter helper exists",
   "text adapter output is deterministic fixture output only",
   "text adapter is not provider-capable yet",
@@ -365,7 +365,7 @@ foreach ($needle in @(
   "prompt transmission state is not sent",
   "no frontend request is created",
   "no API route is created",
-  "text adapter review and recovery preview comes next"
+  "text adapter result capture MVP comes next"
 )) {
   Assert-Contains $homeNormalized $needle "home contains $needle"
 }
@@ -445,11 +445,11 @@ if (($fixtureRun.nextTextAdapterReviewRecoveryChecklist | Measure-Object).Count 
 Write-Host "[PASS] server-only text adapter helper returns next review/recovery checklist"
 
 Assert-Contains $allSmokeNormalized "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-mvp-mega-batch.ps1" "scripts/smoke-codexforge-all.ps1 references this new smoke"
-Assert-Contains $allSmokeNormalized "Phase 5673 Backend-Owned Minimal Manual-Gated Text Model Adapter MVP" "scripts/smoke-codexforge-all.ps1 contains phase 5673 release gate"
+Assert-Contains $allSmokeNormalized "Phase 5705 Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview" "scripts/smoke-codexforge-all.ps1 contains phase 5705 release gate"
 
-Assert-Contains $checkpointNormalized "Highest detected phase: 5673" "checkpoint current doc reports Highest detected phase: 5673"
-Assert-Contains $checkpointNormalized "Latest completed batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP" "checkpoint current doc reports latest completed text adapter batch"
-Assert-Contains $checkpointNormalized "Next likely batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview" "checkpoint current doc reports next likely text adapter review batch"
+Assert-Contains $checkpointNormalized "Highest detected phase: 5705" "checkpoint current doc reports Highest detected phase: 5705"
+Assert-Contains $checkpointNormalized "Latest completed batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview" "checkpoint current doc reports latest completed text adapter review batch"
+Assert-Contains $checkpointNormalized "Next likely batch: 5706-5737 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP" "checkpoint current doc reports next likely text adapter result capture batch"
 
 Assert-NotMatches $frontEndSource '(?s)import.{0,200}(openai|@anthropic-ai/sdk|anthropic|groq-sdk|replicate|@google/generative-ai|@azure/openai|together-ai)' "no provider SDK imports in frontend Athena/Jarvis files"
 Assert-NotMatches $frontEndSource "fetch\s*\(|axios\.|XMLHttpRequest|navigator\.sendBeacon|new\s+Request\s*\(" "no fetch/network calls in frontend Athena/Jarvis files"
