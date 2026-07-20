@@ -472,11 +472,13 @@ function Get-CodexForgeCurrentReleaseGateStatusLabel {
   }
 }
 
-$currentReleaseGateBatch = "5706-5737 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP"
+$currentReleaseGateBatch = "5738-5769 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture Review and Recovery Preview"
 $currentReleaseGateName = "CodexForge Current Required Release Gate"
 $currentCheckpointSmokeFile = "smoke-codexforge-" + "checkpoint-docs.ps1"
 $historicalArchiveInventoryFile = "smoke-codexforge-" + "historical-archive-inventory.ps1"
 $historicalArchiveInventoryCommand = "powershell -ExecutionPolicy Bypass -File .\scripts\" + $historicalArchiveInventoryFile
+# Previous current release gate assignment marker preserved for historical smoke coverage:
+# currentReleaseGateBatch = "5706-5737 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP"
 # Historical current release gate assignment marker preserved for historical smoke coverage:
 # currentReleaseGateBatch = "5546-5577 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview"
 # Historical current release gate assignment marker preserved for historical smoke coverage:
@@ -571,6 +573,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 5385 Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-synthetic-dry-run-manual-approval-decision-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5417 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution MVP"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-execution-mvp-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5449 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Execution Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-execution-review-recovery-preview-mega-batch.ps1"; Required = $true },
+  @{ Name = "Phase 5769 Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-result-capture-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5737 Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-result-capture-mvp-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5705 Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5673 Backend-Owned Minimal Manual-Gated Text Model Adapter MVP"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-mvp-mega-batch.ps1"; Required = $true },

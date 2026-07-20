@@ -470,6 +470,22 @@ import {
   listTextAdapterResultCaptureReadinessMatrixRecords,
 } from "@/lib/codexforge/min-text-capture";
 import {
+  buildMinimalTextAdapterAuditApprovalJoinMvpChecklist,
+  buildTextAdapterResultCaptureGateFailureSummary,
+  buildTextAdapterResultCaptureOutputReviewSummary,
+  buildTextAdapterResultCaptureRecoverySummary,
+  buildTextAdapterResultCaptureReviewSummary,
+  groupTextAdapterResultCaptureReviewsByCapabilityFamily,
+  groupTextAdapterResultCaptureReviewsByWorkspaceTarget,
+  listBackendOwnedMinimalManualGatedTextModelAdapterResultCaptureReviews,
+  listTextAdapterResultCaptureAcceptancePostureRecords,
+  listTextAdapterResultCaptureGateFailureReviewRecords,
+  listTextAdapterResultCaptureOutputReviewRecords,
+  listTextAdapterResultCaptureRecoveryPlanPreviews,
+  listTextAdapterResultCaptureRecoveryReadinessChecklistRecords,
+  listTextAdapterResultCaptureReviewAuditSummaries,
+} from "@/lib/codexforge/min-text-capture-review";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -1870,6 +1886,60 @@ export function AthenaCommandCenterPanel({
     textAdapterResultCaptureEnvelopes[0] ?? null;
   const representativeTextAdapterResultCaptureEvidencePreview =
     textAdapterResultCaptureEvidencePreviews[0] ?? null;
+  const textAdapterResultCaptureReviewRecords =
+    listBackendOwnedMinimalManualGatedTextModelAdapterResultCaptureReviews();
+  const textAdapterResultCaptureOutputReviewRecords =
+    listTextAdapterResultCaptureOutputReviewRecords();
+  const textAdapterResultCaptureGateFailureReviewRecords =
+    listTextAdapterResultCaptureGateFailureReviewRecords();
+  const textAdapterResultCaptureGateFailureReviewsForDisplay =
+    uniqueRecordsByString(
+      textAdapterResultCaptureGateFailureReviewRecords,
+      (record) => record.failedGateId
+    );
+  const textAdapterResultCaptureRecoveryPlanPreviewRecords =
+    listTextAdapterResultCaptureRecoveryPlanPreviews();
+  const textAdapterResultCaptureRecoveryReadinessChecklistRecords =
+    listTextAdapterResultCaptureRecoveryReadinessChecklistRecords();
+  const textAdapterResultCaptureRecoveryReadinessForDisplay =
+    uniqueRecordsByString(
+      textAdapterResultCaptureRecoveryReadinessChecklistRecords,
+      (record) => record.checklistId
+    );
+  const textAdapterResultCaptureReviewAuditSummaryRecords =
+    listTextAdapterResultCaptureReviewAuditSummaries();
+  const textAdapterResultCaptureAcceptancePostureRecords =
+    listTextAdapterResultCaptureAcceptancePostureRecords();
+  const textAdapterResultCaptureReviewSummary =
+    buildTextAdapterResultCaptureReviewSummary();
+  const textAdapterResultCaptureOutputReviewSummary =
+    buildTextAdapterResultCaptureOutputReviewSummary();
+  const textAdapterResultCaptureGateFailureReviewSummary =
+    buildTextAdapterResultCaptureGateFailureSummary();
+  const textAdapterResultCaptureRecoveryReviewSummary =
+    buildTextAdapterResultCaptureRecoverySummary();
+  const minimalTextAdapterAuditApprovalJoinMvpChecklist =
+    buildMinimalTextAdapterAuditApprovalJoinMvpChecklist();
+  const textAdapterResultCaptureReviewCapabilityGroups =
+    groupTextAdapterResultCaptureReviewsByCapabilityFamily();
+  const textAdapterResultCaptureReviewWorkspaceGroups =
+    groupTextAdapterResultCaptureReviewsByWorkspaceTarget();
+  const representativeTextAdapterResultCaptureReview =
+    textAdapterResultCaptureReviewRecords[0] ?? null;
+  const representativeTextAdapterResultCaptureOutputReview =
+    textAdapterResultCaptureOutputReviewRecords[0] ?? null;
+  const representativeTextAdapterResultCaptureGateFailureReview =
+    textAdapterResultCaptureGateFailureReviewsForDisplay[0] ?? null;
+  const representativeTextAdapterResultCaptureRecoveryPlan =
+    textAdapterResultCaptureRecoveryPlanPreviewRecords[0] ?? null;
+  const representativeTextAdapterResultCaptureReviewAuditSummary =
+    textAdapterResultCaptureReviewAuditSummaryRecords[0] ?? null;
+  const representativeTextAdapterResultCaptureAcceptancePosture =
+    textAdapterResultCaptureAcceptancePostureRecords[0] ?? null;
+  const blockedTextAdapterResultCaptureRecoveryReadinessChecklistRecords =
+    textAdapterResultCaptureRecoveryReadinessForDisplay.filter(
+      (record) => record.state !== "reviewed"
+    );
   const minimalSyntheticEndToEndPacketMvpCapabilityGroups =
     groupMinimalManualGatedSyntheticDryRunEndToEndPacketMvpsByCapabilityFamily();
   const minimalSyntheticEndToEndPacketMvpWorkspaceGroups =
@@ -25030,6 +25100,838 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal text adapter result capture review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Preview-only review layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal text adapter result capture review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review the backend-owned minimal manual-gated text model
+          adapter result capture MVP. minimal text adapter result capture review
+          is preview-only. server-only text adapter result capture helper
+          exists. text adapter fixture response is captured in memory only.
+          text adapter result capture is not persistent. redacted prompt
+          envelope is preview-only. prompt transmission state is not sent. no
+          frontend request is created. no API route is created. no prompt
+          sending. no model calls yet. no provider SDKs imported. no provider
+          execution. no queue dispatch. no worker dispatch. no job execution.
+          no result persistence. no audit persistence. no approval persistence.
+          no database write. no file write. text adapter audit and approval
+          join MVP comes next. current readiness:
+          {" "}
+          minimal-text-adapter-result-capture-review-only / backend-only /
+          fixture-only / in-memory-only / not persistent. acceptance state: not
+          accepted for live persistence / text adapter result capture fixture
+          MVP accepted only. recovery is manual review only. retry disabled.
+          fallback disabled.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {textAdapterResultCaptureReviewSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {`phase ${textAdapterResultCaptureReviewSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {textAdapterResultCaptureReviewSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-result-capture-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${textAdapterResultCaptureReviewSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          {representativeTextAdapterResultCaptureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeTextAdapterResultCaptureReview.requestLabel}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeTextAdapterResultCaptureReview
+                      .textAdapterResultCaptureState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeTextAdapterResultCaptureReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeTextAdapterResultCaptureReview
+                    .selectedCapabilityFamily.label,
+                  representativeTextAdapterResultCaptureReview.workspaceTarget,
+                  representativeTextAdapterResultCaptureReview.providerSlotLabel,
+                  representativeTextAdapterResultCaptureReview.backupProviderSlotLabel,
+                  representativeTextAdapterResultCaptureReview.localPrivateAlternativeLabel,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      representativeTextAdapterResultCaptureReview.key,
+                      "coverage",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeTextAdapterResultCaptureReview
+                    .nextTextAdapterAuditApprovalJoinMvpRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability and workspace review coverage
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {`${textAdapterResultCaptureReviewSummary.reviewCount} reviews`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {textAdapterResultCaptureReviewCapabilityGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-result-capture-review-capability",
+                      "item",
+                      index,
+                      group.capabilityFamilyId
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.capabilityFamilyLabel} (${group.reviewCount})`}
+                  </span>
+                )
+              )}
+            </div>
+            <div className={styles.workspaceMeta}>
+              {textAdapterResultCaptureReviewWorkspaceGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-result-capture-review-workspace",
+                      "item",
+                      index,
+                      group.workspaceTarget
+                    )}
+                    className={styles.safePill}
+                  >
+                    {`${group.workspaceTarget} (${group.reviewCount})`}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter result capture output review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Fixture output review</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter result capture output review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            Fixture-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Text adapter result capture output review stays preview-only. capture
+          state is captured-text-adapter-fixture-in-memory-only. provider
+          response state is not received. model output state is not generated.
+          result persistence state is not implemented. audit persistence state
+          is not implemented. approval persistence state is not implemented.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Output review summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  captured deterministic fixture only
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {`${textAdapterResultCaptureOutputReviewSummary.outputReviewCount} records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {textAdapterResultCaptureOutputReviewSummary.summaryLines
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-result-capture-output-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {textAdapterResultCaptureOutputReviewSummary.nextSafeAction}
+            </p>
+          </article>
+          {representativeTextAdapterResultCaptureOutputReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Operator explanation</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeTextAdapterResultCaptureOutputReview
+                        .outputClassification
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeTextAdapterResultCaptureOutputReview
+                      .captureState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeTextAdapterResultCaptureOutputReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <div className={styles.workspaceMeta}>
+                {representativeTextAdapterResultCaptureOutputReview.remainingBlockers.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeTextAdapterResultCaptureOutputReview.key,
+                        "blocker",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeTextAdapterResultCaptureOutputReview
+                    .explicitFixtureCaptureOnlyNoRealOutputNoProviderCallNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter result capture gate failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked gate review</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter result capture gate failure review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Live gates blocked
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Text adapter result capture gate failure review explains why
+          backend-only boundaries, server-only capture boundaries, prompt and
+          provider boundaries, approval boundaries, and persistence boundaries
+          remain blocked in this preview-only batch.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Failure summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  preview-only gate failures
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${textAdapterResultCaptureGateFailureReviewSummary.gateFailureCount} failures`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {textAdapterResultCaptureGateFailureReviewSummary.topFailedGateLabels.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-result-capture-review-gate-label",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+            <p className={styles.railFooter}>
+              {textAdapterResultCaptureGateFailureReviewSummary.nextSafeAction}
+            </p>
+          </article>
+          {representativeTextAdapterResultCaptureGateFailureReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative failure</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeTextAdapterResultCaptureGateFailureReview
+                        .failedGateLabel
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeTextAdapterResultCaptureGateFailureReview
+                      .gateState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeTextAdapterResultCaptureGateFailureReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <p className={styles.railBody}>
+                {`required evidence: ${representativeTextAdapterResultCaptureGateFailureReview.requiredEvidenceToUnblock}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeTextAdapterResultCaptureGateFailureReview
+                    .explicitNoLiveGatePassStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {textAdapterResultCaptureGateFailureReviewsForDisplay
+            .slice(0, 4)
+            .map((record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "text-adapter-result-capture-review-gate",
+                  "item",
+                  index,
+                  record.failedGateId
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>{record.severity}</p>
+                    <h3 className={styles.placeholderTitle}>
+                      {record.failedGateLabel}
+                    </h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                  >
+                    {record.gateState}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.requiredRecoveryAction}</p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            ))}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter result capture recovery plan"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Manual review recovery</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter result capture recovery plan
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            Manual review only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Text adapter result capture recovery remains manual review only.
+          retry disabled. fallback disabled. provider execution stays blocked.
+          prompt sending stays absent. result, audit, approval, database, and
+          file persistence remain unavailable.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Recovery summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {textAdapterResultCaptureRecoveryReviewSummary.currentReadiness}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                {`${textAdapterResultCaptureRecoveryReviewSummary.recoveryPlanCount} plans`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {textAdapterResultCaptureRecoveryReviewSummary.summaryLines
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-result-capture-recovery-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {textAdapterResultCaptureRecoveryReviewSummary.nextSafeAction}
+            </p>
+          </article>
+          {representativeTextAdapterResultCaptureRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Recovery plan</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeTextAdapterResultCaptureRecoveryPlan
+                        .operatorActionRequired
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeTextAdapterResultCaptureRecoveryPlan
+                      .recoveryPosture
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeTextAdapterResultCaptureRecoveryPlan
+                    .serverOnlyTextAdapterResultCaptureHelperRecovery,
+                  representativeTextAdapterResultCaptureRecoveryPlan
+                    .redactedPromptEnvelopeRecovery,
+                  representativeTextAdapterResultCaptureRecoveryPlan
+                    .providerBoundaryRecovery,
+                  representativeTextAdapterResultCaptureRecoveryPlan
+                    .resultPersistenceMissingRecovery,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      representativeTextAdapterResultCaptureRecoveryPlan.key,
+                      "recovery",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeTextAdapterResultCaptureRecoveryPlan
+                    .explicitNoRetryNoFallbackNoProviderNoPromptNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe batch</p>
+                <h3 className={styles.placeholderTitle}>
+                  Audit and approval join MVP
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+                blocked now
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {minimalTextAdapterAuditApprovalJoinMvpChecklist.map(
+                (item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "text-adapter-result-capture-audit-approval-join-checklist",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter result capture recovery readiness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness checklist</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter result capture recovery readiness
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            Preview-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Text adapter result capture recovery readiness keeps helper, input,
+          envelope, evidence, audit, approval, boundary, and persistence
+          checklist records typed and preview-only while queue, worker, job,
+          database, and file boundaries remain blocked.
+        </p>
+        <div className={styles.summaryGrid}>
+          {textAdapterResultCaptureRecoveryReadinessForDisplay
+            .slice(0, 8)
+            .map((record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "text-adapter-result-capture-recovery-readiness",
+                  "item",
+                  index,
+                  record.checklistId
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>{record.owner}</p>
+                    <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${
+                      record.state === "reviewed"
+                        ? styles.metricStateReady
+                        : styles.metricStateBlocked
+                    }`}
+                  >
+                    {record.state}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.evidenceRequired}</p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            ))}
+          {blockedTextAdapterResultCaptureRecoveryReadinessChecklistRecords.length >
+          0 ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Blocked readiness</p>
+                  <h3 className={styles.placeholderTitle}>
+                    backend future still required
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                  {
+                    blockedTextAdapterResultCaptureRecoveryReadinessChecklistRecords
+                      .length
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {blockedTextAdapterResultCaptureRecoveryReadinessChecklistRecords
+                  .slice(0, 6)
+                  .map((record, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "text-adapter-result-capture-recovery-readiness-blocked",
+                        "item",
+                        index,
+                        record.checklistId
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {record.label}
+                    </span>
+                  ))}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter result capture review audit summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Audit posture summary</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter result capture review audit summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / not persisted
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Text adapter result capture review audit summary is preview-only and
+          confirms no provider output, no model output, no prompt sending, no
+          result persistence, no audit persistence, no approval persistence, no
+          database write, and no file write.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeTextAdapterResultCaptureReviewAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit summary</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeTextAdapterResultCaptureReviewAuditSummary
+                        .auditPosture
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeTextAdapterResultCaptureReviewAuditSummary
+                      .evidencePacketState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeTextAdapterResultCaptureReviewAuditSummary
+                    .serverOnlyCaptureHelperEvidenceSummary,
+                  representativeTextAdapterResultCaptureReviewAuditSummary
+                    .deterministicCaptureEvidenceSummary,
+                  representativeTextAdapterResultCaptureReviewAuditSummary
+                    .redactedPromptEvidenceSummary,
+                  representativeTextAdapterResultCaptureReviewAuditSummary
+                    .failedGateSummary,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      representativeTextAdapterResultCaptureReviewAuditSummary.key,
+                      "audit",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeTextAdapterResultCaptureReviewAuditSummary
+                    .textAdapterAuditApprovalJoinMvpRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter result capture acceptance posture"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance posture</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter result capture acceptance posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Not accepted live
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          acceptance state: not accepted for live persistence / text adapter
+          result capture fixture MVP accepted only.
+        </p>
+        <div className={styles.summaryGrid}>
+          {representativeTextAdapterResultCaptureAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Fixture-only acceptance</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeTextAdapterResultCaptureAcceptancePosture
+                        .acceptanceState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  review-only
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeTextAdapterResultCaptureAcceptancePosture
+                    .fixtureOnlyAcceptanceSummary
+                }
+              </p>
+              <div className={styles.workspaceMeta}>
+                {representativeTextAdapterResultCaptureAcceptancePosture.providerBlockers.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeTextAdapterResultCaptureAcceptancePosture.key,
+                        "provider",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeTextAdapterResultCaptureAcceptancePosture
+                    .explicitTextAdapterResultCaptureFixtureAcceptedLivePersistenceNotAcceptedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeTextAdapterResultCaptureAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Required evidence</p>
+                  <h3 className={styles.placeholderTitle}>
+                    backend-only fixture acceptance only
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  blocked live persistence
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeTextAdapterResultCaptureAcceptancePosture.requiredEvidence.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "text-adapter-result-capture-acceptance-evidence",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.metaPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeTextAdapterResultCaptureAcceptancePosture
+                    .nextSafeAction
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Athena capability map">
         <div className={styles.panelHeader}>
           <div>
@@ -25070,7 +25972,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Text adapter result capture review checklist
+                  Text adapter audit and approval join MVP checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -25078,7 +25980,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextTextAdapterResultCaptureReviewRecoveryChecklist.map(
+              {minimalTextAdapterAuditApprovalJoinMvpChecklist.map(
                 (item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}

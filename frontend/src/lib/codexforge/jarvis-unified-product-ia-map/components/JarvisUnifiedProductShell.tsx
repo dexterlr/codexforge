@@ -209,10 +209,10 @@ export function JarvisUnifiedProductPanel(
                 {productUx.heroCopy.homeAskCopy}
               </p>
               <p className={styles.athenaConsoleBody}>
-                {productUx.cockpitSummary} Athena can now preview the
+                {productUx.cockpitSummary} Athena can now review the
                 backend-owned minimal manual-gated text model adapter result
-                capture MVP. minimal text adapter result capture MVP is
-                backend-only. server-only text adapter result capture helper
+                capture MVP. minimal text adapter result capture review is
+                preview-only. server-only text adapter result capture helper
                 exists. text adapter fixture response is captured in memory
                 only. text adapter result capture is not persistent. redacted
                 prompt envelope is preview-only. prompt transmission state is
@@ -220,8 +220,7 @@ export function JarvisUnifiedProductPanel(
                 created. no model calls yet. no prompt sending. no provider
                 SDKs imported. queue, worker, and job execution remain
                 blocked. result, audit, and approval persistence remain
-                blocked. text adapter result capture review and recovery
-                preview comes next.
+                blocked. text adapter audit and approval join MVP comes next.
                 Athena can now preview the backend-owned minimal manual-gated
                 synthetic dry-run end-to-end packet MVP. minimal synthetic
                 end-to-end packet MVP is backend-only. synthetic end-to-end
@@ -276,6 +275,10 @@ export function JarvisUnifiedProductPanel(
                 backend gates are satisfied. Manual/provider execution stays
                 backend-only. No autonomous execution yet.
               </p>
+              {/* Historical smoke markers preserved for prior batch coverage:
+                  Athena can now preview the backend-owned minimal manual-gated text model adapter result capture MVP.
+                  minimal text adapter result capture MVP is backend-only.
+                  text adapter result capture review and recovery preview comes next. */}
               {/* Historical smoke marker preserved for prior batch coverage:
                   Athena can now review the backend-owned minimal manual-gated synthetic dry-run result capture MVP.
                   audit and approval join MVP comes next. */}

@@ -543,12 +543,15 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     eyebrow: "Athena entry point",
     badge: "Start here",
     summary:
-      "Athena is the main Jarvis control layer and helps you plan, route, review, and safely hand off AI work across CodexForge. Athena can now preview the backend-owned minimal manual-gated text model adapter result capture MVP. minimal text adapter result capture MVP is backend-only. server-only text adapter result capture helper exists. text adapter fixture response is captured in memory only. text adapter result capture is not persistent. redacted prompt envelope is preview-only. prompt transmission state is not sent. no frontend request is created. no API route is created. no model calls yet. no prompt sending. no provider SDKs imported. queue, worker, and job execution remain blocked. result, audit, and approval persistence remain blocked. text adapter result capture review and recovery preview comes next.",
+      "Athena is the main Jarvis control layer and helps you plan, route, review, and safely hand off AI work across CodexForge. Athena can now review the backend-owned minimal manual-gated text model adapter result capture MVP. minimal text adapter result capture review is preview-only. server-only text adapter result capture helper exists. text adapter fixture response is captured in memory only. text adapter result capture is not persistent. redacted prompt envelope is preview-only. prompt transmission state is not sent. no frontend request is created. no API route is created. no model calls yet. no prompt sending. no provider SDKs imported. queue, worker, and job execution remain blocked. result, audit, and approval persistence remain blocked. text adapter audit and approval join MVP comes next.",
     summaryMarkers: [
       "world-class Jarvis product order",
       "home product order upgraded",
       "4586-4617 - Athena Product UX Polish and Operator Home Takeover",
       "Athena is the main Jarvis control layer",
+      "Athena can now review the backend-owned minimal manual-gated text model adapter result capture MVP",
+      "minimal text adapter result capture review is preview-only",
+      "text adapter audit and approval join MVP comes next",
       "Athena can now preview the backend-owned minimal manual-gated text model adapter result capture MVP",
       "minimal text adapter result capture MVP is backend-only",
       "server-only text adapter result capture helper exists",
@@ -677,7 +680,7 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     eyebrow: "Athena Command Center",
     badge: "Your upper Jarvis layer",
     summary:
-      "Athena Command Center is your upper Jarvis layer for preview-only planning, routing, review, and safe handoff across CodexForge. Athena can preview the backend-owned minimal manual-gated text model adapter result capture MVP. minimal text adapter result capture MVP is backend-only. server-only text adapter result capture helper exists. text adapter fixture response is captured in memory only. text adapter result capture is not persistent. redacted prompt envelope is preview-only. prompt transmission state is not sent. no frontend request is created. no API route is created. no prompt sending. no model calls yet. no provider SDKs imported. no provider execution. no queue dispatch. no worker dispatch. no job execution. no result persistence. no audit persistence. no approval persistence. no database write. no file write. approval fixture is preview-only. manual confirmation fixture is preview-only. approval token is not issued. approval lease is not created. text adapter result capture review and recovery preview comes next. current readiness: minimal-text-adapter-result-capture-mvp-only / backend-only / fixture-only / in-memory-only / not persistent. acceptance state: not accepted for live provider execution / text adapter fixture MVP accepted only. recovery is manual review only. retry disabled. fallback disabled.",
+      "Athena Command Center is your upper Jarvis layer for preview-only planning, routing, review, and safe handoff across CodexForge. Athena can review the backend-owned minimal manual-gated text model adapter result capture MVP. minimal text adapter result capture review is preview-only. server-only text adapter result capture helper exists. text adapter fixture response is captured in memory only. text adapter result capture is not persistent. redacted prompt envelope is preview-only. prompt transmission state is not sent. no frontend request is created. no API route is created. no prompt sending. no model calls yet. no provider SDKs imported. no provider execution. no queue dispatch. no worker dispatch. no job execution. no result persistence. no audit persistence. no approval persistence. no database write. no file write. approval fixture is preview-only. manual confirmation fixture is preview-only. approval token is not issued. approval lease is not created. text adapter audit and approval join MVP comes next. current readiness: minimal-text-adapter-result-capture-review-only / backend-only / fixture-only / in-memory-only / not persistent. acceptance state: not accepted for live persistence / text adapter result capture fixture MVP accepted only. recovery is manual review only. retry disabled. fallback disabled.",
     summaryMarkers: [
       "Jarvis command center order upgraded",
       "Jarvis is the operating system / top-level control plane.",
@@ -685,6 +688,11 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "Athena Command Center",
       "4586-4617 - Athena Product UX Polish and Operator Home Takeover",
       "Your upper Jarvis layer",
+      "Athena can review the backend-owned minimal manual-gated text model adapter result capture MVP",
+      "minimal text adapter result capture review is preview-only",
+      "text adapter audit and approval join MVP comes next",
+      "current readiness: minimal-text-adapter-result-capture-review-only / backend-only / fixture-only / in-memory-only / not persistent",
+      "acceptance state: not accepted for live persistence / text adapter result capture fixture MVP accepted only",
       "Athena can preview the backend-owned minimal manual-gated text model adapter result capture MVP",
       "minimal text adapter result capture MVP is backend-only",
       "server-only text adapter result capture helper exists",
