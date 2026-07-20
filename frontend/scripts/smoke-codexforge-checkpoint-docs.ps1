@@ -142,8 +142,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5705) {
-  throw "[FAIL] Highest detected phase expected 5705 found $highestPhase"
+if ($highestPhase -ne 5737) {
+  throw "[FAIL] Highest detected phase expected 5737 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -158,7 +158,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview"',
+  'currentReleaseGateBatch = "5706-5737 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP"',
+  "Phase 5737 Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-result-capture-mvp-mega-batch.ps1",
   "Phase 5705 Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview",
   "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-review-recovery-preview-mega-batch.ps1",
   "Phase 5673 Backend-Owned Minimal Manual-Gated Text Model Adapter MVP",
@@ -185,9 +187,61 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5705. Latest completed batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview. Previous completed batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP. Next likely batch: 5706-5737 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP.",
+  "Current checkpoint: Highest detected phase: 5737. Latest completed batch: 5706-5737 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP. Previous completed batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview. Next likely batch: 5738-5769 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture Review and Recovery Preview.",
+  "## Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP Checkpoint",
+  "Highest detected phase: 5737",
+  "Latest completed batch: 5706-5737 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP",
+  "Previous completed batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview",
+  "Next likely batch: 5738-5769 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture Review and Recovery Preview",
+  "backend-owned minimal manual-gated text model adapter result capture MVP only",
+  "minimal text adapter result capture MVP is backend-only",
+  "server-only text adapter result capture helper exists",
+  "text adapter fixture response is captured in memory only",
+  "text adapter result capture is not persistent",
+  "redacted prompt envelope is preview-only",
+  "prompt transmission state is not sent",
+  "no frontend request is created",
+  "no API route is created",
+  "no real approval request",
+  "no real approval recording",
+  "approval fixture is preview-only",
+  "manual confirmation fixture is preview-only",
+  "approval token is not issued",
+  "approval lease is not created",
+  "provider response is not received",
+  "model output is not generated",
+  "no prompt sending",
+  "no LLM/model calls",
+  "no frontend provider call",
+  "no frontend fetch/network call",
+  "no provider SDK imports",
+  "no provider execution",
+  "no plugin execution",
+  "no autonomous execution",
+  "no live video generation",
+  "no queue dispatch",
+  "no worker dispatch",
+  "no job execution",
+  "no retry execution",
+  "no fallback execution",
+  "no result persistence",
+  "no audit persistence",
+  "no approval persistence",
+  "no persistent memory",
+  "no browser storage",
+  "no database writes",
+  "no file writes",
+  "backend-only execution path required",
+  "server-only adapters required",
+  "manual approval fixture required",
+  "manual confirmation fixture required",
+  "kill switch required",
+  "audit preview required",
+  "opaque credential references only",
+  "no plaintext secrets",
+  "current readiness is minimal-text-adapter-result-capture-mvp-only / backend-only / fixture-only / in-memory-only / not persistent",
+  "backend-owned minimal manual-gated text model adapter result capture review and recovery preview next",
   "## Backend-Owned Minimal Manual-Gated Text Model Adapter Review And Recovery Preview Checkpoint",
-  "Highest detected phase: 5705",
   "Latest completed batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview",
   "Previous completed batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP",
   "Next likely batch: 5706-5737 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture MVP",

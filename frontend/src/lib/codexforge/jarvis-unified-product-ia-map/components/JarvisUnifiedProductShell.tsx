@@ -210,16 +210,28 @@ export function JarvisUnifiedProductPanel(
               </p>
               <p className={styles.athenaConsoleBody}>
                 {productUx.cockpitSummary} Athena can now preview the
-                backend-owned minimal manual-gated synthetic dry-run end-to-end
-                packet MVP. minimal synthetic end-to-end packet MVP is
-                backend-only. synthetic end-to-end packet is produced in memory
-                only. synthetic execution, capture, audit join, and approval
-                join are bundled in memory only. no frontend request is
-                created. no API route is created. no model calls yet. no
-                prompt sending. no provider SDKs imported. queue, worker, and
-                job execution remain blocked. result, audit, and approval
-                persistence remain blocked. end-to-end packet review and
-                recovery preview comes next.
+                backend-owned minimal manual-gated text model adapter result
+                capture MVP. minimal text adapter result capture MVP is
+                backend-only. server-only text adapter result capture helper
+                exists. text adapter fixture response is captured in memory
+                only. text adapter result capture is not persistent. redacted
+                prompt envelope is preview-only. prompt transmission state is
+                not sent. no frontend request is created. no API route is
+                created. no model calls yet. no prompt sending. no provider
+                SDKs imported. queue, worker, and job execution remain
+                blocked. result, audit, and approval persistence remain
+                blocked. text adapter result capture review and recovery
+                preview comes next.
+                Athena can now preview the backend-owned minimal manual-gated
+                synthetic dry-run end-to-end packet MVP. minimal synthetic
+                end-to-end packet MVP is backend-only. synthetic end-to-end
+                packet is produced in memory only. synthetic execution,
+                capture, audit join, and approval join are bundled in memory
+                only. no frontend request is created. no API route is created.
+                no model calls yet. no prompt sending. no provider SDKs
+                imported. queue, worker, and job execution remain blocked.
+                result, audit, and approval persistence remain blocked.
+                end-to-end packet review and recovery preview comes next.
                 Athena can plan and route commands. Athena
                 can preview cross-workspace run timelines and show audit memory
                 previews. Athena can now preview manual gated model provider
