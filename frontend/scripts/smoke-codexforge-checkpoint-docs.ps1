@@ -36,7 +36,7 @@ Write-Host "=== CodexForge Checkpoint Documentation smoke ==="
 <#
 Legacy smoke compatibility markers preserved for older scripts that inspect the
 raw source of this checkpoint smoke file. These markers are inert here and do
-not change the active 5641 release gate.
+not change the active 5673 release gate.
 
 Highest detected phase: 4233
 Latest completed batch: 4202-4233 - Jarvis Video Server-Only Runner Skeleton and Synthetic Dry Run
@@ -142,8 +142,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5641) {
-  throw "[FAIL] Highest detected phase expected 5641 found $highestPhase"
+if ($highestPhase -ne 5673) {
+  throw "[FAIL] Highest detected phase expected 5673 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -158,9 +158,12 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview"',
+  'currentReleaseGateBatch = "5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP"',
+  "Phase 5673 Backend-Owned Minimal Manual-Gated Text Model Adapter MVP",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-mvp-mega-batch.ps1",
   "Phase 5641 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
   "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-end-to-end-packet-review-recovery-preview-mega-batch.ps1",
+  "Phase 5641 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
   "Phase 5609 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP",
   "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-end-to-end-packet-mvp-mega-batch.ps1",
   "Phase 5577 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview",
@@ -180,7 +183,60 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5641. Latest completed batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview. Previous completed batch: 5578-5609 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP. Next likely batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP.",
+  "Current checkpoint: Highest detected phase: 5673. Latest completed batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP. Previous completed batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview. Next likely batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview.",
+  "## Backend-Owned Minimal Manual-Gated Text Model Adapter MVP Checkpoint",
+  "Highest detected phase: 5673",
+  "Latest completed batch: 5642-5673 - Backend-Owned Minimal Manual-Gated Text Model Adapter MVP",
+  "Previous completed batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",
+  "Next likely batch: 5674-5705 - Backend-Owned Minimal Manual-Gated Text Model Adapter Review and Recovery Preview",
+  "backend-owned minimal manual-gated text model adapter MVP only",
+  "minimal text model adapter MVP is backend-only",
+  "server-only text adapter helper exists",
+  "text adapter output is deterministic fixture output only",
+  "text adapter is not provider-capable yet",
+  "redacted prompt envelope is preview-only",
+  "prompt transmission state is not sent",
+  "no frontend request is created",
+  "no API route is created",
+  "no real approval request",
+  "no real approval recording",
+  "approval fixture is preview-only",
+  "manual confirmation fixture is preview-only",
+  "approval token is not issued",
+  "approval lease is not created",
+  "provider response is not received",
+  "model output is not generated",
+  "no prompt sending",
+  "no LLM/model calls",
+  "no frontend provider call",
+  "no frontend fetch/network call",
+  "no provider SDK imports",
+  "no provider execution",
+  "no plugin execution",
+  "no autonomous execution",
+  "no live video generation",
+  "no queue dispatch",
+  "no worker dispatch",
+  "no job execution",
+  "no retry execution",
+  "no fallback execution",
+  "no result persistence",
+  "no audit persistence",
+  "no approval persistence",
+  "no persistent memory",
+  "no browser storage",
+  "no database writes",
+  "no file writes",
+  "backend-only execution path required",
+  "server-only adapters required",
+  "manual approval fixture required",
+  "manual confirmation fixture required",
+  "kill switch required",
+  "audit preview required",
+  "opaque credential references only",
+  "no plaintext secrets",
+  "current readiness is minimal-text-adapter-mvp-only / backend-only / fixture-only / not provider-capable / not persistent",
+  "backend-owned minimal manual-gated text model adapter review and recovery preview next",
   "## Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-To-End Packet Review And Recovery Preview Checkpoint",
   "Highest detected phase: 5641",
   "Latest completed batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview",

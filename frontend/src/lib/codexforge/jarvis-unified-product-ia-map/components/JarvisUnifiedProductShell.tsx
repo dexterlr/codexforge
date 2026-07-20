@@ -486,16 +486,25 @@ export function JarvisUnifiedProductPanel(
                 </p>
                 <p className={styles.railBody}>
                   Athena can now preview the backend-owned minimal manual-gated
-                  synthetic dry-run end-to-end packet MVP.
+                  text model adapter MVP.
                 </p>
                 <p className={styles.railBody}>
-                  minimal synthetic end-to-end packet MVP is backend-only.
+                  minimal text model adapter MVP is backend-only.
                 </p>
                 <p className={styles.railBody}>
-                  server-only synthetic end-to-end packet helper exists.
+                  server-only text adapter helper exists.
                 </p>
                 <p className={styles.railBody}>
-                  synthetic end-to-end packet is produced in memory only.
+                  text adapter output is deterministic fixture output only.
+                </p>
+                <p className={styles.railBody}>
+                  text adapter is not provider-capable yet.
+                </p>
+                <p className={styles.railBody}>
+                  redacted prompt envelope is preview-only.
+                </p>
+                <p className={styles.railBody}>
+                  prompt transmission state is not sent.
                 </p>
                 <p className={styles.railBody}>
                   no frontend request is created.
@@ -504,7 +513,7 @@ export function JarvisUnifiedProductPanel(
                   no API route is created.
                 </p>
                 <p className={styles.railBody}>
-                  end-to-end packet review and recovery preview comes next.
+                  text adapter review and recovery preview comes next.
                 </p>
                 <p className={styles.railBody}>
                   no model calls yet. no prompt sending. no provider SDKs
