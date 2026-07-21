@@ -142,8 +142,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5897) {
-  throw "[FAIL] Highest detected phase expected 5897 found $highestPhase"
+if ($highestPhase -ne 5929) {
+  throw "[FAIL] Highest detected phase expected 5929 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -158,7 +158,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "5866-5897 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview"',
+  'currentReleaseGateBatch = "5898-5929 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission MVP"',
+  "Phase 5929 Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission MVP",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-provider-adapter-dry-run-admission-mvp-mega-batch.ps1",
   "Phase 5897 Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview",
   "smoke-codexforge-backend-owned-minimal-manual-gated-provider-adapter-selection-credential-reference-review-recovery-preview-mega-batch.ps1",
   "Phase 5865 Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference MVP",
@@ -197,7 +199,68 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5897. Latest completed batch: 5866-5897 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview. Previous completed batch: 5834-5865 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference MVP. Next likely batch: 5898-5929 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission MVP.",
+  "Current checkpoint: Highest detected phase: 5929. Latest completed batch: 5898-5929 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission MVP. Previous completed batch: 5866-5897 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview. Next likely batch: 5930-5961 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission Review and Recovery Preview.",
+  "## Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission MVP Checkpoint",
+  "Highest detected phase: 5929",
+  "Latest completed batch: 5898-5929 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission MVP",
+  "Previous completed batch: 5866-5897 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview",
+  "Next likely batch: 5930-5961 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission Review and Recovery Preview",
+  "backend-owned minimal manual-gated provider adapter dry-run admission MVP only",
+  "provider adapter dry-run admission is backend-only",
+  "server-only provider dry-run admission helper exists",
+  "provider dry-run admission is deterministic fixture-only",
+  "dry-run intent is preview-only",
+  "dry-run execution is blocked",
+  "credential reference is opaque label only",
+  "credential value is not present",
+  "credential value is not read",
+  "env vars are not read",
+  "provider key is not read",
+  "selected provider slot is preview-only",
+  "backup provider slot is preview-only",
+  "local/private alternative is preview-only",
+  "provider adapter dry-run admission is not provider-executing yet",
+  "no frontend request is created",
+  "no API route is created",
+  "no real approval request",
+  "no real approval recording",
+  "approval fixture is preview-only",
+  "manual confirmation fixture is preview-only",
+  "approval token is not issued",
+  "approval lease is not created",
+  "provider response is not received",
+  "model output is not generated",
+  "no prompt sending",
+  "no LLM/model calls",
+  "no frontend provider call",
+  "no frontend fetch/network call",
+  "no provider SDK imports",
+  "no provider execution",
+  "no plugin execution",
+  "no autonomous execution",
+  "no live video generation",
+  "no queue dispatch",
+  "no worker dispatch",
+  "no job execution",
+  "no retry execution",
+  "no fallback execution",
+  "no result persistence",
+  "no audit persistence",
+  "no approval persistence",
+  "no persistent memory",
+  "no browser storage",
+  "no database writes",
+  "no file writes",
+  "backend-only execution path required",
+  "server-only adapters required",
+  "manual approval fixture required",
+  "manual confirmation fixture required",
+  "kill switch required",
+  "audit preview required",
+  "opaque credential references only",
+  "no plaintext secrets",
+  "current readiness is minimal-provider-dry-run-admission-mvp-only / backend-only / admission-only / credential-reference-only / fixture-only / not-provider-executing / not persistent",
+  "backend-owned minimal manual-gated provider adapter dry-run admission review and recovery preview next",
   "## Backend-Owned Minimal Manual-Gated Provider Adapter Selection And Credential Reference Review And Recovery Preview Checkpoint",
   "Highest detected phase: 5897",
   "Latest completed batch: 5866-5897 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview",

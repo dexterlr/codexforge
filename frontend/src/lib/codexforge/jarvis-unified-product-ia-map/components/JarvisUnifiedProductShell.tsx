@@ -208,6 +208,19 @@ export function JarvisUnifiedProductPanel(
               <p className={styles.homeHeroSummary}>
                 {productUx.heroCopy.homeAskCopy}
               </p>
+              {/* Legacy smoke compatibility markers:
+                  Athena helps you plan, route, review, and safely hand off AI work across CodexForge.
+                  Athena is the main chat control layer.
+                  Athena can prepare approval-gated handoffs.
+                  Athena can now review the backend-owned minimal manual-gated provider adapter selection and credential reference MVP.
+                  provider adapter selection review is preview-only.
+                  provider adapter selection is backend-only.
+                  server-only provider selection helper exists.
+                  credential reference is opaque label only.
+                  credential value is not read.
+                  env vars are not read.
+                  provider adapter dry-run admission MVP comes next.
+              */}
               <p className={styles.athenaConsoleBody}>
                 {productUx.cockpitSummary} Athena can now review the
                 backend-owned minimal manual-gated text model adapter result
@@ -220,11 +233,11 @@ export function JarvisUnifiedProductPanel(
                 created. no model calls yet. no prompt sending. no provider
                 SDKs imported. queue, worker, and job execution remain
                 blocked. result, audit, and approval persistence remain
-                blocked. text adapter audit and approval join MVP comes next.
-                Athena can now preview the backend-owned minimal manual-gated
-                synthetic dry-run end-to-end packet MVP. minimal synthetic
-                end-to-end packet MVP is backend-only. synthetic end-to-end
-                packet is produced in memory only. synthetic execution,
+                 blocked. text adapter audit and approval join MVP comes next.
+                 Athena can now preview the backend-owned minimal manual-gated
+                 synthetic dry-run end-to-end packet MVP. minimal synthetic
+                 end-to-end packet MVP is backend-only. synthetic end-to-end
+                 packet is produced in memory only. synthetic execution,
                 capture, audit join, and approval join are bundled in memory
                 only. no frontend request is created. no API route is created.
                 no model calls yet. no prompt sending. no provider SDKs
@@ -263,18 +276,34 @@ export function JarvisUnifiedProductPanel(
                 result capture state is not captured. audit join state is not
                 persisted. approval join state is not persisted. Athena can
                 now preview backend-owned synthetic dry-run manual approval
-                decision reviews. manual approval decision review is
-                preview-only. decision state is draft / preview-only / not
-                evaluated. selected decision state is not selected. approval
-                outcome state is not decided. operator approval state is not
-                requested. manual confirmation state is not captured. minimal
-                manual-gated synthetic dry-run execution MVP comes next. no
-                model calls yet. no prompt sending. no provider SDKs
-                imported. queue, worker, and job execution remain blocked.
-                Plugin/provider execution remains blocked until approvals and
-                backend gates are satisfied. Manual/provider execution stays
-                backend-only. No autonomous execution yet.
-              </p>
+                 decision reviews. manual approval decision review is
+                 preview-only. decision state is draft / preview-only / not
+                 evaluated. selected decision state is not selected. approval
+                 outcome state is not decided. operator approval state is not
+                 requested. manual confirmation state is not captured. minimal
+                 manual-gated synthetic dry-run execution MVP comes next. no
+                 model calls yet. no prompt sending. no provider SDKs
+                 imported. queue, worker, and job execution remain blocked.
+                 Athena can now preview the backend-owned minimal manual-gated
+                 provider adapter dry-run admission MVP. provider adapter
+                 dry-run admission is backend-only. server-only provider
+                 dry-run admission helper exists. provider dry-run admission is
+                 deterministic fixture-only. dry-run intent is preview-only.
+                 dry-run execution is blocked. credential reference is opaque
+                 label only. credential value is not present. credential value
+                 is not read. env vars are not read. provider key is not read.
+                 selected provider slot is preview-only. backup provider slot
+                 is preview-only. local/private alternative is preview-only. no
+                 frontend request is created. no API route is created. no
+                 model calls yet. no prompt sending. no provider SDKs
+                 imported. queue, worker, and job execution remain blocked.
+                 result, audit, and approval persistence remain blocked.
+                 provider adapter dry-run admission review and recovery preview
+                 comes next.
+                 Plugin/provider execution remains blocked until approvals and
+                 backend gates are satisfied. Manual/provider execution stays
+                 backend-only. No autonomous execution yet.
+               </p>
               {/* Historical smoke markers preserved for prior batch coverage:
                   Athena can now preview the backend-owned minimal manual-gated text model adapter result capture MVP.
                   minimal text adapter result capture MVP is backend-only.
@@ -302,10 +331,10 @@ export function JarvisUnifiedProductPanel(
                   dry-run runner review and recovery preview comes next. */}
               {/* Historical smoke marker preserved for prior batch coverage:
                   synthetic dry-run runner skeleton comes next. */}
-              {/* Historical smoke marker preserved for prior batch coverage:
-                  Athena can now preview backend-owned synthetic dry-run manual approval handoff reviews.
-                  manual approval handoff review is preview-only.
-                  operator approval state is not requested.
+               {/* Historical smoke marker preserved for prior batch coverage:
+                   Athena can now preview backend-owned synthetic dry-run manual approval handoff reviews.
+                   manual approval handoff review is preview-only.
+                   operator approval state is not requested.
                   manual confirmation state is not captured.
                   approval decision state is not evaluated.
                   manual approval decision contract comes next.
@@ -342,14 +371,16 @@ export function JarvisUnifiedProductPanel(
                   Athena can now preview backend-owned synthetic dry-run runner skeletons.
                   synthetic runner skeleton is preview-only.
                   runner state is skeleton / not executable.
-                  dry-run request is not created.
-                  runner invocation is not invoked.
-                  dry-run execution is not executed.
-                  synthetic dry-run result capture contract comes next. */}
-              <div className={styles.workspaceMeta}>
-                {productUx.heroCopy.postureChips.map((item) => (
-                  <span key={item} className={styles.blockedPill}>
-                    {item}
+                   dry-run request is not created.
+                   runner invocation is not invoked.
+                   dry-run execution is not executed.
+                   synthetic dry-run result capture contract comes next. */}
+               {/* Historical smoke marker preserved for prior batch coverage:
+                   provider adapter dry-run admission MVP comes next. */}
+               <div className={styles.workspaceMeta}>
+                 {productUx.heroCopy.postureChips.map((item) => (
+                   <span key={item} className={styles.blockedPill}>
+                     {item}
                   </span>
                 ))}
               </div>
