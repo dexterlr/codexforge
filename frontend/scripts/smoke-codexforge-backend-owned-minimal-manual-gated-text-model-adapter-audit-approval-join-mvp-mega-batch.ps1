@@ -394,7 +394,7 @@ foreach ($needle in @(
   "no result persistence",
   "no audit persistence",
   "no approval persistence",
-  "provider adapter selection and credential reference MVP comes next"
+  "provider adapter selection and credential reference review and recovery preview comes next"
 )) {
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
@@ -410,7 +410,7 @@ foreach ($needle in @(
   "prompt transmission state is not sent",
   "no frontend request is created",
   "no API route is created",
-  "provider adapter selection and credential reference MVP comes next"
+  "provider adapter selection and credential reference review and recovery preview comes next"
 )) {
   Assert-Contains $homeNormalized $needle "home contains $needle"
 }
@@ -428,7 +428,7 @@ foreach ($needle in @(
   "no provider execution",
   "no model calls",
   "no persistence",
-  "provider adapter selection and credential reference MVP comes next"
+  "provider adapter selection and credential reference review and recovery preview comes next"
 )) {
   Assert-Contains $providersNormalized $needle "/ai-providers contains $needle"
 }

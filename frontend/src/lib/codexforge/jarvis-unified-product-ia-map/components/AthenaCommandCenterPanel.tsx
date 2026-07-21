@@ -498,7 +498,6 @@ import {
   listTextAdapterAuditJoinOutputs,
 } from "@/lib/codexforge/min-text-audit-join/min-text-audit-join-catalog";
 import {
-  buildProviderAdapterSelectionAndCredentialReferenceMvpChecklist,
   buildTextAdapterAuditApprovalJoinGateFailureSummary,
   buildTextAdapterAuditApprovalJoinOutputReviewSummary,
   buildTextAdapterAuditApprovalJoinRecoverySummary,
@@ -513,6 +512,22 @@ import {
   listTextAdapterAuditApprovalJoinRecoveryReadinessChecklistRecords,
   listTextAdapterAuditApprovalJoinReviewAuditSummaries,
 } from "@/lib/codexforge/min-text-aa-review";
+import {
+  buildNextProviderSelectionCredentialReferenceReviewRecoveryChecklist,
+  buildProviderAdapterSelectionGateSummary,
+  buildProviderAdapterSelectionReadinessSummary,
+  buildProviderAdapterSelectionSummary,
+  listMinimalManualGatedProviderAdapterSelectionCredentialReferenceMvpRecords,
+  listOpaqueCredentialReferenceOutputs,
+  listProviderAdapterSelectionApprovalPreviews,
+  listProviderAdapterSelectionEnvelopes,
+  listProviderAdapterSelectionEvidencePreviews,
+  listProviderAdapterSelectionGates,
+  listProviderAdapterSelectionInputs,
+  listProviderAdapterSelectionOutputs,
+  listProviderAdapterSelectionReadinessMatrixRecords,
+  listProviderSlotMatrixRecords,
+} from "@/lib/codexforge/min-provider-select/min-provider-select-catalog";
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
@@ -1980,8 +1995,51 @@ export function AthenaCommandCenterPanel({
     buildTextAdapterAuditApprovalJoinGateFailureSummary();
   const textAdapterAuditApprovalJoinRecoveryReviewSummary =
     buildTextAdapterAuditApprovalJoinRecoverySummary();
-  const nextProviderAdapterSelectionCredentialReferenceChecklist =
-    buildProviderAdapterSelectionAndCredentialReferenceMvpChecklist();
+  const providerAdapterSelectionSummary =
+    buildProviderAdapterSelectionSummary();
+  const providerAdapterSelectionGateSummary =
+    buildProviderAdapterSelectionGateSummary();
+  const providerAdapterSelectionReadinessSummary =
+    buildProviderAdapterSelectionReadinessSummary();
+  const nextProviderAdapterSelectionReviewRecoveryChecklist =
+    buildNextProviderSelectionCredentialReferenceReviewRecoveryChecklist();
+  const providerAdapterSelectionMvpRecords =
+    listMinimalManualGatedProviderAdapterSelectionCredentialReferenceMvpRecords();
+  const providerAdapterSelectionInputs = listProviderAdapterSelectionInputs();
+  const providerSlotMatrixRecords = listProviderSlotMatrixRecords();
+  const opaqueCredentialReferenceOutputs =
+    listOpaqueCredentialReferenceOutputs();
+  const providerAdapterSelectionOutputs =
+    listProviderAdapterSelectionOutputs();
+  const providerAdapterSelectionEnvelopes =
+    listProviderAdapterSelectionEnvelopes();
+  const providerAdapterSelectionGates = listProviderAdapterSelectionGates();
+  const providerAdapterSelectionReadinessRecords =
+    listProviderAdapterSelectionReadinessMatrixRecords();
+  const providerAdapterSelectionEvidencePreviews =
+    listProviderAdapterSelectionEvidencePreviews();
+  const providerAdapterSelectionApprovalPreviews =
+    listProviderAdapterSelectionApprovalPreviews();
+  const providerAdapterSelectionGatesForDisplay = uniqueRecordsByString(
+    providerAdapterSelectionGates,
+    (record) => record.key
+  );
+  const representativeProviderAdapterSelectionMvp =
+    providerAdapterSelectionMvpRecords[0] ?? null;
+  const representativeProviderAdapterSelectionInput =
+    providerAdapterSelectionInputs[0] ?? null;
+  const representativeProviderSlotMatrix =
+    providerSlotMatrixRecords[0] ?? null;
+  const representativeOpaqueCredentialReferenceOutput =
+    opaqueCredentialReferenceOutputs[0] ?? null;
+  const representativeProviderAdapterSelectionOutput =
+    providerAdapterSelectionOutputs[0] ?? null;
+  const representativeProviderAdapterSelectionEnvelope =
+    providerAdapterSelectionEnvelopes[0] ?? null;
+  const representativeProviderAdapterSelectionEvidencePreview =
+    providerAdapterSelectionEvidencePreviews[0] ?? null;
+  const representativeProviderAdapterSelectionApprovalPreview =
+    providerAdapterSelectionApprovalPreviews[0] ?? null;
   const textAdapterAuditApprovalJoinMvpRecords =
     listMinimalManualGatedTextModelAdapterAuditApprovalJoinMvpRecords();
   const textAdapterAuditApprovalJoinInputs =
@@ -26191,7 +26249,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.workspaceMeta}>
-              {nextProviderAdapterSelectionCredentialReferenceChecklist.map(
+              {nextProviderAdapterSelectionReviewRecoveryChecklist.map(
                 (item, index) => (
                   <span
                     key={buildScopedItemKey(
@@ -26723,7 +26781,7 @@ export function AthenaCommandCenterPanel({
           not accepted for live provider execution / text adapter audit
           approval join fixture MVP accepted only. recovery is manual review
           only. retry disabled. fallback disabled. provider adapter selection
-          and credential reference MVP comes next.
+          and credential reference review and recovery preview comes next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -27364,6 +27422,829 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal manual-gated provider adapter selection and credential reference MVP"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>
+              Backend-only provider selection boundary
+            </p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal manual-gated provider adapter selection and
+              credential reference MVP
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            credential-reference-only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview the backend-owned minimal manual-gated provider
+          adapter selection and credential reference MVP. provider adapter
+          selection is backend-only. server-only provider selection helper
+          exists. provider slot selection is deterministic fixture-only.
+          credential reference is opaque label only. credential value is not
+          present. credential value is not read. env vars are not read.
+          provider key is not read. selected provider slot is preview-only.
+          backup provider slot is preview-only. local/private alternative is
+          preview-only. provider adapter selection is not provider-capable yet.
+          no frontend request is created. no API route is created. no prompt
+          sending. no model calls yet. no provider SDKs imported. no provider
+          execution. no queue dispatch. no worker dispatch. no job execution.
+          no result persistence. no audit persistence. no approval persistence.
+          no database write. no file write. approval fixture is preview-only.
+          manual confirmation fixture is preview-only. approval token is not
+          issued. approval lease is not created. current readiness:
+          minimal-provider-selection-credential-reference-mvp-only /
+          backend-only / credential-reference-only / fixture-only / not
+          provider-capable / not persistent. provider adapter selection and
+          credential reference review and recovery preview comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Provider selection summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {providerAdapterSelectionSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`phase ${providerAdapterSelectionSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerAdapterSelectionSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${providerAdapterSelectionSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          {representativeProviderAdapterSelectionMvp ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Deterministic fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    selected-provider-slot-and-opaque-credential-reference-fixture-only
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {representativeProviderAdapterSelectionMvp.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`selection id: ${representativeProviderAdapterSelectionMvp.providerSelectionId}`}
+              </p>
+              <p className={styles.railBody}>
+                {`credential reference id: ${representativeProviderAdapterSelectionMvp.credentialReferenceId}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderAdapterSelectionMvp
+                    .reviewRecoveryPreviewNextStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeProviderAdapterSelectionApprovalPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only approval fixture
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderAdapterSelectionApprovalPreview
+                      .approvalPreviewState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderAdapterSelectionApprovalPreview.approvalSummaryLines
+                  .slice(0, 6)
+                  .map((item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-selection-approval-summary",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  ))}
+              </div>
+              <p className={styles.railFooter}>
+                {`approval token: ${representativeProviderAdapterSelectionApprovalPreview.approvalTokenState}; approval lease: ${representativeProviderAdapterSelectionApprovalPreview.approvalLeaseState}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection input"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Selection request posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection input
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            deterministic request only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAdapterSelectionInput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Input fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAdapterSelectionInput.capabilityFamily}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {representativeProviderAdapterSelectionInput.requestState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderAdapterSelectionInput.providerSlotLabel,
+                  representativeProviderAdapterSelectionInput.opaqueCredentialReferenceLabel,
+                  representativeProviderAdapterSelectionInput.promptPayloadPosture,
+                  representativeProviderAdapterSelectionInput.selectedProviderPosture,
+                  representativeProviderAdapterSelectionInput.credentialValueState,
+                  representativeProviderAdapterSelectionInput.envVarState,
+                  representativeProviderAdapterSelectionInput.providerKeyState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-input",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderAdapterSelectionInput
+                    .explicitNoFrontendRequestNoApiRouteNoProviderCallNoSecretReadStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Boundary state</p>
+                <h3 className={styles.placeholderTitle}>
+                  no frontend request and no API route
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                {`${providerAdapterSelectionInputs.length} inputs`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              Provider adapter selection input stays backend-only, manual-gated,
+              fixture-only, and redacted. It creates no frontend request, no
+              API route, no provider payload, and no persistence target.
+            </p>
+            <p className={styles.railFooter}>
+              {providerAdapterSelectionSummary.currentReadiness}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-label="Provider slot matrix">
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Deterministic slot matrix</p>
+            <h2 className={styles.panelTitle}>Provider slot matrix</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            preview-only slots
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderSlotMatrix ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Primary matrix</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderSlotMatrix.providerSlotMatrixState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {representativeProviderSlotMatrix.supportedCapabilityState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderSlotMatrix.slots.map((slot, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-slot",
+                      "item",
+                      index,
+                      slot.slotKey
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {`${slot.slotOrder}: ${slot.slotLabel}`}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {`fallback posture: ${representativeProviderSlotMatrix.fallbackDisabledSlotLabel}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeProviderAdapterSelectionOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Selected slot</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAdapterSelectionOutput.providerSlotLabel}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {representativeProviderAdapterSelectionOutput.selectedProviderState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`backup slot: ${representativeProviderAdapterSelectionOutput.backupProviderSlotLabel}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`local/private alternative: ${representativeProviderAdapterSelectionOutput.localPrivateAlternativeLabel}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Opaque credential reference"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Opaque-only reference</p>
+            <h2 className={styles.panelTitle}>Opaque credential reference</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            no credential value
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeOpaqueCredentialReferenceOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Reference label</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeOpaqueCredentialReferenceOutput
+                        .opaqueCredentialReferenceLabel
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeOpaqueCredentialReferenceOutput
+                      .credentialReferenceState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeOpaqueCredentialReferenceOutput.credentialReferenceOutputState,
+                  representativeOpaqueCredentialReferenceOutput.credentialValueState,
+                  representativeOpaqueCredentialReferenceOutput.envVarState,
+                  representativeOpaqueCredentialReferenceOutput.providerKeyState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-credential-reference",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {`reference id: ${representativeOpaqueCredentialReferenceOutput.credentialReferenceId}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection output"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Selection output</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection output
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            not executed
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAdapterSelectionOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Selection result</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAdapterSelectionOutput.selectionState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeProviderAdapterSelectionOutput
+                      .providerExecutionState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderAdapterSelectionOutput.providerSdkImportState,
+                  representativeProviderAdapterSelectionOutput.promptTransmissionState,
+                  representativeProviderAdapterSelectionOutput.providerResponseState,
+                  representativeProviderAdapterSelectionOutput.modelOutputState,
+                  representativeProviderAdapterSelectionOutput.persistenceState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-output",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderAdapterSelectionOutput
+                    .explicitProviderSelectionOnlyNoProviderOutputNoSecretReadNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeProviderAdapterSelectionOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Reference posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only / not persisted
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {representativeProviderAdapterSelectionOutput.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`result reference: ${representativeProviderAdapterSelectionOutput.resultReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit reference: ${representativeProviderAdapterSelectionOutput.auditReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`approval reference: ${representativeProviderAdapterSelectionOutput.approvalReference}; evidence: ${representativeProviderAdapterSelectionOutput.evidencePacketReference}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection envelope"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Redacted envelope</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection envelope
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            prompt not sent
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAdapterSelectionEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Envelope state</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAdapterSelectionEnvelope.envelopeState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderAdapterSelectionEnvelope
+                      .promptTransmissionState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderAdapterSelectionEnvelope.promptPayloadPosture,
+                  representativeProviderAdapterSelectionEnvelope.providerPayloadPosture,
+                  representativeProviderAdapterSelectionEnvelope.providerResponseState,
+                  representativeProviderAdapterSelectionEnvelope.modelOutputState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-envelope",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {`selection digest: ${representativeProviderAdapterSelectionEnvelope.selectionDigest}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeProviderAdapterSelectionEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Reference envelope</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only references
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {representativeProviderAdapterSelectionEnvelope.providerResponseState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`result reference: ${representativeProviderAdapterSelectionEnvelope.resultReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit reference: ${representativeProviderAdapterSelectionEnvelope.auditReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`approval reference: ${representativeProviderAdapterSelectionEnvelope.approvalReference}; evidence packet: ${representativeProviderAdapterSelectionEnvelope.evidencePacketReference}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection gates"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Safety gates</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection gates
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            live provider blocked
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {providerAdapterSelectionGatesForDisplay.slice(0, 8).map(
+            (record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "provider-selection-gate",
+                  "item",
+                  index,
+                  record.key
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>{record.owner}</p>
+                    <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                  >
+                    {record.currentState}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.evidence}</p>
+                <p className={styles.railFooter}>{record.blockedLiveAction}</p>
+              </article>
+            )
+          )}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  blocked live provider coverage
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                {`${providerAdapterSelectionGateSummary.gateCount} gates`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerAdapterSelectionGateSummary.summaryLines
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-gate-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`${providerAdapterSelectionGateSummary.blockedLiveActionCount} blocked live actions remain`}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness matrix</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection readiness matrix
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            not provider-capable
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {providerAdapterSelectionReadinessRecords.slice(0, 8).map(
+            (record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "provider-selection-readiness",
+                  "item",
+                  index,
+                  record.key
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>{record.readinessId}</p>
+                    <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                  >
+                    {record.state}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.evidence}</p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            )
+          )}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  backend-only fixture posture
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerAdapterSelectionReadinessSummary.readinessCount} records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerAdapterSelectionReadinessSummary.summaryLines
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-readiness-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {providerAdapterSelectionReadinessSummary.nextSafeAction}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection evidence preview"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Evidence preview</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection evidence preview
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            preview-only / not persisted
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAdapterSelectionEvidencePreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Evidence packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderAdapterSelectionEvidencePreview
+                        .evidencePreviewState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderAdapterSelectionEvidencePreview
+                      .evidenceReference
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderAdapterSelectionEvidencePreview.evidenceSummaryLines.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-selection-evidence",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.metaPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
+          ) : null}
+          {representativeProviderAdapterSelectionApprovalPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderAdapterSelectionApprovalPreview
+                        .approvalPreviewState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderAdapterSelectionApprovalPreview
+                      .approvalReference
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderAdapterSelectionApprovalPreview.approvalSummaryLines.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-selection-approval-evidence",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {`manual confirmation: ${representativeProviderAdapterSelectionApprovalPreview.manualConfirmationFixtureState}; recording: ${representativeProviderAdapterSelectionApprovalPreview.approvalRecordingState}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Athena capability map">
         <div className={styles.panelHeader}>
           <div>
@@ -27404,8 +28285,8 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Provider adapter selection and credential reference MVP
-                  checklist
+                  Provider adapter selection and credential reference review and
+                  recovery preview checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -27413,7 +28294,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextProviderAdapterSelectionCredentialReferenceChecklist.map(
+              {nextProviderAdapterSelectionReviewRecoveryChecklist.map(
                 (item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
