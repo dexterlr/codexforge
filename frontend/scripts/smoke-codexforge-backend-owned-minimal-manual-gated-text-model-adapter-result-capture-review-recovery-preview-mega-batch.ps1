@@ -411,7 +411,7 @@ foreach ($needle in @(
   "no result persistence",
   "no audit persistence",
   "no approval persistence",
-  "text adapter audit and approval join MVP comes next"
+  "Backend-owned minimal manual-gated text model adapter audit and approval join MVP"
 )) {
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
@@ -427,7 +427,7 @@ foreach ($needle in @(
   "prompt transmission state is not sent",
   "no frontend request is created",
   "no API route is created",
-  "text adapter audit and approval join MVP comes next"
+  "Athena can now review the backend-owned minimal manual-gated text model adapter audit and approval join MVP"
 )) {
   Assert-Contains $homeNormalized $needle "home contains $needle"
 }
@@ -446,7 +446,7 @@ foreach ($needle in @(
   "no provider execution",
   "no model calls",
   "no persistence",
-  "text adapter audit and approval join MVP comes next"
+  "Backend-owned minimal manual-gated text model adapter audit and approval join MVP"
 )) {
   Assert-Contains $providersNormalized $needle "/ai-providers contains $needle"
 }

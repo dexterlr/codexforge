@@ -142,8 +142,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5801) {
-  throw "[FAIL] Highest detected phase expected 5801 found $highestPhase"
+if ($highestPhase -ne 5833) {
+  throw "[FAIL] Highest detected phase expected 5833 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -158,7 +158,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "5770-5801 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join MVP"',
+  'currentReleaseGateBatch = "5802-5833 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join Review and Recovery Preview"',
+  "Phase 5833 Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-audit-approval-join-review-recovery-preview-mega-batch.ps1",
   "Phase 5801 Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join MVP",
   "smoke-codexforge-backend-owned-minimal-manual-gated-text-model-adapter-audit-approval-join-mvp-mega-batch.ps1",
   "Phase 5769 Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture Review and Recovery Preview",
@@ -191,9 +193,18 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5801. Latest completed batch: 5770-5801 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join MVP. Previous completed batch: 5738-5769 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture Review and Recovery Preview. Next likely batch: 5802-5833 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join Review and Recovery Preview.",
+  "Current checkpoint: Highest detected phase: 5833. Latest completed batch: 5802-5833 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join Review and Recovery Preview. Previous completed batch: 5770-5801 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join MVP. Next likely batch: 5834-5865 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference MVP.",
+  "## Backend-Owned Minimal Manual-Gated Text Model Adapter Audit And Approval Join Review And Recovery Preview Checkpoint",
+  "Highest detected phase: 5833",
+  "Latest completed batch: 5802-5833 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join Review and Recovery Preview",
+  "Previous completed batch: 5770-5801 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join MVP",
+  "Next likely batch: 5834-5865 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference MVP",
+  "backend-owned minimal manual-gated text model adapter audit and approval join review and recovery preview only",
+  "minimal text adapter audit and approval join review is preview-only",
+  "current readiness is minimal-text-adapter-audit-approval-join-review-only / backend-only / fixture-only / in-memory-only / not persistent",
+  "acceptance state is not accepted for live provider execution / text adapter audit approval join fixture MVP accepted only",
+  "backend-owned minimal manual-gated provider adapter selection and credential reference MVP next",
   "## Backend-Owned Minimal Manual-Gated Text Model Adapter Audit And Approval Join MVP Checkpoint",
-  "Highest detected phase: 5801",
   "Latest completed batch: 5770-5801 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join MVP",
   "Previous completed batch: 5738-5769 - Backend-Owned Minimal Manual-Gated Text Model Adapter Result Capture Review and Recovery Preview",
   "Next likely batch: 5802-5833 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join Review and Recovery Preview",

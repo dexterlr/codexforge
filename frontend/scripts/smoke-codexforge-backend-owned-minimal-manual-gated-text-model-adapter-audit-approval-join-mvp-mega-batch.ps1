@@ -374,8 +374,8 @@ foreach ($needle in @(
   "Text adapter audit and approval join gates",
   "Text adapter audit and approval join readiness matrix",
   "Text adapter audit and approval join evidence preview",
-  "Athena can preview the backend-owned minimal manual-gated text model adapter audit and approval join MVP",
-  "minimal text adapter audit and approval join MVP is backend-only",
+  "Athena can review the backend-owned minimal manual-gated text model adapter audit and approval join MVP",
+  "minimal text adapter audit and approval join review is preview-only",
   "server-only text adapter audit and approval join helper exists",
   "text adapter audit and approval join is produced in memory only",
   "deterministic text adapter audit and approval join only",
@@ -394,15 +394,15 @@ foreach ($needle in @(
   "no result persistence",
   "no audit persistence",
   "no approval persistence",
-  "text adapter audit and approval join review and recovery preview comes next"
+  "provider adapter selection and credential reference MVP comes next"
 )) {
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
 
 foreach ($needle in @(
   "CodexForge Operator Cockpit",
-  "Athena can now preview the backend-owned minimal manual-gated text model adapter audit and approval join MVP",
-  "minimal text adapter audit and approval join MVP is backend-only",
+  "Athena can now review the backend-owned minimal manual-gated text model adapter audit and approval join MVP",
+  "minimal text adapter audit and approval join review is preview-only",
   "server-only text adapter audit and approval join helper exists",
   "text adapter audit and approval join is produced in memory only",
   "deterministic text adapter audit and approval join only",
@@ -410,7 +410,7 @@ foreach ($needle in @(
   "prompt transmission state is not sent",
   "no frontend request is created",
   "no API route is created",
-  "text adapter audit and approval join review and recovery preview comes next"
+  "provider adapter selection and credential reference MVP comes next"
 )) {
   Assert-Contains $homeNormalized $needle "home contains $needle"
 }
@@ -423,12 +423,12 @@ foreach ($needle in @(
   "Text adapter audit and approval join envelope",
   "Text adapter audit and approval join gates",
   "Text adapter audit and approval join readiness matrix",
-  "minimal text adapter audit and approval join MVP is backend-only",
+  "minimal text adapter audit and approval join review is preview-only",
   "text adapter audit and approval join is produced in memory only",
   "no provider execution",
   "no model calls",
   "no persistence",
-  "text adapter audit and approval join review and recovery preview comes next"
+  "provider adapter selection and credential reference MVP comes next"
 )) {
   Assert-Contains $providersNormalized $needle "/ai-providers contains $needle"
 }
