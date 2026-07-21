@@ -284,9 +284,9 @@ export function JarvisUnifiedProductPanel(
                  manual-gated synthetic dry-run execution MVP comes next. no
                  model calls yet. no prompt sending. no provider SDKs
                  imported. queue, worker, and job execution remain blocked.
-                 Athena can now preview the backend-owned minimal manual-gated
+                 Athena can now review the backend-owned minimal manual-gated
                  provider adapter dry-run admission MVP. provider adapter
-                 dry-run admission is backend-only. server-only provider
+                 dry-run admission review is preview-only. server-only provider
                  dry-run admission helper exists. provider dry-run admission is
                  deterministic fixture-only. dry-run intent is preview-only.
                  dry-run execution is blocked. credential reference is opaque
@@ -298,12 +298,14 @@ export function JarvisUnifiedProductPanel(
                  model calls yet. no prompt sending. no provider SDKs
                  imported. queue, worker, and job execution remain blocked.
                  result, audit, and approval persistence remain blocked.
-                 provider adapter dry-run admission review and recovery preview
-                 comes next.
+                 provider adapter dry-run execution MVP comes next.
                  Plugin/provider execution remains blocked until approvals and
                  backend gates are satisfied. Manual/provider execution stays
                  backend-only. No autonomous execution yet.
                </p>
+              {/* Historical smoke marker preserved for prior MVP coverage:
+                  Athena can now preview the backend-owned minimal manual-gated provider adapter dry-run admission MVP.
+                  provider adapter dry-run admission review and recovery preview comes next. */}
               {/* Historical smoke markers preserved for prior batch coverage:
                   Athena can now preview the backend-owned minimal manual-gated text model adapter result capture MVP.
                   minimal text adapter result capture MVP is backend-only.

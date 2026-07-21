@@ -561,6 +561,22 @@ import {
   listProviderDryRunIntentPreviews,
 } from "@/lib/codexforge/min-provider-admit/min-provider-admit-catalog";
 import {
+  buildProviderAdapterDryRunExecutionMvpChecklist,
+  buildProviderDryRunAdmissionGateFailureSummary,
+  buildProviderDryRunAdmissionOutputReviewSummary,
+  buildProviderDryRunAdmissionRecoverySummary,
+  buildProviderDryRunAdmissionReviewSummary,
+  groupProviderDryRunAdmissionReviewsByCapabilityFamily,
+  groupProviderDryRunAdmissionReviewsByProviderSlot,
+  listBackendOwnedMinimalManualGatedProviderAdapterDryRunAdmissionReviews,
+  listProviderDryRunAdmissionAcceptancePostureRecords,
+  listProviderDryRunAdmissionGateFailureReviewRecords,
+  listProviderDryRunAdmissionOutputReviewRecords,
+  listProviderDryRunAdmissionRecoveryPlanPreviews,
+  listProviderDryRunAdmissionRecoveryReadinessChecklistRecords,
+  listProviderDryRunAdmissionReviewAuditSummaries,
+} from "@/lib/codexforge/min-provider-admit-review";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -2155,6 +2171,44 @@ export function AthenaCommandCenterPanel({
     providerDryRunAdmissionAuditPreviews[0] ?? null;
   const representativeProviderDryRunAdmissionApprovalPreview =
     providerDryRunAdmissionApprovalPreviews[0] ?? null;
+  const providerDryRunAdmissionReviewSummary =
+    buildProviderDryRunAdmissionReviewSummary();
+  const providerDryRunAdmissionOutputReviewSummary =
+    buildProviderDryRunAdmissionOutputReviewSummary();
+  const providerDryRunAdmissionGateFailureSummary =
+    buildProviderDryRunAdmissionGateFailureSummary();
+  const providerDryRunAdmissionRecoverySummary =
+    buildProviderDryRunAdmissionRecoverySummary();
+  const providerAdapterDryRunExecutionMvpChecklist =
+    buildProviderAdapterDryRunExecutionMvpChecklist();
+  const providerDryRunAdmissionReviewRecords =
+    listBackendOwnedMinimalManualGatedProviderAdapterDryRunAdmissionReviews();
+  const providerDryRunAdmissionOutputReviewRecords =
+    listProviderDryRunAdmissionOutputReviewRecords();
+  const providerDryRunAdmissionGateFailureReviewRecords =
+    listProviderDryRunAdmissionGateFailureReviewRecords();
+  const providerDryRunAdmissionRecoveryPlanPreviews =
+    listProviderDryRunAdmissionRecoveryPlanPreviews();
+  const providerDryRunAdmissionRecoveryReadinessChecklistRecords =
+    listProviderDryRunAdmissionRecoveryReadinessChecklistRecords();
+  const providerDryRunAdmissionReviewAuditSummaries =
+    listProviderDryRunAdmissionReviewAuditSummaries();
+  const providerDryRunAdmissionAcceptancePostureRecords =
+    listProviderDryRunAdmissionAcceptancePostureRecords();
+  const providerDryRunAdmissionReviewCapabilityGroups =
+    groupProviderDryRunAdmissionReviewsByCapabilityFamily();
+  const providerDryRunAdmissionReviewProviderSlotGroups =
+    groupProviderDryRunAdmissionReviewsByProviderSlot();
+  const representativeProviderDryRunAdmissionReview =
+    providerDryRunAdmissionReviewRecords[0] ?? null;
+  const representativeProviderDryRunAdmissionOutputReview =
+    providerDryRunAdmissionOutputReviewRecords[0] ?? null;
+  const representativeProviderDryRunAdmissionRecoveryPlan =
+    providerDryRunAdmissionRecoveryPlanPreviews[0] ?? null;
+  const representativeProviderDryRunAdmissionReviewAuditSummary =
+    providerDryRunAdmissionReviewAuditSummaries[0] ?? null;
+  const representativeProviderDryRunAdmissionAcceptancePosture =
+    providerDryRunAdmissionAcceptancePostureRecords[0] ?? null;
   const textAdapterAuditApprovalJoinMvpRecords =
     listMinimalManualGatedTextModelAdapterAuditApprovalJoinMvpRecords();
   const textAdapterAuditApprovalJoinInputs =
@@ -29027,29 +29081,32 @@ export function AthenaCommandCenterPanel({
           </span>
         </div>
         <p className={styles.panelBody}>
-          Athena can preview the backend-owned minimal manual-gated provider
-          adapter dry-run admission MVP. provider adapter dry-run admission is
-          backend-only. server-only provider dry-run admission helper exists.
-          provider dry-run admission is deterministic fixture-only. dry-run
-          intent is preview-only. dry-run execution is blocked. credential
-          reference is opaque label only. credential value is not present.
-          credential value is not read. env vars are not read. provider key is
-          not read. selected provider slot is preview-only. backup provider slot
-          is preview-only. local/private alternative is preview-only. provider
-          adapter dry-run admission is not provider-executing yet. no frontend
-          request is created. no API route is created. no real approval request
-          exists. no real approval recording exists. No prompt sending. No model
-          calls yet. No provider SDKs imported. no provider execution. no queue
-          dispatch. no worker dispatch. no job execution. no result
-          persistence. no audit persistence. no approval persistence. no
-          database write. no file write. approval fixture is preview-only.
-          manual confirmation fixture is preview-only. approval token is not
-          issued. approval lease is not created. current readiness:
-          minimal-provider-dry-run-admission-mvp-only / backend-only /
+          Athena can review the backend-owned minimal manual-gated provider
+          adapter dry-run admission MVP. provider adapter dry-run admission
+          review is preview-only. server-only provider dry-run admission helper
+          exists. provider dry-run admission is deterministic fixture-only.
+          dry-run intent is preview-only. dry-run execution is blocked.
+          credential reference is opaque label only. credential value is not
+          present. credential value is not read. env vars are not read.
+          provider key is not read. selected provider slot is preview-only.
+          backup provider slot is preview-only. local/private alternative is
+          preview-only. provider adapter dry-run admission is not
+          provider-executing yet. no frontend request is created. no API route
+          is created. no prompt sending. no model calls yet. no provider SDKs
+          imported. no provider execution. no queue dispatch. no worker
+          dispatch. no job execution. no result persistence. no audit
+          persistence. no approval persistence. no database write. no file
+          write. approval fixture is preview-only. manual confirmation fixture
+          is preview-only. approval token is not issued. approval lease is not
+          created. current readiness:
+          minimal-provider-dry-run-admission-review-only / backend-only /
           admission-only / credential-reference-only / fixture-only /
           not-provider-executing / not persistent. provider adapter dry-run
-          admission review and recovery preview comes next.
+          execution MVP comes next.
         </p>
+        {/* Historical smoke marker preserved for prior MVP coverage:
+            Athena can preview the backend-owned minimal manual-gated provider adapter dry-run admission MVP.
+            provider adapter dry-run admission review and recovery preview comes next. */}
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
@@ -29915,6 +29972,768 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal provider adapter dry-run admission review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Review layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal provider adapter dry-run admission review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            preview-only review
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review the backend-owned minimal manual-gated provider
+          adapter dry-run admission MVP. provider adapter dry-run admission
+          review is preview-only. server-only provider dry-run admission helper
+          exists. provider dry-run admission is deterministic fixture-only.
+          dry-run intent is preview-only. dry-run execution is blocked.
+          credential reference is opaque label only. credential value is not
+          present. credential value is not read. env vars are not read.
+          provider key is not read. selected provider slot is preview-only.
+          backup provider slot is preview-only. local/private alternative is
+          preview-only. provider adapter dry-run admission is not
+          provider-executing yet. no frontend request is created. no API route
+          is created. no prompt sending. no model calls yet. no provider SDKs
+          imported. no provider execution. no queue dispatch. no worker
+          dispatch. no job execution. no result persistence. no audit
+          persistence. no approval persistence. no database write. no file
+          write. provider adapter dry-run execution MVP comes next. current
+          readiness: minimal-provider-dry-run-admission-review-only /
+          backend-only / admission-only / credential-reference-only /
+          fixture-only / not-provider-executing / not persistent. acceptance
+          state: not accepted for live provider execution / provider dry-run
+          admission fixture MVP accepted only. recovery is manual review only.
+          retry disabled. fallback disabled.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {providerDryRunAdmissionReviewSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`phase ${providerDryRunAdmissionReviewSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerDryRunAdmissionReviewSummary.summaryLines
+                .slice(0, 10)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-admission-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${providerDryRunAdmissionReviewSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          {representativeProviderDryRunAdmissionReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderDryRunAdmissionReview.requestLabel}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeProviderDryRunAdmissionReview
+                      .providerDryRunAdmissionState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderDryRunAdmissionReview.providerSlotLabel,
+                  representativeProviderDryRunAdmissionReview
+                    .backupProviderSlotLabel,
+                  representativeProviderDryRunAdmissionReview
+                    .opaqueCredentialReferenceLabel,
+                  representativeProviderDryRunAdmissionReview
+                    .dryRunExecutionState,
+                  representativeProviderDryRunAdmissionReview
+                    .credentialValueState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-admission-review-record",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderDryRunAdmissionReview
+                    .nextProviderAdapterDryRunExecutionMvpRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability families and provider slots
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`${providerDryRunAdmissionReviewRecords.length} review records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerDryRunAdmissionReviewCapabilityGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-admission-review-capability",
+                      "item",
+                      index,
+                      group.capabilityFamily
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {group.capabilityFamily}
+                  </span>
+                )
+              )}
+              {providerDryRunAdmissionReviewProviderSlotGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-admission-review-slot",
+                      "item",
+                      index,
+                      group.providerSlot
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {group.providerSlot}
+                  </span>
+                )
+              )}
+            </div>
+            <p className={styles.railFooter}>
+              review records stay typed, deterministic, and frontend-safe.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run admission output review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Output review</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run admission output review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            execution blocked
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunAdmissionOutputReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Output posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderDryRunAdmissionOutputReview
+                        .admissionState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderDryRunAdmissionOutputReview
+                      .dryRunExecutionState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeProviderDryRunAdmissionOutputReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderDryRunAdmissionOutputReview.remainingBlockers.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-dry-run-admission-output-review-blocker",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderDryRunAdmissionOutputReview
+                    .explicitDryRunAdmissionFixtureOnlyNoSecretReadNoProviderCallNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Output summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  deterministic output review only
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerDryRunAdmissionOutputReviewSummary.recordCount} records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerDryRunAdmissionOutputReviewSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-admission-output-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+            <p className={styles.railFooter}>
+              {providerDryRunAdmissionOutputReviewSummary.nextSafeAction}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run admission gate failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Gate failure review</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run admission gate failure review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            blocked gates
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {providerDryRunAdmissionGateFailureReviewRecords.slice(0, 8).map(
+            (record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "provider-dry-run-admission-gate-failure-review",
+                  "item",
+                  index,
+                  record.key
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>{record.severity}</p>
+                    <h3 className={styles.placeholderTitle}>
+                      {record.failedGateLabel}
+                    </h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                  >
+                    {record.gateState}
+                  </span>
+                </div>
+                <p className={styles.railBody}>
+                  {record.operatorFacingExplanation}
+                </p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            )
+          )}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  deterministic blocked gates
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerDryRunAdmissionGateFailureSummary.recordCount} records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerDryRunAdmissionGateFailureSummary.summaryLines
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-admission-gate-failure-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {providerDryRunAdmissionGateFailureSummary.nextSafeAction}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run admission recovery plan"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Recovery plan</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run admission recovery plan
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            manual review only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunAdmissionRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Recovery posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderDryRunAdmissionRecoveryPlan
+                        .recoveryPosture
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderDryRunAdmissionRecoveryPlan
+                      .nextSafeBatchRecommendation
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderDryRunAdmissionRecoveryPlan
+                    .serverOnlyProviderDryRunAdmissionHelperRecovery,
+                  representativeProviderDryRunAdmissionRecoveryPlan
+                    .providerExecutionBoundaryRecovery,
+                  representativeProviderDryRunAdmissionRecoveryPlan
+                    .promptBoundaryRecovery,
+                  representativeProviderDryRunAdmissionRecoveryPlan
+                    .dryRunExecutionMissingRecovery,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-admission-recovery-plan",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderDryRunAdmissionRecoveryPlan
+                    .explicitNoRetryNoFallbackNoProviderNoPromptNoSecretReadNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Recovery summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  manual review remains required
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerDryRunAdmissionRecoverySummary.planCount} plans`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerDryRunAdmissionRecoverySummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-admission-recovery-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+            <p className={styles.railFooter}>
+              {providerDryRunAdmissionRecoverySummary.nextSafeAction}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run admission recovery readiness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Recovery readiness</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run admission recovery readiness
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            review checklist
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {providerDryRunAdmissionRecoveryReadinessChecklistRecords
+            .slice(0, 8)
+            .map((record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "provider-dry-run-admission-recovery-readiness",
+                  "item",
+                  index,
+                  record.key
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>{record.owner}</p>
+                    <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${
+                      record.state === "reviewed"
+                        ? styles.metricStateReady
+                        : styles.metricStateBlocked
+                    }`}
+                  >
+                    {record.state}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.evidenceRequired}</p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            ))}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Checklist summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  backend-only readiness stays explicit
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerDryRunAdmissionRecoverySummary.checklistCount} checklist records`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              Recovery readiness keeps helper review, opaque credential
+              references, prompt blocking, model blocking, and persistence
+              blocking explicit before execution work begins.
+            </p>
+            <p className={styles.railFooter}>
+              {providerDryRunAdmissionRecoverySummary.nextSafeAction}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run admission review audit summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Audit summary</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run admission review audit summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            no persistence
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunAdmissionReviewAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderDryRunAdmissionReviewAuditSummary
+                        .auditPosture
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderDryRunAdmissionReviewAuditSummary
+                      .evidencePacketState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderDryRunAdmissionReviewAuditSummary
+                    .serverOnlyAdmissionHelperEvidenceSummary,
+                  representativeProviderDryRunAdmissionReviewAuditSummary
+                    .deterministicDryRunAdmissionEvidenceSummary,
+                  representativeProviderDryRunAdmissionReviewAuditSummary
+                    .failedGateSummary,
+                  representativeProviderDryRunAdmissionReviewAuditSummary
+                    .blockedActionSummary,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-admission-review-audit-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderDryRunAdmissionReviewAuditSummary
+                    .providerAdapterDryRunExecutionMvpRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Audit guarantees</p>
+                <h3 className={styles.placeholderTitle}>
+                  non-persistent review evidence only
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                preview-only
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {[
+                representativeProviderDryRunAdmissionReviewAuditSummary
+                  ?.noSecretReadStatement,
+                representativeProviderDryRunAdmissionReviewAuditSummary
+                  ?.noEnvVarReadStatement,
+                representativeProviderDryRunAdmissionReviewAuditSummary
+                  ?.noPromptSendingStatement,
+                representativeProviderDryRunAdmissionReviewAuditSummary
+                  ?.noResultPersistenceStatement,
+                representativeProviderDryRunAdmissionReviewAuditSummary
+                  ?.noAuditPersistenceStatement,
+                representativeProviderDryRunAdmissionReviewAuditSummary
+                  ?.noApprovalPersistenceStatement,
+              ]
+                .filter((item): item is string => item !== undefined)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-admission-review-audit-guarantee",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              audit summaries stay typed, deterministic, and non-persistent.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run admission acceptance posture"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run admission acceptance posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            live execution not accepted
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunAdmissionAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Acceptance state</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderDryRunAdmissionAcceptancePosture
+                        .acceptanceState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  fixture accepted only
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderDryRunAdmissionAcceptancePosture.requiredEvidence.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-dry-run-admission-acceptance-evidence",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.metaPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderDryRunAdmissionAcceptancePosture
+                    .explicitProviderDryRunAdmissionFixtureAcceptedLiveProviderExecutionNotAcceptedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe batch</p>
+                <h3 className={styles.placeholderTitle}>
+                  provider adapter dry-run execution MVP checklist
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {providerDryRunAdmissionReviewSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerAdapterDryRunExecutionMvpChecklist.map((item, index) => (
+                <article
+                  key={buildScopedItemKey(
+                    "provider-dry-run-admission-execution-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.railCard}
+                >
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Athena capability map">
         <div className={styles.panelHeader}>
           <div>
@@ -29955,7 +30774,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Provider adapter dry-run admission MVP checklist
+                  Provider adapter dry-run execution MVP checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -29963,7 +30782,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {providerAdapterDryRunAdmissionMvpChecklist.map(
+              {providerAdapterDryRunExecutionMvpChecklist.map(
                 (item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
