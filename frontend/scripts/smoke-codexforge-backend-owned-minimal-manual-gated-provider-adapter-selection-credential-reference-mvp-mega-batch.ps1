@@ -401,7 +401,8 @@ foreach ($needle in @(
   "Provider adapter selection gates",
   "Provider adapter selection readiness matrix",
   "Provider adapter selection evidence preview",
-  "Athena can preview the backend-owned minimal manual-gated provider adapter selection and credential reference MVP",
+  "Athena can review the backend-owned minimal manual-gated provider adapter selection and credential reference MVP",
+  "provider adapter selection review is preview-only",
   "provider adapter selection is backend-only",
   "server-only provider selection helper exists",
   "provider slot selection is deterministic fixture-only",
@@ -418,20 +419,21 @@ foreach ($needle in @(
   "No model calls yet",
   "No provider SDKs imported",
   "no provider execution",
-  "provider adapter selection and credential reference review and recovery preview comes next"
+  "provider adapter dry-run admission MVP comes next"
 )) {
   Assert-Contains $jarvisNormalized $needle "/jarvis contains $needle"
 }
 
 foreach ($needle in @(
   "CodexForge Operator Cockpit",
-  "Athena can now preview the backend-owned minimal manual-gated provider adapter selection and credential reference MVP",
+  "Athena can now review the backend-owned minimal manual-gated provider adapter selection and credential reference MVP",
+  "provider adapter selection review is preview-only",
   "provider adapter selection is backend-only",
   "server-only provider selection helper exists",
   "credential reference is opaque label only",
   "credential value is not read",
   "env vars are not read",
-  "provider adapter selection and credential reference review and recovery preview comes next"
+  "provider adapter dry-run admission MVP comes next"
 )) {
   Assert-Contains $homeNormalized $needle "home contains $needle"
 }
@@ -445,13 +447,14 @@ foreach ($needle in @(
   "Provider adapter selection gates",
   "Provider adapter selection readiness matrix",
   "provider adapter selection is backend-only",
+  "provider adapter selection review is preview-only",
   "credential reference is opaque label only",
   "credential value is not read",
   "env vars are not read",
   "no provider execution",
   "no model calls",
   "no persistence",
-  "provider adapter selection and credential reference review and recovery preview comes next"
+  "provider adapter dry-run admission MVP comes next"
 )) {
   Assert-Contains $providersNormalized $needle "/ai-providers contains $needle"
 }

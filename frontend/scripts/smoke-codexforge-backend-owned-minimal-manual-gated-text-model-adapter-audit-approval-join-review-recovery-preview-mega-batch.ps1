@@ -416,7 +416,7 @@ Assert-Contains $jarvisNormalized "acceptance state: not accepted for live provi
 Assert-Contains $jarvisNormalized "recovery is manual review only" "/jarvis contains recovery posture copy"
 Assert-Contains $jarvisNormalized "retry disabled" "/jarvis contains retry disabled copy"
 Assert-Contains $jarvisNormalized "fallback disabled" "/jarvis contains fallback disabled copy"
-Assert-Contains $jarvisNormalized "provider adapter selection and credential reference review and recovery preview comes next" "/jarvis contains next batch copy"
+Assert-Contains $jarvisNormalized "provider adapter dry-run admission MVP comes next" "/jarvis contains next batch copy"
 
 Assert-Contains $homeNormalized "CodexForge Operator Cockpit" "home contains CodexForge Operator Cockpit"
 Assert-Contains $homeNormalized "Athena can now review the backend-owned minimal manual-gated text model adapter audit and approval join MVP" "home contains reviewable join MVP copy"
@@ -428,7 +428,7 @@ Assert-Contains $homeNormalized "redacted prompt envelope is preview-only" "home
 Assert-Contains $homeNormalized "prompt transmission state is not sent" "home contains prompt not sent copy"
 Assert-Contains $homeNormalized "no frontend request is created" "home contains no frontend request copy"
 Assert-Contains $homeNormalized "no API route is created" "home contains no API route copy"
-Assert-Contains $homeNormalized "provider adapter selection and credential reference review and recovery preview comes next" "home contains next batch copy"
+Assert-Contains $homeNormalized "provider adapter dry-run admission MVP comes next" "home contains next batch copy"
 
 Assert-Contains $providersNormalized "Backend-owned minimal text adapter audit and approval join review" "/providers contains join review"
 Assert-Contains $providersNormalized "Text adapter audit and approval join output review" "/providers contains join output review"
@@ -442,7 +442,7 @@ Assert-Contains $providersNormalized "text adapter audit and approval join is pr
 Assert-Contains $providersNormalized "no provider execution" "/providers contains no provider execution copy"
 Assert-Contains $providersNormalized "no model calls" "/providers contains no model calls copy"
 Assert-Contains $providersNormalized "no persistence" "/providers contains no persistence copy"
-Assert-Contains $providersNormalized "provider adapter selection and credential reference review and recovery preview comes next" "/providers contains next batch copy"
+Assert-Contains $providersNormalized "provider adapter dry-run admission MVP comes next" "/providers contains next batch copy"
 
 Assert-Contains $videoNormalized "Video generation control" "/jarvis-video still contains Video generation control"
 Assert-Contains $videoNormalized "Prompt / concept" "/jarvis-video still contains Prompt / concept"

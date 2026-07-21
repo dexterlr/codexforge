@@ -142,8 +142,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5865) {
-  throw "[FAIL] Highest detected phase expected 5865 found $highestPhase"
+if ($highestPhase -ne 5897) {
+  throw "[FAIL] Highest detected phase expected 5897 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -158,7 +158,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "5834-5865 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference MVP"',
+  'currentReleaseGateBatch = "5866-5897 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview"',
+  "Phase 5897 Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-provider-adapter-selection-credential-reference-review-recovery-preview-mega-batch.ps1",
   "Phase 5865 Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference MVP",
   "smoke-codexforge-backend-owned-minimal-manual-gated-provider-adapter-selection-credential-reference-mvp-mega-batch.ps1",
   "Phase 5833 Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join Review and Recovery Preview",
@@ -195,7 +197,17 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5865. Latest completed batch: 5834-5865 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference MVP. Previous completed batch: 5802-5833 - Backend-Owned Minimal Manual-Gated Text Model Adapter Audit and Approval Join Review and Recovery Preview. Next likely batch: 5866-5897 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview.",
+  "Current checkpoint: Highest detected phase: 5897. Latest completed batch: 5866-5897 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview. Previous completed batch: 5834-5865 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference MVP. Next likely batch: 5898-5929 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission MVP.",
+  "## Backend-Owned Minimal Manual-Gated Provider Adapter Selection And Credential Reference Review And Recovery Preview Checkpoint",
+  "Highest detected phase: 5897",
+  "Latest completed batch: 5866-5897 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference Review and Recovery Preview",
+  "Previous completed batch: 5834-5865 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference MVP",
+  "Next likely batch: 5898-5929 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission MVP",
+  "backend-owned minimal manual-gated provider adapter selection and credential reference review and recovery preview only",
+  "provider adapter selection review is preview-only",
+  "current readiness is minimal-provider-selection-credential-reference-review-only / backend-only / credential-reference-only / fixture-only / not provider-capable / not persistent",
+  "acceptance state is not accepted for live provider execution / provider selection credential reference fixture MVP accepted only",
+  "backend-owned minimal manual-gated provider adapter dry-run admission MVP next",
   "## Backend-Owned Minimal Manual-Gated Provider Adapter Selection And Credential Reference MVP Checkpoint",
   "Highest detected phase: 5865",
   "Latest completed batch: 5834-5865 - Backend-Owned Minimal Manual-Gated Provider Adapter Selection and Credential Reference MVP",

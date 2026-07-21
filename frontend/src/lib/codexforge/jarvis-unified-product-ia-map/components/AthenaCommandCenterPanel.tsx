@@ -529,6 +529,20 @@ import {
   listProviderSlotMatrixRecords,
 } from "@/lib/codexforge/min-provider-select/min-provider-select-catalog";
 import {
+  buildProviderAdapterDryRunAdmissionMvpChecklist,
+  buildProviderSelectionGateFailureSummary,
+  buildProviderSelectionOutputReviewSummary,
+  buildProviderSelectionRecoverySummary,
+  buildProviderSelectionReviewSummary,
+  listBackendOwnedMinimalManualGatedProviderAdapterSelectionCredentialReferenceReviews,
+  listProviderSelectionAcceptancePostureRecords,
+  listProviderSelectionGateFailureReviewRecords,
+  listProviderSelectionOutputReviewRecords,
+  listProviderSelectionRecoveryPlanPreviews,
+  listProviderSelectionRecoveryReadinessChecklistRecords,
+  listProviderSelectionReviewAuditSummaries,
+} from "@/lib/codexforge/min-provider-review";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -2040,6 +2054,39 @@ export function AthenaCommandCenterPanel({
     providerAdapterSelectionEvidencePreviews[0] ?? null;
   const representativeProviderAdapterSelectionApprovalPreview =
     providerAdapterSelectionApprovalPreviews[0] ?? null;
+  const providerSelectionReviewSummary = buildProviderSelectionReviewSummary();
+  const providerSelectionOutputReviewSummary =
+    buildProviderSelectionOutputReviewSummary();
+  const providerSelectionGateFailureReviewSummary =
+    buildProviderSelectionGateFailureSummary();
+  const providerSelectionRecoveryReviewSummary =
+    buildProviderSelectionRecoverySummary();
+  const providerAdapterDryRunAdmissionMvpChecklist =
+    buildProviderAdapterDryRunAdmissionMvpChecklist();
+  const providerSelectionReviewRecords =
+    listBackendOwnedMinimalManualGatedProviderAdapterSelectionCredentialReferenceReviews();
+  const providerSelectionOutputReviewRecords =
+    listProviderSelectionOutputReviewRecords();
+  const providerSelectionGateFailureReviewRecords =
+    listProviderSelectionGateFailureReviewRecords();
+  const providerSelectionRecoveryPlanPreviews =
+    listProviderSelectionRecoveryPlanPreviews();
+  const providerSelectionRecoveryReadinessChecklistRecords =
+    listProviderSelectionRecoveryReadinessChecklistRecords();
+  const providerSelectionReviewAuditSummaries =
+    listProviderSelectionReviewAuditSummaries();
+  const providerSelectionAcceptancePostureRecords =
+    listProviderSelectionAcceptancePostureRecords();
+  const representativeProviderSelectionReview =
+    providerSelectionReviewRecords[0] ?? null;
+  const representativeProviderSelectionOutputReview =
+    providerSelectionOutputReviewRecords[0] ?? null;
+  const representativeProviderSelectionRecoveryPlan =
+    providerSelectionRecoveryPlanPreviews[0] ?? null;
+  const representativeProviderSelectionReviewAuditSummary =
+    providerSelectionReviewAuditSummaries[0] ?? null;
+  const representativeProviderSelectionAcceptancePosture =
+    providerSelectionAcceptancePostureRecords[0] ?? null;
   const textAdapterAuditApprovalJoinMvpRecords =
     listMinimalManualGatedTextModelAdapterAuditApprovalJoinMvpRecords();
   const textAdapterAuditApprovalJoinInputs =
@@ -27443,26 +27490,24 @@ export function AthenaCommandCenterPanel({
           </span>
         </div>
         <p className={styles.panelBody}>
-          Athena can preview the backend-owned minimal manual-gated provider
+          Athena can review the backend-owned minimal manual-gated provider
           adapter selection and credential reference MVP. provider adapter
-          selection is backend-only. server-only provider selection helper
-          exists. provider slot selection is deterministic fixture-only.
-          credential reference is opaque label only. credential value is not
-          present. credential value is not read. env vars are not read.
-          provider key is not read. selected provider slot is preview-only.
-          backup provider slot is preview-only. local/private alternative is
-          preview-only. provider adapter selection is not provider-capable yet.
-          no frontend request is created. no API route is created. no prompt
-          sending. no model calls yet. no provider SDKs imported. no provider
-          execution. no queue dispatch. no worker dispatch. no job execution.
-          no result persistence. no audit persistence. no approval persistence.
-          no database write. no file write. approval fixture is preview-only.
+          selection review is preview-only. provider adapter selection is
+          backend-only. server-only provider selection helper exists. provider
+          slot selection is deterministic fixture-only. credential reference is
+          opaque label only. credential value is not present. credential value
+          is not read. env vars are not read. provider key is not read.
+          selected provider slot is preview-only. backup provider slot is
+          preview-only. local/private alternative is preview-only. provider
+          adapter selection is not provider-capable yet. no frontend request is
+          created. no API route is created. No prompt sending. No model calls
+          yet. No provider SDKs imported. no provider execution. no queue
+          dispatch. no worker dispatch. no job execution. no result
+          persistence. no audit persistence. no approval persistence. no
+          database write. no file write. approval fixture is preview-only.
           manual confirmation fixture is preview-only. approval token is not
-          issued. approval lease is not created. current readiness:
-          minimal-provider-selection-credential-reference-mvp-only /
-          backend-only / credential-reference-only / fixture-only / not
-          provider-capable / not persistent. provider adapter selection and
-          credential reference review and recovery preview comes next.
+          issued. approval lease is not created. provider adapter dry-run
+          admission MVP comes next.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -28245,6 +28290,654 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal provider adapter selection and credential reference review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Provider selection review layer</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal provider adapter selection and credential
+              reference review
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            preview-only review
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review the backend-owned minimal manual-gated provider
+          adapter selection and credential reference MVP. provider adapter
+          selection review is preview-only. server-only provider selection
+          helper exists. provider slot selection is deterministic fixture-only.
+          credential reference is opaque label only. credential value is not
+          present. credential value is not read. env vars are not read.
+          provider key is not read. selected provider slot is preview-only.
+          backup provider slot is preview-only. local/private alternative is
+          preview-only. provider adapter selection is not provider-capable yet.
+          no frontend request is created. no API route is created. No prompt
+          sending. No model calls yet. No provider SDKs imported. no provider
+          execution. no queue dispatch. no worker dispatch. no job execution.
+          no result persistence. no audit persistence. no approval persistence.
+          no database write. no file write. current readiness:
+          minimal-provider-selection-credential-reference-review-only /
+          backend-only / credential-reference-only / fixture-only / not
+          provider-capable / not persistent. acceptance state: not accepted for
+          live provider execution / provider selection credential reference
+          fixture MVP accepted only. recovery is manual review only. retry
+          disabled. fallback disabled.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Current batch</p>
+                <h3 className={styles.placeholderTitle}>
+                  {providerSelectionReviewSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`phase ${providerSelectionReviewSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerSelectionReviewSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${providerSelectionReviewSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          {representativeProviderSelectionReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderSelectionReview.requestLabel}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {representativeProviderSelectionReview.reviewMode}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderSelectionReview.selectedCapabilityFamily,
+                  representativeProviderSelectionReview.providerSlotLabel,
+                  representativeProviderSelectionReview.backupProviderSlotLabel,
+                  representativeProviderSelectionReview.localPrivateAlternativeLabel,
+                  representativeProviderSelectionReview.opaqueCredentialReferenceLabel,
+                  representativeProviderSelectionReview.evidencePacketState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-review-record",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderSelectionReview
+                    .nextProviderAdapterDryRunAdmissionMvpRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection output review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Output review layer</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection output review
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            fixture-only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderSelectionOutputReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Selection state</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderSelectionOutputReview.selectionState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderSelectionOutputReview
+                      .providerExecutionState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderSelectionOutputReview.providerSelectionIdPosture,
+                  representativeProviderSelectionOutputReview.providerSlotIdPosture,
+                  representativeProviderSelectionOutputReview.credentialReferenceIdPosture,
+                  representativeProviderSelectionOutputReview.selectionDigestPosture,
+                  representativeProviderSelectionOutputReview.outputClassification,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-output-review",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderSelectionOutputReview
+                    .explicitProviderSelectionFixtureOnlyNoSecretReadNoProviderCallNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Output summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  deterministic preview ids only
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerSelectionOutputReviewSummary.recordCount} records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerSelectionOutputReviewSummary.summaryLines
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-output-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {providerSelectionOutputReviewSummary.nextSafeAction}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection gate failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked live gates</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection gate failure review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            no live gate pass
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {providerSelectionGateFailureReviewRecords.slice(0, 8).map(
+            (record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "provider-selection-gate-failure-review",
+                  "item",
+                  index,
+                  record.key
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>{record.severity}</p>
+                    <h3 className={styles.placeholderTitle}>
+                      {record.failedGateLabel}
+                    </h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                  >
+                    {record.gateState}
+                  </span>
+                </div>
+                <p className={styles.railBody}>
+                  {record.operatorFacingExplanation}
+                </p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            )
+          )}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Failure summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  blocked review coverage
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                {`${providerSelectionGateFailureReviewSummary.recordCount} records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerSelectionGateFailureReviewSummary.summaryLines
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-gate-failure-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {providerSelectionGateFailureReviewSummary.nextSafeAction}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection recovery plan"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Recovery preview</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection recovery plan
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            manual review only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderSelectionRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Recovery posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderSelectionRecoveryPlan.recoveryPosture}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {representativeProviderSelectionRecoveryPlan.retryPosture}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderSelectionRecoveryPlan.serverOnlyProviderSelectionHelperRecovery,
+                  representativeProviderSelectionRecoveryPlan.providerSdkBoundaryRecovery,
+                  representativeProviderSelectionRecoveryPlan.providerExecutionBoundaryRecovery,
+                  representativeProviderSelectionRecoveryPlan.promptBoundaryRecovery,
+                  representativeProviderSelectionRecoveryPlan.modelBoundaryRecovery,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-recovery-plan",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderSelectionRecoveryPlan
+                    .nextSafeBatchRecommendation
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Recovery summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  no retry and no fallback
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerSelectionRecoveryReviewSummary.planCount} plans`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerSelectionRecoveryReviewSummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-recovery-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+            <p className={styles.railFooter}>
+              {providerSelectionRecoveryReviewSummary.nextSafeAction}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection recovery readiness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Recovery readiness checklist</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection recovery readiness
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            preview-only checklist
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {providerSelectionRecoveryReadinessChecklistRecords
+            .slice(0, 8)
+            .map((record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "provider-selection-recovery-readiness",
+                  "item",
+                  index,
+                  record.key
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>{record.owner}</p>
+                    <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                  >
+                    {record.state}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.evidenceRequired}</p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            ))}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Checklist coverage</p>
+                <h3 className={styles.placeholderTitle}>
+                  review and blocked boundary coverage
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerSelectionRecoveryReviewSummary.checklistCount} records`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              The readiness checklist confirms which review-only boundaries are
+              documented now and which execution and persistence boundaries stay
+              blocked for the future backend admission slice.
+            </p>
+            <p className={styles.railFooter}>
+              {
+                providerAdapterDryRunAdmissionMvpChecklist[
+                  providerAdapterDryRunAdmissionMvpChecklist.length - 1
+                ]
+              }
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection review audit summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Audit summary layer</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection review audit summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            no persistence
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderSelectionReviewAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderSelectionReviewAuditSummary
+                        .auditPosture
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderSelectionReviewAuditSummary
+                      .evidencePacketState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderSelectionReviewAuditSummary
+                    .serverOnlySelectionHelperEvidenceSummary,
+                  representativeProviderSelectionReviewAuditSummary
+                    .deterministicProviderSlotSelectionEvidenceSummary,
+                  representativeProviderSelectionReviewAuditSummary
+                    .opaqueCredentialReferenceEvidenceSummary,
+                  representativeProviderSelectionReviewAuditSummary
+                    .blockedActionSummary,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-selection-review-audit-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderSelectionReviewAuditSummary
+                    .providerAdapterDryRunAdmissionMvpRequirement
+                }
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter selection acceptance posture"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter selection acceptance posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            live execution not accepted
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderSelectionAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Acceptance state</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderSelectionAcceptancePosture
+                        .acceptanceState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  fixture accepted only
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderSelectionAcceptancePosture.requiredEvidence.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-selection-acceptance-evidence",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.metaPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {representativeProviderSelectionAcceptancePosture.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe batch</p>
+                <h3 className={styles.placeholderTitle}>
+                  provider adapter dry-run admission MVP checklist
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {providerSelectionReviewSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerAdapterDryRunAdmissionMvpChecklist.map((item, index) => (
+                <article
+                  key={buildScopedItemKey(
+                    "provider-selection-dry-run-checklist",
+                    "item",
+                    index,
+                    item
+                  )}
+                  className={styles.railCard}
+                >
+                  <p className={styles.railBody}>{item}</p>
+                </article>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Athena capability map">
         <div className={styles.panelHeader}>
           <div>
@@ -28285,8 +28978,7 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Provider adapter selection and credential reference review and
-                  recovery preview checklist
+                  Provider adapter dry-run admission MVP checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -28294,7 +28986,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {nextProviderAdapterSelectionReviewRecoveryChecklist.map(
+              {providerAdapterDryRunAdmissionMvpChecklist.map(
                 (item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
