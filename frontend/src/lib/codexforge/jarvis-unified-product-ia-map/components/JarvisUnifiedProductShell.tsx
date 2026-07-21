@@ -292,9 +292,9 @@ export function JarvisUnifiedProductPanel(
                  manual-gated synthetic dry-run execution MVP comes next. no
                  model calls yet. no prompt sending. no provider SDKs
                  imported. queue, worker, and job execution remain blocked.
-                 Athena can now preview the backend-owned minimal manual-gated
+                 Athena can now review the backend-owned minimal manual-gated
                  provider adapter dry-run execution MVP. provider adapter
-                 dry-run execution is backend-only. server-only provider
+                 dry-run execution review is preview-only. server-only provider
                  dry-run execution helper exists. provider dry-run execution is
                  deterministic fixture-only. dry-run fixture response is
                  produced in memory only. live provider execution is blocked.
@@ -306,8 +306,8 @@ export function JarvisUnifiedProductPanel(
                  is created. no API route is created. no model calls yet. no
                  prompt sending. no provider SDKs imported. queue, worker, and
                  job execution remain blocked. result, audit, and approval
-                 persistence remain blocked. provider adapter dry-run execution
-                 review and recovery preview comes next.
+                 persistence remain blocked. provider adapter dry-run result
+                 capture MVP comes next.
                  Plugin/provider execution remains blocked until approvals and
                  backend gates are satisfied. Manual/provider execution stays
                  backend-only. No autonomous execution yet.

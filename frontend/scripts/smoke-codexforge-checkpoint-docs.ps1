@@ -142,8 +142,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 5993) {
-  throw "[FAIL] Highest detected phase expected 5993 found $highestPhase"
+if ($highestPhase -ne 6025) {
+  throw "[FAIL] Highest detected phase expected 6025 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -158,7 +158,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
-  'currentReleaseGateBatch = "5962-5993 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution MVP"',
+  'currentReleaseGateBatch = "5994-6025 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution Review and Recovery Preview"',
+  "Phase 6025 Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-provider-adapter-dry-run-execution-review-recovery-preview-mega-batch.ps1",
   "Phase 5993 Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution MVP",
   "smoke-codexforge-backend-owned-minimal-manual-gated-provider-adapter-dry-run-execution-mvp-mega-batch.ps1",
   "Phase 5961 Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission Review and Recovery Preview",
@@ -203,14 +205,14 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Current checkpoint: Highest detected phase: 5993. Latest completed batch: 5962-5993 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution MVP. Previous completed batch: 5930-5961 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission Review and Recovery Preview. Next likely batch: 5994-6025 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution Review and Recovery Preview.",
-  "## Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution MVP Checkpoint",
-  "Highest detected phase: 5993",
-  "Latest completed batch: 5962-5993 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution MVP",
-  "Previous completed batch: 5930-5961 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission Review and Recovery Preview",
-  "Next likely batch: 5994-6025 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution Review and Recovery Preview",
-  "backend-owned minimal manual-gated provider adapter dry-run execution MVP only",
-  "provider adapter dry-run execution is backend-only",
+  "Current checkpoint: Highest detected phase: 6025. Latest completed batch: 5994-6025 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution Review and Recovery Preview. Previous completed batch: 5962-5993 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution MVP. Next likely batch: 6026-6057 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Result Capture MVP.",
+  "## Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution Review And Recovery Preview Checkpoint",
+  "Highest detected phase: 6025",
+  "Latest completed batch: 5994-6025 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution Review and Recovery Preview",
+  "Previous completed batch: 5962-5993 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution MVP",
+  "Next likely batch: 6026-6057 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Result Capture MVP",
+  "backend-owned minimal manual-gated provider adapter dry-run execution review and recovery preview only",
+  "provider adapter dry-run execution review is preview-only",
   "server-only provider dry-run execution helper exists",
   "provider dry-run execution is deterministic fixture-only",
   "dry-run fixture response is produced in memory only",
@@ -263,8 +265,12 @@ foreach ($needle in @(
   "audit preview required",
   "opaque credential references only",
   "no plaintext secrets",
-  "current readiness is minimal-provider-dry-run-execution-mvp-only / backend-only / dry-run-fixture-only / credential-reference-only / not-live-provider-executing / not persistent",
-  "backend-owned minimal manual-gated provider adapter dry-run execution review and recovery preview next",
+  "current readiness is minimal-provider-dry-run-execution-review-only / backend-only / dry-run-fixture-only / credential-reference-only / not-live-provider-executing / not persistent",
+  "acceptance state is not accepted for live provider execution / provider dry-run execution fixture MVP accepted only",
+  "recovery is manual review only",
+  "retry disabled",
+  "fallback disabled",
+  "backend-owned minimal manual-gated provider adapter dry-run result capture MVP next",
   "Current checkpoint: Highest detected phase: 5961. Latest completed batch: 5930-5961 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission Review and Recovery Preview. Previous completed batch: 5898-5929 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission MVP. Next likely batch: 5962-5993 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Execution MVP.",
   "## Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Admission Review And Recovery Preview Checkpoint",
   "Highest detected phase: 5961",

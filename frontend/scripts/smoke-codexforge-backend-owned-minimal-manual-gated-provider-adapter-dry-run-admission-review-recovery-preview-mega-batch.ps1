@@ -3,11 +3,12 @@ param([string]$BaseUrl = "http://localhost:3000")
 $ErrorActionPreference = "Stop"
 $scriptRoot = $PSScriptRoot
 $root = Split-Path -Parent $scriptRoot
-$parentRoot = Resolve-Path (Join-Path $root "..")
-if (Test-Path (Join-Path $parentRoot "README.md")) {
-  $repoRoot = $parentRoot
-} else {
-  $repoRoot = Resolve-Path $root
+$repoRoot = Resolve-Path $root
+if (-not (Test-Path (Join-Path $repoRoot "package.json"))) {
+  $parentRoot = Resolve-Path (Join-Path $root "..")
+  if (Test-Path (Join-Path $parentRoot "package.json")) {
+    $repoRoot = $parentRoot
+  }
 }
 Set-Location $root
 
