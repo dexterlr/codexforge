@@ -577,6 +577,24 @@ import {
   listProviderDryRunAdmissionReviewAuditSummaries,
 } from "@/lib/codexforge/min-provider-admit-review";
 import {
+  buildNextProviderDryRunExecutionReviewRecoveryChecklist,
+  buildProviderDryRunExecutionGateSummary,
+  buildProviderDryRunExecutionReadinessSummary,
+  buildProviderDryRunExecutionSummary,
+  listMinimalManualGatedProviderAdapterDryRunExecutionMvpRecords,
+  listProviderDryRunApprovalPreviews as listProviderDryRunExecutionApprovalPreviews,
+  listProviderDryRunAuditPreviews as listProviderDryRunExecutionAuditPreviews,
+  listProviderDryRunBlockedLiveExecutionSummaries,
+  listProviderDryRunEvidencePreviews as listProviderDryRunExecutionEvidencePreviews,
+  listProviderDryRunExecutionEnvelopes,
+  listProviderDryRunExecutionGates,
+  listProviderDryRunExecutionInputs,
+  listProviderDryRunExecutionOutputs,
+  listProviderDryRunExecutionPlans,
+  listProviderDryRunExecutionReadinessMatrixRecords,
+  listProviderDryRunFixtureResponses,
+} from "@/lib/codexforge/min-provider-exec/min-provider-exec-catalog";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -2209,6 +2227,56 @@ export function AthenaCommandCenterPanel({
     providerDryRunAdmissionReviewAuditSummaries[0] ?? null;
   const representativeProviderDryRunAdmissionAcceptancePosture =
     providerDryRunAdmissionAcceptancePostureRecords[0] ?? null;
+  const providerDryRunExecutionSummary = buildProviderDryRunExecutionSummary();
+  const providerDryRunExecutionGateSummary =
+    buildProviderDryRunExecutionGateSummary();
+  const providerDryRunExecutionReadinessSummary =
+    buildProviderDryRunExecutionReadinessSummary();
+  const nextProviderDryRunExecutionReviewRecoveryChecklist =
+    buildNextProviderDryRunExecutionReviewRecoveryChecklist();
+  const providerDryRunExecutionMvpRecords =
+    listMinimalManualGatedProviderAdapterDryRunExecutionMvpRecords();
+  const providerDryRunExecutionInputs = listProviderDryRunExecutionInputs();
+  const providerDryRunExecutionPlans = listProviderDryRunExecutionPlans();
+  const providerDryRunExecutionOutputs = listProviderDryRunExecutionOutputs();
+  const providerDryRunExecutionEnvelopes =
+    listProviderDryRunExecutionEnvelopes();
+  const providerDryRunFixtureResponses = listProviderDryRunFixtureResponses();
+  const providerDryRunBlockedLiveExecutionSummaryRecords =
+    listProviderDryRunBlockedLiveExecutionSummaries();
+  const providerDryRunExecutionEvidencePreviews =
+    listProviderDryRunExecutionEvidencePreviews();
+  const providerDryRunExecutionAuditPreviews =
+    listProviderDryRunExecutionAuditPreviews();
+  const providerDryRunExecutionApprovalPreviews =
+    listProviderDryRunExecutionApprovalPreviews();
+  const providerDryRunExecutionGates = listProviderDryRunExecutionGates();
+  const providerDryRunExecutionReadinessRecords =
+    listProviderDryRunExecutionReadinessMatrixRecords();
+  const providerDryRunExecutionGatesForDisplay = uniqueRecordsByString(
+    providerDryRunExecutionGates,
+    (record) => record.key
+  );
+  const representativeProviderDryRunExecutionMvp =
+    providerDryRunExecutionMvpRecords[0] ?? null;
+  const representativeProviderDryRunExecutionInput =
+    providerDryRunExecutionInputs[0] ?? null;
+  const representativeProviderDryRunExecutionPlan =
+    providerDryRunExecutionPlans[0] ?? null;
+  const representativeProviderDryRunExecutionOutput =
+    providerDryRunExecutionOutputs[0] ?? null;
+  const representativeProviderDryRunExecutionEnvelope =
+    providerDryRunExecutionEnvelopes[0] ?? null;
+  const representativeProviderDryRunFixtureResponse =
+    providerDryRunFixtureResponses[0] ?? null;
+  const representativeProviderDryRunBlockedLiveExecutionSummary =
+    providerDryRunBlockedLiveExecutionSummaryRecords[0] ?? null;
+  const representativeProviderDryRunExecutionEvidencePreview =
+    providerDryRunExecutionEvidencePreviews[0] ?? null;
+  const representativeProviderDryRunExecutionAuditPreview =
+    providerDryRunExecutionAuditPreviews[0] ?? null;
+  const representativeProviderDryRunExecutionApprovalPreview =
+    providerDryRunExecutionApprovalPreviews[0] ?? null;
   const textAdapterAuditApprovalJoinMvpRecords =
     listMinimalManualGatedTextModelAdapterAuditApprovalJoinMvpRecords();
   const textAdapterAuditApprovalJoinInputs =
@@ -29099,10 +29167,10 @@ export function AthenaCommandCenterPanel({
           write. approval fixture is preview-only. manual confirmation fixture
           is preview-only. approval token is not issued. approval lease is not
           created. current readiness:
-          minimal-provider-dry-run-admission-review-only / backend-only /
-          admission-only / credential-reference-only / fixture-only /
-          not-provider-executing / not persistent. provider adapter dry-run
-          execution MVP comes next.
+          minimal-provider-dry-run-execution-mvp-only / backend-only /
+          dry-run-fixture-only / credential-reference-only /
+          not-live-provider-executing / not persistent. provider adapter
+          dry-run execution review and recovery preview comes next.
         </p>
         {/* Historical smoke marker preserved for prior MVP coverage:
             Athena can preview the backend-owned minimal manual-gated provider adapter dry-run admission MVP.
@@ -30003,13 +30071,14 @@ export function AthenaCommandCenterPanel({
           imported. no provider execution. no queue dispatch. no worker
           dispatch. no job execution. no result persistence. no audit
           persistence. no approval persistence. no database write. no file
-          write. provider adapter dry-run execution MVP comes next. current
-          readiness: minimal-provider-dry-run-admission-review-only /
-          backend-only / admission-only / credential-reference-only /
-          fixture-only / not-provider-executing / not persistent. acceptance
-          state: not accepted for live provider execution / provider dry-run
-          admission fixture MVP accepted only. recovery is manual review only.
-          retry disabled. fallback disabled.
+          write. provider adapter dry-run execution review and recovery preview
+          comes next. current readiness:
+          minimal-provider-dry-run-execution-mvp-only / backend-only /
+          dry-run-fixture-only / credential-reference-only /
+          not-live-provider-executing / not persistent. acceptance state: not
+          accepted for live provider execution / provider dry-run admission
+          fixture MVP accepted only. recovery is manual review only. retry
+          disabled. fallback disabled.
         </p>
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
@@ -30704,22 +30773,23 @@ export function AthenaCommandCenterPanel({
           <article className={styles.summaryCard}>
             <div className={styles.placeholderHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Next safe batch</p>
+                <p className={styles.panelEyebrow}>Current next safe batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  provider adapter dry-run execution MVP checklist
+                  provider adapter dry-run execution review checklist
                 </h3>
               </div>
               <span
                 className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
               >
-                {providerDryRunAdmissionReviewSummary.nextLikelyBatch}
+                {providerDryRunExecutionSummary.nextLikelyBatch}
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {providerAdapterDryRunExecutionMvpChecklist.map((item, index) => (
+              {nextProviderDryRunExecutionReviewRecoveryChecklist.map(
+                (item, index) => (
                 <article
                   key={buildScopedItemKey(
-                    "provider-dry-run-admission-execution-checklist",
+                    "provider-dry-run-admission-execution-review-checklist",
                     "item",
                     index,
                     item
@@ -30728,9 +30798,1003 @@ export function AthenaCommandCenterPanel({
                 >
                   <p className={styles.railBody}>{item}</p>
                 </article>
-              ))}
+                )
+              )}
             </div>
           </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal manual-gated provider adapter dry-run execution MVP"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>
+              Backend-only provider dry-run execution boundary
+            </p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal manual-gated provider adapter dry-run
+              execution MVP
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            execution fixture only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview the backend-owned minimal manual-gated provider
+          adapter dry-run execution MVP. provider adapter dry-run execution is
+          backend-only. server-only provider dry-run execution helper exists.
+          provider dry-run execution is deterministic fixture-only. dry-run
+          fixture response is produced in memory only. live provider execution
+          is blocked. credential reference is opaque label only. credential
+          value is not present. credential value is not read. env vars are not
+          read. provider key is not read. selected provider slot is
+          preview-only. backup provider slot is preview-only. local/private
+          alternative is preview-only. provider adapter dry-run execution is
+          not live provider execution. no frontend request is created. no API
+          route is created. no prompt sending. no model calls yet. no provider
+          SDKs imported. no live provider execution. no queue dispatch. no
+          worker dispatch. no job execution. no result persistence. no audit
+          persistence. no approval persistence. no database write. no file
+          write. approval fixture is preview-only. manual confirmation fixture
+          is preview-only. approval token is not issued. approval lease is not
+          created. current readiness:
+          minimal-provider-dry-run-execution-mvp-only / backend-only /
+          dry-run-fixture-only / credential-reference-only /
+          not-live-provider-executing / not persistent. provider adapter
+          dry-run execution review and recovery preview comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Dry-run execution summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {providerDryRunExecutionSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`phase ${providerDryRunExecutionSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerDryRunExecutionSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-execution-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${providerDryRunExecutionSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          {representativeProviderDryRunExecutionMvp ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Deterministic fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderDryRunExecutionMvp.executionState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {representativeProviderDryRunExecutionMvp.currentReadiness}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`execution id: ${representativeProviderDryRunExecutionMvp.providerDryRunExecutionId}`}
+              </p>
+              <p className={styles.railBody}>
+                {`credential reference id: ${representativeProviderDryRunExecutionMvp.credentialReferenceId}`}
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderDryRunExecutionMvp
+                    .reviewRecoveryPreviewNextStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe batch</p>
+                <h3 className={styles.placeholderTitle}>
+                  provider adapter dry-run execution review checklist
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {providerDryRunExecutionSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {nextProviderDryRunExecutionReviewRecoveryChecklist.map(
+                (item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-execution-checklist",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run execution input"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Execution request posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run execution input
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            deterministic request only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunExecutionInput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Input fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderDryRunExecutionInput.capabilityFamily}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {representativeProviderDryRunExecutionInput.requestState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderDryRunExecutionInput.providerSlotLabel,
+                  representativeProviderDryRunExecutionInput
+                    .backupProviderSlotLabel,
+                  representativeProviderDryRunExecutionInput
+                    .localPrivateAlternativeLabel,
+                  representativeProviderDryRunExecutionInput
+                    .opaqueCredentialReferenceLabel,
+                  representativeProviderDryRunExecutionInput
+                    .promptPayloadPosture,
+                  representativeProviderDryRunExecutionInput
+                    .credentialValueState,
+                  representativeProviderDryRunExecutionInput.envVarState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-execution-input",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderDryRunExecutionInput
+                    .explicitNoFrontendRequestNoApiRouteNoProviderCallNoSecretReadStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Boundary state</p>
+                <h3 className={styles.placeholderTitle}>
+                  no frontend request and no API route
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                {`${providerDryRunExecutionInputs.length} inputs`}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              Provider adapter dry-run execution input stays backend-only,
+              manual-gated, fixture-only, and redacted. It creates no frontend
+              request, no API route, no provider payload, and no persistence
+              target.
+            </p>
+            <p className={styles.railFooter}>
+              {providerDryRunExecutionSummary.currentReadiness}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run execution plan"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Execution plan posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run execution plan
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            preview-only execution plan
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunExecutionPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Execution plan</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderDryRunExecutionPlan
+                        .supportedCapabilityState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {representativeProviderDryRunExecutionPlan.planState}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderDryRunExecutionPlan.requiredChecks.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-dry-run-execution-plan",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {representativeProviderDryRunExecutionPlan.blockedLiveAction}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  deterministic dry-run execution gates
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerDryRunExecutionGateSummary.gateCount} gate records`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerDryRunExecutionGateSummary.summaryLines
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-execution-gate-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {providerDryRunExecutionSummary.nextLikelyBatch}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run execution output"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Deterministic output posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run execution output
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            in-memory output only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunExecutionOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Output fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderDryRunExecutionOutput
+                        .executionState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeProviderDryRunExecutionOutput
+                      .selectedProviderState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderDryRunExecutionOutput.providerSlotLabel,
+                  representativeProviderDryRunExecutionOutput
+                    .backupProviderSlotLabel,
+                  representativeProviderDryRunExecutionOutput
+                    .localPrivateAlternativeLabel,
+                  representativeProviderDryRunExecutionOutput
+                    .providerSdkImportState,
+                  representativeProviderDryRunExecutionOutput
+                    .liveProviderExecutionState,
+                  representativeProviderDryRunExecutionOutput
+                    .providerResponseState,
+                  representativeProviderDryRunExecutionOutput.modelOutputState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-execution-output",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderDryRunExecutionOutput
+                    .explicitDryRunExecutionFixtureOnlyNoProviderOutputNoSecretReadNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Persistence posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  preview references only
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                blocked persistence
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              Dry-run execution output returns deterministic preview references
+              only. Result, audit, approval, evidence, database, and file
+              writes remain unimplemented.
+            </p>
+            <p className={styles.railFooter}>
+              {providerDryRunExecutionSummary.currentReadiness}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run execution envelope"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Redacted envelope posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run execution envelope
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            redacted preview only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunExecutionEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Envelope fixture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderDryRunExecutionEnvelope
+                        .redactedPromptEnvelopeLabel
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderDryRunExecutionEnvelope.envelopeState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderDryRunExecutionEnvelope
+                    .promptPayloadPosture,
+                  representativeProviderDryRunExecutionEnvelope
+                    .promptTransmissionState,
+                  representativeProviderDryRunExecutionEnvelope
+                    .providerPayloadPosture,
+                  representativeProviderDryRunExecutionEnvelope
+                    .providerResponseState,
+                  representativeProviderDryRunExecutionEnvelope.modelOutputState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-execution-envelope",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {`evidence reference: ${representativeProviderDryRunExecutionEnvelope.evidencePacketReference}`}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Prompt boundary</p>
+                <h3 className={styles.placeholderTitle}>
+                  redacted preview only
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                no prompt sending
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              The prompt envelope stays redacted, preview-only, and unsent. No
+              provider payload is created, no provider response is received,
+              and no provider/model output is generated.
+            </p>
+            <p className={styles.railFooter}>
+              {providerDryRunExecutionSummary.currentReadiness}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run fixture response"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Fixture response posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run fixture response
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            in-memory fixture only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunFixtureResponse ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Fixture response</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderDryRunFixtureResponse
+                        .fixtureProviderResponse
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeProviderDryRunFixtureResponse
+                      .fixtureResponseState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderDryRunFixtureResponse
+                    .selectedProviderState,
+                  representativeProviderDryRunFixtureResponse
+                    .providerResponseState,
+                  representativeProviderDryRunFixtureResponse.modelOutputState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-fixture-response",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {`result reference: ${representativeProviderDryRunFixtureResponse.resultReference}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeProviderDryRunExecutionAuditPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only audit fixture
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderDryRunExecutionAuditPreview
+                      .auditPreviewState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderDryRunExecutionAuditPreview.auditSummaryLines.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-dry-run-execution-audit-summary",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {`audit reference: ${representativeProviderDryRunExecutionAuditPreview.auditReference}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run blocked live execution summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Blocked action posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run blocked live execution summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            live execution blocked
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunBlockedLiveExecutionSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Blocked live actions</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderDryRunBlockedLiveExecutionSummary
+                        .blockedLiveExecutionState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderDryRunBlockedLiveExecutionSummary
+                      .executionState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderDryRunBlockedLiveExecutionSummary.blockedLiveActions
+                  .slice(0, 8)
+                  .map((item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-dry-run-blocked-live-actions",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  ))}
+              </div>
+              <p className={styles.railFooter}>
+                live provider execution remains blocked across approval,
+                provider, model, network, and persistence paths.
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  backend-only dry-run fixture only
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {providerDryRunExecutionReadinessSummary.currentReadiness}
+              </span>
+            </div>
+            <p className={styles.railBody}>
+              Athena can inspect the blocked live execution posture without
+              creating a frontend request, API route, prompt transmission,
+              model call, provider call, or persistent side effect.
+            </p>
+            <p className={styles.railFooter}>
+              {providerDryRunExecutionSummary.nextLikelyBatch}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run execution gates"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Execution gate posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run execution gates
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            static gate matrix
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Representative gates</p>
+                <h3 className={styles.placeholderTitle}>
+                  preview-only blocked execution gates
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerDryRunExecutionGatesForDisplay.length} gate records`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerDryRunExecutionGatesForDisplay
+                .slice(0, 6)
+                .map((record, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-execution-gates",
+                      "record",
+                      index,
+                      record.key
+                    )}
+                    className={styles.railCard}
+                  >
+                    <h3 className={styles.railTitle}>{record.label}</h3>
+                    <p className={styles.railBody}>{record.evidence}</p>
+                  </article>
+                ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  blocked live execution matrix
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                {`${providerDryRunExecutionGateSummary.blockedLiveActions.length} blocked actions`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerDryRunExecutionGateSummary.blockedLiveActions
+                .slice(0, 8)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-execution-blocked-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {providerDryRunExecutionSummary.currentReadiness}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run execution readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run execution readiness matrix
+            </h2>
+          </div>
+          <span
+            className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+          >
+            mvp readiness only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness records</p>
+                <h3 className={styles.placeholderTitle}>
+                  {providerDryRunExecutionReadinessSummary.currentReadiness}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerDryRunExecutionReadinessRecords.length} readiness records`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerDryRunExecutionReadinessRecords
+                .slice(0, 6)
+                .map((record, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-execution-readiness",
+                      "record",
+                      index,
+                      record.key
+                    )}
+                    className={styles.railCard}
+                  >
+                    <h3 className={styles.railTitle}>{record.label}</h3>
+                    <p className={styles.railBody}>{record.state}</p>
+                  </article>
+                ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe action</p>
+                <h3 className={styles.placeholderTitle}>
+                  review and recovery preview next
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {providerDryRunExecutionSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {nextProviderDryRunExecutionReviewRecoveryChecklist.map(
+                (item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-execution-readiness-checklist",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run execution evidence preview"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Evidence posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run execution evidence preview
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            preview-only evidence
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderDryRunExecutionEvidencePreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Evidence preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderDryRunExecutionEvidencePreview
+                        .evidencePreviewState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  not persisted
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderDryRunExecutionEvidencePreview.evidenceSummaryLines.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-dry-run-execution-evidence-preview",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.metaPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {`evidence reference: ${representativeProviderDryRunExecutionEvidencePreview.evidenceReference}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeProviderDryRunExecutionApprovalPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only approval fixture
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeProviderDryRunExecutionApprovalPreview
+                      .approvalPreviewState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeProviderDryRunExecutionApprovalPreview.approvalSummaryLines.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-dry-run-execution-approval-preview",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.blockedPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {`approval reference: ${representativeProviderDryRunExecutionApprovalPreview.approvalReference}`}
+              </p>
+            </article>
+          ) : null}
         </div>
       </section>
 
