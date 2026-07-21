@@ -470,7 +470,6 @@ import {
   listTextAdapterResultCaptureReadinessMatrixRecords,
 } from "@/lib/codexforge/min-text-capture";
 import {
-  buildMinimalTextAdapterAuditApprovalJoinMvpChecklist,
   buildTextAdapterResultCaptureGateFailureSummary,
   buildTextAdapterResultCaptureOutputReviewSummary,
   buildTextAdapterResultCaptureRecoverySummary,
@@ -485,6 +484,20 @@ import {
   listTextAdapterResultCaptureRecoveryReadinessChecklistRecords,
   listTextAdapterResultCaptureReviewAuditSummaries,
 } from "@/lib/codexforge/min-text-capture-review";
+import {
+  buildNextTextAdapterAuditApprovalJoinReviewRecoveryChecklist,
+  buildTextAdapterAuditApprovalJoinGateSummary,
+  buildTextAdapterAuditApprovalJoinReadinessSummary,
+  buildTextAdapterAuditApprovalJoinSummary,
+  listMinimalManualGatedTextModelAdapterAuditApprovalJoinMvpRecords,
+  listTextAdapterApprovalJoinOutputs,
+  listTextAdapterAuditApprovalEvidencePreviews,
+  listTextAdapterAuditApprovalJoinEnvelopes,
+  listTextAdapterAuditApprovalJoinGates,
+  listTextAdapterAuditApprovalJoinInputs,
+  listTextAdapterAuditApprovalJoinReadinessMatrixRecords,
+  listTextAdapterAuditJoinOutputs,
+} from "@/lib/codexforge/min-text-audit-join/min-text-audit-join-catalog";
 import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
@@ -1918,8 +1931,6 @@ export function AthenaCommandCenterPanel({
     buildTextAdapterResultCaptureGateFailureSummary();
   const textAdapterResultCaptureRecoveryReviewSummary =
     buildTextAdapterResultCaptureRecoverySummary();
-  const minimalTextAdapterAuditApprovalJoinMvpChecklist =
-    buildMinimalTextAdapterAuditApprovalJoinMvpChecklist();
   const textAdapterResultCaptureReviewCapabilityGroups =
     groupTextAdapterResultCaptureReviewsByCapabilityFamily();
   const textAdapterResultCaptureReviewWorkspaceGroups =
@@ -1940,6 +1951,64 @@ export function AthenaCommandCenterPanel({
     textAdapterResultCaptureRecoveryReadinessForDisplay.filter(
       (record) => record.state !== "reviewed"
     );
+  const textAdapterAuditApprovalJoinSummary =
+    buildTextAdapterAuditApprovalJoinSummary();
+  const textAdapterAuditApprovalJoinGateSummary =
+    buildTextAdapterAuditApprovalJoinGateSummary();
+  const textAdapterAuditApprovalJoinReadinessSummary =
+    buildTextAdapterAuditApprovalJoinReadinessSummary();
+  const nextTextAdapterAuditApprovalJoinReviewRecoveryChecklist =
+    buildNextTextAdapterAuditApprovalJoinReviewRecoveryChecklist();
+  const textAdapterAuditApprovalJoinMvpRecords =
+    listMinimalManualGatedTextModelAdapterAuditApprovalJoinMvpRecords();
+  const textAdapterAuditApprovalJoinInputs =
+    listTextAdapterAuditApprovalJoinInputs();
+  const textAdapterAuditJoinOutputs = listTextAdapterAuditJoinOutputs();
+  const textAdapterApprovalJoinOutputs = listTextAdapterApprovalJoinOutputs();
+  const textAdapterAuditApprovalJoinEnvelopes =
+    listTextAdapterAuditApprovalJoinEnvelopes();
+  const textAdapterAuditApprovalEvidencePreviews =
+    listTextAdapterAuditApprovalEvidencePreviews();
+  const textAdapterAuditApprovalJoinGates =
+    listTextAdapterAuditApprovalJoinGates();
+  const textAdapterAuditApprovalJoinGatesForDisplay = uniqueRecordsByString(
+    textAdapterAuditApprovalJoinGates,
+    (record) => record.id
+  );
+  const textAdapterAuditApprovalJoinReadinessRecords =
+    listTextAdapterAuditApprovalJoinReadinessMatrixRecords();
+  const textAdapterAuditApprovalJoinReadinessForDisplay =
+    uniqueRecordsByString(textAdapterAuditApprovalJoinReadinessRecords, (record) => record.id);
+  const textAdapterAuditApprovalJoinCapabilityGroups = uniqueRecordsByString(
+    textAdapterAuditApprovalJoinMvpRecords,
+    (record) => record.capabilityFamily
+  ).map((record) => ({
+    capabilityFamily: record.capabilityFamily,
+    joinCount: textAdapterAuditApprovalJoinMvpRecords.filter(
+      (candidate) => candidate.capabilityFamily === record.capabilityFamily
+    ).length,
+  }));
+  const textAdapterAuditApprovalJoinWorkspaceGroups = uniqueRecordsByString(
+    textAdapterAuditApprovalJoinMvpRecords,
+    (record) => record.workspaceTarget
+  ).map((record) => ({
+    workspaceTarget: record.workspaceTarget,
+    joinCount: textAdapterAuditApprovalJoinMvpRecords.filter(
+      (candidate) => candidate.workspaceTarget === record.workspaceTarget
+    ).length,
+  }));
+  const representativeTextAdapterAuditApprovalJoinMvp =
+    textAdapterAuditApprovalJoinMvpRecords[0] ?? null;
+  const representativeTextAdapterAuditApprovalJoinInput =
+    textAdapterAuditApprovalJoinInputs[0] ?? null;
+  const representativeTextAdapterAuditJoinOutput =
+    textAdapterAuditJoinOutputs[0] ?? null;
+  const representativeTextAdapterApprovalJoinOutput =
+    textAdapterApprovalJoinOutputs[0] ?? null;
+  const representativeTextAdapterAuditApprovalJoinEnvelope =
+    textAdapterAuditApprovalJoinEnvelopes[0] ?? null;
+  const representativeTextAdapterAuditApprovalEvidencePreview =
+    textAdapterAuditApprovalEvidencePreviews[0] ?? null;
   const minimalSyntheticEndToEndPacketMvpCapabilityGroups =
     groupMinimalManualGatedSyntheticDryRunEndToEndPacketMvpsByCapabilityFamily();
   const minimalSyntheticEndToEndPacketMvpWorkspaceGroups =
@@ -25630,7 +25699,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {minimalTextAdapterAuditApprovalJoinMvpChecklist.map(
+              {minimalAuditAndApprovalJoinMvpChecklist.map(
                 (item, index) => (
                   <article
                     key={buildScopedItemKey(
@@ -25932,6 +26001,625 @@ export function AthenaCommandCenterPanel({
         </div>
       </section>
 
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal manual-gated text model adapter audit and approval join MVP"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>
+              Backend-only audit and approval join MVP
+            </p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal manual-gated text model adapter audit and
+              approval join MVP
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            In-memory only
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can preview the backend-owned minimal manual-gated text model
+          adapter audit and approval join MVP. minimal text adapter audit and
+          approval join MVP is backend-only. server-only text adapter audit and
+          approval join helper exists. text adapter audit and approval join is
+          produced in memory only. deterministic text adapter audit and approval
+          join only. text adapter result capture is not persistent. redacted
+          prompt envelope is preview-only. prompt transmission state is not
+          sent. no frontend request is created. no API route is created. No
+          prompt sending. No model calls yet. No provider SDKs imported. no
+          provider execution. no queue dispatch. no worker dispatch. no job
+          execution. no result persistence. no audit persistence. no approval
+          persistence. no database write. no file write. approval fixture is
+          preview-only. manual confirmation fixture is preview-only. approval
+          token is not issued. approval lease is not created. current
+          readiness: minimal-text-adapter-audit-approval-join-mvp-only /
+          backend-only / fixture-only / in-memory-only / not persistent. text
+          adapter audit and approval join review and recovery preview comes
+          next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Join summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {textAdapterAuditApprovalJoinSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                {`phase ${textAdapterAuditApprovalJoinSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {textAdapterAuditApprovalJoinSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-audit-approval-join-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${textAdapterAuditApprovalJoinSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  blocked live persistence
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                {`${textAdapterAuditApprovalJoinGateSummary.gateCount} gates`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {textAdapterAuditApprovalJoinGateSummary.summaryLines
+                .slice(0, 10)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-audit-approval-join-gate-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {
+                textAdapterAuditApprovalJoinGateSummary.nextReviewRecoveryRequirement
+              }
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  review and recovery preview comes next
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {textAdapterAuditApprovalJoinReadinessSummary.currentReadiness}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {nextTextAdapterAuditApprovalJoinReviewRecoveryChecklist.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-audit-approval-join-checklist",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.blockedPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Capability families</p>
+                <h3 className={styles.placeholderTitle}>
+                  text/chat and planning/reasoning
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                grouped
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {textAdapterAuditApprovalJoinCapabilityGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-audit-approval-join-capability",
+                      "item",
+                      index,
+                      group.capabilityFamily
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.capabilityFamily} (${group.joinCount})`}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Workspace target</p>
+                <h3 className={styles.placeholderTitle}>Athena Command Center</h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                grouped
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {textAdapterAuditApprovalJoinWorkspaceGroups.map(
+                (group, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "text-adapter-audit-approval-join-workspace",
+                      "item",
+                      index,
+                      group.workspaceTarget
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {`${group.workspaceTarget} (${group.joinCount})`}
+                  </span>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter audit and approval join input"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Join request boundary</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter audit and approval join input
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            Deterministic request only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeTextAdapterAuditApprovalJoinInput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Join input</p>
+                  <h3 className={styles.placeholderTitle}>
+                    backend-only deterministic request
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {representativeTextAdapterAuditApprovalJoinInput.requestState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeTextAdapterAuditApprovalJoinInput
+                    .explicitNoFrontendRequestNoApiRouteNoProviderCallNoPersistenceStatement
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {`captured fixture response posture: ${representativeTextAdapterAuditApprovalJoinInput.capturedFixtureResponsePosture}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter audit join output"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Audit join output</p>
+            <h2 className={styles.panelTitle}>Text adapter audit join output</h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Deterministic join
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeTextAdapterAuditJoinOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit join</p>
+                  <h3 className={styles.placeholderTitle}>
+                    deterministic audit join in memory only
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {representativeTextAdapterAuditJoinOutput.auditJoinState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`audit join id: ${representativeTextAdapterAuditJoinOutput.auditJoinId}`}
+              </p>
+              <p className={styles.railBody}>
+                {`join digest: ${representativeTextAdapterAuditJoinOutput.joinDigest}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`audit reference: ${representativeTextAdapterAuditJoinOutput.auditReference}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeTextAdapterAuditJoinOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit join persistence</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only / not persisted
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeTextAdapterAuditJoinOutput
+                      .resultPersistenceState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`result reference: ${representativeTextAdapterAuditJoinOutput.resultReference}`}
+              </p>
+              <p className={styles.railBody}>
+                {`evidence preview reference: ${representativeTextAdapterAuditJoinOutput.evidencePreviewReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`database write state: ${representativeTextAdapterAuditJoinOutput.databaseWriteState}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter approval join output"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Approval join output</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter approval join output
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            Preview-only approval join
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeTextAdapterApprovalJoinOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval join</p>
+                  <h3 className={styles.placeholderTitle}>
+                    deterministic approval join in memory only
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {
+                    representativeTextAdapterApprovalJoinOutput
+                      .approvalJoinState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`approval join id: ${representativeTextAdapterApprovalJoinOutput.approvalJoinId}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval reference: ${representativeTextAdapterApprovalJoinOutput.approvalReference}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`approval token state: ${representativeTextAdapterApprovalJoinOutput.approvalTokenState}`}
+              </p>
+            </article>
+          ) : null}
+          {representativeTextAdapterApprovalJoinOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval fixtures</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only / not persisted
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeTextAdapterApprovalJoinOutput
+                      .approvalFixtureState
+                  }
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`manual confirmation fixture state: ${representativeTextAdapterApprovalJoinOutput.manualConfirmationFixtureState}`}
+              </p>
+              <p className={styles.railBody}>
+                {`approval lease state: ${representativeTextAdapterApprovalJoinOutput.approvalLeaseState}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`approval persistence state: ${representativeTextAdapterApprovalJoinOutput.approvalPersistenceState}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter audit and approval join envelope"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Join envelope</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter audit and approval join envelope
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only references
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeTextAdapterAuditApprovalJoinEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Envelope record</p>
+                  <h3 className={styles.placeholderTitle}>
+                    fixture audit approval join only
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {representativeTextAdapterAuditApprovalJoinEnvelope.joinState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeTextAdapterAuditApprovalJoinEnvelope
+                    .explicitFixtureAuditApprovalJoinOnlyNoProviderOutputNoPersistenceStatement
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {`response reference: ${representativeTextAdapterAuditApprovalJoinEnvelope.responseReference}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter audit and approval join gates"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Safety gates</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter audit and approval join gates
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Live join blocked
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {textAdapterAuditApprovalJoinGatesForDisplay.slice(0, 8).map(
+            (record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "text-adapter-audit-approval-join-gate",
+                  "item",
+                  index,
+                  record.id
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>{record.owner}</p>
+                    <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                  >
+                    {record.currentState}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.evidence}</p>
+                <p className={styles.railFooter}>{record.blockedLiveAction}</p>
+              </article>
+            )
+          )}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter audit and approval join readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness matrix</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter audit and approval join readiness matrix
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            MVP-only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {textAdapterAuditApprovalJoinReadinessForDisplay.slice(0, 8).map(
+            (record, index) => (
+              <article
+                key={buildScopedItemKey(
+                  "text-adapter-audit-approval-join-readiness",
+                  "item",
+                  index,
+                  record.id
+                )}
+                className={styles.summaryCard}
+              >
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>Readiness</p>
+                    <h3 className={styles.placeholderTitle}>{record.label}</h3>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                  >
+                    {record.state}
+                  </span>
+                </div>
+                <p className={styles.railBody}>{record.evidence}</p>
+                <p className={styles.railFooter}>{record.nextSafeAction}</p>
+              </article>
+            )
+          )}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Text adapter audit and approval join evidence preview"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Evidence preview</p>
+            <h2 className={styles.panelTitle}>
+              Text adapter audit and approval join evidence preview
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            Preview-only / not persisted
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeTextAdapterAuditApprovalEvidencePreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Evidence packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    preview-only / not persisted
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {
+                    representativeTextAdapterAuditApprovalEvidencePreview
+                      .evidencePreviewState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {representativeTextAdapterAuditApprovalEvidencePreview.evidenceSummaryLines.map(
+                  (item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        representativeTextAdapterAuditApprovalEvidencePreview.key,
+                        "evidence",
+                        index,
+                        item
+                      )}
+                      className={styles.metaPill}
+                    >
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeTextAdapterAuditApprovalEvidencePreview
+                    .evidenceReference
+                }
+              </p>
+            </article>
+          ) : null}
+          {representativeTextAdapterAuditApprovalJoinMvp ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Joined references</p>
+                  <h3 className={styles.placeholderTitle}>
+                    deterministic preview ids only
+                  </h3>
+                </div>
+                <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+                  {representativeTextAdapterAuditApprovalJoinMvp.joinState}
+                </span>
+              </div>
+              <p className={styles.railBody}>
+                {`result capture id: ${representativeTextAdapterAuditApprovalJoinMvp.resultCaptureId}`}
+              </p>
+              <p className={styles.railBody}>
+                {`audit join id: ${representativeTextAdapterAuditApprovalJoinMvp.auditJoinId}`}
+              </p>
+              <p className={styles.railFooter}>
+                {`approval join id: ${representativeTextAdapterAuditApprovalJoinMvp.approvalJoinId}`}
+              </p>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
       <section className={styles.panel} aria-label="Athena capability map">
         <div className={styles.panelHeader}>
           <div>
@@ -25972,7 +26660,8 @@ export function AthenaCommandCenterPanel({
               <div>
                 <p className={styles.panelEyebrow}>Next likely batch</p>
                 <h3 className={styles.placeholderTitle}>
-                  Text adapter audit and approval join MVP checklist
+                  Text adapter audit and approval join review and recovery preview
+                  checklist
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
@@ -25980,7 +26669,7 @@ export function AthenaCommandCenterPanel({
               </span>
             </div>
             <div className={styles.nextActionList}>
-              {minimalTextAdapterAuditApprovalJoinMvpChecklist.map(
+              {nextTextAdapterAuditApprovalJoinReviewRecoveryChecklist.map(
                 (item, index) => (
                 <article
                   key={buildScopedItemKey("athena-panel", "item", index, item)}
