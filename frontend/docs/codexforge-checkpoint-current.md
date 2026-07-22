@@ -625,16 +625,79 @@ Asset Storage Backend Wiring remains covered: 2634?2665 ? Asset Storage Backend 
 Provider Gateway Hardening remains covered: 2602?2633 ? Provider Gateway Hardening Mega Batch v1 remains covered; Provider Gateway Hardening; Provider Gateway Hardening Completion; review-only provider gateway diagnostic; blocked provider execution; protected provider boundary; no live provider calls; no model calls; no prompt sending; no streaming; no provider SDK imports; no network egress; no fetch/network calls; no frontend persistence; no browser storage writes; no connector calls; no upload/download; no render/export/publish/schedule; no command execution from the app; no service creation; no API creation from frontend; no queue dispatch; no worker dispatch; no process spawning; no port binding; no runtime deploy; no credential storage; no token storage; approval and audit enforcement; denial handling; redaction boundary; observability trace markers; retry and fallback policy; rate guard; cost guard; safety guard; privacy guard; gateway state; gateway recovery; completion guard.
 ## Detected Smoke State
 
-Highest detected phase: 5641.
+Highest detected phase: 6089.
 
-Detection source: scripts/smoke-codexforge-all.ps1, parsed by taking the highest Phase N entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 6057, so the checkpoint is documented as through phase 6057.
+Detection source: scripts/smoke-codexforge-all.ps1, parsed by taking the highest Phase N entry in the local all-smoke registry. At this checkpoint, all-smoke contains local product phase entries through phase 6089, so the checkpoint is documented as through phase 6089.
 
-Latest detected milestone family: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview. The current required release gate now runs the backend-owned minimal manual-gated synthetic dry-run end-to-end packet review and recovery preview smoke, the prior backend-owned minimal manual-gated synthetic dry-run end-to-end packet MVP smoke, the recent minimal synthetic execution, result capture, and audit/approval join smokes, current Athena, current Jarvis video, product experience, unified product IA, and checkpoint docs smokes while preserving historical phase smokes as archive evidence.
+Latest detected milestone family: 6058-6089 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Result Capture Review and Recovery Preview. The current required release gate now runs the backend-owned minimal manual-gated provider adapter dry-run result capture review and recovery preview smoke, the prior backend-owned minimal manual-gated provider adapter dry-run result capture MVP smoke, the prior provider adapter dry-run execution review, execution MVP, and admission review smokes, current Athena, current Jarvis video, product experience, unified product IA, and checkpoint docs smokes while preserving historical phase smokes as archive evidence.
 
-- Latest completed batch: 5610-5641 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet Review and Recovery Preview. Previous completed batch: 5578-5609 - Backend-Owned Minimal Manual-Gated Synthetic Dry-Run End-to-End Packet MVP remains covered. Historical phase smokes remain preserved as archive evidence and are non-gating by default.
+- Latest completed batch: 6058-6089 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Result Capture Review and Recovery Preview. Previous completed batch: 6026-6057 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Result Capture MVP. Historical phase smokes remain preserved as archive evidence and are non-gating by default.
 - Latest release gate: scripts/smoke-codexforge-all.ps1. Historical archive inventory: powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-historical-archive-inventory.ps1.
-- The active route family is backend-owned minimal manual-gated synthetic dry-run end-to-end packet review and recovery preview. It stays backend-only, server-only, deterministic, manual-gated, synthetic-only, in-memory-only, not provider-capable, and not persistent. Synthetic review records, packet output review records, gate failure review records, recovery plan previews, recovery readiness checklists, review audit summaries, acceptance posture records, evidence preview, safety gates, blocked live persistence posture, and next text model adapter MVP requirements are wired without enabling frontend requests, API routes, prompt sending, model calls, provider SDK imports, provider execution, queues, workers, jobs, or persistence.
+- The active route family is backend-owned minimal manual-gated provider adapter dry-run result capture review and recovery preview. It stays backend-only, server-only, deterministic, manual-gated, dry-run-fixture-capture-only, credential-reference-only, not-live-provider-executing, and not persistent. Provider dry-run result capture review records, output review records, gate failure review records, recovery plan previews, recovery readiness checklist records, review audit summary records, acceptance posture records, evidence preview, safety gates, blocked persistence posture, and next provider adapter dry-run audit and approval join MVP requirements are wired without enabling frontend requests, API routes, prompt sending, model calls, provider SDK imports, provider execution, queues, workers, jobs, or persistence.
 - No live provider execution exists yet. No provider calls from frontend. No model calls from frontend. No prompt sending. No streaming. No credential storage. No token storage. No frontend persistence. No browser storage writes. No connector calls. No upload. No download. No render. No export. No publish. No schedule. No worker dispatch. No database writes. No command execution. No service creation. No API route execution. No API creation from frontend. No runtime deploy. No approval persistence from frontend. No audit persistence from frontend. No result persistence from frontend.
+
+- Highest detected phase: 6089
+- Latest completed batch: 6058-6089 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Result Capture Review and Recovery Preview
+- Previous completed batch: 6026-6057 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Result Capture MVP
+- Next likely batch: 6090-6121 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join MVP
+- backend-owned minimal manual-gated provider adapter dry-run result capture review and recovery preview only
+- provider adapter dry-run result capture review is preview-only
+- server-only provider dry-run result capture helper exists
+- provider dry-run fixture response is captured in memory only
+- provider dry-run result capture is deterministic fixture-only
+- provider adapter dry-run result capture is not persistent
+- live provider execution is blocked
+- credential reference is opaque label only
+- credential value is not present
+- credential value is not read
+- env vars are not read
+- provider key is not read
+- selected provider slot is preview-only
+- backup provider slot is preview-only
+- local/private alternative is preview-only
+- provider adapter dry-run result capture is not live provider execution
+- no frontend request is created
+- no API route is created
+- no real approval request
+- no real approval recording
+- approval fixture is preview-only
+- manual confirmation fixture is preview-only
+- approval token is not issued
+- approval lease is not created
+- provider response is not received from provider
+- model output is not generated by provider/model
+- no prompt sending
+- no LLM/model calls
+- no frontend provider call
+- no frontend fetch/network call
+- no provider SDK imports
+- no live provider execution
+- no plugin execution
+- no autonomous execution
+- no live video generation
+- no queue dispatch
+- no worker dispatch
+- no job execution
+- no retry execution
+- no fallback execution
+- no result persistence
+- no audit persistence
+- no approval persistence
+- no persistent memory
+- no browser storage
+- no database writes
+- no file writes
+- backend-only execution path required
+- server-only adapters required
+- manual approval fixture required
+- manual confirmation fixture required
+- kill switch required
+- audit preview required
+- opaque credential references only
+- no plaintext secrets
+- current readiness is minimal-provider-dry-run-result-capture-review-only / backend-only / dry-run-fixture-capture-only / credential-reference-only / not-live-provider-executing / not persistent
+- acceptance state is not accepted for live provider execution or persistence / provider dry-run result capture fixture MVP accepted only
+- backend-owned minimal manual-gated provider adapter dry-run audit and approval join MVP next
 
 The prior family is the backend-owned approval packet review layer: approved dry-run id, approved provider reference, credential and token review, request envelope review, prompt redaction review, guard snapshot review, cost/rate/timeout/duration resolution size review, privacy and safety review, lineage/audit/observability review, synthetic response and synthetic error review, result capture review, artifact handoff review, kill switch review, single-call lock review, idempotency key review, replay block review, retry policy review, fallback policy review, backend runtime check, server-only boundary, operator final review, and completion. It remains review-only, deterministic, and approval-gated until explicit operator approval.
 

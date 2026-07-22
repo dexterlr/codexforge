@@ -1300,6 +1300,12 @@ export function listProviderDryRunResultCaptureApprovalPreviews(): readonly Prov
   );
 }
 
+export function listProviderDryRunResultCaptureSafetyGateSummaries(): readonly ProviderDryRunResultCaptureSafetyGateSummaryRecord[] {
+  return cloneList(
+    PROVIDER_DRY_RUN_RESULT_CAPTURE_SEEDS.map(buildSafetyGateSummaryRecord)
+  );
+}
+
 export function listProviderDryRunResultCaptureBlockedPersistenceSummaries(): readonly ProviderDryRunResultCaptureBlockedPersistenceSummaryRecord[] {
   return cloneList(
     PROVIDER_DRY_RUN_RESULT_CAPTURE_SEEDS.map(

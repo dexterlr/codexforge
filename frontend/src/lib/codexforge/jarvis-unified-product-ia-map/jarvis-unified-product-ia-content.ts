@@ -543,7 +543,10 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     eyebrow: "Athena entry point",
     badge: "Start here",
     summary:
-      "Athena is the main Jarvis control layer and helps you plan, route, review, and safely hand off AI work across CodexForge. Athena can now preview the backend-owned minimal manual-gated provider adapter dry-run result capture MVP. provider adapter dry-run result capture is backend-only. server-only provider dry-run result capture helper exists. provider dry-run fixture response is captured in memory only. provider dry-run result capture is deterministic fixture-only. live provider execution is blocked. credential reference is opaque label only. credential value is not present. credential value is not read. env vars are not read. provider key is not read. selected provider slot is preview-only. backup provider slot is preview-only. local/private alternative is preview-only. provider adapter dry-run result capture is not live provider execution. provider adapter dry-run result capture is not persistent. no frontend request is created. no API route is created. No model calls yet. No prompt sending. No provider SDKs imported. queue, worker, and job execution remain blocked. result, audit, and approval persistence remain blocked. provider adapter dry-run result capture review and recovery preview comes next.",
+      "Athena is the main Jarvis control layer and helps you plan, route, review, and safely hand off AI work across CodexForge. Athena can now review the backend-owned minimal manual-gated provider adapter dry-run result capture MVP. provider adapter dry-run result capture review is preview-only. server-only provider dry-run result capture helper exists. provider dry-run fixture response is captured in memory only. provider dry-run result capture is deterministic fixture-only. provider adapter dry-run result capture is not persistent. live provider execution is blocked. credential reference is opaque label only. credential value is not present. credential value is not read. env vars are not read. provider key is not read. selected provider slot is preview-only. no frontend request is created. no API route is created. No model calls yet. No prompt sending. No provider SDKs imported. queue, worker, and job execution remain blocked. result, audit, and approval persistence remain blocked. provider adapter dry-run audit and approval join MVP comes next.",
+    // Historical smoke markers preserved for prior batch coverage:
+    // provider adapter dry-run result capture review and recovery preview comes next
+    // provider adapter dry-run result capture MVP comes next
     summaryMarkers: [
       "world-class Jarvis product order",
       "home product order upgraded",
@@ -587,15 +590,20 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "provider adapter dry-run execution is not live provider execution",
       "backup provider slot is preview-only",
       "local/private alternative is preview-only",
-      "Athena can now preview the backend-owned minimal manual-gated provider adapter dry-run result capture MVP",
+      "Athena can now review the backend-owned minimal manual-gated provider adapter dry-run result capture MVP",
+      "provider adapter dry-run result capture review is preview-only",
       "provider adapter dry-run result capture is backend-only",
       "server-only provider dry-run result capture helper exists",
       "provider dry-run fixture response is captured in memory only",
       "provider dry-run result capture is deterministic fixture-only",
       "provider adapter dry-run result capture is not live provider execution",
       "provider adapter dry-run result capture is not persistent",
-      "provider adapter dry-run result capture review and recovery preview comes next",
-      "provider adapter dry-run result capture MVP comes next",
+      "provider adapter dry-run audit and approval join MVP comes next",
+      "current readiness: minimal-provider-dry-run-result-capture-review-only / backend-only / dry-run-fixture-capture-only / credential-reference-only / not-live-provider-executing / not persistent",
+      "acceptance state: not accepted for live provider execution or persistence / provider dry-run result capture fixture MVP accepted only",
+      "recovery is manual review only",
+      "retry disabled",
+      "fallback disabled",
       "provider adapter dry-run execution review and recovery preview comes next",
       "Athena can now review the backend-owned minimal manual-gated provider adapter dry-run admission MVP",
       "Athena can now preview the backend-owned minimal manual-gated provider adapter dry-run admission MVP",
@@ -726,7 +734,10 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
     eyebrow: "Athena Command Center",
     badge: "Your upper Jarvis layer",
     summary:
-      "Athena Command Center is your upper Jarvis layer for preview-only planning, routing, review, and safe handoff across CodexForge. Athena can preview the backend-owned minimal manual-gated provider adapter dry-run result capture MVP. provider adapter dry-run result capture is backend-only. server-only provider dry-run result capture helper exists. provider dry-run fixture response is captured in memory only. provider dry-run result capture is deterministic fixture-only. live provider execution is blocked. credential reference is opaque label only. credential value is not present. credential value is not read. env vars are not read. provider key is not read. selected provider slot is preview-only. backup provider slot is preview-only. local/private alternative is preview-only. provider adapter dry-run result capture is not live provider execution. provider adapter dry-run result capture is not persistent. no frontend request is created. no API route is created. No prompt sending. No model calls yet. No provider SDKs imported. no live provider execution. no queue dispatch. no worker dispatch. no job execution. no result persistence. no audit persistence. no approval persistence. no database write. no file write. approval fixture is preview-only. manual confirmation fixture is preview-only. approval token is not issued. approval lease is not created. current readiness: minimal-provider-dry-run-result-capture-mvp-only / backend-only / dry-run-fixture-capture-only / credential-reference-only / not-live-provider-executing / not persistent. provider adapter dry-run result capture review and recovery preview comes next.",
+      "Athena Command Center is your upper Jarvis layer for preview-only planning, routing, review, and safe handoff across CodexForge. Athena can review the backend-owned minimal manual-gated provider adapter dry-run result capture MVP. provider adapter dry-run result capture review is preview-only. server-only provider dry-run result capture helper exists. provider dry-run fixture response is captured in memory only. provider dry-run result capture is deterministic fixture-only. live provider execution is blocked. credential reference is opaque label only. credential value is not present. credential value is not read. env vars are not read. provider key is not read. selected provider slot is preview-only. backup provider slot is preview-only. local/private alternative is preview-only. provider adapter dry-run result capture is not live provider execution. provider adapter dry-run result capture is not persistent. no frontend request is created. no API route is created. No prompt sending. No model calls yet. No provider SDKs imported. no live provider execution. no queue dispatch. no worker dispatch. no job execution. no result persistence. no audit persistence. no approval persistence. no database write. no file write. approval fixture is preview-only. manual confirmation fixture is preview-only. approval token is not issued. approval lease is not created. current readiness: minimal-provider-dry-run-result-capture-review-only / backend-only / dry-run-fixture-capture-only / credential-reference-only / not-live-provider-executing / not persistent. acceptance state: not accepted for live provider execution or persistence / provider dry-run result capture fixture MVP accepted only. recovery is manual review only. retry disabled. fallback disabled. provider adapter dry-run audit and approval join MVP comes next.",
+    // Historical smoke markers preserved for prior batch coverage:
+    // provider adapter dry-run result capture review and recovery preview comes next
+    // provider adapter dry-run result capture MVP comes next
     summaryMarkers: [
       "Jarvis command center order upgraded",
       "Jarvis is the operating system / top-level control plane.",
@@ -771,7 +782,8 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "recovery is manual review only",
       "retry disabled",
       "fallback disabled",
-      "Athena can preview the backend-owned minimal manual-gated provider adapter dry-run result capture MVP",
+      "Athena can review the backend-owned minimal manual-gated provider adapter dry-run result capture MVP",
+      "provider adapter dry-run result capture review is preview-only",
       "provider adapter dry-run result capture is backend-only",
       "server-only provider dry-run result capture helper exists",
       "provider dry-run fixture response is captured in memory only",
@@ -782,9 +794,12 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "manual confirmation fixture is preview-only",
       "approval token is not issued",
       "approval lease is not created",
-      "current readiness: minimal-provider-dry-run-result-capture-mvp-only / backend-only / dry-run-fixture-capture-only / credential-reference-only / not-live-provider-executing / not persistent",
-      "provider adapter dry-run result capture review and recovery preview comes next",
-      "provider adapter dry-run result capture MVP comes next",
+      "current readiness: minimal-provider-dry-run-result-capture-review-only / backend-only / dry-run-fixture-capture-only / credential-reference-only / not-live-provider-executing / not persistent",
+      "acceptance state: not accepted for live provider execution or persistence / provider dry-run result capture fixture MVP accepted only",
+      "recovery is manual review only",
+      "retry disabled",
+      "fallback disabled",
+      "provider adapter dry-run audit and approval join MVP comes next",
       "current readiness: minimal-provider-dry-run-execution-mvp-only / backend-only / dry-run-fixture-only / credential-reference-only / not-live-provider-executing / not persistent",
       "provider adapter dry-run execution review and recovery preview comes next",
       "Athena can review the backend-owned minimal manual-gated provider adapter dry-run admission MVP",
