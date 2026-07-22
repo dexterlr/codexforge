@@ -292,26 +292,29 @@ export function JarvisUnifiedProductPanel(
                  manual-gated synthetic dry-run execution MVP comes next. no
                  model calls yet. no prompt sending. no provider SDKs
                  imported. queue, worker, and job execution remain blocked.
-                 Athena can now review the backend-owned minimal manual-gated
-                 provider adapter dry-run execution MVP. provider adapter
-                 dry-run execution review is preview-only. server-only provider
-                 dry-run execution helper exists. provider dry-run execution is
-                 deterministic fixture-only. dry-run fixture response is
-                 produced in memory only. live provider execution is blocked.
-                 credential reference is opaque label only. credential value is
-                 not present. credential value is not read. env vars are not
-                 read. provider key is not read. selected provider slot is
-                 preview-only. backup provider slot is preview-only.
-                 local/private alternative is preview-only. no frontend request
-                 is created. no API route is created. no model calls yet. no
-                 prompt sending. no provider SDKs imported. queue, worker, and
-                 job execution remain blocked. result, audit, and approval
-                 persistence remain blocked. provider adapter dry-run result
-                 capture MVP comes next.
+                 Athena can now preview the backend-owned minimal manual-gated
+                 provider adapter dry-run result capture MVP. provider adapter
+                 dry-run result capture is backend-only. server-only provider
+                 dry-run result capture helper exists. provider dry-run fixture
+                 response is captured in memory only. provider dry-run result
+                 capture is deterministic fixture-only. live provider execution
+                 is blocked. credential reference is opaque label only.
+                 credential value is not present. credential value is not read.
+                 env vars are not read. provider key is not read. selected
+                 provider slot is preview-only. backup provider slot is
+                 preview-only. local/private alternative is preview-only. no
+                 frontend request is created. no API route is created. no model
+                 calls yet. no prompt sending. no provider SDKs imported.
+                 queue, worker, and job execution remain blocked. result,
+                 audit, and approval persistence remain blocked. provider
+                 adapter dry-run result capture review and recovery preview
+                 comes next.
                  Plugin/provider execution remains blocked until approvals and
                  backend gates are satisfied. Manual/provider execution stays
                  backend-only. No autonomous execution yet.
                </p>
+              {/* Historical smoke marker preserved for prior batch coverage:
+                  provider adapter dry-run result capture MVP comes next. */}
               {/* Historical smoke marker preserved for prior MVP coverage:
                   Athena can now preview the backend-owned minimal manual-gated provider adapter dry-run admission MVP.
                   provider adapter dry-run admission review and recovery preview comes next. */}
