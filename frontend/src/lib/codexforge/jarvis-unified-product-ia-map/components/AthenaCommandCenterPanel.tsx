@@ -642,6 +642,24 @@ import {
   listProviderDryRunResultCaptureReviewAuditSummaries,
 } from "@/lib/codexforge/min-provider-capture-review";
 import {
+  buildNextProviderAdapterDryRunAuditApprovalJoinReviewRecoveryChecklist,
+  buildProviderAdapterDryRunAuditApprovalJoinGateSummary,
+  buildProviderAdapterDryRunAuditApprovalJoinReadinessSummary,
+  buildProviderAdapterDryRunAuditApprovalJoinSummary,
+  listMinimalManualGatedProviderAdapterDryRunAuditApprovalJoinMvpRecords,
+  listProviderAdapterDryRunApprovalJoinOutputs,
+  listProviderAdapterDryRunApprovalPreviews,
+  listProviderAdapterDryRunAuditApprovalEvidencePreviews,
+  listProviderAdapterDryRunAuditApprovalJoinAdmissionChecks,
+  listProviderAdapterDryRunAuditApprovalJoinBlockedLivePersistenceSummaries,
+  listProviderAdapterDryRunAuditApprovalJoinEnvelopes,
+  listProviderAdapterDryRunAuditApprovalJoinGates,
+  listProviderAdapterDryRunAuditApprovalJoinInputs,
+  listProviderAdapterDryRunAuditApprovalJoinReadinessMatrixRecords,
+  listProviderAdapterDryRunAuditJoinOutputs,
+  listProviderAdapterDryRunAuditPreviews,
+} from "@/lib/codexforge/min-provider-audit-join/min-provider-audit-join-catalog";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -2486,6 +2504,72 @@ export function AthenaCommandCenterPanel({
       (record) =>
         record.state === "blocked" || record.state === "backend future required"
     );
+  const providerAuditApprovalJoinMvpRecords =
+    listMinimalManualGatedProviderAdapterDryRunAuditApprovalJoinMvpRecords();
+  const providerAuditApprovalJoinInputs =
+    listProviderAdapterDryRunAuditApprovalJoinInputs();
+  const providerAuditJoinOutputs = listProviderAdapterDryRunAuditJoinOutputs();
+  const providerApprovalJoinOutputs =
+    listProviderAdapterDryRunApprovalJoinOutputs();
+  const providerAuditApprovalJoinEnvelopes =
+    listProviderAdapterDryRunAuditApprovalJoinEnvelopes();
+  const providerAuditPreviews = listProviderAdapterDryRunAuditPreviews();
+  const providerApprovalPreviews = listProviderAdapterDryRunApprovalPreviews();
+  const providerAuditApprovalEvidencePreviews =
+    listProviderAdapterDryRunAuditApprovalEvidencePreviews();
+  const providerAuditApprovalJoinGates =
+    listProviderAdapterDryRunAuditApprovalJoinGates();
+  const providerAuditApprovalJoinGatesForDisplay = uniqueRecordsByString(
+    providerAuditApprovalJoinGates,
+    (record) => record.id
+  );
+  const providerAuditApprovalJoinReadinessRecords =
+    listProviderAdapterDryRunAuditApprovalJoinReadinessMatrixRecords();
+  const providerAuditApprovalJoinReadinessForDisplay = uniqueRecordsByString(
+    providerAuditApprovalJoinReadinessRecords,
+    (record) => record.id
+  );
+  const providerAuditApprovalJoinSummary =
+    buildProviderAdapterDryRunAuditApprovalJoinSummary();
+  const providerAuditApprovalJoinGateSummary =
+    buildProviderAdapterDryRunAuditApprovalJoinGateSummary();
+  const providerAuditApprovalJoinReadinessSummary =
+    buildProviderAdapterDryRunAuditApprovalJoinReadinessSummary();
+  const nextProviderAuditApprovalJoinReviewRecoveryChecklist =
+    buildNextProviderAdapterDryRunAuditApprovalJoinReviewRecoveryChecklist();
+  const providerAuditApprovalJoinCapabilityGroups = uniqueRecordsByString(
+    providerAuditApprovalJoinMvpRecords,
+    (record) => record.capabilityFamily
+  ).map((record) => ({
+    capabilityFamily: record.capabilityFamily,
+    joinCount: providerAuditApprovalJoinMvpRecords.filter(
+      (candidate) => candidate.capabilityFamily === record.capabilityFamily
+    ).length,
+  }));
+  const providerAuditApprovalJoinWorkspaceGroups = uniqueRecordsByString(
+    providerAuditApprovalJoinMvpRecords,
+    (record) => record.workspaceTarget
+  ).map((record) => ({
+    workspaceTarget: record.workspaceTarget,
+    joinCount: providerAuditApprovalJoinMvpRecords.filter(
+      (candidate) => candidate.workspaceTarget === record.workspaceTarget
+    ).length,
+  }));
+  const representativeProviderAuditApprovalJoinMvp =
+    providerAuditApprovalJoinMvpRecords[0] ?? null;
+  const representativeProviderAuditApprovalJoinInput =
+    providerAuditApprovalJoinInputs[0] ?? null;
+  const representativeProviderAuditJoinOutput =
+    providerAuditJoinOutputs[0] ?? null;
+  const representativeProviderApprovalJoinOutput =
+    providerApprovalJoinOutputs[0] ?? null;
+  const representativeProviderAuditApprovalJoinEnvelope =
+    providerAuditApprovalJoinEnvelopes[0] ?? null;
+  const representativeProviderAuditPreview = providerAuditPreviews[0] ?? null;
+  const representativeProviderApprovalPreview =
+    providerApprovalPreviews[0] ?? null;
+  const representativeProviderAuditApprovalEvidencePreview =
+    providerAuditApprovalEvidencePreviews[0] ?? null;
   const textAdapterAuditApprovalJoinMvpRecords =
     listMinimalManualGatedTextModelAdapterAuditApprovalJoinMvpRecords();
   const textAdapterAuditApprovalJoinInputs =
@@ -34608,6 +34692,869 @@ export function AthenaCommandCenterPanel({
               {representativeProviderDryRunResultCaptureAcceptancePosture
                 ? representativeProviderDryRunResultCaptureAcceptancePosture.nextSafeAction
                 : providerDryRunResultCaptureReviewSummary.nextLikelyBatch}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal manual-gated provider adapter dry-run audit and approval join MVP"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Current batch</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal manual-gated provider adapter dry-run audit
+              and approval join MVP
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            backend-only join
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          provider adapter dry-run audit and approval join MVP is backend-only.
+          server-only provider adapter dry-run audit and approval join helper
+          exists. provider adapter dry-run audit and approval join is produced
+          in memory only. deterministic provider adapter dry-run audit and
+          approval join only. credential reference is opaque label only.
+          credential value is not present. credential value is not read. env
+          vars are not read. provider key is not read. live provider execution
+          is blocked. provider response is not received from provider. model
+          output is not generated by provider/model. prompt transmission state
+          is not sent. no frontend request is created. no API route is created.
+          no real approval request. no real approval recording. approval
+          fixture is preview-only. manual confirmation fixture is preview-only.
+          approval token is not issued. approval lease is not created. no queue
+          dispatch. no worker dispatch. no job execution. no retry execution.
+          no fallback execution. no result persistence. no audit persistence.
+          no approval persistence. no database writes. no file writes. provider
+          adapter dry-run audit and approval join review and recovery preview
+          comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Join summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {providerAuditApprovalJoinSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+              >
+                {`phase ${providerAuditApprovalJoinSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerAuditApprovalJoinSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-approval-join-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${providerAuditApprovalJoinSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          {representativeProviderAuditApprovalJoinMvp ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative join</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAuditApprovalJoinMvp.reviewLabel}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  {representativeProviderAuditApprovalJoinMvp.currentReadiness}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderAuditApprovalJoinMvp.auditJoinId,
+                  representativeProviderAuditApprovalJoinMvp.approvalJoinId,
+                  representativeProviderAuditApprovalJoinMvp.joinDigest,
+                  representativeProviderAuditApprovalJoinMvp.resultReference,
+                  representativeProviderAuditApprovalJoinMvp.auditReference,
+                  representativeProviderAuditApprovalJoinMvp.approvalReference,
+                  representativeProviderAuditApprovalJoinMvp.evidenceReference,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-approval-join-record",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>
+                {`request source: ${representativeProviderAuditApprovalJoinMvp.requestIdentityId}. result capture source: ${representativeProviderAuditApprovalJoinMvp.resultCaptureStableId}.`}
+              </p>
+              <p className={styles.railFooter}>
+                {providerAuditApprovalJoinSummary.currentReadiness}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Grouped join posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability and workspace coverage
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateReady}`}
+              >
+                {`${providerAuditApprovalJoinMvpRecords.length} joins`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerAuditApprovalJoinCapabilityGroups.map((group, index) => (
+                <article
+                  key={buildScopedItemKey(
+                    "provider-dry-run-audit-approval-join-capability",
+                    "item",
+                    index,
+                    group.capabilityFamily
+                  )}
+                  className={styles.railCard}
+                >
+                  <h3 className={styles.railTitle}>{group.capabilityFamily}</h3>
+                  <p className={styles.railBody}>
+                    {`${group.joinCount} joined preview records stay backend-only and in-memory-only.`}
+                  </p>
+                </article>
+              ))}
+              {providerAuditApprovalJoinWorkspaceGroups.map((group, index) => (
+                <article
+                  key={buildScopedItemKey(
+                    "provider-dry-run-audit-approval-join-workspace",
+                    "item",
+                    index,
+                    group.workspaceTarget
+                  )}
+                  className={styles.railCard}
+                >
+                  <h3 className={styles.railTitle}>{group.workspaceTarget}</h3>
+                  <p className={styles.railBody}>
+                    {`${group.joinCount} joined preview records remain review-only here.`}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe batch</p>
+                <h3 className={styles.placeholderTitle}>
+                  provider adapter dry-run audit and approval join review and
+                  recovery preview
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {providerAuditApprovalJoinSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {nextProviderAuditApprovalJoinReviewRecoveryChecklist.map(
+                (item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-approval-join-next",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join input"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Join input</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join input
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            deterministic request only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAuditApprovalJoinInput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative input</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAuditApprovalJoinInput.requestLabel}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeProviderAuditApprovalJoinInput.requestState
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderAuditApprovalJoinInput
+                    .opaqueCredentialReferenceLabel,
+                  representativeProviderAuditApprovalJoinInput
+                    .credentialReferenceOnlyMode,
+                  representativeProviderAuditApprovalJoinInput
+                    .promptTransmissionState,
+                  representativeProviderAuditApprovalJoinInput.frontendRequestState,
+                  representativeProviderAuditApprovalJoinInput.apiRouteState,
+                  representativeProviderAuditApprovalJoinInput
+                    .persistenceTargetPosture,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-approval-join-input",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderAuditApprovalJoinInput
+                    .explicitNoFrontendRequestNoApiRouteNoProviderCallNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Admission posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  backend-only deterministic join admission
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+              >
+                accepted / blocked persistence
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {listProviderAdapterDryRunAuditApprovalJoinAdmissionChecks()
+                .slice(0, 1)
+                .map((record) => (
+                  <article
+                    key={record.key}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{record.admissionState}</p>
+                    <p className={styles.railBody}>{record.nextSafeAction}</p>
+                  </article>
+                ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit join output"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Audit output</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit join output
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            preview-only audit
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAuditJoinOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit join</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAuditJoinOutput.auditJoinState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {representativeProviderAuditJoinOutput.auditReference}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderAuditJoinOutput.auditJoinId,
+                  representativeProviderAuditJoinOutput.resultReference,
+                  representativeProviderAuditJoinOutput.evidenceReference,
+                  representativeProviderAuditJoinOutput.providerResponseState,
+                  representativeProviderAuditJoinOutput.modelOutputState,
+                  representativeProviderAuditJoinOutput.auditPersistenceState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-join-output",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            </article>
+          ) : null}
+          {representativeProviderAuditPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Audit preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAuditPreview.auditState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {representativeProviderAuditPreview.auditReference}
+                </span>
+              </div>
+              <div className={styles.nextActionList}>
+                {representativeProviderAuditPreview.auditSummaryLines.map(
+                  (item, index) => (
+                    <article
+                      key={buildScopedItemKey(
+                        "provider-dry-run-audit-preview",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.railCard}
+                    >
+                      <p className={styles.railBody}>{item}</p>
+                    </article>
+                  )
+                )}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run approval join output"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Approval output</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run approval join output
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
+            preview-only approval
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderApprovalJoinOutput ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval join</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderApprovalJoinOutput.approvalJoinState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  {
+                    representativeProviderApprovalJoinOutput
+                      .approvalReference
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderApprovalJoinOutput
+                    .approvalFixtureState,
+                  representativeProviderApprovalJoinOutput
+                    .manualConfirmationFixtureState,
+                  representativeProviderApprovalJoinOutput
+                    .realApprovalRequestState,
+                  representativeProviderApprovalJoinOutput
+                    .approvalRecordingState,
+                  representativeProviderApprovalJoinOutput
+                    .approvalTokenState,
+                  representativeProviderApprovalJoinOutput
+                    .approvalLeaseState,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-approval-join-output",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ) : null}
+          {representativeProviderApprovalPreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Approval preview</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderApprovalPreview.approvalState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateApproval}`}
+                >
+                  {
+                    representativeProviderApprovalPreview
+                      .approvalReference
+                  }
+                </span>
+              </div>
+              <div className={styles.nextActionList}>
+                {representativeProviderApprovalPreview.approvalSummaryLines.map(
+                  (item, index) => (
+                    <article
+                      key={buildScopedItemKey(
+                        "provider-dry-run-approval-preview",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.railCard}
+                    >
+                      <p className={styles.railBody}>{item}</p>
+                    </article>
+                  )
+                )}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join envelope"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Envelope</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join envelope
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            joined preview references
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAuditApprovalJoinEnvelope ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Join envelope</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAuditApprovalJoinEnvelope.joinState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeProviderAuditApprovalJoinEnvelope
+                      .evidencePreviewReference
+                  }
+                </span>
+              </div>
+              <div className={styles.nextActionList}>
+                {[
+                  representativeProviderAuditApprovalJoinEnvelope
+                    .requestReference,
+                  representativeProviderAuditApprovalJoinEnvelope
+                    .responseReference,
+                  representativeProviderAuditApprovalJoinEnvelope
+                    .errorReference,
+                  representativeProviderAuditApprovalJoinEnvelope
+                    .resultCaptureEnvelopeReference,
+                  representativeProviderAuditApprovalJoinEnvelope
+                    .auditJoinOutputReference,
+                  representativeProviderAuditApprovalJoinEnvelope
+                    .approvalJoinOutputReference,
+                ].map((item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-approval-join-envelope",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                ))}
+              </div>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Blocked live actions</p>
+                <h3 className={styles.placeholderTitle}>
+                  approval, execution, and persistence stay blocked
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                preview-only
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {listProviderAdapterDryRunAuditApprovalJoinBlockedLivePersistenceSummaries()
+                .slice(0, 1)
+                .flatMap((record) => record.summaryLines)
+                .map((item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-approval-join-blocked",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join gates"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Gate coverage</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join gates
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            blocked live transitions
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  deterministic boundary coverage
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${providerAuditApprovalJoinGateSummary.uniqueGateCount} unique gates`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerAuditApprovalJoinGateSummary.summaryLines
+                .slice(0, 14)
+                .map((item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-approval-join-gate-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {providerAuditApprovalJoinGateSummary.nextSafeAction}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Representative gates</p>
+                <h3 className={styles.placeholderTitle}>
+                  joined safety and execution boundaries
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${providerAuditApprovalJoinGates.length} total gate records`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerAuditApprovalJoinGatesForDisplay
+                .slice(0, 10)
+                .map((record, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-approval-join-gates",
+                      "item",
+                      index,
+                      `${record.id}-${record.owner}`
+                    )}
+                    className={styles.railCard}
+                  >
+                    <h3 className={styles.railTitle}>{record.label}</h3>
+                    <p className={styles.railBody}>{record.currentState}</p>
+                  </article>
+                ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join readiness matrix"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Readiness matrix</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join readiness matrix
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            explicit blocked boundaries
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  server-only join readiness
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerAuditApprovalJoinReadinessSummary.uniqueReadinessCount} unique rows`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerAuditApprovalJoinReadinessSummary.summaryLines
+                .slice(0, 12)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-approval-join-readiness-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {providerAuditApprovalJoinReadinessSummary.nextSafeAction}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Representative rows</p>
+                <h3 className={styles.placeholderTitle}>
+                  dependency and boundary states
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerAuditApprovalJoinReadinessRecords.length} total readiness records`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerAuditApprovalJoinReadinessForDisplay
+                .slice(0, 12)
+                .map((record, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-audit-approval-join-readiness",
+                      "item",
+                      index,
+                      `${record.id}-${record.state}`
+                    )}
+                    className={styles.railCard}
+                  >
+                    <h3 className={styles.railTitle}>{record.label}</h3>
+                    <p className={styles.railBody}>{record.state}</p>
+                  </article>
+                ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join evidence preview"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Evidence preview</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join evidence preview
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            joined preview references only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAuditApprovalEvidencePreview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Evidence packet</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAuditApprovalEvidencePreview.evidenceState}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeProviderAuditApprovalEvidencePreview
+                      .evidenceReference
+                  }
+                </span>
+              </div>
+              <div className={styles.nextActionList}>
+                {representativeProviderAuditApprovalEvidencePreview.evidenceSummaryLines.map(
+                  (item, index) => (
+                    <article
+                      key={buildScopedItemKey(
+                        "provider-dry-run-audit-approval-join-evidence",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.railCard}
+                    >
+                      <p className={styles.railBody}>{item}</p>
+                    </article>
+                  )
+                )}
+              </div>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Preview-only references</p>
+                <h3 className={styles.placeholderTitle}>
+                  joined audit, approval, and evidence lineage
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                preview-only
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {representativeProviderAuditApprovalJoinMvp
+                ? [
+                    representativeProviderAuditApprovalJoinMvp.resultReference,
+                    representativeProviderAuditApprovalJoinMvp.auditReference,
+                    representativeProviderAuditApprovalJoinMvp.approvalReference,
+                    representativeProviderAuditApprovalJoinMvp.evidenceReference,
+                  ].map((item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-dry-run-audit-approval-join-preview-references",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.metaPill}
+                    >
+                      {item}
+                    </span>
+                  ))
+                : null}
+            </div>
+            <p className={styles.railFooter}>
+              {providerAuditApprovalJoinSummary.nextLikelyBatch}
             </p>
           </article>
         </div>
