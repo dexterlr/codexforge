@@ -11,3 +11,4 @@ export { JarvisWorkspacePlaceholder } from "./JarvisWorkspacePlaceholder";
 export { JarvisBlockedActionSummary } from "./JarvisBlockedActionSummary";
 export { JarvisApprovalReadinessSummary } from "./JarvisApprovalReadinessSummary";
 export { JarvisDeveloperDiagnosticsDock } from "./JarvisDeveloperDiagnosticsDock";
+export { PrivateAlphaRunPanel } from "./PrivateAlphaRunPanel";

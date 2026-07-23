@@ -738,6 +738,7 @@ import {
   listApprovalBridgeRequirements,
 } from "../athena-control-plane-model";
 import { AthenaOperatorStatusPanel } from "./AthenaOperatorStatusPanel";
+import { PrivateAlphaRunPanel } from "./PrivateAlphaRunPanel";
 
 type AthenaCommandCenterPanelProps = Readonly<{
   commandCenter: AthenaCommandCenterModel;
@@ -3094,6 +3095,8 @@ export function AthenaCommandCenterPanel({
           ))}
         </div>
       </section>
+
+      <PrivateAlphaRunPanel />
 
       <section
         className={styles.panel}
