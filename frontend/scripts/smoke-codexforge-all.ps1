@@ -602,6 +602,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 5481 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-result-capture-mvp-mega-batch.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
+  @{ Name = "Full validation wrapper smoke"; File = "smoke-codexforge-full-validation-wrapper.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }
 )
 # Current release gate wording:

@@ -86,3 +86,4 @@ unpushed-patches/
 agent-state/
 .agent-memory/
 agent-memory/
+artifacts/smoke-runs/
