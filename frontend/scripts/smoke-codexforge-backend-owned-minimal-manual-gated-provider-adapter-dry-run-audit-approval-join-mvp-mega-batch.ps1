@@ -831,7 +831,7 @@ foreach ($needle in @(
   "no approval persistence",
   "no database writes",
   "no file writes",
-  "provider adapter dry-run audit and approval join review and recovery preview comes next"
+  "provider adapter dry-run end-to-end packet MVP comes next"
 )) {
   Assert-Contains $athenaSource $needle "Athena surface contains $needle"
 }
@@ -841,24 +841,26 @@ foreach ($needle in @(
   "backend-owned minimal manual-gated provider adapter dry-run audit and approval join MVP",
   "server-only provider adapter dry-run audit and approval join helper exists",
   "provider adapter dry-run audit and approval join is produced in memory only",
-  "provider adapter dry-run audit and approval join review and recovery preview comes next"
+  "Athena can review the backend-owned minimal manual-gated provider adapter dry-run audit and approval join MVP",
+  "provider adapter dry-run audit and approval join review is preview-only",
+  "provider adapter dry-run end-to-end packet MVP comes next"
 )) {
   Assert-Contains $homeSource $needle "home surface contains $needle"
 }
 
 foreach ($needle in @(
-  "Backend-owned minimal manual-gated provider adapter dry-run audit and approval join MVP",
-  "Provider adapter dry-run audit and approval join input",
-  "Provider adapter dry-run audit join output",
-  "Provider adapter dry-run approval join output",
-  "Provider adapter dry-run audit and approval join envelope",
-  "Provider adapter dry-run audit and approval join gates",
-  "Provider adapter dry-run audit and approval join readiness matrix",
-  "Provider adapter dry-run audit and approval join evidence preview",
-  "provider adapter dry-run audit and approval join MVP is backend-only",
+  "Athena can review the backend-owned minimal manual-gated provider adapter dry-run audit and approval join MVP",
+  "Backend-owned minimal provider adapter dry-run audit and approval join review",
+  "Provider adapter dry-run audit and approval join output review",
+  "Provider adapter dry-run audit and approval join gate failure review",
+  "Provider adapter dry-run audit and approval join recovery plan",
+  "Provider adapter dry-run audit and approval join recovery readiness",
+  "Provider adapter dry-run audit and approval join review audit summary",
+  "Provider adapter dry-run audit and approval join acceptance posture",
+  "provider adapter dry-run audit and approval join review is preview-only",
   "server-only provider adapter dry-run audit and approval join helper exists",
   "provider adapter dry-run audit and approval join is produced in memory only",
-  "provider adapter dry-run audit and approval join review and recovery preview comes next"
+  "provider adapter dry-run end-to-end packet MVP comes next"
 )) {
   Assert-Contains $providersSource $needle "AI provider surface contains $needle"
 }

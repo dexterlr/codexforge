@@ -142,8 +142,8 @@ $highestPhase = $phaseMatches |
   Sort-Object -Descending |
   Select-Object -First 1
 
-if ($highestPhase -ne 6121) {
-  throw "[FAIL] Highest detected phase expected 6121 found $highestPhase"
+if ($highestPhase -ne 6153) {
+  throw "[FAIL] Highest detected phase expected 6153 found $highestPhase"
 }
 Write-Host "[PASS] highest detected phase from all-smoke: $highestPhase"
 
@@ -158,6 +158,9 @@ foreach ($needle in @(
 Assert-Contains $frontendReadme "Operational Checkpoint" "frontend README contains Operational Checkpoint"
 
 foreach ($needle in @(
+  'currentReleaseGateBatch = "6122-6153 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join Review and Recovery Preview"',
+  "Phase 6153 Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join Review and Recovery Preview",
+  "smoke-codexforge-backend-owned-minimal-manual-gated-provider-adapter-dry-run-audit-approval-join-review-recovery-preview-mega-batch.ps1",
   'currentReleaseGateBatch = "6090-6121 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join MVP"',
   "Phase 6121 Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join MVP",
   "smoke-codexforge-backend-owned-minimal-manual-gated-provider-adapter-dry-run-audit-approval-join-mvp-mega-batch.ps1",
@@ -212,6 +215,27 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+  "Current checkpoint: Highest detected phase: 6153. Latest completed batch: 6122-6153 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join Review and Recovery Preview. Previous completed batch: 6090-6121 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join MVP. Next likely batch: 6154-6185 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run End-to-End Packet MVP.",
+  "## Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit And Approval Join Review And Recovery Preview Checkpoint",
+  "Highest detected phase: 6153",
+  "Latest completed batch: 6122-6153 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join Review and Recovery Preview",
+  "Previous completed batch: 6090-6121 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join MVP",
+  "Next likely batch: 6154-6185 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run End-to-End Packet MVP",
+  "Backend-owned minimal provider adapter dry-run audit and approval join review",
+  "Provider adapter dry-run audit and approval join output review",
+  "Provider adapter dry-run audit and approval join gate failure review",
+  "Provider adapter dry-run audit and approval join recovery plan",
+  "Provider adapter dry-run audit and approval join recovery readiness",
+  "Provider adapter dry-run audit and approval join review audit summary",
+  "Provider adapter dry-run audit and approval join acceptance posture",
+  "Athena can review the backend-owned minimal manual-gated provider adapter dry-run audit and approval join MVP",
+  "provider adapter dry-run audit and approval join review is preview-only",
+  "current readiness: minimal-provider-dry-run-audit-approval-join-review-only / backend-only / dry-run-fixture-only / credential-reference-only / in-memory-only / not-live-provider-executing / not persistent",
+  "acceptance state: not accepted for live provider execution or persistence / provider adapter dry-run audit approval join fixture MVP accepted only",
+  "recovery is manual review only",
+  "retry disabled",
+  "fallback disabled",
+  "provider adapter dry-run end-to-end packet MVP comes next",
   "Current checkpoint: Highest detected phase: 6121. Latest completed batch: 6090-6121 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join MVP. Previous completed batch: 6058-6089 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Result Capture Review and Recovery Preview. Next likely batch: 6122-6153 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join Review and Recovery Preview.",
   "## Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit And Approval Join MVP Checkpoint",
   "Highest detected phase: 6121",

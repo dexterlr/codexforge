@@ -660,6 +660,24 @@ import {
   listProviderAdapterDryRunAuditPreviews,
 } from "@/lib/codexforge/min-provider-audit-join/min-provider-audit-join-catalog";
 import {
+  buildProviderAdapterDryRunAuditApprovalJoinGateFailureSummary,
+  buildProviderAdapterDryRunAuditApprovalJoinOutputReviewSummary,
+  buildProviderAdapterDryRunAuditApprovalJoinRecoverySummary,
+  buildProviderAdapterDryRunAuditApprovalJoinReviewSummary,
+  buildProviderAdapterDryRunEndToEndPacketMvpChecklist,
+  groupProviderAdapterDryRunAuditApprovalJoinReviewsByCapabilityFamily,
+  groupProviderAdapterDryRunAuditApprovalJoinReviewsByCredentialReference,
+  groupProviderAdapterDryRunAuditApprovalJoinReviewsByProviderSlot,
+  groupProviderAdapterDryRunAuditApprovalJoinReviewsByWorkspaceTarget,
+  listBackendOwnedMinimalManualGatedProviderAdapterDryRunAuditApprovalJoinReviews,
+  listProviderAdapterDryRunAuditApprovalJoinAcceptancePostureRecords,
+  listProviderAdapterDryRunAuditApprovalJoinGateFailureReviewRecords,
+  listProviderAdapterDryRunAuditApprovalJoinOutputReviewRecords,
+  listProviderAdapterDryRunAuditApprovalJoinRecoveryPlanPreviews,
+  listProviderAdapterDryRunAuditApprovalJoinRecoveryReadinessChecklistRecords,
+  listProviderAdapterDryRunAuditApprovalJoinReviewAuditSummaries,
+} from "@/lib/codexforge/min-provider-aa-review";
+import {
   buildAdapterReadinessSummary,
   buildBlockedModelExecutionSummary,
   groupAdapterContractsByCapabilityFamily,
@@ -2535,6 +2553,48 @@ export function AthenaCommandCenterPanel({
     buildProviderAdapterDryRunAuditApprovalJoinGateSummary();
   const providerAuditApprovalJoinReadinessSummary =
     buildProviderAdapterDryRunAuditApprovalJoinReadinessSummary();
+  const providerAuditApprovalJoinReviewRecords =
+    listBackendOwnedMinimalManualGatedProviderAdapterDryRunAuditApprovalJoinReviews();
+  const providerAuditApprovalJoinOutputReviewRecords =
+    listProviderAdapterDryRunAuditApprovalJoinOutputReviewRecords();
+  const providerAuditApprovalJoinGateFailureReviewRecords =
+    listProviderAdapterDryRunAuditApprovalJoinGateFailureReviewRecords();
+  const providerAuditApprovalJoinGateFailureReviewsForDisplay =
+    uniqueRecordsByString(
+      providerAuditApprovalJoinGateFailureReviewRecords,
+      (record) => record.sourceGateId
+    );
+  const providerAuditApprovalJoinRecoveryPlanPreviewRecords =
+    listProviderAdapterDryRunAuditApprovalJoinRecoveryPlanPreviews();
+  const providerAuditApprovalJoinRecoveryReadinessChecklistRecords =
+    listProviderAdapterDryRunAuditApprovalJoinRecoveryReadinessChecklistRecords();
+  const providerAuditApprovalJoinRecoveryReadinessForDisplay =
+    uniqueRecordsByString(
+      providerAuditApprovalJoinRecoveryReadinessChecklistRecords,
+      (record) => record.sourceReadinessId
+    );
+  const providerAuditApprovalJoinReviewAuditSummaryRecords =
+    listProviderAdapterDryRunAuditApprovalJoinReviewAuditSummaries();
+  const providerAuditApprovalJoinAcceptancePostureRecords =
+    listProviderAdapterDryRunAuditApprovalJoinAcceptancePostureRecords();
+  const providerAuditApprovalJoinReviewSummary =
+    buildProviderAdapterDryRunAuditApprovalJoinReviewSummary();
+  const providerAuditApprovalJoinOutputReviewSummary =
+    buildProviderAdapterDryRunAuditApprovalJoinOutputReviewSummary();
+  const providerAuditApprovalJoinGateFailureSummary =
+    buildProviderAdapterDryRunAuditApprovalJoinGateFailureSummary();
+  const providerAuditApprovalJoinRecoverySummary =
+    buildProviderAdapterDryRunAuditApprovalJoinRecoverySummary();
+  const nextProviderAuditApprovalJoinEndToEndPacketMvpChecklist =
+    buildProviderAdapterDryRunEndToEndPacketMvpChecklist();
+  const providerAuditApprovalJoinReviewCapabilityGroups =
+    groupProviderAdapterDryRunAuditApprovalJoinReviewsByCapabilityFamily();
+  const providerAuditApprovalJoinReviewWorkspaceGroups =
+    groupProviderAdapterDryRunAuditApprovalJoinReviewsByWorkspaceTarget();
+  const providerAuditApprovalJoinReviewProviderSlotGroups =
+    groupProviderAdapterDryRunAuditApprovalJoinReviewsByProviderSlot();
+  const providerAuditApprovalJoinReviewCredentialReferenceGroups =
+    groupProviderAdapterDryRunAuditApprovalJoinReviewsByCredentialReference();
   const nextProviderAuditApprovalJoinReviewRecoveryChecklist =
     buildNextProviderAdapterDryRunAuditApprovalJoinReviewRecoveryChecklist();
   const providerAuditApprovalJoinCapabilityGroups = uniqueRecordsByString(
@@ -2570,6 +2630,22 @@ export function AthenaCommandCenterPanel({
     providerApprovalPreviews[0] ?? null;
   const representativeProviderAuditApprovalEvidencePreview =
     providerAuditApprovalEvidencePreviews[0] ?? null;
+  const representativeProviderAuditApprovalJoinReview =
+    providerAuditApprovalJoinReviewRecords[0] ?? null;
+  const representativeProviderAuditApprovalJoinOutputReview =
+    providerAuditApprovalJoinOutputReviewRecords[0] ?? null;
+  const representativeProviderAuditApprovalJoinGateFailureReview =
+    providerAuditApprovalJoinGateFailureReviewsForDisplay[0] ?? null;
+  const representativeProviderAuditApprovalJoinRecoveryPlan =
+    providerAuditApprovalJoinRecoveryPlanPreviewRecords[0] ?? null;
+  const representativeProviderAuditApprovalJoinReviewAuditSummary =
+    providerAuditApprovalJoinReviewAuditSummaryRecords[0] ?? null;
+  const representativeProviderAuditApprovalJoinAcceptancePosture =
+    providerAuditApprovalJoinAcceptancePostureRecords[0] ?? null;
+  const blockedProviderAuditApprovalJoinRecoveryReadinessChecklistRecords =
+    providerAuditApprovalJoinRecoveryReadinessForDisplay.filter(
+      (record) => record.reviewState !== "reviewed"
+    );
   const textAdapterAuditApprovalJoinMvpRecords =
     listMinimalManualGatedTextModelAdapterAuditApprovalJoinMvpRecords();
   const textAdapterAuditApprovalJoinInputs =
@@ -34692,6 +34768,940 @@ export function AthenaCommandCenterPanel({
               {representativeProviderDryRunResultCaptureAcceptancePosture
                 ? representativeProviderDryRunResultCaptureAcceptancePosture.nextSafeAction
                 : providerDryRunResultCaptureReviewSummary.nextLikelyBatch}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Backend-owned minimal provider adapter dry-run audit and approval join review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Current batch</p>
+            <h2 className={styles.panelTitle}>
+              Backend-owned minimal provider adapter dry-run audit and
+              approval join review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            preview-only review
+          </span>
+        </div>
+        <p className={styles.panelBody}>
+          Athena can review the backend-owned minimal manual-gated provider
+          adapter dry-run audit and approval join MVP. provider adapter dry-run
+          audit and approval join review is preview-only. server-only provider
+          adapter dry-run audit and approval join helper exists. provider
+          adapter dry-run audit and approval join is produced in memory only.
+          deterministic provider adapter dry-run audit and approval join only.
+          credential reference is opaque label only. credential value is not
+          present. credential value is not read. env vars are not read. provider
+          key is not read. live provider execution is blocked. provider response
+          is not received from provider. model output is not generated by
+          provider/model. prompt transmission state is not sent. no frontend
+          request is created. no API route is created. no real approval request.
+          no real approval recording. approval fixture is preview-only. manual
+          confirmation fixture is preview-only. approval token is not issued.
+          approval lease is not created. no queue dispatch. no worker dispatch.
+          no job execution. no retry execution. no fallback execution. no result
+          persistence. no audit persistence. no approval persistence. no
+          database writes. no file writes. current readiness:{" "}
+          {providerAuditApprovalJoinReviewSummary.currentReadiness}. acceptance
+          state: {providerAuditApprovalJoinReviewSummary.acceptanceState}.
+          recovery is manual review only. retry disabled. fallback disabled.
+          provider adapter dry-run end-to-end packet MVP comes next.
+        </p>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Review summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  {providerAuditApprovalJoinReviewSummary.latestCompletedBatch}
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                {`phase ${providerAuditApprovalJoinReviewSummary.highestDetectedPhase}`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerAuditApprovalJoinReviewSummary.summaryLines
+                .slice(0, 16)
+                .map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {`Next likely batch: ${providerAuditApprovalJoinReviewSummary.nextLikelyBatch}`}
+            </p>
+          </article>
+          {representativeProviderAuditApprovalJoinReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative review</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {representativeProviderAuditApprovalJoinReview.reviewLabel}
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {representativeProviderAuditApprovalJoinReview.currentReadiness}
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderAuditApprovalJoinReview.requestIdentityId,
+                  representativeProviderAuditApprovalJoinReview.providerSlotLabel,
+                  representativeProviderAuditApprovalJoinReview
+                    .opaqueCredentialReferenceLabel,
+                  representativeProviderAuditApprovalJoinReview.auditJoinId,
+                  representativeProviderAuditApprovalJoinReview.approvalJoinId,
+                  representativeProviderAuditApprovalJoinReview.joinDigest,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-record",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.nextActionList}>
+                {representativeProviderAuditApprovalJoinReview.reviewFindings.map(
+                  (item, index) => (
+                    <article
+                      key={buildScopedItemKey(
+                        "provider-dry-run-aa-review-findings",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.railCard}
+                    >
+                      <p className={styles.railBody}>{item}</p>
+                    </article>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {representativeProviderAuditApprovalJoinReview.nextSafeAction}
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Grouped review posture</p>
+                <h3 className={styles.placeholderTitle}>
+                  capability, workspace, provider slot, and credential coverage
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateReady}`}
+              >
+                {`${providerAuditApprovalJoinReviewRecords.length} reviews`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerAuditApprovalJoinReviewCapabilityGroups.map(
+                (group, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-capability",
+                      "item",
+                      index,
+                      group.capabilityFamily
+                    )}
+                    className={styles.railCard}
+                  >
+                    <h3 className={styles.railTitle}>{group.capabilityFamily}</h3>
+                    <p className={styles.railBody}>
+                      {`${group.reviewCount} review records stay preview-only.`}
+                    </p>
+                  </article>
+                )
+              )}
+              {providerAuditApprovalJoinReviewWorkspaceGroups.map(
+                (group, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-workspace",
+                      "item",
+                      index,
+                      group.workspaceTarget
+                    )}
+                    className={styles.railCard}
+                  >
+                    <h3 className={styles.railTitle}>{group.workspaceTarget}</h3>
+                    <p className={styles.railBody}>
+                      {`${group.reviewCount} provider join reviews remain backend-only here.`}
+                    </p>
+                  </article>
+                )
+              )}
+              {providerAuditApprovalJoinReviewProviderSlotGroups.map(
+                (group, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-provider-slot",
+                      "item",
+                      index,
+                      group.providerSlotLabel
+                    )}
+                    className={styles.railCard}
+                  >
+                    <h3 className={styles.railTitle}>{group.providerSlotLabel}</h3>
+                    <p className={styles.railBody}>
+                      {`${group.reviewCount} review records preserve the preview-only slot boundary.`}
+                    </p>
+                  </article>
+                )
+              )}
+              {providerAuditApprovalJoinReviewCredentialReferenceGroups.map(
+                (group, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-credential-reference",
+                      "item",
+                      index,
+                      group.credentialReferenceLabel
+                    )}
+                    className={styles.railCard}
+                  >
+                    <h3 className={styles.railTitle}>
+                      {group.credentialReferenceLabel}
+                    </h3>
+                    <p className={styles.railBody}>
+                      {`${group.reviewCount} review records keep credential reference usage opaque-label-only.`}
+                    </p>
+                  </article>
+                )
+              )}
+            </div>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Next safe batch</p>
+                <h3 className={styles.placeholderTitle}>
+                  provider adapter dry-run end-to-end packet MVP
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {providerAuditApprovalJoinReviewSummary.nextLikelyBatch}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {nextProviderAuditApprovalJoinEndToEndPacketMvpChecklist.map(
+                (item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-next",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                )
+              )}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join output review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Review output</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join output review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            fixture output only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAuditApprovalJoinOutputReview ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative output</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderAuditApprovalJoinOutputReview
+                        .joinState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeProviderAuditApprovalJoinOutputReview
+                      .auditReference
+                  }
+                </span>
+              </div>
+              <div className={styles.workspaceMeta}>
+                {[
+                  representativeProviderAuditApprovalJoinOutputReview
+                    .auditJoinState,
+                  representativeProviderAuditApprovalJoinOutputReview
+                    .approvalJoinState,
+                  representativeProviderAuditApprovalJoinOutputReview.auditJoinId,
+                  representativeProviderAuditApprovalJoinOutputReview
+                    .approvalJoinId,
+                  representativeProviderAuditApprovalJoinOutputReview.joinDigest,
+                  representativeProviderAuditApprovalJoinOutputReview
+                    .resultReference,
+                  representativeProviderAuditApprovalJoinOutputReview
+                    .evidenceReference,
+                ].map((item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-output",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <p className={styles.railBody}>
+                {
+                  representativeProviderAuditApprovalJoinOutputReview
+                    .operatorFacingExplanation
+                }
+              </p>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderAuditApprovalJoinOutputReview
+                    .explicitProviderAdapterDryRunAuditApprovalJoinFixtureOnlyNoRealOutputNoProviderCallNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Boundary review</p>
+                <h3 className={styles.placeholderTitle}>
+                  credential, provider, prompt, approval, and persistence
+                  boundaries
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                {`${providerAuditApprovalJoinOutputReviewSummary.outputReviewCount} records`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {representativeProviderAuditApprovalJoinOutputReview
+                ? [
+                    ...representativeProviderAuditApprovalJoinOutputReview
+                      .credentialBoundary,
+                    ...representativeProviderAuditApprovalJoinOutputReview
+                      .providerBoundary,
+                    ...representativeProviderAuditApprovalJoinOutputReview
+                      .promptBoundary,
+                    ...representativeProviderAuditApprovalJoinOutputReview
+                      .approvalBoundary,
+                    ...representativeProviderAuditApprovalJoinOutputReview
+                      .persistenceBoundary,
+                  ].map((item, index) => (
+                    <article
+                      key={buildScopedItemKey(
+                        "provider-dry-run-aa-review-output-boundary",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.railCard}
+                    >
+                      <p className={styles.railBody}>{item}</p>
+                    </article>
+                  ))
+                : null}
+            </div>
+            <p className={styles.railFooter}>
+              {providerAuditApprovalJoinOutputReviewSummary.nextSafeAction}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join gate failure review"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Gate review</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join gate failure
+              review
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            no live gate pass
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Gate summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  preview-only gate coverage
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${providerAuditApprovalJoinGateFailureSummary.gateFailureCount} gate reviews`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerAuditApprovalJoinGateFailureSummary.summaryLines.map(
+                (item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-gate-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                )
+              )}
+            </div>
+            <p className={styles.railFooter}>
+              {providerAuditApprovalJoinGateFailureSummary.nextSafeAction}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Representative gates</p>
+                <h3 className={styles.placeholderTitle}>
+                  blocked live actions by gate id
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${providerAuditApprovalJoinGateFailureReviewsForDisplay.length} unique gates`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {providerAuditApprovalJoinGateFailureReviewsForDisplay
+                .slice(0, 12)
+                .map((record, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-gate",
+                      "item",
+                      index,
+                      record.sourceGateId
+                    )}
+                    className={styles.railCard}
+                  >
+                    <h3 className={styles.railTitle}>{record.sourceGateId}</h3>
+                    <p className={styles.railBody}>{record.currentState}</p>
+                    <p className={styles.railBody}>
+                      {record.blockedLiveAction}
+                    </p>
+                  </article>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {representativeProviderAuditApprovalJoinGateFailureReview
+                ? representativeProviderAuditApprovalJoinGateFailureReview.manualRecoveryAction
+                : providerAuditApprovalJoinGateFailureSummary.noLiveGatePassStatement}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join recovery plan"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Recovery plan</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join recovery plan
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            manual review only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAuditApprovalJoinRecoveryPlan ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative plan</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderAuditApprovalJoinRecoveryPlan
+                        .recoveryPosture
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  {`${representativeProviderAuditApprovalJoinRecoveryPlan.blockedGateCount} blocked gates`}
+                </span>
+              </div>
+              <div className={styles.nextActionList}>
+                {representativeProviderAuditApprovalJoinRecoveryPlan.requiredManualChecks.map(
+                  (item, index) => (
+                    <article
+                      key={buildScopedItemKey(
+                        "provider-dry-run-aa-review-recovery-check",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.railCard}
+                    >
+                      <p className={styles.railBody}>{item}</p>
+                    </article>
+                  )
+                )}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderAuditApprovalJoinRecoveryPlan
+                    .explicitNoRetryNoFallbackNoProviderNoPromptNoSecretNoPersistenceStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Blocked automation</p>
+                <h3 className={styles.placeholderTitle}>
+                  retries, fallbacks, provider execution, and persistence stay
+                  disabled
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${providerAuditApprovalJoinRecoverySummary.recoveryPlanCount} plans`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {representativeProviderAuditApprovalJoinRecoveryPlan
+                ? representativeProviderAuditApprovalJoinRecoveryPlan.blockedAutomatedActions.map(
+                    (item, index) => (
+                      <article
+                        key={buildScopedItemKey(
+                          "provider-dry-run-aa-review-recovery-blocked",
+                          "item",
+                          index,
+                          item
+                        )}
+                        className={styles.railCard}
+                      >
+                        <p className={styles.railBody}>{item}</p>
+                      </article>
+                    )
+                  )
+                : null}
+            </div>
+            <p className={styles.railFooter}>
+              {providerAuditApprovalJoinRecoverySummary.nextSafeAction}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join recovery readiness"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Recovery readiness</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join recovery
+              readiness
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            review-only readiness
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Readiness summary</p>
+                <h3 className={styles.placeholderTitle}>
+                  manual review posture with blocked automation
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                {`${providerAuditApprovalJoinRecoveryReadinessChecklistRecords.length} readiness reviews`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {providerAuditApprovalJoinRecoverySummary.summaryLines.map(
+                (item, index) => (
+                  <span
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-readiness-summary",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.metaPill}
+                  >
+                    {item}
+                  </span>
+                )
+              )}
+            </div>
+            <p className={styles.railFooter}>
+              {`${blockedProviderAuditApprovalJoinRecoveryReadinessChecklistRecords.length} representative blocked or future-required readiness rows remain secondary to manual review.`}
+            </p>
+          </article>
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Representative rows</p>
+                <h3 className={styles.placeholderTitle}>
+                  blocked and backend-future readiness actions
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+              >
+                {`${providerAuditApprovalJoinRecoveryReadinessForDisplay.length} unique rows`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {blockedProviderAuditApprovalJoinRecoveryReadinessChecklistRecords
+                .slice(0, 12)
+                .map((record, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-readiness",
+                      "item",
+                      index,
+                      record.sourceReadinessId
+                    )}
+                    className={styles.railCard}
+                  >
+                    <h3 className={styles.railTitle}>{record.label}</h3>
+                    <p className={styles.railBody}>{record.reviewState}</p>
+                    <p className={styles.railBody}>{record.manualAction}</p>
+                  </article>
+                ))}
+            </div>
+            <p className={styles.railFooter}>
+              {providerAuditApprovalJoinRecoverySummary.currentReadiness}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join review audit summary"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Review audit</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join review audit
+              summary
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateSecondary}`}>
+            preview-only summary
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAuditApprovalJoinReviewAuditSummary ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative audit</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderAuditApprovalJoinReviewAuditSummary
+                        .auditPosture
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+                >
+                  {
+                    representativeProviderAuditApprovalJoinReviewAuditSummary
+                      .sourceProviderAdapterDryRunAuditApprovalJoinGateCount
+                  }{" "}
+                  gates
+                </span>
+              </div>
+              <div className={styles.nextActionList}>
+                {[
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .serverOnlyJoinHelperEvidenceSummary,
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .deterministicJoinEvidenceSummary,
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .failedGateSummary,
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .recoverySummary,
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .blockedActionSummary,
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .noProviderOutputStatement,
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .noModelOutputStatement,
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .noPromptSendingStatement,
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .noResultPersistenceStatement,
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .noAuditPersistenceStatement,
+                  representativeProviderAuditApprovalJoinReviewAuditSummary
+                    .noApprovalPersistenceStatement,
+                ].map((item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-audit",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                ))}
+              </div>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Source chain</p>
+                <h3 className={styles.placeholderTitle}>
+                  aggregate summary and deterministic request lineage
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${styles.metricStateSecondary}`}
+              >
+                {`${providerAuditApprovalJoinReviewAuditSummaryRecords.length} audit summaries`}
+              </span>
+            </div>
+            <div className={styles.workspaceMeta}>
+              {representativeProviderAuditApprovalJoinReviewAuditSummary
+                ? [
+                    representativeProviderAuditApprovalJoinReviewAuditSummary
+                      .sourceMinimalProviderAdapterDryRunAuditApprovalJoinMvpReference,
+                    representativeProviderAuditApprovalJoinReviewAuditSummary
+                      .sourceProviderAdapterDryRunAuditApprovalJoinRequestReference,
+                    representativeProviderAuditApprovalJoinReviewAuditSummary
+                      .sourceProviderAdapterDryRunAuditApprovalJoinResponseReference,
+                    representativeProviderAuditApprovalJoinReviewAuditSummary
+                      .sourceProviderAdapterDryRunAuditApprovalJoinPreviewErrorReference,
+                    representativeProviderAuditApprovalJoinReviewAuditSummary
+                      .sourceProviderAdapterDryRunAuditApprovalJoinAggregateSummaryReference,
+                    representativeProviderAuditApprovalJoinReviewAuditSummary
+                      .sourceProviderAdapterDryRunAuditApprovalJoinAggregateGateSummaryReference,
+                    representativeProviderAuditApprovalJoinReviewAuditSummary
+                      .sourceProviderAdapterDryRunAuditApprovalJoinAggregateReadinessSummaryReference,
+                  ].map((item, index) => (
+                    <span
+                      key={buildScopedItemKey(
+                        "provider-dry-run-aa-review-audit-source",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.metaPill}
+                    >
+                      {item}
+                    </span>
+                  ))
+                : null}
+            </div>
+            <p className={styles.railFooter}>
+              preview-only summaries only; no persisted audit record is implied.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        className={styles.panel}
+        aria-label="Provider adapter dry-run audit and approval join acceptance posture"
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Acceptance posture</p>
+            <h2 className={styles.panelTitle}>
+              Provider adapter dry-run audit and approval join acceptance
+              posture
+            </h2>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+            fixture accepted only
+          </span>
+        </div>
+        <div className={styles.summaryGrid}>
+          {representativeProviderAuditApprovalJoinAcceptancePosture ? (
+            <article className={styles.summaryCard}>
+              <div className={styles.placeholderHeader}>
+                <div>
+                  <p className={styles.panelEyebrow}>Representative posture</p>
+                  <h3 className={styles.placeholderTitle}>
+                    {
+                      representativeProviderAuditApprovalJoinAcceptancePosture
+                        .acceptanceState
+                    }
+                  </h3>
+                </div>
+                <span
+                  className={`${styles.panelBadge} ${styles.metricStateBlocked}`}
+                >
+                  preview-only
+                </span>
+              </div>
+              <div className={styles.nextActionList}>
+                {[
+                  representativeProviderAuditApprovalJoinAcceptancePosture
+                    .fixtureOnlyAcceptanceSummary,
+                  representativeProviderAuditApprovalJoinAcceptancePosture
+                    .backendOnlyAcceptanceSummary,
+                  representativeProviderAuditApprovalJoinAcceptancePosture
+                    .serverOnlyAcceptanceSummary,
+                  representativeProviderAuditApprovalJoinAcceptancePosture
+                    .inMemoryOnlyAcceptanceSummary,
+                  representativeProviderAuditApprovalJoinAcceptancePosture
+                    .credentialReferenceBoundarySummary,
+                ].map((item, index) => (
+                  <article
+                    key={buildScopedItemKey(
+                      "provider-dry-run-aa-review-acceptance",
+                      "item",
+                      index,
+                      item
+                    )}
+                    className={styles.railCard}
+                  >
+                    <p className={styles.railBody}>{item}</p>
+                  </article>
+                ))}
+              </div>
+              <p className={styles.railFooter}>
+                {
+                  representativeProviderAuditApprovalJoinAcceptancePosture
+                    .explicitProviderAdapterDryRunAuditApprovalJoinFixtureAcceptedLiveProviderExecutionAndPersistenceNotAcceptedStatement
+                }
+              </p>
+            </article>
+          ) : null}
+          <article className={styles.summaryCard}>
+            <div className={styles.placeholderHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Acceptance blockers</p>
+                <h3 className={styles.placeholderTitle}>
+                  live execution, approval, dispatch, and persistence remain
+                  rejected
+                </h3>
+              </div>
+              <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
+                {`${providerAuditApprovalJoinAcceptancePostureRecords.length} posture records`}
+              </span>
+            </div>
+            <div className={styles.nextActionList}>
+              {representativeProviderAuditApprovalJoinAcceptancePosture
+                ? [
+                    ...representativeProviderAuditApprovalJoinAcceptancePosture
+                      .providerExecutionBlockers,
+                    ...representativeProviderAuditApprovalJoinAcceptancePosture
+                      .promptTransmissionBlockers,
+                    ...representativeProviderAuditApprovalJoinAcceptancePosture
+                      .approvalBlockers,
+                    ...representativeProviderAuditApprovalJoinAcceptancePosture
+                      .tokenLeaseBlockers,
+                    ...representativeProviderAuditApprovalJoinAcceptancePosture
+                      .queueWorkerJobDispatchBlockers,
+                    ...representativeProviderAuditApprovalJoinAcceptancePosture
+                      .retryFallbackBlockers,
+                    ...representativeProviderAuditApprovalJoinAcceptancePosture
+                      .resultPersistenceBlockers,
+                    ...representativeProviderAuditApprovalJoinAcceptancePosture
+                      .auditPersistenceBlockers,
+                    ...representativeProviderAuditApprovalJoinAcceptancePosture
+                      .approvalPersistenceBlockers,
+                    ...representativeProviderAuditApprovalJoinAcceptancePosture
+                      .databaseFileWriteBlockers,
+                  ].map((item, index) => (
+                    <article
+                      key={buildScopedItemKey(
+                        "provider-dry-run-aa-review-acceptance-blocker",
+                        "item",
+                        index,
+                        item
+                      )}
+                      className={styles.railCard}
+                    >
+                      <p className={styles.railBody}>{item}</p>
+                    </article>
+                  ))
+                : null}
+            </div>
+            <p className={styles.railFooter}>
+              {representativeProviderAuditApprovalJoinAcceptancePosture
+                ? representativeProviderAuditApprovalJoinAcceptancePosture.nextSafeAction
+                : providerAuditApprovalJoinReviewSummary.nextLikelyBatch}
             </p>
           </article>
         </div>
