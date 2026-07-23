@@ -4,6 +4,10 @@ import type {
   PrivateAlphaCapability,
   PrivateAlphaCancellationInput,
   PrivateAlphaCreateRunInput,
+  PrivateAlphaExecuteInput,
+  PrivateAlphaExecutionMode,
+  PrivateAlphaProviderPreference,
+  PrivateAlphaRetentionMode,
   PrivateAlphaRunRequest,
   PrivateAlphaRunSummary,
   PrivateAlphaRunRecord,
@@ -23,8 +27,22 @@ export const PRIVATE_ALPHA_MAX_IDEMPOTENCY_KEY_LENGTH = 200;
 export const PRIVATE_ALPHA_RUN_ID_LENGTH = 24;
 export const PRIVATE_ALPHA_MAX_CANCELLATION_REASON_LENGTH = 240;
 export const PRIVATE_ALPHA_MAX_ACKNOWLEDGEMENT_LENGTH = 240;
+export const PRIVATE_ALPHA_MAX_SAFE_ERROR_MESSAGE_LENGTH = 240;
+export const PRIVATE_ALPHA_MAX_DONE_REASON_LENGTH = 120;
+export const PRIVATE_ALPHA_MAX_OUTPUT_TEXT_LENGTH = 65_536;
+export const PRIVATE_ALPHA_RETENTION_MODE = "local-private-alpha" as const;
+export const PRIVATE_ALPHA_LEGACY_PROVIDER_PREFERENCE = "auto" as const;
+export const PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID = "ollama-local" as const;
+export const PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL = "Local Ollama" as const;
+export const PRIVATE_ALPHA_PRODUCTION_MODEL = "gpt-oss:20b" as const;
+export const PRIVATE_ALPHA_LEGACY_EXECUTION_MODE =
+  "locked-until-provider-slice" as const;
+export const PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE =
+  "manual-approved-local-provider" as const;
 export const PRIVATE_ALPHA_APPROVAL_LOCK_STATEMENT =
   "Provider execution remains unavailable until the provider execution slice.";
+export const PRIVATE_ALPHA_LOCAL_EXECUTION_APPROVAL_STATEMENT =
+  "Manual approval recorded for this exact local Ollama execution scope. Execution still requires a separate explicit operator action.";
 export const PRIVATE_ALPHA_SECRET_GUIDANCE =
   "Do not paste API keys, tokens, passwords, or secrets.";
 export const PRIVATE_ALPHA_SECRET_REJECTION_MESSAGE =
@@ -36,6 +54,13 @@ export const PRIVATE_ALPHA_ENGAGED_KILL_SWITCH_VALUES = [
   "enabled",
   "engaged",
 ] as const;
+export const PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE =
+  "legacy-foundation" as const;
+export const PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE = "local-ollama" as const;
+
+export type PrivateAlphaRuntimeProfile =
+  | typeof PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE
+  | typeof PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE;
 
 type ValidationStatus = 400 | 422;
 
@@ -128,6 +153,43 @@ function isPlaceholderLikeSecretValue(value: string): boolean {
   return placeholderTokens.some(
     (token) => normalized === token || normalized.includes(token)
   );
+}
+
+function validateModelPreferenceLabel(
+  value: unknown,
+  profile: PrivateAlphaRuntimeProfile
+): PrivateAlphaValidationResult<string | null> {
+  if (value === undefined || value === null) {
+    return success(null);
+  }
+
+  if (typeof value !== "string") {
+    return failure(400, "modelPreferenceLabel must be a string when provided.");
+  }
+
+  const normalized = normalizeOptionalLabel(value);
+  if (!normalized) {
+    return success(null);
+  }
+
+  if (normalized.length > PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH) {
+    return failure(
+      400,
+      `modelPreferenceLabel exceeds ${PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH} characters.`
+    );
+  }
+
+  if (
+    profile === PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE &&
+    normalized !== PRIVATE_ALPHA_PRODUCTION_MODEL
+  ) {
+    return failure(
+      400,
+      `modelPreferenceLabel must be ${PRIVATE_ALPHA_PRODUCTION_MODEL} when provided.`
+    );
+  }
+
+  return success(normalized);
 }
 
 export function isPrivateAlphaKillSwitchValueEngaged(value: string): boolean {
@@ -233,7 +295,8 @@ export function validatePrivateAlphaRunId(
 }
 
 export function validatePrivateAlphaCreateRunInput(
-  body: unknown
+  body: unknown,
+  profile: PrivateAlphaRuntimeProfile = PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE
 ): PrivateAlphaValidationResult<PrivateAlphaCreateRunInput> {
   if (!isRecord(body)) {
     return failure(400, "Run creation requires a JSON object payload.");
@@ -285,28 +348,18 @@ export function validatePrivateAlphaCreateRunInput(
     );
   }
 
-  let modelPreferenceLabel: string | null = null;
-  if (body.modelPreferenceLabel !== undefined && body.modelPreferenceLabel !== null) {
-    if (typeof body.modelPreferenceLabel !== "string") {
-      return failure(400, "modelPreferenceLabel must be a string when provided.");
-    }
-
-    modelPreferenceLabel = normalizeOptionalLabel(body.modelPreferenceLabel);
-    if (
-      modelPreferenceLabel &&
-      modelPreferenceLabel.length > PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH
-    ) {
-      return failure(
-        400,
-        `modelPreferenceLabel exceeds ${PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH} characters.`
-      );
-    }
+  const modelValidation = validateModelPreferenceLabel(
+    body.modelPreferenceLabel,
+    profile
+  );
+  if (!modelValidation.ok) {
+    return modelValidation;
   }
 
   return success({
     requestText: normalizedRequestText,
     capability: body.capability,
-    modelPreferenceLabel,
+    modelPreferenceLabel: modelValidation.value,
     maximumOutputTokens: body.maximumOutputTokens,
   });
 }
@@ -378,6 +431,54 @@ export function validatePrivateAlphaApprovalInput(
   });
 }
 
+export function validatePrivateAlphaExecuteInput(
+  body: unknown
+): PrivateAlphaValidationResult<PrivateAlphaExecuteInput> {
+  if (!isRecord(body)) {
+    return failure(400, "Execution requires a JSON object payload.");
+  }
+
+  const unknownKeys = collectUnknownKeys(body, [
+    "execute",
+    "acknowledgement",
+    "approvalScopeHash",
+    "expectedRevision",
+  ]);
+  if (unknownKeys.length > 0) {
+    return failure(400, `Unknown fields are not allowed: ${unknownKeys.join(", ")}.`);
+  }
+
+  if (body.execute !== true) {
+    return failure(400, "execute must be exactly true.");
+  }
+
+  if (body.acknowledgement !== true) {
+    return failure(400, "acknowledgement must be exactly true.");
+  }
+
+  if (
+    typeof body.approvalScopeHash !== "string" ||
+    !/^[a-f0-9]{64}$/.test(body.approvalScopeHash.trim())
+  ) {
+    return failure(400, "approvalScopeHash must be a 64-character lowercase hex string.");
+  }
+
+  if (
+    typeof body.expectedRevision !== "number" ||
+    !Number.isInteger(body.expectedRevision) ||
+    body.expectedRevision < 1
+  ) {
+    return failure(400, "expectedRevision must be a positive integer.");
+  }
+
+  return success({
+    execute: true,
+    acknowledgement: true,
+    approvalScopeHash: body.approvalScopeHash.trim(),
+    expectedRevision: body.expectedRevision,
+  });
+}
+
 export function validatePrivateAlphaCancellationInput(
   body: unknown
 ): PrivateAlphaValidationResult<PrivateAlphaCancellationInput> {
@@ -420,20 +521,66 @@ export function validatePrivateAlphaCancellationInput(
   });
 }
 
+export function isPrivateAlphaLegacyRunConfiguration(input: {
+  providerPreference: PrivateAlphaProviderPreference;
+  modelPreferenceLabel: string | null;
+  retentionMode: PrivateAlphaRetentionMode;
+  executionMode: PrivateAlphaExecutionMode;
+}): boolean {
+  return (
+    input.providerPreference === PRIVATE_ALPHA_LEGACY_PROVIDER_PREFERENCE &&
+    input.retentionMode === PRIVATE_ALPHA_RETENTION_MODE &&
+    input.executionMode === PRIVATE_ALPHA_LEGACY_EXECUTION_MODE &&
+    (input.modelPreferenceLabel === null ||
+      input.modelPreferenceLabel.length <=
+        PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH)
+  );
+}
+
+export function isPrivateAlphaLocalExecutionConfiguration(input: {
+  providerPreference: PrivateAlphaProviderPreference;
+  modelPreferenceLabel: string | null;
+  retentionMode: PrivateAlphaRetentionMode;
+  executionMode: PrivateAlphaExecutionMode;
+}): boolean {
+  return (
+    input.providerPreference === PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID &&
+    input.modelPreferenceLabel === PRIVATE_ALPHA_PRODUCTION_MODEL &&
+    input.retentionMode === PRIVATE_ALPHA_RETENTION_MODE &&
+    input.executionMode === PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
+  );
+}
+
+export function resolvePrivateAlphaApprovalStatement(
+  executionMode: PrivateAlphaExecutionMode
+): string {
+  return executionMode === PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
+    ? PRIVATE_ALPHA_LOCAL_EXECUTION_APPROVAL_STATEMENT
+    : PRIVATE_ALPHA_APPROVAL_LOCK_STATEMENT;
+}
+
 export function buildPrivateAlphaRunRequest(
-  input: PrivateAlphaCreateRunInput
+  input: PrivateAlphaCreateRunInput,
+  profile: PrivateAlphaRuntimeProfile = PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE
 ): PrivateAlphaRunRequest {
   const normalizedRequestText = normalizePrivateAlphaRequestText(input.requestText);
+  const isLocalProfile = profile === PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE;
 
   return {
     normalizedRequestText,
     redactedPreview: buildPrivateAlphaRedactedPreview(normalizedRequestText),
     capability: input.capability,
-    providerPreference: "auto",
-    modelPreferenceLabel: input.modelPreferenceLabel,
+    providerPreference: isLocalProfile
+      ? PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID
+      : PRIVATE_ALPHA_LEGACY_PROVIDER_PREFERENCE,
+    modelPreferenceLabel: isLocalProfile
+      ? PRIVATE_ALPHA_PRODUCTION_MODEL
+      : input.modelPreferenceLabel,
     maximumOutputTokens: input.maximumOutputTokens,
-    retentionMode: "local-private-alpha",
-    executionMode: "locked-until-provider-slice",
+    retentionMode: PRIVATE_ALPHA_RETENTION_MODE,
+    executionMode: isLocalProfile
+      ? PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
+      : PRIVATE_ALPHA_LEGACY_EXECUTION_MODE,
   };
 }
 

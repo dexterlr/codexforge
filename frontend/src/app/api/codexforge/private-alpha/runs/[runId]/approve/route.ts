@@ -3,6 +3,7 @@ import {
   PrivateAlphaStoreError,
   createPrivateAlphaStore,
 } from "@/lib/codexforge/private-alpha/private-alpha-store.server";
+import { PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE } from "@/lib/codexforge/private-alpha";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,7 +14,9 @@ type PrivateAlphaRunRouteContext = {
   }>;
 };
 
-const store = createPrivateAlphaStore();
+const store = createPrivateAlphaStore({
+  runtimeProfile: PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE,
+});
 
 function failure(status: number, error: string) {
   return NextResponse.json({ ok: false, error }, { status });

@@ -17,51 +17,75 @@ import {
   joinCodexForgeSafeRelativePath,
   toPortableRelativePath,
 } from "@/lib/codexforge/server-safe-paths";
+import {
+  PrivateAlphaOllamaError,
+  createPrivateAlphaOllamaClient,
+  type PrivateAlphaOllamaClient,
+} from "./private-alpha-ollama.server";
 import { readPrivateAlphaKillSwitchState } from "./private-alpha-kill-switch.server";
 import {
   PRIVATE_ALPHA_INITIAL_RUN_STATE,
   assertPrivateAlphaTransition,
 } from "./private-alpha-state-machine";
-import type {
-  PrivateAlphaApprovalInput,
-  PrivateAlphaApprovalRecord,
-  PrivateAlphaApprovalScope,
-  PrivateAlphaAuditActor,
-  PrivateAlphaAuditEvent,
-  PrivateAlphaAuditEventType,
-  PrivateAlphaCancellationInput,
-  PrivateAlphaCancellationRecord,
-  PrivateAlphaCreateRunResult,
-  PrivateAlphaRunRecord,
-  PrivateAlphaRunRequest,
-  PrivateAlphaRunState,
-  PrivateAlphaRunSummary,
-  PrivateAlphaStatus,
+import {
+  PRIVATE_ALPHA_RECORD_VERSION,
+  type PrivateAlphaApprovalInput,
+  type PrivateAlphaApprovalRecord,
+  type PrivateAlphaApprovalScope,
+  type PrivateAlphaAuditActor,
+  type PrivateAlphaAuditEvent,
+  type PrivateAlphaAuditEventType,
+  type PrivateAlphaCancellationInput,
+  type PrivateAlphaCancellationRecord,
+  type PrivateAlphaCreateRunResult,
+  type PrivateAlphaExecuteInput,
+  type PrivateAlphaExecuteRunResult,
+  type PrivateAlphaExecutionErrorCode,
+  type PrivateAlphaExecutionRecord,
+  type PrivateAlphaExecutionStatus,
+  type PrivateAlphaRunRecord,
+  type PrivateAlphaRunRequest,
+  type PrivateAlphaRunState,
+  type PrivateAlphaRunSummary,
+  type PrivateAlphaStatus,
 } from "./private-alpha-types";
 import {
-  PRIVATE_ALPHA_APPROVAL_LOCK_STATEMENT,
   PRIVATE_ALPHA_DATA_ROOT_LABEL,
+  PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE,
+  PRIVATE_ALPHA_MAX_DONE_REASON_LENGTH,
+  PRIVATE_ALPHA_MAX_OUTPUT_TEXT_LENGTH,
+  PRIVATE_ALPHA_MAX_SAFE_ERROR_MESSAGE_LENGTH,
+  PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+  PRIVATE_ALPHA_PRODUCTION_MODEL,
+  PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+  PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL,
   PRIVATE_ALPHA_RUN_ID_LENGTH,
   PRIVATE_ALPHA_TEST_DATA_ROOT_PREFIX,
   buildPrivateAlphaApprovalScope,
   buildPrivateAlphaRunRequest,
   buildPrivateAlphaRunSummary,
+  isPrivateAlphaLegacyRunConfiguration,
+  isPrivateAlphaLocalExecutionConfiguration,
+  resolvePrivateAlphaApprovalStatement,
   sanitizePrivateAlphaTestingSuffix,
   serializePrivateAlphaApprovalScope,
   serializePrivateAlphaRunRequest,
+  type PrivateAlphaRuntimeProfile,
   validatePrivateAlphaApprovalInput,
   validatePrivateAlphaCancellationInput,
   validatePrivateAlphaCreateRunInput,
+  validatePrivateAlphaExecuteInput,
   validatePrivateAlphaIdempotencyKey,
   validatePrivateAlphaListLimit,
   validatePrivateAlphaRunId,
 } from "./private-alpha-validation";
-import { PRIVATE_ALPHA_RECORD_VERSION } from "./private-alpha-types";
 
-type PrivateAlphaErrorStatus = 400 | 404 | 409 | 422 | 500;
+type PrivateAlphaErrorStatus = 400 | 404 | 409 | 422 | 500 | 503 | 504;
 
 type PrivateAlphaStoreOptions = Readonly<{
   dataRootLabel?: string;
+  runtimeProfile?: PrivateAlphaRuntimeProfile;
+  ollamaClient?: PrivateAlphaOllamaClient;
 }>;
 
 type PrivateAlphaResolvedPaths = Readonly<{
@@ -80,6 +104,12 @@ type PrivateAlphaIdempotencyRecord = Readonly<{
   createdAt: string;
 }>;
 
+type PrivateAlphaFailureResponse = Readonly<{
+  errorCode: PrivateAlphaExecutionErrorCode;
+  safeErrorMessage: string;
+  responseStatus: 200 | 409 | 503 | 504;
+}>;
+
 export type PrivateAlphaStore = Readonly<{
   getStatus: () => Promise<PrivateAlphaStatus>;
   createRun: (
@@ -90,6 +120,11 @@ export type PrivateAlphaStore = Readonly<{
   getRun: (runId: string) => Promise<PrivateAlphaRunRecord>;
   approveRun: (runId: string, body: unknown) => Promise<PrivateAlphaRunRecord>;
   cancelRun: (runId: string, body: unknown) => Promise<PrivateAlphaRunRecord>;
+  executeRun: (
+    runId: string,
+    body: unknown,
+    idempotencyKey: string | null | undefined
+  ) => Promise<PrivateAlphaExecuteRunResult>;
 }>;
 
 const RUN_WRITE_QUEUES = new Map<string, Promise<void>>();
@@ -147,12 +182,56 @@ function isHexHash(value: unknown): value is string {
   return typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
 }
 
+function isSafePositiveInteger(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= 1 &&
+    Number.isSafeInteger(value)
+  );
+}
+
+function isSafeNonNegativeInteger(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= 0 &&
+    Number.isSafeInteger(value)
+  );
+}
+
 function isRunState(value: unknown): value is PrivateAlphaRunState {
   return (
     value === "awaiting_approval" ||
     value === "approved" ||
+    value === "executing" ||
+    value === "succeeded" ||
+    value === "failed" ||
     value === "canceled" ||
     value === "blocked"
+  );
+}
+
+function isExecutionStatus(value: unknown): value is PrivateAlphaExecutionStatus {
+  return (
+    value === "executing" ||
+    value === "succeeded" ||
+    value === "failed" ||
+    value === "blocked"
+  );
+}
+
+function isExecutionErrorCode(
+  value: unknown
+): value is PrivateAlphaExecutionErrorCode {
+  return (
+    value === "kill_switch_blocked" ||
+    value === "ollama_unavailable" ||
+    value === "ollama_model_missing" ||
+    value === "ollama_timeout" ||
+    value === "ollama_http_error" ||
+    value === "ollama_malformed_response" ||
+    value === "ollama_output_too_large"
   );
 }
 
@@ -161,6 +240,10 @@ function isAuditEventType(value: unknown): value is PrivateAlphaAuditEventType {
     value === "run.created" ||
     value === "approval.requested" ||
     value === "approval.granted" ||
+    value === "execution.started" ||
+    value === "execution.succeeded" ||
+    value === "execution.failed" ||
+    value === "execution.blocked" ||
     value === "run.canceled" ||
     value === "run.blocked"
   );
@@ -172,7 +255,8 @@ function isAuditActor(value: unknown): value is PrivateAlphaAuditActor {
 
 function readNullableString(
   record: Record<string, unknown>,
-  key: string
+  key: string,
+  maximumLength?: number
 ): string | null | undefined {
   const value = record[key];
   if (value === undefined) {
@@ -183,7 +267,15 @@ function readNullableString(
     return null;
   }
 
-  return typeof value === "string" ? value : undefined;
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  if (maximumLength !== undefined && value.length > maximumLength) {
+    return undefined;
+  }
+
+  return value;
 }
 
 function validateStoredRunRequest(value: unknown): PrivateAlphaRunRequest | null {
@@ -196,29 +288,53 @@ function validateStoredRunRequest(value: unknown): PrivateAlphaRunRequest | null
     !value.normalizedRequestText ||
     typeof value.redactedPreview !== "string" ||
     (value.capability !== "text" && value.capability !== "code") ||
-    value.providerPreference !== "auto" ||
-    (value.modelPreferenceLabel !== null &&
-      typeof value.modelPreferenceLabel !== "string") ||
     typeof value.maximumOutputTokens !== "number" ||
     !Number.isInteger(value.maximumOutputTokens) ||
     value.maximumOutputTokens < 1 ||
     value.maximumOutputTokens > 4_096 ||
     value.retentionMode !== "local-private-alpha" ||
-    value.executionMode !== "locked-until-provider-slice"
+    (value.modelPreferenceLabel !== null &&
+      typeof value.modelPreferenceLabel !== "string")
   ) {
     return null;
   }
 
-  return {
+  const providerPreference =
+    value.providerPreference === "auto"
+      ? "auto"
+      : value.providerPreference === "ollama-local"
+        ? "ollama-local"
+        : null;
+  const executionMode =
+    value.executionMode === "locked-until-provider-slice"
+      ? "locked-until-provider-slice"
+      : value.executionMode === "manual-approved-local-provider"
+        ? "manual-approved-local-provider"
+        : null;
+
+  if (providerPreference === null || executionMode === null) {
+    return null;
+  }
+
+  const candidate: PrivateAlphaRunRequest = {
     normalizedRequestText: value.normalizedRequestText,
     redactedPreview: value.redactedPreview,
     capability: value.capability,
-    providerPreference: "auto",
+    providerPreference,
     modelPreferenceLabel: value.modelPreferenceLabel,
     maximumOutputTokens: value.maximumOutputTokens,
     retentionMode: "local-private-alpha",
-    executionMode: "locked-until-provider-slice",
+    executionMode,
   };
+
+  if (
+    !isPrivateAlphaLegacyRunConfiguration(candidate) &&
+    !isPrivateAlphaLocalExecutionConfiguration(candidate)
+  ) {
+    return null;
+  }
+
+  return candidate;
 }
 
 function validateStoredApprovalScope(
@@ -232,33 +348,58 @@ function validateStoredApprovalScope(
     typeof value.runId !== "string" ||
     (value.capability !== "text" && value.capability !== "code") ||
     !isHexHash(value.normalizedRequestHash) ||
-    value.providerPreference !== "auto" ||
-    (value.modelPreferenceLabel !== null &&
-      typeof value.modelPreferenceLabel !== "string") ||
     typeof value.maximumOutputTokens !== "number" ||
     !Number.isInteger(value.maximumOutputTokens) ||
     value.maximumOutputTokens < 1 ||
     value.maximumOutputTokens > 4_096 ||
     value.retentionMode !== "local-private-alpha" ||
-    value.executionMode !== "locked-until-provider-slice"
+    (value.modelPreferenceLabel !== null &&
+      typeof value.modelPreferenceLabel !== "string")
   ) {
     return null;
   }
 
-  return {
+  const providerPreference =
+    value.providerPreference === "auto"
+      ? "auto"
+      : value.providerPreference === "ollama-local"
+        ? "ollama-local"
+        : null;
+  const executionMode =
+    value.executionMode === "locked-until-provider-slice"
+      ? "locked-until-provider-slice"
+      : value.executionMode === "manual-approved-local-provider"
+        ? "manual-approved-local-provider"
+        : null;
+
+  if (providerPreference === null || executionMode === null) {
+    return null;
+  }
+
+  const candidate: PrivateAlphaApprovalScope = {
     runId: value.runId,
     capability: value.capability,
     normalizedRequestHash: value.normalizedRequestHash,
-    providerPreference: "auto",
+    providerPreference,
     modelPreferenceLabel: value.modelPreferenceLabel,
     maximumOutputTokens: value.maximumOutputTokens,
     retentionMode: "local-private-alpha",
-    executionMode: "locked-until-provider-slice",
+    executionMode,
   };
+
+  if (
+    !isPrivateAlphaLegacyRunConfiguration(candidate) &&
+    !isPrivateAlphaLocalExecutionConfiguration(candidate)
+  ) {
+    return null;
+  }
+
+  return candidate;
 }
 
 function validateStoredApprovalRecord(
-  value: unknown
+  value: unknown,
+  request: PrivateAlphaRunRequest
 ): PrivateAlphaApprovalRecord | null {
   if (value === null) {
     return null;
@@ -282,13 +423,10 @@ function validateStoredApprovalRecord(
     value.actor !== "local-operator" ||
     !isHexHash(value.approvalScopeHash) ||
     acknowledgement === undefined ||
-    typeof value.previousRevision !== "number" ||
-    !Number.isInteger(value.previousRevision) ||
-    value.previousRevision < 1 ||
-    typeof value.resultingRevision !== "number" ||
-    !Number.isInteger(value.resultingRevision) ||
-    value.resultingRevision < 1 ||
-    value.executionAvailabilityStatement !== PRIVATE_ALPHA_APPROVAL_LOCK_STATEMENT
+    !isSafePositiveInteger(value.previousRevision) ||
+    !isSafePositiveInteger(value.resultingRevision) ||
+    value.executionAvailabilityStatement !==
+      resolvePrivateAlphaApprovalStatement(request.executionMode)
   ) {
     return null;
   }
@@ -301,7 +439,7 @@ function validateStoredApprovalRecord(
     acknowledgement,
     previousRevision: value.previousRevision,
     resultingRevision: value.resultingRevision,
-    executionAvailabilityStatement: PRIVATE_ALPHA_APPROVAL_LOCK_STATEMENT,
+    executionAvailabilityStatement: value.executionAvailabilityStatement,
   };
 }
 
@@ -323,12 +461,8 @@ function validateStoredCancellationRecord(
     value.actor !== "local-operator" ||
     typeof value.reason !== "string" ||
     !value.reason ||
-    typeof value.previousRevision !== "number" ||
-    !Number.isInteger(value.previousRevision) ||
-    value.previousRevision < 1 ||
-    typeof value.resultingRevision !== "number" ||
-    !Number.isInteger(value.resultingRevision) ||
-    value.resultingRevision < 1
+    !isSafePositiveInteger(value.previousRevision) ||
+    !isSafePositiveInteger(value.resultingRevision)
   ) {
     return null;
   }
@@ -340,6 +474,163 @@ function validateStoredCancellationRecord(
     reason: value.reason,
     previousRevision: value.previousRevision,
     resultingRevision: value.resultingRevision,
+  };
+}
+
+function validateStoredExecutionRecord(
+  value: unknown,
+  approvalScopeHash: string
+): PrivateAlphaExecutionRecord | null {
+  if (value === null) {
+    return null;
+  }
+
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const completedAt = readNullableString(value, "completedAt");
+  const outputText = readNullableString(
+    value,
+    "outputText",
+    PRIVATE_ALPHA_MAX_OUTPUT_TEXT_LENGTH
+  );
+  const outputSha256 = readNullableString(value, "outputSha256");
+  const doneReason = readNullableString(
+    value,
+    "doneReason",
+    PRIVATE_ALPHA_MAX_DONE_REASON_LENGTH
+  );
+  const safeErrorMessage = readNullableString(
+    value,
+    "safeErrorMessage",
+    PRIVATE_ALPHA_MAX_SAFE_ERROR_MESSAGE_LENGTH
+  );
+  const errorCode =
+    value.errorCode === null
+      ? null
+      : isExecutionErrorCode(value.errorCode)
+        ? value.errorCode
+        : undefined;
+
+  const runningRevision =
+    value.runningRevision === null
+      ? null
+      : isSafePositiveInteger(value.runningRevision)
+        ? value.runningRevision
+        : undefined;
+
+  if (
+    typeof value.executionId !== "string" ||
+    !value.executionId ||
+    !isExecutionStatus(value.status) ||
+    !isHexHash(value.idempotencyKeyHash) ||
+    value.provider !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID ||
+    value.model !== PRIVATE_ALPHA_PRODUCTION_MODEL ||
+    value.approvalScopeHash !== approvalScopeHash ||
+    !isIsoTimestamp(value.startedAt) ||
+    completedAt === undefined ||
+    !isSafePositiveInteger(value.previousRevision) ||
+    runningRevision === undefined ||
+    !isSafePositiveInteger(value.resultingRevision) ||
+    outputText === undefined ||
+    outputSha256 === undefined ||
+    doneReason === undefined ||
+    (value.totalDurationNanoseconds !== null &&
+      !isSafeNonNegativeInteger(value.totalDurationNanoseconds)) ||
+    (value.loadDurationNanoseconds !== null &&
+      !isSafeNonNegativeInteger(value.loadDurationNanoseconds)) ||
+    (value.promptEvalCount !== null &&
+      !isSafeNonNegativeInteger(value.promptEvalCount)) ||
+    (value.evalCount !== null && !isSafeNonNegativeInteger(value.evalCount)) ||
+    errorCode === undefined ||
+    safeErrorMessage === undefined
+  ) {
+    return null;
+  }
+
+  if (outputText !== null) {
+    if (!outputSha256 || hashSha256(outputText) !== outputSha256) {
+      return null;
+    }
+  } else if (outputSha256 !== null) {
+    return null;
+  }
+
+  if (value.status === "executing") {
+    if (
+      completedAt !== null ||
+      outputText !== null ||
+      outputSha256 !== null ||
+      errorCode !== null ||
+      safeErrorMessage !== null ||
+      runningRevision === null ||
+      value.resultingRevision !== runningRevision
+    ) {
+      return null;
+    }
+  }
+
+  if (value.status === "succeeded") {
+    if (
+      !completedAt ||
+      outputText === null ||
+      outputSha256 === null ||
+      errorCode !== null ||
+      safeErrorMessage !== null ||
+      runningRevision === null
+    ) {
+      return null;
+    }
+  }
+
+  if (value.status === "failed") {
+    if (
+      !completedAt ||
+      outputText !== null ||
+      outputSha256 !== null ||
+      errorCode === null ||
+      errorCode === "kill_switch_blocked" ||
+      !safeErrorMessage ||
+      runningRevision === null
+    ) {
+      return null;
+    }
+  }
+
+  if (value.status === "blocked") {
+    if (
+      !completedAt ||
+      outputText !== null ||
+      outputSha256 !== null ||
+      errorCode === null ||
+      !safeErrorMessage
+    ) {
+      return null;
+    }
+  }
+
+  return {
+    executionId: value.executionId,
+    status: value.status,
+    idempotencyKeyHash: value.idempotencyKeyHash,
+    provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+    model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+    approvalScopeHash,
+    startedAt: value.startedAt,
+    completedAt,
+    previousRevision: value.previousRevision,
+    runningRevision,
+    resultingRevision: value.resultingRevision,
+    outputText,
+    outputSha256,
+    doneReason,
+    totalDurationNanoseconds: value.totalDurationNanoseconds,
+    loadDurationNanoseconds: value.loadDurationNanoseconds,
+    promptEvalCount: value.promptEvalCount,
+    evalCount: value.evalCount,
+    errorCode,
+    safeErrorMessage,
   };
 }
 
@@ -371,9 +662,7 @@ function validateStoredAuditEvents(
       event.runId !== runId ||
       previousState === undefined ||
       !isRunState(event.resultingState) ||
-      typeof event.revision !== "number" ||
-      !Number.isInteger(event.revision) ||
-      event.revision < 1 ||
+      !isSafePositiveInteger(event.revision) ||
       typeof event.summary !== "string" ||
       !event.summary
     ) {
@@ -406,8 +695,6 @@ function validateStoredRunRecord(
 
   const runRequest = validateStoredRunRequest(value.request);
   const approvalScope = validateStoredApprovalScope(value.approvalScope);
-  const approval = validateStoredApprovalRecord(value.approval);
-  const cancellation = validateStoredCancellationRecord(value.cancellation);
 
   if (
     value.version !== PRIVATE_ALPHA_RECORD_VERSION ||
@@ -415,9 +702,7 @@ function validateStoredRunRecord(
     !isIsoTimestamp(value.createdAt) ||
     !isIsoTimestamp(value.updatedAt) ||
     !isRunState(value.state) ||
-    typeof value.revision !== "number" ||
-    !Number.isInteger(value.revision) ||
-    value.revision < 1 ||
+    !isSafePositiveInteger(value.revision) ||
     !isHexHash(value.idempotencyKeyHash) ||
     !runRequest ||
     !approvalScope ||
@@ -426,12 +711,17 @@ function validateStoredRunRecord(
     return null;
   }
 
+  const approval = validateStoredApprovalRecord(value.approval, runRequest);
+  const cancellation = validateStoredCancellationRecord(value.cancellation);
+  const execution = validateStoredExecutionRecord(
+    value.execution ?? null,
+    value.approvalScopeHash
+  );
   const auditEvents = validateStoredAuditEvents(value.auditEvents, expectedRunId);
-  if (!auditEvents || approvalScope.runId !== expectedRunId) {
-    return null;
-  }
 
   if (
+    !auditEvents ||
+    approvalScope.runId !== expectedRunId ||
     approvalScope.capability !== runRequest.capability ||
     approvalScope.providerPreference !== runRequest.providerPreference ||
     approvalScope.modelPreferenceLabel !== runRequest.modelPreferenceLabel ||
@@ -450,15 +740,51 @@ function validateStoredRunRecord(
     return null;
   }
 
-  if (value.state === "approved" && !approval) {
+  if (approval && approval.approvalScopeHash !== value.approvalScopeHash) {
     return null;
   }
 
-  if (value.state === "awaiting_approval" && (approval || cancellation)) {
+  if (execution && execution.approvalScopeHash !== value.approvalScopeHash) {
     return null;
   }
 
-  if (value.state === "canceled" && !cancellation) {
+  if (value.state === "awaiting_approval") {
+    if (approval || cancellation || execution) {
+      return null;
+    }
+  }
+
+  if (value.state === "approved") {
+    if (!approval || cancellation || execution) {
+      return null;
+    }
+  }
+
+  if (value.state === "executing") {
+    if (!approval || cancellation || !execution || execution.status !== "executing") {
+      return null;
+    }
+  }
+
+  if (value.state === "succeeded") {
+    if (!approval || cancellation || !execution || execution.status !== "succeeded") {
+      return null;
+    }
+  }
+
+  if (value.state === "failed") {
+    if (!approval || cancellation || !execution || execution.status !== "failed") {
+      return null;
+    }
+  }
+
+  if (value.state === "canceled") {
+    if (!cancellation || execution) {
+      return null;
+    }
+  }
+
+  if (value.state === "blocked" && execution && execution.status !== "blocked") {
     return null;
   }
 
@@ -475,6 +801,7 @@ function validateStoredRunRecord(
     approvalScopeHash: value.approvalScopeHash,
     approval,
     cancellation,
+    execution,
     auditEvents,
   };
 }
@@ -772,15 +1099,19 @@ function buildAuditEvent(input: {
 }
 
 function buildCreatedRunAuditEvents(
-  runId: string,
+  run: PrivateAlphaRunRecord,
   createdAt: string,
   revision: number
 ): readonly PrivateAlphaAuditEvent[] {
+  const approvalRequestedSummary = isPrivateAlphaLocalExecutionConfiguration(run.request)
+    ? "Manual approval scope recorded locally. Execution requires a separate operator action."
+    : "Manual approval scope recorded locally. Provider execution remains locked.";
+
   return [
     buildAuditEvent({
       eventType: "run.created",
       actor: "local-operator",
-      runId,
+      runId: run.runId,
       previousState: null,
       resultingState: PRIVATE_ALPHA_INITIAL_RUN_STATE,
       revision,
@@ -790,14 +1121,219 @@ function buildCreatedRunAuditEvents(
     buildAuditEvent({
       eventType: "approval.requested",
       actor: "local-operator",
-      runId,
+      runId: run.runId,
       previousState: PRIVATE_ALPHA_INITIAL_RUN_STATE,
       resultingState: PRIVATE_ALPHA_INITIAL_RUN_STATE,
       revision,
-      summary: "Manual approval scope recorded locally. Provider execution remains locked.",
+      summary: approvalRequestedSummary,
       occurredAt: createdAt,
     }),
   ];
+}
+
+function buildExecutionFailureResponse(
+  errorCode: PrivateAlphaExecutionErrorCode,
+  safeErrorMessage: string
+): PrivateAlphaFailureResponse {
+  if (errorCode === "kill_switch_blocked") {
+    return {
+      errorCode,
+      safeErrorMessage,
+      responseStatus: 409,
+    };
+  }
+
+  if (errorCode === "ollama_timeout") {
+    return {
+      errorCode,
+      safeErrorMessage,
+      responseStatus: 504,
+    };
+  }
+
+  if (
+    errorCode === "ollama_unavailable" ||
+    errorCode === "ollama_model_missing"
+  ) {
+    return {
+      errorCode,
+      safeErrorMessage,
+      responseStatus: 503,
+    };
+  }
+
+  return {
+    errorCode,
+    safeErrorMessage,
+    responseStatus: 200,
+  };
+}
+
+function buildExecutingExecutionRecord(input: {
+  run: PrivateAlphaRunRecord;
+  idempotencyKeyHash: string;
+  startedAt: string;
+}): PrivateAlphaExecutionRecord {
+  const runningRevision = input.run.revision + 1;
+
+  return {
+    executionId: randomUUID(),
+    status: "executing",
+    idempotencyKeyHash: input.idempotencyKeyHash,
+    provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+    model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+    approvalScopeHash: input.run.approvalScopeHash,
+    startedAt: input.startedAt,
+    completedAt: null,
+    previousRevision: input.run.revision,
+    runningRevision,
+    resultingRevision: runningRevision,
+    outputText: null,
+    outputSha256: null,
+    doneReason: null,
+    totalDurationNanoseconds: null,
+    loadDurationNanoseconds: null,
+    promptEvalCount: null,
+    evalCount: null,
+    errorCode: null,
+    safeErrorMessage: null,
+  };
+}
+
+function buildBlockedExecutionRecord(input: {
+  run: PrivateAlphaRunRecord;
+  idempotencyKeyHash: string;
+  blockedAt: string;
+  previousRevision: number;
+  runningRevision: number | null;
+  resultingRevision: number;
+  errorCode: "kill_switch_blocked" | "ollama_unavailable" | "ollama_model_missing";
+  safeErrorMessage: string;
+}): PrivateAlphaExecutionRecord {
+  return {
+    executionId: input.run.execution?.executionId ?? randomUUID(),
+    status: "blocked",
+    idempotencyKeyHash: input.idempotencyKeyHash,
+    provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+    model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+    approvalScopeHash: input.run.approvalScopeHash,
+    startedAt: input.run.execution?.startedAt ?? input.blockedAt,
+    completedAt: input.blockedAt,
+    previousRevision: input.previousRevision,
+    runningRevision: input.runningRevision,
+    resultingRevision: input.resultingRevision,
+    outputText: null,
+    outputSha256: null,
+    doneReason: null,
+    totalDurationNanoseconds: null,
+    loadDurationNanoseconds: null,
+    promptEvalCount: null,
+    evalCount: null,
+    errorCode: input.errorCode,
+    safeErrorMessage: input.safeErrorMessage,
+  };
+}
+
+function buildFailedExecutionRecord(input: {
+  run: PrivateAlphaRunRecord;
+  failedAt: string;
+  resultingRevision: number;
+  errorCode:
+    | "ollama_unavailable"
+    | "ollama_model_missing"
+    | "ollama_timeout"
+    | "ollama_http_error"
+    | "ollama_malformed_response"
+    | "ollama_output_too_large";
+  safeErrorMessage: string;
+}): PrivateAlphaExecutionRecord {
+  if (!input.run.execution || input.run.execution.runningRevision === null) {
+    throw new PrivateAlphaStoreError(500, "Execution record was missing.");
+  }
+
+  return {
+    ...input.run.execution,
+    status: "failed",
+    completedAt: input.failedAt,
+    resultingRevision: input.resultingRevision,
+    outputText: null,
+    outputSha256: null,
+    doneReason: null,
+    totalDurationNanoseconds: null,
+    loadDurationNanoseconds: null,
+    promptEvalCount: null,
+    evalCount: null,
+    errorCode: input.errorCode,
+    safeErrorMessage: input.safeErrorMessage,
+  };
+}
+
+function buildSucceededExecutionRecord(input: {
+  run: PrivateAlphaRunRecord;
+  completedAt: string;
+  resultingRevision: number;
+  outputText: string;
+  doneReason: string | null;
+  totalDurationNanoseconds: number | null;
+  loadDurationNanoseconds: number | null;
+  promptEvalCount: number | null;
+  evalCount: number | null;
+}): PrivateAlphaExecutionRecord {
+  if (!input.run.execution || input.run.execution.runningRevision === null) {
+    throw new PrivateAlphaStoreError(500, "Execution record was missing.");
+  }
+
+  return {
+    ...input.run.execution,
+    status: "succeeded",
+    completedAt: input.completedAt,
+    resultingRevision: input.resultingRevision,
+    outputText: input.outputText,
+    outputSha256: hashSha256(input.outputText),
+    doneReason: input.doneReason,
+    totalDurationNanoseconds: input.totalDurationNanoseconds,
+    loadDurationNanoseconds: input.loadDurationNanoseconds,
+    promptEvalCount: input.promptEvalCount,
+    evalCount: input.evalCount,
+    errorCode: null,
+    safeErrorMessage: null,
+  };
+}
+
+async function readSafeKillSwitchState(
+  paths: PrivateAlphaResolvedPaths
+): Promise<Awaited<ReturnType<typeof readPrivateAlphaKillSwitchState>>> {
+  return readPrivateAlphaKillSwitchState({
+    dataRootLabel: paths.dataRootLabel,
+  });
+}
+
+function ensureExecutableLocalRun(run: PrivateAlphaRunRecord): void {
+  if (!isPrivateAlphaLocalExecutionConfiguration(run.request)) {
+    throw new PrivateAlphaStoreError(
+      409,
+      "Legacy private-alpha runs are not executable in this slice."
+    );
+  }
+
+  if (!isPrivateAlphaLocalExecutionConfiguration(run.approvalScope)) {
+    throw new PrivateAlphaStoreError(
+      409,
+      "Run approval scope is not executable in this slice."
+    );
+  }
+
+  if (run.request.providerPreference !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID) {
+    throw new PrivateAlphaStoreError(409, "Run provider is not executable.");
+  }
+
+  if (run.request.modelPreferenceLabel !== PRIVATE_ALPHA_PRODUCTION_MODEL) {
+    throw new PrivateAlphaStoreError(409, "Run model is not executable.");
+  }
+
+  if (run.request.executionMode !== PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE) {
+    throw new PrivateAlphaStoreError(409, "Run execution mode is not executable.");
+  }
 }
 
 export function buildPrivateAlphaTestingDataRootLabel(testSuffix: string): string {
@@ -826,19 +1362,46 @@ export function createPrivateAlphaStore(
   options: PrivateAlphaStoreOptions = {}
 ): PrivateAlphaStore {
   const paths = resolvePaths(options);
+  const runtimeProfile =
+    options.runtimeProfile ?? PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE;
+  const ollamaClient = options.ollamaClient ?? createPrivateAlphaOllamaClient();
 
   return {
     async getStatus(): Promise<PrivateAlphaStatus> {
-      const killSwitchState = await readPrivateAlphaKillSwitchState({
-        dataRootLabel: paths.dataRootLabel,
-      });
+      const killSwitchState = await readSafeKillSwitchState(paths);
+
+      if (runtimeProfile === PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE) {
+        return {
+          mode: "private-alpha-foundation",
+          persistence: "local-file-backed",
+          approvalRecording: "enabled",
+          providerExecution: "unavailable",
+          providerLabel: PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL,
+          configuredModel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+          providerAvailable: false,
+          modelAvailable: false,
+          executionAllowed: false,
+          killSwitchEngaged: killSwitchState.killSwitchEngaged,
+          killSwitchSources: killSwitchState.killSwitchSources,
+          dataRootLabel: paths.dataRootLabel,
+        };
+      }
+
+      const availability = await ollamaClient.getAvailability();
 
       return {
-        mode: "private-alpha-foundation",
+        mode: "private-alpha-local-ollama",
         persistence: "local-file-backed",
         approvalRecording: "enabled",
-        providerExecution: "unavailable",
-        executionAllowed: false,
+        providerExecution: "local-ollama",
+        providerLabel: PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL,
+        configuredModel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+        providerAvailable: availability.providerAvailable,
+        modelAvailable: availability.modelAvailable,
+        executionAllowed:
+          !killSwitchState.killSwitchEngaged &&
+          availability.providerAvailable &&
+          availability.modelAvailable,
         killSwitchEngaged: killSwitchState.killSwitchEngaged,
         killSwitchSources: killSwitchState.killSwitchSources,
         dataRootLabel: paths.dataRootLabel,
@@ -857,7 +1420,10 @@ export function createPrivateAlphaStore(
         );
       }
 
-      const createValidation = validatePrivateAlphaCreateRunInput(body);
+      const createValidation = validatePrivateAlphaCreateRunInput(
+        body,
+        runtimeProfile
+      );
       if (!createValidation.ok) {
         throw new PrivateAlphaStoreError(
           createValidation.status,
@@ -865,7 +1431,10 @@ export function createPrivateAlphaStore(
         );
       }
 
-      const request = buildPrivateAlphaRunRequest(createValidation.value);
+      const request = buildPrivateAlphaRunRequest(
+        createValidation.value,
+        runtimeProfile
+      );
       const normalizedRequestHash = buildPrivateAlphaNormalizedRequestHash(request);
       const canonicalRequestHash = buildPrivateAlphaCanonicalRequestHash(request);
       const idempotencyKeyHash = hashSha256(idempotencyValidation.value);
@@ -911,7 +1480,7 @@ export function createPrivateAlphaStore(
             request,
             normalizedRequestHash,
           });
-          const run: PrivateAlphaRunRecord = {
+          const provisionalRun: PrivateAlphaRunRecord = {
             version: PRIVATE_ALPHA_RECORD_VERSION,
             runId,
             createdAt,
@@ -924,7 +1493,12 @@ export function createPrivateAlphaStore(
             approvalScopeHash: buildPrivateAlphaApprovalScopeHash(approvalScope),
             approval: null,
             cancellation: null,
-            auditEvents: buildCreatedRunAuditEvents(runId, createdAt, 1),
+            execution: null,
+            auditEvents: [],
+          };
+          const run: PrivateAlphaRunRecord = {
+            ...provisionalRun,
+            auditEvents: buildCreatedRunAuditEvents(provisionalRun, createdAt, 1),
           };
 
           await withQueue(RUN_WRITE_QUEUES, runId, async () => {
@@ -1096,8 +1670,14 @@ export function createPrivateAlphaStore(
           acknowledgement: approvalInput.acknowledgement,
           previousRevision,
           resultingRevision,
-          executionAvailabilityStatement: PRIVATE_ALPHA_APPROVAL_LOCK_STATEMENT,
+          executionAvailabilityStatement: resolvePrivateAlphaApprovalStatement(
+            existingRun.request.executionMode
+          ),
         };
+
+        const summary = isPrivateAlphaLocalExecutionConfiguration(existingRun.request)
+          ? "Manual approval recorded for the exact local execution scope."
+          : "Manual approval recorded locally. Provider execution remains unavailable.";
 
         const nextRun: PrivateAlphaRunRecord = {
           ...existingRun,
@@ -1114,8 +1694,7 @@ export function createPrivateAlphaStore(
               previousState: existingRun.state,
               resultingState: transition.nextState,
               revision: resultingRevision,
-              summary:
-                "Manual approval recorded locally. Provider execution remains unavailable.",
+              summary,
               occurredAt: approvedAt,
             }),
           ],
@@ -1204,13 +1783,412 @@ export function createPrivateAlphaStore(
         return nextRun;
       });
     },
+
+    async executeRun(
+      runId: string,
+      body: unknown,
+      idempotencyKey: string | null | undefined
+    ): Promise<PrivateAlphaExecuteRunResult> {
+      const runIdValidation = validatePrivateAlphaRunId(runId);
+      if (!runIdValidation.ok) {
+        throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
+      }
+
+      const idempotencyValidation = validatePrivateAlphaIdempotencyKey(idempotencyKey);
+      if (!idempotencyValidation.ok) {
+        throw new PrivateAlphaStoreError(
+          idempotencyValidation.status,
+          idempotencyValidation.error
+        );
+      }
+
+      const executeValidation = validatePrivateAlphaExecuteInput(body);
+      if (!executeValidation.ok) {
+        throw new PrivateAlphaStoreError(
+          executeValidation.status,
+          executeValidation.error
+        );
+      }
+
+      await ensureStoreDirectories(paths);
+
+      return withQueue(RUN_WRITE_QUEUES, runIdValidation.value, async () => {
+        const runAbsolutePath = buildRunFileAbsolutePath(paths, runIdValidation.value);
+        const executeInput: PrivateAlphaExecuteInput = executeValidation.value;
+        const idempotencyKeyHash = hashSha256(idempotencyValidation.value);
+        const existingRun = await readRunRecordFromFile(
+          runAbsolutePath,
+          runIdValidation.value
+        );
+
+        if (existingRun.execution) {
+          if (
+            existingRun.execution.idempotencyKeyHash === idempotencyKeyHash &&
+            existingRun.execution.approvalScopeHash === executeInput.approvalScopeHash
+          ) {
+            return {
+              replayed: true,
+              run: existingRun,
+              responseStatus: 200,
+              errorCode: existingRun.execution.errorCode,
+              safeErrorMessage: existingRun.execution.safeErrorMessage,
+            };
+          }
+
+          throw new PrivateAlphaStoreError(
+            409,
+            "This run has already started its one allowed execution attempt."
+          );
+        }
+
+        ensureExecutableLocalRun(existingRun);
+
+        if (existingRun.state !== "approved") {
+          throw new PrivateAlphaStoreError(409, "Run is not eligible for execution.");
+        }
+
+        if (!existingRun.approval) {
+          throw new PrivateAlphaStoreError(409, "Run approval is missing.");
+        }
+
+        if (existingRun.revision !== executeInput.expectedRevision) {
+          throw new PrivateAlphaStoreError(409, "Run revision is stale.");
+        }
+
+        if (existingRun.approvalScopeHash !== executeInput.approvalScopeHash) {
+          throw new PrivateAlphaStoreError(409, "Approval scope hash does not match.");
+        }
+
+        if (existingRun.approval.approvalScopeHash !== executeInput.approvalScopeHash) {
+          throw new PrivateAlphaStoreError(409, "Approval record scope hash does not match.");
+        }
+
+        const killSwitchBeforeProbe = await readSafeKillSwitchState(paths);
+        if (killSwitchBeforeProbe.killSwitchEngaged) {
+          const blockedAt = nowIso();
+          const resultingRevision = existingRun.revision + 1;
+          const blockedRun: PrivateAlphaRunRecord = {
+            ...existingRun,
+            updatedAt: blockedAt,
+            state: "blocked",
+            revision: resultingRevision,
+            execution: buildBlockedExecutionRecord({
+              run: existingRun,
+              idempotencyKeyHash,
+              blockedAt,
+              previousRevision: existingRun.revision,
+              runningRevision: null,
+              resultingRevision,
+              errorCode: "kill_switch_blocked",
+              safeErrorMessage:
+                "Execution was blocked by the private-alpha kill switch.",
+            }),
+            auditEvents: [
+              ...existingRun.auditEvents,
+              buildAuditEvent({
+                eventType: "execution.blocked",
+                actor: "system",
+                runId: existingRun.runId,
+                previousState: existingRun.state,
+                resultingState: "blocked",
+                revision: resultingRevision,
+                summary: "Local Ollama execution blocked by the kill switch.",
+                occurredAt: blockedAt,
+              }),
+            ],
+          };
+
+          await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+          return {
+            replayed: false,
+            run: blockedRun,
+            responseStatus: 409,
+            errorCode: "kill_switch_blocked",
+            safeErrorMessage:
+              "Execution was blocked by the private-alpha kill switch.",
+          };
+        }
+
+        const availability = await ollamaClient.getAvailability();
+        if (!availability.providerAvailable || !availability.modelAvailable) {
+          const blockedAt = nowIso();
+          const resultingRevision = existingRun.revision + 1;
+          const errorCode = availability.errorCode ?? "ollama_unavailable";
+          const safeErrorMessage =
+            availability.safeErrorMessage ??
+            (availability.providerAvailable
+              ? "The required local Ollama model is not installed."
+              : "Local Ollama is unavailable on the fixed loopback endpoint.");
+          const blockedRun: PrivateAlphaRunRecord = {
+            ...existingRun,
+            updatedAt: blockedAt,
+            state: "blocked",
+            revision: resultingRevision,
+            execution: buildBlockedExecutionRecord({
+              run: existingRun,
+              idempotencyKeyHash,
+              blockedAt,
+              previousRevision: existingRun.revision,
+              runningRevision: null,
+              resultingRevision,
+              errorCode:
+                errorCode === "ollama_model_missing"
+                  ? "ollama_model_missing"
+                  : "ollama_unavailable",
+              safeErrorMessage,
+            }),
+            auditEvents: [
+              ...existingRun.auditEvents,
+              buildAuditEvent({
+                eventType: "execution.blocked",
+                actor: "system",
+                runId: existingRun.runId,
+                previousState: existingRun.state,
+                resultingState: "blocked",
+                revision: resultingRevision,
+                summary: "Local Ollama execution blocked before provider generation.",
+                occurredAt: blockedAt,
+              }),
+            ],
+          };
+
+          await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+          return {
+            replayed: false,
+            run: blockedRun,
+            responseStatus:
+              errorCode === "ollama_timeout" ? 504 : 503,
+            errorCode:
+              errorCode === "ollama_model_missing"
+                ? "ollama_model_missing"
+                : "ollama_unavailable",
+            safeErrorMessage,
+          };
+        }
+
+        const transitionToExecuting = assertPrivateAlphaTransition(
+          existingRun.state,
+          "execute"
+        );
+        if (!transitionToExecuting.ok) {
+          throw new PrivateAlphaStoreError(409, transitionToExecuting.message);
+        }
+
+        const startedAt = nowIso();
+        const executingRecord = buildExecutingExecutionRecord({
+          run: existingRun,
+          idempotencyKeyHash,
+          startedAt,
+        });
+        const executingRun: PrivateAlphaRunRecord = {
+          ...existingRun,
+          updatedAt: startedAt,
+          state: "executing",
+          revision: executingRecord.runningRevision ?? existingRun.revision,
+          execution: executingRecord,
+          auditEvents: [
+            ...existingRun.auditEvents,
+            buildAuditEvent({
+              eventType: "execution.started",
+              actor: "system",
+              runId: existingRun.runId,
+              previousState: existingRun.state,
+              resultingState: "executing",
+              revision: executingRecord.runningRevision ?? existingRun.revision,
+              summary: "Local Ollama execution started.",
+              occurredAt: startedAt,
+            }),
+          ],
+        };
+
+        await writeJsonFileAtomically(runAbsolutePath, executingRun);
+
+        const killSwitchBeforeChat = await readSafeKillSwitchState(paths);
+        if (killSwitchBeforeChat.killSwitchEngaged) {
+          const blockedAt = nowIso();
+          const resultingRevision = executingRun.revision + 1;
+          const blockedRun: PrivateAlphaRunRecord = {
+            ...executingRun,
+            updatedAt: blockedAt,
+            state: "blocked",
+            revision: resultingRevision,
+            execution: buildBlockedExecutionRecord({
+              run: executingRun,
+              idempotencyKeyHash,
+              blockedAt,
+              previousRevision: executingRun.execution?.previousRevision ?? existingRun.revision,
+              runningRevision: executingRun.execution?.runningRevision ?? executingRun.revision,
+              resultingRevision,
+              errorCode: "kill_switch_blocked",
+              safeErrorMessage:
+                "Execution was blocked by the private-alpha kill switch.",
+            }),
+            auditEvents: [
+              ...executingRun.auditEvents,
+              buildAuditEvent({
+                eventType: "execution.blocked",
+                actor: "system",
+                runId: executingRun.runId,
+                previousState: executingRun.state,
+                resultingState: "blocked",
+                revision: resultingRevision,
+                summary: "Local Ollama execution blocked by the kill switch.",
+                occurredAt: blockedAt,
+              }),
+            ],
+          };
+
+          await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+          return {
+            replayed: false,
+            run: blockedRun,
+            responseStatus: 409,
+            errorCode: "kill_switch_blocked",
+            safeErrorMessage:
+              "Execution was blocked by the private-alpha kill switch.",
+          };
+        }
+
+        try {
+          const generated = await ollamaClient.generateApprovedText({
+            approvedRequestText: existingRun.request.normalizedRequestText,
+            model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+            maximumOutputTokens: existingRun.request.maximumOutputTokens,
+          });
+          const completedAt = nowIso();
+          const resultingRevision = executingRun.revision + 1;
+          const transitionToSucceeded = assertPrivateAlphaTransition(
+            executingRun.state,
+            "succeed"
+          );
+          if (!transitionToSucceeded.ok) {
+            throw new PrivateAlphaStoreError(409, transitionToSucceeded.message);
+          }
+
+          const succeededRun: PrivateAlphaRunRecord = {
+            ...executingRun,
+            updatedAt: completedAt,
+            state: "succeeded",
+            revision: resultingRevision,
+            execution: buildSucceededExecutionRecord({
+              run: executingRun,
+              completedAt,
+              resultingRevision,
+              outputText: generated.outputText,
+              doneReason: generated.doneReason,
+              totalDurationNanoseconds: generated.totalDurationNanoseconds,
+              loadDurationNanoseconds: generated.loadDurationNanoseconds,
+              promptEvalCount: generated.promptEvalCount,
+              evalCount: generated.evalCount,
+            }),
+            auditEvents: [
+              ...executingRun.auditEvents,
+              buildAuditEvent({
+                eventType: "execution.succeeded",
+                actor: "system",
+                runId: executingRun.runId,
+                previousState: executingRun.state,
+                resultingState: "succeeded",
+                revision: resultingRevision,
+                summary: "Local Ollama execution succeeded and output was persisted.",
+                occurredAt: completedAt,
+              }),
+            ],
+          };
+
+          await writeJsonFileAtomically(runAbsolutePath, succeededRun);
+          return {
+            replayed: false,
+            run: succeededRun,
+            responseStatus: 200,
+            errorCode: null,
+            safeErrorMessage: null,
+          };
+        } catch (error) {
+          const isKnownProviderError = error instanceof PrivateAlphaOllamaError;
+          const providerErrorCode =
+            error instanceof PrivateAlphaOllamaError
+              ? error.code === "kill_switch_blocked"
+                ? "ollama_http_error"
+                : error.code
+              : "ollama_http_error";
+          const safeProviderMessage =
+            error instanceof PrivateAlphaOllamaError
+              ? error.safeMessage
+              : "Local Ollama execution failed unexpectedly.";
+
+          const failedAt = nowIso();
+          const transitionToFailed = assertPrivateAlphaTransition(
+            executingRun.state,
+            "fail"
+          );
+          if (!transitionToFailed.ok) {
+            throw new PrivateAlphaStoreError(409, transitionToFailed.message);
+          }
+
+          const resultingRevision = executingRun.revision + 1;
+          const failedRun: PrivateAlphaRunRecord = {
+            ...executingRun,
+            updatedAt: failedAt,
+            state: "failed",
+            revision: resultingRevision,
+            execution: buildFailedExecutionRecord({
+              run: executingRun,
+              failedAt,
+              resultingRevision,
+              errorCode: providerErrorCode,
+              safeErrorMessage: safeProviderMessage,
+            }),
+            auditEvents: [
+              ...executingRun.auditEvents,
+              buildAuditEvent({
+                eventType: "execution.failed",
+                actor: "system",
+                runId: executingRun.runId,
+                previousState: executingRun.state,
+                resultingState: "failed",
+                revision: resultingRevision,
+                summary: `Local Ollama execution failed with ${providerErrorCode}.`,
+                occurredAt: failedAt,
+              }),
+            ],
+          };
+
+          await writeJsonFileAtomically(runAbsolutePath, failedRun);
+
+          const failureResponse = isKnownProviderError
+            ? buildExecutionFailureResponse(
+                failedRun.execution?.errorCode ?? "ollama_http_error",
+                failedRun.execution?.safeErrorMessage ??
+                  "Local Ollama execution failed unexpectedly."
+              )
+            : {
+                errorCode: failedRun.execution?.errorCode ?? "ollama_http_error",
+                safeErrorMessage:
+                  failedRun.execution?.safeErrorMessage ??
+                  "Local Ollama execution failed unexpectedly.",
+                responseStatus: 500 as const,
+              };
+
+          return {
+            replayed: false,
+            run: failedRun,
+            responseStatus: failureResponse.responseStatus,
+            errorCode: failureResponse.errorCode,
+            safeErrorMessage: failureResponse.safeErrorMessage,
+          };
+        }
+      });
+    },
   };
 }
 
 export function createPrivateAlphaStoreForTesting(
-  testSuffix: string
+  testSuffix: string,
+  options: Omit<PrivateAlphaStoreOptions, "dataRootLabel"> = {}
 ): PrivateAlphaStore {
   return createPrivateAlphaStore({
+    ...options,
     dataRootLabel: buildPrivateAlphaTestingDataRootLabel(testSuffix),
   });
 }

@@ -5,7 +5,14 @@ export const PRIVATE_ALPHA_INITIAL_RUN_STATE = "awaiting_approval" as const;
 export const PRIVATE_ALPHA_TRANSITION_TABLE: Readonly<
   Record<
     PrivateAlphaRunState,
-    Readonly<Partial<Record<"approve" | "cancel" | "block", PrivateAlphaRunState>>>
+    Readonly<
+      Partial<
+        Record<
+          "approve" | "cancel" | "execute" | "succeed" | "fail" | "block",
+          PrivateAlphaRunState
+        >
+      >
+    >
   >
 > = {
   awaiting_approval: {
@@ -15,8 +22,16 @@ export const PRIVATE_ALPHA_TRANSITION_TABLE: Readonly<
   },
   approved: {
     cancel: "canceled",
+    execute: "executing",
     block: "blocked",
   },
+  executing: {
+    succeed: "succeeded",
+    fail: "failed",
+    block: "blocked",
+  },
+  succeeded: {},
+  failed: {},
   canceled: {},
   blocked: {},
 } as const;
@@ -24,6 +39,9 @@ export const PRIVATE_ALPHA_TRANSITION_TABLE: Readonly<
 export type PrivateAlphaStateTransitionAction =
   | "approve"
   | "cancel"
+  | "execute"
+  | "succeed"
+  | "fail"
   | "block";
 
 export type PrivateAlphaStateTransitionResult =

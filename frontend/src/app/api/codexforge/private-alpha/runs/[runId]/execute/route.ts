@@ -8,6 +8,12 @@ import { PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE } from "@/lib/codexforge/private-al
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+type PrivateAlphaRunRouteContext = {
+  params: Promise<{
+    runId: string;
+  }>;
+};
+
 const store = createPrivateAlphaStore({
   runtimeProfile: PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE,
 });
@@ -24,17 +30,10 @@ function toErrorResponse(error: unknown) {
   return failure(500, "Unexpected private-alpha server error.");
 }
 
-export async function GET(request: Request) {
-  try {
-    const url = new URL(request.url);
-    const runs = await store.listRuns(url.searchParams.get("limit"));
-    return NextResponse.json({ ok: true, runs });
-  } catch (error) {
-    return toErrorResponse(error);
-  }
-}
-
-export async function POST(request: Request) {
+export async function POST(
+  request: Request,
+  context: PrivateAlphaRunRouteContext
+) {
   let body: unknown;
 
   try {
@@ -44,19 +43,25 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await store.createRun(
+    const { runId } = await context.params;
+    const result = await store.executeRun(
+      runId,
       body,
       request.headers.get("Idempotency-Key")
     );
 
-    return NextResponse.json(
-      {
-        ok: true,
-        created: result.created,
-        run: result.run,
-      },
-      { status: result.created ? 201 : 200 }
-    );
+    if (result.responseStatus !== 200) {
+      return failure(
+        result.responseStatus,
+        result.safeErrorMessage ?? "Unable to execute the private-alpha run."
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      replayed: result.replayed,
+      run: result.run,
+    });
   } catch (error) {
     return toErrorResponse(error);
   }

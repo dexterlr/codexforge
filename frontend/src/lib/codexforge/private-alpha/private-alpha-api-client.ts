@@ -3,6 +3,7 @@ import type {
   PrivateAlphaCancellationInput,
   PrivateAlphaCreateRunInput,
   PrivateAlphaCreateRunResult,
+  PrivateAlphaExecuteInput,
   PrivateAlphaRunRecord,
   PrivateAlphaRunSummary,
   PrivateAlphaStatus,
@@ -41,6 +42,12 @@ type PrivateAlphaOperation =
       kind: "cancel-run";
       runId: string;
       input: PrivateAlphaCancellationInput;
+    }>
+  | Readonly<{
+      kind: "execute-run";
+      runId: string;
+      input: PrivateAlphaExecuteInput;
+      idempotencyKey: string;
     }>;
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -159,6 +166,14 @@ function assertApprovedTarget(target: string): string {
   return target;
 }
 
+function buildIdempotencyHeaders(operation: {
+  idempotencyKey: string;
+}): Record<string, string> {
+  return {
+    "Idempotency-Key": operation.idempotencyKey,
+  };
+}
+
 function buildTarget(operation: PrivateAlphaOperation): string {
   switch (operation.kind) {
     case "status":
@@ -192,6 +207,12 @@ function buildTarget(operation: PrivateAlphaOperation): string {
           operation.runId
         )}/cancel`
       );
+    case "execute-run":
+      return assertApprovedTarget(
+        `${PRIVATE_ALPHA_API_BASE_PATH}/runs/${buildValidatedRunSegment(
+          operation.runId
+        )}/execute`
+      );
   }
 }
 
@@ -208,7 +229,7 @@ function buildRequestInit(operation: PrivateAlphaOperation): RequestInit {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Idempotency-Key": operation.idempotencyKey,
+          ...buildIdempotencyHeaders(operation),
         },
         body: JSON.stringify(operation.input),
       };
@@ -218,6 +239,15 @@ function buildRequestInit(operation: PrivateAlphaOperation): RequestInit {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+        },
+        body: JSON.stringify(operation.input),
+      };
+    case "execute-run":
+      return {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...buildIdempotencyHeaders(operation),
         },
         body: JSON.stringify(operation.input),
       };
@@ -333,5 +363,21 @@ export function cancelPrivateAlphaRun(
     },
     readRun,
     "Unable to cancel the private-alpha run."
+  );
+}
+
+export function executePrivateAlphaRun(
+  runId: string,
+  input: PrivateAlphaExecuteInput
+): Promise<PrivateAlphaRunRecord> {
+  return requestPrivateAlpha(
+    {
+      kind: "execute-run",
+      runId,
+      input,
+      idempotencyKey: buildClientIdempotencyKey(),
+    },
+    readRun,
+    "Unable to execute the private-alpha run."
   );
 }

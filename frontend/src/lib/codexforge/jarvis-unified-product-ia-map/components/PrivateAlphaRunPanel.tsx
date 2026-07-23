@@ -9,12 +9,17 @@ import type {
 } from "@/lib/codexforge/private-alpha";
 import {
   PRIVATE_ALPHA_DATA_ROOT_LABEL,
+  PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+  PRIVATE_ALPHA_PRODUCTION_MODEL,
+  PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+  PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL,
   PRIVATE_ALPHA_SECRET_GUIDANCE,
 } from "@/lib/codexforge/private-alpha";
 import {
   approvePrivateAlphaRun,
   cancelPrivateAlphaRun,
   createPrivateAlphaRun,
+  executePrivateAlphaRun,
   fetchPrivateAlphaRun,
   fetchPrivateAlphaStatus,
   listPrivateAlphaRuns,
@@ -26,9 +31,12 @@ type PrivateAlphaLoadState = "loading" | "ready" | "error";
 function resolveStateClass(state: string): string {
   switch (state) {
     case "approved":
-      return styles.metricStateReady;
     case "awaiting_approval":
       return styles.metricStateApproval;
+    case "succeeded":
+      return styles.metricStateReady;
+    case "failed":
+    case "blocked":
     case "canceled":
       return styles.metricStateBlocked;
     default:
@@ -44,6 +52,47 @@ function formatKillSwitchSources(status: PrivateAlphaStatus | null): string {
   return `Engaged via ${status.killSwitchSources.join(" + ")}.`;
 }
 
+function isLocalExecutableRun(run: PrivateAlphaRunRecord | null): boolean {
+  if (!run) {
+    return false;
+  }
+
+  return (
+    run.request.providerPreference === PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID &&
+    run.request.modelPreferenceLabel === PRIVATE_ALPHA_PRODUCTION_MODEL &&
+    run.request.executionMode === PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
+  );
+}
+
+function formatNanosecondDuration(durationNanoseconds: number | null): string | null {
+  if (durationNanoseconds === null) {
+    return null;
+  }
+
+  if (durationNanoseconds >= 1_000_000_000) {
+    return `${(durationNanoseconds / 1_000_000_000).toFixed(2)}s`;
+  }
+
+  if (durationNanoseconds >= 1_000_000) {
+    return `${(durationNanoseconds / 1_000_000).toFixed(0)}ms`;
+  }
+
+  return `${durationNanoseconds}ns`;
+}
+
+function buildExecutionOutcomeMessage(run: PrivateAlphaRunRecord): string {
+  switch (run.state) {
+    case "succeeded":
+      return "Local Ollama execution finished and output was persisted locally.";
+    case "failed":
+      return "Local Ollama execution finished with a persisted failure record.";
+    case "blocked":
+      return "A persisted blocked execution record is now loaded.";
+    default:
+      return "Private-alpha run state refreshed.";
+  }
+}
+
 export function PrivateAlphaRunPanel() {
   const [status, setStatus] = useState<PrivateAlphaStatus | null>(null);
   const [runs, setRuns] = useState<readonly PrivateAlphaRunSummary[]>([]);
@@ -51,11 +100,11 @@ export function PrivateAlphaRunPanel() {
   const [loadState, setLoadState] = useState<PrivateAlphaLoadState>("loading");
   const [requestText, setRequestText] = useState("");
   const [capability, setCapability] = useState<PrivateAlphaCapability>("text");
-  const [modelPreferenceLabel, setModelPreferenceLabel] = useState("");
   const [maximumOutputTokens, setMaximumOutputTokens] = useState("512");
   const [approvalAcknowledged, setApprovalAcknowledged] = useState(false);
+  const [executionAcknowledged, setExecutionAcknowledged] = useState(false);
   const [cancellationReason, setCancellationReason] = useState(
-    "Operator canceled this private-alpha run."
+    "Operator canceled this private-alpha run before execution."
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -87,7 +136,7 @@ export function PrivateAlphaRunPanel() {
       setErrorMessage(
         error instanceof Error && error.message
           ? error.message
-          : "Unable to load private-alpha status."
+          : "Unable to load private-alpha local execution status."
       );
     }
   }
@@ -98,6 +147,7 @@ export function PrivateAlphaRunPanel() {
 
   useEffect(() => {
     setApprovalAcknowledged(false);
+    setExecutionAcknowledged(false);
   }, [currentRun?.runId]);
 
   async function handleCreateRun(): Promise<void> {
@@ -109,7 +159,7 @@ export function PrivateAlphaRunPanel() {
       const result = await createPrivateAlphaRun({
         requestText,
         capability,
-        modelPreferenceLabel: modelPreferenceLabel.trim() || null,
+        modelPreferenceLabel: PRIVATE_ALPHA_PRODUCTION_MODEL,
         maximumOutputTokens: Number(maximumOutputTokens),
       });
       await refreshPanel(result.run.runId);
@@ -159,6 +209,43 @@ export function PrivateAlphaRunPanel() {
     }
   }
 
+  async function handleExecute(): Promise<void> {
+    if (!currentRun) {
+      return;
+    }
+
+    setActionInFlight("execute");
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    try {
+      const nextRun = await executePrivateAlphaRun(currentRun.runId, {
+        execute: true,
+        acknowledgement: true,
+        approvalScopeHash: currentRun.approvalScopeHash,
+        expectedRevision: currentRun.revision,
+      });
+
+      await refreshPanel(nextRun.runId);
+      setSuccessMessage(buildExecutionOutcomeMessage(nextRun));
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Unable to execute the private-alpha run.";
+
+      try {
+        await refreshPanel(currentRun.runId);
+      } catch {
+        setLoadState("error");
+      }
+
+      setErrorMessage(message);
+    } finally {
+      setActionInFlight(null);
+    }
+  }
+
   async function handleCancel(): Promise<void> {
     if (!currentRun) {
       return;
@@ -187,45 +274,81 @@ export function PrivateAlphaRunPanel() {
     }
   }
 
+  const currentExecution = currentRun?.execution ?? null;
+  const localExecutableRun = isLocalExecutableRun(currentRun);
   const canApprove = currentRun?.state === "awaiting_approval";
   const canCancel =
     currentRun?.state === "awaiting_approval" || currentRun?.state === "approved";
+  const canExecute =
+    currentRun?.state === "approved" &&
+    localExecutableRun &&
+    executionAcknowledged &&
+    status?.executionAllowed === true &&
+    actionInFlight === null;
+
+  const executionDuration = formatNanosecondDuration(
+    currentExecution?.totalDurationNanoseconds ?? null
+  );
 
   return (
-    <section className={styles.panel} aria-label="Private alpha run foundation">
+    <section className={styles.panel} aria-label="Private alpha local execution">
       <div className={styles.panelHeader}>
         <div>
           <p className={styles.panelEyebrow}>Private Alpha</p>
-          <h2 className={styles.panelTitle}>Persisted run and manual approval</h2>
+          <h2 className={styles.panelTitle}>Manual-approved local execution</h2>
         </div>
-        <span className={`${styles.panelBadge} ${styles.metricStateBlocked}`}>
-          Provider execution remains locked
+        <span
+          className={`${styles.panelBadge} ${
+            status?.executionAllowed ? styles.metricStateReady : styles.metricStateBlocked
+          }`}
+        >
+          {status?.executionAllowed ? "Execution allowed" : "Execution blocked"}
         </span>
       </div>
 
       <p className={styles.panelBody}>
-        Approval records this exact scope locally. No provider call is made in
-        this slice. No prompt is transmitted externally.
+        Local provider: Ollama. Model: {PRIVATE_ALPHA_PRODUCTION_MODEL}. The
+        approved prompt is sent only to local Ollama. No cloud provider is
+        contacted.
       </p>
 
       <div className={styles.workspaceMeta}>
         <span className={styles.metaPill}>{PRIVATE_ALPHA_SECRET_GUIDANCE}</span>
+        <span className={styles.metaPill}>One execution attempt per run</span>
+        <span className={styles.metaPill}>Kill switch blocks execution</span>
+        <span className={styles.metaPill}>Output is persisted locally</span>
         <span className={styles.metaPill}>
           {`Local persistence: ${status?.dataRootLabel ?? PRIVATE_ALPHA_DATA_ROOT_LABEL}`}
         </span>
-        <span className={styles.metaPill}>Next slice: one server-only provider call</span>
       </div>
 
       <div className={styles.summaryGrid}>
         <article className={styles.summaryCard}>
-          <p className={styles.panelEyebrow}>Provider execution</p>
+          <p className={styles.panelEyebrow}>Provider</p>
+          <h3 className={styles.placeholderTitle}>{PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL}</h3>
+          <p className={styles.placeholderSummary}>Local provider: Ollama</p>
+        </article>
+        <article className={styles.summaryCard}>
+          <p className={styles.panelEyebrow}>Model</p>
+          <h3 className={styles.placeholderTitle}>{PRIVATE_ALPHA_PRODUCTION_MODEL}</h3>
+          <p className={styles.placeholderSummary}>Fixed production model</p>
+        </article>
+        <article className={styles.summaryCard}>
+          <p className={styles.panelEyebrow}>Provider availability</p>
           <h3 className={styles.placeholderTitle}>
-            {status?.providerExecution ?? "unavailable"}
+            {status?.providerAvailable ? "available" : "unavailable"}
           </h3>
           <p className={styles.placeholderSummary}>
-            {status?.executionAllowed === false
-              ? "executionAllowed false"
-              : "Execution state unavailable."}
+            Browser never calls port 11434 directly.
+          </p>
+        </article>
+        <article className={styles.summaryCard}>
+          <p className={styles.panelEyebrow}>Model availability</p>
+          <h3 className={styles.placeholderTitle}>
+            {status?.modelAvailable ? "installed" : "missing"}
+          </h3>
+          <p className={styles.placeholderSummary}>
+            Required model: {PRIVATE_ALPHA_PRODUCTION_MODEL}
           </p>
         </article>
         <article className={styles.summaryCard}>
@@ -243,21 +366,14 @@ export function PrivateAlphaRunPanel() {
           <p className={styles.placeholderSummary}>
             {currentRun
               ? `revision ${currentRun.revision}`
-              : "Create a run to persist local approval scope."}
-          </p>
-        </article>
-        <article className={styles.summaryCard}>
-          <p className={styles.panelEyebrow}>Recent runs</p>
-          <h3 className={styles.placeholderTitle}>{runs.length}</h3>
-          <p className={styles.placeholderSummary}>
-            Newest-first persisted local summaries.
+              : "Create a run to persist an approval scope."}
           </p>
         </article>
       </div>
 
       {loadState === "loading" ? (
         <div className={styles.privateAlphaNotice}>
-          Loading private-alpha foundation status...
+          Loading private-alpha local execution status...
         </div>
       ) : null}
 
@@ -279,8 +395,8 @@ export function PrivateAlphaRunPanel() {
         <article className={styles.summaryCard}>
           <div className={styles.placeholderHeader}>
             <div>
-              <p className={styles.panelEyebrow}>Create approval request</p>
-              <h3 className={styles.placeholderTitle}>Persist a private-alpha run</h3>
+              <p className={styles.panelEyebrow}>Create run</p>
+              <h3 className={styles.placeholderTitle}>Persist an approval request</h3>
             </div>
             <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
               local only
@@ -295,7 +411,7 @@ export function PrivateAlphaRunPanel() {
                 value={requestText}
                 onChange={(event) => setRequestText(event.target.value)}
                 rows={7}
-                placeholder="Describe the text or code task for local private-alpha review."
+                placeholder="Describe the text or code task for manual-approved local execution."
               />
             </label>
 
@@ -315,13 +431,12 @@ export function PrivateAlphaRunPanel() {
               </label>
 
               <label className={styles.privateAlphaField}>
-                <span className={styles.athenaInputLabel}>Model preference label</span>
+                <span className={styles.athenaInputLabel}>Model</span>
                 <input
                   className={styles.privateAlphaInput}
                   type="text"
-                  value={modelPreferenceLabel}
-                  onChange={(event) => setModelPreferenceLabel(event.target.value)}
-                  placeholder="Optional label"
+                  value={PRIVATE_ALPHA_PRODUCTION_MODEL}
+                  readOnly
                 />
               </label>
 
@@ -364,8 +479,8 @@ export function PrivateAlphaRunPanel() {
         <article className={styles.summaryCard}>
           <div className={styles.placeholderHeader}>
             <div>
-              <p className={styles.panelEyebrow}>Approval scope</p>
-              <h3 className={styles.placeholderTitle}>Exact scope and local approval</h3>
+              <p className={styles.panelEyebrow}>Approval and execution</p>
+              <h3 className={styles.placeholderTitle}>Exact scope, separate actions</h3>
             </div>
             <span
               className={`${styles.panelBadge} ${
@@ -396,15 +511,13 @@ export function PrivateAlphaRunPanel() {
                   {`max tokens: ${currentRun.approvalScope.maximumOutputTokens}`}
                 </span>
                 <span className={styles.metaPill}>
-                  {currentRun.approvalScope.retentionMode}
-                </span>
-                <span className={styles.metaPill}>
                   {currentRun.approvalScope.executionMode}
                 </span>
               </div>
               <div className={styles.privateAlphaCodeBlock}>
                 {`approvalScopeHash: ${currentRun.approvalScopeHash}\nnormalizedRequestHash: ${currentRun.approvalScope.normalizedRequestHash}`}
               </div>
+
               <label className={styles.privateAlphaToggle}>
                 <input
                   type="checkbox"
@@ -413,10 +526,35 @@ export function PrivateAlphaRunPanel() {
                   disabled={!canApprove || actionInFlight !== null}
                 />
                 <span className={styles.placeholderSummary}>
-                  I acknowledge this exact scope and understand provider
-                  execution remains unavailable until the provider execution slice.
+                  Manual approval records this exact local Ollama execution scope.
+                  Execution still requires a separate explicit operator action.
                 </span>
               </label>
+
+              <label className={styles.privateAlphaToggle}>
+                <input
+                  type="checkbox"
+                  checked={executionAcknowledged}
+                  onChange={(event) => setExecutionAcknowledged(event.target.checked)}
+                  disabled={
+                    currentRun.state !== "approved" ||
+                    actionInFlight !== null ||
+                    !localExecutableRun
+                  }
+                />
+                <span className={styles.placeholderSummary}>
+                  I acknowledge that the approved prompt is sent only to local
+                  Ollama, no cloud provider is contacted, and this run allows
+                  one execution attempt.
+                </span>
+              </label>
+
+              {!localExecutableRun ? (
+                <div className={styles.privateAlphaNotice}>
+                  Legacy Slice A runs remain readable but cannot execute.
+                </div>
+              ) : null}
+
               <label className={styles.privateAlphaField}>
                 <span className={styles.athenaInputLabel}>Cancellation reason</span>
                 <input
@@ -427,6 +565,7 @@ export function PrivateAlphaRunPanel() {
                   placeholder="Why should this run be canceled?"
                 />
               </label>
+
               <div className={styles.privateAlphaButtonRow}>
                 <button
                   className={styles.privateAlphaButton}
@@ -437,6 +576,16 @@ export function PrivateAlphaRunPanel() {
                   {actionInFlight === "approve"
                     ? "Recording manual approval..."
                     : "Record manual approval"}
+                </button>
+                <button
+                  className={styles.privateAlphaButton}
+                  type="button"
+                  onClick={() => void handleExecute()}
+                  disabled={!canExecute}
+                >
+                  {actionInFlight === "execute"
+                    ? "Executing once on local Ollama..."
+                    : "Execute once on local Ollama"}
                 </button>
                 <button
                   className={styles.privateAlphaButtonDanger}
@@ -458,6 +607,83 @@ export function PrivateAlphaRunPanel() {
       </div>
 
       <div className={styles.summaryGrid}>
+        <article className={styles.summaryCard}>
+          <div className={styles.placeholderHeader}>
+            <div>
+              <p className={styles.panelEyebrow}>Execution record</p>
+              <h3 className={styles.placeholderTitle}>Persisted output and safe failure details</h3>
+            </div>
+            <span
+              className={`${styles.panelBadge} ${
+                currentExecution
+                  ? resolveStateClass(currentExecution.status)
+                  : styles.metricStateSecondary
+              }`}
+            >
+              {currentExecution?.status ?? "no execution"}
+            </span>
+          </div>
+
+          {currentRun ? (
+            <div className={styles.privateAlphaStack}>
+              <div className={styles.workspaceMeta}>
+                <span className={styles.metaPill}>
+                  {`provider: ${PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL}`}
+                </span>
+                <span className={styles.metaPill}>
+                  {`model: ${PRIVATE_ALPHA_PRODUCTION_MODEL}`}
+                </span>
+                {currentExecution?.promptEvalCount !== null &&
+                currentExecution?.promptEvalCount !== undefined ? (
+                  <span className={styles.metaPill}>
+                    {`prompt tokens: ${currentExecution.promptEvalCount}`}
+                  </span>
+                ) : null}
+                {currentExecution?.evalCount !== null &&
+                currentExecution?.evalCount !== undefined ? (
+                  <span className={styles.metaPill}>
+                    {`output tokens: ${currentExecution.evalCount}`}
+                  </span>
+                ) : null}
+                {executionDuration ? (
+                  <span className={styles.metaPill}>{`duration: ${executionDuration}`}</span>
+                ) : null}
+              </div>
+
+              {currentRun.state === "executing" ? (
+                <p className={styles.placeholderSummary}>
+                  Execution was persisted as running before the local provider call.
+                </p>
+              ) : null}
+
+              {currentRun.state === "succeeded" &&
+              currentExecution &&
+              currentExecution.outputText !== null ? (
+                <div className={styles.privateAlphaCodeBlock}>
+                  {currentExecution.outputText}
+                </div>
+              ) : null}
+
+              {(currentRun.state === "failed" || currentRun.state === "blocked") &&
+              currentExecution?.safeErrorMessage ? (
+                <div className={`${styles.privateAlphaNotice} ${styles.privateAlphaNoticeError}`}>
+                  {currentExecution.safeErrorMessage}
+                </div>
+              ) : null}
+
+              {currentExecution?.outputSha256 ? (
+                <div className={styles.privateAlphaCodeBlock}>
+                  {`outputSha256: ${currentExecution.outputSha256}`}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <p className={styles.placeholderSummary}>
+              Select a persisted run to inspect execution output, metrics, or safe failure details.
+            </p>
+          )}
+        </article>
+
         <article className={styles.summaryCard}>
           <div className={styles.placeholderHeader}>
             <div>
@@ -503,51 +729,51 @@ export function PrivateAlphaRunPanel() {
             </p>
           )}
         </article>
-
-        <article className={styles.summaryCard}>
-          <div className={styles.placeholderHeader}>
-            <div>
-              <p className={styles.panelEyebrow}>Persisted audit timeline</p>
-              <h3 className={styles.placeholderTitle}>Append-only local audit events</h3>
-            </div>
-            <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
-              real timestamps
-            </span>
-          </div>
-
-          {currentRun ? (
-            <div className={styles.privateAlphaTimeline}>
-              {currentRun.auditEvents.map((event) => (
-                <article key={event.eventId} className={styles.railCard}>
-                  <div className={styles.placeholderHeader}>
-                    <div>
-                      <p className={styles.panelEyebrow}>{event.eventType}</p>
-                      <h4 className={styles.railTitle}>{event.summary}</h4>
-                    </div>
-                    <span
-                      className={`${styles.panelBadge} ${resolveStateClass(
-                        event.resultingState
-                      )}`}
-                    >
-                      {event.resultingState}
-                    </span>
-                  </div>
-                  <p className={styles.railBody}>
-                    {`actor ${event.actor} | revision ${event.revision}`}
-                  </p>
-                  <p className={styles.railFooter}>
-                    {`${event.occurredAt} | ${event.previousState ?? "none"} -> ${event.resultingState}`}
-                  </p>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className={styles.placeholderSummary}>
-              The audit timeline appears once a persisted run is selected.
-            </p>
-          )}
-        </article>
       </div>
+
+      <article className={styles.summaryCard}>
+        <div className={styles.placeholderHeader}>
+          <div>
+            <p className={styles.panelEyebrow}>Persisted audit timeline</p>
+            <h3 className={styles.placeholderTitle}>Append-only local audit events</h3>
+          </div>
+          <span className={`${styles.panelBadge} ${styles.metricStateReady}`}>
+            real timestamps
+          </span>
+        </div>
+
+        {currentRun ? (
+          <div className={styles.privateAlphaTimeline}>
+            {currentRun.auditEvents.map((event) => (
+              <article key={event.eventId} className={styles.railCard}>
+                <div className={styles.placeholderHeader}>
+                  <div>
+                    <p className={styles.panelEyebrow}>{event.eventType}</p>
+                    <h4 className={styles.railTitle}>{event.summary}</h4>
+                  </div>
+                  <span
+                    className={`${styles.panelBadge} ${resolveStateClass(
+                      event.resultingState
+                    )}`}
+                  >
+                    {event.resultingState}
+                  </span>
+                </div>
+                <p className={styles.railBody}>
+                  {`actor ${event.actor} | revision ${event.revision}`}
+                </p>
+                <p className={styles.railFooter}>
+                  {`${event.occurredAt} | ${event.previousState ?? "none"} -> ${event.resultingState}`}
+                </p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className={styles.placeholderSummary}>
+            The audit timeline appears once a persisted run is selected.
+          </p>
+        )}
+      </article>
     </section>
   );
 }
