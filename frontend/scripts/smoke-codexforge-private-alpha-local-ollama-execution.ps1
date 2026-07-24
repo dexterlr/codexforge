@@ -463,7 +463,7 @@ async function main() {
         "Chat request must include exactly one user message."
       );
       assert(payload.stream === false, "Chat request must disable streaming.");
-      assert(payload.think === false, "Chat request must disable think.");
+      assert(payload.think === "low", "Chat request must fix think to low.");
       assert(
         payload.options && payload.options.num_predict === 256,
         "Chat request must bind num_predict to the approved output limit."
@@ -658,8 +658,10 @@ async function main() {
   assert(executionResult.run.state === "succeeded", "Successful execution must persist succeeded state.");
   assert(
     executionResult.run.execution &&
-      executionResult.run.execution.outputText === "local ollama output",
-    "Successful output must be persisted."
+      executionResult.run.execution.outputText === "local ollama output" &&
+      executionResult.run.execution.outputText !== "not persisted" &&
+      !("thinking" in executionResult.run.execution),
+    "Successful output must persist only visible response text."
   );
   assert(
     executionResult.run.execution.outputSha256 ===
@@ -678,6 +680,10 @@ async function main() {
   assert(
     !localRunText.includes("private-alpha-local-exec-success-0001"),
     "Raw execution idempotency keys must never be persisted."
+  );
+  assert(
+    !JSON.stringify(executionResult.run).includes("not persisted"),
+    "Thinking must not appear in returned run records."
   );
   assert(!localRunText.includes("not persisted"), "Thinking must not be persisted.");
 
@@ -713,9 +719,10 @@ async function main() {
     executionResult.run.auditEvents.every(
       (event) =>
         !event.summary.includes("Summarize this local-only execution slice.") &&
-        !event.summary.includes("local ollama output")
+        !event.summary.includes("local ollama output") &&
+        !event.summary.includes("not persisted")
     ),
-    "Audit summaries must exclude prompt text and output text."
+    "Audit summaries must exclude prompt text, output text, and thinking text."
   );
 
   const concurrentLabel = storeModule.buildPrivateAlphaTestingDataRootLabel("slice-b-concurrent");
@@ -975,6 +982,7 @@ async function main() {
   );
 
   async function runFailureCase(testSuffix, harnessOptions, expectedState, expectedStatus, expectedCode) {
+    await resetDataRoot(storeModule.buildPrivateAlphaTestingDataRootLabel(testSuffix));
     const store = createLocalStore(testSuffix, createHarness(harnessOptions), harnessOptions.timeouts);
     const run = await store.createRun(
       {

@@ -761,6 +761,9 @@ export function PrivateAlphaRunPanel() {
                   <p className={styles.privateAlphaSecondaryText}>
                     Valid range {PRIVATE_ALPHA_MIN_OUTPUT_TOKENS}-
                     {PRIVATE_ALPHA_MAX_OUTPUT_TOKENS}. Current default is 512.
+                    GPT-OSS reasoning effort is fixed to low and uses part of
+                    the generation budget. Very small limits may finish without
+                    visible final text.
                   </p>
                 </div>
               </details>

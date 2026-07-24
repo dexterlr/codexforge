@@ -55,6 +55,7 @@ export const PRIVATE_ALPHA_EXECUTION_ERROR_CODES = [
   "ollama_timeout",
   "ollama_http_error",
   "ollama_malformed_response",
+  "ollama_empty_response",
   "ollama_output_too_large",
 ] as const;
 

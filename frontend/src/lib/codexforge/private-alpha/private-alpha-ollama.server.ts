@@ -11,10 +11,13 @@ import type { PrivateAlphaExecutionErrorCode } from "./private-alpha-types";
 export const PRIVATE_ALPHA_OLLAMA_ORIGIN = "http://127.0.0.1:11434";
 export const PRIVATE_ALPHA_OLLAMA_TAGS_PATH = "/api/tags";
 export const PRIVATE_ALPHA_OLLAMA_CHAT_PATH = "/api/chat";
+export const PRIVATE_ALPHA_OLLAMA_THINK_LEVEL = "low" as const;
 
 const PRIVATE_ALPHA_OLLAMA_AVAILABILITY_TIMEOUT_MS = 5_000;
 const PRIVATE_ALPHA_OLLAMA_GENERATION_TIMEOUT_MS = 240_000;
 const PRIVATE_ALPHA_OLLAMA_MAX_RESPONSE_BYTES = 262_144;
+const PRIVATE_ALPHA_OLLAMA_EMPTY_RESPONSE_SAFE_MESSAGE =
+  "Local Ollama completed without a visible final response. Create a new run with a larger output-token budget.";
 
 type PrivateAlphaFetchLike = typeof fetch;
 
@@ -88,6 +91,7 @@ function createOllamaError(
     | "ollama_timeout"
     | "ollama_http_error"
     | "ollama_malformed_response"
+    | "ollama_empty_response"
     | "ollama_output_too_large",
   safeMessage: string,
   status: PrivateAlphaOllamaFailureStatus
@@ -331,6 +335,14 @@ function parseGenerationResult(payload: unknown): PrivateAlphaOllamaGenerationRe
     );
   }
 
+  if (message.content.trim().length === 0) {
+    throw createOllamaError(
+      "ollama_empty_response",
+      PRIVATE_ALPHA_OLLAMA_EMPTY_RESPONSE_SAFE_MESSAGE,
+      503
+    );
+  }
+
   const doneReason = readOptionalBoundedString(
     payload.done_reason,
     PRIVATE_ALPHA_MAX_DONE_REASON_LENGTH
@@ -391,14 +403,21 @@ function createOllamaClient(
         };
       } catch (error) {
         if (error instanceof PrivateAlphaOllamaError) {
+          const errorCode =
+            error.code === "kill_switch_blocked" ||
+            error.code === "ollama_empty_response"
+              ? "ollama_unavailable"
+              : error.code;
+          const safeErrorMessage =
+            error.code === "ollama_empty_response"
+              ? "Local Ollama is unavailable on the fixed loopback endpoint."
+              : error.safeMessage;
+
           return {
             providerAvailable: false,
             modelAvailable: false,
-            errorCode:
-              error.code === "kill_switch_blocked"
-                ? "ollama_unavailable"
-                : error.code,
-            safeErrorMessage: error.safeMessage,
+            errorCode,
+            safeErrorMessage,
           };
         }
 
@@ -456,7 +475,7 @@ function createOllamaClient(
               },
             ],
             stream: false,
-            think: false,
+            think: PRIVATE_ALPHA_OLLAMA_THINK_LEVEL,
             options: {
               num_predict: input.maximumOutputTokens,
             },

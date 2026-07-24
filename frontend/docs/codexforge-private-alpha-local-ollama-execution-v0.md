@@ -1,11 +1,10 @@
 # CodexForge Private Alpha Local Ollama Execution v0
 
-This document describes Private Alpha Slice B.
+This document describes the current local Ollama execution contract for
+CodexForge Private Alpha.
 
-Slice B is the first real provider execution vertical slice for CodexForge
-Private Alpha. The slice is still local-only and still private-alpha scoped,
-but it now performs one real manually approved provider call through a
-server-only Node.js boundary.
+The slice is local-only and private-alpha scoped, and it performs one real
+manually approved provider call through a server-only Node.js boundary.
 
 ## Architecture
 
@@ -45,11 +44,14 @@ The server sends one non-streaming Ollama chat request with:
 - `model: "gpt-oss:20b"`
 - one user message containing only the persisted approved request text
 - `stream: false`
-- `think: false`
+- `think: "low"`
 - `options.num_predict` set to the approved `maximumOutputTokens`
 
 There is no hidden system prompt. There are no tools. Browser state is never
 transmitted. Approval commentary is never sent to the model.
+
+GPT-OSS reasoning effort is fixed server-side to `low`. The browser cannot
+change it.
 
 ## Approval Before Execution
 
@@ -128,6 +130,11 @@ Persisted execution metadata may include:
 The slice does not persist model thinking, tool calls, images, raw provider
 bodies, headers, credentials, or absolute filesystem paths.
 
+If Ollama returns `message.thinking`, that reasoning text remains inside the
+server-only provider boundary. It is never treated as final output, never
+persisted, never hashed, never added to audit summaries, and never exposed to
+the browser. Only `message.content` is eligible for output persistence.
+
 ## Failure Semantics
 
 The run state model now includes:
@@ -144,6 +151,7 @@ Bounded provider-facing execution codes include:
 - `ollama_timeout`
 - `ollama_http_error`
 - `ollama_malformed_response`
+- `ollama_empty_response`
 - `ollama_output_too_large`
 
 Safe audit summaries and safe error messages never contain:
@@ -159,6 +167,15 @@ the run is blocked and no chat call is made.
 
 If the provider call begins and then fails inside the bounded execution path,
 the run transitions to `failed` and no partial output is persisted.
+
+If `message.content` is empty or whitespace-only after generation completes,
+the run fails with `ollama_empty_response`. The response status is `503`, no
+output text or output hash is persisted, and the one allowed execution attempt
+is consumed. Operators must create a new run with a larger output-token budget
+to try again. There is no retry and no fallback provider.
+
+Existing historical succeeded records with empty output remain readable. They
+are not migrated, rewritten, or reclassified by this slice.
 
 ## No Cloud, No API Key
 

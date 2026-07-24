@@ -231,6 +231,7 @@ function isExecutionErrorCode(
     value === "ollama_timeout" ||
     value === "ollama_http_error" ||
     value === "ollama_malformed_response" ||
+    value === "ollama_empty_response" ||
     value === "ollama_output_too_large"
   );
 }
@@ -1153,7 +1154,8 @@ function buildExecutionFailureResponse(
 
   if (
     errorCode === "ollama_unavailable" ||
-    errorCode === "ollama_model_missing"
+    errorCode === "ollama_model_missing" ||
+    errorCode === "ollama_empty_response"
   ) {
     return {
       errorCode,
@@ -1244,6 +1246,7 @@ function buildFailedExecutionRecord(input: {
     | "ollama_timeout"
     | "ollama_http_error"
     | "ollama_malformed_response"
+    | "ollama_empty_response"
     | "ollama_output_too_large";
   safeErrorMessage: string;
 }): PrivateAlphaExecutionRecord {
