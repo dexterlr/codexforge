@@ -737,11 +737,15 @@ import {
   type AthenaProductUxActionRecord,
   listApprovalBridgeRequirements,
 } from "../athena-control-plane-model";
+import { AthenaLiveCommandCenterPanel } from "./AthenaLiveCommandCenterPanel";
 import { AthenaOperatorStatusPanel } from "./AthenaOperatorStatusPanel";
 import { PrivateAlphaRunPanel } from "./PrivateAlphaRunPanel";
 
+type AthenaCommandCenterDisplayMode = "live-product" | "legacy-preview";
+
 type AthenaCommandCenterPanelProps = Readonly<{
   commandCenter: AthenaCommandCenterModel;
+  displayMode?: AthenaCommandCenterDisplayMode;
 }>;
 
 function buildScopedItemKey(
@@ -790,7 +794,12 @@ function uniqueRecordsByString<T>(
 
 export function AthenaCommandCenterPanel({
   commandCenter,
+  displayMode = "legacy-preview",
 }: AthenaCommandCenterPanelProps) {
+  if (displayMode === "live-product") {
+    return <AthenaLiveCommandCenterPanel />;
+  }
+
   const productUx = commandCenter.productUx;
   const providerSlots = listModelProviderSlots();
   const providerReadinessSummary = buildProviderReadinessSummary();

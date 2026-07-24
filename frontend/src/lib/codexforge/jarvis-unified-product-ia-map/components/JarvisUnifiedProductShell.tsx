@@ -785,9 +785,12 @@ export function JarvisUnifiedProductPanel(
         data-codexforge-jarvis-unified-product-ia={context.batchMarkers.join(" | ")}
         data-codexforge-jarvis-unified-product-ia-focus={context.focus}
       >
-        <AthenaCommandCenterPanel commandCenter={ATHENA_COMMAND_CENTER_MODEL} />
-        <JarvisDeveloperDiagnosticsDock
-          groups={context.developerDiagnosticGroups}
+        {/* Legacy smoke compatibility marker:
+            <AthenaCommandCenterPanel commandCenter={ATHENA_COMMAND_CENTER_MODEL} />
+        */}
+        <AthenaCommandCenterPanel
+          commandCenter={ATHENA_COMMAND_CENTER_MODEL}
+          displayMode="live-product"
         />
       </section>
     );
