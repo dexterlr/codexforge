@@ -10,21 +10,32 @@ manually approved provider call through a server-only Node.js boundary.
 
 The execution flow is:
 
+API routes
+-> private-alpha store
+-> typed provider adapter
+-> Ollama adapter
+-> existing server-only Ollama client
+-> fixed loopback Ollama API
+
+The operator flow remains:
+
 1. Operator creates a run.
 2. The server persists the exact request, provider, model, retention mode, and
    execution mode.
 3. Operator records manual approval for that exact scope.
 4. Operator performs a second explicit execute action.
-5. The Node.js server validates gates, then calls local Ollama once.
-6. The run persists terminal output or a bounded terminal failure record.
-7. Append-only audit events persist the execution timeline.
+5. The Node.js server validates gates, then calls the typed provider adapter
+   once.
+6. The current adapter implementation delegates that call to local Ollama.
+7. The run persists terminal output or a bounded terminal failure record.
+8. Append-only audit events persist the execution timeline.
 
 The browser never talks to Ollama directly. The browser only calls the
 same-origin private-alpha routes under `/api/codexforge/private-alpha/...`.
 
 ## Fixed Provider Boundary
 
-Production execution is hard-coded to one provider boundary:
+Production execution is hard-coded to one provider boundary implementation:
 
 - provider id: `ollama-local`
 - provider label: `Local Ollama`

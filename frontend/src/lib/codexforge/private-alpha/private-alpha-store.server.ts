@@ -18,10 +18,10 @@ import {
   toPortableRelativePath,
 } from "@/lib/codexforge/server-safe-paths";
 import {
-  PrivateAlphaOllamaError,
-  createPrivateAlphaOllamaClient,
-  type PrivateAlphaOllamaClient,
-} from "./private-alpha-ollama.server";
+  PrivateAlphaProviderError,
+  type PrivateAlphaProviderAdapter,
+} from "./private-alpha-provider.server";
+import { createPrivateAlphaOllamaProviderAdapter } from "./private-alpha-ollama-adapter.server";
 import { readPrivateAlphaKillSwitchState } from "./private-alpha-kill-switch.server";
 import {
   PRIVATE_ALPHA_INITIAL_RUN_STATE,
@@ -85,7 +85,7 @@ type PrivateAlphaErrorStatus = 400 | 404 | 409 | 422 | 500 | 503 | 504;
 type PrivateAlphaStoreOptions = Readonly<{
   dataRootLabel?: string;
   runtimeProfile?: PrivateAlphaRuntimeProfile;
-  ollamaClient?: PrivateAlphaOllamaClient;
+  providerAdapter?: PrivateAlphaProviderAdapter;
 }>;
 
 type PrivateAlphaResolvedPaths = Readonly<{
@@ -1367,7 +1367,8 @@ export function createPrivateAlphaStore(
   const paths = resolvePaths(options);
   const runtimeProfile =
     options.runtimeProfile ?? PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE;
-  const ollamaClient = options.ollamaClient ?? createPrivateAlphaOllamaClient();
+  const providerAdapter =
+    options.providerAdapter ?? createPrivateAlphaOllamaProviderAdapter();
 
   return {
     async getStatus(): Promise<PrivateAlphaStatus> {
@@ -1390,7 +1391,7 @@ export function createPrivateAlphaStore(
         };
       }
 
-      const availability = await ollamaClient.getAvailability();
+      const availability = await providerAdapter.getAvailability();
 
       return {
         mode: "private-alpha-local-ollama",
@@ -1912,7 +1913,7 @@ export function createPrivateAlphaStore(
           };
         }
 
-        const availability = await ollamaClient.getAvailability();
+        const availability = await providerAdapter.getAvailability();
         if (!availability.providerAvailable || !availability.modelAvailable) {
           const blockedAt = nowIso();
           const resultingRevision = existingRun.revision + 1;
@@ -2053,7 +2054,7 @@ export function createPrivateAlphaStore(
         }
 
         try {
-          const generated = await ollamaClient.generateApprovedText({
+          const generated = await providerAdapter.generateApprovedText({
             approvedRequestText: existingRun.request.normalizedRequestText,
             model: PRIVATE_ALPHA_PRODUCTION_MODEL,
             maximumOutputTokens: existingRun.request.maximumOutputTokens,
@@ -2108,15 +2109,13 @@ export function createPrivateAlphaStore(
             safeErrorMessage: null,
           };
         } catch (error) {
-          const isKnownProviderError = error instanceof PrivateAlphaOllamaError;
+          const isKnownProviderError = error instanceof PrivateAlphaProviderError;
           const providerErrorCode =
-            error instanceof PrivateAlphaOllamaError
-              ? error.code === "kill_switch_blocked"
-                ? "ollama_http_error"
-                : error.code
+            error instanceof PrivateAlphaProviderError
+              ? error.code
               : "ollama_http_error";
           const safeProviderMessage =
-            error instanceof PrivateAlphaOllamaError
+            error instanceof PrivateAlphaProviderError
               ? error.safeMessage
               : "Local Ollama execution failed unexpectedly.";
 

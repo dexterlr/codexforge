@@ -163,6 +163,14 @@ async function main() {
     "private-alpha",
     "private-alpha-ollama.server.ts"
   ));
+  const ollamaAdapterModule = require(path.join(
+    repoRoot,
+    "src",
+    "lib",
+    "codexforge",
+    "private-alpha",
+    "private-alpha-ollama-adapter.server.ts"
+  ));
   const stateMachineModule = require(path.join(
     repoRoot,
     "src",
@@ -297,10 +305,14 @@ async function main() {
       availabilityTimeoutMs: timeouts.availabilityTimeoutMs ?? 25,
       generationTimeoutMs: timeouts.generationTimeoutMs ?? 25,
     });
+    const providerAdapter =
+      ollamaAdapterModule.createPrivateAlphaOllamaProviderAdapter({
+        ollamaClient,
+      });
 
     return storeModule.createPrivateAlphaStoreForTesting(testSuffix, {
       runtimeProfile: privateAlpha.PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE,
-      ollamaClient,
+      providerAdapter,
     });
   }
 
