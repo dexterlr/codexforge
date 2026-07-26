@@ -128,6 +128,9 @@ Assert-True (
   -not [regex]::IsMatch($storeSource, 'ollamaClient\s*\?:')
 ) "Store excludes ollamaClient store option"
 
+Assert-Contains $providerSource "identity: PrivateAlphaProviderIdentity;" "Provider contract requires provider identity"
+Assert-Contains $providerSource "quotaState: CodexForgeQuotaState;" "Provider availability requires quotaState"
+
 foreach ($requiredToken in @(
   "PrivateAlphaProviderAdapter",
   "PrivateAlphaProviderError",
@@ -138,11 +141,11 @@ foreach ($requiredToken in @(
   Assert-Contains $storeSource $requiredToken "Store contains $requiredToken"
 }
 
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Existing state-machine file remains unchanged"
-Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Existing API route files remain unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-types.ts" "Existing private-alpha-types.ts remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Existing private-alpha-validation.ts remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Existing private-alpha-ollama.server.ts remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Current private-alpha store remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Current private-alpha validation remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
+Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current private-alpha-ollama.server.ts remains unchanged"
 
 $athenaAliasSource = Get-Content -Raw "src\app\athena\page.tsx"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"
@@ -512,6 +515,7 @@ async function main() {
     "src/lib/codexforge/private-alpha/index.ts"
   );
   const changedTypeScriptFiles = [
+    "src/lib/codexforge/private-alpha/private-alpha-types.ts",
     "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts",
     "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts",
     "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
@@ -536,6 +540,14 @@ async function main() {
       providerSource
     ),
     "Generic provider source must not import a provider SDK."
+  );
+  assert(
+    providerSource.includes("identity: PrivateAlphaProviderIdentity;"),
+    "Provider contract requires provider identity."
+  );
+  assert(
+    providerSource.includes("quotaState: CodexForgeQuotaState;"),
+    "Provider availability requires quotaState."
   );
   assert(
     storeSource.includes("PrivateAlphaProviderAdapter") &&
@@ -571,6 +583,68 @@ async function main() {
     "Longest new source path must stay under 220 characters."
   );
 
+  const originalOllamaErrorCodes = [
+    "kill_switch_blocked",
+    "ollama_unavailable",
+    "ollama_model_missing",
+    "ollama_timeout",
+    "ollama_http_error",
+    "ollama_malformed_response",
+    "ollama_empty_response",
+    "ollama_output_too_large",
+  ];
+  const appendedGroqErrorCodes = [
+    "groq_credential_missing",
+    "groq_authentication_failed",
+    "groq_rate_limited",
+    "groq_quota_exhausted",
+    "groq_unavailable",
+    "groq_model_unavailable",
+    "groq_timeout",
+    "groq_http_error",
+    "groq_malformed_response",
+    "groq_empty_response",
+    "groq_output_too_large",
+  ];
+  assert(
+    JSON.stringify(
+      privateAlpha.PRIVATE_ALPHA_EXECUTION_ERROR_CODES.slice(
+        0,
+        originalOllamaErrorCodes.length
+      )
+    ) === JSON.stringify(originalOllamaErrorCodes),
+    "Original Ollama execution error code ordering remains unchanged."
+  );
+  assert(
+    JSON.stringify(
+      privateAlpha.PRIVATE_ALPHA_EXECUTION_ERROR_CODES.slice(
+        originalOllamaErrorCodes.length
+      )
+    ) === JSON.stringify(appendedGroqErrorCodes),
+    "Groq execution error codes are appended in the required order."
+  );
+
+  const identityAdapter = adapterModule.createPrivateAlphaOllamaProviderAdapter({
+    ollamaClient: createFakeOllamaClient(),
+  });
+  assert(Object.isFrozen(identityAdapter), "Ollama adapter is frozen.");
+  assert(Object.isFrozen(identityAdapter.identity), "Ollama adapter identity is frozen.");
+  assert(
+    JSON.stringify(identityAdapter.identity) ===
+      JSON.stringify({
+        providerId: "ollama-local",
+        providerLabel: "Local Ollama",
+        modelId: "gpt-oss:20b",
+        modelLabel: "gpt-oss:20b",
+        modelKey: "ollama-local::gpt-oss:20b",
+        locality: "local",
+        dataBoundary: "local-machine",
+        costClass: "local-no-provider-token-charge",
+        approvedMaximumOutputTokens: 4096,
+      }),
+    "Ollama adapter identity is exact."
+  );
+
   const delegatedAvailability = {
     providerAvailable: true,
     modelAvailable: false,
@@ -586,9 +660,10 @@ async function main() {
   assert(
     availability.providerAvailable === delegatedAvailability.providerAvailable &&
       availability.modelAvailable === delegatedAvailability.modelAvailable &&
+      availability.quotaState === "not-applicable" &&
       availability.errorCode === delegatedAvailability.errorCode &&
       availability.safeErrorMessage === delegatedAvailability.safeErrorMessage,
-    "Ollama adapter availability must preserve all four availability fields."
+    "Ollama adapter availability preserves legacy fields and adds quotaState not-applicable."
   );
 
   const exactOutput = "  visible output with preserved edges  \n";

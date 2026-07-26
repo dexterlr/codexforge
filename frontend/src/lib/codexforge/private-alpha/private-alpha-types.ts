@@ -57,6 +57,28 @@ export const PRIVATE_ALPHA_EXECUTION_ERROR_CODES = [
   "ollama_malformed_response",
   "ollama_empty_response",
   "ollama_output_too_large",
+  "groq_credential_missing",
+  "groq_authentication_failed",
+  "groq_rate_limited",
+  "groq_quota_exhausted",
+  "groq_unavailable",
+  "groq_model_unavailable",
+  "groq_timeout",
+  "groq_http_error",
+  "groq_malformed_response",
+  "groq_empty_response",
+  "groq_output_too_large",
+] as const;
+
+const PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES = [
+  "kill_switch_blocked",
+  "ollama_unavailable",
+  "ollama_model_missing",
+  "ollama_timeout",
+  "ollama_http_error",
+  "ollama_malformed_response",
+  "ollama_empty_response",
+  "ollama_output_too_large",
 ] as const;
 
 export type PrivateAlphaRunState = (typeof PRIVATE_ALPHA_RUN_STATES)[number];
@@ -74,6 +96,8 @@ export type PrivateAlphaRetentionMode =
 export type PrivateAlphaExecutionMode =
   (typeof PRIVATE_ALPHA_EXECUTION_MODES)[number];
 export type PrivateAlphaExecutionErrorCode =
+  (typeof PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES)[number];
+export type PrivateAlphaProviderErrorCode =
   (typeof PRIVATE_ALPHA_EXECUTION_ERROR_CODES)[number];
 export type PrivateAlphaAuditActor = "local-operator" | "system";
 export type PrivateAlphaStatusMode =

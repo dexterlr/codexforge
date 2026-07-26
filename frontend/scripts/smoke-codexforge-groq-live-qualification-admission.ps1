@@ -62,13 +62,17 @@ Write-Host ""
 Write-Host "=== CodexForge Groq live qualification admission smoke ==="
 
 $allowedChangedFiles = @(
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts",
+  "docs/codexforge-private-alpha-groq-adapter-runtime-foundation-v0.md",
+  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
-  "docs/codexforge-groq-live-qualification-admission-v0.md",
-  "scripts/smoke-codexforge-groq-live-qualification-admission.ps1"
+  "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
+  "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
+  "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1"
 )
 
 $requiredFiles = $allowedChangedFiles | ForEach-Object { $_ -replace '/', '\' }
@@ -79,7 +83,9 @@ foreach ($file in $requiredFiles) {
 foreach ($scriptPath in @(
   "scripts\smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts\smoke-codexforge-groq-provider-qualification-foundation.ps1",
-  "scripts\smoke-codexforge-model-routing-policy-foundation.ps1"
+  "scripts\smoke-codexforge-model-routing-policy-foundation.ps1",
+  "scripts\smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
+  "scripts\smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1"
 )) {
   Assert-PowerShellParses $scriptPath
 }
@@ -97,14 +103,17 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the seven allowed Slice G files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the eleven allowed Slice H files"
 foreach ($path in $changedPaths) {
-  Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed Slice G files: $path"
+  Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed Slice H files: $path"
 }
 
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq client module remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha" "Current private-alpha source remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Current private-alpha store remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Current private-alpha validation remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current Ollama client remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
 Assert-NoGitDiff "src/app/jarvis" "Current Jarvis UI remains unchanged"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
@@ -112,12 +121,16 @@ Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alp
 $typesSource = Get-Content -Raw "src\lib\codexforge\groq-provider\groq-provider-types.ts"
 $qualificationSource = Get-Content -Raw "src\lib\codexforge\groq-provider\groq-provider-qualification.ts"
 $catalogSource = Get-Content -Raw "src\lib\codexforge\model-routing\model-routing-catalog.ts"
-$sliceFSource = Get-Content -Raw "scripts\smoke-codexforge-groq-provider-qualification-foundation.ps1"
+$sliceHDocSource = Get-Content -Raw "docs\codexforge-private-alpha-groq-adapter-runtime-foundation-v0.md"
+$sliceDSource = Get-Content -Raw "scripts\smoke-codexforge-private-alpha-provider-adapter-foundation.ps1"
 $sliceESource = Get-Content -Raw "scripts\smoke-codexforge-model-routing-policy-foundation.ps1"
-$docSource = Get-Content -Raw "docs\codexforge-groq-live-qualification-admission-v0.md"
+$sliceFSource = Get-Content -Raw "scripts\smoke-codexforge-groq-provider-qualification-foundation.ps1"
+$sliceHSmokeSource = Get-Content -Raw "scripts\smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1"
 $newSmokeSource = Get-Content -Raw "scripts\smoke-codexforge-groq-live-qualification-admission.ps1"
 $credentialSource = Get-Content -Raw "src\lib\codexforge\groq-provider\groq-provider-credential.server.ts"
 $clientSource = Get-Content -Raw "src\lib\codexforge\groq-provider\groq-provider-client.server.ts"
+$groqAdapterSource = Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-groq-adapter.server.ts"
+$runtimeModuleSource = Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-provider-runtime.server.ts"
 $modelRoutingSource = (
   Get-ChildItem -LiteralPath "src\lib\codexforge\model-routing" -File -Filter "*.ts" |
     Sort-Object FullName |
@@ -132,16 +145,15 @@ $athenaAliasSource = Get-Content -Raw "src\app\athena\page.tsx"
 $videoPanelSource = Get-Content -Raw "src\lib\codexforge\jarvis-video-studio-release-candidate-map\components\JarvisVideoStudioReleaseCandidatePanel.tsx"
 $navigationTypesSource = Get-Content -Raw "src\lib\codexforge\navigation-shell\navigation-shell-types.ts"
 
-$boundedAdmissionSource = $typesSource + "`n" + $qualificationSource + "`n" + $catalogSource + "`n" + $docSource
-$runtimeSource = $credentialSource + "`n" + $clientSource + "`n" + $typesSource + "`n" + $qualificationSource + "`n" + $catalogSource
+$boundedAdmissionSource = $typesSource + "`n" + $qualificationSource + "`n" + $catalogSource + "`n" + $sliceHDocSource
+$transportRuntimeSource = $credentialSource + "`n" + $clientSource + "`n" + $typesSource + "`n" + $qualificationSource + "`n" + $catalogSource
+$runtimeBoundarySource = $groqAdapterSource + "`n" + $runtimeModuleSource
 
-Assert-Contains $docSource "openai/gpt-oss-20b" "Slice G documentation records openai/gpt-oss-20b"
-Assert-Contains $docSource "openai/gpt-oss-120b" "Slice G documentation records openai/gpt-oss-120b"
-Assert-Contains $docSource 'provider-reported context window: `131072`' "Slice G documentation records the provider context window"
-Assert-Contains $docSource 'provider-reported maximum output: `65536`' "Slice G documentation records the provider maximum output"
-Assert-Contains $docSource 'CodexForge-approved maximum output remains `4096`' "Slice G documentation records the lower CodexForge output cap"
-Assert-Contains $docSource "No credential is stored." "Slice G documentation records that no credential is stored"
-Assert-Contains $docSource "No acceptance token is stored." "Slice G documentation records that no acceptance token is stored"
+Assert-Contains $sliceHDocSource "Current private-alpha execution remains local Ollama only." "Slice H documentation records current execution remains local Ollama only"
+Assert-Contains $sliceHDocSource "Groq remains manual-only in the production catalog." "Slice H documentation records manual-only Groq admission"
+Assert-Contains $sliceHDocSource "No credential or acceptance token is stored." "Slice H documentation records that no credential or acceptance token is stored"
+Assert-True ((Get-Content "src\lib\codexforge\private-alpha\private-alpha-groq-adapter.server.ts" -TotalCount 1) -eq 'import "server-only";') 'private-alpha-groq-adapter.server.ts begins with import "server-only";'
+Assert-True ((Get-Content "src\lib\codexforge\private-alpha\private-alpha-provider-runtime.server.ts" -TotalCount 1) -eq 'import "server-only";') 'private-alpha-provider-runtime.server.ts begins with import "server-only";'
 
 Assert-NotMatches $boundedAdmissionSource "GROQ_API_KEY|apiKey|Authorization|x-groq-request-id|prompt_tokens|completion_tokens|total_tokens|tool_calls|executed_tools" "Bounded admission metadata excludes credential and raw-response fields"
 
@@ -153,12 +165,13 @@ foreach ($forbiddenToken in @(
   'require\(["'']openai["'']\)',
   'require\(["'']axios["'']\)'
 )) {
-  Assert-NotMatches $runtimeSource $forbiddenToken "Runtime source excludes $forbiddenToken"
+  Assert-NotMatches $transportRuntimeSource $forbiddenToken "Runtime source excludes $forbiddenToken"
 }
 
 Assert-NotMatches $modelRoutingSource "localStorage|sessionStorage|indexedDB" "Model-routing source excludes browser storage"
 Assert-NotMatches $modelRoutingSource "process\.env" "Model-routing source excludes process.env reads"
 Assert-NotMatches $jarvisSource "groq-cloud|openai/gpt-oss-20b|openai/gpt-oss-120b" "Current Jarvis UI does not expose Groq selector metadata"
+Assert-NotMatches $runtimeBoundarySource "routeCodexForgeModel|runtimeSnapshots|manualModelKey|createPrivateAlphaStore|executeRun|/api/codexforge/private-alpha" "Runtime boundary performs no routing or execution integration"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"
 foreach ($marker in @(
   "Mission brief",
@@ -173,7 +186,8 @@ $plainTokenPattern = '\b' + 'a' + 'ny' + '\b'
 $asTokenPattern = '\b' + 'as ' + 'a' + 'ny' + '\b'
 $noCheckPattern = 'ts-' + 'nocheck'
 $expectErrorPattern = 'ts-' + 'expect-error'
-foreach ($sourcePath in $requiredFiles) {
+$typeScriptFiles = $requiredFiles | Where-Object { $_ -like "*.ts" }
+foreach ($sourcePath in $typeScriptFiles) {
   $sourceText = Get-Content -Raw $sourcePath
   Assert-NotMatches $sourceText $asTokenPattern "$sourcePath excludes the as-token escape"
   Assert-NotMatches $sourceText $noCheckPattern "$sourcePath excludes the no-check directive"

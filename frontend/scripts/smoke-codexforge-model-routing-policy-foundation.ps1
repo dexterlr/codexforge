@@ -75,6 +75,14 @@ $policyPath = "src\lib\codexforge\model-routing\model-routing-policy.server.ts"
 $indexPath = "src\lib\codexforge\model-routing\index.ts"
 $typesPath = "src\lib\codexforge\model-routing\model-routing-types.ts"
 $catalogPath = "src\lib\codexforge\model-routing\model-routing-catalog.ts"
+$groqAdapterPath = "src\lib\codexforge\private-alpha\private-alpha-groq-adapter.server.ts"
+$runtimePath = "src\lib\codexforge\private-alpha\private-alpha-provider-runtime.server.ts"
+
+foreach ($runtimeFile in @($groqAdapterPath, $runtimePath)) {
+  Assert-FileExists $runtimeFile
+  $runtimeFirstLine = Get-Content $runtimeFile -TotalCount 1
+  Assert-True ($runtimeFirstLine -eq 'import "server-only";') "$runtimeFile begins with import ""server-only"";"
+}
 
 $policyFirstLine = Get-Content $policyPath -TotalCount 1
 Assert-True ($policyFirstLine -eq 'import "server-only";') 'model-routing-policy.server.ts begins with import "server-only";'
@@ -83,7 +91,10 @@ $indexSource = Get-Content -Raw $indexPath
 $typesSource = Get-Content -Raw $typesPath
 $catalogSource = Get-Content -Raw $catalogPath
 $policySource = Get-Content -Raw $policyPath
+$groqAdapterSource = Get-Content -Raw $groqAdapterPath
+$runtimeSource = Get-Content -Raw $runtimePath
 $liveRoutingSource = $typesSource + "`n" + $catalogSource + "`n" + $policySource + "`n" + $indexSource
+$runtimeBoundarySource = $groqAdapterSource + "`n" + $runtimeSource
 
 Assert-True (-not $indexSource.Contains("model-routing-policy.server")) "Client-safe index excludes the server router"
 
@@ -152,11 +163,14 @@ $longestNewPathLength = ($requiredFiles | ForEach-Object { $_.Length } | Measure
 Assert-True ($longestNewPathLength -lt 220) "Longest new source path remains below 220 characters"
 
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Current private-alpha store remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Current provider adapter remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Current Ollama adapter remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Current private-alpha validation remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current Ollama client remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq client module remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
 Assert-NoGitDiff "src/app/jarvis" "Current Jarvis UI remains unchanged"
+Assert-NotMatches $runtimeBoundarySource "routeCodexForgeModel|runtimeSnapshots|manualModelKey|createPrivateAlphaStore|executeRun|/api/codexforge/private-alpha" "Runtime boundary performs no routing or execution integration"
 
 $athenaAliasSource = Get-Content -Raw "src\app\athena\page.tsx"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"

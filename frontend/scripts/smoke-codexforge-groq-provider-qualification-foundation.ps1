@@ -79,6 +79,8 @@ $qualificationPath = "src\lib\codexforge\groq-provider\groq-provider-qualificati
 $typesPath = "src\lib\codexforge\groq-provider\groq-provider-types.ts"
 $indexPath = "src\lib\codexforge\groq-provider\index.ts"
 $docPath = "docs\codexforge-groq-provider-qualification-foundation-v0.md"
+$groqAdapterPath = "src\lib\codexforge\private-alpha\private-alpha-groq-adapter.server.ts"
+$runtimePath = "src\lib\codexforge\private-alpha\private-alpha-provider-runtime.server.ts"
 
 Assert-NoGitDiff $credentialPath "Groq credential module remains unchanged by this slice"
 Assert-NoGitDiff $clientPath "Groq client module remains unchanged by this slice"
@@ -88,13 +90,22 @@ $clientFirstLine = Get-Content $clientPath -TotalCount 1
 Assert-True ($credentialFirstLine -eq 'import "server-only";') 'Credential module begins with import "server-only";'
 Assert-True ($clientFirstLine -eq 'import "server-only";') 'Client module begins with import "server-only";'
 
+foreach ($runtimeFile in @($groqAdapterPath, $runtimePath)) {
+  Assert-FileExists $runtimeFile
+  $runtimeFirstLine = Get-Content $runtimeFile -TotalCount 1
+  Assert-True ($runtimeFirstLine -eq 'import "server-only";') "$runtimeFile begins with import ""server-only"";"
+}
+
 $credentialSource = Get-Content -Raw $credentialPath
 $clientSource = Get-Content -Raw $clientPath
 $qualificationSource = Get-Content -Raw $qualificationPath
 $typesSource = Get-Content -Raw $typesPath
 $indexSource = Get-Content -Raw $indexPath
 $docSource = Get-Content -Raw $docPath
+$groqAdapterSource = Get-Content -Raw $groqAdapterPath
+$runtimeSource = Get-Content -Raw $runtimePath
 $groqSource = $credentialSource + "`n" + $clientSource + "`n" + $qualificationSource + "`n" + $typesSource + "`n" + $indexSource
+$runtimeBoundarySource = $groqAdapterSource + "`n" + $runtimeSource
 
 $groqDirectoryFiles = Get-ChildItem -LiteralPath "src\lib\codexforge\groq-provider" -File -Filter "*.ts"
 $envReadCount = 0
@@ -143,14 +154,15 @@ Assert-Contains $docSource "Groq is not in the Jarvis selector." "Documentation 
 Assert-Contains $docSource "Groq is not integrated into the current private-alpha store or execution path." "Documentation keeps store integration disabled"
 
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Current private-alpha store remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Current provider adapter remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Current Ollama adapter remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Current private-alpha validation remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current Ollama client remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
 Assert-NoGitDiff "src/app/jarvis" "Current Jarvis UI remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/ai-provider-registry" "Historical provider-registry directory remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/athena-model-routing-provider-selection-preview" "Historical routing-preview directory remains unchanged"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
+Assert-NotMatches $runtimeBoundarySource "routeCodexForgeModel|runtimeSnapshots|manualModelKey|createPrivateAlphaStore|executeRun|/api/codexforge/private-alpha" "Runtime boundary performs no routing or execution integration"
 
 $jarvisSource = (
   Get-ChildItem -LiteralPath "src\app\jarvis" -Recurse -File |
