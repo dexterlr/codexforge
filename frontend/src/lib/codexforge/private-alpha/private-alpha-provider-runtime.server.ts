@@ -21,18 +21,17 @@ import type {
   CodexForgeModelKey,
   CodexForgeModelRuntimeSnapshot,
 } from "../model-routing/model-routing-types";
-
-export const PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY =
-  "ollama-local::gpt-oss:20b" as const;
-export const PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY =
-  "groq-cloud::openai/gpt-oss-20b" as const;
-export const PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY =
-  "groq-cloud::openai/gpt-oss-120b" as const;
-export const PRIVATE_ALPHA_RUNTIME_MODEL_KEYS = Object.freeze([
-  PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
-  PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+export {
   PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
-] as const);
+  PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_RUNTIME_MODEL_KEYS,
+} from "./private-alpha-types";
+import {
+  PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
+} from "./private-alpha-types";
 
 export class PrivateAlphaProviderRuntimeError extends Error {
   readonly code = "unsupported_model_key" as const;

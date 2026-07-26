@@ -28,10 +28,17 @@ import {
   assertPrivateAlphaTransition,
 } from "./private-alpha-state-machine";
 import {
+  PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+  PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
   PRIVATE_ALPHA_RECORD_VERSION,
   type PrivateAlphaApprovalInput,
   type PrivateAlphaApprovalRecord,
   type PrivateAlphaApprovalScope,
+  type PrivateAlphaBoundDataBoundary,
+  type PrivateAlphaCloudDataTransferAcknowledgement,
+  type PrivateAlphaCloudDataTransferRequirement,
   type PrivateAlphaAuditActor,
   type PrivateAlphaAuditEvent,
   type PrivateAlphaAuditEventType,
@@ -43,6 +50,7 @@ import {
   type PrivateAlphaExecutionErrorCode,
   type PrivateAlphaExecutionRecord,
   type PrivateAlphaExecutionStatus,
+  type PrivateAlphaRuntimeModelKey,
   type PrivateAlphaRunRecord,
   type PrivateAlphaRunRequest,
   type PrivateAlphaRunState,
@@ -64,8 +72,10 @@ import {
   buildPrivateAlphaApprovalScope,
   buildPrivateAlphaRunRequest,
   buildPrivateAlphaRunSummary,
+  isPrivateAlphaCloudApprovalOnlyConfiguration,
   isPrivateAlphaLegacyRunConfiguration,
   isPrivateAlphaLocalExecutionConfiguration,
+  resolvePrivateAlphaBoundConfiguration,
   resolvePrivateAlphaApprovalStatement,
   sanitizePrivateAlphaTestingSuffix,
   serializePrivateAlphaApprovalScope,
@@ -102,6 +112,13 @@ type PrivateAlphaIdempotencyRecord = Readonly<{
   canonicalRequestHash: string;
   runId: string;
   createdAt: string;
+}>;
+
+type PrivateAlphaStoredApprovalBinding = Readonly<{
+  bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+  modelKey: PrivateAlphaRuntimeModelKey;
+  dataBoundary: PrivateAlphaBoundDataBoundary;
+  cloudDataTransferRequirement: PrivateAlphaCloudDataTransferRequirement;
 }>;
 
 type PrivateAlphaFailureResponse = Readonly<{
@@ -279,6 +296,84 @@ function readNullableString(
   return value;
 }
 
+function readStoredApprovalBinding(
+  record: Record<string, unknown>
+): PrivateAlphaStoredApprovalBinding | null | undefined {
+  const hasBindingVersion = Object.prototype.hasOwnProperty.call(
+    record,
+    "bindingVersion"
+  );
+  const hasModelKey = Object.prototype.hasOwnProperty.call(record, "modelKey");
+  const hasDataBoundary = Object.prototype.hasOwnProperty.call(
+    record,
+    "dataBoundary"
+  );
+  const hasCloudRequirement = Object.prototype.hasOwnProperty.call(
+    record,
+    "cloudDataTransferRequirement"
+  );
+
+  if (
+    !hasBindingVersion &&
+    !hasModelKey &&
+    !hasDataBoundary &&
+    !hasCloudRequirement
+  ) {
+    return null;
+  }
+
+  if (
+    !hasBindingVersion ||
+    !hasModelKey ||
+    !hasDataBoundary ||
+    !hasCloudRequirement
+  ) {
+    return undefined;
+  }
+
+  if (record.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION) {
+    return undefined;
+  }
+
+  if (
+    record.modelKey !== PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY &&
+    record.modelKey !== PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY &&
+    record.modelKey !== PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY
+  ) {
+    return undefined;
+  }
+
+  if (
+    record.dataBoundary !== "local-machine" &&
+    record.dataBoundary !== "cloud-provider"
+  ) {
+    return undefined;
+  }
+
+  if (
+    record.cloudDataTransferRequirement !== "not-required" &&
+    record.cloudDataTransferRequirement !==
+      "explicit-operator-acknowledgement-required"
+  ) {
+    return undefined;
+  }
+
+  return {
+    bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+    modelKey: record.modelKey,
+    dataBoundary: record.dataBoundary,
+    cloudDataTransferRequirement: record.cloudDataTransferRequirement,
+  };
+}
+
+function expectedCloudDataTransferAcknowledgement(
+  request: Extract<PrivateAlphaRunRequest, { bindingVersion: 1 }>
+): PrivateAlphaCloudDataTransferAcknowledgement {
+  return isPrivateAlphaCloudApprovalOnlyConfiguration(request)
+    ? "granted-for-approved-scope"
+    : "not-required";
+}
+
 function validateStoredRunRequest(value: unknown): PrivateAlphaRunRequest | null {
   if (!isRecord(value)) {
     return null;
@@ -300,42 +395,159 @@ function validateStoredRunRequest(value: unknown): PrivateAlphaRunRequest | null
     return null;
   }
 
+  const binding = readStoredApprovalBinding(value);
+  if (binding === undefined) {
+    return null;
+  }
+
   const providerPreference =
     value.providerPreference === "auto"
       ? "auto"
       : value.providerPreference === "ollama-local"
         ? "ollama-local"
+        : value.providerPreference === "groq-cloud"
+          ? "groq-cloud"
         : null;
   const executionMode =
     value.executionMode === "locked-until-provider-slice"
       ? "locked-until-provider-slice"
       : value.executionMode === "manual-approved-local-provider"
         ? "manual-approved-local-provider"
+        : value.executionMode === "manual-approved-cloud-provider-locked"
+          ? "manual-approved-cloud-provider-locked"
         : null;
 
   if (providerPreference === null || executionMode === null) {
     return null;
   }
 
-  const candidate: PrivateAlphaRunRequest = {
-    normalizedRequestText: value.normalizedRequestText,
-    redactedPreview: value.redactedPreview,
-    capability: value.capability,
-    providerPreference,
-    modelPreferenceLabel: value.modelPreferenceLabel,
-    maximumOutputTokens: value.maximumOutputTokens,
-    retentionMode: "local-private-alpha",
-    executionMode,
-  };
+  if (binding === null) {
+    if (
+      providerPreference === "auto" &&
+      executionMode === "locked-until-provider-slice"
+    ) {
+      const candidate: PrivateAlphaRunRequest = {
+        normalizedRequestText: value.normalizedRequestText,
+        redactedPreview: value.redactedPreview,
+        capability: value.capability,
+        providerPreference: "auto",
+        modelPreferenceLabel: value.modelPreferenceLabel,
+        maximumOutputTokens: value.maximumOutputTokens,
+        retentionMode: "local-private-alpha",
+        executionMode: "locked-until-provider-slice",
+      };
 
-  if (
-    !isPrivateAlphaLegacyRunConfiguration(candidate) &&
-    !isPrivateAlphaLocalExecutionConfiguration(candidate)
-  ) {
+      return isPrivateAlphaLegacyRunConfiguration(candidate) ? candidate : null;
+    }
+
+    if (
+      providerPreference === PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID &&
+      executionMode === PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE &&
+      value.modelPreferenceLabel === PRIVATE_ALPHA_PRODUCTION_MODEL
+    ) {
+      const candidate: PrivateAlphaRunRequest = {
+        normalizedRequestText: value.normalizedRequestText,
+        redactedPreview: value.redactedPreview,
+        capability: value.capability,
+        providerPreference: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+        modelPreferenceLabel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+        maximumOutputTokens: value.maximumOutputTokens,
+        retentionMode: "local-private-alpha",
+        executionMode: PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+      };
+
+      return isPrivateAlphaLocalExecutionConfiguration(candidate)
+        ? candidate
+        : null;
+    }
+
     return null;
   }
 
-  return candidate;
+  switch (binding.modelKey) {
+    case PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY:
+      if (
+        providerPreference !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID ||
+        value.modelPreferenceLabel !== PRIVATE_ALPHA_PRODUCTION_MODEL ||
+        executionMode !== PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE ||
+        binding.dataBoundary !== "local-machine" ||
+        binding.cloudDataTransferRequirement !==
+          "not-required"
+      ) {
+        return null;
+      }
+
+      return {
+        normalizedRequestText: value.normalizedRequestText,
+        redactedPreview: value.redactedPreview,
+        capability: value.capability,
+        providerPreference: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+        modelPreferenceLabel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+        maximumOutputTokens: value.maximumOutputTokens,
+        retentionMode: "local-private-alpha",
+        executionMode: PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey: PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
+        dataBoundary: "local-machine",
+        cloudDataTransferRequirement: "not-required",
+      };
+    case PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY:
+      if (
+        value.capability !== "text" ||
+        providerPreference !== "groq-cloud" ||
+        value.modelPreferenceLabel !== "openai/gpt-oss-20b" ||
+        executionMode !== "manual-approved-cloud-provider-locked" ||
+        binding.dataBoundary !== "cloud-provider" ||
+        binding.cloudDataTransferRequirement !==
+          "explicit-operator-acknowledgement-required"
+      ) {
+        return null;
+      }
+
+      return {
+        normalizedRequestText: value.normalizedRequestText,
+        redactedPreview: value.redactedPreview,
+        capability: "text",
+        providerPreference: "groq-cloud",
+        modelPreferenceLabel: "openai/gpt-oss-20b",
+        maximumOutputTokens: value.maximumOutputTokens,
+        retentionMode: "local-private-alpha",
+        executionMode: "manual-approved-cloud-provider-locked",
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+        dataBoundary: "cloud-provider",
+        cloudDataTransferRequirement:
+          "explicit-operator-acknowledgement-required",
+      };
+    case PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY:
+      if (
+        value.capability !== "text" ||
+        providerPreference !== "groq-cloud" ||
+        value.modelPreferenceLabel !== "openai/gpt-oss-120b" ||
+        executionMode !== "manual-approved-cloud-provider-locked" ||
+        binding.dataBoundary !== "cloud-provider" ||
+        binding.cloudDataTransferRequirement !==
+          "explicit-operator-acknowledgement-required"
+      ) {
+        return null;
+      }
+
+      return {
+        normalizedRequestText: value.normalizedRequestText,
+        redactedPreview: value.redactedPreview,
+        capability: "text",
+        providerPreference: "groq-cloud",
+        modelPreferenceLabel: "openai/gpt-oss-120b",
+        maximumOutputTokens: value.maximumOutputTokens,
+        retentionMode: "local-private-alpha",
+        executionMode: "manual-approved-cloud-provider-locked",
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+        dataBoundary: "cloud-provider",
+        cloudDataTransferRequirement:
+          "explicit-operator-acknowledgement-required",
+      };
+  }
 }
 
 function validateStoredApprovalScope(
@@ -360,42 +572,159 @@ function validateStoredApprovalScope(
     return null;
   }
 
+  const binding = readStoredApprovalBinding(value);
+  if (binding === undefined) {
+    return null;
+  }
+
   const providerPreference =
     value.providerPreference === "auto"
       ? "auto"
       : value.providerPreference === "ollama-local"
         ? "ollama-local"
+        : value.providerPreference === "groq-cloud"
+          ? "groq-cloud"
         : null;
   const executionMode =
     value.executionMode === "locked-until-provider-slice"
       ? "locked-until-provider-slice"
       : value.executionMode === "manual-approved-local-provider"
         ? "manual-approved-local-provider"
+        : value.executionMode === "manual-approved-cloud-provider-locked"
+          ? "manual-approved-cloud-provider-locked"
         : null;
 
   if (providerPreference === null || executionMode === null) {
     return null;
   }
 
-  const candidate: PrivateAlphaApprovalScope = {
-    runId: value.runId,
-    capability: value.capability,
-    normalizedRequestHash: value.normalizedRequestHash,
-    providerPreference,
-    modelPreferenceLabel: value.modelPreferenceLabel,
-    maximumOutputTokens: value.maximumOutputTokens,
-    retentionMode: "local-private-alpha",
-    executionMode,
-  };
+  if (binding === null) {
+    if (
+      providerPreference === "auto" &&
+      executionMode === "locked-until-provider-slice"
+    ) {
+      const candidate: PrivateAlphaApprovalScope = {
+        runId: value.runId,
+        capability: value.capability,
+        normalizedRequestHash: value.normalizedRequestHash,
+        providerPreference: "auto",
+        modelPreferenceLabel: value.modelPreferenceLabel,
+        maximumOutputTokens: value.maximumOutputTokens,
+        retentionMode: "local-private-alpha",
+        executionMode: "locked-until-provider-slice",
+      };
 
-  if (
-    !isPrivateAlphaLegacyRunConfiguration(candidate) &&
-    !isPrivateAlphaLocalExecutionConfiguration(candidate)
-  ) {
+      return isPrivateAlphaLegacyRunConfiguration(candidate) ? candidate : null;
+    }
+
+    if (
+      providerPreference === PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID &&
+      executionMode === PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE &&
+      value.modelPreferenceLabel === PRIVATE_ALPHA_PRODUCTION_MODEL
+    ) {
+      const candidate: PrivateAlphaApprovalScope = {
+        runId: value.runId,
+        capability: value.capability,
+        normalizedRequestHash: value.normalizedRequestHash,
+        providerPreference: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+        modelPreferenceLabel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+        maximumOutputTokens: value.maximumOutputTokens,
+        retentionMode: "local-private-alpha",
+        executionMode: PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+      };
+
+      return isPrivateAlphaLocalExecutionConfiguration(candidate)
+        ? candidate
+        : null;
+    }
+
     return null;
   }
 
-  return candidate;
+  switch (binding.modelKey) {
+    case PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY:
+      if (
+        providerPreference !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID ||
+        value.modelPreferenceLabel !== PRIVATE_ALPHA_PRODUCTION_MODEL ||
+        executionMode !== PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE ||
+        binding.dataBoundary !== "local-machine" ||
+        binding.cloudDataTransferRequirement !==
+          "not-required"
+      ) {
+        return null;
+      }
+
+      return {
+        runId: value.runId,
+        capability: value.capability,
+        normalizedRequestHash: value.normalizedRequestHash,
+        providerPreference: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+        modelPreferenceLabel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+        maximumOutputTokens: value.maximumOutputTokens,
+        retentionMode: "local-private-alpha",
+        executionMode: PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey: PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
+        dataBoundary: "local-machine",
+        cloudDataTransferRequirement: "not-required",
+      };
+    case PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY:
+      if (
+        value.capability !== "text" ||
+        providerPreference !== "groq-cloud" ||
+        value.modelPreferenceLabel !== "openai/gpt-oss-20b" ||
+        executionMode !== "manual-approved-cloud-provider-locked" ||
+        binding.dataBoundary !== "cloud-provider" ||
+        binding.cloudDataTransferRequirement !==
+          "explicit-operator-acknowledgement-required"
+      ) {
+        return null;
+      }
+
+      return {
+        runId: value.runId,
+        capability: "text",
+        normalizedRequestHash: value.normalizedRequestHash,
+        providerPreference: "groq-cloud",
+        modelPreferenceLabel: "openai/gpt-oss-20b",
+        maximumOutputTokens: value.maximumOutputTokens,
+        retentionMode: "local-private-alpha",
+        executionMode: "manual-approved-cloud-provider-locked",
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+        dataBoundary: "cloud-provider",
+        cloudDataTransferRequirement:
+          "explicit-operator-acknowledgement-required",
+      };
+    case PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY:
+      if (
+        value.capability !== "text" ||
+        providerPreference !== "groq-cloud" ||
+        value.modelPreferenceLabel !== "openai/gpt-oss-120b" ||
+        executionMode !== "manual-approved-cloud-provider-locked" ||
+        binding.dataBoundary !== "cloud-provider" ||
+        binding.cloudDataTransferRequirement !==
+          "explicit-operator-acknowledgement-required"
+      ) {
+        return null;
+      }
+
+      return {
+        runId: value.runId,
+        capability: "text",
+        normalizedRequestHash: value.normalizedRequestHash,
+        providerPreference: "groq-cloud",
+        modelPreferenceLabel: "openai/gpt-oss-120b",
+        maximumOutputTokens: value.maximumOutputTokens,
+        retentionMode: "local-private-alpha",
+        executionMode: "manual-approved-cloud-provider-locked",
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+        dataBoundary: "cloud-provider",
+        cloudDataTransferRequirement:
+          "explicit-operator-acknowledgement-required",
+      };
+  }
 }
 
 function validateStoredApprovalRecord(
@@ -432,6 +761,45 @@ function validateStoredApprovalRecord(
     return null;
   }
 
+  if (!("bindingVersion" in request)) {
+    if (
+      Object.prototype.hasOwnProperty.call(value, "bindingVersion") ||
+      Object.prototype.hasOwnProperty.call(
+        value,
+        "cloudDataTransferAcknowledgement"
+      )
+    ) {
+      return null;
+    }
+
+    return {
+      approvalId: value.approvalId,
+      approvedAt: value.approvedAt,
+      actor: "local-operator",
+      approvalScopeHash: value.approvalScopeHash,
+      acknowledgement,
+      previousRevision: value.previousRevision,
+      resultingRevision: value.resultingRevision,
+      executionAvailabilityStatement: value.executionAvailabilityStatement,
+    };
+  }
+
+  if (
+    value.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+    (value.cloudDataTransferAcknowledgement !== "not-required" &&
+      value.cloudDataTransferAcknowledgement !==
+        "granted-for-approved-scope")
+  ) {
+    return null;
+  }
+
+  if (
+    value.cloudDataTransferAcknowledgement !==
+    expectedCloudDataTransferAcknowledgement(request)
+  ) {
+    return null;
+  }
+
   return {
     approvalId: value.approvalId,
     approvedAt: value.approvedAt,
@@ -441,6 +809,9 @@ function validateStoredApprovalRecord(
     previousRevision: value.previousRevision,
     resultingRevision: value.resultingRevision,
     executionAvailabilityStatement: value.executionAvailabilityStatement,
+    bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+    cloudDataTransferAcknowledgement:
+      value.cloudDataTransferAcknowledgement,
   };
 }
 
@@ -729,6 +1100,22 @@ function validateStoredRunRecord(
     approvalScope.maximumOutputTokens !== runRequest.maximumOutputTokens ||
     approvalScope.retentionMode !== runRequest.retentionMode ||
     approvalScope.executionMode !== runRequest.executionMode
+  ) {
+    return null;
+  }
+
+  if ("bindingVersion" in runRequest !== "bindingVersion" in approvalScope) {
+    return null;
+  }
+
+  if (
+    "bindingVersion" in runRequest &&
+    "bindingVersion" in approvalScope &&
+    (runRequest.bindingVersion !== approvalScope.bindingVersion ||
+      runRequest.modelKey !== approvalScope.modelKey ||
+      runRequest.dataBoundary !== approvalScope.dataBoundary ||
+      runRequest.cloudDataTransferRequirement !==
+        approvalScope.cloudDataTransferRequirement)
   ) {
     return null;
   }
@@ -1104,9 +1491,13 @@ function buildCreatedRunAuditEvents(
   createdAt: string,
   revision: number
 ): readonly PrivateAlphaAuditEvent[] {
-  const approvalRequestedSummary = isPrivateAlphaLocalExecutionConfiguration(run.request)
+  const approvalRequestedSummary = isPrivateAlphaLocalExecutionConfiguration(
+    run.request
+  )
     ? "Manual approval scope recorded locally. Execution requires a separate operator action."
-    : "Manual approval scope recorded locally. Provider execution remains locked.";
+    : isPrivateAlphaCloudApprovalOnlyConfiguration(run.request)
+      ? "Manual approval scope recorded locally. Groq Cloud execution remains disabled."
+      : "Manual approval scope recorded locally. Provider execution remains locked.";
 
   return [
     buildAuditEvent({
@@ -1367,8 +1758,16 @@ export function createPrivateAlphaStore(
   const paths = resolvePaths(options);
   const runtimeProfile =
     options.runtimeProfile ?? PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE;
-  const providerAdapter =
-    options.providerAdapter ?? createPrivateAlphaOllamaProviderAdapter();
+  let cachedProviderAdapter: PrivateAlphaProviderAdapter | null =
+    options.providerAdapter ?? null;
+  const getProviderAdapter = (): PrivateAlphaProviderAdapter => {
+    if (cachedProviderAdapter) {
+      return cachedProviderAdapter;
+    }
+
+    cachedProviderAdapter = createPrivateAlphaOllamaProviderAdapter();
+    return cachedProviderAdapter;
+  };
 
   return {
     async getStatus(): Promise<PrivateAlphaStatus> {
@@ -1391,7 +1790,7 @@ export function createPrivateAlphaStore(
         };
       }
 
-      const availability = await providerAdapter.getAvailability();
+      const availability = await getProviderAdapter().getAvailability();
 
       return {
         mode: "private-alpha-local-ollama",
@@ -1663,25 +2062,63 @@ export function createPrivateAlphaStore(
           throw new PrivateAlphaStoreError(409, transition.message);
         }
 
+        const isBoundRequest = "bindingVersion" in existingRun.request;
+        const isCloudApprovalOnlyRun = isPrivateAlphaCloudApprovalOnlyConfiguration(
+          existingRun.request
+        );
+
+        if (isCloudApprovalOnlyRun) {
+          if (approvalInput.cloudDataTransferAcknowledgement !== true) {
+            throw new PrivateAlphaStoreError(
+              409,
+              "Cloud data transfer acknowledgement is required for this exact approval scope."
+            );
+          }
+        } else if (approvalInput.cloudDataTransferAcknowledgement !== undefined) {
+          throw new PrivateAlphaStoreError(
+            409,
+            "Cloud data transfer acknowledgement is not allowed for local approvals."
+          );
+        }
+
         const approvedAt = nowIso();
         const previousRevision = existingRun.revision;
         const resultingRevision = previousRevision + 1;
-        const approvalRecord: PrivateAlphaApprovalRecord = {
-          approvalId: randomUUID(),
-          approvedAt,
-          actor: "local-operator",
-          approvalScopeHash: approvalInput.approvalScopeHash,
-          acknowledgement: approvalInput.acknowledgement,
-          previousRevision,
-          resultingRevision,
-          executionAvailabilityStatement: resolvePrivateAlphaApprovalStatement(
-            existingRun.request.executionMode
-          ),
-        };
+        const approvalRecord: PrivateAlphaApprovalRecord = isBoundRequest
+          ? {
+              approvalId: randomUUID(),
+              approvedAt,
+              actor: "local-operator",
+              approvalScopeHash: approvalInput.approvalScopeHash,
+              acknowledgement: approvalInput.acknowledgement,
+              previousRevision,
+              resultingRevision,
+              executionAvailabilityStatement: resolvePrivateAlphaApprovalStatement(
+                existingRun.request.executionMode
+              ),
+              bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+              cloudDataTransferAcknowledgement: isCloudApprovalOnlyRun
+                ? "granted-for-approved-scope"
+                : "not-required",
+            }
+          : {
+              approvalId: randomUUID(),
+              approvedAt,
+              actor: "local-operator",
+              approvalScopeHash: approvalInput.approvalScopeHash,
+              acknowledgement: approvalInput.acknowledgement,
+              previousRevision,
+              resultingRevision,
+              executionAvailabilityStatement: resolvePrivateAlphaApprovalStatement(
+                existingRun.request.executionMode
+              ),
+            };
 
-        const summary = isPrivateAlphaLocalExecutionConfiguration(existingRun.request)
-          ? "Manual approval recorded for the exact local execution scope."
-          : "Manual approval recorded locally. Provider execution remains unavailable.";
+        const summary = isCloudApprovalOnlyRun
+          ? `Manual approval recorded for exact Groq Cloud model scope ${existingRun.request.modelPreferenceLabel}. Cloud execution remains disabled.`
+          : isPrivateAlphaLocalExecutionConfiguration(existingRun.request)
+            ? "Manual approval recorded for the exact local execution scope."
+            : "Manual approval recorded locally. Provider execution remains unavailable.";
 
         const nextRun: PrivateAlphaRunRecord = {
           ...existingRun,
@@ -1845,8 +2282,6 @@ export function createPrivateAlphaStore(
           );
         }
 
-        ensureExecutableLocalRun(existingRun);
-
         if (existingRun.state !== "approved") {
           throw new PrivateAlphaStoreError(409, "Run is not eligible for execution.");
         }
@@ -1866,6 +2301,15 @@ export function createPrivateAlphaStore(
         if (existingRun.approval.approvalScopeHash !== executeInput.approvalScopeHash) {
           throw new PrivateAlphaStoreError(409, "Approval record scope hash does not match.");
         }
+
+        if (isPrivateAlphaCloudApprovalOnlyConfiguration(existingRun.request)) {
+          throw new PrivateAlphaStoreError(
+            409,
+            "Groq Cloud approval-only runs are not executable in this slice."
+          );
+        }
+
+        ensureExecutableLocalRun(existingRun);
 
         const killSwitchBeforeProbe = await readSafeKillSwitchState(paths);
         if (killSwitchBeforeProbe.killSwitchEngaged) {
@@ -1913,7 +2357,7 @@ export function createPrivateAlphaStore(
           };
         }
 
-        const availability = await providerAdapter.getAvailability();
+        const availability = await getProviderAdapter().getAvailability();
         if (!availability.providerAvailable || !availability.modelAvailable) {
           const blockedAt = nowIso();
           const resultingRevision = existingRun.revision + 1;
@@ -2054,7 +2498,7 @@ export function createPrivateAlphaStore(
         }
 
         try {
-          const generated = await providerAdapter.generateApprovedText({
+          const generated = await getProviderAdapter().generateApprovedText({
             approvedRequestText: existingRun.request.normalizedRequestText,
             model: PRIVATE_ALPHA_PRODUCTION_MODEL,
             maximumOutputTokens: existingRun.request.maximumOutputTokens,

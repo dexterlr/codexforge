@@ -63,16 +63,17 @@ Write-Host "=== CodexForge Groq live qualification admission smoke ==="
 
 $allowedChangedFiles = @(
   "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
   "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts",
-  "docs/codexforge-private-alpha-groq-adapter-runtime-foundation-v0.md",
+  "docs/codexforge-private-alpha-cloud-approval-binding-foundation-v0.md",
+  "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
-  "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1"
+  "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1"
 )
 
 $requiredFiles = $allowedChangedFiles | ForEach-Object { $_ -replace '/', '\' }
@@ -103,17 +104,20 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the eleven allowed Slice H files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the twelve allowed Slice I files"
 foreach ($path in $changedPaths) {
-  Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed Slice H files: $path"
+  Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed Slice I files: $path"
 }
 
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq client module remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Current private-alpha store remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Current private-alpha validation remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Generic provider contract remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Ollama adapter remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Groq adapter remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current Ollama client remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Current private-alpha kill switch remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Current private-alpha API client remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
 Assert-NoGitDiff "src/app/jarvis" "Current Jarvis UI remains unchanged"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"

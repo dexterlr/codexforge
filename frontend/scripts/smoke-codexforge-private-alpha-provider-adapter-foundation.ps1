@@ -135,15 +135,16 @@ foreach ($requiredToken in @(
   "PrivateAlphaProviderAdapter",
   "PrivateAlphaProviderError",
   "createPrivateAlphaOllamaProviderAdapter",
-  "providerAdapter.getAvailability()",
-  "providerAdapter.generateApprovedText("
+  "getProviderAdapter().getAvailability()",
+  "getProviderAdapter().generateApprovedText("
 )) {
   Assert-Contains $storeSource $requiredToken "Store contains $requiredToken"
 }
 
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Current private-alpha store remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Current private-alpha validation remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Current private-alpha Groq adapter remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Current private-alpha kill switch remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Current private-alpha API client remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current private-alpha-ollama.server.ts remains unchanged"
 
@@ -553,8 +554,8 @@ async function main() {
     storeSource.includes("PrivateAlphaProviderAdapter") &&
       storeSource.includes("PrivateAlphaProviderError") &&
       storeSource.includes("createPrivateAlphaOllamaProviderAdapter") &&
-      storeSource.includes("providerAdapter.getAvailability()") &&
-      storeSource.includes("providerAdapter.generateApprovedText("),
+      storeSource.includes("getProviderAdapter().getAvailability()") &&
+      storeSource.includes("getProviderAdapter().generateApprovedText("),
     "Store must use the provider adapter boundary."
   );
   assert(

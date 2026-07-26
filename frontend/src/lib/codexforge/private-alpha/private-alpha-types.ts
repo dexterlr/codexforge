@@ -1,4 +1,17 @@
 export const PRIVATE_ALPHA_RECORD_VERSION = 1 as const;
+export const PRIVATE_ALPHA_APPROVAL_BINDING_VERSION = 1 as const;
+
+export const PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY =
+  "ollama-local::gpt-oss:20b" as const;
+export const PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY =
+  "groq-cloud::openai/gpt-oss-20b" as const;
+export const PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY =
+  "groq-cloud::openai/gpt-oss-120b" as const;
+export const PRIVATE_ALPHA_RUNTIME_MODEL_KEYS = [
+  PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+] as const;
 
 export const PRIVATE_ALPHA_RUN_STATES = [
   "awaiting_approval",
@@ -39,6 +52,7 @@ export const PRIVATE_ALPHA_KILL_SWITCH_SOURCES = [
 export const PRIVATE_ALPHA_PROVIDER_PREFERENCES = [
   "auto",
   "ollama-local",
+  "groq-cloud",
 ] as const;
 
 export const PRIVATE_ALPHA_RETENTION_MODES = ["local-private-alpha"] as const;
@@ -46,6 +60,7 @@ export const PRIVATE_ALPHA_RETENTION_MODES = ["local-private-alpha"] as const;
 export const PRIVATE_ALPHA_EXECUTION_MODES = [
   "locked-until-provider-slice",
   "manual-approved-local-provider",
+  "manual-approved-cloud-provider-locked",
 ] as const;
 
 export const PRIVATE_ALPHA_EXECUTION_ERROR_CODES = [
@@ -81,6 +96,10 @@ const PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES = [
   "ollama_output_too_large",
 ] as const;
 
+export type PrivateAlphaApprovalBindingVersion =
+  typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+export type PrivateAlphaRuntimeModelKey =
+  (typeof PRIVATE_ALPHA_RUNTIME_MODEL_KEYS)[number];
 export type PrivateAlphaRunState = (typeof PRIVATE_ALPHA_RUN_STATES)[number];
 export type PrivateAlphaExecutionStatus =
   (typeof PRIVATE_ALPHA_EXECUTION_STATUSES)[number];
@@ -103,12 +122,22 @@ export type PrivateAlphaAuditActor = "local-operator" | "system";
 export type PrivateAlphaStatusMode =
   | "private-alpha-foundation"
   | "private-alpha-local-ollama";
+export type PrivateAlphaBoundDataBoundary =
+  | "local-machine"
+  | "cloud-provider";
+export type PrivateAlphaCloudDataTransferRequirement =
+  | "not-required"
+  | "explicit-operator-acknowledgement-required";
+export type PrivateAlphaCloudDataTransferAcknowledgement =
+  | "not-required"
+  | "granted-for-approved-scope";
 
 export type PrivateAlphaCreateRunInput = Readonly<{
   requestText: string;
   capability: PrivateAlphaCapability;
   modelPreferenceLabel: string | null;
   maximumOutputTokens: number;
+  modelKey?: PrivateAlphaRuntimeModelKey;
 }>;
 
 export type PrivateAlphaApprovalInput = Readonly<{
@@ -116,6 +145,7 @@ export type PrivateAlphaApprovalInput = Readonly<{
   approved: true;
   acknowledgement: string | true;
   expectedRevision: number;
+  cloudDataTransferAcknowledgement?: true;
 }>;
 
 export type PrivateAlphaExecuteInput = Readonly<{
@@ -130,29 +160,137 @@ export type PrivateAlphaCancellationInput = Readonly<{
   reason: string;
 }>;
 
-export type PrivateAlphaRunRequest = Readonly<{
+type PrivateAlphaRunRequestCommon = Readonly<{
   normalizedRequestText: string;
   redactedPreview: string;
   capability: PrivateAlphaCapability;
-  providerPreference: PrivateAlphaProviderPreference;
-  modelPreferenceLabel: string | null;
   maximumOutputTokens: number;
   retentionMode: PrivateAlphaRetentionMode;
-  executionMode: PrivateAlphaExecutionMode;
 }>;
 
-export type PrivateAlphaApprovalScope = Readonly<{
+type PrivateAlphaApprovalScopeCommon = Readonly<{
   runId: string;
   capability: PrivateAlphaCapability;
   normalizedRequestHash: string;
-  providerPreference: PrivateAlphaProviderPreference;
-  modelPreferenceLabel: string | null;
   maximumOutputTokens: number;
   retentionMode: PrivateAlphaRetentionMode;
-  executionMode: PrivateAlphaExecutionMode;
 }>;
 
-export type PrivateAlphaApprovalRecord = Readonly<{
+export type PrivateAlphaLegacyRunRequest = PrivateAlphaRunRequestCommon &
+  Readonly<{
+    providerPreference: "auto";
+    modelPreferenceLabel: string | null;
+    executionMode: "locked-until-provider-slice";
+  }>;
+
+export type PrivateAlphaUnboundLocalRunRequest = PrivateAlphaRunRequestCommon &
+  Readonly<{
+    providerPreference: "ollama-local";
+    modelPreferenceLabel: "gpt-oss:20b";
+    executionMode: "manual-approved-local-provider";
+  }>;
+
+export type PrivateAlphaBoundLocalRunRequest = PrivateAlphaRunRequestCommon &
+  Readonly<{
+    providerPreference: "ollama-local";
+    modelPreferenceLabel: "gpt-oss:20b";
+    executionMode: "manual-approved-local-provider";
+    bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+    modelKey: typeof PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY;
+    dataBoundary: "local-machine";
+    cloudDataTransferRequirement: "not-required";
+  }>;
+
+export type PrivateAlphaBoundGroq20bRunRequest = PrivateAlphaRunRequestCommon &
+  Readonly<{
+    capability: "text";
+    providerPreference: "groq-cloud";
+    modelPreferenceLabel: "openai/gpt-oss-20b";
+    executionMode: "manual-approved-cloud-provider-locked";
+    bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+    modelKey: typeof PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY;
+    dataBoundary: "cloud-provider";
+    cloudDataTransferRequirement: "explicit-operator-acknowledgement-required";
+  }>;
+
+export type PrivateAlphaBoundGroq120bRunRequest = PrivateAlphaRunRequestCommon &
+  Readonly<{
+    capability: "text";
+    providerPreference: "groq-cloud";
+    modelPreferenceLabel: "openai/gpt-oss-120b";
+    executionMode: "manual-approved-cloud-provider-locked";
+    bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+    modelKey: typeof PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY;
+    dataBoundary: "cloud-provider";
+    cloudDataTransferRequirement: "explicit-operator-acknowledgement-required";
+  }>;
+
+export type PrivateAlphaRunRequest =
+  | PrivateAlphaLegacyRunRequest
+  | PrivateAlphaUnboundLocalRunRequest
+  | PrivateAlphaBoundLocalRunRequest
+  | PrivateAlphaBoundGroq20bRunRequest
+  | PrivateAlphaBoundGroq120bRunRequest;
+
+export type PrivateAlphaLegacyApprovalScope = PrivateAlphaApprovalScopeCommon &
+  Readonly<{
+    providerPreference: "auto";
+    modelPreferenceLabel: string | null;
+    executionMode: "locked-until-provider-slice";
+  }>;
+
+export type PrivateAlphaUnboundLocalApprovalScope = PrivateAlphaApprovalScopeCommon &
+  Readonly<{
+    providerPreference: "ollama-local";
+    modelPreferenceLabel: "gpt-oss:20b";
+    executionMode: "manual-approved-local-provider";
+  }>;
+
+export type PrivateAlphaBoundLocalApprovalScope = PrivateAlphaApprovalScopeCommon &
+  Readonly<{
+    providerPreference: "ollama-local";
+    modelPreferenceLabel: "gpt-oss:20b";
+    executionMode: "manual-approved-local-provider";
+    bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+    modelKey: typeof PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY;
+    dataBoundary: "local-machine";
+    cloudDataTransferRequirement: "not-required";
+  }>;
+
+export type PrivateAlphaBoundGroq20bApprovalScope =
+  PrivateAlphaApprovalScopeCommon &
+    Readonly<{
+      capability: "text";
+      providerPreference: "groq-cloud";
+      modelPreferenceLabel: "openai/gpt-oss-20b";
+      executionMode: "manual-approved-cloud-provider-locked";
+      bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+      modelKey: typeof PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY;
+      dataBoundary: "cloud-provider";
+      cloudDataTransferRequirement: "explicit-operator-acknowledgement-required";
+    }>;
+
+export type PrivateAlphaBoundGroq120bApprovalScope =
+  PrivateAlphaApprovalScopeCommon &
+    Readonly<{
+      capability: "text";
+      providerPreference: "groq-cloud";
+      modelPreferenceLabel: "openai/gpt-oss-120b";
+      executionMode: "manual-approved-cloud-provider-locked";
+      bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+      modelKey: typeof PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY;
+      dataBoundary: "cloud-provider";
+      cloudDataTransferRequirement: "explicit-operator-acknowledgement-required";
+    }>;
+
+export type PrivateAlphaApprovalScope =
+  | PrivateAlphaLegacyApprovalScope
+  | PrivateAlphaUnboundLocalApprovalScope
+  | PrivateAlphaBoundLocalApprovalScope
+  | PrivateAlphaBoundGroq20bApprovalScope
+  | PrivateAlphaBoundGroq120bApprovalScope;
+
+type PrivateAlphaApprovalRecordCommon = Readonly<{
   approvalId: string;
   approvedAt: string;
   actor: "local-operator";
@@ -162,6 +300,19 @@ export type PrivateAlphaApprovalRecord = Readonly<{
   resultingRevision: number;
   executionAvailabilityStatement: string;
 }>;
+
+export type PrivateAlphaHistoricalApprovalRecord =
+  PrivateAlphaApprovalRecordCommon;
+
+export type PrivateAlphaBoundApprovalRecord = PrivateAlphaApprovalRecordCommon &
+  Readonly<{
+    bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+    cloudDataTransferAcknowledgement: PrivateAlphaCloudDataTransferAcknowledgement;
+  }>;
+
+export type PrivateAlphaApprovalRecord =
+  | PrivateAlphaHistoricalApprovalRecord
+  | PrivateAlphaBoundApprovalRecord;
 
 export type PrivateAlphaCancellationRecord = Readonly<{
   cancellationId: string;

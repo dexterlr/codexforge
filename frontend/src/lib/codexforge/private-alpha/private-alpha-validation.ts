@@ -1,16 +1,26 @@
 import type {
   PrivateAlphaApprovalInput,
   PrivateAlphaApprovalScope,
+  PrivateAlphaBoundDataBoundary,
   PrivateAlphaCapability,
   PrivateAlphaCancellationInput,
+  PrivateAlphaCloudDataTransferRequirement,
   PrivateAlphaCreateRunInput,
   PrivateAlphaExecuteInput,
   PrivateAlphaExecutionMode,
   PrivateAlphaProviderPreference,
   PrivateAlphaRetentionMode,
+  PrivateAlphaRuntimeModelKey,
   PrivateAlphaRunRequest,
   PrivateAlphaRunSummary,
   PrivateAlphaRunRecord,
+} from "./private-alpha-types";
+import {
+  PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+  PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_RUNTIME_MODEL_KEYS,
 } from "./private-alpha-types";
 
 export const PRIVATE_ALPHA_DATA_ROOT_LABEL = ".codexforge/private-alpha";
@@ -39,10 +49,14 @@ export const PRIVATE_ALPHA_LEGACY_EXECUTION_MODE =
   "locked-until-provider-slice" as const;
 export const PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE =
   "manual-approved-local-provider" as const;
+export const PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE =
+  "manual-approved-cloud-provider-locked" as const;
 export const PRIVATE_ALPHA_APPROVAL_LOCK_STATEMENT =
   "Provider execution remains unavailable until the provider execution slice.";
 export const PRIVATE_ALPHA_LOCAL_EXECUTION_APPROVAL_STATEMENT =
   "Manual approval recorded for this exact local Ollama execution scope. Execution still requires a separate explicit operator action.";
+export const PRIVATE_ALPHA_CLOUD_APPROVAL_STATEMENT =
+  "Manual approval recorded for this exact Groq Cloud provider and model scope. The approved request may be transferred to Groq only after a later separate execution action is implemented. Cloud execution remains disabled.";
 export const PRIVATE_ALPHA_SECRET_GUIDANCE =
   "Do not paste API keys, tokens, passwords, or secrets.";
 export const PRIVATE_ALPHA_SECRET_REJECTION_MESSAGE =
@@ -57,6 +71,15 @@ export const PRIVATE_ALPHA_ENGAGED_KILL_SWITCH_VALUES = [
 export const PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE =
   "legacy-foundation" as const;
 export const PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE = "local-ollama" as const;
+
+const PRIVATE_ALPHA_GROQ_PROVIDER_ID = "groq-cloud" as const;
+const PRIVATE_ALPHA_GROQ_20B_MODEL = "openai/gpt-oss-20b" as const;
+const PRIVATE_ALPHA_GROQ_120B_MODEL = "openai/gpt-oss-120b" as const;
+const PRIVATE_ALPHA_LOCAL_DATA_BOUNDARY = "local-machine" as const;
+const PRIVATE_ALPHA_CLOUD_DATA_BOUNDARY = "cloud-provider" as const;
+const PRIVATE_ALPHA_NOT_REQUIRED_CLOUD_TRANSFER = "not-required" as const;
+const PRIVATE_ALPHA_REQUIRED_CLOUD_TRANSFER =
+  "explicit-operator-acknowledgement-required" as const;
 
 export type PrivateAlphaRuntimeProfile =
   | typeof PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE
@@ -74,6 +97,33 @@ export type PrivateAlphaValidationResult<T> =
       status: ValidationStatus;
       error: string;
     }>;
+
+type PrivateAlphaResolvedBoundConfiguration = Readonly<{
+  bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+  modelKey: PrivateAlphaRuntimeModelKey;
+  providerPreference: "ollama-local" | "groq-cloud";
+  modelPreferenceLabel:
+    | typeof PRIVATE_ALPHA_PRODUCTION_MODEL
+    | typeof PRIVATE_ALPHA_GROQ_20B_MODEL
+    | typeof PRIVATE_ALPHA_GROQ_120B_MODEL;
+  executionMode:
+    | typeof PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
+    | typeof PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE;
+  dataBoundary: PrivateAlphaBoundDataBoundary;
+  cloudDataTransferRequirement: PrivateAlphaCloudDataTransferRequirement;
+}>;
+
+type PrivateAlphaExecutionConfigurationInput = Readonly<{
+  providerPreference: PrivateAlphaProviderPreference;
+  modelPreferenceLabel: string | null;
+  retentionMode: PrivateAlphaRetentionMode;
+  executionMode: PrivateAlphaExecutionMode;
+  capability?: PrivateAlphaCapability;
+  bindingVersion?: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+  modelKey?: PrivateAlphaRuntimeModelKey;
+  dataBoundary?: PrivateAlphaBoundDataBoundary;
+  cloudDataTransferRequirement?: PrivateAlphaCloudDataTransferRequirement;
+}>;
 
 function failure<T>(
   status: ValidationStatus,
@@ -116,6 +166,77 @@ function normalizeSingleLineText(value: string): string {
 
 function isValidCapability(value: string): value is PrivateAlphaCapability {
   return value === "text" || value === "code";
+}
+
+function hasNoApprovalBindingFields(
+  input: PrivateAlphaExecutionConfigurationInput
+): boolean {
+  return (
+    input.bindingVersion === undefined &&
+    input.modelKey === undefined &&
+    input.dataBoundary === undefined &&
+    input.cloudDataTransferRequirement === undefined
+  );
+}
+
+function hasCompleteApprovalBindingFields(
+  input: PrivateAlphaExecutionConfigurationInput
+): input is PrivateAlphaExecutionConfigurationInput &
+  Readonly<{
+    bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+    modelKey: PrivateAlphaRuntimeModelKey;
+    dataBoundary: PrivateAlphaBoundDataBoundary;
+    cloudDataTransferRequirement: PrivateAlphaCloudDataTransferRequirement;
+  }> {
+  return (
+    input.bindingVersion === PRIVATE_ALPHA_APPROVAL_BINDING_VERSION &&
+    input.modelKey !== undefined &&
+    input.dataBoundary !== undefined &&
+    input.cloudDataTransferRequirement !== undefined
+  );
+}
+
+function isPrivateAlphaRuntimeModelKey(
+  value: string
+): value is PrivateAlphaRuntimeModelKey {
+  return PRIVATE_ALPHA_RUNTIME_MODEL_KEYS.includes(value as PrivateAlphaRuntimeModelKey);
+}
+
+export function resolvePrivateAlphaBoundConfiguration(
+  modelKey: PrivateAlphaRuntimeModelKey
+): PrivateAlphaResolvedBoundConfiguration {
+  switch (modelKey) {
+    case PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY:
+      return {
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey,
+        providerPreference: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+        modelPreferenceLabel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+        executionMode: PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+        dataBoundary: PRIVATE_ALPHA_LOCAL_DATA_BOUNDARY,
+        cloudDataTransferRequirement: PRIVATE_ALPHA_NOT_REQUIRED_CLOUD_TRANSFER,
+      };
+    case PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY:
+      return {
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey,
+        providerPreference: PRIVATE_ALPHA_GROQ_PROVIDER_ID,
+        modelPreferenceLabel: PRIVATE_ALPHA_GROQ_20B_MODEL,
+        executionMode: PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE,
+        dataBoundary: PRIVATE_ALPHA_CLOUD_DATA_BOUNDARY,
+        cloudDataTransferRequirement: PRIVATE_ALPHA_REQUIRED_CLOUD_TRANSFER,
+      };
+    case PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY:
+      return {
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey,
+        providerPreference: PRIVATE_ALPHA_GROQ_PROVIDER_ID,
+        modelPreferenceLabel: PRIVATE_ALPHA_GROQ_120B_MODEL,
+        executionMode: PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE,
+        dataBoundary: PRIVATE_ALPHA_CLOUD_DATA_BOUNDARY,
+        cloudDataTransferRequirement: PRIVATE_ALPHA_REQUIRED_CLOUD_TRANSFER,
+      };
+  }
 }
 
 function isPlaceholderLikeSecretValue(value: string): boolean {
@@ -190,6 +311,44 @@ function validateModelPreferenceLabel(
   }
 
   return success(normalized);
+}
+
+function validateExplicitModelPreferenceLabel(
+  value: unknown,
+  modelKey: PrivateAlphaRuntimeModelKey
+): PrivateAlphaValidationResult<
+  PrivateAlphaResolvedBoundConfiguration["modelPreferenceLabel"]
+> {
+  const configuration = resolvePrivateAlphaBoundConfiguration(modelKey);
+
+  if (value === undefined || value === null) {
+    return success(configuration.modelPreferenceLabel);
+  }
+
+  if (typeof value !== "string") {
+    return failure(400, "modelPreferenceLabel must be a string when provided.");
+  }
+
+  const normalized = normalizeOptionalLabel(value);
+  if (!normalized) {
+    return success(configuration.modelPreferenceLabel);
+  }
+
+  if (normalized.length > PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH) {
+    return failure(
+      400,
+      `modelPreferenceLabel exceeds ${PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH} characters.`
+    );
+  }
+
+  if (normalized !== configuration.modelPreferenceLabel) {
+    return failure(
+      400,
+      `modelPreferenceLabel must be ${configuration.modelPreferenceLabel} when provided.`
+    );
+  }
+
+  return success(configuration.modelPreferenceLabel);
 }
 
 export function isPrivateAlphaKillSwitchValueEngaged(value: string): boolean {
@@ -307,6 +466,7 @@ export function validatePrivateAlphaCreateRunInput(
     "capability",
     "modelPreferenceLabel",
     "maximumOutputTokens",
+    "modelKey",
   ]);
   if (unknownKeys.length > 0) {
     return failure(400, `Unknown fields are not allowed: ${unknownKeys.join(", ")}.`);
@@ -348,19 +508,53 @@ export function validatePrivateAlphaCreateRunInput(
     );
   }
 
-  const modelValidation = validateModelPreferenceLabel(
+  if (body.modelKey === undefined) {
+    const modelValidation = validateModelPreferenceLabel(
+      body.modelPreferenceLabel,
+      profile
+    );
+    if (!modelValidation.ok) {
+      return modelValidation;
+    }
+
+    return success({
+      requestText: normalizedRequestText,
+      capability: body.capability,
+      modelPreferenceLabel: modelValidation.value,
+      maximumOutputTokens: body.maximumOutputTokens,
+    });
+  }
+
+  if (typeof body.modelKey !== "string") {
+    return failure(400, "modelKey must be a string when provided.");
+  }
+
+  if (!isPrivateAlphaRuntimeModelKey(body.modelKey)) {
+    return failure(400, "modelKey is not supported.");
+  }
+
+  const boundConfiguration = resolvePrivateAlphaBoundConfiguration(body.modelKey);
+  const explicitModelValidation = validateExplicitModelPreferenceLabel(
     body.modelPreferenceLabel,
-    profile
+    body.modelKey
   );
-  if (!modelValidation.ok) {
-    return modelValidation;
+  if (!explicitModelValidation.ok) {
+    return explicitModelValidation;
+  }
+
+  if (
+    boundConfiguration.providerPreference === PRIVATE_ALPHA_GROQ_PROVIDER_ID &&
+    body.capability !== "text"
+  ) {
+    return failure(400, "capability must be text for Groq-bound requests.");
   }
 
   return success({
     requestText: normalizedRequestText,
     capability: body.capability,
-    modelPreferenceLabel: modelValidation.value,
+    modelPreferenceLabel: explicitModelValidation.value,
     maximumOutputTokens: body.maximumOutputTokens,
+    modelKey: body.modelKey,
   });
 }
 
@@ -376,6 +570,7 @@ export function validatePrivateAlphaApprovalInput(
     "approved",
     "acknowledgement",
     "expectedRevision",
+    "cloudDataTransferAcknowledgement",
   ]);
   if (unknownKeys.length > 0) {
     return failure(400, `Unknown fields are not allowed: ${unknownKeys.join(", ")}.`);
@@ -423,11 +618,24 @@ export function validatePrivateAlphaApprovalInput(
     return failure(400, "expectedRevision must be a positive integer.");
   }
 
+  if (
+    body.cloudDataTransferAcknowledgement !== undefined &&
+    body.cloudDataTransferAcknowledgement !== true
+  ) {
+    return failure(
+      400,
+      "cloudDataTransferAcknowledgement must be exactly true when provided."
+    );
+  }
+
   return success({
     approvalScopeHash: body.approvalScopeHash.trim(),
     approved: true,
     acknowledgement,
     expectedRevision: body.expectedRevision,
+    ...(body.cloudDataTransferAcknowledgement === true
+      ? { cloudDataTransferAcknowledgement: true as const }
+      : {}),
   });
 }
 
@@ -537,26 +745,82 @@ export function isPrivateAlphaLegacyRunConfiguration(input: {
   );
 }
 
-export function isPrivateAlphaLocalExecutionConfiguration(input: {
-  providerPreference: PrivateAlphaProviderPreference;
-  modelPreferenceLabel: string | null;
-  retentionMode: PrivateAlphaRetentionMode;
-  executionMode: PrivateAlphaExecutionMode;
-}): boolean {
+export function isPrivateAlphaLocalExecutionConfiguration(
+  input: PrivateAlphaExecutionConfigurationInput
+): boolean {
+  if (
+    input.providerPreference !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID ||
+    input.modelPreferenceLabel !== PRIVATE_ALPHA_PRODUCTION_MODEL ||
+    input.retentionMode !== PRIVATE_ALPHA_RETENTION_MODE ||
+    input.executionMode !== PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
+  ) {
+    return false;
+  }
+
+  if (hasNoApprovalBindingFields(input)) {
+    return true;
+  }
+
+  if (!hasCompleteApprovalBindingFields(input)) {
+    return false;
+  }
+
+  const configuration = resolvePrivateAlphaBoundConfiguration(input.modelKey);
   return (
-    input.providerPreference === PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID &&
-    input.modelPreferenceLabel === PRIVATE_ALPHA_PRODUCTION_MODEL &&
-    input.retentionMode === PRIVATE_ALPHA_RETENTION_MODE &&
-    input.executionMode === PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
+    configuration.providerPreference === PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID &&
+    configuration.modelPreferenceLabel === PRIVATE_ALPHA_PRODUCTION_MODEL &&
+    configuration.executionMode === PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE &&
+    input.bindingVersion === PRIVATE_ALPHA_APPROVAL_BINDING_VERSION &&
+    input.dataBoundary === configuration.dataBoundary &&
+    input.cloudDataTransferRequirement ===
+      configuration.cloudDataTransferRequirement
+  );
+}
+
+export function isPrivateAlphaCloudApprovalOnlyConfiguration(
+  input: PrivateAlphaExecutionConfigurationInput
+): boolean {
+  if (
+    input.providerPreference !== PRIVATE_ALPHA_GROQ_PROVIDER_ID ||
+    input.retentionMode !== PRIVATE_ALPHA_RETENTION_MODE ||
+    input.executionMode !== PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE ||
+    input.modelPreferenceLabel === null ||
+    (input.modelPreferenceLabel !== PRIVATE_ALPHA_GROQ_20B_MODEL &&
+      input.modelPreferenceLabel !== PRIVATE_ALPHA_GROQ_120B_MODEL)
+  ) {
+    return false;
+  }
+
+  if (input.capability !== undefined && input.capability !== "text") {
+    return false;
+  }
+
+  if (!hasCompleteApprovalBindingFields(input)) {
+    return false;
+  }
+
+  const configuration = resolvePrivateAlphaBoundConfiguration(input.modelKey);
+  return (
+    configuration.providerPreference === PRIVATE_ALPHA_GROQ_PROVIDER_ID &&
+    input.modelPreferenceLabel === configuration.modelPreferenceLabel &&
+    input.dataBoundary === configuration.dataBoundary &&
+    input.cloudDataTransferRequirement ===
+      configuration.cloudDataTransferRequirement
   );
 }
 
 export function resolvePrivateAlphaApprovalStatement(
   executionMode: PrivateAlphaExecutionMode
 ): string {
-  return executionMode === PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
-    ? PRIVATE_ALPHA_LOCAL_EXECUTION_APPROVAL_STATEMENT
-    : PRIVATE_ALPHA_APPROVAL_LOCK_STATEMENT;
+  if (executionMode === PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE) {
+    return PRIVATE_ALPHA_LOCAL_EXECUTION_APPROVAL_STATEMENT;
+  }
+
+  if (executionMode === PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE) {
+    return PRIVATE_ALPHA_CLOUD_APPROVAL_STATEMENT;
+  }
+
+  return PRIVATE_ALPHA_APPROVAL_LOCK_STATEMENT;
 }
 
 export function buildPrivateAlphaRunRequest(
@@ -564,29 +828,89 @@ export function buildPrivateAlphaRunRequest(
   profile: PrivateAlphaRuntimeProfile = PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE
 ): PrivateAlphaRunRequest {
   const normalizedRequestText = normalizePrivateAlphaRequestText(input.requestText);
-  const isLocalProfile = profile === PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE;
-
-  return {
+  const commonFields = {
     normalizedRequestText,
     redactedPreview: buildPrivateAlphaRedactedPreview(normalizedRequestText),
-    capability: input.capability,
-    providerPreference: isLocalProfile
-      ? PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID
-      : PRIVATE_ALPHA_LEGACY_PROVIDER_PREFERENCE,
-    modelPreferenceLabel: isLocalProfile
-      ? PRIVATE_ALPHA_PRODUCTION_MODEL
-      : input.modelPreferenceLabel,
     maximumOutputTokens: input.maximumOutputTokens,
     retentionMode: PRIVATE_ALPHA_RETENTION_MODE,
-    executionMode: isLocalProfile
-      ? PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
-      : PRIVATE_ALPHA_LEGACY_EXECUTION_MODE,
+  };
+
+  if (input.modelKey !== undefined) {
+    switch (input.modelKey) {
+      case PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY:
+        return {
+          ...commonFields,
+          capability: input.capability,
+          providerPreference: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+          modelPreferenceLabel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+          executionMode: PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+          bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+          modelKey: PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
+          dataBoundary: PRIVATE_ALPHA_LOCAL_DATA_BOUNDARY,
+          cloudDataTransferRequirement: PRIVATE_ALPHA_NOT_REQUIRED_CLOUD_TRANSFER,
+        };
+      case PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY:
+        return {
+          ...commonFields,
+          capability: "text",
+          providerPreference: PRIVATE_ALPHA_GROQ_PROVIDER_ID,
+          modelPreferenceLabel: PRIVATE_ALPHA_GROQ_20B_MODEL,
+          executionMode: PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE,
+          bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+          modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+          dataBoundary: PRIVATE_ALPHA_CLOUD_DATA_BOUNDARY,
+          cloudDataTransferRequirement: PRIVATE_ALPHA_REQUIRED_CLOUD_TRANSFER,
+        };
+      case PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY:
+        return {
+          ...commonFields,
+          capability: "text",
+          providerPreference: PRIVATE_ALPHA_GROQ_PROVIDER_ID,
+          modelPreferenceLabel: PRIVATE_ALPHA_GROQ_120B_MODEL,
+          executionMode: PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE,
+          bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+          modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+          dataBoundary: PRIVATE_ALPHA_CLOUD_DATA_BOUNDARY,
+          cloudDataTransferRequirement: PRIVATE_ALPHA_REQUIRED_CLOUD_TRANSFER,
+        };
+    }
+  }
+
+  if (profile === PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE) {
+    return {
+      ...commonFields,
+      capability: input.capability,
+      providerPreference: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+      modelPreferenceLabel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+      executionMode: PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+    };
+  }
+
+  return {
+    ...commonFields,
+    capability: input.capability,
+    providerPreference: PRIVATE_ALPHA_LEGACY_PROVIDER_PREFERENCE,
+    modelPreferenceLabel: input.modelPreferenceLabel,
+    executionMode: PRIVATE_ALPHA_LEGACY_EXECUTION_MODE,
   };
 }
 
 export function serializePrivateAlphaRunRequest(
   request: PrivateAlphaRunRequest
 ): string {
+  if (!("bindingVersion" in request)) {
+    return JSON.stringify({
+      normalizedRequestText: request.normalizedRequestText,
+      redactedPreview: request.redactedPreview,
+      capability: request.capability,
+      providerPreference: request.providerPreference,
+      modelPreferenceLabel: request.modelPreferenceLabel,
+      maximumOutputTokens: request.maximumOutputTokens,
+      retentionMode: request.retentionMode,
+      executionMode: request.executionMode,
+    });
+  }
+
   return JSON.stringify({
     normalizedRequestText: request.normalizedRequestText,
     redactedPreview: request.redactedPreview,
@@ -596,6 +920,10 @@ export function serializePrivateAlphaRunRequest(
     maximumOutputTokens: request.maximumOutputTokens,
     retentionMode: request.retentionMode,
     executionMode: request.executionMode,
+    bindingVersion: request.bindingVersion,
+    modelKey: request.modelKey,
+    dataBoundary: request.dataBoundary,
+    cloudDataTransferRequirement: request.cloudDataTransferRequirement,
   });
 }
 
@@ -604,21 +932,97 @@ export function buildPrivateAlphaApprovalScope(input: {
   request: PrivateAlphaRunRequest;
   normalizedRequestHash: string;
 }): PrivateAlphaApprovalScope {
-  return {
-    runId: input.runId,
-    capability: input.request.capability,
-    normalizedRequestHash: input.normalizedRequestHash,
-    providerPreference: input.request.providerPreference,
-    modelPreferenceLabel: input.request.modelPreferenceLabel,
-    maximumOutputTokens: input.request.maximumOutputTokens,
-    retentionMode: input.request.retentionMode,
-    executionMode: input.request.executionMode,
-  };
+  if (!("bindingVersion" in input.request)) {
+    if (input.request.providerPreference === PRIVATE_ALPHA_LEGACY_PROVIDER_PREFERENCE) {
+      return {
+        runId: input.runId,
+        capability: input.request.capability,
+        normalizedRequestHash: input.normalizedRequestHash,
+        providerPreference: PRIVATE_ALPHA_LEGACY_PROVIDER_PREFERENCE,
+        modelPreferenceLabel: input.request.modelPreferenceLabel,
+        maximumOutputTokens: input.request.maximumOutputTokens,
+        retentionMode: input.request.retentionMode,
+        executionMode: PRIVATE_ALPHA_LEGACY_EXECUTION_MODE,
+      };
+    }
+
+    return {
+      runId: input.runId,
+      capability: input.request.capability,
+      normalizedRequestHash: input.normalizedRequestHash,
+      providerPreference: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+      modelPreferenceLabel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+      maximumOutputTokens: input.request.maximumOutputTokens,
+      retentionMode: input.request.retentionMode,
+      executionMode: PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+    };
+  }
+
+  switch (input.request.modelKey) {
+    case PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY:
+      return {
+        runId: input.runId,
+        capability: input.request.capability,
+        normalizedRequestHash: input.normalizedRequestHash,
+        providerPreference: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+        modelPreferenceLabel: PRIVATE_ALPHA_PRODUCTION_MODEL,
+        maximumOutputTokens: input.request.maximumOutputTokens,
+        retentionMode: input.request.retentionMode,
+        executionMode: PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey: PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
+        dataBoundary: PRIVATE_ALPHA_LOCAL_DATA_BOUNDARY,
+        cloudDataTransferRequirement: PRIVATE_ALPHA_NOT_REQUIRED_CLOUD_TRANSFER,
+      };
+    case PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY:
+      return {
+        runId: input.runId,
+        capability: "text",
+        normalizedRequestHash: input.normalizedRequestHash,
+        providerPreference: PRIVATE_ALPHA_GROQ_PROVIDER_ID,
+        modelPreferenceLabel: PRIVATE_ALPHA_GROQ_20B_MODEL,
+        maximumOutputTokens: input.request.maximumOutputTokens,
+        retentionMode: input.request.retentionMode,
+        executionMode: PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE,
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+        dataBoundary: PRIVATE_ALPHA_CLOUD_DATA_BOUNDARY,
+        cloudDataTransferRequirement: PRIVATE_ALPHA_REQUIRED_CLOUD_TRANSFER,
+      };
+    case PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY:
+      return {
+        runId: input.runId,
+        capability: "text",
+        normalizedRequestHash: input.normalizedRequestHash,
+        providerPreference: PRIVATE_ALPHA_GROQ_PROVIDER_ID,
+        modelPreferenceLabel: PRIVATE_ALPHA_GROQ_120B_MODEL,
+        maximumOutputTokens: input.request.maximumOutputTokens,
+        retentionMode: input.request.retentionMode,
+        executionMode: PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE,
+        bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+        modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+        dataBoundary: PRIVATE_ALPHA_CLOUD_DATA_BOUNDARY,
+        cloudDataTransferRequirement: PRIVATE_ALPHA_REQUIRED_CLOUD_TRANSFER,
+      };
+  }
 }
 
 export function serializePrivateAlphaApprovalScope(
   scope: PrivateAlphaApprovalScope
 ): string {
+  if (!("bindingVersion" in scope)) {
+    return JSON.stringify({
+      runId: scope.runId,
+      capability: scope.capability,
+      normalizedRequestHash: scope.normalizedRequestHash,
+      providerPreference: scope.providerPreference,
+      modelPreferenceLabel: scope.modelPreferenceLabel,
+      maximumOutputTokens: scope.maximumOutputTokens,
+      retentionMode: scope.retentionMode,
+      executionMode: scope.executionMode,
+    });
+  }
+
   return JSON.stringify({
     runId: scope.runId,
     capability: scope.capability,
@@ -628,6 +1032,10 @@ export function serializePrivateAlphaApprovalScope(
     maximumOutputTokens: scope.maximumOutputTokens,
     retentionMode: scope.retentionMode,
     executionMode: scope.executionMode,
+    bindingVersion: scope.bindingVersion,
+    modelKey: scope.modelKey,
+    dataBoundary: scope.dataBoundary,
+    cloudDataTransferRequirement: scope.cloudDataTransferRequirement,
   });
 }
 

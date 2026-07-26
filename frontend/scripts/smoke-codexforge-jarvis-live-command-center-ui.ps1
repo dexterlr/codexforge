@@ -54,6 +54,8 @@ function Find-RuleMixingBorderProperties {
 function Get-StatusEntries {
   $entries = @()
   $lines = git -C $repoRoot status --porcelain=v1 --untracked-files=all
+  $repoLeaf = Split-Path -Leaf $repoRoot.ProviderPath
+  $repoPrefix = "{0}/" -f $repoLeaf
 
   foreach ($line in $lines) {
     if ([string]::IsNullOrWhiteSpace($line)) {
@@ -64,9 +66,14 @@ function Get-StatusEntries {
       continue
     }
 
+    $path = $line.Substring(3).Trim()
+    if ($path.StartsWith($repoPrefix)) {
+      $path = $path.Substring($repoPrefix.Length)
+    }
+
     $entries += [pscustomobject]@{
       Status = $line.Substring(0, 2)
-      Path = $line.Substring(3).Trim()
+      Path = $path
     }
   }
 
@@ -200,17 +207,51 @@ Add-Result ($privateAlpha -notmatch '\bfetch\s*\(') "PrivateAlphaRunPanel contai
 Add-Result ($liveUiText -notmatch '11434') "the browser UI does not reference port 11434"
 Add-Result ($liveUiText -notmatch 'localStorage|sessionStorage|indexedDB|document\.cookie') "no browser storage exists"
 Add-Result ($liveUiText -notmatch 'https?://') "no external provider URL exists"
+$allowedSliceIBackendPrivateAlphaChanges = @(
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts"
+)
 Add-Result (
   -not ($changedPaths | Where-Object {
-      $_ -match '^src/lib/codexforge/private-alpha/private-alpha-(store|ollama|kill-switch)\.server\.ts$' -or
-      $_ -match '^src/lib/codexforge/private-alpha/private-alpha-(state-machine|types|validation|api-client)\.ts$'
+      $_ -eq $athenaPanelPath -or
+      $_ -eq $livePanelPath -or
+      $_ -eq $shellPath -or
+      $_ -eq $privateAlphaPath -or
+      $_ -eq $cssPath
     })
-) "no backend private-alpha file changed"
+) "no private-alpha UI component changed"
 Add-Result (
   -not ($changedPaths | Where-Object {
       $_ -match '^src/app/api/codexforge/private-alpha/'
     })
 ) "no private-alpha API route changed"
+Add-Result (
+  -not ($changedPaths | Where-Object {
+      $_ -eq "src/lib/codexforge/private-alpha/private-alpha-api-client.ts"
+    })
+) "no private-alpha API client changed"
+$changedBackendPrivateAlphaPaths = @(
+  $changedPaths | Where-Object {
+    $_ -match '^src/lib/codexforge/private-alpha/'
+  }
+)
+$unexpectedBackendPrivateAlphaPaths = @(
+  $changedBackendPrivateAlphaPaths | Where-Object {
+    $allowedSliceIBackendPrivateAlphaChanges -notcontains $_
+  }
+)
+$allAllowedBackendPrivateAlphaPathsPresent = $true
+foreach ($allowedPath in $allowedSliceIBackendPrivateAlphaChanges) {
+  if (-not ($changedPaths -contains $allowedPath)) {
+    $allAllowedBackendPrivateAlphaPathsPresent = $false
+  }
+}
+Add-Result (
+  $unexpectedBackendPrivateAlphaPaths.Count -eq 0 -and
+  $allAllowedBackendPrivateAlphaPathsPresent
+) "only the intended Slice I backend contract files changed"
 Add-Result ($changedTypeScriptText -notmatch ':\s*any\b|\bas any\b|<any>') "no any or as any was introduced"
 Add-Result ($changedUiText -notmatch 'ts-nocheck|ts-expect-error') "no ts-nocheck or ts-expect-error was introduced"
 Add-Result ($commandDeckRole.Contains("commandDeckRole: CodexForgeCommandDeckRole;")) "commandDeckRole remains strongly typed"
