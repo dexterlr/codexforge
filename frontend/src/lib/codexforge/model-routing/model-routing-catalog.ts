@@ -2,16 +2,27 @@ import {
   CODEXFORGE_TASK_PROFILES,
   type CodexForgeModelCatalogSnapshot,
   type CodexForgeModelDescriptor,
+  type CodexForgeModelId,
   type CodexForgeModelKey,
   type CodexForgeModelPricing,
   type CodexForgeProviderDescriptor,
   type CodexForgeProviderId,
-  type CodexForgeModelId,
   type CodexForgeTaskProfileScores,
 } from "./model-routing-types";
 
 export const CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION =
-  "codexforge-model-routing-v1";
+  "codexforge-model-routing-v2";
+
+const CODEXFORGE_GROQ_PROVIDER_ID = "groq-cloud";
+const CODEXFORGE_GROQ_PROVIDER_LABEL = "Groq Cloud";
+const CODEXFORGE_GROQ_ADAPTER_ID = "groq-provider-client";
+const CODEXFORGE_GROQ_MODEL_IDS = [
+  "openai/gpt-oss-20b",
+  "openai/gpt-oss-120b",
+] as const;
+const CODEXFORGE_GROQ_PRICING_AS_OF = "2026-07-26";
+const CODEXFORGE_GROQ_CONTEXT_WINDOW_TOKENS = 131072;
+const CODEXFORGE_GROQ_APPROVED_MAXIMUM_OUTPUT_TOKENS = 4096;
 
 export function buildCodexForgeModelKey(
   providerId: CodexForgeProviderId,
@@ -76,7 +87,9 @@ function cloneCodexForgeModelDescriptor(
     approvedMaximumOutputTokens: descriptor.approvedMaximumOutputTokens,
     contextWindowTokens: descriptor.contextWindowTokens,
     pricing: cloneCodexForgeModelPricing(descriptor.pricing),
-    taskProfileScores: cloneCodexForgeTaskProfileScores(descriptor.taskProfileScores),
+    taskProfileScores: cloneCodexForgeTaskProfileScores(
+      descriptor.taskProfileScores
+    ),
     evidence: [...descriptor.evidence],
   };
 }
@@ -147,7 +160,9 @@ function freezeCodexForgeModelDescriptor(
     approvedMaximumOutputTokens: descriptor.approvedMaximumOutputTokens,
     contextWindowTokens: descriptor.contextWindowTokens,
     pricing: freezeCodexForgeModelPricing(descriptor.pricing),
-    taskProfileScores: freezeCodexForgeTaskProfileScores(descriptor.taskProfileScores),
+    taskProfileScores: freezeCodexForgeTaskProfileScores(
+      descriptor.taskProfileScores
+    ),
     evidence: Object.freeze([...descriptor.evidence]),
   });
 }
@@ -172,6 +187,40 @@ function isMissingLabel(value: string): boolean {
   return value.trim().length === 0;
 }
 
+function buildGroqModelDescriptor(
+  modelId: (typeof CODEXFORGE_GROQ_MODEL_IDS)[number]
+): CodexForgeModelDescriptor {
+  return {
+    modelKey: buildCodexForgeModelKey(CODEXFORGE_GROQ_PROVIDER_ID, modelId),
+    providerId: CODEXFORGE_GROQ_PROVIDER_ID,
+    modelId,
+    label: modelId,
+    routingState: "manual-only",
+    qualificationState: "live-verified",
+    capabilities: ["text-generation"],
+    approvedMaximumOutputTokens:
+      CODEXFORGE_GROQ_APPROVED_MAXIMUM_OUTPUT_TOKENS,
+    contextWindowTokens: CODEXFORGE_GROQ_CONTEXT_WINDOW_TOKENS,
+    pricing: {
+      costClass: "free-tier",
+      currency: "USD",
+      inputUsdPerMillionTokens: 0,
+      outputUsdPerMillionTokens: 0,
+      pricingAsOf: CODEXFORGE_GROQ_PRICING_AS_OF,
+      sourceLabel:
+        "Operator-confirmed Groq Free tier on 2026-07-26; account limits may change",
+    },
+    taskProfileScores: {},
+    evidence: [
+      "codexforge-groq-provider-qualification-foundation-clean",
+      "live Groq discovery completed on 2026-07-26",
+      "exact visible-output qualification completed on 2026-07-26",
+      "operator-confirmed Free tier on 2026-07-26",
+      "reasoning not exposed in live qualification",
+    ],
+  };
+}
+
 export function validateCodexForgeModelCatalog(
   snapshot: CodexForgeModelCatalogSnapshot
 ): readonly string[] {
@@ -189,6 +238,21 @@ export function validateCodexForgeModelCatalog(
 
     if (isMissingLabel(provider.label)) {
       errors.push(`Provider label must not be empty: ${provider.providerId}`);
+    }
+
+    if (provider.locality === "local" && provider.dataBoundary !== "local-machine") {
+      errors.push(
+        `Local provider must use local-machine data boundary: ${provider.providerId}`
+      );
+    }
+
+    if (
+      provider.locality === "cloud" &&
+      provider.dataBoundary !== "cloud-provider"
+    ) {
+      errors.push(
+        `Cloud provider must use cloud-provider data boundary: ${provider.providerId}`
+      );
     }
 
     providerIndex.set(provider.providerId, provider);
@@ -226,7 +290,9 @@ export function validateCodexForgeModelCatalog(
         score !== undefined &&
         (!Number.isInteger(score) || score < 0 || score > 100)
       ) {
-        errors.push(`Task profile score out of range: ${model.modelKey} -> ${taskProfile}`);
+        errors.push(
+          `Task profile score out of range: ${model.modelKey} -> ${taskProfile}`
+        );
       }
     }
 
@@ -239,7 +305,8 @@ export function validateCodexForgeModelCatalog(
 
     if (
       model.contextWindowTokens !== null &&
-      (!Number.isFinite(model.contextWindowTokens) || model.contextWindowTokens <= 0)
+      (!Number.isFinite(model.contextWindowTokens) ||
+        model.contextWindowTokens <= 0)
     ) {
       errors.push(`Context window must be positive when present: ${model.modelKey}`);
     }
@@ -266,6 +333,15 @@ export function validateCodexForgeModelCatalog(
     }
 
     if (
+      model.pricing.costClass === "local-no-provider-token-charge" &&
+      provider?.locality === "cloud"
+    ) {
+      errors.push(
+        `Local no-charge pricing is invalid on a cloud provider: ${model.modelKey}`
+      );
+    }
+
+    if (
       model.pricing.costClass === "free-tier" &&
       (hasNonZeroRate(inputRate) || hasNonZeroRate(outputRate))
     ) {
@@ -281,7 +357,8 @@ export function validateCodexForgeModelCatalog(
 
     if (
       model.pricing.costClass === "paid" &&
-      (model.pricing.pricingAsOf === null || model.pricing.pricingAsOf.trim().length === 0)
+      (model.pricing.pricingAsOf === null ||
+        model.pricing.pricingAsOf.trim().length === 0)
     ) {
       errors.push(`Paid pricing requires pricingAsOf: ${model.modelKey}`);
     }
@@ -300,6 +377,15 @@ export function validateCodexForgeModelCatalog(
     }
 
     if (
+      model.routingState === "manual-only" &&
+      provider?.catalogState !== "enabled"
+    ) {
+      errors.push(
+        `Manual-only routing requires an enabled provider: ${model.modelKey}`
+      );
+    }
+
+    if (
       model.routingState === "automatic" &&
       model.qualificationState !== "deterministic-tested" &&
       model.qualificationState !== "live-verified"
@@ -310,12 +396,32 @@ export function validateCodexForgeModelCatalog(
     }
 
     if (
+      model.routingState === "manual-only" &&
+      model.qualificationState !== "deterministic-tested" &&
+      model.qualificationState !== "live-verified"
+    ) {
+      errors.push(
+        `Manual-only routing requires deterministic-tested or live-verified qualification: ${model.modelKey}`
+      );
+    }
+
+    if (
       model.routingState === "automatic" &&
       (model.qualificationState === "disabled" ||
         model.qualificationState === "deprecated")
     ) {
       errors.push(
         `Disabled or deprecated models cannot be automatic: ${model.modelKey}`
+      );
+    }
+
+    if (
+      model.routingState === "manual-only" &&
+      (model.qualificationState === "disabled" ||
+        model.qualificationState === "deprecated")
+    ) {
+      errors.push(
+        `Disabled or deprecated models cannot be manual-only: ${model.modelKey}`
       );
     }
   }
@@ -334,6 +440,21 @@ const productionCatalogDraft: CodexForgeModelCatalogSnapshot = {
       catalogState: "enabled",
       adapterId: "private-alpha-ollama-adapter",
       notes: [],
+    },
+    {
+      providerId: CODEXFORGE_GROQ_PROVIDER_ID,
+      label: CODEXFORGE_GROQ_PROVIDER_LABEL,
+      locality: "cloud",
+      dataBoundary: "cloud-provider",
+      catalogState: "enabled",
+      adapterId: CODEXFORGE_GROQ_ADAPTER_ID,
+      notes: [
+        "Live-qualified for discovery and visible text generation on 2026-07-26.",
+        "Manual routing metadata only.",
+        "Private-alpha execution is not connected.",
+        "Operator-confirmed Free tier on 2026-07-26.",
+        "Account tier and provider limits may change and require revalidation.",
+      ],
     },
   ],
   models: [
@@ -362,10 +483,13 @@ const productionCatalogDraft: CodexForgeModelCatalogSnapshot = {
         "live Jarvis visible-output acceptance",
       ],
     },
+    ...CODEXFORGE_GROQ_MODEL_IDS.map(buildGroqModelDescriptor),
   ],
 };
 
-const productionCatalogErrors = validateCodexForgeModelCatalog(productionCatalogDraft);
+const productionCatalogErrors = validateCodexForgeModelCatalog(
+  productionCatalogDraft
+);
 
 if (productionCatalogErrors.length > 0) {
   throw new Error(

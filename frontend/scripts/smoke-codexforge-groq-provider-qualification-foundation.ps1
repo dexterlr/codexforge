@@ -55,6 +55,7 @@ $requiredFiles = @(
   "src\lib\codexforge\groq-provider\groq-provider-credential.server.ts",
   "src\lib\codexforge\groq-provider\groq-provider-client.server.ts",
   "src\lib\codexforge\groq-provider\index.ts",
+  "src\lib\codexforge\model-routing\model-routing-catalog.ts",
   "docs\codexforge-groq-provider-qualification-foundation-v0.md",
   "scripts\smoke-codexforge-groq-provider-qualification-foundation.ps1"
 )
@@ -78,6 +79,9 @@ $qualificationPath = "src\lib\codexforge\groq-provider\groq-provider-qualificati
 $typesPath = "src\lib\codexforge\groq-provider\groq-provider-types.ts"
 $indexPath = "src\lib\codexforge\groq-provider\index.ts"
 $docPath = "docs\codexforge-groq-provider-qualification-foundation-v0.md"
+
+Assert-NoGitDiff $credentialPath "Groq credential module remains unchanged by this slice"
+Assert-NoGitDiff $clientPath "Groq client module remains unchanged by this slice"
 
 $credentialFirstLine = Get-Content $credentialPath -TotalCount 1
 $clientFirstLine = Get-Content $clientPath -TotalCount 1
@@ -138,7 +142,6 @@ Assert-Contains $docSource "Groq is not admitted to the production routing catal
 Assert-Contains $docSource "Groq is not in the Jarvis selector." "Documentation keeps Jarvis selector disabled"
 Assert-Contains $docSource "Groq is not integrated into the current private-alpha store or execution path." "Documentation keeps store integration disabled"
 
-Assert-NoGitDiff "src/lib/codexforge/model-routing/model-routing-catalog.ts" "Current production model-routing catalog remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Current private-alpha store remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Current provider adapter remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Current Ollama adapter remains unchanged"
@@ -148,6 +151,13 @@ Assert-NoGitDiff "src/app/jarvis" "Current Jarvis UI remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/ai-provider-registry" "Historical provider-registry directory remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/athena-model-routing-provider-selection-preview" "Historical routing-preview directory remains unchanged"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
+
+$jarvisSource = (
+  Get-ChildItem -LiteralPath "src\app\jarvis" -Recurse -File |
+    Sort-Object FullName |
+    ForEach-Object { Get-Content -Raw $_.FullName }
+) -join "`n"
+Assert-NotMatches $jarvisSource "groq-cloud|openai/gpt-oss-20b|openai/gpt-oss-120b" "Current Jarvis UI does not expose Groq selector metadata"
 
 $athenaAliasSource = Get-Content -Raw "src\app\athena\page.tsx"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"
@@ -314,6 +324,14 @@ async function main() {
     "groq-provider",
     "groq-provider-types.ts"
   ));
+  const modelRoutingIndexModule = require(path.join(
+    repoRoot,
+    "src",
+    "lib",
+    "codexforge",
+    "model-routing",
+    "index.ts"
+  ));
   const privateAlphaValidationModule = require(path.join(
     repoRoot,
     "src",
@@ -326,7 +344,18 @@ async function main() {
   const allowedModels = groqTypesModule.CODEXFORGE_GROQ_MODEL_IDS;
   const qualification = groqQualificationModule.CODEXFORGE_GROQ_PROVIDER_QUALIFICATION;
 
+  assert(
+    groqTypesModule.CODEXFORGE_GROQ_QUALIFICATION_VERSION ===
+      "codexforge-groq-qualification-v1",
+    "Qualification types expose the v1 qualification version."
+  );
   assert(Array.isArray(allowedModels) && allowedModels.length === 2, "Qualification types expose exactly two allowed models.");
+  assert(
+    qualification.qualificationVersion === "codexforge-groq-qualification-v1",
+    "Qualification metadata version is v1."
+  );
+  assert(qualification.providerId === "groq-cloud", "Qualification provider ID is groq-cloud.");
+  assert(qualification.providerLabel === "Groq Cloud", "Qualification provider label is Groq Cloud.");
   assert(
     qualification.models.length === 2 &&
       qualification.models[0].modelId === allowedModels[0] &&
@@ -334,19 +363,73 @@ async function main() {
     "Qualification metadata contains exactly the two allowed models."
   );
   assert(
-    qualification.models.every((model) => model.routingState === "disabled"),
-    "Qualification metadata leaves both models disabled."
+    qualification.models.every((model) => model.routingState === "manual-only"),
+    "Qualification metadata leaves both models manual-only."
   );
   assert(
     qualification.models.every(
-      (model) => model.accountTierState === "operator-verification-required"
+      (model) => model.accountTierState === "operator-confirmed-free"
     ),
-    "Qualification metadata requires operator account-tier verification."
+    "Qualification metadata records operator-confirmed-free account tier."
   );
   assert(
-    qualification.productionRoutingState === "disabled" &&
-      qualification.models.every((model) => model.qualificationState === "deterministic-tested"),
-    "Qualification metadata does not claim free or paid routing."
+    qualification.adapterState === "live-verified" &&
+      qualification.productionRoutingState === "manual-only" &&
+      qualification.models.every((model) => model.qualificationState === "live-verified"),
+    "Qualification metadata records live-verified manual-only routing."
+  );
+  assert(
+    qualification.models.every((model) => model.dataBoundary === "cloud-provider"),
+    "Qualification metadata records the cloud-provider boundary."
+  );
+  assert(
+    qualification.models.every(
+      (model) =>
+        model.capabilities.length === 1 &&
+        model.capabilities[0] === "text-generation"
+    ),
+    "Qualification metadata exposes only text-generation capability."
+  );
+  assert(
+    qualification.models.every(
+      (model) =>
+        model.liveVerifiedOn === "2026-07-26" &&
+        model.operatorTierConfirmedOn === "2026-07-26"
+    ),
+    "Qualification metadata records the live verification and tier confirmation dates."
+  );
+  assert(
+    qualification.models.every(
+      (model) =>
+        model.providerReportedContextWindowTokens === 131072 &&
+        model.providerReportedMaximumOutputTokens === 65536 &&
+        model.approvedMaximumOutputTokens === 4096
+    ),
+    "Qualification metadata records provider limits and the lower CodexForge-approved output cap."
+  );
+  assert(
+    qualification.models.every((model) =>
+      model.evidence.includes("authenticated model discovery completed on 2026-07-26")
+    ),
+    "Qualification evidence records authenticated discovery."
+  );
+  assert(
+    qualification.models.every((model) =>
+      model.evidence.includes("exact visible-output qualification completed on 2026-07-26")
+    ),
+    "Qualification evidence records exact visible-output qualification."
+  );
+  assert(
+    qualification.models.every((model) =>
+      model.evidence.includes("reasoning was not exposed in live qualification")
+    ),
+    "Qualification evidence records live reasoning privacy."
+  );
+  assert(
+    qualification.models.every((model) =>
+      model.evidence.includes("operator confirmed Groq Free tier on 2026-07-26")
+    ),
+    "Qualification evidence records operator-confirmed Groq Free tier."
   );
   assert(Object.isFrozen(qualification), "Authoritative qualification record is frozen.");
   assert(Object.isFrozen(qualification.models), "Authoritative qualification model array is frozen.");
@@ -359,6 +442,38 @@ async function main() {
   assert(
     qualificationCloneA.models[0] !== qualification.models[0],
     "Qualification getter clones nested model records."
+  );
+  assert(
+    qualificationCloneA.models[0].evidence !== qualification.models[0].evidence,
+    "Qualification getter clones nested evidence arrays."
+  );
+
+  const productionCatalog = modelRoutingIndexModule.CODEXFORGE_PRODUCTION_MODEL_CATALOG;
+  const groqCatalogModels = productionCatalog.models.filter(
+    (model) => model.providerId === "groq-cloud"
+  );
+  assert(
+    modelRoutingIndexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION ===
+      "codexforge-model-routing-v2",
+    "Production model-routing catalog version is v2."
+  );
+  assert(
+    groqCatalogModels.length === 2 &&
+      groqCatalogModels.every((model) => model.routingState === "manual-only"),
+    "Groq exists in the production catalog only as manual-only."
+  );
+  assert(
+    groqCatalogModels.every((model) => model.qualificationState === "live-verified"),
+    "Groq production-catalog entries remain live-verified."
+  );
+  assert(
+    groqCatalogModels.every(
+      (model) =>
+        model.pricing.costClass === "free-tier" &&
+        model.pricing.inputUsdPerMillionTokens === 0 &&
+        model.pricing.outputUsdPerMillionTokens === 0
+    ),
+    "Groq production-catalog entries remain free-tier metadata only."
   );
 
   assert(!Object.prototype.hasOwnProperty.call(groqIndex, "readCodexForgeGroqCredential"), "Client-safe index does not export credential access.");

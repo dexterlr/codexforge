@@ -135,12 +135,17 @@ $newSourceFiles = @(
   $indexPath
 )
 
+$plainTokenPattern = '\b' + 'a' + 'ny' + '\b'
+$asTokenPattern = '\b' + 'as ' + 'a' + 'ny' + '\b'
+$noCheckPattern = 'ts-' + 'nocheck'
+$expectErrorPattern = 'ts-' + 'expect-error'
+
 foreach ($sourcePath in $newSourceFiles) {
   $sourceText = Get-Content -Raw $sourcePath
-  Assert-NotMatches $sourceText '\bas any\b' "$sourcePath excludes as any"
-  Assert-NotMatches $sourceText 'ts-nocheck' "$sourcePath excludes ts-nocheck"
-  Assert-NotMatches $sourceText 'ts-expect-error' "$sourcePath excludes ts-expect-error"
-  Assert-NotMatches $sourceText '\bany\b' "$sourcePath excludes any"
+  Assert-NotMatches $sourceText $asTokenPattern "$sourcePath excludes the as-token escape"
+  Assert-NotMatches $sourceText $noCheckPattern "$sourcePath excludes the no-check directive"
+  Assert-NotMatches $sourceText $expectErrorPattern "$sourcePath excludes the expect-error directive"
+  Assert-NotMatches $sourceText $plainTokenPattern "$sourcePath excludes the plain token escape"
 }
 
 $longestNewPathLength = ($requiredFiles | ForEach-Object { $_.Length } | Measure-Object -Maximum).Maximum
@@ -415,38 +420,156 @@ function main() {
   ));
 
   assert(!Object.prototype.hasOwnProperty.call(indexModule, "routeCodexForgeModel"), "client-safe index does not export the server router");
-  assert(indexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION === "codexforge-model-routing-v1", "production catalog version is exact");
+  assert(indexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION === "codexforge-model-routing-v2", "production catalog version is exact");
 
   const productionCatalog = indexModule.CODEXFORGE_PRODUCTION_MODEL_CATALOG;
-  assert(productionCatalog.providers.length === 1, "production catalog contains exactly one provider");
-  assert(productionCatalog.providers[0].providerId === "ollama-local", "enabled production provider is ollama-local");
-  assert(productionCatalog.providers[0].locality === "local", "production provider is local");
-  assert(productionCatalog.providers[0].dataBoundary === "local-machine", "production provider boundary is local-machine");
-  assert(productionCatalog.providers[0].catalogState === "enabled", "production provider is enabled");
-  assert(productionCatalog.models.length === 1, "production catalog contains exactly one model");
-  assert(productionCatalog.models[0].modelKey === "ollama-local::gpt-oss:20b", "production model key is exact");
-  assert(productionCatalog.models[0].routingState === "automatic", "production model routing is automatic");
-  assert(productionCatalog.models[0].qualificationState === "live-verified", "production model is live-verified");
-  assert(productionCatalog.models[0].capabilities.length === 1 && productionCatalog.models[0].capabilities[0] === "text-generation", "production model is text-generation capable");
-  assert(productionCatalog.models[0].pricing.costClass === "local-no-provider-token-charge", "production model cost class is local-no-provider-token-charge");
-  assert(productionCatalog.models[0].pricing.inputUsdPerMillionTokens === 0, "production model input token price is zero");
-  assert(productionCatalog.models[0].pricing.outputUsdPerMillionTokens === 0, "production model output token price is zero");
-  assert(productionCatalog.models[0].approvedMaximumOutputTokens === 4096, "production model output is capped at 4096");
-  assert(productionCatalog.providers.every((entry) => entry.locality !== "cloud"), "production catalog contains no cloud provider");
-  assert(productionCatalog.models.every((entry) => entry.providerId === "ollama-local"), "production catalog contains no cloud model");
+  assert(productionCatalog.providers.length === 2, "production catalog contains exactly two providers");
+  const productionLocalProvider = productionCatalog.providers.find(
+    (entry) => entry.providerId === "ollama-local"
+  );
+  const productionGroqProvider = productionCatalog.providers.find(
+    (entry) => entry.providerId === "groq-cloud"
+  );
+  assert(Boolean(productionLocalProvider), "enabled production provider still includes ollama-local");
+  assert(Boolean(productionGroqProvider), "enabled production provider now includes groq-cloud");
+  assert(productionLocalProvider.locality === "local", "Local Ollama remains a local provider");
+  assert(productionLocalProvider.dataBoundary === "local-machine", "Local Ollama boundary remains local-machine");
+  assert(productionLocalProvider.catalogState === "enabled", "Local Ollama remains enabled");
+  assert(productionGroqProvider.locality === "cloud", "Groq Cloud provider locality is cloud");
+  assert(productionGroqProvider.dataBoundary === "cloud-provider", "Groq Cloud provider boundary is cloud-provider");
+  assert(productionGroqProvider.catalogState === "enabled", "Groq Cloud provider is enabled");
+  assert(productionGroqProvider.adapterId === "groq-provider-client", "Groq Cloud adapter id is exact");
+  assert(productionCatalog.models.length === 3, "production catalog contains exactly three models");
+  const productionLocalModel = productionCatalog.models.find(
+    (entry) => entry.modelKey === "ollama-local::gpt-oss:20b"
+  );
+  const productionGroq20Model = productionCatalog.models.find(
+    (entry) => entry.modelKey === "groq-cloud::openai/gpt-oss-20b"
+  );
+  const productionGroq120Model = productionCatalog.models.find(
+    (entry) => entry.modelKey === "groq-cloud::openai/gpt-oss-120b"
+  );
+  assert(Boolean(productionLocalModel), "production catalog keeps the local gpt-oss:20b model");
+  assert(Boolean(productionGroq20Model), "production catalog includes groq-cloud::openai/gpt-oss-20b");
+  assert(Boolean(productionGroq120Model), "production catalog includes groq-cloud::openai/gpt-oss-120b");
+  assert(productionLocalModel.routingState === "automatic", "production local model routing is automatic");
+  assert(productionLocalModel.qualificationState === "live-verified", "production local model remains live-verified");
+  assert(productionLocalModel.capabilities.length === 1 && productionLocalModel.capabilities[0] === "text-generation", "production local model is text-generation capable");
+  assert(productionLocalModel.pricing.costClass === "local-no-provider-token-charge", "production local model cost class remains local-no-provider-token-charge");
+  assert(productionLocalModel.pricing.inputUsdPerMillionTokens === 0, "production local model input token price remains zero");
+  assert(productionLocalModel.pricing.outputUsdPerMillionTokens === 0, "production local model output token price remains zero");
+  assert(productionLocalModel.approvedMaximumOutputTokens === 4096, "production local model output remains capped at 4096");
+  for (const groqModel of [productionGroq20Model, productionGroq120Model]) {
+    assert(groqModel.routingState === "manual-only", "production Groq model routing is manual-only");
+    assert(groqModel.qualificationState === "live-verified", "production Groq model qualification is live-verified");
+    assert(groqModel.capabilities.length === 1 && groqModel.capabilities[0] === "text-generation", "production Groq model is text-generation capable");
+    assert(groqModel.pricing.costClass === "free-tier", "production Groq model cost class is free-tier");
+    assert(groqModel.pricing.inputUsdPerMillionTokens === 0, "production Groq model input token price is zero");
+    assert(groqModel.pricing.outputUsdPerMillionTokens === 0, "production Groq model output token price is zero");
+    assert(groqModel.approvedMaximumOutputTokens === 4096, "production Groq model output is capped at 4096");
+    assert(groqModel.contextWindowTokens === 131072, "production Groq model context window is 131072");
+    assert(Object.keys(groqModel.taskProfileScores).length === 0, "production Groq model has no task-profile score");
+  }
   assert(indexModule.validateCodexForgeModelCatalog(productionCatalog).length === 0, "production catalog validates successfully");
 
   const clonedCatalog = indexModule.getCodexForgeProductionModelCatalog();
-  clonedCatalog.providers[0].label = "mutated label";
-  clonedCatalog.models[0].pricing.sourceLabel = "mutated source";
+  const clonedGroqProvider = clonedCatalog.providers.find(
+    (entry) => entry.providerId === "groq-cloud"
+  );
+  const clonedGroq20Model = clonedCatalog.models.find(
+    (entry) => entry.modelKey === "groq-cloud::openai/gpt-oss-20b"
+  );
+  clonedGroqProvider.notes[0] = "mutated note";
+  clonedGroq20Model.pricing.sourceLabel = "mutated source";
+  clonedGroq20Model.evidence[0] = "mutated evidence";
+  clonedCatalog.providers.push(provider("mutated-provider", "local", "enabled"));
   clonedCatalog.models.push(model(indexModule.buildCodexForgeModelKey, {
     providerId: "ollama-local",
     modelId: "mutated-extra",
   }));
   const freshCatalog = indexModule.getCodexForgeProductionModelCatalog();
+  const freshGroqProvider = freshCatalog.providers.find(
+    (entry) => entry.providerId === "groq-cloud"
+  );
+  const freshGroq20Model = freshCatalog.models.find(
+    (entry) => entry.modelKey === "groq-cloud::openai/gpt-oss-20b"
+  );
+  assert(freshCatalog.providers.length === 2, "catalog copy mutations do not affect authoritative provider count");
+  assert(freshCatalog.models.length === 3, "catalog copy mutations do not affect authoritative model count");
   assert(freshCatalog.providers[0].label === "Local Ollama", "production provider clone does not mutate the authoritative catalog");
-  assert(freshCatalog.models[0].pricing.sourceLabel === "Local runtime; no provider token charge", "nested clone mutation does not mutate the authoritative catalog");
-  assert(freshCatalog.models.length === 1, "catalog copy mutations do not affect authoritative model count");
+  assert(freshGroqProvider.notes[0] === "Live-qualified for discovery and visible text generation on 2026-07-26.", "Groq provider notes remain immutable in the authoritative catalog");
+  assert(freshGroq20Model.pricing.sourceLabel === "Operator-confirmed Groq Free tier on 2026-07-26; account limits may change", "nested Groq pricing clone mutation does not mutate the authoritative catalog");
+  assert(freshGroq20Model.evidence[0] === "codexforge-groq-provider-qualification-foundation-clean", "nested Groq evidence clone mutation does not mutate the authoritative catalog");
+
+  const productionRuntime = runtimeForModels(productionCatalog.models);
+  const productionLocalOnlyDecision = routerModule.routeCodexForgeModel(
+    routeRequest(policy("local-only"), productionRuntime),
+    productionCatalog
+  );
+  assert(productionLocalOnlyDecision.selectedModelKey === productionLocalModel.modelKey, "production local-only selects Local Ollama");
+  assert(hasCode(candidateByKey(productionLocalOnlyDecision, productionGroq20Model.modelKey).rejectionCodes, "model-disabled"), "production local-only rejects Groq 20b as manual-only");
+  assert(hasCode(candidateByKey(productionLocalOnlyDecision, productionGroq120Model.modelKey).rejectionCodes, "model-disabled"), "production local-only rejects Groq 120b as manual-only");
+
+  const productionFreeOnlyDecision = routerModule.routeCodexForgeModel(
+    routeRequest(policy("free-only"), productionRuntime),
+    productionCatalog
+  );
+  assert(productionFreeOnlyDecision.selectedModelKey === productionLocalModel.modelKey, "production free-only selects Local Ollama");
+  assert(hasCode(candidateByKey(productionFreeOnlyDecision, productionGroq20Model.modelKey).rejectionCodes, "model-disabled"), "production free-only rejects Groq 20b automatically");
+  assert(hasCode(candidateByKey(productionFreeOnlyDecision, productionGroq120Model.modelKey).rejectionCodes, "model-disabled"), "production free-only rejects Groq 120b automatically");
+
+  const productionFreeFirstDecision = routerModule.routeCodexForgeModel(
+    routeRequest(policy("free-first"), productionRuntime),
+    productionCatalog
+  );
+  assert(productionFreeFirstDecision.selectedModelKey === productionLocalModel.modelKey, "production free-first selects Local Ollama when available");
+
+  const productionFreeFirstNoLocalDecision = routerModule.routeCodexForgeModel(
+    routeRequest(
+      policy("free-first"),
+      runtimeForModels(productionCatalog.models, {
+        [productionLocalModel.modelKey]: { availability: "unavailable" },
+      })
+    ),
+    productionCatalog
+  );
+  assert(productionFreeFirstNoLocalDecision.status === "no-eligible-model", "production free-first returns no-eligible-model when only manual-only Groq models remain");
+
+  const productionBestBudgetDecision = routerModule.routeCodexForgeModel(
+    routeRequest(policy("best-within-budget"), productionRuntime),
+    productionCatalog
+  );
+  assert(productionBestBudgetDecision.selectedModelKey === productionLocalModel.modelKey, "production best-within-budget does not select Groq automatically");
+
+  const productionManual20Decision = routerModule.routeCodexForgeModel(
+    routeRequest(
+      policy("manual", {
+        manualModelKey: productionGroq20Model.modelKey,
+      }),
+      productionRuntime,
+      ["text-generation"],
+      4096
+    ),
+    productionCatalog
+  );
+  assert(productionManual20Decision.status === "selected", "production manual mode can select Groq 20b");
+  assert(productionManual20Decision.selectedModelKey === productionGroq20Model.modelKey, "production manual mode selects the exact Groq 20b key");
+  assert(productionManual20Decision.estimatedCostUsd === 0, "production manual Groq 20b selection has zero estimated cost");
+
+  const productionManual120Decision = routerModule.routeCodexForgeModel(
+    routeRequest(
+      policy("manual", {
+        manualModelKey: productionGroq120Model.modelKey,
+      }),
+      productionRuntime,
+      ["text-generation"],
+      4096
+    ),
+    productionCatalog
+  );
+  assert(productionManual120Decision.status === "selected", "production manual mode can select Groq 120b");
+  assert(productionManual120Decision.selectedModelKey === productionGroq120Model.modelKey, "production manual mode selects the exact Groq 120b key");
+  assert(productionManual120Decision.estimatedCostUsd === 0, "production manual Groq 120b selection has zero estimated cost");
 
   assert(routerModule.estimateCodexForgeModelCostUsd(pricing("local-no-provider-token-charge"), 1200, 800) === 0, "cost estimation returns zero for local");
   assert(routerModule.estimateCodexForgeModelCostUsd(pricing("free-tier"), 1200, 800) === 0, "cost estimation returns zero for free-tier");

@@ -7,6 +7,11 @@ import {
 } from "./groq-provider-types";
 
 const CODEXFORGE_GROQ_PROVIDER_LABEL = "Groq Cloud";
+const CODEXFORGE_GROQ_LIVE_VERIFIED_ON = "2026-07-26";
+const CODEXFORGE_GROQ_OPERATOR_TIER_CONFIRMED_ON = "2026-07-26";
+const CODEXFORGE_GROQ_PROVIDER_REPORTED_CONTEXT_WINDOW_TOKENS = 131072;
+const CODEXFORGE_GROQ_PROVIDER_REPORTED_MAXIMUM_OUTPUT_TOKENS = 65536;
+const CODEXFORGE_GROQ_APPROVED_MAXIMUM_OUTPUT_TOKENS = 4096;
 
 function freezeQualificationModelRecord(
   record: CodexForgeGroqQualificationModelRecord
@@ -55,15 +60,25 @@ function buildQualificationModelRecord(
 ): CodexForgeGroqQualificationModelRecord {
   return freezeQualificationModelRecord({
     modelId,
-    qualificationState: "deterministic-tested",
-    routingState: "disabled",
-    accountTierState: "operator-verification-required",
+    qualificationState: "live-verified",
+    routingState: "manual-only",
+    accountTierState: "operator-confirmed-free",
     dataBoundary: "cloud-provider",
     capabilities: ["text-generation"],
+    liveVerifiedOn: CODEXFORGE_GROQ_LIVE_VERIFIED_ON,
+    operatorTierConfirmedOn: CODEXFORGE_GROQ_OPERATOR_TIER_CONFIRMED_ON,
+    providerReportedContextWindowTokens:
+      CODEXFORGE_GROQ_PROVIDER_REPORTED_CONTEXT_WINDOW_TOKENS,
+    providerReportedMaximumOutputTokens:
+      CODEXFORGE_GROQ_PROVIDER_REPORTED_MAXIMUM_OUTPUT_TOKENS,
+    approvedMaximumOutputTokens: CODEXFORGE_GROQ_APPROVED_MAXIMUM_OUTPUT_TOKENS,
     evidence: [
       "official Groq model identifier",
       "deterministic fake-transport qualification",
-      "live verification pending",
+      "authenticated model discovery completed on 2026-07-26",
+      "exact visible-output qualification completed on 2026-07-26",
+      "reasoning was not exposed in live qualification",
+      "operator confirmed Groq Free tier on 2026-07-26",
     ],
   });
 }
@@ -72,17 +87,20 @@ export const CODEXFORGE_GROQ_PROVIDER_QUALIFICATION = freezeQualificationRecord(
   qualificationVersion: CODEXFORGE_GROQ_QUALIFICATION_VERSION,
   providerId: CODEXFORGE_GROQ_PROVIDER_ID,
   providerLabel: CODEXFORGE_GROQ_PROVIDER_LABEL,
-  adapterState: "deterministic-tested",
-  productionRoutingState: "disabled",
+  adapterState: "live-verified",
+  productionRoutingState: "manual-only",
   models: CODEXFORGE_GROQ_MODEL_IDS.map(
     buildQualificationModelRecord
   ) as readonly CodexForgeGroqQualificationModelRecord[],
   policyStatements: [
-    "Provider execution is not currently enabled.",
-    "Account tier is not inferred by this qualification slice.",
-    "Free-tier status requires operator verification after live qualification.",
+    "Provider metadata is admitted for manual routing only.",
+    "Automatic Groq routing remains disabled.",
+    "Current private-alpha execution remains local-only.",
+    "The Groq Free tier was operator-confirmed on 2026-07-26.",
+    "Account-tier status must be revalidated if the organisation changes.",
     "Cloud data transfer requires explicit future approval.",
-    "No paid execution is allowed by this slice.",
+    "Paid execution is not enabled.",
+    "Catalog admission is not execution integration.",
   ],
 });
 

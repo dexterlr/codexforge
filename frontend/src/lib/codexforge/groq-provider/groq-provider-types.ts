@@ -6,7 +6,7 @@ export const CODEXFORGE_GROQ_MODEL_IDS = [
 ] as const;
 
 export const CODEXFORGE_GROQ_QUALIFICATION_VERSION =
-  "codexforge-groq-qualification-v0" as const;
+  "codexforge-groq-qualification-v1" as const;
 
 export const CODEXFORGE_GROQ_ERROR_CODES = [
   "groq_credential_missing",
@@ -72,12 +72,11 @@ export type CodexForgeGroqGenerationResult = Readonly<{
   totalDurationNanoseconds: number | null;
 }>;
 
-export type CodexForgeGroqQualificationState = "deterministic-tested";
+export type CodexForgeGroqQualificationState = "live-verified";
 
-export type CodexForgeGroqRoutingState = "disabled";
+export type CodexForgeGroqRoutingState = "manual-only";
 
-export type CodexForgeGroqAccountTierState =
-  "operator-verification-required";
+export type CodexForgeGroqAccountTierState = "operator-confirmed-free";
 
 export type CodexForgeGroqDataBoundary = "cloud-provider";
 
@@ -90,6 +89,11 @@ export type CodexForgeGroqQualificationModelRecord = Readonly<{
   accountTierState: CodexForgeGroqAccountTierState;
   dataBoundary: CodexForgeGroqDataBoundary;
   capabilities: readonly CodexForgeGroqCapability[];
+  liveVerifiedOn: string;
+  operatorTierConfirmedOn: string;
+  providerReportedContextWindowTokens: number;
+  providerReportedMaximumOutputTokens: number;
+  approvedMaximumOutputTokens: number;
   evidence: readonly string[];
 }>;
 
