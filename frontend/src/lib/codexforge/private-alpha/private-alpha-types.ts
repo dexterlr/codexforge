@@ -72,17 +72,6 @@ export const PRIVATE_ALPHA_EXECUTION_ERROR_CODES = [
   "ollama_malformed_response",
   "ollama_empty_response",
   "ollama_output_too_large",
-  "groq_credential_missing",
-  "groq_authentication_failed",
-  "groq_rate_limited",
-  "groq_quota_exhausted",
-  "groq_unavailable",
-  "groq_model_unavailable",
-  "groq_timeout",
-  "groq_http_error",
-  "groq_malformed_response",
-  "groq_empty_response",
-  "groq_output_too_large",
 ] as const;
 
 const PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES = [
@@ -94,6 +83,17 @@ const PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES = [
   "ollama_malformed_response",
   "ollama_empty_response",
   "ollama_output_too_large",
+  "groq_credential_missing",
+  "groq_authentication_failed",
+  "groq_rate_limited",
+  "groq_quota_exhausted",
+  "groq_unavailable",
+  "groq_model_unavailable",
+  "groq_timeout",
+  "groq_http_error",
+  "groq_malformed_response",
+  "groq_empty_response",
+  "groq_output_too_large",
 ] as const;
 
 export type PrivateAlphaApprovalBindingVersion =
@@ -115,9 +115,9 @@ export type PrivateAlphaRetentionMode =
 export type PrivateAlphaExecutionMode =
   (typeof PRIVATE_ALPHA_EXECUTION_MODES)[number];
 export type PrivateAlphaExecutionErrorCode =
-  (typeof PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES)[number];
-export type PrivateAlphaProviderErrorCode =
   (typeof PRIVATE_ALPHA_EXECUTION_ERROR_CODES)[number];
+export type PrivateAlphaProviderErrorCode =
+  (typeof PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES)[number];
 export type PrivateAlphaAuditActor = "local-operator" | "system";
 export type PrivateAlphaStatusMode =
   | "private-alpha-foundation"
@@ -131,6 +131,8 @@ export type PrivateAlphaCloudDataTransferRequirement =
 export type PrivateAlphaCloudDataTransferAcknowledgement =
   | "not-required"
   | "granted-for-approved-scope";
+export type PrivateAlphaCloudExecutionAcknowledgement =
+  "granted-for-approved-scope-execution";
 
 export type PrivateAlphaCreateRunInput = Readonly<{
   requestText: string;
@@ -153,6 +155,7 @@ export type PrivateAlphaExecuteInput = Readonly<{
   acknowledgement: true;
   approvalScopeHash: string;
   expectedRevision: number;
+  cloudExecutionAcknowledgement?: true;
 }>;
 
 export type PrivateAlphaCancellationInput = Readonly<{
@@ -323,12 +326,34 @@ export type PrivateAlphaCancellationRecord = Readonly<{
   resultingRevision: number;
 }>;
 
-export type PrivateAlphaExecutionRecord = Readonly<{
+type PrivateAlphaLocalExecutionErrorCode =
+  | "kill_switch_blocked"
+  | "ollama_unavailable"
+  | "ollama_model_missing"
+  | "ollama_timeout"
+  | "ollama_http_error"
+  | "ollama_malformed_response"
+  | "ollama_empty_response"
+  | "ollama_output_too_large";
+
+type PrivateAlphaGroqExecutionErrorCode =
+  | "kill_switch_blocked"
+  | "groq_credential_missing"
+  | "groq_authentication_failed"
+  | "groq_rate_limited"
+  | "groq_quota_exhausted"
+  | "groq_unavailable"
+  | "groq_model_unavailable"
+  | "groq_timeout"
+  | "groq_http_error"
+  | "groq_malformed_response"
+  | "groq_empty_response"
+  | "groq_output_too_large";
+
+type PrivateAlphaExecutionRecordCommon = Readonly<{
   executionId: string;
   status: PrivateAlphaExecutionStatus;
   idempotencyKeyHash: string;
-  provider: "ollama-local";
-  model: "gpt-oss:20b";
   approvalScopeHash: string;
   startedAt: string;
   completedAt: string | null;
@@ -342,9 +367,46 @@ export type PrivateAlphaExecutionRecord = Readonly<{
   loadDurationNanoseconds: number | null;
   promptEvalCount: number | null;
   evalCount: number | null;
-  errorCode: PrivateAlphaExecutionErrorCode | null;
-  safeErrorMessage: string | null;
 }>;
+
+export type PrivateAlphaLocalExecutionRecord = PrivateAlphaExecutionRecordCommon &
+  Readonly<{
+    provider: "ollama-local";
+    model: "gpt-oss:20b";
+    errorCode: PrivateAlphaLocalExecutionErrorCode | null;
+    safeErrorMessage: string | null;
+  }>;
+
+export type PrivateAlphaGroq20bExecutionRecord =
+  PrivateAlphaExecutionRecordCommon &
+    Readonly<{
+      provider: "groq-cloud";
+      model: "openai/gpt-oss-20b";
+      bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+      modelKey: typeof PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY;
+      dataBoundary: "cloud-provider";
+      cloudExecutionAcknowledgement: PrivateAlphaCloudExecutionAcknowledgement;
+      errorCode: PrivateAlphaGroqExecutionErrorCode | null;
+      safeErrorMessage: string | null;
+    }>;
+
+export type PrivateAlphaGroq120bExecutionRecord =
+  PrivateAlphaExecutionRecordCommon &
+    Readonly<{
+      provider: "groq-cloud";
+      model: "openai/gpt-oss-120b";
+      bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+      modelKey: typeof PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY;
+      dataBoundary: "cloud-provider";
+      cloudExecutionAcknowledgement: PrivateAlphaCloudExecutionAcknowledgement;
+      errorCode: PrivateAlphaGroqExecutionErrorCode | null;
+      safeErrorMessage: string | null;
+    }>;
+
+export type PrivateAlphaExecutionRecord =
+  | PrivateAlphaLocalExecutionRecord
+  | PrivateAlphaGroq20bExecutionRecord
+  | PrivateAlphaGroq120bExecutionRecord;
 
 export type PrivateAlphaAuditEvent = Readonly<{
   eventId: string;
@@ -413,6 +475,6 @@ export type PrivateAlphaExecuteRunResult = Readonly<{
   replayed: boolean;
   run: PrivateAlphaRunRecord;
   responseStatus: 200 | 409 | 500 | 503 | 504;
-  errorCode: PrivateAlphaExecutionErrorCode | null;
+  errorCode: PrivateAlphaProviderErrorCode | null;
   safeErrorMessage: string | null;
 }>;

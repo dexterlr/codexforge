@@ -10,7 +10,6 @@ import type {
   CodexForgeQuotaState,
 } from "../model-routing/model-routing-types";
 import type {
-  PrivateAlphaExecutionErrorCode,
   PrivateAlphaProviderErrorCode,
 } from "./private-alpha-types";
 
@@ -33,11 +32,6 @@ export type PrivateAlphaProviderAvailabilityErrorCode = Exclude<
 
 export type PrivateAlphaProviderExecutionErrorCode = Exclude<
   PrivateAlphaProviderErrorCode,
-  "kill_switch_blocked"
->;
-
-type PrivateAlphaLocalProviderExecutionErrorCode = Exclude<
-  PrivateAlphaExecutionErrorCode,
   "kill_switch_blocked"
 >;
 
@@ -76,7 +70,7 @@ type PrivateAlphaProviderFailureStatus = 503 | 504;
 
 export class PrivateAlphaProviderError<
   TCode extends
-    PrivateAlphaProviderExecutionErrorCode = PrivateAlphaLocalProviderExecutionErrorCode,
+    PrivateAlphaProviderExecutionErrorCode = PrivateAlphaProviderExecutionErrorCode,
 > extends Error {
   readonly code: TCode;
   readonly safeMessage: string;

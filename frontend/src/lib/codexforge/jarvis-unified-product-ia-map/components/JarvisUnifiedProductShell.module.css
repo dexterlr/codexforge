@@ -1126,6 +1126,27 @@
   line-height: 1.6;
 }
 
+.privateAlphaCloudExecutionNotice {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(34, 211, 238, 0.24);
+  background: rgba(8, 31, 48, 0.58);
+  color: #d9f7ff;
+  line-height: 1.6;
+}
+
+.privateAlphaCloudExecutionToggle {
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  background: rgba(7, 37, 51, 0.64);
+}
+
+.privateAlphaCloudExecutionMeta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .privateAlphaNoticeError {
   border-color: rgba(251, 146, 60, 0.32);
   color: #ffe4d1;
@@ -1530,6 +1551,11 @@
 
   .privateAlphaTechnicalGrid {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .privateAlphaCloudExecutionMeta {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

@@ -22,6 +22,7 @@ import {
   type PrivateAlphaProviderAdapter,
 } from "./private-alpha-provider.server";
 import { createPrivateAlphaOllamaProviderAdapter } from "./private-alpha-ollama-adapter.server";
+import { createPrivateAlphaProviderAdapterForModelKey } from "./private-alpha-provider-runtime.server";
 import { readPrivateAlphaKillSwitchState } from "./private-alpha-kill-switch.server";
 import {
   PRIVATE_ALPHA_INITIAL_RUN_STATE,
@@ -36,9 +37,11 @@ import {
   type PrivateAlphaApprovalInput,
   type PrivateAlphaApprovalRecord,
   type PrivateAlphaApprovalScope,
+  type PrivateAlphaBoundApprovalRecord,
   type PrivateAlphaBoundDataBoundary,
   type PrivateAlphaCloudDataTransferAcknowledgement,
   type PrivateAlphaCloudDataTransferRequirement,
+  type PrivateAlphaCloudExecutionAcknowledgement,
   type PrivateAlphaAuditActor,
   type PrivateAlphaAuditEvent,
   type PrivateAlphaAuditEventType,
@@ -47,9 +50,12 @@ import {
   type PrivateAlphaCreateRunResult,
   type PrivateAlphaExecuteInput,
   type PrivateAlphaExecuteRunResult,
-  type PrivateAlphaExecutionErrorCode,
   type PrivateAlphaExecutionRecord,
   type PrivateAlphaExecutionStatus,
+  type PrivateAlphaGroq120bExecutionRecord,
+  type PrivateAlphaGroq20bExecutionRecord,
+  type PrivateAlphaLocalExecutionRecord,
+  type PrivateAlphaProviderErrorCode,
   type PrivateAlphaRuntimeModelKey,
   type PrivateAlphaRunRecord,
   type PrivateAlphaRunRequest,
@@ -73,6 +79,7 @@ import {
   buildPrivateAlphaRunRequest,
   buildPrivateAlphaRunSummary,
   isPrivateAlphaCloudApprovalOnlyConfiguration,
+  isPrivateAlphaCloudExecutionConfiguration,
   isPrivateAlphaLegacyRunConfiguration,
   isPrivateAlphaLocalExecutionConfiguration,
   resolvePrivateAlphaBoundConfiguration,
@@ -96,6 +103,9 @@ type PrivateAlphaStoreOptions = Readonly<{
   dataRootLabel?: string;
   runtimeProfile?: PrivateAlphaRuntimeProfile;
   providerAdapter?: PrivateAlphaProviderAdapter;
+  providerAdapterResolver?: (
+    modelKey: PrivateAlphaRuntimeModelKey
+  ) => PrivateAlphaProviderAdapter;
 }>;
 
 type PrivateAlphaResolvedPaths = Readonly<{
@@ -122,10 +132,75 @@ type PrivateAlphaStoredApprovalBinding = Readonly<{
 }>;
 
 type PrivateAlphaFailureResponse = Readonly<{
-  errorCode: PrivateAlphaExecutionErrorCode;
+  errorCode: PrivateAlphaProviderErrorCode;
   safeErrorMessage: string;
   responseStatus: 200 | 409 | 503 | 504;
 }>;
+
+type PrivateAlphaLocalPersistedExecutionErrorCode =
+  | "kill_switch_blocked"
+  | "ollama_unavailable"
+  | "ollama_model_missing"
+  | "ollama_timeout"
+  | "ollama_http_error"
+  | "ollama_malformed_response"
+  | "ollama_empty_response"
+  | "ollama_output_too_large";
+
+type PrivateAlphaGroqPersistedExecutionErrorCode =
+  | "kill_switch_blocked"
+  | "groq_credential_missing"
+  | "groq_authentication_failed"
+  | "groq_rate_limited"
+  | "groq_quota_exhausted"
+  | "groq_unavailable"
+  | "groq_model_unavailable"
+  | "groq_timeout"
+  | "groq_http_error"
+  | "groq_malformed_response"
+  | "groq_empty_response"
+  | "groq_output_too_large";
+
+type PrivateAlphaExecutionTargetCommon = Readonly<{
+  provider: "ollama-local" | "groq-cloud";
+  model: "gpt-oss:20b" | "openai/gpt-oss-20b" | "openai/gpt-oss-120b";
+  dataBoundary: "local-machine" | "cloud-provider";
+}>;
+
+type PrivateAlphaLocalExecutionTarget = PrivateAlphaExecutionTargetCommon &
+  Readonly<{
+    kind: "local";
+    provider: "ollama-local";
+    model: "gpt-oss:20b";
+    dataBoundary: "local-machine";
+  }>;
+
+type PrivateAlphaGroq20bExecutionTarget = PrivateAlphaExecutionTargetCommon &
+  Readonly<{
+    kind: "groq-20b";
+    provider: "groq-cloud";
+    model: "openai/gpt-oss-20b";
+    modelKey: typeof PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY;
+    bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+    dataBoundary: "cloud-provider";
+    cloudExecutionAcknowledgement: PrivateAlphaCloudExecutionAcknowledgement;
+  }>;
+
+type PrivateAlphaGroq120bExecutionTarget = PrivateAlphaExecutionTargetCommon &
+  Readonly<{
+    kind: "groq-120b";
+    provider: "groq-cloud";
+    model: "openai/gpt-oss-120b";
+    modelKey: typeof PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY;
+    bindingVersion: typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+    dataBoundary: "cloud-provider";
+    cloudExecutionAcknowledgement: PrivateAlphaCloudExecutionAcknowledgement;
+  }>;
+
+type PrivateAlphaExecutionTarget =
+  | PrivateAlphaLocalExecutionTarget
+  | PrivateAlphaGroq20bExecutionTarget
+  | PrivateAlphaGroq120bExecutionTarget;
 
 export type PrivateAlphaStore = Readonly<{
   getStatus: () => Promise<PrivateAlphaStatus>;
@@ -240,7 +315,33 @@ function isExecutionStatus(value: unknown): value is PrivateAlphaExecutionStatus
 
 function isExecutionErrorCode(
   value: unknown
-): value is PrivateAlphaExecutionErrorCode {
+): value is PrivateAlphaProviderErrorCode {
+  return (
+    value === "kill_switch_blocked" ||
+    value === "ollama_unavailable" ||
+    value === "ollama_model_missing" ||
+    value === "ollama_timeout" ||
+    value === "ollama_http_error" ||
+    value === "ollama_malformed_response" ||
+    value === "ollama_empty_response" ||
+    value === "ollama_output_too_large" ||
+    value === "groq_credential_missing" ||
+    value === "groq_authentication_failed" ||
+    value === "groq_rate_limited" ||
+    value === "groq_quota_exhausted" ||
+    value === "groq_unavailable" ||
+    value === "groq_model_unavailable" ||
+    value === "groq_timeout" ||
+    value === "groq_http_error" ||
+    value === "groq_malformed_response" ||
+    value === "groq_empty_response" ||
+    value === "groq_output_too_large"
+  );
+}
+
+function isLocalPersistedExecutionErrorCode(
+  value: unknown
+): value is PrivateAlphaLocalPersistedExecutionErrorCode {
   return (
     value === "kill_switch_blocked" ||
     value === "ollama_unavailable" ||
@@ -250,6 +351,57 @@ function isExecutionErrorCode(
     value === "ollama_malformed_response" ||
     value === "ollama_empty_response" ||
     value === "ollama_output_too_large"
+  );
+}
+
+function isGroqPersistedExecutionErrorCode(
+  value: unknown
+): value is PrivateAlphaGroqPersistedExecutionErrorCode {
+  return (
+    value === "kill_switch_blocked" ||
+    value === "groq_credential_missing" ||
+    value === "groq_authentication_failed" ||
+    value === "groq_rate_limited" ||
+    value === "groq_quota_exhausted" ||
+    value === "groq_unavailable" ||
+    value === "groq_model_unavailable" ||
+    value === "groq_timeout" ||
+    value === "groq_http_error" ||
+    value === "groq_malformed_response" ||
+    value === "groq_empty_response" ||
+    value === "groq_output_too_large"
+  );
+}
+
+function isLocalProviderExecutionErrorCode(
+  value: unknown
+): value is Exclude<PrivateAlphaLocalPersistedExecutionErrorCode, "kill_switch_blocked"> {
+  return (
+    value === "ollama_unavailable" ||
+    value === "ollama_model_missing" ||
+    value === "ollama_timeout" ||
+    value === "ollama_http_error" ||
+    value === "ollama_malformed_response" ||
+    value === "ollama_empty_response" ||
+    value === "ollama_output_too_large"
+  );
+}
+
+function isGroqProviderExecutionErrorCode(
+  value: unknown
+): value is Exclude<PrivateAlphaGroqPersistedExecutionErrorCode, "kill_switch_blocked"> {
+  return (
+    value === "groq_credential_missing" ||
+    value === "groq_authentication_failed" ||
+    value === "groq_rate_limited" ||
+    value === "groq_quota_exhausted" ||
+    value === "groq_unavailable" ||
+    value === "groq_model_unavailable" ||
+    value === "groq_timeout" ||
+    value === "groq_http_error" ||
+    value === "groq_malformed_response" ||
+    value === "groq_empty_response" ||
+    value === "groq_output_too_large"
   );
 }
 
@@ -269,6 +421,12 @@ function isAuditEventType(value: unknown): value is PrivateAlphaAuditEventType {
 
 function isAuditActor(value: unknown): value is PrivateAlphaAuditActor {
   return value === "local-operator" || value === "system";
+}
+
+function isBoundApprovalRecord(
+  approval: PrivateAlphaApprovalRecord | null
+): approval is PrivateAlphaBoundApprovalRecord {
+  return approval !== null && "bindingVersion" in approval;
 }
 
 function readNullableString(
@@ -372,6 +530,116 @@ function expectedCloudDataTransferAcknowledgement(
   return isPrivateAlphaCloudApprovalOnlyConfiguration(request)
     ? "granted-for-approved-scope"
     : "not-required";
+}
+
+function buildLocalExecutionTarget(): PrivateAlphaLocalExecutionTarget {
+  return {
+    kind: "local",
+    provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+    model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+    dataBoundary: "local-machine",
+  };
+}
+
+function buildGroq20bExecutionTarget(): PrivateAlphaGroq20bExecutionTarget {
+  return {
+    kind: "groq-20b",
+    provider: "groq-cloud",
+    model: "openai/gpt-oss-20b",
+    modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+    bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+    dataBoundary: "cloud-provider",
+    cloudExecutionAcknowledgement: "granted-for-approved-scope-execution",
+  };
+}
+
+function buildGroq120bExecutionTarget(): PrivateAlphaGroq120bExecutionTarget {
+  return {
+    kind: "groq-120b",
+    provider: "groq-cloud",
+    model: "openai/gpt-oss-120b",
+    modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+    bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+    dataBoundary: "cloud-provider",
+    cloudExecutionAcknowledgement: "granted-for-approved-scope-execution",
+  };
+}
+
+function resolveExecutionTargetFromRequestAndApprovalScope(
+  request: PrivateAlphaRunRequest,
+  approvalScope: PrivateAlphaApprovalScope
+): PrivateAlphaExecutionTarget | null {
+  if (
+    isPrivateAlphaLocalExecutionConfiguration(request) &&
+    isPrivateAlphaLocalExecutionConfiguration(approvalScope)
+  ) {
+    if (
+      request.providerPreference !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID ||
+      approvalScope.providerPreference !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID ||
+      request.modelPreferenceLabel !== PRIVATE_ALPHA_PRODUCTION_MODEL ||
+      approvalScope.modelPreferenceLabel !== PRIVATE_ALPHA_PRODUCTION_MODEL ||
+      request.executionMode !== PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE ||
+      approvalScope.executionMode !== PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
+    ) {
+      return null;
+    }
+
+    if ("bindingVersion" in request !== "bindingVersion" in approvalScope) {
+      return null;
+    }
+
+    if (
+      "bindingVersion" in request &&
+      "bindingVersion" in approvalScope &&
+      (request.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+        approvalScope.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+        request.modelKey !== PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY ||
+        approvalScope.modelKey !== PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY ||
+        request.dataBoundary !== "local-machine" ||
+        approvalScope.dataBoundary !== "local-machine" ||
+        request.cloudDataTransferRequirement !== "not-required" ||
+        approvalScope.cloudDataTransferRequirement !== "not-required")
+    ) {
+      return null;
+    }
+
+    return buildLocalExecutionTarget();
+  }
+
+  if (
+    !isPrivateAlphaCloudExecutionConfiguration(request) ||
+    !isPrivateAlphaCloudExecutionConfiguration(approvalScope) ||
+    !("bindingVersion" in request) ||
+    !("bindingVersion" in approvalScope) ||
+    request.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+    approvalScope.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+    request.modelKey !== approvalScope.modelKey
+  ) {
+    return null;
+  }
+
+  switch (request.modelKey) {
+    case PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY:
+      return buildGroq20bExecutionTarget();
+    case PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY:
+      return buildGroq120bExecutionTarget();
+    default:
+      return null;
+  }
+}
+
+function isCloudExecutionTarget(
+  target: PrivateAlphaExecutionTarget
+): target is PrivateAlphaGroq20bExecutionTarget | PrivateAlphaGroq120bExecutionTarget {
+  return target.kind === "groq-20b" || target.kind === "groq-120b";
+}
+
+function resolveExecutionTargetModelKey(
+  target: PrivateAlphaExecutionTarget
+): PrivateAlphaRuntimeModelKey {
+  return target.kind === "local"
+    ? PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY
+    : target.modelKey;
 }
 
 function validateStoredRunRequest(value: unknown): PrivateAlphaRunRequest | null {
@@ -851,6 +1119,9 @@ function validateStoredCancellationRecord(
 
 function validateStoredExecutionRecord(
   value: unknown,
+  request: PrivateAlphaRunRequest,
+  approvalScope: PrivateAlphaApprovalScope,
+  approval: PrivateAlphaApprovalRecord | null,
   approvalScopeHash: string
 ): PrivateAlphaExecutionRecord | null {
   if (value === null) {
@@ -858,6 +1129,25 @@ function validateStoredExecutionRecord(
   }
 
   if (!isRecord(value)) {
+    return null;
+  }
+
+  const target = resolveExecutionTargetFromRequestAndApprovalScope(
+    request,
+    approvalScope
+  );
+  if (target === null) {
+    return null;
+  }
+
+  if (
+    isCloudExecutionTarget(target) &&
+    (!isBoundApprovalRecord(approval) ||
+      approval.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+      approval.approvalScopeHash !== approvalScopeHash ||
+      approval.cloudDataTransferAcknowledgement !==
+        "granted-for-approved-scope")
+  ) {
     return null;
   }
 
@@ -878,12 +1168,6 @@ function validateStoredExecutionRecord(
     "safeErrorMessage",
     PRIVATE_ALPHA_MAX_SAFE_ERROR_MESSAGE_LENGTH
   );
-  const errorCode =
-    value.errorCode === null
-      ? null
-      : isExecutionErrorCode(value.errorCode)
-        ? value.errorCode
-        : undefined;
 
   const runningRevision =
     value.runningRevision === null
@@ -892,13 +1176,27 @@ function validateStoredExecutionRecord(
         ? value.runningRevision
         : undefined;
 
+  const hasBindingVersion = Object.prototype.hasOwnProperty.call(
+    value,
+    "bindingVersion"
+  );
+  const hasModelKey = Object.prototype.hasOwnProperty.call(value, "modelKey");
+  const hasDataBoundary = Object.prototype.hasOwnProperty.call(
+    value,
+    "dataBoundary"
+  );
+  const hasCloudExecutionAcknowledgement = Object.prototype.hasOwnProperty.call(
+    value,
+    "cloudExecutionAcknowledgement"
+  );
+
   if (
     typeof value.executionId !== "string" ||
     !value.executionId ||
     !isExecutionStatus(value.status) ||
     !isHexHash(value.idempotencyKeyHash) ||
-    value.provider !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID ||
-    value.model !== PRIVATE_ALPHA_PRODUCTION_MODEL ||
+    value.provider !== target.provider ||
+    value.model !== target.model ||
     value.approvalScopeHash !== approvalScopeHash ||
     !isIsoTimestamp(value.startedAt) ||
     completedAt === undefined ||
@@ -915,9 +1213,45 @@ function validateStoredExecutionRecord(
     (value.promptEvalCount !== null &&
       !isSafeNonNegativeInteger(value.promptEvalCount)) ||
     (value.evalCount !== null && !isSafeNonNegativeInteger(value.evalCount)) ||
-    errorCode === undefined ||
     safeErrorMessage === undefined
   ) {
+    return null;
+  }
+
+  if (target.kind === "local") {
+    if (
+      hasBindingVersion ||
+      hasModelKey ||
+      hasDataBoundary ||
+      hasCloudExecutionAcknowledgement
+    ) {
+      return null;
+    }
+  } else if (
+    !hasBindingVersion ||
+    !hasModelKey ||
+    !hasDataBoundary ||
+    !hasCloudExecutionAcknowledgement ||
+    value.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+    value.modelKey !== target.modelKey ||
+    value.dataBoundary !== target.dataBoundary ||
+    value.cloudExecutionAcknowledgement !== target.cloudExecutionAcknowledgement
+  ) {
+    return null;
+  }
+
+  const errorCode =
+    value.errorCode === null
+      ? null
+      : target.kind === "local"
+        ? isLocalPersistedExecutionErrorCode(value.errorCode)
+          ? value.errorCode
+          : undefined
+        : isGroqPersistedExecutionErrorCode(value.errorCode)
+          ? value.errorCode
+          : undefined;
+
+  if (errorCode === undefined) {
     return null;
   }
 
@@ -982,12 +1316,10 @@ function validateStoredExecutionRecord(
     }
   }
 
-  return {
+  const commonFields = {
     executionId: value.executionId,
     status: value.status,
     idempotencyKeyHash: value.idempotencyKeyHash,
-    provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
-    model: PRIVATE_ALPHA_PRODUCTION_MODEL,
     approvalScopeHash,
     startedAt: value.startedAt,
     completedAt,
@@ -1001,9 +1333,61 @@ function validateStoredExecutionRecord(
     loadDurationNanoseconds: value.loadDurationNanoseconds,
     promptEvalCount: value.promptEvalCount,
     evalCount: value.evalCount,
-    errorCode,
     safeErrorMessage,
+  } as const;
+
+  if (target.kind === "local") {
+    if (errorCode !== null && !isLocalPersistedExecutionErrorCode(errorCode)) {
+      return null;
+    }
+
+    const record: PrivateAlphaLocalExecutionRecord = {
+      ...commonFields,
+      provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+      model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+      errorCode,
+    };
+
+    return record;
+  }
+
+  if (target.kind === "groq-20b") {
+    if (errorCode !== null && !isGroqPersistedExecutionErrorCode(errorCode)) {
+      return null;
+    }
+
+    const record: PrivateAlphaGroq20bExecutionRecord = {
+      ...commonFields,
+      provider: "groq-cloud",
+      model: "openai/gpt-oss-20b",
+      bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+      modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+      dataBoundary: "cloud-provider",
+      cloudExecutionAcknowledgement:
+        "granted-for-approved-scope-execution",
+      errorCode,
+    };
+
+    return record;
+  }
+
+  if (errorCode !== null && !isGroqPersistedExecutionErrorCode(errorCode)) {
+    return null;
+  }
+
+  const record: PrivateAlphaGroq120bExecutionRecord = {
+    ...commonFields,
+    provider: "groq-cloud",
+    model: "openai/gpt-oss-120b",
+    bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+    modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+    dataBoundary: "cloud-provider",
+    cloudExecutionAcknowledgement:
+      "granted-for-approved-scope-execution",
+    errorCode,
   };
+
+  return record;
 }
 
 function validateStoredAuditEvents(
@@ -1087,6 +1471,9 @@ function validateStoredRunRecord(
   const cancellation = validateStoredCancellationRecord(value.cancellation);
   const execution = validateStoredExecutionRecord(
     value.execution ?? null,
+    runRequest,
+    approvalScope,
+    approval,
     value.approvalScopeHash
   );
   const auditEvents = validateStoredAuditEvents(value.auditEvents, expectedRunId);
@@ -1099,7 +1486,10 @@ function validateStoredRunRecord(
     approvalScope.modelPreferenceLabel !== runRequest.modelPreferenceLabel ||
     approvalScope.maximumOutputTokens !== runRequest.maximumOutputTokens ||
     approvalScope.retentionMode !== runRequest.retentionMode ||
-    approvalScope.executionMode !== runRequest.executionMode
+    approvalScope.executionMode !== runRequest.executionMode ||
+    (value.execution !== null &&
+      value.execution !== undefined &&
+      execution === null)
   ) {
     return null;
   }
@@ -1496,7 +1886,7 @@ function buildCreatedRunAuditEvents(
   )
     ? "Manual approval scope recorded locally. Execution requires a separate operator action."
     : isPrivateAlphaCloudApprovalOnlyConfiguration(run.request)
-      ? "Manual approval scope recorded locally. Groq Cloud execution remains disabled."
+      ? "Manual approval scope recorded locally. No prompt was sent to Groq, the exact model remains fixed, and only a later explicit execute action can send the approved request."
       : "Manual approval scope recorded locally. Provider execution remains locked.";
 
   return [
@@ -1524,7 +1914,7 @@ function buildCreatedRunAuditEvents(
 }
 
 function buildExecutionFailureResponse(
-  errorCode: PrivateAlphaExecutionErrorCode,
+  errorCode: PrivateAlphaProviderErrorCode,
   safeErrorMessage: string
 ): PrivateAlphaFailureResponse {
   if (errorCode === "kill_switch_blocked") {
@@ -1535,7 +1925,7 @@ function buildExecutionFailureResponse(
     };
   }
 
-  if (errorCode === "ollama_timeout") {
+  if (errorCode === "ollama_timeout" || errorCode === "groq_timeout") {
     return {
       errorCode,
       safeErrorMessage,
@@ -1546,7 +1936,14 @@ function buildExecutionFailureResponse(
   if (
     errorCode === "ollama_unavailable" ||
     errorCode === "ollama_model_missing" ||
-    errorCode === "ollama_empty_response"
+    errorCode === "ollama_empty_response" ||
+    errorCode === "groq_credential_missing" ||
+    errorCode === "groq_authentication_failed" ||
+    errorCode === "groq_rate_limited" ||
+    errorCode === "groq_quota_exhausted" ||
+    errorCode === "groq_unavailable" ||
+    errorCode === "groq_model_unavailable" ||
+    errorCode === "groq_empty_response"
   ) {
     return {
       errorCode,
@@ -1562,19 +1959,164 @@ function buildExecutionFailureResponse(
   };
 }
 
+function resolveAvailabilityBlockedResponseStatus(
+  errorCode:
+    | PrivateAlphaLocalPersistedExecutionErrorCode
+    | PrivateAlphaGroqPersistedExecutionErrorCode
+): 409 | 503 | 504 {
+  if (errorCode === "kill_switch_blocked") {
+    return 409;
+  }
+
+  if (errorCode === "ollama_timeout" || errorCode === "groq_timeout") {
+    return 504;
+  }
+
+  return 503;
+}
+
+function resolveBlockedExecutionSafeMessage(
+  target: PrivateAlphaExecutionTarget,
+  availability: Readonly<{
+    providerAvailable: boolean;
+    modelAvailable: boolean;
+    safeErrorMessage: string | null;
+  }>
+): string {
+  if (availability.safeErrorMessage) {
+    return availability.safeErrorMessage;
+  }
+
+  if (target.kind === "local") {
+    return availability.providerAvailable
+      ? "The required local Ollama model is not installed."
+      : "Local Ollama is unavailable on the fixed loopback endpoint.";
+  }
+
+  return availability.providerAvailable
+    ? "The exact approved Groq model is unavailable for execution."
+    : "Groq Cloud is unavailable for the approved execution scope.";
+}
+
+function resolveBlockedExecutionErrorCode(
+  target: PrivateAlphaExecutionTarget,
+  availability: Readonly<{
+    providerAvailable: boolean;
+    modelAvailable: boolean;
+    errorCode: PrivateAlphaProviderErrorCode | null;
+  }>
+): PrivateAlphaLocalPersistedExecutionErrorCode | PrivateAlphaGroqPersistedExecutionErrorCode {
+  if (target.kind === "local") {
+    if (
+      availability.errorCode !== null &&
+      isLocalPersistedExecutionErrorCode(availability.errorCode)
+    ) {
+      return availability.errorCode;
+    }
+
+    return availability.providerAvailable
+      ? "ollama_model_missing"
+      : "ollama_unavailable";
+  }
+
+  if (
+    availability.errorCode !== null &&
+    isGroqPersistedExecutionErrorCode(availability.errorCode)
+  ) {
+    return availability.errorCode;
+  }
+
+  return availability.providerAvailable
+    ? "groq_model_unavailable"
+    : "groq_unavailable";
+}
+
+function resolveUnexpectedExecutionFailure(
+  target: PrivateAlphaExecutionTarget
+): Readonly<{
+  errorCode:
+    | Exclude<PrivateAlphaLocalPersistedExecutionErrorCode, "kill_switch_blocked">
+    | Exclude<PrivateAlphaGroqPersistedExecutionErrorCode, "kill_switch_blocked">;
+  safeErrorMessage: string;
+}> {
+  return target.kind === "local"
+    ? {
+        errorCode: "ollama_http_error",
+        safeErrorMessage: "Local Ollama execution failed unexpectedly.",
+      }
+    : {
+        errorCode: "groq_http_error",
+        safeErrorMessage: "Groq Cloud execution failed unexpectedly.",
+      };
+}
+
+function buildExecutionStartedSummary(target: PrivateAlphaExecutionTarget): string {
+  return target.kind === "local"
+    ? "Local Ollama execution started."
+    : `Groq Cloud execution started for ${target.model}.`;
+}
+
+function buildExecutionBlockedSummary(
+  target: PrivateAlphaExecutionTarget,
+  reason: "kill-switch" | "availability"
+): string {
+  if (target.kind === "local") {
+    return reason === "kill-switch"
+      ? "Local Ollama execution blocked by the kill switch."
+      : "Local Ollama execution blocked before provider generation.";
+  }
+
+  return reason === "kill-switch"
+    ? `Groq Cloud execution blocked by the kill switch for ${target.model}.`
+    : `Groq Cloud execution blocked before provider generation for ${target.model}.`;
+}
+
+function buildExecutionSucceededSummary(target: PrivateAlphaExecutionTarget): string {
+  return target.kind === "local"
+    ? "Local Ollama execution succeeded and output was persisted."
+    : `Groq Cloud execution succeeded for ${target.model} and output was persisted locally.`;
+}
+
+function buildExecutionFailedSummary(
+  target: PrivateAlphaExecutionTarget,
+  errorCode: PrivateAlphaProviderErrorCode
+): string {
+  return target.kind === "local"
+    ? `Local Ollama execution failed with ${errorCode}.`
+    : `Groq Cloud execution failed for ${target.model} with ${errorCode}.`;
+}
+
+function verifyResolvedProviderAdapterIdentity(
+  target: PrivateAlphaExecutionTarget,
+  adapter: PrivateAlphaProviderAdapter,
+  maximumOutputTokens: number
+): void {
+  if (
+    adapter.identity.providerId !== target.provider ||
+    adapter.identity.modelId !== target.model ||
+    adapter.identity.dataBoundary !== target.dataBoundary ||
+    adapter.identity.approvedMaximumOutputTokens < maximumOutputTokens ||
+    (isCloudExecutionTarget(target) &&
+      adapter.identity.modelKey !== target.modelKey)
+  ) {
+    throw new PrivateAlphaStoreError(
+      409,
+      "Resolved provider adapter does not match the approved execution scope."
+    );
+  }
+}
+
 function buildExecutingExecutionRecord(input: {
   run: PrivateAlphaRunRecord;
   idempotencyKeyHash: string;
   startedAt: string;
+  target: PrivateAlphaExecutionTarget;
 }): PrivateAlphaExecutionRecord {
   const runningRevision = input.run.revision + 1;
-
-  return {
+  const commonFields = {
     executionId: randomUUID(),
     status: "executing",
     idempotencyKeyHash: input.idempotencyKeyHash,
-    provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
-    model: PRIVATE_ALPHA_PRODUCTION_MODEL,
     approvalScopeHash: input.run.approvalScopeHash,
     startedAt: input.startedAt,
     completedAt: null,
@@ -1588,27 +2130,70 @@ function buildExecutingExecutionRecord(input: {
     loadDurationNanoseconds: null,
     promptEvalCount: null,
     evalCount: null,
-    errorCode: null,
     safeErrorMessage: null,
+  } as const;
+
+  if (input.target.kind === "local") {
+    const record: PrivateAlphaLocalExecutionRecord = {
+      ...commonFields,
+      provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+      model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+      errorCode: null,
+    };
+
+    return record;
+  }
+
+  if (input.target.kind === "groq-20b") {
+    const record: PrivateAlphaGroq20bExecutionRecord = {
+      ...commonFields,
+      provider: "groq-cloud",
+      model: "openai/gpt-oss-20b",
+      bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+      modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+      dataBoundary: "cloud-provider",
+      cloudExecutionAcknowledgement:
+        "granted-for-approved-scope-execution",
+      errorCode: null,
+    };
+
+    return record;
+  }
+
+  const record: PrivateAlphaGroq120bExecutionRecord = {
+    ...commonFields,
+    provider: "groq-cloud",
+    model: "openai/gpt-oss-120b",
+    bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+    modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+    dataBoundary: "cloud-provider",
+    cloudExecutionAcknowledgement:
+      "granted-for-approved-scope-execution",
+    errorCode: null,
   };
+
+  return record;
 }
 
-function buildBlockedExecutionRecord(input: {
-  run: PrivateAlphaRunRecord;
-  idempotencyKeyHash: string;
-  blockedAt: string;
-  previousRevision: number;
-  runningRevision: number | null;
-  resultingRevision: number;
-  errorCode: "kill_switch_blocked" | "ollama_unavailable" | "ollama_model_missing";
-  safeErrorMessage: string;
-}): PrivateAlphaExecutionRecord {
-  return {
+function buildBlockedExecutionRecord(
+  input: Readonly<{
+    run: PrivateAlphaRunRecord;
+    target: PrivateAlphaExecutionTarget;
+    idempotencyKeyHash: string;
+    blockedAt: string;
+    previousRevision: number;
+    runningRevision: number | null;
+    resultingRevision: number;
+    errorCode:
+      | PrivateAlphaLocalPersistedExecutionErrorCode
+      | PrivateAlphaGroqPersistedExecutionErrorCode;
+    safeErrorMessage: string;
+  }>
+): PrivateAlphaExecutionRecord {
+  const commonFields = {
     executionId: input.run.execution?.executionId ?? randomUUID(),
-    status: "blocked",
+    status: "blocked" as const,
     idempotencyKeyHash: input.idempotencyKeyHash,
-    provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
-    model: PRIVATE_ALPHA_PRODUCTION_MODEL,
     approvalScopeHash: input.run.approvalScopeHash,
     startedAt: input.run.execution?.startedAt ?? input.blockedAt,
     completedAt: input.blockedAt,
@@ -1622,33 +2207,87 @@ function buildBlockedExecutionRecord(input: {
     loadDurationNanoseconds: null,
     promptEvalCount: null,
     evalCount: null,
-    errorCode: input.errorCode,
     safeErrorMessage: input.safeErrorMessage,
+  } as const;
+
+  if (input.target.kind === "local") {
+    if (!isLocalPersistedExecutionErrorCode(input.errorCode)) {
+      throw new PrivateAlphaStoreError(500, "Execution record error code was invalid.");
+    }
+
+    const record: PrivateAlphaLocalExecutionRecord = {
+      ...commonFields,
+      provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+      model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+      errorCode: input.errorCode,
+    };
+
+    return record;
+  }
+
+  if (input.target.kind === "groq-20b") {
+    if (!isGroqPersistedExecutionErrorCode(input.errorCode)) {
+      throw new PrivateAlphaStoreError(500, "Execution record error code was invalid.");
+    }
+
+    const record: PrivateAlphaGroq20bExecutionRecord = {
+      ...commonFields,
+      provider: "groq-cloud",
+      model: "openai/gpt-oss-20b",
+      bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+      modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+      dataBoundary: "cloud-provider",
+      cloudExecutionAcknowledgement:
+        "granted-for-approved-scope-execution",
+      errorCode: input.errorCode,
+    };
+
+    return record;
+  }
+
+  if (!isGroqPersistedExecutionErrorCode(input.errorCode)) {
+    throw new PrivateAlphaStoreError(500, "Execution record error code was invalid.");
+  }
+
+  const record: PrivateAlphaGroq120bExecutionRecord = {
+    ...commonFields,
+    provider: "groq-cloud",
+    model: "openai/gpt-oss-120b",
+    bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+    modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+    dataBoundary: "cloud-provider",
+    cloudExecutionAcknowledgement:
+      "granted-for-approved-scope-execution",
+    errorCode: input.errorCode,
   };
+
+  return record;
 }
 
-function buildFailedExecutionRecord(input: {
-  run: PrivateAlphaRunRecord;
-  failedAt: string;
-  resultingRevision: number;
-  errorCode:
-    | "ollama_unavailable"
-    | "ollama_model_missing"
-    | "ollama_timeout"
-    | "ollama_http_error"
-    | "ollama_malformed_response"
-    | "ollama_empty_response"
-    | "ollama_output_too_large";
-  safeErrorMessage: string;
-}): PrivateAlphaExecutionRecord {
+function buildFailedExecutionRecord(
+  input: Readonly<{
+    run: PrivateAlphaRunRecord;
+    target: PrivateAlphaExecutionTarget;
+    failedAt: string;
+    resultingRevision: number;
+    errorCode:
+      | Exclude<PrivateAlphaLocalPersistedExecutionErrorCode, "kill_switch_blocked">
+      | Exclude<PrivateAlphaGroqPersistedExecutionErrorCode, "kill_switch_blocked">;
+    safeErrorMessage: string;
+  }>
+): PrivateAlphaExecutionRecord {
   if (!input.run.execution || input.run.execution.runningRevision === null) {
     throw new PrivateAlphaStoreError(500, "Execution record was missing.");
   }
 
-  return {
-    ...input.run.execution,
-    status: "failed",
+  const failedFields = {
+    executionId: input.run.execution.executionId,
+    idempotencyKeyHash: input.run.execution.idempotencyKeyHash,
+    approvalScopeHash: input.run.execution.approvalScopeHash,
+    startedAt: input.run.execution.startedAt,
     completedAt: input.failedAt,
+    previousRevision: input.run.execution.previousRevision,
+    runningRevision: input.run.execution.runningRevision,
     resultingRevision: input.resultingRevision,
     outputText: null,
     outputSha256: null,
@@ -1657,13 +2296,80 @@ function buildFailedExecutionRecord(input: {
     loadDurationNanoseconds: null,
     promptEvalCount: null,
     evalCount: null,
-    errorCode: input.errorCode,
     safeErrorMessage: input.safeErrorMessage,
+  } as const;
+
+  if (input.target.kind === "local") {
+    if (input.run.execution.provider !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID) {
+      throw new PrivateAlphaStoreError(500, "Execution record target was invalid.");
+    }
+
+    if (!isLocalPersistedExecutionErrorCode(input.errorCode)) {
+      throw new PrivateAlphaStoreError(500, "Execution record error code was invalid.");
+    }
+
+    const record: PrivateAlphaLocalExecutionRecord = {
+      ...failedFields,
+      status: "failed",
+      provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+      model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+      errorCode: input.errorCode,
+    };
+
+    return record;
+  }
+
+  if (
+    input.run.execution.provider !== "groq-cloud" ||
+    input.run.execution.model !== input.target.model
+  ) {
+    throw new PrivateAlphaStoreError(500, "Execution record target was invalid.");
+  }
+
+  if (input.target.kind === "groq-20b") {
+    if (!isGroqPersistedExecutionErrorCode(input.errorCode)) {
+      throw new PrivateAlphaStoreError(500, "Execution record error code was invalid.");
+    }
+
+    const record: PrivateAlphaGroq20bExecutionRecord = {
+      ...failedFields,
+      status: "failed",
+      provider: "groq-cloud",
+      model: "openai/gpt-oss-20b",
+      bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+      modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+      dataBoundary: "cloud-provider",
+      cloudExecutionAcknowledgement:
+        "granted-for-approved-scope-execution",
+      errorCode: input.errorCode,
+    };
+
+    return record;
+  }
+
+  if (!isGroqPersistedExecutionErrorCode(input.errorCode)) {
+    throw new PrivateAlphaStoreError(500, "Execution record error code was invalid.");
+  }
+
+  const record: PrivateAlphaGroq120bExecutionRecord = {
+    ...failedFields,
+    status: "failed",
+    provider: "groq-cloud",
+    model: "openai/gpt-oss-120b",
+    bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+    modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+    dataBoundary: "cloud-provider",
+    cloudExecutionAcknowledgement:
+      "granted-for-approved-scope-execution",
+    errorCode: input.errorCode,
   };
+
+  return record;
 }
 
 function buildSucceededExecutionRecord(input: {
   run: PrivateAlphaRunRecord;
+  target: PrivateAlphaExecutionTarget;
   completedAt: string;
   resultingRevision: number;
   outputText: string;
@@ -1677,10 +2383,14 @@ function buildSucceededExecutionRecord(input: {
     throw new PrivateAlphaStoreError(500, "Execution record was missing.");
   }
 
-  return {
-    ...input.run.execution,
-    status: "succeeded",
+  const completedFields = {
+    executionId: input.run.execution.executionId,
+    idempotencyKeyHash: input.run.execution.idempotencyKeyHash,
+    approvalScopeHash: input.run.execution.approvalScopeHash,
+    startedAt: input.run.execution.startedAt,
     completedAt: input.completedAt,
+    previousRevision: input.run.execution.previousRevision,
+    runningRevision: input.run.execution.runningRevision,
     resultingRevision: input.resultingRevision,
     outputText: input.outputText,
     outputSha256: hashSha256(input.outputText),
@@ -1691,7 +2401,59 @@ function buildSucceededExecutionRecord(input: {
     evalCount: input.evalCount,
     errorCode: null,
     safeErrorMessage: null,
+  } as const;
+
+  if (input.target.kind === "local") {
+    if (input.run.execution.provider !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID) {
+      throw new PrivateAlphaStoreError(500, "Execution record target was invalid.");
+    }
+
+    const record: PrivateAlphaLocalExecutionRecord = {
+      ...completedFields,
+      status: "succeeded",
+      provider: PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID,
+      model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+    };
+
+    return record;
+  }
+
+  if (
+    input.run.execution.provider !== "groq-cloud" ||
+    input.run.execution.model !== input.target.model
+  ) {
+    throw new PrivateAlphaStoreError(500, "Execution record target was invalid.");
+  }
+
+  if (input.target.kind === "groq-20b") {
+    const record: PrivateAlphaGroq20bExecutionRecord = {
+      ...completedFields,
+      status: "succeeded",
+      provider: "groq-cloud",
+      model: "openai/gpt-oss-20b",
+      bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+      modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+      dataBoundary: "cloud-provider",
+      cloudExecutionAcknowledgement:
+        "granted-for-approved-scope-execution",
+    };
+
+    return record;
+  }
+
+  const record: PrivateAlphaGroq120bExecutionRecord = {
+    ...completedFields,
+    status: "succeeded",
+    provider: "groq-cloud",
+    model: "openai/gpt-oss-120b",
+    bindingVersion: PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
+    modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+    dataBoundary: "cloud-provider",
+    cloudExecutionAcknowledgement:
+      "granted-for-approved-scope-execution",
   };
+
+  return record;
 }
 
 async function readSafeKillSwitchState(
@@ -1702,32 +2464,109 @@ async function readSafeKillSwitchState(
   });
 }
 
-function ensureExecutableLocalRun(run: PrivateAlphaRunRecord): void {
-  if (!isPrivateAlphaLocalExecutionConfiguration(run.request)) {
+function resolveExecutableTargetOrThrow(
+  run: PrivateAlphaRunRecord
+): PrivateAlphaExecutionTarget {
+  const target = resolveExecutionTargetFromRequestAndApprovalScope(
+    run.request,
+    run.approvalScope
+  );
+
+  if (target === null) {
+    const isLegacyRun =
+      isPrivateAlphaLegacyRunConfiguration(run.request) &&
+      isPrivateAlphaLegacyRunConfiguration(run.approvalScope);
+
     throw new PrivateAlphaStoreError(
       409,
-      "Legacy private-alpha runs are not executable in this slice."
+      isLegacyRun
+        ? "Legacy private-alpha runs remain readable but are not executable in this slice."
+        : "Run approval scope is not executable in this slice."
     );
   }
 
-  if (!isPrivateAlphaLocalExecutionConfiguration(run.approvalScope)) {
+  return target;
+}
+
+function validateExecutionAcknowledgementOrThrow(
+  run: PrivateAlphaRunRecord,
+  target: PrivateAlphaExecutionTarget,
+  executeInput: PrivateAlphaExecuteInput
+): void {
+  if (target.kind === "local") {
+    if (executeInput.cloudExecutionAcknowledgement !== undefined) {
+      throw new PrivateAlphaStoreError(
+        409,
+        "Cloud execution acknowledgement is not allowed for local execution."
+      );
+    }
+
+    return;
+  }
+
+  if (executeInput.cloudExecutionAcknowledgement !== true) {
+    throw new PrivateAlphaStoreError(
+      409,
+      "Cloud execution acknowledgement is required for this exact approved scope."
+    );
+  }
+
+  if (
+    !isBoundApprovalRecord(run.approval) ||
+    run.approval.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION
+  ) {
+    throw new PrivateAlphaStoreError(
+      409,
+      "Cloud transfer consent is not recorded for this exact approved scope."
+    );
+  }
+
+  if (
+    run.approval.cloudDataTransferAcknowledgement !==
+      "granted-for-approved-scope" ||
+    run.approval.approvalScopeHash !== run.approvalScopeHash
+  ) {
+    throw new PrivateAlphaStoreError(
+      409,
+      "Cloud transfer consent is not recorded for this exact approved scope."
+    );
+  }
+
+  if (
+    !("bindingVersion" in run.request) ||
+    !("bindingVersion" in run.approvalScope) ||
+    run.request.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+    run.approvalScope.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+    run.request.modelKey !== run.approvalScope.modelKey ||
+    run.request.modelKey !== target.modelKey
+  ) {
     throw new PrivateAlphaStoreError(
       409,
       "Run approval scope is not executable in this slice."
     );
   }
+}
 
-  if (run.request.providerPreference !== PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID) {
-    throw new PrivateAlphaStoreError(409, "Run provider is not executable.");
+function resolveProviderAdapterForExecutionTarget(
+  target: PrivateAlphaExecutionTarget,
+  options: PrivateAlphaStoreOptions,
+  getLocalStatusAdapter: () => PrivateAlphaProviderAdapter
+): PrivateAlphaProviderAdapter {
+  const modelKey = resolveExecutionTargetModelKey(target);
+
+  if (options.providerAdapterResolver) {
+    return options.providerAdapterResolver(modelKey);
   }
 
-  if (run.request.modelPreferenceLabel !== PRIVATE_ALPHA_PRODUCTION_MODEL) {
-    throw new PrivateAlphaStoreError(409, "Run model is not executable.");
+  if (target.kind === "local") {
+    if (options.providerAdapter) {
+      return options.providerAdapter;
+    }
+
+    return getLocalStatusAdapter();
   }
 
-  if (run.request.executionMode !== PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE) {
-    throw new PrivateAlphaStoreError(409, "Run execution mode is not executable.");
-  }
+  return createPrivateAlphaProviderAdapterForModelKey(modelKey);
 }
 
 export function buildPrivateAlphaTestingDataRootLabel(testSuffix: string): string {
@@ -1758,15 +2597,22 @@ export function createPrivateAlphaStore(
   const paths = resolvePaths(options);
   const runtimeProfile =
     options.runtimeProfile ?? PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE;
-  let cachedProviderAdapter: PrivateAlphaProviderAdapter | null =
+  let cachedLocalProviderAdapter: PrivateAlphaProviderAdapter | null =
     options.providerAdapter ?? null;
-  const getProviderAdapter = (): PrivateAlphaProviderAdapter => {
-    if (cachedProviderAdapter) {
-      return cachedProviderAdapter;
+  const getLocalStatusAdapter = (): PrivateAlphaProviderAdapter => {
+    if (cachedLocalProviderAdapter) {
+      return cachedLocalProviderAdapter;
     }
 
-    cachedProviderAdapter = createPrivateAlphaOllamaProviderAdapter();
-    return cachedProviderAdapter;
+    if (options.providerAdapterResolver) {
+      cachedLocalProviderAdapter = options.providerAdapterResolver(
+        PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY
+      );
+      return cachedLocalProviderAdapter;
+    }
+
+    cachedLocalProviderAdapter = createPrivateAlphaOllamaProviderAdapter();
+    return cachedLocalProviderAdapter;
   };
 
   return {
@@ -1790,7 +2636,7 @@ export function createPrivateAlphaStore(
         };
       }
 
-      const availability = await getProviderAdapter().getAvailability();
+      const availability = await getLocalStatusAdapter().getAvailability();
 
       return {
         mode: "private-alpha-local-ollama",
@@ -2115,7 +2961,7 @@ export function createPrivateAlphaStore(
             };
 
         const summary = isCloudApprovalOnlyRun
-          ? `Manual approval recorded for exact Groq Cloud model scope ${existingRun.request.modelPreferenceLabel}. Cloud execution remains disabled.`
+          ? `Manual approval recorded for exact Groq Cloud model scope ${existingRun.request.modelPreferenceLabel}. No prompt was sent to Groq, the exact model remains fixed, and a separate execute action is required.`
           : isPrivateAlphaLocalExecutionConfiguration(existingRun.request)
             ? "Manual approval recorded for the exact local execution scope."
             : "Manual approval recorded locally. Provider execution remains unavailable.";
@@ -2302,17 +3148,11 @@ export function createPrivateAlphaStore(
           throw new PrivateAlphaStoreError(409, "Approval record scope hash does not match.");
         }
 
-        if (isPrivateAlphaCloudApprovalOnlyConfiguration(existingRun.request)) {
-          throw new PrivateAlphaStoreError(
-            409,
-            "Groq Cloud approval-only runs are not executable in this slice."
-          );
-        }
+        const target = resolveExecutableTargetOrThrow(existingRun);
+        validateExecutionAcknowledgementOrThrow(existingRun, target, executeInput);
 
-        ensureExecutableLocalRun(existingRun);
-
-        const killSwitchBeforeProbe = await readSafeKillSwitchState(paths);
-        if (killSwitchBeforeProbe.killSwitchEngaged) {
+        const killSwitchBeforeResolver = await readSafeKillSwitchState(paths);
+        if (killSwitchBeforeResolver.killSwitchEngaged) {
           const blockedAt = nowIso();
           const resultingRevision = existingRun.revision + 1;
           const blockedRun: PrivateAlphaRunRecord = {
@@ -2322,6 +3162,7 @@ export function createPrivateAlphaStore(
             revision: resultingRevision,
             execution: buildBlockedExecutionRecord({
               run: existingRun,
+              target,
               idempotencyKeyHash,
               blockedAt,
               previousRevision: existingRun.revision,
@@ -2340,7 +3181,7 @@ export function createPrivateAlphaStore(
                 previousState: existingRun.state,
                 resultingState: "blocked",
                 revision: resultingRevision,
-                summary: "Local Ollama execution blocked by the kill switch.",
+                summary: buildExecutionBlockedSummary(target, "kill-switch"),
                 occurredAt: blockedAt,
               }),
             ],
@@ -2357,16 +3198,88 @@ export function createPrivateAlphaStore(
           };
         }
 
-        const availability = await getProviderAdapter().getAvailability();
-        if (!availability.providerAvailable || !availability.modelAvailable) {
+        const resolvedProviderAdapter = resolveProviderAdapterForExecutionTarget(
+          target,
+          options,
+          getLocalStatusAdapter
+        );
+        verifyResolvedProviderAdapterIdentity(
+          target,
+          resolvedProviderAdapter,
+          existingRun.request.maximumOutputTokens
+        );
+
+        let availability: Awaited<
+          ReturnType<PrivateAlphaProviderAdapter["getAvailability"]>
+        >;
+        try {
+          availability = await resolvedProviderAdapter.getAvailability();
+        } catch (error) {
+          const fallbackAvailability = {
+            providerAvailable: false,
+            modelAvailable: false,
+            errorCode:
+              error instanceof PrivateAlphaProviderError ? error.code : null,
+            safeErrorMessage:
+              error instanceof PrivateAlphaProviderError ? error.safeMessage : null,
+          } as const;
           const blockedAt = nowIso();
           const resultingRevision = existingRun.revision + 1;
-          const errorCode = availability.errorCode ?? "ollama_unavailable";
-          const safeErrorMessage =
-            availability.safeErrorMessage ??
-            (availability.providerAvailable
-              ? "The required local Ollama model is not installed."
-              : "Local Ollama is unavailable on the fixed loopback endpoint.");
+          const safeErrorMessage = resolveBlockedExecutionSafeMessage(
+            target,
+            fallbackAvailability
+          );
+
+          if (target.kind === "local") {
+            const errorCode = resolveBlockedExecutionErrorCode(
+              target,
+              fallbackAvailability
+            );
+            const blockedRun: PrivateAlphaRunRecord = {
+              ...existingRun,
+              updatedAt: blockedAt,
+              state: "blocked",
+              revision: resultingRevision,
+              execution: buildBlockedExecutionRecord({
+                run: existingRun,
+                target,
+                idempotencyKeyHash,
+                blockedAt,
+                previousRevision: existingRun.revision,
+                runningRevision: null,
+                resultingRevision,
+                errorCode,
+                safeErrorMessage,
+              }),
+              auditEvents: [
+                ...existingRun.auditEvents,
+                buildAuditEvent({
+                  eventType: "execution.blocked",
+                  actor: "system",
+                  runId: existingRun.runId,
+                  previousState: existingRun.state,
+                  resultingState: "blocked",
+                  revision: resultingRevision,
+                  summary: buildExecutionBlockedSummary(target, "availability"),
+                  occurredAt: blockedAt,
+                }),
+              ],
+            };
+
+            await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+            return {
+              replayed: false,
+              run: blockedRun,
+              responseStatus: resolveAvailabilityBlockedResponseStatus(errorCode),
+              errorCode,
+              safeErrorMessage,
+            };
+          }
+
+          const errorCode = resolveBlockedExecutionErrorCode(
+            target,
+            fallbackAvailability
+          );
           const blockedRun: PrivateAlphaRunRecord = {
             ...existingRun,
             updatedAt: blockedAt,
@@ -2374,15 +3287,13 @@ export function createPrivateAlphaStore(
             revision: resultingRevision,
             execution: buildBlockedExecutionRecord({
               run: existingRun,
+              target,
               idempotencyKeyHash,
               blockedAt,
               previousRevision: existingRun.revision,
               runningRevision: null,
               resultingRevision,
-              errorCode:
-                errorCode === "ollama_model_missing"
-                  ? "ollama_model_missing"
-                  : "ollama_unavailable",
+              errorCode,
               safeErrorMessage,
             }),
             auditEvents: [
@@ -2394,7 +3305,7 @@ export function createPrivateAlphaStore(
                 previousState: existingRun.state,
                 resultingState: "blocked",
                 revision: resultingRevision,
-                summary: "Local Ollama execution blocked before provider generation.",
+                summary: buildExecutionBlockedSummary(target, "availability"),
                 occurredAt: blockedAt,
               }),
             ],
@@ -2404,12 +3315,106 @@ export function createPrivateAlphaStore(
           return {
             replayed: false,
             run: blockedRun,
-            responseStatus:
-              errorCode === "ollama_timeout" ? 504 : 503,
-            errorCode:
-              errorCode === "ollama_model_missing"
-                ? "ollama_model_missing"
-                : "ollama_unavailable",
+            responseStatus: resolveAvailabilityBlockedResponseStatus(errorCode),
+            errorCode,
+            safeErrorMessage,
+          };
+        }
+
+        if (
+          availability.errorCode !== null ||
+          !availability.providerAvailable ||
+          !availability.modelAvailable
+        ) {
+          const blockedAt = nowIso();
+          const resultingRevision = existingRun.revision + 1;
+          const safeErrorMessage =
+            resolveBlockedExecutionSafeMessage(target, availability);
+
+          if (target.kind === "local") {
+            const errorCode = resolveBlockedExecutionErrorCode(
+              target,
+              availability
+            );
+            const blockedRun: PrivateAlphaRunRecord = {
+              ...existingRun,
+              updatedAt: blockedAt,
+              state: "blocked",
+              revision: resultingRevision,
+              execution: buildBlockedExecutionRecord({
+                run: existingRun,
+                target,
+                idempotencyKeyHash,
+                blockedAt,
+                previousRevision: existingRun.revision,
+                runningRevision: null,
+                resultingRevision,
+                errorCode,
+                safeErrorMessage,
+              }),
+              auditEvents: [
+                ...existingRun.auditEvents,
+                buildAuditEvent({
+                  eventType: "execution.blocked",
+                  actor: "system",
+                  runId: existingRun.runId,
+                  previousState: existingRun.state,
+                  resultingState: "blocked",
+                  revision: resultingRevision,
+                  summary: buildExecutionBlockedSummary(target, "availability"),
+                  occurredAt: blockedAt,
+                }),
+              ],
+            };
+
+            await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+            return {
+              replayed: false,
+              run: blockedRun,
+              responseStatus: resolveAvailabilityBlockedResponseStatus(errorCode),
+              errorCode,
+              safeErrorMessage,
+            };
+          }
+
+          const errorCode = resolveBlockedExecutionErrorCode(target, availability);
+          const blockedRun: PrivateAlphaRunRecord = {
+            ...existingRun,
+            updatedAt: blockedAt,
+            state: "blocked",
+            revision: resultingRevision,
+            execution: buildBlockedExecutionRecord({
+              run: existingRun,
+              target,
+              idempotencyKeyHash,
+              blockedAt,
+              previousRevision: existingRun.revision,
+              runningRevision: null,
+              resultingRevision,
+              errorCode,
+              safeErrorMessage,
+            }),
+            auditEvents: [
+              ...existingRun.auditEvents,
+              buildAuditEvent({
+                eventType: "execution.blocked",
+                actor: "system",
+                runId: existingRun.runId,
+                previousState: existingRun.state,
+                resultingState: "blocked",
+                revision: resultingRevision,
+                summary: buildExecutionBlockedSummary(target, "availability"),
+                occurredAt: blockedAt,
+              }),
+            ],
+          };
+
+          await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+          return {
+            replayed: false,
+            run: blockedRun,
+            responseStatus: resolveAvailabilityBlockedResponseStatus(errorCode),
+            errorCode,
             safeErrorMessage,
           };
         }
@@ -2427,6 +3432,7 @@ export function createPrivateAlphaStore(
           run: existingRun,
           idempotencyKeyHash,
           startedAt,
+          target,
         });
         const executingRun: PrivateAlphaRunRecord = {
           ...existingRun,
@@ -2438,21 +3444,21 @@ export function createPrivateAlphaStore(
             ...existingRun.auditEvents,
             buildAuditEvent({
               eventType: "execution.started",
-              actor: "system",
-              runId: existingRun.runId,
-              previousState: existingRun.state,
-              resultingState: "executing",
-              revision: executingRecord.runningRevision ?? existingRun.revision,
-              summary: "Local Ollama execution started.",
-              occurredAt: startedAt,
-            }),
-          ],
-        };
+                actor: "system",
+                runId: existingRun.runId,
+                previousState: existingRun.state,
+                resultingState: "executing",
+                revision: executingRecord.runningRevision ?? existingRun.revision,
+                summary: buildExecutionStartedSummary(target),
+                occurredAt: startedAt,
+              }),
+            ],
+          };
 
         await writeJsonFileAtomically(runAbsolutePath, executingRun);
 
-        const killSwitchBeforeChat = await readSafeKillSwitchState(paths);
-        if (killSwitchBeforeChat.killSwitchEngaged) {
+        const killSwitchBeforeGeneration = await readSafeKillSwitchState(paths);
+        if (killSwitchBeforeGeneration.killSwitchEngaged) {
           const blockedAt = nowIso();
           const resultingRevision = executingRun.revision + 1;
           const blockedRun: PrivateAlphaRunRecord = {
@@ -2462,6 +3468,7 @@ export function createPrivateAlphaStore(
             revision: resultingRevision,
             execution: buildBlockedExecutionRecord({
               run: executingRun,
+              target,
               idempotencyKeyHash,
               blockedAt,
               previousRevision: executingRun.execution?.previousRevision ?? existingRun.revision,
@@ -2480,7 +3487,7 @@ export function createPrivateAlphaStore(
                 previousState: executingRun.state,
                 resultingState: "blocked",
                 revision: resultingRevision,
-                summary: "Local Ollama execution blocked by the kill switch.",
+                summary: buildExecutionBlockedSummary(target, "kill-switch"),
                 occurredAt: blockedAt,
               }),
             ],
@@ -2498,9 +3505,9 @@ export function createPrivateAlphaStore(
         }
 
         try {
-          const generated = await getProviderAdapter().generateApprovedText({
+          const generated = await resolvedProviderAdapter.generateApprovedText({
             approvedRequestText: existingRun.request.normalizedRequestText,
-            model: PRIVATE_ALPHA_PRODUCTION_MODEL,
+            model: target.model,
             maximumOutputTokens: existingRun.request.maximumOutputTokens,
           });
           const completedAt = nowIso();
@@ -2520,6 +3527,7 @@ export function createPrivateAlphaStore(
             revision: resultingRevision,
             execution: buildSucceededExecutionRecord({
               run: executingRun,
+              target,
               completedAt,
               resultingRevision,
               outputText: generated.outputText,
@@ -2538,7 +3546,7 @@ export function createPrivateAlphaStore(
                 previousState: executingRun.state,
                 resultingState: "succeeded",
                 revision: resultingRevision,
-                summary: "Local Ollama execution succeeded and output was persisted.",
+                summary: buildExecutionSucceededSummary(target),
                 occurredAt: completedAt,
               }),
             ],
@@ -2554,14 +3562,6 @@ export function createPrivateAlphaStore(
           };
         } catch (error) {
           const isKnownProviderError = error instanceof PrivateAlphaProviderError;
-          const providerErrorCode =
-            error instanceof PrivateAlphaProviderError
-              ? error.code
-              : "ollama_http_error";
-          const safeProviderMessage =
-            error instanceof PrivateAlphaProviderError
-              ? error.safeMessage
-              : "Local Ollama execution failed unexpectedly.";
 
           const failedAt = nowIso();
           const transitionToFailed = assertPrivateAlphaTransition(
@@ -2578,15 +3578,92 @@ export function createPrivateAlphaStore(
             updatedAt: failedAt,
             state: "failed",
             revision: resultingRevision,
-            execution: buildFailedExecutionRecord({
-              run: executingRun,
-              failedAt,
-              resultingRevision,
-              errorCode: providerErrorCode,
-              safeErrorMessage: safeProviderMessage,
-            }),
             auditEvents: [
               ...executingRun.auditEvents,
+            ],
+          };
+
+          if (target.kind === "local") {
+            const errorCode: Exclude<
+              PrivateAlphaLocalPersistedExecutionErrorCode,
+              "kill_switch_blocked"
+            > =
+              error instanceof PrivateAlphaProviderError &&
+              isLocalProviderExecutionErrorCode(error.code)
+                ? error.code
+                : "ollama_http_error";
+            const safeErrorMessage =
+              error instanceof PrivateAlphaProviderError
+                ? error.safeMessage
+                : "Local Ollama execution failed unexpectedly.";
+            const nextFailedRun: PrivateAlphaRunRecord = {
+              ...failedRun,
+              execution: buildFailedExecutionRecord({
+                run: executingRun,
+                target,
+                failedAt,
+                resultingRevision,
+                errorCode,
+                safeErrorMessage,
+              }),
+              auditEvents: [
+                ...failedRun.auditEvents,
+                buildAuditEvent({
+                  eventType: "execution.failed",
+                  actor: "system",
+                  runId: executingRun.runId,
+                  previousState: executingRun.state,
+                  resultingState: "failed",
+                  revision: resultingRevision,
+                  summary: buildExecutionFailedSummary(target, errorCode),
+                  occurredAt: failedAt,
+                }),
+              ],
+            };
+
+            await writeJsonFileAtomically(runAbsolutePath, nextFailedRun);
+
+            const failureResponse = isKnownProviderError
+              ? buildExecutionFailureResponse(errorCode, safeErrorMessage)
+              : {
+                  errorCode,
+                  safeErrorMessage,
+                  responseStatus: 500 as const,
+                };
+
+            return {
+              replayed: false,
+              run: nextFailedRun,
+              responseStatus: failureResponse.responseStatus,
+              errorCode: failureResponse.errorCode,
+              safeErrorMessage: failureResponse.safeErrorMessage,
+            };
+          }
+
+          const errorCode: Exclude<
+            PrivateAlphaGroqPersistedExecutionErrorCode,
+            "kill_switch_blocked"
+          > =
+            error instanceof PrivateAlphaProviderError &&
+            isGroqProviderExecutionErrorCode(error.code)
+              ? error.code
+              : "groq_http_error";
+          const safeErrorMessage =
+            error instanceof PrivateAlphaProviderError
+              ? error.safeMessage
+              : "Groq Cloud execution failed unexpectedly.";
+          const nextFailedRun: PrivateAlphaRunRecord = {
+            ...failedRun,
+            execution: buildFailedExecutionRecord({
+              run: executingRun,
+              target,
+              failedAt,
+              resultingRevision,
+              errorCode,
+              safeErrorMessage,
+            }),
+            auditEvents: [
+              ...failedRun.auditEvents,
               buildAuditEvent({
                 eventType: "execution.failed",
                 actor: "system",
@@ -2594,31 +3671,25 @@ export function createPrivateAlphaStore(
                 previousState: executingRun.state,
                 resultingState: "failed",
                 revision: resultingRevision,
-                summary: `Local Ollama execution failed with ${providerErrorCode}.`,
+                summary: buildExecutionFailedSummary(target, errorCode),
                 occurredAt: failedAt,
               }),
             ],
           };
 
-          await writeJsonFileAtomically(runAbsolutePath, failedRun);
+          await writeJsonFileAtomically(runAbsolutePath, nextFailedRun);
 
           const failureResponse = isKnownProviderError
-            ? buildExecutionFailureResponse(
-                failedRun.execution?.errorCode ?? "ollama_http_error",
-                failedRun.execution?.safeErrorMessage ??
-                  "Local Ollama execution failed unexpectedly."
-              )
+            ? buildExecutionFailureResponse(errorCode, safeErrorMessage)
             : {
-                errorCode: failedRun.execution?.errorCode ?? "ollama_http_error",
-                safeErrorMessage:
-                  failedRun.execution?.safeErrorMessage ??
-                  "Local Ollama execution failed unexpectedly.",
+                errorCode,
+                safeErrorMessage,
                 responseStatus: 500 as const,
               };
 
           return {
             replayed: false,
-            run: failedRun,
+            run: nextFailedRun,
             responseStatus: failureResponse.responseStatus,
             errorCode: failureResponse.errorCode,
             safeErrorMessage: failureResponse.safeErrorMessage,

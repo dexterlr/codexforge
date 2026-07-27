@@ -56,7 +56,7 @@ export const PRIVATE_ALPHA_APPROVAL_LOCK_STATEMENT =
 export const PRIVATE_ALPHA_LOCAL_EXECUTION_APPROVAL_STATEMENT =
   "Manual approval recorded for this exact local Ollama execution scope. Execution still requires a separate explicit operator action.";
 export const PRIVATE_ALPHA_CLOUD_APPROVAL_STATEMENT =
-  "Manual approval recorded for this exact Groq Cloud provider and model scope. The approved request may be transferred to Groq only after a later separate execution action is implemented. Cloud execution remains disabled.";
+  "Manual approval recorded for this exact Groq Cloud provider and model scope. Cloud transfer consent is recorded for this approved scope. Execution still requires a separate explicit operator acknowledgement and action.";
 export const PRIVATE_ALPHA_SECRET_GUIDANCE =
   "Do not paste API keys, tokens, passwords, or secrets.";
 export const PRIVATE_ALPHA_SECRET_REJECTION_MESSAGE =
@@ -651,6 +651,7 @@ export function validatePrivateAlphaExecuteInput(
     "acknowledgement",
     "approvalScopeHash",
     "expectedRevision",
+    "cloudExecutionAcknowledgement",
   ]);
   if (unknownKeys.length > 0) {
     return failure(400, `Unknown fields are not allowed: ${unknownKeys.join(", ")}.`);
@@ -679,11 +680,24 @@ export function validatePrivateAlphaExecuteInput(
     return failure(400, "expectedRevision must be a positive integer.");
   }
 
+  if (
+    body.cloudExecutionAcknowledgement !== undefined &&
+    body.cloudExecutionAcknowledgement !== true
+  ) {
+    return failure(
+      400,
+      "cloudExecutionAcknowledgement must be exactly true when provided."
+    );
+  }
+
   return success({
     execute: true,
     acknowledgement: true,
     approvalScopeHash: body.approvalScopeHash.trim(),
     expectedRevision: body.expectedRevision,
+    ...(body.cloudExecutionAcknowledgement === true
+      ? { cloudExecutionAcknowledgement: true as const }
+      : {}),
   });
 }
 
@@ -807,6 +821,12 @@ export function isPrivateAlphaCloudApprovalOnlyConfiguration(
     input.cloudDataTransferRequirement ===
       configuration.cloudDataTransferRequirement
   );
+}
+
+export function isPrivateAlphaCloudExecutionConfiguration(
+  input: PrivateAlphaExecutionConfigurationInput
+): boolean {
+  return isPrivateAlphaCloudApprovalOnlyConfiguration(input);
 }
 
 export function resolvePrivateAlphaApprovalStatement(

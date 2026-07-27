@@ -14,6 +14,7 @@ import type {
   PrivateAlphaStatus,
 } from "@/lib/codexforge/private-alpha";
 import {
+  PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
   PRIVATE_ALPHA_DATA_ROOT_LABEL,
   PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
   PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
@@ -26,7 +27,8 @@ import {
   PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL,
   PRIVATE_ALPHA_RUNTIME_MODEL_KEYS,
   PRIVATE_ALPHA_SECRET_GUIDANCE,
-  isPrivateAlphaCloudApprovalOnlyConfiguration,
+  isPrivateAlphaCloudExecutionConfiguration,
+  isPrivateAlphaLocalExecutionConfiguration,
   resolvePrivateAlphaBoundConfiguration,
 } from "@/lib/codexforge/private-alpha";
 import {
@@ -79,7 +81,7 @@ type PrivateAlphaManualTargetConfiguration = Readonly<{
     | "openai/gpt-oss-20b"
     | "openai/gpt-oss-120b";
   dataBoundaryLabel: "Local machine" | "Cloud provider";
-  approvalModeLabel: "Local execution" | "Approval only";
+  approvalModeLabel: "Local execution" | "Manual cloud execution";
   supportsCode: boolean;
   executableNow: boolean;
 }>;
@@ -90,7 +92,7 @@ type PrivateAlphaRunClassification =
       target: PrivateAlphaManualTargetConfiguration;
     }>
   | Readonly<{
-      kind: "cloud-approval-only";
+      kind: "cloud-executable";
       target: PrivateAlphaManualTargetConfiguration;
     }>
   | Readonly<{
@@ -139,9 +141,9 @@ const PRIVATE_ALPHA_MANUAL_TARGETS = [
     modelKey: PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
     modelLabel: "openai/gpt-oss-20b",
     dataBoundaryLabel: "Cloud provider",
-    approvalModeLabel: "Approval only",
+    approvalModeLabel: "Manual cloud execution",
     supportsCode: false,
-    executableNow: false,
+    executableNow: true,
   },
   {
     providerId: "groq-cloud",
@@ -149,9 +151,9 @@ const PRIVATE_ALPHA_MANUAL_TARGETS = [
     modelKey: PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
     modelLabel: "openai/gpt-oss-120b",
     dataBoundaryLabel: "Cloud provider",
-    approvalModeLabel: "Approval only",
+    approvalModeLabel: "Manual cloud execution",
     supportsCode: false,
-    executableNow: false,
+    executableNow: true,
   },
 ] as const satisfies readonly PrivateAlphaManualTargetConfiguration[];
 
@@ -203,7 +205,7 @@ function formatKillSwitchSources(status: PrivateAlphaStatus | null): string {
 }
 
 function isPrivateAlphaRuntimeModelKey(
-  value: string
+  value: unknown
 ): value is PrivateAlphaRuntimeModelKey {
   return PRIVATE_ALPHA_RUNTIME_MODEL_KEYS.some((modelKey) => modelKey === value);
 }
@@ -250,30 +252,53 @@ function resolveRunModelLabel(modelPreferenceLabel: string | null): string {
   return modelPreferenceLabel ?? "No model recorded";
 }
 
-function readBoundRequestMetadata(
-  run: PrivateAlphaRunRecord
+function readBoundMetadata(
+  source: Pick<
+    PrivateAlphaRunRecord["request"],
+    | "providerPreference"
+    | "modelPreferenceLabel"
+    | "executionMode"
+    | "capability"
+    | "retentionMode"
+    | "maximumOutputTokens"
+  > &
+    Partial<
+      Pick<
+        PrivateAlphaBoundRequestMetadata,
+        "bindingVersion" | "modelKey" | "dataBoundary" | "cloudDataTransferRequirement"
+      >
+    >
 ): PrivateAlphaBoundRequestMetadata | null {
   if (
-    !("bindingVersion" in run.request) ||
-    !("modelKey" in run.request) ||
-    !("dataBoundary" in run.request) ||
-    !("cloudDataTransferRequirement" in run.request)
+    !("bindingVersion" in source) ||
+    !("modelKey" in source) ||
+    !("dataBoundary" in source) ||
+    !("cloudDataTransferRequirement" in source)
   ) {
     return null;
   }
 
-  if (!isPrivateAlphaRuntimeModelKey(run.request.modelKey)) {
+  const modelKey = source.modelKey;
+  if (!isPrivateAlphaRuntimeModelKey(modelKey)) {
     return null;
   }
 
-  return (
-    {
-      bindingVersion: run.request.bindingVersion,
-      modelKey: run.request.modelKey,
-      dataBoundary: run.request.dataBoundary,
-      cloudDataTransferRequirement: run.request.cloudDataTransferRequirement,
-    }
-  );
+  const exactConfiguration = resolvePrivateAlphaBoundConfiguration(modelKey);
+  if (
+    source.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+    source.dataBoundary !== exactConfiguration.dataBoundary ||
+    source.cloudDataTransferRequirement !==
+      exactConfiguration.cloudDataTransferRequirement
+  ) {
+    return null;
+  }
+
+  return {
+    bindingVersion: source.bindingVersion,
+    modelKey,
+    dataBoundary: source.dataBoundary,
+    cloudDataTransferRequirement: source.cloudDataTransferRequirement,
+  };
 }
 
 function isBoundApprovalRecord(
@@ -295,8 +320,28 @@ function readCloudDataTransferAcknowledgement(
 function resolveExactBoundManualTarget(
   run: PrivateAlphaRunRecord
 ): PrivateAlphaManualTargetConfiguration | null {
-  const boundRequest = readBoundRequestMetadata(run);
-  if (boundRequest === null) {
+  if (
+    isPrivateAlphaLocalExecutionConfiguration(run.request) &&
+    isPrivateAlphaLocalExecutionConfiguration(run.approvalScope)
+  ) {
+    return PRIVATE_ALPHA_LOCAL_TARGET;
+  }
+
+  const boundRequest = readBoundMetadata(run.request);
+  const boundApprovalScope = readBoundMetadata(run.approvalScope);
+  if (boundRequest === null || boundApprovalScope === null) {
+    return null;
+  }
+
+  if (
+    !isPrivateAlphaCloudExecutionConfiguration(run.request) ||
+    !isPrivateAlphaCloudExecutionConfiguration(run.approvalScope) ||
+    boundRequest.bindingVersion !== boundApprovalScope.bindingVersion ||
+    boundRequest.modelKey !== boundApprovalScope.modelKey ||
+    boundRequest.dataBoundary !== boundApprovalScope.dataBoundary ||
+    boundRequest.cloudDataTransferRequirement !==
+      boundApprovalScope.cloudDataTransferRequirement
+  ) {
     return null;
   }
 
@@ -307,6 +352,11 @@ function resolveExactBoundManualTarget(
     run.request.providerPreference !== derivedConfiguration.providerPreference ||
     run.request.modelPreferenceLabel !== derivedConfiguration.modelPreferenceLabel ||
     run.request.executionMode !== derivedConfiguration.executionMode ||
+    run.approvalScope.providerPreference !==
+      derivedConfiguration.providerPreference ||
+    run.approvalScope.modelPreferenceLabel !==
+      derivedConfiguration.modelPreferenceLabel ||
+    run.approvalScope.executionMode !== derivedConfiguration.executionMode ||
     boundRequest.bindingVersion !== derivedConfiguration.bindingVersion ||
     boundRequest.dataBoundary !== derivedConfiguration.dataBoundary ||
     boundRequest.cloudDataTransferRequirement !==
@@ -331,12 +381,13 @@ function classifyPrivateAlphaRun(
   }
 
   if (target.providerId === "groq-cloud") {
-    return isPrivateAlphaCloudApprovalOnlyConfiguration(run.request)
-      ? { kind: "cloud-approval-only", target }
+    return isPrivateAlphaCloudExecutionConfiguration(run.request)
+      ? { kind: "cloud-executable", target }
       : { kind: "historical" };
   }
 
-  return run.request.executionMode === PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE
+  return isPrivateAlphaLocalExecutionConfiguration(run.request) &&
+    isPrivateAlphaLocalExecutionConfiguration(run.approvalScope)
     ? { kind: "local-executable", target }
     : { kind: "historical" };
 }
@@ -363,8 +414,8 @@ function buildSelectedTargetBadge(
 ): PrivateAlphaSelectedTargetBadge {
   if (providerId === "groq-cloud") {
     return {
-      label: "Cloud execution locked",
-      className: styles.metricStateBlocked,
+      label: "Manual cloud execution",
+      className: styles.metricStateApproval,
     };
   }
 
@@ -394,11 +445,11 @@ function resolveCurrentRunDataBoundaryLabel(
     return classification.target.dataBoundaryLabel;
   }
 
-  if (classification.kind === "cloud-approval-only") {
+  if (classification.kind === "cloud-executable") {
     return classification.target.dataBoundaryLabel;
   }
 
-  const boundRequest = readBoundRequestMetadata(run);
+  const boundRequest = readBoundMetadata(run.request);
   if (boundRequest?.dataBoundary === "local-machine") {
     return "Local machine";
   }
@@ -418,7 +469,7 @@ function resolveCurrentRunApprovalModeLabel(
     return classification.target.approvalModeLabel;
   }
 
-  if (classification.kind === "cloud-approval-only") {
+  if (classification.kind === "cloud-executable") {
     return classification.target.approvalModeLabel;
   }
 
@@ -465,11 +516,17 @@ function formatTimestamp(timestamp: string): string {
 }
 
 function buildExecutionOutcomeMessage(run: PrivateAlphaRunRecord): string {
+  const groqExecution = run.execution?.provider === "groq-cloud";
+
   switch (run.state) {
     case "succeeded":
-      return "Local Ollama execution finished and output was persisted locally.";
+      return groqExecution
+        ? "Groq Cloud execution finished and output was persisted locally."
+        : "Local Ollama execution finished and output was persisted locally.";
     case "failed":
-      return "Local Ollama execution finished with a persisted failure record.";
+      return groqExecution
+        ? "Groq Cloud execution finished with a persisted failure record."
+        : "Local Ollama execution finished with a persisted failure record.";
     case "blocked":
       return "A persisted blocked execution record is now loaded.";
     default:
@@ -556,21 +613,28 @@ function buildCurrentRunStateMessage(
     return "No persisted run is selected yet. Create an approval request to begin the workflow.";
   }
 
-  if (classification?.kind === "cloud-approval-only") {
+  if (classification?.kind === "cloud-executable") {
     switch (run.state) {
       case "awaiting_approval":
-        return "The request is persisted locally. The exact cloud scope is ready for manual review. No data has been sent to Groq.";
+        return "The request is persisted locally. No prompt was sent to Groq. The exact cloud scope is awaiting approval.";
       case "approved":
-        return "The exact cloud scope is approved. Cloud transfer consent is recorded. No prompt was sent to Groq, and cloud execution remains disabled.";
+        return "The exact cloud scope is approved. Cloud transfer consent is recorded. No prompt was sent yet, and a separate execution acknowledgement is required.";
+      case "executing":
+        return "The exact approved prompt has been sent to the exact Groq model. The persisted executing state is loaded.";
+      case "succeeded":
+        return "The exact Groq output and metrics are persisted locally.";
+      case "failed":
+      case "blocked":
+        return "The exact Groq execution finished with a bounded persisted status record.";
       case "canceled":
-        return "This approval-only run was canceled locally.";
+        return "This Groq run was canceled locally.";
       default:
-        return "This exact Groq Cloud approval-only record remains readable. No prompt was sent to Groq, and cloud execution remains disabled.";
+        return "This exact Groq Cloud record remains readable. Execution requires an explicit operator action.";
     }
   }
 
   if (classification?.kind === "historical") {
-    return "Historical or legacy record loaded. It remains readable, but only exact bound local runs can execute from Jarvis.";
+    return "Historical or legacy record loaded. It remains readable, but Jarvis does not execute it.";
   }
 
   switch (run.state) {
@@ -610,16 +674,27 @@ function buildNextActionSummary(
     return "Review the historical record and create a new exact bound request when another task is needed.";
   }
 
-  if (classification?.kind === "cloud-approval-only") {
+  if (classification?.kind === "cloud-executable") {
     switch (run.state) {
       case "awaiting_approval":
         return "Review the exact Groq Cloud scope, record both acknowledgements, or cancel the run locally.";
       case "approved":
-        return "Cloud approval is recorded locally. No prompt was sent. Review the run or cancel it; cloud execution remains disabled.";
+        if (status?.killSwitchEngaged === true) {
+          return "The global private-alpha kill switch is engaged. Groq execution stays blocked until it is disengaged.";
+        }
+
+        return "Grant the one-time Groq execution acknowledgement, then execute once. Availability and credential checks occur server-side only after the explicit action.";
+      case "executing":
+        return "Generation is in progress. Refresh local state to load the persisted terminal result.";
+      case "succeeded":
+        return "Review the persisted output, metrics, hashes, and audit trail.";
+      case "failed":
+      case "blocked":
+        return "Review the persisted safe error details and audit trail before creating another run.";
       case "canceled":
-        return "This approval-only run is closed after local cancellation.";
+        return "This run is closed. Create a new exact bound request for another task.";
       default:
-        return "Review the persisted approval-only record. Cloud execution remains disabled.";
+        return "Review the persisted cloud execution record.";
     }
   }
 
@@ -655,12 +730,18 @@ function buildCurrentRunResultSummary(
     return "No persisted result is loaded yet.";
   }
 
-  if (classification?.kind === "cloud-approval-only") {
+  if (classification?.kind === "cloud-executable") {
     if (run.state === "canceled") {
-      return "The approval-only run was canceled locally before any cloud transfer.";
+      return "The run was canceled locally before any prompt was sent to Groq.";
     }
 
-    return "No provider result exists. No provider call has occurred and cloud execution is disabled.";
+    if (run.state === "awaiting_approval" || run.state === "approved") {
+      return "No provider generation call has occurred.";
+    }
+
+    if (run.state === "executing") {
+      return "Generation is in progress.";
+    }
   }
 
   if (classification?.kind === "historical") {
@@ -710,6 +791,8 @@ export function PrivateAlphaRunPanel() {
   const [maximumOutputTokens, setMaximumOutputTokens] = useState("512");
   const [approvalAcknowledged, setApprovalAcknowledged] = useState(false);
   const [cloudDataTransferAcknowledged, setCloudDataTransferAcknowledged] =
+    useState(false);
+  const [cloudExecutionAcknowledged, setCloudExecutionAcknowledged] =
     useState(false);
   const [executionAcknowledged, setExecutionAcknowledged] = useState(false);
   const [cancellationReason, setCancellationReason] = useState(
@@ -767,6 +850,7 @@ export function PrivateAlphaRunPanel() {
   useEffect(() => {
     setApprovalAcknowledged(false);
     setCloudDataTransferAcknowledged(false);
+    setCloudExecutionAcknowledged(false);
     setExecutionAcknowledged(false);
     setShowCancellationForm(false);
   }, [currentRun?.runId]);
@@ -882,7 +966,7 @@ export function PrivateAlphaRunPanel() {
     setSuccessMessage(null);
 
     try {
-      if (classification.kind === "cloud-approval-only") {
+      if (classification.kind === "cloud-executable") {
         await approvePrivateAlphaRun(currentRun.runId, {
           approvalScopeHash: currentRun.approvalScopeHash,
           approved: true,
@@ -902,7 +986,7 @@ export function PrivateAlphaRunPanel() {
       await refreshPanel(currentRun.runId);
       setActiveView("current-run");
       setSuccessMessage(
-        classification.kind === "cloud-approval-only"
+        classification.kind === "cloud-executable"
           ? "Cloud approval recorded locally. No prompt was sent to Groq."
           : "Manual approval recorded locally."
       );
@@ -922,7 +1006,8 @@ export function PrivateAlphaRunPanel() {
     if (
       !currentRun ||
       classification === null ||
-      classification.kind !== "local-executable"
+      (classification.kind !== "local-executable" &&
+        classification.kind !== "cloud-executable")
     ) {
       return;
     }
@@ -932,12 +1017,21 @@ export function PrivateAlphaRunPanel() {
     setSuccessMessage(null);
 
     try {
-      const nextRun = await executePrivateAlphaRun(currentRun.runId, {
-        execute: true,
-        acknowledgement: true,
-        approvalScopeHash: currentRun.approvalScopeHash,
-        expectedRevision: currentRun.revision,
-      });
+      const nextRun =
+        classification.kind === "cloud-executable"
+          ? await executePrivateAlphaRun(currentRun.runId, {
+              execute: true,
+              acknowledgement: true,
+              approvalScopeHash: currentRun.approvalScopeHash,
+              expectedRevision: currentRun.revision,
+              cloudExecutionAcknowledgement: true,
+            })
+          : await executePrivateAlphaRun(currentRun.runId, {
+              execute: true,
+              acknowledgement: true,
+              approvalScopeHash: currentRun.approvalScopeHash,
+              expectedRevision: currentRun.revision,
+            });
 
       await refreshPanel(nextRun.runId);
       setActiveView("current-run");
@@ -1017,11 +1111,19 @@ export function PrivateAlphaRunPanel() {
       ? PRIVATE_ALPHA_GROQ_20B_TARGET.approvalModeLabel
       : PRIVATE_ALPHA_LOCAL_TARGET.approvalModeLabel;
   const currentRunBoundMetadata = currentRun
-    ? readBoundRequestMetadata(currentRun)
+    ? readBoundMetadata(currentRun.request)
     : null;
   const currentRunCloudAcknowledgement = currentRun
     ? readCloudDataTransferAcknowledgement(currentRun)
     : null;
+  const currentExecutionModelKey =
+    currentExecution?.provider === "groq-cloud" ? currentExecution.modelKey : null;
+  const currentExecutionDataBoundary =
+    currentExecution?.provider === "groq-cloud" ? currentExecution.dataBoundary : null;
+  const currentExecutionCloudAcknowledgement =
+    currentExecution?.provider === "groq-cloud"
+      ? currentExecution.cloudExecutionAcknowledgement
+      : null;
   const currentRunProviderLabel = currentRun
     ? resolveManualProviderLabel(currentRun.request.providerPreference)
     : null;
@@ -1037,20 +1139,26 @@ export function PrivateAlphaRunPanel() {
       ? resolveCurrentRunApprovalModeLabel(currentRun, currentRunClassification)
       : null;
   const localExecutableRun = currentRunClassification?.kind === "local-executable";
-  const cloudApprovalOnlyRun =
-    currentRunClassification?.kind === "cloud-approval-only";
+  const cloudExecutableRun = currentRunClassification?.kind === "cloud-executable";
   const canApprove =
     currentRun?.state === "awaiting_approval" &&
     currentRunClassification !== null &&
     currentRunClassification.kind !== "historical";
   const canCancel =
     currentRun?.state === "awaiting_approval" || currentRun?.state === "approved";
-  const canExecute =
+  const canExecuteLocal =
     currentRun?.state === "approved" &&
     localExecutableRun &&
     executionAcknowledged &&
     status?.executionAllowed === true &&
     actionInFlight === null;
+  const canExecuteCloud =
+    currentRun?.state === "approved" &&
+    cloudExecutableRun &&
+    cloudExecutionAcknowledged &&
+    status?.killSwitchEngaged === false &&
+    actionInFlight === null;
+  const canExecute = canExecuteLocal || canExecuteCloud;
   const progress = buildProgressSnapshot(currentRun);
   const executionDuration = formatNanosecondDuration(
     currentExecution?.totalDurationNanoseconds ?? null
@@ -1075,7 +1183,7 @@ export function PrivateAlphaRunPanel() {
     !canApprove ||
     actionInFlight !== null ||
     !approvalAcknowledged ||
-    (cloudApprovalOnlyRun && !cloudDataTransferAcknowledged);
+    (cloudExecutableRun && !cloudDataTransferAcknowledged);
   const selectedTab = PRIVATE_ALPHA_PANEL_TABS.find((tab) => tab.id === activeView);
 
   return (
@@ -1095,10 +1203,10 @@ export function PrivateAlphaRunPanel() {
       </div>
 
       <p className={styles.panelBody}>
-        Choose a local or cloud approval target, persist the exact request
-        scope, and review the audit trail. Local Ollama may execute after
-        approval and runtime gates. Groq is approval-only in this slice, and no
-        cloud prompt is sent.
+        Choose a local or cloud target, persist the exact request scope, and
+        review the audit trail. Local Ollama may execute after approval and
+        runtime gates. Groq requires a later explicit execute-once action, with
+        no automatic routing, retry, or fallback.
       </p>
 
       <div className={styles.privateAlphaStatusStrip}>
@@ -1123,6 +1231,14 @@ export function PrivateAlphaRunPanel() {
           </span>
         </div>
         <div className={styles.privateAlphaStatusItem}>
+          <span className={styles.privateAlphaStatusLabel}>Runtime status</span>
+          <span className={styles.privateAlphaStatusValue}>
+            {selectedProviderId === "groq-cloud"
+              ? "Checked server-side at execution"
+              : "Checked locally"}
+          </span>
+        </div>
+        <div className={styles.privateAlphaStatusItem}>
           <span className={styles.privateAlphaStatusLabel}>Local runtime</span>
           <span className={styles.privateAlphaStatusValue}>
             {resolveLocalRuntimeStatus(status)}
@@ -1141,12 +1257,14 @@ export function PrivateAlphaRunPanel() {
       </div>
 
       <p className={styles.privateAlphaSupportText}>
-        {PRIVATE_ALPHA_SECRET_GUIDANCE} One execution attempt per local run.
+        {PRIVATE_ALPHA_SECRET_GUIDANCE} One execution attempt per approved run.
         Output is persisted locally at{" "}
         {status?.dataRootLabel ?? PRIVATE_ALPHA_DATA_ROOT_LABEL}. Local Ollama
         can execute only after manual approval, runtime checks, and kill-switch
-        clearance. Groq requests remain approval-only, and creation or approval
-        sends nothing to Groq. {formatKillSwitchSources(status)}
+        clearance. Groq availability and credential checks occur server-side
+        only after the explicit execute action. Creating or approving a Groq
+        request does not contact Groq, the exact model remains fixed, and no
+        automatic routing occurs. {formatKillSwitchSources(status)}
       </p>
 
       {loadState === "loading" ? (
@@ -1190,7 +1308,7 @@ export function PrivateAlphaRunPanel() {
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
                 {selectedProviderId === "groq-cloud"
-                  ? "approval only"
+                  ? "manual cloud execution"
                   : "local execution"}
               </span>
             </div>
@@ -1320,20 +1438,19 @@ export function PrivateAlphaRunPanel() {
                 </div>
                 <p className={styles.privateAlphaSectionBody}>
                   {selectedProviderId === "groq-cloud"
-                    ? "This request stays inside the cloud-provider approval boundary. Cloud execution is disabled, and no prompt is sent to Groq by creation or approval."
+                    ? "This request stays inside the cloud-provider boundary. Creating or approving the request does not contact Groq. Only a later explicit execute action can send the approved prompt."
                     : "This request stays on the local machine. It can execute only after manual approval, and local runtime and kill-switch checks still apply."}
                 </p>
                 {selectedProviderId === "groq-cloud" ? (
                   <div
                     className={styles.privateAlphaCloudApprovalNotice}
-                    data-codexforge-private-alpha-cloud-boundary="approval-only"
+                    data-codexforge-private-alpha-cloud-boundary="manual-execution"
                   >
                     The request is persisted locally. Creating the request does
                     not contact Groq. Approving the request does not contact
-                    Groq. Approval records consent for the exact
-                    request/provider/model scope, and any transfer can occur
-                    only in a later separately implemented execution action.
-                    Cloud execution is currently disabled.
+                    Groq. Only the later explicit execute action sends the
+                    approved prompt, the exact model remains fixed, and no
+                    automatic routing occurs.
                   </div>
                 ) : null}
               </div>
@@ -1460,7 +1577,9 @@ export function PrivateAlphaRunPanel() {
 
                 {currentRun.state === "executing" ? (
                   <div className={styles.privateAlphaNotice}>
-                    Execution was persisted as running before the local provider call.
+                    {cloudExecutableRun
+                      ? "Generation is in progress for the exact approved Groq execution."
+                      : "Execution was persisted as running before the local provider call."}
                   </div>
                 ) : null}
 
@@ -1505,8 +1624,8 @@ export function PrivateAlphaRunPanel() {
                 {currentRun.state === "awaiting_approval" ||
                 currentRun.state === "approved" ? (
                   <p className={styles.privateAlphaSectionBody}>
-                    {cloudApprovalOnlyRun
-                      ? "No provider result exists. No provider call has occurred, and cloud execution is disabled."
+                    {cloudExecutableRun
+                      ? "No provider generation call has occurred."
                       : currentRunClassification?.kind === "historical"
                         ? "This historical record remains readable only. No provider call is available from Jarvis for it."
                         : "Result content will appear here after explicit local execution."}
@@ -1579,16 +1698,17 @@ export function PrivateAlphaRunPanel() {
                     </span>
                   </div>
                 </div>
-                {cloudApprovalOnlyRun ? (
-                  <div className={styles.privateAlphaCloudApprovalNotice}>
-                    Cloud-provider boundary. No prompt was sent to Groq. Cloud
-                    execution remains disabled.
+                {cloudExecutableRun ? (
+                  <div className={styles.privateAlphaCloudExecutionNotice}>
+                    Cloud-provider boundary. No prompt was sent to Groq yet.
+                    The exact model remains fixed until one explicit execute
+                    action is taken.
                   </div>
                 ) : null}
                 {currentRunClassification?.kind === "historical" ? (
                   <div className={styles.privateAlphaNotice}>
-                    Historical records remain readable, but only exact bound
-                    local runs can execute from Jarvis.
+                    Historical records remain readable, but Jarvis does not
+                    execute them.
                   </div>
                 ) : null}
               </div>
@@ -1691,13 +1811,13 @@ export function PrivateAlphaRunPanel() {
                         />
                         <span className={styles.placeholderSummary}>
                           {`Manual approval records this exact ${currentRunProviderLabel} / ${currentRunModelLabel} scope. ${
-                            cloudApprovalOnlyRun
+                            cloudExecutableRun
                               ? "No prompt is sent to Groq by recording approval."
                               : "Execution still requires a separate explicit local action."
                           }`}
                         </span>
                       </label>
-                      {cloudApprovalOnlyRun ? (
+                      {cloudExecutableRun ? (
                         <label
                           className={`${styles.privateAlphaToggle} ${styles.privateAlphaCloudToggle}`}
                           data-codexforge-private-alpha-cloud-acknowledgement="required"
@@ -1711,7 +1831,7 @@ export function PrivateAlphaRunPanel() {
                             disabled={!canApprove || actionInFlight !== null}
                           />
                           <span className={styles.placeholderSummary}>
-                            {`This exact request is bound to Groq Cloud / ${currentRunModelLabel}. Recording approval consents to this exact request being transferred only by a later separately implemented execution action. No transfer occurs now, and cloud execution remains disabled.`}
+                            {`This exact request is bound to Groq Cloud / ${currentRunModelLabel}. Recording approval consents to this exact approved request being transferred only by a later explicit execute action. No transfer occurs now, the exact model remains fixed, and no automatic routing occurs.`}
                           </span>
                         </label>
                       ) : null}
@@ -1768,7 +1888,7 @@ export function PrivateAlphaRunPanel() {
                           className={styles.privateAlphaButton}
                           type="button"
                           onClick={() => void handleExecute()}
-                          disabled={!canExecute}
+                          disabled={!canExecuteLocal}
                         >
                           {actionInFlight === "execute"
                             ? "Executing once on local Ollama..."
@@ -1786,17 +1906,50 @@ export function PrivateAlphaRunPanel() {
                         ) : null}
                       </div>
                     </div>
-                  ) : cloudApprovalOnlyRun ? (
+                  ) : cloudExecutableRun ? (
                     <div className={styles.privateAlphaStack}>
-                      <div
-                        className={styles.privateAlphaCloudApprovalNotice}
-                        data-codexforge-private-alpha-cloud-execution="disabled"
+                      <div className={styles.privateAlphaCloudExecutionNotice}>
+                        Availability and credential checks occur server-side
+                        only after this explicit execute action.
+                      </div>
+                      <label
+                        className={`${styles.privateAlphaToggle} ${styles.privateAlphaCloudExecutionToggle}`}
+                        data-codexforge-private-alpha-cloud-execution-acknowledgement="required"
                       >
-                        Cloud approval recorded. No prompt was sent to Groq.
-                        Cloud execution remains disabled.
+                        <input
+                          type="checkbox"
+                          checked={cloudExecutionAcknowledged}
+                          onChange={(event) =>
+                            setCloudExecutionAcknowledged(event.target.checked)
+                          }
+                          disabled={
+                            currentRun.state !== "approved" ||
+                            actionInFlight !== null ||
+                            !cloudExecutableRun
+                          }
+                        />
+                        <span className={styles.placeholderSummary}>
+                          {`This one action will send the exact approved request to Groq Cloud on ${currentRunModelLabel}. One execution attempt is allowed, output will be persisted locally, and there is no automatic routing, retry, or fallback.`}
+                        </span>
+                      </label>
+                      <div className={styles.privateAlphaCloudExecutionMeta}>
+                        <span className={styles.metaPill}>Cloud provider</span>
+                        <span className={styles.metaPill}>{currentRunModelLabel}</span>
+                        <span className={styles.metaPill}>One attempt</span>
                       </div>
                       {!showCancellationForm ? (
                         <div className={styles.privateAlphaButtonRow}>
+                          <button
+                            className={styles.privateAlphaButton}
+                            type="button"
+                            onClick={() => void handleExecute()}
+                            disabled={!canExecuteCloud}
+                            data-codexforge-private-alpha-cloud-execute="manual"
+                          >
+                            {actionInFlight === "execute"
+                              ? "Executing once on Groq Cloud..."
+                              : "Execute once on Groq Cloud"}
+                          </button>
                           <button
                             className={styles.privateAlphaButtonDanger}
                             type="button"
@@ -2215,6 +2368,48 @@ export function PrivateAlphaRunPanel() {
                   <p className={styles.privateAlphaStatusLabel}>execution id</p>
                   <p className={styles.privateAlphaTechnicalValue}>
                     {currentExecution.executionId}
+                  </p>
+                </div>
+              ) : null}
+              {currentExecution ? (
+                <div className={styles.privateAlphaTechnicalItem}>
+                  <p className={styles.privateAlphaStatusLabel}>execution provider</p>
+                  <p className={styles.privateAlphaTechnicalValue}>
+                    {currentExecution.provider}
+                  </p>
+                </div>
+              ) : null}
+              {currentExecution ? (
+                <div className={styles.privateAlphaTechnicalItem}>
+                  <p className={styles.privateAlphaStatusLabel}>execution model</p>
+                  <p className={styles.privateAlphaTechnicalValue}>
+                    {currentExecution.model}
+                  </p>
+                </div>
+              ) : null}
+              {currentExecutionModelKey ? (
+                <div className={styles.privateAlphaTechnicalItem}>
+                  <p className={styles.privateAlphaStatusLabel}>execution modelKey</p>
+                  <p className={styles.privateAlphaTechnicalValue}>
+                    {currentExecutionModelKey}
+                  </p>
+                </div>
+              ) : null}
+              {currentExecutionDataBoundary ? (
+                <div className={styles.privateAlphaTechnicalItem}>
+                  <p className={styles.privateAlphaStatusLabel}>execution dataBoundary</p>
+                  <p className={styles.privateAlphaTechnicalValue}>
+                    {currentExecutionDataBoundary}
+                  </p>
+                </div>
+              ) : null}
+              {currentExecutionCloudAcknowledgement ? (
+                <div className={styles.privateAlphaTechnicalItem}>
+                  <p className={styles.privateAlphaStatusLabel}>
+                    execution cloud acknowledgement
+                  </p>
+                  <p className={styles.privateAlphaTechnicalValue}>
+                    {currentExecutionCloudAcknowledgement}
                   </p>
                 </div>
               ) : null}
