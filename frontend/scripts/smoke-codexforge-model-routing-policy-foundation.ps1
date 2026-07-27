@@ -93,6 +93,7 @@ $catalogSource = Get-Content -Raw $catalogPath
 $policySource = Get-Content -Raw $policyPath
 $groqAdapterSource = Get-Content -Raw $groqAdapterPath
 $runtimeSource = Get-Content -Raw $runtimePath
+$jarvisPanelSource = Get-Content -Raw "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
 $liveRoutingSource = $typesSource + "`n" + $catalogSource + "`n" + $policySource + "`n" + $indexSource
 $runtimeBoundarySource = $groqAdapterSource + "`n" + $runtimeSource
 
@@ -172,8 +173,10 @@ Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" 
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq client module remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
-Assert-NoGitDiff "src/app/jarvis" "Current Jarvis UI remains unchanged"
+Assert-NoGitDiff "src/app/jarvis" "Jarvis route entry remains unchanged"
 Assert-NotMatches $runtimeBoundarySource "routeCodexForgeModel|runtimeSnapshots|manualModelKey|createPrivateAlphaStore|executeRun|/api/codexforge/private-alpha" "Runtime boundary performs no routing or execution integration"
+Assert-Contains $jarvisPanelSource 'data-codexforge-private-alpha-provider-selector="manual"' "Jarvis uses a manual provider selector instead of routing"
+Assert-Contains $jarvisPanelSource 'data-codexforge-private-alpha-model-selector="manual"' "Jarvis uses a manual model selector instead of routing"
 
 $athenaAliasSource = Get-Content -Raw "src\app\athena\page.tsx"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"

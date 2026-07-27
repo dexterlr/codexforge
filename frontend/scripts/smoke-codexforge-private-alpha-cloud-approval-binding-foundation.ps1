@@ -62,18 +62,18 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha cloud approval binding foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts",
-  "docs/codexforge-private-alpha-cloud-approval-binding-foundation-v0.md",
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1"
+  "docs/codexforge-jarvis-manual-provider-model-selector-v0.md"
 )
 
 $requiredFiles = $allowedChangedFiles | ForEach-Object { $_ -replace '/', '\' }
@@ -83,6 +83,7 @@ foreach ($file in $requiredFiles) {
 
 foreach ($scriptPath in @(
   "scripts\smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts\smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts\smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
   "scripts\smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts\smoke-codexforge-groq-provider-qualification-foundation.ps1",
@@ -106,11 +107,15 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the twelve allowed Slice I files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the twelve allowed Slice J files"
 foreach ($path in $changedPaths) {
-  Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed Slice I files: $path"
+  Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed Slice J files: $path"
 }
 
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-types.ts" "Private-alpha types remain unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Private-alpha validation remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Private-alpha store remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts" "Private-alpha runtime resolver remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Generic provider contract remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Ollama adapter remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Groq adapter remains unchanged"
@@ -121,7 +126,6 @@ Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" 
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq transport client remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Private-alpha API routes remain unchanged"
-Assert-NoGitDiff "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx" "Private-alpha UI component remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx" "Athena live UI remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.tsx" "Jarvis shell remains unchanged"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
@@ -130,7 +134,9 @@ $typesSource = Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-
 $validationSource = Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-validation.ts"
 $storeSource = Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-store.server.ts"
 $runtimeSource = Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-provider-runtime.server.ts"
+$privateAlphaIndexSource = Get-Content -Raw "src\lib\codexforge\private-alpha\index.ts"
 $privateAlphaPanelSource = Get-Content -Raw "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
+$privateAlphaCssSource = Get-Content -Raw "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisUnifiedProductShell.module.css"
 $apiClientSource = Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-api-client.ts"
 $athenaAliasSource = Get-Content -Raw "src\app\athena\page.tsx"
 $jarvisVideoPanelSource = Get-Content -Raw "src\lib\codexforge\jarvis-video-studio-release-candidate-map\components\JarvisVideoStudioReleaseCandidatePanel.tsx"
@@ -161,8 +167,23 @@ foreach ($marker in @(
   Assert-Contains $jarvisVideoPanelSource $marker "/jarvis-video retains marker $marker"
 }
 Assert-Contains $navigationTypesSource "commandDeckRole: CodexForgeCommandDeckRole;" "commandDeckRole remains strongly typed"
-Assert-Contains $privateAlphaPanelSource "Fixed model" "Jarvis UI keeps the fixed local model display"
-Assert-NotMatches $privateAlphaPanelSource "modelKey|groq-cloud|openai/gpt-oss-20b|openai/gpt-oss-120b" "Jarvis UI still creates no cloud request and exposes no provider/model selector"
+Assert-Contains $privateAlphaIndexSource "PrivateAlphaRuntimeModelKey" "Client-safe private-alpha index exports the runtime model key"
+Assert-Contains $privateAlphaIndexSource "PRIVATE_ALPHA_RUNTIME_MODEL_KEYS" "Client-safe private-alpha index exports the runtime model key list"
+Assert-Contains $privateAlphaIndexSource "PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE" "Client-safe private-alpha index exports the cloud approval execution mode"
+Assert-Contains $privateAlphaIndexSource "resolvePrivateAlphaBoundConfiguration" "Client-safe private-alpha index exports the bound-configuration resolver"
+Assert-Contains $privateAlphaPanelSource 'data-codexforge-private-alpha-provider-selector="manual"' "Jarvis UI exposes a manual provider selector"
+Assert-Contains $privateAlphaPanelSource 'data-codexforge-private-alpha-model-selector="manual"' "Jarvis UI exposes a manual model selector"
+Assert-Contains $privateAlphaPanelSource 'selectedProviderId === "groq-cloud"' "Selecting Groq requires an explicit provider branch"
+Assert-Contains $privateAlphaPanelSource 'selectedTarget?.modelKey ?? ""' "No default Groq model is assigned"
+Assert-Contains $privateAlphaPanelSource 'data-codexforge-private-alpha-cloud-acknowledgement="required"' "Groq approval has a separate cloud acknowledgement"
+Assert-Contains $privateAlphaPanelSource 'cloudDataTransferAcknowledgement: true' "Groq approval sends the cloud transfer acknowledgement"
+Assert-NotMatches $privateAlphaPanelSource 'cloudDataTransferAcknowledgement:\s*undefined' "Local approval omits an undefined cloud acknowledgement"
+Assert-Contains $privateAlphaPanelSource 'data-codexforge-private-alpha-cloud-execution="disabled"' "Cloud execution UI remains approval-only and disabled"
+Assert-Contains $privateAlphaPanelSource 'Execute once on local Ollama' "Local execution UI remains present"
+Assert-Contains $privateAlphaPanelSource 'modelKey: exactTarget.modelKey' "UI creates exact bound requests"
+Assert-NotMatches $privateAlphaPanelSource '\bfetch\s*\(' "PrivateAlphaRunPanel contains no raw provider call"
+Assert-Contains $privateAlphaCssSource '.privateAlphaTargetSelectorGrid' "Private-alpha CSS includes the target selector layout"
+Assert-Contains $privateAlphaCssSource '.privateAlphaCloudApprovalNotice' "Private-alpha CSS includes the cloud approval notice"
 Assert-True ((& git diff --name-only -- src/app/api/codexforge/private-alpha 2>$null | Measure-Object).Count -eq 0) "No private-alpha API route changed"
 Assert-True ((& git diff --name-only -- src/lib/codexforge/private-alpha/private-alpha-api-client.ts 2>$null | Measure-Object).Count -eq 0) "Private-alpha API client remains unchanged"
 

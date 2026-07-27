@@ -89,6 +89,7 @@ $storePath = "src\lib\codexforge\private-alpha\private-alpha-store.server.ts"
 $providerSource = Get-Content -Raw $providerPath
 $adapterSource = Get-Content -Raw $adapterPath
 $storeSource = Get-Content -Raw $storePath
+$jarvisPanelSource = Get-Content -Raw "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
 
 $providerFirstLine = Get-Content $providerPath -TotalCount 1
 $adapterFirstLine = Get-Content $adapterPath -TotalCount 1
@@ -147,6 +148,9 @@ Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.ser
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Current private-alpha API client remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current private-alpha-ollama.server.ts remains unchanged"
+Assert-Contains $jarvisPanelSource 'data-codexforge-private-alpha-provider-selector="manual"' "Jarvis panel exposes the manual provider selector"
+Assert-Contains $jarvisPanelSource 'data-codexforge-private-alpha-model-selector="manual"' "Jarvis panel exposes the manual model selector"
+Assert-Contains $jarvisPanelSource 'Execute once on local Ollama' "Jarvis panel preserves the local execution control"
 
 $athenaAliasSource = Get-Content -Raw "src\app\athena\page.tsx"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"

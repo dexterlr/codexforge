@@ -62,18 +62,18 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha Groq adapter runtime foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts",
-  "docs/codexforge-private-alpha-cloud-approval-binding-foundation-v0.md",
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1"
+  "docs/codexforge-jarvis-manual-provider-model-selector-v0.md"
 )
 
 $requiredFiles = $allowedChangedFiles | ForEach-Object { $_ -replace '/', '\' }
@@ -82,6 +82,7 @@ foreach ($file in $requiredFiles) {
 }
 
 foreach ($scriptPath in @(
+  "scripts\smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts\smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
   "scripts\smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts\smoke-codexforge-groq-provider-qualification-foundation.ps1",
@@ -104,17 +105,21 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the twelve allowed Slice I files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the twelve allowed Slice J files"
 foreach ($path in $changedPaths) {
-  Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed Slice I files: $path"
+  Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed Slice J files: $path"
 }
 
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-types.ts" "Private-alpha types remain unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Private-alpha validation remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Private-alpha store remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts" "Private-alpha runtime resolver remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Generic provider contract remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Ollama adapter remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Groq adapter remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
-Assert-NoGitDiff "src/app/jarvis" "Current Jarvis UI remains unchanged"
+Assert-NoGitDiff "src/app/jarvis" "Jarvis route entry remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq client module remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current Ollama client remains unchanged"
@@ -135,6 +140,8 @@ $providerSource = Get-Content -Raw $providerPath
 $ollamaAdapterSource = Get-Content -Raw $ollamaAdapterPath
 $groqAdapterSource = Get-Content -Raw $groqAdapterPath
 $runtimeSource = Get-Content -Raw $runtimePath
+$privateAlphaPanelSource = Get-Content -Raw "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
+$privateAlphaIndexSource = Get-Content -Raw "src\lib\codexforge\private-alpha\index.ts"
 $combinedChangedTypeScriptSource = (
   $allowedChangedFiles |
     Where-Object { $_ -like "*.ts" } |
@@ -174,6 +181,10 @@ Assert-NotMatches $groqAdapterSource "api\.groq\.com|/openai/v1/" "Groq adapter 
 Assert-NotMatches $combinedChangedTypeScriptSource "localStorage|sessionStorage|indexedDB" "No browser storage exists in the Slice H TypeScript files"
 Assert-NotMatches $combinedChangedTypeScriptSource 'from\s+["''](?:groq-sdk|openai|axios|@anthropic-ai\/sdk|anthropic|@google\/genai|google-genai|openrouter)["'']|require\(["''](?:groq-sdk|openai|axios|@anthropic-ai\/sdk|anthropic|@google\/genai|google-genai|openrouter)["'']\)' "No provider SDK is introduced"
 Assert-NotMatches $runtimeBoundarySource "routeCodexForgeModel|runtimeSnapshots|manualModelKey|createPrivateAlphaStore|executeRun|/api/codexforge/private-alpha" "Runtime boundary performs no routing or execution integration"
+Assert-Contains $privateAlphaIndexSource "PRIVATE_ALPHA_CLOUD_APPROVAL_ONLY_EXECUTION_MODE" "Client-safe private-alpha index exports the cloud approval execution mode"
+Assert-Contains $privateAlphaPanelSource 'data-codexforge-private-alpha-provider-selector="manual"' "Jarvis panel exposes the manual provider selector"
+Assert-Contains $privateAlphaPanelSource 'data-codexforge-private-alpha-model-selector="manual"' "Jarvis panel exposes the manual model selector"
+Assert-Contains $privateAlphaPanelSource 'data-codexforge-private-alpha-cloud-execution="disabled"' "Jarvis panel keeps Groq execution disabled"
 
 $ollamaExecutionNormalizerMatch = [regex]::Match(
   $ollamaAdapterSource,

@@ -62,18 +62,18 @@ Write-Host ""
 Write-Host "=== CodexForge Groq live qualification admission smoke ==="
 
 $allowedChangedFiles = @(
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts",
-  "docs/codexforge-private-alpha-cloud-approval-binding-foundation-v0.md",
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1"
+  "docs/codexforge-jarvis-manual-provider-model-selector-v0.md"
 )
 
 $requiredFiles = $allowedChangedFiles | ForEach-Object { $_ -replace '/', '\' }
@@ -82,6 +82,7 @@ foreach ($file in $requiredFiles) {
 }
 
 foreach ($scriptPath in @(
+  "scripts\smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts\smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts\smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts\smoke-codexforge-model-routing-policy-foundation.ps1",
@@ -104,9 +105,9 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the twelve allowed Slice I files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the twelve allowed Slice J files"
 foreach ($path in $changedPaths) {
-  Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed Slice I files: $path"
+  Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed Slice J files: $path"
 }
 
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
@@ -119,7 +120,7 @@ Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.t
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Current private-alpha kill switch remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Current private-alpha API client remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
-Assert-NoGitDiff "src/app/jarvis" "Current Jarvis UI remains unchanged"
+Assert-NoGitDiff "src/app/jarvis" "Jarvis route entry remains unchanged"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
 
 $typesSource = Get-Content -Raw "src\lib\codexforge\groq-provider\groq-provider-types.ts"
@@ -140,11 +141,7 @@ $modelRoutingSource = (
     Sort-Object FullName |
     ForEach-Object { Get-Content -Raw $_.FullName }
 ) -join "`n"
-$jarvisSource = (
-  Get-ChildItem -LiteralPath "src\app\jarvis" -Recurse -File |
-    Sort-Object FullName |
-    ForEach-Object { Get-Content -Raw $_.FullName }
-) -join "`n"
+$jarvisSource = Get-Content -Raw "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
 $athenaAliasSource = Get-Content -Raw "src\app\athena\page.tsx"
 $videoPanelSource = Get-Content -Raw "src\lib\codexforge\jarvis-video-studio-release-candidate-map\components\JarvisVideoStudioReleaseCandidatePanel.tsx"
 $navigationTypesSource = Get-Content -Raw "src\lib\codexforge\navigation-shell\navigation-shell-types.ts"
@@ -174,7 +171,9 @@ foreach ($forbiddenToken in @(
 
 Assert-NotMatches $modelRoutingSource "localStorage|sessionStorage|indexedDB" "Model-routing source excludes browser storage"
 Assert-NotMatches $modelRoutingSource "process\.env" "Model-routing source excludes process.env reads"
-Assert-NotMatches $jarvisSource "groq-cloud|openai/gpt-oss-20b|openai/gpt-oss-120b" "Current Jarvis UI does not expose Groq selector metadata"
+Assert-Contains $jarvisSource 'data-codexforge-private-alpha-provider-selector="manual"' "Jarvis UI exposes the manual provider selector"
+Assert-Contains $jarvisSource 'data-codexforge-private-alpha-model-selector="manual"' "Jarvis UI exposes the manual model selector"
+Assert-Contains $jarvisSource 'data-codexforge-private-alpha-cloud-execution="disabled"' "Jarvis UI keeps Groq execution disabled"
 Assert-NotMatches $runtimeBoundarySource "routeCodexForgeModel|runtimeSnapshots|manualModelKey|createPrivateAlphaStore|executeRun|/api/codexforge/private-alpha" "Runtime boundary performs no routing or execution integration"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"
 foreach ($marker in @(

@@ -82,10 +82,26 @@ function Get-StatusEntries {
 
 $Failures = New-Object System.Collections.Generic.List[string]
 
+$allowedSliceJPaths = @(
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
+  "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
+  "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
+  "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
+  "docs/codexforge-jarvis-manual-provider-model-selector-v0.md",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1"
+)
+
 $athenaPanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx"
 $livePanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx"
 $shellPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.tsx"
 $privateAlphaPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx"
+$privateAlphaIndexPath = "src/lib/codexforge/private-alpha/index.ts"
 $cssPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css"
 $athenaAliasPath = "src/app/athena/page.tsx"
 $jarvisVideoPagePath = "src/app/jarvis-video/page.tsx"
@@ -95,6 +111,7 @@ $athenaPanel = Get-FileText $athenaPanelPath
 $livePanel = Get-FileText $livePanelPath
 $shell = Get-FileText $shellPath
 $privateAlpha = Get-FileText $privateAlphaPath
+$privateAlphaIndex = Get-FileText $privateAlphaIndexPath
 $css = Get-FileText $cssPath
 $athenaAlias = Get-FileText $athenaAliasPath
 $jarvisVideoPage = Get-FileText $jarvisVideoPagePath
@@ -102,11 +119,18 @@ $commandDeckRole = Get-FileText $commandDeckRolePath
 $statusEntries = Get-StatusEntries
 $changedPaths = @($statusEntries | ForEach-Object { $_.Path })
 $changedUiText = ($athenaPanel, $livePanel, $shell, $privateAlpha, $css) -join "`n"
-$changedTypeScriptText = ($athenaPanel, $livePanel, $shell, $privateAlpha) -join "`n"
+$changedTypeScriptText = ($privateAlpha, $privateAlphaIndex) -join "`n"
 $liveUiText = ($livePanel, $shell, $privateAlpha, $css) -join "`n"
 $liveJarvisBranchMatch = [regex]::Match(
   $shell,
   'if \(isPrimaryAthenaSurface\) \{[\s\S]*?<AthenaCommandCenterPanel[\s\S]*?displayMode="live-product"[\s\S]*?</section>\s*\);\s*\}'
+)
+$productSourceChanges = @(
+  $changedPaths | Where-Object { $_ -match '^src/' }
+)
+$media920Match = [regex]::Match(
+  $css,
+  '@media \(max-width: 920px\) \{[\s\S]*?privateAlphaTargetSelectorGrid[\s\S]*?grid-template-columns:\s*1fr;'
 )
 
 Add-Result (Test-Path -LiteralPath (Join-Path $repoRoot $livePanelPath)) "AthenaLiveCommandCenterPanel exists"
@@ -147,9 +171,50 @@ Add-Result (
   $privateAlpha -match '<textarea'
 ) "the real private-alpha request textarea remains"
 Add-Result (
-  $privateAlpha.Contains("Fixed model") -and
-  -not ($privateAlpha -cmatch '\breadOnly\b')
-) "the fixed model is not rendered as a read-only input"
+  $privateAlpha.Contains('data-codexforge-private-alpha-provider-selector="manual"') -and
+  $privateAlpha.Contains('data-codexforge-private-alpha-model-selector="manual"')
+) "manual provider and model selectors exist"
+Add-Result (
+  $privateAlpha.Contains('Local Ollama') -and
+  $privateAlpha.Contains('Groq Cloud') -and
+  $privateAlpha.Contains('gpt-oss:20b') -and
+  $privateAlpha.Contains('openai/gpt-oss-20b') -and
+  $privateAlpha.Contains('openai/gpt-oss-120b')
+) "exact local and Groq targets exist"
+Add-Result ($privateAlpha.Contains('Select a Groq model')) "the Groq selector has an explicit prompt option"
+Add-Result (
+  $privateAlpha.Contains('selectedProviderId === "groq-cloud"') -and
+  $privateAlpha.Contains('selectedTarget?.modelKey ?? ""')
+) "no default Groq model is assigned"
+Add-Result (
+  $privateAlpha.Contains('data-codexforge-private-alpha-target-summary="true"') -and
+  $privateAlpha.Contains('data-codexforge-private-alpha-cloud-boundary="approval-only"')
+) "target summary and cloud boundary warning exist"
+Add-Result (
+  $privateAlpha.Contains('data-codexforge-private-alpha-cloud-acknowledgement="required"') -and
+  $privateAlpha.Contains('data-codexforge-private-alpha-cloud-execution="disabled"')
+) "cloud acknowledgement and cloud execution-disabled states exist"
+Add-Result (
+  $privateAlpha.Contains('data-codexforge-private-alpha-bound-create="true"') -and
+  $privateAlpha.Contains('modelKey: exactTarget.modelKey')
+) "bound create includes the exact model key"
+Add-Result (
+  $privateAlpha.Contains('cloudDataTransferAcknowledgement: true') -and
+  $privateAlpha.Contains('await approvePrivateAlphaRun(currentRun.runId, {')
+) "cloud approval payload includes the explicit transfer acknowledgement"
+Add-Result (
+  $privateAlpha.Contains('await approvePrivateAlphaRun(currentRun.runId, {') -and
+  $privateAlpha.Contains('expectedRevision: currentRun.revision,') -and
+  -not $privateAlpha.Contains('cloudDataTransferAcknowledgement: undefined')
+) "local approval omits an undefined cloud acknowledgement payload field"
+Add-Result (
+  $privateAlpha.Contains('executePrivateAlphaRun(currentRun.runId, {') -and
+  $privateAlpha.Contains('Execute once on local Ollama')
+) "local execution remains available"
+Add-Result (
+  $privateAlpha.Contains('Groq approval binding currently supports text requests only.') -and
+  $privateAlpha.Contains('disabled={selectedProviderId === "groq-cloud"}')
+) "Groq forces text and disables the capability select"
 
 $advancedSettingsIndex = $privateAlpha.IndexOf("Advanced settings")
 $maximumTokensIndex = $privateAlpha.IndexOf("Maximum output tokens")
@@ -204,54 +269,37 @@ Add-Result (
   $technicalDetailsText.Contains("outputSha256")
 ) "raw hashes are placed in technical details"
 Add-Result ($privateAlpha -notmatch '\bfetch\s*\(') "PrivateAlphaRunPanel contains no raw fetch call"
+Add-Result ($privateAlpha -notmatch 'localStorage|sessionStorage|indexedDB|document\.cookie') "PrivateAlphaRunPanel contains no browser storage"
+Add-Result ($privateAlpha -notmatch 'https?://') "PrivateAlphaRunPanel contains no external URL"
+Add-Result ($privateAlphaIndex.Contains("PrivateAlphaRuntimeModelKey")) "private-alpha index exports the runtime model key type"
+Add-Result ($privateAlphaIndex.Contains("PRIVATE_ALPHA_RUNTIME_MODEL_KEYS")) "private-alpha index exports the runtime model keys constant"
+
 Add-Result ($liveUiText -notmatch '11434') "the browser UI does not reference port 11434"
 Add-Result ($liveUiText -notmatch 'localStorage|sessionStorage|indexedDB|document\.cookie') "no browser storage exists"
 Add-Result ($liveUiText -notmatch 'https?://') "no external provider URL exists"
-$allowedSliceIBackendPrivateAlphaChanges = @(
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts"
+
+$changedProductSourcePaths = @(
+  $productSourceChanges | Where-Object { $_ -match '^src/' }
+)
+$expectedProductSourcePaths = @(
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css"
 )
 Add-Result (
-  -not ($changedPaths | Where-Object {
-      $_ -eq $athenaPanelPath -or
-      $_ -eq $livePanelPath -or
-      $_ -eq $shellPath -or
-      $_ -eq $privateAlphaPath -or
-      $_ -eq $cssPath
-    })
-) "no private-alpha UI component changed"
+  $changedPaths.Count -eq $allowedSliceJPaths.Count -and
+  @($changedPaths | Where-Object { $allowedSliceJPaths -notcontains $_ }).Count -eq 0
+) "git scope contains exactly the twelve allowed Slice J files"
 Add-Result (
-  -not ($changedPaths | Where-Object {
-      $_ -match '^src/app/api/codexforge/private-alpha/'
-    })
-) "no private-alpha API route changed"
+  $changedProductSourcePaths.Count -eq $expectedProductSourcePaths.Count -and
+  @($changedProductSourcePaths | Where-Object { $expectedProductSourcePaths -notcontains $_ }).Count -eq 0
+) "only the panel, CSS, and client-safe private-alpha index changed in product source"
 Add-Result (
-  -not ($changedPaths | Where-Object {
-      $_ -eq "src/lib/codexforge/private-alpha/private-alpha-api-client.ts"
-    })
-) "no private-alpha API client changed"
-$changedBackendPrivateAlphaPaths = @(
-  $changedPaths | Where-Object {
-    $_ -match '^src/lib/codexforge/private-alpha/'
-  }
-)
-$unexpectedBackendPrivateAlphaPaths = @(
-  $changedBackendPrivateAlphaPaths | Where-Object {
-    $allowedSliceIBackendPrivateAlphaChanges -notcontains $_
-  }
-)
-$allAllowedBackendPrivateAlphaPathsPresent = $true
-foreach ($allowedPath in $allowedSliceIBackendPrivateAlphaChanges) {
-  if (-not ($changedPaths -contains $allowedPath)) {
-    $allAllowedBackendPrivateAlphaPathsPresent = $false
-  }
-}
+  -not ($changedPaths | Where-Object { $_ -match '^src/app/api/codexforge/private-alpha/' })
+) "no private-alpha API route changed in this UI slice"
 Add-Result (
-  $unexpectedBackendPrivateAlphaPaths.Count -eq 0 -and
-  $allAllowedBackendPrivateAlphaPathsPresent
-) "only the intended Slice I backend contract files changed"
+  -not ($changedPaths | Where-Object { $_ -eq "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" })
+) "no private-alpha API client changed in this UI slice"
 Add-Result ($changedTypeScriptText -notmatch ':\s*any\b|\bas any\b|<any>') "no any or as any was introduced"
 Add-Result ($changedUiText -notmatch 'ts-nocheck|ts-expect-error') "no ts-nocheck or ts-expect-error was introduced"
 Add-Result ($commandDeckRole.Contains("commandDeckRole: CodexForgeCommandDeckRole;")) "commandDeckRole remains strongly typed"
@@ -262,6 +310,9 @@ Add-Result (
 Add-Result (
   -not (Find-RuleMixingBorderProperties -CssText $css)
 ) "no mixed border shorthand or longhand was introduced"
+Add-Result ($css.Contains('.privateAlphaTargetSelectorGrid')) "CSS contains the target-selector layout"
+Add-Result ($css.Contains('.privateAlphaCloudApprovalNotice')) "CSS contains cloud approval styling"
+Add-Result ($media920Match.Success) "CSS collapses the target selector layout at 920px"
 
 $longestPath = 0
 foreach ($path in $changedPaths) {

@@ -161,18 +161,16 @@ Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.t
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Current private-alpha kill switch remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Current private-alpha API client remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
-Assert-NoGitDiff "src/app/jarvis" "Current Jarvis UI remains unchanged"
+Assert-NoGitDiff "src/app/jarvis" "Jarvis route entry remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/ai-provider-registry" "Historical provider-registry directory remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/athena-model-routing-provider-selection-preview" "Historical routing-preview directory remains unchanged"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
 Assert-NotMatches $runtimeBoundarySource "routeCodexForgeModel|runtimeSnapshots|manualModelKey|createPrivateAlphaStore|executeRun|/api/codexforge/private-alpha" "Runtime boundary performs no routing or execution integration"
 
-$jarvisSource = (
-  Get-ChildItem -LiteralPath "src\app\jarvis" -Recurse -File |
-    Sort-Object FullName |
-    ForEach-Object { Get-Content -Raw $_.FullName }
-) -join "`n"
-Assert-NotMatches $jarvisSource "groq-cloud|openai/gpt-oss-20b|openai/gpt-oss-120b" "Current Jarvis UI does not expose Groq selector metadata"
+$jarvisSource = Get-Content -Raw "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
+Assert-Contains $jarvisSource 'data-codexforge-private-alpha-provider-selector="manual"' "Jarvis UI exposes the manual provider selector"
+Assert-Contains $jarvisSource 'data-codexforge-private-alpha-model-selector="manual"' "Jarvis UI exposes the manual model selector"
+Assert-Contains $jarvisSource 'data-codexforge-private-alpha-cloud-execution="disabled"' "Jarvis UI keeps Groq execution disabled"
 
 $athenaAliasSource = Get-Content -Raw "src\app\athena\page.tsx"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"
