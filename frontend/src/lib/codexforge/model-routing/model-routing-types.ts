@@ -6,6 +6,13 @@ export const CODEXFORGE_ROUTING_MODES = [
   "manual",
 ] as const;
 
+export const CODEXFORGE_AUTOMATIC_ROUTING_MODES = [
+  "local-only",
+  "free-only",
+  "free-first",
+  "best-within-budget",
+] as const;
+
 export const CODEXFORGE_PROVIDER_LOCALITIES = ["local", "cloud"] as const;
 
 export const CODEXFORGE_PROVIDER_CATALOG_STATES = [
@@ -59,6 +66,16 @@ export const CODEXFORGE_PAID_APPROVAL_STATES = [
   "granted-for-request",
 ] as const;
 
+export const CODEXFORGE_PAID_EXECUTION_ADMISSIONS = [
+  "disabled",
+  "request-scoped",
+] as const;
+
+export const CODEXFORGE_FREE_TIER_CONFIRMATION_STATES = [
+  "not-confirmed",
+  "confirmed-for-request",
+] as const;
+
 export const CODEXFORGE_PRIVACY_REQUIREMENTS = [
   "local-required",
   "cloud-allowed",
@@ -105,6 +122,8 @@ export const CODEXFORGE_TASK_PROFILES = [
 ] as const;
 
 export type CodexForgeRoutingMode = typeof CODEXFORGE_ROUTING_MODES[number];
+export type CodexForgeAutomaticRoutingMode =
+  typeof CODEXFORGE_AUTOMATIC_ROUTING_MODES[number];
 export type CodexForgeProviderLocality = typeof CODEXFORGE_PROVIDER_LOCALITIES[number];
 export type CodexForgeProviderCatalogState =
   typeof CODEXFORGE_PROVIDER_CATALOG_STATES[number];
@@ -120,6 +139,10 @@ export type CodexForgeModelAvailabilityState =
 export type CodexForgeQuotaState = typeof CODEXFORGE_QUOTA_STATES[number];
 export type CodexForgePaidApprovalState =
   typeof CODEXFORGE_PAID_APPROVAL_STATES[number];
+export type CodexForgePaidExecutionAdmission =
+  typeof CODEXFORGE_PAID_EXECUTION_ADMISSIONS[number];
+export type CodexForgeFreeTierConfirmationState =
+  typeof CODEXFORGE_FREE_TIER_CONFIRMATION_STATES[number];
 export type CodexForgePrivacyRequirement =
   typeof CODEXFORGE_PRIVACY_REQUIREMENTS[number];
 export type CodexForgeRoutingDecisionStatus =
@@ -146,6 +169,7 @@ export type CodexForgeRoutingReasonCode =
 export type CodexForgeRoutingRejectionCode =
   | "provider-disabled"
   | "model-disabled"
+  | "routing-mode-not-admitted"
   | "model-not-qualified"
   | "unavailable"
   | "quota-unavailable"
@@ -154,6 +178,9 @@ export type CodexForgeRoutingRejectionCode =
   | "privacy-local-required"
   | "locality-not-allowed"
   | "cost-class-not-allowed"
+  | "candidate-not-allowed"
+  | "free-tier-not-confirmed"
+  | "paid-execution-disabled"
   | "pricing-unknown"
   | "budget-required"
   | "over-budget"
@@ -182,12 +209,18 @@ export type CodexForgeTaskProfileScores = Readonly<
   Partial<Record<CodexForgeTaskProfile, number>>
 >;
 
+export type CodexForgeAutomaticRoutingAdmission = Readonly<{
+  admissionId: string;
+  modes: readonly CodexForgeAutomaticRoutingMode[];
+}>;
+
 export type CodexForgeModelDescriptor = Readonly<{
   modelKey: CodexForgeModelKey;
   providerId: CodexForgeProviderId;
   modelId: CodexForgeModelId;
   label: string;
   routingState: CodexForgeModelRoutingState;
+  automaticRoutingAdmission: CodexForgeAutomaticRoutingAdmission | null;
   qualificationState: CodexForgeModelQualificationState;
   capabilities: readonly CodexForgeCapability[];
   approvedMaximumOutputTokens: number;
@@ -216,6 +249,8 @@ export type CodexForgeRoutingPolicy = Readonly<{
   privacyRequirement: CodexForgePrivacyRequirement;
   maximumEstimatedCostUsd: number | null;
   paidApprovalState: CodexForgePaidApprovalState;
+  paidExecutionAdmission: CodexForgePaidExecutionAdmission;
+  freeTierConfirmationState: CodexForgeFreeTierConfirmationState;
   manualModelKey: CodexForgeModelKey | null;
 }>;
 
@@ -224,6 +259,7 @@ export type CodexForgeRoutingRequest = Readonly<{
   requiredCapabilities: readonly CodexForgeCapability[];
   estimatedInputTokens: number;
   maximumOutputTokens: number;
+  candidateModelKeys: readonly CodexForgeModelKey[] | null;
   policy: CodexForgeRoutingPolicy;
   runtimeSnapshots: readonly CodexForgeModelRuntimeSnapshot[];
 }>;

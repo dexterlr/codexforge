@@ -65,6 +65,7 @@ import {
 } from "./private-alpha-types";
 import {
   PRIVATE_ALPHA_DATA_ROOT_LABEL,
+  PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS,
   PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE,
   PRIVATE_ALPHA_MAX_DONE_REASON_LENGTH,
   PRIVATE_ALPHA_MAX_OUTPUT_TEXT_LENGTH,
@@ -201,6 +202,9 @@ type PrivateAlphaExecutionTarget =
   | PrivateAlphaLocalExecutionTarget
   | PrivateAlphaGroq20bExecutionTarget
   | PrivateAlphaGroq120bExecutionTarget;
+
+const PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL =
+  "operator-confirmed-current-free-tier" as const;
 
 export type PrivateAlphaStore = Readonly<{
   getStatus: () => Promise<PrivateAlphaStatus>;
@@ -1189,6 +1193,23 @@ function validateStoredExecutionRecord(
     value,
     "cloudExecutionAcknowledgement"
   );
+  const hasGroqFreeTierExecutionConfirmation =
+    Object.prototype.hasOwnProperty.call(
+      value,
+      "groqFreeTierExecutionConfirmation"
+    );
+  const groqFreeTierExecutionConfirmation =
+    value.groqFreeTierExecutionConfirmation === undefined
+      ? undefined
+      : value.groqFreeTierExecutionConfirmation ===
+          PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL
+        ? PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL
+        : null;
+  const normalizedGroqFreeTierExecutionConfirmation =
+    groqFreeTierExecutionConfirmation ===
+    PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL
+      ? PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL
+      : undefined;
 
   if (
     typeof value.executionId !== "string" ||
@@ -1223,7 +1244,8 @@ function validateStoredExecutionRecord(
       hasBindingVersion ||
       hasModelKey ||
       hasDataBoundary ||
-      hasCloudExecutionAcknowledgement
+      hasCloudExecutionAcknowledgement ||
+      hasGroqFreeTierExecutionConfirmation
     ) {
       return null;
     }
@@ -1235,7 +1257,8 @@ function validateStoredExecutionRecord(
     value.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
     value.modelKey !== target.modelKey ||
     value.dataBoundary !== target.dataBoundary ||
-    value.cloudExecutionAcknowledgement !== target.cloudExecutionAcknowledgement
+    value.cloudExecutionAcknowledgement !== target.cloudExecutionAcknowledgement ||
+    groqFreeTierExecutionConfirmation === null
   ) {
     return null;
   }
@@ -1365,6 +1388,12 @@ function validateStoredExecutionRecord(
       dataBoundary: "cloud-provider",
       cloudExecutionAcknowledgement:
         "granted-for-approved-scope-execution",
+      ...(normalizedGroqFreeTierExecutionConfirmation === undefined
+        ? {}
+        : {
+            groqFreeTierExecutionConfirmation:
+              normalizedGroqFreeTierExecutionConfirmation,
+          }),
       errorCode,
     };
 
@@ -1384,6 +1413,12 @@ function validateStoredExecutionRecord(
     dataBoundary: "cloud-provider",
     cloudExecutionAcknowledgement:
       "granted-for-approved-scope-execution",
+    ...(normalizedGroqFreeTierExecutionConfirmation === undefined
+      ? {}
+      : {
+          groqFreeTierExecutionConfirmation:
+            normalizedGroqFreeTierExecutionConfirmation,
+        }),
     errorCode,
   };
 
@@ -2154,6 +2189,8 @@ function buildExecutingExecutionRecord(input: {
       dataBoundary: "cloud-provider",
       cloudExecutionAcknowledgement:
         "granted-for-approved-scope-execution",
+      groqFreeTierExecutionConfirmation:
+        PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL,
       errorCode: null,
     };
 
@@ -2169,6 +2206,8 @@ function buildExecutingExecutionRecord(input: {
     dataBoundary: "cloud-provider",
     cloudExecutionAcknowledgement:
       "granted-for-approved-scope-execution",
+    groqFreeTierExecutionConfirmation:
+      PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL,
     errorCode: null,
   };
 
@@ -2239,6 +2278,8 @@ function buildBlockedExecutionRecord(
       dataBoundary: "cloud-provider",
       cloudExecutionAcknowledgement:
         "granted-for-approved-scope-execution",
+      groqFreeTierExecutionConfirmation:
+        PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL,
       errorCode: input.errorCode,
     };
 
@@ -2258,6 +2299,8 @@ function buildBlockedExecutionRecord(
     dataBoundary: "cloud-provider",
     cloudExecutionAcknowledgement:
       "granted-for-approved-scope-execution",
+    groqFreeTierExecutionConfirmation:
+      PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL,
     errorCode: input.errorCode,
   };
 
@@ -2341,6 +2384,8 @@ function buildFailedExecutionRecord(
       dataBoundary: "cloud-provider",
       cloudExecutionAcknowledgement:
         "granted-for-approved-scope-execution",
+      groqFreeTierExecutionConfirmation:
+        PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL,
       errorCode: input.errorCode,
     };
 
@@ -2361,6 +2406,8 @@ function buildFailedExecutionRecord(
     dataBoundary: "cloud-provider",
     cloudExecutionAcknowledgement:
       "granted-for-approved-scope-execution",
+    groqFreeTierExecutionConfirmation:
+      PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL,
     errorCode: input.errorCode,
   };
 
@@ -2436,6 +2483,8 @@ function buildSucceededExecutionRecord(input: {
       dataBoundary: "cloud-provider",
       cloudExecutionAcknowledgement:
         "granted-for-approved-scope-execution",
+      groqFreeTierExecutionConfirmation:
+        PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL,
     };
 
     return record;
@@ -2451,6 +2500,8 @@ function buildSucceededExecutionRecord(input: {
     dataBoundary: "cloud-provider",
     cloudExecutionAcknowledgement:
       "granted-for-approved-scope-execution",
+    groqFreeTierExecutionConfirmation:
+      PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL,
   };
 
   return record;
@@ -2501,6 +2552,13 @@ function validateExecutionAcknowledgementOrThrow(
       );
     }
 
+    if (executeInput.groqFreeTierExecutionConfirmation !== undefined) {
+      throw new PrivateAlphaStoreError(
+        409,
+        "Groq Free-tier execution confirmation is not allowed for local execution."
+      );
+    }
+
     return;
   }
 
@@ -2508,6 +2566,13 @@ function validateExecutionAcknowledgementOrThrow(
     throw new PrivateAlphaStoreError(
       409,
       "Cloud execution acknowledgement is required for this exact approved scope."
+    );
+  }
+
+  if (executeInput.groqFreeTierExecutionConfirmation !== true) {
+    throw new PrivateAlphaStoreError(
+      409,
+      "Groq Free-tier execution confirmation is required for this exact approved scope."
     );
   }
 
@@ -2545,6 +2610,16 @@ function validateExecutionAcknowledgementOrThrow(
       "Run approval scope is not executable in this slice."
     );
   }
+}
+
+function isHistoricalGroqExecutionOverEnvelope(
+  target: PrivateAlphaExecutionTarget,
+  maximumOutputTokens: number
+): boolean {
+  return (
+    isCloudExecutionTarget(target) &&
+    maximumOutputTokens > PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS
+  );
 }
 
 function resolveProviderAdapterForExecutionTarget(
@@ -3195,6 +3270,57 @@ export function createPrivateAlphaStore(
             errorCode: "kill_switch_blocked",
             safeErrorMessage:
               "Execution was blocked by the private-alpha kill switch.",
+          };
+        }
+
+        if (
+          isHistoricalGroqExecutionOverEnvelope(
+            target,
+            existingRun.request.maximumOutputTokens
+          )
+        ) {
+          const blockedAt = nowIso();
+          const resultingRevision = existingRun.revision + 1;
+          const blockedRun: PrivateAlphaRunRecord = {
+            ...existingRun,
+            updatedAt: blockedAt,
+            state: "blocked",
+            revision: resultingRevision,
+            execution: buildBlockedExecutionRecord({
+              run: existingRun,
+              target,
+              idempotencyKeyHash,
+              blockedAt,
+              previousRevision: existingRun.revision,
+              runningRevision: null,
+              resultingRevision,
+              errorCode: "groq_output_too_large",
+              safeErrorMessage:
+                `The approved Groq output limit exceeds the admitted ${PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS}-token execution envelope.`,
+            }),
+            auditEvents: [
+              ...existingRun.auditEvents,
+              buildAuditEvent({
+                eventType: "execution.blocked",
+                actor: "system",
+                runId: existingRun.runId,
+                previousState: existingRun.state,
+                resultingState: "blocked",
+                revision: resultingRevision,
+                summary: buildExecutionBlockedSummary(target, "availability"),
+                occurredAt: blockedAt,
+              }),
+            ],
+          };
+
+          await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+          return {
+            replayed: false,
+            run: blockedRun,
+            responseStatus: 409,
+            errorCode: "groq_output_too_large",
+            safeErrorMessage:
+              `The approved Groq output limit exceeds the admitted ${PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS}-token execution envelope.`,
           };
         }
 

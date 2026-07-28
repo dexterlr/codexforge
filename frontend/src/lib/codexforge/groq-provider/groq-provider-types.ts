@@ -1,3 +1,5 @@
+import type { CodexForgeAutomaticRoutingMode } from "../model-routing/model-routing-types";
+
 export const CODEXFORGE_GROQ_PROVIDER_ID = "groq-cloud" as const;
 
 export const CODEXFORGE_GROQ_MODEL_IDS = [
@@ -10,8 +12,11 @@ export const CODEXFORGE_GROQ_MODEL_KEYS = [
   "groq-cloud::openai/gpt-oss-120b",
 ] as const;
 
+export const CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION_VERSION =
+  "codexforge-groq-automatic-routing-admission-v1" as const;
+
 export const CODEXFORGE_GROQ_QUALIFICATION_VERSION =
-  "codexforge-groq-qualification-v2" as const;
+  "codexforge-groq-qualification-v3" as const;
 
 export const CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE_VERSION =
   "codexforge-groq-live-execution-acceptance-v1" as const;
@@ -97,11 +102,20 @@ export type CodexForgeGroqTransportQualificationState = "live-verified";
 
 export type CodexForgeGroqManualPrivateAlphaExecutionAdmissionState = "admitted";
 
-export type CodexForgeGroqRoutingState = "manual-only";
+export type CodexForgeGroqProviderRoutingState = "mixed";
 
-export type CodexForgeGroqAutomaticRoutingState = "disabled";
+export type CodexForgeGroqRoutingState = "automatic" | "manual-only";
+
+export type CodexForgeGroqProviderAutomaticRoutingState = "partially-admitted";
+
+export type CodexForgeGroqAutomaticRoutingState =
+  | "disabled"
+  | "admitted-for-free-first";
 
 export type CodexForgeGroqAccountTierState = "operator-confirmed-free";
+
+export type CodexForgeGroqFreeTierConfirmationRequirement =
+  "request-scoped-operator-confirmation";
 
 export type CodexForgeGroqDataBoundary = "cloud-provider";
 
@@ -204,7 +218,12 @@ export type CodexForgeGroqQualificationModelRecord = Readonly<{
   manualPrivateAlphaExecutionAdmissionState: CodexForgeGroqManualPrivateAlphaExecutionAdmissionState;
   routingState: CodexForgeGroqRoutingState;
   automaticRoutingState: CodexForgeGroqAutomaticRoutingState;
+  automaticRoutingAdmissionId:
+    | typeof CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION_VERSION
+    | null;
+  automaticRoutingModes: readonly CodexForgeAutomaticRoutingMode[];
   accountTierState: CodexForgeGroqAccountTierState;
+  freeTierConfirmationRequirement: CodexForgeGroqFreeTierConfirmationRequirement;
   dataBoundary: CodexForgeGroqDataBoundary;
   capabilities: readonly CodexForgeGroqCapability[];
   transportLiveVerifiedOn: string;
@@ -215,6 +234,10 @@ export type CodexForgeGroqQualificationModelRecord = Readonly<{
   admittedMaximumOutputTokens: typeof CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS;
   admittedExecutionEnvelope: CodexForgeGroqExecutionEnvelope;
   liveExecutionAcceptanceId: typeof CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE_ID;
+  paidExecutionEnabled: false;
+  retryAllowed: false;
+  fallbackAllowed: false;
+  modelSubstitutionAllowed: false;
   evidence: readonly string[];
 }>;
 
@@ -224,12 +247,19 @@ export type CodexForgeGroqQualificationRecord = Readonly<{
   providerLabel: string;
   providerTransportQualificationState: CodexForgeGroqTransportQualificationState;
   manualPrivateAlphaExecutionAdmissionState: CodexForgeGroqManualPrivateAlphaExecutionAdmissionState;
-  productionRoutingState: CodexForgeGroqRoutingState;
-  automaticRoutingState: CodexForgeGroqAutomaticRoutingState;
+  productionRoutingState: CodexForgeGroqProviderRoutingState;
+  automaticRoutingState: CodexForgeGroqProviderAutomaticRoutingState;
+  automaticRoutingAdmissionId:
+    typeof CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION_VERSION;
+  automaticRoutingModes: readonly CodexForgeAutomaticRoutingMode[];
   liveExecutionAcceptance: CodexForgeGroqLiveExecutionAcceptanceReference;
   requiredOperatorAcknowledgements: readonly CodexForgeGroqRequiredOperatorAcknowledgement[];
   paidExecutionEnabled: false;
   accountTierRevalidationRequired: true;
+  freeTierConfirmationRequirement: CodexForgeGroqFreeTierConfirmationRequirement;
+  retryAllowed: false;
+  fallbackAllowed: false;
+  modelSubstitutionAllowed: false;
   models: readonly CodexForgeGroqQualificationModelRecord[];
   policyStatements: readonly string[];
 }>;

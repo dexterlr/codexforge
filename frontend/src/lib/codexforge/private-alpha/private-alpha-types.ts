@@ -133,6 +133,8 @@ export type PrivateAlphaCloudDataTransferAcknowledgement =
   | "granted-for-approved-scope";
 export type PrivateAlphaCloudExecutionAcknowledgement =
   "granted-for-approved-scope-execution";
+export type PrivateAlphaGroqFreeTierExecutionConfirmation =
+  "operator-confirmed-current-free-tier";
 
 export type PrivateAlphaCreateRunInput = Readonly<{
   requestText: string;
@@ -156,6 +158,7 @@ export type PrivateAlphaExecuteInput = Readonly<{
   approvalScopeHash: string;
   expectedRevision: number;
   cloudExecutionAcknowledgement?: true;
+  groqFreeTierExecutionConfirmation?: true;
 }>;
 
 export type PrivateAlphaCancellationInput = Readonly<{
@@ -386,6 +389,7 @@ export type PrivateAlphaGroq20bExecutionRecord =
       modelKey: typeof PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY;
       dataBoundary: "cloud-provider";
       cloudExecutionAcknowledgement: PrivateAlphaCloudExecutionAcknowledgement;
+      groqFreeTierExecutionConfirmation?: PrivateAlphaGroqFreeTierExecutionConfirmation;
       errorCode: PrivateAlphaGroqExecutionErrorCode | null;
       safeErrorMessage: string | null;
     }>;
@@ -399,6 +403,7 @@ export type PrivateAlphaGroq120bExecutionRecord =
       modelKey: typeof PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY;
       dataBoundary: "cloud-provider";
       cloudExecutionAcknowledgement: PrivateAlphaCloudExecutionAcknowledgement;
+      groqFreeTierExecutionConfirmation?: PrivateAlphaGroqFreeTierExecutionConfirmation;
       errorCode: PrivateAlphaGroqExecutionErrorCode | null;
       safeErrorMessage: string | null;
     }>;

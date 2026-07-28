@@ -25,6 +25,7 @@ export type {
   PrivateAlphaExecutionRecord,
   PrivateAlphaGroq120bExecutionRecord,
   PrivateAlphaGroq20bExecutionRecord,
+  PrivateAlphaGroqFreeTierExecutionConfirmation,
   PrivateAlphaExecutionStatus,
   PrivateAlphaExecutionMode,
   PrivateAlphaKillSwitchSource,
@@ -61,6 +62,7 @@ export {
   PRIVATE_ALPHA_CLOUD_APPROVAL_STATEMENT,
   PRIVATE_ALPHA_DATA_ROOT_LABEL,
   PRIVATE_ALPHA_DEFAULT_LIST_LIMIT,
+  PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS,
   PRIVATE_ALPHA_ENGAGED_KILL_SWITCH_VALUES,
   PRIVATE_ALPHA_MAX_ACKNOWLEDGEMENT_LENGTH,
   PRIVATE_ALPHA_MAX_CANCELLATION_REASON_LENGTH,
@@ -112,6 +114,19 @@ export {
   validatePrivateAlphaListLimit,
   validatePrivateAlphaRunId,
 } from "./private-alpha-validation";
+export {
+  PRIVATE_ALPHA_FREE_FIRST_ROUTING_POLICY_VERSION,
+  PRIVATE_ALPHA_FREE_FIRST_ROUTING_SELECTED_MODEL_KEYS,
+  clonePrivateAlphaFreeFirstRoutingResult,
+  isPrivateAlphaFreeFirstRoutingSelectedModelKey,
+  validatePrivateAlphaFreeFirstRoutingInput,
+} from "./private-alpha-free-first-routing-types";
+export type {
+  PrivateAlphaFreeFirstRoutingInput,
+  PrivateAlphaFreeFirstRoutingResult,
+  PrivateAlphaFreeFirstRoutingSelectedModelKey,
+  PrivateAlphaFreeFirstRoutingValidationResult,
+} from "./private-alpha-free-first-routing-types";
 export type {
   PrivateAlphaRuntimeProfile,
   PrivateAlphaValidationResult,

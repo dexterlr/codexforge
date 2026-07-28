@@ -5,7 +5,10 @@ import {
   createCodexForgeGroqClient,
   type CodexForgeGroqClient,
 } from "../groq-provider/groq-provider-client.server";
-import type { CodexForgeGroqModelId } from "../groq-provider/groq-provider-types";
+import {
+  CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS,
+  type CodexForgeGroqModelId,
+} from "../groq-provider/groq-provider-types";
 import {
   type PrivateAlphaProviderAdapter,
   type PrivateAlphaProviderAvailability,
@@ -26,7 +29,7 @@ const PRIVATE_ALPHA_GROQ_PROVIDER_IDENTITIES: Readonly<
     locality: "cloud",
     dataBoundary: "cloud-provider",
     costClass: "free-tier",
-    approvedMaximumOutputTokens: 4096,
+    approvedMaximumOutputTokens: CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS,
   }),
   "openai/gpt-oss-120b": Object.freeze({
     providerId: "groq-cloud",
@@ -37,7 +40,7 @@ const PRIVATE_ALPHA_GROQ_PROVIDER_IDENTITIES: Readonly<
     locality: "cloud",
     dataBoundary: "cloud-provider",
     costClass: "free-tier",
-    approvedMaximumOutputTokens: 4096,
+    approvedMaximumOutputTokens: CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS,
   }),
 });
 

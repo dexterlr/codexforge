@@ -1,4 +1,5 @@
 export {
+  CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION_VERSION,
   CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS,
   CODEXFORGE_GROQ_ERROR_CODES,
   CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE_CHECKPOINT,
@@ -16,6 +17,7 @@ export type {
   CodexForgeGroq20bLiveExecutionAcceptedModelRecord,
   CodexForgeGroqAcceptedExecutionState,
   CodexForgeGroqAutomaticRoutingState,
+  CodexForgeGroqFreeTierConfirmationRequirement,
   CodexForgeGroqCapability,
   CodexForgeGroqConfigurationStatus,
   CodexForgeGroqCredentialSource,
@@ -38,6 +40,8 @@ export type {
   CodexForgeGroqModelKey,
   CodexForgeGroqObservedRateLimitHeaders,
   CodexForgeGroqProviderId,
+  CodexForgeGroqProviderAutomaticRoutingState,
+  CodexForgeGroqProviderRoutingState,
   CodexForgeGroqQualificationModelRecord,
   CodexForgeGroqQualificationRecord,
   CodexForgeGroqRequiredOperatorAcknowledgement,
@@ -47,6 +51,13 @@ export type {
   CodexForgeGroqTransportQualificationState,
   CodexForgeGroqVerificationMode,
 } from "./groq-provider-types";
+export {
+  CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION,
+  getCodexForgeGroqAutomaticRoutingAdmission,
+} from "./groq-provider-automatic-routing-admission";
+export type {
+  CodexForgeGroqAutomaticRoutingAdmissionRecord,
+} from "./groq-provider-automatic-routing-admission";
 export {
   CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE,
   getCodexForgeGroqLiveExecutionAcceptance,

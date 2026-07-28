@@ -42,7 +42,7 @@ function Assert-NotMatches {
 
 function Assert-NoGitDiff {
   param([string]$Path, [string]$Message)
-  $diff = ((& git diff --name-only -- $Path 2>$null) | Out-String).Trim()
+  $diff = ((& git -c core.safecrlf=false diff --name-only -- $Path 2>$null) | Out-String).Trim()
   Assert-True ([string]::IsNullOrWhiteSpace($diff)) $Message
 }
 
@@ -104,6 +104,8 @@ $indexSource = Get-Content -Raw $indexPath
 $docSource = Get-Content -Raw $docPath
 $groqAdapterSource = Get-Content -Raw $groqAdapterPath
 $runtimeSource = Get-Content -Raw $runtimePath
+$privateAlphaApiClientSource = Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-api-client.ts"
+$freeFirstRoutePath = "src\app\api\codexforge\private-alpha\routing\free-first\route.ts"
 $groqSource = $credentialSource + "`n" + $clientSource + "`n" + $qualificationSource + "`n" + $typesSource + "`n" + $indexSource
 $runtimeBoundarySource = $groqAdapterSource + "`n" + $runtimeSource
 
@@ -153,12 +155,12 @@ Assert-Contains $docSource "Groq is not admitted to the production routing catal
 
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Generic provider contract remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Ollama adapter remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Groq adapter remains unchanged"
+Assert-Contains $groqAdapterSource "approvedMaximumOutputTokens: CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS" "Groq adapter identities enforce the admitted 512-token envelope"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current Ollama client remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Current private-alpha kill switch remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Current private-alpha API client remains unchanged"
-Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
+Assert-Contains $privateAlphaApiClientSource '${PRIVATE_ALPHA_API_BASE_PATH}/routing/free-first' "Current private-alpha API client includes the free-first routing endpoint"
+Assert-FileExists $freeFirstRoutePath
 Assert-NoGitDiff "src/app/jarvis" "Jarvis route entry remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/ai-provider-registry" "Historical provider-registry directory remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/athena-model-routing-provider-selection-preview" "Historical routing-preview directory remains unchanged"
@@ -361,13 +363,13 @@ async function main() {
 
   assert(
     groqTypesModule.CODEXFORGE_GROQ_QUALIFICATION_VERSION ===
-      "codexforge-groq-qualification-v2",
-    "Qualification types expose the v2 qualification version."
+      "codexforge-groq-qualification-v3",
+    "Qualification types expose the v3 qualification version."
   );
   assert(Array.isArray(allowedModels) && allowedModels.length === 2, "Qualification types expose exactly two allowed models.");
   assert(
-    qualification.qualificationVersion === "codexforge-groq-qualification-v2",
-    "Qualification metadata version is v2."
+    qualification.qualificationVersion === "codexforge-groq-qualification-v3",
+    "Qualification metadata version is v3."
   );
   assert(qualification.providerId === "groq-cloud", "Qualification provider ID is groq-cloud.");
   assert(qualification.providerLabel === "Groq Cloud", "Qualification provider label is Groq Cloud.");
@@ -378,8 +380,9 @@ async function main() {
     "Qualification metadata contains exactly the two allowed models."
   );
   assert(
-    qualification.models.every((model) => model.routingState === "manual-only"),
-    "Qualification metadata leaves both models manual-only."
+    qualification.models[0].routingState === "automatic" &&
+      qualification.models[1].routingState === "manual-only",
+    "Qualification metadata admits 20B automatic free-first while keeping 120B manual-only."
   );
   assert(
     qualification.models.every(
@@ -390,15 +393,35 @@ async function main() {
   assert(
     qualification.providerTransportQualificationState === "live-verified" &&
       qualification.manualPrivateAlphaExecutionAdmissionState === "admitted" &&
-      qualification.productionRoutingState === "manual-only" &&
-      qualification.automaticRoutingState === "disabled" &&
+      qualification.productionRoutingState === "mixed" &&
+      qualification.automaticRoutingState === "partially-admitted" &&
+      qualification.automaticRoutingAdmissionId ===
+        "codexforge-groq-automatic-routing-admission-v1" &&
+      JSON.stringify(qualification.automaticRoutingModes) === JSON.stringify(["free-first"]) &&
       qualification.models.every(
         (model) =>
           model.transportQualificationState === "live-verified" &&
-          model.manualPrivateAlphaExecutionAdmissionState === "admitted" &&
-          model.automaticRoutingState === "disabled"
+          model.manualPrivateAlphaExecutionAdmissionState === "admitted"
+      ) &&
+      qualification.models[0].automaticRoutingState === "admitted-for-free-first" &&
+      qualification.models[0].automaticRoutingAdmissionId ===
+        "codexforge-groq-automatic-routing-admission-v1" &&
+      JSON.stringify(qualification.models[0].automaticRoutingModes) ===
+        JSON.stringify(["free-first"]) &&
+      qualification.models[1].automaticRoutingState === "disabled" &&
+      qualification.models[1].automaticRoutingAdmissionId === null &&
+      qualification.models[1].automaticRoutingModes.length === 0,
+    "Qualification metadata distinguishes transport qualification, manual admission, and partial automatic routing."
+  );
+  assert(
+    qualification.freeTierConfirmationRequirement ===
+      "request-scoped-operator-confirmation" &&
+      qualification.models.every(
+        (model) =>
+          model.freeTierConfirmationRequirement ===
+          "request-scoped-operator-confirmation"
       ),
-    "Qualification metadata distinguishes transport qualification, manual admission, and disabled automatic routing."
+    "Qualification metadata requires request-scoped operator Free-tier confirmation."
   );
   assert(
     qualification.liveExecutionAcceptance.acceptanceVersion ===
@@ -421,8 +444,11 @@ async function main() {
   );
   assert(
     qualification.paidExecutionEnabled === false &&
+      qualification.retryAllowed === false &&
+      qualification.fallbackAllowed === false &&
+      qualification.modelSubstitutionAllowed === false &&
       qualification.accountTierRevalidationRequired === true,
-    "Qualification metadata keeps paid execution disabled and tier revalidation required."
+    "Qualification metadata keeps paid execution disabled with no retry, fallback, or substitution."
   );
   assert(
     qualification.models.every((model) => model.dataBoundary === "cloud-provider"),
@@ -518,13 +544,18 @@ async function main() {
   );
   assert(
     modelRoutingIndexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION ===
-      "codexforge-model-routing-v3",
-    "Production model-routing catalog version is v3."
+      "codexforge-model-routing-v4",
+    "Production model-routing catalog version is v4."
   );
   assert(
     groqCatalogModels.length === 2 &&
-      groqCatalogModels.every((model) => model.routingState === "manual-only"),
-    "Groq exists in the production catalog only as manual-only."
+      groqCatalogModels[0].routingState === "automatic" &&
+      groqCatalogModels[0].automaticRoutingAdmission &&
+      JSON.stringify(groqCatalogModels[0].automaticRoutingAdmission.modes) ===
+        JSON.stringify(["free-first"]) &&
+      groqCatalogModels[1].routingState === "manual-only" &&
+      groqCatalogModels[1].automaticRoutingAdmission === null,
+    "Groq production-catalog entries admit exact 20B free-first automatic routing while keeping 120B manual-only."
   );
   assert(
     groqCatalogModels.every((model) => model.qualificationState === "live-verified"),

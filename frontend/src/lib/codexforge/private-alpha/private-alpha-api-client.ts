@@ -13,6 +13,12 @@ import {
   validatePrivateAlphaListLimit,
   validatePrivateAlphaRunId,
 } from "./private-alpha-validation";
+import {
+  PRIVATE_ALPHA_FREE_FIRST_ROUTING_POLICY_VERSION,
+  type PrivateAlphaFreeFirstRoutingInput,
+  type PrivateAlphaFreeFirstRoutingResult,
+  isPrivateAlphaFreeFirstRoutingSelectedModelKey,
+} from "./private-alpha-free-first-routing-types";
 
 const PRIVATE_ALPHA_API_BASE_PATH = "/api/codexforge/private-alpha";
 
@@ -32,6 +38,10 @@ type PrivateAlphaOperation =
       kind: "create-run";
       input: PrivateAlphaCreateRunInput;
       idempotencyKey: string;
+    }>
+  | Readonly<{
+      kind: "route-free-first";
+      input: PrivateAlphaFreeFirstRoutingInput;
     }>
   | Readonly<{
       kind: "approve-run";
@@ -107,6 +117,59 @@ function readCreateRunResult(payload: unknown): PrivateAlphaCreateRunResult {
     created: record.created,
     run: record.run as PrivateAlphaRunRecord,
   };
+}
+
+function readFreeFirstRoutingResult(
+  payload: unknown
+): PrivateAlphaFreeFirstRoutingResult {
+  const record = asRecord(payload);
+  const result = record ? asRecord(record.result) : null;
+
+  if (!record || record.ok !== true || !result) {
+    throw new Error("Private-alpha free-first routing response was malformed.");
+  }
+
+  const status = result.status;
+  const selectedModelKey = result.selectedModelKey;
+  const decision = asRecord(result.decision);
+
+  if (
+    result.policyVersion !== PRIVATE_ALPHA_FREE_FIRST_ROUTING_POLICY_VERSION ||
+    (status !== "selected-for-approval" &&
+      status !== "no-eligible-model" &&
+      status !== "blocked") ||
+    !Array.isArray(result.runtimeSnapshots) ||
+    typeof result.cloudProviderInspected !== "boolean" ||
+    result.promptTransferredToCloud !== false ||
+    result.providerGenerationPerformed !== false ||
+    !decision
+  ) {
+    throw new Error("Private-alpha free-first routing response was malformed.");
+  }
+
+  if (
+    selectedModelKey !== null &&
+    !isPrivateAlphaFreeFirstRoutingSelectedModelKey(selectedModelKey)
+  ) {
+    throw new Error("Private-alpha free-first routing response was malformed.");
+  }
+
+  if (
+    status === "selected-for-approval" &&
+    (!isPrivateAlphaFreeFirstRoutingSelectedModelKey(selectedModelKey) ||
+      decision.selectedModelKey !== selectedModelKey)
+  ) {
+    throw new Error("Private-alpha free-first routing response was malformed.");
+  }
+
+  if (
+    status !== "selected-for-approval" &&
+    selectedModelKey !== null
+  ) {
+    throw new Error("Private-alpha free-first routing response was malformed.");
+  }
+
+  return result as PrivateAlphaFreeFirstRoutingResult;
 }
 
 function buildClientIdempotencyKey(): string {
@@ -195,6 +258,10 @@ function buildTarget(operation: PrivateAlphaOperation): string {
       );
     case "create-run":
       return assertApprovedTarget(`${PRIVATE_ALPHA_API_BASE_PATH}/runs`);
+    case "route-free-first":
+      return assertApprovedTarget(
+        `${PRIVATE_ALPHA_API_BASE_PATH}/routing/free-first`
+      );
     case "approve-run":
       return assertApprovedTarget(
         `${PRIVATE_ALPHA_API_BASE_PATH}/runs/${buildValidatedRunSegment(
@@ -225,11 +292,14 @@ function buildRequestInit(operation: PrivateAlphaOperation): RequestInit {
         cache: "no-store",
       };
     case "create-run":
+    case "route-free-first":
       return {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...buildIdempotencyHeaders(operation),
+          ...(operation.kind === "create-run"
+            ? buildIdempotencyHeaders(operation)
+            : {}),
         },
         body: JSON.stringify(operation.input),
       };
@@ -307,6 +377,19 @@ export function createPrivateAlphaRun(
     },
     readCreateRunResult,
     "Unable to create the private-alpha run."
+  );
+}
+
+export function routePrivateAlphaFreeFirst(
+  input: PrivateAlphaFreeFirstRoutingInput
+): Promise<PrivateAlphaFreeFirstRoutingResult> {
+  return requestPrivateAlpha(
+    {
+      kind: "route-free-first",
+      input,
+    },
+    readFreeFirstRoutingResult,
+    "Unable to route the private-alpha free-first request."
   );
 }
 

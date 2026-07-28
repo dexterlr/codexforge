@@ -42,7 +42,7 @@ function Assert-FileExists {
 
 function Assert-NoGitDiff {
   param([string]$Path, [string]$Message)
-  $diff = ((& git diff --name-only -- $Path 2>$null) | Out-String).Trim()
+  $diff = ((& git -c core.safecrlf=false diff --name-only -- $Path 2>$null) | Out-String).Trim()
   Assert-True ([string]::IsNullOrWhiteSpace($diff)) $Message
 }
 
@@ -65,7 +65,7 @@ function Get-Text {
 
 function Get-GitChangedPaths {
   $statusLines = @(
-    (& git status --short 2>$null) |
+  (& git status --short --untracked-files=all 2>$null) |
       Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
   )
 
@@ -84,28 +84,59 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha manual Groq execution foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
-  "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
-  "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
+  "docs/codexforge-private-alpha-free-first-automatic-routing-policy-integration-v0.md",
+  "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
-  "docs/codexforge-private-alpha-groq-live-execution-admission-v0.md",
-  "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
+  "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
-  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1"
+  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/model-routing/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts",
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
 )
 $productFiles = @(
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
   "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
   "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts"
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/model-routing/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts",
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
 )
 $parsedScripts = @(
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
@@ -129,26 +160,26 @@ foreach ($path in $parsedScripts) {
 }
 
 $changedPaths = Get-GitChangedPaths
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the fifteen allowed Slice L files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the thirty-two allowed Slice M files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed Slice K files: $path"
 }
 
 $changedProductFiles = $changedPaths | Where-Object { $productFiles -contains $_ }
-Assert-True ($changedProductFiles.Count -eq $productFiles.Count) "Only the intended five product metadata files changed"
+Assert-True ($changedProductFiles.Count -eq $productFiles.Count) "Only the intended Slice M product source paths changed"
 foreach ($path in $productFiles) {
   Assert-True ($changedPaths -contains $path) "Intended product file changed: $path"
 }
 
-Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "API routes remain unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "API client remains unchanged"
+Assert-FileExists "src\app\api\codexforge\private-alpha\routing\free-first\route.ts"
+Assert-Contains (Get-Text "src\lib\codexforge\private-alpha\private-alpha-api-client.ts") '${PRIVATE_ALPHA_API_BASE_PATH}/routing/free-first' "API client includes the free-first routing endpoint"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts" "Runtime resolver remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Ollama adapter remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Groq adapter remains unchanged"
+Assert-Contains (Get-Text "src\lib\codexforge\private-alpha\private-alpha-groq-adapter.server.ts") "approvedMaximumOutputTokens: CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS" "Groq adapter identities enforce the admitted 512-token envelope"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Ollama transport remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq provider client remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential resolver remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/model-routing/model-routing-policy.server.ts" "Model-routing policy remains unchanged"
+Assert-Contains (Get-Text "src\lib\codexforge\model-routing\model-routing-policy.server.ts") 'freeTierConfirmationState' "Model-routing policy applies the Free-tier confirmation gate"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
 
 $panelSource = Get-Text "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
@@ -192,8 +223,8 @@ Assert-Contains $providerSource 'PrivateAlphaProviderExecutionErrorCode = Privat
 Assert-Contains $storeSource 'createPrivateAlphaProviderAdapterForModelKey' "Store imports the exact-model runtime resolver"
 Assert-Contains $storeSource 'providerAdapterResolver' "Store supports the deterministic adapter resolver hook"
 Assert-NotMatches $storeSource 'routeCodexForgeModel|retryCount|retryAttempts|Promise\.all\(' "Store introduces no routing or retry orchestration"
-Assert-Contains $catalogSource '"codexforge-model-routing-v3"' "Model-routing catalog remains v3"
-Assert-Contains $catalogSource 'routingState: "manual-only"' "Groq catalog entries remain manual-only"
+Assert-Contains $catalogSource '"codexforge-model-routing-v4"' "Model-routing catalog is v4"
+Assert-Contains $catalogSource 'automaticRoutingAdmission: isAutomatic20b' "Groq 20B catalog entry is automatic only for free-first"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"
 foreach ($marker in @("Mission brief", "Blocked action command deck", "Release summary")) {
   Assert-Contains $jarvisVideoSource $marker "/jarvis-video retains marker $marker"
@@ -664,6 +695,7 @@ async function main() {
       approvalScopeHash: "b".repeat(64),
       expectedRevision: 3,
       cloudExecutionAcknowledgement: true,
+      groqFreeTierExecutionConfirmation: true,
     });
     assert(executeValidationTrue.ok, "Execute input accepts cloud acknowledgement true.");
     expectValidationFailure(
@@ -829,6 +861,7 @@ async function main() {
             acknowledgement: true,
             approvalScopeHash: missingAckRun.approved.approvalScopeHash,
             expectedRevision: missingAckRun.approved.revision,
+            groqFreeTierExecutionConfirmation: true,
           },
           "missing-cloud-ack-execute-0001"
         ),
@@ -876,6 +909,7 @@ async function main() {
         approvalScopeHash: blockedApproved.approved.approvalScopeHash,
         expectedRevision: blockedApproved.approved.revision,
         cloudExecutionAcknowledgement: true,
+        groqFreeTierExecutionConfirmation: true,
       },
       "pre-resolver-kill-switch-execute-0001"
     );
@@ -919,6 +953,7 @@ async function main() {
               approvalScopeHash: approvedRun.approved.approvalScopeHash,
               expectedRevision: approvedRun.approved.revision,
               cloudExecutionAcknowledgement: true,
+              groqFreeTierExecutionConfirmation: true,
             },
             `identity-${mismatch.name}-execute-0001`
           ),
@@ -975,6 +1010,7 @@ async function main() {
           approvalScopeHash: approvedRun.approved.approvalScopeHash,
           expectedRevision: approvedRun.approved.revision,
           cloudExecutionAcknowledgement: true,
+          groqFreeTierExecutionConfirmation: true,
         },
         `availability-${entry.code}-execute-0001`
       );
@@ -1011,6 +1047,7 @@ async function main() {
         approvalScopeHash: secondKillApproved.approved.approvalScopeHash,
         expectedRevision: secondKillApproved.approved.revision,
         cloudExecutionAcknowledgement: true,
+        groqFreeTierExecutionConfirmation: true,
       },
       "second-kill-switch-execute-0001"
     );
@@ -1061,6 +1098,7 @@ async function main() {
         approvalScopeHash: success20Approved.approved.approvalScopeHash,
         expectedRevision: success20Approved.approved.revision,
         cloudExecutionAcknowledgement: true,
+        groqFreeTierExecutionConfirmation: true,
       },
       "groq-success-20-execute-0001"
     );
@@ -1093,6 +1131,7 @@ async function main() {
         approvalScopeHash: success20Approved.approved.approvalScopeHash,
         expectedRevision: success20Approved.approved.revision,
         cloudExecutionAcknowledgement: true,
+        groqFreeTierExecutionConfirmation: true,
       },
       "groq-success-20-execute-0001"
     );
@@ -1108,6 +1147,7 @@ async function main() {
             approvalScopeHash: success20Approved.approved.approvalScopeHash,
             expectedRevision: success20Approved.approved.revision,
             cloudExecutionAcknowledgement: true,
+            groqFreeTierExecutionConfirmation: true,
           },
           "groq-success-20-execute-0002"
         ),
@@ -1147,6 +1187,7 @@ async function main() {
         approvalScopeHash: success120Approved.approved.approvalScopeHash,
         expectedRevision: success120Approved.approved.revision,
         cloudExecutionAcknowledgement: true,
+        groqFreeTierExecutionConfirmation: true,
       },
       "groq-success-120-execute-0001"
     );
@@ -1195,6 +1236,7 @@ async function main() {
           approvalScopeHash: approvedRun.approved.approvalScopeHash,
           expectedRevision: approvedRun.approved.revision,
           cloudExecutionAcknowledgement: true,
+          groqFreeTierExecutionConfirmation: true,
         },
         `groq-error-${code}-execute-0001`
       );
@@ -1239,6 +1281,7 @@ async function main() {
         approvalScopeHash: unknownGroqApproved.approved.approvalScopeHash,
         expectedRevision: unknownGroqApproved.approved.revision,
         cloudExecutionAcknowledgement: true,
+        groqFreeTierExecutionConfirmation: true,
       },
       "groq-unknown-error-execute-0001"
     );
@@ -1253,6 +1296,7 @@ async function main() {
         approvalScopeHash: unknownGroqApproved.approved.approvalScopeHash,
         expectedRevision: unknownGroqApproved.approved.revision,
         cloudExecutionAcknowledgement: true,
+        groqFreeTierExecutionConfirmation: true,
       },
       "groq-unknown-error-execute-0001"
     );
@@ -1387,6 +1431,7 @@ async function main() {
         approvalScopeHash: malformedApproved.approved.approvalScopeHash,
         expectedRevision: malformedApproved.approved.revision,
         cloudExecutionAcknowledgement: true,
+        groqFreeTierExecutionConfirmation: true,
       },
       "malformed-execute-0001"
     );

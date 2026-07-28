@@ -271,6 +271,10 @@ function evaluateCandidate(
   const runtimeSnapshot = runtimeIndex.get(model.modelKey);
   const availability = runtimeSnapshot?.availability ?? "unknown";
   const quotaState = runtimeSnapshot?.quotaState ?? "unknown";
+  const candidateAllowlist =
+    request.candidateModelKeys === null
+      ? null
+      : new Set<CodexForgeModelKey>(request.candidateModelKeys);
   const estimatedCostUsd = estimateCodexForgeModelCostUsd(
     model.pricing,
     request.estimatedInputTokens,
@@ -281,12 +285,29 @@ function evaluateCandidate(
     addUniqueCode(rejectionCodes, "provider-disabled");
   }
 
+  if (
+    candidateAllowlist !== null &&
+    !candidateAllowlist.has(model.modelKey)
+  ) {
+    addUniqueCode(rejectionCodes, "candidate-not-allowed");
+  }
+
   if (request.policy.mode === "manual") {
-    if (model.routingState !== "automatic" && model.routingState !== "manual-only") {
+    if (
+      model.routingState !== "automatic" &&
+      model.routingState !== "manual-only"
+    ) {
       addUniqueCode(rejectionCodes, "model-disabled");
     }
-  } else if (model.routingState !== "automatic") {
-    addUniqueCode(rejectionCodes, "model-disabled");
+  } else {
+    if (model.routingState !== "automatic") {
+      addUniqueCode(rejectionCodes, "model-disabled");
+    } else if (
+      model.automaticRoutingAdmission === null ||
+      !model.automaticRoutingAdmission.modes.includes(request.policy.mode)
+    ) {
+      addUniqueCode(rejectionCodes, "routing-mode-not-admitted");
+    }
   }
 
   if (
@@ -326,11 +347,22 @@ function evaluateCandidate(
     addUniqueCode(rejectionCodes, "cost-class-not-allowed");
   }
 
+  if (
+    model.pricing.costClass === "free-tier" &&
+    request.policy.freeTierConfirmationState !== "confirmed-for-request"
+  ) {
+    addUniqueCode(rejectionCodes, "free-tier-not-confirmed");
+  }
+
   if (model.pricing.costClass === "free-tier" && quotaState !== "available") {
     addUniqueCode(rejectionCodes, "quota-unavailable");
   }
 
   if (model.pricing.costClass === "paid") {
+    if (request.policy.paidExecutionAdmission === "disabled") {
+      addUniqueCode(rejectionCodes, "paid-execution-disabled");
+    }
+
     if (
       model.pricing.inputUsdPerMillionTokens === null ||
       model.pricing.outputUsdPerMillionTokens === null

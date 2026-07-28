@@ -42,7 +42,7 @@ function Assert-NotMatches {
 
 function Assert-NoGitDiff {
   param([string]$Path, [string]$Message)
-  $diff = ((& git diff --name-only -- $Path 2>$null) | Out-String).Trim()
+  $diff = ((& git -c core.safecrlf=false diff --name-only -- $Path 2>$null) | Out-String).Trim()
   Assert-True ([string]::IsNullOrWhiteSpace($diff)) $Message
 }
 
@@ -93,6 +93,8 @@ $catalogSource = Get-Content -Raw $catalogPath
 $policySource = Get-Content -Raw $policyPath
 $groqAdapterSource = Get-Content -Raw $groqAdapterPath
 $runtimeSource = Get-Content -Raw $runtimePath
+$privateAlphaApiClientSource = Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-api-client.ts"
+$freeFirstRoutePath = "src\app\api\codexforge\private-alpha\routing\free-first\route.ts"
 $jarvisPanelSource = Get-Content -Raw "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
 $liveRoutingSource = $typesSource + "`n" + $catalogSource + "`n" + $policySource + "`n" + $indexSource
 $runtimeBoundarySource = $groqAdapterSource + "`n" + $runtimeSource
@@ -165,18 +167,18 @@ Assert-True ($longestNewPathLength -lt 220) "Longest new source path remains bel
 
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Generic provider contract remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Ollama adapter remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Groq adapter remains unchanged"
+Assert-Contains $groqAdapterSource "approvedMaximumOutputTokens: CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS" "Groq adapter identities enforce the admitted 512-token envelope"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current Ollama client remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Current private-alpha kill switch remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Current private-alpha API client remains unchanged"
+Assert-Contains $privateAlphaApiClientSource '${PRIVATE_ALPHA_API_BASE_PATH}/routing/free-first' "Current private-alpha API client includes the free-first routing endpoint"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq client module remains unchanged"
-Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
+Assert-FileExists $freeFirstRoutePath
 Assert-NoGitDiff "src/app/jarvis" "Jarvis route entry remains unchanged"
 Assert-NotMatches $runtimeBoundarySource "routeCodexForgeModel|runtimeSnapshots|manualModelKey|createPrivateAlphaStore|executeRun|/api/codexforge/private-alpha" "Runtime boundary performs no routing or execution integration"
-Assert-Contains $jarvisPanelSource 'data-codexforge-private-alpha-provider-selector="manual"' "Jarvis uses a manual provider selector instead of routing"
-Assert-Contains $jarvisPanelSource 'data-codexforge-private-alpha-model-selector="manual"' "Jarvis uses a manual model selector instead of routing"
+Assert-Contains $jarvisPanelSource 'data-codexforge-private-alpha-provider-selector="manual"' "Jarvis manual provider selector remains available"
+Assert-Contains $jarvisPanelSource 'data-codexforge-private-alpha-model-selector="manual"' "Jarvis manual model selector remains available"
 
 $athenaAliasSource = Get-Content -Raw "src\app\athena\page.tsx"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"
@@ -309,14 +311,24 @@ function pricing(costClass, options) {
 }
 
 function model(buildKey, input) {
+  const routingState = Object.prototype.hasOwnProperty.call(input, "routingState")
+    ? input.routingState
+    : "automatic";
   return {
     modelKey: buildKey(input.providerId, input.modelId),
     providerId: input.providerId,
     modelId: input.modelId,
     label: input.label || input.modelId,
-    routingState: Object.prototype.hasOwnProperty.call(input, "routingState")
-      ? input.routingState
-      : "automatic",
+    routingState,
+    automaticRoutingAdmission:
+      Object.prototype.hasOwnProperty.call(input, "automaticRoutingAdmission")
+        ? input.automaticRoutingAdmission
+        : routingState === "automatic"
+          ? {
+              admissionId: "test-automatic-routing-admission-v1",
+              modes: ["local-only", "free-only", "free-first", "best-within-budget"],
+            }
+          : null,
     qualificationState: Object.prototype.hasOwnProperty.call(input, "qualificationState")
       ? input.qualificationState
       : "live-verified",
@@ -386,6 +398,7 @@ function routeRequest(policy, runtimeSnapshots, requiredCapabilities, maximumOut
       Object.prototype.hasOwnProperty.call(arguments.length > 3 ? { maximumOutputTokens } : {}, "maximumOutputTokens")
         ? maximumOutputTokens
         : 500,
+    candidateModelKeys: null,
     policy,
     runtimeSnapshots,
   };
@@ -405,6 +418,14 @@ function policy(mode, options) {
       Object.prototype.hasOwnProperty.call(config, "manualModelKey")
         ? config.manualModelKey
         : null,
+    paidExecutionAdmission:
+      Object.prototype.hasOwnProperty.call(config, "paidExecutionAdmission")
+        ? config.paidExecutionAdmission
+        : "request-scoped",
+    freeTierConfirmationState:
+      Object.prototype.hasOwnProperty.call(config, "freeTierConfirmationState")
+        ? config.freeTierConfirmationState
+        : "confirmed-for-request",
   };
 }
 
@@ -440,7 +461,7 @@ function main() {
   ));
 
   assert(!Object.prototype.hasOwnProperty.call(indexModule, "routeCodexForgeModel"), "client-safe index does not export the server router");
-  assert(indexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION === "codexforge-model-routing-v3", "production catalog version is exact");
+  assert(indexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION === "codexforge-model-routing-v4", "production catalog version is exact");
 
   const productionCatalog = indexModule.CODEXFORGE_PRODUCTION_MODEL_CATALOG;
   assert(productionCatalog.providers.length === 2, "production catalog contains exactly two providers");
@@ -479,8 +500,19 @@ function main() {
   assert(productionLocalModel.pricing.inputUsdPerMillionTokens === 0, "production local model input token price remains zero");
   assert(productionLocalModel.pricing.outputUsdPerMillionTokens === 0, "production local model output token price remains zero");
   assert(productionLocalModel.approvedMaximumOutputTokens === 4096, "production local model output remains capped at 4096");
+  assert(productionGroq20Model.routingState === "automatic", "production Groq 20B routing is automatic");
+  assert(
+    productionGroq20Model.automaticRoutingAdmission &&
+      productionGroq20Model.automaticRoutingAdmission.admissionId === "codexforge-groq-automatic-routing-admission-v1" &&
+      JSON.stringify(productionGroq20Model.automaticRoutingAdmission.modes) === JSON.stringify(["free-first"]),
+    "production Groq 20B automatic routing admission is exact"
+  );
+  assert(
+    productionGroq120Model.routingState === "manual-only" &&
+      productionGroq120Model.automaticRoutingAdmission === null,
+    "production Groq 120B remains manual-only"
+  );
   for (const groqModel of [productionGroq20Model, productionGroq120Model]) {
-    assert(groqModel.routingState === "manual-only", "production Groq model routing is manual-only");
     assert(groqModel.qualificationState === "live-verified", "production Groq model qualification is live-verified");
     assert(groqModel.capabilities.length === 1 && groqModel.capabilities[0] === "text-generation", "production Groq model is text-generation capable");
     assert(groqModel.pricing.costClass === "free-tier", "production Groq model cost class is free-tier");
@@ -520,7 +552,7 @@ function main() {
   assert(freshCatalog.providers[0].label === "Local Ollama", "production provider clone does not mutate the authoritative catalog");
   assert(freshGroqProvider.notes[0] === "Transport qualification remains live-verified from 2026-07-26.", "Groq provider notes remain immutable in the authoritative catalog");
   assert(freshGroq20Model.pricing.sourceLabel === "Operator-confirmed Groq Free tier on 2026-07-26; account tier may change and requires revalidation", "nested Groq pricing clone mutation does not mutate the authoritative catalog");
-  assert(freshGroq20Model.evidence[0] === "codexforge-groq-qualification-v2", "nested Groq evidence clone mutation does not mutate the authoritative catalog");
+  assert(freshGroq20Model.evidence[0] === "codexforge-groq-qualification-v3", "nested Groq evidence clone mutation does not mutate the authoritative catalog");
 
   const productionRuntime = runtimeForModels(productionCatalog.models);
   const productionLocalOnlyDecision = routerModule.routeCodexForgeModel(
@@ -528,7 +560,7 @@ function main() {
     productionCatalog
   );
   assert(productionLocalOnlyDecision.selectedModelKey === productionLocalModel.modelKey, "production local-only selects Local Ollama");
-  assert(hasCode(candidateByKey(productionLocalOnlyDecision, productionGroq20Model.modelKey).rejectionCodes, "model-disabled"), "production local-only rejects Groq 20b as manual-only");
+  assert(hasCode(candidateByKey(productionLocalOnlyDecision, productionGroq20Model.modelKey).rejectionCodes, "routing-mode-not-admitted"), "production local-only rejects Groq 20b outside its admitted automatic mode");
   assert(hasCode(candidateByKey(productionLocalOnlyDecision, productionGroq120Model.modelKey).rejectionCodes, "model-disabled"), "production local-only rejects Groq 120b as manual-only");
 
   const productionFreeOnlyDecision = routerModule.routeCodexForgeModel(
@@ -536,7 +568,7 @@ function main() {
     productionCatalog
   );
   assert(productionFreeOnlyDecision.selectedModelKey === productionLocalModel.modelKey, "production free-only selects Local Ollama");
-  assert(hasCode(candidateByKey(productionFreeOnlyDecision, productionGroq20Model.modelKey).rejectionCodes, "model-disabled"), "production free-only rejects Groq 20b automatically");
+  assert(hasCode(candidateByKey(productionFreeOnlyDecision, productionGroq20Model.modelKey).rejectionCodes, "routing-mode-not-admitted"), "production free-only rejects Groq 20b outside its admitted automatic mode");
   assert(hasCode(candidateByKey(productionFreeOnlyDecision, productionGroq120Model.modelKey).rejectionCodes, "model-disabled"), "production free-only rejects Groq 120b automatically");
 
   const productionFreeFirstDecision = routerModule.routeCodexForgeModel(
@@ -547,14 +579,19 @@ function main() {
 
   const productionFreeFirstNoLocalDecision = routerModule.routeCodexForgeModel(
     routeRequest(
-      policy("free-first"),
+      policy("free-first", {
+        freeTierConfirmationState: "confirmed-for-request",
+      }),
       runtimeForModels(productionCatalog.models, {
         [productionLocalModel.modelKey]: { availability: "unavailable" },
       })
     ),
     productionCatalog
   );
-  assert(productionFreeFirstNoLocalDecision.status === "no-eligible-model", "production free-first returns no-eligible-model when only manual-only Groq models remain");
+  assert(
+    productionFreeFirstNoLocalDecision.selectedModelKey === productionGroq20Model.modelKey,
+    "production free-first selects Groq 20B when local is unavailable and Free tier is confirmed"
+  );
 
   const productionBestBudgetDecision = routerModule.routeCodexForgeModel(
     routeRequest(policy("best-within-budget"), productionRuntime),
@@ -566,6 +603,7 @@ function main() {
     routeRequest(
       policy("manual", {
         manualModelKey: productionGroq20Model.modelKey,
+        freeTierConfirmationState: "confirmed-for-request",
       }),
       productionRuntime,
       ["text-generation"],
@@ -581,6 +619,7 @@ function main() {
     routeRequest(
       policy("manual", {
         manualModelKey: productionGroq120Model.modelKey,
+        freeTierConfirmationState: "confirmed-for-request",
       }),
       productionRuntime,
       ["text-generation"],

@@ -15,6 +15,7 @@ import type {
   PrivateAlphaRunSummary,
   PrivateAlphaRunRecord,
 } from "./private-alpha-types";
+import { CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS } from "../groq-provider/groq-provider-types";
 import {
   PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
   PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
@@ -32,6 +33,8 @@ export const PRIVATE_ALPHA_MAX_REQUEST_LENGTH = 8_000;
 export const PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH = 120;
 export const PRIVATE_ALPHA_MIN_OUTPUT_TOKENS = 1;
 export const PRIVATE_ALPHA_MAX_OUTPUT_TOKENS = 4_096;
+export const PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS =
+  CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS;
 export const PRIVATE_ALPHA_MIN_IDEMPOTENCY_KEY_LENGTH = 16;
 export const PRIVATE_ALPHA_MAX_IDEMPOTENCY_KEY_LENGTH = 200;
 export const PRIVATE_ALPHA_RUN_ID_LENGTH = 24;
@@ -496,15 +499,25 @@ export function validatePrivateAlphaCreateRunInput(
     return failure(400, "capability must be either text or code.");
   }
 
+  const requestedModelKey =
+    typeof body.modelKey === "string" && isPrivateAlphaRuntimeModelKey(body.modelKey)
+      ? body.modelKey
+      : null;
+  const maximumCreateOutputTokens =
+    requestedModelKey === PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY ||
+    requestedModelKey === PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY
+      ? PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS
+      : PRIVATE_ALPHA_MAX_OUTPUT_TOKENS;
+
   if (
     typeof body.maximumOutputTokens !== "number" ||
     !Number.isInteger(body.maximumOutputTokens) ||
     body.maximumOutputTokens < PRIVATE_ALPHA_MIN_OUTPUT_TOKENS ||
-    body.maximumOutputTokens > PRIVATE_ALPHA_MAX_OUTPUT_TOKENS
+    body.maximumOutputTokens > maximumCreateOutputTokens
   ) {
     return failure(
       400,
-      `maximumOutputTokens must be an integer between ${PRIVATE_ALPHA_MIN_OUTPUT_TOKENS} and ${PRIVATE_ALPHA_MAX_OUTPUT_TOKENS}.`
+      `maximumOutputTokens must be an integer between ${PRIVATE_ALPHA_MIN_OUTPUT_TOKENS} and ${maximumCreateOutputTokens}.`
     );
   }
 
@@ -652,6 +665,7 @@ export function validatePrivateAlphaExecuteInput(
     "approvalScopeHash",
     "expectedRevision",
     "cloudExecutionAcknowledgement",
+    "groqFreeTierExecutionConfirmation",
   ]);
   if (unknownKeys.length > 0) {
     return failure(400, `Unknown fields are not allowed: ${unknownKeys.join(", ")}.`);
@@ -690,6 +704,16 @@ export function validatePrivateAlphaExecuteInput(
     );
   }
 
+  if (
+    body.groqFreeTierExecutionConfirmation !== undefined &&
+    body.groqFreeTierExecutionConfirmation !== true
+  ) {
+    return failure(
+      400,
+      "groqFreeTierExecutionConfirmation must be exactly true when provided."
+    );
+  }
+
   return success({
     execute: true,
     acknowledgement: true,
@@ -697,6 +721,9 @@ export function validatePrivateAlphaExecuteInput(
     expectedRevision: body.expectedRevision,
     ...(body.cloudExecutionAcknowledgement === true
       ? { cloudExecutionAcknowledgement: true as const }
+      : {}),
+    ...(body.groqFreeTierExecutionConfirmation === true
+      ? { groqFreeTierExecutionConfirmation: true as const }
       : {}),
   });
 }

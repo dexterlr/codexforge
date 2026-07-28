@@ -33,7 +33,7 @@ function Assert-Contains {
 
 function Assert-NoGitDiff {
   param([string]$Path, [string]$Message)
-  $diff = ((& git diff --name-only -- $Path 2>$null) | Out-String).Trim()
+  $diff = ((& git -c core.safecrlf=false diff --name-only -- $Path 2>$null) | Out-String).Trim()
   Assert-True ([string]::IsNullOrWhiteSpace($diff)) $Message
 }
 
@@ -144,11 +144,11 @@ foreach ($requiredToken in @(
   Assert-Contains $storeSource $requiredToken "Store contains $requiredToken"
 }
 
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Current private-alpha Groq adapter remains unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-groq-adapter.server.ts") "approvedMaximumOutputTokens: CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS" "Current private-alpha Groq adapter enforces the admitted 512-token envelope"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Current private-alpha kill switch remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Current private-alpha API client remains unchanged"
-Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-api-client.ts") '${PRIVATE_ALPHA_API_BASE_PATH}/routing/free-first' "Current private-alpha API client includes the free-first routing endpoint"
+Assert-FileExists "src\app\api\codexforge\private-alpha\routing\free-first\route.ts"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current private-alpha-ollama.server.ts remains unchanged"
 Assert-Contains $jarvisPanelSource 'data-codexforge-private-alpha-provider-selector="manual"' "Jarvis panel exposes the manual provider selector"
 Assert-Contains $jarvisPanelSource 'data-codexforge-private-alpha-model-selector="manual"' "Jarvis panel exposes the manual model selector"

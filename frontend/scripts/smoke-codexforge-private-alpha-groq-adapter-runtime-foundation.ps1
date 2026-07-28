@@ -42,7 +42,7 @@ function Assert-NotMatches {
 
 function Assert-NoGitDiff {
   param([string]$Path, [string]$Message)
-  $diff = ((& git diff --name-only -- $Path 2>$null) | Out-String).Trim()
+  $diff = ((& git -c core.safecrlf=false diff --name-only -- $Path 2>$null) | Out-String).Trim()
   Assert-True ([string]::IsNullOrWhiteSpace($diff)) $Message
 }
 
@@ -62,21 +62,38 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha Groq adapter runtime foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
-  "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "docs/codexforge-private-alpha-groq-live-execution-admission-v0.md",
+  "docs/codexforge-private-alpha-free-first-automatic-routing-policy-integration-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
-  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1"
+  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/model-routing/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts",
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
 )
 
 $requiredFiles = @(
@@ -109,7 +126,7 @@ foreach ($scriptPath in @(
 }
 
 $statusLines = @(
-  (& git status --short 2>$null) |
+  (& git status --short --untracked-files=all 2>$null) |
     Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
 )
 $changedPaths = $statusLines |
@@ -121,28 +138,28 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the fifteen allowed Slice L files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the thirty-two allowed Slice M files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed smoke-repair files: $path"
 }
 
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-types.ts" "Private-alpha types remain unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Private-alpha validation remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Private-alpha store remains unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-types.ts") 'groqFreeTierExecutionConfirmation?: true;' "Private-alpha types add the exact execution-time Groq Free-tier confirmation input"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-validation.ts") 'PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS' "Private-alpha validation enforces the admitted Groq 512-token envelope"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-store.server.ts") 'groq_output_too_large' "Private-alpha store hardens historical Groq executions above the admitted 512-token envelope"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts" "Private-alpha runtime resolver remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Generic provider contract remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Ollama adapter remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Groq adapter remains unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-groq-adapter.server.ts") "approvedMaximumOutputTokens: CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS" "Groq adapter identities enforce the admitted 512-token envelope"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "Current private-alpha state machine remains unchanged"
-Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Current private-alpha API routes remain unchanged"
+Assert-FileExists "src\app\api\codexforge\private-alpha\routing\free-first\route.ts"
 Assert-NoGitDiff "src/app/jarvis" "Jarvis route entry remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq client module remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Current Ollama client remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Current private-alpha kill switch remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Current private-alpha API client remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/model-routing/model-routing-policy.server.ts" "Model-routing policy remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/model-routing/model-routing-types.ts" "Model-routing types remain unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-api-client.ts") '${PRIVATE_ALPHA_API_BASE_PATH}/routing/free-first' "Current private-alpha API client includes the free-first routing endpoint"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\model-routing\model-routing-policy.server.ts") 'freeTierConfirmationState' "Model-routing policy applies the Free-tier confirmation gate"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\model-routing\model-routing-types.ts") 'candidateModelKeys:' "Model-routing types expose the exact candidate allowlist"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
 
 $typesPath = "src\lib\codexforge\private-alpha\private-alpha-types.ts"
@@ -649,12 +666,16 @@ async function main() {
     };
   }
 
-  function routeRequest(policy, runtimeSnapshots) {
+  function routeRequest(policy, runtimeSnapshots, maximumOutputTokens) {
     return {
       taskProfile: "general-text",
       requiredCapabilities: ["text-generation"],
       estimatedInputTokens: 1000,
-      maximumOutputTokens: 4096,
+      maximumOutputTokens:
+        Object.prototype.hasOwnProperty.call(arguments.length > 2 ? { maximumOutputTokens } : {}, "maximumOutputTokens")
+          ? maximumOutputTokens
+          : 4096,
+      candidateModelKeys: null,
       policy,
       runtimeSnapshots,
     };
@@ -670,6 +691,8 @@ async function main() {
         Object.prototype.hasOwnProperty.call(arguments.length > 1 ? { manualModelKey } : {}, "manualModelKey")
           ? manualModelKey
           : null,
+      paidExecutionAdmission: "request-scoped",
+      freeTierConfirmationState: "confirmed-for-request",
     };
   }
 
@@ -949,7 +972,7 @@ async function main() {
         locality: "cloud",
         dataBoundary: "cloud-provider",
         costClass: "free-tier",
-        approvedMaximumOutputTokens: 4096,
+        approvedMaximumOutputTokens: 512,
       }),
     "Groq 20b identity is exact."
   );
@@ -964,7 +987,7 @@ async function main() {
         locality: "cloud",
         dataBoundary: "cloud-provider",
         costClass: "free-tier",
-        approvedMaximumOutputTokens: 4096,
+        approvedMaximumOutputTokens: 512,
       }),
     "Groq 120b identity is exact."
   );
@@ -1508,16 +1531,23 @@ async function main() {
   const productionCatalog = modelRoutingIndexModule.CODEXFORGE_PRODUCTION_MODEL_CATALOG;
   assert(
     modelRoutingIndexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION ===
-      "codexforge-model-routing-v3",
-    "Production catalog version remains v3."
+      "codexforge-model-routing-v4",
+    "Production catalog version remains v4."
   );
   const groqCatalogModels = productionCatalog.models.filter(
     (model) => model.providerId === "groq-cloud"
   );
+  const groq20CatalogModel = productionCatalog.models.find(
+    (model) => model.modelKey === "groq-cloud::openai/gpt-oss-20b"
+  );
+  const groq120CatalogModel = productionCatalog.models.find(
+    (model) => model.modelKey === "groq-cloud::openai/gpt-oss-120b"
+  );
   assert(
     groqCatalogModels.length === 2 &&
-      groqCatalogModels.every((model) => model.routingState === "manual-only"),
-    "Groq remains manual-only in the production catalog."
+      groq20CatalogModel.routingState === "automatic" &&
+      groq120CatalogModel.routingState === "manual-only",
+    "Groq production routing preserves free-first 20B automation and manual-only 120B."
   );
 
   const localModel = productionCatalog.models.find(
@@ -1552,7 +1582,7 @@ async function main() {
       freeOnlyDecision.selectedModelKey === localModel.modelKey &&
       freeFirstDecision.selectedModelKey === localModel.modelKey &&
       bestBudgetDecision.selectedModelKey === localModel.modelKey,
-    "Automatic routing modes still cannot select Groq."
+    "Automatic routing remains local-first when local Ollama is available."
   );
   const noLocalRuntimeSnapshots = productionCatalog.models.map((model) => ({
     modelKey: model.modelKey,
@@ -1564,12 +1594,13 @@ async function main() {
     observedAt: "2026-07-26T00:00:00.000Z",
   }));
   const noLocalDecision = routingModule.routeCodexForgeModel(
-    routeRequest(routePolicy("free-first"), noLocalRuntimeSnapshots),
+    routeRequest(routePolicy("free-first"), noLocalRuntimeSnapshots, 512),
     productionCatalog
   );
   assert(
-    noLocalDecision.status === "no-eligible-model",
-    "Automatic Groq routing remains disabled."
+    noLocalDecision.status === "selected" &&
+      noLocalDecision.selectedModelKey === groq20CatalogModel.modelKey,
+    "Automatic free-first routing selects the exact Groq 20B model only after local is unavailable."
   );
 
   try {

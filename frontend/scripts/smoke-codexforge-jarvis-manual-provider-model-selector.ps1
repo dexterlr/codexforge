@@ -42,7 +42,7 @@ function Assert-NotMatches {
 
 function Assert-NoGitDiff {
   param([string]$Path, [string]$Message)
-  $diff = ((& git diff --name-only -- $Path 2>$null) | Out-String).Trim()
+  $diff = ((& git -c core.safecrlf=false diff --name-only -- $Path 2>$null) | Out-String).Trim()
   Assert-True ([string]::IsNullOrWhiteSpace($diff)) $Message
 }
 
@@ -99,21 +99,38 @@ Write-Host ""
 Write-Host "=== CodexForge Jarvis manual provider model selector smoke ==="
 
 $allowedChangedFiles = @(
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
-  "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "docs/codexforge-private-alpha-groq-live-execution-admission-v0.md",
+  "docs/codexforge-private-alpha-free-first-automatic-routing-policy-integration-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1"
+  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/model-routing/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts",
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
 )
 
 $requiredFiles = @(
@@ -151,7 +168,7 @@ foreach ($path in $parsedScripts) {
 }
 
 $statusLines = @(
-  (& git status --short 2>$null) |
+  (& git status --short --untracked-files=all 2>$null) |
     Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
 )
 $changedPaths = $statusLines |
@@ -164,26 +181,26 @@ $changedPaths = $statusLines |
   } |
   Sort-Object -Unique
 
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the fifteen allowed Slice L files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the thirty-two allowed Slice M files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed smoke-repair files: $path"
 }
 
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-types.ts" "Private-alpha types remain unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Private-alpha validation remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Private-alpha store remains unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-types.ts") 'groqFreeTierExecutionConfirmation?: true;' "Private-alpha types add the exact execution-time Groq Free-tier confirmation input"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-validation.ts") 'groqFreeTierExecutionConfirmation' "Private-alpha validation enforces the exact execution-time Groq Free-tier confirmation"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-store.server.ts") 'groqFreeTierExecutionConfirmation' "Private-alpha store records the execution-time Groq Free-tier confirmation"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts" "Provider runtime remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Generic provider contract remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Ollama adapter remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Groq adapter remains unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-groq-adapter.server.ts") "approvedMaximumOutputTokens: CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS" "Groq adapter identities enforce the admitted 512-token envelope"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Ollama transport remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq transport remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "State machine remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Kill switch remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Private-alpha API client remains unchanged"
-Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Private-alpha API routes remain unchanged"
-Assert-NoGitDiff "src/lib/codexforge/model-routing/model-routing-policy.server.ts" "Model-routing policy remains unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-api-client.ts") '${PRIVATE_ALPHA_API_BASE_PATH}/routing/free-first' "Private-alpha API client includes the free-first routing endpoint"
+Assert-FileExists "src\app\api\codexforge\private-alpha\routing\free-first\route.ts"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\model-routing\model-routing-policy.server.ts") 'freeTierConfirmationState' "Model-routing policy applies the Free-tier confirmation gate"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
 
 $typesSource = Get-Text "src\lib\codexforge\private-alpha\private-alpha-types.ts"
@@ -208,10 +225,10 @@ $approvedCloudWindow = Get-Window $panelSource 'data-codexforge-private-alpha-cl
 $createBlock = Get-Window $panelSource 'createPrivateAlphaRun({' 500
 
 Assert-Contains $catalogSource 'CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION =' "Catalog source declares a catalog version"
-Assert-Contains $catalogSource '"codexforge-model-routing-v3"' "Catalog remains v3"
-Assert-Contains $catalogSource 'routingState: "manual-only"' "Groq models remain manual-only"
+Assert-Contains $catalogSource '"codexforge-model-routing-v4"' "Catalog remains v4"
+Assert-Contains $catalogSource 'routingState: isAutomatic20b ? "automatic" : "manual-only"' "Groq catalog preserves automatic 20B routing and manual-only 120B routing"
 Assert-Contains $catalogSource 'modelKey: acceptedModel.modelKey,' "Groq catalog entries remain exact-model keyed"
-Assert-NotMatches $catalogSource 'providerId:\s*CODEXFORGE_GROQ_PROVIDER_ID,[\s\S]{0,160}routingState:\s*"automatic"' "Automatic routing still cannot select Groq"
+Assert-Contains $catalogSource 'Automatic free-first routing is admitted only for ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.automaticModelKey}.' "Automatic routing remains admitted only for the exact Groq 20B key"
 Assert-Contains $policySource "Manual mode requires an exact manualModelKey; no model was evaluated." "Manual policy still requires an exact manual key"
 Assert-Contains $typesSource "export const PRIVATE_ALPHA_RECORD_VERSION = 1 as const;" "Record version remains 1"
 Assert-Contains $typesSource "export const PRIVATE_ALPHA_APPROVAL_BINDING_VERSION = 1 as const;" "Approval binding version remains 1"
@@ -239,11 +256,11 @@ Assert-Contains $panelSource 'Select a Groq model' "Groq model prompt option is 
 Assert-Contains $panelSource 'PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY' "Groq 20B model key is available"
 Assert-Contains $panelSource 'PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY' "Groq 120B model key is available"
 Assert-Contains $panelSource 'Select one exact allowlisted model.' "Unknown model values are not accepted silently"
-Assert-Contains $panelSource 'const canCreateBoundRun = selectedTarget !== null && actionInFlight === null;' "Create is disabled without a valid model"
+Assert-Contains $panelSource 'const canCreateBoundRun = automaticModeSelected' "Create is gated by the request mode"
 Assert-Contains $panelSource '<option value="text">Text</option>' "Local supports text"
 Assert-Contains $panelSource '<option value="code">Code</option>' "Local supports code"
 Assert-Contains $panelSource 'capability: exactTarget.supportsCode ? capability : "text"' "Groq forces text"
-Assert-Contains $panelSource 'disabled={selectedProviderId === "groq-cloud"}' "Groq disables the capability select"
+Assert-Contains $panelSource 'selectedProviderId === "groq-cloud" ||' "Groq disables the capability select"
 Assert-Contains $panelSource 'setCapability("text");' "Changing local code to Groq becomes text"
 Assert-Contains $panelSource 'modelKey: exactTarget.modelKey' "Create input includes modelKey"
 Assert-Contains $panelSource 'modelKey: PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,' "Local target configuration uses the exact local key"
@@ -256,9 +273,10 @@ Assert-NotMatches $createBlock 'providerPreference\s*:' "UI create payload does 
 Assert-NotMatches $createBlock 'dataBoundary\s*:' "UI create payload does not send dataBoundary"
 Assert-NotMatches $createBlock 'executionMode\s*:' "UI create payload does not send executionMode"
 Assert-Contains $panelSource 'data-codexforge-private-alpha-cloud-boundary="manual-execution"' "Cloud warning marker exists"
-Assert-Contains $panelSource 'Creating the request does' "Cloud warning states creation makes no Groq call"
-Assert-Contains $panelSource 'Approving the request does not contact' "Cloud warning states approval makes no Groq call"
-Assert-Contains $panelSource 'Only a later explicit execute action can send the approved prompt.' "Cloud warning states only explicit later execution can send the prompt"
+Assert-Contains $panelSource 'Creating or approving the request does not contact Groq.' "Cloud warning states creation and approval make no Groq call"
+Assert-Contains $panelSource 'The request is persisted locally. Creating the request' "Cloud warning keeps creation local after persistence"
+Assert-Contains $panelSource 'Approving the request does not' "Cloud warning states approval makes no Groq call"
+Assert-Contains $panelSource 'Only the later explicit execute action' "Cloud warning states only explicit later execution can send the prompt"
 Assert-Contains $panelSource 'setApprovalAcknowledged(false);' "Generic approval acknowledgement remains"
 Assert-Contains $panelSource 'setCloudDataTransferAcknowledged(false);' "Separate cloud acknowledgement state exists"
 Assert-Contains $panelSource 'data-codexforge-private-alpha-cloud-acknowledgement="required"' "Cloud acknowledgement marker exists"

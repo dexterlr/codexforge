@@ -606,6 +606,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Phase 5545 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Audit and Approval Join MVP"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-audit-approval-join-mvp-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5513 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture Review and Recovery Preview"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-result-capture-review-recovery-preview-mega-batch.ps1"; Required = $true },
   @{ Name = "Phase 5481 Backend-Owned Minimal Manual-Gated Synthetic Dry-Run Result Capture MVP"; File = "smoke-codexforge-backend-owned-minimal-manual-gated-synthetic-dry-run-result-capture-mvp-mega-batch.ps1"; Required = $true },
+  @{ Name = "Private Alpha Free-First Automatic Routing Policy Integration"; File = "smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1"; Required = $true },
   @{ Name = "Private Alpha Groq Live Execution Admission"; File = "smoke-codexforge-private-alpha-groq-live-execution-admission.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },

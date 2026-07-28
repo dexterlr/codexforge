@@ -42,7 +42,7 @@ function Assert-NotMatches {
 
 function Assert-NoGitDiff {
   param([string]$Path, [string]$Message)
-  $diff = ((& git diff --name-only -- $Path 2>$null) | Out-String).Trim()
+  $diff = ((& git -c core.safecrlf=false diff --name-only -- $Path 2>$null) | Out-String).Trim()
   Assert-True ([string]::IsNullOrWhiteSpace($diff)) $Message
 }
 
@@ -62,21 +62,38 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha cloud approval binding foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
-  "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "docs/codexforge-private-alpha-groq-live-execution-admission-v0.md",
+  "docs/codexforge-private-alpha-free-first-automatic-routing-policy-integration-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
-  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1"
+  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/model-routing/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts",
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
 )
 
 $requiredFiles = @(
@@ -111,7 +128,7 @@ foreach ($scriptPath in @(
 }
 
 $statusLines = @(
-  (& git status --short 2>$null) |
+  (& git status --short --untracked-files=all 2>$null) |
     Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
 )
 $changedPaths = $statusLines |
@@ -123,25 +140,25 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the fifteen allowed Slice L files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the thirty-two allowed Slice M files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed smoke-repair files: $path"
 }
 
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-types.ts" "Private-alpha types remain unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-validation.ts" "Private-alpha validation remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-store.server.ts" "Private-alpha store remains unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-types.ts") 'groqFreeTierExecutionConfirmation?: true;' "Private-alpha types add the exact execution-time Groq Free-tier confirmation input"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-validation.ts") 'groqFreeTierExecutionConfirmation' "Private-alpha validation enforces the execution-time Groq Free-tier confirmation"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-store.server.ts") 'buildPrivateAlphaApprovalScopeHash' "Private-alpha store still binds approvals to the exact approval-scope hash"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts" "Private-alpha runtime resolver remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts" "Generic provider contract remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Ollama adapter remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Groq adapter remains unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-groq-adapter.server.ts") "approvedMaximumOutputTokens: CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS" "Groq adapter identities enforce the admitted 512-token envelope"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Ollama transport client remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "State machine remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Kill-switch implementation remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Private-alpha API client remains unchanged"
+Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-api-client.ts") '${PRIVATE_ALPHA_API_BASE_PATH}/routing/free-first' "Private-alpha API client includes the free-first routing endpoint"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq transport client remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
-Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Private-alpha API routes remain unchanged"
+Assert-FileExists "src\app\api\codexforge\private-alpha\routing\free-first\route.ts"
 Assert-NoGitDiff "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx" "Athena live UI remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.tsx" "Jarvis shell remains unchanged"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
@@ -205,8 +222,8 @@ Assert-Contains $privateAlphaPanelSource 'modelKey: exactTarget.modelKey' "UI cr
 Assert-NotMatches $privateAlphaPanelSource '\bfetch\s*\(' "PrivateAlphaRunPanel contains no raw provider call"
 Assert-Contains $privateAlphaCssSource '.privateAlphaTargetSelectorGrid' "Private-alpha CSS includes the target selector layout"
 Assert-Contains $privateAlphaCssSource '.privateAlphaCloudApprovalNotice' "Private-alpha CSS includes the cloud approval notice"
-Assert-True ((& git diff --name-only -- src/app/api/codexforge/private-alpha 2>$null | Measure-Object).Count -eq 0) "No private-alpha API route changed"
-Assert-True ((& git diff --name-only -- src/lib/codexforge/private-alpha/private-alpha-api-client.ts 2>$null | Measure-Object).Count -eq 0) "Private-alpha API client remains unchanged"
+Assert-True ((& git -c core.safecrlf=false diff --name-only -- src/app/api/codexforge/private-alpha/status src/app/api/codexforge/private-alpha/runs 2>$null | Measure-Object).Count -eq 0) "Existing private-alpha status and run routes remain unchanged"
+Assert-True ((& git -c core.safecrlf=false diff --name-only -- src/lib/codexforge/private-alpha/private-alpha-api-client.ts 2>$null | Measure-Object).Count -gt 0) "Private-alpha API client changed for the free-first routing endpoint"
 
 $plainTokenPattern = '\b' + 'a' + 'ny' + '\b'
 $asTokenPattern = '\b' + 'as ' + 'a' + 'ny' + '\b'
@@ -1481,16 +1498,23 @@ async function main() {
   const productionCatalog = modelRoutingIndexModule.CODEXFORGE_PRODUCTION_MODEL_CATALOG;
   assert(
     modelRoutingIndexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION ===
-      "codexforge-model-routing-v3",
-    "model-routing catalog remains v3"
+      "codexforge-model-routing-v4",
+    "model-routing catalog remains v4"
   );
   const groqCatalogModels = productionCatalog.models.filter(
     (model) => model.providerId === "groq-cloud"
   );
+  const groq20CatalogModel = productionCatalog.models.find(
+    (model) => model.modelKey === "groq-cloud::openai/gpt-oss-20b"
+  );
+  const groq120CatalogModel = productionCatalog.models.find(
+    (model) => model.modelKey === "groq-cloud::openai/gpt-oss-120b"
+  );
   assert(
     groqCatalogModels.length === 2 &&
-      groqCatalogModels.every((model) => model.routingState === "manual-only"),
-    "Groq catalog entries remain manual-only"
+      groq20CatalogModel.routingState === "automatic" &&
+      groq120CatalogModel.routingState === "manual-only",
+    "Groq catalog preserves free-first 20B automation and manual-only 120B"
   );
   const runtimeSnapshots = productionCatalog.models.map((model) => ({
     modelKey: model.modelKey,
@@ -1507,12 +1531,15 @@ async function main() {
         requiredCapabilities: [],
         estimatedInputTokens: 1000,
         maximumOutputTokens: 512,
+        candidateModelKeys: null,
         policy: {
           mode: "local-only",
           privacyRequirement: "cloud-allowed",
           maximumEstimatedCostUsd: 1,
           paidApprovalState: "not-granted",
           manualModelKey: null,
+          paidExecutionAdmission: "request-scoped",
+          freeTierConfirmationState: "confirmed-for-request",
         },
         runtimeSnapshots,
       },
@@ -1524,12 +1551,15 @@ async function main() {
         requiredCapabilities: [],
         estimatedInputTokens: 1000,
         maximumOutputTokens: 512,
+        candidateModelKeys: null,
         policy: {
           mode: "free-only",
           privacyRequirement: "cloud-allowed",
           maximumEstimatedCostUsd: 1,
           paidApprovalState: "not-granted",
           manualModelKey: null,
+          paidExecutionAdmission: "request-scoped",
+          freeTierConfirmationState: "confirmed-for-request",
         },
         runtimeSnapshots,
       },
@@ -1541,12 +1571,15 @@ async function main() {
         requiredCapabilities: [],
         estimatedInputTokens: 1000,
         maximumOutputTokens: 512,
+        candidateModelKeys: null,
         policy: {
           mode: "free-first",
           privacyRequirement: "cloud-allowed",
           maximumEstimatedCostUsd: 1,
           paidApprovalState: "not-granted",
           manualModelKey: null,
+          paidExecutionAdmission: "request-scoped",
+          freeTierConfirmationState: "confirmed-for-request",
         },
         runtimeSnapshots,
       },
@@ -1558,12 +1591,15 @@ async function main() {
         requiredCapabilities: [],
         estimatedInputTokens: 1000,
         maximumOutputTokens: 512,
+        candidateModelKeys: null,
         policy: {
           mode: "best-within-budget",
           privacyRequirement: "cloud-allowed",
           maximumEstimatedCostUsd: 1,
           paidApprovalState: "not-granted",
           manualModelKey: null,
+          paidExecutionAdmission: "request-scoped",
+          freeTierConfirmationState: "confirmed-for-request",
         },
         runtimeSnapshots,
       },

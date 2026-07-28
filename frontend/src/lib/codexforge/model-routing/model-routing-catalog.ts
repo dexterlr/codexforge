@@ -1,3 +1,4 @@
+import { CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION } from "../groq-provider/groq-provider-automatic-routing-admission";
 import { CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE } from "../groq-provider/groq-provider-live-execution-acceptance";
 import {
   CODEXFORGE_GROQ_PROVIDER_ID,
@@ -5,6 +6,7 @@ import {
 } from "../groq-provider/groq-provider-types";
 import {
   CODEXFORGE_TASK_PROFILES,
+  type CodexForgeAutomaticRoutingAdmission,
   type CodexForgeModelCatalogSnapshot,
   type CodexForgeModelDescriptor,
   type CodexForgeModelId,
@@ -16,12 +18,24 @@ import {
 } from "./model-routing-types";
 
 export const CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION =
-  "codexforge-model-routing-v3";
+  "codexforge-model-routing-v4";
 
 const CODEXFORGE_GROQ_PROVIDER_LABEL = "Groq Cloud";
 const CODEXFORGE_GROQ_ADAPTER_ID = "groq-provider-client";
 const CODEXFORGE_GROQ_PRICING_AS_OF = "2026-07-26";
 const CODEXFORGE_GROQ_CONTEXT_WINDOW_TOKENS = 131072;
+const CODEXFORGE_OLLAMA_LOCAL_AUTOMATIC_ROUTING_ADMISSION_ID =
+  "codexforge-ollama-local-automatic-routing-v1";
+const CODEXFORGE_OLLAMA_LOCAL_AUTOMATIC_ROUTING_ADMISSION =
+  Object.freeze({
+    admissionId: CODEXFORGE_OLLAMA_LOCAL_AUTOMATIC_ROUTING_ADMISSION_ID,
+    modes: Object.freeze([
+      "local-only",
+      "free-only",
+      "free-first",
+      "best-within-budget",
+    ] as const),
+  }) satisfies CodexForgeAutomaticRoutingAdmission;
 
 export function buildCodexForgeModelKey(
   providerId: CodexForgeProviderId,
@@ -72,6 +86,15 @@ function cloneCodexForgeTaskProfileScores(
   return clonedScores;
 }
 
+function cloneCodexForgeAutomaticRoutingAdmission(
+  admission: CodexForgeAutomaticRoutingAdmission
+): CodexForgeAutomaticRoutingAdmission {
+  return {
+    admissionId: admission.admissionId,
+    modes: [...admission.modes],
+  };
+}
+
 function cloneCodexForgeModelDescriptor(
   descriptor: CodexForgeModelDescriptor
 ): CodexForgeModelDescriptor {
@@ -81,6 +104,12 @@ function cloneCodexForgeModelDescriptor(
     modelId: descriptor.modelId,
     label: descriptor.label,
     routingState: descriptor.routingState,
+    automaticRoutingAdmission:
+      descriptor.automaticRoutingAdmission === null
+        ? null
+        : cloneCodexForgeAutomaticRoutingAdmission(
+            descriptor.automaticRoutingAdmission
+          ),
     qualificationState: descriptor.qualificationState,
     capabilities: [...descriptor.capabilities],
     approvedMaximumOutputTokens: descriptor.approvedMaximumOutputTokens,
@@ -145,6 +174,15 @@ function freezeCodexForgeTaskProfileScores(
   return Object.freeze(clonedScores);
 }
 
+function freezeCodexForgeAutomaticRoutingAdmission(
+  admission: CodexForgeAutomaticRoutingAdmission
+): CodexForgeAutomaticRoutingAdmission {
+  return Object.freeze({
+    admissionId: admission.admissionId,
+    modes: Object.freeze([...admission.modes]),
+  });
+}
+
 function freezeCodexForgeModelDescriptor(
   descriptor: CodexForgeModelDescriptor
 ): CodexForgeModelDescriptor {
@@ -154,6 +192,12 @@ function freezeCodexForgeModelDescriptor(
     modelId: descriptor.modelId,
     label: descriptor.label,
     routingState: descriptor.routingState,
+    automaticRoutingAdmission:
+      descriptor.automaticRoutingAdmission === null
+        ? null
+        : freezeCodexForgeAutomaticRoutingAdmission(
+            descriptor.automaticRoutingAdmission
+          ),
     qualificationState: descriptor.qualificationState,
     capabilities: Object.freeze([...descriptor.capabilities]),
     approvedMaximumOutputTokens: descriptor.approvedMaximumOutputTokens,
@@ -189,12 +233,23 @@ function isMissingLabel(value: string): boolean {
 function buildGroqModelDescriptor(
   acceptedModel: CodexForgeGroqLiveExecutionAcceptedModelRecord
 ): CodexForgeModelDescriptor {
+  const isAutomatic20b =
+    acceptedModel.modelKey ===
+    CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.automaticModelKey;
+
   return {
     modelKey: acceptedModel.modelKey,
     providerId: CODEXFORGE_GROQ_PROVIDER_ID,
     modelId: acceptedModel.modelId,
     label: acceptedModel.modelId,
-    routingState: "manual-only",
+    routingState: isAutomatic20b ? "automatic" : "manual-only",
+    automaticRoutingAdmission: isAutomatic20b
+      ? {
+          admissionId:
+            CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.admissionVersion,
+          modes: [CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.routingMode],
+        }
+      : null,
     qualificationState: "live-verified",
     capabilities: ["text-generation"],
     approvedMaximumOutputTokens: acceptedModel.acceptedMaximumOutputTokens,
@@ -210,12 +265,15 @@ function buildGroqModelDescriptor(
     },
     taskProfileScores: {},
     evidence: [
-      "codexforge-groq-qualification-v2",
+      "codexforge-groq-qualification-v3",
       CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId,
       `exact manual Private Alpha execution admitted on ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedOn}`,
-      "manual-only production routing; automatic Groq routing remains disabled",
+      isAutomatic20b
+        ? `automatic free-first admission linked by ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.admissionVersion}`
+        : "manual-only production routing for this exact Groq model",
       "text-generation only across the cloud-provider boundary",
-      "manual execution posture keeps retry and fallback disabled",
+      "request-scoped operator reconfirmation is required before each automatic Groq Free-tier selection",
+      "paid execution, retry, fallback, and model substitution remain disabled",
       `admitted manual execution envelope is capped at ${acceptedModel.acceptedMaximumOutputTokens} output tokens`,
     ],
   };
@@ -370,6 +428,45 @@ export function validateCodexForgeModelCatalog(
       errors.push(`Unknown pricing must not define rates: ${model.modelKey}`);
     }
 
+    if (model.routingState === "automatic") {
+      if (
+        model.automaticRoutingAdmission === null ||
+        model.automaticRoutingAdmission.modes.length === 0
+      ) {
+        errors.push(
+          `Automatic routing requires an automatic routing admission: ${model.modelKey}`
+        );
+      }
+    }
+
+    if (
+      (model.routingState === "manual-only" || model.routingState === "disabled") &&
+      model.automaticRoutingAdmission !== null
+    ) {
+      errors.push(
+        `Manual-only or disabled models must not define automatic routing admission: ${model.modelKey}`
+      );
+    }
+
+    if (model.automaticRoutingAdmission !== null) {
+      const seenModes = new Set<string>();
+      for (const mode of model.automaticRoutingAdmission.modes) {
+        if ((mode as string) === "manual") {
+          errors.push(
+            `Automatic routing admission cannot include manual mode: ${model.modelKey}`
+          );
+        }
+
+        if (seenModes.has(mode)) {
+          errors.push(
+            `Automatic routing admission modes must be unique: ${model.modelKey}`
+          );
+        } else {
+          seenModes.add(mode);
+        }
+      }
+    }
+
     if (model.routingState === "automatic" && provider?.catalogState !== "enabled") {
       errors.push(
         `Automatic routing requires an enabled provider: ${model.modelKey}`
@@ -424,6 +521,55 @@ export function validateCodexForgeModelCatalog(
         `Disabled or deprecated models cannot be manual-only: ${model.modelKey}`
       );
     }
+
+    if (model.modelKey === "ollama-local::gpt-oss:20b") {
+      if (
+        model.routingState !== "automatic" ||
+        model.automaticRoutingAdmission === null ||
+        model.automaticRoutingAdmission.admissionId !==
+          CODEXFORGE_OLLAMA_LOCAL_AUTOMATIC_ROUTING_ADMISSION_ID ||
+        model.automaticRoutingAdmission.modes.length !== 4 ||
+        !CODEXFORGE_OLLAMA_LOCAL_AUTOMATIC_ROUTING_ADMISSION.modes.every((mode) =>
+          model.automaticRoutingAdmission?.modes.includes(mode)
+        )
+      ) {
+        errors.push(
+          `Local Ollama automatic routing admission must preserve the exact admitted mode set: ${model.modelKey}`
+        );
+      }
+    }
+
+    if (
+      model.modelKey ===
+      CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.automaticModelKey
+    ) {
+      if (
+        model.routingState !== "automatic" ||
+        model.automaticRoutingAdmission === null ||
+        model.automaticRoutingAdmission.admissionId !==
+          CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.admissionVersion ||
+        model.automaticRoutingAdmission.modes.length !== 1 ||
+        model.automaticRoutingAdmission.modes[0] !== "free-first"
+      ) {
+        errors.push(
+          `Groq 20B automatic routing admission must remain free-first only: ${model.modelKey}`
+        );
+      }
+    }
+
+    if (
+      model.modelKey ===
+      CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.manualOnlyModelKey
+    ) {
+      if (
+        model.routingState !== "manual-only" ||
+        model.automaticRoutingAdmission !== null
+      ) {
+        errors.push(
+          `Groq 120B must remain manual-only with no automatic routing admission: ${model.modelKey}`
+        );
+      }
+    }
   }
 
   return Object.freeze([...errors]);
@@ -453,10 +599,11 @@ const productionCatalogDraft: CodexForgeModelCatalogSnapshot = {
         "Exact manual Private Alpha execution is connected for the admitted Groq model keys.",
         `Exact 20B and 120B manual execution paths were live-accepted on ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedOn}.`,
         `Acceptance evidence links to ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId}.`,
-        "Production routing remains manual-only and automatic Groq routing stays disabled.",
+        `Automatic free-first routing is admitted only for ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.automaticModelKey}.`,
+        `Automatic routing remains disabled for ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.manualOnlyModelKey}.`,
         "Capability remains text-generation only across the cloud-provider boundary.",
-        "Operator-confirmed Groq Free tier may change and requires revalidation.",
-        "Retry and fallback remain disabled by the admitted execution posture.",
+        "Operator-confirmed Groq Free tier may change and requires request-scoped reconfirmation.",
+        "Paid execution, retry, fallback, and substitution remain disabled by the admitted execution posture.",
         "The admitted manual Private Alpha execution envelope must not exceed 512 output tokens.",
       ],
     },
@@ -468,6 +615,7 @@ const productionCatalogDraft: CodexForgeModelCatalogSnapshot = {
       modelId: "gpt-oss:20b",
       label: "gpt-oss:20b",
       routingState: "automatic",
+      automaticRoutingAdmission: CODEXFORGE_OLLAMA_LOCAL_AUTOMATIC_ROUTING_ADMISSION,
       qualificationState: "live-verified",
       capabilities: ["text-generation"],
       approvedMaximumOutputTokens: 4096,

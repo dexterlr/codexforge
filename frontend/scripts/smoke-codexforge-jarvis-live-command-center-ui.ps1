@@ -83,7 +83,7 @@ function Get-StatusEntries {
 $Failures = New-Object System.Collections.Generic.List[string]
 
 $allowedSliceJPaths = @(
-  "docs/codexforge-private-alpha-groq-live-execution-admission-v0.md",
+  "docs/codexforge-private-alpha-free-first-automatic-routing-policy-integration-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
@@ -91,14 +91,30 @@ $allowedSliceJPaths = @(
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
-  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
+  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
   "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
   "src/lib/codexforge/groq-provider/groq-provider-types.ts",
   "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts"
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/model-routing/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts",
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
 )
 
 $athenaPanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx"
@@ -203,7 +219,7 @@ Add-Result (
   $privateAlpha.Contains('Execute once on Groq Cloud')
 ) "cloud approval and manual execution controls exist"
 Add-Result (
-  $privateAlpha.Contains('data-codexforge-private-alpha-bound-create="true"') -and
+  $privateAlpha.Contains('data-codexforge-private-alpha-bound-create={') -and
   $privateAlpha.Contains('modelKey: exactTarget.modelKey')
 ) "bound create includes the exact model key"
 Add-Result (
@@ -221,8 +237,9 @@ Add-Result (
 ) "local execution remains available"
 Add-Result (
   $privateAlpha.Contains('Groq approval binding currently supports text requests only.') -and
-  $privateAlpha.Contains('disabled={selectedProviderId === "groq-cloud"}')
-) "Groq forces text and disables the capability select"
+  $privateAlpha.Contains('Free-first automatic routing supports text requests only.') -and
+  $privateAlpha.Contains('requestMode === "free-first-automatic"')
+) "Groq and free-first automatic routing remain text-only"
 
 $advancedSettingsIndex = $privateAlpha.IndexOf("Advanced settings")
 $maximumTokensIndex = $privateAlpha.IndexOf("Maximum output tokens")
@@ -290,26 +307,40 @@ $changedProductSourcePaths = @(
   $productSourceChanges | Where-Object { $_ -match '^src/' }
 )
 $expectedProductSourcePaths = @(
-  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
   "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
   "src/lib/codexforge/groq-provider/groq-provider-types.ts",
   "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts"
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/model-routing/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts",
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
 )
 Add-Result (
   $changedPaths.Count -eq $allowedSliceJPaths.Count -and
   @($changedPaths | Where-Object { $allowedSliceJPaths -notcontains $_ }).Count -eq 0
-) "git scope contains exactly the sixteen allowed Slice L files"
+) "git scope contains exactly the thirty-two allowed Slice M files"
 Add-Result (
   $changedProductSourcePaths.Count -eq $expectedProductSourcePaths.Count -and
   @($changedProductSourcePaths | Where-Object { $expectedProductSourcePaths -notcontains $_ }).Count -eq 0
-) "only the exact Slice L metadata product sources changed in the follow-up slice"
+) "only the exact Slice M product source paths changed in this UI follow-up slice"
 Add-Result (
-  -not ($changedPaths | Where-Object { $_ -match '^src/app/api/codexforge/private-alpha/' })
-) "no private-alpha API route changed in this UI slice"
+  $changedPaths -contains "src/app/api/codexforge/private-alpha/routing/free-first/route.ts"
+) "the Slice M UI follow-up includes only the free-first private-alpha API route path"
 Add-Result (
-  -not ($changedPaths | Where-Object { $_ -eq "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" })
-) "no private-alpha API client changed in this UI slice"
+  $changedPaths -contains "src/lib/codexforge/private-alpha/private-alpha-api-client.ts"
+) "the Slice M UI follow-up includes the free-first private-alpha API client update"
 Add-Result ($changedTypeScriptText -notmatch ':\s*any\b|\bas any\b|<any>') "no any or as any was introduced"
 Add-Result ($changedUiText -notmatch 'ts-nocheck|ts-expect-error') "no ts-nocheck or ts-expect-error was introduced"
 Add-Result ($commandDeckRole.Contains("commandDeckRole: CodexForgeCommandDeckRole;")) "commandDeckRole remains strongly typed"

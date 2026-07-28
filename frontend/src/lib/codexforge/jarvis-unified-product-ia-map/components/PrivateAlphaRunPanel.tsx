@@ -6,6 +6,9 @@ import type {
   PrivateAlphaBoundApprovalRecord,
   PrivateAlphaBoundDataBoundary,
   PrivateAlphaCapability,
+  PrivateAlphaFreeFirstRoutingInput,
+  PrivateAlphaFreeFirstRoutingResult,
+  PrivateAlphaFreeFirstRoutingSelectedModelKey,
   PrivateAlphaCloudDataTransferAcknowledgement,
   PrivateAlphaCloudDataTransferRequirement,
   PrivateAlphaRunRecord,
@@ -16,6 +19,8 @@ import type {
 import {
   PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
   PRIVATE_ALPHA_DATA_ROOT_LABEL,
+  PRIVATE_ALPHA_FREE_FIRST_ROUTING_SELECTED_MODEL_KEYS,
+  PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS,
   PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
   PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
   PRIVATE_ALPHA_MAX_OUTPUT_TOKENS,
@@ -27,6 +32,7 @@ import {
   PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL,
   PRIVATE_ALPHA_RUNTIME_MODEL_KEYS,
   PRIVATE_ALPHA_SECRET_GUIDANCE,
+  isPrivateAlphaFreeFirstRoutingSelectedModelKey,
   isPrivateAlphaCloudExecutionConfiguration,
   isPrivateAlphaLocalExecutionConfiguration,
   resolvePrivateAlphaBoundConfiguration,
@@ -39,6 +45,7 @@ import {
   fetchPrivateAlphaRun,
   fetchPrivateAlphaStatus,
   listPrivateAlphaRuns,
+  routePrivateAlphaFreeFirst,
 } from "@/lib/codexforge/private-alpha/private-alpha-api-client";
 import styles from "./JarvisUnifiedProductShell.module.css";
 
@@ -70,7 +77,11 @@ type PrivateAlphaTabRecord = Readonly<{
   label: string;
 }>;
 
+type PrivateAlphaRequestMode = "manual" | "free-first-automatic";
 type PrivateAlphaManualProviderId = "ollama-local" | "groq-cloud";
+type PrivateAlphaAutomaticCloudRoutingState =
+  | "disallowed"
+  | "allowed-free-tier-only";
 
 type PrivateAlphaManualTargetConfiguration = Readonly<{
   providerId: PrivateAlphaManualProviderId;
@@ -109,6 +120,13 @@ type PrivateAlphaBoundRequestMetadata = Readonly<{
 type PrivateAlphaSelectedTargetBadge = Readonly<{
   label: string;
   className: string;
+}>;
+
+type PrivateAlphaCapturedAutomaticDraft = Readonly<{
+  requestText: string;
+  capability: "text";
+  maximumOutputTokens: number;
+  cloudRouting: PrivateAlphaFreeFirstRoutingInput["cloudRouting"];
 }>;
 
 const PRIVATE_ALPHA_PANEL_TABS = [
@@ -164,6 +182,22 @@ const PRIVATE_ALPHA_GROQ_TARGETS = [
   PRIVATE_ALPHA_GROQ_20B_TARGET,
   PRIVATE_ALPHA_GROQ_120B_TARGET,
 ] as const;
+const PRIVATE_ALPHA_REQUEST_MODES = [
+  {
+    id: "manual",
+    label: "Manual exact selection",
+    body: "Default behavior. Choose one exact provider and model before creating the approval request.",
+  },
+  {
+    id: "free-first-automatic",
+    label: "Free-first automatic",
+    body: "Opt in to server-owned selection. Local Ollama is evaluated first, and Groq 20B is only probed after explicit Free-tier metadata permission.",
+  },
+] as const satisfies readonly Readonly<{
+  id: PrivateAlphaRequestMode;
+  label: string;
+  body: string;
+}>[];
 
 function resolveStateClass(state: string): string {
   switch (state) {
@@ -250,6 +284,48 @@ function resolveManualProviderLabel(providerId: string): string {
 
 function resolveRunModelLabel(modelPreferenceLabel: string | null): string {
   return modelPreferenceLabel ?? "No model recorded";
+}
+
+function resolveAutomaticSelectedTarget(
+  modelKey: PrivateAlphaFreeFirstRoutingSelectedModelKey
+): PrivateAlphaManualTargetConfiguration {
+  switch (modelKey) {
+    case PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY:
+      return PRIVATE_ALPHA_LOCAL_TARGET;
+    case PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY:
+      return PRIVATE_ALPHA_GROQ_20B_TARGET;
+  }
+}
+
+function parseMaximumOutputTokensValue(value: string): number | null {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) ? parsed : null;
+}
+
+function resolveAutomaticCloudRoutingInput(
+  state: PrivateAlphaAutomaticCloudRoutingState,
+  metadataProbeAcknowledged: boolean,
+  freeTierConfirmed: boolean
+): PrivateAlphaFreeFirstRoutingInput["cloudRouting"] | null {
+  if (state === "disallowed") {
+    return Object.freeze({
+      state: "disallowed",
+    });
+  }
+
+  if (metadataProbeAcknowledged && freeTierConfirmed) {
+    return Object.freeze({
+      state: "allowed-free-tier-only",
+      metadataProbeAcknowledgement: true,
+      freeTierConfirmation: true,
+    });
+  }
+
+  return null;
+}
+
+function formatRoutingCodes(values: readonly string[]): string {
+  return values.length > 0 ? values.join(", ") : "None";
 }
 
 function readBoundMetadata(
@@ -780,6 +856,8 @@ export function PrivateAlphaRunPanel() {
   const [runs, setRuns] = useState<readonly PrivateAlphaRunSummary[]>([]);
   const [currentRun, setCurrentRun] = useState<PrivateAlphaRunRecord | null>(null);
   const [loadState, setLoadState] = useState<PrivateAlphaLoadState>("loading");
+  const [requestMode, setRequestMode] =
+    useState<PrivateAlphaRequestMode>("manual");
   const [selectedProviderId, setSelectedProviderId] =
     useState<PrivateAlphaManualProviderId>(PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID);
   const [selectedModelKey, setSelectedModelKey] =
@@ -794,6 +872,20 @@ export function PrivateAlphaRunPanel() {
     useState(false);
   const [cloudExecutionAcknowledged, setCloudExecutionAcknowledged] =
     useState(false);
+  const [
+    groqFreeTierExecutionAcknowledged,
+    setGroqFreeTierExecutionAcknowledged,
+  ] = useState(false);
+  const [automaticCloudRoutingState, setAutomaticCloudRoutingState] =
+    useState<PrivateAlphaAutomaticCloudRoutingState>("disallowed");
+  const [
+    automaticMetadataProbeAcknowledged,
+    setAutomaticMetadataProbeAcknowledged,
+  ] = useState(false);
+  const [automaticFreeTierConfirmed, setAutomaticFreeTierConfirmed] =
+    useState(false);
+  const [automaticRoutingResult, setAutomaticRoutingResult] =
+    useState<PrivateAlphaFreeFirstRoutingResult | null>(null);
   const [executionAcknowledged, setExecutionAcknowledged] = useState(false);
   const [cancellationReason, setCancellationReason] = useState(
     "Operator canceled this private-alpha run before execution."
@@ -805,6 +897,7 @@ export function PrivateAlphaRunPanel() {
   const [showCancellationForm, setShowCancellationForm] = useState(false);
 
   const requestFieldId = useId();
+  const requestModeFieldId = useId();
   const providerFieldId = useId();
   const modelFieldId = useId();
   const capabilityFieldId = useId();
@@ -851,9 +944,48 @@ export function PrivateAlphaRunPanel() {
     setApprovalAcknowledged(false);
     setCloudDataTransferAcknowledged(false);
     setCloudExecutionAcknowledged(false);
+    setGroqFreeTierExecutionAcknowledged(false);
     setExecutionAcknowledged(false);
     setShowCancellationForm(false);
   }, [currentRun?.runId]);
+
+  useEffect(() => {
+    if (requestMode === "free-first-automatic") {
+      setCapability("text");
+    }
+  }, [requestMode]);
+
+  useEffect(() => {
+    if (automaticCloudRoutingState === "disallowed") {
+      setAutomaticMetadataProbeAcknowledged(false);
+      setAutomaticFreeTierConfirmed(false);
+    }
+  }, [automaticCloudRoutingState]);
+
+  useEffect(() => {
+    setAutomaticRoutingResult(null);
+  }, [
+    requestMode,
+    requestText,
+    capability,
+    maximumOutputTokens,
+    selectedProviderId,
+    selectedModelKey,
+    automaticCloudRoutingState,
+    automaticMetadataProbeAcknowledged,
+    automaticFreeTierConfirmed,
+  ]);
+
+  function handleRequestModeChange(value: string): void {
+    if (value !== "manual" && value !== "free-first-automatic") {
+      setErrorMessage("Select either manual exact selection or free-first automatic.");
+      return;
+    }
+
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setRequestMode(value);
+  }
 
   function handleProviderSelectionChange(value: string): void {
     if (!isPrivateAlphaManualProviderId(value)) {
@@ -906,6 +1038,123 @@ export function PrivateAlphaRunPanel() {
   }
 
   async function handleCreateRun(): Promise<void> {
+    if (requestMode === "free-first-automatic") {
+      const automaticCloudRouting = resolveAutomaticCloudRoutingInput(
+        automaticCloudRoutingState,
+        automaticMetadataProbeAcknowledged,
+        automaticFreeTierConfirmed
+      );
+      const parsedMaximumOutputTokens = parseMaximumOutputTokensValue(
+        maximumOutputTokens
+      );
+      if (parsedMaximumOutputTokens === null) {
+        setErrorMessage("Enter a whole-number maximum output token value.");
+        return;
+      }
+
+      if (automaticCloudRouting === null) {
+        setErrorMessage(
+          "Automatic cloud routing requires both the metadata-probe acknowledgement and the Free-tier confirmation."
+        );
+        return;
+      }
+
+      const capturedDraft: PrivateAlphaCapturedAutomaticDraft = Object.freeze({
+        requestText,
+        capability: "text",
+        maximumOutputTokens: parsedMaximumOutputTokens,
+        cloudRouting: automaticCloudRouting,
+      });
+
+      setActionInFlight("route-create");
+      setAutomaticRoutingResult(null);
+      setErrorMessage(null);
+      setSuccessMessage(null);
+
+      try {
+        const routingResult = await routePrivateAlphaFreeFirst({
+          routingMode: "free-first",
+          capability: capturedDraft.capability,
+          maximumOutputTokens: capturedDraft.maximumOutputTokens,
+          cloudRouting: capturedDraft.cloudRouting,
+        });
+        setAutomaticRoutingResult(routingResult);
+
+        const unexpectedCandidate = routingResult.decision.candidates.some(
+          (candidate) =>
+            !PRIVATE_ALPHA_FREE_FIRST_ROUTING_SELECTED_MODEL_KEYS.some(
+              (modelKey) => modelKey === candidate.modelKey
+            )
+        );
+        if (unexpectedCandidate) {
+          setErrorMessage(
+            "Automatic routing returned a candidate outside the approved Private Alpha allowlist."
+          );
+          return;
+        }
+
+        if (routingResult.status !== "selected-for-approval") {
+          return;
+        }
+
+        const selectedModelKey = routingResult.selectedModelKey;
+        if (!isPrivateAlphaFreeFirstRoutingSelectedModelKey(selectedModelKey)) {
+          setErrorMessage(
+            "Automatic routing returned an unexpected selected model key."
+          );
+          return;
+        }
+
+        if (
+          !routingResult.decision.candidates.some(
+            (candidate) => candidate.modelKey === selectedModelKey
+          )
+        ) {
+          setErrorMessage(
+            "Automatic routing returned a selected model that did not match its evaluated candidate list."
+          );
+          return;
+        }
+
+        const exactTarget = resolveAutomaticSelectedTarget(selectedModelKey);
+        const result = await createPrivateAlphaRun({
+          requestText: capturedDraft.requestText,
+          capability: "text",
+          modelKey: exactTarget.modelKey,
+          modelPreferenceLabel: exactTarget.modelLabel,
+          maximumOutputTokens: capturedDraft.maximumOutputTokens,
+        });
+
+        await refreshPanel(result.run.runId);
+        setActiveView("current-run");
+
+        if (result.run.state !== "awaiting_approval") {
+          setErrorMessage(
+            "Automatic selection must persist a run in awaiting_approval state."
+          );
+          return;
+        }
+
+        setSuccessMessage(
+          result.created
+            ? exactTarget.providerId === "groq-cloud"
+              ? "Free-first automatic selected Groq 20B for approval. The approval request was persisted locally with no prompt transfer and no generation."
+              : "Free-first automatic selected local Ollama for approval. The approval request was persisted locally."
+            : "Existing private-alpha run returned from idempotency protection."
+        );
+      } catch (error) {
+        setErrorMessage(
+          error instanceof Error && error.message
+            ? error.message
+            : "Unable to route and create the private-alpha approval request."
+        );
+      } finally {
+        setActionInFlight(null);
+      }
+
+      return;
+    }
+
     const selectedTarget =
       selectedModelKey === null
         ? null
@@ -1025,6 +1274,7 @@ export function PrivateAlphaRunPanel() {
               approvalScopeHash: currentRun.approvalScopeHash,
               expectedRevision: currentRun.revision,
               cloudExecutionAcknowledgement: true,
+              groqFreeTierExecutionConfirmation: true,
             })
           : await executePrivateAlphaRun(currentRun.runId, {
               execute: true,
@@ -1086,6 +1336,13 @@ export function PrivateAlphaRunPanel() {
 
   const currentExecution = currentRun?.execution ?? null;
   const currentRunClassification = classifyPrivateAlphaRun(currentRun);
+  const automaticModeSelected = requestMode === "free-first-automatic";
+  const parsedMaximumOutputTokens = parseMaximumOutputTokensValue(maximumOutputTokens);
+  const automaticCloudRouting = resolveAutomaticCloudRoutingInput(
+    automaticCloudRoutingState,
+    automaticMetadataProbeAcknowledged,
+    automaticFreeTierConfirmed
+  );
   const selectedTargetCandidate =
     selectedModelKey === null
       ? null
@@ -1095,19 +1352,31 @@ export function PrivateAlphaRunPanel() {
     selectedTargetCandidate.providerId === selectedProviderId
       ? selectedTargetCandidate
       : null;
-  const selectedTargetBadge = buildSelectedTargetBadge(status, selectedProviderId);
-  const selectedProviderLabel = resolveManualProviderLabel(selectedProviderId);
-  const selectedModelLabel =
-    selectedTarget?.modelLabel ??
-    (selectedProviderId === "groq-cloud"
-      ? "Select a Groq model"
-      : PRIVATE_ALPHA_LOCAL_TARGET.modelLabel);
-  const selectedDataBoundaryLabel =
-    selectedProviderId === "groq-cloud"
+  const selectedTargetBadge = automaticModeSelected
+    ? {
+        label: "free-first automatic",
+        className: styles.metricStateApproval,
+      }
+    : buildSelectedTargetBadge(status, selectedProviderId);
+  const selectedProviderLabel = automaticModeSelected
+    ? "Auto (server-owned)"
+    : resolveManualProviderLabel(selectedProviderId);
+  const selectedModelLabel = automaticModeSelected
+    ? "Local gpt-oss:20b first, Groq 20B by explicit Free-tier probe only"
+    : selectedTarget?.modelLabel ??
+      (selectedProviderId === "groq-cloud"
+        ? "Select a Groq model"
+        : PRIVATE_ALPHA_LOCAL_TARGET.modelLabel);
+  const selectedDataBoundaryLabel = automaticModeSelected
+    ? automaticCloudRoutingState === "allowed-free-tier-only"
+      ? "Local first, authenticated cloud metadata probe permitted"
+      : "Local machine required"
+    : selectedProviderId === "groq-cloud"
       ? PRIVATE_ALPHA_GROQ_20B_TARGET.dataBoundaryLabel
       : PRIVATE_ALPHA_LOCAL_TARGET.dataBoundaryLabel;
-  const selectedApprovalModeLabel =
-    selectedProviderId === "groq-cloud"
+  const selectedApprovalModeLabel = automaticModeSelected
+    ? "Selection only"
+    : selectedProviderId === "groq-cloud"
       ? PRIVATE_ALPHA_GROQ_20B_TARGET.approvalModeLabel
       : PRIVATE_ALPHA_LOCAL_TARGET.approvalModeLabel;
   const currentRunBoundMetadata = currentRun
@@ -1156,6 +1425,7 @@ export function PrivateAlphaRunPanel() {
     currentRun?.state === "approved" &&
     cloudExecutableRun &&
     cloudExecutionAcknowledged &&
+    groqFreeTierExecutionAcknowledged &&
     status?.killSwitchEngaged === false &&
     actionInFlight === null;
   const canExecute = canExecuteLocal || canExecuteCloud;
@@ -1178,7 +1448,23 @@ export function PrivateAlphaRunPanel() {
     currentRun,
     currentRunClassification
   );
-  const canCreateBoundRun = selectedTarget !== null && actionInFlight === null;
+  const maximumOutputTokensLimit =
+    automaticModeSelected || selectedProviderId === "ollama-local"
+      ? PRIVATE_ALPHA_MAX_OUTPUT_TOKENS
+      : PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS;
+  const maximumOutputTokensHelperText = automaticModeSelected
+    ? `Valid range ${PRIVATE_ALPHA_MIN_OUTPUT_TOKENS}-${PRIVATE_ALPHA_MAX_OUTPUT_TOKENS}. Automatic free-first routing remains text-only. At 513-${PRIVATE_ALPHA_MAX_OUTPUT_TOKENS}, local Ollama may still be selected, but Groq automatic metadata inspection is not permitted.`
+    : selectedProviderId === "groq-cloud"
+      ? `Valid range ${PRIVATE_ALPHA_MIN_OUTPUT_TOKENS}-${PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS}. New Groq approval requests above 512 are rejected before persistence or provider work.`
+      : `Valid range ${PRIVATE_ALPHA_MIN_OUTPUT_TOKENS}-${PRIVATE_ALPHA_MAX_OUTPUT_TOKENS}. Current default is 512. GPT-OSS reasoning effort is fixed to low and uses part of the generation budget. Very small limits may finish without visible final text.`;
+  const canCreateBoundRun = automaticModeSelected
+    ? requestText.trim().length > 0 &&
+      parsedMaximumOutputTokens !== null &&
+      parsedMaximumOutputTokens >= PRIVATE_ALPHA_MIN_OUTPUT_TOKENS &&
+      parsedMaximumOutputTokens <= PRIVATE_ALPHA_MAX_OUTPUT_TOKENS &&
+      automaticCloudRouting !== null &&
+      actionInFlight === null
+    : selectedTarget !== null && actionInFlight === null;
   const approvalButtonDisabled =
     !canApprove ||
     actionInFlight !== null ||
@@ -1189,13 +1475,13 @@ export function PrivateAlphaRunPanel() {
   return (
     <section
       className={`${styles.panel} ${styles.privateAlphaPanel}`}
-      aria-label="Private alpha manual provider and model approval"
+      aria-label="Private alpha exact-model approval"
       data-codexforge-private-alpha-layout="focused"
     >
       <div className={styles.panelHeader}>
         <div>
           <p className={styles.panelEyebrow}>Private Alpha</p>
-          <h2 className={styles.panelTitle}>Manual provider and model approval</h2>
+          <h2 className={styles.panelTitle}>Exact-model approval and free-first routing</h2>
         </div>
         <span className={`${styles.panelBadge} ${selectedTargetBadge.className}`}>
           {selectedTargetBadge.label}
@@ -1203,10 +1489,10 @@ export function PrivateAlphaRunPanel() {
       </div>
 
       <p className={styles.panelBody}>
-        Choose a local or cloud target, persist the exact request scope, and
-        review the audit trail. Local Ollama may execute after approval and
-        runtime gates. Groq requires a later explicit execute-once action, with
-        no automatic routing, retry, or fallback.
+        Manual exact-model selection remains the default path. The optional
+        free-first automatic path is selection-only: it evaluates local Ollama
+        first, may inspect Groq 20B metadata only after explicit permission,
+        and never approves or executes a run by itself.
       </p>
 
       <div className={styles.privateAlphaStatusStrip}>
@@ -1233,9 +1519,13 @@ export function PrivateAlphaRunPanel() {
         <div className={styles.privateAlphaStatusItem}>
           <span className={styles.privateAlphaStatusLabel}>Runtime status</span>
           <span className={styles.privateAlphaStatusValue}>
-            {selectedProviderId === "groq-cloud"
-              ? "Checked server-side at execution"
-              : "Checked locally"}
+            {automaticModeSelected
+              ? automaticCloudRoutingState === "allowed-free-tier-only"
+                ? "Local first, cloud metadata only if needed"
+                : "Local only"
+              : selectedProviderId === "groq-cloud"
+                ? "Checked server-side at execution"
+                : "Checked locally"}
           </span>
         </div>
         <div className={styles.privateAlphaStatusItem}>
@@ -1262,9 +1552,10 @@ export function PrivateAlphaRunPanel() {
         {status?.dataRootLabel ?? PRIVATE_ALPHA_DATA_ROOT_LABEL}. Local Ollama
         can execute only after manual approval, runtime checks, and kill-switch
         clearance. Groq availability and credential checks occur server-side
-        only after the explicit execute action. Creating or approving a Groq
-        request does not contact Groq, the exact model remains fixed, and no
-        automatic routing occurs. {formatKillSwitchSources(status)}
+        only after the explicit execute action. Automatic routing never sends
+        request text to the routing endpoint, never persists a run by itself,
+        never approves a run, and never performs generation.{" "}
+        {formatKillSwitchSources(status)}
       </p>
 
       {loadState === "loading" ? (
@@ -1307,19 +1598,60 @@ export function PrivateAlphaRunPanel() {
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
-                {selectedProviderId === "groq-cloud"
-                  ? "manual cloud execution"
-                  : "local execution"}
+                {automaticModeSelected
+                  ? "selection only"
+                  : selectedProviderId === "groq-cloud"
+                    ? "manual cloud execution"
+                    : "local execution"}
               </span>
             </div>
 
             <p className={styles.privateAlphaSectionBody}>
-              Use one real request textarea to choose a local or cloud approval
-              target, then persist the exact provider and model scope for manual
-              review.
+              {automaticModeSelected
+                ? "Automatic free-first mode keeps the request text in the browser during routing. The server returns a safe selection decision first, and only a valid selected-for-approval result can hand off to the normal create-run path."
+                : "Use one real request textarea to choose a local or cloud approval target, then persist the exact provider and model scope for manual review."}
             </p>
 
             <div className={styles.privateAlphaForm}>
+              <div
+                className={styles.privateAlphaField}
+                role="radiogroup"
+                aria-labelledby={requestModeFieldId}
+              >
+                <span id={requestModeFieldId} className={styles.athenaInputLabel}>
+                  Request mode
+                </span>
+                <div className={styles.privateAlphaRequestModeGrid}>
+                  {PRIVATE_ALPHA_REQUEST_MODES.map((mode) => (
+                    <label
+                      key={mode.id}
+                      className={`${styles.privateAlphaToggle} ${
+                        requestMode === mode.id
+                          ? styles.privateAlphaRequestModeSelected
+                          : ""
+                      }`}
+                      data-codexforge-private-alpha-request-mode={mode.id}
+                    >
+                      <input
+                        type="radio"
+                        name={`${requestModeFieldId}-selection`}
+                        checked={requestMode === mode.id}
+                        onChange={(event) =>
+                          handleRequestModeChange(event.target.value)
+                        }
+                        value={mode.id}
+                        disabled={actionInFlight !== null}
+                      />
+                      <span className={styles.placeholderSummary}>
+                        <strong>{mode.label}</strong>
+                        <br />
+                        {mode.body}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               <label className={styles.privateAlphaField} htmlFor={requestFieldId}>
                 <span className={styles.athenaInputLabel}>Request</span>
                 <textarea
@@ -1328,132 +1660,305 @@ export function PrivateAlphaRunPanel() {
                   value={requestText}
                   onChange={(event) => setRequestText(event.target.value)}
                   rows={7}
-                  placeholder="Describe the text or code task for manual provider and model approval."
+                  disabled={actionInFlight !== null}
+                  placeholder={
+                    automaticModeSelected
+                      ? "Describe the text request for free-first automatic routing. This text is captured locally and is not sent to the routing endpoint."
+                      : "Describe the text or code task for manual provider and model approval."
+                  }
                 />
               </label>
 
-              <div className={styles.privateAlphaTargetSelectorGrid}>
-                <label className={styles.privateAlphaField} htmlFor={providerFieldId}>
-                  <span className={styles.athenaInputLabel}>Provider</span>
-                  <select
-                    id={providerFieldId}
-                    className={styles.privateAlphaSelect}
-                    data-codexforge-private-alpha-provider-selector="manual"
-                    value={selectedProviderId}
-                    onChange={(event) =>
-                      handleProviderSelectionChange(event.target.value)
-                    }
-                  >
-                    {PRIVATE_ALPHA_MANUAL_PROVIDER_OPTIONS.map((provider) => (
-                      <option key={provider.id} value={provider.id}>
-                        {provider.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+              {automaticModeSelected ? (
+                <>
+                  <div className={styles.privateAlphaField}>
+                    <span className={styles.athenaInputLabel}>Capability</span>
+                    <div className={styles.privateAlphaFixedModel}>Text only</div>
+                  </div>
+                  <p className={styles.privateAlphaSecondaryText}>
+                    Free-first automatic routing supports text requests only.
+                    The routing endpoint never receives the request text,
+                    budgets, paid approval, candidate lists, retry policy,
+                    fallback policy, or substitution policy from the browser.
+                  </p>
 
-                <label className={styles.privateAlphaField} htmlFor={modelFieldId}>
-                  <span className={styles.athenaInputLabel}>Model</span>
-                  <select
-                    id={modelFieldId}
-                    className={styles.privateAlphaSelect}
-                    data-codexforge-private-alpha-model-selector="manual"
-                    value={
-                      selectedProviderId === "groq-cloud"
-                        ? selectedTarget?.modelKey ?? ""
-                        : PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY
-                    }
-                    onChange={(event) => handleModelSelectionChange(event.target.value)}
+                  <div className={styles.privateAlphaTargetSelectorGrid}>
+                    <label
+                      className={styles.privateAlphaField}
+                      htmlFor={providerFieldId}
+                    >
+                      <span className={styles.athenaInputLabel}>
+                        Cloud metadata policy
+                      </span>
+                      <select
+                        id={providerFieldId}
+                        className={styles.privateAlphaSelect}
+                        data-codexforge-private-alpha-automatic-cloud-routing="free-first"
+                        value={automaticCloudRoutingState}
+                        onChange={(event) =>
+                          setAutomaticCloudRoutingState(
+                            event.target.value as PrivateAlphaAutomaticCloudRoutingState
+                          )
+                        }
+                        disabled={actionInFlight !== null}
+                      >
+                        <option value="disallowed">
+                          Disallow cloud routing and cloud metadata probes
+                        </option>
+                        <option value="allowed-free-tier-only">
+                          Allow a Free-tier-only Groq metadata probe after local
+                          unavailability
+                        </option>
+                      </select>
+                    </label>
+
+                    <div className={styles.privateAlphaField}>
+                      <span className={styles.athenaInputLabel}>
+                        Automatic candidates
+                      </span>
+                      <div className={styles.privateAlphaFixedModel}>
+                        <span>{PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY}</span>
+                        <span className={styles.metaPill}>then</span>
+                        <span>{PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className={styles.privateAlphaSecondaryText}>
+                    {automaticCloudRoutingState === "allowed-free-tier-only"
+                      ? "A Groq models discovery call is an authenticated metadata request only. It does not transfer the prompt and it does not authorize later cloud execution."
+                      : "When cloud routing is disallowed, local Ollama is still inspected first and Groq receives zero credential, configuration, or metadata-discovery calls."}
+                  </p>
+
+                  {automaticCloudRoutingState === "allowed-free-tier-only" ? (
+                    <div className={styles.privateAlphaStack}>
+                      <label
+                        className={`${styles.privateAlphaToggle} ${styles.privateAlphaCloudToggle}`}
+                        data-codexforge-private-alpha-cloud-metadata-probe="required"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={automaticMetadataProbeAcknowledged}
+                          onChange={(event) =>
+                            setAutomaticMetadataProbeAcknowledged(
+                              event.target.checked
+                            )
+                          }
+                          disabled={actionInFlight !== null}
+                        />
+                        <span className={styles.placeholderSummary}>
+                          I permit one authenticated Groq metadata probe for
+                          automatic routing only if local Ollama is
+                          affirmatively unavailable. This is not prompt
+                          transfer, does not approve the run, and does not
+                          execute the run.
+                        </span>
+                      </label>
+                      <label
+                        className={`${styles.privateAlphaToggle} ${styles.privateAlphaCloudToggle}`}
+                        data-codexforge-private-alpha-free-tier-confirmation="required"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={automaticFreeTierConfirmed}
+                          onChange={(event) =>
+                            setAutomaticFreeTierConfirmed(event.target.checked)
+                          }
+                          disabled={actionInFlight !== null}
+                        />
+                        <span className={styles.placeholderSummary}>
+                          I separately confirm that the current Groq account
+                          remains Free tier for this request-scoped routing
+                          decision. This is operator attestation only and is
+                          not provider-verified.
+                        </span>
+                      </label>
+                    </div>
+                  ) : null}
+
+                  <div
+                    className={`${styles.privateAlphaTargetSummary} ${
+                      automaticCloudRoutingState === "allowed-free-tier-only"
+                        ? styles.privateAlphaTargetCloud
+                        : styles.privateAlphaTargetLocal
+                    }`}
+                    data-codexforge-private-alpha-target-summary="automatic"
                   >
-                    {selectedProviderId === "ollama-local" ? (
-                      <option value={PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY}>
-                        {PRIVATE_ALPHA_LOCAL_TARGET.modelLabel}
-                      </option>
-                    ) : (
-                      <>
-                        <option value="">Select a Groq model</option>
-                        {PRIVATE_ALPHA_GROQ_TARGETS.map((target) => (
-                          <option key={target.modelKey} value={target.modelKey}>
-                            {target.modelLabel}
+                    <div className={styles.privateAlphaTargetMeta}>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>Provider</span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          Auto (server-owned)
+                        </span>
+                      </div>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>Model set</span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          Local 20B first, Groq 20B only if admitted
+                        </span>
+                      </div>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>Data boundary</span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          {selectedDataBoundaryLabel}
+                        </span>
+                      </div>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>Approval mode</span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          Selection only
+                        </span>
+                      </div>
+                    </div>
+                    <p className={styles.privateAlphaSectionBody}>
+                      Automatic routing evaluates local Ollama first. If a safe
+                      exact model key is selected, the browser creates a normal
+                      awaiting-approval run with that exact key and no routing
+                      metadata in the create payload.
+                    </p>
+                    <div className={styles.privateAlphaCloudApprovalNotice}>
+                      Later cloud-transfer approval, later cloud-execution
+                      acknowledgement, and the separate execution-time Groq
+                      Free-tier confirmation remain mandatory for Groq runs.
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={styles.privateAlphaTargetSelectorGrid}>
+                    <label className={styles.privateAlphaField} htmlFor={providerFieldId}>
+                      <span className={styles.athenaInputLabel}>Provider</span>
+                      <select
+                        id={providerFieldId}
+                        className={styles.privateAlphaSelect}
+                        data-codexforge-private-alpha-provider-selector="manual"
+                        value={selectedProviderId}
+                        onChange={(event) =>
+                          handleProviderSelectionChange(event.target.value)
+                        }
+                        disabled={actionInFlight !== null}
+                      >
+                        {PRIVATE_ALPHA_MANUAL_PROVIDER_OPTIONS.map((provider) => (
+                          <option key={provider.id} value={provider.id}>
+                            {provider.label}
                           </option>
                         ))}
-                      </>
-                    )}
-                  </select>
-                </label>
-              </div>
+                      </select>
+                    </label>
 
-              <label className={styles.privateAlphaField} htmlFor={capabilityFieldId}>
-                <span className={styles.athenaInputLabel}>Capability</span>
-                <select
-                  id={capabilityFieldId}
-                  className={styles.privateAlphaSelect}
-                  value={selectedProviderId === "groq-cloud" ? "text" : capability}
-                  onChange={(event) => handleCapabilityChange(event.target.value)}
-                  disabled={selectedProviderId === "groq-cloud"}
-                >
-                  <option value="text">Text</option>
-                  <option value="code">Code</option>
-                </select>
-              </label>
-              <p className={styles.privateAlphaSecondaryText}>
-                {selectedProviderId === "groq-cloud"
-                  ? "Groq approval binding currently supports text requests only."
-                  : "Local Ollama keeps both Text and Code available after manual approval."}
-              </p>
+                    <label className={styles.privateAlphaField} htmlFor={modelFieldId}>
+                      <span className={styles.athenaInputLabel}>Model</span>
+                      <select
+                        id={modelFieldId}
+                        className={styles.privateAlphaSelect}
+                        data-codexforge-private-alpha-model-selector="manual"
+                        value={
+                          selectedProviderId === "groq-cloud"
+                            ? selectedTarget?.modelKey ?? ""
+                            : PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY
+                        }
+                        onChange={(event) =>
+                          handleModelSelectionChange(event.target.value)
+                        }
+                        disabled={actionInFlight !== null}
+                      >
+                        {selectedProviderId === "ollama-local" ? (
+                          <option value={PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY}>
+                            {PRIVATE_ALPHA_LOCAL_TARGET.modelLabel}
+                          </option>
+                        ) : (
+                          <>
+                            <option value="">Select a Groq model</option>
+                            {PRIVATE_ALPHA_GROQ_TARGETS.map((target) => (
+                              <option key={target.modelKey} value={target.modelKey}>
+                                {target.modelLabel}
+                              </option>
+                            ))}
+                          </>
+                        )}
+                      </select>
+                    </label>
+                  </div>
 
-              <div
-                className={`${styles.privateAlphaTargetSummary} ${
-                  selectedProviderId === "groq-cloud"
-                    ? styles.privateAlphaTargetCloud
-                    : styles.privateAlphaTargetLocal
-                }`}
-                data-codexforge-private-alpha-target-summary="true"
-              >
-                <div className={styles.privateAlphaTargetMeta}>
-                  <div className={styles.privateAlphaStatusItem}>
-                    <span className={styles.privateAlphaStatusLabel}>Provider</span>
-                    <span className={styles.privateAlphaStatusValue}>
-                      {selectedProviderLabel}
-                    </span>
-                  </div>
-                  <div className={styles.privateAlphaStatusItem}>
-                    <span className={styles.privateAlphaStatusLabel}>Model</span>
-                    <span className={styles.privateAlphaStatusValue}>
-                      {selectedModelLabel}
-                    </span>
-                  </div>
-                  <div className={styles.privateAlphaStatusItem}>
-                    <span className={styles.privateAlphaStatusLabel}>Data boundary</span>
-                    <span className={styles.privateAlphaStatusValue}>
-                      {selectedDataBoundaryLabel}
-                    </span>
-                  </div>
-                  <div className={styles.privateAlphaStatusItem}>
-                    <span className={styles.privateAlphaStatusLabel}>Approval mode</span>
-                    <span className={styles.privateAlphaStatusValue}>
-                      {selectedApprovalModeLabel}
-                    </span>
-                  </div>
-                </div>
-                <p className={styles.privateAlphaSectionBody}>
-                  {selectedProviderId === "groq-cloud"
-                    ? "This request stays inside the cloud-provider boundary. Creating or approving the request does not contact Groq. Only a later explicit execute action can send the approved prompt."
-                    : "This request stays on the local machine. It can execute only after manual approval, and local runtime and kill-switch checks still apply."}
-                </p>
-                {selectedProviderId === "groq-cloud" ? (
-                  <div
-                    className={styles.privateAlphaCloudApprovalNotice}
-                    data-codexforge-private-alpha-cloud-boundary="manual-execution"
+                  <label
+                    className={styles.privateAlphaField}
+                    htmlFor={capabilityFieldId}
                   >
-                    The request is persisted locally. Creating the request does
-                    not contact Groq. Approving the request does not contact
-                    Groq. Only the later explicit execute action sends the
-                    approved prompt, the exact model remains fixed, and no
-                    automatic routing occurs.
+                    <span className={styles.athenaInputLabel}>Capability</span>
+                    <select
+                      id={capabilityFieldId}
+                      className={styles.privateAlphaSelect}
+                      value={selectedProviderId === "groq-cloud" ? "text" : capability}
+                      onChange={(event) => handleCapabilityChange(event.target.value)}
+                      disabled={
+                        selectedProviderId === "groq-cloud" ||
+                        actionInFlight !== null
+                      }
+                    >
+                      <option value="text">Text</option>
+                      <option value="code">Code</option>
+                    </select>
+                  </label>
+                  <p className={styles.privateAlphaSecondaryText}>
+                    {selectedProviderId === "groq-cloud"
+                      ? "Groq approval binding currently supports text requests only."
+                      : "Local Ollama keeps both Text and Code available after manual approval."}
+                  </p>
+
+                  <div
+                    className={`${styles.privateAlphaTargetSummary} ${
+                      selectedProviderId === "groq-cloud"
+                        ? styles.privateAlphaTargetCloud
+                        : styles.privateAlphaTargetLocal
+                    }`}
+                    data-codexforge-private-alpha-target-summary="true"
+                  >
+                    <div className={styles.privateAlphaTargetMeta}>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>Provider</span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          {selectedProviderLabel}
+                        </span>
+                      </div>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>Model</span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          {selectedModelLabel}
+                        </span>
+                      </div>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>Data boundary</span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          {selectedDataBoundaryLabel}
+                        </span>
+                      </div>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>Approval mode</span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          {selectedApprovalModeLabel}
+                        </span>
+                      </div>
+                    </div>
+                    <p className={styles.privateAlphaSectionBody}>
+                      {selectedProviderId === "groq-cloud"
+                        ? "This request stays inside the cloud-provider boundary. Creating or approving the request does not contact Groq. Only a later explicit execute action can send the approved prompt."
+                        : "This request stays on the local machine. It can execute only after manual approval, and local runtime and kill-switch checks still apply."}
+                    </p>
+                    {selectedProviderId === "groq-cloud" ? (
+                      <div
+                        className={styles.privateAlphaCloudApprovalNotice}
+                        data-codexforge-private-alpha-cloud-boundary="manual-execution"
+                      >
+                        The request is persisted locally. Creating the request
+                        does not contact Groq. Approving the request does not
+                        contact Groq. Only the later explicit execute action
+                        sends the approved prompt, the exact model remains
+                        fixed, and no automatic routing occurs.
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
-              </div>
+                </>
+              )}
 
               <details className={styles.privateAlphaDetailsBlock}>
                 <summary className={styles.privateAlphaDetailsSummary}>
@@ -1470,17 +1975,14 @@ export function PrivateAlphaRunPanel() {
                       className={styles.privateAlphaInput}
                       type="number"
                       min={PRIVATE_ALPHA_MIN_OUTPUT_TOKENS}
-                      max={PRIVATE_ALPHA_MAX_OUTPUT_TOKENS}
+                      max={maximumOutputTokensLimit}
                       value={maximumOutputTokens}
                       onChange={(event) => setMaximumOutputTokens(event.target.value)}
+                      disabled={actionInFlight !== null}
                     />
                   </label>
                   <p className={styles.privateAlphaSecondaryText}>
-                    Valid range {PRIVATE_ALPHA_MIN_OUTPUT_TOKENS}-
-                    {PRIVATE_ALPHA_MAX_OUTPUT_TOKENS}. Current default is 512.
-                    GPT-OSS reasoning effort is fixed to low and uses part of
-                    the generation budget. Very small limits may finish without
-                    visible final text.
+                    {maximumOutputTokensHelperText}
                   </p>
                 </div>
               </details>
@@ -1491,11 +1993,17 @@ export function PrivateAlphaRunPanel() {
                   type="button"
                   onClick={() => void handleCreateRun()}
                   disabled={!canCreateBoundRun}
-                  data-codexforge-private-alpha-bound-create="true"
+                  data-codexforge-private-alpha-bound-create={
+                    automaticModeSelected ? "automatic" : "true"
+                  }
                 >
                   {actionInFlight === "create"
                     ? "Persisting approval request..."
-                    : "Create approval request"}
+                    : actionInFlight === "route-create"
+                      ? "Routing and creating approval request..."
+                      : automaticModeSelected
+                        ? "Route then create approval request"
+                        : "Create approval request"}
                 </button>
                 <button
                   className={styles.privateAlphaButtonSecondary}
@@ -1506,11 +2014,151 @@ export function PrivateAlphaRunPanel() {
                   Refresh local state
                 </button>
               </div>
-              {selectedProviderId === "groq-cloud" && selectedTarget === null ? (
+              {!automaticModeSelected &&
+              selectedProviderId === "groq-cloud" &&
+              selectedTarget === null ? (
                 <p className={styles.privateAlphaSecondaryText}>
                   Create approval request stays disabled until one exact Groq
                   model is selected.
                 </p>
+              ) : null}
+              {automaticModeSelected &&
+              automaticCloudRoutingState === "allowed-free-tier-only" &&
+              automaticCloudRouting === null ? (
+                <p className={styles.privateAlphaSecondaryText}>
+                  Free-first automatic routing stays disabled until both the
+                  authenticated metadata-probe permission and the request-scoped
+                  Groq Free-tier confirmation are checked.
+                </p>
+              ) : null}
+              {automaticModeSelected && automaticRoutingResult ? (
+                <div
+                  className={styles.privateAlphaStack}
+                  data-codexforge-private-alpha-routing-result="free-first"
+                >
+                  <div
+                    className={`${styles.privateAlphaTargetSummary} ${
+                      automaticRoutingResult.status === "selected-for-approval"
+                        ? automaticRoutingResult.selectedModelKey ===
+                          PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY
+                          ? styles.privateAlphaTargetCloud
+                          : styles.privateAlphaTargetLocal
+                        : styles.privateAlphaTargetCloud
+                    }`}
+                  >
+                    <div className={styles.privateAlphaTargetMeta}>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>Status</span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          {automaticRoutingResult.status}
+                        </span>
+                      </div>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>
+                          Selected model
+                        </span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          {automaticRoutingResult.selectedModelKey
+                            ? resolveAutomaticSelectedTarget(
+                                automaticRoutingResult.selectedModelKey
+                              ).modelLabel
+                            : "None"}
+                        </span>
+                      </div>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>
+                          Cloud metadata inspected
+                        </span>
+                        <span className={styles.privateAlphaStatusValue}>
+                          {automaticRoutingResult.cloudProviderInspected
+                            ? "Yes"
+                            : "No"}
+                        </span>
+                      </div>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>
+                          Prompt transferred to cloud
+                        </span>
+                        <span className={styles.privateAlphaStatusValue}>False</span>
+                      </div>
+                      <div className={styles.privateAlphaStatusItem}>
+                        <span className={styles.privateAlphaStatusLabel}>
+                          Provider generation performed
+                        </span>
+                        <span className={styles.privateAlphaStatusValue}>False</span>
+                      </div>
+                    </div>
+                    <p className={styles.privateAlphaSectionBody}>
+                      {automaticRoutingResult.decision.explanation}
+                    </p>
+                    <p className={styles.privateAlphaSecondaryText}>
+                      {`Decision reason codes: ${formatRoutingCodes(
+                        automaticRoutingResult.decision.reasonCodes
+                      )}`}
+                    </p>
+                  </div>
+
+                  <div className={styles.privateAlphaTargetSelectorGrid}>
+                    {automaticRoutingResult.decision.candidates.map((candidate) => (
+                      <div
+                        key={`candidate-${candidate.modelKey}`}
+                        className={styles.privateAlphaMiniBlock}
+                      >
+                        <p className={styles.panelEyebrow}>{candidate.modelKey}</p>
+                        <p className={styles.privateAlphaSectionBody}>
+                          {candidate.eligible
+                            ? "Eligible"
+                            : "Not eligible"}
+                        </p>
+                        <p className={styles.privateAlphaSecondaryText}>
+                          {`Reason codes: ${formatRoutingCodes(
+                            candidate.reasonCodes
+                          )}`}
+                        </p>
+                        <p className={styles.privateAlphaSecondaryText}>
+                          {`Rejection codes: ${formatRoutingCodes(
+                            candidate.rejectionCodes
+                          )}`}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className={styles.privateAlphaStack}>
+                    <p className={styles.panelEyebrow}>Runtime snapshots</p>
+                    {automaticRoutingResult.runtimeSnapshots.map((snapshot) => (
+                      <div
+                        key={`snapshot-${snapshot.modelKey}`}
+                        className={styles.privateAlphaAuditItem}
+                      >
+                        <div className={styles.privateAlphaRunRowHeader}>
+                          <div>
+                            <p className={styles.panelEyebrow}>Runtime snapshot</p>
+                            <p className={styles.privateAlphaRunRowTitle}>
+                              {snapshot.modelKey}
+                            </p>
+                          </div>
+                          <span
+                            className={`${styles.panelBadge} ${
+                              snapshot.availability === "available"
+                                ? styles.metricStateReady
+                                : styles.metricStateBlocked
+                            }`}
+                          >
+                            {snapshot.availability}
+                          </span>
+                        </div>
+                        <p className={styles.privateAlphaSecondaryText}>
+                          {`Quota ${snapshot.quotaState} | Observed latency ${
+                            snapshot.observedLatencyMs === null
+                              ? "none"
+                              : `${snapshot.observedLatencyMs}ms`
+                          } | Observed at ${snapshot.observedAt ?? "none"}`}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               ) : null}
             </div>
           </section>
@@ -1910,7 +2558,10 @@ export function PrivateAlphaRunPanel() {
                     <div className={styles.privateAlphaStack}>
                       <div className={styles.privateAlphaCloudExecutionNotice}>
                         Availability and credential checks occur server-side
-                        only after this explicit execute action.
+                        only after this explicit execute action. This
+                        acknowledgement is separate from the earlier
+                        cloud-transfer approval and from the separate
+                        execution-time Groq Free-tier confirmation below.
                       </div>
                       <label
                         className={`${styles.privateAlphaToggle} ${styles.privateAlphaCloudExecutionToggle}`}
@@ -1930,6 +2581,32 @@ export function PrivateAlphaRunPanel() {
                         />
                         <span className={styles.placeholderSummary}>
                           {`This one action will send the exact approved request to Groq Cloud on ${currentRunModelLabel}. One execution attempt is allowed, output will be persisted locally, and there is no automatic routing, retry, or fallback.`}
+                        </span>
+                      </label>
+                      <label
+                        className={`${styles.privateAlphaToggle} ${styles.privateAlphaCloudExecutionToggle}`}
+                        data-codexforge-private-alpha-groq-free-tier-execution-confirmation="required"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={groqFreeTierExecutionAcknowledged}
+                          onChange={(event) =>
+                            setGroqFreeTierExecutionAcknowledged(
+                              event.target.checked
+                            )
+                          }
+                          disabled={
+                            currentRun.state !== "approved" ||
+                            actionInFlight !== null ||
+                            !cloudExecutableRun
+                          }
+                        />
+                        <span className={styles.placeholderSummary}>
+                          I separately confirm that the current Groq account
+                          remains Free tier for this execute-once action. This
+                          is operator attestation only, is not provider
+                          verified, and is distinct from both approval and
+                          cloud-execution acknowledgement.
                         </span>
                       </label>
                       <div className={styles.privateAlphaCloudExecutionMeta}>
@@ -2410,6 +3087,17 @@ export function PrivateAlphaRunPanel() {
                   </p>
                   <p className={styles.privateAlphaTechnicalValue}>
                     {currentExecutionCloudAcknowledgement}
+                  </p>
+                </div>
+              ) : null}
+              {currentExecution?.provider === "groq-cloud" &&
+              currentExecution.groqFreeTierExecutionConfirmation ? (
+                <div className={styles.privateAlphaTechnicalItem}>
+                  <p className={styles.privateAlphaStatusLabel}>
+                    groq Free-tier execution confirmation
+                  </p>
+                  <p className={styles.privateAlphaTechnicalValue}>
+                    {currentExecution.groqFreeTierExecutionConfirmation}
                   </p>
                 </div>
               ) : null}
