@@ -361,13 +361,13 @@ async function main() {
 
   assert(
     groqTypesModule.CODEXFORGE_GROQ_QUALIFICATION_VERSION ===
-      "codexforge-groq-qualification-v1",
-    "Qualification types expose the v1 qualification version."
+      "codexforge-groq-qualification-v2",
+    "Qualification types expose the v2 qualification version."
   );
   assert(Array.isArray(allowedModels) && allowedModels.length === 2, "Qualification types expose exactly two allowed models.");
   assert(
-    qualification.qualificationVersion === "codexforge-groq-qualification-v1",
-    "Qualification metadata version is v1."
+    qualification.qualificationVersion === "codexforge-groq-qualification-v2",
+    "Qualification metadata version is v2."
   );
   assert(qualification.providerId === "groq-cloud", "Qualification provider ID is groq-cloud.");
   assert(qualification.providerLabel === "Groq Cloud", "Qualification provider label is Groq Cloud.");
@@ -388,10 +388,41 @@ async function main() {
     "Qualification metadata records operator-confirmed-free account tier."
   );
   assert(
-    qualification.adapterState === "live-verified" &&
+    qualification.providerTransportQualificationState === "live-verified" &&
+      qualification.manualPrivateAlphaExecutionAdmissionState === "admitted" &&
       qualification.productionRoutingState === "manual-only" &&
-      qualification.models.every((model) => model.qualificationState === "live-verified"),
-    "Qualification metadata records live-verified manual-only routing."
+      qualification.automaticRoutingState === "disabled" &&
+      qualification.models.every(
+        (model) =>
+          model.transportQualificationState === "live-verified" &&
+          model.manualPrivateAlphaExecutionAdmissionState === "admitted" &&
+          model.automaticRoutingState === "disabled"
+      ),
+    "Qualification metadata distinguishes transport qualification, manual admission, and disabled automatic routing."
+  );
+  assert(
+    qualification.liveExecutionAcceptance.acceptanceVersion ===
+      "codexforge-groq-live-execution-acceptance-v1" &&
+      qualification.liveExecutionAcceptance.acceptanceId ===
+        "codexforge-groq-private-alpha-live-execution-20260727-165043" &&
+      qualification.liveExecutionAcceptance.acceptedOn === "2026-07-27" &&
+      qualification.liveExecutionAcceptance.acceptanceCheckpointCommit ===
+        "b17311bb5720a5037edd756d91c266eee7ce6947",
+    "Qualification metadata links to the exact typed live-execution acceptance record."
+  );
+  assert(
+    JSON.stringify(qualification.requiredOperatorAcknowledgements) ===
+      JSON.stringify([
+        "explicit-manual-approval",
+        "cloud-transfer-acknowledgement",
+        "cloud-execution-acknowledgement",
+      ]),
+    "Qualification metadata records the required operator acknowledgements."
+  );
+  assert(
+    qualification.paidExecutionEnabled === false &&
+      qualification.accountTierRevalidationRequired === true,
+    "Qualification metadata keeps paid execution disabled and tier revalidation required."
   );
   assert(
     qualification.models.every((model) => model.dataBoundary === "cloud-provider"),
@@ -408,19 +439,23 @@ async function main() {
   assert(
     qualification.models.every(
       (model) =>
-        model.liveVerifiedOn === "2026-07-26" &&
-        model.operatorTierConfirmedOn === "2026-07-26"
+        model.transportLiveVerifiedOn === "2026-07-26" &&
+        model.operatorTierConfirmedOn === "2026-07-26" &&
+        model.manualPrivateAlphaExecutionAcceptedOn === "2026-07-27"
     ),
-    "Qualification metadata records the live verification and tier confirmation dates."
+    "Qualification metadata records the transport verification, tier confirmation, and manual-admission dates."
   );
   assert(
     qualification.models.every(
       (model) =>
         model.providerReportedContextWindowTokens === 131072 &&
         model.providerReportedMaximumOutputTokens === 65536 &&
-        model.approvedMaximumOutputTokens === 4096
+        model.admittedMaximumOutputTokens === 512 &&
+        model.admittedExecutionEnvelope === "text-only" &&
+        model.liveExecutionAcceptanceId ===
+          "codexforge-groq-private-alpha-live-execution-20260727-165043"
     ),
-    "Qualification metadata records provider limits and the lower CodexForge-approved output cap."
+    "Qualification metadata records provider limits and the admitted manual-execution envelope."
   );
   assert(
     qualification.models.every((model) =>
@@ -430,15 +465,25 @@ async function main() {
   );
   assert(
     qualification.models.every((model) =>
-      model.evidence.includes("exact visible-output qualification completed on 2026-07-26")
+      model.evidence.includes(
+        "exact visible-output transport qualification completed on 2026-07-26"
+      )
     ),
-    "Qualification evidence records exact visible-output qualification."
+    "Qualification evidence records exact visible-output transport qualification."
   );
   assert(
     qualification.models.every((model) =>
-      model.evidence.includes("reasoning was not exposed in live qualification")
+      model.evidence.includes("manual Private Alpha execution admitted on 2026-07-27")
     ),
-    "Qualification evidence records live reasoning privacy."
+    "Qualification evidence records manual Private Alpha execution admission."
+  );
+  assert(
+    qualification.models.every((model) =>
+      model.evidence.includes(
+        "typed acceptance record linked by codexforge-groq-private-alpha-live-execution-20260727-165043"
+      )
+    ),
+    "Qualification evidence records the typed acceptance link."
   );
   assert(
     qualification.models.every((model) =>
@@ -462,6 +507,10 @@ async function main() {
     qualificationCloneA.models[0].evidence !== qualification.models[0].evidence,
     "Qualification getter clones nested evidence arrays."
   );
+  assert(
+    qualificationCloneA.liveExecutionAcceptance !== qualification.liveExecutionAcceptance,
+    "Qualification getter clones the live-execution acceptance reference."
+  );
 
   const productionCatalog = modelRoutingIndexModule.CODEXFORGE_PRODUCTION_MODEL_CATALOG;
   const groqCatalogModels = productionCatalog.models.filter(
@@ -469,8 +518,8 @@ async function main() {
   );
   assert(
     modelRoutingIndexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION ===
-      "codexforge-model-routing-v2",
-    "Production model-routing catalog version is v2."
+      "codexforge-model-routing-v3",
+    "Production model-routing catalog version is v3."
   );
   assert(
     groqCatalogModels.length === 2 &&
@@ -486,9 +535,13 @@ async function main() {
       (model) =>
         model.pricing.costClass === "free-tier" &&
         model.pricing.inputUsdPerMillionTokens === 0 &&
-        model.pricing.outputUsdPerMillionTokens === 0
+        model.pricing.outputUsdPerMillionTokens === 0 &&
+        model.approvedMaximumOutputTokens === 512 &&
+        model.evidence.includes(
+          "codexforge-groq-private-alpha-live-execution-20260727-165043"
+        )
     ),
-    "Groq production-catalog entries remain free-tier metadata only."
+    "Groq production-catalog entries remain free-tier metadata linked to the live-execution admission."
   );
 
   assert(!Object.prototype.hasOwnProperty.call(groqIndex, "readCodexForgeGroqCredential"), "Client-safe index does not export credential access.");

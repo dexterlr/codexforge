@@ -99,14 +99,21 @@ Write-Host ""
 Write-Host "=== CodexForge Jarvis manual provider model selector smoke ==="
 
 $allowedChangedFiles = @(
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "docs/codexforge-private-alpha-groq-live-execution-admission-v0.md",
+  "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1"
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
+  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1"
 )
 
 $requiredFiles = @(
@@ -132,7 +139,7 @@ $parsedScripts = @(
   "scripts\smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts\smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts\smoke-codexforge-model-routing-policy-foundation.ps1",
-  "scripts\smoke-codexforge-private-alpha-provider-adapter-foundation.ps1"
+  "scripts\smoke-codexforge-private-alpha-groq-live-execution-admission.ps1"
 )
 
 foreach ($path in $requiredFiles) {
@@ -157,7 +164,7 @@ $changedPaths = $statusLines |
   } |
   Sort-Object -Unique
 
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the eight allowed smoke-repair files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the fifteen allowed Slice L files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed smoke-repair files: $path"
 }
@@ -176,7 +183,7 @@ Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.t
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Kill switch remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-api-client.ts" "Private-alpha API client remains unchanged"
 Assert-NoGitDiff "src/app/api/codexforge/private-alpha" "Private-alpha API routes remain unchanged"
-Assert-NoGitDiff "src/lib/codexforge/model-routing" "Model-routing source remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/model-routing/model-routing-policy.server.ts" "Model-routing policy remains unchanged"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
 
 $typesSource = Get-Text "src\lib\codexforge\private-alpha\private-alpha-types.ts"
@@ -201,9 +208,9 @@ $approvedCloudWindow = Get-Window $panelSource 'data-codexforge-private-alpha-cl
 $createBlock = Get-Window $panelSource 'createPrivateAlphaRun({' 500
 
 Assert-Contains $catalogSource 'CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION =' "Catalog source declares a catalog version"
-Assert-Contains $catalogSource '"codexforge-model-routing-v2"' "Catalog remains v2"
+Assert-Contains $catalogSource '"codexforge-model-routing-v3"' "Catalog remains v3"
 Assert-Contains $catalogSource 'routingState: "manual-only"' "Groq models remain manual-only"
-Assert-Contains $catalogSource 'modelKey: buildCodexForgeModelKey(CODEXFORGE_GROQ_PROVIDER_ID, modelId)' "Groq catalog entries remain exact-model keyed"
+Assert-Contains $catalogSource 'modelKey: acceptedModel.modelKey,' "Groq catalog entries remain exact-model keyed"
 Assert-NotMatches $catalogSource 'providerId:\s*CODEXFORGE_GROQ_PROVIDER_ID,[\s\S]{0,160}routingState:\s*"automatic"' "Automatic routing still cannot select Groq"
 Assert-Contains $policySource "Manual mode requires an exact manualModelKey; no model was evaluated." "Manual policy still requires an exact manual key"
 Assert-Contains $typesSource "export const PRIVATE_ALPHA_RECORD_VERSION = 1 as const;" "Record version remains 1"

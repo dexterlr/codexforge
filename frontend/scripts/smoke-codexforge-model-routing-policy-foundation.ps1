@@ -440,7 +440,7 @@ function main() {
   ));
 
   assert(!Object.prototype.hasOwnProperty.call(indexModule, "routeCodexForgeModel"), "client-safe index does not export the server router");
-  assert(indexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION === "codexforge-model-routing-v2", "production catalog version is exact");
+  assert(indexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION === "codexforge-model-routing-v3", "production catalog version is exact");
 
   const productionCatalog = indexModule.CODEXFORGE_PRODUCTION_MODEL_CATALOG;
   assert(productionCatalog.providers.length === 2, "production catalog contains exactly two providers");
@@ -486,9 +486,10 @@ function main() {
     assert(groqModel.pricing.costClass === "free-tier", "production Groq model cost class is free-tier");
     assert(groqModel.pricing.inputUsdPerMillionTokens === 0, "production Groq model input token price is zero");
     assert(groqModel.pricing.outputUsdPerMillionTokens === 0, "production Groq model output token price is zero");
-    assert(groqModel.approvedMaximumOutputTokens === 4096, "production Groq model output is capped at 4096");
+    assert(groqModel.approvedMaximumOutputTokens === 512, "production Groq model output is capped at 512");
     assert(groqModel.contextWindowTokens === 131072, "production Groq model context window is 131072");
     assert(Object.keys(groqModel.taskProfileScores).length === 0, "production Groq model has no task-profile score");
+    assert(groqModel.evidence.includes("codexforge-groq-private-alpha-live-execution-20260727-165043"), "production Groq model evidence links to the live-execution admission");
   }
   assert(indexModule.validateCodexForgeModelCatalog(productionCatalog).length === 0, "production catalog validates successfully");
 
@@ -517,9 +518,9 @@ function main() {
   assert(freshCatalog.providers.length === 2, "catalog copy mutations do not affect authoritative provider count");
   assert(freshCatalog.models.length === 3, "catalog copy mutations do not affect authoritative model count");
   assert(freshCatalog.providers[0].label === "Local Ollama", "production provider clone does not mutate the authoritative catalog");
-  assert(freshGroqProvider.notes[0] === "Live-qualified for discovery and visible text generation on 2026-07-26.", "Groq provider notes remain immutable in the authoritative catalog");
-  assert(freshGroq20Model.pricing.sourceLabel === "Operator-confirmed Groq Free tier on 2026-07-26; account limits may change", "nested Groq pricing clone mutation does not mutate the authoritative catalog");
-  assert(freshGroq20Model.evidence[0] === "codexforge-groq-provider-qualification-foundation-clean", "nested Groq evidence clone mutation does not mutate the authoritative catalog");
+  assert(freshGroqProvider.notes[0] === "Transport qualification remains live-verified from 2026-07-26.", "Groq provider notes remain immutable in the authoritative catalog");
+  assert(freshGroq20Model.pricing.sourceLabel === "Operator-confirmed Groq Free tier on 2026-07-26; account tier may change and requires revalidation", "nested Groq pricing clone mutation does not mutate the authoritative catalog");
+  assert(freshGroq20Model.evidence[0] === "codexforge-groq-qualification-v2", "nested Groq evidence clone mutation does not mutate the authoritative catalog");
 
   const productionRuntime = runtimeForModels(productionCatalog.models);
   const productionLocalOnlyDecision = routerModule.routeCodexForgeModel(
@@ -568,7 +569,7 @@ function main() {
       }),
       productionRuntime,
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );
@@ -583,7 +584,7 @@ function main() {
       }),
       productionRuntime,
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );

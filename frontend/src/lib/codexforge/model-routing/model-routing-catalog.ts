@@ -1,3 +1,8 @@
+import { CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE } from "../groq-provider/groq-provider-live-execution-acceptance";
+import {
+  CODEXFORGE_GROQ_PROVIDER_ID,
+  type CodexForgeGroqLiveExecutionAcceptedModelRecord,
+} from "../groq-provider/groq-provider-types";
 import {
   CODEXFORGE_TASK_PROFILES,
   type CodexForgeModelCatalogSnapshot,
@@ -11,18 +16,12 @@ import {
 } from "./model-routing-types";
 
 export const CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION =
-  "codexforge-model-routing-v2";
+  "codexforge-model-routing-v3";
 
-const CODEXFORGE_GROQ_PROVIDER_ID = "groq-cloud";
 const CODEXFORGE_GROQ_PROVIDER_LABEL = "Groq Cloud";
 const CODEXFORGE_GROQ_ADAPTER_ID = "groq-provider-client";
-const CODEXFORGE_GROQ_MODEL_IDS = [
-  "openai/gpt-oss-20b",
-  "openai/gpt-oss-120b",
-] as const;
 const CODEXFORGE_GROQ_PRICING_AS_OF = "2026-07-26";
 const CODEXFORGE_GROQ_CONTEXT_WINDOW_TOKENS = 131072;
-const CODEXFORGE_GROQ_APPROVED_MAXIMUM_OUTPUT_TOKENS = 4096;
 
 export function buildCodexForgeModelKey(
   providerId: CodexForgeProviderId,
@@ -188,18 +187,17 @@ function isMissingLabel(value: string): boolean {
 }
 
 function buildGroqModelDescriptor(
-  modelId: (typeof CODEXFORGE_GROQ_MODEL_IDS)[number]
+  acceptedModel: CodexForgeGroqLiveExecutionAcceptedModelRecord
 ): CodexForgeModelDescriptor {
   return {
-    modelKey: buildCodexForgeModelKey(CODEXFORGE_GROQ_PROVIDER_ID, modelId),
+    modelKey: acceptedModel.modelKey,
     providerId: CODEXFORGE_GROQ_PROVIDER_ID,
-    modelId,
-    label: modelId,
+    modelId: acceptedModel.modelId,
+    label: acceptedModel.modelId,
     routingState: "manual-only",
     qualificationState: "live-verified",
     capabilities: ["text-generation"],
-    approvedMaximumOutputTokens:
-      CODEXFORGE_GROQ_APPROVED_MAXIMUM_OUTPUT_TOKENS,
+    approvedMaximumOutputTokens: acceptedModel.acceptedMaximumOutputTokens,
     contextWindowTokens: CODEXFORGE_GROQ_CONTEXT_WINDOW_TOKENS,
     pricing: {
       costClass: "free-tier",
@@ -208,15 +206,17 @@ function buildGroqModelDescriptor(
       outputUsdPerMillionTokens: 0,
       pricingAsOf: CODEXFORGE_GROQ_PRICING_AS_OF,
       sourceLabel:
-        "Operator-confirmed Groq Free tier on 2026-07-26; account limits may change",
+        "Operator-confirmed Groq Free tier on 2026-07-26; account tier may change and requires revalidation",
     },
     taskProfileScores: {},
     evidence: [
-      "codexforge-groq-provider-qualification-foundation-clean",
-      "live Groq discovery completed on 2026-07-26",
-      "exact visible-output qualification completed on 2026-07-26",
-      "operator-confirmed Free tier on 2026-07-26",
-      "reasoning not exposed in live qualification",
+      "codexforge-groq-qualification-v2",
+      CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId,
+      `exact manual Private Alpha execution admitted on ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedOn}`,
+      "manual-only production routing; automatic Groq routing remains disabled",
+      "text-generation only across the cloud-provider boundary",
+      "manual execution posture keeps retry and fallback disabled",
+      `admitted manual execution envelope is capped at ${acceptedModel.acceptedMaximumOutputTokens} output tokens`,
     ],
   };
 }
@@ -449,11 +449,15 @@ const productionCatalogDraft: CodexForgeModelCatalogSnapshot = {
       catalogState: "enabled",
       adapterId: CODEXFORGE_GROQ_ADAPTER_ID,
       notes: [
-        "Live-qualified for discovery and visible text generation on 2026-07-26.",
-        "Manual routing metadata only.",
-        "Private-alpha execution is not connected.",
-        "Operator-confirmed Free tier on 2026-07-26.",
-        "Account tier and provider limits may change and require revalidation.",
+        "Transport qualification remains live-verified from 2026-07-26.",
+        "Exact manual Private Alpha execution is connected for the admitted Groq model keys.",
+        `Exact 20B and 120B manual execution paths were live-accepted on ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedOn}.`,
+        `Acceptance evidence links to ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId}.`,
+        "Production routing remains manual-only and automatic Groq routing stays disabled.",
+        "Capability remains text-generation only across the cloud-provider boundary.",
+        "Operator-confirmed Groq Free tier may change and requires revalidation.",
+        "Retry and fallback remain disabled by the admitted execution posture.",
+        "The admitted manual Private Alpha execution envelope must not exceed 512 output tokens.",
       ],
     },
   ],
@@ -483,7 +487,9 @@ const productionCatalogDraft: CodexForgeModelCatalogSnapshot = {
         "live Jarvis visible-output acceptance",
       ],
     },
-    ...CODEXFORGE_GROQ_MODEL_IDS.map(buildGroqModelDescriptor),
+    ...CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedModels.map(
+      buildGroqModelDescriptor
+    ),
   ],
 };
 

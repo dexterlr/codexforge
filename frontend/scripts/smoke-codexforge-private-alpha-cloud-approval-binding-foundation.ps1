@@ -62,14 +62,21 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha cloud approval binding foundation smoke ==="
 
 $allowedChangedFiles = @(
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "docs/codexforge-private-alpha-groq-live-execution-admission-v0.md",
+  "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1"
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
+  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1"
 )
 
 $requiredFiles = @(
@@ -116,7 +123,7 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the eight allowed smoke-repair files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the fifteen allowed Slice L files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed smoke-repair files: $path"
 }
@@ -1474,8 +1481,8 @@ async function main() {
   const productionCatalog = modelRoutingIndexModule.CODEXFORGE_PRODUCTION_MODEL_CATALOG;
   assert(
     modelRoutingIndexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION ===
-      "codexforge-model-routing-v2",
-    "model-routing catalog remains v2"
+      "codexforge-model-routing-v3",
+    "model-routing catalog remains v3"
   );
   const groqCatalogModels = productionCatalog.models.filter(
     (model) => model.providerId === "groq-cloud"

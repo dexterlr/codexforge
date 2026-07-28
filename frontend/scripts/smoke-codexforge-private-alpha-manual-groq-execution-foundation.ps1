@@ -84,32 +84,28 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha manual Groq execution foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/index.ts",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
-  "docs/codexforge-private-alpha-manual-groq-execution-foundation-v0.md",
+  "docs/codexforge-private-alpha-groq-live-execution-admission-v0.md",
+  "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1"
 )
 $productFiles = @(
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/index.ts",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css"
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts"
 )
 $parsedScripts = @(
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
@@ -120,7 +116,8 @@ $parsedScripts = @(
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1"
+  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1"
 )
 
 foreach ($path in $allowedChangedFiles) {
@@ -132,13 +129,13 @@ foreach ($path in $parsedScripts) {
 }
 
 $changedPaths = Get-GitChangedPaths
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the seventeen allowed Slice K files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the fifteen allowed Slice L files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed Slice K files: $path"
 }
 
 $changedProductFiles = $changedPaths | Where-Object { $productFiles -contains $_ }
-Assert-True ($changedProductFiles.Count -eq $productFiles.Count) "Only the intended seven product files changed"
+Assert-True ($changedProductFiles.Count -eq $productFiles.Count) "Only the intended five product metadata files changed"
 foreach ($path in $productFiles) {
   Assert-True ($changedPaths -contains $path) "Intended product file changed: $path"
 }
@@ -149,8 +146,9 @@ Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-provider-runtim
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts" "Ollama adapter remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts" "Groq adapter remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts" "Ollama transport remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/groq-provider" "Groq provider modules remain unchanged"
-Assert-NoGitDiff "src/lib/codexforge/model-routing" "Model-routing remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq provider client remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential resolver remains unchanged"
+Assert-NoGitDiff "src/lib/codexforge/model-routing/model-routing-policy.server.ts" "Model-routing policy remains unchanged"
 Assert-NoGitDiff ".codexforge/private-alpha" "Production .codexforge/private-alpha remains untouched"
 
 $panelSource = Get-Text "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
@@ -194,7 +192,7 @@ Assert-Contains $providerSource 'PrivateAlphaProviderExecutionErrorCode = Privat
 Assert-Contains $storeSource 'createPrivateAlphaProviderAdapterForModelKey' "Store imports the exact-model runtime resolver"
 Assert-Contains $storeSource 'providerAdapterResolver' "Store supports the deterministic adapter resolver hook"
 Assert-NotMatches $storeSource 'routeCodexForgeModel|retryCount|retryAttempts|Promise\.all\(' "Store introduces no routing or retry orchestration"
-Assert-Contains $catalogSource '"codexforge-model-routing-v2"' "Model-routing catalog remains v2"
+Assert-Contains $catalogSource '"codexforge-model-routing-v3"' "Model-routing catalog remains v3"
 Assert-Contains $catalogSource 'routingState: "manual-only"' "Groq catalog entries remain manual-only"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"
 foreach ($marker in @("Mission brief", "Blocked action command deck", "Release summary")) {

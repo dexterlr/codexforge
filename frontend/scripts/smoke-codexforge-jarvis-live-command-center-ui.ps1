@@ -83,6 +83,8 @@ function Get-StatusEntries {
 $Failures = New-Object System.Collections.Generic.List[string]
 
 $allowedSliceJPaths = @(
+  "docs/codexforge-private-alpha-groq-live-execution-admission-v0.md",
+  "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
@@ -90,7 +92,13 @@ $allowedSliceJPaths = @(
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1"
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
+  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
+  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts"
 )
 
 $athenaPanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx"
@@ -281,15 +289,21 @@ Add-Result ($liveUiText -notmatch 'https?://') "no external provider URL exists"
 $changedProductSourcePaths = @(
   $productSourceChanges | Where-Object { $_ -match '^src/' }
 )
-$expectedProductSourcePaths = @()
+$expectedProductSourcePaths = @(
+  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts"
+)
 Add-Result (
   $changedPaths.Count -eq $allowedSliceJPaths.Count -and
   @($changedPaths | Where-Object { $allowedSliceJPaths -notcontains $_ }).Count -eq 0
-) "git scope contains exactly the eight allowed smoke-repair files"
+) "git scope contains exactly the sixteen allowed Slice L files"
 Add-Result (
   $changedProductSourcePaths.Count -eq $expectedProductSourcePaths.Count -and
   @($changedProductSourcePaths | Where-Object { $expectedProductSourcePaths -notcontains $_ }).Count -eq 0
-) "no product source changed in the smoke-repair follow-up slice"
+) "only the exact Slice L metadata product sources changed in the follow-up slice"
 Add-Result (
   -not ($changedPaths | Where-Object { $_ -match '^src/app/api/codexforge/private-alpha/' })
 ) "no private-alpha API route changed in this UI slice"

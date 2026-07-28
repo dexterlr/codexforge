@@ -62,14 +62,21 @@ Write-Host ""
 Write-Host "=== CodexForge Groq live qualification admission smoke ==="
 
 $allowedChangedFiles = @(
+  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-live-execution-acceptance.ts",
+  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
+  "src/lib/codexforge/groq-provider/index.ts",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "docs/codexforge-private-alpha-groq-live-execution-admission-v0.md",
+  "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1"
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
+  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1"
 )
 
 $requiredFiles = @(
@@ -95,8 +102,8 @@ foreach ($scriptPath in @(
   "scripts\smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts\smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts\smoke-codexforge-model-routing-policy-foundation.ps1",
-  "scripts\smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
-  "scripts\smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1"
+  "scripts\smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
+  "scripts\smoke-codexforge-private-alpha-groq-live-execution-admission.ps1"
 )) {
   Assert-PowerShellParses $scriptPath
 }
@@ -114,7 +121,7 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the eight allowed smoke-repair files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the fifteen allowed Slice L files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed smoke-repair files: $path"
 }
@@ -480,6 +487,14 @@ function main() {
     "groq-provider",
     "groq-provider-qualification.ts"
   ));
+  const groqAcceptanceModule = require(path.join(
+    repoRoot,
+    "src",
+    "lib",
+    "codexforge",
+    "groq-provider",
+    "groq-provider-live-execution-acceptance.ts"
+  ));
   const modelRoutingIndexModule = require(path.join(
     repoRoot,
     "src",
@@ -499,37 +514,56 @@ function main() {
 
   const allowedModels = groqTypesModule.CODEXFORGE_GROQ_MODEL_IDS;
   const qualification = groqQualificationModule.CODEXFORGE_GROQ_PROVIDER_QUALIFICATION;
+  const acceptance = groqAcceptanceModule.CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE;
 
   assert(
     groqTypesModule.CODEXFORGE_GROQ_QUALIFICATION_VERSION ===
-      "codexforge-groq-qualification-v1",
-    "qualification version constant is v1"
+      "codexforge-groq-qualification-v2",
+    "qualification version constant is v2"
   );
-  assert(qualification.qualificationVersion === "codexforge-groq-qualification-v1", "qualification record version is v1");
+  assert(qualification.qualificationVersion === "codexforge-groq-qualification-v2", "qualification record version is v2");
   assert(qualification.providerId === "groq-cloud", "qualification provider ID is groq-cloud");
-  assert(qualification.adapterState === "live-verified", "qualification adapter state is live-verified");
+  assert(qualification.providerTransportQualificationState === "live-verified", "qualification transport state is live-verified");
+  assert(qualification.manualPrivateAlphaExecutionAdmissionState === "admitted", "qualification manual admission state is admitted");
   assert(qualification.productionRoutingState === "manual-only", "qualification production routing state is manual-only");
+  assert(qualification.automaticRoutingState === "disabled", "qualification automatic routing state is disabled");
   assert(qualification.models.length === 2, "qualification contains exactly two models");
   assert(
     qualification.models[0].modelId === allowedModels[0] &&
       qualification.models[1].modelId === allowedModels[1],
     "qualification model ordering is exact"
   );
+  assert(
+    qualification.liveExecutionAcceptance.acceptanceVersion ===
+      "codexforge-groq-live-execution-acceptance-v1" &&
+      qualification.liveExecutionAcceptance.acceptanceId ===
+        "codexforge-groq-private-alpha-live-execution-20260727-165043" &&
+      qualification.liveExecutionAcceptance.acceptedOn === "2026-07-27" &&
+      qualification.liveExecutionAcceptance.acceptanceCheckpointCommit ===
+        "b17311bb5720a5037edd756d91c266eee7ce6947",
+    "qualification links to the typed acceptance record"
+  );
 
   for (const entry of qualification.models) {
-    assert(entry.qualificationState === "live-verified", "qualification model is live-verified");
+    assert(entry.transportQualificationState === "live-verified", "qualification model transport state is live-verified");
+    assert(entry.manualPrivateAlphaExecutionAdmissionState === "admitted", "qualification model manual admission state is admitted");
     assert(entry.routingState === "manual-only", "qualification model is manual-only");
+    assert(entry.automaticRoutingState === "disabled", "qualification model automatic routing state is disabled");
     assert(entry.accountTierState === "operator-confirmed-free", "qualification model account tier is operator-confirmed-free");
     assert(entry.dataBoundary === "cloud-provider", "qualification model data boundary is cloud-provider");
     assert(entry.capabilities.length === 1 && entry.capabilities[0] === "text-generation", "qualification model capability is text-generation only");
-    assert(entry.liveVerifiedOn === "2026-07-26", "qualification liveVerifiedOn is exact");
+    assert(entry.transportLiveVerifiedOn === "2026-07-26", "qualification transportLiveVerifiedOn is exact");
     assert(entry.operatorTierConfirmedOn === "2026-07-26", "qualification operatorTierConfirmedOn is exact");
+    assert(entry.manualPrivateAlphaExecutionAcceptedOn === "2026-07-27", "qualification manual admission date is exact");
     assert(entry.providerReportedContextWindowTokens === 131072, "qualification provider context window is exact");
     assert(entry.providerReportedMaximumOutputTokens === 65536, "qualification provider maximum output is exact");
-    assert(entry.approvedMaximumOutputTokens === 4096, "qualification approved maximum output remains exact");
+    assert(entry.admittedMaximumOutputTokens === 512, "qualification admitted maximum output is exact");
+    assert(entry.admittedExecutionEnvelope === "text-only", "qualification admitted execution envelope is exact");
+    assert(entry.liveExecutionAcceptanceId === acceptance.acceptanceId, "qualification model links to the typed acceptance ID");
     assert(entry.evidence.includes("authenticated model discovery completed on 2026-07-26"), "qualification evidence records discovery");
-    assert(entry.evidence.includes("exact visible-output qualification completed on 2026-07-26"), "qualification evidence records exact visible-output");
-    assert(entry.evidence.includes("reasoning was not exposed in live qualification"), "qualification evidence records reasoning privacy");
+    assert(entry.evidence.includes("exact visible-output transport qualification completed on 2026-07-26"), "qualification evidence records exact transport visible-output");
+    assert(entry.evidence.includes("manual Private Alpha execution admitted on 2026-07-27"), "qualification evidence records manual execution admission");
+    assert(entry.evidence.includes("typed acceptance record linked by codexforge-groq-private-alpha-live-execution-20260727-165043"), "qualification evidence records the typed acceptance link");
     assert(entry.evidence.includes("operator confirmed Groq Free tier on 2026-07-26"), "qualification evidence records operator-confirmed Free tier");
   }
 
@@ -542,12 +576,13 @@ function main() {
   assert(qualificationCloneA.models !== qualification.models, "qualification getter clones the model list");
   assert(qualificationCloneA.models[0] !== qualification.models[0], "qualification getter clones nested model records");
   assert(qualificationCloneA.models[0].evidence !== qualification.models[0].evidence, "qualification getter clones nested evidence");
+  assert(qualificationCloneA.liveExecutionAcceptance !== qualification.liveExecutionAcceptance, "qualification getter clones the live-execution acceptance reference");
 
   const productionCatalog = modelRoutingIndexModule.CODEXFORGE_PRODUCTION_MODEL_CATALOG;
   assert(
     modelRoutingIndexModule.CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION ===
-      "codexforge-model-routing-v2",
-    "production catalog version is v2"
+      "codexforge-model-routing-v3",
+    "production catalog version is v3"
   );
   assert(productionCatalog.providers.length === 2, "production catalog contains exactly two providers");
   const localProvider = productionCatalog.providers.find(
@@ -566,8 +601,8 @@ function main() {
   assert(groqProvider.locality === "cloud", "Groq provider locality is cloud");
   assert(groqProvider.dataBoundary === "cloud-provider", "Groq provider data boundary is cloud-provider");
   assert(groqProvider.adapterId === "groq-provider-client", "Groq provider adapter id is exact");
-  assert(groqProvider.notes.includes("Manual routing metadata only."), "Groq provider notes keep manual routing only");
-  assert(groqProvider.notes.includes("Operator-confirmed Free tier on 2026-07-26."), "Groq provider notes record operator-confirmed Free tier");
+  assert(groqProvider.notes.includes("Production routing remains manual-only and automatic Groq routing stays disabled."), "Groq provider notes keep automatic routing disabled");
+  assert(groqProvider.notes.includes(`Acceptance evidence links to ${acceptance.acceptanceId}.`), "Groq provider notes link to the acceptance evidence");
 
   assert(productionCatalog.models.length === 3, "production catalog contains exactly three models");
   const localModel = productionCatalog.models.find(
@@ -593,9 +628,9 @@ function main() {
     assert(groqModel.pricing.outputUsdPerMillionTokens === 0, "Groq catalog model output price is zero");
     assert(groqModel.pricing.pricingAsOf === "2026-07-26", "Groq catalog pricingAsOf is exact");
     assert(groqModel.contextWindowTokens === 131072, "Groq catalog context window is exact");
-    assert(groqModel.approvedMaximumOutputTokens === 4096, "Groq catalog approved maximum output is exact");
+    assert(groqModel.approvedMaximumOutputTokens === 512, "Groq catalog approved maximum output is exact");
     assert(Object.keys(groqModel.taskProfileScores).length === 0, "Groq catalog task-profile scores stay empty");
-    assert(groqModel.evidence.includes("reasoning not exposed in live qualification"), "Groq catalog evidence records reasoning privacy");
+    assert(groqModel.evidence.includes(acceptance.acceptanceId), "Groq catalog evidence records the acceptance ID");
   }
 
   assert(
@@ -627,9 +662,9 @@ function main() {
   );
   assert(freshCatalog.providers.length === 2, "catalog clone mutations do not alter provider count");
   assert(freshCatalog.models.length === 3, "catalog clone mutations do not alter model count");
-  assert(freshGroqProvider.notes[0] === "Live-qualified for discovery and visible text generation on 2026-07-26.", "catalog clone mutations do not alter Groq notes");
-  assert(freshGroq20Model.pricing.sourceLabel === "Operator-confirmed Groq Free tier on 2026-07-26; account limits may change", "catalog clone mutations do not alter Groq pricing");
-  assert(freshGroq20Model.evidence[0] === "codexforge-groq-provider-qualification-foundation-clean", "catalog clone mutations do not alter Groq evidence");
+  assert(freshGroqProvider.notes[0] === "Transport qualification remains live-verified from 2026-07-26.", "catalog clone mutations do not alter Groq notes");
+  assert(freshGroq20Model.pricing.sourceLabel === "Operator-confirmed Groq Free tier on 2026-07-26; account tier may change and requires revalidation", "catalog clone mutations do not alter Groq pricing");
+  assert(freshGroq20Model.evidence[0] === "codexforge-groq-qualification-v2", "catalog clone mutations do not alter Groq evidence");
 
   const buildKey = modelRoutingIndexModule.buildCodexForgeModelKey;
   const localBoundaryMismatchErrors = modelRoutingIndexModule.validateCodexForgeModelCatalog(
@@ -786,7 +821,7 @@ function main() {
       policy("manual", { manualModelKey: groq20Model.modelKey }),
       productionRuntime,
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );
@@ -799,7 +834,7 @@ function main() {
       policy("manual", { manualModelKey: groq120Model.modelKey }),
       productionRuntime,
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );
@@ -815,7 +850,7 @@ function main() {
       }),
       productionRuntime,
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );
@@ -829,7 +864,7 @@ function main() {
         [groq20Model.modelKey]: { availability: "unavailable" },
       }),
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );
@@ -843,7 +878,7 @@ function main() {
         [groq20Model.modelKey]: { availability: "unknown" },
       }),
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );
@@ -856,7 +891,7 @@ function main() {
         [groq20Model.modelKey]: { quotaState: "exhausted" },
       }),
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );
@@ -870,7 +905,7 @@ function main() {
         [groq20Model.modelKey]: { quotaState: "unknown" },
       }),
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );
@@ -881,7 +916,7 @@ function main() {
       policy("manual", { manualModelKey: groq20Model.modelKey }),
       productionRuntime,
       ["tool-use"],
-      4096
+      512
     ),
     productionCatalog
   );
@@ -893,19 +928,19 @@ function main() {
       policy("manual", { manualModelKey: groq20Model.modelKey }),
       productionRuntime,
       ["text-generation"],
-      4097
+      513
     ),
     productionCatalog
   );
-  assert(outputExceededDecision.status === "manual-selection-invalid", "output above 4096 rejects manual Groq");
-  assert(hasCode(candidateByKey(outputExceededDecision, groq20Model.modelKey).rejectionCodes, "output-limit-exceeded"), "output above 4096 adds the expected rejection code");
+  assert(outputExceededDecision.status === "manual-selection-invalid", "output above 512 rejects manual Groq");
+  assert(hasCode(candidateByKey(outputExceededDecision, groq20Model.modelKey).rejectionCodes, "output-limit-exceeded"), "output above 512 adds the expected rejection code");
 
   const manualMissingDecision = routerModule.routeCodexForgeModel(
     routeRequest(
       policy("manual", { manualModelKey: null }),
       productionRuntime,
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );
@@ -916,7 +951,7 @@ function main() {
       policy("manual", { manualModelKey: "groq-cloud::unknown-model" }),
       productionRuntime,
       ["text-generation"],
-      4096
+      512
     ),
     productionCatalog
   );

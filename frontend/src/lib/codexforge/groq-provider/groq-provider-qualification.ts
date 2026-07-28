@@ -1,17 +1,18 @@
 import {
-  CODEXFORGE_GROQ_MODEL_IDS,
   CODEXFORGE_GROQ_PROVIDER_ID,
   CODEXFORGE_GROQ_QUALIFICATION_VERSION,
+  type CodexForgeGroqLiveExecutionAcceptanceReference,
+  type CodexForgeGroqLiveExecutionAcceptedModelRecord,
   type CodexForgeGroqQualificationModelRecord,
   type CodexForgeGroqQualificationRecord,
 } from "./groq-provider-types";
+import { CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE } from "./groq-provider-live-execution-acceptance";
 
 const CODEXFORGE_GROQ_PROVIDER_LABEL = "Groq Cloud";
-const CODEXFORGE_GROQ_LIVE_VERIFIED_ON = "2026-07-26";
+const CODEXFORGE_GROQ_TRANSPORT_LIVE_VERIFIED_ON = "2026-07-26";
 const CODEXFORGE_GROQ_OPERATOR_TIER_CONFIRMED_ON = "2026-07-26";
 const CODEXFORGE_GROQ_PROVIDER_REPORTED_CONTEXT_WINDOW_TOKENS = 131072;
 const CODEXFORGE_GROQ_PROVIDER_REPORTED_MAXIMUM_OUTPUT_TOKENS = 65536;
-const CODEXFORGE_GROQ_APPROVED_MAXIMUM_OUTPUT_TOKENS = 4096;
 
 function freezeQualificationModelRecord(
   record: CodexForgeGroqQualificationModelRecord
@@ -23,11 +24,25 @@ function freezeQualificationModelRecord(
   });
 }
 
+function freezeLiveExecutionAcceptanceReference(
+  reference: CodexForgeGroqLiveExecutionAcceptanceReference
+): CodexForgeGroqLiveExecutionAcceptanceReference {
+  return Object.freeze({
+    ...reference,
+  });
+}
+
 function freezeQualificationRecord(
   record: CodexForgeGroqQualificationRecord
 ): CodexForgeGroqQualificationRecord {
   return Object.freeze({
     ...record,
+    liveExecutionAcceptance: freezeLiveExecutionAcceptanceReference(
+      record.liveExecutionAcceptance
+    ),
+    requiredOperatorAcknowledgements: Object.freeze([
+      ...record.requiredOperatorAcknowledgements,
+    ]),
     models: Object.freeze(
       record.models.map(freezeQualificationModelRecord)
     ) as readonly CodexForgeGroqQualificationModelRecord[],
@@ -45,40 +60,62 @@ function cloneQualificationModelRecord(
   });
 }
 
+function cloneLiveExecutionAcceptanceReference(
+  reference: CodexForgeGroqLiveExecutionAcceptanceReference
+): CodexForgeGroqLiveExecutionAcceptanceReference {
+  return freezeLiveExecutionAcceptanceReference({
+    ...reference,
+  });
+}
+
 function cloneQualificationRecord(
   record: CodexForgeGroqQualificationRecord
 ): CodexForgeGroqQualificationRecord {
   return freezeQualificationRecord({
     ...record,
+    liveExecutionAcceptance: cloneLiveExecutionAcceptanceReference(
+      record.liveExecutionAcceptance
+    ),
+    requiredOperatorAcknowledgements: [...record.requiredOperatorAcknowledgements],
     models: record.models.map(cloneQualificationModelRecord),
     policyStatements: [...record.policyStatements],
   });
 }
 
 function buildQualificationModelRecord(
-  modelId: (typeof CODEXFORGE_GROQ_MODEL_IDS)[number]
+  acceptedModel: CodexForgeGroqLiveExecutionAcceptedModelRecord
 ): CodexForgeGroqQualificationModelRecord {
   return freezeQualificationModelRecord({
-    modelId,
-    qualificationState: "live-verified",
+    modelId: acceptedModel.modelId,
+    modelKey: acceptedModel.modelKey,
+    transportQualificationState: "live-verified",
+    manualPrivateAlphaExecutionAdmissionState: "admitted",
     routingState: "manual-only",
+    automaticRoutingState: "disabled",
     accountTierState: "operator-confirmed-free",
     dataBoundary: "cloud-provider",
     capabilities: ["text-generation"],
-    liveVerifiedOn: CODEXFORGE_GROQ_LIVE_VERIFIED_ON,
+    transportLiveVerifiedOn: CODEXFORGE_GROQ_TRANSPORT_LIVE_VERIFIED_ON,
     operatorTierConfirmedOn: CODEXFORGE_GROQ_OPERATOR_TIER_CONFIRMED_ON,
+    manualPrivateAlphaExecutionAcceptedOn:
+      CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedOn,
     providerReportedContextWindowTokens:
       CODEXFORGE_GROQ_PROVIDER_REPORTED_CONTEXT_WINDOW_TOKENS,
     providerReportedMaximumOutputTokens:
       CODEXFORGE_GROQ_PROVIDER_REPORTED_MAXIMUM_OUTPUT_TOKENS,
-    approvedMaximumOutputTokens: CODEXFORGE_GROQ_APPROVED_MAXIMUM_OUTPUT_TOKENS,
+    admittedMaximumOutputTokens: acceptedModel.acceptedMaximumOutputTokens,
+    admittedExecutionEnvelope:
+      CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.admittedExecutionEnvelope,
+    liveExecutionAcceptanceId:
+      CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId,
     evidence: [
       "official Groq model identifier",
-      "deterministic fake-transport qualification",
       "authenticated model discovery completed on 2026-07-26",
-      "exact visible-output qualification completed on 2026-07-26",
-      "reasoning was not exposed in live qualification",
+      "exact visible-output transport qualification completed on 2026-07-26",
+      `manual Private Alpha execution admitted on ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedOn}`,
+      `typed acceptance record linked by ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId}`,
       "operator confirmed Groq Free tier on 2026-07-26",
+      "text-only manual Private Alpha execution envelope is capped at 512 output tokens",
     ],
   });
 }
@@ -87,20 +124,35 @@ export const CODEXFORGE_GROQ_PROVIDER_QUALIFICATION = freezeQualificationRecord(
   qualificationVersion: CODEXFORGE_GROQ_QUALIFICATION_VERSION,
   providerId: CODEXFORGE_GROQ_PROVIDER_ID,
   providerLabel: CODEXFORGE_GROQ_PROVIDER_LABEL,
-  adapterState: "live-verified",
+  providerTransportQualificationState: "live-verified",
+  manualPrivateAlphaExecutionAdmissionState: "admitted",
   productionRoutingState: "manual-only",
-  models: CODEXFORGE_GROQ_MODEL_IDS.map(
+  automaticRoutingState: "disabled",
+  liveExecutionAcceptance: {
+    acceptanceVersion:
+      CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceVersion,
+    acceptanceId: CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId,
+    acceptedOn: CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedOn,
+    acceptanceCheckpointCommit:
+      CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceCheckpointCommit,
+  },
+  requiredOperatorAcknowledgements: [
+    ...CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.requiredOperatorAcknowledgements,
+  ],
+  paidExecutionEnabled: false,
+  accountTierRevalidationRequired: true,
+  models: CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedModels.map(
     buildQualificationModelRecord
   ) as readonly CodexForgeGroqQualificationModelRecord[],
   policyStatements: [
-    "Provider metadata is admitted for manual routing only.",
-    "Automatic Groq routing remains disabled.",
-    "Current private-alpha execution remains local-only.",
-    "The Groq Free tier was operator-confirmed on 2026-07-26.",
-    "Account-tier status must be revalidated if the organisation changes.",
-    "Cloud data transfer requires explicit future approval.",
+    "Provider transport qualification remains live-verified from 2026-07-26.",
+    "Exact manual Private Alpha execution is admitted only for groq-cloud::openai/gpt-oss-20b and groq-cloud::openai/gpt-oss-120b.",
+    "Admitted manual Private Alpha execution is text only and capped at 512 output tokens.",
+    "Production routing remains manual-only and automatic Groq routing stays disabled.",
+    "Explicit manual approval plus separate cloud-transfer and cloud-execution acknowledgements remain mandatory.",
     "Paid execution is not enabled.",
-    "Catalog admission is not execution integration.",
+    "Account-tier status may change and requires revalidation.",
+    `Live execution acceptance occurred on ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedOn} under ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId}.`,
   ],
 });
 
