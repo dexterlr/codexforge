@@ -140,6 +140,59 @@ export function isPrivateAlphaFreeFirstRoutingSelectedModelKey(
   );
 }
 
+export function isPrivateAlphaFreeFirstRoutingResultSafeForCreate(
+  result: PrivateAlphaFreeFirstRoutingResult
+): boolean {
+  if (
+    result.policyVersion !== PRIVATE_ALPHA_FREE_FIRST_ROUTING_POLICY_VERSION ||
+    result.status !== "selected-for-approval" ||
+    !isPrivateAlphaFreeFirstRoutingSelectedModelKey(result.selectedModelKey) ||
+    result.decision.status !== "selected" ||
+    result.decision.mode !== "free-first" ||
+    result.decision.selectedModelKey !== result.selectedModelKey ||
+    result.decision.recommendedPaidModelKey !== null ||
+    result.decision.requiresPaidApproval !== false ||
+    result.promptTransferredToCloud !== false ||
+    result.providerGenerationPerformed !== false
+  ) {
+    return false;
+  }
+
+  const allowlistedModelKeys = new Set<string>(
+    PRIVATE_ALPHA_FREE_FIRST_ROUTING_SELECTED_MODEL_KEYS
+  );
+  const seenCandidateModelKeys = new Set<string>();
+  let selectedCandidateCount = 0;
+
+  for (const candidate of result.decision.candidates) {
+    if (seenCandidateModelKeys.has(candidate.modelKey)) {
+      return false;
+    }
+    seenCandidateModelKeys.add(candidate.modelKey);
+
+    if (candidate.modelKey === result.selectedModelKey) {
+      selectedCandidateCount += 1;
+
+      if (candidate.eligible !== true || candidate.rejectionCodes.length !== 0) {
+        return false;
+      }
+
+      continue;
+    }
+
+    if (!allowlistedModelKeys.has(candidate.modelKey)) {
+      if (
+        candidate.eligible !== false ||
+        !candidate.rejectionCodes.includes("candidate-not-allowed")
+      ) {
+        return false;
+      }
+    }
+  }
+
+  return selectedCandidateCount === 1;
+}
+
 export function validatePrivateAlphaFreeFirstRoutingInput(
   input: unknown
 ): PrivateAlphaFreeFirstRoutingValidationResult<PrivateAlphaFreeFirstRoutingInput> {

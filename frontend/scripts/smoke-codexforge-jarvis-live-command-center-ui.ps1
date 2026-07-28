@@ -83,38 +83,16 @@ function Get-StatusEntries {
 $Failures = New-Object System.Collections.Generic.List[string]
 
 $allowedSliceJPaths = @(
-  "docs/codexforge-private-alpha-free-first-automatic-routing-policy-integration-v0.md",
-  "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
-  "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
-  "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
-  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/model-routing/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
-  "src/lib/codexforge/model-routing/model-routing-types.ts",
   "src/lib/codexforge/private-alpha/index.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts"
 )
 
 $athenaPanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx"
@@ -307,40 +285,27 @@ $changedProductSourcePaths = @(
   $productSourceChanges | Where-Object { $_ -match '^src/' }
 )
 $expectedProductSourcePaths = @(
-  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/model-routing/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
-  "src/lib/codexforge/model-routing/model-routing-types.ts",
   "src/lib/codexforge/private-alpha/index.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts"
 )
 Add-Result (
   $changedPaths.Count -eq $allowedSliceJPaths.Count -and
   @($changedPaths | Where-Object { $allowedSliceJPaths -notcontains $_ }).Count -eq 0
-) "git scope contains exactly the thirty-two allowed Slice M files"
+) "git scope contains exactly the ten allowed routing-repair files"
 Add-Result (
   $changedProductSourcePaths.Count -eq $expectedProductSourcePaths.Count -and
   @($changedProductSourcePaths | Where-Object { $expectedProductSourcePaths -notcontains $_ }).Count -eq 0
-) "only the exact Slice M product source paths changed in this UI follow-up slice"
+) "only the exact routing-repair product source paths changed in this UI follow-up slice"
 Add-Result (
-  $changedPaths -contains "src/app/api/codexforge/private-alpha/routing/free-first/route.ts"
-) "the Slice M UI follow-up includes only the free-first private-alpha API route path"
+  $changedPaths -contains "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx"
+) "the routing-repair UI follow-up updates the PrivateAlphaRunPanel client composition"
 Add-Result (
-  $changedPaths -contains "src/lib/codexforge/private-alpha/private-alpha-api-client.ts"
-) "the Slice M UI follow-up includes the free-first private-alpha API client update"
+  $changedPaths -contains "src/lib/codexforge/private-alpha/index.ts"
+) "the routing-repair UI follow-up updates the private-alpha index export surface"
+Add-Result (
+  $changedPaths -contains "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts"
+) "the routing-repair UI follow-up updates the free-first create-safety types"
 Add-Result ($changedTypeScriptText -notmatch ':\s*any\b|\bas any\b|<any>') "no any or as any was introduced"
 Add-Result ($changedUiText -notmatch 'ts-nocheck|ts-expect-error') "no ts-nocheck or ts-expect-error was introduced"
 Add-Result ($commandDeckRole.Contains("commandDeckRole: CodexForgeCommandDeckRole;")) "commandDeckRole remains strongly typed"

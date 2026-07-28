@@ -19,7 +19,6 @@ import type {
 import {
   PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
   PRIVATE_ALPHA_DATA_ROOT_LABEL,
-  PRIVATE_ALPHA_FREE_FIRST_ROUTING_SELECTED_MODEL_KEYS,
   PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS,
   PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
   PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
@@ -32,8 +31,8 @@ import {
   PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL,
   PRIVATE_ALPHA_RUNTIME_MODEL_KEYS,
   PRIVATE_ALPHA_SECRET_GUIDANCE,
-  isPrivateAlphaFreeFirstRoutingSelectedModelKey,
   isPrivateAlphaCloudExecutionConfiguration,
+  isPrivateAlphaFreeFirstRoutingResultSafeForCreate,
   isPrivateAlphaLocalExecutionConfiguration,
   resolvePrivateAlphaBoundConfiguration,
 } from "@/lib/codexforge/private-alpha";
@@ -1080,38 +1079,21 @@ export function PrivateAlphaRunPanel() {
         });
         setAutomaticRoutingResult(routingResult);
 
-        const unexpectedCandidate = routingResult.decision.candidates.some(
-          (candidate) =>
-            !PRIVATE_ALPHA_FREE_FIRST_ROUTING_SELECTED_MODEL_KEYS.some(
-              (modelKey) => modelKey === candidate.modelKey
-            )
-        );
-        if (unexpectedCandidate) {
-          setErrorMessage(
-            "Automatic routing returned a candidate outside the approved Private Alpha allowlist."
-          );
-          return;
-        }
-
         if (routingResult.status !== "selected-for-approval") {
           return;
         }
 
-        const selectedModelKey = routingResult.selectedModelKey;
-        if (!isPrivateAlphaFreeFirstRoutingSelectedModelKey(selectedModelKey)) {
+        if (!isPrivateAlphaFreeFirstRoutingResultSafeForCreate(routingResult)) {
           setErrorMessage(
-            "Automatic routing returned an unexpected selected model key."
+            "Automatic routing returned an unsafe selected result."
           );
           return;
         }
 
-        if (
-          !routingResult.decision.candidates.some(
-            (candidate) => candidate.modelKey === selectedModelKey
-          )
-        ) {
+        const selectedModelKey = routingResult.selectedModelKey;
+        if (selectedModelKey === null) {
           setErrorMessage(
-            "Automatic routing returned a selected model that did not match its evaluated candidate list."
+            "Automatic routing returned an unsafe selected result."
           );
           return;
         }

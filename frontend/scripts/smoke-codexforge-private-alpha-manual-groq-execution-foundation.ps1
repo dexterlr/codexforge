@@ -84,59 +84,21 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha manual Groq execution foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "docs/codexforge-private-alpha-free-first-automatic-routing-policy-integration-v0.md",
-  "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
-  "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
-  "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
-  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/model-routing/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
-  "src/lib/codexforge/model-routing/model-routing-types.ts",
   "src/lib/codexforge/private-alpha/index.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts"
 )
 $productFiles = @(
-  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/model-routing/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
-  "src/lib/codexforge/model-routing/model-routing-types.ts",
   "src/lib/codexforge/private-alpha/index.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts"
 )
 $parsedScripts = @(
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
@@ -160,13 +122,13 @@ foreach ($path in $parsedScripts) {
 }
 
 $changedPaths = Get-GitChangedPaths
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the thirty-two allowed Slice M files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the ten allowed routing-repair files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed Slice K files: $path"
 }
 
 $changedProductFiles = $changedPaths | Where-Object { $productFiles -contains $_ }
-Assert-True ($changedProductFiles.Count -eq $productFiles.Count) "Only the intended Slice M product source paths changed"
+Assert-True ($changedProductFiles.Count -eq $productFiles.Count) "Only the intended routing-repair product source paths changed"
 foreach ($path in $productFiles) {
   Assert-True ($changedPaths -contains $path) "Intended product file changed: $path"
 }

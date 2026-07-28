@@ -62,38 +62,16 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha cloud approval binding foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "docs/codexforge-private-alpha-free-first-automatic-routing-policy-integration-v0.md",
-  "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
-  "scripts/smoke-codexforge-groq-provider-qualification-foundation.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
-  "scripts/smoke-codexforge-model-routing-policy-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-provider-adapter-foundation.ps1",
-  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-automatic-routing-admission.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-qualification.ts",
-  "src/lib/codexforge/groq-provider/groq-provider-types.ts",
-  "src/lib/codexforge/groq-provider/index.ts",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/model-routing/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
-  "src/lib/codexforge/model-routing/model-routing-types.ts",
   "src/lib/codexforge/private-alpha/index.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-api-client.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
+  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts"
 )
 
 $requiredFiles = @(
@@ -140,7 +118,7 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the thirty-two allowed Slice M files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the ten allowed routing-repair files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed smoke-repair files: $path"
 }
@@ -223,7 +201,9 @@ Assert-NotMatches $privateAlphaPanelSource '\bfetch\s*\(' "PrivateAlphaRunPanel 
 Assert-Contains $privateAlphaCssSource '.privateAlphaTargetSelectorGrid' "Private-alpha CSS includes the target selector layout"
 Assert-Contains $privateAlphaCssSource '.privateAlphaCloudApprovalNotice' "Private-alpha CSS includes the cloud approval notice"
 Assert-True ((& git -c core.safecrlf=false diff --name-only -- src/app/api/codexforge/private-alpha/status src/app/api/codexforge/private-alpha/runs 2>$null | Measure-Object).Count -eq 0) "Existing private-alpha status and run routes remain unchanged"
-Assert-True ((& git -c core.safecrlf=false diff --name-only -- src/lib/codexforge/private-alpha/private-alpha-api-client.ts 2>$null | Measure-Object).Count -gt 0) "Private-alpha API client changed for the free-first routing endpoint"
+Assert-True ((& git -c core.safecrlf=false diff --name-only -- src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx 2>$null | Measure-Object).Count -gt 0) "PrivateAlphaRunPanel changed for the client-side routing repair"
+Assert-True ((& git -c core.safecrlf=false diff --name-only -- src/lib/codexforge/private-alpha/index.ts 2>$null | Measure-Object).Count -gt 0) "Private-alpha index changed to export the create-safety guard"
+Assert-True ((& git -c core.safecrlf=false diff --name-only -- src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts 2>$null | Measure-Object).Count -gt 0) "Free-first routing types changed for the create-safety guard"
 
 $plainTokenPattern = '\b' + 'a' + 'ny' + '\b'
 $asTokenPattern = '\b' + 'as ' + 'a' + 'ny' + '\b'

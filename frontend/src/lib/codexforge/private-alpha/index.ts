@@ -118,6 +118,7 @@ export {
   PRIVATE_ALPHA_FREE_FIRST_ROUTING_POLICY_VERSION,
   PRIVATE_ALPHA_FREE_FIRST_ROUTING_SELECTED_MODEL_KEYS,
   clonePrivateAlphaFreeFirstRoutingResult,
+  isPrivateAlphaFreeFirstRoutingResultSafeForCreate,
   isPrivateAlphaFreeFirstRoutingSelectedModelKey,
   validatePrivateAlphaFreeFirstRoutingInput,
 } from "./private-alpha-free-first-routing-types";

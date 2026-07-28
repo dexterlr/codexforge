@@ -87,6 +87,7 @@ $requiredFiles = @(
   "scripts\smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "src\app\api\codexforge\private-alpha\routing\free-first\route.ts",
   "src\lib\codexforge\groq-provider\groq-provider-automatic-routing-admission.ts",
+  "src\lib\codexforge\private-alpha\index.ts",
   "src\lib\codexforge\private-alpha\private-alpha-free-first-routing-types.ts",
   "src\lib\codexforge\private-alpha\private-alpha-free-first-routing.server.ts",
   "src\lib\codexforge\private-alpha\private-alpha-api-client.ts",
@@ -112,6 +113,7 @@ foreach ($file in $requiredFiles) {
 Assert-PowerShellParses "scripts\smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1"
 
 $acceptancePath = "src\lib\codexforge\groq-provider\groq-provider-live-execution-acceptance.ts"
+$privateAlphaIndexPath = "src\lib\codexforge\private-alpha\index.ts"
 $routingTypesPath = "src\lib\codexforge\private-alpha\private-alpha-free-first-routing-types.ts"
 $routingServerPath = "src\lib\codexforge\private-alpha\private-alpha-free-first-routing.server.ts"
 $routingRoutePath = "src\app\api\codexforge\private-alpha\routing\free-first\route.ts"
@@ -120,9 +122,11 @@ $panelPath = "src\lib\codexforge\jarvis-unified-product-ia-map\components\Privat
 $cssPath = "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisUnifiedProductShell.module.css"
 $groqClientPath = "src\lib\codexforge\groq-provider\groq-provider-client.server.ts"
 $groqQualificationPath = "src\lib\codexforge\groq-provider\groq-provider-qualification.ts"
+$catalogPath = "src\lib\codexforge\model-routing\model-routing-catalog.ts"
 $aggregatePath = "scripts\smoke-codexforge-all.ps1"
 
 $acceptanceSource = Get-Text $acceptancePath
+$privateAlphaIndexSource = Get-Text $privateAlphaIndexPath
 $routingTypesSource = Get-Text $routingTypesPath
 $routingServerSource = Get-Text $routingServerPath
 $routingRouteSource = Get-Text $routingRoutePath
@@ -131,9 +135,33 @@ $panelSource = Get-Text $panelPath
 $cssSource = Get-Text $cssPath
 $groqClientSource = Get-Text $groqClientPath
 $groqQualificationSource = Get-Text $groqQualificationPath
+$catalogSource = Get-Text $catalogPath
 $aggregateSource = Get-Text $aggregatePath
 $routeWindow = Get-Window $panelSource 'const routingResult = await routePrivateAlphaFreeFirst({' 700
+$automaticGuardWindow = Get-Window $panelSource 'if (!isPrivateAlphaFreeFirstRoutingResultSafeForCreate(routingResult)) {' 400
 $automaticCreateWindow = Get-Window $panelSource 'const result = await createPrivateAlphaRun({' 900
+$automaticTargetWindow = Get-Window $panelSource 'function resolveAutomaticSelectedTarget(' 400
+$panelGuardIndex = $panelSource.IndexOf('if (!isPrivateAlphaFreeFirstRoutingResultSafeForCreate(routingResult)) {')
+$panelCreateIndex = $panelSource.IndexOf('const result = await createPrivateAlphaRun({')
+$aggregateExecutableCount = 0
+$countCurrentReleaseGateEntries = $false
+foreach ($line in Get-Content -LiteralPath (Join-Path $root $aggregatePath)) {
+  if ($line -eq '$currentReleaseGateScripts = @(') {
+    $countCurrentReleaseGateEntries = $true
+    continue
+  }
+
+  if ($countCurrentReleaseGateEntries -and $line -eq ')') {
+    break
+  }
+
+  if (
+    $countCurrentReleaseGateEntries -and
+    $line -match '^\s*@\{ Name = ".*"; File = .*; Required = \$(?:true|false) \},?$'
+  ) {
+    $aggregateExecutableCount += 1
+  }
+}
 
 Assert-NoGitDiff $acceptancePath "Historical live-execution acceptance file remains unchanged"
 Assert-Contains $acceptanceSource 'automaticRoutingUsed: false' "Historical live acceptance still records automaticRoutingUsed: false"
@@ -142,8 +170,10 @@ Assert-Contains $routingServerSource 'import "server-only";' "Routing orchestrat
 Assert-Contains $routingRouteSource 'routePrivateAlphaFreeFirst' "Routing API route imports the free-first server orchestrator"
 Assert-Contains $routingTypesSource 'PRIVATE_ALPHA_FREE_FIRST_ROUTING_POLICY_VERSION =' "Routing types define the exact Slice M policy version"
 Assert-Contains $routingTypesSource 'PRIVATE_ALPHA_FREE_FIRST_ROUTING_SELECTED_MODEL_KEYS = [' "Routing types define the exact automatic candidate allowlist"
+Assert-Contains $routingTypesSource 'export function isPrivateAlphaFreeFirstRoutingResultSafeForCreate(' "Routing types export the create-safety result guard"
 Assert-Contains $routingTypesSource 'cloudRouting.metadataProbeAcknowledgement must be exactly true when cloud routing is allowed.' "Routing validator requires exact metadata-probe acknowledgement"
 Assert-Contains $routingTypesSource 'cloudRouting.freeTierConfirmation must be exactly true when cloud routing is allowed.' "Routing validator requires exact Free-tier confirmation"
+Assert-Contains $privateAlphaIndexSource 'isPrivateAlphaFreeFirstRoutingResultSafeForCreate,' "Private-alpha index re-exports the create-safety result guard"
 Assert-NotMatches $routingServerSource 'createPrivateAlphaStore|createRun\(|approveRun\(|executeRun\(|generateApprovedText|writeJsonFileAtomically|mkdir|writeFile|appendFile|\.codexforge/private-alpha' "Routing orchestrator performs no persistence or generation work"
 Assert-NotMatches $routingRouteSource 'createPrivateAlphaStore|createRun\(|approveRun\(|executeRun\(|generateApprovedText|\.codexforge/private-alpha' "Routing API route performs no persistence or generation work"
 Assert-Contains $routingRouteSource 'return NextResponse.json({ ok: true, result });' "Routing API route returns HTTP 200 with the safe result payload"
@@ -161,12 +191,18 @@ Assert-Contains $panelSource 'data-codexforge-private-alpha-free-tier-confirmati
 Assert-Contains $panelSource 'data-codexforge-private-alpha-groq-free-tier-execution-confirmation="required"' "UI exposes the execution-time Groq Free-tier confirmation"
 Assert-Contains $panelSource 'Route then create approval request' "UI exposes the route-then-create action"
 Assert-Contains $panelSource 'routePrivateAlphaFreeFirst({' "UI calls the routing endpoint before automatic create"
+Assert-Contains $panelSource 'setAutomaticRoutingResult(routingResult);' "UI preserves routing results for blocked and no-eligible visibility"
+Assert-Contains $automaticGuardWindow 'if (!isPrivateAlphaFreeFirstRoutingResultSafeForCreate(routingResult)) {' "UI guards automatic create with the safe-result validator"
+Assert-True (($panelGuardIndex -ge 0) -and ($panelCreateIndex -gt $panelGuardIndex)) "PrivateAlphaRunPanel uses the guard before createPrivateAlphaRun"
 Assert-NotMatches $routeWindow 'requestText\s*:|modelKey\s*:|modelPreferenceLabel\s*:|candidateModelKeys\s*:|maximumEstimatedCostUsd\s*:|paidApprovalState\s*:|paidExecutionAdmission\s*:|freeTierConfirmationState\s*:' "Routing request payload sends no prompt text, model key, or policy knobs from the browser"
 Assert-Contains $automaticCreateWindow 'requestText: capturedDraft.requestText' "Automatic create payload includes the captured request text"
 Assert-Contains $automaticCreateWindow 'capability: "text"' "Automatic create payload includes the fixed text capability"
 Assert-Contains $automaticCreateWindow 'modelKey: exactTarget.modelKey' "Automatic create payload includes the selected exact model key"
 Assert-Contains $automaticCreateWindow 'modelPreferenceLabel: exactTarget.modelLabel' "Automatic create payload derives the exact label from the allowlisted mapping"
 Assert-Contains $automaticCreateWindow 'maximumOutputTokens: capturedDraft.maximumOutputTokens' "Automatic create payload includes the captured output-token limit"
+Assert-Contains $automaticTargetWindow 'case PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY:' "Automatic selected-key mapping keeps the exact local case"
+Assert-Contains $automaticTargetWindow 'case PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY:' "Automatic selected-key mapping keeps the exact Groq 20B case"
+Assert-NotMatches $automaticTargetWindow 'PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY' "Groq 120B remains outside the automatic selected-key mapping"
 Assert-NotMatches $automaticCreateWindow 'routingMode|cloudRouting|candidateModelKeys|maximumEstimatedCostUsd|paidApprovalState|paidExecutionAdmission|freeTierConfirmation|metadataProbeAcknowledgement' "Automatic create payload contains no routing metadata"
 Assert-NotMatches $panelSource 'localStorage|sessionStorage|indexedDB|document\.cookie' "UI stores routing state only in React state"
 Assert-Contains $panelSource 'groqFreeTierExecutionConfirmation: true' "Groq execute payload includes the execution-time Free-tier confirmation"
@@ -176,7 +212,9 @@ Assert-Contains $cssSource '.privateAlphaRequestModeSelected' "CSS includes sele
 Assert-NotMatches ($groqClientSource + "`n" + $groqQualificationSource + "`n" + $routingServerSource) 'service_tier' "Slice M introduces no service_tier field"
 Assert-NotMatches ($groqClientSource + "`n" + $groqQualificationSource + "`n" + $routingServerSource) '/tiers|tierApi|account-plan|planApi' "Slice M introduces no provider tier endpoint"
 Assert-Contains $groqQualificationSource 'request-scoped-operator-confirmation' "Groq qualification records request-scoped operator confirmation"
+Assert-Contains $catalogSource 'Groq 120B must remain manual-only with no automatic routing admission' "Production catalog keeps Groq 120B manual-only"
 Assert-Contains $aggregateSource 'smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1' "Aggregate smoke suite registers the Slice M smoke"
+Assert-True ($aggregateExecutableCount -eq 63) "Aggregate executable count remains 63"
 
 $nodeScript = @'
 const fs = require("fs");
@@ -389,6 +427,16 @@ async function main() {
     "private-alpha-provider.server.ts"
   ));
 
+  assert(
+    typeof routingTypes.isPrivateAlphaFreeFirstRoutingResultSafeForCreate === "function",
+    "Routing types export the create-safety guard at runtime."
+  );
+  assert(
+    privateAlpha.isPrivateAlphaFreeFirstRoutingResultSafeForCreate ===
+      routingTypes.isPrivateAlphaFreeFirstRoutingResultSafeForCreate,
+    "Private-alpha index re-exports the exact create-safety guard."
+  );
+
   function provider(id, locality, catalogState) {
     return {
       providerId: id,
@@ -585,6 +633,70 @@ async function main() {
     const found = decision.candidates.find((candidate) => candidate.modelKey === modelKey);
     assert(Boolean(found), `missing candidate ${modelKey}`);
     return found;
+  }
+
+  function resolveAutomaticSelectedTarget(modelKey) {
+    switch (modelKey) {
+      case privateAlpha.PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY:
+        return {
+          modelKey: privateAlpha.PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
+          modelLabel: "gpt-oss:20b",
+        };
+      case privateAlpha.PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY:
+        return {
+          modelKey: privateAlpha.PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+          modelLabel: "openai/gpt-oss-20b",
+        };
+      default:
+        throw new Error(`Unexpected automatic selected model key ${modelKey}`);
+    }
+  }
+
+  function simulateAutomaticCreateHandoff(routingResult, capturedDraft) {
+    const observed = {
+      preservedRoutingResult: routingResult,
+      createHandoffs: [],
+      errorMessage: null,
+    };
+
+    if (routingResult.status !== "selected-for-approval") {
+      return observed;
+    }
+
+    if (!routingTypes.isPrivateAlphaFreeFirstRoutingResultSafeForCreate(routingResult)) {
+      observed.errorMessage = "Automatic routing returned an unsafe selected result.";
+      return observed;
+    }
+
+    const exactTarget = resolveAutomaticSelectedTarget(routingResult.selectedModelKey);
+    observed.createHandoffs.push({
+      requestText: capturedDraft.requestText,
+      capability: "text",
+      modelKey: exactTarget.modelKey,
+      modelPreferenceLabel: exactTarget.modelLabel,
+      maximumOutputTokens: capturedDraft.maximumOutputTokens,
+    });
+
+    return observed;
+  }
+
+  function assertUnsafeAutomaticCreateScenario(result, message) {
+    const simulated = simulateAutomaticCreateHandoff(result, {
+      requestText: "simulated request",
+      maximumOutputTokens: 512,
+    });
+    assert(
+      routingTypes.isPrivateAlphaFreeFirstRoutingResultSafeForCreate(result) === false,
+      `${message} fails the new create-safety guard.`
+    );
+    assert(
+      simulated.createHandoffs.length === 0,
+      `${message} produces zero create handoffs.`
+    );
+    assert(
+      simulated.errorMessage === "Automatic routing returned an unsafe selected result.",
+      `${message} yields the bounded unsafe-result error.`
+    );
   }
 
   function buildIdentity(modelKey, approvedMaximumOutputTokens) {
@@ -1396,6 +1508,41 @@ async function main() {
     !fs.existsSync(toAbsolutePath(routeOnlyLabel)),
     "Automatic routing selection alone performs no store write."
   );
+  const localFirstGroq120Candidate = candidateByKey(
+    localFirstSelection.result.decision,
+    privateAlpha.PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY
+  );
+  assert(
+    localFirstGroq120Candidate.eligible === false &&
+      hasCode(localFirstGroq120Candidate.rejectionCodes, "candidate-not-allowed"),
+    "Valid local-first selected results keep Groq 120B visible, ineligible, and candidate-not-allowed."
+  );
+  assert(
+    routingTypes.isPrivateAlphaFreeFirstRoutingResultSafeForCreate(localFirstSelection.result) ===
+      true,
+    "Valid local-first selected result is safe for create."
+  );
+  const simulatedLocalFirstCreate = simulateAutomaticCreateHandoff(
+    localFirstSelection.result,
+    {
+      requestText: "route-only local",
+      maximumOutputTokens: 512,
+    }
+  );
+  assert(
+    simulatedLocalFirstCreate.preservedRoutingResult === localFirstSelection.result &&
+      simulatedLocalFirstCreate.createHandoffs.length === 1,
+    "Valid local-first selected result produces exactly one simulated create handoff."
+  );
+  assert(
+    JSON.stringify(localFirstSelection.inspectCalls) ===
+      JSON.stringify([privateAlpha.PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY]),
+    "Valid local-first selected result inspects only the local runtime."
+  );
+  assert(
+    groqCredentialReadCount === 0 && fetchCallCount === 0,
+    "Valid local-first selected result performs zero Groq credential and network calls."
+  );
 
   const higherGroqCatalog = cloneJson(productionCatalog);
   higherGroqCatalog.models = higherGroqCatalog.models.map((entry) => {
@@ -1459,6 +1606,32 @@ async function main() {
   assert(
     localUnavailableCloudDisallowed.inspectCalls.length === 1,
     "Local unavailable plus cloud disallowed makes zero Groq calls."
+  );
+  assert(
+    routingTypes.isPrivateAlphaFreeFirstRoutingResultSafeForCreate(
+      localUnavailableCloudDisallowed.result
+    ) === false,
+    "Cloud-disallowed no-eligible result is not safe for create."
+  );
+  const simulatedCloudDisallowedCreate = simulateAutomaticCreateHandoff(
+    localUnavailableCloudDisallowed.result,
+    {
+      requestText: "cloud disallowed",
+      maximumOutputTokens: 512,
+    }
+  );
+  assert(
+    simulatedCloudDisallowedCreate.preservedRoutingResult ===
+      localUnavailableCloudDisallowed.result &&
+      simulatedCloudDisallowedCreate.createHandoffs.length === 0 &&
+      simulatedCloudDisallowedCreate.errorMessage === null,
+    "Cloud-disallowed no-eligible result performs zero create handoffs."
+  );
+  assert(
+    JSON.stringify(localUnavailableCloudDisallowed.inspectCalls) ===
+      JSON.stringify([privateAlpha.PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY]) &&
+      groqCredentialReadCount === 0,
+    "Cloud-disallowed no-eligible result keeps Groq inspection and credential counts at zero."
   );
 
   const localMissingBlocks = await runRoutingScenario({
@@ -1603,6 +1776,144 @@ async function main() {
       !JSON.stringify(groqSelected.result).includes("Authorization") &&
       !JSON.stringify(groqSelected.result).includes("outputText"),
     "Safe routing results contain no prompt text, credentials, or output."
+  );
+  const groqSelectedGroq120Candidate = candidateByKey(
+    groqSelected.result.decision,
+    privateAlpha.PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY
+  );
+  assert(
+    groqSelectedGroq120Candidate.eligible === false &&
+      hasCode(groqSelectedGroq120Candidate.rejectionCodes, "candidate-not-allowed"),
+    "Valid Groq 20B selected results keep Groq 120B visible, ineligible, and candidate-not-allowed."
+  );
+  assert(
+    routingTypes.isPrivateAlphaFreeFirstRoutingResultSafeForCreate(groqSelected.result) ===
+      true,
+    "Valid Groq 20B selected result is safe for create."
+  );
+  const simulatedGroqSelectedCreate = simulateAutomaticCreateHandoff(
+    groqSelected.result,
+    {
+      requestText: "route-only groq",
+      maximumOutputTokens: 512,
+    }
+  );
+  assert(
+    simulatedGroqSelectedCreate.createHandoffs.length === 1 &&
+      simulatedGroqSelectedCreate.createHandoffs[0].modelKey ===
+        privateAlpha.PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+    "Valid Groq 20B selected result produces exactly one simulated create handoff for exact Groq 20B."
+  );
+  assert(
+    !groqSelected.inspectCalls.includes(privateAlpha.PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY) &&
+      groqSelected.result.selectedModelKey !==
+        privateAlpha.PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
+    "Groq 120B is never inspected or selected automatically."
+  );
+  assert(
+    groqSelected.result.providerGenerationPerformed === false,
+    "Valid Groq 20B selected result performs no generation."
+  );
+
+  const maliciousOutsideEligible = cloneJson(localFirstSelection.result);
+  candidateByKey(
+    maliciousOutsideEligible.decision,
+    privateAlpha.PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY
+  ).eligible = true;
+  assertUnsafeAutomaticCreateScenario(
+    maliciousOutsideEligible,
+    "Outside candidate changed to eligible"
+  );
+
+  const maliciousOutsideMissingCandidateNotAllowed = cloneJson(localFirstSelection.result);
+  candidateByKey(
+    maliciousOutsideMissingCandidateNotAllowed.decision,
+    privateAlpha.PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY
+  ).rejectionCodes = candidateByKey(
+    maliciousOutsideMissingCandidateNotAllowed.decision,
+    privateAlpha.PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY
+  ).rejectionCodes.filter((code) => code !== "candidate-not-allowed");
+  assertUnsafeAutomaticCreateScenario(
+    maliciousOutsideMissingCandidateNotAllowed,
+    "Outside candidate missing candidate-not-allowed"
+  );
+
+  const maliciousMissingSelectedCandidate = cloneJson(localFirstSelection.result);
+  maliciousMissingSelectedCandidate.decision.candidates =
+    maliciousMissingSelectedCandidate.decision.candidates.filter(
+      (candidate) =>
+        candidate.modelKey !== maliciousMissingSelectedCandidate.selectedModelKey
+    );
+  assertUnsafeAutomaticCreateScenario(
+    maliciousMissingSelectedCandidate,
+    "Selected candidate missing"
+  );
+
+  const maliciousDuplicateSelectedCandidate = cloneJson(localFirstSelection.result);
+  maliciousDuplicateSelectedCandidate.decision.candidates.push(
+    cloneJson(
+      candidateByKey(
+        maliciousDuplicateSelectedCandidate.decision,
+        maliciousDuplicateSelectedCandidate.selectedModelKey
+      )
+    )
+  );
+  assertUnsafeAutomaticCreateScenario(
+    maliciousDuplicateSelectedCandidate,
+    "Selected candidate duplicated"
+  );
+
+  const maliciousSelectedCandidateIneligible = cloneJson(localFirstSelection.result);
+  candidateByKey(
+    maliciousSelectedCandidateIneligible.decision,
+    maliciousSelectedCandidateIneligible.selectedModelKey
+  ).eligible = false;
+  assertUnsafeAutomaticCreateScenario(
+    maliciousSelectedCandidateIneligible,
+    "Selected candidate changed to ineligible"
+  );
+
+  const maliciousSelectedCandidateRejected = cloneJson(localFirstSelection.result);
+  candidateByKey(
+    maliciousSelectedCandidateRejected.decision,
+    maliciousSelectedCandidateRejected.selectedModelKey
+  ).rejectionCodes = ["candidate-not-allowed"];
+  assertUnsafeAutomaticCreateScenario(
+    maliciousSelectedCandidateRejected,
+    "Selected candidate given a rejection code"
+  );
+
+  const maliciousGroq120Selected = cloneJson(groqSelected.result);
+  maliciousGroq120Selected.selectedModelKey =
+    privateAlpha.PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY;
+  maliciousGroq120Selected.decision.selectedModelKey =
+    privateAlpha.PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY;
+  assertUnsafeAutomaticCreateScenario(
+    maliciousGroq120Selected,
+    "Selected key changed to Groq 120B"
+  );
+
+  const maliciousSelectedKeyMismatch = cloneJson(localFirstSelection.result);
+  maliciousSelectedKeyMismatch.decision.selectedModelKey =
+    privateAlpha.PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY;
+  assertUnsafeAutomaticCreateScenario(
+    maliciousSelectedKeyMismatch,
+    "Decision and top-level selected keys mismatch"
+  );
+
+  const maliciousRecommendedPaidModel = cloneJson(localFirstSelection.result);
+  maliciousRecommendedPaidModel.decision.recommendedPaidModelKey =
+    privateAlpha.PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY;
+  assertUnsafeAutomaticCreateScenario(
+    maliciousRecommendedPaidModel,
+    "recommendedPaidModelKey made non-null"
+  );
+
+  const maliciousRequiresPaidApproval = cloneJson(localFirstSelection.result);
+  maliciousRequiresPaidApproval.decision.requiresPaidApproval = true;
+  assertUnsafeAutomaticCreateScenario(
+    maliciousRequiresPaidApproval,
+    "requiresPaidApproval changed to true"
   );
 
   const groqUnavailableNoFallback = await runRoutingScenario({
