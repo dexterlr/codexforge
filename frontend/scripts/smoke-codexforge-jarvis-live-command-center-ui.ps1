@@ -83,6 +83,8 @@ function Get-StatusEntries {
 $Failures = New-Object System.Collections.Generic.List[string]
 
 $allowedSliceJPaths = @(
+  "docs/codexforge-private-alpha-ollama-local-first-live-acceptance-v0.md",
+  "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
@@ -90,9 +92,12 @@ $allowedSliceJPaths = @(
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/private-alpha/index.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts"
+  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "src/lib/codexforge/ollama-provider/index.ts",
+  "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts",
+  "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts",
+  "src/lib/codexforge/ollama-provider/ollama-provider-types.ts"
 )
 
 $athenaPanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx"
@@ -285,27 +290,29 @@ $changedProductSourcePaths = @(
   $productSourceChanges | Where-Object { $_ -match '^src/' }
 )
 $expectedProductSourcePaths = @(
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/private-alpha/index.ts",
-  "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts"
+  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
+  "src/lib/codexforge/ollama-provider/index.ts",
+  "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts",
+  "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts",
+  "src/lib/codexforge/ollama-provider/ollama-provider-types.ts"
 )
 Add-Result (
   $changedPaths.Count -eq $allowedSliceJPaths.Count -and
   @($changedPaths | Where-Object { $allowedSliceJPaths -notcontains $_ }).Count -eq 0
-) "git scope contains exactly the ten allowed routing-repair files"
+) "git scope contains exactly the fifteen allowed Slice N files"
 Add-Result (
   $changedProductSourcePaths.Count -eq $expectedProductSourcePaths.Count -and
   @($changedProductSourcePaths | Where-Object { $expectedProductSourcePaths -notcontains $_ }).Count -eq 0
 ) "only the exact routing-repair product source paths changed in this UI follow-up slice"
 Add-Result (
-  $changedPaths -contains "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx"
-) "the routing-repair UI follow-up updates the PrivateAlphaRunPanel client composition"
+  $changedPaths -contains "src/lib/codexforge/model-routing/model-routing-catalog.ts"
+) "the Slice N admission updates catalog metadata only"
 Add-Result (
-  $changedPaths -contains "src/lib/codexforge/private-alpha/index.ts"
-) "the routing-repair UI follow-up updates the private-alpha index export surface"
+  $changedPaths -contains "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts"
+) "the Slice N admission adds the immutable local-first acceptance record"
 Add-Result (
-  $changedPaths -contains "src/lib/codexforge/private-alpha/private-alpha-free-first-routing-types.ts"
-) "the routing-repair UI follow-up updates the free-first create-safety types"
+  $changedPaths -contains "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts"
+) "the Slice N admission adds the linked local provider qualification"
 Add-Result ($changedTypeScriptText -notmatch ':\s*any\b|\bas any\b|<any>') "no any or as any was introduced"
 Add-Result ($changedUiText -notmatch 'ts-nocheck|ts-expect-error') "no ts-nocheck or ts-expect-error was introduced"
 Add-Result ($commandDeckRole.Contains("commandDeckRole: CodexForgeCommandDeckRole;")) "commandDeckRole remains strongly typed"

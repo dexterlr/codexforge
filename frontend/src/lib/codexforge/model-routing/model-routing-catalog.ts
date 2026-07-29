@@ -5,6 +5,10 @@ import {
   type CodexForgeGroqLiveExecutionAcceptedModelRecord,
 } from "../groq-provider/groq-provider-types";
 import {
+  CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE,
+  CODEXFORGE_OLLAMA_LOCAL_PROVIDER_QUALIFICATION,
+} from "../ollama-provider";
+import {
   CODEXFORGE_TASK_PROFILES,
   type CodexForgeAutomaticRoutingAdmission,
   type CodexForgeModelCatalogSnapshot,
@@ -585,7 +589,11 @@ const productionCatalogDraft: CodexForgeModelCatalogSnapshot = {
       dataBoundary: "local-machine",
       catalogState: "enabled",
       adapterId: "private-alpha-ollama-adapter",
-      notes: [],
+      notes: [
+        `Local-first live acceptance admitted by ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.acceptanceId}.`,
+        `Accepted on ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.acceptedOn} at ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.acceptanceCheckpointCommit}.`,
+        `Provider qualification ${CODEXFORGE_OLLAMA_LOCAL_PROVIDER_QUALIFICATION.qualificationVersion} remains live-verified.`,
+      ],
     },
     {
       providerId: CODEXFORGE_GROQ_PROVIDER_ID,
@@ -633,6 +641,9 @@ const productionCatalogDraft: CodexForgeModelCatalogSnapshot = {
         "codexforge-private-alpha-gpt-oss-visible-response-clean",
         "codexforge-private-alpha-provider-adapter-foundation-clean",
         "live Jarvis visible-output acceptance",
+        `Local-first live acceptance ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.acceptanceId} accepted on ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.acceptedOn}.`,
+        `Accepted live execution used ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.liveExecution.requestMaximumOutputTokens} output tokens; catalog maximum remains ${CODEXFORGE_OLLAMA_LOCAL_PROVIDER_QUALIFICATION.model.catalogApprovedMaximumOutputTokens}.`,
+        `Local provider qualification links ${CODEXFORGE_OLLAMA_LOCAL_PROVIDER_QUALIFICATION.liveAcceptance.acceptanceId}.`,
       ],
     },
     ...CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedModels.map(
