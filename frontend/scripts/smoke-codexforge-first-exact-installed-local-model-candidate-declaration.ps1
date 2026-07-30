@@ -22,8 +22,8 @@ Set-Location $root
 
 Write-Host "=== CodexForge first exact installed local model candidate declaration smoke ==="
 
-$sliceQFiles = @(
-  "docs/codexforge-first-exact-installed-local-model-candidate-declaration-v0.md",
+$sliceRFiles = @(
+  "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
@@ -36,12 +36,17 @@ $sliceQFiles = @(
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate-types.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
+  "scripts/qualify-codexforge-qwen2-5-coder-32b-installed-candidate.ps1",
+  "scripts/run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance.ps1",
+  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-types.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-canonicalization.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
 )
 
-foreach ($file in $sliceQFiles) {
-  Assert-True (Test-Path -LiteralPath $file -PathType Leaf) "Slice Q file exists: $file"
+foreach ($file in $sliceRFiles) {
+  Assert-True (Test-Path -LiteralPath $file -PathType Leaf) "Slice R file exists: $file"
 }
 
 $changedPaths = @(
@@ -50,9 +55,9 @@ $changedPaths = @(
     ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
-Assert-True ($changedPaths.Count -eq $sliceQFiles.Count) "Git scope contains exactly the fifteen Slice Q files"
+Assert-True ($changedPaths.Count -eq $sliceRFiles.Count) "Git scope contains exactly the twenty Slice R files"
 foreach ($path in $changedPaths) {
-  Assert-True ($sliceQFiles -contains $path) "Git scope stays within Slice Q: $path"
+  Assert-True ($sliceRFiles -contains $path) "Git scope stays within Slice R: $path"
 }
 
 $candidateServerPath = "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
@@ -145,11 +150,12 @@ foreach ($needle in $candidateNeedles) {
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 67) "Aggregate executable entry count is 67"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 64) "Aggregate required count is 64"
+Assert-True ($entries.Count -eq 68) "Aggregate executable entry count is 68"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 65) "Aggregate required count is 65"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True (@($entries | Where-Object { $_ -match 'smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1' }).Count -eq 1) "Slice Q smoke is registered exactly once"
 Assert-True ($releaseBlock -match 'Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},') "Slice Q smoke follows Slice P and is required"
+Assert-True ($releaseBlock -match 'First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},\r?\n  @\{ Name = "Exact Qwen 2\.5 Coder 32B Qualification and Controlled Acceptance Contract"; File = "smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract\.ps1"; Required = \$true \},') "Slice R smoke follows Slice Q and is required"
 
 Assert-True ($candidateSource -match 'dfe1f6372dad8a52d68f6af185cd7cee42c31da9c9e2a6762fc58f08778f0e90') "Evidence digest is pinned in source"
 Assert-True ($candidateSource -match 'a31dc824a83578dfb62e68cc7603b8681548f9e2507ac14df8fd62d4c7b1197f') "Candidate digest is pinned in source"

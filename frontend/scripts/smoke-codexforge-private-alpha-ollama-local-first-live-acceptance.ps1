@@ -26,7 +26,7 @@ function Assert-PowerShellParses {
 Write-Host "=== CodexForge Ollama local-first live acceptance smoke ==="
 
 $expectedPaths = @(
-  "docs/codexforge-first-exact-installed-local-model-candidate-declaration-v0.md",
+  "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
@@ -39,11 +39,16 @@ $expectedPaths = @(
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate-types.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
+  "scripts/qualify-codexforge-qwen2-5-coder-32b-installed-candidate.ps1",
+  "scripts/run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance.ps1",
+  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-types.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-canonicalization.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
 )
 $changedPaths = @((& git status --short --untracked-files=all | Where-Object { $_.Length -ge 4 } | ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } | Sort-Object -Unique))
-Assert-True ($changedPaths.Count -eq $expectedPaths.Count) "Changed scope contains exactly the fifteen Slice Q files"
+Assert-True ($changedPaths.Count -eq $expectedPaths.Count) "Changed scope contains exactly the twenty Slice R files"
 foreach ($path in $expectedPaths) {
   Assert-True ($changedPaths -contains $path) "Changed scope includes: $path"
 }
@@ -72,7 +77,7 @@ foreach ($line in Get-Content "scripts/smoke-codexforge-all.ps1") {
     if ($line -match 'smoke-codexforge-private-alpha-ollama-local-first-live-acceptance\.ps1' -and $line -match 'Required = \$true') { $newSmokeOccurrences += 1 }
   }
 }
-Assert-True ($aggregateExecutableCount -eq 67) "Aggregate executable count is 67 after Slice Q smoke registration"
+Assert-True ($aggregateExecutableCount -eq 68) "Aggregate executable count is 68 after Slice R smoke registration"
 Assert-True ($newSmokeOccurrences -eq 1) "New smoke is registered exactly once and is required"
 
 $nodeScript = @'

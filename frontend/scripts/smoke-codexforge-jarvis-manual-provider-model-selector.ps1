@@ -99,7 +99,7 @@ Write-Host ""
 Write-Host "=== CodexForge Jarvis manual provider model selector smoke ==="
 
 $allowedChangedFiles = @(
-  "docs/codexforge-first-exact-installed-local-model-candidate-declaration-v0.md",
+  "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
@@ -112,8 +112,13 @@ $allowedChangedFiles = @(
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate-types.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
+  "scripts/qualify-codexforge-qwen2-5-coder-32b-installed-candidate.ps1",
+  "scripts/run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance.ps1",
+  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-types.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-canonicalization.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
 )
 
 $requiredFiles = @(
@@ -164,7 +169,7 @@ $changedPaths = $statusLines |
   } |
   Sort-Object -Unique
 
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the fifteen allowed Slice Q files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the twenty allowed Slice R files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed smoke-repair files: $path"
 }
