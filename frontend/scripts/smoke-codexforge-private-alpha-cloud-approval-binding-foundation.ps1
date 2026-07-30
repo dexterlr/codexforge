@@ -62,7 +62,7 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha cloud approval binding foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "docs/codexforge-registry-backed-free-local-provider-onboarding-admission-foundation-v0.md",
+  "docs/codexforge-first-exact-installed-local-model-candidate-declaration-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
@@ -74,13 +74,9 @@ $allowedChangedFiles = @(
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
-  "src/lib/codexforge/model-routing/onboarding/index.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-authority.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-canonicalization.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-constants.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-types.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-validation.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/server.ts"
+  "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate-types.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
 )
 
 $requiredFiles = @(
@@ -127,7 +123,7 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the nineteen allowed Slice P files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the fifteen allowed Slice Q files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed smoke-repair files: $path"
 }

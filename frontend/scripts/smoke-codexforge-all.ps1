@@ -611,6 +611,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Private Alpha Ollama Local-First Live Acceptance"; File = "smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1"; Required = $true },
   @{ Name = "Free/Local Provider Registry Foundation"; File = "smoke-codexforge-free-local-provider-registry-foundation.ps1"; Required = $true },
   @{ Name = "Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1"; Required = $true },
+  @{ Name = "First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1"; Required = $true },
   @{ Name = "Product Experience UX smoke"; File = "smoke-codexforge-jarvis-product-experience-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Full validation wrapper smoke"; File = "smoke-codexforge-full-validation-wrapper.ps1"; Required = $true },

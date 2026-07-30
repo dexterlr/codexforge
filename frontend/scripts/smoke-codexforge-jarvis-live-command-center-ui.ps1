@@ -82,8 +82,8 @@ function Get-StatusEntries {
 
 $Failures = New-Object System.Collections.Generic.List[string]
 
-$allowedSliceJPaths = @(
-  "docs/codexforge-registry-backed-free-local-provider-onboarding-admission-foundation-v0.md",
+$allowedSliceQPaths = @(
+  "docs/codexforge-first-exact-installed-local-model-candidate-declaration-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
@@ -95,13 +95,9 @@ $allowedSliceJPaths = @(
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
-  "src/lib/codexforge/model-routing/onboarding/index.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-authority.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-canonicalization.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-constants.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-types.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-validation.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/server.ts"
+  "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate-types.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
 )
 
 $athenaPanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx"
@@ -294,40 +290,30 @@ $changedProductSourcePaths = @(
   $productSourceChanges | Where-Object { $_ -match '^src/' }
 )
 $expectedProductSourcePaths = @(
-  "src/lib/codexforge/model-routing/onboarding/index.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-authority.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-canonicalization.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-constants.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-types.ts",
-  "src/lib/codexforge/model-routing/onboarding/onboarding-validation.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/server.ts"
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate-types.ts",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
 )
 Add-Result (
-  $changedPaths.Count -eq $allowedSliceJPaths.Count -and
-  @($changedPaths | Where-Object { $allowedSliceJPaths -notcontains $_ }).Count -eq 0
-) "git scope contains exactly the nineteen allowed Slice P files"
+  $changedPaths.Count -eq $allowedSliceQPaths.Count -and
+  @($changedPaths | Where-Object { $allowedSliceQPaths -notcontains $_ }).Count -eq 0
+) "git scope contains exactly the fifteen allowed Slice Q files"
 Add-Result (
   $changedProductSourcePaths.Count -eq $expectedProductSourcePaths.Count -and
   @($changedProductSourcePaths | Where-Object { $expectedProductSourcePaths -notcontains $_ }).Count -eq 0
-) "only the exact Slice P onboarding foundation source paths changed"
+) "only the exact Slice Q candidate source paths changed"
 Add-Result (
   $changedPaths -notcontains "src/lib/codexforge/model-routing/model-routing-provider-registry.ts" -and
   $changedPaths -notcontains "src/lib/codexforge/model-routing/model-routing-catalog.ts" -and
   $changedPaths -notcontains "src/lib/codexforge/model-routing/model-routing-types.ts" -and
   $changedPaths -notcontains "src/lib/codexforge/model-routing/index.ts"
-) "protected model-routing production ownership remains outside the Slice P changed paths"
+) "protected model-routing production ownership remains outside the Slice Q changed paths"
 Add-Result (
-  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/onboarding-validation.server.ts" -and
-  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/onboarding-authority.server.ts" -and
-  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/onboarding-canonicalization.server.ts"
-) "Slice P server-only validation ownership is present in the changed paths"
+  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
+) "Slice Q server-only validation ownership is present in the changed paths"
 Add-Result (
-  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/onboarding-types.ts" -and
-  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/onboarding-constants.ts" -and
-  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/index.ts" -and
-  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/server.ts" -and
-  $changedPaths -contains "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1"
-) "Slice P client-safe contract, server surface, and required smoke ownership are present"
+  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate-types.ts" -and
+  $changedPaths -contains "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1"
+) "Slice Q type contract and required smoke ownership are present"
 Add-Result ($changedTypeScriptText -notmatch ':\s*any\b|\bas any\b|<any>') "no any or as any was introduced"
 Add-Result ($changedUiText -notmatch 'ts-nocheck|ts-expect-error') "no ts-nocheck or ts-expect-error was introduced"
 Add-Result ($commandDeckRole.Contains("commandDeckRole: CodexForgeCommandDeckRole;")) "commandDeckRole remains strongly typed"
