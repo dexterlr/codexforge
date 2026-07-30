@@ -83,21 +83,22 @@ function Get-StatusEntries {
 $Failures = New-Object System.Collections.Generic.List[string]
 
 $allowedSliceJPaths = @(
-  "docs/codexforge-private-alpha-ollama-local-first-live-acceptance-v0.md",
+  "docs/codexforge-free-local-provider-registry-foundation-v0.md",
   "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
+  "src/lib/codexforge/model-routing/index.ts",
   "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/ollama-provider/index.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-types.ts"
+  "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts"
 )
 
 $athenaPanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx"
@@ -290,29 +291,29 @@ $changedProductSourcePaths = @(
   $productSourceChanges | Where-Object { $_ -match '^src/' }
 )
 $expectedProductSourcePaths = @(
+  "src/lib/codexforge/model-routing/index.ts",
   "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/ollama-provider/index.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-types.ts"
+  "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts"
 )
 Add-Result (
   $changedPaths.Count -eq $allowedSliceJPaths.Count -and
   @($changedPaths | Where-Object { $allowedSliceJPaths -notcontains $_ }).Count -eq 0
-) "git scope contains exactly the fifteen allowed Slice N files"
+) "git scope contains exactly the sixteen allowed Slice O files"
 Add-Result (
   $changedProductSourcePaths.Count -eq $expectedProductSourcePaths.Count -and
   @($changedProductSourcePaths | Where-Object { $expectedProductSourcePaths -notcontains $_ }).Count -eq 0
 ) "only the exact routing-repair product source paths changed in this UI follow-up slice"
 Add-Result (
+  $changedPaths -contains "src/lib/codexforge/model-routing/model-routing-provider-registry.ts"
+) "the Slice O registry composes production provider metadata"
+Add-Result (
   $changedPaths -contains "src/lib/codexforge/model-routing/model-routing-catalog.ts"
-) "the Slice N admission updates catalog metadata only"
+) "the Slice O registry updates the ordered production model catalog"
 Add-Result (
-  $changedPaths -contains "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts"
-) "the Slice N admission adds the immutable local-first acceptance record"
-Add-Result (
-  $changedPaths -contains "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts"
-) "the Slice N admission adds the linked local provider qualification"
+  $changedPaths -contains "src/lib/codexforge/model-routing/model-routing-types.ts" -and
+  $changedPaths -contains "src/lib/codexforge/model-routing/index.ts"
+) "the Slice O registry exports its production types and public surface"
 Add-Result ($changedTypeScriptText -notmatch ':\s*any\b|\bas any\b|<any>') "no any or as any was introduced"
 Add-Result ($changedUiText -notmatch 'ts-nocheck|ts-expect-error') "no ts-nocheck or ts-expect-error was introduced"
 Add-Result ($commandDeckRole.Contains("commandDeckRole: CodexForgeCommandDeckRole;")) "commandDeckRole remains strongly typed"

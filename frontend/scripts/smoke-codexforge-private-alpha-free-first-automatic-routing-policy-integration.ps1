@@ -136,6 +136,7 @@ $cssSource = Get-Text $cssPath
 $groqClientSource = Get-Text $groqClientPath
 $groqQualificationSource = Get-Text $groqQualificationPath
 $catalogSource = Get-Text $catalogPath
+$providerRegistrySource = Get-Text "src\lib\codexforge\model-routing\model-routing-provider-registry.ts"
 $aggregateSource = Get-Text $aggregatePath
 $routeWindow = Get-Window $panelSource 'const routingResult = await routePrivateAlphaFreeFirst({' 700
 $automaticGuardWindow = Get-Window $panelSource 'if (!isPrivateAlphaFreeFirstRoutingResultSafeForCreate(routingResult)) {' 400
@@ -212,9 +213,9 @@ Assert-Contains $cssSource '.privateAlphaRequestModeSelected' "CSS includes sele
 Assert-NotMatches ($groqClientSource + "`n" + $groqQualificationSource + "`n" + $routingServerSource) 'service_tier' "Slice M introduces no service_tier field"
 Assert-NotMatches ($groqClientSource + "`n" + $groqQualificationSource + "`n" + $routingServerSource) '/tiers|tierApi|account-plan|planApi' "Slice M introduces no provider tier endpoint"
 Assert-Contains $groqQualificationSource 'request-scoped-operator-confirmation' "Groq qualification records request-scoped operator confirmation"
-Assert-Contains $catalogSource 'Groq 120B must remain manual-only with no automatic routing admission' "Production catalog keeps Groq 120B manual-only"
+Assert-Contains $providerRegistrySource 'Automatic routing remains disabled for ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.manualOnlyModelKey}.' "Production registry keeps the exact Groq 120B manual-only"
 Assert-Contains $aggregateSource 'smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1' "Aggregate smoke suite registers the Slice M smoke"
-Assert-True ($aggregateExecutableCount -eq 64) "Aggregate executable count remains 64"
+Assert-True ($aggregateExecutableCount -eq 65) "Aggregate executable count remains 65 after Slice O registry composition"
 
 $nodeScript = @'
 const fs = require("fs");

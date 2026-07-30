@@ -62,21 +62,22 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha Groq adapter runtime foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "docs/codexforge-private-alpha-ollama-local-first-live-acceptance-v0.md",
+  "docs/codexforge-free-local-provider-registry-foundation-v0.md",
   "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
+  "src/lib/codexforge/model-routing/index.ts",
   "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/ollama-provider/index.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-types.ts"
+  "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts"
 )
 
 $requiredFiles = @(
@@ -121,7 +122,7 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the fifteen allowed Slice N files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the sixteen allowed Slice O files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed smoke-repair files: $path"
 }

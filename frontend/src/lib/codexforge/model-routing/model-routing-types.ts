@@ -230,6 +230,71 @@ export type CodexForgeModelDescriptor = Readonly<{
   evidence: readonly string[];
 }>;
 
+export type CodexForgeFreeOrLocalModelPricing = Readonly<{
+  costClass: "local-no-provider-token-charge" | "free-tier";
+  currency: "USD";
+  inputUsdPerMillionTokens: 0;
+  outputUsdPerMillionTokens: 0;
+  pricingAsOf: string | null;
+  sourceLabel: string;
+}>;
+
+export type CodexForgeFreeOrLocalModelDescriptor = Readonly<
+  Omit<CodexForgeModelDescriptor, "pricing"> & {
+    pricing: CodexForgeFreeOrLocalModelPricing;
+  }
+>;
+
+export type CodexForgeFreeOrLocalCredentialPosture =
+  | "none"
+  | "server-environment-only";
+
+export type CodexForgeFreeOrLocalFreeTierRevalidationRequirement =
+  | "not-applicable"
+  | "request-scoped-operator-confirmation";
+
+export type CodexForgeFreeOrLocalRequiredOperatorAcknowledgement =
+  | "explicit-manual-approval"
+  | "cloud-transfer-acknowledgement"
+  | "cloud-execution-acknowledgement";
+
+export type CodexForgeFreeOrLocalKillSwitchCheckpoint =
+  | "before-provider-adapter-resolution-or-credential-work"
+  | "immediately-before-provider-generation";
+
+export type CodexForgeFreeOrLocalQualificationEvidence = Readonly<{
+  qualificationVersion: string;
+  liveAcceptanceVersion: string;
+  liveAcceptanceId: string;
+  acceptanceCheckpointCommit: string;
+}>;
+
+export type CodexForgeFreeOrLocalExecutionPosture = Readonly<{
+  manualApprovalRequired: true;
+  separateExplicitExecutionActionRequired: true;
+  requiredOperatorAcknowledgements:
+    readonly CodexForgeFreeOrLocalRequiredOperatorAcknowledgement[];
+  killSwitchCheckpoints: readonly [
+    "before-provider-adapter-resolution-or-credential-work",
+    "immediately-before-provider-generation",
+  ];
+  maximumProviderAttempts: 1;
+  paidExecutionEnabled: false;
+  retryAllowed: false;
+  fallbackAllowed: false;
+  modelSubstitutionAllowed: false;
+}>;
+
+export type CodexForgeFreeOrLocalProviderRegistration = Readonly<{
+  provider: CodexForgeProviderDescriptor;
+  models: readonly CodexForgeFreeOrLocalModelDescriptor[];
+  credentialPosture: CodexForgeFreeOrLocalCredentialPosture;
+  freeTierRevalidationRequirement:
+    CodexForgeFreeOrLocalFreeTierRevalidationRequirement;
+  qualificationEvidence: CodexForgeFreeOrLocalQualificationEvidence;
+  executionPosture: CodexForgeFreeOrLocalExecutionPosture;
+}>;
+
 export type CodexForgeModelCatalogSnapshot = Readonly<{
   catalogVersion: string;
   providers: readonly CodexForgeProviderDescriptor[];

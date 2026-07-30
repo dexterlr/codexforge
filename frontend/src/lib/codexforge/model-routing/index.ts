@@ -23,6 +23,15 @@ export type {
   CodexForgeCandidateEvaluation,
   CodexForgeCapability,
   CodexForgeFreeTierConfirmationState,
+  CodexForgeFreeOrLocalCredentialPosture,
+  CodexForgeFreeOrLocalExecutionPosture,
+  CodexForgeFreeOrLocalFreeTierRevalidationRequirement,
+  CodexForgeFreeOrLocalKillSwitchCheckpoint,
+  CodexForgeFreeOrLocalModelDescriptor,
+  CodexForgeFreeOrLocalModelPricing,
+  CodexForgeFreeOrLocalProviderRegistration,
+  CodexForgeFreeOrLocalQualificationEvidence,
+  CodexForgeFreeOrLocalRequiredOperatorAcknowledgement,
   CodexForgeModelAvailabilityState,
   CodexForgeModelCatalogSnapshot,
   CodexForgeModelCostClass,
@@ -52,6 +61,11 @@ export type {
   CodexForgeTaskProfile,
   CodexForgeTaskProfileScores,
 } from "./model-routing-types";
+export {
+  CODEXFORGE_PRODUCTION_FREE_OR_LOCAL_PROVIDER_REGISTRY,
+  getCodexForgeProductionFreeOrLocalProviderRegistry,
+  validateCodexForgeFreeOrLocalProviderRegistry,
+} from "./model-routing-provider-registry";
 export {
   CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION,
   CODEXFORGE_PRODUCTION_MODEL_CATALOG,

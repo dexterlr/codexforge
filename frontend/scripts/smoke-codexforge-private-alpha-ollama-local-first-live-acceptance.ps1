@@ -26,24 +26,25 @@ function Assert-PowerShellParses {
 Write-Host "=== CodexForge Ollama local-first live acceptance smoke ==="
 
 $expectedPaths = @(
-  "docs/codexforge-private-alpha-ollama-local-first-live-acceptance-v0.md",
+  "docs/codexforge-free-local-provider-registry-foundation-v0.md",
   "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
+  "src/lib/codexforge/model-routing/index.ts",
   "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/ollama-provider/index.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-types.ts"
+  "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts"
 )
 $changedPaths = @((& git status --short --untracked-files=all | Where-Object { $_.Length -ge 4 } | ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } | Sort-Object -Unique))
-Assert-True ($changedPaths.Count -eq $expectedPaths.Count) "Changed scope contains exactly the fifteen Slice N files"
+Assert-True ($changedPaths.Count -eq $expectedPaths.Count) "Changed scope contains exactly the sixteen Slice O files"
 foreach ($path in $expectedPaths) {
   Assert-True ($changedPaths -contains $path) "Changed scope includes: $path"
 }
@@ -72,7 +73,7 @@ foreach ($line in Get-Content "scripts/smoke-codexforge-all.ps1") {
     if ($line -match 'smoke-codexforge-private-alpha-ollama-local-first-live-acceptance\.ps1' -and $line -match 'Required = \$true') { $newSmokeOccurrences += 1 }
   }
 }
-Assert-True ($aggregateExecutableCount -eq 64) "Aggregate executable count is 64"
+Assert-True ($aggregateExecutableCount -eq 65) "Aggregate executable count is 65 after Slice O registry composition"
 Assert-True ($newSmokeOccurrences -eq 1) "New smoke is registered exactly once and is required"
 
 $nodeScript = @'
@@ -110,6 +111,7 @@ function deepFrozen(value) {
 const acceptanceModule = require(path.join(repoRoot, "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts"));
 const qualificationModule = require(path.join(repoRoot, "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts"));
 const catalogModule = require(path.join(repoRoot, "src/lib/codexforge/model-routing/model-routing-catalog.ts"));
+const providerRegistryModule = require(path.join(repoRoot, "src/lib/codexforge/model-routing/model-routing-provider-registry.ts"));
 const acceptance = acceptanceModule.CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE;
 assert(acceptance.acceptanceId === "codexforge-ollama-local-private-alpha-local-first-live-acceptance-20260728", "acceptance identity");
 assert(acceptance.acceptedOn === "2026-07-28" && acceptance.acceptanceCheckpointCommit === "041a36d39858ee90f7c7bd320f73c4c0e820d8c8", "acceptance date and checkpoint");
@@ -144,9 +146,9 @@ assert(firstQualificationClone !== qualification && firstQualificationClone !== 
 try { firstQualificationClone.model.catalogApprovedMaximumOutputTokens = 1; } catch (_) {}
 assert(qualificationModule.getCodexForgeOllamaLocalProviderQualification().model.catalogApprovedMaximumOutputTokens === 4096 && qualification.model.catalogApprovedMaximumOutputTokens === 4096, "qualification clone mutation cannot affect later or canonical reads");
 const catalog = catalogModule.CODEXFORGE_PRODUCTION_MODEL_CATALOG;
-const local = catalog.models.find((model) => model.modelKey === "ollama-local::gpt-oss:20b");
+const local = providerRegistryModule.CODEXFORGE_PRODUCTION_FREE_OR_LOCAL_PROVIDER_REGISTRY.flatMap((entry) => entry.models).find((model) => model.modelKey === "ollama-local::gpt-oss:20b");
 assert(catalog.catalogVersion === "codexforge-model-routing-v4" && catalog.providers.length === 2 && catalog.models.length === 3, "catalog version and counts");
-assert(local && local.approvedMaximumOutputTokens === 4096 && local.routingState === "automatic" && local.qualificationState === "live-verified" && local.automaticRoutingAdmission.admissionId === "codexforge-ollama-local-automatic-routing-v1" && JSON.stringify(local.automaticRoutingAdmission.modes) === JSON.stringify(["local-only", "free-only", "free-first", "best-within-budget"]), "local catalog metadata remains exact");
+assert(local && local.approvedMaximumOutputTokens === 4096 && local.routingState === "automatic" && local.qualificationState === "live-verified" && local.automaticRoutingAdmission.admissionId === "codexforge-ollama-local-automatic-routing-v1" && JSON.stringify(local.automaticRoutingAdmission.modes) === JSON.stringify(["local-only", "free-only", "free-first", "best-within-budget"]), "local registry metadata remains exact");
 assert(fetchCallCount === 0 && credentialAccessCount === 0, "no provider or credential access");
 '@
 $tempNodeScript = Join-Path $env:TEMP "codexforge-ollama-local-first-live-acceptance-smoke.js"

@@ -55,6 +55,7 @@ $requiredFiles = @(
   "src\lib\codexforge\groq-provider\groq-provider-qualification.ts",
   "src\lib\codexforge\groq-provider\index.ts",
   "src\lib\codexforge\model-routing\model-routing-catalog.ts",
+  "src\lib\codexforge\model-routing\model-routing-provider-registry.ts",
   "src\lib\codexforge\model-routing\model-routing-policy.server.ts",
   "docs\codexforge-private-alpha-groq-live-execution-admission-v0.md",
   "scripts\smoke-codexforge-private-alpha-groq-live-execution-admission.ps1"
@@ -80,6 +81,7 @@ $acceptanceSource = Get-Content -Raw "src\lib\codexforge\groq-provider\groq-prov
 $typesSource = Get-Content -Raw "src\lib\codexforge\groq-provider\groq-provider-types.ts"
 $qualificationSource = Get-Content -Raw "src\lib\codexforge\groq-provider\groq-provider-qualification.ts"
 $catalogSource = Get-Content -Raw "src\lib\codexforge\model-routing\model-routing-catalog.ts"
+$providerRegistrySource = Get-Content -Raw "src\lib\codexforge\model-routing\model-routing-provider-registry.ts"
 $docSource = Get-Content -Raw "docs\codexforge-private-alpha-groq-live-execution-admission-v0.md"
 $metadataSource = ($acceptanceSource, $typesSource, $qualificationSource, $catalogSource) -join "`n"
 $admissionRecordSource = ($acceptanceSource, $qualificationSource, $catalogSource) -join "`n"
@@ -88,7 +90,7 @@ Assert-Contains $typesSource 'CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE_VERSION 
 Assert-Contains $typesSource 'CODEXFORGE_GROQ_ACCEPTED_MAXIMUM_OUTPUT_TOKENS = 512 as const;' "Admitted 512-token limit is typed"
 Assert-Contains $acceptanceSource 'getCodexForgeGroqLiveExecutionAcceptance' "Acceptance getter exists"
 Assert-Contains $qualificationSource 'liveExecutionAcceptance:' "Qualification record links to the typed acceptance record"
-Assert-Contains $catalogSource 'CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId' "Catalog links to the typed acceptance evidence"
+Assert-Contains $providerRegistrySource 'CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId' "Registry links to the typed acceptance evidence"
 Assert-Contains $docSource 'codexforge-groq-private-alpha-live-execution-20260727-165043' "Documentation records the sanitized acceptance ID"
 Assert-Contains $docSource 'no automatic routing' "Documentation records that automatic routing remains disabled"
 

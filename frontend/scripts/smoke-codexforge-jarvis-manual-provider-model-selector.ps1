@@ -99,21 +99,22 @@ Write-Host ""
 Write-Host "=== CodexForge Jarvis manual provider model selector smoke ==="
 
 $allowedChangedFiles = @(
-  "docs/codexforge-private-alpha-ollama-local-first-live-acceptance-v0.md",
+  "docs/codexforge-free-local-provider-registry-foundation-v0.md",
   "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
+  "src/lib/codexforge/model-routing/index.ts",
   "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/ollama-provider/index.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-types.ts"
+  "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts"
 )
 
 $requiredFiles = @(
@@ -164,7 +165,7 @@ $changedPaths = $statusLines |
   } |
   Sort-Object -Unique
 
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the fifteen allowed Slice N files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the sixteen allowed Slice O files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed smoke-repair files: $path"
 }
@@ -199,6 +200,7 @@ $indexSource = Get-Text "src\lib\codexforge\private-alpha\index.ts"
 $panelSource = Get-Text "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
 $cssSource = Get-Text "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisUnifiedProductShell.module.css"
 $catalogSource = Get-Text "src\lib\codexforge\model-routing\model-routing-catalog.ts"
+$providerRegistrySource = Get-Text "src\lib\codexforge\model-routing\model-routing-provider-registry.ts"
 $policySource = Get-Text "src\lib\codexforge\model-routing\model-routing-policy.server.ts"
 $athenaAliasSource = Get-Text "src\app\athena\page.tsx"
 $jarvisVideoSource = Get-Text "src\lib\codexforge\jarvis-video-studio-release-candidate-map\components\JarvisVideoStudioReleaseCandidatePanel.tsx"
@@ -209,9 +211,9 @@ $createBlock = Get-Window $panelSource 'createPrivateAlphaRun({' 500
 
 Assert-Contains $catalogSource 'CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION =' "Catalog source declares a catalog version"
 Assert-Contains $catalogSource '"codexforge-model-routing-v4"' "Catalog remains v4"
-Assert-Contains $catalogSource 'routingState: isAutomatic20b ? "automatic" : "manual-only"' "Groq catalog preserves automatic 20B routing and manual-only 120B routing"
-Assert-Contains $catalogSource 'modelKey: acceptedModel.modelKey,' "Groq catalog entries remain exact-model keyed"
-Assert-Contains $catalogSource 'Automatic free-first routing is admitted only for ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.automaticModelKey}.' "Automatic routing remains admitted only for the exact Groq 20B key"
+Assert-Contains $providerRegistrySource 'return { modelKey: acceptedModel.modelKey, providerId: CODEXFORGE_GROQ_PROVIDER_ID, modelId: acceptedModel.modelId, label: acceptedModel.modelId, routingState: automatic ? "automatic" : "manual-only", automaticRoutingAdmission: automatic ? { admissionId: CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.admissionVersion, modes: [CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.routingMode] } : null' "Groq registry preserves exact-model keyed automatic 20B/free-first routing and manual-only non-admitted 120B routing"
+Assert-Contains $catalogSource 'CODEXFORGE_PRODUCTION_FREE_OR_LOCAL_PROVIDER_REGISTRY.flatMap(' "Catalog composition consumes the canonical provider registry"
+Assert-Contains $providerRegistrySource 'Automatic free-first routing is admitted only for ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.automaticModelKey}.' "Automatic routing remains admitted only for the exact Groq 20B key"
 Assert-Contains $policySource "Manual mode requires an exact manualModelKey; no model was evaluated." "Manual policy still requires an exact manual key"
 Assert-Contains $typesSource "export const PRIVATE_ALPHA_RECORD_VERSION = 1 as const;" "Record version remains 1"
 Assert-Contains $typesSource "export const PRIVATE_ALPHA_APPROVAL_BINDING_VERSION = 1 as const;" "Approval binding version remains 1"

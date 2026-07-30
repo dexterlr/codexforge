@@ -20,14 +20,11 @@ import {
   type CodexForgeProviderId,
   type CodexForgeTaskProfileScores,
 } from "./model-routing-types";
+import { CODEXFORGE_PRODUCTION_FREE_OR_LOCAL_PROVIDER_REGISTRY } from "./model-routing-provider-registry";
 
 export const CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION =
   "codexforge-model-routing-v4";
 
-const CODEXFORGE_GROQ_PROVIDER_LABEL = "Groq Cloud";
-const CODEXFORGE_GROQ_ADAPTER_ID = "groq-provider-client";
-const CODEXFORGE_GROQ_PRICING_AS_OF = "2026-07-26";
-const CODEXFORGE_GROQ_CONTEXT_WINDOW_TOKENS = 131072;
 const CODEXFORGE_OLLAMA_LOCAL_AUTOMATIC_ROUTING_ADMISSION_ID =
   "codexforge-ollama-local-automatic-routing-v1";
 const CODEXFORGE_OLLAMA_LOCAL_AUTOMATIC_ROUTING_ADMISSION =
@@ -232,55 +229,6 @@ function hasNonZeroRate(value: number | null): boolean {
 
 function isMissingLabel(value: string): boolean {
   return value.trim().length === 0;
-}
-
-function buildGroqModelDescriptor(
-  acceptedModel: CodexForgeGroqLiveExecutionAcceptedModelRecord
-): CodexForgeModelDescriptor {
-  const isAutomatic20b =
-    acceptedModel.modelKey ===
-    CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.automaticModelKey;
-
-  return {
-    modelKey: acceptedModel.modelKey,
-    providerId: CODEXFORGE_GROQ_PROVIDER_ID,
-    modelId: acceptedModel.modelId,
-    label: acceptedModel.modelId,
-    routingState: isAutomatic20b ? "automatic" : "manual-only",
-    automaticRoutingAdmission: isAutomatic20b
-      ? {
-          admissionId:
-            CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.admissionVersion,
-          modes: [CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.routingMode],
-        }
-      : null,
-    qualificationState: "live-verified",
-    capabilities: ["text-generation"],
-    approvedMaximumOutputTokens: acceptedModel.acceptedMaximumOutputTokens,
-    contextWindowTokens: CODEXFORGE_GROQ_CONTEXT_WINDOW_TOKENS,
-    pricing: {
-      costClass: "free-tier",
-      currency: "USD",
-      inputUsdPerMillionTokens: 0,
-      outputUsdPerMillionTokens: 0,
-      pricingAsOf: CODEXFORGE_GROQ_PRICING_AS_OF,
-      sourceLabel:
-        "Operator-confirmed Groq Free tier on 2026-07-26; account tier may change and requires revalidation",
-    },
-    taskProfileScores: {},
-    evidence: [
-      "codexforge-groq-qualification-v3",
-      CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId,
-      `exact manual Private Alpha execution admitted on ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedOn}`,
-      isAutomatic20b
-        ? `automatic free-first admission linked by ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.admissionVersion}`
-        : "manual-only production routing for this exact Groq model",
-      "text-generation only across the cloud-provider boundary",
-      "request-scoped operator reconfirmation is required before each automatic Groq Free-tier selection",
-      "paid execution, retry, fallback, and model substitution remain disabled",
-      `admitted manual execution envelope is capped at ${acceptedModel.acceptedMaximumOutputTokens} output tokens`,
-    ],
-  };
 }
 
 export function validateCodexForgeModelCatalog(
@@ -581,75 +529,12 @@ export function validateCodexForgeModelCatalog(
 
 const productionCatalogDraft: CodexForgeModelCatalogSnapshot = {
   catalogVersion: CODEXFORGE_MODEL_ROUTING_CATALOG_VERSION,
-  providers: [
-    {
-      providerId: "ollama-local",
-      label: "Local Ollama",
-      locality: "local",
-      dataBoundary: "local-machine",
-      catalogState: "enabled",
-      adapterId: "private-alpha-ollama-adapter",
-      notes: [
-        `Local-first live acceptance admitted by ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.acceptanceId}.`,
-        `Accepted on ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.acceptedOn} at ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.acceptanceCheckpointCommit}.`,
-        `Provider qualification ${CODEXFORGE_OLLAMA_LOCAL_PROVIDER_QUALIFICATION.qualificationVersion} remains live-verified.`,
-      ],
-    },
-    {
-      providerId: CODEXFORGE_GROQ_PROVIDER_ID,
-      label: CODEXFORGE_GROQ_PROVIDER_LABEL,
-      locality: "cloud",
-      dataBoundary: "cloud-provider",
-      catalogState: "enabled",
-      adapterId: CODEXFORGE_GROQ_ADAPTER_ID,
-      notes: [
-        "Transport qualification remains live-verified from 2026-07-26.",
-        "Exact manual Private Alpha execution is connected for the admitted Groq model keys.",
-        `Exact 20B and 120B manual execution paths were live-accepted on ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedOn}.`,
-        `Acceptance evidence links to ${CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptanceId}.`,
-        `Automatic free-first routing is admitted only for ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.automaticModelKey}.`,
-        `Automatic routing remains disabled for ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.manualOnlyModelKey}.`,
-        "Capability remains text-generation only across the cloud-provider boundary.",
-        "Operator-confirmed Groq Free tier may change and requires request-scoped reconfirmation.",
-        "Paid execution, retry, fallback, and substitution remain disabled by the admitted execution posture.",
-        "The admitted manual Private Alpha execution envelope must not exceed 512 output tokens.",
-      ],
-    },
-  ],
-  models: [
-    {
-      modelKey: buildCodexForgeModelKey("ollama-local", "gpt-oss:20b"),
-      providerId: "ollama-local",
-      modelId: "gpt-oss:20b",
-      label: "gpt-oss:20b",
-      routingState: "automatic",
-      automaticRoutingAdmission: CODEXFORGE_OLLAMA_LOCAL_AUTOMATIC_ROUTING_ADMISSION,
-      qualificationState: "live-verified",
-      capabilities: ["text-generation"],
-      approvedMaximumOutputTokens: 4096,
-      contextWindowTokens: null,
-      pricing: {
-        costClass: "local-no-provider-token-charge",
-        currency: "USD",
-        inputUsdPerMillionTokens: 0,
-        outputUsdPerMillionTokens: 0,
-        pricingAsOf: null,
-        sourceLabel: "Local runtime; no provider token charge",
-      },
-      taskProfileScores: {},
-      evidence: [
-        "codexforge-private-alpha-gpt-oss-visible-response-clean",
-        "codexforge-private-alpha-provider-adapter-foundation-clean",
-        "live Jarvis visible-output acceptance",
-        `Local-first live acceptance ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.acceptanceId} accepted on ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.acceptedOn}.`,
-        `Accepted live execution used ${CODEXFORGE_OLLAMA_LOCAL_FIRST_LIVE_ACCEPTANCE.liveExecution.requestMaximumOutputTokens} output tokens; catalog maximum remains ${CODEXFORGE_OLLAMA_LOCAL_PROVIDER_QUALIFICATION.model.catalogApprovedMaximumOutputTokens}.`,
-        `Local provider qualification links ${CODEXFORGE_OLLAMA_LOCAL_PROVIDER_QUALIFICATION.liveAcceptance.acceptanceId}.`,
-      ],
-    },
-    ...CODEXFORGE_GROQ_LIVE_EXECUTION_ACCEPTANCE.acceptedModels.map(
-      buildGroqModelDescriptor
-    ),
-  ],
+  providers: CODEXFORGE_PRODUCTION_FREE_OR_LOCAL_PROVIDER_REGISTRY.map(
+    (registration) => registration.provider
+  ),
+  models: CODEXFORGE_PRODUCTION_FREE_OR_LOCAL_PROVIDER_REGISTRY.flatMap(
+    (registration) => registration.models
+  ),
 };
 
 const productionCatalogErrors = validateCodexForgeModelCatalog(

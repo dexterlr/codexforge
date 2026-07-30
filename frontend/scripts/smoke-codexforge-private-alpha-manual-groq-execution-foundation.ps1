@@ -84,28 +84,28 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha manual Groq execution foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "docs/codexforge-private-alpha-ollama-local-first-live-acceptance-v0.md",
+  "docs/codexforge-free-local-provider-registry-foundation-v0.md",
   "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
+  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
+  "src/lib/codexforge/model-routing/index.ts",
   "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/ollama-provider/index.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-types.ts"
+  "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts"
 )
 $productFiles = @(
+  "src/lib/codexforge/model-routing/index.ts",
   "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/ollama-provider/index.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-local-first-live-acceptance.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-qualification.ts",
-  "src/lib/codexforge/ollama-provider/ollama-provider-types.ts"
+  "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
+  "src/lib/codexforge/model-routing/model-routing-types.ts"
 )
 $parsedScripts = @(
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
@@ -129,7 +129,7 @@ foreach ($path in $parsedScripts) {
 }
 
 $changedPaths = Get-GitChangedPaths
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the fifteen allowed Slice N files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the sixteen allowed Slice O files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed Slice K files: $path"
 }
@@ -160,6 +160,7 @@ $indexSource = Get-Text "src\lib\codexforge\private-alpha\index.ts"
 $providerSource = Get-Text "src\lib\codexforge\private-alpha\private-alpha-provider.server.ts"
 $runtimeSource = Get-Text "src\lib\codexforge\private-alpha\private-alpha-provider-runtime.server.ts"
 $catalogSource = Get-Text "src\lib\codexforge\model-routing\model-routing-catalog.ts"
+$providerRegistrySource = Get-Text "src\lib\codexforge\model-routing\model-routing-provider-registry.ts"
 $athenaAliasSource = Get-Text "src\app\athena\page.tsx"
 $jarvisVideoSource = Get-Text "src\lib\codexforge\jarvis-video-studio-release-candidate-map\components\JarvisVideoStudioReleaseCandidatePanel.tsx"
 $navigationTypesSource = Get-Text "src\lib\codexforge\navigation-shell\navigation-shell-types.ts"
@@ -193,7 +194,10 @@ Assert-Contains $storeSource 'createPrivateAlphaProviderAdapterForModelKey' "Sto
 Assert-Contains $storeSource 'providerAdapterResolver' "Store supports the deterministic adapter resolver hook"
 Assert-NotMatches $storeSource 'routeCodexForgeModel|retryCount|retryAttempts|Promise\.all\(' "Store introduces no routing or retry orchestration"
 Assert-Contains $catalogSource '"codexforge-model-routing-v4"' "Model-routing catalog is v4"
-Assert-Contains $catalogSource 'automaticRoutingAdmission: isAutomatic20b' "Groq 20B catalog entry is automatic only for free-first"
+Assert-Contains $providerRegistrySource 'automaticRoutingAdmission: automatic ?' "Groq registry admission construction uses the automatic conditional"
+Assert-Contains $providerRegistrySource 'const automatic = acceptedModel.modelKey === CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.automaticModelKey;' "Groq registry binds automatic admission to the exact Groq 20B key"
+Assert-Contains $providerRegistrySource 'if (model.modelKey === "groq-cloud::openai/gpt-oss-20b" && (model.approvedMaximumOutputTokens !== 512 || model.routingState !== "automatic" || model.automaticRoutingAdmission?.admissionId !== "codexforge-groq-automatic-routing-admission-v1" || !hasExactOrder(model.automaticRoutingAdmission.modes, ["free-first"]))) errors.push("Groq 20B admission is invalid");' "Groq 20B registry entry is automatic, free-first, and retains the admitted 512-token envelope"
+Assert-Contains $providerRegistrySource 'if (model.modelKey === "groq-cloud::openai/gpt-oss-120b" && (model.approvedMaximumOutputTokens !== 512 || model.routingState !== "manual-only" || model.automaticRoutingAdmission !== null)) errors.push("Groq 120B admission is invalid");' "Groq 120B registry entry is manual-only, non-admitted, and retains the admitted 512-token envelope"
 Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"
 foreach ($marker in @("Mission brief", "Blocked action command deck", "Release summary")) {
   Assert-Contains $jarvisVideoSource $marker "/jarvis-video retains marker $marker"
