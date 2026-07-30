@@ -26,7 +26,7 @@ function Assert-PowerShellParses {
 Write-Host "=== CodexForge Ollama local-first live acceptance smoke ==="
 
 $expectedPaths = @(
-  "docs/codexforge-free-local-provider-registry-foundation-v0.md",
+  "docs/codexforge-registry-backed-free-local-provider-onboarding-admission-foundation-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
@@ -35,16 +35,19 @@ $expectedPaths = @(
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
-  "src/lib/codexforge/model-routing/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
-  "src/lib/codexforge/model-routing/model-routing-types.ts"
+  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
+  "src/lib/codexforge/model-routing/onboarding/index.ts",
+  "src/lib/codexforge/model-routing/onboarding/onboarding-authority.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/onboarding-canonicalization.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/onboarding-constants.ts",
+  "src/lib/codexforge/model-routing/onboarding/onboarding-types.ts",
+  "src/lib/codexforge/model-routing/onboarding/onboarding-validation.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/server.ts"
 )
 $changedPaths = @((& git status --short --untracked-files=all | Where-Object { $_.Length -ge 4 } | ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } | Sort-Object -Unique))
-Assert-True ($changedPaths.Count -eq $expectedPaths.Count) "Changed scope contains exactly the sixteen Slice O files"
+Assert-True ($changedPaths.Count -eq $expectedPaths.Count) "Changed scope contains exactly the nineteen Slice P files"
 foreach ($path in $expectedPaths) {
   Assert-True ($changedPaths -contains $path) "Changed scope includes: $path"
 }
@@ -73,7 +76,7 @@ foreach ($line in Get-Content "scripts/smoke-codexforge-all.ps1") {
     if ($line -match 'smoke-codexforge-private-alpha-ollama-local-first-live-acceptance\.ps1' -and $line -match 'Required = \$true') { $newSmokeOccurrences += 1 }
   }
 }
-Assert-True ($aggregateExecutableCount -eq 65) "Aggregate executable count is 65 after Slice O registry composition"
+Assert-True ($aggregateExecutableCount -eq 66) "Aggregate executable count is 66 after Slice P smoke registration"
 Assert-True ($newSmokeOccurrences -eq 1) "New smoke is registered exactly once and is required"
 
 $nodeScript = @'

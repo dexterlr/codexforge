@@ -62,7 +62,7 @@ Write-Host ""
 Write-Host "=== CodexForge Private Alpha cloud approval binding foundation smoke ==="
 
 $allowedChangedFiles = @(
-  "docs/codexforge-free-local-provider-registry-foundation-v0.md",
+  "docs/codexforge-registry-backed-free-local-provider-onboarding-admission-foundation-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
@@ -71,13 +71,16 @@ $allowedChangedFiles = @(
   "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-groq-live-execution-admission.ps1",
   "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
-  "src/lib/codexforge/model-routing/index.ts",
-  "src/lib/codexforge/model-routing/model-routing-catalog.ts",
-  "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
-  "src/lib/codexforge/model-routing/model-routing-types.ts"
+  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
+  "src/lib/codexforge/model-routing/onboarding/index.ts",
+  "src/lib/codexforge/model-routing/onboarding/onboarding-authority.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/onboarding-canonicalization.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/onboarding-constants.ts",
+  "src/lib/codexforge/model-routing/onboarding/onboarding-types.ts",
+  "src/lib/codexforge/model-routing/onboarding/onboarding-validation.server.ts",
+  "src/lib/codexforge/model-routing/onboarding/server.ts"
 )
 
 $requiredFiles = @(
@@ -124,7 +127,7 @@ $changedPaths = $statusLines |
     $_.Substring(3).Trim() -replace "\\", "/"
   } |
   Sort-Object -Unique
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the sixteen allowed Slice O files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git changed scope contains exactly the nineteen allowed Slice P files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git changed scope stays within the allowed smoke-repair files: $path"
 }
@@ -207,9 +210,9 @@ Assert-NotMatches $privateAlphaPanelSource '\bfetch\s*\(' "PrivateAlphaRunPanel 
 Assert-Contains $privateAlphaCssSource '.privateAlphaTargetSelectorGrid' "Private-alpha CSS includes the target selector layout"
 Assert-Contains $privateAlphaCssSource '.privateAlphaCloudApprovalNotice' "Private-alpha CSS includes the cloud approval notice"
 Assert-True ((& git -c core.safecrlf=false diff --name-only -- src/app/api/codexforge/private-alpha/status src/app/api/codexforge/private-alpha/runs 2>$null | Measure-Object).Count -eq 0) "Existing private-alpha status and run routes remain unchanged"
-Assert-True ((& git -c core.safecrlf=false diff --name-only -- src/lib/codexforge/model-routing/model-routing-catalog.ts 2>$null | Measure-Object).Count -gt 0) "Model-routing catalog changed for Slice O registry composition"
-Assert-True ((& git status --short -- src/lib/codexforge/model-routing/model-routing-provider-registry.ts 2>$null | Measure-Object).Count -gt 0) "Slice O provider registry is present in the dirty scope"
-Assert-True ((& git status --short -- src/lib/codexforge/model-routing/model-routing-types.ts 2>$null | Measure-Object).Count -gt 0) "Slice O production registry types changed"
+Assert-True ($changedPaths -notcontains "src/lib/codexforge/model-routing/model-routing-catalog.ts") "Protected model-routing catalog is absent from the Slice P changed paths"
+Assert-True ($changedPaths -contains "src/lib/codexforge/model-routing/onboarding/onboarding-validation.server.ts") "Slice P server-only onboarding validator is present in the changed paths"
+Assert-True ($changedPaths -contains "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1") "Required Slice P onboarding smoke is present in the changed paths"
 
 $plainTokenPattern = '\b' + 'a' + 'ny' + '\b'
 $asTokenPattern = '\b' + 'as ' + 'a' + 'ny' + '\b'
