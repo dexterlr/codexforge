@@ -45,15 +45,22 @@ $sliceRFiles = @(
   "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
 )
 
-$sliceR1CorrectionPaths = @(
-  "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
+$macroPhaseAPaths = @(
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
+  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
-  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1"
+  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
+  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1"
 )
-Assert-True ($sliceR1CorrectionPaths.Count -eq 5) "Slice R.1 corrective scope declares exactly five files"
-Assert-True (@($sliceR1CorrectionPaths | Sort-Object -Unique).Count -eq 5) "Slice R.1 corrective scope contains five unique files"
+Assert-True ($macroPhaseAPaths.Count -eq 12) "Macro Phase A scope declares exactly twelve files"
+Assert-True (@($macroPhaseAPaths | Sort-Object -Unique).Count -eq 12) "Macro Phase A scope contains twelve unique files"
 
 foreach ($file in $sliceRFiles) {
   Assert-True (Test-Path -LiteralPath $file -PathType Leaf) "Slice R file exists: $file"
@@ -65,9 +72,9 @@ $changedPaths = @(
     ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
-Assert-True ($changedPaths.Count -eq $sliceR1CorrectionPaths.Count) "Git scope contains exactly the five Slice R.1 correction files"
+Assert-True ($changedPaths.Count -eq $macroPhaseAPaths.Count) "Git scope contains exactly the twelve Macro Phase A files"
 foreach ($path in $changedPaths) {
-  Assert-True ($sliceR1CorrectionPaths -contains $path) "Git scope stays within Slice R.1 correction: $path"
+  Assert-True ($macroPhaseAPaths -contains $path) "Git scope stays within Macro Phase A: $path"
 }
 
 $candidateServerPath = "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
@@ -160,8 +167,8 @@ foreach ($needle in $candidateNeedles) {
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 68) "Aggregate executable entry count is 68"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 65) "Aggregate required count is 65"
+Assert-True ($entries.Count -eq 69) "Aggregate executable entry count is 69"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 66) "Aggregate required count is 66"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True (@($entries | Where-Object { $_ -match 'smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1' }).Count -eq 1) "Slice Q smoke is registered exactly once"
 Assert-True ($releaseBlock -match 'Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},') "Slice Q smoke follows Slice P and is required"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type {
   PrivateAlphaApprovalBindingVersion,
   PrivateAlphaBoundApprovalRecord,
@@ -864,6 +864,7 @@ export function PrivateAlphaRunPanel() {
       PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY
     );
   const [requestText, setRequestText] = useState("");
+  const [workspaceConfirmed, setWorkspaceConfirmed] = useState(false);
   const [capability, setCapability] = useState<PrivateAlphaCapability>("text");
   const [maximumOutputTokens, setMaximumOutputTokens] = useState("512");
   const [approvalAcknowledged, setApprovalAcknowledged] = useState(false);
@@ -894,7 +895,9 @@ export function PrivateAlphaRunPanel() {
   const [actionInFlight, setActionInFlight] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<PrivateAlphaPanelView>("current-run");
   const [showCancellationForm, setShowCancellationForm] = useState(false);
+  const actionLockRef = useRef(false);
 
+  const workspaceFieldId = useId();
   const requestFieldId = useId();
   const requestModeFieldId = useId();
   const providerFieldId = useId();
@@ -903,6 +906,21 @@ export function PrivateAlphaRunPanel() {
   const maximumOutputTokensFieldId = useId();
   const cancellationReasonFieldId = useId();
   const tabBaseId = useId();
+
+  function beginOperatorAction(action: string): boolean {
+    if (actionLockRef.current) {
+      return false;
+    }
+
+    actionLockRef.current = true;
+    setActionInFlight(action);
+    return true;
+  }
+
+  function completeOperatorAction(): void {
+    actionLockRef.current = false;
+    setActionInFlight(null);
+  }
 
   async function refreshPanel(preferredRunId?: string): Promise<void> {
     setLoadState("loading");
@@ -1036,7 +1054,62 @@ export function PrivateAlphaRunPanel() {
     setCapability(value);
   }
 
+  function handleRequestTextChange(value: string): void {
+    setRequestText(value);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+  }
+
+  function handleStartAnotherTask(): void {
+    if (
+      actionLockRef.current ||
+      !currentRun ||
+      !["succeeded", "failed", "blocked", "canceled"].includes(currentRun.state)
+    ) {
+      return;
+    }
+
+    setCurrentRun(null);
+    setRequestMode("manual");
+    setSelectedProviderId(PRIVATE_ALPHA_PRODUCTION_PROVIDER_ID);
+    setSelectedModelKey(PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY);
+    setWorkspaceConfirmed(false);
+    setRequestText("");
+    setCapability("text");
+    setMaximumOutputTokens("512");
+    setApprovalAcknowledged(false);
+    setCloudDataTransferAcknowledged(false);
+    setCloudExecutionAcknowledged(false);
+    setGroqFreeTierExecutionAcknowledged(false);
+    setAutomaticCloudRoutingState("disallowed");
+    setAutomaticMetadataProbeAcknowledged(false);
+    setAutomaticFreeTierConfirmed(false);
+    setAutomaticRoutingResult(null);
+    setExecutionAcknowledged(false);
+    setCancellationReason(
+      "Operator canceled this private-alpha run before execution."
+    );
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setShowCancellationForm(false);
+    setActiveView("current-run");
+  }
+
   async function handleCreateRun(): Promise<void> {
+    if (currentRun !== null) {
+      setErrorMessage(
+        "Finish or cancel the current run before starting another task. Terminal runs provide a separate Start another task action."
+      );
+      return;
+    }
+
+    if (!workspaceConfirmed) {
+      setErrorMessage(
+        "Confirm the current local project/workspace before creating an approval request."
+      );
+      return;
+    }
+
     if (requestMode === "free-first-automatic") {
       const automaticCloudRouting = resolveAutomaticCloudRoutingInput(
         automaticCloudRoutingState,
@@ -1046,8 +1119,15 @@ export function PrivateAlphaRunPanel() {
       const parsedMaximumOutputTokens = parseMaximumOutputTokensValue(
         maximumOutputTokens
       );
-      if (parsedMaximumOutputTokens === null) {
-        setErrorMessage("Enter a whole-number maximum output token value.");
+      if (
+        requestText.trim().length === 0 ||
+        parsedMaximumOutputTokens === null ||
+        parsedMaximumOutputTokens < PRIVATE_ALPHA_MIN_OUTPUT_TOKENS ||
+        parsedMaximumOutputTokens > PRIVATE_ALPHA_MAX_OUTPUT_TOKENS
+      ) {
+        setErrorMessage(
+          `Enter a task and a whole-number maximum output token value from ${PRIVATE_ALPHA_MIN_OUTPUT_TOKENS} to ${PRIVATE_ALPHA_MAX_OUTPUT_TOKENS}.`
+        );
         return;
       }
 
@@ -1065,7 +1145,10 @@ export function PrivateAlphaRunPanel() {
         cloudRouting: automaticCloudRouting,
       });
 
-      setActionInFlight("route-create");
+      if (!beginOperatorAction("route-create")) {
+        return;
+      }
+
       setAutomaticRoutingResult(null);
       setErrorMessage(null);
       setSuccessMessage(null);
@@ -1131,7 +1214,7 @@ export function PrivateAlphaRunPanel() {
             : "Unable to route and create the private-alpha approval request."
         );
       } finally {
-        setActionInFlight(null);
+        completeOperatorAction();
       }
 
       return;
@@ -1150,7 +1233,29 @@ export function PrivateAlphaRunPanel() {
       return;
     }
 
-    setActionInFlight("create");
+    const parsedMaximumOutputTokens = parseMaximumOutputTokensValue(
+      maximumOutputTokens
+    );
+    const exactMaximumOutputTokens =
+      exactTarget.providerId === "groq-cloud"
+        ? PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS
+        : PRIVATE_ALPHA_MAX_OUTPUT_TOKENS;
+    if (
+      requestText.trim().length === 0 ||
+      parsedMaximumOutputTokens === null ||
+      parsedMaximumOutputTokens < PRIVATE_ALPHA_MIN_OUTPUT_TOKENS ||
+      parsedMaximumOutputTokens > exactMaximumOutputTokens
+    ) {
+      setErrorMessage(
+        `Enter a task and a whole-number maximum output token value from ${PRIVATE_ALPHA_MIN_OUTPUT_TOKENS} to ${exactMaximumOutputTokens}.`
+      );
+      return;
+    }
+
+    if (!beginOperatorAction("create")) {
+      return;
+    }
+
     setErrorMessage(null);
     setSuccessMessage(null);
 
@@ -1160,7 +1265,7 @@ export function PrivateAlphaRunPanel() {
         capability: exactTarget.supportsCode ? capability : "text",
         modelKey: exactTarget.modelKey,
         modelPreferenceLabel: exactTarget.modelLabel,
-        maximumOutputTokens: Number(maximumOutputTokens),
+        maximumOutputTokens: parsedMaximumOutputTokens,
       });
 
       await refreshPanel(result.run.runId);
@@ -1177,7 +1282,7 @@ export function PrivateAlphaRunPanel() {
           : "Unable to create the private-alpha run."
       );
     } finally {
-      setActionInFlight(null);
+      completeOperatorAction();
     }
   }
 
@@ -1192,7 +1297,19 @@ export function PrivateAlphaRunPanel() {
       return;
     }
 
-    setActionInFlight("approve");
+    if (
+      !approvalAcknowledged ||
+      (classification.kind === "cloud-executable" &&
+        !cloudDataTransferAcknowledged)
+    ) {
+      setErrorMessage("Confirm the exact approval scope before recording approval.");
+      return;
+    }
+
+    if (!beginOperatorAction("approve")) {
+      return;
+    }
+
     setErrorMessage(null);
     setSuccessMessage(null);
 
@@ -1228,7 +1345,7 @@ export function PrivateAlphaRunPanel() {
           : "Unable to record manual approval."
       );
     } finally {
-      setActionInFlight(null);
+      completeOperatorAction();
     }
   }
 
@@ -1243,7 +1360,24 @@ export function PrivateAlphaRunPanel() {
       return;
     }
 
-    setActionInFlight("execute");
+    if (
+      currentRun.state !== "approved" ||
+      (classification.kind === "local-executable"
+        ? !executionAcknowledged || status?.executionAllowed !== true
+        : !cloudExecutionAcknowledged ||
+          !groqFreeTierExecutionAcknowledged ||
+          status?.killSwitchEngaged !== false)
+    ) {
+      setErrorMessage(
+        "Execution remains disabled until this exact approved run, its acknowledgements, runtime availability, and kill switch are all valid."
+      );
+      return;
+    }
+
+    if (!beginOperatorAction("execute")) {
+      return;
+    }
+
     setErrorMessage(null);
     setSuccessMessage(null);
 
@@ -1282,16 +1416,22 @@ export function PrivateAlphaRunPanel() {
 
       setErrorMessage(message);
     } finally {
-      setActionInFlight(null);
+      completeOperatorAction();
     }
   }
 
   async function handleCancel(): Promise<void> {
-    if (!currentRun) {
+    if (
+      !currentRun ||
+      (currentRun.state !== "awaiting_approval" && currentRun.state !== "approved")
+    ) {
       return;
     }
 
-    setActionInFlight("cancel");
+    if (!beginOperatorAction("cancel")) {
+      return;
+    }
+
     setErrorMessage(null);
     setSuccessMessage(null);
 
@@ -1312,7 +1452,7 @@ export function PrivateAlphaRunPanel() {
           : "Unable to cancel the private-alpha run."
       );
     } finally {
-      setActionInFlight(null);
+      completeOperatorAction();
     }
   }
 
@@ -1439,14 +1579,24 @@ export function PrivateAlphaRunPanel() {
     : selectedProviderId === "groq-cloud"
       ? `Valid range ${PRIVATE_ALPHA_MIN_OUTPUT_TOKENS}-${PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS}. New Groq approval requests above 512 are rejected before persistence or provider work.`
       : `Valid range ${PRIVATE_ALPHA_MIN_OUTPUT_TOKENS}-${PRIVATE_ALPHA_MAX_OUTPUT_TOKENS}. Current default is 512. GPT-OSS reasoning effort is fixed to low and uses part of the generation budget. Very small limits may finish without visible final text.`;
+  const composerUnavailable = actionInFlight !== null || currentRun !== null;
   const canCreateBoundRun = automaticModeSelected
-    ? requestText.trim().length > 0 &&
+    ? currentRun === null &&
+      workspaceConfirmed &&
+      requestText.trim().length > 0 &&
       parsedMaximumOutputTokens !== null &&
       parsedMaximumOutputTokens >= PRIVATE_ALPHA_MIN_OUTPUT_TOKENS &&
       parsedMaximumOutputTokens <= PRIVATE_ALPHA_MAX_OUTPUT_TOKENS &&
       automaticCloudRouting !== null &&
       actionInFlight === null
-    : selectedTarget !== null && actionInFlight === null;
+    : currentRun === null &&
+      workspaceConfirmed &&
+      requestText.trim().length > 0 &&
+      parsedMaximumOutputTokens !== null &&
+      parsedMaximumOutputTokens >= PRIVATE_ALPHA_MIN_OUTPUT_TOKENS &&
+      parsedMaximumOutputTokens <= maximumOutputTokensLimit &&
+      selectedTarget !== null &&
+      actionInFlight === null;
   const approvalButtonDisabled =
     !canApprove ||
     actionInFlight !== null ||
@@ -1458,6 +1608,7 @@ export function PrivateAlphaRunPanel() {
     <section
       className={`${styles.panel} ${styles.privateAlphaPanel}`}
       aria-label="Private alpha exact-model approval"
+      aria-busy={loadState === "loading" || actionInFlight !== null}
       data-codexforge-private-alpha-layout="focused"
     >
       <div className={styles.panelHeader}>
@@ -1478,6 +1629,12 @@ export function PrivateAlphaRunPanel() {
       </p>
 
       <div className={styles.privateAlphaStatusStrip}>
+        <div className={styles.privateAlphaStatusItem}>
+          <span className={styles.privateAlphaStatusLabel}>Current workspace</span>
+          <span className={styles.privateAlphaStatusValue}>
+            Current CodexForge project
+          </span>
+        </div>
         <div className={styles.privateAlphaStatusItem}>
           <span className={styles.privateAlphaStatusLabel}>Selected provider</span>
           <span className={styles.privateAlphaStatusValue}>{selectedProviderLabel}</span>
@@ -1552,7 +1709,12 @@ export function PrivateAlphaRunPanel() {
           aria-live="assertive"
           role="alert"
         >
-          {errorMessage}
+          <p>{errorMessage}</p>
+          <p>
+            Nothing retries or reroutes automatically. Review local runtime and
+            kill-switch status, refresh local state, or start a clean task after
+            the current run reaches a terminal state.
+          </p>
         </div>
       ) : null}
 
@@ -1597,6 +1759,52 @@ export function PrivateAlphaRunPanel() {
             <div className={styles.privateAlphaForm}>
               <div
                 className={styles.privateAlphaField}
+                data-codexforge-jarvis-workspace-confirmation="required"
+              >
+                <label htmlFor={workspaceFieldId}>
+                  <span className={styles.athenaInputLabel}>
+                    Local project/workspace
+                  </span>
+                  <select
+                    id={workspaceFieldId}
+                    className={styles.privateAlphaSelect}
+                    defaultValue="current-codexforge-project"
+                    disabled={composerUnavailable}
+                    aria-describedby={`${workspaceFieldId}-boundary`}
+                  >
+                    <option value="current-codexforge-project">
+                      Current CodexForge project (server-owned workspace root)
+                    </option>
+                  </select>
+                </label>
+                <label className={styles.privateAlphaToggle}>
+                  <input
+                    type="checkbox"
+                    checked={workspaceConfirmed}
+                    onChange={(event) => {
+                      setWorkspaceConfirmed(event.target.checked);
+                      setErrorMessage(null);
+                      setSuccessMessage(null);
+                    }}
+                    disabled={composerUnavailable}
+                  />
+                  <span className={styles.placeholderSummary}>
+                    I confirm this local workspace for the task. Only the task
+                    text enters this run; project files are not attached or
+                    modified automatically.
+                  </span>
+                </label>
+                <p
+                  id={`${workspaceFieldId}-boundary`}
+                  className={styles.privateAlphaSecondaryText}
+                >
+                  File reading, patch review and approved apply, and allowlisted
+                  validation remain separate guarded actions.
+                </p>
+              </div>
+
+              <div
+                className={styles.privateAlphaField}
                 role="radiogroup"
                 aria-labelledby={requestModeFieldId}
               >
@@ -1622,7 +1830,7 @@ export function PrivateAlphaRunPanel() {
                           handleRequestModeChange(event.target.value)
                         }
                         value={mode.id}
-                        disabled={actionInFlight !== null}
+                        disabled={composerUnavailable}
                       />
                       <span className={styles.placeholderSummary}>
                         <strong>{mode.label}</strong>
@@ -1640,9 +1848,9 @@ export function PrivateAlphaRunPanel() {
                   id={requestFieldId}
                   className={styles.privateAlphaTextarea}
                   value={requestText}
-                  onChange={(event) => setRequestText(event.target.value)}
+                  onChange={(event) => handleRequestTextChange(event.target.value)}
                   rows={7}
-                  disabled={actionInFlight !== null}
+                  disabled={composerUnavailable}
                   placeholder={
                     automaticModeSelected
                       ? "Describe the text request for free-first automatic routing. This text is captured locally and is not sent to the routing endpoint."
@@ -1682,7 +1890,7 @@ export function PrivateAlphaRunPanel() {
                             event.target.value as PrivateAlphaAutomaticCloudRoutingState
                           )
                         }
-                        disabled={actionInFlight !== null}
+                        disabled={composerUnavailable}
                       >
                         <option value="disallowed">
                           Disallow cloud routing and cloud metadata probes
@@ -1726,7 +1934,7 @@ export function PrivateAlphaRunPanel() {
                               event.target.checked
                             )
                           }
-                          disabled={actionInFlight !== null}
+                          disabled={composerUnavailable}
                         />
                         <span className={styles.placeholderSummary}>
                           I permit one authenticated Groq metadata probe for
@@ -1746,7 +1954,7 @@ export function PrivateAlphaRunPanel() {
                           onChange={(event) =>
                             setAutomaticFreeTierConfirmed(event.target.checked)
                           }
-                          disabled={actionInFlight !== null}
+                          disabled={composerUnavailable}
                         />
                         <span className={styles.placeholderSummary}>
                           I separately confirm that the current Groq account
@@ -1818,7 +2026,7 @@ export function PrivateAlphaRunPanel() {
                         onChange={(event) =>
                           handleProviderSelectionChange(event.target.value)
                         }
-                        disabled={actionInFlight !== null}
+                        disabled={composerUnavailable}
                       >
                         {PRIVATE_ALPHA_MANUAL_PROVIDER_OPTIONS.map((provider) => (
                           <option key={provider.id} value={provider.id}>
@@ -1842,7 +2050,7 @@ export function PrivateAlphaRunPanel() {
                         onChange={(event) =>
                           handleModelSelectionChange(event.target.value)
                         }
-                        disabled={actionInFlight !== null}
+                        disabled={composerUnavailable}
                       >
                         {selectedProviderId === "ollama-local" ? (
                           <option value={PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY}>
@@ -1874,7 +2082,7 @@ export function PrivateAlphaRunPanel() {
                       onChange={(event) => handleCapabilityChange(event.target.value)}
                       disabled={
                         selectedProviderId === "groq-cloud" ||
-                        actionInFlight !== null
+                        composerUnavailable
                       }
                     >
                       <option value="text">Text</option>
@@ -1960,7 +2168,7 @@ export function PrivateAlphaRunPanel() {
                       max={maximumOutputTokensLimit}
                       value={maximumOutputTokens}
                       onChange={(event) => setMaximumOutputTokens(event.target.value)}
-                      disabled={actionInFlight !== null}
+                      disabled={composerUnavailable}
                     />
                   </label>
                   <p className={styles.privateAlphaSecondaryText}>
@@ -1996,6 +2204,13 @@ export function PrivateAlphaRunPanel() {
                   Refresh local state
                 </button>
               </div>
+              {currentRun !== null ? (
+                <p className={styles.privateAlphaSecondaryText}>
+                  The composer is locked to prevent a second task from sharing
+                  this run&apos;s approval or result. Complete or cancel the current
+                  run, then use Start another task.
+                </p>
+              ) : null}
               {!automaticModeSelected &&
               selectedProviderId === "groq-cloud" &&
               selectedTarget === null ? (
@@ -2440,7 +2655,7 @@ export function PrivateAlphaRunPanel() {
                           disabled={!canApprove || actionInFlight !== null}
                         />
                         <span className={styles.placeholderSummary}>
-                          {`Manual approval records this exact ${currentRunProviderLabel} / ${currentRunModelLabel} scope. ${
+                          {`Manual approval records this exact ${currentRunProviderLabel} / ${currentRunModelLabel} / ${currentRunDataBoundaryLabel} scope. ${
                             cloudExecutableRun
                               ? "No prompt is sent to Groq by recording approval."
                               : "Execution still requires a separate explicit local action."
@@ -2508,9 +2723,7 @@ export function PrivateAlphaRunPanel() {
                           }
                         />
                         <span className={styles.placeholderSummary}>
-                          I acknowledge that the approved prompt is sent only to
-                          local Ollama, no cloud provider is contacted, and
-                          this run allows one execution attempt.
+                          {`I acknowledge that this exact ${currentRunProviderLabel} / ${currentRunModelLabel} request stays inside the local-machine data boundary, no cloud provider is contacted, and this run allows one execution attempt.`}
                         </span>
                       </label>
                       <div className={styles.privateAlphaButtonRow}>
@@ -2665,14 +2878,27 @@ export function PrivateAlphaRunPanel() {
                   currentRun.state === "failed" ||
                   currentRun.state === "blocked" ||
                   currentRun.state === "canceled") ? (
-                  <div className={styles.privateAlphaNotice}>
-                    {currentRun.state === "succeeded"
-                      ? "Execution completed successfully."
-                      : currentRun.state === "failed"
-                        ? "Execution finished with a safe persisted failure record."
-                        : currentRun.state === "blocked"
-                          ? "Execution remained blocked and a safe status was persisted."
-                          : "This run is closed after cancellation."}
+                  <div className={styles.privateAlphaStack}>
+                    <div className={styles.privateAlphaNotice}>
+                      {currentRun.state === "succeeded"
+                        ? "Execution completed successfully."
+                        : currentRun.state === "failed"
+                          ? "Execution finished with a safe persisted failure record."
+                          : currentRun.state === "blocked"
+                            ? "Execution remained blocked and a safe status was persisted."
+                            : "This run is closed after cancellation."}
+                    </div>
+                    <div className={styles.privateAlphaButtonRow}>
+                      <button
+                        className={styles.privateAlphaButtonSecondary}
+                        type="button"
+                        onClick={handleStartAnotherTask}
+                        disabled={actionInFlight !== null}
+                        data-codexforge-jarvis-start-another-task="isolated-reset"
+                      >
+                        Start another task
+                      </button>
+                    </div>
                   </div>
                 ) : null}
 

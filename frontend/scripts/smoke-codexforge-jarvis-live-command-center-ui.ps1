@@ -82,27 +82,27 @@ function Get-StatusEntries {
 
 $Failures = New-Object System.Collections.Generic.List[string]
 
-$allowedSliceRPaths = @(
-  "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
+$allowedMacroPhaseAPaths = @(
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
   "scripts/smoke-codexforge-all.ps1",
-  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
-  "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
-  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
-  "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
-  "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
-  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
-  "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
-  "scripts/qualify-codexforge-qwen2-5-coder-32b-installed-candidate.ps1",
-  "scripts/run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance.ps1",
   "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-types.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-canonicalization.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
+  "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
+  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
+  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1"
+  # Historical Slice R scope entries were replaced mechanically for Macro Phase A.
+  # Historical qualification and controlled-acceptance sources remain unchanged.
+  # Historical candidate declarations remain unchanged.
+  # Historical evidence remains outside this smoke.
+  # Provider registry and catalog ownership remain protected.
+  # Provider adapters and credential resolution remain protected.
+  # Package and configuration ownership remain protected.
+  # No live script is registered by this scope repair.
 )
 
 $athenaPanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx"
@@ -165,15 +165,21 @@ Add-Result (
   $liveJarvisBranchMatch.Success -and
   $liveJarvisBranchMatch.Value -notmatch 'JarvisDeveloperDiagnosticsDock'
 ) "developer diagnostics are absent from the live /jarvis branch"
-Add-Result ([regex]::Matches($livePanel, 'routeLabel: "/').Count -eq 3) "exactly three quick links exist"
+Add-Result ([regex]::Matches($livePanel, 'routeLabel: "/').Count -eq 6) "exactly six quick links exist"
 Add-Result (
+  $livePanel.Contains('title: "Project Files"') -and
+  $livePanel.Contains('href: "/files"') -and
+  $livePanel.Contains('title: "Patch Review"') -and
+  $livePanel.Contains('href: "/patch-preview-workbench"') -and
+  $livePanel.Contains('title: "Validation"') -and
+  $livePanel.Contains('href: "/validation"') -and
   $livePanel.Contains('title: "Video Studio"') -and
   $livePanel.Contains('href: "/jarvis-video"') -and
   $livePanel.Contains('title: "Providers"') -and
   $livePanel.Contains('href: "/ai-providers"') -and
   $livePanel.Contains('title: "Audit and Runs"') -and
   $livePanel.Contains('href: "/jarvis-audit"')
-) "quick links target Video Studio, Providers, and Audit and Runs"
+) "quick links target files, patch review, validation, Video Studio, Providers, and Audit and Runs"
 Add-Result (
   $privateAlpha.Contains('data-codexforge-private-alpha-composer="true"') -and
   $privateAlpha -match '<textarea'
@@ -295,33 +301,33 @@ $changedProductSourcePaths = @(
   $productSourceChanges | Where-Object { $_ -match '^src/' }
 )
 $expectedProductSourcePaths = @(
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-types.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-canonicalization.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx"
+  # Historical product-source count retained mechanically.
+  # Protected provider source remains unchanged.
 )
 Add-Result (
-  $changedPaths.Count -eq $allowedSliceRPaths.Count -and
-  @($changedPaths | Where-Object { $allowedSliceRPaths -notcontains $_ }).Count -eq 0
-) "git scope contains exactly the twenty allowed Slice R files"
+  $changedPaths.Count -eq $allowedMacroPhaseAPaths.Count -and
+  @($changedPaths | Where-Object { $allowedMacroPhaseAPaths -notcontains $_ }).Count -eq 0
+) "git scope contains exactly the twelve allowed Macro Phase A files"
 Add-Result (
   $changedProductSourcePaths.Count -eq $expectedProductSourcePaths.Count -and
   @($changedProductSourcePaths | Where-Object { $expectedProductSourcePaths -notcontains $_ }).Count -eq 0
-) "only the exact Slice R qualification and controlled acceptance source paths changed"
+) "only the exact Macro Phase A product source paths changed"
 Add-Result (
   $changedPaths -notcontains "src/lib/codexforge/model-routing/model-routing-provider-registry.ts" -and
   $changedPaths -notcontains "src/lib/codexforge/model-routing/model-routing-catalog.ts" -and
   $changedPaths -notcontains "src/lib/codexforge/model-routing/model-routing-types.ts" -and
   $changedPaths -notcontains "src/lib/codexforge/model-routing/index.ts"
-) "protected model-routing production ownership remains outside the Slice R changed paths"
+) "protected model-routing production ownership remains outside the Macro Phase A changed paths"
 Add-Result (
-  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts" -and
-  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
-) "Slice R server-only runtime ownership is present in the changed paths"
+  $changedPaths -contains "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx" -and
+  $changedPaths -contains "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx"
+) "Macro Phase A product ownership is present in the changed paths"
 Add-Result (
-  $changedPaths -contains "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-types.ts" -and
-  $changedPaths -contains "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1"
-) "Slice R type contract and required smoke ownership are present"
+  $changedPaths -contains "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1" -and
+  $changedPaths -contains "scripts/smoke-codexforge-all.ps1"
+) "Macro Phase A required smoke and aggregate ownership are present"
 Add-Result ($changedTypeScriptText -notmatch ':\s*any\b|\bas any\b|<any>') "no any or as any was introduced"
 Add-Result ($changedUiText -notmatch 'ts-nocheck|ts-expect-error') "no ts-nocheck or ts-expect-error was introduced"
 Add-Result ($commandDeckRole.Contains("commandDeckRole: CodexForgeCommandDeckRole;")) "commandDeckRole remains strongly typed"

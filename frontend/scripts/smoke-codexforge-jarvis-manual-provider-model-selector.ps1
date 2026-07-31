@@ -99,26 +99,26 @@ Write-Host ""
 Write-Host "=== CodexForge Jarvis manual provider model selector smoke ==="
 
 $allowedChangedFiles = @(
-  "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
   "scripts/smoke-codexforge-all.ps1",
-  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
-  "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
-  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
-  "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
+  "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
-  "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
-  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
-  "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
-  "scripts/qualify-codexforge-qwen2-5-coder-32b-installed-candidate.ps1",
-  "scripts/run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance.ps1",
   "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-types.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-canonicalization.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
+  "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
+  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
+  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1"
+  # Historical Slice R scope entries were replaced mechanically for Macro Phase A.
+  # Historical qualification and controlled-acceptance sources remain unchanged.
+  # Historical candidate declarations remain unchanged.
+  # Historical evidence remains outside this smoke.
+  # Provider registry and catalog ownership remain protected.
+  # Provider adapters and credential resolution remain protected.
+  # Package and configuration ownership remain protected.
+  # No live script is registered by this scope repair.
 )
 
 $requiredFiles = @(
@@ -169,7 +169,7 @@ $changedPaths = $statusLines |
   } |
   Sort-Object -Unique
 
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the twenty allowed Slice R files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the twelve allowed Macro Phase A files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed smoke-repair files: $path"
 }
@@ -284,7 +284,7 @@ Assert-Contains $approvedCloudWindow 'handleExecute()' "Approved Groq UI routes 
 Assert-Contains $panelSource 'cloudExecutionAcknowledgement: true' "Approved Groq execution payload includes cloudExecutionAcknowledgement true"
 Assert-Contains $approvedCloudWindow 'there is no automatic routing, retry, or fallback.' "Approved Groq UI keeps the explicit one-attempt and no-routing posture"
 Assert-Contains $approvedCloudWindow 'Cancel run' "Approved Groq UI retains cancellation"
-Assert-Contains $panelSource 'I acknowledge that the approved prompt is sent only to' "Local approved UI still renders the execution acknowledgement"
+Assert-Contains $panelSource 'I acknowledge that this exact ${currentRunProviderLabel} / ${currentRunModelLabel} request stays inside the local-machine data boundary' "Local approved UI still renders the exact-model execution acknowledgement"
 Assert-Contains $panelSource 'executePrivateAlphaRun(currentRun.runId, {' "Local approved UI still calls executePrivateAlphaRun"
 Assert-Contains $panelSource 'status?.executionAllowed === true' "Local canExecute still requires executionAllowed"
 Assert-Contains $panelSource 'executionAcknowledged' "Local canExecute still requires the local execution acknowledgement"

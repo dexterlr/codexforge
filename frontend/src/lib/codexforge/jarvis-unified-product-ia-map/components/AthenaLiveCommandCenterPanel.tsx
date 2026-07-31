@@ -14,6 +14,27 @@ type AthenaLiveQuickLink = Readonly<{
 
 const ATHENA_LIVE_QUICK_LINKS = [
   {
+    href: "/files",
+    routeLabel: "/files",
+    summary:
+      "Inspect the current server-owned project workspace through the bounded file reader.",
+    title: "Project Files",
+  },
+  {
+    href: "/patch-preview-workbench",
+    routeLabel: "/patch-preview-workbench",
+    summary:
+      "Review proposed file changes as a patch before the separate Approved Patch Apply boundary.",
+    title: "Patch Review",
+  },
+  {
+    href: "/validation",
+    routeLabel: "/validation",
+    summary:
+      "Open the allowlisted Validation Runner with its own explicit approval step.",
+    title: "Validation",
+  },
+  {
     href: "/jarvis-video",
     routeLabel: "/jarvis-video",
     summary: "Open the focused studio for recorded video task planning and review.",
@@ -43,10 +64,12 @@ export function AthenaLiveCommandCenterPanel() {
         <p className={styles.panelEyebrow}>Private Alpha</p>
         <h1 className={styles.liveAthenaTitle}>Athena Command Center</h1>
         <p className={styles.liveAthenaSummary}>
-          Plan, approve, and run local AI tasks through Jarvis safety controls.
+          Confirm a workspace, create a task, review its exact scope, approve it,
+          and execute it once through Jarvis safety controls.
         </p>
         <p className={styles.liveAthenaSupport}>
-          Local execution stays on this machine through Ollama.
+          The normal path uses exact ollama-local::gpt-oss:20b. Local success
+          stays on this machine through Ollama with a 4096-token ceiling.
         </p>
       </section>
 
@@ -54,7 +77,7 @@ export function AthenaLiveCommandCenterPanel() {
 
       <section
         className={styles.liveAthenaQuickLinks}
-        aria-label="Athena quick links"
+        aria-label="Jarvis project and review tools"
         data-codexforge-athena-quick-links="true"
       >
         {ATHENA_LIVE_QUICK_LINKS.map((link) => (

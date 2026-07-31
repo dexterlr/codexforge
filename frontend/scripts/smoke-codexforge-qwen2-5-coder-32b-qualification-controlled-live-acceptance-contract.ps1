@@ -16,12 +16,19 @@ $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 Write-Host "=== CodexForge Slice R exact Qwen qualification and controlled acceptance smoke ==="
 
-$sliceRCorrectionPaths = @(
-  "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
+$macroPhaseAPaths = @(
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
+  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
-  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1"
+  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
+  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1"
 )
 
 $changedPaths = @(
@@ -30,9 +37,9 @@ $changedPaths = @(
     ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
-Assert-True ($changedPaths.Count -eq 5) "Dirty scope contains exactly five Slice R.1 correction paths"
+Assert-True ($changedPaths.Count -eq 12) "Dirty scope contains exactly twelve Macro Phase A paths"
 foreach ($path in $changedPaths) {
-  Assert-True ($sliceRCorrectionPaths -contains $path) "Dirty path is approved for Slice R.1: $path"
+  Assert-True ($macroPhaseAPaths -contains $path) "Dirty path is approved for Macro Phase A: $path"
 }
 
 $protectedPaths = @(
@@ -69,8 +76,8 @@ foreach ($path in @($changedPaths | Where-Object { $_ -like "*.ps1" })) {
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 68) "Aggregate executable count is 68"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 65) "Aggregate required count is 65"
+Assert-True ($entries.Count -eq 69) "Aggregate executable count is 69"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 66) "Aggregate required count is 66"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True ($releaseBlock -match 'First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},\r?\n  @\{ Name = "Exact Qwen 2\.5 Coder 32B Qualification and Controlled Acceptance Contract"; File = "smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract\.ps1"; Required = \$true \},') "Slice R follows Slice Q and is required"
 Assert-True ($releaseBlock -notmatch 'qualify-codexforge-qwen2-5-coder-32b-installed-candidate|run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance') "Manual scripts are absent from the aggregate"
