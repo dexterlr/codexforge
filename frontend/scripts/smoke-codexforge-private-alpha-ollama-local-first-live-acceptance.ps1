@@ -25,7 +25,7 @@ function Assert-PowerShellParses {
 
 Write-Host "=== CodexForge Ollama local-first live acceptance smoke ==="
 
-$expectedPaths = @(
+$sliceRFiles = @(
   "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
@@ -47,9 +47,21 @@ $expectedPaths = @(
   "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
   "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
 )
+$sliceR1CorrectionPaths = @(
+  "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
+  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
+  "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
+  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1"
+)
+Assert-True ($sliceR1CorrectionPaths.Count -eq 5) "Slice R.1 corrective scope declares exactly five files"
+Assert-True (@($sliceR1CorrectionPaths | Sort-Object -Unique).Count -eq 5) "Slice R.1 corrective scope contains five unique files"
+foreach ($path in $sliceRFiles) {
+  Assert-True (Test-Path -LiteralPath $path -PathType Leaf) "Historical Slice R file remains present: $path"
+}
 $changedPaths = @((& git status --short --untracked-files=all | Where-Object { $_.Length -ge 4 } | ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } | Sort-Object -Unique))
-Assert-True ($changedPaths.Count -eq $expectedPaths.Count) "Changed scope contains exactly the twenty Slice R files"
-foreach ($path in $expectedPaths) {
+Assert-True ($changedPaths.Count -eq $sliceR1CorrectionPaths.Count) "Changed scope contains exactly the five Slice R.1 correction files"
+foreach ($path in $sliceR1CorrectionPaths) {
   Assert-True ($changedPaths -contains $path) "Changed scope includes: $path"
 }
 

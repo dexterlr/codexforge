@@ -41,15 +41,17 @@ Qualification uses only the fixed numeric origin `http://127.0.0.1:11434`,
 `GET /api/tags`, and read-only `POST /api/show` with exact compact body:
 
 ```json
-{"model":"qwen2.5-coder:32b","verbose":true}
+{"model":"qwen2.5-coder:32b","verbose":false}
 ```
 
 There is no configurable host, DNS, redirect, proxy, credential, Ollama CLI,
 child process, download, pull, create, copy, delete, reload, replacement, or
-keep-alive mutation. Metadata responses are capped at 262,144 bytes, each call
-at five seconds, with a ten-second qualification budget. The current exact name,
-digest, installation metadata, declared capabilities, structured model metadata,
-and content hashes must match Slice Q. Raw metadata is discarded.
+keep-alive mutation. The compact response deliberately excludes unnecessary
+verbose tokenizer arrays. Metadata responses remain capped at exactly 262,144
+bytes, each call at five seconds, with a ten-second qualification budget. The
+current exact name, digest, installation metadata, declared capabilities,
+structured model metadata, and content hashes must match Slice Q. Raw metadata
+is discarded.
 
 The qualification state path is:
 

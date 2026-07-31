@@ -45,6 +45,16 @@ $sliceRFiles = @(
   "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
 )
 
+$sliceR1CorrectionPaths = @(
+  "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
+  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
+  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
+  "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
+  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1"
+)
+Assert-True ($sliceR1CorrectionPaths.Count -eq 5) "Slice R.1 corrective scope declares exactly five files"
+Assert-True (@($sliceR1CorrectionPaths | Sort-Object -Unique).Count -eq 5) "Slice R.1 corrective scope contains five unique files"
+
 foreach ($file in $sliceRFiles) {
   Assert-True (Test-Path -LiteralPath $file -PathType Leaf) "Slice R file exists: $file"
 }
@@ -55,9 +65,9 @@ $changedPaths = @(
     ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
-Assert-True ($changedPaths.Count -eq $sliceRFiles.Count) "Git scope contains exactly the twenty Slice R files"
+Assert-True ($changedPaths.Count -eq $sliceR1CorrectionPaths.Count) "Git scope contains exactly the five Slice R.1 correction files"
 foreach ($path in $changedPaths) {
-  Assert-True ($sliceRFiles -contains $path) "Git scope stays within Slice R: $path"
+  Assert-True ($sliceR1CorrectionPaths -contains $path) "Git scope stays within Slice R.1 correction: $path"
 }
 
 $candidateServerPath = "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"

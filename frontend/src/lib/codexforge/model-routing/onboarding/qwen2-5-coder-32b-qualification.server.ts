@@ -30,7 +30,7 @@ export const CODEXFORGE_QWEN25_CODER_32B_TAGS_PATH = "/api/tags" as const;
 export const CODEXFORGE_QWEN25_CODER_32B_SHOW_PATH = "/api/show" as const;
 export const CODEXFORGE_QWEN25_CODER_32B_SHOW_BODY = Object.freeze({
   model: CODEXFORGE_QWEN25_CODER_32B_MODEL_ID,
-  verbose: true,
+  verbose: false,
 } as const);
 export const CODEXFORGE_QWEN25_CODER_32B_METADATA_RESPONSE_MAXIMUM_BYTES =
   262_144 as const;

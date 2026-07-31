@@ -16,27 +16,12 @@ $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 Write-Host "=== CodexForge Slice R exact Qwen qualification and controlled acceptance smoke ==="
 
-$sliceRPaths = @(
+$sliceRCorrectionPaths = @(
   "docs/codexforge-exact-installed-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract-v0.md",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-types.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification-live-acceptance-canonicalization.server.ts",
   "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
-  "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts",
-  "scripts/qualify-codexforge-qwen2-5-coder-32b-installed-candidate.ps1",
-  "scripts/run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance.ps1",
   "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
-  "scripts/smoke-codexforge-all.ps1",
-  "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
-  "scripts/smoke-codexforge-groq-live-qualification-admission.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
-  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
-  "scripts/smoke-codexforge-private-alpha-cloud-approval-binding-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
-  "scripts/smoke-codexforge-private-alpha-groq-adapter-runtime-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-manual-groq-execution-foundation.ps1",
-  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
-  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
-  "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1"
+  "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
+  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1"
 )
 
 $changedPaths = @(
@@ -45,9 +30,9 @@ $changedPaths = @(
     ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
-Assert-True ($changedPaths.Count -eq 20) "Dirty scope contains exactly twenty Slice R paths"
+Assert-True ($changedPaths.Count -eq 5) "Dirty scope contains exactly five Slice R.1 correction paths"
 foreach ($path in $changedPaths) {
-  Assert-True ($sliceRPaths -contains $path) "Dirty path is approved for Slice R: $path"
+  Assert-True ($sliceRCorrectionPaths -contains $path) "Dirty path is approved for Slice R.1: $path"
 }
 
 $protectedPaths = @(
@@ -182,6 +167,8 @@ const expectedMetadata = qualification.getCodexForgeQwen25Coder32BExpectedQualif
 const NOW = "2026-07-30T18:00:00.000Z";
 const REVIEW_NOW = "2026-07-30T18:02:00.000Z";
 const CHECKPOINT = "5e190a28decba0e75c47d2491e905df79f679028";
+assert(qualification.CODEXFORGE_QWEN25_CODER_32B_METADATA_RESPONSE_MAXIMUM_BYTES === 262144, "qualification metadata response ceiling remains exactly 262144 bytes");
+assert(JSON.stringify(qualification.CODEXFORGE_QWEN25_CODER_32B_SHOW_BODY) === '{"model":"qwen2.5-coder:32b","verbose":false}', "qualification show body is exact compact non-verbose JSON");
 const qualifiedResult = qualification.qualifyCodexForgeQwen25Coder32BNormalizedMetadataForTesting({ normalizedMetadata: expectedMetadata, now: NOW });
 assert(qualifiedResult.ok, `exact normalized metadata must qualify: ${JSON.stringify(qualifiedResult)}`);
 const qualified = qualifiedResult.value;
@@ -224,9 +211,74 @@ qCode(await qualification.qualifyCodexForgeQwen25Coder32BInstalledCandidate({ fe
     return response({ models: [tag] });
   }
   assert(String(url) === "http://127.0.0.1:11434/api/show" && init.method === "POST" && init.redirect === "error", "show request is exact");
-  assert(init.body === '{"model":"qwen2.5-coder:32b","verbose":true}', "show body is exact compact JSON");
+  assert(init.body === '{"model":"qwen2.5-coder:32b","verbose":false}', "show body is exact compact non-verbose JSON");
   return response({ model_info: {}, capabilities: ["wrong"] });
 } }), "unsupported-capability-metadata");
+
+let oversizedRequestSequence = 0;
+const oversizedVerboseStyleShow = {
+  model_info: {
+    "general.parameter_count": expectedMetadata.show.parameterCount,
+    "qwen2.context_length": expectedMetadata.show.contextLengthTokens,
+    "qwen2.embedding_length": expectedMetadata.show.embeddingLength,
+    "tokenizer.ggml.tokens": Array.from({ length: 70000 }, (_value, index) => `token-${index}`),
+  },
+};
+assert(Buffer.byteLength(JSON.stringify(oversizedVerboseStyleShow), "utf8") > qualification.CODEXFORGE_QWEN25_CODER_32B_METADATA_RESPONSE_MAXIMUM_BYTES, "oversized verbose-style tokenizer metadata is constructed in memory above the exact ceiling");
+qCode(await qualification.qualifyCodexForgeQwen25Coder32BInstalledCandidate({ fetchFn: async (url, init) => {
+  oversizedRequestSequence += 1;
+  if (oversizedRequestSequence === 1) return response({ models: [tag] });
+  assert(oversizedRequestSequence === 2 && String(url) === "http://127.0.0.1:11434/api/show", "oversized verbose-style metadata rejection occurs on the second metadata request");
+  assert(init.body === '{"model":"qwen2.5-coder:32b","verbose":false}', "oversized-response lane still sends the exact compact non-verbose body");
+  return response(oversizedVerboseStyleShow);
+} }), "metadata-response-too-large");
+assert(oversizedRequestSequence === 2, "oversized verbose-style response rejects after exactly two metadata requests");
+
+const originalSha256Utf8 = canonical.sha256CodexForgeQwen25Coder32BUtf8;
+const compactContent = {
+  template: "t".repeat(expectedMetadata.show.content.template.utf8Bytes),
+  license: "l".repeat(expectedMetadata.show.content.license.utf8Bytes),
+  system: "s".repeat(expectedMetadata.show.content.system.utf8Bytes),
+  modelfile: "m".repeat(expectedMetadata.show.content.modelfile.utf8Bytes),
+};
+const compactContentDigests = new Map([
+  [compactContent.template, expectedMetadata.show.content.template.sha256],
+  [compactContent.license, expectedMetadata.show.content.license.sha256],
+  [compactContent.system, expectedMetadata.show.content.system.sha256],
+  [compactContent.modelfile, expectedMetadata.show.content.modelfile.sha256],
+]);
+canonical.sha256CodexForgeQwen25Coder32BUtf8 = (value) => compactContentDigests.get(value) || originalSha256Utf8(value);
+const boundedNonVerboseShow = {
+  details: clone(expectedMetadata.show.details),
+  capabilities: clone(expectedMetadata.show.capabilities),
+  model_info: {
+    "general.parameter_count": expectedMetadata.show.parameterCount,
+    "qwen2.context_length": expectedMetadata.show.contextLengthTokens,
+    "qwen2.embedding_length": expectedMetadata.show.embeddingLength,
+  },
+  ...compactContent,
+};
+assert(!Object.prototype.hasOwnProperty.call(boundedNonVerboseShow, "parameters"), "bounded non-verbose metadata deliberately omits parameters");
+assert(Buffer.byteLength(JSON.stringify(boundedNonVerboseShow), "utf8") < qualification.CODEXFORGE_QWEN25_CODER_32B_METADATA_RESPONSE_MAXIMUM_BYTES, "bounded non-verbose metadata fits beneath the exact response ceiling");
+let successfulMetadataCalls = 0;
+let boundedQualification;
+try {
+  boundedQualification = await qualification.qualifyCodexForgeQwen25Coder32BInstalledCandidate({ now: () => NOW, fetchFn: async (url, init) => {
+    successfulMetadataCalls += 1;
+    if (successfulMetadataCalls === 1) return response({ models: [tag] });
+    assert(successfulMetadataCalls === 2 && String(url) === "http://127.0.0.1:11434/api/show", "bounded non-verbose metadata reaches the second metadata request");
+    assert(init.body === '{"model":"qwen2.5-coder:32b","verbose":false}', "successful qualification sends the exact compact non-verbose body");
+    return response(boundedNonVerboseShow);
+  } });
+} finally {
+  canonical.sha256CodexForgeQwen25Coder32BUtf8 = originalSha256Utf8;
+}
+assert(boundedQualification.ok, `bounded non-verbose metadata advances past size and schema validation: ${JSON.stringify(boundedQualification)}`);
+assert(boundedQualification.value.metadataRequestCount === 2 && successfulMetadataCalls === 2, "successful qualification uses exactly two metadata calls");
+assert(boundedQualification.value.generationAttemptCount === 0 && counters.injectedGenerationCalls === 0, "successful qualification performs zero generation calls");
+assert(expectedMetadata.show.content.parameters === null && boundedQualification.ok, "absent parameters normalizes to null during successful qualification");
+assert(counters.retry === 0 && counters.fallback === 0 && counters.reroute === 0 && counters.providerSubstitution === 0 && counters.modelSubstitution === 0, "qualification performs no retry, fallback, reroute, or substitution");
+assert(counters.downloads === 0 && counters.groqCalls === 0 && counters.credentialReads === 0 && counters.fileMutations === 0, "qualification performs no download, Groq, credential, or persistence activity");
 qCode(qualification.qualifyCodexForgeQwen25Coder32BNormalizedMetadataForTesting({ normalizedMetadata: expectedMetadata, now: "invalid" }), "qualification-evidence-construction-failed");
 assert(types.CODEXFORGE_QWEN25_CODER_32B_QUALIFICATION_REJECTION_CODES.every((code) => seenQ.has(code)), "every qualification rejection code is exercised");
 
@@ -364,7 +416,7 @@ assert(counters.childProcesses === 0 && counters.fileMutations === 0, "applicati
 assert(counters.retry === 0 && counters.fallback === 0 && counters.reroute === 0 && counters.providerSubstitution === 0 && counters.modelSubstitution === 0 && counters.downloads === 0 && counters.groqCalls === 0 && counters.normalApproval === 0, "all forbidden execution counters remain zero");
 
 process.env = originalEnvironment;
-process.stdout.write(JSON.stringify({ success: true, catalogSha256, counters, qualificationCodeCount: seenQ.size, acceptanceCodeCount: seenA.size, admissionCodeCount: seenE.size }));
+process.stdout.write(JSON.stringify({ success: true, catalogSha256, metadataResponseMaximumBytes: qualification.CODEXFORGE_QWEN25_CODER_32B_METADATA_RESPONSE_MAXIMUM_BYTES, counters, qualificationCodeCount: seenQ.size, acceptanceCodeCount: seenA.size, admissionCodeCount: seenE.size }));
 })().catch((error) => {
   process.stderr.write(`${error.stack || error.message}\n`);
   process.exitCode = 1;
@@ -382,6 +434,7 @@ try {
 $validation = $validationJson | ConvertFrom-Json
 Assert-True ([bool]$validation.success) "Slice R deterministic Node smoke passed"
 Assert-True ($validation.catalogSha256 -eq "06f4eca8688728c2d2457e48284394fa823fbbe13a07ff1fd4a781227e4e4d0b") "Catalog SHA-256 is exact"
+Assert-True ([int]$validation.metadataResponseMaximumBytes -eq 262144) "Qualification metadata response ceiling remains exactly 262144 bytes"
 Assert-True ([int]$validation.qualificationCodeCount -eq 16) "All sixteen qualification rejection codes executed"
 Assert-True ([int]$validation.acceptanceCodeCount -eq 31) "All thirty-one acceptance rejection codes executed"
 Assert-True ([int]$validation.admissionCodeCount -eq 10) "All ten evidence-admission rejection codes executed"
