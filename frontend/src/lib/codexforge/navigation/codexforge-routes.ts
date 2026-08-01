@@ -11,6 +11,7 @@ export type CodexForgeRoute = {
   id:
     | "home"
     | "mission"
+    | "jarvis"
     | "cockpit"
     | "stabilization"
     | "code-flow"
@@ -68,14 +69,24 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     description: "Unified readonly cockpit for health, surfaces, readiness, and safe next actions.",
   },
   {
+    id: "jarvis",
+    path: "/jarvis",
+    label: "Build with Jarvis",
+    shortLabel: "Jarvis",
+    priority: "primary",
+    showInGlobalNav: true,
+    group: "Core",
+    description: "Canonical local-first workspace for task intake, approval, execution, results, validation, and audit.",
+  },
+  {
     id: "cockpit",
     path: "/codexforge-cockpit",
     label: "CodexForge Cockpit",
     shortLabel: "Cockpit",
     priority: "primary",
-    showInGlobalNav: true,
+    showInGlobalNav: false,
     group: "Core",
-    description: "One normal user surface for goal intake, Trading Workspace, Build Workspace, Approvals, Evidence & Audit, Next Action, and Developer Diagnostics.",
+    description: "Retained diagnostic cockpit for historical deep links and route review.",
   },
   {
     id: "stabilization",
@@ -103,9 +114,9 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     label: "Workspace",
     shortLabel: "Workspace",
     priority: "primary",
-    showInGlobalNav: true,
+    showInGlobalNav: false,
     group: "Core",
-    description: "Main AI workspace for chat, planning, memory, and execution context.",
+    description: "Retained compatibility workspace for historical chat, planning, memory, and execution-context links.",
   },
   {
     id: "tasks",

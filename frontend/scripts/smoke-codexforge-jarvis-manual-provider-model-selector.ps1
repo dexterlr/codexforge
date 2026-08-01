@@ -99,19 +99,30 @@ Write-Host ""
 Write-Host "=== CodexForge Jarvis manual provider model selector smoke ==="
 
 $allowedChangedFiles = @(
+  "src/app/athena/page.tsx",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/navigation-shell/primary-product-area-model.ts",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeSidebar.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeShellMobileNav.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeAppShell.tsx",
+  "src/lib/codexforge/navigation-shell/navigation-route-registry.ts",
+  "src/lib/codexforge/command-palette/command-registry.ts",
+  "src/lib/codexforge/navigation/codexforge-routes.ts",
+  "src/lib/codexforge/cockpit-navigation-cleanup-user-ux/components/CockpitNavigationCleanupUserUxPanel.tsx",
+  "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
-  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
-  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
-  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1"
-  # Historical Slice R scope entries were replaced mechanically for Macro Phase A.
+  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1"
+  # Historical Slice R scope entries were replaced mechanically for Macro Phase B.
   # Historical qualification and controlled-acceptance sources remain unchanged.
   # Historical candidate declarations remain unchanged.
   # Historical evidence remains outside this smoke.
@@ -169,7 +180,7 @@ $changedPaths = $statusLines |
   } |
   Sort-Object -Unique
 
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the twelve allowed Macro Phase A files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the twenty-three allowed Macro Phase B files"
 foreach ($path in $changedPaths) {
   Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed smoke-repair files: $path"
 }
@@ -311,7 +322,7 @@ Assert-Contains $cssSource '.privateAlphaCloudApprovalNotice' "CSS contains clou
 Assert-Contains $cssSource '@media (max-width: 920px)' "CSS defines the 920px responsive breakpoint"
 Assert-Contains $cssSource '.privateAlphaTargetSelectorGrid,' "CSS collapses the target selector grid at 920px"
 Assert-True (-not (Find-RuleMixingBorderProperties -CssText $cssSource)) "CSS introduces no mixed border shorthand and longhand"
-Assert-Contains $athenaAliasSource 'export { default } from "../jarvis/page";' "/athena remains an alias of /jarvis"
+Assert-Contains $athenaAliasSource 'redirect("/jarvis");' "/athena redirects to canonical /jarvis"
 foreach ($marker in @(
   "Mission brief",
   "Blocked action command deck",

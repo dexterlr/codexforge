@@ -442,6 +442,153 @@
   font-size: 0.84rem;
 }
 
+.jarvisWorkspaceHeroLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 20px;
+  align-items: start;
+  min-width: 0;
+}
+
+.jarvisWorkspaceHeroCopy {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.jarvisWorkspaceFactGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  min-width: 0;
+  margin: 0;
+}
+
+.jarvisWorkspaceFact {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 13px;
+  background: rgba(3, 12, 23, 0.72);
+}
+
+.jarvisWorkspaceFact dt {
+  color: #8fc9da;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.jarvisWorkspaceFact dd {
+  margin: 0;
+  color: #f4fbff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+
+.jarvisFlowNavigation {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.jarvisFlowList {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(116px, 1fr));
+  gap: 7px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jarvisFlowItem {
+  min-width: 0;
+}
+
+.jarvisFlowLink {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 8px 9px;
+  border: 1px solid rgba(45, 212, 191, 0.15);
+  border-radius: 11px;
+  background: rgba(7, 25, 34, 0.58);
+  color: #d9f9f5;
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.jarvisFlowNumber {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: rgba(45, 212, 191, 0.13);
+  color: #99f6e4;
+  font-size: 0.68rem;
+}
+
+.jarvisReviewShortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  padding-top: 2px;
+}
+
+.jarvisReviewShortcutsLabel {
+  color: #91b7c8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.jarvisReviewShortcut,
+.jarvisBackToTaskLink {
+  padding: 6px 9px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 999px;
+  background: rgba(8, 16, 29, 0.7);
+  color: #c9e9f2;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.jarvisReviewTools {
+  display: grid;
+  gap: 13px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 18px;
+  background: rgba(5, 13, 25, 0.7);
+  scroll-margin-top: 16px;
+}
+
+.jarvisReviewToolsHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.jarvisTechnicalQuickLink {
+  opacity: 0.78;
+  background: rgba(7, 15, 28, 0.5);
+}
+
 .liveAthenaQuickLinks {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1183,6 +1330,30 @@
   gap: 18px;
 }
 
+.privateAlphaBoundaryDetails {
+  display: grid;
+  gap: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 14px;
+  background: rgba(7, 15, 28, 0.62);
+}
+
+.privateAlphaBoundaryDetails[open] {
+  gap: 10px;
+}
+
+.privateAlphaSafetySummary {
+  margin: 0;
+  padding: 11px 13px;
+  border-left: 3px solid rgba(45, 212, 191, 0.55);
+  border-radius: 0 12px 12px 0;
+  background: rgba(13, 51, 55, 0.32);
+  color: #c9e8e8;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
 .privateAlphaSupportText {
   margin: 0;
   color: #a7c3d4;
@@ -1224,12 +1395,37 @@
 .privateAlphaWorkspace {
   display: grid;
   grid-template-columns: minmax(0, 1.8fr) minmax(280px, 1fr);
+  grid-template-areas:
+    "task side"
+    "result side";
   gap: 14px;
   align-items: start;
 }
 
-.privateAlphaMainColumn,
+.privateAlphaTaskColumn {
+  grid-area: task;
+}
+
+.privateAlphaSideColumn {
+  grid-area: side;
+}
+
+.privateAlphaResultColumn {
+  grid-area: result;
+}
+
+.privateAlphaWorkspace[data-codexforge-private-alpha-has-current-run="true"] {
+  grid-template-areas: "result side";
+}
+
+.privateAlphaWorkspace[data-codexforge-private-alpha-has-current-run="true"]
+  .privateAlphaTaskColumn {
+  display: none;
+}
+
+.privateAlphaTaskColumn,
 .privateAlphaSideColumn,
+.privateAlphaResultColumn,
 .privateAlphaProgressBlock,
 .privateAlphaRecentRuns,
 .privateAlphaAuditList,
@@ -1244,6 +1440,10 @@
 .privateAlphaSection {
   display: grid;
   gap: 14px;
+}
+
+.privateAlphaSection[hidden] {
+  display: none;
 }
 
 .privateAlphaSectionHeader {
@@ -1513,6 +1713,9 @@
   background: rgba(120, 53, 15, 0.54);
 }
 
+.jarvisFlowLink:focus-visible,
+.jarvisReviewShortcut:focus-visible,
+.jarvisBackToTaskLink:focus-visible,
 .liveAthenaQuickLink:focus-visible,
 .privateAlphaButton:focus-visible,
 .privateAlphaButtonSecondary:focus-visible,
@@ -1525,6 +1728,18 @@
   outline-offset: 3px;
 }
 
+.privateAlphaToggle input:focus-visible,
+.privateAlphaRequestModeGrid input:focus-visible {
+  outline: 2px solid rgba(34, 211, 238, 0.5);
+  outline-offset: 3px;
+}
+
+.privateAlphaStatusStrip,
+.privateAlphaSection,
+.privateAlphaTechnicalDetails {
+  scroll-margin-top: 16px;
+}
+
 @keyframes pulseGlow {
   0%,
   100% {
@@ -1533,6 +1748,16 @@
 
   50% {
     opacity: 1;
+  }
+}
+
+@media (max-width: 1180px) {
+  .jarvisWorkspaceHeroLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .jarvisFlowList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -1552,12 +1777,31 @@
     padding: 20px;
   }
 
+  .jarvisWorkspaceHeroLayout {
+    grid-template-columns: 1fr;
+  }
+
   .privateAlphaWorkspace,
   .privateAlphaTargetSelectorGrid,
   .privateAlphaFieldRow,
   .privateAlphaTargetMeta,
   .privateAlphaProgressList {
     grid-template-columns: 1fr;
+  }
+
+  .jarvisFlowList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .privateAlphaWorkspace {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .privateAlphaTaskColumn,
+  .privateAlphaSideColumn,
+  .privateAlphaResultColumn {
+    display: contents;
   }
 
   .privateAlphaTechnicalGrid {
@@ -1602,8 +1846,34 @@
   }
 
   .liveAthenaHeader,
+  .jarvisReviewTools,
   .privateAlphaTechnicalDetails {
     padding: 16px;
+  }
+
+  .jarvisWorkspaceFactGrid,
+  .jarvisFlowList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .jarvisFlowLink {
+    min-height: 40px;
+  }
+
+  .jarvisReviewShortcuts {
+    align-items: stretch;
+  }
+
+  .jarvisReviewShortcutsLabel {
+    flex-basis: 100%;
+  }
+
+  .jarvisReviewShortcut,
+  .jarvisBackToTaskLink {
+    display: inline-flex;
+    justify-content: center;
+    min-height: 36px;
+    align-items: center;
   }
 
   .privateAlphaStatusItem {
@@ -1611,7 +1881,6 @@
   }
 
   .privateAlphaButtonRow,
-  .privateAlphaTabList,
   .privateAlphaRunRowHeader,
   .liveAthenaQuickLinkHeader {
     flex-direction: column;
@@ -1619,13 +1888,20 @@
 
   .privateAlphaButton,
   .privateAlphaButtonSecondary,
-  .privateAlphaButtonDanger,
-  .privateAlphaTab {
+  .privateAlphaButtonDanger {
     width: 100%;
   }
 
   .privateAlphaTab {
-    text-align: left;
+    flex: 1 1 120px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .jarvisWorkspaceFactGrid,
+  .jarvisFlowList {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1633,7 +1909,17 @@
   .heroGlow,
   .navCard,
   .workspaceCard,
-  .diagnosticLink {
+  .diagnosticLink,
+  .jarvisFlowLink,
+  .jarvisReviewShortcut,
+  .jarvisBackToTaskLink,
+  .liveAthenaQuickLink,
+  .privateAlphaButton,
+  .privateAlphaButtonSecondary,
+  .privateAlphaButtonDanger,
+  .privateAlphaListButton,
+  .privateAlphaRunRow,
+  .privateAlphaTab {
     animation: none;
     transition: none;
   }

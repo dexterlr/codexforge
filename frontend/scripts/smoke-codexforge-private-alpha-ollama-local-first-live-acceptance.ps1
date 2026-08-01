@@ -47,28 +47,39 @@ $sliceRFiles = @(
   "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-qualification.server.ts",
   "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
 )
-$macroPhaseAPaths = @(
+$macroPhaseBPaths = @(
+  "src/app/athena/page.tsx",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/navigation-shell/primary-product-area-model.ts",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeSidebar.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeShellMobileNav.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeAppShell.tsx",
+  "src/lib/codexforge/navigation-shell/navigation-route-registry.ts",
+  "src/lib/codexforge/command-palette/command-registry.ts",
+  "src/lib/codexforge/navigation/codexforge-routes.ts",
+  "src/lib/codexforge/cockpit-navigation-cleanup-user-ux/components/CockpitNavigationCleanupUserUxPanel.tsx",
+  "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
-  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
-  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
-  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1"
+  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1"
 )
-Assert-True ($macroPhaseAPaths.Count -eq 12) "Macro Phase A scope declares exactly twelve files"
-Assert-True (@($macroPhaseAPaths | Sort-Object -Unique).Count -eq 12) "Macro Phase A scope contains twelve unique files"
+Assert-True ($macroPhaseBPaths.Count -eq 23) "Macro Phase B scope declares exactly twenty-three files"
+Assert-True (@($macroPhaseBPaths | Sort-Object -Unique).Count -eq 23) "Macro Phase B scope contains twenty-three unique files"
 foreach ($path in $sliceRFiles) {
   Assert-True (Test-Path -LiteralPath $path -PathType Leaf) "Historical Slice R file remains present: $path"
 }
 $changedPaths = @((& git status --short --untracked-files=all | Where-Object { $_.Length -ge 4 } | ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } | Sort-Object -Unique))
-Assert-True ($changedPaths.Count -eq $macroPhaseAPaths.Count) "Changed scope contains exactly the twelve Macro Phase A files"
-foreach ($path in $macroPhaseAPaths) {
+Assert-True ($changedPaths.Count -eq $macroPhaseBPaths.Count) "Changed scope contains exactly the twenty-three Macro Phase B files"
+foreach ($path in $macroPhaseBPaths) {
   Assert-True ($changedPaths -contains $path) "Changed scope includes: $path"
 }
 
@@ -96,7 +107,7 @@ foreach ($line in Get-Content "scripts/smoke-codexforge-all.ps1") {
     if ($line -match 'smoke-codexforge-private-alpha-ollama-local-first-live-acceptance\.ps1' -and $line -match 'Required = \$true') { $newSmokeOccurrences += 1 }
   }
 }
-Assert-True ($aggregateExecutableCount -eq 69) "Aggregate executable count is 69 after Macro Phase A smoke registration"
+Assert-True ($aggregateExecutableCount -eq 70) "Aggregate executable count is 70 after Macro Phase B smoke registration"
 Assert-True ($newSmokeOccurrences -eq 1) "New smoke is registered exactly once and is required"
 
 $nodeScript = @'

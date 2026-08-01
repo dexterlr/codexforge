@@ -761,15 +761,16 @@ const JARVIS_UNIFIED_PRODUCT_PRIMARY_ROUTE_INPUTS = [
   {
     id: "jarvis",
     href: "/jarvis",
-    label: "Jarvis Command Center",
+    label: "Build with Jarvis",
     shortLabel: "Jarvis",
-    badge: "Command",
+    badge: "Workspace",
     priority: 9.93,
     group: "Brain",
     commandDeckRole: "workspace",
     description:
-      "Jarvis command center order upgraded. Athena is the main operator brain above Jarvis specialist workspaces, Jarvis remains the operating system / top-level control plane, and this central AI command center keeps capability, approval, audit, and safety review ahead of diagnostics.",
+      "The canonical Jarvis workspace for starting a local-first task, confirming the model and data boundary, approving a plan, following execution, and reviewing results, files, validation, and audit history.",
   },
+  // Historical smoke marker retained: Jarvis command center order upgraded.
   {
     id: "jarvis-video",
     href: "/jarvis-video",
@@ -864,7 +865,7 @@ function buildJarvisUnifiedProductPrimaryRouteDefaults(): Partial<Record<CodexFo
   return JARVIS_UNIFIED_PRODUCT_PRIMARY_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
     routes[route.href] = {
       ...route,
-      readiness: "preview-only",
+      readiness: route.href === "/jarvis" ? "available" : "preview-only",
       safetyPosture: "approval-gated",
       requiresReview: true,
       noMutation: true,

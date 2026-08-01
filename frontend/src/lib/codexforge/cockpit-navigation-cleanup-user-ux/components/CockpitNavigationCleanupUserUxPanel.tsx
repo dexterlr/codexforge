@@ -425,8 +425,8 @@ export function CockpitNavigationCleanupRoutePanel({
   const diagnosticsLink =
     model.route.slug === "developer-diagnostics-hub-preview"
       ? {
-          href: "/codexforge-cockpit",
-          label: "Return to CodexForge Cockpit",
+          href: "/jarvis",
+          label: "Return to Jarvis",
         }
       : {
           href: "/developer-diagnostics-hub-preview",
@@ -765,10 +765,10 @@ function buildCockpitNavigationCleanupRouteSurface(
         summary:
           "Use this secondary hub for route families, smoke coverage, and deep links. It stays out of the normal product path and does not enable execution.",
         primaryAction: {
-          href: "/",
-          label: "Return to CodexForge",
+          href: "/jarvis",
+          label: "Return to Jarvis",
           summary:
-            "Go back to the main product route when you want a user-facing workspace. Use this page only for developer traceability and grouped diagnostics.",
+            "Go back to the main Jarvis task flow when you want a user-facing workspace. Use this page only for developer traceability and grouped diagnostics.",
         },
         cards: [
           buildRouteSurfaceCard(

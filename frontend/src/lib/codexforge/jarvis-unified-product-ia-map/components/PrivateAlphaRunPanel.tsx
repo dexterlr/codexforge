@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import type { KeyboardEvent } from "react";
 import type {
   PrivateAlphaApprovalBindingVersion,
   PrivateAlphaBoundApprovalRecord,
@@ -728,7 +729,7 @@ function buildCurrentRunStateMessage(
     case "canceled":
       return "This run was canceled before execution.";
     default:
-      return "The latest private-alpha state is loaded.";
+      return "The latest Jarvis run state is loaded.";
   }
 }
 
@@ -755,12 +756,12 @@ function buildNextActionSummary(
         return "Review the exact Groq Cloud scope, record both acknowledgements, or cancel the run locally.";
       case "approved":
         if (status?.killSwitchEngaged === true) {
-          return "The global private-alpha kill switch is engaged. Groq execution stays blocked until it is disengaged.";
+          return "The global Jarvis execution kill switch is engaged. Groq execution stays blocked until it is disengaged.";
         }
 
         return "Grant the one-time Groq execution acknowledgement, then execute once. Availability and credential checks occur server-side only after the explicit action.";
       case "executing":
-        return "Generation is in progress. Refresh local state to load the persisted terminal result.";
+        return "Generation is in progress. Refresh run status to load the persisted terminal result.";
       case "succeeded":
         return "Review the persisted output, metrics, hashes, and audit trail.";
       case "failed":
@@ -783,7 +784,7 @@ function buildNextActionSummary(
 
       return "Acknowledge the local execution scope, then execute once on local Ollama.";
     case "executing":
-      return "Execution is in progress. Refresh local state to load the terminal result.";
+      return "Execution is in progress. Refresh run status to load the terminal result.";
     case "succeeded":
       return "Review the persisted result, metrics, and audit trail.";
     case "failed":
@@ -888,7 +889,7 @@ export function PrivateAlphaRunPanel() {
     useState<PrivateAlphaFreeFirstRoutingResult | null>(null);
   const [executionAcknowledged, setExecutionAcknowledged] = useState(false);
   const [cancellationReason, setCancellationReason] = useState(
-    "Operator canceled this private-alpha run before execution."
+    "Operator canceled this Jarvis run before execution."
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -906,6 +907,40 @@ export function PrivateAlphaRunPanel() {
   const maximumOutputTokensFieldId = useId();
   const cancellationReasonFieldId = useId();
   const tabBaseId = useId();
+
+  function handlePanelTabKeyDown(
+    event: KeyboardEvent<HTMLButtonElement>,
+    currentTabId: PrivateAlphaPanelView
+  ): void {
+    const currentIndex = PRIVATE_ALPHA_PANEL_TABS.findIndex(
+      (tab) => tab.id === currentTabId
+    );
+    let nextIndex: number | null = null;
+
+    if (event.key === "ArrowRight") {
+      nextIndex = (currentIndex + 1) % PRIVATE_ALPHA_PANEL_TABS.length;
+    } else if (event.key === "ArrowLeft") {
+      nextIndex =
+        (currentIndex - 1 + PRIVATE_ALPHA_PANEL_TABS.length) %
+        PRIVATE_ALPHA_PANEL_TABS.length;
+    } else if (event.key === "Home") {
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      nextIndex = PRIVATE_ALPHA_PANEL_TABS.length - 1;
+    }
+
+    if (nextIndex === null) {
+      return;
+    }
+
+    event.preventDefault();
+    const nextTab = PRIVATE_ALPHA_PANEL_TABS[nextIndex];
+    if (!nextTab) {
+      return;
+    }
+    setActiveView(nextTab.id);
+    document.getElementById(`${tabBaseId}-${nextTab.id}-tab`)?.focus();
+  }
 
   function beginOperatorAction(action: string): boolean {
     if (actionLockRef.current) {
@@ -948,7 +983,7 @@ export function PrivateAlphaRunPanel() {
       setErrorMessage(
         error instanceof Error && error.message
           ? error.message
-          : "Unable to load private-alpha local execution status."
+          : "Unable to load the Jarvis workspace status."
       );
     }
   }
@@ -1087,7 +1122,7 @@ export function PrivateAlphaRunPanel() {
     setAutomaticRoutingResult(null);
     setExecutionAcknowledged(false);
     setCancellationReason(
-      "Operator canceled this private-alpha run before execution."
+      "Operator canceled this Jarvis run before execution."
     );
     setErrorMessage(null);
     setSuccessMessage(null);
@@ -1205,13 +1240,13 @@ export function PrivateAlphaRunPanel() {
             ? exactTarget.providerId === "groq-cloud"
               ? "Free-first automatic selected Groq 20B for approval. The approval request was persisted locally with no prompt transfer and no generation."
               : "Free-first automatic selected local Ollama for approval. The approval request was persisted locally."
-            : "Existing private-alpha run returned from idempotency protection."
+            : "An existing run was returned by duplicate-request protection."
         );
       } catch (error) {
         setErrorMessage(
           error instanceof Error && error.message
             ? error.message
-            : "Unable to route and create the private-alpha approval request."
+            : "Unable to select a route and create the Jarvis approval request."
         );
       } finally {
         completeOperatorAction();
@@ -1273,13 +1308,13 @@ export function PrivateAlphaRunPanel() {
       setSuccessMessage(
         result.created
           ? "Approval request persisted locally."
-          : "Existing private-alpha run returned from idempotency protection."
+          : "An existing run was returned by duplicate-request protection."
       );
     } catch (error) {
       setErrorMessage(
         error instanceof Error && error.message
           ? error.message
-          : "Unable to create the private-alpha run."
+          : "Unable to create the Jarvis run."
       );
     } finally {
       completeOperatorAction();
@@ -1406,7 +1441,7 @@ export function PrivateAlphaRunPanel() {
       const message =
         error instanceof Error && error.message
           ? error.message
-          : "Unable to execute the private-alpha run.";
+          : "Unable to execute the Jarvis run.";
 
       try {
         await refreshPanel(currentRun.runId);
@@ -1449,7 +1484,7 @@ export function PrivateAlphaRunPanel() {
       setErrorMessage(
         error instanceof Error && error.message
           ? error.message
-          : "Unable to cancel the private-alpha run."
+          : "Unable to cancel the Jarvis run."
       );
     } finally {
       completeOperatorAction();
@@ -1474,12 +1509,23 @@ export function PrivateAlphaRunPanel() {
     selectedTargetCandidate.providerId === selectedProviderId
       ? selectedTargetCandidate
       : null;
-  const selectedTargetBadge = automaticModeSelected
-    ? {
-        label: "free-first automatic",
-        className: styles.metricStateApproval,
-      }
-    : buildSelectedTargetBadge(status, selectedProviderId);
+  const displayedProviderId: PrivateAlphaManualProviderId =
+    currentRunClassification?.kind === "local-executable" ||
+    currentRunClassification?.kind === "cloud-executable"
+      ? currentRunClassification.target.providerId
+      : selectedProviderId;
+  const selectedTargetBadge =
+    currentRunClassification?.kind === "historical"
+      ? {
+          label: "Historical run",
+          className: styles.metricStateSecondary,
+        }
+      : automaticModeSelected && currentRun === null
+        ? {
+            label: "free-first automatic",
+            className: styles.metricStateApproval,
+          }
+        : buildSelectedTargetBadge(status, displayedProviderId);
   const selectedProviderLabel = automaticModeSelected
     ? "Auto (server-owned)"
     : resolveManualProviderLabel(selectedProviderId);
@@ -1529,6 +1575,12 @@ export function PrivateAlphaRunPanel() {
     currentRun && currentRunClassification
       ? resolveCurrentRunApprovalModeLabel(currentRun, currentRunClassification)
       : null;
+  const displayedProviderLabel = currentRunProviderLabel ?? selectedProviderLabel;
+  const displayedModelLabel = currentRunModelLabel ?? selectedModelLabel;
+  const displayedDataBoundaryLabel =
+    currentRunDataBoundaryLabel ?? selectedDataBoundaryLabel;
+  const displayedApprovalModeLabel =
+    currentRunApprovalModeLabel ?? selectedApprovalModeLabel;
   const localExecutableRun = currentRunClassification?.kind === "local-executable";
   const cloudExecutableRun = currentRunClassification?.kind === "cloud-executable";
   const canApprove =
@@ -1606,15 +1658,16 @@ export function PrivateAlphaRunPanel() {
 
   return (
     <section
+      id="jarvis-task-workspace"
       className={`${styles.panel} ${styles.privateAlphaPanel}`}
-      aria-label="Private alpha exact-model approval"
+      aria-label="Jarvis task, approval, and execution workspace"
       aria-busy={loadState === "loading" || actionInFlight !== null}
       data-codexforge-private-alpha-layout="focused"
     >
       <div className={styles.panelHeader}>
         <div>
-          <p className={styles.panelEyebrow}>Private Alpha</p>
-          <h2 className={styles.panelTitle}>Exact-model approval and free-first routing</h2>
+          <p className={styles.panelEyebrow}>Start / Task</p>
+          <h2 className={styles.panelTitle}>Tell Jarvis what you want to build</h2>
         </div>
         <span className={`${styles.panelBadge} ${selectedTargetBadge.className}`}>
           {selectedTargetBadge.label}
@@ -1622,13 +1675,17 @@ export function PrivateAlphaRunPanel() {
       </div>
 
       <p className={styles.panelBody}>
-        Manual exact-model selection remains the default path. The optional
-        free-first automatic path is selection-only: it evaluates local Ollama
-        first, may inspect Groq 20B metadata only after explicit permission,
-        and never approves or executes a run by itself.
+        Confirm the current project, enter one task, and review the selected model
+        and data boundary before Jarvis persists an approval request. Approval and
+        execution remain two separate operator actions.
       </p>
 
-      <div className={styles.privateAlphaStatusStrip}>
+      <div
+        id="jarvis-model-data-boundary"
+        className={styles.privateAlphaStatusStrip}
+        role="group"
+        aria-label="Current project, model, data boundary, approval, and runtime status"
+      >
         <div className={styles.privateAlphaStatusItem}>
           <span className={styles.privateAlphaStatusLabel}>Current workspace</span>
           <span className={styles.privateAlphaStatusValue}>
@@ -1637,34 +1694,36 @@ export function PrivateAlphaRunPanel() {
         </div>
         <div className={styles.privateAlphaStatusItem}>
           <span className={styles.privateAlphaStatusLabel}>Selected provider</span>
-          <span className={styles.privateAlphaStatusValue}>{selectedProviderLabel}</span>
+          <span className={styles.privateAlphaStatusValue}>{displayedProviderLabel}</span>
         </div>
         <div className={styles.privateAlphaStatusItem}>
           <span className={styles.privateAlphaStatusLabel}>Selected model</span>
-          <span className={styles.privateAlphaStatusValue}>{selectedModelLabel}</span>
+          <span className={styles.privateAlphaStatusValue}>{displayedModelLabel}</span>
         </div>
         <div className={styles.privateAlphaStatusItem}>
           <span className={styles.privateAlphaStatusLabel}>Data boundary</span>
           <span className={styles.privateAlphaStatusValue}>
-            {selectedDataBoundaryLabel}
+            {displayedDataBoundaryLabel}
           </span>
         </div>
         <div className={styles.privateAlphaStatusItem}>
           <span className={styles.privateAlphaStatusLabel}>Approval mode</span>
           <span className={styles.privateAlphaStatusValue}>
-            {selectedApprovalModeLabel}
+            {displayedApprovalModeLabel}
           </span>
         </div>
         <div className={styles.privateAlphaStatusItem}>
           <span className={styles.privateAlphaStatusLabel}>Runtime status</span>
           <span className={styles.privateAlphaStatusValue}>
-            {automaticModeSelected
-              ? automaticCloudRoutingState === "allowed-free-tier-only"
-                ? "Local first, cloud metadata only if needed"
-                : "Local only"
-              : selectedProviderId === "groq-cloud"
-                ? "Checked server-side at execution"
-                : "Checked locally"}
+            {currentRunClassification?.kind === "historical"
+              ? "Historical record; execution unavailable"
+              : automaticModeSelected && currentRun === null
+                ? automaticCloudRoutingState === "allowed-free-tier-only"
+                  ? "Local first, cloud metadata only if needed"
+                  : "Local only"
+                : displayedProviderId === "groq-cloud"
+                  ? "Checked server-side at execution"
+                  : "Checked locally"}
           </span>
         </div>
         <div className={styles.privateAlphaStatusItem}>
@@ -1685,21 +1744,36 @@ export function PrivateAlphaRunPanel() {
         </div>
       </div>
 
-      <p className={styles.privateAlphaSupportText}>
-        {PRIVATE_ALPHA_SECRET_GUIDANCE} One execution attempt per approved run.
-        Output is persisted locally at{" "}
-        {status?.dataRootLabel ?? PRIVATE_ALPHA_DATA_ROOT_LABEL}. Local Ollama
-        can execute only after manual approval, runtime checks, and kill-switch
-        clearance. Groq availability and credential checks occur server-side
-        only after the explicit execute action. Automatic routing never sends
-        request text to the routing endpoint, never persists a run by itself,
-        never approves a run, and never performs generation.{" "}
-        {formatKillSwitchSources(status)}
+      <details className={styles.privateAlphaBoundaryDetails}>
+        <summary className={styles.privateAlphaDetailsSummary}>
+          How local execution and safety checks work
+        </summary>
+        <p className={styles.privateAlphaSupportText}>
+          Manual exact-model selection remains the default path. The optional
+          free-first automatic path is selection-only: it evaluates local Ollama
+          first, may inspect Groq 20B metadata only after explicit permission,
+          and never approves or executes a run by itself. {PRIVATE_ALPHA_SECRET_GUIDANCE}{" "}
+          One execution attempt per approved run. Output is persisted locally at{" "}
+          {status?.dataRootLabel ?? PRIVATE_ALPHA_DATA_ROOT_LABEL}. Local Ollama
+          can execute only after manual approval, runtime checks, and kill-switch
+          clearance. Groq availability and credential checks occur server-side
+          only after the explicit execute action. Automatic routing never sends
+          request text to the routing endpoint, never persists a run by itself,
+          never approves a run, and never performs generation.{" "}
+          {formatKillSwitchSources(status)}
+        </p>
+      </details>
+
+      <p className={styles.privateAlphaSafetySummary} role="note">
+        One execution attempt only. No paid execution, retry, fallback, rerouting
+        after persistence, or provider/model substitution. Both kill-switch
+        checkpoints remain active, provider and credential checks stay server-only,
+        and approval and execution always require separate manual actions.
       </p>
 
       {loadState === "loading" ? (
         <div className={styles.privateAlphaNotice} aria-live="polite" role="status">
-          Loading private-alpha local execution status...
+          Loading the local Jarvis workspace status...
         </div>
       ) : null}
 
@@ -1712,7 +1786,7 @@ export function PrivateAlphaRunPanel() {
           <p>{errorMessage}</p>
           <p>
             Nothing retries or reroutes automatically. Review local runtime and
-            kill-switch status, refresh local state, or start a clean task after
+            kill-switch status, refresh run status, or start a clean task after
             the current run reaches a terminal state.
           </p>
         </div>
@@ -1728,17 +1802,26 @@ export function PrivateAlphaRunPanel() {
         </div>
       ) : null}
 
-      <div className={styles.privateAlphaWorkspace}>
-        <div className={styles.privateAlphaMainColumn}>
+      <div
+        className={styles.privateAlphaWorkspace}
+        data-codexforge-private-alpha-has-current-run={currentRun ? "true" : "false"}
+      >
+        <div className={styles.privateAlphaTaskColumn}>
           <section
+            id="jarvis-start-task"
             className={`${styles.summaryCard} ${styles.privateAlphaSection}`}
+            aria-labelledby="jarvis-start-task-title"
             data-codexforge-private-alpha-composer="true"
+            hidden={currentRun !== null}
           >
             <div className={styles.privateAlphaSectionHeader}>
               <div>
-                <p className={styles.panelEyebrow}>Request</p>
-                <h3 className={styles.privateAlphaSectionTitle}>
-                  Persist an approval request
+                <p className={styles.panelEyebrow}>Task</p>
+                <h3
+                  id="jarvis-start-task-title"
+                  className={styles.privateAlphaSectionTitle}
+                >
+                  Describe one task
                 </h3>
               </div>
               <span className={`${styles.panelBadge} ${styles.metricStateApproval}`}>
@@ -2199,9 +2282,9 @@ export function PrivateAlphaRunPanel() {
                   className={styles.privateAlphaButtonSecondary}
                   type="button"
                   onClick={() => void refreshPanel(currentRun?.runId)}
-                  disabled={actionInFlight !== null}
+                  disabled={loadState === "loading" || actionInFlight !== null}
                 >
-                  Refresh local state
+                  Refresh run status
                 </button>
               </div>
               {currentRun !== null ? (
@@ -2360,134 +2443,23 @@ export function PrivateAlphaRunPanel() {
             </div>
           </section>
 
-          <section
-            className={`${styles.summaryCard} ${styles.privateAlphaSection}`}
-            data-codexforge-private-alpha-result="true"
-          >
-            <div className={styles.privateAlphaSectionHeader}>
-              <div>
-                <p className={styles.panelEyebrow}>Result</p>
-                <h3 className={styles.privateAlphaSectionTitle}>
-                  Persisted output and safe result details
-                </h3>
-              </div>
-              <span
-                className={`${styles.panelBadge} ${
-                  currentRun ? resolveStateClass(currentRun.state) : styles.metricStateSecondary
-                }`}
-              >
-                {currentRun?.state ?? "No run selected"}
-              </span>
-            </div>
-
-            {!currentRun ? (
-              <p className={styles.privateAlphaSectionBody}>
-                Select or create a run to review the latest persisted result.
-              </p>
-            ) : null}
-
-            {currentRun ? (
-              <div className={styles.privateAlphaStack}>
-                {currentExecution?.promptEvalCount !== null &&
-                currentExecution?.promptEvalCount !== undefined ? (
-                  <div className={styles.privateAlphaResultMeta}>
-                    <span className={styles.metaPill}>
-                      {`Prompt tokens ${currentExecution.promptEvalCount}`}
-                    </span>
-                    {currentExecution.evalCount !== null &&
-                    currentExecution.evalCount !== undefined ? (
-                      <span className={styles.metaPill}>
-                        {`Output tokens ${currentExecution.evalCount}`}
-                      </span>
-                    ) : null}
-                    {executionDuration ? (
-                      <span className={styles.metaPill}>{`Duration ${executionDuration}`}</span>
-                    ) : null}
-                  </div>
-                ) : currentExecution?.evalCount !== null &&
-                  currentExecution?.evalCount !== undefined ? (
-                  <div className={styles.privateAlphaResultMeta}>
-                    <span className={styles.metaPill}>
-                      {`Output tokens ${currentExecution.evalCount}`}
-                    </span>
-                    {executionDuration ? (
-                      <span className={styles.metaPill}>{`Duration ${executionDuration}`}</span>
-                    ) : null}
-                  </div>
-                ) : executionDuration ? (
-                  <div className={styles.privateAlphaResultMeta}>
-                    <span className={styles.metaPill}>{`Duration ${executionDuration}`}</span>
-                  </div>
-                ) : null}
-
-                {currentRun.state === "executing" ? (
-                  <div className={styles.privateAlphaNotice}>
-                    {cloudExecutableRun
-                      ? "Generation is in progress for the exact approved Groq execution."
-                      : "Execution was persisted as running before the local provider call."}
-                  </div>
-                ) : null}
-
-                {currentRun.state === "succeeded" &&
-                currentOutputText !== null &&
-                currentOutputText.trim().length > 0 ? (
-                  <div className={styles.privateAlphaResultPanel}>{currentOutputText}</div>
-                ) : null}
-
-                {currentRun.state === "succeeded" &&
-                currentOutputText !== null &&
-                currentOutputText.trim().length === 0 ? (
-                  <div
-                    className={`${styles.privateAlphaNotice} ${styles.privateAlphaNoticeWarning}`}
-                  >
-                    The model completed but returned no visible response text.
-                  </div>
-                ) : null}
-
-                {(currentRun.state === "failed" || currentRun.state === "blocked") &&
-                currentExecution?.safeErrorMessage ? (
-                  <div
-                    className={`${styles.privateAlphaNotice} ${styles.privateAlphaNoticeError}`}
-                  >
-                    {currentExecution.safeErrorMessage}
-                  </div>
-                ) : null}
-
-                {(currentRun.state === "failed" || currentRun.state === "blocked") &&
-                currentExecution?.errorCode ? (
-                  <p className={styles.privateAlphaSecondaryText}>
-                    {`Error code: ${currentExecution.errorCode}`}
-                  </p>
-                ) : null}
-
-                {currentRun.state === "canceled" && currentRun.cancellation ? (
-                  <div className={styles.privateAlphaNotice}>
-                    {`Canceled: ${currentRun.cancellation.reason}`}
-                  </div>
-                ) : null}
-
-                {currentRun.state === "awaiting_approval" ||
-                currentRun.state === "approved" ? (
-                  <p className={styles.privateAlphaSectionBody}>
-                    {cloudExecutableRun
-                      ? "No provider generation call has occurred."
-                      : currentRunClassification?.kind === "historical"
-                        ? "This historical record remains readable only. No provider call is available from Jarvis for it."
-                        : "Result content will appear here after explicit local execution."}
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-          </section>
         </div>
 
         <div className={styles.privateAlphaSideColumn}>
-          <section className={`${styles.summaryCard} ${styles.privateAlphaSection}`}>
+          <section
+            id="jarvis-current-run"
+            className={`${styles.summaryCard} ${styles.privateAlphaSection}`}
+            aria-labelledby="jarvis-current-run-title"
+            data-codexforge-private-alpha-current-run="true"
+          >
             <div className={styles.privateAlphaSectionHeader}>
               <div>
                 <p className={styles.panelEyebrow}>Current run</p>
-                <h3 className={styles.privateAlphaSectionTitle}>
-                  Persisted workflow state
+                <h3
+                  id="jarvis-current-run-title"
+                  className={styles.privateAlphaSectionTitle}
+                >
+                  What is happening now
                 </h3>
               </div>
               <span
@@ -2602,13 +2574,20 @@ export function PrivateAlphaRunPanel() {
           </section>
 
           <section
+            id="jarvis-plan-approval"
             className={`${styles.summaryCard} ${styles.privateAlphaSection}`}
+            aria-labelledby="jarvis-plan-approval-title"
             data-codexforge-private-alpha-next-action="true"
           >
             <div className={styles.privateAlphaSectionHeader}>
               <div>
                 <p className={styles.panelEyebrow}>Next required action</p>
-                <h3 className={styles.privateAlphaSectionTitle}>One valid operator step</h3>
+                <h3
+                  id="jarvis-plan-approval-title"
+                  className={styles.privateAlphaSectionTitle}
+                >
+                  Review and take the next action
+                </h3>
               </div>
             </div>
 
@@ -2858,7 +2837,7 @@ export function PrivateAlphaRunPanel() {
                 {currentRun.state === "executing" ? (
                   <div className={styles.privateAlphaStack}>
                     <div className={styles.privateAlphaNotice}>
-                      Execution is in progress. Refresh local state to load the
+                      Execution is in progress. Refresh run status to load the
                       terminal result.
                     </div>
                     <div className={styles.privateAlphaButtonRow}>
@@ -2866,9 +2845,9 @@ export function PrivateAlphaRunPanel() {
                         className={styles.privateAlphaButtonSecondary}
                         type="button"
                         onClick={() => void refreshPanel(currentRun.runId)}
-                        disabled={actionInFlight !== null}
+                        disabled={loadState === "loading" || actionInFlight !== null}
                       >
-                        Refresh local state
+                        Refresh run status
                       </button>
                     </div>
                   </div>
@@ -2890,7 +2869,7 @@ export function PrivateAlphaRunPanel() {
                     </div>
                     <div className={styles.privateAlphaButtonRow}>
                       <button
-                        className={styles.privateAlphaButtonSecondary}
+                        className={styles.privateAlphaButton}
                         type="button"
                         onClick={handleStartAnotherTask}
                         disabled={actionInFlight !== null}
@@ -2944,17 +2923,149 @@ export function PrivateAlphaRunPanel() {
             ) : null}
           </section>
         </div>
+
+        <div className={styles.privateAlphaResultColumn}>
+          <section
+            id="jarvis-result-output"
+            className={`${styles.summaryCard} ${styles.privateAlphaSection}`}
+            aria-labelledby="jarvis-result-output-title"
+            data-codexforge-private-alpha-result="true"
+          >
+            <div className={styles.privateAlphaSectionHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Result</p>
+                <h3
+                  id="jarvis-result-output-title"
+                  className={styles.privateAlphaSectionTitle}
+                >
+                  Output from this run
+                </h3>
+              </div>
+              <span
+                className={`${styles.panelBadge} ${
+                  currentRun ? resolveStateClass(currentRun.state) : styles.metricStateSecondary
+                }`}
+              >
+                {currentRun?.state ?? "No run selected"}
+              </span>
+            </div>
+
+            {!currentRun ? (
+              <p className={styles.privateAlphaSectionBody}>
+                Select or create a run to review the latest persisted result.
+              </p>
+            ) : null}
+
+            {currentRun ? (
+              <div className={styles.privateAlphaStack}>
+                {currentExecution?.promptEvalCount !== null &&
+                currentExecution?.promptEvalCount !== undefined ? (
+                  <div className={styles.privateAlphaResultMeta}>
+                    <span className={styles.metaPill}>
+                      {`Prompt tokens ${currentExecution.promptEvalCount}`}
+                    </span>
+                    {currentExecution.evalCount !== null &&
+                    currentExecution.evalCount !== undefined ? (
+                      <span className={styles.metaPill}>
+                        {`Output tokens ${currentExecution.evalCount}`}
+                      </span>
+                    ) : null}
+                    {executionDuration ? (
+                      <span className={styles.metaPill}>{`Duration ${executionDuration}`}</span>
+                    ) : null}
+                  </div>
+                ) : currentExecution?.evalCount !== null &&
+                  currentExecution?.evalCount !== undefined ? (
+                  <div className={styles.privateAlphaResultMeta}>
+                    <span className={styles.metaPill}>
+                      {`Output tokens ${currentExecution.evalCount}`}
+                    </span>
+                    {executionDuration ? (
+                      <span className={styles.metaPill}>{`Duration ${executionDuration}`}</span>
+                    ) : null}
+                  </div>
+                ) : executionDuration ? (
+                  <div className={styles.privateAlphaResultMeta}>
+                    <span className={styles.metaPill}>{`Duration ${executionDuration}`}</span>
+                  </div>
+                ) : null}
+
+                {currentRun.state === "executing" ? (
+                  <div className={styles.privateAlphaNotice}>
+                    {cloudExecutableRun
+                      ? "Generation is in progress for the exact approved Groq execution."
+                      : "Execution was persisted as running before the local provider call."}
+                  </div>
+                ) : null}
+
+                {currentRun.state === "succeeded" &&
+                currentOutputText !== null &&
+                currentOutputText.trim().length > 0 ? (
+                  <div className={styles.privateAlphaResultPanel}>{currentOutputText}</div>
+                ) : null}
+
+                {currentRun.state === "succeeded" &&
+                currentOutputText !== null &&
+                currentOutputText.trim().length === 0 ? (
+                  <div
+                    className={`${styles.privateAlphaNotice} ${styles.privateAlphaNoticeWarning}`}
+                  >
+                    The model completed but returned no visible response text.
+                  </div>
+                ) : null}
+
+                {(currentRun.state === "failed" || currentRun.state === "blocked") &&
+                currentExecution?.safeErrorMessage ? (
+                  <div
+                    className={`${styles.privateAlphaNotice} ${styles.privateAlphaNoticeError}`}
+                  >
+                    {currentExecution.safeErrorMessage}
+                  </div>
+                ) : null}
+
+                {(currentRun.state === "failed" || currentRun.state === "blocked") &&
+                currentExecution?.errorCode ? (
+                  <p className={styles.privateAlphaSecondaryText}>
+                    {`Error code: ${currentExecution.errorCode}`}
+                  </p>
+                ) : null}
+
+                {currentRun.state === "canceled" && currentRun.cancellation ? (
+                  <div className={styles.privateAlphaNotice}>
+                    {`Canceled: ${currentRun.cancellation.reason}`}
+                  </div>
+                ) : null}
+
+                {currentRun.state === "awaiting_approval" ||
+                currentRun.state === "approved" ? (
+                  <p className={styles.privateAlphaSectionBody}>
+                    {cloudExecutableRun
+                      ? "No provider generation call has occurred."
+                      : currentRunClassification?.kind === "historical"
+                        ? "This historical record remains readable only. No provider call is available from Jarvis for it."
+                        : "Result content will appear here after explicit local execution."}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </section>
+        </div>
       </div>
 
       <section
+        id="jarvis-activity-audit"
         className={`${styles.summaryCard} ${styles.privateAlphaSection}`}
+        aria-labelledby="jarvis-activity-audit-title"
         data-codexforge-private-alpha-view-switcher="true"
       >
         <div className={styles.privateAlphaSectionHeader}>
           <div>
             <p className={styles.panelEyebrow}>Run views</p>
-            <h3 className={styles.privateAlphaSectionTitle}>
-              Current run, recent runs, and audit
+            <h3
+              id="jarvis-activity-audit-title"
+              className={styles.privateAlphaSectionTitle}
+            >
+              Run history and audit
             </h3>
           </div>
         </div>
@@ -2962,11 +3073,10 @@ export function PrivateAlphaRunPanel() {
         <div
           className={styles.privateAlphaTabList}
           role="tablist"
-          aria-label="Private alpha run views"
+          aria-label="Jarvis run views"
         >
           {PRIVATE_ALPHA_PANEL_TABS.map((tab) => {
             const tabId = `${tabBaseId}-${tab.id}-tab`;
-            const panelId = `${tabBaseId}-${tab.id}-panel`;
             const isSelected = activeView === tab.id;
 
             return (
@@ -2977,9 +3087,10 @@ export function PrivateAlphaRunPanel() {
                 type="button"
                 role="tab"
                 aria-selected={isSelected}
-                aria-controls={panelId}
+                aria-controls={`${tabBaseId}-panel`}
                 tabIndex={isSelected ? 0 : -1}
                 onClick={() => setActiveView(tab.id)}
+                onKeyDown={(event) => handlePanelTabKeyDown(event, tab.id)}
               >
                 {tab.label}
               </button>
@@ -2988,7 +3099,7 @@ export function PrivateAlphaRunPanel() {
         </div>
 
         <div
-          id={`${tabBaseId}-${activeView}-panel`}
+          id={`${tabBaseId}-panel`}
           className={styles.privateAlphaTabPanel}
           role="tabpanel"
           aria-labelledby={`${tabBaseId}-${activeView}-tab`}
@@ -3099,7 +3210,7 @@ export function PrivateAlphaRunPanel() {
               </div>
             ) : (
               <p className={styles.privateAlphaSectionBody}>
-                No persisted private-alpha runs yet.
+                No Jarvis runs yet. Create an approval request to begin.
               </p>
             )
           ) : null}
@@ -3150,6 +3261,7 @@ export function PrivateAlphaRunPanel() {
 
       {currentRun ? (
         <details
+          id="jarvis-technical-details"
           className={styles.privateAlphaTechnicalDetails}
           data-codexforge-private-alpha-technical-details="true"
         >

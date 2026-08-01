@@ -906,12 +906,15 @@ const JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_AVAILABILITY =
     {}
   );
 const JARVIS_UNIFIED_WORKSPACE_SHELL_PRIMARY_ROUTE_COMMANDS =
-  JARVIS_UNIFIED_WORKSPACE_SHELL_WORKSPACES.map((workspace) => ({
+  JARVIS_UNIFIED_WORKSPACE_SHELL_WORKSPACES.filter(
+    (workspace) => workspace.routeHref !== "/jarvis"
+  ).map((workspace) => ({
     id: `go-${workspace.id}`,
     label: `Go to ${workspace.label}`,
     href: workspace.routeHref,
+    group: "Developer diagnostics" as const,
     priority: workspace.navigationPriority,
-  })) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority"> & {
+  })) satisfies readonly (Pick<CodexForgeCommand, "id" | "label" | "priority" | "group"> & {
     href: NonNullable<CodexForgeCommand["href"]>;
   })[];
 const JARVIS_UNIFIED_WORKSPACE_SHELL_ROUTE_AVAILABILITY =
@@ -4501,9 +4504,9 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-codexforge-cockpit",
-      label: "Go to CodexForge Cockpit",
-      description: "Open the premium CodexForge cockpit for current focus, specialist workspace order, next actions, approval state, readiness, and secondary diagnostics.",
-      group: "User features",
+      label: "Open legacy CodexForge Cockpit",
+      description: "Open the retained diagnostic cockpit for historical route and readiness review.",
+      group: "Developer diagnostics",
       href: "/codexforge-cockpit",
       keywords: [
         "CodexForge Cockpit",
@@ -4518,8 +4521,8 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-jarvis-command-center",
-      label: "Go to Jarvis Command Center",
-      description: "Open Athena in /jarvis as the upper Jarvis chat control plane with capability grid, workspace order, approval summary, audit preview, and safety state.",
+      label: "Build with Jarvis",
+      description: "Open the canonical local-first Jarvis workspace for task intake, approval, execution progress, results, validation, and audit review.",
       group: "User features",
       href: "/jarvis",
       keywords: [
@@ -5030,10 +5033,12 @@ export function buildCodexForgeCommands(
       keywords: ["start safe code fix", "fix code", "preview patch", "approval"],
       priority: 13.1,
     }),
+    // Historical source-smoke marker only: Go to AI Workspace.
     buildRouteCommand(availability, {
       id: "go-ai-workspace",
-      label: "Go to AI Workspace",
-      description: "Navigate to planning, chat, and reviewed handoffs.",
+      label: "Open legacy AI Workspace",
+      description: "Open the retained compatibility workspace for developer and historical route review.",
+      group: "Developer diagnostics",
       href: "/ai",
       keywords: ["ai", "workspace", "chat", "route"],
       priority: 20,

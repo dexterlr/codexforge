@@ -5,6 +5,16 @@ import { CODEXFORGE_PRIMARY_PRODUCT_AREAS, CODEXFORGE_PRIMARY_PRODUCT_AREA_HREFS
 import { CodexForgeShellSafetyNotice } from "./CodexForgeShellSafetyNotice";
 
 const USER_NAV_ROUTE_HREFS: ReadonlySet<CodexForgeNavigationRouteHref> = new Set(CODEXFORGE_PRIMARY_PRODUCT_AREA_HREFS);
+const SECONDARY_USER_ROUTE_HREFS: ReadonlySet<CodexForgeNavigationRouteHref> = new Set([
+  "/files",
+  "/patch-preview-workbench",
+  "/validation",
+]);
+const DEVELOPER_ONLY_ROUTE_HREFS: ReadonlySet<CodexForgeNavigationRouteHref> = new Set([
+  "/developer-diagnostics-hub-preview",
+  "/codexforge-cockpit",
+  "/ai",
+]);
 
 const SECONDARY_GROUP_LABELS: Record<string, string> = {
   Brain: "Governance",
@@ -41,9 +51,19 @@ export function CodexForgeSidebar({
     .map((section) => ({
       ...section,
       label: SECONDARY_GROUP_LABELS[section.group] ?? section.label,
-      routes: section.routes.filter((route) => !primaryHrefSet.has(route.href) && !isPhaseDiagnosticRoute(route)),
+      routes: section.routes.filter(
+        (route) =>
+          SECONDARY_USER_ROUTE_HREFS.has(route.href) &&
+          !primaryHrefSet.has(route.href) &&
+          !isPhaseDiagnosticRoute(route) &&
+          !DEVELOPER_ONLY_ROUTE_HREFS.has(route.href)
+      ),
     }))
     .filter((section) => section.routes.length > 0);
+  const developerCompatibilityRoutes = ["/codexforge-cockpit", "/ai"].flatMap((href) => {
+    const route = routes.find((candidate) => candidate.href === href);
+    return route ? [route] : [];
+  });
 
   return (
     <aside
@@ -96,6 +116,9 @@ export function CodexForgeSidebar({
               activeHref,
               compact,
               showBadges
+            )}
+            {developerCompatibilityRoutes.map((route) =>
+              renderRouteLink(route, activeHref, compact, showBadges)
             )}
           </div>
         </details>

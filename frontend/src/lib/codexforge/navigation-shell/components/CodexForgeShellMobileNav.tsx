@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import type { CodexForgeNavigationRoute } from "../navigation-shell-types";
+import { CODEXFORGE_PRIMARY_PRODUCT_AREAS } from "../primary-product-area-model";
 
 export function CodexForgeShellMobileNav({
   routes,
@@ -9,6 +10,11 @@ export function CodexForgeShellMobileNav({
   routes: readonly CodexForgeNavigationRoute[];
   activeHref: string;
 }) {
+  const primaryRoutes = CODEXFORGE_PRIMARY_PRODUCT_AREAS.flatMap((area) => {
+    const route = routes.find((candidate) => candidate.href === area.href);
+    return route ? [{ area, route }] : [];
+  });
+
   return (
     <>
       <style>{`
@@ -22,18 +28,28 @@ export function CodexForgeShellMobileNav({
         data-codexforge-shell-mobile-nav="CodexForgeShellMobileNav renders responsive command-deck navigation only on compact screens; desktop shell avoids duplicate top Routes clutter"
         style={details}
       >
-        <summary style={summary}>Routes</summary>
+        <summary style={summary}>Product navigation</summary>
         <nav aria-label="CodexForge mobile navigation" style={nav}>
-          {routes.map((route) => (
+          {primaryRoutes.map(({ area, route }) => (
             <Link
               key={`mobile-${route.href}`}
               href={route.href}
               aria-current={route.href === activeHref ? "page" : undefined}
               style={route.href === activeHref ? activeLink : link}
             >
-              {route.shortLabel}
+              {area.label}
             </Link>
           ))}
+          <details style={developerDetails} open={activeHref === "/developer-diagnostics-hub-preview" ? true : undefined}>
+            <summary style={developerSummary}>Developer Diagnostics</summary>
+            <Link
+              href="/developer-diagnostics-hub-preview"
+              aria-current={activeHref === "/developer-diagnostics-hub-preview" ? "page" : undefined}
+              style={activeHref === "/developer-diagnostics-hub-preview" ? activeLink : link}
+            >
+              Open diagnostics
+            </Link>
+          </details>
         </nav>
       </details>
     </>
@@ -87,4 +103,19 @@ const activeLink: CSSProperties = {
   border: "1px solid rgba(45,212,191,0.25)",
   background: "rgba(20,184,166,0.12)",
   color: "#ccfbf1",
+};
+
+const developerDetails: CSSProperties = {
+  borderTop: "1px solid rgba(148,163,184,0.14)",
+  flexBasis: "100%",
+  paddingTop: 8,
+};
+
+const developerSummary: CSSProperties = {
+  color: "#94a3b8",
+  cursor: "pointer",
+  fontSize: 11,
+  fontWeight: 900,
+  marginBottom: 8,
+  textTransform: "uppercase",
 };

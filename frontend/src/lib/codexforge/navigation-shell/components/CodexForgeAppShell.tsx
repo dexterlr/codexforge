@@ -100,12 +100,26 @@ export function CodexForgeAppShell({
       data-codexforge-app-shell="CodexForgeAppShell renders unified navigation shell local-first operator-safe no auto-fix no command execution without approval no file writes without approval preserve latest-message authority Main Pages God Tier UX Upgrade operator-grade navigation review-only UX upgrade"
       style={page}
     >
+      <style>{`
+        @media (max-width: 859px) {
+          [data-codexforge-app-shell] > [data-codexforge-shell-layout] {
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+          [data-codexforge-shell-layout] > [data-codexforge-sidebar] {
+            display: none !important;
+          }
+          [data-codexforge-shell-deck] {
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+        }
+      `}</style>
       <div
         style={{
           ...shell,
           ...(sidebarCollapsed ? collapsedShell : resolvedSidebarMode === "compact" ? compactShell : null),
           maxWidth: resolvedMaxWidth,
         }}
+        data-codexforge-shell-layout="responsive product shell"
         data-codexforge-focus-mode={focusMode ? "focus-mode compact-sidebar workflow-layout right-rail-opt-out readable-sidebar home-grade-unified-shell" : "standard-shell home-grade-unified-shell"}
         data-codexforge-home-grade-unified-shell="UnifiedCodexForgeShell readable sidebar marker no cramped sidebar; CodexForge Primary Navigation, README, and Workspace Layout Upgrade; god-tier product shell consolidation; primary navigation product areas Home / Operator Cockpit Generate Projects Assets Providers Workflows Trading Audit / Runs Settings / Safety Developer / Checkpoints; user action first safety state second evidence audit third technical implementation details last; phase checkpoint routes remain preserved; phase checkpoint routes do not dominate primary navigation"
       >
@@ -127,7 +141,10 @@ export function CodexForgeAppShell({
             commandPalette={<CodexForgeCommandPalette routeAvailability={routeAvailability} />}
           />
           {resolvedShowSafetyStrip ? <CodexForgeSafetyPostureStrip posture={safetyPosture} /> : null}
-          <div style={resolvedDensity === "focus" || !resolvedShowRightRail ? focusDeck : deck}>
+          <div
+            style={resolvedDensity === "focus" || !resolvedShowRightRail ? focusDeck : deck}
+            data-codexforge-shell-deck={resolvedShowRightRail ? "with-right-rail" : "single-column"}
+          >
             <div style={content} data-codexforge-shell-content-key={buildCodexForgeShellStableKey([routeState.activeRoute.href, routeState.activeGroup])}>
               {children}
             </div>

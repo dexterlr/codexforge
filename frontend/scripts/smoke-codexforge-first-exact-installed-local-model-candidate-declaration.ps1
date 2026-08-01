@@ -45,22 +45,33 @@ $sliceRFiles = @(
   "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
 )
 
-$macroPhaseAPaths = @(
+$macroPhaseBPaths = @(
+  "src/app/athena/page.tsx",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
+  "src/lib/codexforge/navigation-shell/primary-product-area-model.ts",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeSidebar.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeShellMobileNav.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeAppShell.tsx",
+  "src/lib/codexforge/navigation-shell/navigation-route-registry.ts",
+  "src/lib/codexforge/command-palette/command-registry.ts",
+  "src/lib/codexforge/navigation/codexforge-routes.ts",
+  "src/lib/codexforge/cockpit-navigation-cleanup-user-ux/components/CockpitNavigationCleanupUserUxPanel.tsx",
+  "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
-  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
-  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
-  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1"
+  "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1"
 )
-Assert-True ($macroPhaseAPaths.Count -eq 12) "Macro Phase A scope declares exactly twelve files"
-Assert-True (@($macroPhaseAPaths | Sort-Object -Unique).Count -eq 12) "Macro Phase A scope contains twelve unique files"
+Assert-True ($macroPhaseBPaths.Count -eq 23) "Macro Phase B scope declares exactly twenty-three files"
+Assert-True (@($macroPhaseBPaths | Sort-Object -Unique).Count -eq 23) "Macro Phase B scope contains twenty-three unique files"
 
 foreach ($file in $sliceRFiles) {
   Assert-True (Test-Path -LiteralPath $file -PathType Leaf) "Slice R file exists: $file"
@@ -72,9 +83,9 @@ $changedPaths = @(
     ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
-Assert-True ($changedPaths.Count -eq $macroPhaseAPaths.Count) "Git scope contains exactly the twelve Macro Phase A files"
+Assert-True ($changedPaths.Count -eq $macroPhaseBPaths.Count) "Git scope contains exactly the twenty-three Macro Phase B files"
 foreach ($path in $changedPaths) {
-  Assert-True ($macroPhaseAPaths -contains $path) "Git scope stays within Macro Phase A: $path"
+  Assert-True ($macroPhaseBPaths -contains $path) "Git scope stays within Macro Phase B: $path"
 }
 
 $candidateServerPath = "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
@@ -118,8 +129,6 @@ foreach ($protectedPath in @(
   "src/lib/codexforge/groq-provider",
   "src/lib/codexforge/private-alpha",
   "src/app/api/codexforge/private-alpha",
-  "src/app/jarvis",
-  "src/app/athena",
   ".codexforge/private-alpha"
 )) {
   Assert-NoGitDiff $protectedPath "Protected production/Slice P path remains unchanged: $protectedPath"
@@ -167,8 +176,8 @@ foreach ($needle in $candidateNeedles) {
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 69) "Aggregate executable entry count is 69"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 66) "Aggregate required count is 66"
+Assert-True ($entries.Count -eq 70) "Aggregate executable entry count is 70"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 67) "Aggregate required count is 67"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True (@($entries | Where-Object { $_ -match 'smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1' }).Count -eq 1) "Slice Q smoke is registered exactly once"
 Assert-True ($releaseBlock -match 'Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},') "Slice Q smoke follows Slice P and is required"
