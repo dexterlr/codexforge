@@ -48,84 +48,44 @@ $sliceRFiles = @(
   "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
 )
 $macroPhaseCPaths = @(
-  "docs/codexforge-macro-phase-c-whole-product-hardening.md",
+  "docs/codexforge-macro-phase-c-1-rendered-accessibility-repair.md",
   "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-command-palette.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
+  "scripts/smoke-codexforge-macro-phase-c-1-rendered-accessibility-repair.ps1",
   "scripts/smoke-codexforge-macro-phase-c-whole-product-hardening.ps1",
+  "scripts/smoke-codexforge-openai-compatible-adapter.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
   "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
   "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1",
-  "src/app/error.tsx",
-  "src/app/files/page.tsx",
-  "src/app/files/page-client.tsx",
-  "src/app/globals.css",
-  "src/app/jarvis-audit/page.tsx",
-  "src/app/jarvis-audit/page-client.tsx",
-  "src/app/jarvis-safety/page.tsx",
-  "src/app/jarvis-safety/page-client.tsx",
-  "src/app/jarvis-trading/page.tsx",
-  "src/app/jarvis-trading/page-client.tsx",
-  "src/app/layout.tsx",
-  "src/app/loading.tsx",
-  "src/app/not-found.tsx",
-  "src/app/page.tsx",
-  "src/app/page-client.tsx",
-  "src/app/patch-preview-workbench/page.tsx",
   "src/app/patch-preview-workbench/page-client.tsx",
-  "src/app/provider-adapters/page.tsx",
   "src/app/provider-adapters/page-client.tsx",
-  "src/app/validation/page.tsx",
-  "src/app/validation/page-client.tsx",
-  "src/app/video-assets/page.tsx",
   "src/app/video-assets/page-client.tsx",
-  "src/app/video-projects/page.tsx",
   "src/app/video-projects/page-client.tsx",
-  "src/app/video-workflows/page.tsx",
-  "src/app/video-workflows/page-client.tsx",
-  "src/lib/codexforge/approved-patch-apply/components/ApplyApprovalPacketPanel.tsx",
-  "src/lib/codexforge/approved-patch-apply/components/ApplyExecutionBridgePanel.tsx",
-  "src/lib/codexforge/approved-patch-apply/components/ApplyValidationCapturePanel.tsx",
   "src/lib/codexforge/approved-patch-apply/components/ApprovedPatchApplyPanel.tsx",
-  "src/lib/codexforge/command-palette/command-groups.ts",
-  "src/lib/codexforge/command-palette/command-registry.ts",
+  "src/lib/codexforge/asset-dependency-tracker/components/AssetDependencyTrackerPanel.tsx",
   "src/lib/codexforge/command-palette/components/CodexForgeCommandPalette.tsx",
-  "src/lib/codexforge/command-palette/components/CommandPaletteEmptyState.tsx",
-  "src/lib/codexforge/command-palette/components/CommandPaletteGroup.tsx",
-  "src/lib/codexforge/command-palette/components/CommandPaletteItem.tsx",
   "src/lib/codexforge/command-palette/components/CommandPaletteOverlay.tsx",
-  "src/lib/codexforge/command-palette/components/CommandPaletteSearchBox.tsx",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
-  "src/lib/codexforge/local-project-reader/components/LocalProjectReader.tsx",
-  "src/lib/codexforge/local-project-reader/components/ProjectFileList.tsx",
-  "src/lib/codexforge/local-project-reader/components/ProjectReaderEmptyState.tsx",
   "src/lib/codexforge/local-project-reader/components/ProjectTreePanel.tsx",
-  "src/lib/codexforge/local-video-workflow-catalog/components/LocalVideoWorkflowCatalogPanel.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeAppShell.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeShellBreadcrumbs.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeShellMobileNav.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeSidebar.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeTopbar.tsx",
-  "src/lib/codexforge/navigation-shell/navigation-route-state.ts",
-  "src/lib/codexforge/navigation-shell/primary-product-area-model.ts",
-  "src/lib/codexforge/normal-product/components/NormalProductFrame.tsx",
-  "src/lib/codexforge/normal-product/components/ProductHomePanel.tsx",
-  "src/lib/codexforge/normal-product/components/ProductReadinessPanels.tsx",
-  "src/lib/codexforge/normal-product/index.ts",
-  "src/lib/codexforge/validation-runner/components/ValidationRunnerPanel.tsx"
+  "src/lib/codexforge/patch-preview-workbench/components/PatchPreviewWorkbenchPanel.tsx",
+  "src/lib/codexforge/real-patch-preview/components/PatchChangeRequestPanel.tsx",
+  "src/lib/codexforge/validation-runner/components/ValidationRunnerPanel.tsx",
+  "src/lib/codexforge/video-foundation-ui.tsx",
+  "src/lib/codexforge/video-project-workspace/components/VideoProjectWorkspacePanel.tsx"
 )
-Assert-True ($macroPhaseCPaths.Count -eq 70) "Macro Phase C scope declares exactly seventy files"
-Assert-True (@($macroPhaseCPaths | Sort-Object -Unique).Count -eq 70) "Macro Phase C scope contains seventy unique files"
+Assert-True ($macroPhaseCPaths.Count -eq 30) "Macro Phase C.1 scope declares exactly thirty files"
+Assert-True (@($macroPhaseCPaths | Sort-Object -Unique).Count -eq 30) "Macro Phase C.1 scope contains thirty unique files"
 foreach ($path in $sliceRFiles) {
   Assert-True (Test-Path -LiteralPath $path -PathType Leaf) "Historical Slice R file remains present: $path"
 }
 $changedPaths = @((& git status --short --untracked-files=all | Where-Object { $_.Length -ge 4 } | ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } | Sort-Object -Unique))
-Assert-True ($changedPaths.Count -eq $macroPhaseCPaths.Count) "Changed scope contains exactly the seventy Macro Phase C files"
+Assert-True ($changedPaths.Count -eq $macroPhaseCPaths.Count) "Changed scope contains exactly the thirty Macro Phase C.1 files"
 foreach ($path in $macroPhaseCPaths) {
   Assert-True ($changedPaths -contains $path) "Changed scope includes: $path"
 }
@@ -154,7 +114,7 @@ foreach ($line in Get-Content "scripts/smoke-codexforge-all.ps1") {
     if ($line -match 'smoke-codexforge-private-alpha-ollama-local-first-live-acceptance\.ps1' -and $line -match 'Required = \$true') { $newSmokeOccurrences += 1 }
   }
 }
-Assert-True ($aggregateExecutableCount -eq 71) "Aggregate executable count is 71 after Macro Phase C smoke registration"
+Assert-True ($aggregateExecutableCount -eq 72) "Aggregate executable count is 72 after Macro Phase C.1 smoke registration"
 Assert-True ($newSmokeOccurrences -eq 1) "New smoke is registered exactly once and is required"
 
 $nodeScript = @'

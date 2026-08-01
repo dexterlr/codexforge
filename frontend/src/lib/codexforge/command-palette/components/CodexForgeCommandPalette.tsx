@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildCodexForgeCommandGroups } from "../command-groups";
 import { buildCodexForgeCommandPaletteSummary, summarizeCodexForgeCommandPaletteSession } from "../command-palette-summary";
 import type { CodexForgeCommand, CodexForgeCommandRouteAvailability } from "../command-palette-types";
@@ -30,6 +30,10 @@ export function CodexForgeCommandPalette({
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
+  const paletteRootRef = useRef<HTMLDivElement>(null);
+  const paletteOpenRef = useRef(false);
+  const returnFocusTargetRef = useRef<HTMLElement | null>(null);
+  const fallbackFocusTargetRef = useRef<HTMLElement | null>(null);
   const commands = useMemo(
     () => buildCodexForgeCommands({ routeAvailability, includeEducationalBlockedCommands: true }),
     [routeAvailability]
@@ -60,20 +64,38 @@ export function CodexForgeCommandPalette({
   );
   const selectedCommand = visibleCommands[selectedIndex];
 
+  const openPalette = useCallback(() => {
+    if (paletteOpenRef.current) return;
+    const activeElement = document.activeElement;
+    returnFocusTargetRef.current = activeElement instanceof HTMLElement ? activeElement : null;
+    fallbackFocusTargetRef.current = paletteRootRef.current?.querySelector<HTMLElement>(
+      "[data-codexforge-command-palette-trigger]"
+    ) ?? null;
+    paletteOpenRef.current = true;
+    setOpen(true);
+  }, []);
+
+  const closePalette = useCallback(() => {
+    paletteOpenRef.current = false;
+    setOpen(false);
+    setQuery("");
+    setCopiedLabel(null);
+  }, []);
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setOpen(true);
+        openPalette();
       }
       if (event.key === "Escape") {
-        setOpen(false);
+        closePalette();
       }
     }
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [closePalette, openPalette]);
 
   useEffect(() => {
     if (!open) return;
@@ -108,12 +130,6 @@ export function CodexForgeCommandPalette({
     if (selectedIndex >= visibleCommands.length) setSelectedIndex(0);
   }, [selectedIndex, visibleCommands.length]);
 
-  function closePalette() {
-    setOpen(false);
-    setQuery("");
-    setCopiedLabel(null);
-  }
-
   function selectCommand(command: CodexForgeCommand) {
     if (command.disabledReason) return;
     if (command.copyPayload) {
@@ -131,12 +147,17 @@ export function CodexForgeCommandPalette({
 
   return (
     <div
+      ref={paletteRootRef}
       data-codexforge-command-palette="CodexForgeCommandPalette renders Command Palette Ctrl+K Cmd+K Escape no command execution without approval no file writes without approval preserve latest-message authority Main Pages God Tier UX Upgrade premium command center review-only UX upgrade"
       style={root}
     >
-      <CommandPaletteTrigger onOpen={() => setOpen(true)} />
+      <CommandPaletteTrigger onOpen={openPalette} />
       {open ? (
-        <CommandPaletteOverlay onClose={closePalette}>
+        <CommandPaletteOverlay
+          fallbackFocusTarget={fallbackFocusTargetRef.current}
+          onClose={closePalette}
+          returnFocusTarget={returnFocusTargetRef.current}
+        >
           <div style={header}>
             <div style={titleBlock}>
               <span style={eyebrow}>Global Command Palette</span>

@@ -2,7 +2,6 @@
 
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { NormalProductFrame, ProviderReadinessPanel } from "@/lib/codexforge/normal-product";
-import { ProviderAdaptersPanel } from "@/lib/codexforge/provider-adapters/components";
 
 export default function ProviderAdaptersPageClient() {
   return (
@@ -15,9 +14,6 @@ export default function ProviderAdaptersPageClient() {
         ]}
       >
         <ProviderReadinessPanel />
-        <div hidden aria-hidden="true" data-codexforge-historical-provider-adapter-reference="retained for diagnostics">
-          <ProviderAdaptersPanel />
-        </div>
       </NormalProductFrame>
     </CodexForgeAppShell>
   );

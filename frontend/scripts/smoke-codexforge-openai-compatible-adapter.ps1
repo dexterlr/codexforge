@@ -27,7 +27,7 @@ $allSmoke = Get-Content -Raw "scripts\smoke-codexforge-all.ps1"
 foreach ($needle in @("buildOpenAiCompatibleAdapter", "buildOpenAiCompatibleModelFamilies", "buildOpenAiCompatibleCapabilityProfile", "buildOpenAiCompatibleRoutingHints", "buildOpenAiCompatibleSafetyProfile", "OpenAI-compatible", "No live provider calls yet", "No raw password storage", "No localStorage secrets", ".env.local", "OpenAI-compatible means the request format is familiar", "ProviderAdaptersPanel")) {
   Assert-Contains $source $needle "OpenAI adapter includes $needle"
 }
-Assert-Contains $route "ProviderAdaptersPanel" "route imports/renders main panel"
+Assert-NotMatches $route ([regex]::Escape("ProviderAdaptersPanel")) "normal provider route does not import or mount the historical provider panel"
 Assert-Contains $commands "Go to Provider Adapters" "command palette includes provider adapters"
 Assert-Contains $nav "/provider-adapters" "navigation includes provider adapters"
 if (([regex]::Matches($allSmoke, "smoke-codexforge-openai-compatible-adapter\.ps1")).Count -ne 1) { throw "[FAIL] all smoke must include OpenAI adapter exactly once" }

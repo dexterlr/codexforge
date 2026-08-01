@@ -209,7 +209,13 @@ export function ApprovedPatchApplyPanel({
           </p>
         </div>
         <div style={actions}>
-          <button type="button" style={button} onClick={() => setPrepared(true)} disabled={!previewReady}>
+          <button
+            type="button"
+            style={button}
+            onClick={() => setPrepared(true)}
+            disabled={!previewReady}
+            aria-describedby={!previewReady ? "codexforge-files-prepare-apply-request-explanation" : undefined}
+          >
             Prepare apply request
           </button>
           <button type="button" style={button} onClick={() => copyText("apply review prompt", buildApplyReviewPrompt(summary.summary))}>
@@ -224,7 +230,9 @@ export function ApprovedPatchApplyPanel({
       <ApprovedPatchApplySafetyNotice />
 
       {!previewReady ? (
-        <ApprovedPatchApplyEmptyState reason="Preview diff required before approved patch apply can be prepared." />
+        <div id="codexforge-files-prepare-apply-request-explanation">
+          <ApprovedPatchApplyEmptyState reason="Preview diff required before approved patch apply can be prepared." />
+        </div>
       ) : !prepared ? (
         <ApprovedPatchApplyEmptyState />
       ) : (

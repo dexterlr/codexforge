@@ -46,9 +46,22 @@ export function PatchChangeRequestPanel({
           style={input}
         />
       </label>
-      <button type="button" onClick={onPreparePreview} disabled={!selectedPath || !requestedChangeText.trim()} style={button}>
+      <button
+        type="button"
+        onClick={onPreparePreview}
+        disabled={!selectedPath || !requestedChangeText.trim()}
+        aria-describedby="codexforge-files-prepare-preview-explanation"
+        style={button}
+      >
         Prepare preview
       </button>
+      <p id="codexforge-files-prepare-preview-explanation" style={copy}>
+        {!selectedPath
+          ? "Choose a project file before preparing a preview. Preparing remains preview-only and does not write files or execute commands."
+          : !requestedChangeText.trim()
+            ? "Enter requested change text before preparing a preview. Preparing creates deterministic preview state only and does not write files or execute commands."
+            : "Preview prerequisites are ready. Preparing creates deterministic preview state only and does not write files or execute commands."}
+      </p>
       {request ? (
         <div style={statusBox}>
           <strong>{request.validation.valid ? "Request ready" : "Request blocked"}</strong>
@@ -57,9 +70,7 @@ export function PatchChangeRequestPanel({
           <span>{request.latestMessageAuthorityReminder}</span>
           {blocked.length ? <span>{blocked.join(" ")}</span> : null}
         </div>
-      ) : (
-        <p style={copy}>Enter change text to build deterministic preview state only.</p>
-      )}
+      ) : null}
     </section>
   );
 }

@@ -115,7 +115,15 @@ export function ValidationRunnerPanel({ onCopy }: Props) {
         </div>
         <div style={actions}>
           <button type="button" style={vrButton} onClick={() => setPrepared(true)}>Prepare validation request</button>
-          <button type="button" style={vrButton} disabled={!prepared} onClick={() => copyText("full validation checklist", bridge.copyableCommands.join("\n"))}>Copy full validation checklist</button>
+          <button
+            type="button"
+            style={vrButton}
+            disabled={!prepared}
+            aria-describedby={!prepared ? "codexforge-validation-copy-full-checklist-explanation" : undefined}
+            onClick={() => copyText("full validation checklist", bridge.copyableCommands.join("\n"))}
+          >
+            Copy full validation checklist
+          </button>
         </div>
       </div>
       {copyStatus ? (
@@ -129,7 +137,11 @@ export function ValidationRunnerPanel({ onCopy }: Props) {
       ) : null}
       <ValidationRunnerSafetyNotice />
       <section style={summaryStrip}>{summary.summary.map((item, index) => <span key={`validation-summary-${index}-${item.slice(0, 24)}`}>{item}</span>)}</section>
-      {!prepared ? <ValidationRunnerEmptyState /> : (
+      {!prepared ? (
+        <div id="codexforge-validation-copy-full-checklist-explanation">
+          <ValidationRunnerEmptyState reason="Prepare an allowlisted validation request before copying the full checklist. Preparing the request does not run a command or persist approval." />
+        </div>
+      ) : (
         <div style={grid}>
           <ValidationCommandCatalogPanel catalog={catalog} selectedIds={selectedIds} onToggle={toggleCommand} onCopy={copyText} />
           <ValidationRunRequestPanel request={request} />
@@ -149,8 +161,16 @@ export function ValidationRunnerPanel({ onCopy }: Props) {
           <section style={vrCard} aria-labelledby="validation-manual-handoff-title">
             <strong id="validation-manual-handoff-title" style={vrTitle}>Manual validation handoff</strong>
             <span style={vrPill}>{bridge.status}</span>
-            <p style={vrCopy}>{bridge.summary.join(" ")}</p>
-            <button type="button" style={vrButton} disabled={bridge.status !== "manual-only"} onClick={() => copyText("approved validation commands", bridge.copyableCommands.join("\n"))}>Copy approved commands</button>
+            <p id="codexforge-validation-copy-approved-commands-explanation" style={vrCopy}>{bridge.summary.join(" ")}</p>
+            <button
+              type="button"
+              style={vrButton}
+              disabled={bridge.status !== "manual-only"}
+              aria-describedby={bridge.status !== "manual-only" ? "codexforge-validation-copy-approved-commands-explanation" : undefined}
+              onClick={() => copyText("approved validation commands", bridge.copyableCommands.join("\n"))}
+            >
+              Copy approved commands
+            </button>
             <p style={vrCopy}>Guarded execution is unavailable. Run only the copied allowlisted commands in your own terminal, then paste bounded output below.</p>
             <ul style={vrList}>{bridge.blockedReasons.map((item) => <li key={item} style={{ ...vrCopy, color: "#fde68a" }}>{item}</li>)}</ul>
           </section>

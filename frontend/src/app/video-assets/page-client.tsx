@@ -39,8 +39,8 @@ export default function VideoAssetsPageClient({ workspace }: { workspace: Normal
             <li><strong>Rights and provenance:</strong> no licensing record has been collected.</li>
           </ul>
         </section>
-        <div hidden aria-hidden="true" data-codexforge-asset-diagnostics-preview="Video assets. See what a project needs before draft, finishing, or export. Review assets. Retained for Developer Diagnostics only.">
-          <AssetDependencyTrackerPanel />
+        <div hidden data-codexforge-asset-diagnostics-preview="Video assets. See what a project needs before draft, finishing, or export. Review assets. Retained for Developer Diagnostics only.">
+          <AssetDependencyTrackerPanel headingLevel="h2" />
         </div>
       </NormalProductFrame>
     </CodexForgeAppShell>

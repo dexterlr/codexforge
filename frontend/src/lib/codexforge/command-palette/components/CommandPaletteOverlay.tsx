@@ -5,25 +5,35 @@ import { useEffect, useRef } from "react";
 
 export function CommandPaletteOverlay({
   children,
+  fallbackFocusTarget,
   onClose,
+  returnFocusTarget,
 }: {
   children: ReactNode;
+  fallbackFocusTarget: HTMLElement | null;
   onClose: () => void;
+  returnFocusTarget: HTMLElement | null;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const frame = window.requestAnimationFrame(() => {
-      const preferred = panelRef.current?.querySelector<HTMLElement>("[autofocus]");
+      const preferred = panelRef.current?.querySelector<HTMLElement>(
+        "[data-codexforge-command-palette-search-box]"
+      );
       const first = preferred ?? panelRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
       first?.focus();
     });
     return () => {
       window.cancelAnimationFrame(frame);
-      previousFocus?.focus();
+      const restoreTarget = isRestorableFocusTarget(returnFocusTarget)
+        ? returnFocusTarget
+        : isRestorableFocusTarget(fallbackFocusTarget)
+          ? fallbackFocusTarget
+          : null;
+      restoreTarget?.focus({ preventScroll: true });
     };
-  }, []);
+  }, [fallbackFocusTarget, returnFocusTarget]);
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key === "Escape") {
@@ -68,6 +78,23 @@ export function CommandPaletteOverlay({
 }
 
 const FOCUSABLE_SELECTOR = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function isRestorableFocusTarget(target: HTMLElement | null): target is HTMLElement {
+  if (
+    target === null ||
+    target === document.body ||
+    !target.isConnected ||
+    target.matches(":disabled") ||
+    target.getAttribute("aria-disabled") === "true" ||
+    target.closest('[inert], [hidden], [aria-hidden="true"]') !== null ||
+    target.tabIndex < 0 ||
+    target.getClientRects().length === 0
+  ) {
+    return false;
+  }
+  const style = window.getComputedStyle(target);
+  return style.display !== "none" && style.visibility !== "hidden";
+}
 
 const backdrop: CSSProperties = {
   alignItems: "start",

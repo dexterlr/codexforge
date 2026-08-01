@@ -46,8 +46,8 @@ export default function PatchPreviewWorkbenchPageClient({ workspace }: { workspa
             <li><strong>Completed:</strong> only a separately approved application may be called completed, followed by Validation and Audit review.</li>
           </ul>
         </section>
-        <div hidden aria-hidden="true" data-codexforge-historical-patch-preview="deterministic fixture retained for diagnostics">
-          <PatchPreviewWorkbenchPanel />
+        <div hidden data-codexforge-historical-patch-preview="deterministic fixture retained for diagnostics">
+          <PatchPreviewWorkbenchPanel headingLevel="h2" />
         </div>
       </NormalProductFrame>
     </CodexForgeAppShell>

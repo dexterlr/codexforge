@@ -1,5 +1,6 @@
 param(
-  [string]$BaseUrl = "http://localhost:3000"
+  [string]$BaseUrl = "http://localhost:3000",
+  [switch]$SkipRouteProbe
 )
 
 $ErrorActionPreference = "Stop"
@@ -37,6 +38,23 @@ function Assert-NotMatches {
   Write-Host "[PASS] $Name"
 }
 
+function Assert-Matches {
+  param([AllowEmptyString()][string]$Haystack, [string]$Pattern, [string]$Name)
+  if ($Haystack -notmatch $Pattern) { throw "[FAIL] Missing $Name`: $Pattern" }
+  Write-Host "[PASS] $Name"
+}
+
+function Assert-InOrder {
+  param([AllowEmptyString()][string]$Haystack, [string[]]$Needles, [string]$Name)
+  $previous = -1
+  foreach ($needle in $Needles) {
+    $next = $Haystack.IndexOf($needle, $previous + 1, [System.StringComparison]::Ordinal)
+    if ($next -le $previous) { throw "[FAIL] $Name`: $needle" }
+    $previous = $next
+  }
+  Write-Host "[PASS] $Name"
+}
+
 Write-Host ""
 Write-Host "=== CodexForge Command Palette smoke ==="
 Write-Host "Base URL: $BaseUrl"
@@ -48,6 +66,8 @@ $shellPath = "src\lib\codexforge\navigation-shell\components\CodexForgeAppShell.
 $operatorHomePath = "src\lib\codexforge\operator-home\components\OperatorHomeDashboard.tsx"
 $stabilizationPath = "src\lib\codexforge\stabilization-command-center\components\StabilizationCommandCenter.tsx"
 $allSmokePath = "scripts\smoke-codexforge-all.ps1"
+$paletteComponentPath = Join-Path $componentDir "CodexForgeCommandPalette.tsx"
+$overlayComponentPath = Join-Path $componentDir "CommandPaletteOverlay.tsx"
 
 Assert-DirectoryExists $domainDir
 Assert-DirectoryExists $componentDir
@@ -89,6 +109,9 @@ $shellSource = Get-Content -Raw $shellPath
 $operatorHomeSource = Get-Content -Raw $operatorHomePath
 $stabilizationSource = Get-Content -Raw $stabilizationPath
 $allSmoke = Get-Content -Raw $allSmokePath
+$paletteComponentSource = Get-Content -Raw $paletteComponentPath
+$overlayComponentSource = Get-Content -Raw $overlayComponentPath
+$triggerComponentSource = Get-Content -Raw (Join-Path $componentDir "CommandPaletteTrigger.tsx")
 $paletteSource = $domainSource + "`n" + $uiSource
 
 foreach ($export in @(
@@ -142,6 +165,54 @@ foreach ($text in @(
 )) {
   Assert-Contains $uiSource $text "UI references $text"
 }
+
+Assert-InOrder $paletteComponentSource @(
+  "const activeElement = document.activeElement;",
+  "returnFocusTargetRef.current = activeElement instanceof HTMLElement ? activeElement : null;",
+  "fallbackFocusTargetRef.current = paletteRootRef.current?.querySelector<HTMLElement>(",
+  "paletteOpenRef.current = true;",
+  "setOpen(true);"
+) "focus target is captured before the palette opens"
+Assert-Contains $paletteComponentSource "if (paletteOpenRef.current) return;" "repeated open cannot replace the captured focus target"
+Assert-Contains $paletteComponentSource "ref={paletteRootRef}" "palette root owns the fallback query boundary"
+Assert-Contains $triggerComponentSource "data-codexforge-command-palette-trigger" "stable palette opener exposes the fallback selector"
+Assert-Contains $paletteComponentSource "<CommandPaletteTrigger onOpen={openPalette} />" "trigger uses the pre-open focus capture lifecycle"
+Assert-Matches $paletteComponentSource '(?s)if \(\(event\.ctrlKey \|\| event\.metaKey\).*?event\.preventDefault\(\);\s*openPalette\(\);' "Ctrl or Cmd K uses the pre-open focus capture lifecycle"
+Assert-Contains $paletteComponentSource "returnFocusTarget={returnFocusTargetRef.current}" "captured focus target is passed to the overlay"
+Assert-Contains $paletteComponentSource "fallbackFocusTarget={fallbackFocusTargetRef.current}" "stable palette opener fallback is passed to the overlay"
+Assert-Matches $overlayComponentSource '(?s)if \(event\.key === "Escape"\) \{\s*event\.preventDefault\(\);\s*event\.stopPropagation\(\);\s*onClose\(\);' "Escape prevents propagation and invokes the close lifecycle"
+Assert-InOrder $overlayComponentSource @(
+  "return () => {",
+  "window.cancelAnimationFrame(frame);",
+  "const restoreTarget = isRestorableFocusTarget(returnFocusTarget)",
+  "restoreTarget?.focus({ preventScroll: true });"
+) "focus restoration occurs in the overlay close-unmount lifecycle"
+Assert-InOrder $paletteComponentSource @(
+  "const closePalette = useCallback(() => {",
+  "paletteOpenRef.current = false;",
+  "setOpen(false);"
+) "closing resets the synchronous open guard before the next open"
+Assert-Contains $overlayComponentSource "target.isConnected" "return focus requires a connected target"
+Assert-Contains $overlayComponentSource 'target.matches(":disabled")' "return focus rejects disabled targets"
+Assert-Contains $overlayComponentSource "target.tabIndex < 0" "return focus rejects targets outside the focus order"
+Assert-Contains $overlayComponentSource 'target.getAttribute("aria-disabled") === "true"' "return focus rejects aria-disabled targets"
+Assert-Contains $overlayComponentSource 'target.closest(''[inert], [hidden], [aria-hidden="true"]'')' "return focus rejects hidden or inert targets"
+Assert-Contains $overlayComponentSource "target.getClientRects().length === 0" "return focus rejects non-rendered targets"
+Assert-Contains $overlayComponentSource 'style.display !== "none" && style.visibility !== "hidden"' "return focus requires visible computed styling"
+Assert-Contains $overlayComponentSource "isRestorableFocusTarget(fallbackFocusTarget)" "invalid captured focus falls back to the stable opener"
+Assert-Contains $overlayComponentSource "target === document.body" "body is rejected as a return-focus target"
+Assert-NotMatches $overlayComponentSource 'document\.body\.focus\s*\(' "focus never intentionally falls through to body"
+Assert-InOrder $overlayComponentSource @(
+  '"[data-codexforge-command-palette-search-box]"',
+  "const first = preferred ?? panelRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);",
+  "first?.focus();"
+) "initial focus resolves and focuses the command search box before a fallback"
+Assert-Matches $overlayComponentSource '(?s)if \(event\.key !== "Tab"\) return;.*?if \(event\.shiftKey && document\.activeElement === first\) \{\s*event\.preventDefault\(\);\s*last\.focus\(\);\s*\} else if \(!event\.shiftKey && document\.activeElement === last\) \{\s*event\.preventDefault\(\);\s*first\.focus\(\);' "Tab focus trap retains both wrap directions"
+Assert-Matches $paletteComponentSource '(?s)if \(event\.key === "ArrowDown"\).*?setSelectedIndex\(\(current\) => Math\.min' "ArrowDown advances bounded keyboard selection"
+Assert-Matches $paletteComponentSource '(?s)if \(event\.key === "ArrowUp"\).*?setSelectedIndex\(\(current\) => Math\.max' "ArrowUp reverses bounded keyboard selection"
+Assert-Matches $paletteComponentSource '(?s)if \(event\.key === "Enter" && selectedCommand\).*?selectCommand\(selectedCommand\);' "Enter preserves keyboard command selection"
+Assert-NotContains ($paletteComponentSource + "`n" + $overlayComponentSource) "setTimeout" "focus lifecycle uses no arbitrary delay"
+Assert-NotMatches ($paletteComponentSource + "`n" + $overlayComponentSource) '(?i)(\bas\s+any\b|\bas\s+unknown\s+as\b)' "focus repair introduces no unsafe cast"
 
 foreach ($text in @(
   "Go to Operator Home",
@@ -218,14 +289,18 @@ if ($suiteMatches.Count -ne 1) {
 }
 Assert-Contains $allSmoke "Command Palette" "managed smoke suite includes Command Palette exactly once"
 
-try {
-  $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/" -TimeoutSec 5
-  if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
-    throw "[FAIL] / returned status $($response.StatusCode)"
+if ($SkipRouteProbe) {
+  Write-Host "Route probe omitted for nested deterministic execution."
+} else {
+  try {
+    $response = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUrl/" -TimeoutSec 5
+    if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
+      throw "[FAIL] / returned status $($response.StatusCode)"
+    }
+    Write-Host "[PASS] / route reachable"
+  } catch {
+    Write-Host "[SKIP] / route not reachable from smoke: $($_.Exception.Message)"
   }
-  Write-Host "[PASS] / route reachable"
-} catch {
-  Write-Host "[SKIP] / route not reachable from smoke: $($_.Exception.Message)"
 }
 
 Write-Host "[OK] CodexForge Command Palette smoke passed."

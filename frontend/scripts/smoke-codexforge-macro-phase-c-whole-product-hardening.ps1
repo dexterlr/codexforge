@@ -63,91 +63,51 @@ function Assert-PowerShellParses {
 Write-Host ""
 Write-Host "=== CodexForge Macro Phase C whole-product hardening ==="
 
-$expectedBaseline = "8d30f5c65d5e293ce32d92589277667e37f31dc4"
+$expectedBaseline = "3c946a28b2b36f607286f986db94ae2d8969b9ec"
 $expectedDirtyPaths = @(
-  "docs/codexforge-macro-phase-c-whole-product-hardening.md",
+  "docs/codexforge-macro-phase-c-1-rendered-accessibility-repair.md",
   "scripts/smoke-codexforge-all.ps1",
+  "scripts/smoke-codexforge-command-palette.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
   "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
   "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
   "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
+  "scripts/smoke-codexforge-macro-phase-c-1-rendered-accessibility-repair.ps1",
   "scripts/smoke-codexforge-macro-phase-c-whole-product-hardening.ps1",
+  "scripts/smoke-codexforge-openai-compatible-adapter.ps1",
   "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
   "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
   "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
   "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1",
-  "src/app/error.tsx",
-  "src/app/files/page.tsx",
-  "src/app/files/page-client.tsx",
-  "src/app/globals.css",
-  "src/app/jarvis-audit/page.tsx",
-  "src/app/jarvis-audit/page-client.tsx",
-  "src/app/jarvis-safety/page.tsx",
-  "src/app/jarvis-safety/page-client.tsx",
-  "src/app/jarvis-trading/page.tsx",
-  "src/app/jarvis-trading/page-client.tsx",
-  "src/app/layout.tsx",
-  "src/app/loading.tsx",
-  "src/app/not-found.tsx",
-  "src/app/page.tsx",
-  "src/app/page-client.tsx",
-  "src/app/patch-preview-workbench/page.tsx",
   "src/app/patch-preview-workbench/page-client.tsx",
-  "src/app/provider-adapters/page.tsx",
   "src/app/provider-adapters/page-client.tsx",
-  "src/app/validation/page.tsx",
-  "src/app/validation/page-client.tsx",
-  "src/app/video-assets/page.tsx",
   "src/app/video-assets/page-client.tsx",
-  "src/app/video-projects/page.tsx",
   "src/app/video-projects/page-client.tsx",
-  "src/app/video-workflows/page.tsx",
-  "src/app/video-workflows/page-client.tsx",
-  "src/lib/codexforge/approved-patch-apply/components/ApplyApprovalPacketPanel.tsx",
-  "src/lib/codexforge/approved-patch-apply/components/ApplyExecutionBridgePanel.tsx",
-  "src/lib/codexforge/approved-patch-apply/components/ApplyValidationCapturePanel.tsx",
   "src/lib/codexforge/approved-patch-apply/components/ApprovedPatchApplyPanel.tsx",
-  "src/lib/codexforge/command-palette/command-groups.ts",
-  "src/lib/codexforge/command-palette/command-registry.ts",
+  "src/lib/codexforge/asset-dependency-tracker/components/AssetDependencyTrackerPanel.tsx",
   "src/lib/codexforge/command-palette/components/CodexForgeCommandPalette.tsx",
-  "src/lib/codexforge/command-palette/components/CommandPaletteEmptyState.tsx",
-  "src/lib/codexforge/command-palette/components/CommandPaletteGroup.tsx",
-  "src/lib/codexforge/command-palette/components/CommandPaletteItem.tsx",
   "src/lib/codexforge/command-palette/components/CommandPaletteOverlay.tsx",
-  "src/lib/codexforge/command-palette/components/CommandPaletteSearchBox.tsx",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
-  "src/lib/codexforge/local-project-reader/components/LocalProjectReader.tsx",
-  "src/lib/codexforge/local-project-reader/components/ProjectFileList.tsx",
-  "src/lib/codexforge/local-project-reader/components/ProjectReaderEmptyState.tsx",
   "src/lib/codexforge/local-project-reader/components/ProjectTreePanel.tsx",
-  "src/lib/codexforge/local-video-workflow-catalog/components/LocalVideoWorkflowCatalogPanel.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeAppShell.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeShellBreadcrumbs.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeShellMobileNav.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeSidebar.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeTopbar.tsx",
-  "src/lib/codexforge/navigation-shell/navigation-route-state.ts",
-  "src/lib/codexforge/navigation-shell/primary-product-area-model.ts",
-  "src/lib/codexforge/normal-product/components/NormalProductFrame.tsx",
-  "src/lib/codexforge/normal-product/components/ProductHomePanel.tsx",
-  "src/lib/codexforge/normal-product/components/ProductReadinessPanels.tsx",
-  "src/lib/codexforge/normal-product/index.ts",
-  "src/lib/codexforge/validation-runner/components/ValidationRunnerPanel.tsx"
+  "src/lib/codexforge/patch-preview-workbench/components/PatchPreviewWorkbenchPanel.tsx",
+  "src/lib/codexforge/real-patch-preview/components/PatchChangeRequestPanel.tsx",
+  "src/lib/codexforge/validation-runner/components/ValidationRunnerPanel.tsx",
+  "src/lib/codexforge/video-foundation-ui.tsx",
+  "src/lib/codexforge/video-project-workspace/components/VideoProjectWorkspacePanel.tsx"
 )
 
 Assert-PowerShellParses "scripts/smoke-codexforge-macro-phase-c-whole-product-hardening.ps1"
-Assert-True ((& git rev-parse HEAD).Trim() -eq $expectedBaseline) "Macro Phase C remains based on the approved checkpoint"
-Assert-True ($expectedDirtyPaths.Count -eq 70) "Phase C manifest declares exactly seventy paths"
-Assert-True (@($expectedDirtyPaths | Sort-Object -Unique).Count -eq 70) "Phase C manifest paths are unique"
+Assert-True ((& git rev-parse HEAD).Trim() -eq $expectedBaseline) "Macro Phase C.1 remains based on the approved Macro Phase C checkpoint"
+Assert-True ($expectedDirtyPaths.Count -eq 30) "Macro Phase C.1 manifest declares exactly thirty paths"
+Assert-True (@($expectedDirtyPaths | Sort-Object -Unique).Count -eq 30) "Macro Phase C.1 manifest paths are unique"
 $changedPaths = @(
   (& git status --short --untracked-files=all 2>$null) |
     Where-Object { $_.Length -ge 4 } |
     ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
-Assert-True ($changedPaths.Count -eq 70) "Git dirty scope contains exactly seventy Phase C paths"
+Assert-True ($changedPaths.Count -eq 30) "Git dirty scope contains exactly thirty Macro Phase C.1 paths"
 foreach ($path in $changedPaths) { Assert-True ($expectedDirtyPaths -contains $path) "Dirty path is approved: $path" }
 foreach ($path in $expectedDirtyPaths) {
   Assert-True (Test-Path -LiteralPath (Join-Path $root $path) -PathType Leaf) "Planned path exists: $path"
@@ -278,7 +238,10 @@ Assert-Contains $commandPalette 'buildCodexForgeCommandPaletteSummary(searchable
 Assert-Contains $commandEmpty '<strong>dev:</strong>' "Empty palette recovery explains the explicit diagnostics prefix"
 Assert-Contains $commandRegistry 'group: "Developer diagnostics"' "Historical preview commands are classified as diagnostics"
 Assert-Contains $commandOverlay 'role="dialog"' "Command palette exposes dialog semantics"
-Assert-Contains $commandOverlay "previousFocus?.focus()" "Command palette restores trigger focus"
+Assert-True (
+  $commandPalette.Contains("returnFocusTarget={returnFocusTargetRef.current}") -and
+  $commandOverlay.Contains("restoreTarget?.focus({ preventScroll: true })")
+) "Command palette passes and restores the pre-open focus target"
 Assert-Contains $commandOverlay 'event.key === "Escape"' "Escape closes the command palette"
 Assert-Contains $commandOverlay 'event.key !== "Tab"' "Command palette traps focus"
 Assert-Contains $commandPalette 'role="listbox"' "Command results expose listbox semantics"
@@ -437,14 +400,16 @@ Assert-Contains $doc "shared creator lifecycle plus a genuinely working frontend
 $allSmoke = Get-Text "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($allSmoke, '(?s)\$currentReleaseGateScripts\s*=\s*@\((.*?)\)\s*# Current release gate wording:').Groups[1].Value
 $releaseEntries = [regex]::Matches($releaseBlock, '@\{\s*Name\s*=.*?Required\s*=\s*\$(?:true|false)\s*\}')
-Assert-True ($releaseEntries.Count -eq 71) "Aggregate executable count is 71"
-Assert-True (@($releaseEntries | Where-Object { $_.Value -match 'Required\s*=\s*\$true' }).Count -eq 68) "Aggregate required count is 68"
+Assert-True ($releaseEntries.Count -eq 72) "Aggregate executable count is 72"
+Assert-True (@($releaseEntries | Where-Object { $_.Value -match 'Required\s*=\s*\$true' }).Count -eq 69) "Aggregate required count is 69"
 Assert-True (@($releaseEntries | Where-Object { $_.Value -match 'Required\s*=\s*\$false' }).Count -eq 3) "Aggregate optional count remains 3"
 $phaseANeedle = 'File = "smoke-codexforge-local-first-jarvis-working-product-loop.ps1"; Required = $true'
 $phaseBNeedle = 'File = "smoke-codexforge-unified-jarvis-product-experience.ps1"; Required = $true'
 $phaseCNeedle = 'File = "smoke-codexforge-macro-phase-c-whole-product-hardening.ps1"; Required = $true'
+$phaseC1Needle = 'File = "smoke-codexforge-macro-phase-c-1-rendered-accessibility-repair.ps1"; Required = $true'
 Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseCNeedle))).Count -eq 1) "Macro Phase C is registered exactly once as required"
-Assert-InOrder $releaseBlock @($phaseANeedle, $phaseBNeedle, $phaseCNeedle) "Aggregate order is Macro A to Macro B to Macro C"
+Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseC1Needle))).Count -eq 1) "Macro Phase C.1 is registered exactly once as required"
+Assert-InOrder $releaseBlock @($phaseANeedle, $phaseBNeedle, $phaseCNeedle, $phaseC1Needle) "Aggregate order is Macro A to Macro B to Macro C to Macro C.1"
 
 Write-Host ""
 Write-Host "Macro Phase C whole-product hardening smoke passed."

@@ -41,9 +41,9 @@ export default function VideoProjectsPageClient({ workspace }: { workspace: Norm
             context, or use Files for a read-only inspection.
           </p>
         </section>
-        <div hidden aria-hidden="true" data-codexforge-historical-project-preview="Video project workspace retained outside normal journey; Keep prompts, shots, keyframes, drafts, and reviews together.">
+        <div hidden data-codexforge-historical-project-preview="Video project workspace retained outside normal journey; Keep prompts, shots, keyframes, drafts, and reviews together.">
           <GuardedVideoPipelineRail title="Video project guarded pipeline" />
-          <VideoProjectWorkspacePanel />
+          <VideoProjectWorkspacePanel headingLevel="h2" />
         </div>
       </NormalProductFrame>
     </CodexForgeAppShell>

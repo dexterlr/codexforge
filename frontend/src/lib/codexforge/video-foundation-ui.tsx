@@ -27,18 +27,22 @@ export function PreviewFoundationHero({
   subtitle,
   primary,
   links,
+  headingLevel = "h1",
 }: {
   phase: string;
   title: string;
   subtitle: string;
   primary: CodexForgePreviewLink;
   links: CodexForgePreviewLink[];
+  headingLevel?: "h1" | "h2";
 }) {
+  const Heading = headingLevel;
+
   return (
     <section style={previewStyles.hero}>
       <div>
         <span style={previewStyles.eyebrow}>{phase}</span>
-        <h1 style={previewStyles.headline}>{title}</h1>
+        <Heading style={previewStyles.headline}>{title}</Heading>
         <p style={previewStyles.lede}>{subtitle}</p>
       </div>
       <div style={previewStyles.linkRow}>

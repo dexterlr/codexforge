@@ -26,20 +26,35 @@ export function ProjectTreePanel({
       <div style={treeList}>
         {tree.flattened.slice(0, 240).map((node, index) => {
           const active = node.path === selectedPath;
+          const unavailableExplanationId = node.selectable
+            ? undefined
+            : `codexforge-files-project-tree-${encodeURIComponent(node.path)}-explanation`;
           return (
-            <button
+            <div
               key={buildLocalProjectReaderStableKey("tree", node.path, index)}
-              type="button"
-              disabled={!node.selectable}
-              aria-pressed={node.selectable ? active : undefined}
-              onClick={() => node.selectable && onSelectPath(node.path)}
-              style={treeRow(active, node.selectable, node.depth)}
-              title={node.path}
+              style={treeItem}
             >
-              <span style={kind}>{node.type === "directory" ? "dir" : node.extension || "file"}</span>
-              <span style={pathText}>{node.path}</span>
-              <span style={risk}>{node.riskHint}</span>
-            </button>
+              <button
+                type="button"
+                disabled={!node.selectable}
+                aria-describedby={unavailableExplanationId}
+                aria-pressed={node.selectable ? active : undefined}
+                onClick={() => node.selectable && onSelectPath(node.path)}
+                style={treeRow(active, node.selectable, node.depth)}
+                title={node.path}
+              >
+                <span style={kind}>{node.type === "directory" ? "dir" : node.extension || "file"}</span>
+                <span style={pathText}>{node.path}</span>
+                <span style={risk}>{node.riskHint}</span>
+              </button>
+              {unavailableExplanationId ? (
+                <p id={unavailableExplanationId} style={unavailableExplanation}>
+                  {node.type === "directory"
+                    ? `${node.path} is a directory grouping and cannot be selected. Choose a file inside ${node.path} for a read-only preview.`
+                    : `${node.path} cannot be selected because read-only preview blocks binary or generated files.`}
+                </p>
+              ) : null}
+            </div>
           );
         })}
       </div>
@@ -106,6 +121,21 @@ const treeList: CSSProperties = {
   maxHeight: 660,
   minWidth: 0,
   overflow: "auto",
+};
+
+const treeItem: CSSProperties = {
+  display: "grid",
+  gap: 4,
+  minWidth: 0,
+};
+
+const unavailableExplanation: CSSProperties = {
+  color: "#94a3b8",
+  fontSize: 10,
+  lineHeight: 1.4,
+  margin: 0,
+  overflowWrap: "anywhere",
+  padding: "0 9px 2px",
 };
 
 const kind: CSSProperties = {
