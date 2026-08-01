@@ -617,6 +617,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Unified Product IA UX smoke"; File = "smoke-codexforge-jarvis-unified-product-ia-god-tier-ux-mega-batch.ps1"; Required = $true },
   @{ Name = "Local-First Jarvis Working Product Loop"; File = "smoke-codexforge-local-first-jarvis-working-product-loop.ps1"; Required = $true },
   @{ Name = "Unified Jarvis Product Experience"; File = "smoke-codexforge-unified-jarvis-product-experience.ps1"; Required = $true },
+  @{ Name = "Macro Phase C Whole-Product Hardening"; File = "smoke-codexforge-macro-phase-c-whole-product-hardening.ps1"; Required = $true },
   @{ Name = "Full validation wrapper smoke"; File = "smoke-codexforge-full-validation-wrapper.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }
 )

@@ -47,7 +47,7 @@ export function LocalProjectReader({
   const [readResponse, setReadResponse] = useState<ProjectReaderReadResponse | null>(null);
   const [loadingSnapshot, setLoadingSnapshot] = useState(false);
   const [loadingPreview, setLoadingPreview] = useState(false);
-  const [error, setError] = useState(unavailableReason ?? "");
+  const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
 
   const entries = snapshot?.entries ?? [];
@@ -222,28 +222,39 @@ export function LocalProjectReader({
 
   if (!snapshot || snapshot.entries.length === 0) {
     return (
-      <main
+      <section
+        aria-label="Project file reader"
         data-codexforge-local-project-reader="LocalProjectReader renders read-only no file writes no command execution Safe Patch Preview preserve latest-message authority"
         style={page}
       >
+        <ReaderResponsiveStyles />
         <ProjectReaderSafetyNotice />
-        <ProjectReaderEmptyState reason={error || unavailableReason || "Read-only project snapshot is not available."} />
-      </main>
+        <ProjectReaderEmptyState
+          reason={error || unavailableReason || "Read-only project snapshot is not available."}
+          onRetry={refreshSnapshot}
+          loading={loadingSnapshot}
+          variant={error ? "error" : "empty"}
+        />
+      </section>
     );
   }
 
   return (
-    <main
+    <section
+      aria-labelledby="project-reader-title"
+      aria-busy={loadingSnapshot || loadingPreview}
       data-codexforge-local-project-reader="LocalProjectReader renders real local project reader read-only no file writes no command execution Safe Patch Preview preserve latest-message authority"
       style={page}
     >
+      <ReaderResponsiveStyles />
       <section style={hero}>
         <div style={heroText}>
           <div style={eyebrow}>Preview-safe</div>
-          <h1 style={title}>Project Reader</h1>
+          <h2 id="project-reader-title" style={title}>Read project files</h2>
           <p style={lede}>
             Read-only file explorer with a readable preview, compact metadata, and copy-only Safe Patch Preview handoff.
           </p>
+          <p style={rootLabel}>Approved root: {snapshot.root}</p>
         </div>
         <div style={stats}>
           <Stat label="Files" value={String(sessionSummary.fileCount)} />
@@ -258,12 +269,19 @@ export function LocalProjectReader({
         <ProjectReaderSafetyNotice />
       </details>
 
-      <section style={statusStrip}>
+      <section role="status" aria-live="polite" style={statusStrip}>
         <span>{summarizeLocalProjectReaderSession(sessionSummary)}</span>
+        <span>
+          {loadingPreview
+            ? `Reading ${selectedPath}.`
+            : readResponse?.path === selectedPath
+              ? `Preview ready for ${selectedPath}.`
+              : `Selected ${selectedPath}.`}
+        </span>
         {copied ? <strong>Copied {copied}</strong> : null}
       </section>
 
-      {error ? <ProjectReaderEmptyState reason={error} /> : null}
+      {error ? <ProjectReaderEmptyState reason={error} onRetry={refreshSnapshot} loading={loadingSnapshot} variant="error" /> : null}
 
       <ProjectFileSearchPanel
         query={query}
@@ -275,6 +293,7 @@ export function LocalProjectReader({
 
       <section
         style={layout}
+        data-codexforge-project-reader-layout="responsive three-column-to-one-column"
         data-codexforge-files-focus-layout="file explorer inspector layout explorer 280-360 preview minmax 480 1fr inspector 300-360 code preview overflowX auto no overflowWrap anywhere no wordBreak break-word"
       >
         <div style={leftRail}>
@@ -290,15 +309,17 @@ export function LocalProjectReader({
             onRead={readSelectedFile}
           />
           <ProjectReaderHandoffPanel handoff={handoff} onCopy={copyText} />
-          <RealPatchPreviewPanel
-            selectedFilePath={selectedPath}
-            selectedFileCategory={metadata?.category ?? "unknown"}
-            fileContent={selectedReadContent}
-            metadata={metadata}
-            purpose={purpose}
-            risk={riskReport}
-            onCopy={copyText}
-          />
+          <div id="prepare-patch-review" tabIndex={-1} aria-label="Prepare or review a patch preview">
+            <RealPatchPreviewPanel
+              selectedFilePath={selectedPath}
+              selectedFileCategory={metadata?.category ?? "unknown"}
+              fileContent={selectedReadContent}
+              metadata={metadata}
+              purpose={purpose}
+              risk={riskReport}
+              onCopy={copyText}
+            />
+          </div>
         </div>
         <aside style={rightRail}>
           <ProjectFileMetadataPanel metadata={metadata} />
@@ -306,7 +327,33 @@ export function LocalProjectReader({
           <ProjectFileRiskPanel report={riskReport} />
         </aside>
       </section>
-    </main>
+    </section>
+  );
+}
+
+function ReaderResponsiveStyles() {
+  return (
+    <style>{`
+      @media (max-width: 1180px) {
+        [data-codexforge-project-reader-layout] {
+          grid-template-columns: minmax(240px, 320px) minmax(0, 1fr) !important;
+        }
+        [data-codexforge-project-reader-layout] > aside {
+          display: grid !important;
+          grid-column: 1 / -1;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 760px) {
+        [data-codexforge-project-reader-layout] {
+          grid-template-columns: minmax(0, 1fr) !important;
+        }
+        [data-codexforge-project-reader-layout] > aside {
+          grid-column: auto;
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+    `}</style>
   );
 }
 
@@ -372,6 +419,15 @@ const lede: CSSProperties = {
   lineHeight: 1.5,
   margin: 0,
   maxWidth: 780,
+  overflowWrap: "anywhere",
+};
+
+const rootLabel: CSSProperties = {
+  color: "#94a3b8",
+  fontFamily: "var(--font-geist-mono), ui-monospace, monospace",
+  fontSize: 11,
+  lineHeight: 1.45,
+  margin: 0,
   overflowWrap: "anywhere",
 };
 

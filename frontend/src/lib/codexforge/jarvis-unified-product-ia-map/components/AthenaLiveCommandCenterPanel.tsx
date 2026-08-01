@@ -54,8 +54,8 @@ const JARVIS_REVIEW_DESTINATIONS = [
     href: "/patch-preview-workbench",
     routeLabel: "/patch-preview-workbench",
     summary:
-      "Review proposed changes before the separate Approved Patch Apply boundary.",
-    title: "Files & Changes",
+      "Understand the explicit patch lifecycle; prepare and review a real proposal in Project Files.",
+    title: "Patch lifecycle",
     tone: "workflow",
   },
   {
@@ -82,15 +82,15 @@ const JARVIS_REVIEW_DESTINATIONS = [
     tone: "workflow",
   },
   {
-    href: "/jarvis-video",
-    routeLabel: "/jarvis-video",
-    summary: "Open the focused studio for recorded video task planning and review.",
-    title: "Video Studio",
+    href: "/video-workflows",
+    routeLabel: "/video-workflows",
+    summary: "Review video planning boundaries without implying generation or rendering is available.",
+    title: "Video planning",
     tone: "technical",
   },
   {
-    href: "/ai-providers",
-    routeLabel: "/ai-providers",
+    href: "/provider-adapters",
+    routeLabel: "/provider-adapters",
     summary: "Inspect provider setup, availability, and local execution constraints.",
     title: "Provider Details",
     tone: "technical",

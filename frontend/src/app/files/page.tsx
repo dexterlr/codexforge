@@ -3,9 +3,9 @@ import { buildCodexForgeFilesContext } from "@/lib/codexforge/files/file-context
 import FilesPageClient from "./page-client";
 
 export const metadata: Metadata = {
-  title: "Project Reader",
+  title: "Project Files",
   description:
-    "CodexForge read-only local project reader with file tree, preview, metadata, purpose, risk, and Safe Patch Preview handoff.",
+    "Browse and preview files inside the bounded project root, then continue to explicit Patch Review and allowlisted Validation.",
 };
 
 export default async function FilesPage() {

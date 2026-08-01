@@ -22,8 +22,8 @@ const GROUP_ORDER: readonly CodexForgeCommandGroup[] = [
 ] as const;
 
 const GROUP_DESCRIPTIONS: Record<CodexForgeCommandGroup, string> = {
-  "User features": "Feature-first cockpit commands for normal user workflows.",
-  "Developer diagnostics": "Grouped route diagnostics and phase deep links.",
+  "User features": "Canonical CodexForge product routes for normal user workflows.",
+  "Developer diagnostics": "Historical, preview, wiring, and phase routes kept outside the normal journey.",
   Navigate: "Route search and safe navigation.",
   Stabilize: "Regression triage, fix queue, and stabilization review.",
   "Patch workflow": "Preview-only patch preparation and review gates.",

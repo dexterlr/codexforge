@@ -99,37 +99,76 @@ Write-Host ""
 Write-Host "=== CodexForge Jarvis manual provider model selector smoke ==="
 
 $allowedChangedFiles = @(
-  "src/app/athena/page.tsx",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
-  "src/lib/codexforge/navigation-shell/primary-product-area-model.ts",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeSidebar.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeShellMobileNav.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeAppShell.tsx",
-  "src/lib/codexforge/navigation-shell/navigation-route-registry.ts",
-  "src/lib/codexforge/command-palette/command-registry.ts",
-  "src/lib/codexforge/navigation/codexforge-routes.ts",
-  "src/lib/codexforge/cockpit-navigation-cleanup-user-ux/components/CockpitNavigationCleanupUserUxPanel.tsx",
-  "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1",
+  "docs/codexforge-macro-phase-c-whole-product-hardening.md",
   "scripts/smoke-codexforge-all.ps1",
-  "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
-  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
-  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
-  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
+  "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
+  "scripts/smoke-codexforge-macro-phase-c-whole-product-hardening.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
+  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
-  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1"
-  # Historical Slice R scope entries were replaced mechanically for Macro Phase B.
-  # Historical qualification and controlled-acceptance sources remain unchanged.
-  # Historical candidate declarations remain unchanged.
-  # Historical evidence remains outside this smoke.
-  # Provider registry and catalog ownership remain protected.
-  # Provider adapters and credential resolution remain protected.
-  # Package and configuration ownership remain protected.
-  # No live script is registered by this scope repair.
+  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
+  "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1",
+  "src/app/error.tsx",
+  "src/app/files/page.tsx",
+  "src/app/files/page-client.tsx",
+  "src/app/globals.css",
+  "src/app/jarvis-audit/page.tsx",
+  "src/app/jarvis-audit/page-client.tsx",
+  "src/app/jarvis-safety/page.tsx",
+  "src/app/jarvis-safety/page-client.tsx",
+  "src/app/jarvis-trading/page.tsx",
+  "src/app/jarvis-trading/page-client.tsx",
+  "src/app/layout.tsx",
+  "src/app/loading.tsx",
+  "src/app/not-found.tsx",
+  "src/app/page.tsx",
+  "src/app/page-client.tsx",
+  "src/app/patch-preview-workbench/page.tsx",
+  "src/app/patch-preview-workbench/page-client.tsx",
+  "src/app/provider-adapters/page.tsx",
+  "src/app/provider-adapters/page-client.tsx",
+  "src/app/validation/page.tsx",
+  "src/app/validation/page-client.tsx",
+  "src/app/video-assets/page.tsx",
+  "src/app/video-assets/page-client.tsx",
+  "src/app/video-projects/page.tsx",
+  "src/app/video-projects/page-client.tsx",
+  "src/app/video-workflows/page.tsx",
+  "src/app/video-workflows/page-client.tsx",
+  "src/lib/codexforge/approved-patch-apply/components/ApplyApprovalPacketPanel.tsx",
+  "src/lib/codexforge/approved-patch-apply/components/ApplyExecutionBridgePanel.tsx",
+  "src/lib/codexforge/approved-patch-apply/components/ApplyValidationCapturePanel.tsx",
+  "src/lib/codexforge/approved-patch-apply/components/ApprovedPatchApplyPanel.tsx",
+  "src/lib/codexforge/command-palette/command-groups.ts",
+  "src/lib/codexforge/command-palette/command-registry.ts",
+  "src/lib/codexforge/command-palette/components/CodexForgeCommandPalette.tsx",
+  "src/lib/codexforge/command-palette/components/CommandPaletteEmptyState.tsx",
+  "src/lib/codexforge/command-palette/components/CommandPaletteGroup.tsx",
+  "src/lib/codexforge/command-palette/components/CommandPaletteItem.tsx",
+  "src/lib/codexforge/command-palette/components/CommandPaletteOverlay.tsx",
+  "src/lib/codexforge/command-palette/components/CommandPaletteSearchBox.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
+  "src/lib/codexforge/local-project-reader/components/LocalProjectReader.tsx",
+  "src/lib/codexforge/local-project-reader/components/ProjectFileList.tsx",
+  "src/lib/codexforge/local-project-reader/components/ProjectReaderEmptyState.tsx",
+  "src/lib/codexforge/local-project-reader/components/ProjectTreePanel.tsx",
+  "src/lib/codexforge/local-video-workflow-catalog/components/LocalVideoWorkflowCatalogPanel.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeAppShell.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeShellBreadcrumbs.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeShellMobileNav.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeSidebar.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeTopbar.tsx",
+  "src/lib/codexforge/navigation-shell/navigation-route-state.ts",
+  "src/lib/codexforge/navigation-shell/primary-product-area-model.ts",
+  "src/lib/codexforge/normal-product/components/NormalProductFrame.tsx",
+  "src/lib/codexforge/normal-product/components/ProductHomePanel.tsx",
+  "src/lib/codexforge/normal-product/components/ProductReadinessPanels.tsx",
+  "src/lib/codexforge/normal-product/index.ts",
+  "src/lib/codexforge/validation-runner/components/ValidationRunnerPanel.tsx"
 )
 
 $requiredFiles = @(
@@ -180,9 +219,9 @@ $changedPaths = $statusLines |
   } |
   Sort-Object -Unique
 
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the twenty-three allowed Macro Phase B files"
+Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the seventy allowed Macro Phase C files"
 foreach ($path in $changedPaths) {
-  Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed smoke-repair files: $path"
+  Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed Macro Phase C files: $path"
 }
 
 Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-types.ts") 'groqFreeTierExecutionConfirmation?: true;' "Private-alpha types add the exact execution-time Groq Free-tier confirmation input"

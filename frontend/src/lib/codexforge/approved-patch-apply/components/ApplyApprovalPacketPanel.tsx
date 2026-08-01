@@ -35,6 +35,7 @@ export function ApplyApprovalPacketPanel(props: Props) {
         </label>
       ) : null}
       <textarea
+        aria-label="Approval note for patch application review"
         style={textarea}
         value={props.approvalNote}
         onChange={(event) => props.onApprovalNoteChange(event.target.value)}

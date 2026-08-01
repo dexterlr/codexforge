@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { useEffect, useRef } from "react";
 import type { CodexForgeCommand } from "../command-palette-types";
 
 export function CommandPaletteItem({
@@ -13,8 +14,18 @@ export function CommandPaletteItem({
   onSelect: (command: CodexForgeCommand) => void;
 }) {
   const disabled = Boolean(command.disabledReason);
+  const itemRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (selected) itemRef.current?.scrollIntoView({ block: "nearest" });
+  }, [selected]);
+
   return (
     <button
+      ref={itemRef}
+      id={`codexforge-command-${command.id}`}
+      role="option"
+      aria-selected={selected}
       type="button"
       disabled={disabled}
       onClick={() => onSelect(command)}

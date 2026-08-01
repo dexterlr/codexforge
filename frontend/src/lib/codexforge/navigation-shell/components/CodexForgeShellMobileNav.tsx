@@ -23,13 +23,19 @@ export function CodexForgeShellMobileNav({
             display: none !important;
           }
         }
+        @media (max-width: 520px) {
+          [data-codexforge-mobile-nav-links] {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+        }
       `}</style>
       <details
         data-codexforge-shell-mobile-nav="CodexForgeShellMobileNav renders responsive command-deck navigation only on compact screens; desktop shell avoids duplicate top Routes clutter"
         style={details}
       >
         <summary style={summary}>Product navigation</summary>
-        <nav aria-label="CodexForge mobile navigation" style={nav}>
+        <nav aria-label="CodexForge mobile navigation" data-codexforge-mobile-nav-links="all canonical normal routes" style={nav}>
           {primaryRoutes.map(({ area, route }) => (
             <Link
               key={`mobile-${route.href}`}

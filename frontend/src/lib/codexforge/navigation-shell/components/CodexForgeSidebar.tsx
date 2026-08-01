@@ -85,17 +85,19 @@ export function CodexForgeSidebar({
           {primaryAreaRoutes.map((entry) => renderPrimaryAreaLink(entry.area, entry.route, activeHref, compact, showBadges))}
         </div>
 
-        <details style={advancedDetails}>
-          <summary style={advancedSummary}>Secondary</summary>
-          <div style={advancedStack}>
-            {secondarySections.map((section) => (
-              <div key={`sidebar-${section.id}`} style={sectionBlock}>
-                <div style={{ ...sectionLabel, ...(compact ? compactSectionLabel : null) }}>{section.label}</div>
-                {section.routes.map((route) => renderRouteLink(route, activeHref, compact, showBadges))}
-              </div>
-            ))}
-          </div>
-        </details>
+        {secondarySections.length > 0 ? (
+          <details style={advancedDetails}>
+            <summary style={advancedSummary}>More product areas</summary>
+            <div style={advancedStack}>
+              {secondarySections.map((section) => (
+                <div key={`sidebar-${section.id}`} style={sectionBlock}>
+                  <div style={{ ...sectionLabel, ...(compact ? compactSectionLabel : null) }}>{section.label}</div>
+                  {section.routes.map((route) => renderRouteLink(route, activeHref, compact, showBadges))}
+                </div>
+              ))}
+            </div>
+          </details>
+        ) : null}
 
         <details style={advancedDetails}>
           <summary style={advancedSummary}>Developer Diagnostics</summary>
@@ -144,7 +146,7 @@ function renderPrimaryAreaLink(
     <Link
       key={`primary-product-area-${route.href}`}
       href={route.href}
-      title={`${area.label}: ${route.description}`}
+      title={`${area.label}: ${area.summary}`}
       aria-current={route.href === activeHref ? "page" : undefined}
       data-codexforge-primary-product-area={area.label}
       style={{

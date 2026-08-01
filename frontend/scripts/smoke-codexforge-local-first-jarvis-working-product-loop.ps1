@@ -168,8 +168,8 @@ foreach ($line in Get-Content -LiteralPath (Join-Path $root "scripts\smoke-codex
   }
 }
 
-Assert-True ($aggregateEntries.Count -eq 70) "Aggregate executable count is 70"
-Assert-True (($aggregateEntries | Where-Object Required).Count -eq 67) "Aggregate required count is 67"
+Assert-True ($aggregateEntries.Count -eq 71) "Aggregate executable count is 71"
+Assert-True (($aggregateEntries | Where-Object Required).Count -eq 68) "Aggregate required count is 68"
 Assert-True (($aggregateEntries | Where-Object { -not $_.Required }).Count -eq 3) "Aggregate optional count remains 3"
 
 $nodeScript = @'

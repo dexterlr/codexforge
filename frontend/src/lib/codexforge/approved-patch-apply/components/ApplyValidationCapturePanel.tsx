@@ -28,6 +28,7 @@ export function ApplyValidationCapturePanel({
         ))}
       </div>
       <textarea
+        aria-label="Manual validation result after patch application"
         style={textarea}
         value={manualResultText}
         onChange={(event) => onManualResultTextChange(event.target.value)}

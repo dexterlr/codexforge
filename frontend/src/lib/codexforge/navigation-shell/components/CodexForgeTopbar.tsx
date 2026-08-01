@@ -3,6 +3,7 @@ import type { CodexForgeRouteState } from "../navigation-shell-types";
 import { CodexForgeRouteSwitcher } from "./CodexForgeRouteSwitcher";
 import { CodexForgeShellBreadcrumbs } from "./CodexForgeShellBreadcrumbs";
 import type { CodexForgeNavigationRoute } from "../navigation-shell-types";
+import { CODEXFORGE_PRIMARY_PRODUCT_AREAS } from "../primary-product-area-model";
 
 export function CodexForgeTopbar({
   routeState,
@@ -10,6 +11,7 @@ export function CodexForgeTopbar({
   showRouteTray = false,
   routeTrayDefaultOpen = false,
   showHeroRouteChips = false,
+  routeContextAvailable = true,
   commandPalette,
 }: {
   routeState: CodexForgeRouteState;
@@ -17,37 +19,67 @@ export function CodexForgeTopbar({
   showRouteTray?: boolean;
   routeTrayDefaultOpen?: boolean;
   showHeroRouteChips?: boolean;
+  routeContextAvailable?: boolean;
   commandPalette?: ReactNode;
 }) {
+  const normalProductArea = CODEXFORGE_PRIMARY_PRODUCT_AREAS.find(
+    (area) => area.href === routeState.activeRoute.href
+  );
+  const readinessLabel = !routeContextAvailable
+    ? "Route unavailable"
+    : normalProductArea
+    ? normalCapabilityLabel(normalProductArea.capabilityState)
+    : routeState.activeRoute.readiness;
+  const subtitleText = routeContextAvailable
+    ? normalProductArea?.summary ?? routeState.activeRoute.description
+    : "This address is not a current CodexForge product route. Continue from Home or Jarvis.";
+
   return (
-    <header
-      data-codexforge-topbar="CodexForgeTopbar renders route switcher safety posture active route collapsed by default"
-      style={topbar}
-    >
+    <header data-codexforge-topbar="CodexForgeTopbar renders route switcher safety posture active route collapsed by default" style={topbar}>
+      <style>{`
+        @media (max-width: 620px) {
+          [data-codexforge-topbar] {
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+          [data-codexforge-topbar-actions] {
+            justify-items: stretch !important;
+            width: 100% !important;
+          }
+        }
+      `}</style>
       <div style={copy}>
-        <CodexForgeShellBreadcrumbs breadcrumbs={routeState.breadcrumbs} />
+        <CodexForgeShellBreadcrumbs
+          breadcrumbs={routeContextAvailable ? routeState.breadcrumbs : [{ label: "CodexForge", href: "/" }]}
+        />
         <div style={titleRow}>
-          <h1 style={title}>{routeState.workspaceLabel}</h1>
-          <span style={pill}>{routeState.activeRoute.readiness}</span>
+          <p style={title}>{routeState.workspaceLabel}</p>
+          <span style={pill}>{readinessLabel}</span>
         </div>
-        <p style={subtitle}>{routeState.activeRoute.description}</p>
+        <p style={subtitle}>{subtitleText}</p>
         {showHeroRouteChips ? (
           <div style={demotedChipsNotice}>
             Route chips are available from the Command Palette or optional Routes disclosure.
           </div>
         ) : null}
       </div>
-      <div style={actions}>
+      <div data-codexforge-topbar-actions="true" style={actions}>
         {commandPalette}
         {showRouteTray ? (
           <details open={routeTrayDefaultOpen} style={routeDetails}>
             <summary style={routeSummary}>Routes</summary>
-            <CodexForgeRouteSwitcher routes={routes} activeHref={routeState.activeRoute.href} />
+            <CodexForgeRouteSwitcher routes={routes} activeHref={routeContextAvailable ? routeState.activeRoute.href : ""} />
           </details>
         ) : null}
       </div>
     </header>
   );
+}
+
+function normalCapabilityLabel(state: (typeof CODEXFORGE_PRIMARY_PRODUCT_AREAS)[number]["capabilityState"]): string {
+  if (state === "working") return "Available";
+  if (state === "partial") return "Available with limits";
+  if (state === "review-only") return "Review only";
+  return "Research only";
 }
 
 const safeText: CSSProperties = {

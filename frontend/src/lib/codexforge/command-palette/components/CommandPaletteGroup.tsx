@@ -15,6 +15,7 @@ export function CommandPaletteGroup({
 }) {
   return (
     <section
+      role="presentation"
       data-codexforge-command-palette-group="CommandPaletteGroup renders"
       style={section}
     >

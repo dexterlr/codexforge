@@ -253,7 +253,12 @@ export function ApprovedPatchApplyPanel({
             <ApplyExecutionBridgePanel
               bridge={bridge}
               result={executionResult}
-              disabled={!prepared}
+              disabled={!bridge.canRequestApply}
+              disabledReason={
+                bridge.guardedApiAvailable
+                  ? "Complete every approval, policy, preflight, rollback, and validation requirement first."
+                  : "Guarded patch application is not connected in this internal alpha. Review and copy the packet only."
+              }
               onRequest={() => void requestGuardedApply()}
             />
             <ApplyValidationCapturePanel

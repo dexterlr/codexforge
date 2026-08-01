@@ -3,6 +3,7 @@ import type {
   CodexForgeRouteState,
   CodexForgeSafetyPostureItem,
 } from "./navigation-shell-types";
+import { CODEXFORGE_PRIMARY_PRODUCT_AREAS } from "./primary-product-area-model";
 
 function normalizePath(pathname: string): string {
   if (!pathname || pathname === "") return "/";
@@ -44,20 +45,25 @@ export function buildCodexForgeRouteState(input: {
   workspaceLabel?: string;
 }): CodexForgeRouteState {
   const activeRoute = detectCodexForgeActiveRoute(input.pathname, input.routes);
+  const normalProductArea = CODEXFORGE_PRIMARY_PRODUCT_AREAS.find(
+    (area) => area.href === activeRoute.href
+  );
   const siblingRoutes = input.routes.filter(
     (route) => route.group === activeRoute.group && route.href !== activeRoute.href
   );
   const activeIndex = input.routes.findIndex((route) => route.href === activeRoute.href);
   const nextRouteSuggestion = input.routes[(activeIndex + 1) % input.routes.length];
+  const breadcrumbs = activeRoute.href === "/"
+    ? [{ label: "CodexForge", href: "/" as const }]
+    : [
+        { label: "CodexForge", href: "/" as const },
+        { label: normalProductArea?.label ?? activeRoute.label, href: activeRoute.href },
+      ];
 
   return {
     activeRoute,
     activeGroup: activeRoute.group,
-    breadcrumbs: [
-      { label: "CodexForge", href: "/" },
-      { label: activeRoute.group, href: activeRoute.href },
-      { label: activeRoute.label, href: activeRoute.href },
-    ],
+    breadcrumbs,
     siblingRoutes,
     nextRouteSuggestion,
     currentSafetyPosture: [...input.safetyPosture],

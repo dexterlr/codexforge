@@ -16,9 +16,11 @@ export function CodexForgeShellBreadcrumbs({
       {breadcrumbs.map((item, index) => (
         <span key={`${item.href}-${index}-${item.label}`} style={crumbWrap}>
           {index > 0 ? <span style={separator}>/</span> : null}
-          <Link href={item.href} style={crumb}>
-            {item.label}
-          </Link>
+          {index === breadcrumbs.length - 1 ? (
+            <span aria-current="page" style={currentCrumb}>{item.label}</span>
+          ) : (
+            <Link href={item.href} style={crumb}>{item.label}</Link>
+          )}
         </span>
       ))}
     </nav>
@@ -49,8 +51,12 @@ const crumb: CSSProperties = {
   textDecoration: "none",
 };
 
+const currentCrumb: CSSProperties = {
+  ...crumb,
+  color: "#f8fafc",
+};
+
 const separator: CSSProperties = {
   color: "rgba(148,163,184,0.42)",
   fontSize: 12,
 };
-

@@ -27,6 +27,7 @@ export function ProjectFileList({
             <button
               key={buildLocalProjectReaderStableKey("file-list", result.file.path, index)}
               type="button"
+              aria-pressed={active}
               onClick={() => onSelectPath(result.file.path)}
               style={row(active)}
               title={result.file.path}
@@ -117,4 +118,3 @@ const metaLine: CSSProperties = {
   overflowWrap: "anywhere",
   textTransform: "uppercase",
 };
-

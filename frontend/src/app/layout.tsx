@@ -23,12 +23,12 @@ export const metadata: Metadata = {
     template: "%s - CodexForge",
   },
   description:
-    "CodexForge is a local-first AI developer workspace for planning, memory, research, and safe execution.",
+    "CodexForge is a local-first personal AI operating system and creation workspace built around approval-gated Jarvis orchestration.",
   applicationName: "CodexForge",
   keywords: [
     "CodexForge",
     "AI workspace",
-    "developer tools",
+    "AI creation platform",
     "local-first",
     "AI planning",
     "AI execution",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CodexForge",
     description:
-      "Local-first AI developer workspace for planning, memory, research, and safe execution.",
+      "Local-first personal AI workspace for bounded planning, creation, review, validation, and safe execution.",
     url: "http://localhost:3000",
     siteName: "CodexForge",
     type: "website",
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CodexForge",
     description:
-      "Local-first AI developer workspace for planning, memory, research, and safe execution.",
+      "Local-first personal AI workspace for bounded planning, creation, review, validation, and safe execution.",
   },
   robots: {
     index: true,

@@ -7,22 +7,34 @@ export function ApplyExecutionBridgePanel({
   bridge,
   result,
   disabled,
+  disabledReason,
   onRequest,
 }: {
   bridge: ApprovedPatchApplyExecutionBridge;
   result: ApprovedPatchApplyExecutionResult | null;
   disabled: boolean;
+  disabledReason?: string;
   onRequest: () => void;
 }) {
   return (
     <section style={panel} data-codexforge-apply-execution-bridge-panel="ApplyExecutionBridgePanel renders execution bridge has request-ready or blocked state execution bridge does not execute on render">
       <div style={header}>
         <h3 style={title}>Execution bridge</h3>
-        <button type="button" style={button} disabled={disabled} onClick={onRequest}>
+        <button
+          type="button"
+          style={button}
+          disabled={disabled}
+          aria-describedby="approved-patch-apply-bridge-status"
+          title={disabled ? disabledReason : undefined}
+          onClick={onRequest}
+        >
           Request guarded apply
         </button>
       </div>
-      <div style={strip}>Status: {bridge.status} | Guarded API: {String(bridge.guardedApiAvailable)}</div>
+      <div id="approved-patch-apply-bridge-status" style={strip}>
+        Status: {bridge.status} | Guarded API: {String(bridge.guardedApiAvailable)}
+        {disabled && disabledReason ? ` | ${disabledReason}` : ""}
+      </div>
       <ul style={list}>{bridge.summary.map((item) => <li key={item}>{item}</li>)}</ul>
       {result ? <div style={resultBox}>Result: {result.status}. Applied: {String(result.applied)}.</div> : null}
     </section>

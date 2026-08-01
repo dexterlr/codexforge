@@ -5,9 +5,11 @@ import type { CSSProperties } from "react";
 export function CommandPaletteSearchBox({
   value,
   onChange,
+  activeDescendantId,
 }: {
   value: string;
   onChange: (value: string) => void;
+  activeDescendantId?: string;
 }) {
   return (
     <input
@@ -15,6 +17,12 @@ export function CommandPaletteSearchBox({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       placeholder="Search routes, safe actions, validation, handoffs"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-expanded="true"
+      aria-activedescendant={activeDescendantId}
+      aria-controls="codexforge-command-palette-results"
+      aria-describedby="codexforge-command-palette-search-help"
       data-codexforge-command-palette-search-box="CommandPaletteSearchBox renders search supports label keywords"
       style={input}
       aria-label="Search command palette"
@@ -30,7 +38,6 @@ const input: CSSProperties = {
   fontSize: 15,
   fontWeight: 750,
   minWidth: 0,
-  outline: "none",
   padding: "13px 14px",
   width: "100%",
 };

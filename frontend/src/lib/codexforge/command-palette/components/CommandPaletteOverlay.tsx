@@ -1,6 +1,7 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
+import { useEffect, useRef } from "react";
 
 export function CommandPaletteOverlay({
   children,
@@ -9,6 +10,46 @@ export function CommandPaletteOverlay({
   children: ReactNode;
   onClose: () => void;
 }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const frame = window.requestAnimationFrame(() => {
+      const preferred = panelRef.current?.querySelector<HTMLElement>("[autofocus]");
+      const first = preferred ?? panelRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+      first?.focus();
+    });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      previousFocus?.focus();
+    };
+  }, []);
+
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const focusable = Array.from(
+      panelRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? []
+    ).filter(
+      (element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true"
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   return (
     <div
       role="dialog"
@@ -16,14 +57,17 @@ export function CommandPaletteOverlay({
       aria-label="CodexForge Command Palette"
       data-codexforge-command-palette-overlay="CommandPaletteOverlay renders"
       style={backdrop}
+      onKeyDown={handleKeyDown}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div style={panel}>{children}</div>
+      <div ref={panelRef} style={panel}>{children}</div>
     </div>
   );
 }
+
+const FOCUSABLE_SELECTOR = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const backdrop: CSSProperties = {
   alignItems: "start",

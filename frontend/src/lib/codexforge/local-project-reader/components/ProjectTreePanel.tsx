@@ -31,6 +31,7 @@ export function ProjectTreePanel({
               key={buildLocalProjectReaderStableKey("tree", node.path, index)}
               type="button"
               disabled={!node.selectable}
+              aria-pressed={node.selectable ? active : undefined}
               onClick={() => node.selectable && onSelectPath(node.path)}
               style={treeRow(active, node.selectable, node.depth)}
               title={node.path}
@@ -127,4 +128,3 @@ const risk: CSSProperties = {
   fontWeight: 850,
   textTransform: "uppercase",
 };
-

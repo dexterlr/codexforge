@@ -45,33 +45,80 @@ $sliceRFiles = @(
   "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-controlled-live-acceptance.server.ts"
 )
 
-$macroPhaseBPaths = @(
-  "src/app/athena/page.tsx",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
-  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
-  "src/lib/codexforge/navigation-shell/primary-product-area-model.ts",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeSidebar.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeShellMobileNav.tsx",
-  "src/lib/codexforge/navigation-shell/components/CodexForgeAppShell.tsx",
-  "src/lib/codexforge/navigation-shell/navigation-route-registry.ts",
-  "src/lib/codexforge/command-palette/command-registry.ts",
-  "src/lib/codexforge/navigation/codexforge-routes.ts",
-  "src/lib/codexforge/cockpit-navigation-cleanup-user-ux/components/CockpitNavigationCleanupUserUxPanel.tsx",
-  "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1",
+$macroPhaseCPaths = @(
+  "docs/codexforge-macro-phase-c-whole-product-hardening.md",
   "scripts/smoke-codexforge-all.ps1",
-  "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
-  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
-  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
-  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-first-exact-installed-local-model-candidate-declaration.ps1",
   "scripts/smoke-codexforge-free-local-provider-registry-foundation.ps1",
-  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
+  "scripts/smoke-codexforge-jarvis-live-command-center-ui.ps1",
+  "scripts/smoke-codexforge-jarvis-manual-provider-model-selector.ps1",
+  "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1",
+  "scripts/smoke-codexforge-macro-phase-c-whole-product-hardening.ps1",
+  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1",
+  "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1",
   "scripts/smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract.ps1",
-  "scripts/smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1"
+  "scripts/smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation.ps1",
+  "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1",
+  "src/app/error.tsx",
+  "src/app/files/page.tsx",
+  "src/app/files/page-client.tsx",
+  "src/app/globals.css",
+  "src/app/jarvis-audit/page.tsx",
+  "src/app/jarvis-audit/page-client.tsx",
+  "src/app/jarvis-safety/page.tsx",
+  "src/app/jarvis-safety/page-client.tsx",
+  "src/app/jarvis-trading/page.tsx",
+  "src/app/jarvis-trading/page-client.tsx",
+  "src/app/layout.tsx",
+  "src/app/loading.tsx",
+  "src/app/not-found.tsx",
+  "src/app/page.tsx",
+  "src/app/page-client.tsx",
+  "src/app/patch-preview-workbench/page.tsx",
+  "src/app/patch-preview-workbench/page-client.tsx",
+  "src/app/provider-adapters/page.tsx",
+  "src/app/provider-adapters/page-client.tsx",
+  "src/app/validation/page.tsx",
+  "src/app/validation/page-client.tsx",
+  "src/app/video-assets/page.tsx",
+  "src/app/video-assets/page-client.tsx",
+  "src/app/video-projects/page.tsx",
+  "src/app/video-projects/page-client.tsx",
+  "src/app/video-workflows/page.tsx",
+  "src/app/video-workflows/page-client.tsx",
+  "src/lib/codexforge/approved-patch-apply/components/ApplyApprovalPacketPanel.tsx",
+  "src/lib/codexforge/approved-patch-apply/components/ApplyExecutionBridgePanel.tsx",
+  "src/lib/codexforge/approved-patch-apply/components/ApplyValidationCapturePanel.tsx",
+  "src/lib/codexforge/approved-patch-apply/components/ApprovedPatchApplyPanel.tsx",
+  "src/lib/codexforge/command-palette/command-groups.ts",
+  "src/lib/codexforge/command-palette/command-registry.ts",
+  "src/lib/codexforge/command-palette/components/CodexForgeCommandPalette.tsx",
+  "src/lib/codexforge/command-palette/components/CommandPaletteEmptyState.tsx",
+  "src/lib/codexforge/command-palette/components/CommandPaletteGroup.tsx",
+  "src/lib/codexforge/command-palette/components/CommandPaletteItem.tsx",
+  "src/lib/codexforge/command-palette/components/CommandPaletteOverlay.tsx",
+  "src/lib/codexforge/command-palette/components/CommandPaletteSearchBox.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
+  "src/lib/codexforge/local-project-reader/components/LocalProjectReader.tsx",
+  "src/lib/codexforge/local-project-reader/components/ProjectFileList.tsx",
+  "src/lib/codexforge/local-project-reader/components/ProjectReaderEmptyState.tsx",
+  "src/lib/codexforge/local-project-reader/components/ProjectTreePanel.tsx",
+  "src/lib/codexforge/local-video-workflow-catalog/components/LocalVideoWorkflowCatalogPanel.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeAppShell.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeShellBreadcrumbs.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeShellMobileNav.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeSidebar.tsx",
+  "src/lib/codexforge/navigation-shell/components/CodexForgeTopbar.tsx",
+  "src/lib/codexforge/navigation-shell/navigation-route-state.ts",
+  "src/lib/codexforge/navigation-shell/primary-product-area-model.ts",
+  "src/lib/codexforge/normal-product/components/NormalProductFrame.tsx",
+  "src/lib/codexforge/normal-product/components/ProductHomePanel.tsx",
+  "src/lib/codexforge/normal-product/components/ProductReadinessPanels.tsx",
+  "src/lib/codexforge/normal-product/index.ts",
+  "src/lib/codexforge/validation-runner/components/ValidationRunnerPanel.tsx"
 )
-Assert-True ($macroPhaseBPaths.Count -eq 23) "Macro Phase B scope declares exactly twenty-three files"
-Assert-True (@($macroPhaseBPaths | Sort-Object -Unique).Count -eq 23) "Macro Phase B scope contains twenty-three unique files"
+Assert-True ($macroPhaseCPaths.Count -eq 70) "Macro Phase C scope declares exactly seventy files"
+Assert-True (@($macroPhaseCPaths | Sort-Object -Unique).Count -eq 70) "Macro Phase C scope contains seventy unique files"
 
 foreach ($file in $sliceRFiles) {
   Assert-True (Test-Path -LiteralPath $file -PathType Leaf) "Slice R file exists: $file"
@@ -83,9 +130,9 @@ $changedPaths = @(
     ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
-Assert-True ($changedPaths.Count -eq $macroPhaseBPaths.Count) "Git scope contains exactly the twenty-three Macro Phase B files"
+Assert-True ($changedPaths.Count -eq $macroPhaseCPaths.Count) "Git scope contains exactly the seventy Macro Phase C files"
 foreach ($path in $changedPaths) {
-  Assert-True ($macroPhaseBPaths -contains $path) "Git scope stays within Macro Phase B: $path"
+  Assert-True ($macroPhaseCPaths -contains $path) "Git scope stays within Macro Phase C: $path"
 }
 
 $candidateServerPath = "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
@@ -176,8 +223,8 @@ foreach ($needle in $candidateNeedles) {
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 70) "Aggregate executable entry count is 70"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 67) "Aggregate required count is 67"
+Assert-True ($entries.Count -eq 71) "Aggregate executable entry count is 71"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 68) "Aggregate required count is 68"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True (@($entries | Where-Object { $_ -match 'smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1' }).Count -eq 1) "Slice Q smoke is registered exactly once"
 Assert-True ($releaseBlock -match 'Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},') "Slice Q smoke follows Slice P and is required"

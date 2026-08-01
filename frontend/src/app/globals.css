@@ -87,6 +87,12 @@ button {
   color: inherit;
 }
 
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
 textarea {
   resize: vertical;
 }
@@ -114,7 +120,34 @@ code {
 }
 
 :focus-visible {
-  outline: 2px solid rgba(99, 102, 241, 0.9);
-  outline-offset: 2px;
+  outline: 2px solid rgba(99, 102, 241, 0.9) !important;
+  outline-offset: 2px !important;
   border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 520px) {
+  body {
+    overflow-wrap: anywhere;
+  }
+
+  button,
+  a,
+  summary {
+    touch-action: manipulation;
+  }
 }

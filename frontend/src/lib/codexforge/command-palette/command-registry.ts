@@ -93,6 +93,7 @@ import {
   buildCodexForgeGuardedApplyNextPromptPayload,
 } from "./command-copy-payloads";
 import { isCodexForgeCommandMutationBlocked } from "./command-safety";
+import { CODEXFORGE_PRIMARY_PRODUCT_AREAS } from "../navigation-shell/primary-product-area-model";
 const PROVIDER_ADAPTER_REGISTRY_BACKEND_CONTRACT_COMMAND_DESCRIPTION = "Review Provider Adapter Registry Backend Contract as a review-only provider adapter registry contract with synthetic provider adapter registry data only. Provider adapter registry remains disabled until explicit operator approval. It defines a disabled provider adapter catalog, provider capability map, text provider capability remains disabled, image provider capability remains disabled, audio provider capability remains disabled, video provider capability remains disabled, transcription provider capability remains disabled, editing provider capability remains disabled, metadata provider capability remains disabled, safety provider capability remains disabled, provider credential boundary, provider token boundary, provider request envelope, provider response envelope, provider error envelope, provider approval gate, provider audit envelope, provider redaction envelope, provider cost guard, provider rate guard, provider privacy guard, provider safety guard, provider region policy, provider data retention policy, provider retry policy, provider fallback policy, provider observability trace, provider runner handoff remains review-only, provider adapter readiness gate, and provider adapter registry completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no fetch/network calls, no connector calls, no upload/download, no file export, no artifact export execution, no publish gateway execution, no platform upload, no social/channel publishing, no scheduled publishing, no OAuth flow creation, no OAuth callback creation, no webhook creation, no signed URL creation, no render execution, no video rendering, no audio rendering, no storyboard execution, no keyframe generation, no render queue dispatch, no worker dispatch, no worker execution, no job execution, no scheduler execution, no orchestration execution, no live workflow execution, no process spawning, no shell execution, no command execution from the app, no file system writes from the app, no frontend persistence, no browser storage writes, no localStorage, no sessionStorage, no IndexedDB, no cookies, no credential storage, no token storage, no OAuth token storage, no publish token storage, no provider key storage, no database writes, no service creation, no API creation from frontend, no port binding, no runtime deploy. Static route only; next likely batch: 2954-2985 - First Approved Provider Execution Bridge.";
 const FIRST_APPROVED_PROVIDER_EXECUTION_BRIDGE_COMMAND_DESCRIPTION = "Review 2954-2985 - First Approved Provider Execution Bridge as a review-only approved provider execution bridge with synthetic approved provider execution bridge data only. The approved provider execution bridge remains disabled until explicit operator approval. It defines approved provider execution intent, approved provider approval packet, approved provider credential reference boundary, approved provider token reference boundary, approved provider request envelope, approved provider response envelope, approved provider error envelope, approved provider dry execution lock, approved provider execution remains blocked, approved provider replay remains blocked, approved provider idempotency key, approved provider audit packet, approved provider redaction packet, approved provider observability trace, approved provider cost guard, approved provider rate guard, approved provider privacy guard, approved provider safety guard, approved provider region policy, approved provider data retention policy, approved provider retry policy, approved provider fallback policy, approved provider recovery policy, approved provider timeout policy, approved provider result review, approved provider runner handoff remains review-only, approved provider adapter registry handoff remains review-only, approved provider operator review remains required, approved provider readiness gate, disabled approved provider execution candidate, and first approved provider execution bridge completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no fetch/network calls, no connector calls, no upload/download, no frontend persistence, no credential storage, no token storage, no provider key storage, no database writes, no service creation, no API creation from frontend, no port binding, no runtime deploy. Static route only; next likely batch: 2986-3017 - Multi-Provider Capability Routing.";
 const FIRST_REAL_PROVIDER_CALL_GUARD_COMMAND_DESCRIPTION = "Review 3018-3049 - First Real Provider Call Guard as a review-only first real provider call guard surface with synthetic first real provider call guard data only. The first real provider call remains blocked until explicit operator approval. It defines provider call intent, provider call approval packet, provider credential reference boundary, provider token reference boundary, provider call request envelope, provider call response envelope, provider call error envelope, provider call dry lock, provider call execution remains blocked, provider call preflight checklist, prompt redaction preview, provider call cost estimate, provider call rate estimate, provider call privacy gate, provider call safety gate, provider call region policy, provider call data retention policy, provider call timeout policy, provider call retry policy, provider call fallback policy, provider call recovery policy, provider call audit packet, provider call observability trace, provider call result review, provider registry handoff remains review-only, multi-provider routing handoff remains review-only, execution bridge handoff remains review-only, runner handoff remains review-only, operator review remains required before first real provider call, first real provider call readiness gate, and first real provider call guard completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no fetch/network calls, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3050-3081 - First Approved Text Planning Provider Trial.";
@@ -1178,6 +1179,10 @@ const JARVIS_VIDEO_STUDIO_RELEASE_CANDIDATE_ROUTE_COMMANDS =
 const MULTI_PROVIDER_CAPABILITY_ROUTING_COMMAND_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/": true,
+  "/jarvis": true,
+  "/jarvis-trading": true,
+  "/jarvis-audit": true,
+  "/jarvis-safety": true,
   "/start": true,
   "/onboarding": true,
   "/first-task": true,
@@ -4493,13 +4498,35 @@ export function buildCodexForgeCommands(
     creativeMvp: "/creative-mvp",
     localBridgeHealth: "/local-bridge-health",
   } as const;
+  const normalProductCommandsWithDedicatedEntries = new Set([
+    "/",
+    "/jarvis",
+    "/jarvis-trading",
+    "/jarvis-audit",
+    "/jarvis-safety",
+  ]);
+  const canonicalNormalProductCommands = CODEXFORGE_PRIMARY_PRODUCT_AREAS
+    .filter((area) => !normalProductCommandsWithDedicatedEntries.has(area.href))
+    .map((area, index) =>
+      buildRouteCommand(availability, {
+        id: `open-normal-product-${area.href.slice(1).replaceAll("/", "-")}`,
+        label: area.label,
+        description: area.summary,
+        group: "User features",
+        href: area.href,
+        keywords: [area.label, area.badge, area.capabilityState, "normal product"],
+        priority: 10.19 + index / 100,
+      })
+    );
   const routeCommands = [
+    ...canonicalNormalProductCommands,
     buildRouteCommand(availability, {
       id: "go-operator-home",
-      label: "Go to Operator Home",
-      description: "Navigate to the operator dashboard.",
+      label: "CodexForge Home",
+      description: "Open the normal product start, current workspace, first-run guide, and safe review journey.",
+      group: "User features",
       href: "/",
-      keywords: ["home", "dashboard", "operator", "route"],
+      keywords: ["home", "start", "workspace", "first run", "route"],
       priority: 10,
     }),
     buildRouteCommand(availability, {
@@ -4539,9 +4566,9 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-jarvis-video-studio",
-      label: "Go to Jarvis Video Studio",
-      description: "Open the most polished active specialist workspace for mission brief, storyboard, approval packet, backend readiness, and result placeholders.",
-      group: "User features",
+      label: "Video Studio planning diagnostic",
+      description: "Open the retained planning and readiness surface; video generation and rendering are not operational.",
+      group: "Developer diagnostics",
       href: "/jarvis-video",
       keywords: [
         "Jarvis Video Studio",
@@ -4555,8 +4582,8 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-jarvis-trading-desk",
-      label: "Go to Jarvis Trading Desk",
-      description: "Open the dedicated paper-review-only trading shell for strategy review, risk posture, and approval state.",
+      label: "Trading research",
+      description: "Open research-only trading notes with no advice, live data, broker connection, automation, or order placement.",
       group: "User features",
       href: "/jarvis-trading",
       keywords: [
@@ -4571,9 +4598,9 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-jarvis-website-builder",
-      label: "Go to Jarvis Website Builder",
-      description: "Open the website builder placeholder for idea, sitemap, design system, pages, preview, and publish approval review.",
-      group: "User features",
+      label: "Website builder planning diagnostic",
+      description: "Open the retained website-planning placeholder; generation, preview, repair, export, and publishing are not operational.",
+      group: "Developer diagnostics",
       href: "/jarvis-websites",
       keywords: [
         "Jarvis Website Builder",
@@ -4587,9 +4614,9 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-jarvis-avatar-studio",
-      label: "Go to Jarvis Avatar Studio",
+      label: "Avatar planning diagnostic",
       description: "Open the avatar studio placeholder for persona, consent, style, safety, preview, and approval review.",
-      group: "User features",
+      group: "Developer diagnostics",
       href: "/jarvis-avatar",
       keywords: [
         "Jarvis Avatar Studio",
@@ -4603,9 +4630,9 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-jarvis-workflows",
-      label: "Go to Jarvis Workflows",
-      description: "Open the workflow automation placeholder for trigger, plan, permission, dry run, approval, and audit review.",
-      group: "User features",
+      label: "Legacy workflow planning diagnostic",
+      description: "Open the retained automation placeholder; it does not dispatch or execute a workflow.",
+      group: "Developer diagnostics",
       href: "/jarvis-workflows",
       keywords: [
         "Jarvis Workflows",
@@ -4619,8 +4646,8 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-jarvis-audit-runs",
-      label: "Go to Jarvis Audit and Runs",
-      description: "Open the audit workspace for approvals ledger, blocked action log, result ledger, evidence packets, and run timeline review.",
+      label: "Audit and Runs",
+      description: "Review readable persisted run states, provider and model boundaries, approvals, and execution history.",
       group: "User features",
       href: "/jarvis-audit",
       keywords: [
@@ -4635,8 +4662,8 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-jarvis-safety-settings",
-      label: "Go to Jarvis Safety and Settings",
-      description: "Open the safety workspace for kill switch, permission tiers, approval mode, credential boundary, and browser storage boundary review.",
+      label: "Safety and Settings",
+      description: "Review current kill-switch, local-first, approval, cloud, paid-disabled, and credential boundaries without fake settings.",
       group: "User features",
       href: "/jarvis-safety",
       keywords: [
@@ -4651,9 +4678,9 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-trading-workspace",
-      label: "Go to Trading Workspace Hub Preview",
+      label: "Trading workspace diagnostic",
       description: "Open the grouped Trading Workspace hub preview.",
-      group: "User features",
+      group: "Developer diagnostics",
       href: "/trading-workspace-hub-preview",
       keywords: [
         "Trading Workspace",
@@ -4670,9 +4697,9 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "open-build-workspace",
-      label: "Go to Build Workspace Hub Preview",
+      label: "Build workspace diagnostic",
       description: "Open the grouped Build Workspace hub preview.",
-      group: "User features",
+      group: "Developer diagnostics",
       href: "/build-workspace-hub-preview",
       keywords: [
         "Build Workspace",
@@ -4690,9 +4717,9 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "review-approvals-hub",
-      label: "Go to Approvals Hub Preview",
+      label: "Approvals hub diagnostic",
       description: "Review the Approvals Hub for approvals, risk approvals, broker boundary approvals, reinvestment approvals, and execution holds.",
-      group: "User features",
+      group: "Developer diagnostics",
       href: "/approvals-hub-preview",
       keywords: [
         "Approvals Hub",
@@ -4711,9 +4738,9 @@ export function buildCodexForgeCommands(
     }),
     buildRouteCommand(availability, {
       id: "review-evidence-and-audit",
-      label: "Go to Evidence Audit Hub Preview",
+      label: "Evidence audit diagnostic",
       description: "Review the Evidence Audit Hub for evidence results, audit continuity, redaction, checkpoint status, and backend-owned capture notes.",
-      group: "User features",
+      group: "Developer diagnostics",
       href: "/evidence-audit-hub-preview",
       keywords: [
         "Evidence Audit Hub",
@@ -5033,6 +5060,7 @@ export function buildCodexForgeCommands(
       keywords: ["start safe code fix", "fix code", "preview patch", "approval"],
       priority: 13.1,
     }),
+    // Historical source-smoke markers only: Go to Operator Home.
     // Historical source-smoke marker only: Go to AI Workspace.
     buildRouteCommand(availability, {
       id: "go-ai-workspace",

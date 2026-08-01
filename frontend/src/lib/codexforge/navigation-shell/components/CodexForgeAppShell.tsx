@@ -52,6 +52,16 @@ export function CodexForgeAppShell({
     () => buildCodexForgeNavigationRoutes(routeAvailability),
     [routeAvailability]
   );
+  const activeRouteMatched = useMemo(() => {
+    const normalizedPath = resolvedPath.length > 1 && resolvedPath.endsWith("/")
+      ? resolvedPath.slice(0, -1)
+      : resolvedPath;
+    return routes.some((route) =>
+      route.href === "/"
+        ? normalizedPath === "/"
+        : normalizedPath === route.href || normalizedPath.startsWith(`${route.href}/`)
+    );
+  }, [resolvedPath, routes]);
   const sections = useMemo(() => buildCodexForgeNavigationSections(routes), [routes]);
   const safetyPosture = useMemo(() => buildCodexForgeNavigationSafetyPosture(), []);
   const routeState = useMemo(
@@ -112,6 +122,15 @@ export function CodexForgeAppShell({
             grid-template-columns: minmax(0, 1fr) !important;
           }
         }
+        @media (max-width: 520px) {
+          [data-codexforge-app-shell] {
+            padding: 10px 10px 18px !important;
+          }
+          [data-codexforge-shell-layout],
+          [data-codexforge-shell-deck] {
+            gap: 10px !important;
+          }
+        }
       `}</style>
       <div
         style={{
@@ -125,16 +144,17 @@ export function CodexForgeAppShell({
       >
         <CodexForgeSidebar
           sections={sections}
-          activeHref={routeState.activeRoute.href}
+          activeHref={activeRouteMatched ? routeState.activeRoute.href : ""}
           mode={resolvedSidebarMode}
           showBadges={resolvedShowSidebarBadges}
           showSafetyNotice={resolvedShowSidebarSafetyNotice}
         />
         <div style={mainColumn}>
-          <CodexForgeShellMobileNav routes={routes} activeHref={routeState.activeRoute.href} />
+          <CodexForgeShellMobileNav routes={routes} activeHref={activeRouteMatched ? routeState.activeRoute.href : ""} />
           <CodexForgeTopbar
             routeState={routeState}
             routes={routes}
+            routeContextAvailable={activeRouteMatched}
             showRouteTray={showRouteTray}
             routeTrayDefaultOpen={routeTrayDefaultOpen}
             showHeroRouteChips={showHeroRouteChips}
@@ -145,7 +165,7 @@ export function CodexForgeAppShell({
             style={resolvedDensity === "focus" || !resolvedShowRightRail ? focusDeck : deck}
             data-codexforge-shell-deck={resolvedShowRightRail ? "with-right-rail" : "single-column"}
           >
-            <div style={content} data-codexforge-shell-content-key={buildCodexForgeShellStableKey([routeState.activeRoute.href, routeState.activeGroup])}>
+            <div style={content} data-codexforge-shell-content-key={buildCodexForgeShellStableKey([activeRouteMatched ? routeState.activeRoute.href : resolvedPath, routeState.activeGroup])}>
               {children}
             </div>
             {resolvedShowRightRail ? (

@@ -34,12 +34,30 @@ export function CodexForgeCommandPalette({
     () => buildCodexForgeCommands({ routeAvailability, includeEducationalBlockedCommands: true }),
     [routeAvailability]
   );
-  const results = useMemo(() => searchCodexForgeCommands(commands, query), [commands, query]);
-  const visibleCommands = useMemo(() => results.map((result) => result.command), [results]);
-  const groups = useMemo(() => buildCodexForgeCommandGroups(visibleCommands), [visibleCommands]);
-  const safetyReport = useMemo(() => buildCodexForgeCommandSafetyReport(commands), [commands]);
+  const trimmedQuery = query.trimStart();
+  const developerSearch = trimmedQuery.toLowerCase().startsWith("dev:");
+  const effectiveQuery = developerSearch ? trimmedQuery.slice(4).trimStart() : query;
+  const searchableCommands = useMemo(
+    () => commands.filter((command) =>
+      developerSearch ? command.group !== "User features" : command.group === "User features"
+    ),
+    [commands, developerSearch]
+  );
+  const results = useMemo(() => {
+    return searchCodexForgeCommands(searchableCommands, effectiveQuery, developerSearch ? 60 : 12);
+  }, [developerSearch, effectiveQuery, searchableCommands]);
+  const rankedCommands = useMemo(() => results.map((result) => result.command), [results]);
+  const groups = useMemo(() => buildCodexForgeCommandGroups(rankedCommands), [rankedCommands]);
+  const visibleCommands = useMemo(() => groups.flatMap((group) => group.commands), [groups]);
+  const safetyReport = useMemo(
+    () => buildCodexForgeCommandSafetyReport(searchableCommands),
+    [searchableCommands]
+  );
   const shortcuts = useMemo(() => buildCodexForgeCommandShortcuts(), []);
-  const summary = useMemo(() => buildCodexForgeCommandPaletteSummary(commands), [commands]);
+  const summary = useMemo(
+    () => buildCodexForgeCommandPaletteSummary(searchableCommands),
+    [searchableCommands]
+  );
   const selectedCommand = visibleCommands[selectedIndex];
 
   useEffect(() => {
@@ -60,6 +78,10 @@ export function CodexForgeCommandPalette({
   useEffect(() => {
     if (!open) return;
     function onPaletteKeyDown(event: KeyboardEvent) {
+      const searchHasFocus =
+        event.target instanceof HTMLInputElement &&
+        event.target.hasAttribute("data-codexforge-command-palette-search-box");
+      if (!searchHasFocus) return;
       if (event.key === "ArrowDown") {
         event.preventDefault();
         setSelectedIndex((current) => Math.min(current + 1, Math.max(visibleCommands.length - 1, 0)));
@@ -81,6 +103,10 @@ export function CodexForgeCommandPalette({
   useEffect(() => {
     setSelectedIndex(0);
   }, [query]);
+
+  useEffect(() => {
+    if (selectedIndex >= visibleCommands.length) setSelectedIndex(0);
+  }, [selectedIndex, visibleCommands.length]);
 
   function closePalette() {
     setOpen(false);
@@ -121,10 +147,17 @@ export function CodexForgeCommandPalette({
               Escape
             </button>
           </div>
-          <CommandPaletteSearchBox value={query} onChange={setQuery} />
-          {copiedLabel ? <div style={copyNotice}>{copiedLabel} copied</div> : null}
+          <CommandPaletteSearchBox
+            value={query}
+            onChange={setQuery}
+            activeDescendantId={selectedCommand ? `codexforge-command-${selectedCommand.id}` : undefined}
+          />
+          <p id="codexforge-command-palette-search-help" style={searchHelp}>
+            Search normal product areas. Type <strong>dev:</strong> to enter Developer Diagnostics search.
+          </p>
+          {copiedLabel ? <div role="status" aria-live="polite" style={copyNotice}>{copiedLabel} copied</div> : null}
           <CommandPaletteSafetyPanel report={safetyReport} />
-          <div style={list} data-codexforge-command-palette-list-key={buildCodexForgeCommandPaletteStableKey([query || "empty", String(visibleCommands.length)])}>
+          <div id="codexforge-command-palette-results" role="listbox" aria-label="Command palette results" style={list} data-codexforge-command-palette-list-key={buildCodexForgeCommandPaletteStableKey([query || "empty", String(visibleCommands.length)])}>
             {groups.length > 0 ? (
               groups.map((group) => (
                 <CommandPaletteGroup
@@ -183,6 +216,13 @@ const summaryText: CSSProperties = {
   lineHeight: 1.45,
   margin: 0,
   overflowWrap: "anywhere",
+};
+
+const searchHelp: CSSProperties = {
+  color: "#94a3b8",
+  fontSize: 11,
+  lineHeight: 1.4,
+  margin: 0,
 };
 
 const closeButton: CSSProperties = {

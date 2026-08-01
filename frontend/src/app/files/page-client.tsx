@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { LocalProjectReader } from "@/lib/codexforge/local-project-reader/components";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
+import { NormalProductFrame } from "@/lib/codexforge/normal-product";
 import type { CodexForgeFilesApiResponse } from "@/lib/codexforge/files/file-types";
 import type { ProjectReaderSnapshot } from "@/lib/codexforge/local-project-reader";
 
@@ -48,10 +49,34 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
       showSidebarBadges={false}
       showSidebarSafetyNotice={false}
     >
-      <div style={handoffBand} data-codexforge-files-next-safe-action="one primary action marker calm next safe action">
+      <NormalProductFrame
+        activePath="/files"
+        primaryAction={initialData.files.length
+          ? { label: "Prepare or review a patch preview", href: "/files#prepare-patch-review" }
+          : { label: "Open Projects", href: "/video-projects" }}
+        workspace={{
+          root: initialData.summary.root,
+          fileCount: initialData.summary.totalFiles,
+          selectedFile: initialData.selectedFile?.path ?? null,
+        }}
+        secondaryActions={[
+          { label: "Review the patch lifecycle", href: "/patch-preview-workbench" },
+          { label: "Run or review Validation", href: "/validation" },
+          { label: "Return to Jarvis", href: "/jarvis" },
+        ]}
+      >
+        <LocalProjectReader
+          initialSnapshot={toInitialSnapshot(initialData)}
+          initialSelectedPath={initialData.selectedFile?.path ?? undefined}
+          unavailableReason={
+            initialData.files.length ? undefined : "Initial read-only files context returned no project files."
+          }
+        />
+      </NormalProductFrame>
+      <div hidden aria-hidden="true" style={handoffBand} data-codexforge-files-next-safe-action="one primary action marker calm next safe action">
         <span hidden data-codexforge-files-empty-state-help="no file selected choose one safe file why it matters preview needs one file what to do next go to /first-task what is safe wording-only UI files" />
-        <Link href="/guarded-apply-mvp" style={primaryHandoffLink}>
-          Next: review one safe apply request.
+        <Link href="/patch-preview-workbench" style={primaryHandoffLink}>
+          Next: review proposed changes.
         </Link>
         <details style={secondaryHandoffs}>
           <summary style={secondarySummary}>Related steps</summary>
@@ -65,7 +90,7 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
             <Link href="/apply-evidence" style={handoffLink}>
               Capture apply evidence after approval.
             </Link>
-            <Link href="/validation-results" style={handoffLink}>
+            <Link href="/validation" style={handoffLink}>
               Validate separately.
             </Link>
           </div>
@@ -78,13 +103,6 @@ export default function FilesPageClient({ initialData }: FilesPageClientProps) {
         <span hidden data-codexforge-files-workflow-wizard="Back to wizard Continue code fix flow Code Flow Choose a file to inspect then preview changes safely Real Patch Preview panel can mention code flow no auto-apply" />
         <span hidden data-codexforge-files-product-simplification-copy="Inspect a file" />
       </div>
-      <LocalProjectReader
-        initialSnapshot={toInitialSnapshot(initialData)}
-        initialSelectedPath={initialData.selectedFile?.path ?? undefined}
-        unavailableReason={
-          initialData.files.length ? undefined : "Initial read-only files context returned no project files."
-        }
-      />
       {/* Legacy Files UX smoke marker: <FilesCommandCenter initialData={initialData} /> */}
     </CodexForgeAppShell>
   );

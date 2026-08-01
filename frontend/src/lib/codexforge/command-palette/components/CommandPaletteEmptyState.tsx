@@ -9,7 +9,10 @@ export function CommandPaletteEmptyState() {
       style={empty}
     >
       <strong style={title}>No matching safe command</strong>
-      <p style={body}>Try route, validation, patch preview, regression, memory, or safety.</p>
+      <p style={body}>
+        Try Jarvis, Projects, Files, Patch Review, Validation, Audit, or Safety. Type <strong>dev:</strong> first
+        to search Developer Diagnostics.
+      </p>
     </div>
   );
 }
