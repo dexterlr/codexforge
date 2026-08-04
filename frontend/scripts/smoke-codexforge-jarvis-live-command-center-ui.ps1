@@ -134,17 +134,12 @@ $css = Get-FileText $cssPath
 $athenaAlias = Get-FileText $athenaAliasPath
 $jarvisVideoPage = Get-FileText $jarvisVideoPagePath
 $commandDeckRole = Get-FileText $commandDeckRolePath
-$statusEntries = Get-StatusEntries
-$changedPaths = @($statusEntries | ForEach-Object { $_.Path })
 $changedUiText = ($athenaPanel, $livePanel, $shell, $privateAlpha, $css) -join "`n"
 $changedTypeScriptText = ($privateAlpha, $privateAlphaIndex) -join "`n"
 $liveUiText = ($livePanel, $shell, $privateAlpha, $css) -join "`n"
 $liveJarvisBranchMatch = [regex]::Match(
   $shell,
   'if \(isPrimaryAthenaSurface\) \{[\s\S]*?<AthenaCommandCenterPanel[\s\S]*?displayMode="live-product"[\s\S]*?</section>\s*\);\s*\}'
-)
-$productSourceChanges = @(
-  $changedPaths | Where-Object { $_ -match '^src/' }
 )
 $media920Match = [regex]::Match(
   $css,
@@ -184,8 +179,10 @@ Add-Result (
   $liveJarvisBranchMatch.Success -and
   $liveJarvisBranchMatch.Value -notmatch 'JarvisDeveloperDiagnosticsDock'
 ) "developer diagnostics are absent from the live /jarvis branch"
-Add-Result ([regex]::Matches($livePanel, 'routeLabel: "/').Count -eq 7) "exactly seven product review destinations exist"
+Add-Result ([regex]::Matches($livePanel, 'routeLabel: "/').Count -eq 8) "exactly eight product review destinations exist after the bounded creator entry"
 Add-Result (
+  $livePanel.Contains('title: "Static Website Creator"') -and
+  $livePanel.Contains('href: "/jarvis-websites"') -and
   $livePanel.Contains('title: "Project Files"') -and
   $livePanel.Contains('href: "/files"') -and
   $livePanel.Contains('title: "Patch lifecycle"') -and
@@ -200,7 +197,7 @@ Add-Result (
   $livePanel.Contains('href: "/video-workflows"') -and
   $livePanel.Contains('title: "Provider Details"') -and
   $livePanel.Contains('href: "/provider-adapters"')
-) "review destinations target files, changes, validation, audit, safety, honest video planning, and provider details"
+) "review destinations target the static creator, files, changes, validation, audit, safety, honest video planning, and provider details"
 Add-Result (
   $privateAlpha.Contains('data-codexforge-private-alpha-composer="true"') -and
   $privateAlpha -match '<textarea'
@@ -318,9 +315,6 @@ Add-Result ($liveUiText -notmatch '11434') "the browser UI does not reference po
 Add-Result ($liveUiText -notmatch 'localStorage|sessionStorage|indexedDB|document\.cookie') "no browser storage exists"
 Add-Result ($liveUiText -notmatch 'https?://') "no external provider URL exists"
 
-$changedProductSourcePaths = @(
-  $productSourceChanges | Where-Object { $_ -match '^src/' }
-)
 $expectedProductSourcePaths = @(
   "src/app/patch-preview-workbench/page-client.tsx",
   "src/app/provider-adapters/page-client.tsx",
@@ -338,27 +332,28 @@ $expectedProductSourcePaths = @(
   "src/lib/codexforge/video-project-workspace/components/VideoProjectWorkspacePanel.tsx"
 )
 Add-Result (
-  $changedPaths.Count -eq $allowedMacroPhaseCPaths.Count -and
-  @($changedPaths | Where-Object { $allowedMacroPhaseCPaths -notcontains $_ }).Count -eq 0
-) "git scope contains exactly the thirty allowed Macro Phase C.1 files"
+  $allowedMacroPhaseCPaths.Count -eq 30 -and
+  @($allowedMacroPhaseCPaths | Sort-Object -Unique).Count -eq 30 -and
+  @($allowedMacroPhaseCPaths | Where-Object { -not (Test-Path -LiteralPath (Join-Path $repoRoot $_) -PathType Leaf) }).Count -eq 0
+) "historical Macro Phase C.1 source inventory remains complete and unique"
 Add-Result (
-  $changedProductSourcePaths.Count -eq $expectedProductSourcePaths.Count -and
-  @($changedProductSourcePaths | Where-Object { $expectedProductSourcePaths -notcontains $_ }).Count -eq 0
-) "only the exact Macro Phase C.1 product source paths changed"
+  @($allowedMacroPhaseCPaths | Where-Object { $_ -match '^src/' }).Count -eq $expectedProductSourcePaths.Count -and
+  @($expectedProductSourcePaths | Where-Object { $allowedMacroPhaseCPaths -notcontains $_ }).Count -eq 0
+) "historical Macro Phase C.1 product source inventory remains exact"
 Add-Result (
-  $changedPaths -notcontains "src/lib/codexforge/model-routing/model-routing-provider-registry.ts" -and
-  $changedPaths -notcontains "src/lib/codexforge/model-routing/model-routing-catalog.ts" -and
-  $changedPaths -notcontains "src/lib/codexforge/model-routing/model-routing-types.ts" -and
-  $changedPaths -notcontains "src/lib/codexforge/model-routing/index.ts"
-) "protected model-routing production ownership remains outside the Macro Phase C.1 changed paths"
+  $allowedMacroPhaseCPaths -notcontains "src/lib/codexforge/model-routing/model-routing-provider-registry.ts" -and
+  $allowedMacroPhaseCPaths -notcontains "src/lib/codexforge/model-routing/model-routing-catalog.ts" -and
+  $allowedMacroPhaseCPaths -notcontains "src/lib/codexforge/model-routing/model-routing-types.ts" -and
+  $allowedMacroPhaseCPaths -notcontains "src/lib/codexforge/model-routing/index.ts"
+) "protected model-routing production ownership remains outside the historical Macro Phase C.1 inventory"
 Add-Result (
-  $changedPaths -notcontains "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx" -and
-  $changedPaths -notcontains "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx"
-) "Jarvis live command center and working-loop run panel remain unchanged in Macro Phase C.1"
+  $allowedMacroPhaseCPaths -notcontains "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx" -and
+  $allowedMacroPhaseCPaths -notcontains "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx"
+) "Jarvis live command center and working-loop run panel remain outside historical Macro Phase C.1 ownership"
 Add-Result (
-  $changedPaths -contains "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1" -and
-  $changedPaths -contains "scripts/smoke-codexforge-all.ps1"
-) "Macro Phase A required smoke and aggregate ownership remain present"
+  $allowedMacroPhaseCPaths -contains "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1" -and
+  $allowedMacroPhaseCPaths -contains "scripts/smoke-codexforge-all.ps1"
+) "Macro Phase A required smoke and aggregate historical ownership remain present"
 Add-Result ($changedTypeScriptText -notmatch ':\s*any\b|\bas any\b|<any>') "no any or as any was introduced"
 Add-Result ($changedUiText -notmatch 'ts-nocheck|ts-expect-error') "no ts-nocheck or ts-expect-error was introduced"
 Add-Result ($commandDeckRole.Contains("commandDeckRole: CodexForgeCommandDeckRole;")) "commandDeckRole remains strongly typed"
@@ -374,13 +369,13 @@ Add-Result ($css.Contains('.privateAlphaCloudApprovalNotice')) "CSS contains clo
 Add-Result ($media920Match.Success) "CSS collapses the target selector layout at 920px"
 
 $longestPath = 0
-foreach ($path in $changedPaths) {
+foreach ($path in $allowedMacroPhaseCPaths) {
   if ($path.Length -gt $longestPath) {
     $longestPath = $path.Length
   }
 }
 
-Add-Result ($longestPath -lt 220) "longest new source path is under 220 characters"
+Add-Result ($longestPath -lt 220) "longest historical Macro Phase C.1 source path is under 220 characters"
 
 if ($Failures.Count -gt 0) {
   Write-Host ""

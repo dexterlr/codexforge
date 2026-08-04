@@ -1,16 +1,24 @@
 import "server-only";
 
+import { AsyncLocalStorage } from "node:async_hooks";
+import { isUtf8 } from "node:buffer";
 import {
+  link,
   lstat,
   mkdir,
+  open,
+  opendir,
   readFile,
   readdir,
+  realpath,
   rename,
   unlink,
-  writeFile,
 } from "node:fs/promises";
+import type { FileHandle } from "node:fs/promises";
+import type { Dirent } from "node:fs";
 import path from "node:path";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { getExactWindowsProcessIdentity } from "@/lib/codexforge/creator/creator-native-filesystem.server";
 import {
   CODEXFORGE_PROJECT_ROOT,
   isAbsolutePathInsideBase,
@@ -25,6 +33,15 @@ import { createPrivateAlphaOllamaProviderAdapter } from "./private-alpha-ollama-
 import { createPrivateAlphaProviderAdapterForModelKey } from "./private-alpha-provider-runtime.server";
 import { readPrivateAlphaKillSwitchState } from "./private-alpha-kill-switch.server";
 import {
+  PrivateAlphaNativeFilesystemError,
+  assertPrivateAlphaNativeSegments,
+  privateAlphaNativeRootExists,
+  withPrivateAlphaExistingNativeRoot,
+  withPrivateAlphaExistingNativeRootLease,
+  withPrivateAlphaNativeRoot,
+  withPrivateAlphaNativeRootLease,
+} from "./private-alpha-native-filesystem.server";
+import {
   PRIVATE_ALPHA_INITIAL_RUN_STATE,
   assertPrivateAlphaTransition,
 } from "./private-alpha-state-machine";
@@ -32,8 +49,10 @@ import {
   PRIVATE_ALPHA_APPROVAL_BINDING_VERSION,
   PRIVATE_ALPHA_GROQ_120B_RUNTIME_MODEL_KEY,
   PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+  PRIVATE_ALPHA_IDEMPOTENCY_PROTOCOL_VERSION,
   PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
   PRIVATE_ALPHA_RECORD_VERSION,
+  PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION,
   type PrivateAlphaApprovalInput,
   type PrivateAlphaApprovalRecord,
   type PrivateAlphaApprovalScope,
@@ -48,6 +67,7 @@ import {
   type PrivateAlphaCancellationInput,
   type PrivateAlphaCancellationRecord,
   type PrivateAlphaCreateRunResult,
+  type PrivateAlphaCreatorRunOwnership,
   type PrivateAlphaExecuteInput,
   type PrivateAlphaExecuteRunResult,
   type PrivateAlphaExecutionRecord,
@@ -56,8 +76,10 @@ import {
   type PrivateAlphaGroq20bExecutionRecord,
   type PrivateAlphaLocalExecutionRecord,
   type PrivateAlphaProviderErrorCode,
+  type PrivateAlphaPersistedExecutionErrorCode,
   type PrivateAlphaRuntimeModelKey,
   type PrivateAlphaRunRecord,
+  type PrivateAlphaRunOwnership,
   type PrivateAlphaRunRequest,
   type PrivateAlphaRunState,
   type PrivateAlphaRunSummary,
@@ -67,8 +89,12 @@ import {
   PRIVATE_ALPHA_DATA_ROOT_LABEL,
   PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS,
   PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE,
+  PRIVATE_ALPHA_MAX_ACKNOWLEDGEMENT_LENGTH,
+  PRIVATE_ALPHA_MAX_CANCELLATION_REASON_LENGTH,
   PRIVATE_ALPHA_MAX_DONE_REASON_LENGTH,
+  PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH,
   PRIVATE_ALPHA_MAX_OUTPUT_TEXT_LENGTH,
+  PRIVATE_ALPHA_MAX_REQUEST_LENGTH,
   PRIVATE_ALPHA_MAX_SAFE_ERROR_MESSAGE_LENGTH,
   PRIVATE_ALPHA_PRODUCTION_EXECUTION_MODE,
   PRIVATE_ALPHA_PRODUCTION_MODEL,
@@ -76,6 +102,7 @@ import {
   PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL,
   PRIVATE_ALPHA_RUN_ID_LENGTH,
   PRIVATE_ALPHA_TEST_DATA_ROOT_PREFIX,
+  buildPrivateAlphaRedactedPreview,
   buildPrivateAlphaApprovalScope,
   buildPrivateAlphaRunRequest,
   buildPrivateAlphaRunSummary,
@@ -114,15 +141,78 @@ type PrivateAlphaResolvedPaths = Readonly<{
   dataRootAbsolutePath: string;
   runsDirectoryAbsolutePath: string;
   idempotencyDirectoryAbsolutePath: string;
+  locksDirectoryAbsolutePath: string;
   killSwitchFileAbsolutePath: string;
+  identityState: PrivateAlphaFilesystemIdentityState;
 }>;
 
-type PrivateAlphaIdempotencyRecord = Readonly<{
+type PrivateAlphaDirectoryIdentity = Readonly<{
+  absolutePath: string;
+  realPath: string;
+  device: number;
+  inode: number;
+}>;
+
+type PrivateAlphaFilesystemIdentityState = {
+  projectRoot: PrivateAlphaDirectoryIdentity | null;
+  dataRoot: PrivateAlphaDirectoryIdentity | null;
+  parents: Map<string, PrivateAlphaDirectoryIdentity>;
+};
+
+type PrivateAlphaRunLockOwner = Readonly<{
+  nonce: string;
+  processSessionNonce: string;
+  processId: number;
+  processIdentity: string;
+  createdAt: string;
+}>;
+
+type PrivateAlphaRunLockFenceContext = Readonly<{
+  paths: PrivateAlphaResolvedPaths;
+  runId: string;
+  owner: PrivateAlphaRunLockOwner;
+}>;
+
+type PrivateAlphaHistoricalIdempotencyRecord = Readonly<{
   version: typeof PRIVATE_ALPHA_RECORD_VERSION;
   idempotencyKeyHash: string;
   canonicalRequestHash: string;
   runId: string;
   createdAt: string;
+}>;
+
+type PrivateAlphaProtocolIdempotencyRecord = Readonly<{
+  version: typeof PRIVATE_ALPHA_RECORD_VERSION;
+  protocolVersion: typeof PRIVATE_ALPHA_IDEMPOTENCY_PROTOCOL_VERSION;
+  publicationPhase: "reserved" | "published";
+  idempotencyKeyHash: string;
+  requestDigest: string;
+  runId: string;
+  ownership: PrivateAlphaRunOwnership;
+  reservedAt: string;
+  publishedAt: string | null;
+}>;
+
+type PrivateAlphaIdempotencyRecord =
+  | PrivateAlphaHistoricalIdempotencyRecord
+  | PrivateAlphaProtocolIdempotencyRecord;
+
+export type PrivateAlphaIdempotencyLookupResult = Readonly<{
+  idempotencyKeyHash: string;
+  requestDigest: string;
+  reservedRunId: string;
+  publicationPhase: "reserved" | "published";
+  ownership: PrivateAlphaRunOwnership;
+  run: PrivateAlphaRunRecord | null;
+  historical: boolean;
+}>;
+
+export type PrivateAlphaCreatorRecoveryInput = Readonly<{
+  body: unknown;
+  idempotencyKey: string;
+  namespace: "current" | "legacy";
+  projectId: string;
+  purpose: "generation" | "repair";
 }>;
 
 type PrivateAlphaStoredApprovalBinding = Readonly<{
@@ -133,12 +223,13 @@ type PrivateAlphaStoredApprovalBinding = Readonly<{
 }>;
 
 type PrivateAlphaFailureResponse = Readonly<{
-  errorCode: PrivateAlphaProviderErrorCode;
+  errorCode: PrivateAlphaPersistedExecutionErrorCode;
   safeErrorMessage: string;
   responseStatus: 200 | 409 | 503 | 504;
 }>;
 
 type PrivateAlphaLocalPersistedExecutionErrorCode =
+  | "execution_interrupted"
   | "kill_switch_blocked"
   | "ollama_unavailable"
   | "ollama_model_missing"
@@ -149,6 +240,7 @@ type PrivateAlphaLocalPersistedExecutionErrorCode =
   | "ollama_output_too_large";
 
 type PrivateAlphaGroqPersistedExecutionErrorCode =
+  | "execution_interrupted"
   | "kill_switch_blocked"
   | "groq_credential_missing"
   | "groq_authentication_failed"
@@ -212,19 +304,127 @@ export type PrivateAlphaStore = Readonly<{
     body: unknown,
     idempotencyKey: string | null | undefined
   ) => Promise<PrivateAlphaCreateRunResult>;
+  createCreatorRun: (
+    body: unknown,
+    idempotencyKey: string | null | undefined,
+    ownership: PrivateAlphaCreatorRunOwnership
+  ) => Promise<PrivateAlphaCreateRunResult>;
+  bindCreatorRun: (
+    body: unknown,
+    idempotencyKey: string | null | undefined,
+    ownership: PrivateAlphaCreatorRunOwnership,
+    createIfMissing: boolean
+  ) => Promise<PrivateAlphaCreateRunResult | null>;
+  lookupRunByIdempotencyKeyHash: (
+    idempotencyKeyHash: string
+  ) => Promise<PrivateAlphaIdempotencyLookupResult | null>;
+  recoverCreatorRunByIdempotencyKey: (
+    input: PrivateAlphaCreatorRecoveryInput
+  ) => Promise<PrivateAlphaIdempotencyLookupResult | null>;
   listRuns: (limit: string | null | undefined) => Promise<readonly PrivateAlphaRunSummary[]>;
   getRun: (runId: string) => Promise<PrivateAlphaRunRecord>;
-  approveRun: (runId: string, body: unknown) => Promise<PrivateAlphaRunRecord>;
-  cancelRun: (runId: string, body: unknown) => Promise<PrivateAlphaRunRecord>;
+  getCreatorRun: (
+    runId: string,
+    ownership: PrivateAlphaCreatorRunOwnership
+  ) => Promise<PrivateAlphaRunRecord>;
+  reconcileCreatorRunAfterInterruption: (
+    runId: string,
+    ownership: PrivateAlphaCreatorRunOwnership
+  ) => Promise<PrivateAlphaRunRecord>;
+  approveRun: (
+    runId: string,
+    body: unknown
+  ) => Promise<PrivateAlphaRunRecord>;
+  approveCreatorRun: (
+    runId: string,
+    body: unknown,
+    ownership: PrivateAlphaCreatorRunOwnership
+  ) => Promise<PrivateAlphaRunRecord>;
+  cancelRun: (
+    runId: string,
+    body: unknown
+  ) => Promise<PrivateAlphaRunRecord>;
+  cancelCreatorRun: (
+    runId: string,
+    body: unknown,
+    ownership: PrivateAlphaCreatorRunOwnership
+  ) => Promise<PrivateAlphaRunRecord>;
   executeRun: (
     runId: string,
     body: unknown,
     idempotencyKey: string | null | undefined
   ) => Promise<PrivateAlphaExecuteRunResult>;
+  executeCreatorRun: (
+    runId: string,
+    body: unknown,
+    idempotencyKey: string | null | undefined,
+    ownership: PrivateAlphaCreatorRunOwnership
+  ) => Promise<PrivateAlphaExecuteRunResult>;
 }>;
+
+type PrivateAlphaStoreInternal = Omit<
+  PrivateAlphaStore,
+  "createRun" | "approveRun" | "cancelRun" | "executeRun"
+> &
+  Readonly<{
+    createRun: (
+      body: unknown,
+      idempotencyKey: string | null | undefined,
+      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+    ) => Promise<PrivateAlphaCreateRunResult>;
+    approveRun: (
+      runId: string,
+      body: unknown,
+      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+    ) => Promise<PrivateAlphaRunRecord>;
+    cancelRun: (
+      runId: string,
+      body: unknown,
+      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+    ) => Promise<PrivateAlphaRunRecord>;
+    executeRun: (
+      runId: string,
+      body: unknown,
+      idempotencyKey: string | null | undefined,
+      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+    ) => Promise<PrivateAlphaExecuteRunResult>;
+  }>;
 
 const RUN_WRITE_QUEUES = new Map<string, Promise<void>>();
 const IDEMPOTENCY_WRITE_QUEUES = new Map<string, Promise<void>>();
+const PRIVATE_ALPHA_PROCESS_SESSION_NONCE = randomBytes(16).toString("hex");
+const PRIVATE_ALPHA_RUN_LOCK_MAX_BYTES = 2_048;
+const PRIVATE_ALPHA_IDEMPOTENCY_RECORD_MAX_BYTES = 8_192;
+const PRIVATE_ALPHA_RUN_RECORD_MAX_BYTES = 1_048_576;
+const PRIVATE_ALPHA_MAX_STORED_RUN_FILES = 4_096;
+const PRIVATE_ALPHA_MAX_DIRECTORY_ENTRIES = 4_096;
+
+async function readBoundedDirectoryEntries(
+  directoryAbsolutePath: string,
+  boundedMessage: string
+): Promise<readonly Dirent[]> {
+  const directory = await opendir(directoryAbsolutePath);
+  const entries: Dirent[] = [];
+  try {
+    while (true) {
+      const entry = await directory.read();
+      if (entry === null) break;
+      if (entries.length >= PRIVATE_ALPHA_MAX_DIRECTORY_ENTRIES) {
+        throw new PrivateAlphaStoreError(500, boundedMessage);
+      }
+      entries.push(entry);
+    }
+  } finally {
+    await directory.close();
+  }
+  return entries;
+}
+const PRIVATE_ALPHA_MAX_AUDIT_EVENTS = 16;
+const PRIVATE_ALPHA_MAX_AUDIT_SUMMARY_LENGTH = 512;
+const RECOVERABLE_RUN_LOCK_NONCES = new Map<string, string>();
+const RUN_LOCK_FENCE_CONTEXT = new AsyncLocalStorage<PrivateAlphaRunLockFenceContext>();
+const CREATOR_BINDING_LOCK_CONTEXT = new AsyncLocalStorage<string>();
+const PRIVATE_ALPHA_VERIFIED_PERSISTED_BYTES = new WeakMap<object, Buffer>();
 
 export class PrivateAlphaStoreError extends Error {
   readonly status: PrivateAlphaErrorStatus;
@@ -240,12 +440,47 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+function nextPersistedIsoTimestamp(previousTimestamp: string): string {
+  const previousMilliseconds = Date.parse(previousTimestamp);
+  return new Date(
+    Math.max(Date.now(), Number.isFinite(previousMilliseconds) ? previousMilliseconds : 0)
+  ).toISOString();
+}
+
 function makeRunId(): string {
   return randomBytes(PRIVATE_ALPHA_RUN_ID_LENGTH / 2).toString("hex");
 }
 
+function buildIdempotencyMutationLockRunId(
+  idempotencyKeyHash: string
+): string {
+  return hashSha256(`private-alpha:idempotency-mutation:${idempotencyKeyHash}`).slice(
+    0,
+    PRIVATE_ALPHA_RUN_ID_LENGTH
+  );
+}
+
+function buildCreatorBindingMutationLockRunId(
+  projectId: string,
+  purpose: "generation" | "repair"
+): string {
+  return hashSha256(
+    `private-alpha:creator-binding-mutation:v1:${projectId}:${purpose}`
+  ).slice(0, PRIVATE_ALPHA_RUN_ID_LENGTH);
+}
+
 function hashSha256(value: string): string {
   return createHash("sha256").update(value, "utf8").digest("hex");
+}
+
+export function buildPrivateAlphaCreatorIdempotencyKeyHash(
+  idempotencyKey: string,
+  projectId: string,
+  purpose: "generation" | "repair"
+): string {
+  return hashSha256(
+    `codexforge.private-alpha.creator-idempotency.v1\u0000${projectId}\u0000${purpose}\u0000${idempotencyKey}`
+  );
 }
 
 function isMissingError(error: unknown): boolean {
@@ -266,16 +501,275 @@ function isAlreadyExistsError(error: unknown): boolean {
   );
 }
 
+function readErrorCode(error: unknown): string | null {
+  return typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof (error as { code?: unknown }).code === "string"
+    ? (error as { code: string }).code
+    : null;
+}
+
+function parseLinuxProcessStartTicks(statLine: string): string {
+  const commandEnd = statLine.lastIndexOf(")");
+  if (commandEnd < 0) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha process identity could not be verified."
+    );
+  }
+  const fieldsAfterCommand = statLine.slice(commandEnd + 1).trim().split(/\s+/u);
+  // /proc/<pid>/stat fields after the command begin at field 3; starttime is field 22.
+  const state = fieldsAfterCommand[0];
+  const startTicks = fieldsAfterCommand[19];
+  if (!state || state === "Z" || !startTicks || !/^\d+$/u.test(startTicks)) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha process identity could not be verified."
+    );
+  }
+  return startTicks;
+}
+
+async function readExactProcessIdentity(processId: number): Promise<string | null> {
+  if (process.platform === "win32") {
+    try {
+      return getExactWindowsProcessIdentity(processId);
+    } catch (error) {
+      if (readErrorCode(error) === "not_found") return null;
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha process identity could not be verified."
+      );
+    }
+  }
+
+  if (process.platform === "linux") {
+    let normalizedBootId: string;
+    try {
+      normalizedBootId = (
+        await readFile("/proc/sys/kernel/random/boot_id", "utf8")
+      ).trim().toLowerCase();
+      if (!/^[a-f0-9-]{36}$/u.test(normalizedBootId)) {
+        throw new PrivateAlphaStoreError(
+          500,
+          "Private-alpha process identity could not be verified."
+        );
+      }
+    } catch (error) {
+      if (error instanceof PrivateAlphaStoreError) throw error;
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha process identity could not be verified."
+      );
+    }
+    try {
+      const statLine = await readFile(`/proc/${processId}/stat`, "utf8");
+      return `linux-boot-start:${normalizedBootId}:${parseLinuxProcessStartTicks(statLine)}`;
+    } catch (error) {
+      if (readErrorCode(error) === "ENOENT" && processId !== process.pid) return null;
+      if (error instanceof PrivateAlphaStoreError) throw error;
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha process identity could not be verified."
+      );
+    }
+  }
+
+  if (processId === process.pid) {
+    return `process-session:${PRIVATE_ALPHA_PROCESS_SESSION_NONCE}`;
+  }
+  throw new PrivateAlphaStoreError(
+    409,
+    "The existing private-alpha mutation owner cannot be verified safely on this platform."
+  );
+}
+
+function isCanonicalRunLockProcessId(processId: number): boolean {
+  if (!Number.isSafeInteger(processId) || processId <= 0) return false;
+  if (process.platform === "win32") return processId <= 0xffff_ffff;
+  if (process.platform === "linux") return processId <= 4_194_304;
+  return processId === process.pid;
+}
+
+function isCanonicalPositiveUint64Decimal(value: string): boolean {
+  if (!/^[1-9]\d{0,19}$/u.test(value)) return false;
+  const maximum = "18446744073709551615";
+  return value.length < maximum.length || (value.length === maximum.length && value <= maximum);
+}
+
+function isCanonicalRunLockProcessIdentity(value: string): boolean {
+  if (process.platform === "win32") {
+    const match = /^windows-filetime:(\d+)$/u.exec(value);
+    return match !== null && isCanonicalPositiveUint64Decimal(match[1]);
+  }
+  if (process.platform === "linux") {
+    const match =
+      /^linux-boot-start:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}:(\d+)$/u.exec(
+        value
+      );
+    return match !== null && isCanonicalPositiveUint64Decimal(match[1]);
+  }
+  return /^process-session:[a-f0-9]{32}$/u.test(value);
+}
+
+function assertSecurePrivateAlphaMutationPlatform(): void {
+  if (process.platform !== "win32") {
+    throw new PrivateAlphaStoreError(
+      503,
+      "Secure private-alpha mutation is unavailable on this platform because the audited handle-relative filesystem boundary is Windows-only."
+    );
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function hasExactKeys(
+  value: Record<string, unknown>,
+  expectedKeys: readonly string[]
+): boolean {
+  const actualKeys = Object.keys(value).sort();
+  const sortedExpectedKeys = [...expectedKeys].sort();
+  return (
+    actualKeys.length === sortedExpectedKeys.length &&
+    actualKeys.every((key, index) => key === sortedExpectedKeys[index])
+  );
+}
+
 function isIsoTimestamp(value: unknown): value is string {
-  return typeof value === "string" && !Number.isNaN(Date.parse(value));
+  if (typeof value !== "string") return false;
+  const milliseconds = Date.parse(value);
+  return (
+    Number.isFinite(milliseconds) &&
+    new Date(milliseconds).toISOString() === value
+  );
 }
 
 function isHexHash(value: unknown): value is string {
   return typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
+}
+
+function isUuid(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(
+      value
+    )
+  );
+}
+
+function isBoundedSingleLineText(value: unknown, maximumLength: number): value is string {
+  return (
+    typeof value === "string" &&
+    value.length > 0 &&
+    value.length <= maximumLength &&
+    value.trim() === value &&
+    !/[\u0000-\u001f\u007f]/.test(value)
+  );
+}
+
+function validateStoredRunOwnership(
+  value: unknown
+): PrivateAlphaRunOwnership | undefined {
+  if (value === undefined) {
+    return null;
+  }
+
+  if (value === null) return undefined;
+
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  if (
+    value.kind === "general" &&
+    value.protocolVersion === PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION &&
+    hasExactKeys(value, ["kind", "protocolVersion"])
+  ) {
+    return {
+      kind: "general",
+      protocolVersion: PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION,
+    };
+  }
+
+  if (
+    value.kind === "creator" &&
+    value.protocolVersion === PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION &&
+    typeof value.projectId === "string" &&
+    /^[a-f0-9]{24}$/.test(value.projectId) &&
+    (value.purpose === "generation" || value.purpose === "repair") &&
+    typeof value.bindingId === "string" &&
+    /^[a-f0-9]{32}$/.test(value.bindingId) &&
+    hasExactKeys(value, [
+      "bindingId",
+      "kind",
+      "projectId",
+      "protocolVersion",
+      "purpose",
+    ])
+  ) {
+    return {
+      kind: "creator",
+      protocolVersion: PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION,
+      projectId: value.projectId,
+      purpose: value.purpose,
+      bindingId: value.bindingId,
+    };
+  }
+
+  return undefined;
+}
+
+function sameRunOwnership(
+  left: PrivateAlphaRunOwnership,
+  right: PrivateAlphaRunOwnership
+): boolean {
+  if (left === null || right === null) {
+    return left === right;
+  }
+  if (left.kind !== right.kind || left.protocolVersion !== right.protocolVersion) {
+    return false;
+  }
+  if (left.kind === "general" || right.kind === "general") {
+    return left.kind === right.kind;
+  }
+  return (
+    left.projectId === right.projectId &&
+    left.purpose === right.purpose &&
+    left.bindingId === right.bindingId
+  );
+}
+
+function validateCreatorOwnershipInput(
+  value: PrivateAlphaCreatorRunOwnership
+): PrivateAlphaCreatorRunOwnership {
+  const validated = validateStoredRunOwnership(value);
+  if (!validated || validated.kind !== "creator") {
+    throw new PrivateAlphaStoreError(409, "Creator run ownership binding is invalid.");
+  }
+  return validated;
+}
+
+function assertRunControl(
+  run: PrivateAlphaRunRecord,
+  expectedOwnership: PrivateAlphaCreatorRunOwnership | undefined
+): void {
+  if (expectedOwnership === undefined) {
+    if (run.ownership?.kind === "creator") {
+      throw new PrivateAlphaStoreError(
+        409,
+        "Creator-owned runs must be controlled through the exact creator lifecycle."
+      );
+    }
+    return;
+  }
+
+  const validated = validateCreatorOwnershipInput(expectedOwnership);
+  if (!sameRunOwnership(run.ownership, validated)) {
+    throw new PrivateAlphaStoreError(409, "Creator run ownership binding does not match.");
+  }
 }
 
 function isSafePositiveInteger(value: unknown): value is number {
@@ -319,8 +813,9 @@ function isExecutionStatus(value: unknown): value is PrivateAlphaExecutionStatus
 
 function isExecutionErrorCode(
   value: unknown
-): value is PrivateAlphaProviderErrorCode {
+): value is PrivateAlphaPersistedExecutionErrorCode {
   return (
+    value === "execution_interrupted" ||
     value === "kill_switch_blocked" ||
     value === "ollama_unavailable" ||
     value === "ollama_model_missing" ||
@@ -347,6 +842,7 @@ function isLocalPersistedExecutionErrorCode(
   value: unknown
 ): value is PrivateAlphaLocalPersistedExecutionErrorCode {
   return (
+    value === "execution_interrupted" ||
     value === "kill_switch_blocked" ||
     value === "ollama_unavailable" ||
     value === "ollama_model_missing" ||
@@ -362,6 +858,7 @@ function isGroqPersistedExecutionErrorCode(
   value: unknown
 ): value is PrivateAlphaGroqPersistedExecutionErrorCode {
   return (
+    value === "execution_interrupted" ||
     value === "kill_switch_blocked" ||
     value === "groq_credential_missing" ||
     value === "groq_authentication_failed" ||
@@ -379,7 +876,10 @@ function isGroqPersistedExecutionErrorCode(
 
 function isLocalProviderExecutionErrorCode(
   value: unknown
-): value is Exclude<PrivateAlphaLocalPersistedExecutionErrorCode, "kill_switch_blocked"> {
+): value is Exclude<
+  PrivateAlphaLocalPersistedExecutionErrorCode,
+  "execution_interrupted" | "kill_switch_blocked"
+> {
   return (
     value === "ollama_unavailable" ||
     value === "ollama_model_missing" ||
@@ -393,7 +893,10 @@ function isLocalProviderExecutionErrorCode(
 
 function isGroqProviderExecutionErrorCode(
   value: unknown
-): value is Exclude<PrivateAlphaGroqPersistedExecutionErrorCode, "kill_switch_blocked"> {
+): value is Exclude<
+  PrivateAlphaGroqPersistedExecutionErrorCode,
+  "execution_interrupted" | "kill_switch_blocked"
+> {
   return (
     value === "groq_credential_missing" ||
     value === "groq_authentication_failed" ||
@@ -407,6 +910,24 @@ function isGroqProviderExecutionErrorCode(
     value === "groq_empty_response" ||
     value === "groq_output_too_large"
   );
+}
+
+function isLocalProviderAvailabilityErrorCode(
+  value: unknown
+): value is Exclude<
+  PrivateAlphaLocalPersistedExecutionErrorCode,
+  "execution_interrupted" | "kill_switch_blocked" | "ollama_empty_response"
+> {
+  return isLocalProviderExecutionErrorCode(value) && value !== "ollama_empty_response";
+}
+
+function isGroqProviderAvailabilityErrorCode(
+  value: unknown
+): value is Exclude<
+  PrivateAlphaGroqPersistedExecutionErrorCode,
+  "execution_interrupted" | "kill_switch_blocked" | "groq_empty_response"
+> {
+  return isGroqProviderExecutionErrorCode(value) && value !== "groq_empty_response";
 }
 
 function isAuditEventType(value: unknown): value is PrivateAlphaAuditEventType {
@@ -654,7 +1175,10 @@ function validateStoredRunRequest(value: unknown): PrivateAlphaRunRequest | null
   if (
     typeof value.normalizedRequestText !== "string" ||
     !value.normalizedRequestText ||
+    value.normalizedRequestText.length > PRIVATE_ALPHA_MAX_REQUEST_LENGTH ||
     typeof value.redactedPreview !== "string" ||
+    value.redactedPreview !==
+      buildPrivateAlphaRedactedPreview(value.normalizedRequestText) ||
     (value.capability !== "text" && value.capability !== "code") ||
     typeof value.maximumOutputTokens !== "number" ||
     !Number.isInteger(value.maximumOutputTokens) ||
@@ -662,13 +1186,42 @@ function validateStoredRunRequest(value: unknown): PrivateAlphaRunRequest | null
     value.maximumOutputTokens > 4_096 ||
     value.retentionMode !== "local-private-alpha" ||
     (value.modelPreferenceLabel !== null &&
-      typeof value.modelPreferenceLabel !== "string")
+      (typeof value.modelPreferenceLabel !== "string" ||
+        value.modelPreferenceLabel.length >
+          PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH))
   ) {
     return null;
   }
 
   const binding = readStoredApprovalBinding(value);
   if (binding === undefined) {
+    return null;
+  }
+
+  const requestKeys = [
+    "capability",
+    "executionMode",
+    "maximumOutputTokens",
+    "modelPreferenceLabel",
+    "normalizedRequestText",
+    "providerPreference",
+    "redactedPreview",
+    "retentionMode",
+  ];
+  if (
+    !hasExactKeys(
+      value,
+      binding === null
+        ? requestKeys
+        : [
+            ...requestKeys,
+            "bindingVersion",
+            "cloudDataTransferRequirement",
+            "dataBoundary",
+            "modelKey",
+          ]
+    )
+  ) {
     return null;
   }
 
@@ -839,13 +1392,42 @@ function validateStoredApprovalScope(
     value.maximumOutputTokens > 4_096 ||
     value.retentionMode !== "local-private-alpha" ||
     (value.modelPreferenceLabel !== null &&
-      typeof value.modelPreferenceLabel !== "string")
+      (typeof value.modelPreferenceLabel !== "string" ||
+        value.modelPreferenceLabel.length >
+          PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH))
   ) {
     return null;
   }
 
   const binding = readStoredApprovalBinding(value);
   if (binding === undefined) {
+    return null;
+  }
+
+  const scopeKeys = [
+    "capability",
+    "executionMode",
+    "maximumOutputTokens",
+    "modelPreferenceLabel",
+    "normalizedRequestHash",
+    "providerPreference",
+    "retentionMode",
+    "runId",
+  ];
+  if (
+    !hasExactKeys(
+      value,
+      binding === null
+        ? scopeKeys
+        : [
+            ...scopeKeys,
+            "bindingVersion",
+            "cloudDataTransferRequirement",
+            "dataBoundary",
+            "modelKey",
+          ]
+    )
+  ) {
     return null;
   }
 
@@ -1019,12 +1601,16 @@ function validateStoredApprovalRecord(
         : undefined;
 
   if (
-    typeof value.approvalId !== "string" ||
-    !value.approvalId ||
+    !isUuid(value.approvalId) ||
     !isIsoTimestamp(value.approvedAt) ||
     value.actor !== "local-operator" ||
     !isHexHash(value.approvalScopeHash) ||
     acknowledgement === undefined ||
+    (typeof acknowledgement === "string" &&
+      !isBoundedSingleLineText(
+        acknowledgement,
+        PRIVATE_ALPHA_MAX_ACKNOWLEDGEMENT_LENGTH
+      )) ||
     !isSafePositiveInteger(value.previousRevision) ||
     !isSafePositiveInteger(value.resultingRevision) ||
     value.executionAvailabilityStatement !==
@@ -1035,6 +1621,16 @@ function validateStoredApprovalRecord(
 
   if (!("bindingVersion" in request)) {
     if (
+      !hasExactKeys(value, [
+        "acknowledgement",
+        "actor",
+        "approvalId",
+        "approvalScopeHash",
+        "approvedAt",
+        "executionAvailabilityStatement",
+        "previousRevision",
+        "resultingRevision",
+      ]) ||
       Object.prototype.hasOwnProperty.call(value, "bindingVersion") ||
       Object.prototype.hasOwnProperty.call(
         value,
@@ -1057,6 +1653,18 @@ function validateStoredApprovalRecord(
   }
 
   if (
+    !hasExactKeys(value, [
+      "acknowledgement",
+      "actor",
+      "approvalId",
+      "approvalScopeHash",
+      "approvedAt",
+      "bindingVersion",
+      "cloudDataTransferAcknowledgement",
+      "executionAvailabilityStatement",
+      "previousRevision",
+      "resultingRevision",
+    ]) ||
     value.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
     (value.cloudDataTransferAcknowledgement !== "not-required" &&
       value.cloudDataTransferAcknowledgement !==
@@ -1099,14 +1707,23 @@ function validateStoredCancellationRecord(
   }
 
   if (
-    typeof value.cancellationId !== "string" ||
-    !value.cancellationId ||
+    !isUuid(value.cancellationId) ||
     !isIsoTimestamp(value.canceledAt) ||
     value.actor !== "local-operator" ||
-    typeof value.reason !== "string" ||
-    !value.reason ||
+    !isBoundedSingleLineText(
+      value.reason,
+      PRIVATE_ALPHA_MAX_CANCELLATION_REASON_LENGTH
+    ) ||
     !isSafePositiveInteger(value.previousRevision) ||
-    !isSafePositiveInteger(value.resultingRevision)
+    !isSafePositiveInteger(value.resultingRevision) ||
+    !hasExactKeys(value, [
+      "actor",
+      "canceledAt",
+      "cancellationId",
+      "previousRevision",
+      "reason",
+      "resultingRevision",
+    ])
   ) {
     return null;
   }
@@ -1210,10 +1827,51 @@ function validateStoredExecutionRecord(
     PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL
       ? PRIVATE_ALPHA_GROQ_FREE_TIER_EXECUTION_CONFIRMATION_LITERAL
       : undefined;
+  const hasResponseStatus = Object.prototype.hasOwnProperty.call(
+    value,
+    "responseStatus"
+  );
+
+  const executionKeys = [
+    "approvalScopeHash",
+    "completedAt",
+    "doneReason",
+    "errorCode",
+    "evalCount",
+    "executionId",
+    "idempotencyKeyHash",
+    "loadDurationNanoseconds",
+    "model",
+    "outputSha256",
+    "outputText",
+    "previousRevision",
+    "promptEvalCount",
+    "provider",
+    "resultingRevision",
+    ...(hasResponseStatus ? ["responseStatus"] : []),
+    "runningRevision",
+    "safeErrorMessage",
+    "startedAt",
+    "status",
+    "totalDurationNanoseconds",
+  ];
+  const targetSpecificExecutionKeys =
+    target.kind === "local"
+      ? executionKeys
+      : [
+          ...executionKeys,
+          "bindingVersion",
+          "cloudExecutionAcknowledgement",
+          "dataBoundary",
+          ...(hasGroqFreeTierExecutionConfirmation
+            ? ["groqFreeTierExecutionConfirmation"]
+            : []),
+          "modelKey",
+        ];
 
   if (
-    typeof value.executionId !== "string" ||
-    !value.executionId ||
+    !hasExactKeys(value, targetSpecificExecutionKeys) ||
+    !isUuid(value.executionId) ||
     !isExecutionStatus(value.status) ||
     !isHexHash(value.idempotencyKeyHash) ||
     value.provider !== target.provider ||
@@ -1221,6 +1879,9 @@ function validateStoredExecutionRecord(
     value.approvalScopeHash !== approvalScopeHash ||
     !isIsoTimestamp(value.startedAt) ||
     completedAt === undefined ||
+    (completedAt !== null && !isIsoTimestamp(completedAt)) ||
+    (completedAt !== null &&
+      Date.parse(completedAt) < Date.parse(value.startedAt)) ||
     !isSafePositiveInteger(value.previousRevision) ||
     runningRevision === undefined ||
     !isSafePositiveInteger(value.resultingRevision) ||
@@ -1278,6 +1939,45 @@ function validateStoredExecutionRecord(
     return null;
   }
 
+  const responseStatus = hasResponseStatus
+    ? value.responseStatus === null ||
+      value.responseStatus === 200 ||
+      value.responseStatus === 409 ||
+      value.responseStatus === 500 ||
+      value.responseStatus === 503 ||
+      value.responseStatus === 504
+      ? value.responseStatus
+      : undefined
+    : value.status === "executing"
+      ? null
+      : value.status === "succeeded"
+        ? 200
+        : value.status === "blocked" && errorCode !== null
+          ? errorCode === "ollama_output_too_large" ||
+            errorCode === "groq_output_too_large"
+            ? 409
+            : resolveAvailabilityBlockedResponseStatus(errorCode)
+          : value.status === "failed" && errorCode !== null
+            ? resolvePersistedFailedExecutionResponseStatus(
+                errorCode,
+                safeErrorMessage ?? "Private-alpha execution failed."
+              )
+            : 500;
+
+  if (responseStatus === undefined) return null;
+
+  if (
+    runningRevision === null
+      ? value.status !== "blocked" ||
+        value.resultingRevision !== value.previousRevision + 1
+      : runningRevision !== value.previousRevision + 1 ||
+        (value.status === "executing"
+          ? value.resultingRevision !== runningRevision
+          : value.resultingRevision !== runningRevision + 1)
+  ) {
+    return null;
+  }
+
   if (outputText !== null) {
     if (!outputSha256 || hashSha256(outputText) !== outputSha256) {
       return null;
@@ -1293,7 +1993,13 @@ function validateStoredExecutionRecord(
       outputSha256 !== null ||
       errorCode !== null ||
       safeErrorMessage !== null ||
+      doneReason !== null ||
+      value.totalDurationNanoseconds !== null ||
+      value.loadDurationNanoseconds !== null ||
+      value.promptEvalCount !== null ||
+      value.evalCount !== null ||
       runningRevision === null ||
+      responseStatus !== null ||
       value.resultingRevision !== runningRevision
     ) {
       return null;
@@ -1307,6 +2013,7 @@ function validateStoredExecutionRecord(
       outputSha256 === null ||
       errorCode !== null ||
       safeErrorMessage !== null ||
+      responseStatus !== 200 ||
       runningRevision === null
     ) {
       return null;
@@ -1321,7 +2028,15 @@ function validateStoredExecutionRecord(
       errorCode === null ||
       errorCode === "kill_switch_blocked" ||
       !safeErrorMessage ||
-      runningRevision === null
+      doneReason !== null ||
+      value.totalDurationNanoseconds !== null ||
+      value.loadDurationNanoseconds !== null ||
+      value.promptEvalCount !== null ||
+      value.evalCount !== null ||
+      responseStatus === null ||
+      runningRevision === null ||
+      responseStatus !==
+        resolvePersistedFailedExecutionResponseStatus(errorCode, safeErrorMessage)
     ) {
       return null;
     }
@@ -1333,7 +2048,21 @@ function validateStoredExecutionRecord(
       outputText !== null ||
       outputSha256 !== null ||
       errorCode === null ||
-      !safeErrorMessage
+      !safeErrorMessage ||
+      doneReason !== null ||
+      value.totalDurationNanoseconds !== null ||
+      value.loadDurationNanoseconds !== null ||
+      value.promptEvalCount !== null ||
+      value.evalCount !== null ||
+      responseStatus === null ||
+      responseStatus === 200 ||
+      responseStatus !==
+        (errorCode === "ollama_output_too_large" ||
+        errorCode === "groq_output_too_large"
+          ? 409
+          : resolveAvailabilityBlockedResponseStatus(errorCode)) ||
+      (runningRevision !== null &&
+        (errorCode !== "kill_switch_blocked" || responseStatus !== 409))
     ) {
       return null;
     }
@@ -1357,6 +2086,7 @@ function validateStoredExecutionRecord(
     promptEvalCount: value.promptEvalCount,
     evalCount: value.evalCount,
     safeErrorMessage,
+    responseStatus,
   } as const;
 
   if (target.kind === "local") {
@@ -1427,13 +2157,22 @@ function validateStoredExecutionRecord(
 
 function validateStoredAuditEvents(
   value: unknown,
-  runId: string
+  runId: string,
+  createdAt: string,
+  updatedAt: string,
+  runState: PrivateAlphaRunState,
+  runRevision: number
 ): readonly PrivateAlphaAuditEvent[] | null {
-  if (!Array.isArray(value)) {
+  if (
+    !Array.isArray(value) ||
+    value.length < 2 ||
+    value.length > PRIVATE_ALPHA_MAX_AUDIT_EVENTS
+  ) {
     return null;
   }
 
   const events: PrivateAlphaAuditEvent[] = [];
+  const eventIds = new Set<string>();
   for (const event of value) {
     if (!isRecord(event)) {
       return null;
@@ -1445,8 +2184,19 @@ function validateStoredAuditEvents(
         : undefined;
 
     if (
-      typeof event.eventId !== "string" ||
-      !event.eventId ||
+      !hasExactKeys(event, [
+        "actor",
+        "eventId",
+        "eventType",
+        "occurredAt",
+        "previousState",
+        "resultingState",
+        "revision",
+        "runId",
+        "summary",
+      ]) ||
+      !isUuid(event.eventId) ||
+      eventIds.has(event.eventId) ||
       !isAuditEventType(event.eventType) ||
       !isIsoTimestamp(event.occurredAt) ||
       !isAuditActor(event.actor) ||
@@ -1454,12 +2204,15 @@ function validateStoredAuditEvents(
       previousState === undefined ||
       !isRunState(event.resultingState) ||
       !isSafePositiveInteger(event.revision) ||
-      typeof event.summary !== "string" ||
-      !event.summary
+      !isBoundedSingleLineText(
+        event.summary,
+        PRIVATE_ALPHA_MAX_AUDIT_SUMMARY_LENGTH
+      )
     ) {
       return null;
     }
 
+    eventIds.add(event.eventId);
     events.push({
       eventId: event.eventId,
       eventType: event.eventType,
@@ -1471,6 +2224,83 @@ function validateStoredAuditEvents(
       revision: event.revision,
       summary: event.summary,
     });
+  }
+
+  const created = events[0];
+  const approvalRequested = events[1];
+  if (
+    !created ||
+    created.eventType !== "run.created" ||
+    created.actor !== "local-operator" ||
+    created.previousState !== null ||
+    created.resultingState !== PRIVATE_ALPHA_INITIAL_RUN_STATE ||
+    created.revision !== 1 ||
+    created.occurredAt !== createdAt ||
+    !approvalRequested ||
+    approvalRequested.eventType !== "approval.requested" ||
+    approvalRequested.actor !== "local-operator" ||
+    approvalRequested.previousState !== PRIVATE_ALPHA_INITIAL_RUN_STATE ||
+    approvalRequested.resultingState !== PRIVATE_ALPHA_INITIAL_RUN_STATE ||
+    approvalRequested.revision !== 1 ||
+    approvalRequested.occurredAt !== createdAt
+  ) {
+    return null;
+  }
+
+  let prior = approvalRequested;
+  for (let index = 2; index < events.length; index += 1) {
+    const event = events[index];
+    if (
+      !event ||
+      event.previousState !== prior.resultingState ||
+      event.revision !== prior.revision + 1 ||
+      Date.parse(event.occurredAt) < Date.parse(prior.occurredAt)
+    ) {
+      return null;
+    }
+
+    const validTransition =
+      (event.eventType === "approval.granted" &&
+        event.actor === "local-operator" &&
+        event.previousState === "awaiting_approval" &&
+        event.resultingState === "approved") ||
+      (event.eventType === "run.canceled" &&
+        event.actor === "local-operator" &&
+        (event.previousState === "awaiting_approval" ||
+          event.previousState === "approved") &&
+        event.resultingState === "canceled") ||
+      (event.eventType === "execution.started" &&
+        event.actor === "system" &&
+        event.previousState === "approved" &&
+        event.resultingState === "executing") ||
+      (event.eventType === "execution.succeeded" &&
+        event.actor === "system" &&
+        event.previousState === "executing" &&
+        event.resultingState === "succeeded") ||
+      (event.eventType === "execution.failed" &&
+        event.actor === "system" &&
+        event.previousState === "executing" &&
+        event.resultingState === "failed") ||
+      (event.eventType === "execution.blocked" &&
+        event.actor === "system" &&
+        (event.previousState === "approved" ||
+          event.previousState === "executing") &&
+        event.resultingState === "blocked") ||
+      (event.eventType === "run.blocked" &&
+        event.actor === "system" &&
+        (event.previousState === "awaiting_approval" ||
+          event.previousState === "approved") &&
+        event.resultingState === "blocked");
+    if (!validTransition) return null;
+    prior = event;
+  }
+
+  if (
+    prior.resultingState !== runState ||
+    prior.revision !== runRevision ||
+    prior.occurredAt !== updatedAt
+  ) {
+    return null;
   }
 
   return events;
@@ -1486,15 +2316,37 @@ function validateStoredRunRecord(
 
   const runRequest = validateStoredRunRequest(value.request);
   const approvalScope = validateStoredApprovalScope(value.approvalScope);
+  const ownership = validateStoredRunOwnership(value.ownership);
 
   if (
+    !hasExactKeys(value, [
+      "approval",
+      "approvalScope",
+      "approvalScopeHash",
+      "auditEvents",
+      "cancellation",
+      "createdAt",
+      "execution",
+      "idempotencyKeyHash",
+      ...(Object.prototype.hasOwnProperty.call(value, "ownership")
+        ? ["ownership"]
+        : []),
+      "request",
+      "revision",
+      "runId",
+      "state",
+      "updatedAt",
+      "version",
+    ]) ||
     value.version !== PRIVATE_ALPHA_RECORD_VERSION ||
     value.runId !== expectedRunId ||
     !isIsoTimestamp(value.createdAt) ||
     !isIsoTimestamp(value.updatedAt) ||
+    Date.parse(value.updatedAt) < Date.parse(value.createdAt) ||
     !isRunState(value.state) ||
     !isSafePositiveInteger(value.revision) ||
     !isHexHash(value.idempotencyKeyHash) ||
+    ownership === undefined ||
     !runRequest ||
     !approvalScope ||
     !isHexHash(value.approvalScopeHash)
@@ -1511,7 +2363,14 @@ function validateStoredRunRecord(
     approval,
     value.approvalScopeHash
   );
-  const auditEvents = validateStoredAuditEvents(value.auditEvents, expectedRunId);
+  const auditEvents = validateStoredAuditEvents(
+    value.auditEvents,
+    expectedRunId,
+    value.createdAt,
+    value.updatedAt,
+    value.state,
+    value.revision
+  );
 
   if (
     !auditEvents ||
@@ -1558,6 +2417,72 @@ function validateStoredRunRecord(
   }
 
   if (execution && execution.approvalScopeHash !== value.approvalScopeHash) {
+    return null;
+  }
+
+  const approvalAudit = auditEvents.find(
+    (event) => event.eventType === "approval.granted"
+  );
+  if (
+    approval === null
+      ? approvalAudit !== undefined
+      : approval.previousRevision !== 1 ||
+        approval.resultingRevision !== 2 ||
+        approvalAudit?.revision !== approval.resultingRevision ||
+        approvalAudit.occurredAt !== approval.approvedAt
+  ) {
+    return null;
+  }
+
+  const cancellationAudit = auditEvents.find(
+    (event) => event.eventType === "run.canceled"
+  );
+  const expectedCancellationPreviousRevision = approval?.resultingRevision ?? 1;
+  if (
+    cancellation === null
+      ? cancellationAudit !== undefined
+      : cancellation.previousRevision !== expectedCancellationPreviousRevision ||
+        cancellation.resultingRevision !==
+          expectedCancellationPreviousRevision + 1 ||
+        cancellationAudit?.revision !== cancellation.resultingRevision ||
+        cancellationAudit.occurredAt !== cancellation.canceledAt ||
+        value.revision !== cancellation.resultingRevision
+  ) {
+    return null;
+  }
+
+  const executionStartedAudit = auditEvents.find(
+    (event) => event.eventType === "execution.started"
+  );
+  const executionTerminalAudit = auditEvents.find(
+    (event) =>
+      event.eventType === "execution.succeeded" ||
+      event.eventType === "execution.failed" ||
+      event.eventType === "execution.blocked"
+  );
+  if (execution) {
+    if (
+      !approval ||
+      execution.previousRevision !== approval.resultingRevision ||
+      value.revision !== execution.resultingRevision ||
+      (execution.runningRevision === null
+        ? executionStartedAudit !== undefined ||
+          execution.status !== "blocked" ||
+          executionTerminalAudit?.revision !== execution.resultingRevision ||
+          executionTerminalAudit.occurredAt !== execution.completedAt
+        : executionStartedAudit?.revision !== execution.runningRevision ||
+          executionStartedAudit.occurredAt !== execution.startedAt ||
+          (execution.status === "executing"
+            ? executionTerminalAudit !== undefined
+            : executionTerminalAudit?.revision !== execution.resultingRevision ||
+              executionTerminalAudit.occurredAt !== execution.completedAt)) ||
+      (execution.errorCode === "execution_interrupted" &&
+        (execution.status !== "failed" ||
+          execution.runningRevision === null))
+    ) {
+      return null;
+    }
+  } else if (executionStartedAudit || executionTerminalAudit) {
     return null;
   }
 
@@ -1609,6 +2534,7 @@ function validateStoredRunRecord(
     state: value.state,
     revision: value.revision,
     idempotencyKeyHash: value.idempotencyKeyHash,
+    ownership,
     request: runRequest,
     approvalScope,
     approvalScopeHash: value.approvalScopeHash,
@@ -1630,20 +2556,78 @@ function validateStoredIdempotencyRecord(
   if (
     value.version !== PRIVATE_ALPHA_RECORD_VERSION ||
     value.idempotencyKeyHash !== expectedKeyHash ||
-    !isHexHash(value.canonicalRequestHash) ||
     typeof value.runId !== "string" ||
-    !/^[a-f0-9]{24}$/.test(value.runId) ||
-    !isIsoTimestamp(value.createdAt)
+    !/^[a-f0-9]{24}$/.test(value.runId)
+  ) {
+    return null;
+  }
+
+  const hasProtocolField =
+    Object.prototype.hasOwnProperty.call(value, "protocolVersion") ||
+    Object.prototype.hasOwnProperty.call(value, "publicationPhase") ||
+    Object.prototype.hasOwnProperty.call(value, "requestDigest") ||
+    Object.prototype.hasOwnProperty.call(value, "ownership") ||
+    Object.prototype.hasOwnProperty.call(value, "reservedAt") ||
+    Object.prototype.hasOwnProperty.call(value, "publishedAt");
+
+  if (!hasProtocolField) {
+    if (
+      !hasExactKeys(value, [
+        "canonicalRequestHash",
+        "createdAt",
+        "idempotencyKeyHash",
+        "runId",
+        "version",
+      ]) ||
+      !isHexHash(value.canonicalRequestHash) ||
+      !isIsoTimestamp(value.createdAt)
+    ) {
+      return null;
+    }
+    return {
+      version: PRIVATE_ALPHA_RECORD_VERSION,
+      idempotencyKeyHash: value.idempotencyKeyHash,
+      canonicalRequestHash: value.canonicalRequestHash,
+      runId: value.runId,
+      createdAt: value.createdAt,
+    };
+  }
+
+  const ownership = validateStoredRunOwnership(value.ownership);
+  if (
+    !hasExactKeys(value, [
+      "idempotencyKeyHash",
+      "ownership",
+      "protocolVersion",
+      "publicationPhase",
+      "publishedAt",
+      "requestDigest",
+      "reservedAt",
+      "runId",
+      "version",
+    ]) ||
+    value.protocolVersion !== PRIVATE_ALPHA_IDEMPOTENCY_PROTOCOL_VERSION ||
+    (value.publicationPhase !== "reserved" && value.publicationPhase !== "published") ||
+    !isHexHash(value.requestDigest) ||
+    ownership === undefined ||
+    !isIsoTimestamp(value.reservedAt) ||
+    (value.publishedAt !== null && !isIsoTimestamp(value.publishedAt)) ||
+    (value.publicationPhase === "reserved" && value.publishedAt !== null) ||
+    (value.publicationPhase === "published" && value.publishedAt === null)
   ) {
     return null;
   }
 
   return {
     version: PRIVATE_ALPHA_RECORD_VERSION,
+    protocolVersion: PRIVATE_ALPHA_IDEMPOTENCY_PROTOCOL_VERSION,
+    publicationPhase: value.publicationPhase,
     idempotencyKeyHash: value.idempotencyKeyHash,
-    canonicalRequestHash: value.canonicalRequestHash,
+    requestDigest: value.requestDigest,
     runId: value.runId,
-    createdAt: value.createdAt,
+    ownership,
+    reservedAt: value.reservedAt,
+    publishedAt: value.publishedAt,
   };
 }
 
@@ -1689,6 +2673,10 @@ function resolvePaths(options: PrivateAlphaStoreOptions): PrivateAlphaResolvedPa
     dataRootAbsolutePath,
     "idempotency"
   );
+  const locksDirectoryAbsolutePath = joinCodexForgeSafeRelativePath(
+    dataRootAbsolutePath,
+    "locks"
+  );
   const killSwitchFileAbsolutePath = joinCodexForgeSafeRelativePath(
     dataRootAbsolutePath,
     "KILL_SWITCH"
@@ -1699,7 +2687,13 @@ function resolvePaths(options: PrivateAlphaStoreOptions): PrivateAlphaResolvedPa
     dataRootAbsolutePath,
     runsDirectoryAbsolutePath,
     idempotencyDirectoryAbsolutePath,
+    locksDirectoryAbsolutePath,
     killSwitchFileAbsolutePath,
+    identityState: {
+      projectRoot: null,
+      dataRoot: null,
+      parents: new Map<string, PrivateAlphaDirectoryIdentity>(),
+    },
   };
 }
 
@@ -1723,34 +2717,412 @@ function buildIdempotencyFileAbsolutePath(
   );
 }
 
+function buildRunLockFileAbsolutePath(
+  paths: PrivateAlphaResolvedPaths,
+  runId: string
+): string {
+  return joinCodexForgeSafeRelativePath(
+    paths.locksDirectoryAbsolutePath,
+    `${runId}.lock.json`
+  );
+}
+
+function privateAlphaNativeSegmentsForAbsolutePath(
+  paths: PrivateAlphaResolvedPaths,
+  absolutePath: string
+): readonly string[] {
+  const relative = path.relative(paths.dataRootAbsolutePath, absolutePath);
+  if (
+    !relative ||
+    path.isAbsolute(relative) ||
+    relative === ".." ||
+    relative.startsWith(`..${path.sep}`)
+  ) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha native path escaped its fixed data root."
+    );
+  }
+  return assertPrivateAlphaNativeSegments(relative.split(path.sep));
+}
+
+function isPrivateAlphaNativeError(
+  error: unknown,
+  ...codes: readonly PrivateAlphaNativeFilesystemError["code"][]
+): error is PrivateAlphaNativeFilesystemError {
+  return (
+    error instanceof PrivateAlphaNativeFilesystemError &&
+    codes.includes(error.code)
+  );
+}
+
+function throwPrivateAlphaNativeStorageError(error: unknown): never {
+  if (isPrivateAlphaNativeError(error, "not_found")) {
+    throw new PrivateAlphaStoreError(404, "Run not found.");
+  }
+  if (isPrivateAlphaNativeError(error, "compare_mismatch", "fence_mismatch", "conflict")) {
+    throw new PrivateAlphaStoreError(
+      409,
+      "Private-alpha persistence changed before atomic publication."
+    );
+  }
+  if (isPrivateAlphaNativeError(error, "unavailable")) {
+    throw new PrivateAlphaStoreError(
+      503,
+      "Secure private-alpha Windows filesystem support is unavailable. Rebuild or restore the audited native component before retrying."
+    );
+  }
+  throw new PrivateAlphaStoreError(
+    500,
+    "Secure private-alpha filesystem mutation failed closed."
+  );
+}
+
+async function withPrivateAlphaNativeStorageLease<T>(
+  paths: PrivateAlphaResolvedPaths,
+  work: () => Promise<T>
+): Promise<T> {
+  try {
+    return await withPrivateAlphaNativeRootLease(paths.dataRootLabel, work);
+  } catch (error) {
+    if (error instanceof PrivateAlphaStoreError) throw error;
+    throwPrivateAlphaNativeStorageError(error);
+  }
+}
+
 async function ensureSafeDirectory(directoryAbsolutePath: string): Promise<void> {
-  const stat = await lstat(directoryAbsolutePath).catch((error: unknown) => {
-    if (isMissingError(error)) {
-      return null;
+  const relative = path.relative(CODEXFORGE_PROJECT_ROOT, directoryAbsolutePath);
+  if (
+    relative === "" ||
+    path.isAbsolute(relative) ||
+    relative === ".." ||
+    relative.startsWith(`..${path.sep}`)
+  ) {
+    throw new PrivateAlphaStoreError(500, "Private-alpha storage path is unsafe.");
+  }
+
+  const rootStat = await lstat(CODEXFORGE_PROJECT_ROOT);
+  if (rootStat.isSymbolicLink() || !rootStat.isDirectory()) {
+    throw new PrivateAlphaStoreError(500, "Private-alpha storage root is unsafe.");
+  }
+  const rootRealPath = await realpath(CODEXFORGE_PROJECT_ROOT);
+  let current = CODEXFORGE_PROJECT_ROOT;
+  for (const segment of relative.split(path.sep)) {
+    if (!segment || segment === "." || segment === "..") {
+      throw new PrivateAlphaStoreError(500, "Private-alpha storage path is unsafe.");
     }
+    current = path.join(current, segment);
+    let stat = await lstat(current).catch((error: unknown) => {
+      if (isMissingError(error)) return null;
+      throw error;
+    });
+    if (!stat) {
+      await mkdir(current).catch((error: unknown) => {
+        if (!isAlreadyExistsError(error)) throw error;
+      });
+      stat = await lstat(current);
+    }
+    if (stat.isSymbolicLink() || !stat.isDirectory()) {
+      throw new PrivateAlphaStoreError(500, "Private-alpha storage path is unsafe.");
+    }
+    const resolved = await realpath(current);
+    const resolvedRelative = path.relative(rootRealPath, resolved);
+    if (
+      path.isAbsolute(resolvedRelative) ||
+      resolvedRelative === ".." ||
+      resolvedRelative.startsWith(`..${path.sep}`)
+    ) {
+      throw new PrivateAlphaStoreError(500, "Private-alpha storage path escaped its root.");
+    }
+  }
+}
 
-    throw error;
-  });
+function sameDirectoryIdentity(
+  left: PrivateAlphaDirectoryIdentity,
+  right: PrivateAlphaDirectoryIdentity
+): boolean {
+  return (
+    left.absolutePath === right.absolutePath &&
+    left.realPath === right.realPath &&
+    left.device === right.device &&
+    left.inode === right.inode
+  );
+}
 
-  if (!stat) {
-    await mkdir(directoryAbsolutePath, { recursive: true });
-  } else if (stat.isSymbolicLink() || !stat.isDirectory()) {
-    throw new PrivateAlphaStoreError(500, "Private-alpha storage path is unsafe.");
+async function readDirectoryIdentity(
+  absolutePath: string
+): Promise<PrivateAlphaDirectoryIdentity> {
+  const stat = await lstat(absolutePath);
+  const realPath = await realpath(absolutePath);
+  if (stat.isSymbolicLink() || !stat.isDirectory()) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha directory trust anchor is unsafe."
+    );
+  }
+  return {
+    absolutePath,
+    realPath,
+    device: stat.dev,
+    inode: stat.ino,
+  };
+}
+
+function assertIdentityUnchanged(
+  expected: PrivateAlphaDirectoryIdentity,
+  actual: PrivateAlphaDirectoryIdentity,
+  message: string
+): void {
+  if (!sameDirectoryIdentity(expected, actual)) {
+    throw new PrivateAlphaStoreError(500, message);
+  }
+}
+
+async function assertAndPinPrivateAlphaTrustAnchors(
+  paths: PrivateAlphaResolvedPaths
+): Promise<void> {
+  const projectIdentity = await readDirectoryIdentity(CODEXFORGE_PROJECT_ROOT);
+  if (paths.identityState.projectRoot) {
+    assertIdentityUnchanged(
+      paths.identityState.projectRoot,
+      projectIdentity,
+      "Private-alpha project root identity changed during this process."
+    );
+  } else {
+    paths.identityState.projectRoot = projectIdentity;
   }
 
-  const verifiedStat = await lstat(directoryAbsolutePath);
-  if (verifiedStat.isSymbolicLink() || !verifiedStat.isDirectory()) {
-    throw new PrivateAlphaStoreError(500, "Private-alpha storage path is unsafe.");
+  const dataRootIdentity = await readDirectoryIdentity(
+    paths.dataRootAbsolutePath
+  );
+  const relative = path.relative(
+    projectIdentity.realPath,
+    dataRootIdentity.realPath
+  );
+  if (
+    path.isAbsolute(relative) ||
+    relative === ".." ||
+    relative.startsWith(`..${path.sep}`)
+  ) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha data root escaped its pinned project root."
+    );
   }
+  if (paths.identityState.dataRoot) {
+    assertIdentityUnchanged(
+      paths.identityState.dataRoot,
+      dataRootIdentity,
+      "Private-alpha data root identity changed during this process."
+    );
+  } else {
+    paths.identityState.dataRoot = dataRootIdentity;
+  }
+}
+
+async function capturePinnedParentIdentity(
+  paths: PrivateAlphaResolvedPaths,
+  fileAbsolutePath: string
+): Promise<PrivateAlphaDirectoryIdentity> {
+  await assertAndPinPrivateAlphaTrustAnchors(paths);
+  const parentAbsolutePath = path.dirname(fileAbsolutePath);
+  await assertAndPinPrivateAlphaTrustAnchors(paths);
+  const identity = await readDirectoryIdentity(parentAbsolutePath);
+  const dataRootIdentity = paths.identityState.dataRoot;
+  if (!dataRootIdentity) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha data root identity is unavailable."
+    );
+  }
+  const relative = path.relative(dataRootIdentity.realPath, identity.realPath);
+  if (
+    path.isAbsolute(relative) ||
+    relative === ".." ||
+    relative.startsWith(`..${path.sep}`)
+  ) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha operation parent escaped its pinned data root."
+    );
+  }
+
+  const pinned = paths.identityState.parents.get(parentAbsolutePath);
+  if (pinned) {
+    assertIdentityUnchanged(
+      pinned,
+      identity,
+      "Private-alpha operation parent identity changed during this process."
+    );
+  } else {
+    paths.identityState.parents.set(parentAbsolutePath, identity);
+  }
+  return identity;
+}
+
+async function revalidatePinnedParentIdentity(
+  paths: PrivateAlphaResolvedPaths,
+  identity: PrivateAlphaDirectoryIdentity
+): Promise<void> {
+  await assertAndPinPrivateAlphaTrustAnchors(paths);
+  assertIdentityUnchanged(
+    identity,
+    await readDirectoryIdentity(identity.absolutePath),
+    "Private-alpha operation parent identity changed at the filesystem boundary."
+  );
 }
 
 async function ensureStoreDirectories(paths: PrivateAlphaResolvedPaths): Promise<void> {
+  assertSecurePrivateAlphaMutationPlatform();
+  if (process.platform === "win32") {
+    try {
+      withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) => {
+        root.ensureDirectory(["runs"]);
+        root.ensureDirectory(["idempotency"]);
+        root.ensureDirectory(["locks"]);
+      });
+      return;
+    } catch (error) {
+      throwPrivateAlphaNativeStorageError(error);
+    }
+  }
   await ensureSafeDirectory(paths.dataRootAbsolutePath);
+  await assertAndPinPrivateAlphaTrustAnchors(paths);
   await ensureSafeDirectory(paths.runsDirectoryAbsolutePath);
   await ensureSafeDirectory(paths.idempotencyDirectoryAbsolutePath);
+  await ensureSafeDirectory(paths.locksDirectoryAbsolutePath);
+  await capturePinnedParentIdentity(
+    paths,
+    path.join(paths.runsDirectoryAbsolutePath, ".identity-boundary")
+  );
+  await capturePinnedParentIdentity(
+    paths,
+    path.join(paths.idempotencyDirectoryAbsolutePath, ".identity-boundary")
+  );
+  await capturePinnedParentIdentity(
+    paths,
+    path.join(paths.locksDirectoryAbsolutePath, ".identity-boundary")
+  );
+  await assertAndPinPrivateAlphaTrustAnchors(paths);
 }
 
-async function assertSafeExistingFile(fileAbsolutePath: string): Promise<void> {
+async function inspectExistingDirectoryForRead(
+  paths: PrivateAlphaResolvedPaths,
+  directoryAbsolutePath: string,
+  nativeSegments: readonly string[]
+): Promise<boolean> {
+  if (process.platform === "win32") {
+    try {
+      const kind = withPrivateAlphaExistingNativeRoot(
+        paths.dataRootLabel,
+        (root) => nativeSegments.length === 0 ? "directory" : root.stat(nativeSegments)
+      );
+      if (kind === null) return false;
+      if (kind !== "directory") {
+        throw new PrivateAlphaStoreError(
+          500,
+          "Private-alpha read boundary contains an unsafe directory node."
+        );
+      }
+      return true;
+    } catch (error) {
+      if (isPrivateAlphaNativeError(error, "not_found")) return false;
+      if (error instanceof PrivateAlphaStoreError) throw error;
+      throwPrivateAlphaNativeStorageError(error);
+    }
+  }
+
+  const projectIdentity = await readDirectoryIdentity(CODEXFORGE_PROJECT_ROOT);
+  const relative = path.relative(CODEXFORGE_PROJECT_ROOT, directoryAbsolutePath);
+  if (
+    !relative ||
+    path.isAbsolute(relative) ||
+    relative === ".." ||
+    relative.startsWith(`..${path.sep}`)
+  ) {
+    throw new PrivateAlphaStoreError(500, "Private-alpha read boundary escaped its root.");
+  }
+
+  let current = CODEXFORGE_PROJECT_ROOT;
+  for (const segment of relative.split(path.sep)) {
+    if (!segment || segment === "." || segment === "..") {
+      throw new PrivateAlphaStoreError(500, "Private-alpha read boundary is unsafe.");
+    }
+    current = path.join(current, segment);
+    const stat = await lstat(current).catch((error: unknown) => {
+      if (isMissingError(error)) return null;
+      throw error;
+    });
+    if (!stat) return false;
+    if (stat.isSymbolicLink() || !stat.isDirectory()) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha read boundary contains an unsafe directory node."
+      );
+    }
+    const resolved = await realpath(current);
+    if (!isAbsolutePathInsideBase(resolved, projectIdentity.realPath, true)) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha read boundary escaped its pinned project root."
+      );
+    }
+  }
+
+  await assertAndPinPrivateAlphaTrustAnchors(paths);
+  const identity = await readDirectoryIdentity(directoryAbsolutePath);
+  const dataRootIdentity = paths.identityState.dataRoot;
+  if (
+    !dataRootIdentity ||
+    !isAbsolutePathInsideBase(identity.realPath, dataRootIdentity.realPath, true)
+  ) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha read directory escaped its pinned data root."
+    );
+  }
+  paths.identityState.parents.set(directoryAbsolutePath, identity);
+  return true;
+}
+
+async function inspectRunDirectoryForRead(
+  paths: PrivateAlphaResolvedPaths
+): Promise<boolean> {
+  return inspectExistingDirectoryForRead(
+    paths,
+    paths.runsDirectoryAbsolutePath,
+    ["runs"]
+  );
+}
+
+async function inspectDataRootForRead(
+  paths: PrivateAlphaResolvedPaths
+): Promise<boolean> {
+  return inspectExistingDirectoryForRead(paths, paths.dataRootAbsolutePath, []);
+}
+
+async function assertSafeExistingFile(
+  paths: PrivateAlphaResolvedPaths,
+  fileAbsolutePath: string
+): Promise<void> {
+  if (process.platform === "win32") {
+    try {
+      const kind = withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) =>
+        root.stat(privateAlphaNativeSegmentsForAbsolutePath(paths, fileAbsolutePath))
+      );
+      if (kind !== "file") {
+        throw new PrivateAlphaStoreError(500, "Persisted private-alpha file is unsafe.");
+      }
+      return;
+    } catch (error) {
+      if (isPrivateAlphaNativeError(error, "not_found")) return;
+      if (error instanceof PrivateAlphaStoreError) throw error;
+      throwPrivateAlphaNativeStorageError(error);
+    }
+  }
+  await assertCurrentRunLockFenceForMutation(paths, fileAbsolutePath);
+  const parentIdentity = await capturePinnedParentIdentity(paths, fileAbsolutePath);
+  await revalidatePinnedParentIdentity(paths, parentIdentity);
   const stat = await lstat(fileAbsolutePath).catch((error: unknown) => {
     if (isMissingError(error)) {
       return null;
@@ -1760,27 +3132,163 @@ async function assertSafeExistingFile(fileAbsolutePath: string): Promise<void> {
   });
 
   if (!stat) {
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
     return;
   }
 
   if (stat.isSymbolicLink() || !stat.isFile()) {
     throw new PrivateAlphaStoreError(500, "Persisted private-alpha file is unsafe.");
   }
+
+  const rootRealPath = await realpath(CODEXFORGE_PROJECT_ROOT);
+  const resolved = await realpath(fileAbsolutePath);
+  const resolvedRelative = path.relative(rootRealPath, resolved);
+  if (
+    path.isAbsolute(resolvedRelative) ||
+    resolvedRelative === ".." ||
+    resolvedRelative.startsWith(`..${path.sep}`)
+  ) {
+    throw new PrivateAlphaStoreError(500, "Persisted private-alpha file escaped its root.");
+  }
+  await revalidatePinnedParentIdentity(paths, parentIdentity);
+}
+
+async function readVerifiedBoundedFile(
+  paths: PrivateAlphaResolvedPaths,
+  fileAbsolutePath: string,
+  maximumBytes: number,
+  expectedIdentity?: Readonly<{ dev: number; ino: number; size: number }>
+): Promise<string | null> {
+  if (process.platform === "win32") {
+    try {
+      const bytes = withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) =>
+        root.readFile(
+          privateAlphaNativeSegmentsForAbsolutePath(paths, fileAbsolutePath),
+          maximumBytes
+        )
+      );
+      if (expectedIdentity && bytes.length !== expectedIdentity.size) {
+        throw new PrivateAlphaStoreError(
+          500,
+          "Persisted private-alpha file failed its expected byte boundary."
+        );
+      }
+      if (!isUtf8(bytes)) {
+        throw new PrivateAlphaStoreError(
+          500,
+          "Persisted private-alpha file is not valid UTF-8."
+        );
+      }
+      return bytes.toString("utf8");
+    } catch (error) {
+      if (isPrivateAlphaNativeError(error, "not_found")) return null;
+      if (error instanceof PrivateAlphaStoreError) throw error;
+      throwPrivateAlphaNativeStorageError(error);
+    }
+  }
+  const parentIdentity = await capturePinnedParentIdentity(paths, fileAbsolutePath);
+  await revalidatePinnedParentIdentity(paths, parentIdentity);
+  let handle: FileHandle | null = null;
+  try {
+    try {
+      handle = await open(fileAbsolutePath, "r");
+    } catch (error) {
+      if (isMissingError(error)) return null;
+      throw error;
+    }
+    const before = await handle.stat();
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    const pathBefore = await lstat(fileAbsolutePath).catch((error: unknown) => {
+      if (isMissingError(error)) return null;
+      throw error;
+    });
+    const resolvedBefore = pathBefore ? await realpath(fileAbsolutePath) : null;
+    const dataRootIdentity = paths.identityState.dataRoot;
+    if (
+      !pathBefore ||
+      !before.isFile() ||
+      !pathBefore.isFile() ||
+      pathBefore.isSymbolicLink() ||
+      before.dev !== pathBefore.dev ||
+      before.ino !== pathBefore.ino ||
+      before.size <= 0 ||
+      before.size > maximumBytes ||
+      (expectedIdentity !== undefined &&
+        (before.dev !== expectedIdentity.dev ||
+          before.ino !== expectedIdentity.ino ||
+          before.size !== expectedIdentity.size)) ||
+      !dataRootIdentity ||
+      resolvedBefore === null ||
+      !isAbsolutePathInsideBase(resolvedBefore, dataRootIdentity.realPath, false)
+    ) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Persisted private-alpha file failed its verified-handle boundary."
+      );
+    }
+    const buffer = Buffer.alloc(maximumBytes + 1);
+    let bytesReadTotal = 0;
+    while (bytesReadTotal < buffer.length) {
+      const { bytesRead } = await handle.read(
+        buffer,
+        bytesReadTotal,
+        buffer.length - bytesReadTotal,
+        bytesReadTotal
+      );
+      if (bytesRead === 0) break;
+      bytesReadTotal += bytesRead;
+    }
+    const after = await handle.stat();
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    const pathAfter = await lstat(fileAbsolutePath).catch((error: unknown) => {
+      if (isMissingError(error)) return null;
+      throw error;
+    });
+    const resolvedAfter = pathAfter ? await realpath(fileAbsolutePath) : null;
+    if (
+      !pathAfter ||
+      !after.isFile() ||
+      !pathAfter.isFile() ||
+      pathAfter.isSymbolicLink() ||
+      after.dev !== before.dev ||
+      after.ino !== before.ino ||
+      after.size !== before.size ||
+      pathAfter.dev !== before.dev ||
+      pathAfter.ino !== before.ino ||
+      resolvedAfter !== resolvedBefore ||
+      after.size > maximumBytes ||
+      bytesReadTotal !== after.size ||
+      bytesReadTotal > maximumBytes
+    ) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Persisted private-alpha file changed during its verified-handle read."
+      );
+    }
+    const verifiedBytes = buffer.subarray(0, bytesReadTotal);
+    if (!isUtf8(verifiedBytes)) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Persisted private-alpha file is not valid UTF-8."
+      );
+    }
+    return verifiedBytes.toString("utf8");
+  } finally {
+    await handle?.close().catch(() => undefined);
+  }
 }
 
 async function readRunRecordFromFile(
+  paths: PrivateAlphaResolvedPaths,
   runAbsolutePath: string,
   runId: string
 ): Promise<PrivateAlphaRunRecord> {
-  await assertSafeExistingFile(runAbsolutePath);
-
-  const raw = await readFile(runAbsolutePath, "utf8").catch((error: unknown) => {
-    if (isMissingError(error)) {
-      throw new PrivateAlphaStoreError(404, "Run not found.");
-    }
-
-    throw error;
-  });
+  const raw = await readVerifiedBoundedFile(
+    paths,
+    runAbsolutePath,
+    PRIVATE_ALPHA_RUN_RECORD_MAX_BYTES
+  );
+  if (raw === null) throw new PrivateAlphaStoreError(404, "Run not found.");
 
   let parsed: unknown;
   try {
@@ -1794,26 +3302,24 @@ async function readRunRecordFromFile(
     throw new PrivateAlphaStoreError(500, "Persisted run record is malformed.");
   }
 
+  PRIVATE_ALPHA_VERIFIED_PERSISTED_BYTES.set(
+    validated,
+    Buffer.from(raw, "utf8")
+  );
   return validated;
 }
 
 async function readIdempotencyRecordFromFile(
+  paths: PrivateAlphaResolvedPaths,
   idempotencyAbsolutePath: string,
   idempotencyKeyHash: string
 ): Promise<PrivateAlphaIdempotencyRecord | null> {
-  await assertSafeExistingFile(idempotencyAbsolutePath);
-
-  const raw = await readFile(idempotencyAbsolutePath, "utf8").catch((error: unknown) => {
-    if (isMissingError(error)) {
-      return null;
-    }
-
-    throw error;
-  });
-
-  if (raw === null) {
-    return null;
-  }
+  const raw = await readVerifiedBoundedFile(
+    paths,
+    idempotencyAbsolutePath,
+    PRIVATE_ALPHA_IDEMPOTENCY_RECORD_MAX_BYTES
+  );
+  if (raw === null) return null;
 
   let parsed: unknown;
   try {
@@ -1827,39 +3333,832 @@ async function readIdempotencyRecordFromFile(
     throw new PrivateAlphaStoreError(500, "Persisted idempotency record is malformed.");
   }
 
+  PRIVATE_ALPHA_VERIFIED_PERSISTED_BYTES.set(
+    validated,
+    Buffer.from(raw, "utf8")
+  );
   return validated;
 }
 
+function idempotencyRequestDigest(record: PrivateAlphaIdempotencyRecord): string {
+  return "requestDigest" in record
+    ? record.requestDigest
+    : record.canonicalRequestHash;
+}
+
+async function readRunRecordIfPresent(
+  paths: PrivateAlphaResolvedPaths,
+  runId: string
+): Promise<PrivateAlphaRunRecord | null> {
+  try {
+    return await readRunRecordFromFile(
+      paths,
+      buildRunFileAbsolutePath(paths, runId),
+      runId
+    );
+  } catch (error) {
+    if (error instanceof PrivateAlphaStoreError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+function assertRunMatchesIdempotencyRecord(
+  run: PrivateAlphaRunRecord,
+  record: PrivateAlphaIdempotencyRecord
+): void {
+  if (
+    run.runId !== record.runId ||
+    run.idempotencyKeyHash !== record.idempotencyKeyHash ||
+    buildPrivateAlphaCanonicalRequestHash(run.request) !==
+      idempotencyRequestDigest(record)
+  ) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Persisted private-alpha run contradicts its idempotency reservation."
+    );
+  }
+
+  if (
+    "protocolVersion" in record &&
+    (!sameRunOwnership(run.ownership, record.ownership) ||
+      run.createdAt !== record.reservedAt ||
+      (record.publicationPhase === "published" &&
+        record.publishedAt !== run.createdAt))
+  ) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Persisted private-alpha run contradicts its publication reservation."
+    );
+  }
+}
+
+function buildPublishedIdempotencyRecord(
+  record: PrivateAlphaProtocolIdempotencyRecord,
+  run: PrivateAlphaRunRecord
+): PrivateAlphaProtocolIdempotencyRecord {
+  return {
+    ...record,
+    publicationPhase: "published",
+    publishedAt: run.createdAt,
+  };
+}
+
+async function finalizeIdempotencyPublication(
+  paths: PrivateAlphaResolvedPaths,
+  idempotencyAbsolutePath: string,
+  initialRecord: PrivateAlphaProtocolIdempotencyRecord,
+  run: PrivateAlphaRunRecord
+): Promise<PrivateAlphaProtocolIdempotencyRecord> {
+  let expectedRecord = initialRecord;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    assertRunMatchesIdempotencyRecord(run, expectedRecord);
+    if (expectedRecord.publicationPhase === "published") return expectedRecord;
+    const desiredRecord = buildPublishedIdempotencyRecord(expectedRecord, run);
+    try {
+      await writeJsonFileAtomically(
+        paths,
+        idempotencyAbsolutePath,
+        desiredRecord,
+        expectedRecord
+      );
+    } catch (error) {
+      if (!(error instanceof PrivateAlphaStoreError) || error.status !== 409) {
+        throw error;
+      }
+    }
+
+    const verifiedRecord = await readIdempotencyRecordFromFile(
+      paths,
+      idempotencyAbsolutePath,
+      expectedRecord.idempotencyKeyHash
+    );
+    if (!verifiedRecord || !("protocolVersion" in verifiedRecord)) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha publication finalization could not be reconciled."
+      );
+    }
+    assertRunMatchesIdempotencyRecord(run, verifiedRecord);
+    if (verifiedRecord.publicationPhase === "published") return verifiedRecord;
+    expectedRecord = verifiedRecord;
+  }
+
+  throw new PrivateAlphaStoreError(
+    409,
+    "Private-alpha publication finalization remained concurrently owned."
+  );
+}
+
+async function readRunForExactControl(
+  paths: PrivateAlphaResolvedPaths,
+  runId: string,
+  expectedOwnership: PrivateAlphaCreatorRunOwnership | undefined,
+  requirePublished = true
+): Promise<PrivateAlphaRunRecord> {
+  const run = await readRunRecordFromFile(
+    paths,
+    buildRunFileAbsolutePath(paths, runId),
+    runId
+  );
+  const record = await readIdempotencyRecordFromFile(
+    paths,
+    buildIdempotencyFileAbsolutePath(paths, run.idempotencyKeyHash),
+    run.idempotencyKeyHash
+  );
+  if (!record) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Persisted private-alpha run is missing its idempotency ownership record."
+    );
+  }
+  assertRunMatchesIdempotencyRecord(run, record);
+  if (
+    requirePublished &&
+    "protocolVersion" in record &&
+    record.publicationPhase !== "published"
+  ) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha run publication is not finalized for mutation."
+    );
+  }
+  if (!("protocolVersion" in record) && run.ownership !== null) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Historical private-alpha idempotency state contradicts protocol ownership."
+    );
+  }
+  assertRunControl(run, expectedOwnership);
+  return run;
+}
+
+async function findRunsByIdempotencyKeyHash(
+  paths: PrivateAlphaResolvedPaths,
+  idempotencyKeyHash: string
+): Promise<readonly PrivateAlphaRunRecord[]> {
+  if (process.platform === "win32") {
+    let names: readonly string[];
+    try {
+      names = withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) =>
+        root.listDirectory(["runs"])
+      );
+    } catch (error) {
+      throwPrivateAlphaNativeStorageError(error);
+    }
+    const runNames = names.filter((name) => name.endsWith(".json"));
+    if (runNames.length > PRIVATE_ALPHA_MAX_STORED_RUN_FILES) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha run inventory exceeds its bounded recovery envelope."
+      );
+    }
+    const matches: PrivateAlphaRunRecord[] = [];
+    for (const name of runNames) {
+      const candidateRunId = name.slice(0, -".json".length);
+      const validation = validatePrivateAlphaRunId(candidateRunId);
+      if (!validation.ok) {
+        throw new PrivateAlphaStoreError(
+          500,
+          "Private-alpha run storage contains a malformed recovery entry."
+        );
+      }
+      try {
+        const kind = withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) =>
+          root.stat(["runs", name])
+        );
+        if (kind !== "file") {
+          throw new PrivateAlphaStoreError(
+            500,
+            "Private-alpha run storage contains an unsafe recovery entry."
+          );
+        }
+      } catch (error) {
+        if (error instanceof PrivateAlphaStoreError) throw error;
+        throwPrivateAlphaNativeStorageError(error);
+      }
+      const candidate = await readRunRecordFromFile(
+        paths,
+        buildRunFileAbsolutePath(paths, validation.value),
+        validation.value
+      );
+      if (candidate.idempotencyKeyHash === idempotencyKeyHash) matches.push(candidate);
+    }
+    return matches;
+  }
+  const directoryIdentity = await capturePinnedParentIdentity(
+    paths,
+    path.join(paths.runsDirectoryAbsolutePath, ".idempotency-recovery-boundary")
+  );
+  await revalidatePinnedParentIdentity(paths, directoryIdentity);
+  const entries = await readBoundedDirectoryEntries(
+    paths.runsDirectoryAbsolutePath,
+    "Private-alpha run inventory exceeds its bounded recovery envelope."
+  );
+  await revalidatePinnedParentIdentity(paths, directoryIdentity);
+  const runEntries = entries.filter((entry) => entry.name.endsWith(".json"));
+  if (runEntries.length > PRIVATE_ALPHA_MAX_STORED_RUN_FILES) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha run inventory exceeds its bounded recovery envelope."
+    );
+  }
+  const matches: PrivateAlphaRunRecord[] = [];
+  for (const entry of runEntries) {
+    if (entry.isSymbolicLink() || !entry.isFile()) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha run storage contains an unsafe recovery entry."
+      );
+    }
+    const candidateRunId = entry.name.slice(0, -".json".length);
+    const validation = validatePrivateAlphaRunId(candidateRunId);
+    if (!validation.ok) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha run storage contains a malformed recovery entry."
+      );
+    }
+    const candidate = await readRunRecordFromFile(
+      paths,
+      buildRunFileAbsolutePath(paths, validation.value),
+      validation.value
+    );
+    if (candidate.idempotencyKeyHash === idempotencyKeyHash) matches.push(candidate);
+  }
+  await revalidatePinnedParentIdentity(paths, directoryIdentity);
+  return matches;
+}
+
+function serializePrivateAlphaPersistedJson(value: unknown): Buffer {
+  const persistedValue =
+    isRecord(value) &&
+    value.ownership === null &&
+    typeof value.runId === "string" &&
+    Array.isArray(value.auditEvents)
+      ? Object.fromEntries(
+          Object.entries(value).filter(([key]) => key !== "ownership")
+        )
+      : value;
+  return Buffer.from(`${JSON.stringify(persistedValue, null, 2)}\n`, "utf8");
+}
+
+function exactPrivateAlphaPersistedBytes(value: unknown): Buffer {
+  if (typeof value === "object" && value !== null) {
+    const verified = PRIVATE_ALPHA_VERIFIED_PERSISTED_BYTES.get(value);
+    if (verified) return Buffer.from(verified);
+  }
+  return serializePrivateAlphaPersistedJson(value);
+}
+
+function resolveNativeRunMutationFence(
+  paths: PrivateAlphaResolvedPaths,
+  fileAbsolutePath: string
+): Readonly<{ segments: readonly string[]; bytes: Buffer }> | null {
+  const context = RUN_LOCK_FENCE_CONTEXT.getStore();
+  if (!context) return null;
+  if (context.paths.dataRootAbsolutePath !== paths.dataRootAbsolutePath) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha mutation fence crossed a persistence boundary."
+    );
+  }
+  if (fileAbsolutePath !== buildRunFileAbsolutePath(paths, context.runId)) {
+    return null;
+  }
+  return {
+    segments: privateAlphaNativeSegmentsForAbsolutePath(
+      paths,
+      buildRunLockFileAbsolutePath(paths, context.runId)
+    ),
+    bytes: exactPrivateAlphaPersistedBytes(context.owner),
+  };
+}
+
 async function writeJsonFileAtomically(
+  paths: PrivateAlphaResolvedPaths,
   fileAbsolutePath: string,
-  value: unknown
+  value: unknown,
+  expectedValue?: unknown
 ): Promise<void> {
-  await ensureSafeDirectory(path.dirname(fileAbsolutePath));
-  await assertSafeExistingFile(fileAbsolutePath);
+  const contentBuffer = serializePrivateAlphaPersistedJson(value);
+  const content = contentBuffer.toString("utf8");
+  const contentBytes = contentBuffer.length;
+  if (contentBytes <= 0 || contentBytes > PRIVATE_ALPHA_RUN_RECORD_MAX_BYTES) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha atomic write exceeds its bounded storage envelope."
+    );
+  }
+  if (process.platform === "win32") {
+    if (expectedValue === undefined) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha atomic replacement is missing its exact prior record."
+      );
+    }
+    const mutationFence = resolveNativeRunMutationFence(paths, fileAbsolutePath);
+    try {
+      withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) => {
+        root.writeAtomicReplace(
+          privateAlphaNativeSegmentsForAbsolutePath(paths, fileAbsolutePath),
+          `.${path.basename(fileAbsolutePath)}.${randomBytes(12).toString("hex")}.tmp`,
+          contentBuffer,
+          exactPrivateAlphaPersistedBytes(expectedValue),
+          mutationFence?.segments ?? null,
+          mutationFence?.bytes ?? null
+        );
+      });
+      if (typeof value === "object" && value !== null) {
+        PRIVATE_ALPHA_VERIFIED_PERSISTED_BYTES.set(value, Buffer.from(contentBuffer));
+      }
+      return;
+    } catch (error) {
+      throwPrivateAlphaNativeStorageError(error);
+    }
+  }
+  const parentIdentity = await capturePinnedParentIdentity(paths, fileAbsolutePath);
+  await assertSafeExistingFile(paths, fileAbsolutePath);
 
   const tempAbsolutePath = path.join(
     path.dirname(fileAbsolutePath),
     `.${path.basename(fileAbsolutePath)}.${randomBytes(6).toString("hex")}.tmp`
   );
-  const content = `${JSON.stringify(value, null, 2)}\n`;
-
-  await writeFile(tempAbsolutePath, content, { encoding: "utf8", flag: "wx" });
+  await revalidatePinnedParentIdentity(paths, parentIdentity);
+  const handle = await open(tempAbsolutePath, "wx", 0o600);
+  let stagedIdentity: Readonly<{ dev: number; ino: number; size: number }>;
+  try {
+    await handle.writeFile(content, { encoding: "utf8" });
+    await handle.sync();
+    const stagedStat = await handle.stat();
+    stagedIdentity = {
+      dev: stagedStat.dev,
+      ino: stagedStat.ino,
+      size: stagedStat.size,
+    };
+  } finally {
+    await handle.close().catch(() => undefined);
+  }
 
   try {
+    await assertCurrentRunLockFenceForMutation(paths, fileAbsolutePath);
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
     await rename(tempAbsolutePath, fileAbsolutePath);
+    await assertCurrentRunLockFenceForMutation(paths, fileAbsolutePath);
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    const published = await readVerifiedBoundedFile(
+      paths,
+      fileAbsolutePath,
+      contentBytes,
+      stagedIdentity
+    );
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    if (published === null || published !== content) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha atomic write verification failed."
+      );
+    }
   } catch (error) {
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
     await unlink(tempAbsolutePath).catch(() => undefined);
     throw error;
   }
 }
 
-async function writeExclusiveJsonFile(
+async function publishJsonFileAtomicallyExclusive(
+  paths: PrivateAlphaResolvedPaths,
   fileAbsolutePath: string,
   value: unknown
+): Promise<boolean> {
+  const contentBuffer = serializePrivateAlphaPersistedJson(value);
+  const content = contentBuffer.toString("utf8");
+  const contentBytes = contentBuffer.length;
+  if (contentBytes <= 0 || contentBytes > PRIVATE_ALPHA_RUN_RECORD_MAX_BYTES) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha atomic publication exceeds its bounded storage envelope."
+    );
+  }
+  if (process.platform === "win32") {
+    const mutationFence = resolveNativeRunMutationFence(paths, fileAbsolutePath);
+    try {
+      withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) => {
+        root.writeAtomicExclusive(
+          privateAlphaNativeSegmentsForAbsolutePath(paths, fileAbsolutePath),
+          `.${path.basename(fileAbsolutePath)}.${randomBytes(12).toString("hex")}.tmp`,
+          contentBuffer,
+          mutationFence?.segments ?? null,
+          mutationFence?.bytes ?? null
+        );
+      });
+      if (typeof value === "object" && value !== null) {
+        PRIVATE_ALPHA_VERIFIED_PERSISTED_BYTES.set(value, Buffer.from(contentBuffer));
+      }
+      return true;
+    } catch (error) {
+      if (isPrivateAlphaNativeError(error, "already_exists", "conflict")) return false;
+      throwPrivateAlphaNativeStorageError(error);
+    }
+  }
+  const parentIdentity = await capturePinnedParentIdentity(paths, fileAbsolutePath);
+  const existing = await lstat(fileAbsolutePath).catch((error: unknown) => {
+    if (isMissingError(error)) return null;
+    throw error;
+  });
+  if (existing) {
+    await assertSafeExistingFile(paths, fileAbsolutePath);
+    return false;
+  }
+
+  const tempAbsolutePath = path.join(
+    path.dirname(fileAbsolutePath),
+    `.${path.basename(fileAbsolutePath)}.${randomBytes(12).toString("hex")}.tmp`
+  );
+  let handle;
+  let stagedIdentity: Readonly<{ dev: number; ino: number; size: number }> | null = null;
+  try {
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    handle = await open(tempAbsolutePath, "wx", 0o600);
+    await handle.writeFile(content, { encoding: "utf8" });
+    await handle.sync();
+    const stagedStat = await handle.stat();
+    stagedIdentity = {
+      dev: stagedStat.dev,
+      ino: stagedStat.ino,
+      size: stagedStat.size,
+    };
+    await handle.close();
+    handle = undefined;
+
+    try {
+      await revalidatePinnedParentIdentity(paths, parentIdentity);
+      await link(tempAbsolutePath, fileAbsolutePath);
+    } catch (error) {
+      if (isAlreadyExistsError(error)) return false;
+      throw error;
+    }
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    if (!stagedIdentity) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha atomic publication staging identity is missing."
+      );
+    }
+    const published = await readVerifiedBoundedFile(
+      paths,
+      fileAbsolutePath,
+      contentBytes,
+      stagedIdentity
+    );
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    if (published === null || published !== content) {
+      throw new PrivateAlphaStoreError(500, "Private-alpha atomic publication verification failed.");
+    }
+    return true;
+  } finally {
+    await handle?.close().catch(() => undefined);
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    const temporaryStat = await lstat(tempAbsolutePath).catch((error: unknown) => {
+      if (isMissingError(error)) return null;
+      throw error;
+    });
+    if (temporaryStat?.isFile() && !temporaryStat.isSymbolicLink()) {
+      await revalidatePinnedParentIdentity(paths, parentIdentity);
+      await unlink(tempAbsolutePath).catch(() => undefined);
+    }
+  }
+}
+
+function sameRunLockOwner(
+  left: PrivateAlphaRunLockOwner,
+  right: PrivateAlphaRunLockOwner
+): boolean {
+  return (
+    left.nonce === right.nonce &&
+    left.processSessionNonce === right.processSessionNonce &&
+    left.processId === right.processId &&
+    left.processIdentity === right.processIdentity &&
+    left.createdAt === right.createdAt
+  );
+}
+
+function decodeRunLockOwner(value: unknown): PrivateAlphaRunLockOwner {
+  if (
+    !isRecord(value) ||
+    !hasExactKeys(value, [
+      "createdAt",
+      "nonce",
+      "processId",
+      "processIdentity",
+      "processSessionNonce",
+    ]) ||
+    typeof value.nonce !== "string" ||
+    !/^[a-f0-9]{32}$/.test(value.nonce) ||
+    typeof value.processSessionNonce !== "string" ||
+    !/^[a-f0-9]{32}$/.test(value.processSessionNonce) ||
+    typeof value.processId !== "number" ||
+    !isCanonicalRunLockProcessId(value.processId) ||
+    typeof value.processIdentity !== "string" ||
+    !isCanonicalRunLockProcessIdentity(value.processIdentity) ||
+    typeof value.createdAt !== "string" ||
+    !isIsoTimestamp(value.createdAt) ||
+    new Date(value.createdAt).toISOString() !== value.createdAt
+  ) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Persisted private-alpha mutation lock is malformed."
+    );
+  }
+
+  return {
+    nonce: value.nonce,
+    processSessionNonce: value.processSessionNonce,
+    processId: value.processId,
+    processIdentity: value.processIdentity,
+    createdAt: value.createdAt,
+  };
+}
+
+async function readRunLockOwner(
+  paths: PrivateAlphaResolvedPaths,
+  lockAbsolutePath: string
+): Promise<PrivateAlphaRunLockOwner | null> {
+  const raw = await readVerifiedBoundedFile(
+    paths,
+    lockAbsolutePath,
+    PRIVATE_ALPHA_RUN_LOCK_MAX_BYTES
+  );
+  if (raw === null) return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Persisted private-alpha mutation lock is malformed."
+    );
+  }
+  const owner = decodeRunLockOwner(parsed);
+  PRIVATE_ALPHA_VERIFIED_PERSISTED_BYTES.set(owner, Buffer.from(raw, "utf8"));
+  return owner;
+}
+
+async function assertRunLockFence(
+  paths: PrivateAlphaResolvedPaths,
+  runId: string,
+  expectedOwner: PrivateAlphaRunLockOwner
 ): Promise<void> {
-  await ensureSafeDirectory(path.dirname(fileAbsolutePath));
-  const content = `${JSON.stringify(value, null, 2)}\n`;
-  await writeFile(fileAbsolutePath, content, { encoding: "utf8", flag: "wx" });
+  const currentOwner = await readRunLockOwner(
+    paths,
+    buildRunLockFileAbsolutePath(paths, runId)
+  );
+  if (!currentOwner || !sameRunLockOwner(currentOwner, expectedOwner)) {
+    throw new PrivateAlphaStoreError(
+      409,
+      "Private-alpha mutation ownership changed before publication."
+    );
+  }
+}
+
+async function assertCurrentRunLockFenceForMutation(
+  paths: PrivateAlphaResolvedPaths,
+  fileAbsolutePath: string
+): Promise<void> {
+  const context = RUN_LOCK_FENCE_CONTEXT.getStore();
+  if (!context) return;
+  if (context.paths.dataRootAbsolutePath !== paths.dataRootAbsolutePath) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha mutation fence crossed a persistence boundary."
+    );
+  }
+  if (fileAbsolutePath !== buildRunFileAbsolutePath(paths, context.runId)) return;
+  await assertRunLockFence(paths, context.runId, context.owner);
+}
+
+function runLockRecoveryKey(
+  paths: PrivateAlphaResolvedPaths,
+  runId: string
+): string {
+  return `${paths.dataRootLabel}:${runId}`;
+}
+
+async function acquireCrossProcessRunLock(
+  paths: PrivateAlphaResolvedPaths,
+  runId: string
+): Promise<PrivateAlphaRunLockOwner> {
+  const lockAbsolutePath = buildRunLockFileAbsolutePath(paths, runId);
+  const parentIdentity = process.platform === "win32"
+    ? null
+    : await capturePinnedParentIdentity(paths, lockAbsolutePath);
+  const recoveryKey = runLockRecoveryKey(paths, runId);
+  const processIdentity = await readExactProcessIdentity(process.pid);
+  if (!processIdentity) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "The current private-alpha mutation owner is not live."
+    );
+  }
+  const owner: PrivateAlphaRunLockOwner = {
+    nonce: randomBytes(16).toString("hex"),
+    processSessionNonce: PRIVATE_ALPHA_PROCESS_SESSION_NONCE,
+    processId: process.pid,
+    processIdentity,
+    createdAt: nowIso(),
+  };
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (
+      await publishJsonFileAtomicallyExclusive(paths, lockAbsolutePath, owner)
+    ) {
+      RECOVERABLE_RUN_LOCK_NONCES.delete(recoveryKey);
+      return owner;
+    }
+
+    const existingOwner = await readRunLockOwner(paths, lockAbsolutePath);
+    if (!existingOwner) continue;
+    if (attempt > 0) {
+      throw new PrivateAlphaStoreError(
+        409,
+        "This private-alpha run is already being mutated."
+      );
+    }
+
+    const locallyRecoverable =
+      RECOVERABLE_RUN_LOCK_NONCES.get(recoveryKey) === existingOwner.nonce &&
+      existingOwner.processSessionNonce === PRIVATE_ALPHA_PROCESS_SESSION_NONCE &&
+      existingOwner.processId === process.pid &&
+      existingOwner.processIdentity === processIdentity;
+    const observedIdentity = await readExactProcessIdentity(existingOwner.processId);
+    const liveOwner =
+      observedIdentity !== null && observedIdentity === existingOwner.processIdentity;
+    if (!locallyRecoverable && liveOwner) {
+      throw new PrivateAlphaStoreError(
+        409,
+        "This private-alpha run is already being mutated."
+      );
+    }
+
+    if (process.platform === "win32") {
+      try {
+        withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) => {
+          root.compareDeleteExact(
+            privateAlphaNativeSegmentsForAbsolutePath(paths, lockAbsolutePath),
+            exactPrivateAlphaPersistedBytes(existingOwner)
+          );
+        });
+        RECOVERABLE_RUN_LOCK_NONCES.delete(recoveryKey);
+        continue;
+      } catch (error) {
+        if (isPrivateAlphaNativeError(error, "not_found")) continue;
+        if (
+          isPrivateAlphaNativeError(
+            error,
+            "compare_mismatch",
+            "fence_mismatch",
+            "conflict"
+          )
+        ) {
+          throw new PrivateAlphaStoreError(
+            409,
+            "This private-alpha run is already being mutated."
+          );
+        }
+        throwPrivateAlphaNativeStorageError(error);
+      }
+    }
+
+    if (!parentIdentity) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha mutation lock parent identity is unavailable."
+      );
+    }
+
+    const displacedAbsolutePath = path.join(
+      paths.locksDirectoryAbsolutePath,
+      `${runId}.stale-${PRIVATE_ALPHA_PROCESS_SESSION_NONCE}-${randomBytes(8).toString("hex")}.json`
+    );
+    try {
+      await revalidatePinnedParentIdentity(paths, parentIdentity);
+      await rename(lockAbsolutePath, displacedAbsolutePath);
+    } catch (error) {
+      if (isMissingError(error)) continue;
+      throw error;
+    }
+    const displacedOwner = await readRunLockOwner(paths, displacedAbsolutePath);
+    if (!displacedOwner || !sameRunLockOwner(displacedOwner, existingOwner)) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha stale mutation lock ownership could not be verified."
+      );
+    }
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    await unlink(displacedAbsolutePath);
+    RECOVERABLE_RUN_LOCK_NONCES.delete(recoveryKey);
+  }
+
+  throw new PrivateAlphaStoreError(
+    409,
+    "This private-alpha run is already being mutated."
+  );
+}
+
+async function releaseCrossProcessRunLock(
+  paths: PrivateAlphaResolvedPaths,
+  runId: string,
+  owner: PrivateAlphaRunLockOwner
+): Promise<void> {
+  const lockAbsolutePath = buildRunLockFileAbsolutePath(paths, runId);
+  const recoveryKey = runLockRecoveryKey(paths, runId);
+  if (process.platform === "win32") {
+    try {
+      withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) => {
+        root.compareDeleteExact(
+          privateAlphaNativeSegmentsForAbsolutePath(paths, lockAbsolutePath),
+          exactPrivateAlphaPersistedBytes(owner)
+        );
+      });
+      RECOVERABLE_RUN_LOCK_NONCES.delete(recoveryKey);
+      return;
+    } catch (error) {
+      RECOVERABLE_RUN_LOCK_NONCES.set(recoveryKey, owner.nonce);
+      if (
+        isPrivateAlphaNativeError(
+          error,
+          "not_found",
+          "compare_mismatch",
+          "fence_mismatch",
+          "conflict"
+        )
+      ) {
+        throw new PrivateAlphaStoreError(
+          500,
+          "Private-alpha mutation lock ownership changed unexpectedly."
+        );
+      }
+      throwPrivateAlphaNativeStorageError(error);
+    }
+  }
+  const parentIdentity = await capturePinnedParentIdentity(
+    paths,
+    lockAbsolutePath
+  );
+  const releasedAbsolutePath = path.join(
+    paths.locksDirectoryAbsolutePath,
+    `${runId}.released-${owner.nonce}.json`
+  );
+  let canonicalMoved = false;
+  try {
+    const currentOwner = await readRunLockOwner(paths, lockAbsolutePath);
+    if (!currentOwner || !sameRunLockOwner(currentOwner, owner)) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha mutation lock ownership changed unexpectedly."
+      );
+    }
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    await rename(lockAbsolutePath, releasedAbsolutePath);
+    canonicalMoved = true;
+    const releasedOwner = await readRunLockOwner(paths, releasedAbsolutePath);
+    if (!releasedOwner || !sameRunLockOwner(releasedOwner, owner)) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha released mutation lock ownership could not be verified."
+      );
+    }
+    await revalidatePinnedParentIdentity(paths, parentIdentity);
+    await unlink(releasedAbsolutePath);
+    RECOVERABLE_RUN_LOCK_NONCES.delete(recoveryKey);
+  } catch (error) {
+    if (!canonicalMoved) {
+      RECOVERABLE_RUN_LOCK_NONCES.set(recoveryKey, owner.nonce);
+    } else {
+      RECOVERABLE_RUN_LOCK_NONCES.delete(recoveryKey);
+    }
+    throw error;
+  }
+}
+
+async function withCrossProcessRunLock<T>(
+  paths: PrivateAlphaResolvedPaths,
+  runId: string,
+  work: () => Promise<T>
+): Promise<T> {
+  const owner = await acquireCrossProcessRunLock(paths, runId);
+  try {
+    return await RUN_LOCK_FENCE_CONTEXT.run(
+      { paths, runId, owner },
+      async (): Promise<T> => {
+        await assertRunLockFence(paths, runId, owner);
+        const result = await work();
+        await assertRunLockFence(paths, runId, owner);
+        return result;
+      }
+    );
+  } finally {
+    await releaseCrossProcessRunLock(paths, runId, owner);
+  }
 }
 
 async function withQueue<T>(
@@ -1874,7 +4173,8 @@ async function withQueue<T>(
     release = resolve;
   });
 
-  queueMap.set(key, previous.then(() => current));
+  const queued = previous.then(() => current);
+  queueMap.set(key, queued);
 
   await previous;
 
@@ -1882,10 +4182,47 @@ async function withQueue<T>(
     return await work();
   } finally {
     release?.();
-    if (queueMap.get(key) === current) {
+    if (queueMap.get(key) === queued) {
       queueMap.delete(key);
     }
   }
+}
+
+async function withRunMutationLock<T>(
+  paths: PrivateAlphaResolvedPaths,
+  runId: string,
+  work: () => Promise<T>
+): Promise<T> {
+  assertSecurePrivateAlphaMutationPlatform();
+  return withQueue(RUN_WRITE_QUEUES, runLockRecoveryKey(paths, runId), () =>
+    withPrivateAlphaNativeStorageLease(paths, () =>
+      withCrossProcessRunLock(paths, runId, work)
+    )
+  );
+}
+
+async function withCreatorBindingMutationLock<T>(
+  paths: PrivateAlphaResolvedPaths,
+  projectId: string,
+  purpose: "generation" | "repair",
+  work: () => Promise<T>
+): Promise<T> {
+  const bindingKey = `${paths.dataRootLabel}:${projectId}:${purpose}`;
+  const activeBindingKey = CREATOR_BINDING_LOCK_CONTEXT.getStore();
+  if (activeBindingKey !== undefined) {
+    if (activeBindingKey !== bindingKey) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Creator binding mutation crossed an active project or purpose boundary."
+      );
+    }
+    return work();
+  }
+  return withRunMutationLock(
+    paths,
+    buildCreatorBindingMutationLockRunId(projectId, purpose),
+    () => CREATOR_BINDING_LOCK_CONTEXT.run(bindingKey, work)
+  );
 }
 
 function buildAuditEvent(input: {
@@ -1949,7 +4286,7 @@ function buildCreatedRunAuditEvents(
 }
 
 function buildExecutionFailureResponse(
-  errorCode: PrivateAlphaProviderErrorCode,
+  errorCode: PrivateAlphaPersistedExecutionErrorCode,
   safeErrorMessage: string
 ): PrivateAlphaFailureResponse {
   if (errorCode === "kill_switch_blocked") {
@@ -1969,6 +4306,7 @@ function buildExecutionFailureResponse(
   }
 
   if (
+    errorCode === "execution_interrupted" ||
     errorCode === "ollama_unavailable" ||
     errorCode === "ollama_model_missing" ||
     errorCode === "ollama_empty_response" ||
@@ -1994,6 +4332,29 @@ function buildExecutionFailureResponse(
   };
 }
 
+function resolvePersistedFailedExecutionResponseStatus(
+  errorCode:
+    | PrivateAlphaLocalPersistedExecutionErrorCode
+    | PrivateAlphaGroqPersistedExecutionErrorCode,
+  safeErrorMessage: string
+): 200 | 500 | 503 | 504 {
+  if (errorCode === "ollama_http_error") {
+    return safeErrorMessage === "Local Ollama execution failed unexpectedly."
+      ? 500
+      : 200;
+  }
+  if (errorCode === "groq_http_error") {
+    return safeErrorMessage === "Groq Cloud execution failed unexpectedly."
+      ? 500
+      : 200;
+  }
+  const inferred = buildExecutionFailureResponse(
+    errorCode,
+    safeErrorMessage
+  ).responseStatus;
+  return inferred === 409 ? 500 : inferred;
+}
+
 function resolveAvailabilityBlockedResponseStatus(
   errorCode:
     | PrivateAlphaLocalPersistedExecutionErrorCode
@@ -2015,10 +4376,16 @@ function resolveBlockedExecutionSafeMessage(
   availability: Readonly<{
     providerAvailable: boolean;
     modelAvailable: boolean;
+    errorCode: unknown;
     safeErrorMessage: string | null;
   }>
 ): string {
-  if (availability.safeErrorMessage) {
+  const errorCodeIsProviderOwned =
+    availability.errorCode === null ||
+    (target.kind === "local"
+      ? isLocalProviderAvailabilityErrorCode(availability.errorCode)
+      : isGroqProviderAvailabilityErrorCode(availability.errorCode));
+  if (errorCodeIsProviderOwned && availability.safeErrorMessage) {
     return availability.safeErrorMessage;
   }
 
@@ -2044,7 +4411,7 @@ function resolveBlockedExecutionErrorCode(
   if (target.kind === "local") {
     if (
       availability.errorCode !== null &&
-      isLocalPersistedExecutionErrorCode(availability.errorCode)
+      isLocalProviderAvailabilityErrorCode(availability.errorCode)
     ) {
       return availability.errorCode;
     }
@@ -2056,7 +4423,7 @@ function resolveBlockedExecutionErrorCode(
 
   if (
     availability.errorCode !== null &&
-    isGroqPersistedExecutionErrorCode(availability.errorCode)
+    isGroqProviderAvailabilityErrorCode(availability.errorCode)
   ) {
     return availability.errorCode;
   }
@@ -2114,7 +4481,7 @@ function buildExecutionSucceededSummary(target: PrivateAlphaExecutionTarget): st
 
 function buildExecutionFailedSummary(
   target: PrivateAlphaExecutionTarget,
-  errorCode: PrivateAlphaProviderErrorCode
+  errorCode: PrivateAlphaPersistedExecutionErrorCode
 ): string {
   return target.kind === "local"
     ? `Local Ollama execution failed with ${errorCode}.`
@@ -2166,6 +4533,7 @@ function buildExecutingExecutionRecord(input: {
     promptEvalCount: null,
     evalCount: null,
     safeErrorMessage: null,
+    responseStatus: null,
   } as const;
 
   if (input.target.kind === "local") {
@@ -2227,6 +4595,7 @@ function buildBlockedExecutionRecord(
       | PrivateAlphaLocalPersistedExecutionErrorCode
       | PrivateAlphaGroqPersistedExecutionErrorCode;
     safeErrorMessage: string;
+    responseStatus: 409 | 503 | 504;
   }>
 ): PrivateAlphaExecutionRecord {
   const commonFields = {
@@ -2247,6 +4616,7 @@ function buildBlockedExecutionRecord(
     promptEvalCount: null,
     evalCount: null,
     safeErrorMessage: input.safeErrorMessage,
+    responseStatus: input.responseStatus,
   } as const;
 
   if (input.target.kind === "local") {
@@ -2317,6 +4687,7 @@ function buildFailedExecutionRecord(
       | Exclude<PrivateAlphaLocalPersistedExecutionErrorCode, "kill_switch_blocked">
       | Exclude<PrivateAlphaGroqPersistedExecutionErrorCode, "kill_switch_blocked">;
     safeErrorMessage: string;
+    responseStatus: 200 | 409 | 500 | 503 | 504;
   }>
 ): PrivateAlphaExecutionRecord {
   if (!input.run.execution || input.run.execution.runningRevision === null) {
@@ -2340,6 +4711,7 @@ function buildFailedExecutionRecord(
     promptEvalCount: null,
     evalCount: null,
     safeErrorMessage: input.safeErrorMessage,
+    responseStatus: input.responseStatus,
   } as const;
 
   if (input.target.kind === "local") {
@@ -2414,6 +4786,92 @@ function buildFailedExecutionRecord(
   return record;
 }
 
+async function persistInterruptedExecutionFailureWhileLocked(
+  paths: PrivateAlphaResolvedPaths,
+  runAbsolutePath: string,
+  current: PrivateAlphaRunRecord
+): Promise<PrivateAlphaRunRecord> {
+  if (
+    current.state !== "executing" ||
+    !current.execution ||
+    current.execution.status !== "executing" ||
+    current.execution.responseStatus !== null
+  ) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Interrupted private-alpha execution is missing its exact in-progress evidence."
+    );
+  }
+  const transition = assertPrivateAlphaTransition(current.state, "fail");
+  if (!transition.ok) {
+    throw new PrivateAlphaStoreError(409, transition.message);
+  }
+  const target = resolveExecutionTargetFromRequestAndApprovalScope(
+    current.request,
+    current.approvalScope
+  );
+  if (!target) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Interrupted private-alpha execution target could not be reconciled."
+    );
+  }
+  const failedAt = nextPersistedIsoTimestamp(current.updatedAt);
+  const resultingRevision = current.revision + 1;
+  const creatorOwned = current.ownership?.kind === "creator";
+  const safeErrorMessage = creatorOwned
+    ? "The creator-owned provider request ended without a durable terminal result after its execution owner exited."
+    : "The provider request ended without a durable terminal result after its execution owner exited.";
+  const failedRun: PrivateAlphaRunRecord = {
+    ...current,
+    updatedAt: failedAt,
+    state: "failed",
+    revision: resultingRevision,
+    execution: buildFailedExecutionRecord({
+      run: current,
+      target,
+      failedAt,
+      resultingRevision,
+      errorCode: "execution_interrupted",
+      safeErrorMessage,
+      responseStatus: 503,
+    }),
+    auditEvents: [
+      ...current.auditEvents,
+      buildAuditEvent({
+        eventType: "execution.failed",
+        actor: "system",
+        runId: current.runId,
+        previousState: "executing",
+        resultingState: "failed",
+        revision: resultingRevision,
+        summary: creatorOwned
+          ? "Creator-owned execution was marked failed after exact lock ownership proved its execution owner had exited."
+          : "Execution was marked failed after exact lock ownership proved its execution owner had exited.",
+        occurredAt: failedAt,
+      }),
+    ],
+  };
+  await writeJsonFileAtomically(paths, runAbsolutePath, failedRun, current);
+  const verified = await readRunRecordFromFile(
+    paths,
+    runAbsolutePath,
+    current.runId
+  );
+  if (
+    verified.state !== "failed" ||
+    verified.revision !== resultingRevision ||
+    verified.execution?.errorCode !== "execution_interrupted" ||
+    verified.execution.responseStatus !== 503
+  ) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Interrupted private-alpha execution reconciliation could not be verified."
+    );
+  }
+  return verified;
+}
+
 function buildSucceededExecutionRecord(input: {
   run: PrivateAlphaRunRecord;
   target: PrivateAlphaExecutionTarget;
@@ -2448,6 +4906,7 @@ function buildSucceededExecutionRecord(input: {
     evalCount: input.evalCount,
     errorCode: null,
     safeErrorMessage: null,
+    responseStatus: 200,
   } as const;
 
   if (input.target.kind === "local") {
@@ -2510,9 +4969,37 @@ function buildSucceededExecutionRecord(input: {
 async function readSafeKillSwitchState(
   paths: PrivateAlphaResolvedPaths
 ): Promise<Awaited<ReturnType<typeof readPrivateAlphaKillSwitchState>>> {
-  return readPrivateAlphaKillSwitchState({
+  let dataRootPresent: boolean;
+  try {
+    dataRootPresent = await inspectDataRootForRead(paths);
+  } catch {
+    return { killSwitchEngaged: true, killSwitchSources: ["file"] };
+  }
+  const state = await readPrivateAlphaKillSwitchState({
     dataRootLabel: paths.dataRootLabel,
   });
+  if (dataRootPresent) {
+    try {
+      if (!(await inspectDataRootForRead(paths))) {
+        return { killSwitchEngaged: true, killSwitchSources: ["file"] };
+      }
+    } catch {
+      return { killSwitchEngaged: true, killSwitchSources: ["file"] };
+    }
+  }
+  return state;
+}
+
+function securePrivateAlphaMutationIsAvailable(
+  paths: PrivateAlphaResolvedPaths
+): boolean {
+  if (process.platform !== "win32") return false;
+  try {
+    privateAlphaNativeRootExists(paths.dataRootLabel);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function resolveExecutableTargetOrThrow(
@@ -2690,15 +5177,16 @@ export function createPrivateAlphaStore(
     return cachedLocalProviderAdapter;
   };
 
-  return {
+  const storeInternal: PrivateAlphaStoreInternal = {
     async getStatus(): Promise<PrivateAlphaStatus> {
+      const secureMutationAvailable = securePrivateAlphaMutationIsAvailable(paths);
       const killSwitchState = await readSafeKillSwitchState(paths);
 
       if (runtimeProfile === PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE) {
         return {
           mode: "private-alpha-foundation",
           persistence: "local-file-backed",
-          approvalRecording: "enabled",
+          approvalRecording: secureMutationAvailable ? "enabled" : "unavailable",
           providerExecution: "unavailable",
           providerLabel: PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL,
           configuredModel: PRIVATE_ALPHA_PRODUCTION_MODEL,
@@ -2711,18 +5199,24 @@ export function createPrivateAlphaStore(
         };
       }
 
-      const availability = await getLocalStatusAdapter().getAvailability();
+      const availability = secureMutationAvailable && !killSwitchState.killSwitchEngaged
+        ? await getLocalStatusAdapter().getAvailability()
+        : {
+            providerAvailable: false,
+            modelAvailable: false,
+          };
 
       return {
         mode: "private-alpha-local-ollama",
         persistence: "local-file-backed",
-        approvalRecording: "enabled",
+        approvalRecording: secureMutationAvailable ? "enabled" : "unavailable",
         providerExecution: "local-ollama",
         providerLabel: PRIVATE_ALPHA_PRODUCTION_PROVIDER_LABEL,
         configuredModel: PRIVATE_ALPHA_PRODUCTION_MODEL,
         providerAvailable: availability.providerAvailable,
         modelAvailable: availability.modelAvailable,
         executionAllowed:
+          secureMutationAvailable &&
           !killSwitchState.killSwitchEngaged &&
           availability.providerAvailable &&
           availability.modelAvailable,
@@ -2734,8 +5228,10 @@ export function createPrivateAlphaStore(
 
     async createRun(
       body: unknown,
-      idempotencyKey: string | null | undefined
+      idempotencyKey: string | null | undefined,
+      expectedOwnership?: PrivateAlphaCreatorRunOwnership
     ): Promise<PrivateAlphaCreateRunResult> {
+      assertSecurePrivateAlphaMutationPlatform();
       const idempotencyValidation = validatePrivateAlphaIdempotencyKey(idempotencyKey);
       if (!idempotencyValidation.ok) {
         throw new PrivateAlphaStoreError(
@@ -2761,124 +5257,885 @@ export function createPrivateAlphaStore(
       );
       const normalizedRequestHash = buildPrivateAlphaNormalizedRequestHash(request);
       const canonicalRequestHash = buildPrivateAlphaCanonicalRequestHash(request);
-      const idempotencyKeyHash = hashSha256(idempotencyValidation.value);
+      const ownership: PrivateAlphaRunOwnership = expectedOwnership
+        ? validateCreatorOwnershipInput(expectedOwnership)
+        : {
+            kind: "general",
+            protocolVersion: PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION,
+          };
+      const idempotencyKeyHash =
+        ownership.kind === "creator"
+          ? buildPrivateAlphaCreatorIdempotencyKeyHash(
+              idempotencyValidation.value,
+              ownership.projectId,
+              ownership.purpose
+            )
+          : hashSha256(idempotencyValidation.value);
 
       return withQueue(
         IDEMPOTENCY_WRITE_QUEUES,
         idempotencyKeyHash,
         async (): Promise<PrivateAlphaCreateRunResult> => {
-          await ensureStoreDirectories(paths);
+          return withPrivateAlphaNativeStorageLease(paths, async () => {
+            await ensureStoreDirectories(paths);
+
+          return withRunMutationLock(
+            paths,
+            buildIdempotencyMutationLockRunId(idempotencyKeyHash),
+            async () => {
 
           const idempotencyAbsolutePath = buildIdempotencyFileAbsolutePath(
             paths,
             idempotencyKeyHash
           );
-          const existingIdempotencyRecord = await readIdempotencyRecordFromFile(
+          let idempotencyRecord = await readIdempotencyRecordFromFile(
+            paths,
             idempotencyAbsolutePath,
             idempotencyKeyHash
           );
 
-          if (existingIdempotencyRecord) {
-            if (existingIdempotencyRecord.canonicalRequestHash !== canonicalRequestHash) {
+          if (!idempotencyRecord) {
+            const orphanMatches = await findRunsByIdempotencyKeyHash(
+              paths,
+              idempotencyKeyHash
+            );
+            if (orphanMatches.length > 1) {
+              throw new PrivateAlphaStoreError(
+                500,
+                "Multiple private-alpha runs contradict one missing idempotency reservation."
+              );
+            }
+            const orphan = orphanMatches[0] ?? null;
+            const historicalGeneralOrphan =
+              orphan !== null && orphan.ownership === null && ownership.kind === "general";
+            if (
+              orphan &&
+              buildPrivateAlphaCanonicalRequestHash(orphan.request) !==
+                canonicalRequestHash
+            ) {
               throw new PrivateAlphaStoreError(
                 409,
                 "Idempotency-Key conflicts with a different private-alpha request."
               );
             }
-
-            const existingRun = await readRunRecordFromFile(
-              buildRunFileAbsolutePath(paths, existingIdempotencyRecord.runId),
-              existingIdempotencyRecord.runId
+            if (
+              orphan &&
+              !historicalGeneralOrphan &&
+              !sameRunOwnership(orphan.ownership, ownership)
+            ) {
+              throw new PrivateAlphaStoreError(
+                409,
+                "Idempotency-Key conflicts with a different private-alpha run owner."
+              );
+            }
+            const reservedAt = orphan?.createdAt ?? nowIso();
+            const reservation: PrivateAlphaIdempotencyRecord = historicalGeneralOrphan
+              ? {
+                  version: PRIVATE_ALPHA_RECORD_VERSION,
+                  idempotencyKeyHash,
+                  canonicalRequestHash,
+                  runId: orphan.runId,
+                  createdAt: orphan.createdAt,
+                }
+              : orphan
+                ? {
+                  version: PRIVATE_ALPHA_RECORD_VERSION,
+                  protocolVersion: PRIVATE_ALPHA_IDEMPOTENCY_PROTOCOL_VERSION,
+                  publicationPhase: "published",
+                  idempotencyKeyHash,
+                  requestDigest: canonicalRequestHash,
+                  runId: orphan.runId,
+                  ownership,
+                  reservedAt,
+                  publishedAt: orphan.createdAt,
+                  }
+                : {
+                  version: PRIVATE_ALPHA_RECORD_VERSION,
+                  protocolVersion: PRIVATE_ALPHA_IDEMPOTENCY_PROTOCOL_VERSION,
+                  publicationPhase: "reserved",
+                  idempotencyKeyHash,
+                  requestDigest: canonicalRequestHash,
+                  runId: makeRunId(),
+                  ownership,
+                  reservedAt,
+                  publishedAt: null,
+                  };
+            const reservationPublished = await publishJsonFileAtomicallyExclusive(
+              paths,
+              idempotencyAbsolutePath,
+              reservation
             );
+            idempotencyRecord = reservationPublished
+              ? reservation
+              : await readIdempotencyRecordFromFile(
+                  paths,
+                  idempotencyAbsolutePath,
+                  idempotencyKeyHash
+                );
+            if (!idempotencyRecord) {
+              throw new PrivateAlphaStoreError(
+                500,
+                "Private-alpha idempotency reservation could not be reconciled."
+              );
+            }
+          }
 
+          if (idempotencyRequestDigest(idempotencyRecord) !== canonicalRequestHash) {
+            throw new PrivateAlphaStoreError(
+              409,
+              "Idempotency-Key conflicts with a different private-alpha request."
+            );
+          }
+
+          if (
+            "protocolVersion" in idempotencyRecord &&
+            !sameRunOwnership(idempotencyRecord.ownership, ownership)
+          ) {
+            throw new PrivateAlphaStoreError(
+              409,
+              "Idempotency-Key conflicts with a different private-alpha run owner."
+            );
+          }
+
+          if (!("protocolVersion" in idempotencyRecord)) {
+            const existingRun = await readRunRecordFromFile(
+              paths,
+              buildRunFileAbsolutePath(paths, idempotencyRecord.runId),
+              idempotencyRecord.runId
+            );
+            assertRunMatchesIdempotencyRecord(existingRun, idempotencyRecord);
+            assertRunControl(existingRun, expectedOwnership);
             return {
               created: false,
               run: existingRun,
             };
           }
 
-          const runId = makeRunId();
-          const createdAt = nowIso();
-          const approvalScope = buildPrivateAlphaApprovalScope({
-            runId,
-            request,
-            normalizedRequestHash,
-          });
-          const provisionalRun: PrivateAlphaRunRecord = {
-            version: PRIVATE_ALPHA_RECORD_VERSION,
-            runId,
-            createdAt,
-            updatedAt: createdAt,
-            state: PRIVATE_ALPHA_INITIAL_RUN_STATE,
-            revision: 1,
-            idempotencyKeyHash,
-            request,
-            approvalScope,
-            approvalScopeHash: buildPrivateAlphaApprovalScopeHash(approvalScope),
-            approval: null,
-            cancellation: null,
-            execution: null,
-            auditEvents: [],
-          };
-          const run: PrivateAlphaRunRecord = {
-            ...provisionalRun,
-            auditEvents: buildCreatedRunAuditEvents(provisionalRun, createdAt, 1),
-          };
-
-          await withQueue(RUN_WRITE_QUEUES, runId, async () => {
-            await writeJsonFileAtomically(buildRunFileAbsolutePath(paths, runId), run);
-          });
-
-          const idempotencyRecord: PrivateAlphaIdempotencyRecord = {
-            version: PRIVATE_ALPHA_RECORD_VERSION,
-            idempotencyKeyHash,
-            canonicalRequestHash,
-            runId,
-            createdAt,
-          };
-
-          try {
-            await writeExclusiveJsonFile(idempotencyAbsolutePath, idempotencyRecord);
-          } catch (error) {
-            if (!isAlreadyExistsError(error)) {
-              throw error;
-            }
-
-            const racedRecord = await readIdempotencyRecordFromFile(
+          const lockedReservationRunId = idempotencyRecord.runId;
+          const lockedReservationTimestamp = idempotencyRecord.reservedAt;
+          return withRunMutationLock(paths, lockedReservationRunId, async () => {
+            const lockedRecord = await readIdempotencyRecordFromFile(
+              paths,
               idempotencyAbsolutePath,
               idempotencyKeyHash
             );
-            if (!racedRecord) {
+            if (!lockedRecord || !("protocolVersion" in lockedRecord)) {
               throw new PrivateAlphaStoreError(
                 500,
-                "Persisted idempotency record is malformed."
+                "Private-alpha publication reservation changed while acquiring its exact lock."
               );
             }
-
-            if (racedRecord.canonicalRequestHash !== canonicalRequestHash) {
+            if (
+              lockedRecord.runId !== lockedReservationRunId ||
+              lockedRecord.reservedAt !== lockedReservationTimestamp
+            ) {
+              throw new PrivateAlphaStoreError(
+                500,
+                "Private-alpha publication reservation changed while acquiring its exact lock."
+              );
+            }
+            if (lockedRecord.requestDigest !== canonicalRequestHash) {
               throw new PrivateAlphaStoreError(
                 409,
                 "Idempotency-Key conflicts with a different private-alpha request."
               );
             }
+            if (!sameRunOwnership(lockedRecord.ownership, ownership)) {
+              throw new PrivateAlphaStoreError(
+                409,
+                "Idempotency-Key conflicts with a different private-alpha run owner."
+              );
+            }
+            idempotencyRecord = lockedRecord;
 
-            const existingRun = await readRunRecordFromFile(
-              buildRunFileAbsolutePath(paths, racedRecord.runId),
-              racedRecord.runId
-            );
-
-            return {
-              created: false,
-              run: existingRun,
+            let run = await readRunRecordIfPresent(paths, idempotencyRecord.runId);
+            let runPublished = false;
+            if (!run) {
+            if (idempotencyRecord.publicationPhase === "published") {
+              throw new PrivateAlphaStoreError(
+                500,
+                "Published private-alpha idempotency reservation is missing its run."
+              );
+            }
+            const approvalScope = buildPrivateAlphaApprovalScope({
+              runId: idempotencyRecord.runId,
+              request,
+              normalizedRequestHash,
+            });
+            const provisionalRun: PrivateAlphaRunRecord = {
+              version: PRIVATE_ALPHA_RECORD_VERSION,
+              runId: idempotencyRecord.runId,
+              createdAt: idempotencyRecord.reservedAt,
+              updatedAt: idempotencyRecord.reservedAt,
+              state: PRIVATE_ALPHA_INITIAL_RUN_STATE,
+              revision: 1,
+              idempotencyKeyHash,
+              ownership: idempotencyRecord.ownership,
+              request,
+              approvalScope,
+              approvalScopeHash: buildPrivateAlphaApprovalScopeHash(approvalScope),
+              approval: null,
+              cancellation: null,
+              execution: null,
+              auditEvents: [],
             };
-          }
+            const candidateRun: PrivateAlphaRunRecord = {
+              ...provisionalRun,
+              auditEvents: buildCreatedRunAuditEvents(
+                provisionalRun,
+                idempotencyRecord.reservedAt,
+                1
+              ),
+            };
+            runPublished = await publishJsonFileAtomicallyExclusive(
+              paths,
+              buildRunFileAbsolutePath(paths, idempotencyRecord.runId),
+              candidateRun
+            );
+            run = runPublished
+              ? candidateRun
+              : await readRunRecordIfPresent(paths, idempotencyRecord.runId);
+            if (!run) {
+              throw new PrivateAlphaStoreError(
+                409,
+                "Private-alpha idempotency publication is concurrently owned."
+              );
+            }
+            }
 
-          return {
-            created: true,
-            run,
-          };
+            assertRunMatchesIdempotencyRecord(run, idempotencyRecord);
+            if (idempotencyRecord.publicationPhase === "reserved") {
+            const verifiedRecord = await finalizeIdempotencyPublication(
+              paths,
+              idempotencyAbsolutePath,
+              idempotencyRecord,
+              run
+            );
+            if (
+              verifiedRecord.publicationPhase !== "published"
+            ) {
+              throw new PrivateAlphaStoreError(
+                500,
+                "Private-alpha publication finalization could not be verified."
+              );
+            }
+            assertRunMatchesIdempotencyRecord(run, verifiedRecord);
+            }
+            return {
+              created: runPublished,
+              run,
+            };
+          });
+          });
+          });
         }
       );
+    },
+
+    async bindCreatorRun(
+      body,
+      idempotencyKey,
+      expectedOwnership,
+      createIfMissing
+    ) {
+      assertSecurePrivateAlphaMutationPlatform();
+      if (typeof createIfMissing !== "boolean") {
+        throw new PrivateAlphaStoreError(
+          400,
+          "Creator binding recovery mode is invalid."
+        );
+      }
+      const keyValidation = validatePrivateAlphaIdempotencyKey(idempotencyKey);
+      if (!keyValidation.ok) {
+        throw new PrivateAlphaStoreError(
+          keyValidation.status,
+          keyValidation.error
+        );
+      }
+      const createValidation = validatePrivateAlphaCreateRunInput(
+        body,
+        runtimeProfile
+      );
+      if (!createValidation.ok) {
+        throw new PrivateAlphaStoreError(
+          createValidation.status,
+          createValidation.error
+        );
+      }
+      const ownership = validateCreatorOwnershipInput(expectedOwnership);
+      const request = buildPrivateAlphaRunRequest(
+        createValidation.value,
+        runtimeProfile
+      );
+      const canonicalRequestHash = buildPrivateAlphaCanonicalRequestHash(request);
+      const currentHash = buildPrivateAlphaCreatorIdempotencyKeyHash(
+        keyValidation.value,
+        ownership.projectId,
+        ownership.purpose
+      );
+      const legacyHash = hashSha256(keyValidation.value);
+      const matchesCreatorDomain = (
+        candidate: PrivateAlphaRunOwnership
+      ): candidate is PrivateAlphaCreatorRunOwnership =>
+        candidate?.kind === "creator" &&
+        candidate.protocolVersion === PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION &&
+        candidate.projectId === ownership.projectId &&
+        candidate.purpose === ownership.purpose &&
+        /^[a-f0-9]{32}$/u.test(candidate.bindingId);
+
+      return withPrivateAlphaNativeStorageLease(paths, async () => {
+        await ensureStoreDirectories(paths);
+        return withCreatorBindingMutationLock(
+          paths,
+          ownership.projectId,
+          ownership.purpose,
+          async () => {
+            const inspectNamespace = async (
+              namespace: "current" | "legacy",
+              idempotencyKeyHash: string
+            ): Promise<boolean> => {
+              const record = await readIdempotencyRecordFromFile(
+                paths,
+                buildIdempotencyFileAbsolutePath(paths, idempotencyKeyHash),
+                idempotencyKeyHash
+              );
+              const matches = await findRunsByIdempotencyKeyHash(
+                paths,
+                idempotencyKeyHash
+              );
+              if (matches.length > 1) {
+                throw new PrivateAlphaStoreError(
+                  500,
+                  "Multiple runs contradict one creator binding namespace."
+                );
+              }
+              const orphan = matches[0] ?? null;
+              const recordIsCreator =
+                record !== null &&
+                "protocolVersion" in record &&
+                record.ownership?.kind === "creator";
+
+              if (record && !recordIsCreator) {
+                if (orphan?.ownership?.kind === "creator") {
+                  throw new PrivateAlphaStoreError(
+                    500,
+                    "Creator and general idempotency evidence is ambiguous."
+                  );
+                }
+                if (namespace === "current") {
+                  throw new PrivateAlphaStoreError(
+                    409,
+                    "Current creator idempotency evidence is owned by a non-creator lifecycle."
+                  );
+                }
+                return false;
+              }
+
+              if (recordIsCreator) {
+                const recordOwnership = record.ownership;
+                if (
+                  !matchesCreatorDomain(recordOwnership) ||
+                  record.requestDigest !== canonicalRequestHash
+                ) {
+                  throw new PrivateAlphaStoreError(
+                    409,
+                    "Creator binding conflicts with its exact persisted identity."
+                  );
+                }
+                if (orphan && orphan.runId !== record.runId) {
+                  throw new PrivateAlphaStoreError(
+                    500,
+                    "Creator mapping and orphan evidence is ambiguous."
+                  );
+                }
+                const mappedRun = await readRunRecordIfPresent(paths, record.runId);
+                if (!mappedRun) {
+                  if (record.publicationPhase === "published") {
+                    throw new PrivateAlphaStoreError(
+                      500,
+                      "Published creator reservation is missing its exact run."
+                    );
+                  }
+                  return true;
+                }
+                assertRunMatchesIdempotencyRecord(mappedRun, record);
+                if (
+                  !sameRunOwnership(mappedRun.ownership, recordOwnership) ||
+                  buildPrivateAlphaCanonicalRequestHash(mappedRun.request) !==
+                    canonicalRequestHash
+                ) {
+                  throw new PrivateAlphaStoreError(
+                    409,
+                    "Creator run conflicts with its exact persisted binding."
+                  );
+                }
+                return true;
+              }
+
+              if (!orphan) return false;
+              if (orphan.ownership?.kind !== "creator") {
+                if (namespace === "current") {
+                  throw new PrivateAlphaStoreError(
+                    409,
+                    "Current creator orphan is owned by a non-creator lifecycle."
+                  );
+                }
+                return false;
+              }
+              if (
+                !matchesCreatorDomain(orphan.ownership) ||
+                buildPrivateAlphaCanonicalRequestHash(orphan.request) !==
+                  canonicalRequestHash
+              ) {
+                throw new PrivateAlphaStoreError(
+                  409,
+                  "Creator orphan conflicts with its exact persisted binding."
+                );
+              }
+              return true;
+            };
+
+            const currentExists = await inspectNamespace("current", currentHash);
+            const legacyExists = await inspectNamespace("legacy", legacyHash);
+            if (currentExists && legacyExists) {
+              throw new PrivateAlphaStoreError(
+                500,
+                "Current and historical creator binding evidence is ambiguous."
+              );
+            }
+            const namespace = currentExists
+              ? "current"
+              : legacyExists
+                ? "legacy"
+                : null;
+            if (namespace) {
+              const recovered = await storeInternal.recoverCreatorRunByIdempotencyKey({
+                body,
+                idempotencyKey: keyValidation.value,
+                namespace,
+                projectId: ownership.projectId,
+                purpose: ownership.purpose,
+              });
+              if (
+                !recovered?.run ||
+                !matchesCreatorDomain(recovered.run.ownership)
+              ) {
+                throw new PrivateAlphaStoreError(
+                  500,
+                  "Creator binding recovery did not return its exact owned run."
+                );
+              }
+              return { created: false, run: recovered.run };
+            }
+            if (!createIfMissing) return null;
+            return storeInternal.createRun(
+              body,
+              keyValidation.value,
+              ownership
+            );
+          }
+        );
+      });
+    },
+
+    async createCreatorRun(body, idempotencyKey, ownership) {
+      const result = await storeInternal.bindCreatorRun(
+        body,
+        idempotencyKey,
+        ownership,
+        true
+      );
+      if (!result) {
+        throw new PrivateAlphaStoreError(
+          500,
+          "Creator binding publication did not return an exact run."
+        );
+      }
+      return result;
+    },
+
+    async lookupRunByIdempotencyKeyHash(
+      idempotencyKeyHash: string
+    ): Promise<PrivateAlphaIdempotencyLookupResult | null> {
+      assertSecurePrivateAlphaMutationPlatform();
+      if (!isHexHash(idempotencyKeyHash)) {
+        throw new PrivateAlphaStoreError(
+          400,
+          "idempotencyKeyHash must be a 64-character lowercase hex identifier."
+        );
+      }
+      return withQueue(IDEMPOTENCY_WRITE_QUEUES, idempotencyKeyHash, () =>
+        withPrivateAlphaNativeStorageLease(paths, async () => {
+          await ensureStoreDirectories(paths);
+        const idempotencyAbsolutePath = buildIdempotencyFileAbsolutePath(
+          paths,
+          idempotencyKeyHash
+        );
+        const record = await readIdempotencyRecordFromFile(
+          paths,
+          idempotencyAbsolutePath,
+          idempotencyKeyHash
+        );
+        if (!record) return null;
+
+        const run = await readRunRecordIfPresent(paths, record.runId);
+        if (!run) {
+          if (!("protocolVersion" in record) || record.publicationPhase === "published") {
+            throw new PrivateAlphaStoreError(
+              500,
+              "Published private-alpha idempotency record is missing its exact run."
+            );
+          }
+          return {
+            idempotencyKeyHash,
+            requestDigest: record.requestDigest,
+            reservedRunId: record.runId,
+            publicationPhase: "reserved",
+            ownership: record.ownership,
+            run: null,
+            historical: false,
+          };
+        }
+
+        assertRunMatchesIdempotencyRecord(run, record);
+        if ("protocolVersion" in record && record.publicationPhase === "reserved") {
+          await finalizeIdempotencyPublication(
+            paths,
+            idempotencyAbsolutePath,
+            record,
+            run
+          );
+        }
+          return {
+            idempotencyKeyHash,
+            requestDigest: idempotencyRequestDigest(record),
+            reservedRunId: record.runId,
+            publicationPhase: "published",
+            ownership: "protocolVersion" in record ? record.ownership : run.ownership,
+            run,
+            historical: !("protocolVersion" in record),
+          };
+        })
+      );
+    },
+
+    async recoverCreatorRunByIdempotencyKey(
+      input: PrivateAlphaCreatorRecoveryInput
+    ): Promise<PrivateAlphaIdempotencyLookupResult | null> {
+      assertSecurePrivateAlphaMutationPlatform();
+      const keyValidation = validatePrivateAlphaIdempotencyKey(
+        input.idempotencyKey
+      );
+      if (!keyValidation.ok) {
+        throw new PrivateAlphaStoreError(
+          keyValidation.status,
+          keyValidation.error
+        );
+      }
+      if (
+        !/^[a-f0-9]{24}$/u.test(input.projectId) ||
+        (input.purpose !== "generation" && input.purpose !== "repair") ||
+        (input.namespace !== "current" && input.namespace !== "legacy")
+      ) {
+        throw new PrivateAlphaStoreError(
+          400,
+          "Legacy creator recovery binding is invalid."
+        );
+      }
+      const createValidation = validatePrivateAlphaCreateRunInput(
+        input.body,
+        runtimeProfile
+      );
+      if (!createValidation.ok) {
+        throw new PrivateAlphaStoreError(
+          createValidation.status,
+          createValidation.error
+        );
+      }
+      const request = buildPrivateAlphaRunRequest(
+        createValidation.value,
+        runtimeProfile
+      );
+      const normalizedRequestHash = buildPrivateAlphaNormalizedRequestHash(request);
+      const canonicalRequestHash = buildPrivateAlphaCanonicalRequestHash(request);
+      const idempotencyKeyHash =
+        input.namespace === "current"
+          ? buildPrivateAlphaCreatorIdempotencyKeyHash(
+              keyValidation.value,
+              input.projectId,
+              input.purpose
+            )
+          : hashSha256(keyValidation.value);
+
+      return withPrivateAlphaNativeStorageLease(paths, async () => {
+        await ensureStoreDirectories(paths);
+        return withCreatorBindingMutationLock(
+          paths,
+          input.projectId,
+          input.purpose,
+          () => withQueue(IDEMPOTENCY_WRITE_QUEUES, idempotencyKeyHash, () =>
+        withPrivateAlphaNativeStorageLease(paths, async () => {
+          await ensureStoreDirectories(paths);
+          return withRunMutationLock(
+            paths,
+            buildIdempotencyMutationLockRunId(idempotencyKeyHash),
+            async () => {
+              const idempotencyAbsolutePath = buildIdempotencyFileAbsolutePath(
+                paths,
+                idempotencyKeyHash
+              );
+              let record = await readIdempotencyRecordFromFile(
+                paths,
+                idempotencyAbsolutePath,
+                idempotencyKeyHash
+              );
+              const exactHashRuns = await findRunsByIdempotencyKeyHash(
+                paths,
+                idempotencyKeyHash
+              );
+              if (exactHashRuns.length > 1) {
+                throw new PrivateAlphaStoreError(
+                  500,
+                  "Multiple runs contradict one legacy idempotency identity."
+                );
+              }
+              const exactHashRun = exactHashRuns[0] ?? null;
+
+              if (
+                record &&
+                (!("protocolVersion" in record) ||
+                  record.ownership?.kind !== "creator")
+              ) {
+                if (input.namespace === "current") {
+                  throw new PrivateAlphaStoreError(
+                    409,
+                    "Current creator recovery conflicts with non-creator idempotency evidence."
+                  );
+                }
+                if (exactHashRun?.ownership?.kind === "creator") {
+                  throw new PrivateAlphaStoreError(
+                    500,
+                    "Legacy creator and general idempotency evidence is ambiguous."
+                  );
+                }
+                return null;
+              }
+
+              if (!record) {
+                const orphan = exactHashRun;
+                if (!orphan) return null;
+                if (orphan.ownership?.kind !== "creator") {
+                  if (input.namespace === "current") {
+                    throw new PrivateAlphaStoreError(
+                      409,
+                      "Current creator recovery conflicts with a non-creator orphan."
+                    );
+                  }
+                  return null;
+                }
+                if (
+                  orphan.ownership.protocolVersion !==
+                    PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION ||
+                  orphan.ownership.projectId !== input.projectId ||
+                  orphan.ownership.purpose !== input.purpose ||
+                  buildPrivateAlphaCanonicalRequestHash(orphan.request) !==
+                    canonicalRequestHash
+                ) {
+                  throw new PrivateAlphaStoreError(
+                    409,
+                    "Legacy creator recovery conflicts with the exact persisted binding."
+                  );
+                }
+                const reconstructed: PrivateAlphaProtocolIdempotencyRecord = {
+                  version: PRIVATE_ALPHA_RECORD_VERSION,
+                  protocolVersion: PRIVATE_ALPHA_IDEMPOTENCY_PROTOCOL_VERSION,
+                  publicationPhase: "published",
+                  idempotencyKeyHash,
+                  requestDigest: canonicalRequestHash,
+                  runId: orphan.runId,
+                  ownership: orphan.ownership,
+                  reservedAt: orphan.createdAt,
+                  publishedAt: orphan.createdAt,
+                };
+                const published = await publishJsonFileAtomicallyExclusive(
+                  paths,
+                  idempotencyAbsolutePath,
+                  reconstructed
+                );
+                record = published
+                  ? reconstructed
+                  : await readIdempotencyRecordFromFile(
+                      paths,
+                      idempotencyAbsolutePath,
+                      idempotencyKeyHash
+                    );
+                if (!record) {
+                  throw new PrivateAlphaStoreError(
+                    500,
+                    "Legacy creator idempotency reconstruction could not be reconciled."
+                  );
+                }
+              }
+
+              if (!("protocolVersion" in record)) {
+                throw new PrivateAlphaStoreError(
+                  409,
+                  "Legacy creator recovery conflicts with the exact persisted binding."
+                );
+              }
+              const recordOwnership = record.ownership;
+              if (
+                !recordOwnership ||
+                recordOwnership.kind !== "creator"
+              ) {
+                throw new PrivateAlphaStoreError(
+                  409,
+                  "Legacy creator recovery conflicts with the exact persisted binding."
+                );
+              }
+              if (
+                recordOwnership.projectId !== input.projectId ||
+                recordOwnership.purpose !== input.purpose ||
+                record.requestDigest !== canonicalRequestHash
+              ) {
+                throw new PrivateAlphaStoreError(
+                  409,
+                  "Legacy creator recovery conflicts with the exact persisted binding."
+                );
+              }
+              if (exactHashRun && exactHashRun.runId !== record.runId) {
+                throw new PrivateAlphaStoreError(
+                  500,
+                  "Legacy creator mapping and orphan evidence is ambiguous."
+                );
+              }
+
+              const initialRecord = record;
+              return withRunMutationLock(paths, initialRecord.runId, async () => {
+                const lockedRecord = await readIdempotencyRecordFromFile(
+                  paths,
+                  idempotencyAbsolutePath,
+                  idempotencyKeyHash
+                );
+                if (
+                  !lockedRecord ||
+                  !("protocolVersion" in lockedRecord) ||
+                  lockedRecord.runId !== initialRecord.runId ||
+                  lockedRecord.reservedAt !== initialRecord.reservedAt ||
+                  lockedRecord.requestDigest !== initialRecord.requestDigest ||
+                  !sameRunOwnership(
+                    lockedRecord.ownership,
+                    initialRecord.ownership
+                  )
+                ) {
+                  throw new PrivateAlphaStoreError(
+                    500,
+                    "Legacy creator reservation changed before exact recovery."
+                  );
+                }
+
+                let run = await readRunRecordIfPresent(paths, lockedRecord.runId);
+                if (!run) {
+                  if (lockedRecord.publicationPhase === "published") {
+                    throw new PrivateAlphaStoreError(
+                      500,
+                      "Published legacy creator reservation is missing its exact run."
+                    );
+                  }
+                  const approvalScope = buildPrivateAlphaApprovalScope({
+                    runId: lockedRecord.runId,
+                    request,
+                    normalizedRequestHash,
+                  });
+                  const provisionalRun: PrivateAlphaRunRecord = {
+                    version: PRIVATE_ALPHA_RECORD_VERSION,
+                    runId: lockedRecord.runId,
+                    createdAt: lockedRecord.reservedAt,
+                    updatedAt: lockedRecord.reservedAt,
+                    state: PRIVATE_ALPHA_INITIAL_RUN_STATE,
+                    revision: 1,
+                    idempotencyKeyHash,
+                    ownership: lockedRecord.ownership,
+                    request,
+                    approvalScope,
+                    approvalScopeHash:
+                      buildPrivateAlphaApprovalScopeHash(approvalScope),
+                    approval: null,
+                    cancellation: null,
+                    execution: null,
+                    auditEvents: [],
+                  };
+                  const candidateRun: PrivateAlphaRunRecord = {
+                    ...provisionalRun,
+                    auditEvents: buildCreatedRunAuditEvents(
+                      provisionalRun,
+                      lockedRecord.reservedAt,
+                      1
+                    ),
+                  };
+                  const runPublished = await publishJsonFileAtomicallyExclusive(
+                    paths,
+                    buildRunFileAbsolutePath(paths, lockedRecord.runId),
+                    candidateRun
+                  );
+                  run = runPublished
+                    ? candidateRun
+                    : await readRunRecordIfPresent(paths, lockedRecord.runId);
+                  if (!run) {
+                    throw new PrivateAlphaStoreError(
+                      409,
+                      "Legacy creator run publication is concurrently owned."
+                    );
+                  }
+                }
+
+                assertRunMatchesIdempotencyRecord(run, lockedRecord);
+                if (
+                  run.ownership?.kind !== "creator" ||
+                  !sameRunOwnership(run.ownership, lockedRecord.ownership) ||
+                  buildPrivateAlphaCanonicalRequestHash(run.request) !==
+                    canonicalRequestHash
+                ) {
+                  throw new PrivateAlphaStoreError(
+                    409,
+                    "Legacy creator run conflicts with its exact recovery request."
+                  );
+                }
+                const publishedRecord =
+                  lockedRecord.publicationPhase === "reserved"
+                    ? await finalizeIdempotencyPublication(
+                        paths,
+                        idempotencyAbsolutePath,
+                        lockedRecord,
+                        run
+                      )
+                    : lockedRecord;
+                if (
+                  publishedRecord.publicationPhase !== "published" ||
+                  publishedRecord.publishedAt !== run.createdAt
+                ) {
+                  throw new PrivateAlphaStoreError(
+                    500,
+                    "Legacy creator recovery publication could not be verified."
+                  );
+                }
+                assertRunMatchesIdempotencyRecord(run, publishedRecord);
+                return {
+                  idempotencyKeyHash,
+                  requestDigest: publishedRecord.requestDigest,
+                  reservedRunId: publishedRecord.runId,
+                  publicationPhase: "published",
+                  ownership: publishedRecord.ownership,
+                  run,
+                  historical: false,
+                };
+              });
+            }
+          );
+        })
+          )
+        );
+      });
     },
 
     async listRuns(limit: string | null | undefined): Promise<readonly PrivateAlphaRunSummary[]> {
@@ -2887,19 +6144,84 @@ export function createPrivateAlphaStore(
         throw new PrivateAlphaStoreError(limitValidation.status, limitValidation.error);
       }
 
-      await ensureStoreDirectories(paths);
+      const readResult = await withPrivateAlphaExistingNativeRootLease(
+        paths.dataRootLabel,
+        async (): Promise<readonly PrivateAlphaRunSummary[]> => {
+          if (!(await inspectRunDirectoryForRead(paths))) return [];
 
-      const entries = await readdir(paths.runsDirectoryAbsolutePath, {
-        withFileTypes: true,
-      });
+          if (process.platform === "win32") {
+        let names: readonly string[];
+        try {
+          names = withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) =>
+            root.listDirectory(["runs"])
+          );
+        } catch (error) {
+          throwPrivateAlphaNativeStorageError(error);
+        }
+        const runNames = names.filter((name) => name.endsWith(".json"));
+        if (runNames.length > PRIVATE_ALPHA_MAX_STORED_RUN_FILES) {
+          throw new PrivateAlphaStoreError(
+            500,
+            "Private-alpha run inventory exceeds its bounded storage envelope."
+          );
+        }
+        const runs: PrivateAlphaRunRecord[] = [];
+        for (const name of runNames) {
+          const runId = name.slice(0, -".json".length);
+          const runIdValidation = validatePrivateAlphaRunId(runId);
+          if (!runIdValidation.ok) {
+            throw new PrivateAlphaStoreError(500, "Persisted run record is malformed.");
+          }
+          try {
+            const kind = withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) =>
+              root.stat(["runs", name])
+            );
+            if (kind !== "file") {
+              throw new PrivateAlphaStoreError(
+                500,
+                "Private-alpha run storage contains an unsafe entry."
+              );
+            }
+          } catch (error) {
+            if (error instanceof PrivateAlphaStoreError) throw error;
+            throwPrivateAlphaNativeStorageError(error);
+          }
+          runs.push(
+            await readRunRecordFromFile(
+              paths,
+              buildRunFileAbsolutePath(paths, runIdValidation.value),
+              runIdValidation.value
+            )
+          );
+        }
+            return runs
+          .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+          .slice(0, limitValidation.value)
+          .map(buildPrivateAlphaRunSummary);
+          }
+
+          const runsDirectoryIdentity = await capturePinnedParentIdentity(
+        paths,
+        path.join(paths.runsDirectoryAbsolutePath, ".list-boundary")
+      );
+      await revalidatePinnedParentIdentity(paths, runsDirectoryIdentity);
+      const entries = await readBoundedDirectoryEntries(
+        paths.runsDirectoryAbsolutePath,
+        "Private-alpha run inventory exceeds its bounded storage envelope."
+      );
+      await revalidatePinnedParentIdentity(paths, runsDirectoryIdentity);
+
+      const runEntries = entries.filter((entry) => entry.name.endsWith(".json"));
+      if (runEntries.length > PRIVATE_ALPHA_MAX_STORED_RUN_FILES) {
+        throw new PrivateAlphaStoreError(
+          500,
+          "Private-alpha run inventory exceeds its bounded storage envelope."
+        );
+      }
 
       const runs: PrivateAlphaRunRecord[] = [];
-      for (const entry of entries) {
-        if (!entry.name.endsWith(".json")) {
-          continue;
-        }
-
-        if (entry.isSymbolicLink()) {
+      for (const entry of runEntries) {
+        if (entry.isSymbolicLink() || !entry.isFile()) {
           throw new PrivateAlphaStoreError(
             500,
             "Private-alpha run storage contains an unsafe entry."
@@ -2914,16 +6236,20 @@ export function createPrivateAlphaStore(
 
         runs.push(
           await readRunRecordFromFile(
+            paths,
             buildRunFileAbsolutePath(paths, runIdValidation.value),
             runIdValidation.value
           )
         );
       }
 
-      return runs
+          return runs
         .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
         .slice(0, limitValidation.value)
         .map(buildPrivateAlphaRunSummary);
+        }
+      );
+      return readResult ?? [];
     },
 
     async getRun(runId: string): Promise<PrivateAlphaRunRecord> {
@@ -2932,14 +6258,84 @@ export function createPrivateAlphaStore(
         throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
       }
 
-      await ensureStoreDirectories(paths);
-      return readRunRecordFromFile(
-        buildRunFileAbsolutePath(paths, runIdValidation.value),
-        runIdValidation.value
+      const readResult = await withPrivateAlphaExistingNativeRootLease(
+        paths.dataRootLabel,
+        async () => {
+          if (!(await inspectRunDirectoryForRead(paths))) {
+            throw new PrivateAlphaStoreError(404, "Run not found.");
+          }
+          return readRunRecordFromFile(
+            paths,
+            buildRunFileAbsolutePath(paths, runIdValidation.value),
+            runIdValidation.value
+          );
+        }
       );
+      if (readResult === null) throw new PrivateAlphaStoreError(404, "Run not found.");
+      return readResult;
     },
 
-    async approveRun(runId: string, body: unknown): Promise<PrivateAlphaRunRecord> {
+    async getCreatorRun(runId, ownership) {
+      const runIdValidation = validatePrivateAlphaRunId(runId);
+      if (!runIdValidation.ok) {
+        throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
+      }
+      const validatedOwnership = validateCreatorOwnershipInput(ownership);
+      const readResult = await withPrivateAlphaExistingNativeRootLease(
+        paths.dataRootLabel,
+        async () => {
+          if (!(await inspectRunDirectoryForRead(paths))) {
+            throw new PrivateAlphaStoreError(404, "Run not found.");
+          }
+          return readRunForExactControl(
+            paths,
+            runIdValidation.value,
+            validatedOwnership,
+            false
+          );
+        }
+      );
+      if (readResult === null) throw new PrivateAlphaStoreError(404, "Run not found.");
+      return readResult;
+    },
+
+    async reconcileCreatorRunAfterInterruption(runId, ownership) {
+      assertSecurePrivateAlphaMutationPlatform();
+      const runIdValidation = validatePrivateAlphaRunId(runId);
+      if (!runIdValidation.ok) {
+        throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
+      }
+      const validatedOwnership = validateCreatorOwnershipInput(ownership);
+      await ensureStoreDirectories(paths);
+      await readRunForExactControl(
+        paths,
+        runIdValidation.value,
+        validatedOwnership
+      );
+      return withRunMutationLock(paths, runIdValidation.value, async () => {
+        const runAbsolutePath = buildRunFileAbsolutePath(paths, runIdValidation.value);
+        const current = await readRunForExactControl(
+          paths,
+          runIdValidation.value,
+          validatedOwnership
+        );
+        if (current.state !== "executing") return current;
+        // Acquiring the exact run lock proves that no live execution owner retains
+        // the lifecycle. Wall-clock age is neither necessary nor safe under rollback.
+        return persistInterruptedExecutionFailureWhileLocked(
+          paths,
+          runAbsolutePath,
+          current
+        );
+      });
+    },
+
+    async approveRun(
+      runId: string,
+      body: unknown,
+      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+    ): Promise<PrivateAlphaRunRecord> {
+      assertSecurePrivateAlphaMutationPlatform();
       const runIdValidation = validatePrivateAlphaRunId(runId);
       if (!runIdValidation.ok) {
         throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
@@ -2954,12 +6350,18 @@ export function createPrivateAlphaStore(
       }
 
       await ensureStoreDirectories(paths);
+      await readRunForExactControl(
+        paths,
+        runIdValidation.value,
+        expectedOwnership
+      );
 
-      return withQueue(RUN_WRITE_QUEUES, runIdValidation.value, async () => {
+      return withRunMutationLock(paths, runIdValidation.value, async () => {
         const runAbsolutePath = buildRunFileAbsolutePath(paths, runIdValidation.value);
-        const existingRun = await readRunRecordFromFile(
-          runAbsolutePath,
-          runIdValidation.value
+        const existingRun = await readRunForExactControl(
+          paths,
+          runIdValidation.value,
+          expectedOwnership
         );
         const approvalInput: PrivateAlphaApprovalInput = approvalValidation.value;
 
@@ -3002,7 +6404,7 @@ export function createPrivateAlphaStore(
           );
         }
 
-        const approvedAt = nowIso();
+        const approvedAt = nextPersistedIsoTimestamp(existingRun.updatedAt);
         const previousRevision = existingRun.revision;
         const resultingRevision = previousRevision + 1;
         const approvalRecord: PrivateAlphaApprovalRecord = isBoundRequest
@@ -3062,12 +6464,21 @@ export function createPrivateAlphaStore(
           ],
         };
 
-        await writeJsonFileAtomically(runAbsolutePath, nextRun);
+        await writeJsonFileAtomically(paths, runAbsolutePath, nextRun, existingRun);
         return nextRun;
       });
     },
 
-    async cancelRun(runId: string, body: unknown): Promise<PrivateAlphaRunRecord> {
+    async approveCreatorRun(runId, body, ownership) {
+      return storeInternal.approveRun(runId, body, ownership);
+    },
+
+    async cancelRun(
+      runId: string,
+      body: unknown,
+      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+    ): Promise<PrivateAlphaRunRecord> {
+      assertSecurePrivateAlphaMutationPlatform();
       const runIdValidation = validatePrivateAlphaRunId(runId);
       if (!runIdValidation.ok) {
         throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
@@ -3082,12 +6493,18 @@ export function createPrivateAlphaStore(
       }
 
       await ensureStoreDirectories(paths);
+      await readRunForExactControl(
+        paths,
+        runIdValidation.value,
+        expectedOwnership
+      );
 
-      return withQueue(RUN_WRITE_QUEUES, runIdValidation.value, async () => {
+      return withRunMutationLock(paths, runIdValidation.value, async () => {
         const runAbsolutePath = buildRunFileAbsolutePath(paths, runIdValidation.value);
-        const existingRun = await readRunRecordFromFile(
-          runAbsolutePath,
-          runIdValidation.value
+        const existingRun = await readRunForExactControl(
+          paths,
+          runIdValidation.value,
+          expectedOwnership
         );
         const cancellationInput: PrivateAlphaCancellationInput =
           cancellationValidation.value;
@@ -3108,7 +6525,7 @@ export function createPrivateAlphaStore(
           throw new PrivateAlphaStoreError(409, transition.message);
         }
 
-        const canceledAt = nowIso();
+        const canceledAt = nextPersistedIsoTimestamp(existingRun.updatedAt);
         const previousRevision = existingRun.revision;
         const resultingRevision = previousRevision + 1;
         const cancellationRecord: PrivateAlphaCancellationRecord = {
@@ -3141,16 +6558,22 @@ export function createPrivateAlphaStore(
           ],
         };
 
-        await writeJsonFileAtomically(runAbsolutePath, nextRun);
+        await writeJsonFileAtomically(paths, runAbsolutePath, nextRun, existingRun);
         return nextRun;
       });
+    },
+
+    async cancelCreatorRun(runId, body, ownership) {
+      return storeInternal.cancelRun(runId, body, ownership);
     },
 
     async executeRun(
       runId: string,
       body: unknown,
-      idempotencyKey: string | null | undefined
+      idempotencyKey: string | null | undefined,
+      expectedOwnership?: PrivateAlphaCreatorRunOwnership
     ): Promise<PrivateAlphaExecuteRunResult> {
+      assertSecurePrivateAlphaMutationPlatform();
       const runIdValidation = validatePrivateAlphaRunId(runId);
       if (!runIdValidation.ok) {
         throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
@@ -3173,27 +6596,74 @@ export function createPrivateAlphaStore(
       }
 
       await ensureStoreDirectories(paths);
+      await readRunForExactControl(
+        paths,
+        runIdValidation.value,
+        expectedOwnership
+      );
 
-      return withQueue(RUN_WRITE_QUEUES, runIdValidation.value, async () => {
+      return withRunMutationLock(paths, runIdValidation.value, async () => {
         const runAbsolutePath = buildRunFileAbsolutePath(paths, runIdValidation.value);
         const executeInput: PrivateAlphaExecuteInput = executeValidation.value;
-        const idempotencyKeyHash = hashSha256(idempotencyValidation.value);
-        const existingRun = await readRunRecordFromFile(
-          runAbsolutePath,
-          runIdValidation.value
+        const validatedOwnership = expectedOwnership
+          ? validateCreatorOwnershipInput(expectedOwnership)
+          : null;
+        const idempotencyKeyHash = validatedOwnership
+          ? buildPrivateAlphaCreatorIdempotencyKeyHash(
+              idempotencyValidation.value,
+              validatedOwnership.projectId,
+              validatedOwnership.purpose
+            )
+          : hashSha256(idempotencyValidation.value);
+        const legacyCreatorIdempotencyKeyHash = validatedOwnership
+          ? hashSha256(idempotencyValidation.value)
+          : null;
+        let existingRun = await readRunForExactControl(
+          paths,
+          runIdValidation.value,
+          expectedOwnership
         );
 
         if (existingRun.execution) {
           if (
-            existingRun.execution.idempotencyKeyHash === idempotencyKeyHash &&
+            (existingRun.execution.idempotencyKeyHash === idempotencyKeyHash ||
+              (legacyCreatorIdempotencyKeyHash !== null &&
+                existingRun.execution.idempotencyKeyHash ===
+                  legacyCreatorIdempotencyKeyHash)) &&
             existingRun.execution.approvalScopeHash === executeInput.approvalScopeHash
           ) {
+            if (
+              executeInput.expectedRevision !==
+              existingRun.execution.previousRevision
+            ) {
+              throw new PrivateAlphaStoreError(
+                409,
+                "Execution replay revision does not match the original attempt."
+              );
+            }
+            if (
+              existingRun.execution.responseStatus === null &&
+              existingRun.state === "executing"
+            ) {
+              // Matching the exact attempt binding while holding the exact run
+              // lock proves both recovery ownership and prior-owner exit. The
+              // original attempt is consumed as failure; generation is not retried.
+              existingRun = await persistInterruptedExecutionFailureWhileLocked(
+                paths,
+                runAbsolutePath,
+                existingRun
+              );
+            }
+            const terminalExecution = existingRun.execution;
+            if (!terminalExecution || terminalExecution.responseStatus === null) {
+              throw new PrivateAlphaStoreError(500, "Execution reconciliation failed closed.");
+            }
             return {
               replayed: true,
               run: existingRun,
-              responseStatus: 200,
-              errorCode: existingRun.execution.errorCode,
-              safeErrorMessage: existingRun.execution.safeErrorMessage,
+              responseStatus: terminalExecution.responseStatus,
+              errorCode: terminalExecution.errorCode,
+              safeErrorMessage: terminalExecution.safeErrorMessage,
             };
           }
 
@@ -3228,7 +6698,7 @@ export function createPrivateAlphaStore(
 
         const killSwitchBeforeResolver = await readSafeKillSwitchState(paths);
         if (killSwitchBeforeResolver.killSwitchEngaged) {
-          const blockedAt = nowIso();
+          const blockedAt = nextPersistedIsoTimestamp(existingRun.updatedAt);
           const resultingRevision = existingRun.revision + 1;
           const blockedRun: PrivateAlphaRunRecord = {
             ...existingRun,
@@ -3246,6 +6716,7 @@ export function createPrivateAlphaStore(
               errorCode: "kill_switch_blocked",
               safeErrorMessage:
                 "Execution was blocked by the private-alpha kill switch.",
+              responseStatus: 409,
             }),
             auditEvents: [
               ...existingRun.auditEvents,
@@ -3262,7 +6733,7 @@ export function createPrivateAlphaStore(
             ],
           };
 
-          await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+          await writeJsonFileAtomically(paths, runAbsolutePath, blockedRun, existingRun);
           return {
             replayed: false,
             run: blockedRun,
@@ -3279,7 +6750,7 @@ export function createPrivateAlphaStore(
             existingRun.request.maximumOutputTokens
           )
         ) {
-          const blockedAt = nowIso();
+          const blockedAt = nextPersistedIsoTimestamp(existingRun.updatedAt);
           const resultingRevision = existingRun.revision + 1;
           const blockedRun: PrivateAlphaRunRecord = {
             ...existingRun,
@@ -3297,6 +6768,7 @@ export function createPrivateAlphaStore(
               errorCode: "groq_output_too_large",
               safeErrorMessage:
                 `The approved Groq output limit exceeds the admitted ${PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS}-token execution envelope.`,
+              responseStatus: 409,
             }),
             auditEvents: [
               ...existingRun.auditEvents,
@@ -3313,7 +6785,7 @@ export function createPrivateAlphaStore(
             ],
           };
 
-          await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+          await writeJsonFileAtomically(paths, runAbsolutePath, blockedRun, existingRun);
           return {
             replayed: false,
             run: blockedRun,
@@ -3349,7 +6821,7 @@ export function createPrivateAlphaStore(
             safeErrorMessage:
               error instanceof PrivateAlphaProviderError ? error.safeMessage : null,
           } as const;
-          const blockedAt = nowIso();
+          const blockedAt = nextPersistedIsoTimestamp(existingRun.updatedAt);
           const resultingRevision = existingRun.revision + 1;
           const safeErrorMessage = resolveBlockedExecutionSafeMessage(
             target,
@@ -3376,6 +6848,7 @@ export function createPrivateAlphaStore(
                 resultingRevision,
                 errorCode,
                 safeErrorMessage,
+                responseStatus: resolveAvailabilityBlockedResponseStatus(errorCode),
               }),
               auditEvents: [
                 ...existingRun.auditEvents,
@@ -3392,7 +6865,7 @@ export function createPrivateAlphaStore(
               ],
             };
 
-            await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+            await writeJsonFileAtomically(paths, runAbsolutePath, blockedRun, existingRun);
             return {
               replayed: false,
               run: blockedRun,
@@ -3421,6 +6894,7 @@ export function createPrivateAlphaStore(
               resultingRevision,
               errorCode,
               safeErrorMessage,
+              responseStatus: resolveAvailabilityBlockedResponseStatus(errorCode),
             }),
             auditEvents: [
               ...existingRun.auditEvents,
@@ -3437,7 +6911,7 @@ export function createPrivateAlphaStore(
             ],
           };
 
-          await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+          await writeJsonFileAtomically(paths, runAbsolutePath, blockedRun, existingRun);
           return {
             replayed: false,
             run: blockedRun,
@@ -3452,7 +6926,7 @@ export function createPrivateAlphaStore(
           !availability.providerAvailable ||
           !availability.modelAvailable
         ) {
-          const blockedAt = nowIso();
+          const blockedAt = nextPersistedIsoTimestamp(existingRun.updatedAt);
           const resultingRevision = existingRun.revision + 1;
           const safeErrorMessage =
             resolveBlockedExecutionSafeMessage(target, availability);
@@ -3477,6 +6951,7 @@ export function createPrivateAlphaStore(
                 resultingRevision,
                 errorCode,
                 safeErrorMessage,
+                responseStatus: resolveAvailabilityBlockedResponseStatus(errorCode),
               }),
               auditEvents: [
                 ...existingRun.auditEvents,
@@ -3493,7 +6968,7 @@ export function createPrivateAlphaStore(
               ],
             };
 
-            await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+            await writeJsonFileAtomically(paths, runAbsolutePath, blockedRun, existingRun);
             return {
               replayed: false,
               run: blockedRun,
@@ -3519,6 +6994,7 @@ export function createPrivateAlphaStore(
               resultingRevision,
               errorCode,
               safeErrorMessage,
+              responseStatus: resolveAvailabilityBlockedResponseStatus(errorCode),
             }),
             auditEvents: [
               ...existingRun.auditEvents,
@@ -3535,7 +7011,7 @@ export function createPrivateAlphaStore(
             ],
           };
 
-          await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+          await writeJsonFileAtomically(paths, runAbsolutePath, blockedRun, existingRun);
           return {
             replayed: false,
             run: blockedRun,
@@ -3553,7 +7029,7 @@ export function createPrivateAlphaStore(
           throw new PrivateAlphaStoreError(409, transitionToExecuting.message);
         }
 
-        const startedAt = nowIso();
+        const startedAt = nextPersistedIsoTimestamp(existingRun.updatedAt);
         const executingRecord = buildExecutingExecutionRecord({
           run: existingRun,
           idempotencyKeyHash,
@@ -3581,11 +7057,11 @@ export function createPrivateAlphaStore(
             ],
           };
 
-        await writeJsonFileAtomically(runAbsolutePath, executingRun);
+        await writeJsonFileAtomically(paths, runAbsolutePath, executingRun, existingRun);
 
         const killSwitchBeforeGeneration = await readSafeKillSwitchState(paths);
         if (killSwitchBeforeGeneration.killSwitchEngaged) {
-          const blockedAt = nowIso();
+          const blockedAt = nextPersistedIsoTimestamp(executingRun.updatedAt);
           const resultingRevision = executingRun.revision + 1;
           const blockedRun: PrivateAlphaRunRecord = {
             ...executingRun,
@@ -3603,6 +7079,7 @@ export function createPrivateAlphaStore(
               errorCode: "kill_switch_blocked",
               safeErrorMessage:
                 "Execution was blocked by the private-alpha kill switch.",
+              responseStatus: 409,
             }),
             auditEvents: [
               ...executingRun.auditEvents,
@@ -3619,7 +7096,7 @@ export function createPrivateAlphaStore(
             ],
           };
 
-          await writeJsonFileAtomically(runAbsolutePath, blockedRun);
+          await writeJsonFileAtomically(paths, runAbsolutePath, blockedRun, executingRun);
           return {
             replayed: false,
             run: blockedRun,
@@ -3631,12 +7108,21 @@ export function createPrivateAlphaStore(
         }
 
         try {
+          const activeFence = RUN_LOCK_FENCE_CONTEXT.getStore();
+          if (!activeFence || activeFence.runId !== existingRun.runId) {
+            throw new PrivateAlphaStoreError(
+              500,
+              "Private-alpha execution is missing its mutation fence."
+            );
+          }
+          await assertRunLockFence(paths, existingRun.runId, activeFence.owner);
           const generated = await resolvedProviderAdapter.generateApprovedText({
             approvedRequestText: existingRun.request.normalizedRequestText,
             model: target.model,
             maximumOutputTokens: existingRun.request.maximumOutputTokens,
           });
-          const completedAt = nowIso();
+          await assertRunLockFence(paths, existingRun.runId, activeFence.owner);
+          const completedAt = nextPersistedIsoTimestamp(executingRun.updatedAt);
           const resultingRevision = executingRun.revision + 1;
           const transitionToSucceeded = assertPrivateAlphaTransition(
             executingRun.state,
@@ -3678,7 +7164,7 @@ export function createPrivateAlphaStore(
             ],
           };
 
-          await writeJsonFileAtomically(runAbsolutePath, succeededRun);
+          await writeJsonFileAtomically(paths, runAbsolutePath, succeededRun, executingRun);
           return {
             replayed: false,
             run: succeededRun,
@@ -3687,9 +7173,14 @@ export function createPrivateAlphaStore(
             safeErrorMessage: null,
           };
         } catch (error) {
-          const isKnownProviderError = error instanceof PrivateAlphaProviderError;
+          const isKnownLocalProviderError =
+            error instanceof PrivateAlphaProviderError &&
+            isLocalProviderExecutionErrorCode(error.code);
+          const isKnownGroqProviderError =
+            error instanceof PrivateAlphaProviderError &&
+            isGroqProviderExecutionErrorCode(error.code);
 
-          const failedAt = nowIso();
+          const failedAt = nextPersistedIsoTimestamp(executingRun.updatedAt);
           const transitionToFailed = assertPrivateAlphaTransition(
             executingRun.state,
             "fail"
@@ -3714,14 +7205,27 @@ export function createPrivateAlphaStore(
               PrivateAlphaLocalPersistedExecutionErrorCode,
               "kill_switch_blocked"
             > =
-              error instanceof PrivateAlphaProviderError &&
-              isLocalProviderExecutionErrorCode(error.code)
+              isKnownLocalProviderError
                 ? error.code
                 : "ollama_http_error";
             const safeErrorMessage =
-              error instanceof PrivateAlphaProviderError
+              isKnownLocalProviderError
                 ? error.safeMessage
                 : "Local Ollama execution failed unexpectedly.";
+            const failureResponse = isKnownLocalProviderError
+              ? {
+                  errorCode,
+                  safeErrorMessage,
+                  responseStatus: resolvePersistedFailedExecutionResponseStatus(
+                    errorCode,
+                    safeErrorMessage
+                  ),
+                }
+              : {
+                  errorCode,
+                  safeErrorMessage,
+                  responseStatus: 500 as const,
+                };
             const nextFailedRun: PrivateAlphaRunRecord = {
               ...failedRun,
               execution: buildFailedExecutionRecord({
@@ -3731,6 +7235,7 @@ export function createPrivateAlphaStore(
                 resultingRevision,
                 errorCode,
                 safeErrorMessage,
+                responseStatus: failureResponse.responseStatus,
               }),
               auditEvents: [
                 ...failedRun.auditEvents,
@@ -3747,15 +7252,7 @@ export function createPrivateAlphaStore(
               ],
             };
 
-            await writeJsonFileAtomically(runAbsolutePath, nextFailedRun);
-
-            const failureResponse = isKnownProviderError
-              ? buildExecutionFailureResponse(errorCode, safeErrorMessage)
-              : {
-                  errorCode,
-                  safeErrorMessage,
-                  responseStatus: 500 as const,
-                };
+            await writeJsonFileAtomically(paths, runAbsolutePath, nextFailedRun, executingRun);
 
             return {
               replayed: false,
@@ -3770,14 +7267,27 @@ export function createPrivateAlphaStore(
             PrivateAlphaGroqPersistedExecutionErrorCode,
             "kill_switch_blocked"
           > =
-            error instanceof PrivateAlphaProviderError &&
-            isGroqProviderExecutionErrorCode(error.code)
+            isKnownGroqProviderError
               ? error.code
               : "groq_http_error";
           const safeErrorMessage =
-            error instanceof PrivateAlphaProviderError
+            isKnownGroqProviderError
               ? error.safeMessage
               : "Groq Cloud execution failed unexpectedly.";
+          const failureResponse = isKnownGroqProviderError
+            ? {
+                errorCode,
+                safeErrorMessage,
+                responseStatus: resolvePersistedFailedExecutionResponseStatus(
+                  errorCode,
+                  safeErrorMessage
+                ),
+              }
+            : {
+                errorCode,
+                safeErrorMessage,
+                responseStatus: 500 as const,
+              };
           const nextFailedRun: PrivateAlphaRunRecord = {
             ...failedRun,
             execution: buildFailedExecutionRecord({
@@ -3787,6 +7297,7 @@ export function createPrivateAlphaStore(
               resultingRevision,
               errorCode,
               safeErrorMessage,
+              responseStatus: failureResponse.responseStatus,
             }),
             auditEvents: [
               ...failedRun.auditEvents,
@@ -3803,15 +7314,7 @@ export function createPrivateAlphaStore(
             ],
           };
 
-          await writeJsonFileAtomically(runAbsolutePath, nextFailedRun);
-
-          const failureResponse = isKnownProviderError
-            ? buildExecutionFailureResponse(errorCode, safeErrorMessage)
-            : {
-                errorCode,
-                safeErrorMessage,
-                responseStatus: 500 as const,
-              };
+          await writeJsonFileAtomically(paths, runAbsolutePath, nextFailedRun, executingRun);
 
           return {
             replayed: false,
@@ -3823,7 +7326,34 @@ export function createPrivateAlphaStore(
         }
       });
     },
+
+    async executeCreatorRun(runId, body, idempotencyKey, ownership) {
+      return storeInternal.executeRun(runId, body, idempotencyKey, ownership);
+    },
   };
+  const store: PrivateAlphaStore = {
+    getStatus: storeInternal.getStatus,
+    createRun: (body, idempotencyKey) =>
+      storeInternal.createRun(body, idempotencyKey),
+    createCreatorRun: storeInternal.createCreatorRun,
+    bindCreatorRun: storeInternal.bindCreatorRun,
+    lookupRunByIdempotencyKeyHash: storeInternal.lookupRunByIdempotencyKeyHash,
+    recoverCreatorRunByIdempotencyKey:
+      storeInternal.recoverCreatorRunByIdempotencyKey,
+    listRuns: storeInternal.listRuns,
+    getRun: storeInternal.getRun,
+    getCreatorRun: storeInternal.getCreatorRun,
+    reconcileCreatorRunAfterInterruption:
+      storeInternal.reconcileCreatorRunAfterInterruption,
+    approveRun: (runId, body) => storeInternal.approveRun(runId, body),
+    approveCreatorRun: storeInternal.approveCreatorRun,
+    cancelRun: (runId, body) => storeInternal.cancelRun(runId, body),
+    cancelCreatorRun: storeInternal.cancelCreatorRun,
+    executeRun: (runId, body, idempotencyKey) =>
+      storeInternal.executeRun(runId, body, idempotencyKey),
+    executeCreatorRun: storeInternal.executeCreatorRun,
+  };
+  return store;
 }
 
 export function createPrivateAlphaStoreForTesting(

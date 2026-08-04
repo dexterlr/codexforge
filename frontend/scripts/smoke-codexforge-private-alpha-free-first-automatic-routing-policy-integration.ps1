@@ -177,9 +177,10 @@ Assert-Contains $routingTypesSource 'cloudRouting.freeTierConfirmation must be e
 Assert-Contains $privateAlphaIndexSource 'isPrivateAlphaFreeFirstRoutingResultSafeForCreate,' "Private-alpha index re-exports the create-safety result guard"
 Assert-NotMatches $routingServerSource 'createPrivateAlphaStore|createRun\(|approveRun\(|executeRun\(|generateApprovedText|writeJsonFileAtomically|mkdir|writeFile|appendFile|\.codexforge/private-alpha' "Routing orchestrator performs no persistence or generation work"
 Assert-NotMatches $routingRouteSource 'createPrivateAlphaStore|createRun\(|approveRun\(|executeRun\(|generateApprovedText|\.codexforge/private-alpha' "Routing API route performs no persistence or generation work"
-Assert-Contains $routingRouteSource 'return NextResponse.json({ ok: true, result });' "Routing API route returns HTTP 200 with the safe result payload"
-Assert-Contains $routingRouteSource 'return failure(400, "Invalid JSON payload.");' "Routing API route keeps malformed JSON on HTTP 400"
-Assert-Contains $routingRouteSource 'return failure(error.status, error.message);' "Routing API route keeps validated routing failures on HTTP 400"
+Assert-Contains $routingRouteSource 'privateAlphaJsonResponse({ ok: true, result })' "Routing API route returns HTTP 200 with the safe result payload through the shared bounded response boundary"
+Assert-Contains $routingRouteSource 'const body = await readPrivateAlphaJsonBody(request);' "Routing API route keeps malformed or oversized JSON on the shared bounded HTTP error path"
+Assert-Contains $routingRouteSource 'const httpResponse = privateAlphaHttpErrorResponse(error);' "Routing API route preserves shared HTTP error status and response classification"
+Assert-Contains $routingRouteSource 'return privateAlphaFailureResponse(error.status, error.message);' "Routing API route keeps validated routing failures on their exact bounded status"
 
 Assert-Contains $apiClientSource 'kind: "route-free-first"' "API client declares the free-first routing operation"
 Assert-Contains $apiClientSource '/routing/free-first' "API client targets the free-first routing endpoint"
@@ -215,7 +216,7 @@ Assert-NotMatches ($groqClientSource + "`n" + $groqQualificationSource + "`n" + 
 Assert-Contains $groqQualificationSource 'request-scoped-operator-confirmation' "Groq qualification records request-scoped operator confirmation"
 Assert-Contains $providerRegistrySource 'Automatic routing remains disabled for ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.manualOnlyModelKey}.' "Production registry keeps the exact Groq 120B manual-only"
 Assert-Contains $aggregateSource 'smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1' "Aggregate smoke suite registers the Slice M smoke"
-Assert-True ($aggregateExecutableCount -eq 72) "Aggregate executable count is 72 after Macro Phase C.1 smoke registration"
+Assert-True ($aggregateExecutableCount -eq 74) "Aggregate executable count is 74 after Macro Phase D1 and D2 smoke registration"
 
 $nodeScript = @'
 const fs = require("fs");
@@ -2571,7 +2572,28 @@ async function main() {
     historicalRun.approvalScope
   );
   historicalRun.approval.approvalScopeHash = historicalRun.approvalScopeHash;
+  delete historicalRun.ownership;
   await writeRunJson(historicalLabel, historicalRun);
+  await fsp.writeFile(
+    path.join(
+      toAbsolutePath(historicalLabel),
+      "idempotency",
+      `${historicalRun.idempotencyKeyHash}.json`
+    ),
+    JSON.stringify(
+      {
+        version: historicalRun.version,
+        idempotencyKeyHash: historicalRun.idempotencyKeyHash,
+        canonicalRequestHash:
+          storeModule.buildPrivateAlphaCanonicalRequestHash(historicalRun.request),
+        runId: historicalRun.runId,
+        createdAt: historicalRun.createdAt,
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
   const historicalReadable = await historicalStore.getRun(historicalApproved.approved.runId);
   assert(
     historicalReadable.request.maximumOutputTokens === 700,

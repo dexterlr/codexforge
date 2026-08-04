@@ -1,9 +1,14 @@
-import { NextResponse } from "next/server";
 import {
   PrivateAlphaStoreError,
   createPrivateAlphaStore,
 } from "@/lib/codexforge/private-alpha/private-alpha-store.server";
 import { PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE } from "@/lib/codexforge/private-alpha";
+import {
+  assertPrivateAlphaLoopbackRequest,
+  privateAlphaFailureResponse,
+  privateAlphaHttpErrorResponse,
+  privateAlphaJsonResponse,
+} from "@/lib/codexforge/private-alpha/private-alpha-http.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,26 +23,25 @@ const store = createPrivateAlphaStore({
   runtimeProfile: PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE,
 });
 
-function failure(status: number, error: string) {
-  return NextResponse.json({ ok: false, error }, { status });
-}
-
 function toErrorResponse(error: unknown) {
+  const httpResponse = privateAlphaHttpErrorResponse(error);
+  if (httpResponse) return httpResponse;
   if (error instanceof PrivateAlphaStoreError) {
-    return failure(error.status, error.message);
+    return privateAlphaFailureResponse(error.status, error.message);
   }
 
-  return failure(500, "Unexpected private-alpha server error.");
+  return privateAlphaFailureResponse(500, "Unexpected private-alpha server error.");
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: PrivateAlphaRunRouteContext
 ) {
   try {
+    assertPrivateAlphaLoopbackRequest(request);
     const { runId } = await context.params;
     const run = await store.getRun(runId);
-    return NextResponse.json({ ok: true, run });
+    return privateAlphaJsonResponse({ ok: true, run });
   } catch (error) {
     return toErrorResponse(error);
   }

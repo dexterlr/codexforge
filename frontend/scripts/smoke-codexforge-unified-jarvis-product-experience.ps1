@@ -149,20 +149,20 @@ foreach ($path in $requiredFiles) {
 }
 Assert-PowerShellParses "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1"
 
-Assert-True ($expectedDirtyPaths.Count -eq 30) "Macro Phase C.1 manifest declares exactly thirty paths"
-Assert-True (@($expectedDirtyPaths | Sort-Object -Unique).Count -eq 30) "Macro Phase C.1 manifest paths are unique"
+Assert-True ($expectedDirtyPaths.Count -eq 30) "Historical Macro Phase C.1 source inventory declares exactly thirty paths"
+Assert-True (@($expectedDirtyPaths | Sort-Object -Unique).Count -eq 30) "Historical Macro Phase C.1 source inventory paths are unique"
 $changedPaths = @(
   (& git status --short --untracked-files=all 2>$null) |
     Where-Object { $_.Length -ge 4 } |
     ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
-Assert-True ($changedPaths.Count -eq $expectedDirtyPaths.Count) "Git scope contains exactly the thirty Macro Phase C.1 paths"
-foreach ($path in $changedPaths) {
-  Assert-True ($expectedDirtyPaths -contains $path) "Git dirty path is approved for Macro Phase C.1: $path"
-}
 foreach ($path in $expectedDirtyPaths) {
-  Assert-True ($changedPaths -contains $path) "Git dirty scope includes the planned path: $path"
+  Assert-True (Test-Path -LiteralPath (Join-Path $root $path) -PathType Leaf) "Historical Macro Phase C.1 source remains present: $path"
+}
+Assert-True (@(& git diff --cached --name-only).Count -eq 0) "Nothing is staged during the current bounded implementation"
+foreach ($path in @($changedPaths | Where-Object { $_ -like "*.ps1" })) {
+  Assert-PowerShellParses $path
 }
 
 $privateAlphaTestRoot = Join-Path $root ".codexforge/private-alpha-tests"
@@ -538,8 +538,6 @@ Assert-Contains $apiClient 'const PRIVATE_ALPHA_API_BASE_PATH = "/api/codexforge
 Assert-NotMatches $apiClient '127\.0\.0\.1:11434|/api/chat|api\.groq\.com|GROQ_API_KEY|process\.env' "Browser API client remains provider- and credential-agnostic"
 
 foreach ($protectedPath in @(
-  "src/app/api/codexforge/private-alpha",
-  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
   "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
   "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts",
   "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts",
@@ -549,13 +547,52 @@ foreach ($protectedPath in @(
   "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
   "src/lib/codexforge/ollama-provider",
   "src/lib/codexforge/groq-provider",
-  "package.json",
   "package-lock.json",
   "next.config.ts",
   "tsconfig.json"
 )) {
   Assert-NoGitDiff $protectedPath "Protected backend/configuration ownership remains unchanged: $protectedPath"
 }
+
+$expectedPrivateAlphaHttpRouteChanges = @(
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/approve/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/cancel/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/execute/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/route.ts",
+  "src/app/api/codexforge/private-alpha/status/route.ts"
+)
+$actualPrivateAlphaHttpRouteChanges = @(
+  $changedPaths |
+    Where-Object { $_ -like "src/app/api/codexforge/private-alpha/*" } |
+    Sort-Object
+)
+Assert-True (@(Compare-Object -ReferenceObject @($expectedPrivateAlphaHttpRouteChanges | Sort-Object) -DifferenceObject $actualPrivateAlphaHttpRouteChanges).Count -eq 0) "Authorized Private Alpha HTTP ownership migration is limited to the exact seven routes"
+foreach ($route in $expectedPrivateAlphaHttpRouteChanges) {
+  $routeSource = Get-Text $route
+  Assert-Contains $routeSource 'from "@/lib/codexforge/private-alpha/private-alpha-http.server";' "Private Alpha route uses the shared fail-closed HTTP boundary: $route"
+  Assert-Contains $routeSource 'assertPrivateAlphaLoopbackRequest(request' "Private Alpha route enforces the shared loopback Host and Origin boundary: $route"
+  Assert-Contains $routeSource 'privateAlphaHttpErrorResponse(error)' "Private Alpha route preserves bounded HTTP error classification: $route"
+}
+foreach ($mutationRoute in @(
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/approve/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/cancel/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/execute/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/route.ts"
+)) {
+  $mutationRouteSource = Get-Text $mutationRoute
+  Assert-Contains $mutationRouteSource 'assertPrivateAlphaLoopbackRequest(request, true);' "Private Alpha mutation requires an exact same-origin request: $mutationRoute"
+  Assert-Contains $mutationRouteSource 'readPrivateAlphaJsonBody(request)' "Private Alpha mutation retains bounded strict JSON body handling: $mutationRoute"
+}
+$privateAlphaHttpBoundary = Get-Text "src/lib/codexforge/private-alpha/private-alpha-http.server.ts"
+Assert-Contains $privateAlphaHttpBoundary 'export function assertPrivateAlphaLoopbackRequest' "Private Alpha HTTP ownership moved to one server-only fail-closed boundary"
+Assert-Contains $privateAlphaHttpBoundary 'export async function readPrivateAlphaJsonBody' "Private Alpha HTTP boundary owns bounded strict JSON mutation bodies"
+$packageManifest = Get-Text "package.json" | ConvertFrom-Json
+Assert-True ($packageManifest.scripts.'native:build' -eq 'node ./scripts/build-codexforge-creator-native.cjs') "Authorized package ownership change is limited to the repository-owned native creator build"
+Assert-True ($packageManifest.scripts.build -eq 'npm run native:build && next build') "Production build fails closed unless the native creator boundary builds"
+Assert-Contains $storeSource 'withPrivateAlphaNativeRootLease' "Authorized Private Alpha store ownership change remains bound to the native root lease"
 Assert-Contains $apiClient 'approvePrivateAlphaRun' "Browser client preserves a separate explicit approval action"
 Assert-Contains $apiClient 'executePrivateAlphaRun' "Browser client preserves a separate explicit execution action"
 Assert-Contains $storeSource '"This run has already started its one allowed execution attempt."' "Server store still rejects a second execution attempt"
@@ -569,21 +606,21 @@ $releaseEntries = @(
   $releaseBlock -split "\r?\n" |
     Where-Object { $_ -match '^\s*@\{ Name = ".*"; File = .*; Required = \$(?:true|false) \},?$' }
 )
-Assert-True ($releaseEntries.Count -eq 72) "Aggregate executable count is 72"
-Assert-True (@($releaseEntries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 69) "Aggregate required count is 69"
+Assert-True ($releaseEntries.Count -eq 74) "Aggregate executable count is 74"
+Assert-True (@($releaseEntries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 71) "Aggregate required count is 71"
 Assert-True (@($releaseEntries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count remains 3"
+$phaseANeedle = 'File = "smoke-codexforge-local-first-jarvis-working-product-loop.ps1"; Required = $true'
 $phaseBNeedle = 'File = "smoke-codexforge-unified-jarvis-product-experience.ps1"; Required = $true'
 Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseBNeedle))).Count -eq 1) "Macro Phase B smoke is registered exactly once as required"
 $phaseCNeedle = 'File = "smoke-codexforge-macro-phase-c-whole-product-hardening.ps1"; Required = $true'
 Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseCNeedle))).Count -eq 1) "Macro Phase C smoke is registered exactly once as required"
 $phaseC1Needle = 'File = "smoke-codexforge-macro-phase-c-1-rendered-accessibility-repair.ps1"; Required = $true'
 Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseC1Needle))).Count -eq 1) "Macro Phase C.1 smoke is registered exactly once as required"
-Assert-True (
-  [regex]::IsMatch(
-    $releaseBlock,
-    'Local-First Jarvis Working Product Loop"; File = "smoke-codexforge-local-first-jarvis-working-product-loop\.ps1"; Required = \$true \},\r?\n\s*@\{ Name = "Unified Jarvis Product Experience"; File = "smoke-codexforge-unified-jarvis-product-experience\.ps1"; Required = \$true \},\r?\n\s*@\{ Name = "Macro Phase C Whole-Product Hardening"; File = "smoke-codexforge-macro-phase-c-whole-product-hardening\.ps1"; Required = \$true \},\r?\n\s*@\{ Name = "Macro Phase C\.1 Rendered Accessibility Repair"; File = "smoke-codexforge-macro-phase-c-1-rendered-accessibility-repair\.ps1"; Required = \$true'
-  )
-) "Macro Phases A, B, C, and C.1 are registered in order"
+$phaseD1Needle = 'File = "smoke-codexforge-macro-phase-d1-shared-creator-lifecycle-foundation.ps1"; Required = $true'
+$phaseD2Needle = 'File = "smoke-codexforge-macro-phase-d2-static-website-browser-app-builder-foundation.ps1"; Required = $true'
+Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseD1Needle))).Count -eq 1) "Macro Phase D1 smoke is registered exactly once as required"
+Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseD2Needle))).Count -eq 1) "Macro Phase D2 smoke is registered exactly once as required"
+Assert-InOrder $releaseBlock @($phaseANeedle, $phaseBNeedle, $phaseCNeedle, $phaseC1Needle, $phaseD1Needle, $phaseD2Needle) "Macro Phases A, B, C, C.1, D1, and D2 are registered in order"
 Assert-NotMatches $releaseBlock 'qualify-codexforge-qwen2-5-coder-32b-installed-candidate|run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance|smoke-codexforge-private-alpha-manual-groq-execution-foundation|smoke-codexforge-groq-live-qualification-admission' "Live and manual provider scripts remain outside the aggregate gate"
 
 Write-Host ""

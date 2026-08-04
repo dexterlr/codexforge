@@ -427,6 +427,16 @@ export function validatePrivateAlphaIdempotencyKey(
     );
   }
 
+  if (
+    rawIdempotencyKey !== trimmed ||
+    !/^[A-Za-z0-9][A-Za-z0-9._:-]*$/u.test(trimmed)
+  ) {
+    return failure(
+      400,
+      "Idempotency-Key must use only visible ASCII letters, digits, period, underscore, colon, or hyphen without surrounding whitespace."
+    );
+  }
+
   return success(trimmed);
 }
 

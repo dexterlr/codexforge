@@ -800,12 +800,12 @@ const JARVIS_UNIFIED_PRODUCT_PRIMARY_ROUTE_INPUTS = [
     href: "/jarvis-websites",
     label: "Jarvis Website Builder",
     shortLabel: "Websites",
-    badge: "Placeholder",
+    badge: "Local v0",
     priority: 9.96,
     group: "Creative",
     commandDeckRole: "workspace",
     description:
-      "websites workspace placeholder only. Idea, sitemap, design system, pages, preview, and export or publish approval remain visible while execution stays blocked.",
+      "Static Website/Browser App v0 uses one exact local Ollama model, separate approval and execution, strict validation, isolated atomic files, sandbox preview, one repair, and manifest or individual-file export. No backend or deployment.",
   },
   {
     id: "jarvis-avatar",
@@ -865,10 +865,13 @@ function buildJarvisUnifiedProductPrimaryRouteDefaults(): Partial<Record<CodexFo
   return JARVIS_UNIFIED_PRODUCT_PRIMARY_ROUTE_INPUTS.reduce<Partial<Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute>>>((routes, route) => {
     routes[route.href] = {
       ...route,
-      readiness: route.href === "/jarvis" ? "available" : "preview-only",
+      readiness:
+        route.href === "/jarvis" || route.href === "/jarvis-websites"
+          ? "available"
+          : "preview-only",
       safetyPosture: "approval-gated",
       requiresReview: true,
-      noMutation: true,
+      noMutation: route.href === "/jarvis-websites" ? false : true,
     };
     return routes;
   }, {});
@@ -52803,7 +52806,7 @@ export function buildCodexForgeNavigationRoute(
     ...input,
     id: (input.id ?? fallback.id) as CodexForgeNavigationRouteId,
     href: input.href,
-    noMutation: input.noMutation ?? true,
+    noMutation: input.noMutation ?? fallback.noMutation ?? true,
   };
 }
 export function buildCodexForgeNavigationRoutes(

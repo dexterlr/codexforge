@@ -77,22 +77,15 @@ $macroPhaseCPaths = @(
   "src/lib/codexforge/video-foundation-ui.tsx",
   "src/lib/codexforge/video-project-workspace/components/VideoProjectWorkspacePanel.tsx"
 )
-Assert-True ($macroPhaseCPaths.Count -eq 30) "Macro Phase C.1 scope declares exactly thirty files"
-Assert-True (@($macroPhaseCPaths | Sort-Object -Unique).Count -eq 30) "Macro Phase C.1 scope contains thirty unique files"
+Assert-True ($macroPhaseCPaths.Count -eq 30) "Historical Macro Phase C.1 source inventory declares exactly thirty files"
+Assert-True (@($macroPhaseCPaths | Sort-Object -Unique).Count -eq 30) "Historical Macro Phase C.1 source inventory contains thirty unique files"
+Assert-True (@($macroPhaseCPaths | Where-Object { $_ -like "src/lib/codexforge/creator/*" }).Count -eq 0) "Historical Macro Phase C.1 source inventory excludes later creator-owned paths"
+foreach ($path in $macroPhaseCPaths) {
+  Assert-True (Test-Path -LiteralPath $path -PathType Leaf) "Historical Macro Phase C.1 source remains present: $path"
+}
 
 foreach ($file in $sliceRFiles) {
   Assert-True (Test-Path -LiteralPath $file -PathType Leaf) "Slice R file exists: $file"
-}
-
-$changedPaths = @(
-  (& git status --short --untracked-files=all 2>$null) |
-    Where-Object { $_.Length -ge 4 } |
-    ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
-    Sort-Object -Unique
-)
-Assert-True ($changedPaths.Count -eq $macroPhaseCPaths.Count) "Git scope contains exactly the thirty Macro Phase C.1 files"
-foreach ($path in $changedPaths) {
-  Assert-True ($macroPhaseCPaths -contains $path) "Git scope stays within Macro Phase C.1: $path"
 }
 
 $candidateServerPath = "src/lib/codexforge/model-routing/onboarding/qwen2-5-coder-32b-installed-candidate.server.ts"
@@ -119,6 +112,13 @@ $onboardingServer = Get-Content -Raw -LiteralPath "src/lib/codexforge/model-rout
 $modelRoutingIndex = Get-Content -Raw -LiteralPath "src/lib/codexforge/model-routing/index.ts"
 Assert-True (($onboardingIndex + $onboardingServer + $modelRoutingIndex) -notmatch 'qwen2-5-coder-32b-installed-candidate') "No onboarding or model-routing barrel exports Slice Q"
 
+$changedPaths = @(
+  (& git status --short --untracked-files=all) |
+    Where-Object { $_.Length -ge 4 } |
+    ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
+    Sort-Object -Unique
+)
+
 foreach ($protectedPath in @(
   "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
   "src/lib/codexforge/model-routing/model-routing-catalog.ts",
@@ -134,11 +134,51 @@ foreach ($protectedPath in @(
   "src/lib/codexforge/model-routing/onboarding/server.ts",
   "src/lib/codexforge/ollama-provider",
   "src/lib/codexforge/groq-provider",
-  "src/lib/codexforge/private-alpha",
-  "src/app/api/codexforge/private-alpha",
   ".codexforge/private-alpha"
 )) {
   Assert-NoGitDiff $protectedPath "Protected production/Slice P path remains unchanged: $protectedPath"
+}
+
+$expectedPrivateAlphaLibraryChanges = @(
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-http.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-native-filesystem.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
+)
+$actualPrivateAlphaLibraryChanges = @(
+  $changedPaths |
+    Where-Object { $_ -like "src/lib/codexforge/private-alpha/*" } |
+    Sort-Object
+)
+Assert-True (@(Compare-Object -ReferenceObject @($expectedPrivateAlphaLibraryChanges | Sort-Object) -DifferenceObject $actualPrivateAlphaLibraryChanges).Count -eq 0) "Authorized Private Alpha library ownership migration is limited to the exact seven security and persistence files"
+
+$expectedPrivateAlphaRouteChanges = @(
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/approve/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/cancel/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/execute/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/route.ts",
+  "src/app/api/codexforge/private-alpha/status/route.ts"
+)
+$actualPrivateAlphaRouteChanges = @(
+  $changedPaths |
+    Where-Object { $_ -like "src/app/api/codexforge/private-alpha/*" } |
+    Sort-Object
+)
+Assert-True (@(Compare-Object -ReferenceObject @($expectedPrivateAlphaRouteChanges | Sort-Object) -DifferenceObject $actualPrivateAlphaRouteChanges).Count -eq 0) "Authorized Private Alpha API ownership migration is limited to the exact seven HTTP routes"
+foreach ($providerBoundary in @(
+  "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts"
+)) {
+  Assert-NoGitDiff $providerBoundary "Private Alpha provider/runtime boundary remains unchanged: $providerBoundary"
 }
 
 $protectedHashes = @{
@@ -183,8 +223,8 @@ foreach ($needle in $candidateNeedles) {
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 72) "Aggregate executable entry count is 72"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 69) "Aggregate required count is 69"
+Assert-True ($entries.Count -eq 74) "Aggregate executable entry count is 74"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 71) "Aggregate required count is 71"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True (@($entries | Where-Object { $_ -match 'smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1' }).Count -eq 1) "Slice Q smoke is registered exactly once"
 Assert-True ($releaseBlock -match 'Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},') "Slice Q smoke follows Slice P and is required"

@@ -64,6 +64,13 @@ $productionImports = @(
 )
 Assert-True ($productionImports.Count -eq 0) "No live production source imports the onboarding foundation"
 
+$changedPaths = @(
+  (& git status --short --untracked-files=all) |
+    Where-Object { $_.Length -ge 4 } |
+    ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
+    Sort-Object -Unique
+)
+
 foreach ($protectedPath in @(
   "src/lib/codexforge/model-routing/model-routing-provider-registry.ts",
   "src/lib/codexforge/model-routing/model-routing-catalog.ts",
@@ -71,8 +78,6 @@ foreach ($protectedPath in @(
   "src/lib/codexforge/model-routing/model-routing-policy.server.ts",
   "src/lib/codexforge/ollama-provider",
   "src/lib/codexforge/groq-provider",
-  "src/lib/codexforge/private-alpha",
-  "src/app/api/codexforge/private-alpha",
   # /jarvis product-route ownership is exercised by Macro Phase B.
   # /athena compatibility-route ownership is exercised by Macro Phase B.
   ".codexforge/private-alpha"
@@ -80,11 +85,53 @@ foreach ($protectedPath in @(
   Assert-NoGitDiff $protectedPath "Protected production path remains unchanged: $protectedPath"
 }
 
+$expectedPrivateAlphaLibraryChanges = @(
+  "src/lib/codexforge/private-alpha/index.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-http.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-native-filesystem.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-store.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-types.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-validation.ts"
+)
+$actualPrivateAlphaLibraryChanges = @(
+  $changedPaths |
+    Where-Object { $_ -like "src/lib/codexforge/private-alpha/*" } |
+    Sort-Object
+)
+Assert-True (@(Compare-Object -ReferenceObject @($expectedPrivateAlphaLibraryChanges | Sort-Object) -DifferenceObject $actualPrivateAlphaLibraryChanges).Count -eq 0) "Authorized Private Alpha library ownership migration is limited to the exact seven security and persistence files"
+
+$expectedPrivateAlphaRouteChanges = @(
+  "src/app/api/codexforge/private-alpha/routing/free-first/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/approve/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/cancel/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/execute/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/[runId]/route.ts",
+  "src/app/api/codexforge/private-alpha/runs/route.ts",
+  "src/app/api/codexforge/private-alpha/status/route.ts"
+)
+$actualPrivateAlphaRouteChanges = @(
+  $changedPaths |
+    Where-Object { $_ -like "src/app/api/codexforge/private-alpha/*" } |
+    Sort-Object
+)
+Assert-True (@(Compare-Object -ReferenceObject @($expectedPrivateAlphaRouteChanges | Sort-Object) -DifferenceObject $actualPrivateAlphaRouteChanges).Count -eq 0) "Authorized Private Alpha API ownership migration is limited to the exact seven HTTP routes"
+foreach ($providerBoundary in @(
+  "src/lib/codexforge/private-alpha/private-alpha-provider-runtime.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-provider.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-ollama-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-groq-adapter.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts",
+  "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts"
+)) {
+  Assert-NoGitDiff $providerBoundary "Private Alpha provider/runtime boundary remains unchanged: $providerBoundary"
+}
+
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 72) "Aggregate executable entry count is 72"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 69) "Aggregate required count is 69"
+Assert-True ($entries.Count -eq 74) "Aggregate executable entry count is 74"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 71) "Aggregate required count is 71"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True ($releaseBlock -match 'Free/Local Provider Registry Foundation"; File = "smoke-codexforge-free-local-provider-registry-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},') "Slice P smoke follows Slice O in executable order"
 Assert-True ($releaseBlock -match 'Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},') "Slice Q smoke follows Slice P in executable order"

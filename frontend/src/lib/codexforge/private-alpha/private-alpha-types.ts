@@ -1,5 +1,11 @@
 export const PRIVATE_ALPHA_RECORD_VERSION = 1 as const;
 export const PRIVATE_ALPHA_APPROVAL_BINDING_VERSION = 1 as const;
+export const PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION = 1 as const;
+export const PRIVATE_ALPHA_IDEMPOTENCY_PROTOCOL_VERSION = 1 as const;
+export const PRIVATE_ALPHA_IDEMPOTENCY_PUBLICATION_PHASES = [
+  "reserved",
+  "published",
+] as const;
 
 export const PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY =
   "ollama-local::gpt-oss:20b" as const;
@@ -75,6 +81,7 @@ export const PRIVATE_ALPHA_EXECUTION_ERROR_CODES = [
 ] as const;
 
 const PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES = [
+  "execution_interrupted",
   "kill_switch_blocked",
   "ollama_unavailable",
   "ollama_model_missing",
@@ -98,6 +105,8 @@ const PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES = [
 
 export type PrivateAlphaApprovalBindingVersion =
   typeof PRIVATE_ALPHA_APPROVAL_BINDING_VERSION;
+export type PrivateAlphaIdempotencyPublicationPhase =
+  (typeof PRIVATE_ALPHA_IDEMPOTENCY_PUBLICATION_PHASES)[number];
 export type PrivateAlphaRuntimeModelKey =
   (typeof PRIVATE_ALPHA_RUNTIME_MODEL_KEYS)[number];
 export type PrivateAlphaRunState = (typeof PRIVATE_ALPHA_RUN_STATES)[number];
@@ -116,8 +125,12 @@ export type PrivateAlphaExecutionMode =
   (typeof PRIVATE_ALPHA_EXECUTION_MODES)[number];
 export type PrivateAlphaExecutionErrorCode =
   (typeof PRIVATE_ALPHA_EXECUTION_ERROR_CODES)[number];
-export type PrivateAlphaProviderErrorCode =
+export type PrivateAlphaPersistedExecutionErrorCode =
   (typeof PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES)[number];
+export type PrivateAlphaProviderErrorCode = Exclude<
+  PrivateAlphaPersistedExecutionErrorCode,
+  "execution_interrupted" | "kill_switch_blocked"
+>;
 export type PrivateAlphaAuditActor = "local-operator" | "system";
 export type PrivateAlphaStatusMode =
   | "private-alpha-foundation"
@@ -330,6 +343,7 @@ export type PrivateAlphaCancellationRecord = Readonly<{
 }>;
 
 type PrivateAlphaLocalExecutionErrorCode =
+  | "execution_interrupted"
   | "kill_switch_blocked"
   | "ollama_unavailable"
   | "ollama_model_missing"
@@ -340,6 +354,7 @@ type PrivateAlphaLocalExecutionErrorCode =
   | "ollama_output_too_large";
 
 type PrivateAlphaGroqExecutionErrorCode =
+  | "execution_interrupted"
   | "kill_switch_blocked"
   | "groq_credential_missing"
   | "groq_authentication_failed"
@@ -370,6 +385,7 @@ type PrivateAlphaExecutionRecordCommon = Readonly<{
   loadDurationNanoseconds: number | null;
   promptEvalCount: number | null;
   evalCount: number | null;
+  responseStatus: 200 | 409 | 500 | 503 | 504 | null;
 }>;
 
 export type PrivateAlphaLocalExecutionRecord = PrivateAlphaExecutionRecordCommon &
@@ -425,6 +441,24 @@ export type PrivateAlphaAuditEvent = Readonly<{
   summary: string;
 }>;
 
+export type PrivateAlphaGeneralRunOwnership = Readonly<{
+  kind: "general";
+  protocolVersion: typeof PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION;
+}>;
+
+export type PrivateAlphaCreatorRunOwnership = Readonly<{
+  kind: "creator";
+  protocolVersion: typeof PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION;
+  projectId: string;
+  purpose: "generation" | "repair";
+  bindingId: string;
+}>;
+
+export type PrivateAlphaRunOwnership =
+  | PrivateAlphaGeneralRunOwnership
+  | PrivateAlphaCreatorRunOwnership
+  | null;
+
 export type PrivateAlphaRunRecord = Readonly<{
   version: typeof PRIVATE_ALPHA_RECORD_VERSION;
   runId: string;
@@ -433,6 +467,7 @@ export type PrivateAlphaRunRecord = Readonly<{
   state: PrivateAlphaRunState;
   revision: number;
   idempotencyKeyHash: string;
+  ownership: PrivateAlphaRunOwnership;
   request: PrivateAlphaRunRequest;
   approvalScope: PrivateAlphaApprovalScope;
   approvalScopeHash: string;
@@ -459,7 +494,7 @@ export type PrivateAlphaRunSummary = Readonly<{
 export type PrivateAlphaStatus = Readonly<{
   mode: PrivateAlphaStatusMode;
   persistence: "local-file-backed";
-  approvalRecording: "enabled";
+  approvalRecording: "enabled" | "unavailable";
   providerExecution: "unavailable" | "local-ollama";
   providerLabel: "Local Ollama";
   configuredModel: "gpt-oss:20b";
@@ -480,6 +515,6 @@ export type PrivateAlphaExecuteRunResult = Readonly<{
   replayed: boolean;
   run: PrivateAlphaRunRecord;
   responseStatus: 200 | 409 | 500 | 503 | 504;
-  errorCode: PrivateAlphaProviderErrorCode | null;
+  errorCode: PrivateAlphaPersistedExecutionErrorCode | null;
   safeErrorMessage: string | null;
 }>;

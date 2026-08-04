@@ -133,15 +133,17 @@ foreach ($path in $parsedScripts) {
 }
 
 $changedPaths = Get-GitChangedPaths
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the twenty allowed Slice R files"
+Assert-FileExists "scripts\smoke-codexforge-macro-phase-d2-static-website-browser-app-builder-foundation.ps1"
+$macroD2Source = Get-Text "scripts\smoke-codexforge-macro-phase-d2-static-website-browser-app-builder-foundation.ps1"
+Assert-True ($changedPaths.Count -eq 78) "Git scope contains the exact current Macro D 78-path manifest"
 foreach ($path in $changedPaths) {
-  Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed Slice R files: $path"
+  Assert-Contains $macroD2Source ('"frontend/' + $path + '"') "Macro D2 owns current dirty path: $path"
 }
 
 $changedProductFiles = $changedPaths | Where-Object { $productFiles -contains $_ }
-Assert-True ($changedProductFiles.Count -eq $productFiles.Count) "Only the intended Slice R qualification and controlled acceptance source paths changed"
+Assert-True ($changedProductFiles.Count -eq 0) "Historical Slice R qualification and controlled acceptance source paths remain unchanged"
 foreach ($path in $productFiles) {
-  Assert-True ($changedPaths -contains $path) "Intended Slice R source file changed: $path"
+  Assert-NoGitDiff $path "Historical Slice R source remains unchanged: $path"
 }
 
 Assert-FileExists "src\app\api\codexforge\private-alpha\routing\free-first\route.ts"
@@ -249,6 +251,7 @@ async function main() {
   const repoRoot = process.argv[2];
   const testSuffix = process.argv[3];
   const killSwitchStateByLabel = new Map();
+  const ownedTestLabels = new Set();
   let fetchCallCount = 0;
   let groqCredentialLoadCount = 0;
   const killSwitchModulePath = path.join(
@@ -432,6 +435,7 @@ async function main() {
     const label = storeModule.buildPrivateAlphaTestingDataRootLabel(
       `${testSuffix}-${name}`
     );
+    ownedTestLabels.add(label);
     await resetLabel(label);
     setKillSwitchSequence(label, [], false);
     return label;
@@ -1235,6 +1239,58 @@ async function main() {
       }
     }
 
+    const reservedMessageLabel = await prepareLabel("groq-reserved-message-error");
+    const reservedMessageHarness = createAdapterHarness({
+      identity: buildIdentity(privateAlpha.PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY),
+      generationError: new providerModule.PrivateAlphaProviderError(
+        "groq_http_error",
+        "Groq Cloud execution failed unexpectedly.",
+        503
+      ),
+    });
+    const reservedMessageStore = createStore(reservedMessageLabel, {
+      providerAdapterResolver() {
+        return reservedMessageHarness.adapter;
+      },
+    });
+    const reservedMessageApproved = await createApprovedRun(
+      reservedMessageStore,
+      privateAlpha.PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY,
+      "groq-reserved-message-error"
+    );
+    const reservedMessageInput = {
+      execute: true,
+      acknowledgement: true,
+      approvalScopeHash: reservedMessageApproved.approved.approvalScopeHash,
+      expectedRevision: reservedMessageApproved.approved.revision,
+      cloudExecutionAcknowledgement: true,
+      groqFreeTierExecutionConfirmation: true,
+    };
+    const reservedMessageKey = "groq-reserved-message-error-execute-0001";
+    const reservedMessageResult = await reservedMessageStore.executeRun(
+      reservedMessageApproved.approved.runId,
+      reservedMessageInput,
+      reservedMessageKey
+    );
+    const reservedMessagePersisted = await reservedMessageStore.getRun(
+      reservedMessageApproved.approved.runId
+    );
+    const reservedMessageReplay = await reservedMessageStore.executeRun(
+      reservedMessageApproved.approved.runId,
+      reservedMessageInput,
+      reservedMessageKey
+    );
+    assert(
+      reservedMessageResult.responseStatus === 500 &&
+        reservedMessageResult.errorCode === "groq_http_error" &&
+        reservedMessagePersisted.execution.responseStatus === 500 &&
+        reservedMessagePersisted.execution.errorCode === "groq_http_error" &&
+        reservedMessageReplay.replayed === true &&
+        reservedMessageReplay.responseStatus === 500 &&
+        reservedMessageReplay.errorCode === "groq_http_error",
+      "A known Groq error using the reserved unexpected message persists and replays its canonical 500 classification."
+    );
+
     const unknownGroqLabel = await prepareLabel("groq-unknown-error");
     const unknownGroqHarness = createAdapterHarness({
       identity: buildIdentity(privateAlpha.PRIVATE_ALPHA_GROQ_20B_RUNTIME_MODEL_KEY),
@@ -1434,25 +1490,24 @@ async function main() {
     assert(fetchCallCount === 0, "No live provider call occurs.");
     assert(groqCredentialLoadCount === 0, "No Groq credential is read by the fake-adapter smoke.");
 
-    await Promise.all(
-      [
-        statusLabel,
-        localAckLabel,
-        missingAckLabel,
-        blockedLabel,
-        secondKillLabel,
-        success20Label,
-        success120Label,
-        localSuccessLabel,
-        localBlockedLabel,
-        localFailedLabel,
-        malformedLabel,
-        unknownGroqLabel,
-      ].map((label) => resetLabel(label))
-    );
   } finally {
-    Module._load = originalLoad;
-    Module._resolveFilename = originalResolveFilename;
+    try {
+      await Promise.all([...ownedTestLabels].map((label) => resetLabel(label)));
+      const remainingOwnedSuffixes = fs.existsSync(
+        path.resolve(repoRoot, ".codexforge", "private-alpha-tests")
+      )
+        ? (await fsp.readdir(path.resolve(repoRoot, ".codexforge", "private-alpha-tests"))).filter(
+            (entry) => entry.startsWith(`${testSuffix}-`)
+          )
+        : [];
+      assert(
+        remainingOwnedSuffixes.length === 0,
+        "Manual Groq smoke cleans every dynamically prepared deterministic Private Alpha suffix."
+      );
+    } finally {
+      Module._load = originalLoad;
+      Module._resolveFilename = originalResolveFilename;
+    }
   }
 }
 

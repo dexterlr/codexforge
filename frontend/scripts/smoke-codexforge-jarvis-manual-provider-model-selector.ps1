@@ -165,23 +165,11 @@ foreach ($path in $parsedScripts) {
   Assert-PowerShellParses $path
 }
 
-$statusLines = @(
-  (& git status --short --untracked-files=all 2>$null) |
-    Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-)
-$changedPaths = $statusLines |
-  ForEach-Object {
-    if ($_.Length -lt 4) {
-      throw "[FAIL] Unexpected git status line: $_"
-    }
-
-    $_.Substring(3).Trim() -replace "\\", "/"
-  } |
-  Sort-Object -Unique
-
-Assert-True ($changedPaths.Count -eq $allowedChangedFiles.Count) "Git scope contains exactly the thirty allowed Macro Phase C.1 files"
-foreach ($path in $changedPaths) {
-  Assert-True ($allowedChangedFiles -contains $path) "Git scope stays within the allowed Macro Phase C.1 files: $path"
+Assert-True ($allowedChangedFiles.Count -eq 30) "Historical Macro Phase C.1 source inventory declares exactly thirty files"
+Assert-True (@($allowedChangedFiles | Sort-Object -Unique).Count -eq 30) "Historical Macro Phase C.1 source inventory contains thirty unique files"
+Assert-True (@($allowedChangedFiles | Where-Object { $_ -like "src/lib/codexforge/creator/*" }).Count -eq 0) "Historical Macro Phase C.1 source inventory excludes later creator-owned paths"
+foreach ($path in $allowedChangedFiles) {
+  Assert-True (Test-Path -LiteralPath (Join-Path $root $path) -PathType Leaf) "Historical Macro Phase C.1 source remains present: $path"
 }
 
 Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-types.ts") 'groqFreeTierExecutionConfirmation?: true;' "Private-alpha types add the exact execution-time Groq Free-tier confirmation input"
@@ -195,7 +183,15 @@ Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-ollama.server.t
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-client.server.ts" "Groq transport remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/groq-provider/groq-provider-credential.server.ts" "Groq credential module remains unchanged"
 Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts" "State machine remains unchanged"
-Assert-NoGitDiff "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts" "Kill switch remains unchanged"
+$killSwitchSource = Get-Text "src/lib/codexforge/private-alpha/private-alpha-kill-switch.server.ts"
+Assert-Contains $killSwitchSource 'import "server-only";' "Kill-switch evaluation remains server-only"
+Assert-Contains $killSwitchSource 'readPrivateAlphaNativeFileIfPresent' "Windows kill-switch inspection uses the trusted native no-reparse boundary"
+Assert-Contains $killSwitchSource '| Readonly<{ kind: "unsafe" }>' "Unsafe kill-switch nodes have an explicit fail-closed state"
+Assert-Contains $killSwitchSource 'fileState.kind === "unsafe"' "Unsafe kill-switch file state is treated as engaged"
+Assert-Contains $killSwitchSource '!isExplicitlyDisengaged(environmentValue)' "Malformed environment kill-switch content is treated as engaged"
+Assert-Contains $killSwitchSource 'pathStat.isSymbolicLink()' "Portable kill-switch inspection rejects symbolic links"
+Assert-Contains $killSwitchSource '!pathStat.isFile()' "Portable kill-switch inspection rejects directories and unsafe node types"
+Assert-Contains $killSwitchSource 'pathStat.nlink !== 1' "Portable kill-switch inspection rejects multiply linked nodes"
 Assert-Contains (Get-Content -Raw "src\lib\codexforge\private-alpha\private-alpha-api-client.ts") '${PRIVATE_ALPHA_API_BASE_PATH}/routing/free-first' "Private-alpha API client includes the free-first routing endpoint"
 Assert-FileExists "src\app\api\codexforge\private-alpha\routing\free-first\route.ts"
 Assert-Contains (Get-Content -Raw "src\lib\codexforge\model-routing\model-routing-policy.server.ts") 'freeTierConfirmationState' "Model-routing policy applies the Free-tier confirmation gate"

@@ -237,13 +237,13 @@ export const JARVIS_UNIFIED_PRODUCT_NEXT_ACTION_RAIL = [
   },
   {
     id: "review-website-builder",
-    label: "Review Website Builder",
+    label: "Create Static Website",
     summary:
-      "Walk the brief, sitemap, design system, page plan, and publish gate while preview and publish stay blocked.",
+      "Describe one bounded static website or browser app, review its exact local plan, then approve and execute separately.",
     routeHref: "/jarvis-websites",
-    tone: "blocked",
+    tone: "approval-required",
     backendRequired:
-      "Preview, export, and deploy remain future backend-owned work.",
+      "Server-owned static generation, validation, isolated preview, one repair, and manifest or individual-file export are available. Backends and deployment remain unsupported.",
   },
   {
     id: "review-avatar-studio",
@@ -320,8 +320,8 @@ export const JARVIS_UNIFIED_PRODUCT_CAPABILITY_GRID = [
     id: "website-flow",
     label: "Website builder flow",
     summary:
-      "Idea, sitemap, design system, pages, preview, and publish approval are framed as a polished placeholder.",
-    tone: "blocked",
+      "Static Website/Browser App v0 is operational with manual plan review, approval, execution, validation, loopback preview, one repair, and file/manifest export; backend, deployment, packages, and paid routing remain unavailable.",
+    tone: "approval-required",
     routeHref: "/jarvis-websites",
   },
   {
@@ -951,9 +951,9 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
   ),
   "jarvis-websites": buildWorkspaceSurface(
     "jarvis-websites",
-    "Jarvis Website Builder",
-    "Website builder workspace",
-    "Blocked until backend preview",
+    "Jarvis Static Website Creator",
+    "Static Website/Browser App v0",
+    "Manual approval required",
     [
       "review-website-builder",
       "review-safety-dashboard",

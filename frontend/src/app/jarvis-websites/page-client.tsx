@@ -1,9 +1,19 @@
-'use client';
+"use client";
 
-import { JarvisUnifiedProductPageClientShell } from "@/lib/codexforge/jarvis-unified-product-ia-map/components";
+import { WebsiteCreatorPanel } from "@/lib/codexforge/creator/components";
+import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 
-// 3914-3945 - Jarvis Unified Product IA and God-Tier UX Polish
-// websites workspace placeholder only
 export default function JarvisWebsitesWorkspacePageClient() {
-  return <JarvisUnifiedProductPageClientShell surfaceId="jarvis-websites" />;
+  return (
+    <CodexForgeAppShell
+      activePath="/jarvis-websites"
+      workspaceLabel="Jarvis Static Website Creator"
+      contentMaxWidth="standard"
+      showRightRail={false}
+      showRightRailRouteGroups={false}
+      pageDensity="focus"
+    >
+      <WebsiteCreatorPanel />
+    </CodexForgeAppShell>
+  );
 }

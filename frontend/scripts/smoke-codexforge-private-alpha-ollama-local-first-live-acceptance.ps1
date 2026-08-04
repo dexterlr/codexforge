@@ -79,15 +79,14 @@ $macroPhaseCPaths = @(
   "src/lib/codexforge/video-foundation-ui.tsx",
   "src/lib/codexforge/video-project-workspace/components/VideoProjectWorkspacePanel.tsx"
 )
-Assert-True ($macroPhaseCPaths.Count -eq 30) "Macro Phase C.1 scope declares exactly thirty files"
-Assert-True (@($macroPhaseCPaths | Sort-Object -Unique).Count -eq 30) "Macro Phase C.1 scope contains thirty unique files"
+Assert-True ($macroPhaseCPaths.Count -eq 30) "Historical Macro Phase C.1 source inventory declares exactly thirty files"
+Assert-True (@($macroPhaseCPaths | Sort-Object -Unique).Count -eq 30) "Historical Macro Phase C.1 source inventory contains thirty unique files"
+Assert-True (@($macroPhaseCPaths | Where-Object { $_ -like "src/lib/codexforge/creator/*" }).Count -eq 0) "Historical Macro Phase C.1 source inventory excludes later creator-owned paths"
 foreach ($path in $sliceRFiles) {
   Assert-True (Test-Path -LiteralPath $path -PathType Leaf) "Historical Slice R file remains present: $path"
 }
-$changedPaths = @((& git status --short --untracked-files=all | Where-Object { $_.Length -ge 4 } | ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } | Sort-Object -Unique))
-Assert-True ($changedPaths.Count -eq $macroPhaseCPaths.Count) "Changed scope contains exactly the thirty Macro Phase C.1 files"
 foreach ($path in $macroPhaseCPaths) {
-  Assert-True ($changedPaths -contains $path) "Changed scope includes: $path"
+  Assert-True (Test-Path -LiteralPath $path -PathType Leaf) "Historical Macro Phase C.1 source remains present: $path"
 }
 
 Assert-PowerShellParses "scripts/smoke-codexforge-private-alpha-ollama-local-first-live-acceptance.ps1"
@@ -114,7 +113,7 @@ foreach ($line in Get-Content "scripts/smoke-codexforge-all.ps1") {
     if ($line -match 'smoke-codexforge-private-alpha-ollama-local-first-live-acceptance\.ps1' -and $line -match 'Required = \$true') { $newSmokeOccurrences += 1 }
   }
 }
-Assert-True ($aggregateExecutableCount -eq 72) "Aggregate executable count is 72 after Macro Phase C.1 smoke registration"
+Assert-True ($aggregateExecutableCount -eq 74) "Aggregate executable count is 74 after Macro Phase D1 and D2 smoke registration"
 Assert-True ($newSmokeOccurrences -eq 1) "New smoke is registered exactly once and is required"
 
 $nodeScript = @'

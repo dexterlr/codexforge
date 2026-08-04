@@ -214,82 +214,81 @@ export const JARVIS_UNIFIED_PRODUCT_WORKSPACE_CARDS = [
     label: "Website Builder",
     shortLabel: "Websites",
     description:
-      "A review-first website builder workspace that shows the future build flow without creating files, previews, or deploys.",
-    status: "blocked",
+      "A server-owned static Website/Browser App v0 with exact local-model planning, separate approval and execution, strict validation, atomic isolated files, sandbox preview, one repair, and deterministic export.",
+    status: "approval-required",
     riskTier: "tier-2-creative",
     approvalPosture: "Operator approval required",
-    executionPosture: "Preview and publish blocked",
+    executionPosture: "One exact local attempt after separate approval",
     primaryNextAction:
-      "Review the brief, sitemap, design system, and page plan while preview and publish remain blocked.",
+      "Describe one bounded static project, review the exact plan and destination, then approve and execute separately.",
     placeholderState: {
-      label: "Planned website workflow",
+      label: "Static creator lifecycle",
       summary:
-        "The workflow is clear and reviewable: brief to sitemap to design system to pages to preview and publish approval.",
+        "The operational v0 lifecycle is request to plan to approval to execution to validation to isolated preview and export.",
       steps: [
-        "idea",
-        "sitemap",
-        "design system",
-        "pages",
-        "preview",
-        "export and publish approval",
+        "describe",
+        "review exact plan",
+        "approve",
+        "execute once",
+        "validate and materialize",
+        "preview or export",
       ],
     },
     blockedActionSummary: [
-      "no website creation execution",
-      "no network execution",
-      "no file writes from the app",
-      "no render execution",
-      "no export execution",
-      "no publish execution",
-      "no runtime deploy",
+      "no backend or database generation",
+      "no package installation",
+      "no remote assets or network requests",
+      "no arbitrary framework generation",
+      "no deployment or publishing",
+      "no automatic approval, execution, repair, retry, or fallback",
     ],
     backendRequirementSummary:
-      "A backend-owned page planner, preview service, export service, and deploy gate would be required later. None are enabled here.",
+      "All v0 mutations are server-owned and reuse Private Alpha. Full-stack services, package workflows, archives, deployment, and publishing remain unsupported.",
     reviewPanels: [
       {
         id: "project-brief",
-        label: "Project brief",
+        label: "Exact creation plan",
         summary:
-          "Goals, audience, and success markers stay in a premium brief card instead of raw diagnostics.",
-        state: "ready",
-      },
-      {
-        id: "sitemap",
-        label: "Sitemap",
-        summary:
-          "Page hierarchy and navigation intent remain preview-only and operator-readable.",
-        state: "ready",
-      },
-      {
-        id: "design-system",
-        label: "Design system",
-        summary:
-          "Color, typography, and component direction stay intentional while execution remains blocked.",
-        state: "ready",
-      },
-      {
-        id: "page-plan",
-        label: "Page plan",
-        summary:
-          "Page-by-page structure stays visible without starting generation, exports, or deploys.",
-        state: "ready",
-      },
-      {
-        id: "preview-placeholder",
-        label: "Preview placeholder",
-        summary:
-          "Preview remains a deliberate placeholder with no file writes, no deploy, and no publish action.",
-        state: "blocked",
-      },
-      {
-        id: "publish-approval",
-        label: "Publish approval",
-        summary:
-          "Export and publish approval remain secondary gates and stay execution-blocked.",
+          "The exact model, data boundary, output limits, file limits, destination, and ordered steps are reviewable before approval.",
         state: "approval-required",
       },
+      {
+        id: "artifact-contract",
+        label: "Artifact contract",
+        summary:
+          "Only bounded HTML, CSS, client JavaScript, JSON, safe SVG, Markdown, and text are accepted.",
+        state: "ready",
+      },
+      {
+        id: "validation-policy",
+        label: "Validation policy",
+        summary:
+          "Ten deterministic stages reject unsafe paths, content, references, structure, accessibility, and digest mismatches.",
+        state: "ready",
+      },
+      {
+        id: "atomic-workspace",
+        label: "Atomic creator workspace",
+        summary:
+          "Validated files publish only into a creator-owned immutable artifact revision.",
+        state: "ready",
+      },
+      {
+        id: "sandbox-preview",
+        label: "Sandbox preview",
+        summary:
+          "An explicit loopback preview uses a sandboxed iframe without same-origin access, forms, popups, downloads, or external network.",
+        state: "approval-required",
+      },
+      {
+        id: "bounded-export",
+        label: "Bounded export",
+        summary:
+          "A versioned manifest and individual static files are available; ZIP, deployment, and publishing are not.",
+        state: "ready",
+      },
     ],
-    emphasisLabel: "Review-only workspace",
+    emphasisLabel: "Operational local static v0",
   },
   {
     id: "jarvis-avatar",

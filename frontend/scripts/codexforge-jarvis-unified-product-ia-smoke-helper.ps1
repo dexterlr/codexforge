@@ -172,7 +172,7 @@ $CodexForgeJarvisUnifiedProductIaPrimaryUxMarkers = @(
   'Jarvis command center order upgraded'
   'video studio remains primary active workspace'
   'trading workspace has dedicated polished page'
-  'websites workspace placeholder only'
+  'Jarvis Static Website Creator'
   'avatar workspace placeholder only'
   'workflows workspace placeholder only'
   'audit workspace placeholder only'

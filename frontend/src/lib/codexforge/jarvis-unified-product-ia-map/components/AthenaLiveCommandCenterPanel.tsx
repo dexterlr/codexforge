@@ -43,6 +43,14 @@ const JARVIS_WORKSPACE_FACTS = [
 
 const JARVIS_REVIEW_DESTINATIONS = [
   {
+    href: "/jarvis-websites",
+    routeLabel: "/jarvis-websites",
+    summary:
+      "Create one bounded static Website/Browser App v0 through exact local planning, approval, execution, validation, preview, repair, and export gates.",
+    title: "Static Website Creator",
+    tone: "workflow",
+  },
+  {
     href: "/files",
     routeLabel: "/files",
     summary:
