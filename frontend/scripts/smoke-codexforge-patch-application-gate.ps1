@@ -121,7 +121,9 @@ foreach ($render in @(
   Assert-Contains $uiSource $render "$render"
 }
 
-Assert-Contains $aiSource "PatchApplicationGatePanel" "/ai imports/renders PatchApplicationGatePanel if integrated"
+Assert-Contains $tasksSource "<PatchApplicationGatePanel compact />" "/tasks imports/renders PatchApplicationGatePanel"
+Assert-Contains $aiSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiSource "PatchApplicationGatePanel" "/ai mounts no competing Patch Application Gate panel"
 Assert-Contains $filesSource "Patch Application Gate" "/files references Patch Application Gate if integrated"
 Assert-Contains $tasksSource "Patch Application Gate" "/tasks references Patch Application Gate if integrated"
 Assert-Contains $missionSource "Patch Application Gate readiness" "Mission Control includes Patch Application Gate readiness"

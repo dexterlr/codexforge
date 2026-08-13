@@ -50,17 +50,23 @@ Write-Host "=== CodexForge Self-Upgrade Console UI smoke ==="
 Write-Host "Base URL: $BaseUrl"
 
 $consolePath = "src\lib\codexforge\chat\components\self-upgrade-console.tsx"
-$pagePath = "src\app\ai\page.tsx"
+$legacyPagePath = "src\app\ai\page.tsx"
+$jarvisLivePath = "src\lib\codexforge\jarvis-unified-product-ia-map\components\AthenaLiveCommandCenterPanel.tsx"
+$jarvisAdvancedPath = "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisAdvancedToolsPanel.tsx"
 $routePath = "src\app\api\codexforge\tools\self-upgrade\route.ts"
 $backlogPath = "src\lib\codexforge\tools\self-upgrade-backlog.ts"
 
 Assert-FileExists $consolePath
-Assert-FileExists $pagePath
+Assert-FileExists $legacyPagePath
+Assert-FileExists $jarvisLivePath
+Assert-FileExists $jarvisAdvancedPath
 Assert-FileExists $routePath
 Assert-FileExists $backlogPath
 
 $console = Get-Content -Raw $consolePath
-$page = Get-Content -Raw $pagePath
+$legacyPage = Get-Content -Raw $legacyPagePath
+$jarvisLive = Get-Content -Raw $jarvisLivePath
+$jarvisAdvanced = Get-Content -Raw $jarvisAdvancedPath
 $route = Get-Content -Raw $routePath
 $backlog = Get-Content -Raw $backlogPath
 
@@ -71,12 +77,25 @@ Assert-Contains $console "data-codexforge-self-upgrade-candidate-list" "candidat
 Assert-Contains $console "data-codexforge-self-upgrade-safety-summary" "safety summary marker"
 Assert-Contains $console "data-codexforge-self-upgrade-copy-plan" "copy plan action marker"
 Assert-Contains $console "/api/codexforge/tools/self-upgrade" "console fetches self-upgrade API"
+Assert-Contains $console 'redirect: "error"' "console refuses redirects outside the local route"
+Assert-Contains $console "parseSelfUpgradeResponse" "console validates and reconstructs the bounded API response"
+Assert-Contains $console "MAX_UPGRADE_CANDIDATES" "console bounds the candidate catalogue"
 Assert-Contains $console "brokerExecution" "console displays broker safety"
 Assert-Contains $console "Copy plan prompt" "console provides planning action"
+Assert-Contains $console 'navigator.clipboard?.writeText' "copy action checks Clipboard API availability"
+Assert-Contains $console "Clipboard access is unavailable" "missing Clipboard API fails visibly"
+Assert-Contains $console "Clipboard access was denied" "denied Clipboard API fails visibly"
+Assert-Contains $console 'role="status"' "copy outcome is announced accessibly"
+Assert-Contains $console "data-codexforge-self-upgrade-copy-status" "copy outcome has a stable rendered marker"
+Assert-Contains $console 'role="alert"' "asynchronous backlog failures are announced accessibly"
 Assert-NotContains $console "brokerExecution: `"enabled`"" "console never enables broker execution"
 
-Assert-Contains $page "self-upgrade-console" "AI page imports console"
-Assert-Contains $page "<SelfUpgradeConsole />" "AI page renders console"
+Assert-Contains $legacyPage 'redirect("/jarvis")' "retired /ai redirects to canonical Jarvis"
+Assert-Contains $jarvisLive "JarvisAdvancedToolsPanel" "canonical Jarvis mounts advanced tools"
+Assert-Contains $jarvisAdvanced "SelfUpgradeConsole" "Jarvis advanced tools import the console"
+Assert-Contains $jarvisAdvanced "<SelfUpgradeConsole onUsePrompt={usePrompt} />" "Jarvis renders the console with an explicit composer handoff"
+Assert-Contains $console "data-codexforge-self-upgrade-use-plan" "console exposes a visible Jarvis planning handoff"
+Assert-Contains $console "Use in Jarvis chat" "console labels its canonical Jarvis handoff"
 Assert-Contains $route "buildCodexForgeSelfUpgradeBacklog" "self-upgrade route still uses backlog"
 Assert-Contains $backlog "self-upgrade-console-v1" "backlog contains console candidate"
 

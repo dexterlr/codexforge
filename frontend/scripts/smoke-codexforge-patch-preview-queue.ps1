@@ -125,7 +125,9 @@ foreach ($render in @(
   Assert-Contains $uiSource $render "$render"
 }
 
-Assert-Contains $aiSource "PatchPreviewQueuePanel" "/ai imports/renders PatchPreviewQueuePanel if integrated"
+Assert-Contains $tasksSource "<PatchPreviewQueuePanel compact />" "/tasks imports/renders PatchPreviewQueuePanel"
+Assert-Contains $aiSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiSource "PatchPreviewQueuePanel" "/ai mounts no competing Patch Preview Queue panel"
 Assert-Contains $filesSource "Patch Preview Queue" "/files references Patch Preview Queue if integrated"
 Assert-Contains $tasksSource "Patch Preview Queue" "/tasks references Patch Preview Queue if integrated"
 Assert-Contains $memorySource "Patch Preview Queue" "/memory references Patch Preview Queue if integrated"

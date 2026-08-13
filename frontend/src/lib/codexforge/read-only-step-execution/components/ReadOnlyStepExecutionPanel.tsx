@@ -83,7 +83,7 @@ function inputForTool(toolName: string): Record<string, unknown> {
   };
 }
 
-export function ReadOnlyStepExecutionPanel() {
+export function ReadOnlyStepExecutionPanel({ embedded = false }: { embedded?: boolean } = {}) {
   const [selectedTool, setSelectedTool] = useState<string>("read-file");
   const [approved, setApproved] = useState(false);
   const [executing, setExecuting] = useState(false);
@@ -171,7 +171,11 @@ export function ReadOnlyStepExecutionPanel() {
         <section style={hero}>
           <div style={heroCopy}>
             <div style={eyebrow}>CodexForge Phase 26</div>
-            <h1 style={headline}>Approved Read-Only Step Execution</h1>
+            {embedded ? (
+              <h2 style={headline}>Approved Read-Only Step Execution</h2>
+            ) : (
+              <h1 style={headline}>Approved Read-Only Step Execution</h1>
+            )}
             <p style={lede}>
               Approved task steps can request a guarded local read-only tool run, capture the result, build visible
               evidence, and update a local ledger. Read-only execution only.
@@ -186,7 +190,7 @@ export function ReadOnlyStepExecutionPanel() {
         </section>
 
         <section style={navStrip}>
-          <Link href="/ai" style={link}>AI workspace</Link>
+          <Link href="/jarvis" style={link}>Jarvis chat</Link>
           <Link href="/mission" style={link}>Mission Control</Link>
           <Link href="/files" style={link}>Safe Patch Preview</Link>
         </section>

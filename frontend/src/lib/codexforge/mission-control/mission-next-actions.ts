@@ -165,7 +165,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "review-regression-triage",
       label: "Review regression triage",
-      href: "/ai",
+      href: "/files",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Self-Healing Regression Triage turns failed or warning verification signals into reviewed regression cards, suspected causes, impacted files, rollback advice, fix recommendations, and Safe Patch Preview handoff only; no auto-fix, no auto-rollback, no command execution, no file writes, and preserve latest-message authority.",
@@ -173,7 +173,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "review-regression-fix-queue",
       label: "Review regression fix queue",
-      href: "/ai",
+      href: "/files",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Regression Fix Queue turns reviewed regression triage cards into prioritized repair queue handoffs for Safe Patch Preview and Preview Diff Composer only; no auto-fix, no auto-rollback, no command execution, no file writes, and preserve latest-message authority.",
@@ -181,7 +181,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "compose-preview-diff",
       label: "Compose preview diff",
-      href: "/ai",
+      href: "/files",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Preview Diff Composer readiness packages queued patch preview items into human-reviewable pseudo-diffs; preview-only, not an applyable patch, current file content is authority, evidence is context not proof, and no file writes without approval.",
@@ -189,7 +189,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "review-apply-gate",
       label: "Review apply gate",
-      href: "/ai",
+      href: "/files",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Patch Application Gate readiness prepares explicit human approval packets and display-only apply request previews; actual mutation remains blocked, apply-diff requires tool-policy approval, current files must be verified, rollback plan required, and preserve latest-message authority.",
@@ -197,7 +197,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "build-apply-evidence-pack",
       label: "Build apply evidence pack",
-      href: "/ai",
+      href: "/files",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Apply Evidence Pack readiness bundles current file verification, rollback plan, test plan, operator approval note, evidence refs, smoke placeholders, mutation firewall, and final readiness; it does not apply changes and is future guarded apply only.",
@@ -205,7 +205,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "review-apply-diff-dry-run-result",
       label: "Review dry-run result",
-      href: "/ai",
+      href: "/files",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Apply-Diff Dry Run readiness simulates apply-diff policy, affected file validation, conflict checks, result, and ledger only; simulation only, no mutation, actual apply-diff remains blocked, current file verification required, rollback plan required, and preserve latest-message authority.",
@@ -213,7 +213,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "review-approved-apply-request",
       label: "Review approved apply request",
-      href: "/ai",
+      href: "/files",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Apply-Diff Execution Gate readiness prepares an approval-gated apply-diff request packet and guarded execute route bridge; explicit operator approval required, no silent execution, rollback plan required, verification required after dispatch, and preserve latest-message authority.",
@@ -221,7 +221,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "review-patch-preview-queue",
       label: "Review queued patch preview",
-      href: "/ai",
+      href: "/files",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Patch Preview Queue readiness packages reviewed fix recommendations for Safe Patch Preview; preview diff only, verify current files, no file writes without approval, no command execution without approval, and preserve latest-message authority.",
@@ -229,7 +229,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "review-grounded-fix-recommendation",
       label: "Review grounded fix recommendation",
-      href: "/ai",
+      href: "/files",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Grounded Fix Recommendation reviews evidence and file context, then prepares Safe Patch Preview handoff only; no command execution, no apply, and no file mutation.",
@@ -237,7 +237,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "use-reviewed-evidence-in-chat",
       label: "Use reviewed evidence in chat",
-      href: "/ai",
+      href: "/jarvis",
       priority: "secondary",
       readiness: "needs-review",
       safetyNote: "Evidence-Grounded Chat uses selected evidence only, shows local citations and stale or weak warnings, and allows copy/use prompt handoff without hidden context injection.",
@@ -280,7 +280,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
       href: "/tasks",
       priority: "secondary",
       readiness: "needs-review",
-      safetyNote: "Reviewed Task Activation creates a plan preview and /ai handoff only; no auto-run and no file mutation.",
+      safetyNote: "Reviewed Task Activation creates a plan preview and visible copy-only Jarvis handoff; no hidden injection, no auto-run, and no file mutation.",
     },
     {
       id: "review-task-suggestions",
@@ -317,7 +317,7 @@ export function buildMissionNextActions(): MissionNextAction[] {
     {
       id: "use-recalled-memory-in-chat",
       label: "Use recalled memory in chat",
-      href: "/ai",
+      href: "/jarvis",
       priority: "secondary",
       readiness: "ready",
       safetyNote: "Chat recall context is opt-in, visible, and no hidden context injection is allowed.",

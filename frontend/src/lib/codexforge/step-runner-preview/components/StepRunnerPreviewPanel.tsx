@@ -124,7 +124,7 @@ function buildInputDraft(stepIndex: number, selectedToolIntent: string): StepRun
   };
 }
 
-export function StepRunnerPreviewPanel() {
+export function StepRunnerPreviewPanel({ embedded = false }: { embedded?: boolean } = {}) {
   const [selectedStepIndex, setSelectedStepIndex] = useState(0);
   const [selectedToolIntent, setSelectedToolIntent] = useState<string>("read-file");
   const input = useMemo(
@@ -142,7 +142,11 @@ export function StepRunnerPreviewPanel() {
         <section style={hero}>
           <div style={heroCopy}>
             <div style={eyebrow}>CodexForge Phase 25</div>
-            <h1 style={headline}>Approved Step Runner Preview</h1>
+            {embedded ? (
+              <h2 style={headline}>Approved Step Runner Preview</h2>
+            ) : (
+              <h1 style={headline}>Approved Step Runner Preview</h1>
+            )}
             <p style={lede}>
               Active task steps now flow into a deterministic step run preview with tool policy posture, approval packet,
               dry run plan, result preview, and local ledger. No step execution in Phase 25.
@@ -157,7 +161,7 @@ export function StepRunnerPreviewPanel() {
         </section>
 
         <section style={navStrip}>
-          <Link href="/ai" style={link}>AI workspace</Link>
+          <Link href="/jarvis" style={link}>Jarvis chat</Link>
           <Link href="/files" style={link}>Safe Patch Preview</Link>
           <Link href="/mission" style={link}>Mission Control</Link>
         </section>

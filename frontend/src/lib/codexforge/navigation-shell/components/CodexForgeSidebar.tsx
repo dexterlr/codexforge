@@ -60,7 +60,7 @@ export function CodexForgeSidebar({
       ),
     }))
     .filter((section) => section.routes.length > 0);
-  const developerCompatibilityRoutes = ["/codexforge-cockpit", "/ai"].flatMap((href) => {
+  const developerCompatibilityRoutes = ["/codexforge-cockpit"].flatMap((href) => {
     const route = routes.find((candidate) => candidate.href === href);
     return route ? [route] : [];
   });

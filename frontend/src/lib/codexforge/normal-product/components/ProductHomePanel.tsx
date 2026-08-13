@@ -21,7 +21,7 @@ const FIRST_RUN_STEPS = [
 
 const CREATOR_MODES = [
   { label: "General assistant", state: "Available with limits", copy: "Jarvis supports reviewed local-first text and code tasks through the guarded run loop." },
-  { label: "Website and app creation", state: "Not connected yet", copy: "A complete build, local preview, repair, and export pipeline is upcoming; no generator is claimed here." },
+  { label: "Website and app creation", state: "Available with limits", copy: "Static Website/Browser App v0 is connected for one manually approved local generation, strict validation, isolated preview, one repair, and bounded export. It does not provide backend, deployment, or packages." },
   { label: "Browser-game creation", state: "Not connected yet", copy: "Playable generation, gameplay validation, assets, and packaging are future work." },
   { label: "Server and API creation", state: "Not connected yet", copy: "Scaffolding, local launch, health checks, storage, and tests are not yet an operational pipeline." },
   { label: "Video creation", state: "Planning only", copy: "Planning templates exist, but generation, timeline rendering, revision, and export are not connected or validated." },

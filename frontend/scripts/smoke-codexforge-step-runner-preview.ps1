@@ -140,7 +140,9 @@ foreach ($tool in @("read-file", "list-files", "search-project")) {
 Assert-Contains $domainSource "No-run guarantee" "approval packet includes no-run guarantee"
 Assert-Contains $domainSource "stop conditions" "dry run plan includes stop conditions"
 Assert-Contains $domainSource "preview-only expected output" "result preview says preview-only or expected output"
-Assert-Contains $aiPageSource "Step Runner Preview" "AI page references Step Runner Preview or /tasks"
+Assert-Contains $tasksSource "<StepRunnerPreviewPanel embedded />" "/tasks embeds Step Runner Preview beneath its single page heading"
+Assert-Contains $aiPageSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiPageSource "StepRunnerPreviewPanel" "/ai mounts no competing Step Runner Preview panel"
 Assert-Contains $missionSource "Step Runner Preview" "Mission Control references Step Runner Preview"
 
 Assert-NotMatches $stepSource 'from\s+["''][^"'']*brain-graph["'']' "no import from brain-graph"

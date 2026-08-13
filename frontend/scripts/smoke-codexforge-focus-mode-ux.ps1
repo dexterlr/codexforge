@@ -20,6 +20,8 @@ $shellPath = "src\lib\codexforge\navigation-shell\components\CodexForgeAppShell.
 $sidebarPath = "src\lib\codexforge\navigation-shell\components\CodexForgeSidebar.tsx"
 $aiPagePath = "src\app\ai\page.tsx"
 $chatStylesPath = "src\lib\codexforge\chat\client-styles.ts"
+$jarvisLivePath = "src\lib\codexforge\jarvis-unified-product-ia-map\components\AthenaLiveCommandCenterPanel.tsx"
+$jarvisChatPath = "src\lib\codexforge\jarvis-chat\components\JarvisChatPanel.tsx"
 $filesPagePath = "src\app\files\page-client.tsx"
 $readerPath = "src\lib\codexforge\local-project-reader\components\LocalProjectReader.tsx"
 $previewPath = "src\lib\codexforge\local-project-reader\components\ProjectFilePreviewPanel.tsx"
@@ -29,7 +31,7 @@ $uiTypographyPath = "src\lib\codexforge\ui\codexforge-typography.ts"
 $uiThemePath = "src\lib\codexforge\ui\codexforge-theme.ts"
 $allSmokePath = "scripts\smoke-codexforge-all.ps1"
 
-foreach ($path in @($shellTypesPath,$shellPath,$sidebarPath,$aiPagePath,$chatStylesPath,$filesPagePath,$readerPath,$previewPath,$artifactReviewPath,$artifactBoardPath,$uiTypographyPath,$uiThemePath,$allSmokePath)) {
+foreach ($path in @($shellTypesPath,$shellPath,$sidebarPath,$aiPagePath,$chatStylesPath,$jarvisLivePath,$jarvisChatPath,$filesPagePath,$readerPath,$previewPath,$artifactReviewPath,$artifactBoardPath,$uiTypographyPath,$uiThemePath,$allSmokePath)) {
   Assert-FileExists $path
 }
 
@@ -38,6 +40,8 @@ $shell = Get-Content -Raw $shellPath
 $sidebar = Get-Content -Raw $sidebarPath
 $aiPage = Get-Content -Raw $aiPagePath
 $chatStyles = Get-Content -Raw $chatStylesPath
+$jarvisLive = Get-Content -Raw $jarvisLivePath
+$jarvisChat = Get-Content -Raw $jarvisChatPath
 $filesPage = Get-Content -Raw $filesPagePath
 $reader = Get-Content -Raw $readerPath
 $preview = Get-Content -Raw $previewPath
@@ -46,7 +50,7 @@ $artifactBoard = Get-Content -Raw $artifactBoardPath
 $uiSource = (Get-Content -Raw $uiTypographyPath) + "`n" + (Get-Content -Raw $uiThemePath)
 $allSmoke = Get-Content -Raw $allSmokePath
 $uxSharedSource = $shellTypes + "`n" + $shell + "`n" + $sidebar + "`n" + $uiSource
-$touchedUiSource = $uxSharedSource + "`n" + $aiPage + "`n" + $chatStyles + "`n" + $filesPage + "`n" + $reader + "`n" + $preview + "`n" + $artifactReview + "`n" + $artifactBoard
+$touchedUiSource = $uxSharedSource + "`n" + $aiPage + "`n" + $chatStyles + "`n" + $jarvisLive + "`n" + $jarvisChat + "`n" + $filesPage + "`n" + $reader + "`n" + $preview + "`n" + $artifactReview + "`n" + $artifactBoard
 
 foreach ($flag in @(
   'sidebarMode?: "full" | "compact" | "collapsed"',
@@ -64,14 +68,18 @@ Assert-Contains $shell "resolvedShowRightRail" "workflow pages can opt out of ri
 Assert-Contains $shell "showRightRail ?? (!focusMode" "right rail defaults off in focus mode"
 Assert-Contains $sidebar "showBadges" "sidebar can hide badges"
 Assert-Contains $sidebar "showSafetyNotice" "sidebar safety notice is optional"
-Assert-Contains $sidebar "compact sidebar mode" "sidebar supports compact metadata reduction"
+Assert-Contains $sidebar "visuallyQuietBrand" "sidebar hides repeated brand metadata in compact mode"
+Assert-Contains $sidebar "compactSectionLabel" "sidebar preserves compact section orientation"
+Assert-Contains $sidebar "showBadges && !compact" "sidebar suppresses badge noise in compact mode"
 
-Assert-Contains $aiPage "useCodexForgeChat" "/ai retains AI workspace behavior"
-Assert-Contains $aiPage "data-codexforge-ai-focus-workspace" "/ai has focus workspace marker"
-Assert-Contains $chatStyles "focusChatPanel" "/ai uses focused chat layout helper"
-Assert-Contains $chatStyles "minWidth: 520" "/ai composer/chat panel wide marker"
-Assert-Contains $aiPage "showRightRail={false}" "/ai opts out of right rail"
-Assert-NotContains $aiPage "CodexForgeGlobalNav" "/ai does not render duplicate old nav bands"
+Assert-Contains $aiPage 'redirect("/jarvis")' "/ai redirects once to canonical Jarvis"
+Assert-NotContains $aiPage "useCodexForgeChat" "/ai retains no competing legacy chat behavior"
+Assert-NotContains $aiPage "CodexForgeGlobalNav" "/ai renders no duplicate navigation bands"
+Assert-Contains $jarvisLive "<JarvisChatPanel draftHandoff={draftHandoff} />" "/jarvis owns the canonical focused chat and its explicit visible advanced-tool handoff"
+Assert-Contains $jarvisChat "composerRef" "/jarvis keeps an explicit composer focus target"
+Assert-Contains $jarvisChat "New chat" "/jarvis keeps an immediate clean-chat action"
+Assert-Contains $chatStyles "focusChatPanel" "retained historical chat styles preserve layout-source coverage"
+Assert-Contains $chatStyles "minWidth: 520" "retained historical chat styles preserve the wide-panel marker"
 
 Assert-Contains $filesPage "LocalProjectReader" "/files retains LocalProjectReader"
 Assert-Contains $reader "data-codexforge-files-focus-layout" "/files uses explorer preview inspector layout marker"

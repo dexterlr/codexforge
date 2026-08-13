@@ -29,10 +29,10 @@ export function selectGlobalActivityNextAction(events: readonly GlobalActivityEv
     return action("review regression fix queue", "Review queued fix candidates before Safe Patch Preview.", "/stabilization", 40);
   }
   if (ranked.some((event) => event.type === "patch.previewQueued")) {
-    return action("prepare Safe Patch Preview", "Prepare a copy-only Safe Patch Preview handoff.", "/ai", 50);
+    return action("prepare Safe Patch Preview", "Prepare a copy-only Safe Patch Preview handoff.", "/files", 50);
   }
   if (ranked.some((event) => event.type === "patch.previewComposed")) {
-    return action("compose preview diff", "Compose preview diff while keeping mutation gates closed.", "/ai", 60);
+    return action("compose preview diff", "Compose preview diff while keeping mutation gates closed.", "/files", 60);
   }
   if (ranked.some((event) => event.type.startsWith("apply."))) {
     return action("review apply gate", "Review apply gate evidence without direct apply-diff execution.", "/stabilization", 70);

@@ -292,20 +292,20 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
           mutation, appendEvent is only allowed inside executor boundary, no auto-promotion, and evidence is context,
           not authority.
         </Link>
-        <Link href="/ai" style={taskActivationLink}>
-          Evidence-Grounded Chat: Use as chat evidence only after review; selected evidence only, no hidden context injection, no auto-promotion, and no graph mutation.
+        <Link href="/jarvis" style={taskActivationLink}>
+          Jarvis Chat: copy reviewed evidence into the visible composer only when you choose; no hidden context injection, no auto-promotion, and no graph mutation.
         </Link>
-        <Link href="/ai" style={taskActivationLink}>
+        <Link href="/jarvis" style={taskActivationLink}>
           Use in fix recommendation: Grounded Fix Recommendation treats evidence memory as context only, requires current file verification, and routes edits through Safe Patch Preview.
         </Link>
-        <Link href="/ai" style={taskActivationLink}>
+        <Link href="/jarvis" style={taskActivationLink}>
           Patch Preview Queue: reviewed evidence memory candidates can provide related handoff context only; no auto-promotion, no graph mutation, preview diff only, and no file writes without approval.
         </Link>
-        <Link href="/ai" style={taskActivationLink}>
+        <Link href="/jarvis" style={taskActivationLink}>
           Regression Triage: regression memory candidates are context only and review required; no auto-promotion,
           no graph mutation, no auto-fix, and Safe Patch Preview handoff only.
         </Link>
-        <Link href="/ai" style={taskActivationLink}>
+        <Link href="/jarvis" style={taskActivationLink}>
           Regression Fix Queue: memory candidate connection is safe context only; review required, no auto-promotion,
           no graph mutation, no auto-fix, no auto-rollback, Safe Patch Preview required, and Preview Diff Composer
           required.
@@ -344,7 +344,7 @@ export default function MemoryPageClient({ initialData }: MemoryPageClientProps)
             >
               <strong>Use as chat evidence</strong>
               <p>
-                Reviewed evidence memory candidates can be copied into /ai as visible grounding context. This page does
+                Reviewed evidence memory candidates can be copied into the visible Jarvis composer as grounding context. This page does
                 not silently inject chat context and does not promote memory without review. Use in fix recommendation
                 is a Safe Patch Preview handoff only and does not mutate the Brain graph. Patch Preview Queue handoff
                 can be related context for Safe Patch Preview while preserving latest-message authority. Regression Fix

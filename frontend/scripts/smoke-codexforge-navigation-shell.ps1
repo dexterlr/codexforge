@@ -121,7 +121,7 @@ foreach ($render in @(
 Assert-Contains $operatorHomeSource "CodexForgeAppShell" "Operator Home imports/renders shell if integrated"
 Assert-Contains $stabilizationSource "CodexForgeAppShell" "Stabilization imports/renders shell if integrated"
 
-foreach ($text in @("AI Workspace", "Brain", "Files", "Stabilization")) {
+foreach ($text in @("Build with Jarvis", "Brain", "Files", "Stabilization")) {
   Assert-Contains $shellSource $text "UI references $text"
 }
 
@@ -136,9 +136,12 @@ foreach ($text in @(
   Assert-Contains $shellSource $text "UI says $text"
 }
 
-foreach ($route in @('href: "/"', 'href: "/ai"', 'href: "/brain"', 'href: "/files"', 'href: "/stabilization"')) {
+foreach ($route in @('href: "/"', 'href: "/jarvis"', 'href: "/brain"', 'href: "/files"', 'href: "/stabilization"')) {
   Assert-Contains $domainSource $route "route registry includes $route"
 }
+Assert-Contains $domainSource 'href: "/ai"' "route registry retains /ai only as a compatibility redirect"
+Assert-Contains $domainSource 'label: "Legacy AI redirect"' "route registry labels /ai as legacy"
+Assert-Contains $domainSource 'readiness: "blocked"' "legacy AI compatibility entry is not advertised as working"
 
 foreach ($section in @('"Command"', '"Cognition"', '"Engineering"', '"Stabilization"')) {
   Assert-Contains $domainSource $section "sections include $section"

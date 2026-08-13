@@ -76,7 +76,7 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
     priority: "primary",
     showInGlobalNav: true,
     group: "Core",
-    description: "Canonical local-first workspace for task intake, approval, execution, results, validation, and audit.",
+    description: "Canonical server-owned workspace for local-first conversation, task intake, explicit approval, execution, results, validation, and audit.",
   },
   {
     id: "cockpit",
@@ -111,12 +111,12 @@ export const CODEXFORGE_ROUTES: readonly CodexForgeRoute[] = [
   {
     id: "workspace",
     path: "/ai",
-    label: "Workspace",
-    shortLabel: "Workspace",
+    label: "Legacy AI redirect",
+    shortLabel: "Legacy AI",
     priority: "primary",
     showInGlobalNav: false,
     group: "Core",
-    description: "Retained compatibility workspace for historical chat, planning, memory, and execution-context links.",
+    description: "Compatibility route that redirects to /jarvis; the legacy standalone chat workspace is retired.",
   },
   {
     id: "tasks",

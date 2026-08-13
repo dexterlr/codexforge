@@ -71,7 +71,7 @@ export function buildStabilizationTimeline(input: StabilizationCommandCenterInpu
       detail: input.verificationIngestionSummary ? "Verification ingestion summary is present." : "Verification output still needs to be pasted manually.",
       severity: severityFor("verification-posture"),
       source: "verification-ingestion",
-      relatedSurface: "/ai",
+      relatedSurface: "/jarvis",
     }),
     buildStabilizationTimelineItem({
       kind: "regression-detected",
@@ -79,7 +79,7 @@ export function buildStabilizationTimeline(input: StabilizationCommandCenterInpu
       detail: "Failed or warning evidence should enter regression triage first.",
       severity: severityFor("regression-posture"),
       source: "regression-triage",
-      relatedSurface: "/ai",
+      relatedSurface: "/files",
     }),
     buildStabilizationTimelineItem({
       kind: "triage-created",
@@ -87,7 +87,7 @@ export function buildStabilizationTimeline(input: StabilizationCommandCenterInpu
       detail: "Triage cards summarize suspected cause, impact, rollback, and handoff.",
       severity: severityFor("regression-posture"),
       source: "regression-triage",
-      relatedSurface: "/ai",
+      relatedSurface: "/files",
     }),
     buildStabilizationTimelineItem({
       kind: "fix-queued",
@@ -95,7 +95,7 @@ export function buildStabilizationTimeline(input: StabilizationCommandCenterInpu
       detail: "Regression Fix Queue prepares reviewed repair handoff only.",
       severity: severityFor("fix-queue-posture"),
       source: "regression-fix-queue",
-      relatedSurface: "/ai",
+      relatedSurface: "/files",
     }),
     buildStabilizationTimelineItem({
       kind: "patch-preview-queued",
@@ -103,7 +103,7 @@ export function buildStabilizationTimeline(input: StabilizationCommandCenterInpu
       detail: "Patch Preview Queue waits for Safe Patch Preview review.",
       severity: severityFor("patch-queue-posture"),
       source: "patch-preview-queue",
-      relatedSurface: "/ai",
+      relatedSurface: "/files",
     }),
     buildStabilizationTimelineItem({
       kind: "preview-diff-composed",
@@ -111,7 +111,7 @@ export function buildStabilizationTimeline(input: StabilizationCommandCenterInpu
       detail: "Preview Diff Composer creates pseudo diffs only.",
       severity: "info",
       source: "preview-diff-composer",
-      relatedSurface: "/ai",
+      relatedSurface: "/files",
     }),
     buildStabilizationTimelineItem({
       kind: "apply-gate-prepared",
@@ -119,7 +119,7 @@ export function buildStabilizationTimeline(input: StabilizationCommandCenterInpu
       detail: "Patch Application Gate is review-only from stabilization.",
       severity: severityFor("apply-gate-posture"),
       source: "patch-application-gate",
-      relatedSurface: "/ai",
+      relatedSurface: "/files",
     }),
     buildStabilizationTimelineItem({
       kind: "dry-run-simulated",
@@ -127,7 +127,7 @@ export function buildStabilizationTimeline(input: StabilizationCommandCenterInpu
       detail: "Apply-Diff Dry Run is simulation only and does not mutate files.",
       severity: "info",
       source: "apply-diff-dry-run",
-      relatedSurface: "/ai",
+      relatedSurface: "/files",
     }),
     buildStabilizationTimelineItem({
       kind: "execution-gate-reviewed",
@@ -135,7 +135,7 @@ export function buildStabilizationTimeline(input: StabilizationCommandCenterInpu
       detail: "Execution Gate review remains explicit and guarded elsewhere.",
       severity: "info",
       source: "apply-diff-execution-gate",
-      relatedSurface: "/ai",
+      relatedSurface: "/files",
     }),
     buildStabilizationTimelineItem({
       kind: "post-apply-verification-prepared",
@@ -143,7 +143,7 @@ export function buildStabilizationTimeline(input: StabilizationCommandCenterInpu
       detail: "Post-apply verification checklist is visible for manual use.",
       severity: severityFor("rollback-posture"),
       source: "post-apply-verification",
-      relatedSurface: "/ai",
+      relatedSurface: "/files",
     }),
     buildStabilizationTimelineItem({
       kind: "stabilization-reviewed",

@@ -1,34 +1,49 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import type { BrainRecallHandoff } from "../brain-recall-types";
-import { CHAT_RECALL_CONTEXT_STORAGE_KEY } from "@/lib/codexforge/chat-recall";
+import { writeChatRecallHandoffToBrowserStorage } from "@/lib/codexforge/chat-recall/chat-recall-browser-storage";
 
 type BrainRecallHandoffPanelProps = {
   handoff: BrainRecallHandoff;
   chatRecallPayload?: string;
 };
 
-function copyText(text: string): void {
-  void navigator.clipboard?.writeText(text).catch(() => undefined);
-}
+async function copyText(text: string): Promise<boolean> {
+  if (!navigator.clipboard?.writeText) return false;
 
-function storeChatRecallPayload(payload: string | undefined): void {
-  if (!payload || typeof window === "undefined") return;
-  window.localStorage.setItem(CHAT_RECALL_CONTEXT_STORAGE_KEY, payload);
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function BrainRecallHandoffPanel({
   handoff,
   chatRecallPayload,
 }: BrainRecallHandoffPanelProps) {
-  const handleCopyChatContext = () => {
-    copyText(chatRecallPayload ?? handoff.chatPrompt);
+  const [handoffError, setHandoffError] = useState<string | null>(null);
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
+
+  const handleCopyChatContext = async () => {
+    const copied = await copyText(chatRecallPayload ?? handoff.chatPrompt);
+    setCopyStatus(
+      copied
+        ? "The visible chat context was copied."
+        : "Clipboard access was unavailable. Select and copy the visible context manually."
+    );
   };
 
   const handleUseInChat = () => {
-    storeChatRecallPayload(chatRecallPayload);
-    copyText(handoff.chatPrompt);
+    if (!writeChatRecallHandoffToBrowserStorage(chatRecallPayload)) {
+      setHandoffError("Browser-local recall storage is unavailable. Copy the visible context and paste it into Jarvis manually.");
+      return;
+    }
+    setHandoffError(null);
+    setCopyStatus(null);
+    window.location.assign("/jarvis#jarvis-advanced-tools");
   };
 
   return (
@@ -46,6 +61,8 @@ export function BrainRecallHandoffPanel({
           Copy chat context
         </button>
       </div>
+      {handoffError ? <p role="status" style={error}>{handoffError}</p> : null}
+      {copyStatus ? <p role="status" style={status}>{copyStatus}</p> : null}
       <pre style={pre}>{handoff.chatPrompt}</pre>
     </section>
   );
@@ -55,6 +72,8 @@ const panel: CSSProperties = { border: "1px solid rgba(148,163,184,0.16)", backg
 const actions: CSSProperties = { display: "flex", gap: 8, flexWrap: "wrap" };
 const button: CSSProperties = { border: "1px solid rgba(125,211,252,0.24)", background: "rgba(14,165,233,0.12)", color: "inherit", borderRadius: 8, padding: "7px 9px", fontSize: 11, fontWeight: 900, cursor: "pointer" };
 const body: CSSProperties = { margin: 0, fontSize: 12, lineHeight: 1.5, opacity: 0.76, overflowWrap: "anywhere" };
+const error: CSSProperties = { margin: 0, fontSize: 12, lineHeight: 1.5, color: "#fecaca", overflowWrap: "anywhere" };
+const status: CSSProperties = { margin: 0, fontSize: 12, lineHeight: 1.5, color: "#bae6fd", overflowWrap: "anywhere" };
 const pre: CSSProperties = {
   margin: 0,
   maxHeight: 240,

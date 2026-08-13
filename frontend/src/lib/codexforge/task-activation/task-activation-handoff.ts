@@ -57,7 +57,7 @@ export function buildTaskActivationHandoff(args: {
     requestId: args.request.id,
     planId: args.plan.id,
     suggestionId: args.request.taskSuggestionId,
-    targetHref: "/ai",
+    targetHref: "/jarvis",
     prompt,
     safetyNotes: [
       "Activate this as a reviewed task plan.",
@@ -71,7 +71,7 @@ export function buildTaskActivationHandoff(args: {
     ],
     summary: [
       "Reviewed activation handoff is copy-only.",
-      "The /ai workspace receives instructions, not a silent activeTask write.",
+      "Jarvis receives only the prompt you visibly copy, not a silent activeTask write.",
     ],
   };
 }

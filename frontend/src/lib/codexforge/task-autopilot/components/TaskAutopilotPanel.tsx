@@ -92,7 +92,7 @@ export function TaskAutopilotPanel({ initialBundle }: { initialBundle?: TaskAuto
         </section>
 
         <section style={navStrip}>
-          <Link href="/ai" style={link}>AI workspace</Link>
+          <Link href="/jarvis" style={link}>Jarvis chat</Link>
           <Link href="/brain" style={link}>Brain memory</Link>
           <Link href="/files" style={link}>Files intelligence</Link>
           <Link href="/mission" style={link}>Mission Control</Link>

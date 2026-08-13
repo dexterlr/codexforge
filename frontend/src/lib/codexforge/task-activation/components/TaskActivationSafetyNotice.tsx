@@ -10,12 +10,12 @@ export function TaskActivationSafetyNotice() {
       <div style={grid}>
         <strong style={title}>Explicit review approval required</strong>
         <p style={body}>
-          Reviewed Task Activation creates a visible active plan preview and copy-only /ai handoff. It does not
+          Reviewed Task Activation creates a visible active plan preview and copy-only Jarvis handoff. It does not
           auto-run, auto-write, mutate files, mutate memory, or mutate the Brain graph.
         </p>
         <p style={body}>
           No file mutation without Safe Patch Preview. Use memory as context, not proof. preserve
-          latest-message authority in the AI workspace.
+          latest-message authority in Jarvis.
         </p>
       </div>
     </section>

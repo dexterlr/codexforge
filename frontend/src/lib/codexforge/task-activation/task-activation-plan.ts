@@ -69,7 +69,7 @@ export function selectActivatedTaskNextAction(plan: ActivatedTaskPlan): string {
   if (plan.approvalGates.some((gate) => gate.includes("Brain Merge Review"))) {
     return "Open Brain Merge Review before any graph mutation.";
   }
-  return "Copy the reviewed activation prompt into /ai and inspect first.";
+  return "Copy the reviewed activation prompt visibly into /jarvis and inspect it before sending.";
 }
 
 export function buildActivatedTaskPlan(args: {
@@ -116,8 +116,8 @@ export function buildActivatedTaskPlan(args: {
     buildActivatedTaskStep({
       requestId: request.id,
       index: request.steps.length + 3,
-      text: "Prepare visible handoff to /ai without starting execution.",
-      label: "Prepare /ai handoff",
+      text: "Prepare visible copy-only handoff to /jarvis without starting execution.",
+      label: "Prepare Jarvis handoff",
       gate: "handoff",
       detail: "The handoff is copy-only and does not silently set an active task.",
     }),
@@ -129,7 +129,7 @@ export function buildActivatedTaskPlan(args: {
     "Memory Review is required before memory promotion.",
     "Brain Merge Review is required before graph mutation.",
     "Command execution requires approval.",
-    "Latest-message authority must be preserved in /ai.",
+    "Latest-message authority must be preserved in /jarvis with no hidden context injection.",
   ]);
 
   const draftPlan: ActivatedTaskPlan = {

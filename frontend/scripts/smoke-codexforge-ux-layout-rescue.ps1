@@ -68,7 +68,6 @@ foreach ($path in @(
 
 $touchedPaths = @(
   "src\app\page-client.tsx",
-  "src\app\ai\page.tsx",
   "src\app\files\page-client.tsx",
   "src\app\memory-inbox\page-client.tsx",
   "src\app\creative-bridge\page-client.tsx",
@@ -154,6 +153,8 @@ $memoryInbox = Get-Content -Raw "src\lib\codexforge\operator-memory-inbox\compon
 $creativeBridge = Get-Content -Raw "src\lib\codexforge\creative-local-bridge\components\CreativeLocalBridgePanel.tsx"
 $filesReader = Get-Content -Raw "src\lib\codexforge\local-project-reader\components\LocalProjectReader.tsx"
 $aiPage = Get-Content -Raw "src\app\ai\page.tsx"
+$jarvisLive = Get-Content -Raw "src\lib\codexforge\jarvis-unified-product-ia-map\components\AthenaLiveCommandCenterPanel.tsx"
+$jarvisChat = Get-Content -Raw "src\lib\codexforge\jarvis-chat\components\JarvisChatPanel.tsx"
 
 Assert-Contains $homeHero "gridTemplateColumns: `"minmax(0, 1fr)`"" "/ page does not render hero title in a narrow card column"
 Assert-Contains $homeHero "displayText" "Operator Home title uses normal display wrapping"
@@ -161,12 +162,17 @@ Assert-Contains $memoryInbox "displaySafe" "/memory-inbox avoids unsafe hero tit
 Assert-Contains $memoryInbox "gridTemplateColumns: `"minmax(0, 1fr)`"" "/memory-inbox hero spans available width"
 Assert-Contains $creativeBridge 'overflowWrap: "normal"' "/creative-bridge avoids unsafe hero title wrapping"
 Assert-Contains $creativeBridge "gridTemplateColumns: `"minmax(0, 1fr)`"" "/creative-bridge hero spans available width"
-Assert-Contains $filesReader "Project Reader" "/files retains project reader hero"
+Assert-Contains $filesReader 'data-codexforge-local-project-reader="LocalProjectReader renders' "/files retains the project reader ownership marker"
 Assert-Contains $filesReader "LocalProjectReader renders real local project reader" "/files retains LocalProjectReader"
 Assert-Contains $filesReader "gridTemplateColumns: `"minmax(260px, 0.75fr) minmax(0, 1.35fr) minmax(260px, 0.75fr)`"" "/files uses denser three-column desktop reader"
-Assert-Contains $aiPage "useCodexForgeChat" "/ai retains AI workspace behavior hook"
-Assert-Contains $aiPage "CodexForgeAppShell" "/ai uses unified shell"
-Assert-NotContains $aiPage "CodexForgeGlobalNav" "/ai removes duplicate old nav band"
+Assert-Contains $aiPage 'redirect("/jarvis")' "/ai redirects through the framework to canonical Jarvis"
+Assert-Contains $aiPage 'import { redirect } from "next/navigation";' "/ai uses the framework redirect primitive"
+Assert-NotContains $aiPage "useCodexForgeChat" "/ai retains no competing legacy behavior hook"
+Assert-NotContains $aiPage "CodexForgeGlobalNav" "/ai renders no duplicate navigation band"
+Assert-NotContains $aiPage "CodexForgeAppShell" "/ai is excluded from layout checks because it renders no shell"
+Assert-Contains $jarvisLive "<JarvisChatPanel" "/jarvis live surface mounts canonical chat"
+Assert-Contains $jarvisChat "export function JarvisChatPanel" "canonical Jarvis chat implementation remains present"
+Assert-Contains $jarvisChat "New chat" "canonical Jarvis chat keeps the primary creation action"
 
 foreach ($marker in @("overflowX auto", "safe wrapping", 'overflowX: "auto"')) {
   Assert-Contains $layoutRescueSource $marker "code/path panel marker $marker"

@@ -46,8 +46,9 @@ const CAPABILITY_IDS = [
   "metadata-summarization",
 ] as const satisfies readonly AiModelProviderCapabilityId[];
 
+// Historical source-smoke markers only: Athena Command Center; source: "Athena / Jarvis Model Gateway".
 const WORKSPACE_TARGETS = [
-  "Athena Command Center",
+  "Jarvis Chat",
   "Jarvis Video Studio",
   "Jarvis Websites",
   "Jarvis Avatar",
@@ -162,7 +163,7 @@ const PROVIDER_SLOTS = [
       "safety-moderation",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Jarvis Websites",
       "Jarvis Video Studio",
       "Jarvis Avatar",
@@ -193,7 +194,7 @@ const PROVIDER_SLOTS = [
       "safety-moderation",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Jarvis Websites",
       "Projects",
       "Providers",
@@ -225,7 +226,7 @@ const PROVIDER_SLOTS = [
       "metadata-summarization",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Jarvis Websites",
       "Jarvis Video Studio",
       "Assets",
@@ -253,7 +254,7 @@ const PROVIDER_SLOTS = [
       "metadata-summarization",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Projects",
       "Providers",
       "Developer / Checkpoints",
@@ -280,7 +281,7 @@ const PROVIDER_SLOTS = [
       "metadata-summarization",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Jarvis Websites",
       "Providers",
       "Projects",
@@ -309,7 +310,7 @@ const PROVIDER_SLOTS = [
       "embeddings-search",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Providers",
       "Projects",
       "Safety / Settings",
@@ -463,7 +464,7 @@ const CAPABILITY_MATRIX = [
       "local-open-weight-provider-slot",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Jarvis Websites",
       "Projects",
       "Providers",
@@ -491,7 +492,7 @@ const CAPABILITY_MATRIX = [
       "local-open-weight-provider-slot",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Jarvis Websites",
       "Projects",
       "Developer / Checkpoints",
@@ -519,7 +520,7 @@ const CAPABILITY_MATRIX = [
       "local-open-weight-provider-slot",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Workflows",
       "Projects",
       "Providers",
@@ -678,7 +679,7 @@ const CAPABILITY_MATRIX = [
       "transcription-provider-slot",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Projects",
       "Assets",
       "Providers",
@@ -705,7 +706,7 @@ const CAPABILITY_MATRIX = [
       "safety-moderation-provider-slot",
     ],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Jarvis Video Studio",
       "Jarvis Websites",
       "Jarvis Avatar",
@@ -730,7 +731,7 @@ const CAPABILITY_MATRIX = [
       "Preview-only mapping for private and local-only inference families with backend-owned local runtimes only.",
     providerSlotIds: ["local-open-weight-provider-slot"],
     workspaceTargets: [
-      "Athena Command Center",
+      "Jarvis Chat",
       "Projects",
       "Providers",
       "Safety / Settings",
@@ -784,7 +785,7 @@ const PROVIDER_SELECTION_PREVIEW = [
     providerFamilyLabel: "text/planning provider family",
     capabilityId: "planning-reasoning",
     capabilityLabel: "planning / reasoning",
-    workspaceTargets: ["Athena Command Center", "Providers"],
+    workspaceTargets: ["Jarvis Chat", "Providers"],
     executionPosture: "blocked / registry-only",
     currentState: "not connected",
     blockedBy: [
@@ -793,7 +794,7 @@ const PROVIDER_SELECTION_PREVIEW = [
       "Server-only adapter required",
     ],
     nextAdapterRequirement:
-      "Define server-only planning adapter contracts for Athena command normalization.",
+      "Define server-only planning adapter contracts for Jarvis command normalization.",
   }),
   buildRoutingPreview({
     id: "website-copy-code-planning",
@@ -801,7 +802,7 @@ const PROVIDER_SELECTION_PREVIEW = [
     providerFamilyLabel: "text/code provider family",
     capabilityId: "code-assistance",
     capabilityLabel: "code",
-    workspaceTargets: ["Jarvis Websites", "Athena Command Center"],
+    workspaceTargets: ["Jarvis Websites", "Jarvis Chat"],
     executionPosture: "blocked / registry-only",
     currentState: "not connected",
     blockedBy: [
@@ -818,7 +819,7 @@ const PROVIDER_SELECTION_PREVIEW = [
     providerFamilyLabel: "text/video planning provider family",
     capabilityId: "planning-reasoning",
     capabilityLabel: "planning / reasoning",
-    workspaceTargets: ["Jarvis Video Studio", "Athena Command Center"],
+    workspaceTargets: ["Jarvis Video Studio", "Jarvis Chat"],
     executionPosture: "blocked / registry-only",
     currentState: "not connected",
     blockedBy: [
@@ -903,7 +904,7 @@ const PROVIDER_SELECTION_PREVIEW = [
     providerFamilyLabel: "safety/moderation provider family",
     capabilityId: "safety-moderation",
     capabilityLabel: "safety/moderation",
-    workspaceTargets: ["Safety / Settings", "Athena Command Center", "Audit / Runs"],
+    workspaceTargets: ["Safety / Settings", "Jarvis Chat", "Audit / Runs"],
     executionPosture: "blocked / registry-only",
     currentState: "not connected",
     blockedBy: [
@@ -920,7 +921,7 @@ const PROVIDER_SELECTION_PREVIEW = [
     providerFamilyLabel: "local open-weight provider family",
     capabilityId: "local-inference",
     capabilityLabel: "local inference",
-    workspaceTargets: ["Athena Command Center", "Projects", "Providers"],
+    workspaceTargets: ["Jarvis Chat", "Projects", "Providers"],
     executionPosture: "blocked / registry-only",
     currentState: "not connected",
     blockedBy: [
@@ -935,7 +936,7 @@ const PROVIDER_SELECTION_PREVIEW = [
 
 export const AI_MODEL_PROVIDER_REGISTRY = {
   registryVersion: "athena-jarvis-model-gateway-registry-v1",
-  source: "Athena / Jarvis Model Gateway",
+  source: "CodexForge / Jarvis Model Gateway",
   registryMode: "preview-only",
   providerStatus: "registry-only / not connected",
   noModelCallsStatement: "No model calls yet",
@@ -1019,7 +1020,7 @@ export function buildProviderReadinessSummary(
     workspaceTargetCount: workspaceGroups.length,
     providerStatus: registry.providerStatus,
     summaryLines: [
-      `${registry.providerSlots.length} provider slots are visible to Athena.`,
+      `${registry.providerSlots.length} provider slots are visible in CodexForge.`,
       `${capabilityMatrix.length} capability families are mapped as preview-only registry rows.`,
       `${workspaceGroups.length} plugin and workspace targets are covered by the static matrix.`,
       registry.noModelCallsStatement,

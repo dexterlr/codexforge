@@ -26,7 +26,7 @@ import { TaskActivationRequestPanel } from "./TaskActivationRequestPanel";
 import { TaskActivationReviewActions } from "./TaskActivationReviewActions";
 import { TaskActivationSafetyNotice } from "./TaskActivationSafetyNotice";
 
-export function TaskActivationPanel() {
+export function TaskActivationPanel({ embedded = false }: { embedded?: boolean } = {}) {
   const bundle = useMemo(
     () =>
       buildTaskAutopilotSummary({
@@ -207,10 +207,14 @@ export function TaskActivationPanel() {
         <section style={hero}>
           <div style={heroCopy}>
             <div style={eyebrow}>CodexForge Phase 23</div>
-            <h1 style={headline}>Reviewed Task Activation</h1>
+            {embedded ? (
+              <h2 style={headline}>Reviewed Task Activation</h2>
+            ) : (
+              <h1 style={headline}>Reviewed Task Activation</h1>
+            )}
             <p style={lede}>
               Accepted suggestions can become activation requests, policy-reviewed active plan previews, and visible
-              /ai handoffs. This is not autonomous execution and never mutates files from the task UI.
+              Jarvis handoffs for explicit copy and review. This is not autonomous execution and never mutates files from the task UI.
             </p>
           </div>
           <div style={stats}>

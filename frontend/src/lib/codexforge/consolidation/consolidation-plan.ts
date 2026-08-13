@@ -2,9 +2,9 @@ import type { ConsolidationPlan, ConsolidationPlanItem } from "./consolidation-t
 import { buildConsolidationStableKey } from "./consolidation-types";
 
 const ITEMS: readonly Omit<ConsolidationPlanItem, "id">[] = [
-  { title: "Promote primary routes in nav", detail: "Keep /, /ai, /files, /stabilization, /readiness, and /handoff prominent.", priority: 10, routeHref: "/", status: "in-progress" },
+  { title: "Promote primary routes in nav", detail: "Keep /, /jarvis, /files, /stabilization, /readiness, and /handoff prominent.", priority: 10, routeHref: "/", status: "in-progress" },
   { title: "Demote deep governance routes to Advanced / Audit group", detail: "Keep deep Brain and runtime surfaces accessible without making them start points.", priority: 20, routeHref: "/brain-continuity", status: "planned" },
-  { title: "Add clear Start here workflow cards", detail: "Operator Home should point to AI Workspace, Files, Stabilization, Product Readiness, Handoff, and the next functional workflow.", priority: 30, routeHref: "/", status: "in-progress" },
+  { title: "Add clear Start here workflow cards", detail: "Operator Home should point to Jarvis Chat, Files, Stabilization, Product Readiness, Handoff, and the next functional workflow.", priority: 30, routeHref: "/", status: "in-progress" },
   { title: "Ensure /readiness and /handoff are operator checkpoints", detail: "Treat readiness and handoff as phase-transition checkpoints.", priority: 40, routeHref: "/readiness", status: "ready" },
   { title: "Use /stabilization as operations hub", detail: "Keep build, smoke, regression, queue, and apply-gate posture centralized.", priority: 50, routeHref: "/stabilization", status: "ready" },
   { title: "Use /files as File Reader v1 and Patch Preview v1", detail: "Phase 56 Real Local Project Reader made /files the Real Local Project Reader without writes; previous note was prepare /files for real read-only workflow next; Phase 57 Real Patch Preview v1 is now functional/preview-only; next recommend Phase 58 Approved Patch Apply v1.", priority: 60, routeHref: "/files", status: "ready" },

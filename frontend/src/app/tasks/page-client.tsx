@@ -30,10 +30,10 @@ export default function TasksPageClient() {
         </Link>
       </div>
       <TaskAutopilotPanel />
-      <TaskActivationPanel />
-      <ExecutionReadinessPanel />
-      <StepRunnerPreviewPanel />
-      <ReadOnlyStepExecutionPanel />
+      <TaskActivationPanel embedded />
+      <ExecutionReadinessPanel embedded />
+      <StepRunnerPreviewPanel embedded />
+      <ReadOnlyStepExecutionPanel embedded />
       <div style={{ background: "#020617", padding: "0 min(4vw, 44px) 16px" }}>
         <GroundedFixRecommendationPanel
           manualGoal="Recommend grounded fix from reviewed task evidence; no execution and no mutation."

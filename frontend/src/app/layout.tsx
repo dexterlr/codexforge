@@ -35,12 +35,10 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "CodexForge" }],
   creator: "CodexForge",
-  metadataBase: new URL("http://localhost:3000"),
   openGraph: {
     title: "CodexForge",
     description:
       "Local-first personal AI workspace for bounded planning, creation, review, validation, and safe execution.",
-    url: "http://localhost:3000",
     siteName: "CodexForge",
     type: "website",
   },

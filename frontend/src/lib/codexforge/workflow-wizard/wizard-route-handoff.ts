@@ -9,7 +9,7 @@ const ROUTE_LABELS: Record<WizardRoute, string> = {
   "/apply-validation": "Apply safely and validate",
   "/workflow-results": "Workflow Results",
   "/run-history": "Run History",
-  "/ai": "AI",
+  "/jarvis": "Jarvis",
   "/files": "Files",
   "/validation": "Validation",
   "/closed-loop": "Closed Loop",
@@ -41,7 +41,7 @@ const WHAT_TO_DO: Record<WizardRoute, string> = {
   "/memory": "Review memory candidates.",
   "/readiness": "Review product readiness.",
   "/consolidation": "Review consolidation recommendations.",
-  "/ai": "Ask for planning help.",
+  "/jarvis": "Ask for visible local planning help.",
   "/start": "Choose the next workflow.",
   "/": "Open the product home.",
 };

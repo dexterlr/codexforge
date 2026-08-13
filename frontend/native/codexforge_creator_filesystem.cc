@@ -1031,8 +1031,11 @@ class NativeRoot final {
   std::string Stat(const std::vector<std::wstring>& segments) const {
     (void)root();
     if (segments.empty()) return "directory";
+    std::unique_ptr<CrossProcessTransactionSerializer> directory_serializer;
     auto parents = TraverseDirectories(
         segments, segments.size() - 1, false, "Open stat parent", false);
+    directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+        BuildTransactionSerializerName(ParentHandle(parents), L"$directory-inventory$"));
     UniqueHandle target = OpenRelative(
         ParentHandle(parents),
         segments.back(),
@@ -1044,13 +1047,18 @@ class NativeRoot final {
     if (!identity.directory && identity.links > 1) {
       throw NativeFilesystemError("unsafe_hardlink", "Creator file has more than one hard link.");
     }
-    return identity.directory ? "directory" : "file";
+    std::string result = identity.directory ? "directory" : "file";
+    return result;
   }
 
   std::vector<std::string> ListDirectory(const std::vector<std::wstring>& segments) const {
+    std::unique_ptr<CrossProcessTransactionSerializer> directory_serializer;
     auto chain = TraverseDirectories(
         segments, segments.size(), false, "Open creator directory for listing", false);
     HANDLE directory = ParentHandle(chain);
+    directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+        BuildTransactionSerializerName(directory, L"$directory-inventory$"));
+    FilesystemTransaction transaction;
     std::vector<std::string> names;
     std::vector<unsigned char> buffer(64 * 1024);
     bool restart = true;
@@ -1084,6 +1092,7 @@ class NativeRoot final {
       }
     }
     std::sort(names.begin(), names.end());
+    transaction.Commit();
     return names;
   }
 
@@ -1093,8 +1102,11 @@ class NativeRoot final {
     if (segments.empty() || maximum_bytes > kMaximumTransferBytes) {
       throw NativeFilesystemError("invalid_path", "Bounded creator read arguments are invalid.");
     }
+    std::unique_ptr<CrossProcessTransactionSerializer> directory_serializer;
     auto parents = TraverseDirectories(
         segments, segments.size() - 1, false, "Open creator read parent", false);
+    directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+        BuildTransactionSerializerName(ParentHandle(parents), L"$directory-inventory$"));
     UniqueHandle file = OpenFileRelative(
         ParentHandle(parents),
         segments.back(),
@@ -1289,6 +1301,8 @@ class NativeRoot final {
         (fence_segments != nullptr && expected_fence_length > 0 && expected_fence == nullptr)) {
       throw NativeFilesystemError("invalid_path", "Atomic creator file target is invalid.");
     }
+    std::unique_ptr<CrossProcessTransactionSerializer> directory_serializer;
+    std::unique_ptr<CrossProcessTransactionSerializer> serializer;
     auto parents = TraverseDirectories(segments, segments.size() - 1, true, "Open atomic creator parent");
     HANDLE parent = ParentHandle(parents);
     std::vector<UniqueHandle> fence_parents;
@@ -1301,7 +1315,9 @@ class NativeRoot final {
           "Open atomic exclusive fence parent");
       fence_parent = ParentHandle(fence_parents);
     }
-    CrossProcessTransactionSerializer serializer(
+    directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+        BuildTransactionSerializerName(parent, L"$directory-inventory$"));
+    serializer = std::make_unique<CrossProcessTransactionSerializer>(
         BuildTransactionSerializerName(parent, segments.back()));
     FilesystemTransaction transaction;
     UniqueHandle fence;
@@ -1343,7 +1359,6 @@ class NativeRoot final {
       temporary.reset();
       transaction.Commit();
       committed = true;
-      serializer.Release();
       // The isolated transaction commit is the sole publication point. The
       // transacted staging name and rename are invisible before this point.
     } catch (...) {
@@ -1384,9 +1399,12 @@ class NativeRoot final {
         (fence_segments != nullptr && expected_fence_length > 0 && expected_fence == nullptr)) {
       throw NativeFilesystemError("invalid_path", "Atomic native replacement arguments are invalid.");
     }
+    std::unique_ptr<CrossProcessTransactionSerializer> directory_serializer;
     auto parents = TraverseDirectories(
         segments, segments.size() - 1, false, "Open atomic replacement parent");
     HANDLE parent = ParentHandle(parents);
+    directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+        BuildTransactionSerializerName(parent, L"$directory-inventory$"));
     std::vector<UniqueHandle> fence_parents;
     HANDLE fence_parent = INVALID_HANDLE_VALUE;
     if (fence_segments != nullptr) {
@@ -1495,10 +1513,14 @@ class NativeRoot final {
         (expected_length > 0 && expected == nullptr)) {
       throw NativeFilesystemError("invalid_path", "Exact native deletion arguments are invalid.");
     }
+    std::unique_ptr<CrossProcessTransactionSerializer> directory_serializer;
+    std::unique_ptr<CrossProcessTransactionSerializer> serializer;
     auto parents = TraverseDirectories(
         segments, segments.size() - 1, false, "Open exact deletion parent");
     HANDLE parent = ParentHandle(parents);
-    CrossProcessTransactionSerializer serializer(
+    directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+        BuildTransactionSerializerName(parent, L"$directory-inventory$"));
+    serializer = std::make_unique<CrossProcessTransactionSerializer>(
         BuildTransactionSerializerName(parent, segments.back()));
     FilesystemTransaction transaction;
     UniqueHandle target = OpenAndVerifyExactFile(
@@ -1513,7 +1535,6 @@ class NativeRoot final {
     MarkDelete(target.get(), "Delete exact native target");
     target.reset();
     transaction.Commit();
-    serializer.Release();
   }
 
   void PublishTreeExclusive(
@@ -1524,6 +1545,8 @@ class NativeRoot final {
       throw NativeFilesystemError("invalid_path", "Tree publication target is missing.");
     }
     ValidateTreeEntries(entries);
+    std::unique_ptr<CrossProcessTransactionSerializer> directory_serializer;
+    std::unique_ptr<CrossProcessTransactionSerializer> target_serializer;
     auto target_parents = TraverseDirectories(
         target_segments,
         target_segments.size() - 1,
@@ -1531,6 +1554,10 @@ class NativeRoot final {
         "Open tree publication parent");
     HANDLE target_parent = ParentHandle(target_parents);
 
+    directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+        BuildTransactionSerializerName(target_parent, L"$directory-inventory$"));
+    target_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+        BuildTransactionSerializerName(target_parent, target_segments.back()));
     FilesystemTransaction transaction;
     UniqueHandle tree = OpenDirectoryRelative(
         target_parent,
@@ -1614,6 +1641,8 @@ class NativeRoot final {
     if (depth > kMaximumCleanupDepth || remaining_nodes == nullptr) {
       throw NativeFilesystemError("too_many_nodes", "Creator cleanup exceeds its native depth limit.");
     }
+    CrossProcessTransactionSerializer directory_serializer(
+        BuildTransactionSerializerName(directory, L"$directory-inventory$"));
     std::vector<unsigned char> buffer(64 * 1024);
     bool restart = true;
     std::vector<std::wstring> names;
@@ -1648,6 +1677,7 @@ class NativeRoot final {
       }
     }
     for (const std::wstring& name : names) {
+      std::unique_ptr<CrossProcessTransactionSerializer> child_directory_serializer;
       UniqueHandle child = OpenRelative(
           directory,
           name,
@@ -1657,6 +1687,8 @@ class NativeRoot final {
           "Open creator cleanup child");
       FileIdentity identity = QueryIdentity(child.get(), "Inspect creator cleanup child");
       if (identity.directory) {
+        child_directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+            BuildTransactionSerializerName(child.get(), L"$directory-inventory$"));
         RemoveChildren(child.get(), depth + 1, remaining_nodes);
       } else if (identity.links > 1) {
         throw NativeFilesystemError("unsafe_hardlink", "Creator cleanup rejected a multiply-linked file.");
@@ -1673,11 +1705,19 @@ class NativeRoot final {
     if (segments.empty()) {
       throw NativeFilesystemError("invalid_path", "Creator cleanup target is missing.");
     }
+    std::unique_ptr<CrossProcessTransactionSerializer> directory_serializer;
+    std::unique_ptr<CrossProcessTransactionSerializer> target_serializer;
+    std::unique_ptr<CrossProcessTransactionSerializer> target_directory_serializer;
     auto parents = TraverseDirectories(segments, segments.size() - 1, false, "Open creator cleanup parent");
+    HANDLE parent = ParentHandle(parents);
+    directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+        BuildTransactionSerializerName(parent, L"$directory-inventory$"));
+    target_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+        BuildTransactionSerializerName(parent, segments.back()));
     UniqueHandle target;
     try {
       target = OpenRelative(
-          ParentHandle(parents),
+          parent,
           segments.back(),
           DELETE | FILE_LIST_DIRECTORY | FILE_READ_ATTRIBUTES | SYNCHRONIZE,
           FILE_OPEN,
@@ -1689,6 +1729,8 @@ class NativeRoot final {
     }
     FileIdentity identity = QueryIdentity(target.get(), "Inspect creator cleanup target");
     if (identity.directory) {
+      target_directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+          BuildTransactionSerializerName(target.get(), L"$directory-inventory$"));
       size_t remaining_nodes = kMaximumCleanupNodes;
       RemoveChildren(target.get(), 1, &remaining_nodes);
     } else if (identity.links > 1) {
@@ -1715,8 +1757,11 @@ class NativeRoot final {
     // delete sharing, so it cannot be renamed or substituted while children
     // are inspected and removed.
     closed_ = true;
+    std::unique_ptr<CrossProcessTransactionSerializer> root_directory_serializer;
     try {
       HANDLE exact_root = root_chain_.back().get();
+      root_directory_serializer = std::make_unique<CrossProcessTransactionSerializer>(
+          BuildTransactionSerializerName(exact_root, L"$directory-inventory$"));
       size_t remaining_nodes = kMaximumCleanupNodes;
       RemoveChildren(exact_root, 1, &remaining_nodes);
       MarkDelete(exact_root, "Delete exact creator test root by handle");

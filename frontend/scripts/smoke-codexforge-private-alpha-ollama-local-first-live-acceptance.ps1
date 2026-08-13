@@ -113,7 +113,7 @@ foreach ($line in Get-Content "scripts/smoke-codexforge-all.ps1") {
     if ($line -match 'smoke-codexforge-private-alpha-ollama-local-first-live-acceptance\.ps1' -and $line -match 'Required = \$true') { $newSmokeOccurrences += 1 }
   }
 }
-Assert-True ($aggregateExecutableCount -eq 74) "Aggregate executable count is 74 after Macro Phase D1 and D2 smoke registration"
+Assert-True ($aggregateExecutableCount -eq 75) "Aggregate executable count is 75 after the canonical Jarvis chat smoke registration"
 Assert-True ($newSmokeOccurrences -eq 1) "New smoke is registered exactly once and is required"
 
 $nodeScript = @'

@@ -136,7 +136,9 @@ Assert-Contains $domainSource "search-project" "tool readiness marks search-proj
 Assert-Contains $domainSource "npm run build" "test readiness suggests npm run build"
 Assert-Contains $domainSource "git diff --check" "test readiness suggests git diff --check"
 Assert-Contains $domainSource "ready-for-future-execution-approval" "approval readiness includes ready-for-future-execution-approval"
-Assert-Contains $aiPageSource "Execution Readiness" "AI page references Execution Readiness"
+Assert-Contains $tasksSource "<ExecutionReadinessPanel embedded />" "/tasks embeds Execution Readiness beneath its single page heading"
+Assert-Contains $aiPageSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiPageSource "ExecutionReadinessPanel" "/ai mounts no competing Execution Readiness panel"
 Assert-Contains $missionSource "Execution Readiness" "Mission Control references Execution Readiness"
 
 Assert-NotMatches $readinessSource 'from\s+["''][^"'']*brain-graph["'']' "no import from brain-graph"

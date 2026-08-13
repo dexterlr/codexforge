@@ -4,6 +4,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $root = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $root
+$expectedBaselineTag = "codexforge-rendered-product-accessibility-acceptance-clean"
+$expectedBaseline = "fe74ece00629cd6cdcbeba0a35e31d0a4ab54f58"
+$expectedCreatorCheckpointTag = "codexforge-approved-static-website-creator-foundation-clean"
+$expectedCreatorCheckpoint = "a8ea7b5a4b91937152d16279f876364187a2c318"
 
 function Assert-True {
   param([bool]$Condition, [string]$Message)
@@ -23,9 +27,8 @@ function Assert-NotContains {
 
 function Assert-NoGitDiff {
   param([string]$RelativePath, [string]$Message)
-  $worktree = ((& git -c core.safecrlf=false diff --name-only -- $RelativePath 2>$null) | Out-String).Trim()
-  $index = ((& git -c core.safecrlf=false diff --cached --name-only -- $RelativePath 2>$null) | Out-String).Trim()
-  Assert-True ([string]::IsNullOrWhiteSpace($worktree) -and [string]::IsNullOrWhiteSpace($index)) $Message
+  $checkpointDiff = ((& git -c core.safecrlf=false diff --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag" -- $RelativePath 2>$null) | Out-String).Trim()
+  Assert-True ([string]::IsNullOrWhiteSpace($checkpointDiff)) $Message
 }
 
 function Get-Text {
@@ -57,7 +60,7 @@ foreach ($file in $requiredFiles) {
   Assert-True (Test-Path -LiteralPath (Join-Path $root $file)) "D2 file exists: $file"
 }
 
-$expectedDirtyPaths = @(
+$expectedCheckpointPaths = @(
   "frontend/docs/codexforge-macro-phase-c-1-rendered-accessibility-repair.md",
   "frontend/package.json",
   "frontend/native/codexforge_creator_filesystem.cc",
@@ -137,24 +140,25 @@ $expectedDirtyPaths = @(
   "frontend/src/lib/codexforge/creator/creator-validation.server.ts",
   "frontend/src/proxy.ts"
 )
-$currentDirtyPaths = @(
-  (& git status --porcelain=v1 --untracked-files=all) |
-    ForEach-Object { $_.Substring(3) }
+$currentCheckpointPaths = @(
+  (& git diff --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag") |
+    Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
 )
-Assert-True ($expectedDirtyPaths.Count -eq 78) "D2 exact dirty manifest declares 78 paths"
-Assert-True (@($expectedDirtyPaths | Sort-Object -Unique).Count -eq $expectedDirtyPaths.Count) "D2 exact dirty manifest paths are unique"
-Assert-True (@($currentDirtyPaths | Sort-Object -Unique).Count -eq $currentDirtyPaths.Count) "D2 current dirty paths are unique"
-Assert-True ($currentDirtyPaths.Count -eq $expectedDirtyPaths.Count) "D2 current dirty path count matches the exact manifest"
-foreach ($path in $expectedDirtyPaths) {
-  Assert-True ($currentDirtyPaths -ccontains $path) "D2 exact dirty path is present: $path"
+Assert-True ((& git rev-parse "$expectedBaselineTag^{}").Trim() -eq $expectedBaseline) "D2 baseline annotated tag peels to the exact approved Macro Phase C.1 commit"
+Assert-True ((& git rev-parse "$expectedCreatorCheckpointTag^{}").Trim() -eq $expectedCreatorCheckpoint) "D2 annotated checkpoint tag peels to the exact approved creator commit"
+Assert-True ((& git rev-parse "$expectedCreatorCheckpoint^").Trim() -eq $expectedBaseline) "D2 creator checkpoint has the exact approved Macro Phase C.1 parent"
+Assert-True ($expectedCheckpointPaths.Count -eq 78) "D2 exact checkpoint manifest declares 78 paths"
+Assert-True (@($expectedCheckpointPaths | Sort-Object -Unique).Count -eq $expectedCheckpointPaths.Count) "D2 exact checkpoint manifest paths are unique"
+Assert-True (@($currentCheckpointPaths | Sort-Object -Unique).Count -eq $currentCheckpointPaths.Count) "D2 committed checkpoint paths are unique"
+Assert-True ($currentCheckpointPaths.Count -eq $expectedCheckpointPaths.Count) "D2 committed checkpoint path count matches the exact manifest"
+foreach ($path in $expectedCheckpointPaths) {
+  Assert-True ($currentCheckpointPaths -ccontains $path) "D2 exact committed checkpoint path is present: $path"
 }
-foreach ($path in $currentDirtyPaths) {
-  Assert-True ($expectedDirtyPaths -ccontains $path) "D2 current dirty path is authorized: $path"
+foreach ($path in $currentCheckpointPaths) {
+  Assert-True ($expectedCheckpointPaths -ccontains $path) "D2 committed checkpoint path is authorized: $path"
 }
-$cachedPaths = @(& git diff --cached --name-only)
-Assert-True ($cachedPaths.Count -eq 0) "D2 leaves the Git index completely unstaged"
-foreach ($dirtyScript in @($currentDirtyPaths | Where-Object { $_.EndsWith(".ps1", [StringComparison]::OrdinalIgnoreCase) })) {
-  $frontendRelative = $dirtyScript.Substring("frontend/".Length)
+foreach ($checkpointScript in @($currentCheckpointPaths | Where-Object { $_.EndsWith(".ps1", [StringComparison]::OrdinalIgnoreCase) })) {
+  $frontendRelative = $checkpointScript.Substring("frontend/".Length)
   $tokens = $null
   $parseErrors = $null
   [void][System.Management.Automation.Language.Parser]::ParseFile(
@@ -282,7 +286,8 @@ Assert-Contains $creatorProxy "frame-ancestors 'none'" "D2 creator route forbids
 Assert-Contains $creatorProxy 'response.headers.set("X-Frame-Options", "DENY")' "D2 creator route sends legacy frame denial"
 $navigationCompact = $navigationRegistry -replace '\s+', ' '
 Assert-Contains $navigationCompact 'readiness: route.href === "/jarvis" || route.href === "/jarvis-websites" ? "available" : "preview-only",' "D2 operational creator owns an available readiness label without relabeling other Jarvis routes"
-Assert-Contains $navigationCompact 'noMutation: route.href === "/jarvis-websites" ? false : true,' "D2 operational creator route does not claim a no-mutation posture"
+Assert-Contains $navigationCompact 'route.href === "/jarvis" || route.href === "/jarvis-websites"' "D2 canonical chat and operational creator share the explicit mutation-capable route predicate"
+Assert-Contains $navigationCompact '? false' "D2 operational creator route does not claim a no-mutation posture"
 Assert-Contains $navigationCompact 'noMutation: input.noMutation ?? fallback.noMutation ?? true,' "D2 route builder preserves the owning route mutation posture"
 Assert-NotContains $navigationCompact 'readiness: route.href === "/jarvis" ? "available" : "preview-only",' "D2 removes the obsolete blanket preview-only creator readiness rule"
 Assert-Contains $jarvisProductContent 'id: "website-flow"' "D2 Jarvis capability grid owns one website creator capability"

@@ -217,13 +217,13 @@ export const JARVIS_UNIFIED_PRODUCT_NEXT_ACTION_RAIL = [
   },
   {
     id: "review-command-center",
-    label: "Open Athena Command Center",
+    label: "Open Jarvis Chat",
     summary:
-      "Launch the upper Jarvis chat control plane and review routing, audit, approvals, and safety state.",
+      "Launch canonical Jarvis Chat and review the local model, context, approval, audit, and safety state.",
     routeHref: "/jarvis",
     tone: "ready",
     backendRequired:
-      "Athena remains a review and routing surface only.",
+      "Jarvis keeps approval and bounded execution as separate explicit actions.",
   },
   {
     id: "advance-video-trial",
@@ -699,7 +699,7 @@ export const JARVIS_UNIFIED_PRODUCT_SURFACES = {
       "diagnostics",
     ],
     currentFocus:
-      "Open Athena Command Center first, keep product cards above diagnostics, review approval-gated handoff packets, and move into Jarvis Video Studio or the other specialist surfaces without enabling execution.",
+      "Open Jarvis Chat first, keep product cards above diagnostics, review approval-gated handoff packets, and move into Jarvis Video Studio or the other specialist surfaces without enabling execution.",
     heroMetrics: [
       {
         label: "Primary route",

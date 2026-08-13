@@ -14,6 +14,7 @@ export type {
   PrivateAlphaCancellationInput,
   PrivateAlphaCancellationRecord,
   PrivateAlphaCapability,
+  PrivateAlphaChatRunOwnership,
   PrivateAlphaCloudDataTransferAcknowledgement,
   PrivateAlphaCloudDataTransferRequirement,
   PrivateAlphaCloudExecutionAcknowledgement,

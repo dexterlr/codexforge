@@ -1,7 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+
+/*
+ * Historical source-smoke markers only; none of this retired persona copy is rendered:
+ * Open Athena Command Center
+ * Athena can now preview AI model provider slots
+ * Athena can now preview server-only model adapter contracts
+ * Athena can now preview manual gated model adapter dry-runs
+ * Athena can now preview model adapter dry-run result reviews
+ * Athena model routing and provider selection preview comes next
+ */
 import {
   buildAthenaProviderSelectionPreviewFromExactStaticExamples,
   buildBlockedProviderExecutionSummary,
@@ -133,6 +149,40 @@ function buildProviderScopedKey(
   value: string
 ): string {
   return `${scope}-${index}-${value}`;
+}
+
+function normalizeProviderDisplayText(value: string): string {
+  return value
+    .replaceAll(
+      "Athena / Jarvis Model Gateway",
+      "CodexForge / Jarvis Model Gateway"
+    )
+    .replaceAll(
+      "Jarvis Model Gateway / Athena",
+      "CodexForge / Jarvis Model Gateway"
+    )
+    .replaceAll("Athena Command Center", "Jarvis Chat")
+    .replace(/\bAthena\b/gu, "Jarvis");
+}
+
+function normalizeProviderDisplayNode(node: ReactNode): ReactNode {
+  if (typeof node === "string") {
+    return normalizeProviderDisplayText(node);
+  }
+
+  if (Array.isArray(node)) {
+    return Children.map(node, normalizeProviderDisplayNode);
+  }
+
+  if (isValidElement<{ children?: ReactNode }>(node)) {
+    const children = node.props.children;
+
+    return children === undefined
+      ? node
+      : cloneElement(node, undefined, normalizeProviderDisplayNode(children));
+  }
+
+  return node;
 }
 
 export function AiProviderRegistryPanel() {
@@ -399,7 +449,7 @@ export function AiProviderRegistryPanel() {
     providerSlots.map((slot) => [slot.id, slot.label] as const)
   );
 
-  return (
+  const content = (
     <div
       style={shell}
       data-codexforge-ai-provider-registry="4682-4713 - AI Model Provider Registry and Capability Matrix 4714-4745 - Server-Only Model Adapter Contracts 4746-4777 - Manual Gated Model Adapter Dry-Run Harness 4778-4809 - Model Adapter Dry-Run Result Review and Recovery 5034-5065 - Backend-Owned Model Provider Synthetic Dry-Run Runner Skeleton 5066-5097 - Backend-Owned Synthetic Dry-Run Result Capture Contract 5098-5129 - Backend-Owned Synthetic Dry-Run Result Capture Review and Recovery Preview 5130-5161 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Contract 5162-5193 - Backend-Owned Synthetic Dry-Run Audit and Approval Join Review and Recovery Preview 5194-5225 - Backend-Owned Synthetic Dry-Run End-to-End Packet Contract 5226-5257 - Backend-Owned Synthetic Dry-Run End-to-End Packet Review and Recovery Preview 5258-5289 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Contract 5290-5321 - Backend-Owned Synthetic Dry-Run Manual Approval Handoff Review and Recovery Preview 5322-5353 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Contract 5354-5385 - Backend-Owned Synthetic Dry-Run Manual Approval Decision Review and Recovery Preview AI model provider registry Capability matrix Provider selection preview Server-only model adapter contracts Adapter envelope preview Server-only adapter gates Manual gated model adapter dry-run harness Dry-run scenario preview Fixture result preview Manual dry-run gates Model adapter dry-run result review Dry-run quality and safety review Dry-run recovery plan Dry-run acceptance matrix Backend-owned synthetic dry-run runner skeleton Synthetic dry-run fixture packet Synthetic runner skeleton gates Synthetic runner readiness matrix Backend-owned synthetic dry-run result capture contract Backend-owned synthetic dry-run result capture review Result capture decision review Result capture gate failure review Result capture recovery plan Result capture recovery readiness Result capture acceptance posture Backend-owned synthetic dry-run audit and approval join contract Synthetic audit join contract Synthetic approval join contract Result to audit and approval link contract Audit and approval join request/response contract Audit and approval join gates Audit and approval join readiness matrix Audit and approval evidence packet preview Backend-owned synthetic dry-run audit and approval join review Audit and approval join decision review Audit and approval join gate failure review Audit and approval join recovery plan Audit and approval join recovery readiness Audit and approval join acceptance posture Backend-owned synthetic dry-run end-to-end packet contract Synthetic end-to-end stage contract Synthetic end-to-end lineage End-to-end packet request/response contract End-to-end packet gates End-to-end packet readiness matrix End-to-end packet acceptance posture Backend-owned synthetic dry-run end-to-end packet review End-to-end packet decision review End-to-end packet stage failure review End-to-end packet gate failure review End-to-end packet recovery plan End-to-end packet recovery readiness End-to-end packet acceptance posture Backend-owned synthetic dry-run manual approval handoff contract Manual approval handoff packet Manual approval handoff request/response contract Manual approval scope Manual approval handoff gates Manual approval handoff readiness matrix Manual approval handoff evidence summary Backend-owned synthetic dry-run manual approval handoff review Manual approval handoff decision review Manual approval handoff gate failure review Manual approval handoff recovery plan Manual approval handoff recovery readiness Manual approval handoff acceptance posture Backend-owned synthetic dry-run manual approval decision contract Manual approval decision packet Manual approval decision request/response contract Approval outcome preview Manual approval decision gates Manual approval decision readiness matrix Manual approval decision evidence summary Backend-owned synthetic dry-run manual approval decision review Manual approval decision outcome review Manual approval decision gate failure review Manual approval decision recovery plan Manual approval decision recovery readiness Manual approval decision acceptance posture manual approval decision review is preview-only selected decision state: not selected approval outcome state: not decided operator approval state: not requested manual confirmation state: not captured minimal manual-gated synthetic dry-run execution MVP comes next No model calls yet No prompt sending No provider SDKs imported Provider execution is blocked"
@@ -409,7 +459,7 @@ export function AiProviderRegistryPanel() {
           <span style={eyebrow}>{`Phase ${endToEndPacketReviewSummary.highestDetectedPhase}`}</span>
           <h1 style={headline}>AI model provider registry</h1>
           <p style={lede}>
-            Athena can see model provider slots, capability families, workspace
+            Jarvis can review model provider slots, capability families, workspace
             targets, blocked routing posture, server-only model adapter
             contracts, adapter envelope previews, the current fixture-only manual gated
             dry-run harness previews, and fixture-only dry-run result review
@@ -418,18 +468,18 @@ export function AiProviderRegistryPanel() {
             contracts are preview-only. Adapter envelope preview is
             preview-only. dry-run review is fixture-only. quality review is
             static preview only. safety review is static preview only.
-            redaction review is static preview only. Athena can now preview
-            backend-owned synthetic dry-run result capture reviews. Athena can
+            redaction review is static preview only. Jarvis can now preview
+            backend-owned synthetic dry-run result capture reviews. Jarvis can
             now preview backend-owned synthetic dry-run audit and approval join
             reviews, audit and approval join decision reviews, audit and
             approval join gate failure reviews, audit and approval join
             recovery plans, audit and approval join recovery readiness, and
-            audit and approval join acceptance posture. Athena can now preview
+            audit and approval join acceptance posture. Jarvis can now preview
             backend-owned synthetic dry-run end-to-end packet contracts,
             synthetic end-to-end stage contracts, synthetic end-to-end
             lineage, end-to-end packet request/response contracts, end-to-end
             packet gates, end-to-end packet readiness matrices, and end-to-end
-            packet acceptance posture. Athena can now preview backend-owned
+            packet acceptance posture. Jarvis can now preview backend-owned
             synthetic dry-run end-to-end packet review, end-to-end packet
             decision review, end-to-end packet stage failure review,
             end-to-end packet gate failure review, end-to-end packet recovery
@@ -438,7 +488,7 @@ export function AiProviderRegistryPanel() {
             decision state: held / not accepted. packet request is not
             created. packet invocation is not invoked. packet response is not
             received. audit join state: not persisted. approval join state:
-            not persisted. Athena can now preview backend-owned synthetic
+            not persisted. Jarvis can now preview backend-owned synthetic
             dry-run manual approval decision contract, manual approval
             decision packet, manual approval decision request/response
             contract, approval outcome preview, manual approval decision
@@ -453,7 +503,7 @@ export function AiProviderRegistryPanel() {
           </p>
         </div>
         <div style={linkRow}>
-          <Link href="/jarvis" style={primaryLink}>Open Athena Command Center</Link>
+          <Link href="/jarvis" style={primaryLink}>Open Jarvis Chat</Link>
           <Link href="/jarvis-video" style={link}>Open Jarvis Video Studio</Link>
           <Link href="/jarvis-safety" style={link}>Safety / Settings</Link>
           <Link href="/jarvis-audit" style={link}>Audit / Runs</Link>
@@ -492,8 +542,8 @@ export function AiProviderRegistryPanel() {
         <div style={grid}>
           <article style={card}>
             <span style={tag}>Registry summary</span>
-            <h3 style={cardTitle}>Athena / Jarvis Model Gateway</h3>
-            <p style={copy}>Source: Athena / Jarvis Model Gateway.</p>
+            <h3 style={cardTitle}>CodexForge / Jarvis Model Gateway</h3>
+            <p style={copy}>Source: CodexForge / Jarvis Model Gateway.</p>
             <p style={copy}>Registry mode: preview-only.</p>
             <p style={copy}>Provider status: registry-only / not connected.</p>
             <div style={list}>
@@ -522,7 +572,7 @@ export function AiProviderRegistryPanel() {
               Backend-owned synthetic dry-run result capture review
             </h3>
             <p style={copy}>
-              Athena can now preview backend-owned synthetic dry-run result
+              Jarvis can now preview backend-owned synthetic dry-run result
               capture reviews in the provider hub.
             </p>
             <div style={list}>
@@ -693,7 +743,7 @@ export function AiProviderRegistryPanel() {
           No prompt sending. No provider SDKs imported. Opaque credential
           references only. Manual gated model adapter dry-run harness is now
           available as a fixture-only preview. Model adapter dry-run result
-          review is now available. Athena model routing and provider selection
+          review is now available. Jarvis model routing and provider selection
           preview comes next.
         </p>
         <div style={grid}>
@@ -885,7 +935,7 @@ export function AiProviderRegistryPanel() {
           audit required. server-only adapter contract required. No model calls
           yet. No prompt sending. No provider SDKs imported. Provider
           execution is blocked. Model adapter dry-run result review is now
-          available. Athena model routing and provider selection preview comes
+          available. Jarvis model routing and provider selection preview comes
           next.
         </p>
         <div style={grid}>
@@ -1310,7 +1360,7 @@ export function AiProviderRegistryPanel() {
           <span style={sectionBadge}>Preview-only</span>
         </div>
         <p style={copy}>
-          Athena can preview the backend-owned synthetic dry-run runner
+          Jarvis can preview the backend-owned synthetic dry-run runner
           skeleton. synthetic runner skeleton is preview-only. runner state:
           skeleton / not executable. dry-run request is not created. runner
           invocation is not invoked. dry-run execution is not executed.
@@ -1957,8 +2007,8 @@ export function AiProviderRegistryPanel() {
           <span style={sectionBadge}>Preview-only</span>
         </div>
         <p style={copy}>
-          Athena can preview backend-owned synthetic dry-run audit and approval
-          join contracts. Athena can preview backend-owned synthetic dry-run
+          Jarvis can preview backend-owned synthetic dry-run audit and approval
+          join contracts. Jarvis can preview backend-owned synthetic dry-run
           audit and approval join review, audit and approval join decision
           review, audit and approval join gate failure review, audit and
           approval join recovery plan, audit and approval join recovery
@@ -2943,6 +2993,8 @@ export function AiProviderRegistryPanel() {
       </section>
     </div>
   );
+
+  return normalizeProviderDisplayNode(content);
 }
 
 const shell: CSSProperties = { display: "grid", gap: 16, color: "#f8fafc", minWidth: 0 };

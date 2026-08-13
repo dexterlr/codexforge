@@ -21,6 +21,7 @@ $componentDir = Join-Path $domainDir "components"
 $routePath = "src\app\start\page.tsx"
 $pageClientPath = "src\app\start\page-client.tsx"
 $homePagePath = "src\app\page.tsx"
+$normalHomePath = "src\lib\codexforge\normal-product\components\ProductHomePanel.tsx"
 $homeHeroPath = "src\lib\codexforge\operator-home\components\OperatorHomeHero.tsx"
 $aiPath = "src\app\ai\page.tsx"
 $filesPath = "src\app\files\page-client.tsx"
@@ -62,7 +63,7 @@ foreach ($component in @(
   "ProductSimplificationSafetyNotice.tsx"
 )) { Assert-FileExists (Join-Path $componentDir $component) }
 
-foreach ($path in @($routePath,$pageClientPath,$homePagePath,$homeHeroPath,$aiPath,$filesPath,$validationPath,$closedLoopPath,$creativePath,$creativeMvpPath,$commandRegistryPath,$readinessPath,$consolidationPath,$missionSourcePath,$allSmokePath)) {
+foreach ($path in @($routePath,$pageClientPath,$homePagePath,$normalHomePath,$homeHeroPath,$aiPath,$filesPath,$validationPath,$closedLoopPath,$creativePath,$creativeMvpPath,$commandRegistryPath,$readinessPath,$consolidationPath,$missionSourcePath,$allSmokePath)) {
   Assert-FileExists $path
 }
 
@@ -70,7 +71,7 @@ $domainSource = (Get-ChildItem $domainDir -File | Sort-Object FullName | ForEach
 $componentSource = (Get-ChildItem $componentDir -File | Sort-Object FullName | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
 $indexSource = Get-Content -Raw (Join-Path $domainDir "index.ts")
 $routeSource = (Get-Content -Raw $routePath) + "`n" + (Get-Content -Raw $pageClientPath)
-$homeSource = (Get-Content -Raw $homePagePath) + "`n" + (Get-Content -Raw $homeHeroPath)
+$homeSource = (Get-Content -Raw $homePagePath) + "`n" + (Get-Content -Raw $normalHomePath) + "`n" + (Get-Content -Raw $homeHeroPath)
 $pageSource = (Get-Content -Raw $aiPath) + "`n" + (Get-Content -Raw $filesPath) + "`n" + (Get-Content -Raw $validationPath) + "`n" + (Get-Content -Raw $closedLoopPath) + "`n" + (Get-Content -Raw $creativePath) + "`n" + (Get-Content -Raw $creativeMvpPath)
 $integrationSource = (Get-Content -Raw $commandRegistryPath) + "`n" + (Get-Content -Raw $readinessPath) + "`n" + (Get-Content -Raw $consolidationPath) + "`n" + (Get-Content -Raw $missionSourcePath)
 $allSmoke = Get-Content -Raw $allSmokePath
@@ -116,8 +117,8 @@ foreach ($copy in @("Fix code","Inspect project files","Run checks","Plan creati
   Assert-Contains $allSource $copy "plain copy $copy"
 }
 
-foreach ($copy in @("Ask CodexForge","Describe what you want to inspect, fix, or plan","Inspect a file","Prepare checks","Start fix loop","Review MVP candidate")) {
-  Assert-Contains $pageSource $copy "touched page friendly copy $copy"
+foreach ($copy in @("Ask Jarvis","Describe the bounded local text response you want","Inspect a file","Prepare checks","Start fix loop","Review MVP candidate")) {
+  Assert-Contains $allSource $copy "friendly product copy $copy"
 }
 
 foreach ($badge in @("Review first","Approval required","No auto-run","No file writes","Preview only")) {
@@ -127,12 +128,15 @@ foreach ($badge in @("Review first","Approval required","No auto-run","No file w
 Assert-Contains $componentSource "Advanced details" "advanced details are collapsible or visually secondary"
 Assert-Contains $domainSource "Raw JSON stays hidden unless expanded" "raw JSON is hidden unless expanded"
 Assert-Contains $domainSource "ACTIONS: readonly PrimaryAction[]" "primary action model includes one action list"
-Assert-Contains $domainSource "route: `"/ai`", label: `"Ask CodexForge`"" "primary action /ai"
+Assert-Contains $domainSource "route: `"/jarvis`", label: `"Ask Jarvis`"" "primary action canonical Jarvis"
+if ($domainSource.Contains('route: "/ai"')) { throw "[FAIL] Active product-simplification route model still targets retired /ai" }
+Write-Host "[PASS] product-simplification route model contains no retired /ai destination"
 Assert-Contains $domainSource "route: `"/files`", label: `"Inspect a file`"" "primary action /files"
 Assert-Contains $domainSource "route: `"/validation`", label: `"Prepare checks`"" "primary action /validation"
 Assert-Contains $domainSource "route: `"/creative`", label: `"Plan creative work`"" "primary action /creative"
 
-Assert-Contains $homeSource '"/start"' "homepage links to /start"
+Assert-Contains $homeSource "ProductHomePanel" "homepage renders the authentic CodexForge home"
+Assert-Contains $homeSource "From a request to an auditable result" "homepage exposes the canonical first-run journey"
 Assert-Contains $commandRegistryPath "command-registry.ts" "command registry path present"
 Assert-Contains $integrationSource "Go to Start" "command palette includes Go to Start"
 Assert-Contains $integrationSource "Start code fix" "command palette includes Start code fix"

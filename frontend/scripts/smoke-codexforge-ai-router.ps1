@@ -123,8 +123,10 @@ Assert-Contains $componentText "Estimates are approximate" "UI approximate estim
 Assert-Contains $componentText "Local-first" "UI local-first"
 Assert-Contains $componentText "Subscription-efficient" "UI subscription-efficient"
 Assert-Contains $componentText "Fallback route" "UI fallback route"
-Assert-Contains $aiPageText "AI Router" "/ai references AI Router"
-Assert-Contains $aiPageText "route recommendation" "/ai references route recommendation"
+Assert-Contains $routeText "AiRouterCockpit" "/ai-router imports/renders AiRouterCockpit"
+Assert-Contains $componentText "Route recommendation" "/ai-router retains route recommendation guidance"
+Assert-Contains $aiPageText 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiPageText "AiRouterCockpit" "/ai mounts no competing AI Router cockpit"
 
 if ($allRouterText -match "sk-[A-Za-z0-9]{20,}") {
   throw "[FAIL] Forbidden hardcoded API key-like token"

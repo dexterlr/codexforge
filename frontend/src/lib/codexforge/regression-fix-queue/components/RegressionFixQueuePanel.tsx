@@ -41,7 +41,7 @@ const demoSignals: RegressionSignal[] = [
     sourceLine: null,
     relatedFiles: ["src/lib/codexforge/regression-fix-queue/components/RegressionFixQueuePanel.tsx"],
     relatedSmokeScript: "scripts/smoke-codexforge-regression-fix-queue.ps1",
-    relatedRoute: "/ai",
+    relatedRoute: "/files",
     confidence: 0.82,
     regressionLikelihood: 0.88,
     stale: false,

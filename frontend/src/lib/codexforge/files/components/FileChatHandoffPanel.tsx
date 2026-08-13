@@ -49,8 +49,8 @@ export function FileChatHandoffPanel({
           >
             {copied === "workspace" ? "Workspace copied" : "Copy workspace prompt"}
           </button>
-          <Link href="/ai" style={link}>
-            Open workspace
+          <Link href="/jarvis" style={link}>
+            Open Jarvis chat
           </Link>
         </div>
       </div>

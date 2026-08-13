@@ -22,7 +22,7 @@ export type OperatorHomeRoutePath =
   | "/assisted-quality"
   | "/assist"
   | "/code-flow"
-  | "/ai"
+  | "/jarvis"
   | "/ai-router"
   | "/brain"
   | "/files"
@@ -106,7 +106,7 @@ export type OperatorHomeSurface = {
 
 export type OperatorHomeHealthDimensionId =
   | "brain-runtime"
-  | "ai-workspace"
+  | "jarvis-workspace"
   | "files-workflow"
   | "tasks-workflow"
   | "memory-workflow"

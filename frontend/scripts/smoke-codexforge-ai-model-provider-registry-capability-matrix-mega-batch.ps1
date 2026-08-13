@@ -160,8 +160,8 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-  "Athena",
-  "Athena Command Center",
+  "Jarvis",
+  "Jarvis Chat",
   "AI model provider registry",
   "Capability matrix",
   "Provider selection preview",
@@ -189,19 +189,26 @@ foreach ($needle in @(
 
 foreach ($needle in @(
   "CodexForge Operator Cockpit",
-  "Athena is the main Jarvis control layer",
-  "Open Athena Command Center",
+  "Open Jarvis Chat",
   "Open Jarvis Video Studio",
-  "Athena can now preview AI model provider slots",
-  "Athena can now preview server-only model adapter contracts",
-  "Athena can now preview manual gated model adapter dry-runs",
-  "Athena can now preview model adapter dry-run result reviews",
   "dry-run harness is fixture-only",
-  "Athena model routing and provider selection preview comes next",
   "no model calls yet",
   "no prompt sending"
 )) {
   Assert-Contains $homeNormalized $needle "home contains $needle"
+}
+
+foreach ($needle in @(
+  "Jarvis can review model provider slots",
+  "CodexForge / Jarvis Model Gateway",
+  "Jarvis Chat",
+  "Open Jarvis Chat",
+  "Jarvis model routing and provider selection preview comes next",
+  "Provider slots are registry-only",
+  "No model calls yet",
+  "No prompt sending"
+)) {
+  Assert-Contains $providerNormalized $needle "provider page contains $needle"
 }
 
 foreach ($needle in @(
@@ -215,7 +222,8 @@ foreach ($needle in @(
 
 foreach ($needle in @(
   'registryVersion: "athena-jarvis-model-gateway-registry-v1"',
-  'source: "Athena / Jarvis Model Gateway"',
+  'source: "CodexForge / Jarvis Model Gateway"',
+  '"Jarvis Chat"',
   'registryMode: "preview-only"',
   'providerStatus: "registry-only / not connected"',
   'capabilityMatrix: CAPABILITY_MATRIX',
@@ -230,8 +238,8 @@ foreach ($needle in @(
   "Define request and response envelopes for each provider family.",
   "Keep credentials as opaque backend-only references.",
   "Manual gated model adapter dry-run harness",
-  "Athena can now preview model adapter dry-run result reviews",
-  "Athena model routing and provider selection preview comes next"
+  "provider slots are visible in CodexForge",
+  "Define server-only planning adapter contracts for Jarvis command normalization"
 )) {
   Assert-Contains $typedModelNormalized $needle "typed model/data contains $needle"
 }

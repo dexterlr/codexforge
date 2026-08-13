@@ -55,13 +55,14 @@ $index = Get-Content -Raw (Join-Path $domain "index.ts")
 $wizardSource = (Get-ChildItem -Recurse -File $domain | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
 $startPage = Get-Content -Raw "src\app\start\page-client.tsx"
 $homePage = Get-Content -Raw "src\app\page.tsx"
+$homeClient = Get-Content -Raw "src\app\page-client.tsx"
 $aiPage = Get-Content -Raw "src\app\ai\page.tsx"
 $filesPage = Get-Content -Raw "src\app\files\page-client.tsx"
 $readinessSource = Get-Content -Raw "src\lib\codexforge\product-readiness-audit\product-readiness-summary.ts"
 $consolidationSource = Get-Content -Raw "src\lib\codexforge\consolidation\consolidation-summary.ts"
 $commandPalette = Get-Content -Raw "src\lib\codexforge\command-palette\command-registry.ts"
 $allSmoke = Get-Content -Raw "scripts\smoke-codexforge-all.ps1"
-$touched = $wizardSource + "`n" + $startPage + "`n" + $homePage + "`n" + $aiPage + "`n" + $filesPage + "`n" + $readinessSource + "`n" + $consolidationSource + "`n" + $commandPalette
+$touched = $wizardSource + "`n" + $startPage + "`n" + $homePage + "`n" + $homeClient + "`n" + $aiPage + "`n" + $filesPage + "`n" + $readinessSource + "`n" + $consolidationSource + "`n" + $commandPalette
 
 foreach ($export in @(
   "buildWizardIntent",
@@ -120,8 +121,11 @@ foreach ($route in @("/files", "/validation", "/creative", "/creative-mvp")) { A
 foreach ($command in @("Open workflow wizard", "Start code fix wizard", "Start creative wizard", "Start local setup wizard", "Start artifact review wizard")) {
   Assert-Contains $commandPalette $command "command palette includes $command"
 }
-Assert-Contains $homePage "Start with the wizard" "homepage links to wizard"
-Assert-Contains $aiPage "Need help choosing? Open Start Wizard" "AI page references wizard"
+Assert-Contains $homePage "Start a bounded local-first task with Jarvis" "homepage metadata identifies the canonical Jarvis journey"
+Assert-Contains $homeClient "ProductHomePanel" "homepage renders the authentic CodexForge product home"
+Assert-Contains $aiPage 'redirect("/jarvis")' "retired AI route redirects to canonical Jarvis"
+if ($wizardSource.Contains('"/ai"')) { throw "[FAIL] Workflow Wizard route model still targets retired /ai" }
+Write-Host "[PASS] Workflow Wizard route model contains no retired /ai destination"
 Assert-Contains $filesPage "Continue code fix flow" "Files page references wizard"
 Assert-Contains $readinessSource "Real Workflow Wizard v1" "Product Readiness references Real Workflow Wizard"
 Assert-Contains $consolidationSource "Real Workflow Wizard v1" "Consolidation references Real Workflow Wizard"

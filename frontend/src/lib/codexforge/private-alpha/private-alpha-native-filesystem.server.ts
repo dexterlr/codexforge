@@ -48,6 +48,37 @@ function nativeErrorCode(error: unknown): string | null {
     : null;
 }
 
+const CREATOR_NATIVE_ERROR_CODES = new Set([
+  "already_exists",
+  "not_found",
+  "compare_mismatch",
+  "fence_mismatch",
+  "conflict",
+  "busy",
+  "invalid_path",
+  "unsafe_reparse",
+  "unsafe_node",
+  "unsafe_hardlink",
+  "too_many_nodes",
+  "too_large",
+  "closed",
+  "access_denied",
+  "helper_unavailable",
+  "native_failure",
+]);
+
+function isCreatorNativeFilesystemError(error: unknown): boolean {
+  const code = nativeErrorCode(error);
+  if (
+    !(error instanceof Error) ||
+    error.name !== "Error" ||
+    code === null ||
+    !CREATOR_NATIVE_ERROR_CODES.has(code)
+  ) return false;
+  const keys = Object.keys(error).sort();
+  return keys.length === 1 && keys[0] === "code";
+}
+
 function translateNativeError(error: unknown): never {
   const code = nativeErrorCode(error);
   if (code === "already_exists") {
@@ -217,7 +248,7 @@ export function withPrivateAlphaNativeRoot<T>(
       return work(active.root);
     } catch (error) {
       if (error instanceof PrivateAlphaNativeFilesystemError) throw error;
-      if (nativeErrorCode(error) !== null) return translateNativeError(error);
+      if (isCreatorNativeFilesystemError(error)) return translateNativeError(error);
       throw error;
     }
   }
@@ -231,7 +262,7 @@ export function withPrivateAlphaNativeRoot<T>(
     return work(root);
   } catch (error) {
     if (error instanceof PrivateAlphaNativeFilesystemError) throw error;
-    if (nativeErrorCode(error) !== null) return translateNativeError(error);
+    if (isCreatorNativeFilesystemError(error)) return translateNativeError(error);
     throw error;
   } finally {
     try {
@@ -258,7 +289,7 @@ export function withPrivateAlphaExistingNativeRoot<T>(
       return work(active.root);
     } catch (error) {
       if (error instanceof PrivateAlphaNativeFilesystemError) throw error;
-      if (nativeErrorCode(error) !== null) return translateNativeError(error);
+      if (isCreatorNativeFilesystemError(error)) return translateNativeError(error);
       throw error;
     }
   }
@@ -285,7 +316,7 @@ export function withPrivateAlphaExistingNativeRoot<T>(
       return work(root);
     } catch (error) {
       if (error instanceof PrivateAlphaNativeFilesystemError) throw error;
-      if (nativeErrorCode(error) !== null) return translateNativeError(error);
+      if (isCreatorNativeFilesystemError(error)) return translateNativeError(error);
       throw error;
     }
   } finally {
@@ -338,7 +369,7 @@ export async function withPrivateAlphaExistingNativeRootLease<T>(
     );
   } catch (error) {
     if (error instanceof PrivateAlphaNativeFilesystemError) throw error;
-    if (nativeErrorCode(error) !== null) return translateNativeError(error);
+    if (isCreatorNativeFilesystemError(error)) return translateNativeError(error);
     throw error;
   } finally {
     try {
@@ -378,7 +409,7 @@ export async function withPrivateAlphaNativeRootLease<T>(
     );
   } catch (error) {
     if (error instanceof PrivateAlphaNativeFilesystemError) throw error;
-    if (nativeErrorCode(error) !== null) return translateNativeError(error);
+    if (isCreatorNativeFilesystemError(error)) return translateNativeError(error);
     throw error;
   } finally {
     try {

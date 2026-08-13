@@ -51,7 +51,7 @@ export function StabilizationCommandCenter({ summary: providedSummary }: { summa
             <div style={heroActions}>
               <Link href="/activity" style={heroLink}>Activity Feed</Link>
               <Link href="/handoff" style={heroLink}>Continuity Handoff</Link>
-              <Link href="/ai" style={heroLink}>Review pipeline</Link>
+              <Link href="/jarvis" style={heroLink}>Open Jarvis chat</Link>
               <span hidden data-codexforge-stabilization-memory-inbox-smoke="Memory Inbox readiness remains available from the sidebar and command palette." />
               <span style={copiedPill}>{copied ? `${copied} copied` : "copy-only controls"}</span>
             </div>

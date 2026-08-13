@@ -28,6 +28,9 @@ $composerDockPath = ".\src\lib\codexforge\chat\components\composer-dock.tsx"
 $workspaceSectionStackPath = ".\src\lib\codexforge\chat\components\workspace-section-stack.tsx"
 $pageConfigPath = ".\src\lib\codexforge\chat\page-config.ts"
 $pagePath = ".\src\app\ai\page.tsx"
+$homePagePath = ".\src\app\page-client.tsx"
+$jarvisPagePath = ".\src\app\jarvis\page-client.tsx"
+$jarvisLivePath = ".\src\lib\codexforge\jarvis-unified-product-ia-map\components\AthenaLiveCommandCenterPanel.tsx"
 
 Assert-True (Test-Path $dataPath) "product surface data file exists"
 Assert-True (Test-Path $componentPath) "product surface component file exists"
@@ -43,7 +46,10 @@ Assert-True (Test-Path $workspaceInsightsPath) "workspace insights component fil
 Assert-True (Test-Path $composerDockPath) "composer dock component file exists"
 Assert-True (Test-Path $workspaceSectionStackPath) "workspace section stack component file exists"
 Assert-True (Test-Path $pageConfigPath) "page config file exists"
-Assert-True (Test-Path $pagePath) "AI page exists"
+Assert-True (Test-Path $pagePath) "retired /ai compatibility route exists"
+Assert-True (Test-Path $homePagePath) "canonical CodexForge home exists"
+Assert-True (Test-Path $jarvisPagePath) "canonical Jarvis route exists"
+Assert-True (Test-Path $jarvisLivePath) "canonical Jarvis live surface exists"
 
 $data = Get-Content -Raw $dataPath
 $component = Get-Content -Raw $componentPath
@@ -60,6 +66,9 @@ $composerDock = Get-Content -Raw $composerDockPath
 $workspaceSectionStack = Get-Content -Raw $workspaceSectionStackPath
 $pageConfig = Get-Content -Raw $pageConfigPath
 $page = Get-Content -Raw $pagePath
+$homePage = Get-Content -Raw $homePagePath
+$jarvisPage = Get-Content -Raw $jarvisPagePath
+$jarvisLive = Get-Content -Raw $jarvisLivePath
 
 Assert-True ($data.Contains("codexForgeProductSurface")) "data exports codexForgeProductSurface"
 Assert-True ($data.Contains("Local-first AI operating system for builders")) "data includes god-tier positioning eyebrow"
@@ -76,33 +85,37 @@ Assert-True ($component.Contains("minmax(min(100%, 320px), 1fr)")) "component ha
 Assert-True ($component.Contains("minmax(min(100%, 240px), 1fr)")) "component has responsive capability grid"
 Assert-True ($component.Contains("minmax(min(100%, 220px), 1fr)")) "component has responsive use-case grid"
 
-Assert-True ($page.Contains("CodexForgeProductSurface")) "AI page imports product surface"
-Assert-True ($page.Contains("<CodexForgeProductSurface />")) "AI page renders product surface"
-Assert-True ($page.Contains('id="workspace"')) "AI page has workspace anchor"
+Assert-True ($page.Contains('redirect("/jarvis")')) "/ai redirects to canonical Jarvis"
+Assert-True ($page.Contains('import { redirect } from "next/navigation";')) "/ai uses the framework redirect primitive"
+Assert-True (-not $page.Contains("CodexForgeProductSurface")) "/ai mounts no retired product surface"
+Assert-True (-not $page.Contains('id="workspace"')) "/ai exposes no competing workspace anchor"
+Assert-True ($homePage.Contains("<ProductHomePanel workspace={workspace} />")) "canonical CodexForge home renders its authentic product surface"
+Assert-True ($jarvisPage.Contains('surfaceId="jarvis"')) "canonical /jarvis route selects the Jarvis surface"
+Assert-True ($jarvisLive.Contains("<JarvisChatPanel")) "canonical Jarvis live surface renders chat"
 Assert-True ($commandCenter.Contains("export function WorkspaceCommandCenter")) "workspace command center exports component"
 Assert-True ($commandCenter.Contains("Workspace command center")) "workspace command center includes heading"
 Assert-True ($commandCenter.Contains("latest-message authority")) "workspace command center preserves latest-message authority copy"
-Assert-True ($page.Contains("workspace-command-center")) "AI page imports workspace command center"
-Assert-True ($page.Contains("<WorkspaceCommandCenter")) "AI page renders workspace command center"
+Assert-True (-not $page.Contains("workspace-command-center")) "/ai does not import the retired workspace command center"
+Assert-True (-not $page.Contains("<WorkspaceCommandCenter")) "/ai does not render the retired workspace command center"
 Assert-True ($toolbarStatus.Contains("export function ToolbarStatus")) "toolbar status exports component"
 Assert-True ($toolbarStatus.Contains("controlled execution guidance")) "toolbar status preserves execution guidance copy"
-Assert-True ($page.Contains("toolbar-status")) "AI page imports toolbar status"
-Assert-True ($page.Contains("<ToolbarStatus")) "AI page renders toolbar status"
+Assert-True (-not $page.Contains("toolbar-status")) "/ai does not import retired toolbar status"
+Assert-True (-not $page.Contains("<ToolbarStatus")) "/ai does not render retired toolbar status"
 Assert-True (-not $page.Contains("function StatusBar")) "AI page does not define local status bar"
 Assert-True (-not $page.Contains("type StatusBarProps")) "AI page does not keep status bar props inline"
 Assert-True ($workspaceState.Contains("export function WorkspaceStateCard")) "workspace state exports component"
 Assert-True ($workspaceState.Contains("Current workspace")) "workspace state includes heading"
 Assert-True ($workspaceState.Contains("Snapshot files")) "workspace state preserves snapshot file metric"
-Assert-True ($page.Contains("workspace-state-card")) "AI page imports workspace state card"
-Assert-True ($page.Contains("<WorkspaceStateCard")) "AI page renders workspace state card"
+Assert-True (-not $page.Contains("workspace-state-card")) "/ai does not import the retired workspace state card"
+Assert-True (-not $page.Contains("<WorkspaceStateCard")) "/ai does not render the retired workspace state card"
 Assert-True (-not $page.Contains("function WorkspaceStateCard")) "AI page does not define local workspace state card"
 Assert-True (-not $page.Contains("type WorkspaceStateCardProps")) "AI page does not keep workspace state props inline"
 Assert-True (-not $page.Contains("const workspaceStateGridStyle")) "AI page does not keep workspace state styles inline"
 Assert-True ($executionPanel.Contains("export function ExecutionPanel")) "execution panel exports component"
 Assert-True ($executionPanel.Contains("Run current step")) "execution panel preserves run step action"
 Assert-True ($executionPanel.Contains("Approve diffs")) "execution panel preserves diff approval action"
-Assert-True ($page.Contains("execution-panel")) "AI page imports execution panel"
-Assert-True ($page.Contains("<ExecutionPanel")) "AI page renders execution panel"
+Assert-True (-not $page.Contains("execution-panel")) "/ai does not import the retired execution panel"
+Assert-True (-not $page.Contains("<ExecutionPanel")) "/ai does not render the retired execution panel"
 Assert-True (-not $page.Contains("function ExecutionPanel")) "AI page does not define local execution panel"
 Assert-True (-not $page.Contains("type ExecutionPanelProps")) "AI page does not keep execution panel props inline"
 Assert-True (-not $page.Contains("type MetaCardProps")) "AI page does not keep local meta card props"
@@ -117,8 +130,8 @@ Assert-True ($engineState.Contains("Execution engine")) "engine state includes h
 Assert-True ($engineState.Contains("Approve plan")) "engine state preserves plan approval action"
 Assert-True ($engineState.Contains("Approve diffs")) "engine state preserves diff approval action"
 Assert-True ($engineState.Contains("Snapshot sample")) "engine state preserves snapshot sample section"
-Assert-True ($page.Contains("engine-state-card")) "AI page imports engine state card"
-Assert-True ($page.Contains("<EngineStateCard")) "AI page renders engine state card"
+Assert-True (-not $page.Contains("engine-state-card")) "/ai does not import the retired engine state card"
+Assert-True (-not $page.Contains("<EngineStateCard")) "/ai does not render the retired engine state card"
 Assert-True (-not $page.Contains("function EngineStateCard")) "AI page does not define local engine state card"
 Assert-True (-not $page.Contains("type EngineStateCardProps")) "AI page does not keep engine state props inline"
 Assert-True (-not $page.Contains("type ActionButtonProps")) "AI page does not keep action button props inline"
@@ -136,8 +149,8 @@ Assert-True ($workspaceOverview.Contains("export function WorkspaceOverviewCard"
 Assert-True ($workspaceOverview.Contains("Workspace overview")) "workspace overview includes heading"
 Assert-True ($workspaceOverview.Contains("No active task yet")) "workspace overview preserves empty task copy"
 Assert-True ($workspaceOverview.Contains("Task progress")) "workspace overview preserves task progress copy"
-Assert-True ($page.Contains("workspace-overview-card")) "AI page imports workspace overview card"
-Assert-True ($page.Contains("<WorkspaceOverviewCard")) "AI page renders workspace overview card"
+Assert-True (-not $page.Contains("workspace-overview-card")) "/ai does not import the retired workspace overview card"
+Assert-True (-not $page.Contains("<WorkspaceOverviewCard")) "/ai does not render the retired workspace overview card"
 Assert-True (-not $page.Contains("function WorkspaceOverviewCard")) "AI page does not define local workspace overview card"
 Assert-True (-not $page.Contains("function getConversationDescriptor")) "AI page does not keep conversation descriptor helper"
 Assert-True (-not $page.Contains("function getExecutionDescriptor")) "AI page does not keep execution descriptor helper"
@@ -151,15 +164,15 @@ Assert-True ($topBar.Contains("export function TopBar")) "top bar exports compon
 Assert-True ($topBar.Contains("CodexForge")) "top bar preserves brand title"
 Assert-True ($topBar.Contains("AI Workspace")) "top bar preserves brand subtitle"
 Assert-True ($topBar.Contains("Add system note")) "top bar preserves system note action"
-Assert-True ($page.Contains("components/top-bar")) "AI page imports top bar"
-Assert-True ($page.Contains("<TopBar")) "AI page renders top bar"
+Assert-True (-not $page.Contains("components/top-bar")) "/ai does not import the retired top bar"
+Assert-True (-not $page.Contains("<TopBar")) "/ai does not render the retired top bar"
 Assert-True (-not $page.Contains("function TopBar")) "AI page does not define local top bar"
 Assert-True (-not $page.Contains("type TopBarProps")) "AI page does not keep top bar props inline"
 Assert-True (-not $page.Contains("const brandTextWrapStyle")) "AI page does not keep top bar brand text styles inline"
 Assert-True ($emptyState.Contains("export function EmptyState")) "empty state exports component"
 Assert-True ($emptyState.Contains("Ready for a real task")) "empty state preserves ready copy"
-Assert-True ($page.Contains("components/empty-state")) "AI page imports empty state"
-Assert-True ($page.Contains("<EmptyState")) "AI page renders empty state"
+Assert-True (-not $page.Contains("components/empty-state")) "/ai does not import the retired empty state"
+Assert-True (-not $page.Contains("<EmptyState")) "/ai does not render the retired empty state"
 Assert-True (-not $page.Contains("function EmptyState")) "AI page does not define local empty state"
 Assert-True ($pageConfig.Contains("export const SUGGESTIONS")) "page config exports suggestions"
 Assert-True ($pageConfig.Contains("export const EMPTY_EXAMPLES")) "page config exports empty examples"
@@ -167,7 +180,7 @@ Assert-True ($pageConfig.Contains("export const BACKEND_LABELS")) "page config e
 Assert-True ($pageConfig.Contains("export const SURFACE_LINKS")) "page config exports surface links"
 Assert-True ($pageConfig.Contains("export function buildSystemGuide")) "page config exports system guide helper"
 Assert-True ($pageConfig.Contains("export function getRepoLabel")) "page config exports repo label helper"
-Assert-True ($page.Contains("chat/page-config")) "AI page imports page config"
+Assert-True (-not $page.Contains("chat/page-config")) "/ai does not import retired chat page configuration"
 Assert-True (-not $page.Contains("const SUGGESTIONS")) "AI page does not keep suggestions inline"
 Assert-True (-not $page.Contains("const EMPTY_EXAMPLES")) "AI page does not keep empty examples inline"
 Assert-True (-not $page.Contains("const BACKEND_LABELS")) "AI page does not keep backend labels inline"
@@ -176,22 +189,22 @@ Assert-True (-not $page.Contains("function buildSystemGuide")) "AI page does not
 Assert-True (-not $page.Contains("function getRepoLabel")) "AI page does not keep repo label helper inline"
 Assert-True ($workspaceSectionStack.Contains("export function WorkspaceSectionStack")) "workspace section stack exports component"
 Assert-True ($workspaceSectionStack.Contains("sectionStackStyle")) "workspace section stack owns layout style"
-Assert-True ($page.Contains("components/workspace-section-stack")) "AI page imports workspace section stack"
-Assert-True ($page.Contains("<WorkspaceSectionStack")) "AI page renders workspace section stack"
+Assert-True (-not $page.Contains("components/workspace-section-stack")) "/ai does not import the retired workspace section stack"
+Assert-True (-not $page.Contains("<WorkspaceSectionStack")) "/ai does not render the retired workspace section stack"
 Assert-True (-not $page.Contains("const sectionStackStyle")) "AI page does not keep section stack style inline"
 Assert-True ($composerDock.Contains("ComposerDock")) "composer dock exports component"
 Assert-True ($composerDock.Contains("ChatComposer")) "composer dock wraps chat composer"
 Assert-True ($composerDock.Contains("position: `"sticky`"")) "composer dock preserves sticky positioning"
-Assert-True ($page.Contains("components/composer-dock")) "AI page imports composer dock"
-Assert-True ($page.Contains("<ComposerDock")) "AI page renders composer dock"
+Assert-True (-not $page.Contains("components/composer-dock")) "/ai does not import the retired composer dock"
+Assert-True (-not $page.Contains("<ComposerDock")) "/ai does not render the retired composer dock"
 Assert-True (-not $page.Contains("components/chat-composer")) "AI page no longer imports chat composer directly"
 Assert-True (-not $page.Contains("const composerDockStyle")) "AI page does not keep composer dock styles inline"
 Assert-True ($workspaceInsights.Contains("export function WorkspaceInsightsPanel")) "workspace insights exports component"
 Assert-True ($workspaceInsights.Contains("CodexForge direction")) "workspace insights preserves direction heading"
 Assert-True ($workspaceInsights.Contains("What this page should become")) "workspace insights preserves product direction heading"
 Assert-True ($workspaceInsights.Contains("Product posture")) "workspace insights preserves product posture copy"
-Assert-True ($page.Contains("components/workspace-insights-panel")) "AI page imports workspace insights panel"
-Assert-True ($page.Contains("<WorkspaceInsightsPanel")) "AI page renders workspace insights panel"
+Assert-True (-not $page.Contains("components/workspace-insights-panel")) "/ai does not import the retired workspace insights panel"
+Assert-True (-not $page.Contains("<WorkspaceInsightsPanel")) "/ai does not render the retired workspace insights panel"
 Assert-True (-not $page.Contains("function CapabilityCard")) "AI page does not define local capability card"
 Assert-True (-not $page.Contains("function ProductDirectionPanel")) "AI page does not define local product direction panel"
 Assert-True (-not $page.Contains("function getCapabilityCards")) "AI page does not keep capability card data helper"
@@ -413,7 +426,7 @@ foreach ($pattern in $forbiddenGlobalPatterns) {
 
 Write-Host "[PASS] structured reply hardening assertions passed"
 
-Write-Host "`n[RUN ] Agent-team engine influence wiring"
+Write-Host "`n[RUN ] Retired chat route and retained agent-team engine influence"
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent $scriptRoot
@@ -430,19 +443,18 @@ $routeContent = Get-Content -Raw $routePath
 $influenceContent = Get-Content -Raw $influencePath
 
 $routeRequired = @(
-  "agent-team-engine-influence",
-  "applyAgentTeamEngineInfluence",
-  "agentInfluencedStructured",
-  "structuredToText(premiumStructured)",
-  "structured: agentInfluencedStructured"
+  "CODEXFORGE_LEGACY_CHAT_RETIRED",
+  'canonicalRoute: "/jarvis"',
+  "status: 410",
+  '"Cache-Control": "no-store"'
 )
 
 foreach ($pattern in $routeRequired) {
   if ($routeContent -notmatch [regex]::Escape($pattern)) {
-    throw "[FAIL] chat route missing agent-team influence wiring: $pattern"
+    throw "[FAIL] retired chat route missing fail-closed migration behavior: $pattern"
   }
 
-  Write-Host "[PASS] chat route includes agent-team influence wiring: $pattern"
+  Write-Host "[PASS] retired chat route includes fail-closed migration behavior: $pattern"
 }
 
 $helperRequired = @(
@@ -463,19 +475,21 @@ foreach ($pattern in $helperRequired) {
 }
 
 $forbiddenRoutePatterns = @(
+  "applyAgentTeamEngineInfluence",
+  "agentInfluencedStructured",
   "structuredToText(decoratedStructured)",
   "structured: decoratedStructured"
 )
 
 foreach ($pattern in $forbiddenRoutePatterns) {
   if ($routeContent -match [regex]::Escape($pattern)) {
-    throw "[FAIL] chat route still bypasses agent influence: $pattern"
+    throw "[FAIL] retired chat route still retains legacy response wiring: $pattern"
   }
 
-  Write-Host "[PASS] chat route no longer bypasses agent influence: $pattern"
+  Write-Host "[PASS] retired chat route excludes legacy response wiring: $pattern"
 }
 
-Write-Host "[PASS] agent-team engine influence assertions passed"
+Write-Host "[PASS] retired chat route and retained agent-team engine influence assertions passed"
 
 Write-Host "`n[RUN ] Agent-team runtime policy wiring"
 

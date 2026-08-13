@@ -247,9 +247,14 @@ Assert-Contains $resultPanelSource "executionEvent?.sideEffect" "result panel pr
 Assert-Contains $resultPanelSource "data-codexforge-tool-execution-local-safe" "result panel renders local-safe marker"
 Assert-Contains $resultPanelSource "Local-safe simulated execution. No side effects were performed." "result panel explains local-safe execution"
 
-# Page integration hardening: the main AI page must wire both recording and display.
+# Legacy route retirement and retained module-chain hardening: /ai redirects to
+# canonical Jarvis while the historical tool-policy implementation remains
+# internally wired and available to its dedicated owners.
 $pageSource = Get-Content -Raw "src\app\ai\page.tsx"
-Assert-Contains $pageSource "recordToolExecutionResult" "AI page receives durable event recorder"
-Assert-Contains $pageSource "onToolExecutionResult={recordToolExecutionResult}" "AI page wires durable recorder to chat messages"
-Assert-Contains $pageSource "latestToolExecutionEvent={latestToolExecutionEvent}" "AI page wires latest durable event to engine card"
-Assert-Contains $pageSource "toolExecutionEventCount={toolExecutionEvents.length}" "AI page wires durable event count to engine card"
+Assert-Contains $pageSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $pageSource "recordToolExecutionResult" "/ai mounts no hidden legacy execution recorder"
+Assert-Contains $chatHookSource "recordToolExecutionResult," "retained chat hook returns durable event recorder"
+Assert-Contains $chatMessageSource "renderStructuredReply(message.structured, onToolExecutionResult)" "retained chat message forwards execution results"
+Assert-Contains $rendererSource "<StructuredReplyBlock" "retained renderer mounts structured replies"
+Assert-Contains $structuredBlockSource "<ToolPolicyDecisionPanel" "retained structured reply mounts the tool policy decision panel"
+Assert-Contains $engineCardSource "executionEvent={latestToolExecutionEvent}" "retained engine card displays the latest durable execution event"

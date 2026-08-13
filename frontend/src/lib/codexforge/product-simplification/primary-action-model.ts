@@ -5,7 +5,7 @@ export function buildPrimaryAction(input: PrimaryAction): PrimaryAction {
 }
 
 const ACTIONS: readonly PrimaryAction[] = [
-  { route: "/ai", label: "Ask CodexForge", description: "Focus the composer and describe what you want.", kind: "focus", safeOnly: true },
+  { route: "/jarvis", label: "Ask Jarvis", description: "Focus the composer and type the exact visible local message.", kind: "focus", safeOnly: true },
   { route: "/code-flow", label: "Fix code safely", description: "Pick a file, preview the change, approve it, then run checks.", kind: "focus", safeOnly: true },
   { route: "/code-flow/trial-review", label: "Review coding trial", description: "Capture manual trial notes, friction, UX fixes, and go/no-go.", kind: "copy", safeOnly: true },
   { route: "/apply-validation", label: "Apply safely, then validate", description: "Review policy, rollback, validation output, and result routing.", kind: "prepare", safeOnly: true },

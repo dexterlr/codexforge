@@ -122,7 +122,9 @@ foreach ($render in @(
   Assert-Contains $uiSource $render "$render"
 }
 
-Assert-Contains $aiSource "ApplyDiffDryRunPanel" "/ai imports/renders ApplyDiffDryRunPanel if integrated"
+Assert-Contains $tasksSource "<ApplyDiffDryRunPanel compact />" "/tasks imports/renders ApplyDiffDryRunPanel"
+Assert-Contains $aiSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiSource "ApplyDiffDryRunPanel" "/ai mounts no competing Apply-Diff Dry Run panel"
 Assert-Contains $filesSource "Apply-Diff Dry Run" "/files references Apply-Diff Dry Run if integrated"
 Assert-Contains $filesSource "Simulate apply-diff dry run" "/files references Simulate apply-diff dry run if integrated"
 Assert-Contains $tasksSource "Apply-Diff Dry Run" "/tasks references Apply-Diff Dry Run if integrated"

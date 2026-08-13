@@ -108,7 +108,7 @@ export function buildTaskActivationLedger(args: {
       buildTaskActivationLedgerItem({
         state: "handoff-ready",
         label: "Handoff ready",
-        detail: "Copy-only handoff prompt is ready for /ai.",
+        detail: "Copy-only handoff prompt is ready for visible review in /jarvis.",
         requestId,
         suggestionId,
       })
@@ -140,6 +140,6 @@ export function summarizeTaskActivationLedger(ledger: TaskActivationLedger): str
   return [
     `${ledger.items.length} reviewed activation ledger entries are visible.`,
     blocked ? `${blocked} entries show blocked activation.` : "No activation ledger entries are blocked.",
-    handoffReady ? "Handoff is ready for /ai." : "Handoff is not ready yet.",
+    handoffReady ? "Handoff is ready for visible review in /jarvis." : "Handoff is not ready yet.",
   ];
 }

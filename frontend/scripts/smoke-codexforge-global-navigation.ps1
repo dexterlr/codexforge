@@ -41,8 +41,10 @@ $globalNavPath = Join-Path $navDir "CodexForgeGlobalNav.tsx"
 $localActionBarPath = Join-Path $navDir "CodexForgeLocalActionBar.tsx"
 $pageShellPath = Join-Path $navDir "CodexForgePageShell.tsx"
 $indexPath = Join-Path $navDir "index.ts"
+$navigationShellRouteRegistryPath = ".\src\lib\codexforge\navigation-shell\navigation-route-registry.ts"
 $suitePath = ".\scripts\smoke-codexforge-all.ps1"
 $aiTopBarPath = ".\src\lib\codexforge\chat\components\top-bar.tsx"
+$aiPagePath = ".\src\app\ai\page.tsx"
 $brainPagePath = ".\src\app\brain\page-client.tsx"
 
 Assert-True (Test-Path $navDir) "shared navigation directory exists"
@@ -51,8 +53,10 @@ Assert-True (Test-Path $globalNavPath) "CodexForgeGlobalNav exists"
 Assert-True (Test-Path $localActionBarPath) "CodexForgeLocalActionBar exists"
 Assert-True (Test-Path $pageShellPath) "CodexForgePageShell exists"
 Assert-True (Test-Path $indexPath) "navigation index exists"
+Assert-True (Test-Path $navigationShellRouteRegistryPath) "current navigation shell route registry exists"
 Assert-True (Test-Path $suitePath) "managed smoke suite exists"
-Assert-True (Test-Path $aiTopBarPath) "/ai local top bar exists"
+Assert-True (Test-Path $aiTopBarPath) "retained historical chat top bar source exists"
+Assert-True (Test-Path $aiPagePath) "/ai compatibility route exists"
 Assert-True (Test-Path $brainPagePath) "/brain page client exists"
 
 $routeRegistry = Get-Content -Raw $routeRegistryPath
@@ -60,13 +64,16 @@ $globalNav = Get-Content -Raw $globalNavPath
 $localActionBar = Get-Content -Raw $localActionBarPath
 $pageShell = Get-Content -Raw $pageShellPath
 $indexSource = Get-Content -Raw $indexPath
+$navigationShellRouteRegistry = Get-Content -Raw $navigationShellRouteRegistryPath
 $suite = Get-Content -Raw $suitePath
 $aiTopBar = Get-Content -Raw $aiTopBarPath
+$aiPage = Get-Content -Raw $aiPagePath
 $brainPage = Get-Content -Raw $brainPagePath
 
 $pagePaths = [ordered]@{
   "home page references global nav or route registry" = ".\src\app\page.tsx"
-  "/ai references global nav" = ".\src\app\ai\page.tsx"
+  "/jarvis references the canonical product shell" = ".\src\app\jarvis\page-client.tsx"
+  "/jarvis-websites references the canonical product shell" = ".\src\app\jarvis-websites\page-client.tsx"
   "/brain references global nav" = ".\src\app\brain\page-client.tsx"
   "/files references global nav or canonical shell" = ".\src\app\files\page-client.tsx"
   "/history references global nav" = ".\src\app\history\page.tsx"
@@ -79,8 +86,11 @@ $pagePaths = [ordered]@{
 foreach ($entry in $pagePaths.GetEnumerator()) {
   Assert-True (Test-Path $entry.Value) "$($entry.Value) exists"
   $source = Get-Content -Raw $entry.Value
-  Assert-True (($source.Contains("CodexForgeGlobalNav")) -or ($source.Contains("CodexForgeAppShell")) -or ($source.Contains("CODEXFORGE_ROUTES"))) $entry.Key
+  Assert-True (($source.Contains("CodexForgeGlobalNav")) -or ($source.Contains("CodexForgeAppShell")) -or ($source.Contains("JarvisUnifiedProductPageClientShell")) -or ($source.Contains("CODEXFORGE_ROUTES"))) $entry.Key
 }
+
+Assert-Contains $aiPage 'import { redirect } from "next/navigation"' "/ai uses the framework redirect boundary"
+Assert-Contains $aiPage 'redirect("/jarvis")' "/ai retires the standalone workspace by redirecting to canonical Jarvis"
 
 $runsRoutePath = ".\src\app\runs\page-client.tsx"
 if (Test-Path $runsRoutePath) {
@@ -90,6 +100,7 @@ if (Test-Path $runsRoutePath) {
 
 $requiredRoutes = @(
   "/ai",
+  "/jarvis",
   "/brain",
   "/files",
   "/capabilities",
@@ -107,11 +118,11 @@ foreach ($route in $requiredRoutes) {
   Assert-Contains $routeRegistry "path: `"$route`"" "route registry includes $route"
 }
 
-foreach ($id in @("home", "workspace", "brain", "files", "runs", "capabilities", "creative", "history", "entry", "operator")) {
+foreach ($id in @("home", "jarvis", "workspace", "brain", "files", "runs", "capabilities", "creative", "history", "entry", "operator")) {
   Assert-Contains $routeRegistry "id: `"$id`"" "route registry includes $id id"
 }
 
-foreach ($primaryId in @("workspace", "brain", "files", "runs")) {
+foreach ($primaryId in @("jarvis", "workspace", "brain", "files", "runs")) {
   $pattern = 'id:\s+"' + [regex]::Escape($primaryId) + '"[\s\S]*?priority:\s+"primary"'
   Assert-True ([regex]::IsMatch($routeRegistry, $pattern)) "route registry marks $primaryId as primary"
 }
@@ -122,6 +133,12 @@ foreach ($secondaryId in @("home", "capabilities", "creative", "history", "entry
 }
 
 Assert-Contains $routeRegistry "showInGlobalNav: true" "route registry exposes global nav visibility"
+Assert-True ([regex]::IsMatch($routeRegistry, 'id:\s+"workspace"[\s\S]*?path:\s+"/ai"[\s\S]*?showInGlobalNav:\s+false')) "legacy /ai registry entry is retained only as a hidden compatibility redirect"
+foreach ($canonicalRoute in @("/jarvis", "/jarvis-websites")) {
+  $pattern = 'href:\s+"' + [regex]::Escape($canonicalRoute) + '"'
+  Assert-True ([regex]::Matches($navigationShellRouteRegistry, $pattern).Count -eq 1) "current navigation shell registers $canonicalRoute exactly once"
+}
+Assert-True ([regex]::IsMatch($navigationShellRouteRegistry, 'route\.href === "/jarvis" \|\| route\.href === "/jarvis-websites"[\s\S]*?\? "available"')) "current navigation shell marks Jarvis and Website Builder available"
 Assert-Contains $globalNav "primaryRoutes" "global nav builds a primary route group"
 Assert-Contains $globalNav "secondaryRoutes" "global nav builds a secondary route group"
 Assert-Contains $globalNav "href={route.path}" "global nav renders route links from registry paths"
@@ -131,8 +148,8 @@ Assert-NotContains $globalNav "groupLabel" "global nav no longer defines noisy p
 Assert-NotContains $globalNav "route.group}</span>" "global nav no longer renders group text inside every route pill"
 Assert-NotContains $globalNav "title={`${route.group}" "global nav no longer leads every route tooltip with group noise"
 
-Assert-Contains $aiTopBar "Add system note" "/ai keeps Add system note action"
-Assert-Contains $aiTopBar "Clear" "/ai keeps Clear action"
+Assert-Contains $aiTopBar "Add system note" "retained historical chat top bar preserves Add system note source coverage"
+Assert-Contains $aiTopBar "Clear" "retained historical chat top bar preserves Clear source coverage"
 Assert-Contains $brainPage "Refresh" "/brain keeps Refresh action"
 Assert-Contains $brainPage "Seed real memory" "/brain keeps Seed real memory action"
 
@@ -150,10 +167,13 @@ $sourcesToCheck = @(
   $localActionBar,
   $pageShell,
   $indexSource,
+  $navigationShellRouteRegistry,
   $aiTopBar,
+  $aiPage,
   $brainPage,
   (Get-Content -Raw ".\src\app\page.tsx"),
-  (Get-Content -Raw ".\src\app\ai\page.tsx"),
+  (Get-Content -Raw ".\src\app\jarvis\page-client.tsx"),
+  (Get-Content -Raw ".\src\app\jarvis-websites\page-client.tsx"),
   (Get-Content -Raw ".\src\app\brain\page-client.tsx"),
   (Get-Content -Raw ".\src\app\files\page-client.tsx"),
   (Get-Content -Raw ".\src\app\history\page.tsx"),
@@ -180,6 +200,7 @@ $navigationSource = @(
   $localActionBar,
   $pageShell,
   $indexSource,
+  $navigationShellRouteRegistry,
   (Get-Content -Raw ".\src\app\page.tsx"),
   (Get-Content -Raw ".\src\app\entry\page.tsx"),
   (Get-Content -Raw ".\src\app\history\page.tsx")

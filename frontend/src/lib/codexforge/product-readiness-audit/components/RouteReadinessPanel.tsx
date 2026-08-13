@@ -5,7 +5,7 @@ import { grid, item, muted, panel, pill, small, title, toneColor } from "./Produ
 
 export function RouteReadinessPanel({ audit }: { audit: ProductRouteReadinessAudit }) {
   return (
-    <section style={panel} data-codexforge-route-readiness-panel="RouteReadinessPanel renders route audit includes /ai /brain /files /stabilization /handoff stable keys no raw JSON in main UI">
+    <section style={panel} data-codexforge-route-readiness-panel="RouteReadinessPanel renders route audit includes /jarvis /brain /files /stabilization /handoff stable keys no raw JSON in main UI">
       <h2 style={title}>Route Readiness</h2>
       <p style={muted}>{audit.summary.join(" ")}</p>
       <div style={grid}>

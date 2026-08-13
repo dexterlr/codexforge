@@ -4,6 +4,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $root = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $root
+$expectedBaselineTag = "codexforge-rendered-product-accessibility-acceptance-clean"
+$expectedBaseline = "fe74ece00629cd6cdcbeba0a35e31d0a4ab54f58"
+$expectedCreatorCheckpointTag = "codexforge-approved-static-website-creator-foundation-clean"
+$expectedCreatorCheckpoint = "a8ea7b5a4b91937152d16279f876364187a2c318"
 
 function Assert-True {
   param([bool]$Condition, [string]$Message)
@@ -76,18 +80,14 @@ function Assert-PowerShellParses {
 function Assert-NoGitDiff {
   param([string]$RelativePath, [string]$Message)
 
-  $worktreeDiff = ((& git -c core.safecrlf=false diff --name-only -- $RelativePath 2>$null) | Out-String).Trim()
-  $indexDiff = ((& git -c core.safecrlf=false diff --cached --name-only -- $RelativePath 2>$null) | Out-String).Trim()
-  Assert-True (
-    [string]::IsNullOrWhiteSpace($worktreeDiff) -and
-    [string]::IsNullOrWhiteSpace($indexDiff)
-  ) $Message
+  $checkpointDiff = ((& git -c core.safecrlf=false diff --relative --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag" -- $RelativePath 2>$null) | Out-String).Trim()
+  Assert-True ([string]::IsNullOrWhiteSpace($checkpointDiff)) $Message
 }
 
 Write-Host ""
 Write-Host "=== CodexForge Macro Phase B unified Jarvis product experience ==="
 
-$expectedDirtyPaths = @(
+$expectedHistoricalPaths = @(
   "docs/codexforge-macro-phase-c-1-rendered-accessibility-repair.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-command-palette.ps1",
@@ -130,6 +130,10 @@ $requiredFiles = @(
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.tsx",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx",
+  "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisAdvancedToolsPanel.tsx",
+  "src/lib/codexforge/jarvis-chat/components/JarvisChatPanel.tsx",
+  "src/lib/codexforge/jarvis-chat/components/JarvisChatPanel.module.css",
+  "src/lib/codexforge/jarvis-chat/jarvis-chat-api-client.ts",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx",
   "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css",
   "src/lib/codexforge/navigation-shell/primary-product-area-model.ts",
@@ -149,18 +153,20 @@ foreach ($path in $requiredFiles) {
 }
 Assert-PowerShellParses "scripts/smoke-codexforge-unified-jarvis-product-experience.ps1"
 
-Assert-True ($expectedDirtyPaths.Count -eq 30) "Historical Macro Phase C.1 source inventory declares exactly thirty paths"
-Assert-True (@($expectedDirtyPaths | Sort-Object -Unique).Count -eq 30) "Historical Macro Phase C.1 source inventory paths are unique"
+Assert-True ($expectedHistoricalPaths.Count -eq 30) "Historical Macro Phase C.1 source inventory declares exactly thirty paths"
+Assert-True (@($expectedHistoricalPaths | Sort-Object -Unique).Count -eq 30) "Historical Macro Phase C.1 source inventory paths are unique"
 $changedPaths = @(
-  (& git status --short --untracked-files=all 2>$null) |
-    Where-Object { $_.Length -ge 4 } |
-    ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
+  (& git diff --relative --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag" 2>$null) |
+    Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
     Sort-Object -Unique
 )
-foreach ($path in $expectedDirtyPaths) {
+Assert-True ((& git rev-parse "$expectedBaselineTag^{}").Trim() -eq $expectedBaseline) "Historical Macro Phase C.1 tag peels to the exact approved baseline"
+Assert-True ((& git rev-parse "$expectedCreatorCheckpointTag^{}").Trim() -eq $expectedCreatorCheckpoint) "Macro Phase D checkpoint tag peels to the exact approved creator commit"
+Assert-True ((& git rev-parse "$expectedCreatorCheckpoint^").Trim() -eq $expectedBaseline) "Macro Phase D checkpoint retains the exact approved Macro Phase C.1 parent"
+Assert-True ($changedPaths.Count -eq 78) "Macro Phase D committed checkpoint contains exactly 78 paths"
+foreach ($path in $expectedHistoricalPaths) {
   Assert-True (Test-Path -LiteralPath (Join-Path $root $path) -PathType Leaf) "Historical Macro Phase C.1 source remains present: $path"
 }
-Assert-True (@(& git diff --cached --name-only).Count -eq 0) "Nothing is staged during the current bounded implementation"
 foreach ($path in @($changedPaths | Where-Object { $_ -like "*.ps1" })) {
   Assert-PowerShellParses $path
 }
@@ -178,6 +184,10 @@ $athenaPage = Get-Text "src/app/athena/page.tsx"
 $productShell = Get-Text "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.tsx"
 $commandCenter = Get-Text "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx"
 $livePanel = Get-Text "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx"
+$advancedTools = Get-Text "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisAdvancedToolsPanel.tsx"
+$chatPanel = Get-Text "src/lib/codexforge/jarvis-chat/components/JarvisChatPanel.tsx"
+$chatCss = Get-Text "src/lib/codexforge/jarvis-chat/components/JarvisChatPanel.module.css"
+$chatApiClient = Get-Text "src/lib/codexforge/jarvis-chat/jarvis-chat-api-client.ts"
 $runPanel = Get-Text "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx"
 $productCss = Get-Text "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css"
 $primaryAreaModel = Get-Text "src/lib/codexforge/navigation-shell/primary-product-area-model.ts"
@@ -200,7 +210,7 @@ Assert-True (([regex]::Matches($productShell, 'displayMode="live-product"')).Cou
 Assert-Contains $livePanel 'data-codexforge-jarvis-product-experience="canonical"' "/jarvis renders the canonical Phase B product marker"
 Assert-Contains $livePanel 'data-codexforge-athena-display-mode="live-product"' "Internal Athena router identity remains on the live Jarvis product"
 Assert-Contains $livePanel '<h1 id="jarvis-workspace-title" className={styles.liveAthenaTitle}>' "Canonical workspace has a labelled product heading"
-Assert-Contains $livePanel 'Jarvis Workspace' "Canonical workspace uses the Jarvis product name"
+Assert-Contains $livePanel 'Jarvis Chat' "Canonical workspace uses the Jarvis chat product name"
 Assert-NotMatches ($jarvisPage + $jarvisPageClient) 'redirect\(' "/jarvis does not redirect away from the canonical product"
 
 Assert-Contains $athenaPage 'import { redirect } from "next/navigation";' "/athena uses the established server redirect primitive"
@@ -208,7 +218,7 @@ Assert-True (([regex]::Matches($athenaPage, 'redirect\("/jarvis"\);')).Count -eq
 Assert-NotMatches $athenaPage 'redirect\("/athena"\)' "/athena has no self redirect"
 Assert-NotMatches $athenaPage '(?m)^\s*"use client";' "/athena compatibility route is server-owned"
 Assert-NotMatches $athenaPage '(?m)^\s*export \{ default \}' "/athena no longer executes a duplicate page re-export"
-Assert-NotMatches $athenaPage 'PrivateAlphaRunPanel|JarvisUnifiedProductPageClientShell|AthenaLiveCommandCenterPanel' "/athena mounts no product client or run panel"
+Assert-NotMatches $athenaPage 'PrivateAlphaRunPanel|JarvisChatPanel|JarvisUnifiedProductPageClientShell|AthenaLiveCommandCenterPanel' "/athena mounts no product client, chat, or run panel"
 
 $liveReturnIndex = $commandCenter.IndexOf('if (displayMode === "live-product") {', [System.StringComparison]::Ordinal)
 $liveComponentIndex = $commandCenter.IndexOf('return <AthenaLiveCommandCenterPanel />;', [System.StringComparison]::Ordinal)
@@ -218,11 +228,19 @@ Assert-True (
   $liveComponentIndex -gt $liveReturnIndex -and
   $legacyRunPanelIndex -gt $liveComponentIndex
 ) "Live-product route returns before the retained legacy preview branch"
-Assert-True (([regex]::Matches($livePanel, '<PrivateAlphaRunPanel\s*/>')).Count -eq 1) "Reachable live Jarvis product mounts PrivateAlphaRunPanel exactly once"
-Assert-True (([regex]::Matches($runPanel, 'fetchPrivateAlphaStatus\(\)')).Count -eq 1) "One run panel owns the single status refresh call site"
-Assert-Contains $runPanel 'useEffect(() => {' "Status refresh remains effect-owned"
-Assert-Contains $runPanel 'void refreshPanel();' "Status loads once when the run panel mounts"
-Assert-NotMatches ($athenaPage + $productShell + $commandCenter + $livePanel + $runPanel) 'setInterval\s*\(' "Route consolidation introduces no interval polling"
+Assert-Contains $livePanel 'JarvisChatPanel,' "Live Jarvis imports the canonical chat owner"
+Assert-True (([regex]::Matches($livePanel, '<JarvisChatPanel\s+draftHandoff=\{draftHandoff\}\s*/>')).Count -eq 1) "Reachable live Jarvis product mounts JarvisChatPanel exactly once with the visible draft handoff"
+Assert-True (([regex]::Matches($livePanel, '<JarvisAdvancedToolsPanel\s+onUsePrompt=\{setDraftHandoff\}\s*/>')).Count -eq 1) "Reachable live Jarvis preserves unique advanced tools behind one explicit handoff owner"
+Assert-Contains $advancedTools '<details' "Advanced context and planning tools use a native collapsed disclosure"
+Assert-Contains $advancedTools 'optional, visible, and never auto-sent' "Advanced tools state the visible no-auto-send boundary"
+Assert-Contains $advancedTools 'ChatRecallContextPanel' "Reviewed Brain recall remains reachable in Jarvis"
+Assert-Contains $advancedTools 'EvidenceGroundedChatPanel' "Evidence-grounded chat remains reachable in Jarvis"
+Assert-Contains $advancedTools 'SelfUpgradeConsole' "Self-upgrade planning remains reachable in Jarvis"
+Assert-NotMatches $livePanel 'PrivateAlphaRunPanel' "Reachable live Jarvis product does not mount the legacy diagnostic PrivateAlphaRunPanel"
+Assert-True (([regex]::Matches($runPanel, 'fetchPrivateAlphaStatus\(\)')).Count -eq 1) "Retained diagnostic run panel owns one status refresh call site"
+Assert-Contains $runPanel 'useEffect(() => {' "Retained diagnostic status refresh remains effect-owned"
+Assert-Contains $runPanel 'void refreshPanel();' "Retained diagnostic status loads once when its panel mounts"
+Assert-NotMatches ($athenaPage + $productShell + $commandCenter + $livePanel + $chatPanel + $runPanel) 'setInterval\s*\(' "Route consolidation introduces no interval polling"
 
 $landmarkBlock = [regex]::Match(
   $livePanel,
@@ -230,77 +248,66 @@ $landmarkBlock = [regex]::Match(
 ).Groups[1].Value
 Assert-True (-not [string]::IsNullOrWhiteSpace($landmarkBlock)) "Jarvis flow landmark fixture is present"
 Assert-InOrder $landmarkBlock @(
-  '{ href: "#jarvis-task-workspace", label: "Start / Task" }',
+  '{ href: "#jarvis-task-workspace", label: "Start / Chat" }',
   '{ href: "#jarvis-model-data-boundary", label: "Model & Data" }',
-  '{ href: "#jarvis-current-run", label: "Current Run" }',
-  '{ href: "#jarvis-plan-approval", label: "Next Action / Approval" }',
-  '{ href: "#jarvis-result-output", label: "Result / Output" }',
+  '{ href: "#jarvis-result-output", label: "Messages" }',
+  '{ href: "#jarvis-current-run", label: "Current Turn" }',
+  '{ href: "#jarvis-plan-approval", label: "Approval / Control" }',
   '{ href: "#jarvis-activity-audit", label: "Activity / Audit" }'
 ) "Jarvis flow landmarks retain the normal-user sequence"
-Assert-Contains $livePanel 'label: "Current project"' "Jarvis identifies the current project"
-Assert-Contains $livePanel 'value: "Current CodexForge project"' "Jarvis names the active workspace"
-Assert-Contains $runPanel 'id="jarvis-task-workspace"' "Jarvis exposes one task workspace landmark"
-Assert-Contains $runPanel 'id="jarvis-start-task"' "Task composer landmark remains directly reachable"
-Assert-Contains $runPanel '<p className={styles.panelEyebrow}>Task</p>' "Task input has a feature-level label"
-Assert-Contains $runPanel 'Describe one task' "Task input tells the user what to enter"
-Assert-Contains $runPanel 'id="jarvis-model-data-boundary"' "Model and data-boundary status remains directly reachable"
-Assert-Contains $runPanel 'role="group"' "Model and data-boundary facts are exposed as one labelled group"
-Assert-Contains $runPanel 'const displayedProviderId: PrivateAlphaManualProviderId =' "Displayed provider ID remains limited to executable providers"
-Assert-Contains $runPanel '? currentRunClassification.target.providerId' "Executable-run badge derives from the persisted classified target"
-Assert-Contains $runPanel 'label: "Historical run",' "Historical runs receive a neutral non-executable badge"
-Assert-Contains $runPanel 'const displayedProviderLabel = currentRunProviderLabel ?? selectedProviderLabel;' "Active-run status prefers the persisted provider"
-Assert-Contains $runPanel 'const displayedModelLabel = currentRunModelLabel ?? selectedModelLabel;' "Active-run status prefers the persisted model"
-Assert-Contains $runPanel 'currentRunDataBoundaryLabel ?? selectedDataBoundaryLabel;' "Active-run status prefers the persisted data boundary"
-Assert-Contains $runPanel 'currentRunApprovalModeLabel ?? selectedApprovalModeLabel;' "Active-run status prefers the persisted approval mode"
-Assert-Contains $runPanel 'id="jarvis-current-run"' "Current execution and progress remains directly reachable"
-Assert-Contains $runPanel 'What is happening now' "Current run has an understandable operator heading"
-Assert-Contains $runPanel 'id="jarvis-plan-approval"' "Plan and approval action remains directly reachable"
-Assert-Contains $runPanel 'Review and take the next action' "Approval panel explains the next operator action"
-Assert-Contains $runPanel 'id="jarvis-result-output"' "Result and output remains directly reachable"
-Assert-Contains $runPanel 'Output from this run' "Result panel uses an understandable operator heading"
-Assert-Contains $runPanel 'id="jarvis-activity-audit"' "Activity and audit remains directly reachable"
-Assert-Contains $runPanel 'Run history and audit' "Audit area uses an understandable operator heading"
-Assert-Contains $runPanel 'id="jarvis-technical-details"' "Technical details remain available below the normal workflow"
-Assert-Contains $runPanel 'data-codexforge-private-alpha-current-run="true"' "Current run has a stable responsive-order marker"
+Assert-Contains $livePanel 'label: "Conversation storage"' "Jarvis identifies bounded local conversation storage"
+Assert-Contains $livePanel 'value: "Bounded local history"' "Jarvis states the active history boundary"
+Assert-Contains $chatPanel 'data-codexforge-jarvis-chat="canonical-local-first"' "Canonical chat exposes a stable product marker"
+Assert-True (([regex]::Matches($chatPanel, 'id="jarvis-task-workspace"')).Count -eq 1) "Jarvis exposes one canonical chat workspace landmark"
+Assert-Contains $chatPanel '<h2 id="jarvis-chat-panel-title" className={styles.panelTitle}>' "Canonical chat has a labelled feature heading"
+Assert-Contains $chatPanel 'Talk with Jarvis' "Canonical chat uses direct conversational product copy"
+Assert-Contains $chatPanel 'id="jarvis-chat-composer"' "Message composer remains directly reachable"
+Assert-Contains $chatPanel '<label htmlFor="jarvis-chat-composer" className={styles.composerLabel}>' "Message composer has a programmatic label"
+Assert-Contains $chatPanel 'Message Jarvis' "Message composer tells the user what it controls"
+Assert-Contains $chatPanel 'id="jarvis-model-data-boundary"' "Model and data-boundary status remains directly reachable"
+Assert-Contains $chatPanel '<div><dt>Provider key</dt>' "Canonical chat exposes its exact provider key"
+Assert-Contains $chatPanel '<div><dt>Model key</dt>' "Canonical chat exposes its exact model key"
+Assert-Contains $chatPanel '<div><dt>Data boundary</dt>' "Canonical chat exposes its exact data boundary"
+Assert-Contains $chatPanel 'id="jarvis-current-run"' "Current conversation lifecycle remains directly reachable"
+Assert-Contains $chatPanel 'Current lifecycle' "Current conversation has an understandable operator heading"
+Assert-Contains $chatPanel 'id="jarvis-plan-approval"' "Approval and control actions remain directly reachable"
+Assert-Contains $chatPanel 'Review and control this turn' "Approval section explains the next explicit action"
+Assert-Contains $chatPanel 'id="jarvis-result-output"' "Conversation messages remain directly reachable"
+Assert-Contains $chatPanel '<h3 id="jarvis-chat-messages-title" className={styles.sectionTitle}>Messages</h3>' "Transcript uses an understandable messages heading"
+Assert-Contains $chatPanel 'id="jarvis-activity-audit"' "Activity and audit remains directly reachable"
+Assert-Contains $chatPanel '<summary>Advanced run and audit details</summary>' "Advanced identifiers remain below the normal chat workflow"
 Assert-Contains $livePanel 'href="/jarvis#jarvis-task-workspace"' "Review tools provide a clear return to the always-visible main task workspace"
 
-foreach ($workflowMarker in @(
-  'data-codexforge-private-alpha-composer="true"',
-  'data-codexforge-private-alpha-current-run="true"',
-  'data-codexforge-private-alpha-next-action="true"',
-  'data-codexforge-private-alpha-result="true"'
-)) {
-  Assert-True (([regex]::Matches($runPanel, [regex]::Escape($workflowMarker))).Count -eq 1) "Workflow marker occurs exactly once: $workflowMarker"
-}
-$workflowStart = $runPanel.IndexOf(
-  'data-codexforge-private-alpha-has-current-run=',
-  [System.StringComparison]::Ordinal
-)
-$workflowEnd = $runPanel.IndexOf(
-  'id="jarvis-activity-audit"',
-  $workflowStart,
-  [System.StringComparison]::Ordinal
-)
-Assert-True ($workflowStart -ge 0 -and $workflowEnd -gt $workflowStart) "Bounded workflow DOM fixture is extractable"
-$workflowBlock = $runPanel.Substring($workflowStart, $workflowEnd - $workflowStart)
-Assert-InOrder $workflowBlock @(
-  'className={styles.privateAlphaTaskColumn}',
-  'data-codexforge-private-alpha-composer="true"',
-  'className={styles.privateAlphaSideColumn}',
-  'data-codexforge-private-alpha-current-run="true"',
-  'data-codexforge-private-alpha-next-action="true"',
-  'className={styles.privateAlphaResultColumn}',
-  'data-codexforge-private-alpha-result="true"'
-) "Workflow DOM and screen-reader order is Task, Current Run, Next Action, then Result"
-Assert-InOrder $runPanel @(
+foreach ($chatLandmark in @(
   'id="jarvis-task-workspace"',
   'id="jarvis-model-data-boundary"',
   'id="jarvis-current-run"',
   'id="jarvis-plan-approval"',
   'id="jarvis-result-output"',
-  'id="jarvis-activity-audit"',
-  'id="jarvis-technical-details"'
-) "Jarvis semantic landmarks keep Task, Model and Data, Current Run, Next Action, Result, and Audit or Technical Details in order"
+  'id="jarvis-activity-audit"'
+)) {
+  Assert-True (([regex]::Matches($chatPanel, [regex]::Escape($chatLandmark))).Count -eq 1) "Canonical chat landmark occurs exactly once: $chatLandmark"
+}
+Assert-InOrder $chatPanel @(
+  'id="jarvis-task-workspace"',
+  'id="jarvis-model-data-boundary"',
+  'id="jarvis-result-output"',
+  '<form className={styles.composer}',
+  'id="jarvis-current-run"',
+  'id="jarvis-plan-approval"',
+  'id="jarvis-activity-audit"'
+) "Canonical chat DOM keeps messages and composer ahead of lifecycle, explicit action, and advanced audit"
+
+# The former working-loop run panel remains available only as a developer
+# diagnostic. Preserve its provider-classification safety assertions without
+# claiming that it owns the reachable /jarvis experience.
+Assert-Contains $runPanel 'const displayedProviderId: PrivateAlphaManualProviderId =' "Retained diagnostic provider ID remains limited to executable providers"
+Assert-Contains $runPanel '? currentRunClassification.target.providerId' "Retained diagnostic executable-run badge derives from the persisted target"
+Assert-Contains $runPanel 'label: "Historical run",' "Retained diagnostic historical runs receive a neutral non-executable badge"
+Assert-Contains $runPanel 'const displayedProviderLabel = currentRunProviderLabel ?? selectedProviderLabel;' "Retained diagnostic status prefers the persisted provider"
+Assert-Contains $runPanel 'const displayedModelLabel = currentRunModelLabel ?? selectedModelLabel;' "Retained diagnostic status prefers the persisted model"
+Assert-Contains $runPanel 'currentRunDataBoundaryLabel ?? selectedDataBoundaryLabel;' "Retained diagnostic status prefers the persisted data boundary"
+Assert-Contains $runPanel 'currentRunApprovalModeLabel ?? selectedApprovalModeLabel;' "Retained diagnostic status prefers the persisted approval mode"
 
 foreach ($destination in @(
   'href: "/files"',
@@ -390,10 +397,11 @@ $legacyAiCommandBlock = [regex]::Match(
 ).Value
 Assert-True (-not [string]::IsNullOrWhiteSpace($legacyAiCommandBlock)) "Legacy AI workspace command fixture is extractable"
 Assert-NotMatches $legacyAiCommandBlock '"Go to AI Workspace"' "Compatibility marker creates no executable command label"
-Assert-Contains $legacyAiCommandBlock 'label: "Open legacy AI Workspace"' "Legacy AI command uses an explicit diagnostic label"
+Assert-Contains $legacyAiCommandBlock 'label: "Legacy AI Workspace unavailable"' "Legacy AI command truthfully labels the retired standalone workspace"
+Assert-Contains $legacyAiCommandBlock 'The compatibility route redirects to the canonical Jarvis workspace' "Legacy AI command explains the compatibility redirect"
 Assert-Contains $legacyAiCommandBlock 'group: "Developer diagnostics"' "Legacy AI command stays in developer diagnostics"
 Assert-Contains $legacyAiCommandBlock 'href: "/ai"' "Legacy AI command targets only the retained /ai route"
-Assert-Contains $legacyCommandPaletteSmoke '"Go to AI Workspace",' "Historical command-palette smoke assertion remains present"
+Assert-Contains $legacyCommandPaletteSmoke '"Legacy AI Workspace unavailable",' "Historical command-palette smoke retains the migrated compatibility-label assertion"
 Assert-True (([regex]::Matches($legacyCommandPaletteSmoke, '(?i)\bAssert-[A-Za-z0-9-]+\b')).Count -ge 39) "Historical command-palette smoke textual assertion floor is not weakened"
 Assert-True (([regex]::Matches($routeCatalog, 'path: "/jarvis"')).Count -eq 1) "Global route catalog contains one canonical Jarvis route"
 Assert-Contains $routeCatalog 'label: "Build with Jarvis"' "Global route catalog uses the Jarvis product label"
@@ -416,27 +424,46 @@ Assert-Contains $cockpitPanel 'label: "Return to Jarvis",' "Cockpit labels the r
 Assert-Contains $livePanel 'aria-labelledby="jarvis-workspace-title"' "Jarvis product heading labels its workspace region"
 Assert-Contains $livePanel 'aria-label="Jarvis workspace sections"' "Jarvis flow navigation has an accessible label"
 Assert-Contains $livePanel 'aria-label="Jarvis review destinations"' "Jarvis review shortcuts have an accessible label"
+Assert-Contains $livePanel '<details className={styles.privateAlphaTechnicalDetails}>' "Hero model, data, approval, limits, and links begin in a native collapsed disclosure"
+Assert-Contains $livePanel 'Model, data, approval, limits, and workspace links' "Hero disclosure has a truthful accessible summary"
 Assert-Contains $livePanel '<nav' "Detailed review destinations use navigation semantics"
 Assert-Contains $livePanel 'aria-label="Jarvis project and review tools"' "Detailed review destinations have an accessible label"
-Assert-Contains $runPanel 'aria-label="Jarvis task, approval, and execution workspace"' "Task workspace has an accessible label"
-Assert-Contains $runPanel 'aria-busy={loadState === "loading" || actionInFlight !== null}' "Loading and action state is exposed accessibly"
-Assert-Contains $runPanel '<label className={styles.privateAlphaField} htmlFor={requestFieldId}>' "Task textarea has a programmatic label"
-Assert-Contains $runPanel '<textarea' "Jarvis exposes one real task textarea"
-Assert-Contains $runPanel 'hidden={currentRun !== null}' "Active runs remove the locked composer from visual, accessibility, and keyboard order"
-Assert-Contains $productCss '.privateAlphaSection[hidden] {' "Hidden workflow sections have an explicit CSS contract"
-Assert-Contains $productCss 'display: none;' "Hidden composer is removed from layout"
-Assert-Contains $runPanel 'aria-live="assertive"' "Error state is announced assertively"
-Assert-Contains $runPanel 'aria-live="polite"' "Loading and success state is announced politely"
-Assert-Contains $runPanel 'role="tablist"' "Run views use tab-list semantics"
-Assert-Contains $runPanel 'role="tab"' "Run view controls use tab semantics"
-Assert-Contains $runPanel 'role="tabpanel"' "Run view content uses tab-panel semantics"
-Assert-Contains $runPanel 'aria-selected={isSelected}' "Selected tab state is exposed"
-Assert-True ([regex]::IsMatch($runPanel, 'aria-controls=\{\x60\$\{tabBaseId\}-panel\x60\}')) "Every tab identifies the stable mounted panel"
-Assert-True ([regex]::IsMatch($runPanel, 'id=\{\x60\$\{tabBaseId\}-panel\x60\}')) "Run views keep one stable mounted panel ID"
-Assert-Contains $runPanel 'tabIndex={isSelected ? 0 : -1}' "Tabs implement roving focus"
-Assert-Contains $runPanel 'function handlePanelTabKeyDown(' "Tabs provide a bounded keyboard handler"
+Assert-Contains $chatPanel 'aria-labelledby="jarvis-chat-panel-title"' "Canonical chat workspace is labelled by its visible heading"
+Assert-Contains $chatPanel '<details' "Canonical chat keeps exact model and data evidence in a native collapsed disclosure"
+Assert-Contains $chatPanel 'className={styles.boundarySummary}' "Canonical chat model and data disclosure uses its keyboard-focusable summary"
+Assert-Contains $chatPanel 'Local model and data boundary - Ollama local, gpt-oss:20b, local-machine, 4096 tokens, manual approval' "Collapsed model and data summary remains truthful and complete"
+Assert-Contains $chatPanel 'aria-busy={globalBusy}' "Canonical chat lifecycle exposes busy state accessibly"
+Assert-Contains $chatPanel '<label htmlFor="jarvis-chat-composer" className={styles.composerLabel}>' "Canonical chat textarea has a programmatic label"
+Assert-Contains $chatPanel 'role="alert"' "Canonical chat error state is announced assertively"
+Assert-Contains $chatPanel 'role="status"' "Canonical chat success state is announced politely"
+Assert-Contains $chatPanel 'role="log" aria-live="polite"' "Canonical transcript exposes ordered message updates as a polite log"
+Assert-Contains $chatPanel 'aria-current={selectedId === summary.conversationId ? "page" : undefined}' "Selected conversation is exposed without relying on colour"
+Assert-Contains $chatPanel 'disabled={navigationLocked}' "Conversation navigation locks during exact local synchronization"
+Assert-Contains $chatPanel 'aria-describedby={navigationLocked ? GLOBAL_BUSY_REASON_ID : undefined}' "Disabled conversation navigation references its visible reason"
+Assert-Contains $chatPanel 'Messages and mutation controls remain unavailable until this exact local record is verified.' "Cross-chat loading state explains why controls remain unavailable"
+Assert-Contains $chatCss '.primaryButton:focus-visible,' "Canonical chat controls retain visible keyboard focus"
+Assert-Contains $chatCss '.boundarySummary:focus-visible' "Collapsed model and data summary retains visible keyboard focus"
+Assert-Contains $chatCss '@media (prefers-reduced-motion: reduce)' "Canonical chat respects reduced-motion preferences"
+
+Assert-Contains $runPanel 'aria-label="Jarvis task, approval, and execution workspace"' "Retained diagnostic task workspace keeps its accessible label"
+Assert-Contains $runPanel 'aria-busy={loadState === "loading" || actionInFlight !== null}' "Retained diagnostic loading and action state remains accessible"
+Assert-Contains $runPanel '<label className={styles.privateAlphaField} htmlFor={requestFieldId}>' "Retained diagnostic task textarea keeps its programmatic label"
+Assert-Contains $runPanel '<textarea' "Retained diagnostic exposes its real task textarea"
+Assert-Contains $runPanel 'hidden={currentRun !== null}' "Retained diagnostic active run removes its locked composer from visual, accessibility, and keyboard order"
+Assert-Contains $productCss '.privateAlphaSection[hidden] {' "Retained diagnostic hidden sections keep an explicit CSS contract"
+Assert-Contains $productCss 'display: none;' "Retained diagnostic hidden composer is removed from layout"
+Assert-Contains $runPanel 'aria-live="assertive"' "Retained diagnostic error state is announced assertively"
+Assert-Contains $runPanel 'aria-live="polite"' "Retained diagnostic loading and success state is announced politely"
+Assert-Contains $runPanel 'role="tablist"' "Retained diagnostic run views keep tab-list semantics"
+Assert-Contains $runPanel 'role="tab"' "Retained diagnostic run controls keep tab semantics"
+Assert-Contains $runPanel 'role="tabpanel"' "Retained diagnostic run content keeps tab-panel semantics"
+Assert-Contains $runPanel 'aria-selected={isSelected}' "Retained diagnostic selected tab state remains exposed"
+Assert-True ([regex]::IsMatch($runPanel, 'aria-controls=\{\x60\$\{tabBaseId\}-panel\x60\}')) "Every retained diagnostic tab identifies its stable mounted panel"
+Assert-True ([regex]::IsMatch($runPanel, 'id=\{\x60\$\{tabBaseId\}-panel\x60\}')) "Retained diagnostic run views keep one stable mounted panel ID"
+Assert-Contains $runPanel 'tabIndex={isSelected ? 0 : -1}' "Retained diagnostic tabs implement roving focus"
+Assert-Contains $runPanel 'function handlePanelTabKeyDown(' "Retained diagnostic tabs keep their bounded keyboard handler"
 foreach ($key in @('"ArrowRight"', '"ArrowLeft"', '"Home"', '"End"')) {
-  Assert-Contains $runPanel ('event.key === ' + $key) "Tab keyboard navigation supports $key"
+  Assert-Contains $runPanel ('event.key === ' + $key) "Retained diagnostic tab keyboard navigation supports $key"
 }
 Assert-Contains $productCss '.jarvisFlowLink:focus-visible,' "Flow links retain visible keyboard focus"
 Assert-Contains $productCss '.privateAlphaTab:focus-visible,' "Run-view tabs retain visible keyboard focus"
@@ -446,7 +473,7 @@ $media1180Start = $productCss.IndexOf('@media (max-width: 1180px)', [System.Stri
 $media920Start = $productCss.IndexOf('@media (max-width: 920px)', [System.StringComparison]::Ordinal)
 $media640Start = $productCss.IndexOf('@media (max-width: 640px)', [System.StringComparison]::Ordinal)
 $media380Start = $productCss.IndexOf('@media (max-width: 380px)', [System.StringComparison]::Ordinal)
-Assert-True ($media1180Start -ge 0 -and $media920Start -gt $media1180Start -and $media640Start -gt $media920Start -and $media380Start -gt $media640Start) "Jarvis CSS defines ordered 1180px, 920px, 640px, and 380px responsive contracts"
+Assert-True ($media1180Start -ge 0 -and $media920Start -gt $media1180Start -and $media640Start -gt $media920Start -and $media380Start -gt $media640Start) "Retained diagnostic CSS defines ordered historical responsive contracts"
 $media1180Block = $productCss.Substring($media1180Start, $media920Start - $media1180Start)
 $media920Block = $productCss.Substring($media920Start, $media640Start - $media920Start)
 $media640Block = $productCss.Substring($media640Start, $media380Start - $media640Start)
@@ -457,7 +484,7 @@ Assert-True (
     $desktopCssBlock,
     '(?s)\.privateAlphaWorkspace\s*\{\s*display:\s*grid;\s*grid-template-columns:[^;]+;\s*grid-template-areas:\s*"task side"\s*"result side";'
   )
-) "Desktop workflow preserves independent task/result and current/action columns with CSS grid areas"
+) "Retained diagnostic desktop workflow preserves its historical CSS grid areas"
 foreach ($gridAreaContract in @(
   @{ ClassName = "privateAlphaTaskColumn"; Area = "task" },
   @{ ClassName = "privateAlphaSideColumn"; Area = "side" },
@@ -468,74 +495,87 @@ foreach ($gridAreaContract in @(
       $desktopCssBlock,
       ('(?s)\.' + $gridAreaContract.ClassName + '\s*\{\s*grid-area:\s*' + $gridAreaContract.Area + ';\s*\}')
     )
-  ) "Desktop workflow maps $($gridAreaContract.ClassName) to $($gridAreaContract.Area)"
+  ) "Retained diagnostic desktop workflow maps $($gridAreaContract.ClassName) to $($gridAreaContract.Area)"
 }
 Assert-True (
   [regex]::IsMatch(
     $desktopCssBlock,
     '(?s)\.privateAlphaWorkspace\[data-codexforge-private-alpha-has-current-run="true"\]\s*\{\s*grid-template-areas:\s*"result side";\s*\}'
   )
-) "Active-run desktop layout removes the empty task row"
+) "Retained diagnostic active-run desktop layout removes its empty task row"
 Assert-True (
   [regex]::IsMatch(
     $desktopCssBlock,
     '(?s)\.privateAlphaWorkspace\[data-codexforge-private-alpha-has-current-run="true"\]\s*\.privateAlphaTaskColumn\s*\{\s*display:\s*none;\s*\}'
   )
-) "Active-run desktop layout hides the empty task wrapper"
-Assert-Contains $media920Block '.privateAlphaWorkspace {' "Narrow desktop contract targets the workflow layout"
-Assert-Contains $media920Block 'display: flex;' "Narrow workflow uses a single flex column"
-Assert-Contains $media920Block 'flex-direction: column;' "Narrow workflow follows the corrected DOM order"
+) "Retained diagnostic active-run desktop layout hides its empty task wrapper"
+Assert-Contains $media920Block '.privateAlphaWorkspace {' "Retained diagnostic narrow contract targets its workflow layout"
+Assert-Contains $media920Block 'display: flex;' "Retained diagnostic narrow workflow uses a single flex column"
+Assert-Contains $media920Block 'flex-direction: column;' "Retained diagnostic narrow workflow follows its DOM order"
 Assert-InOrder $media920Block @(
   '.privateAlphaTaskColumn,',
   '.privateAlphaSideColumn,',
   '.privateAlphaResultColumn {',
   'display: contents;'
-) "Responsive column wrappers release Task, Current Run, Next Action, and Result in DOM order"
-Assert-NotMatches $media920Block '(?m)^\s*order\s*:' "Responsive workflow contains no CSS order override that could diverge from screen-reader order"
+) "Retained diagnostic responsive wrappers release content in DOM order"
+Assert-NotMatches $media920Block '(?m)^\s*order\s*:' "Retained diagnostic workflow has no CSS order override that could diverge from screen-reader order"
 Assert-Contains $media1180Block '.jarvisWorkspaceHeroLayout {' "Medium desktop contract stacks the workspace hero"
 Assert-Contains $media1180Block 'grid-template-columns: repeat(3, minmax(0, 1fr));' "Medium desktop flow landmarks use three readable columns"
 Assert-Contains $media640Block 'grid-template-columns: repeat(2, minmax(0, 1fr));' "Mobile facts and flow remain compact without clipping"
 Assert-Contains $media640Block 'width: 100%;' "Mobile controls expand to usable width"
 Assert-Contains $media640Block 'flex: 1 1 120px;' "Mobile run-view tabs stay horizontal and wrapping for Left/Right semantics"
 Assert-Contains $media380Block 'grid-template-columns: 1fr;' "Very narrow screens collapse facts and flow to one column"
+Assert-Contains $chatCss '.workspace {' "Canonical chat owns a responsive conversation workspace"
+Assert-Contains $chatCss 'grid-template-columns: minmax(220px, 0.7fr) minmax(0, 2.3fr);' "Canonical chat gives desktop history and transcript bounded columns"
+Assert-True ([regex]::IsMatch($chatCss, '(?s)@media \(max-width: 820px\).*?\.workspace\s*\{\s*grid-template-columns:\s*1fr;')) "Canonical chat collapses history and transcript to one column on mobile"
+Assert-True ([regex]::IsMatch($chatCss, '(?s)@media \(max-width: 560px\).*?\.boundaryGrid,.*?\.lifecycleMeta,.*?\.advancedGrid\s*\{\s*grid-template-columns:\s*1fr;')) "Canonical chat facts collapse to one column on narrow mobile"
+Assert-NotMatches $chatCss '(?m)^\s*order\s*:' "Canonical chat CSS does not reorder content away from DOM order"
 Assert-Contains $appShell '@media (max-width: 859px)' "Unified shell defines its narrow-screen breakpoint"
 Assert-Contains $appShell 'grid-template-columns: minmax(0, 1fr) !important;' "Unified shell becomes one column on narrow screens"
 Assert-Contains $mobileNav '@media (min-width: 860px)' "Mobile navigation is bounded to compact screens"
 
 Assert-Contains $livePanel 'value: "ollama-local::gpt-oss:20b"' "Jarvis displays the exact default local model"
-Assert-Contains $livePanel 'value: "Local machine by default"' "Jarvis displays the local-machine data boundary"
+Assert-Contains $livePanel 'value: "local-machine"' "Jarvis displays the exact local-machine data boundary"
 Assert-Contains $livePanel 'value: "Manual approval, then separate execute"' "Jarvis displays the approval and execution boundary"
-Assert-Contains $livePanel '4096-token ceiling' "Jarvis displays the exact local output ceiling"
-Assert-Contains $livePanel 'capped at 512' "Jarvis displays the Groq 512-token envelope"
-Assert-Contains $livePanel 'Nothing approves or runs automatically.' "Jarvis displays the no-automatic-action safety posture"
-Assert-Contains $runPanel 'role="note"' "Always-visible safety invariants are exposed as a note"
-Assert-Contains $runPanel 'One execution attempt only. No paid execution, retry, fallback, rerouting' "Always-visible safety note preserves one attempt and no paid/retry/fallback/rerouting"
-Assert-Contains $runPanel 'after persistence, or provider/model substitution. Both kill-switch' "Always-visible safety note preserves no substitution and both checkpoints"
-Assert-Contains $runPanel 'checkpoints remain active, provider and credential checks stay server-only,' "Always-visible safety note preserves server-only checks"
-Assert-Contains $runPanel 'and approval and execution always require separate manual actions.' "Always-visible safety note preserves separate manual actions"
-Assert-Contains $runPanel 'Approval and' "Jarvis keeps approval guidance visible"
-Assert-Contains $runPanel 'execution remain two separate operator actions.' "Jarvis keeps execution separate from approval"
-Assert-Contains $runPanel 'data-codexforge-private-alpha-cloud-acknowledgement="required"' "Cloud-transfer acknowledgement remains explicit"
-Assert-Contains $runPanel 'data-codexforge-private-alpha-cloud-execution-acknowledgement="required"' "Cloud execution acknowledgement remains explicit and separate"
-Assert-Contains $runPanel 'data-codexforge-private-alpha-groq-free-tier-execution-confirmation="required"' "Groq Free-tier execution confirmation remains explicit"
-Assert-Contains $runPanel 'this run allows one execution attempt' "Local execution states the one-attempt boundary"
-Assert-Contains $runPanel 'local-machine data boundary' "Local execution names its data boundary"
-Assert-Contains $runPanel 'Nothing retries or reroutes automatically.' "Failure guidance preserves no retry or reroute"
-Assert-Contains $runPanel 'there is no automatic routing, retry, or fallback.' "Cloud execution preserves no routing, retry, or fallback"
-Assert-Contains $runPanel 'data-codexforge-jarvis-start-another-task="isolated-reset"' "Start another task remains a deliberate isolated reset"
-Assert-Contains $runPanel 'Start another task' "Jarvis tells the user how to continue after a terminal run"
-Assert-True (([regex]::Matches($runPanel, 'Refresh run status')).Count -ge 2) "Both read-only refresh actions use normal product language"
-Assert-True (([regex]::Matches($runPanel, 'disabled=\{loadState === "loading" \|\| actionInFlight !== null\}')).Count -ge 2) "Both refresh actions disable while status is loading"
-Assert-Contains $runPanel 'className={styles.privateAlphaButton}' "Terminal Start another task remains a primary action"
+Assert-Contains $livePanel '4096-token output ceiling' "Jarvis displays the exact local output ceiling"
+Assert-Contains $chatPanel 'Earlier messages are included only when you explicitly choose conversation context.' "Jarvis displays the opt-in context boundary"
+Assert-Contains $livePanel 'Nothing approves, executes, retries, or routes' "Jarvis displays the no-automatic-action safety posture"
+Assert-Contains $chatPanel '<div><dt>Cost</dt><dd>No provider token charge</dd></div>' "Canonical chat displays its local cost boundary"
+Assert-Contains $chatPanel 'Approve this run' "Canonical chat keeps explicit approval visible"
+Assert-Contains $chatPanel 'Execute one response' "Canonical chat keeps execution separate from approval"
+Assert-Contains $chatPanel 'Streaming, cloud fallback, retry, and model substitution are unavailable.' "Canonical chat keeps unavailable routing behavior explicit"
 
-$browserProductSources = ($jarvisPageClient, $livePanel, $runPanel) -join [Environment]::NewLine
+Assert-Contains $runPanel 'role="note"' "Retained diagnostic safety invariants remain exposed as a note"
+Assert-Contains $runPanel 'One execution attempt only. No paid execution, retry, fallback, rerouting' "Retained diagnostic safety note preserves one attempt and no paid/retry/fallback/rerouting"
+Assert-Contains $runPanel 'after persistence, or provider/model substitution. Both kill-switch' "Retained diagnostic safety note preserves no substitution and both checkpoints"
+Assert-Contains $runPanel 'checkpoints remain active, provider and credential checks stay server-only,' "Retained diagnostic safety note preserves server-only checks"
+Assert-Contains $runPanel 'and approval and execution always require separate manual actions.' "Retained diagnostic safety note preserves separate manual actions"
+Assert-Contains $runPanel 'Approval and' "Retained diagnostic keeps approval guidance visible"
+Assert-Contains $runPanel 'execution remain two separate operator actions.' "Retained diagnostic keeps execution separate from approval"
+Assert-Contains $runPanel 'data-codexforge-private-alpha-cloud-acknowledgement="required"' "Retained diagnostic cloud-transfer acknowledgement remains explicit"
+Assert-Contains $runPanel 'data-codexforge-private-alpha-cloud-execution-acknowledgement="required"' "Retained diagnostic cloud execution acknowledgement remains explicit and separate"
+Assert-Contains $runPanel 'data-codexforge-private-alpha-groq-free-tier-execution-confirmation="required"' "Retained diagnostic Groq Free-tier execution confirmation remains explicit"
+Assert-Contains $runPanel 'this run allows one execution attempt' "Retained diagnostic local execution states the one-attempt boundary"
+Assert-Contains $runPanel 'local-machine data boundary' "Retained diagnostic local execution names its data boundary"
+Assert-Contains $runPanel 'Nothing retries or reroutes automatically.' "Retained diagnostic failure guidance preserves no retry or reroute"
+Assert-Contains $runPanel 'there is no automatic routing, retry, or fallback.' "Retained diagnostic cloud execution preserves no routing, retry, or fallback"
+Assert-Contains $runPanel 'data-codexforge-jarvis-start-another-task="isolated-reset"' "Retained diagnostic Start another task remains a deliberate isolated reset"
+Assert-Contains $runPanel 'Start another task' "Retained diagnostic explains how to continue after a terminal run"
+Assert-True (([regex]::Matches($runPanel, 'Refresh run status')).Count -ge 2) "Retained diagnostic read-only refresh actions use normal product language"
+Assert-True (([regex]::Matches($runPanel, 'disabled=\{loadState === "loading" \|\| actionInFlight !== null\}')).Count -ge 2) "Retained diagnostic refresh actions disable while status is loading"
+Assert-Contains $runPanel 'className={styles.privateAlphaButton}' "Retained diagnostic terminal Start another task remains a primary action"
+
+$browserProductSources = ($jarvisPageClient, $livePanel, $chatPanel) -join [Environment]::NewLine
 Assert-NotMatches $browserProductSources 'qwen2\.5-coder|ollama-local::qwen|Qwen' "Qwen remains absent from Jarvis and its selectors"
 Assert-NotMatches $browserProductSources '127\.0\.0\.1:11434|/api/chat|api\.groq\.com' "Browser product source contains no direct provider endpoint"
 Assert-NotMatches $browserProductSources 'GROQ_API_KEY|OLLAMA_API_KEY|process\.env|Authorization\s*:|Bearer\s+' "Browser product source contains no provider credential access"
 Assert-NotMatches $browserProductSources '\bfetch\s*\(' "Jarvis UI components make no raw browser fetch call"
 Assert-NotMatches $browserProductSources 'localStorage|sessionStorage|indexedDB|document\.cookie' "Jarvis UI stores no provider or run state in browser storage"
-Assert-Contains $apiClient 'const PRIVATE_ALPHA_API_BASE_PATH = "/api/codexforge/private-alpha";' "Browser API client remains same-origin and server-owned"
-Assert-NotMatches $apiClient '127\.0\.0\.1:11434|/api/chat|api\.groq\.com|GROQ_API_KEY|process\.env' "Browser API client remains provider- and credential-agnostic"
+Assert-Contains $chatApiClient 'const API_BASE = "/api/codexforge/jarvis-chat";' "Canonical chat API client remains same-origin and server-owned"
+Assert-Contains $chatApiClient 'redirect: "error"' "Canonical chat API client rejects redirect forwarding"
+Assert-NotMatches $chatApiClient '127\.0\.0\.1:11434|/api/chat|api\.groq\.com|GROQ_API_KEY|process\.env' "Canonical chat API client remains provider- and credential-agnostic"
+Assert-Contains $apiClient 'const PRIVATE_ALPHA_API_BASE_PATH = "/api/codexforge/private-alpha";' "Retained diagnostic API client remains same-origin and server-owned"
+Assert-NotMatches $apiClient '127\.0\.0\.1:11434|/api/chat|api\.groq\.com|GROQ_API_KEY|process\.env' "Retained diagnostic API client remains provider- and credential-agnostic"
 
 foreach ($protectedPath in @(
   "src/lib/codexforge/private-alpha/private-alpha-free-first-routing.server.ts",
@@ -606,8 +646,8 @@ $releaseEntries = @(
   $releaseBlock -split "\r?\n" |
     Where-Object { $_ -match '^\s*@\{ Name = ".*"; File = .*; Required = \$(?:true|false) \},?$' }
 )
-Assert-True ($releaseEntries.Count -eq 74) "Aggregate executable count is 74"
-Assert-True (@($releaseEntries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 71) "Aggregate required count is 71"
+Assert-True ($releaseEntries.Count -eq 75) "Aggregate executable count is 75"
+Assert-True (@($releaseEntries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 72) "Aggregate required count is 72"
 Assert-True (@($releaseEntries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count remains 3"
 $phaseANeedle = 'File = "smoke-codexforge-local-first-jarvis-working-product-loop.ps1"; Required = $true'
 $phaseBNeedle = 'File = "smoke-codexforge-unified-jarvis-product-experience.ps1"; Required = $true'
@@ -618,9 +658,11 @@ $phaseC1Needle = 'File = "smoke-codexforge-macro-phase-c-1-rendered-accessibilit
 Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseC1Needle))).Count -eq 1) "Macro Phase C.1 smoke is registered exactly once as required"
 $phaseD1Needle = 'File = "smoke-codexforge-macro-phase-d1-shared-creator-lifecycle-foundation.ps1"; Required = $true'
 $phaseD2Needle = 'File = "smoke-codexforge-macro-phase-d2-static-website-browser-app-builder-foundation.ps1"; Required = $true'
+$chatNeedle = 'File = "smoke-codexforge-canonical-local-first-jarvis-chat-lifecycle.ps1"; Required = $true'
 Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseD1Needle))).Count -eq 1) "Macro Phase D1 smoke is registered exactly once as required"
 Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseD2Needle))).Count -eq 1) "Macro Phase D2 smoke is registered exactly once as required"
-Assert-InOrder $releaseBlock @($phaseANeedle, $phaseBNeedle, $phaseCNeedle, $phaseC1Needle, $phaseD1Needle, $phaseD2Needle) "Macro Phases A, B, C, C.1, D1, and D2 are registered in order"
+Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($chatNeedle))).Count -eq 1) "Canonical Jarvis chat smoke is registered exactly once as required"
+Assert-InOrder $releaseBlock @($phaseANeedle, $phaseBNeedle, $phaseCNeedle, $phaseC1Needle, $phaseD1Needle, $phaseD2Needle, $chatNeedle) "Macro Phases A through D2 and canonical Jarvis chat are registered in order"
 Assert-NotMatches $releaseBlock 'qualify-codexforge-qwen2-5-coder-32b-installed-candidate|run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance|smoke-codexforge-private-alpha-manual-groq-execution-foundation|smoke-codexforge-groq-live-qualification-admission' "Live and manual provider scripts remain outside the aggregate gate"
 
 Write-Host ""

@@ -621,6 +621,7 @@ $currentReleaseGateScripts = @(
   @{ Name = "Macro Phase C.1 Rendered Accessibility Repair"; File = "smoke-codexforge-macro-phase-c-1-rendered-accessibility-repair.ps1"; Required = $true },
   @{ Name = "Macro Phase D1 Shared Creator Lifecycle Foundation"; File = "smoke-codexforge-macro-phase-d1-shared-creator-lifecycle-foundation.ps1"; Required = $true },
   @{ Name = "Macro Phase D2 Static Website/Browser-App Builder Foundation"; File = "smoke-codexforge-macro-phase-d2-static-website-browser-app-builder-foundation.ps1"; Required = $true },
+  @{ Name = "Canonical Local-First Jarvis Chat Lifecycle"; File = "smoke-codexforge-canonical-local-first-jarvis-chat-lifecycle.ps1"; Required = $true },
   @{ Name = "Full validation wrapper smoke"; File = "smoke-codexforge-full-validation-wrapper.ps1"; Required = $true },
   @{ Name = "Current checkpoint docs smoke"; File = $currentCheckpointSmokeFile; Required = $true }
 )

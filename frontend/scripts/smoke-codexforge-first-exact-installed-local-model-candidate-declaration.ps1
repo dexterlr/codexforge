@@ -6,7 +6,7 @@ function Assert-True([bool]$Condition, [string]$Message) {
 }
 
 function Assert-NoGitDiff([string]$Path, [string]$Message) {
-  $diff = ((& git -c core.safecrlf=false diff --name-only -- $Path 2>$null) | Out-String).Trim()
+  $diff = ((& git -c core.safecrlf=false diff --relative --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag" -- $Path 2>$null) | Out-String).Trim()
   Assert-True ([string]::IsNullOrWhiteSpace($diff)) $Message
 }
 
@@ -19,6 +19,10 @@ function Assert-PowerShellParses([string]$Path) {
 
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
+$expectedBaselineTag = "codexforge-rendered-product-accessibility-acceptance-clean"
+$expectedBaseline = "fe74ece00629cd6cdcbeba0a35e31d0a4ab54f58"
+$expectedCreatorCheckpointTag = "codexforge-approved-static-website-creator-foundation-clean"
+$expectedCreatorCheckpoint = "a8ea7b5a4b91937152d16279f876364187a2c318"
 
 Write-Host "=== CodexForge first exact installed local model candidate declaration smoke ==="
 
@@ -112,10 +116,14 @@ $onboardingServer = Get-Content -Raw -LiteralPath "src/lib/codexforge/model-rout
 $modelRoutingIndex = Get-Content -Raw -LiteralPath "src/lib/codexforge/model-routing/index.ts"
 Assert-True (($onboardingIndex + $onboardingServer + $modelRoutingIndex) -notmatch 'qwen2-5-coder-32b-installed-candidate') "No onboarding or model-routing barrel exports Slice Q"
 
+$baselinePeel = (& git rev-parse "$expectedBaselineTag^{}" 2>$null).Trim()
+$creatorPeel = (& git rev-parse "$expectedCreatorCheckpointTag^{}" 2>$null).Trim()
+Assert-True ($baselinePeel -eq $expectedBaseline) "Historical baseline tag peels to the exact accepted commit"
+Assert-True ($creatorPeel -eq $expectedCreatorCheckpoint) "Historical creator tag peels to the exact accepted commit"
+Assert-True ((& git rev-parse "$expectedCreatorCheckpoint^" 2>$null).Trim() -eq $expectedBaseline) "Historical creator checkpoint has the exact accepted parent"
 $changedPaths = @(
-  (& git status --short --untracked-files=all) |
-    Where-Object { $_.Length -ge 4 } |
-    ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
+  (& git diff --relative --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag" 2>$null) |
+    ForEach-Object { $_.Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
 
@@ -223,8 +231,8 @@ foreach ($needle in $candidateNeedles) {
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 74) "Aggregate executable entry count is 74"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 71) "Aggregate required count is 71"
+Assert-True ($entries.Count -eq 75) "Aggregate executable entry count is 75"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 72) "Aggregate required count is 72"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True (@($entries | Where-Object { $_ -match 'smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1' }).Count -eq 1) "Slice Q smoke is registered exactly once"
 Assert-True ($releaseBlock -match 'Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},') "Slice Q smoke follows Slice P and is required"

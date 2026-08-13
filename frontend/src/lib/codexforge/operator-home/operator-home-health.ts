@@ -52,12 +52,12 @@ export function buildOperatorHomeHealth(
       route: "/brain",
     }),
     buildOperatorHomeHealthDimension({
-      id: "ai-workspace",
-      label: "AI workspace",
+      id: "jarvis-workspace",
+      label: "Jarvis workspace",
       level: "ready",
-      detail: "AI Workspace remains the main planning and handoff surface.",
-      nextAction: "Open AI Workspace for reviewed prompts and patch handoffs.",
-      route: "/ai",
+      detail: "Jarvis is the canonical server-owned conversation, planning, and handoff surface.",
+      nextAction: "Open Jarvis for reviewed conversation and task handoffs.",
+      route: "/jarvis",
     }),
     buildOperatorHomeHealthDimension({
       id: "files-workflow",
@@ -73,7 +73,7 @@ export function buildOperatorHomeHealth(
       level: input.routeAvailability?.["/tasks"] === false ? "unknown" : "needs-review",
       detail: "Task Autopilot and execution readiness stay review-gated.",
       nextAction: "Review task suggestions and step readiness.",
-      route: routeOrFallback(input, "/tasks", "/ai"),
+      route: routeOrFallback(input, "/tasks", "/jarvis"),
     }),
     buildOperatorHomeHealthDimension({
       id: "memory-workflow",
@@ -89,7 +89,7 @@ export function buildOperatorHomeHealth(
       level: input.creativeWorkflowActive ? "needs-review" : "ready",
       detail: "Creative Production Studio is available for preview-only planning and artifact handoff.",
       nextAction: "Review active creative work if present.",
-      route: routeOrFallback(input, "/creative", "/ai"),
+      route: routeOrFallback(input, "/creative", "/jarvis"),
     }),
     buildOperatorHomeHealthDimension({
       id: "capabilities",
@@ -97,7 +97,7 @@ export function buildOperatorHomeHealth(
       level: input.routeAvailability?.["/capabilities"] === false ? "unknown" : "needs-review",
       detail: "Capability Cockpit exposes tool readiness and policy boundaries.",
       nextAction: "Review capability policy before guarded handoff.",
-      route: routeOrFallback(input, "/capabilities", "/ai"),
+      route: routeOrFallback(input, "/capabilities", "/jarvis"),
     }),
     buildOperatorHomeHealthDimension({
       id: "stabilization",
@@ -114,15 +114,15 @@ export function buildOperatorHomeHealth(
       detail:
         "Patch preview, apply gate, dry run, and execution gate remain review-only from Home.",
       nextAction: "Use Safe Patch Preview and apply gates; do not apply from Home.",
-      route: "/ai",
+      route: "/jarvis",
     }),
     buildOperatorHomeHealthDimension({
       id: "verification-readiness",
       label: "Verification readiness",
       level: input.verificationOutputNeedsIngestion ? "warning" : "needs-review",
       detail: "Verification output is evidence to ingest and review; Home never runs tests.",
-      nextAction: "Open AI Workspace to ingest verification output.",
-      route: "/ai",
+      nextAction: "Open Jarvis to ingest verification output.",
+      route: "/jarvis",
     }),
     buildOperatorHomeHealthDimension({
       id: "latest-message-authority",
@@ -133,7 +133,7 @@ export function buildOperatorHomeHealth(
         latestMessageAuthorityLevel === "ready"
           ? "Keep latest-message authority visible."
           : "Stop and restore latest-message authority.",
-      route: "/ai",
+      route: "/jarvis",
     }),
     buildOperatorHomeHealthDimension({
       id: "local-first-safety",

@@ -157,7 +157,9 @@ foreach ($evidenceType in @('"file"', '"path"', '"line"', '"match"', '"warning"'
   Assert-Contains $domainSource $evidenceType "evidence model supports $evidenceType"
 }
 
-Assert-Contains $aiPageSource "Read-Only Step Execution" "AI page references Read-Only Step Execution or /tasks"
+Assert-Contains $tasksSource "<ReadOnlyStepExecutionPanel embedded />" "/tasks embeds Read-Only Step Execution beneath its single page heading"
+Assert-Contains $aiPageSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiPageSource "ReadOnlyStepExecutionPanel" "/ai mounts no competing Read-Only Step Execution panel"
 Assert-Contains $missionSource "Read-Only Step Execution" "Mission Control references Read-Only Step Execution"
 
 Assert-NotMatches $readOnlySource 'from\s+["''][^"'']*brain-graph["'']' "no import from brain-graph"

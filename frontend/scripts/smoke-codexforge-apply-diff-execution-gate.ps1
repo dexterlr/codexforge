@@ -124,7 +124,9 @@ foreach ($render in @(
   Assert-Contains $uiSource $render "$render"
 }
 
-Assert-Contains $aiSource "ApplyDiffExecutionGatePanel" "/ai imports/renders ApplyDiffExecutionGatePanel if integrated"
+Assert-Contains $tasksSource "<ApplyDiffExecutionGatePanel compact />" "/tasks imports/renders ApplyDiffExecutionGatePanel"
+Assert-Contains $aiSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiSource "ApplyDiffExecutionGatePanel" "/ai mounts no competing Apply-Diff Execution Gate panel"
 Assert-Contains $filesSource "Apply-Diff Execution Gate" "/files references Apply-Diff Execution Gate if integrated"
 Assert-Contains $tasksSource "Apply-Diff Execution Gate" "/tasks references Apply-Diff Execution Gate if integrated"
 Assert-Contains $missionSource "Apply-Diff Execution Gate readiness" "Mission Control includes Apply-Diff Execution Gate readiness"

@@ -1,0 +1,750 @@
+.panel {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(45, 212, 191, 0.18);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(7, 16, 29, 0.97), rgba(5, 11, 22, 0.94));
+  color: #e7f5ff;
+}
+
+.panelHeader,
+.sidebarHeader,
+.lifecycleHeader,
+.sectionHeader,
+.composerFooter {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #7db4c7;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.panelTitle,
+.sectionTitle,
+.visuallyCompactTitle {
+  margin: 4px 0 0;
+  color: #f7fcff;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.panelTitle {
+  font-size: 1.35rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+}
+
+.visuallyCompactTitle {
+  font-size: 0.86rem;
+}
+
+.panelSummary,
+.boundaryNote,
+.lifecycleExplanation,
+.emptyText,
+.fieldHelp,
+.actionReady,
+.advancedBody > p,
+.approvalCard p,
+.stopCard p,
+.recoveryCard p,
+.deleteForm p,
+.contextFixed {
+  margin: 0;
+  color: #a9c8d7;
+  line-height: 1.55;
+}
+
+.panelSummary {
+  max-width: 760px;
+  margin-top: 7px;
+  font-size: 0.9rem;
+}
+
+.boundaryStrip,
+.lifecycleCard,
+.transcriptSection,
+.actionSection,
+.composer,
+.manageSection,
+.advancedDetails,
+.sidebar {
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 16px;
+  background: rgba(6, 14, 26, 0.82);
+}
+
+.boundaryStrip {
+  display: grid;
+  gap: 0;
+  padding: 11px 13px;
+  scroll-margin-top: 16px;
+}
+
+.boundarySummary {
+  color: #dffaff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.boundaryBody {
+  display: grid;
+  gap: 11px;
+  padding-top: 12px;
+}
+
+.boundaryGrid,
+.lifecycleMeta,
+.advancedGrid {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.boundaryGrid {
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+
+.boundaryGrid > div,
+.lifecycleMeta > div,
+.advancedGrid > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 9px 10px;
+  border-radius: 11px;
+  background: rgba(9, 23, 37, 0.82);
+}
+
+.boundaryGrid dt,
+.lifecycleMeta dt,
+.advancedGrid dt {
+  color: #7db4c7;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.boundaryGrid dd,
+.lifecycleMeta dd,
+.advancedGrid dd {
+  min-width: 0;
+  margin: 0;
+  color: #effaff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.boundaryNote,
+.fieldHelp,
+.contextFixed {
+  font-size: 0.78rem;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 2.3fr);
+  gap: 14px;
+  align-items: start;
+  min-width: 0;
+}
+
+.sidebar {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  position: sticky;
+  top: 12px;
+}
+
+.historyList,
+.auditList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.historyButton {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 12px;
+  background: rgba(10, 20, 34, 0.84);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.historyButton[aria-current="page"] {
+  border-color: rgba(45, 212, 191, 0.42);
+  background: rgba(9, 49, 54, 0.7);
+}
+
+.historyTitle,
+.historyPreview,
+.historyMeta {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historyTitle {
+  color: #f7fcff;
+  font-size: 0.86rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.historyPreview {
+  color: #aac5d3;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.historyMeta {
+  color: #78a7ba;
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.chatColumn {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+@media (min-width: 1280px) {
+  .chatColumn {
+    grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.8fr);
+    align-items: start;
+  }
+
+  .transcriptSection {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .composer {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .lifecycleCard,
+  .actionSection,
+  .manageSection,
+  .advancedDetails {
+    grid-column: 1 / -1;
+  }
+}
+
+.lifecycleCard,
+.transcriptSection,
+.actionSection,
+.composer,
+.manageSection {
+  display: grid;
+  gap: 12px;
+  padding: 15px;
+  scroll-margin-top: 16px;
+}
+
+.transcriptSection,
+.composer {
+  gap: 8px;
+  padding: 12px;
+}
+
+.lifecycleExplanation:focus {
+  outline: 2px solid rgba(34, 211, 238, 0.48);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.stateBadge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 9px;
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  border-radius: 999px;
+  background: rgba(9, 65, 65, 0.55);
+  color: #ccfbf1;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.stateBadge[data-state="awaiting_approval"],
+.stateBadge[data-state="approved"] {
+  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(97, 58, 10, 0.58);
+  color: #fff0b8;
+}
+
+.stateBadge[data-state="failed"],
+.stateBadge[data-state="rejected"],
+.stateBadge[data-state="stopped"] {
+  border-color: rgba(251, 146, 60, 0.35);
+  background: rgba(91, 35, 13, 0.64);
+  color: #ffe4d1;
+}
+
+.lifecycleMeta {
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+}
+
+.transcript {
+  display: grid;
+  gap: 14px;
+  min-height: 72px;
+  max-height: min(58vh, 620px);
+  overflow-y: auto;
+  padding: 4px;
+  scrollbar-gutter: stable;
+}
+
+.turnGroup {
+  display: grid;
+  gap: 9px;
+}
+
+.message {
+  display: grid;
+  gap: 8px;
+  max-width: min(88%, 760px);
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 15px;
+}
+
+.message header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: #f4fbff;
+  font-size: 0.78rem;
+}
+
+.message time {
+  color: #78a7ba;
+  font-size: 0.66rem;
+}
+
+.message p {
+  margin: 0;
+  color: #e7f5ff;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.userMessage {
+  justify-self: end;
+  background: rgba(10, 67, 69, 0.58);
+  border-bottom-right-radius: 5px;
+}
+
+.assistantMessage {
+  justify-self: start;
+  background: rgba(12, 25, 42, 0.92);
+  border-bottom-left-radius: 5px;
+}
+
+.pendingMessage,
+.welcomeCard {
+  display: grid;
+  gap: 6px;
+  max-width: 720px;
+  padding: 12px 14px;
+  border: 1px dashed rgba(125, 211, 252, 0.24);
+  border-radius: 14px;
+  color: #bcdbe8;
+  background: rgba(7, 20, 34, 0.66);
+  line-height: 1.55;
+}
+
+.welcomeCard p {
+  margin: 0;
+}
+
+.approvalCard,
+.stopCard,
+.recoveryCard,
+.manageForm,
+.deleteForm {
+  display: grid;
+  gap: 11px;
+  padding: 13px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 13px;
+  background: rgba(9, 20, 35, 0.78);
+}
+
+.approvalCard {
+  border-color: rgba(251, 191, 36, 0.24);
+}
+
+.requestDetails {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(251, 191, 36, 0.18);
+  border-radius: 11px;
+  background: rgba(49, 34, 12, 0.34);
+}
+
+.requestDetails summary {
+  color: #fff0bf;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.requestDetailsBody {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  padding-top: 10px;
+}
+
+.requestDetailsBody p {
+  margin: 0;
+  color: #c9dee7;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.requestPreview {
+  max-height: 240px;
+  overflow: auto;
+  margin: 0;
+  padding: 11px;
+  border-radius: 9px;
+  background: rgba(3, 10, 20, 0.92);
+  color: #f4fbff;
+  font: 0.75rem/1.55 "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.requestIdentity {
+  overflow-wrap: anywhere;
+}
+
+.stopCard,
+.deleteForm {
+  border-color: rgba(251, 146, 60, 0.28);
+}
+
+.recoveryCard {
+  border-color: rgba(125, 211, 252, 0.28);
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton,
+.textButton {
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid rgba(45, 212, 191, 0.28);
+  border-radius: 11px;
+  background: rgba(9, 62, 64, 0.78);
+  color: #f5fffd;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: rgba(18, 32, 51, 0.88);
+}
+
+.dangerButton {
+  border-color: rgba(251, 146, 60, 0.34);
+  background: rgba(96, 39, 18, 0.82);
+}
+
+.textButton {
+  min-height: 34px;
+  padding: 6px 9px;
+  border-color: transparent;
+  background: transparent;
+  color: #8de7dc;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled,
+.textButton:disabled,
+.input:disabled,
+.select:disabled,
+.textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.primaryButton:not(:disabled):hover,
+.secondaryButton:not(:disabled):hover,
+.dangerButton:not(:disabled):hover,
+.textButton:not(:disabled):hover,
+.historyButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(34, 211, 238, 0.44);
+}
+
+.disabledReason,
+.errorNotice,
+.successNotice {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 11px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.disabledReason {
+  border-left: 3px solid rgba(251, 191, 36, 0.66);
+  background: rgba(88, 54, 12, 0.45);
+  color: #ffedb5;
+}
+
+.errorNotice {
+  display: flex;
+  gap: 8px 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  border: 1px solid rgba(251, 146, 60, 0.32);
+  background: rgba(90, 34, 16, 0.68);
+  color: #ffe4d1;
+}
+
+.successNotice {
+  border: 1px solid rgba(45, 212, 191, 0.28);
+  background: rgba(9, 67, 65, 0.58);
+  color: #d3fff8;
+}
+
+.composerLabel,
+.contextRow label,
+.manageForm label,
+.deleteForm label {
+  color: #e8f8ff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.contextRow {
+  display: grid;
+  grid-template-columns: auto minmax(220px, 1fr);
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.contextRow .fieldHelp {
+  grid-column: 1 / -1;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid rgba(45, 212, 191, 0.2);
+  border-radius: 11px;
+  background: rgba(3, 11, 22, 0.96);
+  color: #f6fbff;
+  font: inherit;
+}
+
+.input,
+.select {
+  min-height: 42px;
+  padding: 9px 11px;
+}
+
+.textarea {
+  min-height: 72px;
+  padding: 12px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.composerFooter {
+  align-items: center;
+}
+
+.advancedDetails {
+  padding: 13px 15px;
+  scroll-margin-top: 16px;
+}
+
+.advancedDetails summary {
+  color: #dffaff;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.advancedBody {
+  display: grid;
+  gap: 12px;
+  padding-top: 13px;
+}
+
+.advancedGrid {
+  grid-template-columns: repeat(3, minmax(130px, 1fr));
+}
+
+.auditList li {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(10, 22, 38, 0.82);
+  color: #a9c8d7;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.auditList strong {
+  color: #f2fbff;
+}
+
+.auditList small {
+  color: #78a7ba;
+  overflow-wrap: anywhere;
+}
+
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible,
+.dangerButton:focus-visible,
+.textButton:focus-visible,
+.historyButton:focus-visible,
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible,
+.advancedDetails summary:focus-visible {
+  outline: 3px solid rgba(34, 211, 238, 0.72);
+  outline-offset: 3px;
+}
+
+.boundarySummary:focus-visible {
+  outline: 3px solid rgba(34, 211, 238, 0.72);
+  outline-offset: 3px;
+}
+
+.requestDetails summary:focus-visible {
+  outline: 3px solid rgba(34, 211, 238, 0.72);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1120px) {
+  .boundaryGrid {
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+  }
+
+  .workspace {
+    grid-template-columns: minmax(200px, 0.7fr) minmax(0, 2fr);
+  }
+}
+
+@media (max-width: 820px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .historyList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lifecycleMeta,
+  .advancedGrid {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .panel {
+    padding: 13px;
+    border-radius: 14px;
+  }
+
+  .boundaryGrid,
+  .historyList,
+  .lifecycleMeta,
+  .advancedGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .message {
+    max-width: 96%;
+  }
+
+  .contextRow {
+    grid-template-columns: 1fr;
+  }
+
+  .contextRow .fieldHelp {
+    grid-column: auto;
+  }
+
+  .buttonRow,
+  .composerFooter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .buttonRow > button,
+  .composerFooter > button,
+  .panelHeader > button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primaryButton,
+  .secondaryButton,
+  .dangerButton,
+  .textButton,
+  .historyButton {
+    transition: none;
+  }
+}

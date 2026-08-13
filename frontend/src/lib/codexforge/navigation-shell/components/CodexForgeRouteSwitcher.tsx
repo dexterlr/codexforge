@@ -16,7 +16,7 @@ export function CodexForgeRouteSwitcher({
   return (
     <nav
       aria-label="CodexForge route switcher"
-      data-codexforge-route-switcher="CodexForgeRouteSwitcher renders AI Workspace Brain Files Stabilization dedupes route entries by href"
+      data-codexforge-route-switcher="CodexForgeRouteSwitcher renders Jarvis Chat Brain Files Stabilization dedupes route entries by href"
       style={wrap}
     >
       {dedupedRoutes.map((route) => {

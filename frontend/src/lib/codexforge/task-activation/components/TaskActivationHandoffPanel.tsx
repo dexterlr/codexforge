@@ -13,18 +13,18 @@ export function TaskActivationHandoffPanel({
 }) {
   return (
     <section style={panel} data-codexforge-task-activation-handoff-panel>
-      <div style={eyebrow}>Visible /ai handoff</div>
+      <div style={eyebrow}>Visible Jarvis handoff</div>
       <strong style={title}>Copy activation prompt into composer</strong>
       <p style={body}>
-        This does not silently set activeTask. It is a reviewed task activation handoff to /ai.
+        This does not silently set activeTask or inject context. Copy the reviewed prompt into Jarvis only when you choose.
       </p>
       <pre style={prompt}>{handoff?.prompt ?? "Preview and prepare handoff before copying an activation prompt."}</pre>
       <div style={buttons}>
         <button type="button" onClick={onCopy} disabled={!handoff} style={button}>
           {copied ? "Copied" : "Copy activation prompt"}
         </button>
-        <Link href="/ai" style={link}>
-          Open /ai
+        <Link href="/jarvis" style={link}>
+          Open Jarvis
         </Link>
       </div>
     </section>

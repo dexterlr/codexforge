@@ -129,7 +129,9 @@ foreach ($render in @(
   Assert-Contains $uiSource $render "$render"
 }
 
-Assert-Contains $aiSource "PreviewDiffComposerPanel" "/ai imports/renders PreviewDiffComposerPanel if integrated"
+Assert-Contains $tasksSource "<PreviewDiffComposerPanel compact />" "/tasks imports/renders PreviewDiffComposerPanel"
+Assert-Contains $aiSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiSource "PreviewDiffComposerPanel" "/ai mounts no competing Preview Diff Composer panel"
 Assert-Contains $filesSource "Preview Diff Composer" "/files references Preview Diff Composer if integrated"
 Assert-Contains $tasksSource "Preview Diff Composer" "/tasks references Preview Diff Composer if integrated"
 Assert-Contains $missionSource "Preview Diff Composer readiness" "Mission Control includes Preview Diff Composer readiness"

@@ -64,7 +64,7 @@ export function AiRouterCockpit() {
           </p>
         </div>
         <div style={linkRow}>
-          <Link href="/ai" style={workspaceLink}>Open workspace</Link>
+          <Link href="/jarvis" style={workspaceLink}>Open Jarvis chat</Link>
           <Link href="/ai-providers" style={secondaryLink}>Provider registry</Link>
           <Link href="/model-capabilities" style={secondaryLink}>Model capabilities</Link>
           <Link href="/task-router" style={secondaryLink}>Task router</Link>

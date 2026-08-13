@@ -40,7 +40,7 @@ export type StabilizationSource =
 export type StabilizationRelatedSurface =
   | "/stabilization"
   | "/mission"
-  | "/ai"
+  | "/jarvis"
   | "/files"
   | "/consolidation"
   | "/tasks"

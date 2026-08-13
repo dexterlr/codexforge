@@ -136,7 +136,8 @@ foreach ($render in @(
   Assert-Contains $uiSource $render "$render"
 }
 
-Assert-Contains $aiSource "RegressionFixQueuePanel" "/ai imports/renders RegressionFixQueuePanel if integrated"
+Assert-Contains $aiSource 'redirect("/jarvis")' "retired AI route redirects to canonical Jarvis"
+Assert-NotContains $aiSource "RegressionFixQueuePanel" "retired AI redirect does not own Regression Fix Queue UI"
 Assert-Contains $filesSource "Regression Fix Queue" "/files references Regression Fix Queue if integrated"
 Assert-Contains $tasksSource "Regression Fix Queue" "/tasks references Regression Fix Queue if integrated"
 Assert-Contains $memorySource "Regression Fix Queue" "/memory references Regression Fix Queue if integrated"

@@ -220,7 +220,7 @@ export type TaskActivationHandoff = {
   requestId: string;
   planId: string;
   suggestionId: string;
-  targetHref: "/ai";
+  targetHref: "/jarvis";
   prompt: string;
   safetyNotes: string[];
   summary: string[];

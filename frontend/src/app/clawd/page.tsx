@@ -1496,7 +1496,7 @@ export default function OperatorPage() {
               <p style={subtitle}>
                 This is the dedicated operator surface for
                 <b> snapshot to plan to approve to diff to approve to apply to test</b>.
-                Keep workspace conversation in <b>/ai</b>. Come here when you want
+                Keep the canonical conversation in <b>/jarvis</b>. Come here when you want
                 explicit execution visibility and control.
               </p>
 

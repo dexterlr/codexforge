@@ -66,6 +66,7 @@ import {
   type PrivateAlphaAuditEventType,
   type PrivateAlphaCancellationInput,
   type PrivateAlphaCancellationRecord,
+  type PrivateAlphaChatRunOwnership,
   type PrivateAlphaCreateRunResult,
   type PrivateAlphaCreatorRunOwnership,
   type PrivateAlphaExecuteInput,
@@ -106,6 +107,7 @@ import {
   buildPrivateAlphaApprovalScope,
   buildPrivateAlphaRunRequest,
   buildPrivateAlphaRunSummary,
+  containsPrivateAlphaSecretLikeContent,
   isPrivateAlphaCloudApprovalOnlyConfiguration,
   isPrivateAlphaCloudExecutionConfiguration,
   isPrivateAlphaLegacyRunConfiguration,
@@ -230,6 +232,7 @@ type PrivateAlphaFailureResponse = Readonly<{
 
 type PrivateAlphaLocalPersistedExecutionErrorCode =
   | "execution_interrupted"
+  | "chat_stop_prevented_execution"
   | "kill_switch_blocked"
   | "ollama_unavailable"
   | "ollama_model_missing"
@@ -309,6 +312,17 @@ export type PrivateAlphaStore = Readonly<{
     idempotencyKey: string | null | undefined,
     ownership: PrivateAlphaCreatorRunOwnership
   ) => Promise<PrivateAlphaCreateRunResult>;
+  createChatRun: (
+    body: unknown,
+    idempotencyKey: string | null | undefined,
+    ownership: PrivateAlphaChatRunOwnership
+  ) => Promise<PrivateAlphaCreateRunResult>;
+  bindChatRun: (
+    body: unknown,
+    idempotencyKey: string | null | undefined,
+    ownership: PrivateAlphaChatRunOwnership,
+    createIfMissing: boolean
+  ) => Promise<PrivateAlphaCreateRunResult | null>;
   bindCreatorRun: (
     body: unknown,
     idempotencyKey: string | null | undefined,
@@ -327,9 +341,17 @@ export type PrivateAlphaStore = Readonly<{
     runId: string,
     ownership: PrivateAlphaCreatorRunOwnership
   ) => Promise<PrivateAlphaRunRecord>;
+  getChatRun: (
+    runId: string,
+    ownership: PrivateAlphaChatRunOwnership
+  ) => Promise<PrivateAlphaRunRecord>;
   reconcileCreatorRunAfterInterruption: (
     runId: string,
     ownership: PrivateAlphaCreatorRunOwnership
+  ) => Promise<PrivateAlphaRunRecord>;
+  reconcileChatRunAfterInterruption: (
+    runId: string,
+    ownership: PrivateAlphaChatRunOwnership
   ) => Promise<PrivateAlphaRunRecord>;
   approveRun: (
     runId: string,
@@ -340,6 +362,11 @@ export type PrivateAlphaStore = Readonly<{
     body: unknown,
     ownership: PrivateAlphaCreatorRunOwnership
   ) => Promise<PrivateAlphaRunRecord>;
+  approveChatRun: (
+    runId: string,
+    body: unknown,
+    ownership: PrivateAlphaChatRunOwnership
+  ) => Promise<PrivateAlphaRunRecord>;
   cancelRun: (
     runId: string,
     body: unknown
@@ -348,6 +375,11 @@ export type PrivateAlphaStore = Readonly<{
     runId: string,
     body: unknown,
     ownership: PrivateAlphaCreatorRunOwnership
+  ) => Promise<PrivateAlphaRunRecord>;
+  cancelChatRun: (
+    runId: string,
+    body: unknown,
+    ownership: PrivateAlphaChatRunOwnership
   ) => Promise<PrivateAlphaRunRecord>;
   executeRun: (
     runId: string,
@@ -360,7 +392,18 @@ export type PrivateAlphaStore = Readonly<{
     idempotencyKey: string | null | undefined,
     ownership: PrivateAlphaCreatorRunOwnership
   ) => Promise<PrivateAlphaExecuteRunResult>;
+  executeChatRun: (
+    runId: string,
+    body: unknown,
+    idempotencyKey: string | null | undefined,
+    ownership: PrivateAlphaChatRunOwnership,
+    admitProviderStart: () => Promise<boolean>
+  ) => Promise<PrivateAlphaExecuteRunResult>;
 }>;
+
+type PrivateAlphaOwnedRunOwnership =
+  | PrivateAlphaCreatorRunOwnership
+  | PrivateAlphaChatRunOwnership;
 
 type PrivateAlphaStoreInternal = Omit<
   PrivateAlphaStore,
@@ -370,23 +413,24 @@ type PrivateAlphaStoreInternal = Omit<
     createRun: (
       body: unknown,
       idempotencyKey: string | null | undefined,
-      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+      expectedOwnership?: PrivateAlphaOwnedRunOwnership
     ) => Promise<PrivateAlphaCreateRunResult>;
     approveRun: (
       runId: string,
       body: unknown,
-      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+      expectedOwnership?: PrivateAlphaOwnedRunOwnership
     ) => Promise<PrivateAlphaRunRecord>;
     cancelRun: (
       runId: string,
       body: unknown,
-      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+      expectedOwnership?: PrivateAlphaOwnedRunOwnership
     ) => Promise<PrivateAlphaRunRecord>;
     executeRun: (
       runId: string,
       body: unknown,
       idempotencyKey: string | null | undefined,
-      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+      expectedOwnership?: PrivateAlphaOwnedRunOwnership,
+      admitProviderStart?: () => Promise<boolean>
     ) => Promise<PrivateAlphaExecuteRunResult>;
   }>;
 
@@ -424,6 +468,7 @@ const PRIVATE_ALPHA_MAX_AUDIT_SUMMARY_LENGTH = 512;
 const RECOVERABLE_RUN_LOCK_NONCES = new Map<string, string>();
 const RUN_LOCK_FENCE_CONTEXT = new AsyncLocalStorage<PrivateAlphaRunLockFenceContext>();
 const CREATOR_BINDING_LOCK_CONTEXT = new AsyncLocalStorage<string>();
+const CHAT_BINDING_LOCK_CONTEXT = new AsyncLocalStorage<string>();
 const PRIVATE_ALPHA_VERIFIED_PERSISTED_BYTES = new WeakMap<object, Buffer>();
 
 export class PrivateAlphaStoreError extends Error {
@@ -469,6 +514,15 @@ function buildCreatorBindingMutationLockRunId(
   ).slice(0, PRIVATE_ALPHA_RUN_ID_LENGTH);
 }
 
+function buildChatBindingMutationLockRunId(
+  conversationId: string,
+  turnId: string
+): string {
+  return hashSha256(
+    `private-alpha:chat-binding-mutation:v1:${conversationId}:${turnId}`
+  ).slice(0, PRIVATE_ALPHA_RUN_ID_LENGTH);
+}
+
 function hashSha256(value: string): string {
   return createHash("sha256").update(value, "utf8").digest("hex");
 }
@@ -481,6 +535,33 @@ export function buildPrivateAlphaCreatorIdempotencyKeyHash(
   return hashSha256(
     `codexforge.private-alpha.creator-idempotency.v1\u0000${projectId}\u0000${purpose}\u0000${idempotencyKey}`
   );
+}
+
+export function buildPrivateAlphaChatIdempotencyKeyHash(
+  idempotencyKey: string,
+  conversationId: string,
+  turnId: string
+): string {
+  return hashSha256(
+    `codexforge.private-alpha.chat-idempotency.v1\u0000${conversationId}\u0000${turnId}\u0000${idempotencyKey}`
+  );
+}
+
+function buildPrivateAlphaOwnedIdempotencyKeyHash(
+  idempotencyKey: string,
+  ownership: PrivateAlphaOwnedRunOwnership
+): string {
+  return ownership.kind === "creator"
+    ? buildPrivateAlphaCreatorIdempotencyKeyHash(
+        idempotencyKey,
+        ownership.projectId,
+        ownership.purpose
+      )
+    : buildPrivateAlphaChatIdempotencyKeyHash(
+        idempotencyKey,
+        ownership.conversationId,
+        ownership.turnId
+      );
 }
 
 function isMissingError(error: unknown): boolean {
@@ -719,6 +800,32 @@ function validateStoredRunOwnership(
     };
   }
 
+  if (
+    value.kind === "chat" &&
+    value.protocolVersion === PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION &&
+    typeof value.conversationId === "string" &&
+    /^[a-f0-9]{24}$/.test(value.conversationId) &&
+    typeof value.turnId === "string" &&
+    /^[a-f0-9]{24}$/.test(value.turnId) &&
+    typeof value.bindingId === "string" &&
+    /^[a-f0-9]{32}$/.test(value.bindingId) &&
+    hasExactKeys(value, [
+      "bindingId",
+      "conversationId",
+      "kind",
+      "protocolVersion",
+      "turnId",
+    ])
+  ) {
+    return {
+      kind: "chat",
+      protocolVersion: PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION,
+      conversationId: value.conversationId,
+      turnId: value.turnId,
+      bindingId: value.bindingId,
+    };
+  }
+
   return undefined;
 }
 
@@ -735,9 +842,18 @@ function sameRunOwnership(
   if (left.kind === "general" || right.kind === "general") {
     return left.kind === right.kind;
   }
+  if (left.kind === "creator" || right.kind === "creator") {
+    return (
+      left.kind === "creator" &&
+      right.kind === "creator" &&
+      left.projectId === right.projectId &&
+      left.purpose === right.purpose &&
+      left.bindingId === right.bindingId
+    );
+  }
   return (
-    left.projectId === right.projectId &&
-    left.purpose === right.purpose &&
+    left.conversationId === right.conversationId &&
+    left.turnId === right.turnId &&
     left.bindingId === right.bindingId
   );
 }
@@ -752,9 +868,70 @@ function validateCreatorOwnershipInput(
   return validated;
 }
 
+function validateChatOwnershipInput(
+  value: PrivateAlphaChatRunOwnership
+): PrivateAlphaChatRunOwnership {
+  const validated = validateStoredRunOwnership(value);
+  if (!validated || validated.kind !== "chat") {
+    throw new PrivateAlphaStoreError(409, "Chat run ownership binding is invalid.");
+  }
+  return validated;
+}
+
+function validateOwnedOwnershipInput(
+  value: PrivateAlphaOwnedRunOwnership
+): PrivateAlphaOwnedRunOwnership {
+  return value.kind === "creator"
+    ? validateCreatorOwnershipInput(value)
+    : validateChatOwnershipInput(value);
+}
+
+function assertExactChatRunEnvelope(run: PrivateAlphaRunRecord): void {
+  const request = run.request;
+  const scope = run.approvalScope;
+  if (
+    request.capability !== "text" ||
+    request.providerPreference !== "ollama-local" ||
+    request.modelPreferenceLabel !== "gpt-oss:20b" ||
+    request.maximumOutputTokens !== 4096 ||
+    request.retentionMode !== "local-private-alpha" ||
+    request.executionMode !== "manual-approved-local-provider" ||
+    !("bindingVersion" in request) ||
+    request.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+    !("modelKey" in request) ||
+    request.modelKey !== PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY ||
+    !("dataBoundary" in request) ||
+    request.dataBoundary !== "local-machine" ||
+    !("cloudDataTransferRequirement" in request) ||
+    request.cloudDataTransferRequirement !== "not-required" ||
+    scope.runId !== run.runId ||
+    scope.capability !== "text" ||
+    scope.providerPreference !== "ollama-local" ||
+    scope.modelPreferenceLabel !== "gpt-oss:20b" ||
+    scope.maximumOutputTokens !== 4096 ||
+    scope.retentionMode !== "local-private-alpha" ||
+    scope.executionMode !== "manual-approved-local-provider" ||
+    !("bindingVersion" in scope) ||
+    scope.bindingVersion !== PRIVATE_ALPHA_APPROVAL_BINDING_VERSION ||
+    !("modelKey" in scope) ||
+    scope.modelKey !== PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY ||
+    !("dataBoundary" in scope) ||
+    scope.dataBoundary !== "local-machine" ||
+    !("cloudDataTransferRequirement" in scope) ||
+    scope.cloudDataTransferRequirement !== "not-required" ||
+    scope.normalizedRequestHash !== hashSha256(request.normalizedRequestText) ||
+    run.approvalScopeHash !== buildPrivateAlphaApprovalScopeHash(scope)
+  ) {
+    throw new PrivateAlphaStoreError(
+      409,
+      "Chat-owned run is outside the exact local model envelope."
+    );
+  }
+}
+
 function assertRunControl(
   run: PrivateAlphaRunRecord,
-  expectedOwnership: PrivateAlphaCreatorRunOwnership | undefined
+  expectedOwnership: PrivateAlphaOwnedRunOwnership | undefined
 ): void {
   if (expectedOwnership === undefined) {
     if (run.ownership?.kind === "creator") {
@@ -763,12 +940,26 @@ function assertRunControl(
         "Creator-owned runs must be controlled through the exact creator lifecycle."
       );
     }
+    if (run.ownership?.kind === "chat") {
+      throw new PrivateAlphaStoreError(
+        409,
+        "Chat-owned runs must be controlled through the exact chat lifecycle."
+      );
+    }
     return;
   }
 
-  const validated = validateCreatorOwnershipInput(expectedOwnership);
+  const validated = validateOwnedOwnershipInput(expectedOwnership);
   if (!sameRunOwnership(run.ownership, validated)) {
-    throw new PrivateAlphaStoreError(409, "Creator run ownership binding does not match.");
+    throw new PrivateAlphaStoreError(
+      409,
+      validated.kind === "creator"
+        ? "Creator run ownership binding does not match."
+        : "Chat run ownership binding does not match."
+    );
+  }
+  if (validated.kind === "chat") {
+    assertExactChatRunEnvelope(run);
   }
 }
 
@@ -816,6 +1007,7 @@ function isExecutionErrorCode(
 ): value is PrivateAlphaPersistedExecutionErrorCode {
   return (
     value === "execution_interrupted" ||
+    value === "chat_stop_prevented_execution" ||
     value === "kill_switch_blocked" ||
     value === "ollama_unavailable" ||
     value === "ollama_model_missing" ||
@@ -843,6 +1035,7 @@ function isLocalPersistedExecutionErrorCode(
 ): value is PrivateAlphaLocalPersistedExecutionErrorCode {
   return (
     value === "execution_interrupted" ||
+    value === "chat_stop_prevented_execution" ||
     value === "kill_switch_blocked" ||
     value === "ollama_unavailable" ||
     value === "ollama_model_missing" ||
@@ -878,7 +1071,7 @@ function isLocalProviderExecutionErrorCode(
   value: unknown
 ): value is Exclude<
   PrivateAlphaLocalPersistedExecutionErrorCode,
-  "execution_interrupted" | "kill_switch_blocked"
+  "execution_interrupted" | "chat_stop_prevented_execution" | "kill_switch_blocked"
 > {
   return (
     value === "ollama_unavailable" ||
@@ -916,7 +1109,7 @@ function isLocalProviderAvailabilityErrorCode(
   value: unknown
 ): value is Exclude<
   PrivateAlphaLocalPersistedExecutionErrorCode,
-  "execution_interrupted" | "kill_switch_blocked" | "ollama_empty_response"
+  "execution_interrupted" | "chat_stop_prevented_execution" | "kill_switch_blocked" | "ollama_empty_response"
 > {
   return isLocalProviderExecutionErrorCode(value) && value !== "ollama_empty_response";
 }
@@ -2058,11 +2251,13 @@ function validateStoredExecutionRecord(
       responseStatus === 200 ||
       responseStatus !==
         (errorCode === "ollama_output_too_large" ||
-        errorCode === "groq_output_too_large"
+        errorCode === "groq_output_too_large" ||
+        errorCode === "chat_stop_prevented_execution"
           ? 409
           : resolveAvailabilityBlockedResponseStatus(errorCode)) ||
       (runningRevision !== null &&
-        (errorCode !== "kill_switch_blocked" || responseStatus !== 409))
+        (errorCode !== "kill_switch_blocked" || responseStatus !== 409)) ||
+      (errorCode === "chat_stop_prevented_execution" && runningRevision !== null)
     ) {
       return null;
     }
@@ -2417,6 +2612,16 @@ function validateStoredRunRecord(
   }
 
   if (execution && execution.approvalScopeHash !== value.approvalScopeHash) {
+    return null;
+  }
+  if (
+    execution?.errorCode === "chat_stop_prevented_execution" &&
+    (
+      ownership?.kind !== "chat" ||
+      execution.status !== "blocked" ||
+      execution.runningRevision !== null
+    )
+  ) {
     return null;
   }
 
@@ -3452,7 +3657,7 @@ async function finalizeIdempotencyPublication(
 async function readRunForExactControl(
   paths: PrivateAlphaResolvedPaths,
   runId: string,
-  expectedOwnership: PrivateAlphaCreatorRunOwnership | undefined,
+  expectedOwnership: PrivateAlphaOwnedRunOwnership | undefined,
   requirePublished = true
 ): Promise<PrivateAlphaRunRecord> {
   const run = await readRunRecordFromFile(
@@ -3586,6 +3791,122 @@ async function findRunsByIdempotencyKeyHash(
     if (candidate.idempotencyKeyHash === idempotencyKeyHash) matches.push(candidate);
   }
   await revalidatePinnedParentIdentity(paths, directoryIdentity);
+  return matches;
+}
+
+async function findChatBindingIdempotencyRecords(
+  paths: PrivateAlphaResolvedPaths,
+  conversationId: string,
+  turnId: string
+): Promise<readonly PrivateAlphaProtocolIdempotencyRecord[]> {
+  if (process.platform !== "win32") {
+    throw new PrivateAlphaStoreError(
+      503,
+      "Secure chat binding inspection is available only through the Windows native boundary."
+    );
+  }
+  let names: readonly string[];
+  try {
+    names = withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) =>
+      root.listDirectory(["idempotency"])
+    );
+  } catch (error) {
+    throwPrivateAlphaNativeStorageError(error);
+  }
+  if (names.length > PRIVATE_ALPHA_MAX_STORED_RUN_FILES) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha idempotency inventory exceeds its bounded chat recovery envelope."
+    );
+  }
+  const matches: PrivateAlphaProtocolIdempotencyRecord[] = [];
+  for (const name of names) {
+    if (!/^[a-f0-9]{64}\.json$/u.test(name)) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha idempotency storage contains a malformed chat recovery entry."
+      );
+    }
+    const keyHash = name.slice(0, -5);
+    try {
+      const kind = withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) =>
+        root.stat(["idempotency", name])
+      );
+      if (kind !== "file") {
+        throw new PrivateAlphaStoreError(
+          500,
+          "Private-alpha idempotency storage contains an unsafe chat recovery entry."
+        );
+      }
+    } catch (error) {
+      if (error instanceof PrivateAlphaStoreError) throw error;
+      throwPrivateAlphaNativeStorageError(error);
+    }
+    const candidate = await readIdempotencyRecordFromFile(
+      paths,
+      buildIdempotencyFileAbsolutePath(paths, keyHash),
+      keyHash
+    );
+    if (
+      candidate &&
+      "protocolVersion" in candidate &&
+      candidate.ownership?.kind === "chat" &&
+      candidate.ownership.conversationId === conversationId &&
+      candidate.ownership.turnId === turnId
+    ) {
+      matches.push(candidate);
+    }
+  }
+  return matches;
+}
+
+async function findChatBindingRuns(
+  paths: PrivateAlphaResolvedPaths,
+  conversationId: string,
+  turnId: string
+): Promise<readonly PrivateAlphaRunRecord[]> {
+  if (process.platform !== "win32") {
+    throw new PrivateAlphaStoreError(
+      503,
+      "Secure chat binding inspection is available only through the Windows native boundary."
+    );
+  }
+  let names: readonly string[];
+  try {
+    names = withPrivateAlphaNativeRoot(paths.dataRootLabel, (root) =>
+      root.listDirectory(["runs"])
+    );
+  } catch (error) {
+    throwPrivateAlphaNativeStorageError(error);
+  }
+  if (names.length > PRIVATE_ALPHA_MAX_STORED_RUN_FILES) {
+    throw new PrivateAlphaStoreError(
+      500,
+      "Private-alpha run inventory exceeds its bounded chat recovery envelope."
+    );
+  }
+  const matches: PrivateAlphaRunRecord[] = [];
+  for (const name of names) {
+    if (!/^[a-f0-9]{24}\.json$/u.test(name)) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Private-alpha run storage contains a malformed chat recovery entry."
+      );
+    }
+    const runId = name.slice(0, -5);
+    const candidate = await readRunRecordFromFile(
+      paths,
+      buildRunFileAbsolutePath(paths, runId),
+      runId
+    );
+    if (
+      candidate.ownership?.kind === "chat" &&
+      candidate.ownership.conversationId === conversationId &&
+      candidate.ownership.turnId === turnId
+    ) {
+      matches.push(candidate);
+    }
+  }
   return matches;
 }
 
@@ -4225,6 +4546,30 @@ async function withCreatorBindingMutationLock<T>(
   );
 }
 
+async function withChatBindingMutationLock<T>(
+  paths: PrivateAlphaResolvedPaths,
+  conversationId: string,
+  turnId: string,
+  work: () => Promise<T>
+): Promise<T> {
+  const bindingKey = `${paths.dataRootLabel}:${conversationId}:${turnId}`;
+  const activeBindingKey = CHAT_BINDING_LOCK_CONTEXT.getStore();
+  if (activeBindingKey !== undefined) {
+    if (activeBindingKey !== bindingKey) {
+      throw new PrivateAlphaStoreError(
+        500,
+        "Chat binding mutation crossed an active conversation or turn boundary."
+      );
+    }
+    return work();
+  }
+  return withRunMutationLock(
+    paths,
+    buildChatBindingMutationLockRunId(conversationId, turnId),
+    () => CHAT_BINDING_LOCK_CONTEXT.run(bindingKey, work)
+  );
+}
+
 function buildAuditEvent(input: {
   eventType: PrivateAlphaAuditEventType;
   actor: PrivateAlphaAuditActor;
@@ -4289,7 +4634,10 @@ function buildExecutionFailureResponse(
   errorCode: PrivateAlphaPersistedExecutionErrorCode,
   safeErrorMessage: string
 ): PrivateAlphaFailureResponse {
-  if (errorCode === "kill_switch_blocked") {
+  if (
+    errorCode === "chat_stop_prevented_execution" ||
+    errorCode === "kill_switch_blocked"
+  ) {
     return {
       errorCode,
       safeErrorMessage,
@@ -4360,7 +4708,10 @@ function resolveAvailabilityBlockedResponseStatus(
     | PrivateAlphaLocalPersistedExecutionErrorCode
     | PrivateAlphaGroqPersistedExecutionErrorCode
 ): 409 | 503 | 504 {
-  if (errorCode === "kill_switch_blocked") {
+  if (
+    errorCode === "chat_stop_prevented_execution" ||
+    errorCode === "kill_switch_blocked"
+  ) {
     return 409;
   }
 
@@ -4460,15 +4811,19 @@ function buildExecutionStartedSummary(target: PrivateAlphaExecutionTarget): stri
 
 function buildExecutionBlockedSummary(
   target: PrivateAlphaExecutionTarget,
-  reason: "kill-switch" | "availability"
+  reason: "chat-stop" | "kill-switch" | "availability"
 ): string {
   if (target.kind === "local") {
-    return reason === "kill-switch"
+    return reason === "chat-stop"
+      ? "Jarvis chat Stop prevented local Ollama execution before provider access."
+      : reason === "kill-switch"
       ? "Local Ollama execution blocked by the kill switch."
       : "Local Ollama execution blocked before provider generation.";
   }
 
-  return reason === "kill-switch"
+  return reason === "chat-stop"
+    ? `Jarvis chat Stop prevented Groq Cloud execution for ${target.model} before provider access.`
+    : reason === "kill-switch"
     ? `Groq Cloud execution blocked by the kill switch for ${target.model}.`
     : `Groq Cloud execution blocked before provider generation for ${target.model}.`;
 }
@@ -4818,10 +5173,13 @@ async function persistInterruptedExecutionFailureWhileLocked(
   }
   const failedAt = nextPersistedIsoTimestamp(current.updatedAt);
   const resultingRevision = current.revision + 1;
-  const creatorOwned = current.ownership?.kind === "creator";
-  const safeErrorMessage = creatorOwned
-    ? "The creator-owned provider request ended without a durable terminal result after its execution owner exited."
-    : "The provider request ended without a durable terminal result after its execution owner exited.";
+  const lifecycleOwner = current.ownership?.kind;
+  const safeErrorMessage =
+    lifecycleOwner === "creator"
+      ? "The creator-owned provider request ended without a durable terminal result after its execution owner exited."
+      : lifecycleOwner === "chat"
+        ? "The chat-owned provider request ended without a durable terminal result after its execution owner exited."
+        : "The provider request ended without a durable terminal result after its execution owner exited.";
   const failedRun: PrivateAlphaRunRecord = {
     ...current,
     updatedAt: failedAt,
@@ -4845,9 +5203,12 @@ async function persistInterruptedExecutionFailureWhileLocked(
         previousState: "executing",
         resultingState: "failed",
         revision: resultingRevision,
-        summary: creatorOwned
-          ? "Creator-owned execution was marked failed after exact lock ownership proved its execution owner had exited."
-          : "Execution was marked failed after exact lock ownership proved its execution owner had exited.",
+        summary:
+          lifecycleOwner === "creator"
+            ? "Creator-owned execution was marked failed after exact lock ownership proved its execution owner had exited."
+            : lifecycleOwner === "chat"
+              ? "Chat-owned execution was marked failed after exact lock ownership proved its execution owner had exited."
+              : "Execution was marked failed after exact lock ownership proved its execution owner had exited.",
         occurredAt: failedAt,
       }),
     ],
@@ -5177,6 +5538,63 @@ export function createPrivateAlphaStore(
     return cachedLocalProviderAdapter;
   };
 
+  const getOwnedRun = async (
+    runId: string,
+    ownership: PrivateAlphaOwnedRunOwnership
+  ): Promise<PrivateAlphaRunRecord> => {
+    const runIdValidation = validatePrivateAlphaRunId(runId);
+    if (!runIdValidation.ok) {
+      throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
+    }
+    const validatedOwnership = validateOwnedOwnershipInput(ownership);
+    const readResult = await withPrivateAlphaExistingNativeRootLease(
+      paths.dataRootLabel,
+      async () => {
+        if (!(await inspectRunDirectoryForRead(paths))) {
+          throw new PrivateAlphaStoreError(404, "Run not found.");
+        }
+        return readRunForExactControl(
+          paths,
+          runIdValidation.value,
+          validatedOwnership,
+          false
+        );
+      }
+    );
+    if (readResult === null) throw new PrivateAlphaStoreError(404, "Run not found.");
+    return readResult;
+  };
+
+  const reconcileOwnedRunAfterInterruption = async (
+    runId: string,
+    ownership: PrivateAlphaOwnedRunOwnership
+  ): Promise<PrivateAlphaRunRecord> => {
+    assertSecurePrivateAlphaMutationPlatform();
+    const runIdValidation = validatePrivateAlphaRunId(runId);
+    if (!runIdValidation.ok) {
+      throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
+    }
+    const validatedOwnership = validateOwnedOwnershipInput(ownership);
+    await ensureStoreDirectories(paths);
+    await readRunForExactControl(paths, runIdValidation.value, validatedOwnership);
+    return withRunMutationLock(paths, runIdValidation.value, async () => {
+      const runAbsolutePath = buildRunFileAbsolutePath(paths, runIdValidation.value);
+      const current = await readRunForExactControl(
+        paths,
+        runIdValidation.value,
+        validatedOwnership
+      );
+      if (current.state !== "executing") return current;
+      // Acquiring the exact run lock proves that no live execution owner retains
+      // the lifecycle. Wall-clock age is neither necessary nor safe under rollback.
+      return persistInterruptedExecutionFailureWhileLocked(
+        paths,
+        runAbsolutePath,
+        current
+      );
+    });
+  };
+
   const storeInternal: PrivateAlphaStoreInternal = {
     async getStatus(): Promise<PrivateAlphaStatus> {
       const secureMutationAvailable = securePrivateAlphaMutationIsAvailable(paths);
@@ -5229,7 +5647,7 @@ export function createPrivateAlphaStore(
     async createRun(
       body: unknown,
       idempotencyKey: string | null | undefined,
-      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+      expectedOwnership?: PrivateAlphaOwnedRunOwnership
     ): Promise<PrivateAlphaCreateRunResult> {
       assertSecurePrivateAlphaMutationPlatform();
       const idempotencyValidation = validatePrivateAlphaIdempotencyKey(idempotencyKey);
@@ -5258,17 +5676,16 @@ export function createPrivateAlphaStore(
       const normalizedRequestHash = buildPrivateAlphaNormalizedRequestHash(request);
       const canonicalRequestHash = buildPrivateAlphaCanonicalRequestHash(request);
       const ownership: PrivateAlphaRunOwnership = expectedOwnership
-        ? validateCreatorOwnershipInput(expectedOwnership)
+        ? validateOwnedOwnershipInput(expectedOwnership)
         : {
             kind: "general",
             protocolVersion: PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION,
           };
       const idempotencyKeyHash =
-        ownership.kind === "creator"
-          ? buildPrivateAlphaCreatorIdempotencyKeyHash(
+        ownership.kind !== "general"
+          ? buildPrivateAlphaOwnedIdempotencyKeyHash(
               idempotencyValidation.value,
-              ownership.projectId,
-              ownership.purpose
+              ownership
             )
           : hashSha256(idempotencyValidation.value);
 
@@ -5504,6 +5921,7 @@ export function createPrivateAlphaStore(
             }
 
             assertRunMatchesIdempotencyRecord(run, idempotencyRecord);
+            assertRunControl(run, expectedOwnership);
             if (idempotencyRecord.publicationPhase === "reserved") {
             const verifiedRecord = await finalizeIdempotencyPublication(
               paths,
@@ -5754,6 +6172,119 @@ export function createPrivateAlphaStore(
       return result;
     },
 
+    async bindChatRun(body, idempotencyKey, expectedOwnership, createIfMissing) {
+      assertSecurePrivateAlphaMutationPlatform();
+      if (typeof createIfMissing !== "boolean") {
+        throw new PrivateAlphaStoreError(400, "Chat binding recovery mode is invalid.");
+      }
+      const keyValidation = validatePrivateAlphaIdempotencyKey(idempotencyKey);
+      if (!keyValidation.ok) {
+        throw new PrivateAlphaStoreError(keyValidation.status, keyValidation.error);
+      }
+      const ownership = validateChatOwnershipInput(expectedOwnership);
+      const createValidation = validatePrivateAlphaCreateRunInput(body, runtimeProfile);
+      if (!createValidation.ok) {
+        throw new PrivateAlphaStoreError(
+          createValidation.status,
+          createValidation.error
+        );
+      }
+      if (
+        createValidation.value.capability !== "text" ||
+        createValidation.value.modelPreferenceLabel !== "gpt-oss:20b" ||
+        createValidation.value.maximumOutputTokens !== 4096 ||
+        createValidation.value.modelKey !== PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY
+      ) {
+        throw new PrivateAlphaStoreError(
+          409,
+          "Chat run creation requires the exact local model envelope."
+        );
+      }
+      const request = buildPrivateAlphaRunRequest(createValidation.value, runtimeProfile);
+      const requestDigest = buildPrivateAlphaCanonicalRequestHash(request);
+      const expectedKeyHash = buildPrivateAlphaChatIdempotencyKeyHash(
+        keyValidation.value,
+        ownership.conversationId,
+        ownership.turnId
+      );
+      return withPrivateAlphaNativeStorageLease(paths, async () => {
+        await ensureStoreDirectories(paths);
+        return withChatBindingMutationLock(
+          paths,
+          ownership.conversationId,
+          ownership.turnId,
+          async () => {
+            const records = await findChatBindingIdempotencyRecords(
+              paths,
+              ownership.conversationId,
+              ownership.turnId
+            );
+            const runs = await findChatBindingRuns(
+              paths,
+              ownership.conversationId,
+              ownership.turnId
+            );
+            if (records.length > 1 || runs.length > 1) {
+              throw new PrivateAlphaStoreError(
+                500,
+                "Multiple private-alpha records contradict one chat turn binding."
+              );
+            }
+            const record = records[0] ?? null;
+            const run = runs[0] ?? null;
+            if (record) {
+              if (
+                record.idempotencyKeyHash !== expectedKeyHash ||
+                record.requestDigest !== requestDigest ||
+                !sameRunOwnership(record.ownership, ownership)
+              ) {
+                throw new PrivateAlphaStoreError(
+                  409,
+                  "Chat turn binding conflicts with its exact persisted identity."
+                );
+              }
+              if (run && run.runId !== record.runId) {
+                throw new PrivateAlphaStoreError(
+                  500,
+                  "Chat turn mapping and run evidence are ambiguous."
+                );
+              }
+            } else if (run) {
+              throw new PrivateAlphaStoreError(
+                500,
+                "Chat-owned run is missing its exact idempotency reservation."
+              );
+            } else if (!createIfMissing) {
+              return null;
+            }
+            const result = await storeInternal.createRun(
+              body,
+              keyValidation.value,
+              ownership
+            );
+            assertExactChatRunEnvelope(result.run);
+            return result;
+          }
+        );
+      });
+    },
+
+    async createChatRun(body, idempotencyKey, ownership) {
+      const result = await storeInternal.bindChatRun(
+        body,
+        idempotencyKey,
+        ownership,
+        true
+      );
+      if (!result) {
+        throw new PrivateAlphaStoreError(
+          500,
+          "Chat binding publication did not return its exact run."
+        );
+      }
+      return result;
+    },
+
     async lookupRunByIdempotencyKeyHash(
       idempotencyKeyHash: string
     ): Promise<PrivateAlphaIdempotencyLookupResult | null> {
@@ -5777,6 +6308,13 @@ export function createPrivateAlphaStore(
           idempotencyKeyHash
         );
         if (!record) return null;
+        if (
+          "protocolVersion" in record &&
+          record.ownership !== null &&
+          record.ownership.kind !== "general"
+        ) {
+          return null;
+        }
 
         const run = await readRunRecordIfPresent(paths, record.runId);
         if (!run) {
@@ -5798,6 +6336,9 @@ export function createPrivateAlphaStore(
         }
 
         assertRunMatchesIdempotencyRecord(run, record);
+        if (run.ownership !== null && run.ownership.kind !== "general") {
+          return null;
+        }
         if ("protocolVersion" in record && record.publicationPhase === "reserved") {
           await finalizeIdempotencyPublication(
             paths,
@@ -6195,6 +6736,7 @@ export function createPrivateAlphaStore(
           );
         }
             return runs
+          .filter((run) => run.ownership?.kind !== "chat")
           .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
           .slice(0, limitValidation.value)
           .map(buildPrivateAlphaRunSummary);
@@ -6244,6 +6786,7 @@ export function createPrivateAlphaStore(
       }
 
           return runs
+        .filter((run) => run.ownership?.kind !== "chat")
         .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
         .slice(0, limitValidation.value)
         .map(buildPrivateAlphaRunSummary);
@@ -6264,11 +6807,15 @@ export function createPrivateAlphaStore(
           if (!(await inspectRunDirectoryForRead(paths))) {
             throw new PrivateAlphaStoreError(404, "Run not found.");
           }
-          return readRunRecordFromFile(
+          const run = await readRunRecordFromFile(
             paths,
             buildRunFileAbsolutePath(paths, runIdValidation.value),
             runIdValidation.value
           );
+          if (run.ownership?.kind === "chat") {
+            throw new PrivateAlphaStoreError(404, "Run not found.");
+          }
+          return run;
         }
       );
       if (readResult === null) throw new PrivateAlphaStoreError(404, "Run not found.");
@@ -6276,64 +6823,31 @@ export function createPrivateAlphaStore(
     },
 
     async getCreatorRun(runId, ownership) {
-      const runIdValidation = validatePrivateAlphaRunId(runId);
-      if (!runIdValidation.ok) {
-        throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
-      }
-      const validatedOwnership = validateCreatorOwnershipInput(ownership);
-      const readResult = await withPrivateAlphaExistingNativeRootLease(
-        paths.dataRootLabel,
-        async () => {
-          if (!(await inspectRunDirectoryForRead(paths))) {
-            throw new PrivateAlphaStoreError(404, "Run not found.");
-          }
-          return readRunForExactControl(
-            paths,
-            runIdValidation.value,
-            validatedOwnership,
-            false
-          );
-        }
-      );
-      if (readResult === null) throw new PrivateAlphaStoreError(404, "Run not found.");
-      return readResult;
+      return getOwnedRun(runId, validateCreatorOwnershipInput(ownership));
+    },
+
+    async getChatRun(runId, ownership) {
+      return getOwnedRun(runId, validateChatOwnershipInput(ownership));
     },
 
     async reconcileCreatorRunAfterInterruption(runId, ownership) {
-      assertSecurePrivateAlphaMutationPlatform();
-      const runIdValidation = validatePrivateAlphaRunId(runId);
-      if (!runIdValidation.ok) {
-        throw new PrivateAlphaStoreError(runIdValidation.status, runIdValidation.error);
-      }
-      const validatedOwnership = validateCreatorOwnershipInput(ownership);
-      await ensureStoreDirectories(paths);
-      await readRunForExactControl(
-        paths,
-        runIdValidation.value,
-        validatedOwnership
+      return reconcileOwnedRunAfterInterruption(
+        runId,
+        validateCreatorOwnershipInput(ownership)
       );
-      return withRunMutationLock(paths, runIdValidation.value, async () => {
-        const runAbsolutePath = buildRunFileAbsolutePath(paths, runIdValidation.value);
-        const current = await readRunForExactControl(
-          paths,
-          runIdValidation.value,
-          validatedOwnership
-        );
-        if (current.state !== "executing") return current;
-        // Acquiring the exact run lock proves that no live execution owner retains
-        // the lifecycle. Wall-clock age is neither necessary nor safe under rollback.
-        return persistInterruptedExecutionFailureWhileLocked(
-          paths,
-          runAbsolutePath,
-          current
-        );
-      });
+    },
+
+    async reconcileChatRunAfterInterruption(runId, ownership) {
+      return reconcileOwnedRunAfterInterruption(
+        runId,
+        validateChatOwnershipInput(ownership)
+      );
     },
 
     async approveRun(
       runId: string,
       body: unknown,
-      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+      expectedOwnership?: PrivateAlphaOwnedRunOwnership
     ): Promise<PrivateAlphaRunRecord> {
       assertSecurePrivateAlphaMutationPlatform();
       const runIdValidation = validatePrivateAlphaRunId(runId);
@@ -6473,10 +6987,14 @@ export function createPrivateAlphaStore(
       return storeInternal.approveRun(runId, body, ownership);
     },
 
+    async approveChatRun(runId, body, ownership) {
+      return storeInternal.approveRun(runId, body, ownership);
+    },
+
     async cancelRun(
       runId: string,
       body: unknown,
-      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+      expectedOwnership?: PrivateAlphaOwnedRunOwnership
     ): Promise<PrivateAlphaRunRecord> {
       assertSecurePrivateAlphaMutationPlatform();
       const runIdValidation = validatePrivateAlphaRunId(runId);
@@ -6567,11 +7085,16 @@ export function createPrivateAlphaStore(
       return storeInternal.cancelRun(runId, body, ownership);
     },
 
+    async cancelChatRun(runId, body, ownership) {
+      return storeInternal.cancelRun(runId, body, ownership);
+    },
+
     async executeRun(
       runId: string,
       body: unknown,
       idempotencyKey: string | null | undefined,
-      expectedOwnership?: PrivateAlphaCreatorRunOwnership
+      expectedOwnership?: PrivateAlphaOwnedRunOwnership,
+      admitProviderStart?: () => Promise<boolean>
     ): Promise<PrivateAlphaExecuteRunResult> {
       assertSecurePrivateAlphaMutationPlatform();
       const runIdValidation = validatePrivateAlphaRunId(runId);
@@ -6606,16 +7129,24 @@ export function createPrivateAlphaStore(
         const runAbsolutePath = buildRunFileAbsolutePath(paths, runIdValidation.value);
         const executeInput: PrivateAlphaExecuteInput = executeValidation.value;
         const validatedOwnership = expectedOwnership
-          ? validateCreatorOwnershipInput(expectedOwnership)
+          ? validateOwnedOwnershipInput(expectedOwnership)
           : null;
+        if (
+          (validatedOwnership?.kind === "chat") !==
+          (typeof admitProviderStart === "function")
+        ) {
+          throw new PrivateAlphaStoreError(
+            500,
+            "Chat-owned execution requires its exact server admission fence."
+          );
+        }
         const idempotencyKeyHash = validatedOwnership
-          ? buildPrivateAlphaCreatorIdempotencyKeyHash(
+          ? buildPrivateAlphaOwnedIdempotencyKeyHash(
               idempotencyValidation.value,
-              validatedOwnership.projectId,
-              validatedOwnership.purpose
+              validatedOwnership
             )
           : hashSha256(idempotencyValidation.value);
-        const legacyCreatorIdempotencyKeyHash = validatedOwnership
+        const legacyCreatorIdempotencyKeyHash = validatedOwnership?.kind === "creator"
           ? hashSha256(idempotencyValidation.value)
           : null;
         let existingRun = await readRunForExactControl(
@@ -6695,6 +7226,63 @@ export function createPrivateAlphaStore(
 
         const target = resolveExecutableTargetOrThrow(existingRun);
         validateExecutionAcknowledgementOrThrow(existingRun, target, executeInput);
+
+        if (validatedOwnership?.kind === "chat") {
+          let admitted: boolean;
+          try {
+            admitted = await admitProviderStart!();
+          } catch {
+            throw new PrivateAlphaStoreError(
+              503,
+              "Chat execution admission could not be verified safely."
+            );
+          }
+          if (admitted !== true) {
+            const blockedAt = nextPersistedIsoTimestamp(existingRun.updatedAt);
+            const resultingRevision = existingRun.revision + 1;
+            const safeErrorMessage =
+              "Jarvis chat Stop prevented the exact local response attempt before provider access.";
+            const blockedRun: PrivateAlphaRunRecord = {
+              ...existingRun,
+              updatedAt: blockedAt,
+              state: "blocked",
+              revision: resultingRevision,
+              execution: buildBlockedExecutionRecord({
+                run: existingRun,
+                target,
+                idempotencyKeyHash,
+                blockedAt,
+                previousRevision: existingRun.revision,
+                runningRevision: null,
+                resultingRevision,
+                errorCode: "chat_stop_prevented_execution",
+                safeErrorMessage,
+                responseStatus: 409,
+              }),
+              auditEvents: [
+                ...existingRun.auditEvents,
+                buildAuditEvent({
+                  eventType: "execution.blocked",
+                  actor: "system",
+                  runId: existingRun.runId,
+                  previousState: existingRun.state,
+                  resultingState: "blocked",
+                  revision: resultingRevision,
+                  summary: buildExecutionBlockedSummary(target, "chat-stop"),
+                  occurredAt: blockedAt,
+                }),
+              ],
+            };
+            await writeJsonFileAtomically(paths, runAbsolutePath, blockedRun, existingRun);
+            return {
+              replayed: false,
+              run: blockedRun,
+              responseStatus: 409,
+              errorCode: "chat_stop_prevented_execution",
+              safeErrorMessage,
+            };
+          }
+        }
 
         const killSwitchBeforeResolver = await readSafeKillSwitchState(paths);
         if (killSwitchBeforeResolver.killSwitchEngaged) {
@@ -7121,6 +7709,25 @@ export function createPrivateAlphaStore(
             model: target.model,
             maximumOutputTokens: existingRun.request.maximumOutputTokens,
           });
+          const outputText = existingRun.ownership?.kind === "chat"
+            ? generated.outputText.replace(/\r\n?/gu, "\n").normalize("NFC").trim()
+            : generated.outputText;
+          if (
+            existingRun.ownership?.kind === "chat" &&
+            (
+              outputText.length < 1 ||
+              outputText.length > PRIVATE_ALPHA_MAX_OUTPUT_TEXT_LENGTH ||
+              Buffer.byteLength(outputText, "utf8") > PRIVATE_ALPHA_MAX_OUTPUT_TEXT_LENGTH ||
+              /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\p{Cf}\p{Cs}]/u.test(outputText) ||
+              containsPrivateAlphaSecretLikeContent(outputText)
+            )
+          ) {
+            throw new PrivateAlphaProviderError(
+              "ollama_malformed_response",
+              "The local response did not satisfy the bounded Jarvis chat output policy.",
+              503
+            );
+          }
           await assertRunLockFence(paths, existingRun.runId, activeFence.owner);
           const completedAt = nextPersistedIsoTimestamp(executingRun.updatedAt);
           const resultingRevision = executingRun.revision + 1;
@@ -7142,7 +7749,7 @@ export function createPrivateAlphaStore(
               target,
               completedAt,
               resultingRevision,
-              outputText: generated.outputText,
+              outputText,
               doneReason: generated.doneReason,
               totalDurationNanoseconds: generated.totalDurationNanoseconds,
               loadDurationNanoseconds: generated.loadDurationNanoseconds,
@@ -7330,12 +7937,24 @@ export function createPrivateAlphaStore(
     async executeCreatorRun(runId, body, idempotencyKey, ownership) {
       return storeInternal.executeRun(runId, body, idempotencyKey, ownership);
     },
+
+    async executeChatRun(runId, body, idempotencyKey, ownership, admitProviderStart) {
+      return storeInternal.executeRun(
+        runId,
+        body,
+        idempotencyKey,
+        ownership,
+        admitProviderStart
+      );
+    },
   };
   const store: PrivateAlphaStore = {
     getStatus: storeInternal.getStatus,
     createRun: (body, idempotencyKey) =>
       storeInternal.createRun(body, idempotencyKey),
     createCreatorRun: storeInternal.createCreatorRun,
+    createChatRun: storeInternal.createChatRun,
+    bindChatRun: storeInternal.bindChatRun,
     bindCreatorRun: storeInternal.bindCreatorRun,
     lookupRunByIdempotencyKeyHash: storeInternal.lookupRunByIdempotencyKeyHash,
     recoverCreatorRunByIdempotencyKey:
@@ -7343,15 +7962,21 @@ export function createPrivateAlphaStore(
     listRuns: storeInternal.listRuns,
     getRun: storeInternal.getRun,
     getCreatorRun: storeInternal.getCreatorRun,
+    getChatRun: storeInternal.getChatRun,
     reconcileCreatorRunAfterInterruption:
       storeInternal.reconcileCreatorRunAfterInterruption,
+    reconcileChatRunAfterInterruption:
+      storeInternal.reconcileChatRunAfterInterruption,
     approveRun: (runId, body) => storeInternal.approveRun(runId, body),
     approveCreatorRun: storeInternal.approveCreatorRun,
+    approveChatRun: storeInternal.approveChatRun,
     cancelRun: (runId, body) => storeInternal.cancelRun(runId, body),
     cancelCreatorRun: storeInternal.cancelCreatorRun,
+    cancelChatRun: storeInternal.cancelChatRun,
     executeRun: (runId, body, idempotencyKey) =>
       storeInternal.executeRun(runId, body, idempotencyKey),
     executeCreatorRun: storeInternal.executeCreatorRun,
+    executeChatRun: storeInternal.executeChatRun,
   };
   return store;
 }

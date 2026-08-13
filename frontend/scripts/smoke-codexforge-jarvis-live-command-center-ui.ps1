@@ -118,6 +118,10 @@ $allowedMacroPhaseCPaths = @(
 $athenaPanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaCommandCenterPanel.tsx"
 $livePanelPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx"
 $shellPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.tsx"
+$advancedToolsPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisAdvancedToolsPanel.tsx"
+$chatRecallStoragePath = "src/lib/codexforge/chat-recall/chat-recall-browser-storage.ts"
+$chatPanelPath = "src/lib/codexforge/jarvis-chat/components/JarvisChatPanel.tsx"
+$chatCssPath = "src/lib/codexforge/jarvis-chat/components/JarvisChatPanel.module.css"
 $privateAlphaPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx"
 $privateAlphaIndexPath = "src/lib/codexforge/private-alpha/index.ts"
 $cssPath = "src/lib/codexforge/jarvis-unified-product-ia-map/components/JarvisUnifiedProductShell.module.css"
@@ -128,15 +132,19 @@ $commandDeckRolePath = "src/lib/codexforge/navigation-shell/navigation-shell-typ
 $athenaPanel = Get-FileText $athenaPanelPath
 $livePanel = Get-FileText $livePanelPath
 $shell = Get-FileText $shellPath
+$advancedTools = Get-FileText $advancedToolsPath
+$chatRecallStorage = Get-FileText $chatRecallStoragePath
+$chatPanel = Get-FileText $chatPanelPath
+$chatCss = Get-FileText $chatCssPath
 $privateAlpha = Get-FileText $privateAlphaPath
 $privateAlphaIndex = Get-FileText $privateAlphaIndexPath
 $css = Get-FileText $cssPath
 $athenaAlias = Get-FileText $athenaAliasPath
 $jarvisVideoPage = Get-FileText $jarvisVideoPagePath
 $commandDeckRole = Get-FileText $commandDeckRolePath
-$changedUiText = ($athenaPanel, $livePanel, $shell, $privateAlpha, $css) -join "`n"
-$changedTypeScriptText = ($privateAlpha, $privateAlphaIndex) -join "`n"
-$liveUiText = ($livePanel, $shell, $privateAlpha, $css) -join "`n"
+$changedUiText = ($athenaPanel, $livePanel, $shell, $advancedTools, $chatPanel, $privateAlpha, $chatCss, $css) -join "`n"
+$changedTypeScriptText = ($advancedTools, $chatPanel, $privateAlpha, $privateAlphaIndex) -join "`n"
+$liveUiText = ($livePanel, $shell, $advancedTools, $chatPanel, $chatCss, $css) -join "`n"
 $liveJarvisBranchMatch = [regex]::Match(
   $shell,
   'if \(isPrimaryAthenaSurface\) \{[\s\S]*?<AthenaCommandCenterPanel[\s\S]*?displayMode="live-product"[\s\S]*?</section>\s*\);\s*\}'
@@ -147,6 +155,7 @@ $media920Match = [regex]::Match(
 )
 
 Add-Result (Test-Path -LiteralPath (Join-Path $repoRoot $livePanelPath)) "AthenaLiveCommandCenterPanel exists"
+Add-Result (Test-Path -LiteralPath (Join-Path $repoRoot $chatPanelPath)) "JarvisChatPanel exists"
 Add-Result (
   $athenaPanel.Contains('type AthenaCommandCenterDisplayMode = "live-product" | "legacy-preview";') -and
   $athenaPanel.Contains('displayMode?: AthenaCommandCenterDisplayMode;')
@@ -164,7 +173,23 @@ Add-Result (
 ) "/athena mounts no duplicate product client or PrivateAlphaRunPanel"
 Add-Result ($athenaAlias -notmatch 'redirect\("/athena"\)') "/athena has no redirect loop"
 Add-Result ($livePanel.Contains('data-codexforge-athena-display-mode="live-product"')) "live-product has the stable display-mode marker"
-Add-Result ([regex]::Matches($livePanel, '<PrivateAlphaRunPanel').Count -eq 1) "PrivateAlphaRunPanel is rendered exactly once in the live-product branch"
+Add-Result (
+  $livePanel -match 'import\s*\{[\s\S]*?\bJarvisChatPanel\b[\s\S]*?\}\s*from\s*"@/lib/codexforge/jarvis-chat/components/JarvisChatPanel";' -and
+  ([regex]::Matches($livePanel, '<JarvisChatPanel\b')).Count -eq 1 -and
+  $livePanel.Contains('<JarvisChatPanel draftHandoff={draftHandoff} />')
+) "AthenaLiveCommandCenterPanel owns exactly one canonical JarvisChatPanel"
+Add-Result ($livePanel -notmatch 'PrivateAlphaRunPanel') "the reachable live-product branch does not mount the legacy PrivateAlphaRunPanel"
+Add-Result (
+  $chatPanel.Contains('data-codexforge-jarvis-chat="canonical-local-first"') -and
+  $chatPanel.Contains('New chat') -and
+  $chatPanel.Contains('id="jarvis-chat-history-title"') -and
+  $chatPanel.Contains('id="jarvis-chat-composer"') -and
+  $chatPanel.Contains('composerFocusRequest') -and
+  $chatPanel.Contains('setComposerFocusRequest((current) => current + 1)') -and
+  $chatPanel.Contains('Approve this run') -and
+  $chatPanel.Contains('Execute one response') -and
+  $chatPanel.Contains('Stop response')
+) "canonical Jarvis chat exposes history, creation, messaging, approval, execution, and stop controls"
 Add-Result (
   $athenaPanel.Contains("Conversational command composer") -and
   $athenaPanel.Contains("Preview-only drafting")
@@ -198,100 +223,103 @@ Add-Result (
   $livePanel.Contains('title: "Provider Details"') -and
   $livePanel.Contains('href: "/provider-adapters"')
 ) "review destinations target the static creator, files, changes, validation, audit, safety, honest video planning, and provider details"
+
+# PrivateAlphaRunPanel is retained as a developer diagnostic surface. These checks
+# preserve its historical safety contracts without claiming it owns normal /jarvis.
 Add-Result (
   $privateAlpha.Contains('data-codexforge-private-alpha-composer="true"') -and
   $privateAlpha -match '<textarea'
-) "the real private-alpha request textarea remains"
+) "retained diagnostic PrivateAlphaRunPanel keeps its real request textarea"
 Add-Result (
   $privateAlpha.Contains('data-codexforge-private-alpha-provider-selector="manual"') -and
   $privateAlpha.Contains('data-codexforge-private-alpha-model-selector="manual"')
-) "manual provider and model selectors exist"
+) "retained diagnostic PrivateAlphaRunPanel keeps manual provider and model selectors"
 Add-Result (
   $privateAlpha.Contains('Local Ollama') -and
   $privateAlpha.Contains('Groq Cloud') -and
   $privateAlpha.Contains('gpt-oss:20b') -and
   $privateAlpha.Contains('openai/gpt-oss-20b') -and
   $privateAlpha.Contains('openai/gpt-oss-120b')
-) "exact local and Groq targets exist"
-Add-Result ($privateAlpha.Contains('Select a Groq model')) "the Groq selector has an explicit prompt option"
+) "retained diagnostic PrivateAlphaRunPanel keeps exact local and Groq targets"
+Add-Result ($privateAlpha.Contains('Select a Groq model')) "retained diagnostic Groq selector has an explicit prompt option"
 Add-Result (
   $privateAlpha.Contains('selectedProviderId === "groq-cloud"') -and
   $privateAlpha.Contains('selectedTarget?.modelKey ?? ""')
-) "no default Groq model is assigned"
+) "retained diagnostic selector assigns no default Groq model"
 Add-Result (
   $privateAlpha.Contains('data-codexforge-private-alpha-target-summary="true"') -and
   $privateAlpha.Contains('data-codexforge-private-alpha-cloud-boundary="manual-execution"') -and
   $privateAlpha.Contains('Creating or approving the request does not contact Groq.') -and
   $privateAlpha.Contains('Only a later explicit execute action can send the approved prompt.')
-) "target summary and manual-execution cloud boundary warning exist"
+) "retained diagnostic target summary preserves the manual-execution cloud boundary warning"
 Add-Result (
   $privateAlpha.Contains('data-codexforge-private-alpha-cloud-acknowledgement="required"') -and
   $privateAlpha.Contains('data-codexforge-private-alpha-cloud-execution-acknowledgement="required"') -and
   $privateAlpha.Contains('data-codexforge-private-alpha-cloud-execute="manual"') -and
   $privateAlpha.Contains('Execute once on Groq Cloud')
-) "cloud approval and manual execution controls exist"
+) "retained diagnostic cloud approval and manual execution controls remain"
 Add-Result (
   $privateAlpha.Contains('data-codexforge-private-alpha-bound-create={') -and
   $privateAlpha.Contains('modelKey: exactTarget.modelKey')
-) "bound create includes the exact model key"
+) "retained diagnostic bound create includes the exact model key"
 Add-Result (
   $privateAlpha.Contains('cloudDataTransferAcknowledgement: true') -and
   $privateAlpha.Contains('await approvePrivateAlphaRun(currentRun.runId, {')
-) "cloud approval payload includes the explicit transfer acknowledgement"
+) "retained diagnostic cloud approval includes the explicit transfer acknowledgement"
 Add-Result (
   $privateAlpha.Contains('await approvePrivateAlphaRun(currentRun.runId, {') -and
   $privateAlpha.Contains('expectedRevision: currentRun.revision,') -and
   -not $privateAlpha.Contains('cloudDataTransferAcknowledgement: undefined')
-) "local approval omits an undefined cloud acknowledgement payload field"
+) "retained diagnostic local approval omits an undefined cloud acknowledgement payload field"
 Add-Result (
   $privateAlpha.Contains('executePrivateAlphaRun(currentRun.runId, {') -and
   $privateAlpha.Contains('Execute once on local Ollama')
-) "local execution remains available"
+) "retained diagnostic local execution remains available"
 Add-Result (
   $privateAlpha.Contains('Groq approval binding currently supports text requests only.') -and
   $privateAlpha.Contains('Free-first automatic routing supports text requests only.') -and
   $privateAlpha.Contains('requestMode === "free-first-automatic"')
-) "Groq and free-first automatic routing remain text-only"
+) "retained diagnostic Groq and free-first automatic routing remain text-only"
 
 $advancedSettingsIndex = $privateAlpha.IndexOf("Advanced settings")
 $maximumTokensIndex = $privateAlpha.IndexOf("Maximum output tokens")
 Add-Result (
   $advancedSettingsIndex -ge 0 -and
   $maximumTokensIndex -gt $advancedSettingsIndex
-) "maximum output tokens are inside Advanced settings"
+) "retained diagnostic maximum output tokens remain inside Advanced settings"
 Add-Result (
   $privateAlpha.Contains('"Created"') -and
   $privateAlpha.Contains('"Approved"') -and
   $privateAlpha.Contains('"Executing"') -and
   $privateAlpha.Contains('"Result"')
-) "Created, Approved, Executing, and Result progress labels exist"
+) "retained diagnostic progress labels include Created, Approved, Executing, and Result"
 Add-Result (
   $privateAlpha.Contains("showCancellationForm") -and
   $privateAlpha.Contains("Confirm cancellation") -and
   $privateAlpha.Contains("Keep run")
-) "cancellation reason is conditionally disclosed"
+) "retained diagnostic cancellation reason is conditionally disclosed"
 Add-Result (
   $privateAlpha.Contains('currentRun.state === "awaiting_approval"') -and
   $privateAlpha.Contains('currentRun.state === "approved"') -and
   $privateAlpha.Contains('currentRun.state === "executing"') -and
   $privateAlpha.Contains('currentRun.state === "succeeded"') -and
   $privateAlpha.Contains('currentRun.state === "failed"')
-) "only state-valid actions are rendered"
+) "retained diagnostic run renders only state-valid actions"
 Add-Result (
   $privateAlpha.Contains('data-codexforge-private-alpha-technical-details="true"') -and
   $privateAlpha -match '<details'
-) "Technical details uses a native details element"
+) "retained diagnostic Technical details uses a native details element"
 Add-Result (
   $privateAlpha.Contains("Current run") -and
   $privateAlpha.Contains("Recent runs") -and
   $privateAlpha.Contains("Audit") -and
   $privateAlpha.Contains('role="tablist"') -and
   $privateAlpha.Contains('role="tabpanel"')
-) "Current run, Recent runs, and Audit views exist"
-Add-Result ($privateAlpha.Contains("runs.slice(0, 10)")) "recent runs are limited to 10 in the UI"
-Add-Result ($privateAlpha.Contains("The model completed but returned no visible response text.")) "empty successful output has an explicit warning"
-Add-Result ($privateAlpha.Contains("currentOutputText.trim().length > 0")) "non-empty successful output remains renderable"
-Add-Result ($privateAlpha.Contains("safeErrorMessage")) "failed and blocked safe messages remain renderable"
+) "retained diagnostic Current run, Recent runs, and Audit views remain"
+Add-Result ($privateAlpha.Contains("runs.slice(0, 10)")) "retained diagnostic recent runs remain limited to 10"
+Add-Result ($privateAlpha.Contains("The model completed but returned no visible response text.")) "retained diagnostic empty successful output has an explicit warning"
+Add-Result ($privateAlpha.Contains("currentOutputText.trim().length > 0")) "retained diagnostic non-empty successful output remains renderable"
+Add-Result ($privateAlpha.Contains("safeErrorMessage")) "retained diagnostic failed and blocked safe messages remain renderable"
 
 $technicalDetailsIndex = $privateAlpha.IndexOf('data-codexforge-private-alpha-technical-details="true"')
 $technicalDetailsText = if ($technicalDetailsIndex -ge 0) {
@@ -304,7 +332,7 @@ Add-Result (
   $technicalDetailsText.Contains("approvalScopeHash") -and
   $technicalDetailsText.Contains("normalizedRequestHash") -and
   $technicalDetailsText.Contains("outputSha256")
-) "raw hashes are placed in technical details"
+) "retained diagnostic raw hashes remain inside technical details"
 Add-Result ($privateAlpha -notmatch '\bfetch\s*\(') "PrivateAlphaRunPanel contains no raw fetch call"
 Add-Result ($privateAlpha -notmatch 'localStorage|sessionStorage|indexedDB|document\.cookie') "PrivateAlphaRunPanel contains no browser storage"
 Add-Result ($privateAlpha -notmatch 'https?://') "PrivateAlphaRunPanel contains no external URL"
@@ -312,7 +340,12 @@ Add-Result ($privateAlphaIndex.Contains("PrivateAlphaRuntimeModelKey")) "private
 Add-Result ($privateAlphaIndex.Contains("PRIVATE_ALPHA_RUNTIME_MODEL_KEYS")) "private-alpha index exports the runtime model keys constant"
 
 Add-Result ($liveUiText -notmatch '11434') "the browser UI does not reference port 11434"
-Add-Result ($liveUiText -notmatch 'localStorage|sessionStorage|indexedDB|document\.cookie') "no browser storage exists"
+Add-Result (
+  $advancedTools.Contains('readChatRecallHandoffFromBrowserStorage()') -and
+  $chatRecallStorage.Contains('window.localStorage.getItem(CHAT_RECALL_CONTEXT_STORAGE_KEY)') -and
+  $chatRecallStorage.Contains('window.localStorage.setItem(CHAT_RECALL_CONTEXT_STORAGE_KEY, payload)') -and
+  $liveUiText -notmatch 'localStorage|sessionStorage|indexedDB|document\.cookie'
+) "the live Jarvis UI delegates the one bounded recall handoff to its exact storage boundary"
 Add-Result ($liveUiText -notmatch 'https?://') "no external provider URL exists"
 
 $expectedProductSourcePaths = @(
@@ -348,8 +381,9 @@ Add-Result (
 ) "protected model-routing production ownership remains outside the historical Macro Phase C.1 inventory"
 Add-Result (
   $allowedMacroPhaseCPaths -notcontains "src/lib/codexforge/jarvis-unified-product-ia-map/components/AthenaLiveCommandCenterPanel.tsx" -and
+  $allowedMacroPhaseCPaths -notcontains "src/lib/codexforge/jarvis-chat/components/JarvisChatPanel.tsx" -and
   $allowedMacroPhaseCPaths -notcontains "src/lib/codexforge/jarvis-unified-product-ia-map/components/PrivateAlphaRunPanel.tsx"
-) "Jarvis live command center and working-loop run panel remain outside historical Macro Phase C.1 ownership"
+) "Jarvis live command center, canonical chat, and diagnostic run panel remain outside historical Macro Phase C.1 ownership"
 Add-Result (
   $allowedMacroPhaseCPaths -contains "scripts/smoke-codexforge-local-first-jarvis-working-product-loop.ps1" -and
   $allowedMacroPhaseCPaths -contains "scripts/smoke-codexforge-all.ps1"

@@ -139,7 +139,9 @@ foreach ($render in @(
   Assert-Contains $uiSource $render "$render"
 }
 
-Assert-Contains $aiSource "ApplyEvidencePackPanel" "/ai imports/renders ApplyEvidencePackPanel"
+Assert-Contains $tasksSource "<ApplyEvidencePackPanel compact />" "/tasks imports/renders ApplyEvidencePackPanel"
+Assert-Contains $aiSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiSource "ApplyEvidencePackPanel" "/ai mounts no competing Apply Evidence Pack panel"
 Assert-Contains $filesSource "Apply Evidence Pack" "/files references Apply Evidence Pack"
 if (Test-Path $tasksPagePath) {
   Assert-Contains $tasksSource "Apply Evidence Pack" "/tasks references Apply Evidence Pack"

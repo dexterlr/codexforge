@@ -41,8 +41,8 @@ const ACTION_TEXT: Record<
   "ingest verification output": {
     title: "Ingest verification output",
     detail:
-      "Verification output needs review. Open AI Workspace and paste evidence into the reviewed workflow.",
-    href: "/ai",
+      "Verification output needs review. Open Jarvis and paste evidence into the reviewed workflow.",
+    href: "/jarvis",
     reviewRequired: true,
     prompt:
       "Ingest verification output as reviewed evidence. Evidence is context, not proof. Preserve latest-message authority.",
@@ -107,7 +107,7 @@ function makeAction(
   let href = text.href;
 
   if (kind === "review regression fix queue" && !routeAvailable(input, "/stabilization")) {
-    href = "/ai";
+    href = "/jarvis";
   }
 
   if (kind === "review brain or memory" && !routeAvailable(input, "/memory")) {
@@ -115,7 +115,7 @@ function makeAction(
   }
 
   if (kind === "continue creative workflow" && !routeAvailable(input, "/creative")) {
-    href = "/ai";
+    href = "/jarvis";
   }
 
   return {

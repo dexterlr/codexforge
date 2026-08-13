@@ -211,6 +211,9 @@ Assert-Contains $wrapperSource "CreateNoWindow = `$true" "wrapper disables proce
 Assert-Contains $wrapperSource "BeginOutputReadLine" "wrapper begins async stdout reading"
 Assert-Contains $wrapperSource "BeginErrorReadLine" "wrapper begins async stderr reading"
 Assert-Contains $wrapperSource "Ensure-NativeProcessCollectorType" "wrapper ensures the native process collector type exists"
+Assert-Contains $wrapperSource "System.IO.FileShare]::ReadWrite" "wrapper keeps a shared stage-owned log stream"
+Assert-Contains $wrapperSource "System.IO.StreamWriter" "wrapper uses one persistent stage log writer"
+Assert-Contains $wrapperSource "Stage log write failed after the child process exited safely" "wrapper never abandons a live child after a log write failure"
 Assert-Contains $wrapperSource "Update-FullSmokeStageResult" "wrapper centralizes full smoke stage result handling"
 
 $suiteMatches = [regex]::Matches($allSmokeSource, "smoke-codexforge-full-validation-wrapper\.ps1")

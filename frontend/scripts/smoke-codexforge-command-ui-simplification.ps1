@@ -42,6 +42,7 @@ $workspaceMapPath = "src\lib\codexforge\navigation-shell\components\CodexForgeWo
 $routeRegistryPath = "src\lib\codexforge\navigation-shell\navigation-route-registry.ts"
 $shellTypesPath = "src\lib\codexforge\navigation-shell\navigation-shell-types.ts"
 $commandPalettePath = "src\lib\codexforge\command-palette\components\CodexForgeCommandPalette.tsx"
+$commandRegistryPath = "src\lib\codexforge\command-palette\command-registry.ts"
 $uiThemePath = "src\lib\codexforge\ui\codexforge-theme.ts"
 $uiTypographyPath = "src\lib\codexforge\ui\codexforge-typography.ts"
 $uiTextPath = "src\lib\codexforge\ui\codexforge-text.ts"
@@ -65,6 +66,7 @@ foreach ($path in @(
   $routeRegistryPath,
   $shellTypesPath,
   $commandPalettePath,
+  $commandRegistryPath,
   $uiThemePath,
   $uiTypographyPath,
   $uiTextPath,
@@ -90,6 +92,7 @@ $workspaceMapSource = Get-Content -Raw $workspaceMapPath
 $routeRegistry = Get-Content -Raw $routeRegistryPath
 $shellTypes = Get-Content -Raw $shellTypesPath
 $commandPalette = Get-Content -Raw $commandPalettePath
+$commandRegistry = Get-Content -Raw $commandRegistryPath
 $uiSource = (Get-Content -Raw $uiThemePath) + "`n" + (Get-Content -Raw $uiTypographyPath) + "`n" + (Get-Content -Raw $uiTextPath)
 $aiPage = Get-Content -Raw $aiPagePath
 $brainContinuity = Get-Content -Raw $brainContinuityPath
@@ -102,7 +105,7 @@ $creativeBridgePage = Get-Content -Raw $creativeBridgePagePath
 $blenderPage = Get-Content -Raw $blenderPagePath
 $comfyUiPage = Get-Content -Raw $comfyUiPagePath
 $allSmoke = Get-Content -Raw $allSmokePath
-$uxSharedSource = $shellSource + "`n" + $topbarSource + "`n" + $routeSwitcherSource + "`n" + $workspaceMapSource + "`n" + $routeRegistry + "`n" + $shellTypes + "`n" + $commandPalette + "`n" + $uiSource
+$uxSharedSource = $shellSource + "`n" + $topbarSource + "`n" + $routeSwitcherSource + "`n" + $workspaceMapSource + "`n" + $routeRegistry + "`n" + $shellTypes + "`n" + $commandPalette + "`n" + $commandRegistry + "`n" + $uiSource
 $touchedUiSource = $uxSharedSource + "`n" + $aiPage + "`n" + $brainContinuity + "`n" + $creativeBridge + "`n" + $runtimeReplay + "`n" + $filesPage + "`n" + $validationPage + "`n" + $closedLoop + "`n" + $creativeBridgePage + "`n" + $blenderPage + "`n" + $comfyUiPage
 
 Assert-Contains $shellSource "CodexForgeAppShell renders" "navigation shell still exists"
@@ -157,7 +160,7 @@ Write-Host "[PASS] route switcher labels are deduped"
 
 foreach ($label in @(
   "Home",
-  "AI",
+  "Jarvis",
   "Router",
   "Files",
   "Tasks",
@@ -186,17 +189,20 @@ foreach ($label in @(
   Assert-Contains $routeRegistry "shortLabel: `"$label`"" "route chip label $label"
 }
 
-Assert-Contains $aiPage "CodexForgeAppShell" "/ai uses unified shell"
-Assert-NotContains $aiPage "CodexForgeGlobalNav" "/ai does not render old global nav"
-Assert-NotContains $aiPage "Mission Control:" "/ai removed old duplicate Mission strip"
-Assert-NotContains $aiPage "Execution Readiness:" "/ai removed old duplicate task strip"
-Assert-NotContains $aiPage "Step Runner Preview:" "/ai removed old duplicate step strip"
-Assert-NotContains $aiPage "Read-Only Step Execution:" "/ai removed old duplicate execution strip"
-Assert-Contains $aiPage "TopBar" "/ai keeps workspace controls"
-Assert-Contains $aiPage "onAddSystemMessage" "/ai keeps system note control"
-Assert-Contains $aiPage "onClearChat" "/ai keeps clear control"
-Assert-Contains $aiPage "<CodexForgeProductSurface />" "/ai retains product surface smoke marker"
-Assert-Contains $aiPage "productSurfaceDisclosure" "/ai collapses product-surface context"
+Assert-Contains $aiPage 'redirect("/jarvis")' "/ai uses one framework redirect to canonical Jarvis"
+Assert-NotContains $aiPage "CodexForgeAppShell" "/ai mounts no competing legacy product shell"
+Assert-NotContains $aiPage "CodexForgeGlobalNav" "/ai mounts no duplicate global navigation"
+Assert-NotContains $aiPage "useCodexForgeChat" "/ai no longer owns a hidden legacy chat lifecycle"
+Assert-NotContains $aiPage "TopBar" "/ai no longer owns legacy workspace controls"
+Assert-NotContains $aiPage "onAddSystemMessage" "/ai exposes no hidden system-note handoff"
+Assert-NotContains $aiPage "onClearChat" "/ai exposes no competing clear action"
+Assert-NotContains $aiPage "<CodexForgeProductSurface />" "/ai mounts no competing product surface"
+Assert-NotContains $aiPage "productSurfaceDisclosure" "/ai mounts no stale product disclosure"
+Assert-Contains $routeRegistry 'href: "/jarvis"' "route registry retains canonical Jarvis"
+Assert-Contains $routeRegistry 'label: "Build with Jarvis"' "route registry labels canonical Jarvis truthfully"
+Assert-Contains $commandRegistry 'label: "Build with Jarvis"' "command registry labels canonical Jarvis truthfully"
+Assert-Contains $commandRegistry 'href: "/jarvis"' "command registry reaches canonical Jarvis"
+Assert-NotContains $commandPalette 'href: "/ai"' "command palette component does not hard-code the retired /ai route"
 
 Assert-NotContains $brainContinuity "showHeroRouteChips" "/brain-continuity does not opt into hero route chips"
 Assert-NotContains $creativeBridge "showHeroRouteChips" "/creative-bridge does not opt into hero route chips"

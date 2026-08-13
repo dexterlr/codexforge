@@ -42,10 +42,10 @@ Assert-True ($types -match 'CodexForgeFreeOrLocalProviderRegistration') "product
 
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 74) "aggregate executable entry count is 74"
+Assert-True ($entries.Count -eq 75) "aggregate executable entry count is 75"
 $requiredCount = @($entries | Where-Object { $_ -match 'Required = \$true' }).Count
 $optionalCount = @($entries | Where-Object { $_ -match 'Required = \$false' }).Count
-Assert-True ($requiredCount -eq 71 -and $optionalCount -eq 3) "aggregate split is 71 required and 3 optional"
+Assert-True ($requiredCount -eq 72 -and $optionalCount -eq 3) "aggregate split is 72 required and 3 optional"
 Assert-True ($releaseBlock -match 'Private Alpha Ollama Local-First Live Acceptance"; File = "smoke-codexforge-private-alpha-ollama-local-first-live-acceptance\.ps1"; Required = \$true \},\r?\n  @\{ Name = "Free/Local Provider Registry Foundation"; File = "smoke-codexforge-free-local-provider-registry-foundation\.ps1"; Required = \$true \},') "registry smoke follows Slice N"
 Assert-True ($releaseBlock -match 'Free/Local Provider Registry Foundation"; File = "smoke-codexforge-free-local-provider-registry-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},') "Slice P smoke follows the registry smoke"
 Assert-True ($releaseBlock -match 'Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},') "Slice Q smoke follows Slice P"

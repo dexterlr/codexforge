@@ -15,7 +15,7 @@ export type ProductRoutePath =
   | "/apply-validation"
   | "/workflow-results"
   | "/run-history"
-  | "/ai"
+  | "/jarvis"
   | "/brain"
   | "/files"
   | "/tasks"

@@ -4,6 +4,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $root = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $root
+$expectedBaselineTag = "codexforge-rendered-product-accessibility-acceptance-clean"
+$expectedBaseline = "fe74ece00629cd6cdcbeba0a35e31d0a4ab54f58"
+$expectedCreatorCheckpointTag = "codexforge-approved-static-website-creator-foundation-clean"
+$expectedCreatorCheckpoint = "a8ea7b5a4b91937152d16279f876364187a2c318"
 
 function Assert-True {
   param([bool]$Condition, [string]$Message)
@@ -43,9 +47,8 @@ function Get-Text {
 
 function Assert-NoGitDiff {
   param([string]$RelativePath, [string]$Message)
-  $worktree = ((& git -c core.safecrlf=false diff --name-only -- $RelativePath 2>$null) | Out-String).Trim()
-  $index = ((& git -c core.safecrlf=false diff --cached --name-only -- $RelativePath 2>$null) | Out-String).Trim()
-  Assert-True ([string]::IsNullOrWhiteSpace($worktree) -and [string]::IsNullOrWhiteSpace($index)) $Message
+  $checkpointDiff = ((& git -c core.safecrlf=false diff --relative --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag" -- $RelativePath 2>$null) | Out-String).Trim()
+  Assert-True ([string]::IsNullOrWhiteSpace($checkpointDiff)) $Message
 }
 
 function Assert-PowerShellParses {
@@ -102,8 +105,7 @@ function Get-AssertionMetrics {
 Write-Host ""
 Write-Host "=== CodexForge Macro Phase C.1 rendered accessibility repair ==="
 
-$expectedBaseline = "fe74ece00629cd6cdcbeba0a35e31d0a4ab54f58"
-$expectedDirtyPaths = @(
+$expectedHistoricalPaths = @(
   "docs/codexforge-macro-phase-c-1-rendered-accessibility-repair.md",
   "scripts/smoke-codexforge-all.ps1",
   "scripts/smoke-codexforge-command-palette.ps1",
@@ -137,20 +139,21 @@ $expectedDirtyPaths = @(
 )
 
 Assert-PowerShellParses "scripts/smoke-codexforge-macro-phase-c-1-rendered-accessibility-repair.ps1"
-Assert-True ((& git rev-parse HEAD).Trim() -eq $expectedBaseline) "Macro Phase D1 and D2 remain based on the approved Macro Phase C.1 checkpoint"
-Assert-True ($expectedDirtyPaths.Count -eq 30) "Historical C.1 source inventory declares exactly thirty paths"
-Assert-True (@($expectedDirtyPaths | Sort-Object -Unique).Count -eq 30) "Historical C.1 source inventory paths are unique"
+Assert-True ((& git rev-parse "$expectedBaselineTag^{}").Trim() -eq $expectedBaseline) "Macro Phase C.1 annotated tag peels to the exact approved baseline"
+Assert-True ((& git rev-parse "$expectedCreatorCheckpointTag^{}").Trim() -eq $expectedCreatorCheckpoint) "Macro Phase D annotated tag peels to the exact approved creator commit"
+Assert-True ((& git rev-parse "$expectedCreatorCheckpoint^").Trim() -eq $expectedBaseline) "Macro Phase D checkpoint has the exact approved Macro Phase C.1 parent"
+Assert-True ($expectedHistoricalPaths.Count -eq 30) "Historical C.1 source inventory declares exactly thirty paths"
+Assert-True (@($expectedHistoricalPaths | Sort-Object -Unique).Count -eq 30) "Historical C.1 source inventory paths are unique"
 
 $changedPaths = @(
-  (& git status --short --untracked-files=all 2>$null) |
-    Where-Object { $_.Length -ge 4 } |
-    ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
+  (& git diff --relative --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag" 2>$null) |
+    Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
     Sort-Object -Unique
 )
-foreach ($path in $expectedDirtyPaths) {
+Assert-True ($changedPaths.Count -eq 78) "Macro Phase D committed checkpoint contains exactly 78 paths"
+foreach ($path in $expectedHistoricalPaths) {
   Assert-True (Test-Path -LiteralPath (Join-Path $root $path) -PathType Leaf) "Historical C.1 source remains present: $path"
 }
-Assert-True (@(& git diff --cached --name-only).Count -eq 0) "Nothing is staged"
 Assert-NotMatches ($changedPaths -join "`n") '(?im)(^|/)(package-lock\.json|pnpm-lock\.yaml|yarn\.lock|next\.config|tsconfig|\.env|migrations?|schema)(/|$)' "No lock, configuration, environment, migration, or schema path changed"
 $packageManifest = Get-Text "package.json" | ConvertFrom-Json
 Assert-True ($packageManifest.scripts.'native:build' -eq 'node ./scripts/build-codexforge-creator-native.cjs') "Authorized package change adds only the repository-owned creator native build boundary"
@@ -337,8 +340,8 @@ Assert-NotMatches $productionSource '(?i)(/api/chat|/api/generate|/api/pull|crea
 $allSmoke = Get-Text "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($allSmoke, '(?s)\$currentReleaseGateScripts\s*=\s*@\((.*?)\)\s*# Current release gate wording:').Groups[1].Value
 $releaseEntries = [regex]::Matches($releaseBlock, '@\{\s*Name\s*=.*?Required\s*=\s*\$(?:true|false)\s*\}')
-Assert-True ($releaseEntries.Count -eq 74) "Aggregate executable count is 74"
-Assert-True (@($releaseEntries | Where-Object { $_.Value -match 'Required\s*=\s*\$true' }).Count -eq 71) "Aggregate required count is 71"
+Assert-True ($releaseEntries.Count -eq 75) "Aggregate executable count is 75"
+Assert-True (@($releaseEntries | Where-Object { $_.Value -match 'Required\s*=\s*\$true' }).Count -eq 72) "Aggregate required count is 72"
 Assert-True (@($releaseEntries | Where-Object { $_.Value -match 'Required\s*=\s*\$false' }).Count -eq 3) "Aggregate optional count remains 3"
 $phaseANeedle = 'File = "smoke-codexforge-local-first-jarvis-working-product-loop.ps1"; Required = $true'
 $phaseBNeedle = 'File = "smoke-codexforge-unified-jarvis-product-experience.ps1"; Required = $true'
@@ -346,10 +349,12 @@ $phaseCNeedle = 'File = "smoke-codexforge-macro-phase-c-whole-product-hardening.
 $phaseC1Needle = 'File = "smoke-codexforge-macro-phase-c-1-rendered-accessibility-repair.ps1"; Required = $true'
 $phaseD1Needle = 'File = "smoke-codexforge-macro-phase-d1-shared-creator-lifecycle-foundation.ps1"; Required = $true'
 $phaseD2Needle = 'File = "smoke-codexforge-macro-phase-d2-static-website-browser-app-builder-foundation.ps1"; Required = $true'
+$chatNeedle = 'File = "smoke-codexforge-canonical-local-first-jarvis-chat-lifecycle.ps1"; Required = $true'
 Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseC1Needle))).Count -eq 1) "Macro Phase C.1 is registered exactly once as required"
 Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseD1Needle))).Count -eq 1) "Macro Phase D1 is registered exactly once as required"
 Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($phaseD2Needle))).Count -eq 1) "Macro Phase D2 is registered exactly once as required"
-Assert-InOrder $releaseBlock @($phaseANeedle, $phaseBNeedle, $phaseCNeedle, $phaseC1Needle, $phaseD1Needle, $phaseD2Needle) "Aggregate order is Macro A to Macro B to Macro C to Macro C.1 to Macro D1 to Macro D2"
+Assert-True (([regex]::Matches($releaseBlock, [regex]::Escape($chatNeedle))).Count -eq 1) "Canonical Jarvis chat is registered exactly once as required"
+Assert-InOrder $releaseBlock @($phaseANeedle, $phaseBNeedle, $phaseCNeedle, $phaseC1Needle, $phaseD1Needle, $phaseD2Needle, $chatNeedle) "Aggregate order is Macro A through D2 then canonical Jarvis chat"
 $phaseCEntryIndex = -1
 $phaseC1EntryIndex = -1
 $phaseD1EntryIndex = -1
@@ -367,9 +372,10 @@ Assert-InOrder $releaseBlock @(
   $phaseC1Needle,
   $phaseD1Needle,
   $phaseD2Needle,
+  $chatNeedle,
   'File = "smoke-codexforge-full-validation-wrapper.ps1"; Required = $true',
   'File = $currentCheckpointSmokeFile; Required = $true'
-) "C.1, D1, and D2 precede the full wrapper and checkpoint documentation gates"
+) "C.1, D1, D2, and canonical Jarvis chat precede the full wrapper and checkpoint documentation gates"
 
 $retentionFloors = @{
   "scripts/smoke-codexforge-command-palette.ps1" = @{ Executable = 34; Textual = 39 }

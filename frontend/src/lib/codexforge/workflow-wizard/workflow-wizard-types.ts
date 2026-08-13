@@ -7,7 +7,7 @@ export type WizardRoute =
   | "/apply-validation"
   | "/workflow-results"
   | "/run-history"
-  | "/ai"
+  | "/jarvis"
   | "/files"
   | "/validation"
   | "/closed-loop"

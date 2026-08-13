@@ -11,7 +11,7 @@ function stateMessage(status: TaskActivationStateName): string {
   if (status === "approved") return "Activation request approved for plan preview.";
   if (status === "blocked") return "Activation blocked by policy or review.";
   if (status === "activated-preview") return "Active task plan preview is visible.";
-  if (status === "handoff-ready") return "Activation handoff is ready for /ai.";
+  if (status === "handoff-ready") return "Activation handoff is ready to copy visibly into /jarvis.";
   return "Future active task is marked as explicitly set, but no execution has started.";
 }
 
@@ -116,7 +116,7 @@ export function reduceTaskActivationState(
       handoff: action.handoff,
       message: action.futureActiveTaskSet
         ? "Future active task handoff marked explicitly; no activeTask was silently written."
-        : "Handoff prompt is ready for /ai.",
+        : "Handoff prompt is ready to copy visibly into /jarvis.",
     });
   }
 

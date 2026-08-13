@@ -144,7 +144,10 @@ foreach ($render in @(
 }
 
 Assert-Contains $pageSource "StabilizationCommandCenter" "/stabilization imports/renders StabilizationCommandCenter"
-Assert-Contains $aiSource "Stabilization Command Center" "/ai references Stabilization Command Center if integrated"
+Assert-Contains $aiSource 'redirect("/jarvis")' "retired /ai route redirects without pretending to own Stabilization Command Center"
+Assert-NotContains $domainSource '"/ai"' "active stabilization route models contain no retired /ai destination"
+Assert-Contains $domainSource '"/files"' "stabilization engineering handoffs target the dedicated Files workflow"
+Assert-Contains $domainSource '"/jarvis"' "stabilization evidence handoff targets canonical Jarvis"
 Assert-Contains $filesSource "Stabilization Command Center" "/files references Stabilization Command Center if integrated"
 Assert-Contains $tasksSource "Stabilization Command Center" "/tasks references Stabilization Command Center if integrated"
 Assert-Contains $memorySource "Stabilization Command Center" "/memory references Stabilization Command Center if integrated"

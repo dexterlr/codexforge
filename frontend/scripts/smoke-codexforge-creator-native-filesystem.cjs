@@ -251,6 +251,30 @@ async function concurrentAtomicReplacer(args) {
   writeExclusive(resultPath, result);
 }
 
+async function directoryInventoryWriter(args) {
+  const [rootSegmentsJson, readyPath, goPath, resultPath] = args;
+  const binding = loadBinding();
+  const root = new binding.Root(projectRoot, JSON.parse(rootSegmentsJson), "persistent");
+  const target = ["inventory", "state.bin"];
+  let current = Buffer.alloc(maximumTreeTransportBytes, 0x41);
+  writeExclusive(readyPath, "ready");
+  while (!fs.existsSync(goPath)) pause(1);
+  for (let index = 0; index < 64; index += 1) {
+    const next = Buffer.alloc(maximumTreeTransportBytes, 0x42 + (index % 32));
+    root.writeAtomicReplace(
+      target,
+      temporaryName(target.at(-1), `inventory-${index}`),
+      next,
+      current,
+      null,
+      null
+    );
+    current = next;
+  }
+  root.close();
+  writeExclusive(resultPath, "64");
+}
+
 async function treeVisibilityPublisher(args) {
   const [rootSegmentsJson, readyPath, goPath, resultPath] = args;
   const binding = loadBinding();
@@ -342,6 +366,7 @@ async function runMain() {
   writeExclusive(path.join(outsidePath, "sentinel.txt"), "outside-root sentinel\n");
   const outsideBefore = snapshotDirectory(outsidePath);
   let root = new binding.Root(projectRoot, rootSegments, "removable");
+  let inventoryRoot = null;
   let activeChild = null;
   try {
     const basicTreeEntries = [
@@ -693,7 +718,7 @@ async function runMain() {
     }
     const casResults = casResultPaths.map((resultPath) => fs.readFileSync(resultPath, "utf8"));
     if (casResults.filter((result) => result === "success").length !== 1 ||
-        casResults.some((result) => !["success", "compare_mismatch", "conflict", "busy"].includes(result))) {
+        casResults.filter((result) => result === "compare_mismatch").length !== 1) {
       throw new Error(`Concurrent native compare-and-replace returned an unsafe result: ${JSON.stringify(casResults)}.`);
     }
     const concurrentCleanupRoot = new binding.Root(projectRoot, concurrentRootSegments, "removable");
@@ -704,6 +729,69 @@ async function runMain() {
       throw new Error("Concurrent native compare-and-replace published non-atomic bytes.");
     }
     concurrentCleanupRoot.removeRoot();
+
+    const inventoryRootSegments = [".codexforge", "creator-tests", `native-inventory-${id}`];
+    const inventoryRootPath = path.join(projectRoot, ...inventoryRootSegments);
+    inventoryRoot = new binding.Root(projectRoot, inventoryRootSegments, "persistent");
+    inventoryRoot.ensureDirectory(["inventory"]);
+    atomicWrite(
+      inventoryRoot,
+      ["inventory", "state.bin"],
+      Buffer.alloc(maximumTreeTransportBytes, 0x41),
+      "inventory-initial"
+    );
+    const inventoryReady = path.join(controlPath, "inventory-ready");
+    const inventoryGo = path.join(controlPath, "inventory-go");
+    const inventoryResult = path.join(controlPath, "inventory-result");
+    activeChild = startChild("directory-inventory-writer", [
+      JSON.stringify(inventoryRootSegments),
+      inventoryReady,
+      inventoryGo,
+      inventoryResult,
+    ]);
+    waitForPath(inventoryReady, activeChild.child, "Directory inventory writer");
+    writeExclusive(inventoryGo, "go");
+    let inventoryScans = 0;
+    while (!fs.existsSync(inventoryResult)) {
+      if (activeChild.child.exitCode !== null) {
+        throw new Error("Directory inventory writer exited before recording completion.");
+      }
+      const names = inventoryRoot.listDirectory(["inventory"]);
+      if (JSON.stringify(names) !== JSON.stringify(["state.bin"])) {
+        throw new Error(`Serialized native listing exposed an in-flight staging name: ${JSON.stringify(names)}.`);
+      }
+      if (inventoryRoot.stat(["inventory", "state.bin"]) !== "file") {
+        throw new Error("Serialized native stat did not preserve the published file type.");
+      }
+      const bytes = Buffer.from(
+        inventoryRoot.readFile(["inventory", "state.bin"], maximumTreeTransportBytes)
+      );
+      if (
+        bytes.length !== maximumTreeTransportBytes ||
+        bytes.some((value) => value !== bytes[0]) ||
+        bytes[0] < 0x41 ||
+        bytes[0] > 0x61
+      ) {
+        throw new Error("Serialized native read exposed partial or mixed replacement bytes.");
+      }
+      inventoryScans += 1;
+      await new Promise((resolve) => setImmediate(resolve));
+    }
+    await joinChild(activeChild, "Directory inventory writer");
+    activeChild = null;
+    if (fs.readFileSync(inventoryResult, "utf8") !== "64" || inventoryScans < 1) {
+      throw new Error("Directory inventory writer did not complete with an observed serialized scan.");
+    }
+    const hostileName = ".stable-hostile.tmp";
+    const hostileBytes = Buffer.from("stable hostile inventory evidence\n");
+    fs.writeFileSync(path.join(inventoryRootPath, "inventory", hostileName), hostileBytes, { flag: "wx" });
+    if (!inventoryRoot.listDirectory(["inventory"]).includes(hostileName)) {
+      throw new Error("Native listing silently filtered a stable temp-shaped hostile node.");
+    }
+    inventoryRoot.compareDeleteExact(["inventory", hostileName], hostileBytes);
+    inventoryRoot.close();
+    inventoryRoot = null;
+    new binding.Root(projectRoot, inventoryRootSegments, "removable").removeRoot();
 
     const visibilityRootSegments = [".codexforge", "creator-tests", `native-tree-visibility-${id}`];
     const visibilityRootPath = path.join(projectRoot, ...visibilityRootSegments);
@@ -778,11 +866,8 @@ async function runMain() {
     }
     const treeRaceResults = treeRaceResult.map((resultPath) => fs.readFileSync(resultPath, "utf8"));
     if (treeRaceResults.filter((result) => result === "success").length !== 1 ||
-        treeRaceResults.some((result) => !["success", "already_exists", "conflict"].includes(result))) {
+        treeRaceResults.filter((result) => result === "already_exists").length !== 1) {
       throw new Error(`Concurrent whole-tree publication returned an unsafe result: ${JSON.stringify(treeRaceResults)}.`);
-    }
-    if (!treeRaceResults.includes("conflict")) {
-      throw new Error(`Concurrent whole-tree publication did not exercise transaction rollback: ${JSON.stringify(treeRaceResults)}.`);
     }
     const treeWinnerByte = treeRaceResults[0] === "success" ? 0x71 : 0x72;
     assertVisibilityTree(treeRaceRootPath, "winner", treeWinnerByte);
@@ -950,6 +1035,7 @@ async function runMain() {
       `Creator native filesystem smoke PASS: blocks=${deterministicBlocks.join(",")}; ` +
       `swaps=${swapMetrics.placements}/${swapMetrics.removals}; serializedAlreadyExists=${serializedAlreadyExists}; ` +
       `treeScans=${visibilityScans}; treeObserved=${visibilityObserved.size}; ` +
+      `inventoryScans=${inventoryScans}; ` +
       `treeRace=${treeRaceResults.join("/")}; ` +
       `isolatedScans=${hardlinkResult.scans}; ` +
       `outside=${outsideBefore}\n`
@@ -963,6 +1049,12 @@ async function runMain() {
     if (root) {
       try { root.removeRoot(); } catch {}
     }
+    if (inventoryRoot) {
+      try { inventoryRoot.close(); } catch {}
+      try {
+        new binding.Root(projectRoot, [".codexforge", "creator-tests", `native-inventory-${id}`], "removable").removeRoot();
+      } catch {}
+    }
     fs.rmSync(controlPath, { recursive: true, force: true });
   }
 }
@@ -974,9 +1066,11 @@ const operation = mode === "junction-attacker"
     ? hardlinkAttacker(process.argv.slice(3))
     : mode === "concurrent-exclusive-writer"
       ? concurrentExclusiveWriter(process.argv.slice(3))
-      : mode === "concurrent-atomic-replacer"
-        ? concurrentAtomicReplacer(process.argv.slice(3))
-        : mode === "tree-visibility-publisher"
+    : mode === "concurrent-atomic-replacer"
+      ? concurrentAtomicReplacer(process.argv.slice(3))
+      : mode === "directory-inventory-writer"
+        ? directoryInventoryWriter(process.argv.slice(3))
+      : mode === "tree-visibility-publisher"
           ? treeVisibilityPublisher(process.argv.slice(3))
           : mode === "tree-race-publisher"
             ? treeRacePublisher(process.argv.slice(3))

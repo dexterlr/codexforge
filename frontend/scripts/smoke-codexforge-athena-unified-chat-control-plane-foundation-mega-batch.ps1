@@ -203,7 +203,7 @@ foreach ($needle in @(
 
 foreach ($needle in @(
   "CodexForge Operator Cockpit",
-  "Open Athena Command Center",
+  "Open Jarvis Chat",
   "Open Jarvis Video Studio",
   "Athena helps you plan, route, review, and safely hand off AI work across CodexForge.",
   "What can Athena do now?",

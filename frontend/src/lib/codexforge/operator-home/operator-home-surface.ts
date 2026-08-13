@@ -28,9 +28,9 @@ export function buildOperatorHomeSurface(): OperatorHomeSurface {
     buildOperatorHomeCapability({
       title: "Engineering workspace",
       detail:
-        "AI Workspace, Files Command Center, Tasks, patch preview queues, and apply gates stay link-driven from Home.",
+        "Jarvis, Files Command Center, Tasks, patch preview queues, and apply gates stay link-driven from Home.",
       posture: "preview-only",
-      tags: ["AI Workspace", "Files", "Tasks"],
+      tags: ["Jarvis", "Files", "Tasks"],
     }),
     buildOperatorHomeCapability({
       title: "Creative production workspace",

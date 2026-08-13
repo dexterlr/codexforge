@@ -768,7 +768,7 @@ const JARVIS_UNIFIED_PRODUCT_PRIMARY_ROUTE_INPUTS = [
     group: "Brain",
     commandDeckRole: "workspace",
     description:
-      "The canonical Jarvis workspace for starting a local-first task, confirming the model and data boundary, approving a plan, following execution, and reviewing results, files, validation, and audit history.",
+      "The canonical server-owned Jarvis chat for local-first conversation, visible context choice, explicit approval, one bounded local text response, recovery, and audit review.",
   },
   // Historical smoke marker retained: Jarvis command center order upgraded.
   {
@@ -871,7 +871,10 @@ function buildJarvisUnifiedProductPrimaryRouteDefaults(): Partial<Record<CodexFo
           : "preview-only",
       safetyPosture: "approval-gated",
       requiresReview: true,
-      noMutation: route.href === "/jarvis-websites" ? false : true,
+      noMutation:
+        route.href === "/jarvis" || route.href === "/jarvis-websites"
+          ? false
+          : true,
     };
     return routes;
   }, {});
@@ -4412,13 +4415,13 @@ const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigation
   "/ai": {
     id: "ai",
     href: "/ai",
-    label: "AI Workspace",
-    shortLabel: "AI",
-    description: "Conversation, planning, memory context, and reviewed execution handoffs.",
-    group: "Start",
-    readiness: "review-required",
-    safetyPosture: "approval-gated",
-    badge: "Workspace",
+    label: "Legacy AI redirect",
+    shortLabel: "Legacy AI",
+    description: "Compatibility route that redirects to the canonical /jarvis workspace; no standalone legacy chat workspace remains.",
+    group: "Advanced",
+    readiness: "blocked",
+    safetyPosture: "read-only",
+    badge: "Redirect",
     priority: 20,
     requiresReview: true,
     noMutation: true,

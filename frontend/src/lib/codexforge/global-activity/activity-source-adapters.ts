@@ -84,7 +84,7 @@ export function buildActivityEventsFromPatchQueue(inputs?: readonly GlobalActivi
     status: "queued",
     reviewRequired: true,
     nextActionLabel: "prepare Safe Patch Preview",
-    route: "/ai",
+    route: "/files",
   });
 }
 

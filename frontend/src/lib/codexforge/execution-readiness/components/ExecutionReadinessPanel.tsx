@@ -112,8 +112,10 @@ function buildDefaultInput(): ExecutionReadinessInput {
 
 export function ExecutionReadinessPanel({
   input,
+  embedded = false,
 }: {
   input?: ExecutionReadinessInput | null;
+  embedded?: boolean;
 }) {
   const readinessInput = useMemo(() => input ?? buildDefaultInput(), [input]);
   const readiness = useMemo(
@@ -130,7 +132,11 @@ export function ExecutionReadinessPanel({
         <section style={hero}>
           <div style={heroCopy}>
             <div style={eyebrow}>CodexForge Phase 24</div>
-            <h1 style={headline}>Active Task Execution Readiness</h1>
+            {embedded ? (
+              <h2 style={headline}>Active Task Execution Readiness</h2>
+            ) : (
+              <h1 style={headline}>Active Task Execution Readiness</h1>
+            )}
             <p style={lede}>
               Activated task plans now flow into readiness input, step preflight, tool posture, risk review, test
               checklist, and approval readiness. This cockpit is deterministic and execution remains blocked.
@@ -145,7 +151,7 @@ export function ExecutionReadinessPanel({
         </section>
 
         <section style={navStrip}>
-          <Link href="/ai" style={link}>AI workspace</Link>
+          <Link href="/jarvis" style={link}>Jarvis chat</Link>
           <Link href="/files" style={link}>Safe Patch Preview</Link>
           <Link href="/mission" style={link}>Mission Control</Link>
         </section>

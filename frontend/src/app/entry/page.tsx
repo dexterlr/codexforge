@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
+import { createJarvisChatConversation } from "@/lib/codexforge/jarvis-chat/jarvis-chat-api-client";
+import { JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS } from "@/lib/codexforge/jarvis-chat/jarvis-chat-policy";
 import { CodexForgeGlobalNav } from "@/lib/codexforge/navigation";
 import { addEntry, type CodexForgeActivityEntry } from "@/lib/storage";
 
@@ -28,9 +30,6 @@ type LaunchModeMeta = {
   accent: string;
 };
 
-const STORAGE = {
-  draft: "codexforge_ai_draft_v12",
-} as const;
 let fallbackIdCounter = 0;
 
 const DEFAULT_REPO_PATH =
@@ -153,14 +152,6 @@ const PRESETS: readonly LaunchPreset[] = [
       "Prefer a practical implementation plan with files, phases, risks, and the smallest useful next step.",
   },
 ] as const;
-
-function safeWriteString(key: string, value: string) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // ignore storage errors
-  }
-}
 
 function safeId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -287,6 +278,8 @@ export default function EntryPage() {
   const [tags, setTags] = useState("codexforge, workspace");
   const [notes, setNotes] = useState("");
   const [launching, setLaunching] = useState(false);
+  const [launchError, setLaunchError] = useState<string | null>(null);
+  const [submittedPrompt, setSubmittedPrompt] = useState<string | null>(null);
 
   const modeMeta = MODE_META[mode];
 
@@ -294,11 +287,13 @@ export default function EntryPage() {
     () => buildPrompt(mode, title, goal, repoPath, notes, tags),
     [mode, title, goal, repoPath, notes, tags]
   );
+  const visiblePromptPreview = submittedPrompt ?? promptPreview;
 
   const goalWordCount = useMemo(() => countMeaningfulWords(goal), [goal]);
   const noteWordCount = useMemo(() => countMeaningfulWords(notes), [notes]);
   const tagList = useMemo(() => dedupeTags(tags) ?? [], [tags]);
-  const isReady = goal.trim().length > 0;
+  const promptWithinLimit = promptPreview.length <= JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS;
+  const isReady = goal.trim().length > 0 && promptWithinLimit;
 
   function applyPreset(preset: LaunchPreset) {
     setMode(preset.mode);
@@ -317,7 +312,7 @@ export default function EntryPage() {
     setNotes("");
   }
 
-  function onSubmit(event: FormEvent) {
+  async function onSubmit(event: FormEvent) {
     event.preventDefault();
 
     if (!goal.trim()) {
@@ -325,14 +320,25 @@ export default function EntryPage() {
     }
 
     setLaunching(true);
+    setLaunchError(null);
 
     const prompt = buildPrompt(mode, title, goal, repoPath, notes, tags);
     const activityEntry = buildActivityEntry(mode, title, goal, repoPath, notes, tags);
+    setSubmittedPrompt(prompt);
 
-    safeWriteString(STORAGE.draft, prompt);
-    addEntry(activityEntry);
-
-    router.push("/ai");
+    try {
+      await createJarvisChatConversation({ message: prompt });
+      try {
+        addEntry(activityEntry);
+      } catch {
+        // The canonical server chat succeeded; local activity history is best-effort only.
+      }
+      router.push("/jarvis");
+    } catch (error) {
+      setLaunchError(error instanceof Error ? error.message : "Jarvis could not create this chat safely.");
+      setSubmittedPrompt(null);
+      setLaunching(false);
+    }
   }
 
   return (
@@ -346,14 +352,14 @@ export default function EntryPage() {
               <div style={eyebrow}>CodexForge quick launch</div>
               <h1 style={titleStyle}>Turn intent into a structured workspace task</h1>
               <p style={subtitle}>
-                This page is the fast handoff surface into <b>/ai</b>. It prepares a
-                structured draft, writes a matching activity entry, and routes you into
-                the main CodexForge workspace without making you start from a blank chat.
+                This page is a visible handoff into <b>/jarvis</b>. It creates one bounded
+                local chat from the preview below, then makes a best-effort local activity
+                update without affecting chat creation. Approval and execution stay with you.
               </p>
 
               <div style={heroActionRow}>
-                <Link href="/ai" style={heroPrimaryAction}>
-                  Open workspace directly
+                <Link href="/jarvis" style={heroPrimaryAction}>
+                  Open Jarvis directly
                 </Link>
                 <Link href="/clawd" style={heroGhostAction}>
                   Operator surface
@@ -366,7 +372,7 @@ export default function EntryPage() {
               <div style={heroMetaGrid}>
                 <div style={metaCard}>
                   <div style={metaLabel}>Primary destination</div>
-                  <div style={metaValue}>/ai workspace</div>
+                  <div style={metaValue}>/jarvis chat</div>
                 </div>
                 <div style={metaCard}>
                   <div style={metaLabel}>Best for</div>
@@ -374,7 +380,7 @@ export default function EntryPage() {
                 </div>
                 <div style={metaCard}>
                   <div style={metaLabel}>Also updates</div>
-                  <div style={metaValue}>Activity history</div>
+                  <div style={metaValue}>Activity history when browser storage is available</div>
                 </div>
               </div>
             </div>
@@ -413,6 +419,8 @@ export default function EntryPage() {
                 key={preset.id}
                 type="button"
                 onClick={() => applyPreset(preset)}
+                disabled={launching}
+                aria-describedby={launching ? "codexforge-entry-launch-explanation" : undefined}
                 style={presetCard}
               >
                 <div style={presetTopRow}>
@@ -440,6 +448,8 @@ export default function EntryPage() {
               <select
                 value={mode}
                 onChange={(e) => setMode(e.target.value as LaunchMode)}
+                disabled={launching}
+                aria-describedby={launching ? "codexforge-entry-launch-explanation" : undefined}
                 style={input}
               >
                 <option value="plan">Plan</option>
@@ -453,6 +463,8 @@ export default function EntryPage() {
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                disabled={launching}
+                aria-describedby={launching ? "codexforge-entry-launch-explanation" : undefined}
                 placeholder="Short task title"
                 style={input}
               />
@@ -463,6 +475,8 @@ export default function EntryPage() {
             <textarea
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
+              disabled={launching}
+              aria-describedby={launching ? "codexforge-entry-launch-explanation" : undefined}
               placeholder="What do you want CodexForge to help you accomplish?"
               style={{ ...input, minHeight: 130, resize: "vertical" }}
               required
@@ -474,6 +488,8 @@ export default function EntryPage() {
               <input
                 value={repoPath}
                 onChange={(e) => setRepoPath(e.target.value)}
+                disabled={launching}
+                aria-describedby={launching ? "codexforge-entry-launch-explanation" : undefined}
                 placeholder="Active repo path"
                 style={input}
               />
@@ -483,6 +499,8 @@ export default function EntryPage() {
               <input
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
+                disabled={launching}
+                aria-describedby={launching ? "codexforge-entry-launch-explanation" : undefined}
                 placeholder="codexforge, workspace, debug"
                 style={input}
               />
@@ -493,6 +511,8 @@ export default function EntryPage() {
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              disabled={launching}
+              aria-describedby={launching ? "codexforge-entry-launch-explanation" : undefined}
               placeholder="Context, files, constraints, risks, approvals, desired output, or anything CodexForge should know"
               style={{ ...input, minHeight: 150, resize: "vertical" }}
             />
@@ -501,24 +521,47 @@ export default function EntryPage() {
           <div style={launchChecklist}>
             <div style={checklistTitle}>What gets created on launch</div>
             <div style={checklistGrid}>
-              <div style={checkItem}>- Structured AI draft in local storage</div>
-              <div style={checkItem}>- Matching activity entry in history</div>
-              <div style={checkItem}>- Clean handoff into /ai workspace</div>
-              <div style={checkItem}>- Better starting context for future operator flow</div>
+              <div style={checkItem}>- One bounded local Jarvis chat</div>
+              <div style={checkItem}>- Best-effort activity entry when browser storage is available</div>
+              <div style={checkItem}>- Visible handoff into /jarvis</div>
+              <div style={checkItem}>- No hidden context, approval, or execution</div>
             </div>
           </div>
 
+          <div id="codexforge-entry-launch-explanation" style={footnote}>
+            {launching
+              ? "Jarvis is creating this exact local chat."
+              : !goal.trim()
+                ? "Add a goal before creating the Jarvis chat."
+                : !promptWithinLimit
+                  ? `Shorten the preview to ${JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS} characters or fewer.`
+                  : `The visible preview is ready (${promptPreview.length}/${JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS} characters).`}
+          </div>
+
+          {launchError ? <p role="alert" style={footnote}>{launchError}</p> : null}
+
           <div style={actionRow}>
-            <button type="submit" disabled={launching || !isReady} style={btnPrimary}>
-              {launching ? "Launching..." : "Open in AI workspace"}
+            <button
+              type="submit"
+              disabled={launching || !isReady}
+              aria-describedby={launching || !isReady ? "codexforge-entry-launch-explanation" : undefined}
+              style={btnPrimary}
+            >
+              {launching ? "Creating local chat..." : "Create chat in Jarvis"}
             </button>
 
-            <button type="button" onClick={resetForm} style={btnGhostButton}>
+            <button
+              type="button"
+              onClick={resetForm}
+              disabled={launching}
+              aria-describedby={launching ? "codexforge-entry-launch-explanation" : undefined}
+              style={btnGhostButton}
+            >
               Reset form
             </button>
 
-            <Link href="/ai" style={btnGhost}>
-              Go to AI directly
+            <Link href="/jarvis" style={btnGhost}>
+              Go to Jarvis directly
             </Link>
 
             <Link href="/clawd" style={btnGhost}>
@@ -531,8 +574,10 @@ export default function EntryPage() {
           </div>
 
           <div style={footnote}>
-            Saves the prepared prompt into local CodexForge draft storage, records a
-            workspace activity item, then routes to <b>/ai</b>.
+            Creates the exact visible prompt as a bounded local Jarvis chat, attempts a
+            best-effort browser-local activity update, then routes to <b>/jarvis</b>. A
+            blocked activity update never changes the chat result. Nothing is approved or
+            executed automatically.
           </div>
         </form>
 
@@ -544,7 +589,7 @@ export default function EntryPage() {
             </div>
           </div>
 
-          <pre style={previewBox}>{promptPreview}</pre>
+          <pre style={previewBox}>{visiblePromptPreview}</pre>
         </section>
 
         <section style={infoGrid}>
@@ -552,7 +597,7 @@ export default function EntryPage() {
             <div style={infoTitle}>Use this page when</div>
             <div style={infoList}>
               <div style={infoItem}>- you want a fast structured launch into chat</div>
-              <div style={infoItem}>- you need the task captured in activity history</div>
+              <div style={infoItem}>- you want a best-effort browser-local activity record</div>
               <div style={infoItem}>- you want CodexForge briefed before entering the full workspace</div>
               <div style={infoItem}>- you are starting a future Jarvis-style workflow from intent</div>
             </div>
@@ -561,7 +606,7 @@ export default function EntryPage() {
           <div style={infoCard}>
             <div style={infoTitle}>Use other pages when</div>
             <div style={infoList}>
-              <div style={infoItem}>- go to <b>/ai</b> for the main working surface</div>
+              <div style={infoItem}>- go to <b>/jarvis</b> for the canonical chat</div>
               <div style={infoItem}>- go to <b>/clawd</b> for approvals, diffs, apply, tests, and checkpoints</div>
               <div style={infoItem}>- go to <b>/brain</b> to inspect graph memory state</div>
               <div style={infoItem}>- go to <b>/history</b> to review launches and workspace activity</div>

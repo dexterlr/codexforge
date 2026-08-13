@@ -135,8 +135,10 @@ Assert-Contains $domainSource "Patch tasks route to Safe Patch Preview" "policy 
 Assert-Contains $domainSource "Memory tasks route to Memory Review" "policy routes memory tasks to Memory Review"
 Assert-Contains $domainSource "Verify current files" "handoff says verify current files"
 Assert-Contains $domainSource "No command execution without approval" "handoff says no command execution without approval"
-Assert-Contains $aiPageSource "Task Autopilot" "AI page references Task Autopilot"
-Assert-Contains $brainPageSource "Task Autopilot" "Brain page references Task Autopilot"
+Assert-Contains $tasksPageSource "<TaskAutopilotPanel />" "/tasks renders Task Autopilot"
+Assert-Contains $aiPageSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiPageSource "TaskAutopilotPanel" "/ai mounts no competing Task Autopilot panel"
+Assert-NotContains $brainPageSource "TaskAutopilotPanel" "/brain mounts no competing Task Autopilot panel"
 Assert-Contains $filesSource "task suggestions" "Files page references task suggestions"
 
 Assert-NotMatches $taskSource 'from\s+["''][^"'']*brain-graph["'']' "no import from brain-graph"

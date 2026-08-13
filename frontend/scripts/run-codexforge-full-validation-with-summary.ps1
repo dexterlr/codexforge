@@ -276,7 +276,8 @@ function Format-ProcessLogLine {
 function Receive-NativeProcessLogEntries {
   param(
     [object]$Queue,
-    [string]$LogPath,
+    [object]$LogWriter,
+    [ref]$LogWriteFailure,
     [bool]$WriteToHost,
     [object]$Entries
   )
@@ -296,8 +297,12 @@ function Receive-NativeProcessLogEntries {
   foreach ($entry in @($drainedEntries | Sort-Object -Property Sequence)) {
     [void]$Entries.Add($entry)
 
-    if (-not [string]::IsNullOrEmpty($LogPath)) {
-      Append-LogLine -Path $LogPath -Line (Format-ProcessLogLine -Entry $entry)
+    if ($LogWriter -and ($null -eq $LogWriteFailure.Value)) {
+      try {
+        $LogWriter.WriteLine((Format-ProcessLogLine -Entry $entry))
+      } catch {
+        $LogWriteFailure.Value = $_.Exception
+      }
     }
 
     if ($WriteToHost) {
@@ -391,9 +396,26 @@ function Invoke-NativeProcess {
   $process = $null
   $outputHandler = $null
   $errorHandler = $null
+  $logStream = $null
+  $logWriter = $null
+  $logWriteFailure = $null
   $exitCode = 0
 
   try {
+    if (-not [string]::IsNullOrEmpty($LogPath)) {
+      $logStream = New-Object System.IO.FileStream(
+        $LogPath,
+        [System.IO.FileMode]::Append,
+        [System.IO.FileAccess]::Write,
+        [System.IO.FileShare]::ReadWrite
+      )
+      $logWriter = New-Object System.IO.StreamWriter(
+        $logStream,
+        (New-Object System.Text.UTF8Encoding($false))
+      )
+      $logWriter.AutoFlush = $true
+    }
+
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = $Command
     $startInfo.Arguments = Get-CommandArgumentString -Arguments $Arguments
@@ -421,13 +443,13 @@ function Invoke-NativeProcess {
     $process.BeginErrorReadLine()
 
     while (-not $process.WaitForExit(50)) {
-      [void](Receive-NativeProcessLogEntries -Queue $collector.Queue -LogPath $LogPath -WriteToHost $WriteToHost -Entries $entryList)
+      [void](Receive-NativeProcessLogEntries -Queue $collector.Queue -LogWriter $logWriter -LogWriteFailure ([ref]$logWriteFailure) -WriteToHost $WriteToHost -Entries $entryList)
     }
 
     $process.WaitForExit()
 
     while ($true) {
-      $receivedEntries = Receive-NativeProcessLogEntries -Queue $collector.Queue -LogPath $LogPath -WriteToHost $WriteToHost -Entries $entryList
+      $receivedEntries = Receive-NativeProcessLogEntries -Queue $collector.Queue -LogWriter $logWriter -LogWriteFailure ([ref]$logWriteFailure) -WriteToHost $WriteToHost -Entries $entryList
       if ($collector.StdOutDone -and $collector.StdErrDone -and (-not $receivedEntries)) {
         break
       }
@@ -448,6 +470,16 @@ function Invoke-NativeProcess {
 
       $process.Dispose()
     }
+
+    if ($logWriter) {
+      $logWriter.Dispose()
+    } elseif ($logStream) {
+      $logStream.Dispose()
+    }
+  }
+
+  if ($logWriteFailure) {
+    throw ("Stage log write failed after the child process exited safely: " + $logWriteFailure.Message)
   }
 
   $entries = @($entryList)

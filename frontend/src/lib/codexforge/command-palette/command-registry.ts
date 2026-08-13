@@ -1180,6 +1180,7 @@ const MULTI_PROVIDER_CAPABILITY_ROUTING_COMMAND_DESCRIPTION = "Review 2986-3017 
 const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/": true,
   "/jarvis": true,
+  "/jarvis-websites": true,
   "/jarvis-trading": true,
   "/jarvis-audit": true,
   "/jarvis-safety": true,
@@ -1215,7 +1216,7 @@ const DEFAULT_ROUTE_AVAILABILITY: CodexForgeCommandRouteAvailability = {
   "/product-trial": true,
   "/runbook": true,
   "/mvp-experience": true,
-  "/ai": true,
+  "/ai": false,
   "/ai-router": true,
   "/ai-providers": true,
   "/provider-adapters": true,
@@ -4549,7 +4550,7 @@ export function buildCodexForgeCommands(
     buildRouteCommand(availability, {
       id: "open-jarvis-command-center",
       label: "Build with Jarvis",
-      description: "Open the canonical local-first Jarvis workspace for task intake, approval, execution progress, results, validation, and audit review.",
+      description: "Open the canonical local-first Jarvis chat for visible context choice, exact run approval, one bounded local text response, recovery, and audit review.",
       group: "User features",
       href: "/jarvis",
       keywords: [
@@ -5065,11 +5066,11 @@ export function buildCodexForgeCommands(
     // Historical source-smoke marker only: Go to AI Workspace.
     buildRouteCommand(availability, {
       id: "go-ai-workspace",
-      label: "Open legacy AI Workspace",
-      description: "Open the retained compatibility workspace for developer and historical route review.",
+      label: "Legacy AI Workspace unavailable",
+      description: "The compatibility route redirects to the canonical Jarvis workspace; the standalone legacy chat is retired.",
       group: "Developer diagnostics",
       href: "/ai",
-      keywords: ["ai", "workspace", "chat", "route"],
+      keywords: ["ai", "workspace", "chat", "redirect", "jarvis"],
       priority: 20,
     }),
     buildRouteCommand(availability, {

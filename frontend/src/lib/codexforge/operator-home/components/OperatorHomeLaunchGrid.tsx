@@ -13,7 +13,7 @@ export function OperatorHomeLaunchGrid({ launcher }: OperatorHomeLaunchGridProps
   return (
     <section
       style={section}
-      data-codexforge-operator-home-launch-grid="OperatorHomeLaunchGrid renders AI Workspace Brain Files Stabilization Creative Capabilities"
+      data-codexforge-operator-home-launch-grid="OperatorHomeLaunchGrid renders Jarvis Brain Files Stabilization Creative Capabilities"
     >
       <div style={sectionHeader}>
         <span style={eyebrow}>Launch grid</span>

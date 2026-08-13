@@ -3,7 +3,7 @@ import { buildConsolidationStableKey } from "./consolidation-types";
 
 const ROUTES: readonly Omit<RouteConsolidationItem, "id">[] = [
   { route: "/", label: "Operator Home", classification: "primary route", prominence: "primary", keepRoute: true, targetSurface: "Command Deck", rationale: "Primary start point for operator status and launch." },
-  { route: "/ai", label: "AI Workspace", classification: "primary route", prominence: "primary", keepRoute: true, targetSurface: "Command Deck", rationale: "Primary planning and handoff workspace." },
+  { route: "/jarvis", label: "Jarvis Chat", classification: "primary route", prominence: "primary", keepRoute: true, targetSurface: "Command Deck", rationale: "Canonical local-first conversation and visible handoff workspace." },
   { route: "/files", label: "Project Reader + Real Patch Preview", classification: "primary route", prominence: "primary", keepRoute: true, targetSurface: "Engineering Workflow", rationale: "Primary route for File Reader v1 functional/read-only, Patch Preview v1 functional/preview-only, and Phase 58 Approved Patch Apply v1 handoff." },
   { route: "/stabilization", label: "Stabilization", classification: "primary route", prominence: "primary", keepRoute: true, targetSurface: "Operations hub", rationale: "Primary operations, validation, and risk review hub." },
   { route: "/readiness", label: "Product Readiness", classification: "primary route", prominence: "primary", keepRoute: true, targetSurface: "Operator checkpoint", rationale: "Primary product checkpoint before phase transitions." },

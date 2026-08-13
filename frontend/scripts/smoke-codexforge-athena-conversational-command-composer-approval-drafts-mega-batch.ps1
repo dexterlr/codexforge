@@ -223,7 +223,7 @@ foreach ($needle in @(
 foreach ($needle in @(
   "CodexForge Operator Cockpit",
   "Athena is the main Jarvis control layer",
-  "Open Athena Command Center",
+  "Open Jarvis Chat",
   "Open Jarvis Video Studio",
   "Athena can draft structured commands",
   "Athena can draft approval packets",

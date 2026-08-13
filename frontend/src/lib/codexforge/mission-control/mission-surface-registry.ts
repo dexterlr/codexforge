@@ -444,9 +444,9 @@ export function buildMissionSurfaceRegistry(): MissionSurfaceRegistry {
     buildMissionSurface({
       id: "chat",
       label: "Chat and Evidence-Grounded Chat",
-      href: "/ai",
+      href: "/jarvis",
       status: "online",
-      role: "Primary workspace for planning, operator context, replies, visible chat recall context cards, Evidence-Grounded Chat readiness with selected evidence only, and Grounded Fix Recommendation readiness.",
+      role: "Canonical local-first conversation workspace with explicit visible context selection and separately approved, bounded local execution.",
       riskPosture: "readonly",
       nextAction: "Review grounded fix recommendation.",
       readiness: "ready",

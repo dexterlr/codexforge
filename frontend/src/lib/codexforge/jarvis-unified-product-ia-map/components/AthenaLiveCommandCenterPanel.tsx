@@ -2,7 +2,12 @@
 
 import type { Route } from "next";
 import Link from "next/link";
-import { PrivateAlphaRunPanel } from "./PrivateAlphaRunPanel";
+import { useState } from "react";
+import {
+  JarvisChatPanel,
+  type JarvisChatDraftHandoff,
+} from "@/lib/codexforge/jarvis-chat/components/JarvisChatPanel";
+import { JarvisAdvancedToolsPanel } from "./JarvisAdvancedToolsPanel";
 import styles from "./JarvisUnifiedProductShell.module.css";
 
 type JarvisReviewDestination = Readonly<{
@@ -14,18 +19,18 @@ type JarvisReviewDestination = Readonly<{
 }>;
 
 const JARVIS_FLOW_LANDMARKS = [
-  { href: "#jarvis-task-workspace", label: "Start / Task" },
+  { href: "#jarvis-task-workspace", label: "Start / Chat" },
   { href: "#jarvis-model-data-boundary", label: "Model & Data" },
-  { href: "#jarvis-current-run", label: "Current Run" },
-  { href: "#jarvis-plan-approval", label: "Next Action / Approval" },
-  { href: "#jarvis-result-output", label: "Result / Output" },
+  { href: "#jarvis-result-output", label: "Messages" },
+  { href: "#jarvis-current-run", label: "Current Turn" },
+  { href: "#jarvis-plan-approval", label: "Approval / Control" },
   { href: "#jarvis-activity-audit", label: "Activity / Audit" },
 ] as const;
 
 const JARVIS_WORKSPACE_FACTS = [
   {
-    label: "Current project",
-    value: "Current CodexForge project",
+    label: "Conversation storage",
+    value: "Bounded local history",
   },
   {
     label: "Default local model",
@@ -33,7 +38,7 @@ const JARVIS_WORKSPACE_FACTS = [
   },
   {
     label: "Data boundary",
-    value: "Local machine by default",
+    value: "local-machine",
   },
   {
     label: "Approval",
@@ -106,6 +111,8 @@ const JARVIS_REVIEW_DESTINATIONS = [
 ] as const satisfies readonly JarvisReviewDestination[];
 
 export function AthenaLiveCommandCenterPanel() {
+  const [draftHandoff, setDraftHandoff] = useState<JarvisChatDraftHandoff | null>(null);
+
   return (
     <div
       className={styles.liveAthenaCommandCenter}
@@ -118,65 +125,74 @@ export function AthenaLiveCommandCenterPanel() {
       >
         <div className={styles.jarvisWorkspaceHeroLayout}>
           <div className={styles.jarvisWorkspaceHeroCopy}>
-            <p className={styles.panelEyebrow}>Build with Jarvis</p>
+            <p className={styles.panelEyebrow}>Chat with Jarvis</p>
             <h1 id="jarvis-workspace-title" className={styles.liveAthenaTitle}>
-              Jarvis Workspace
+              Jarvis Chat
             </h1>
             <p className={styles.liveAthenaSummary}>
-              Confirm the active project, describe the task, review the exact plan
-              and data boundary, then approve and execute one attempt when you are
-              ready.
-            </p>
-            <p className={styles.liveAthenaSupport}>
-              Default local execution stays on this machine through Ollama with a
-              4096-token ceiling. Optional Groq is Free-tier only, capped at 512
-              tokens, and requires separate cloud-transfer and execution
-              acknowledgements. Nothing approves or runs automatically.
+              Start or reopen a local conversation, then send one bounded message
+              for separate review, approval, and execution.
             </p>
           </div>
 
-          <dl className={styles.jarvisWorkspaceFactGrid} aria-label="Jarvis workspace at a glance">
-            {JARVIS_WORKSPACE_FACTS.map((fact) => (
-              <div key={fact.label} className={styles.jarvisWorkspaceFact}>
-                <dt>{fact.label}</dt>
-                <dd>{fact.value}</dd>
-              </div>
-            ))}
-          </dl>
+          <details className={styles.privateAlphaTechnicalDetails}>
+            <summary className={styles.privateAlphaDetailsSummary}>
+              Model, data, approval, limits, and workspace links
+            </summary>
+            <div className={styles.privateAlphaDetailsBody}>
+              <p className={styles.liveAthenaSupport}>
+                Chat is fixed to Ollama local with gpt-oss:20b, a local-machine data
+                boundary, and a 4096-token output ceiling. Conversation context is
+                opt-in per message. Nothing approves, executes, retries, or routes
+                to a cloud provider automatically.
+              </p>
+
+              <dl className={styles.jarvisWorkspaceFactGrid} aria-label="Jarvis workspace at a glance">
+                {JARVIS_WORKSPACE_FACTS.map((fact) => (
+                  <div key={fact.label} className={styles.jarvisWorkspaceFact}>
+                    <dt>{fact.label}</dt>
+                    <dd>{fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <nav className={styles.jarvisFlowNavigation} aria-label="Jarvis workspace sections">
+                <ol className={styles.jarvisFlowList}>
+                  {JARVIS_FLOW_LANDMARKS.map((landmark, index) => (
+                    <li key={landmark.href} className={styles.jarvisFlowItem}>
+                      <a className={styles.jarvisFlowLink} href={landmark.href}>
+                        <span aria-hidden="true" className={styles.jarvisFlowNumber}>
+                          {index + 1}
+                        </span>
+                        <span>{landmark.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+
+              <nav className={styles.jarvisReviewShortcuts} aria-label="Jarvis review destinations">
+                <span className={styles.jarvisReviewShortcutsLabel}>Review</span>
+                {JARVIS_REVIEW_DESTINATIONS.filter(
+                  (destination) => destination.tone === "workflow"
+                ).map((destination) => (
+                  <Link
+                    key={`shortcut-${destination.href}`}
+                    className={styles.jarvisReviewShortcut}
+                    href={destination.href}
+                  >
+                    {destination.title}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </details>
         </div>
-
-        <nav className={styles.jarvisFlowNavigation} aria-label="Jarvis workspace sections">
-          <ol className={styles.jarvisFlowList}>
-            {JARVIS_FLOW_LANDMARKS.map((landmark, index) => (
-              <li key={landmark.href} className={styles.jarvisFlowItem}>
-                <a className={styles.jarvisFlowLink} href={landmark.href}>
-                  <span aria-hidden="true" className={styles.jarvisFlowNumber}>
-                    {index + 1}
-                  </span>
-                  <span>{landmark.label}</span>
-                </a>
-              </li>
-            ))}
-          </ol>
-        </nav>
-
-        <nav className={styles.jarvisReviewShortcuts} aria-label="Jarvis review destinations">
-          <span className={styles.jarvisReviewShortcutsLabel}>Review</span>
-          {JARVIS_REVIEW_DESTINATIONS.filter(
-            (destination) => destination.tone === "workflow"
-          ).map((destination) => (
-            <Link
-              key={`shortcut-${destination.href}`}
-              className={styles.jarvisReviewShortcut}
-              href={destination.href}
-            >
-              {destination.title}
-            </Link>
-          ))}
-        </nav>
       </section>
 
-      <PrivateAlphaRunPanel />
+      <JarvisChatPanel draftHandoff={draftHandoff} />
+
+      <JarvisAdvancedToolsPanel onUsePrompt={setDraftHandoff} />
 
       <section
         id="jarvis-review-tools"

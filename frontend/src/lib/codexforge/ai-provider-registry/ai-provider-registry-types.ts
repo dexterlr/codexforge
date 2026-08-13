@@ -1,6 +1,6 @@
 export type AiModelProviderRegistryVersion =
   "athena-jarvis-model-gateway-registry-v1";
-export type AiModelProviderRegistrySource = "Athena / Jarvis Model Gateway";
+export type AiModelProviderRegistrySource = "CodexForge / Jarvis Model Gateway";
 export type AiModelProviderRegistryMode = "preview-only";
 export type AiModelProviderStatus = "registry-only / not connected";
 export type AiModelProviderSlotStatus = "registry-only";
@@ -47,6 +47,7 @@ export type AiModelProviderCapabilityId =
   | "metadata-summarization";
 
 export type AiModelProviderWorkspaceTarget =
+  | "Jarvis Chat"
   | "Athena Command Center"
   | "Jarvis Video Studio"
   | "Jarvis Websites"

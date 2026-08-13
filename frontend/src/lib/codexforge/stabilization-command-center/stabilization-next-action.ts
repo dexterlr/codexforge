@@ -32,32 +32,32 @@ const ACTION_DETAIL: Record<StabilizationNextActionKind, { title: string; detail
   "paste verification output": {
     title: "Paste verification output",
     detail: "Verification evidence is missing or stale. Paste output before planning further changes.",
-    targetRoute: "/ai",
+    targetRoute: "/jarvis",
   },
   "review regression triage": {
     title: "Review regression triage",
     detail: "Failed or warning signals must be triaged before queueing a fix.",
-    targetRoute: "/ai",
+    targetRoute: "/files",
   },
   "review regression fix queue": {
     title: "Review regression fix queue",
     detail: "Review prioritized fix queue items before Safe Patch Preview.",
-    targetRoute: "/ai",
+    targetRoute: "/files",
   },
   "prepare Safe Patch Preview": {
     title: "Prepare Safe Patch Preview",
     detail: "Use Safe Patch Preview for any future edit path; stabilization does not write files.",
-    targetRoute: "/ai",
+    targetRoute: "/files",
   },
   "compose preview diff": {
     title: "Compose preview diff",
     detail: "Use Preview Diff Composer after Safe Patch Preview review and before apply gate review.",
-    targetRoute: "/ai",
+    targetRoute: "/files",
   },
   "review apply gate": {
     title: "Review apply gate",
     detail: "Review Patch Application Gate, dry run, and execution gate posture; no direct dispatch here.",
-    targetRoute: "/ai",
+    targetRoute: "/files",
   },
   "review approved patch apply": {
     title: "Review approved patch apply",
@@ -87,7 +87,7 @@ const ACTION_DETAIL: Record<StabilizationNextActionKind, { title: string; detail
   "prepare rollback": {
     title: "Prepare rollback",
     detail: "Make rollback notes visible before any future guarded apply path.",
-    targetRoute: "/ai",
+    targetRoute: "/files",
   },
   "stop and stabilize": {
     title: "Stop and stabilize",

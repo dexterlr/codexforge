@@ -216,7 +216,9 @@ Assert-NotMatches ($paletteComponentSource + "`n" + $overlayComponentSource) '(?
 
 foreach ($text in @(
   "Go to Operator Home",
-  "Go to AI Workspace",
+  "Build with Jarvis",
+  "Create static website or browser app",
+  "Legacy AI Workspace unavailable",
   "Go to Brain",
   "Go to Files",
   "Go to Stabilization",
@@ -227,6 +229,9 @@ foreach ($text in @(
 )) {
   Assert-Contains $domainSource $text "command registry includes $text"
 }
+Assert-Matches $domainSource '(?s)label:\s*"Build with Jarvis".*?href:\s*"/jarvis"' "command palette reaches canonical Jarvis directly"
+Assert-Matches $domainSource '(?s)label:\s*"Create static website or browser app".*?href:\s*"/jarvis-websites"' "command palette reaches Website/Browser App creation directly"
+Assert-Matches $domainSource '(?s)label:\s*"Legacy AI Workspace unavailable".*?redirects to the canonical Jarvis workspace.*?href:\s*"/ai"' "command palette labels /ai as a retired compatibility redirect"
 
 foreach ($text in @(
   "apply-diff",

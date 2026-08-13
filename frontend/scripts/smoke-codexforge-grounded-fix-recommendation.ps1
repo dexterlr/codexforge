@@ -133,7 +133,9 @@ foreach ($render in @(
   Assert-Contains $uiSource $render "$render"
 }
 
-Assert-Contains $aiSource "GroundedFixRecommendationPanel" "/ai imports/renders GroundedFixRecommendationPanel if integrated"
+Assert-Contains $tasksSource "<GroundedFixRecommendationPanel" "/tasks imports/renders GroundedFixRecommendationPanel"
+Assert-Contains $aiSource 'redirect("/jarvis")' "/ai redirects to canonical Jarvis"
+Assert-NotContains $aiSource "GroundedFixRecommendationPanel" "/ai mounts no competing Grounded Fix Recommendation panel"
 Assert-Contains $filesSource "Grounded Fix Recommendation" "/files references Grounded Fix Recommendation if integrated"
 Assert-Contains $tasksSource "Grounded Fix Recommendation" "/tasks references Grounded Fix Recommendation if integrated"
 Assert-Contains $memorySource "Use in fix recommendation" "/memory references Use in fix recommendation if integrated"

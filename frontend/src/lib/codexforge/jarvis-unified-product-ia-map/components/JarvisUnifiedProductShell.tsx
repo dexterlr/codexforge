@@ -410,7 +410,7 @@ export function JarvisUnifiedProductPanel(
                   aria-label={
                     card.id === "open-jarvis-video-studio"
                       ? "Open Jarvis Video Studio"
-                      : "Open Athena Command Center"
+                      : "Open Jarvis Chat"
                   }
                   className={
                     index === 0 ? styles.homePrimaryCta : styles.homeSecondaryCard

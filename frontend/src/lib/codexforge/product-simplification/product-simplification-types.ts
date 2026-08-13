@@ -7,7 +7,7 @@ export type ProductSimplificationRoute =
   | "/apply-validation"
   | "/workflow-results"
   | "/run-history"
-  | "/ai"
+  | "/jarvis"
   | "/files"
   | "/validation"
   | "/closed-loop"

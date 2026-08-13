@@ -132,6 +132,21 @@ $runbookDoc = Get-Content -Raw $runbookPath
 $allSmoke = Get-Content -Raw $allSmokePath
 $docsCombined = @($checkpointDoc, $runbookDoc) -join "`n"
 
+$whatIsNextMatch = [regex]::Match(
+  $checkpointDoc,
+  '(?s)## What Is Next\s+(.*?)(?:\r?\n## |\z)'
+)
+if (-not $whatIsNextMatch.Success) {
+  throw "[FAIL] Current checkpoint document is missing its What Is Next section."
+}
+$whatIsNext = $whatIsNextMatch.Groups[1].Value
+Assert-Contains $whatIsNext "Treat 6122-6153 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run Audit and Approval Join Review and Recovery Preview as the active checkpoint family" "What Is Next names the current active checkpoint family"
+Assert-Contains $whatIsNext "Prepare next likely batch: 6154-6185 - Backend-Owned Minimal Manual-Gated Provider Adapter Dry-Run End-to-End Packet MVP" "What Is Next matches the authoritative next batch"
+if ($whatIsNext.Contains("Prepare next likely batch: 5642-5673")) {
+  throw "[FAIL] What Is Next still advertises the superseded 5642-5673 batch."
+}
+Write-Host "[PASS] What Is Next excludes the superseded next batch"
+
 $phaseMatches = [regex]::Matches($allSmoke, "Phase\s+(\d+)")
 if ($phaseMatches.Count -eq 0) {
   throw "[FAIL] No Phase N entries found in all-smoke"

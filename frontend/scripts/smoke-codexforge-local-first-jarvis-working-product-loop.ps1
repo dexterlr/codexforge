@@ -67,6 +67,7 @@ $requiredFiles = @(
   "src\app\api\codexforge\private-alpha\runs\[runId]\cancel\route.ts",
   "src\lib\codexforge\jarvis-unified-product-ia-map\components\AthenaLiveCommandCenterPanel.tsx",
   "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx",
+  "src\lib\codexforge\jarvis-chat\components\JarvisChatPanel.tsx",
   "src\lib\codexforge\private-alpha\private-alpha-api-client.ts",
   "src\lib\codexforge\private-alpha\private-alpha-store.server.ts",
   "src\lib\codexforge\private-alpha\private-alpha-free-first-routing.server.ts",
@@ -83,6 +84,7 @@ Assert-PowerShellParses "scripts\smoke-codexforge-local-first-jarvis-working-pro
 
 $panelSource = Get-Text "src\lib\codexforge\jarvis-unified-product-ia-map\components\PrivateAlphaRunPanel.tsx"
 $livePanelSource = Get-Text "src\lib\codexforge\jarvis-unified-product-ia-map\components\AthenaLiveCommandCenterPanel.tsx"
+$chatPanelSource = Get-Text "src\lib\codexforge\jarvis-chat\components\JarvisChatPanel.tsx"
 $apiClientSource = Get-Text "src\lib\codexforge\private-alpha\private-alpha-api-client.ts"
 $storeSource = Get-Text "src\lib\codexforge\private-alpha\private-alpha-store.server.ts"
 $catalogSource = Get-Text "src\lib\codexforge\model-routing\model-routing-catalog.ts"
@@ -124,8 +126,8 @@ Assert-NotMatches ($panelSource + [Environment]::NewLine + $livePanelSource) 'qw
 Assert-Contains $livePanelSource 'href: "/files"' "Jarvis links to the existing project reader"
 Assert-Contains $livePanelSource 'href: "/patch-preview-workbench"' "Jarvis links to the existing patch review"
 Assert-Contains $livePanelSource 'href: "/validation"' "Jarvis links to the existing Validation Runner"
-Assert-Contains $livePanelSource 'ollama-local::gpt-oss:20b' "Jarvis names the exact normal local model"
-Assert-Contains $livePanelSource '4096-token ceiling' "Jarvis names the local token envelope"
+Assert-Contains $chatPanelSource 'ollama-local::gpt-oss:20b' "Canonical Jarvis chat names the exact normal local model"
+Assert-Contains $chatPanelSource 'maximum 4096 output tokens' "Canonical Jarvis chat names the local token envelope"
 Assert-Contains $patchApplySource 'buildApprovedPatchApplyApprovalPacket' "Approved Patch Apply keeps a separate approval packet"
 Assert-Contains $patchApplySource 'executeApprovedPatchApplyRequest' "Approved Patch Apply remains a separate execution boundary"
 Assert-Contains $validationSource 'explicitApprovalRequired: true' "Validation Runner keeps separate explicit approval"
@@ -168,8 +170,8 @@ foreach ($line in Get-Content -LiteralPath (Join-Path $root "scripts\smoke-codex
   }
 }
 
-Assert-True ($aggregateEntries.Count -eq 74) "Aggregate executable count is 74"
-Assert-True (($aggregateEntries | Where-Object Required).Count -eq 71) "Aggregate required count is 71"
+Assert-True ($aggregateEntries.Count -eq 75) "Aggregate executable count is 75"
+Assert-True (($aggregateEntries | Where-Object Required).Count -eq 72) "Aggregate required count is 72"
 Assert-True (($aggregateEntries | Where-Object { -not $_.Required }).Count -eq 3) "Aggregate optional count remains 3"
 
 $nodeScript = @'

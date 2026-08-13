@@ -126,11 +126,12 @@ foreach ($secondaryId in @("home", "capabilities", "creative", "history", "entry
   Assert-True ([regex]::IsMatch($routes, $pattern)) "route registry keeps $secondaryId secondary"
 }
 
-Assert-Contains $aiTopBar "AI Workspace" "/ai compact local row keeps page title"
-Assert-Contains $aiTopBar "Add system note" "/ai keeps Add system note action"
-Assert-Contains $aiTopBar "Clear" "/ai keeps Clear action"
-Assert-NotContains $aiTopBar "styles.brandWrap" "/ai top bar no longer renders brand block"
-Assert-NotContains $aiTopBar "styles.brandOrb" "/ai top bar no longer renders logo block"
+Assert-Contains $aiPage 'redirect("/jarvis")' "/ai is the one server-owned compatibility redirect"
+Assert-Contains $aiTopBar "AI Workspace" "retained historical chat top bar keeps its unique title fixture"
+Assert-Contains $aiTopBar "Add system note" "retained historical chat top bar keeps system-note source coverage"
+Assert-Contains $aiTopBar "Clear" "retained historical chat top bar keeps clear-action source coverage"
+Assert-NotContains $aiTopBar "styles.brandWrap" "retained historical top bar renders no duplicate brand block"
+Assert-NotContains $aiTopBar "styles.brandOrb" "retained historical top bar renders no duplicate logo block"
 
 Assert-Contains $brain "Brain Command Center" "/brain local row keeps title"
 Assert-Contains $brain "Refresh" "/brain keeps Refresh action"
@@ -163,7 +164,8 @@ Assert-Contains $runs "Open Jarvis Local Bridge" "/runs keeps bridge action"
 Assert-NotContains $runs "CodexForge Phase 8" "/runs removed duplicate phase brand header"
 
 Assert-Contains $entry "CodexForgeGlobalNav" "/entry keeps global nav"
-Assert-Contains $entry "Open in AI workspace" "/entry keeps quick launch submit action"
+Assert-Contains $entry "Create chat in Jarvis" "/entry keeps its canonical visible quick-launch action"
+Assert-Contains $entry "best-effort browser-local activity update" "/entry labels local activity recording honestly"
 Assert-Contains $entry "Reset form" "/entry keeps reset action"
 Assert-NotContains $entry "<div style={topNav}>" "/entry removed local route nav block"
 Assert-NotContains $entry "brandOrb" "/entry removed duplicate brand orb"

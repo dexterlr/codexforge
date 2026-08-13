@@ -2266,6 +2266,15 @@ async function main() {
   const missingMappingLookup = await missingMappingFreshStore.lookupRunByIdempotencyKeyHash(
     missingMappingCreated.run.idempotencyKeyHash
   );
+  const restoredMissingMapping = JSON.parse(
+    await fsp.readFile(
+      getIdempotencyFileAbsolutePath(
+        missingMappingLabel,
+        missingMappingCreated.run.idempotencyKeyHash
+      ),
+      "utf8"
+    )
+  );
   assert(
     missingMappingReplay.created === false &&
       missingMappingReplay.run.runId === missingMappingCreated.run.runId &&
@@ -2273,10 +2282,11 @@ async function main() {
         getRunFileAbsolutePath(missingMappingLabel, missingMappingCreated.run.runId),
         "utf8"
       )) === missingMappingRunBefore &&
-      missingMappingLookup &&
-      missingMappingLookup.publicationPhase === "published" &&
-      missingMappingLookup.run?.runId === missingMappingCreated.run.runId,
-    "A retry after a missing mapping must restore the exact run without duplication."
+      missingMappingLookup === null &&
+      restoredMissingMapping.publicationPhase === "published" &&
+      restoredMissingMapping.runId === missingMappingCreated.run.runId &&
+      JSON.stringify(restoredMissingMapping.ownership) === JSON.stringify(exactCreatorOwnership),
+    "A retry after a missing mapping restores the exact creator-owned run without exposing its key through generic lookup."
   );
   assert(
     (await fsp.readdir(path.join(toAbsolutePath(missingMappingLabel), "runs"))).filter(
@@ -2378,13 +2388,23 @@ async function main() {
   const reservationLookup = await reservationRecoveryFreshStore.lookupRunByIdempotencyKeyHash(
     reservationPublished.run.idempotencyKeyHash
   );
+  const restoredReservationMapping = JSON.parse(
+    await fsp.readFile(
+      getIdempotencyFileAbsolutePath(
+        reservationRecoveryLabel,
+        reservationPublished.run.idempotencyKeyHash
+      ),
+      "utf8"
+    )
+  );
   assert(
     reservationRecovered.created === false &&
       reservationRecovered.run.runId === reservationPublished.run.runId &&
-      reservationLookup &&
-      reservationLookup.publicationPhase === "published" &&
-      reservationLookup.run?.runId === reservationPublished.run.runId,
-    "A valid reservation with no run must replay the same reserved run identity and finalize publication."
+      reservationLookup === null &&
+      restoredReservationMapping.publicationPhase === "published" &&
+      restoredReservationMapping.runId === reservationPublished.run.runId &&
+      JSON.stringify(restoredReservationMapping.ownership) === JSON.stringify(exactCreatorOwnership),
+    "A valid creator reservation with no run replays its reserved identity, finalizes publication, and stays hidden from generic lookup."
   );
 
   const contradictionLabel = storeModule.buildPrivateAlphaTestingDataRootLabel(
@@ -2419,13 +2439,12 @@ async function main() {
     getRunFileAbsolutePath(contradictionLabel, contradictionCreated.run.runId),
     "utf8"
   );
-  await expectStoreError(
-    () =>
-      contradictionStore.lookupRunByIdempotencyKeyHash(
-        contradictionCreated.run.idempotencyKeyHash
-      ),
-    500,
-    "contradicts its publication reservation"
+  const contradictionGenericLookup = await contradictionStore.lookupRunByIdempotencyKeyHash(
+    contradictionCreated.run.idempotencyKeyHash
+  );
+  assert(
+    contradictionGenericLookup === null,
+    "Generic idempotency lookup reveals no creator-owned reservation, including a malformed one."
   );
   await expectStoreError(
     () =>
@@ -2456,9 +2475,10 @@ async function main() {
     "creator-exact-lookup",
     lookupInventoryHarness
   );
+  const lookupTargetKey = "private-alpha-creator-exact-lookup-target-0001";
   const lookupTarget = await lookupInventoryStore.createCreatorRun(
     creatorRequest,
-    "private-alpha-creator-exact-lookup-target-0001",
+    lookupTargetKey,
     exactCreatorOwnership
   );
   for (let index = 0; index < 55; index += 1) {
@@ -2476,12 +2496,33 @@ async function main() {
   const exactLookup = await lookupInventoryStore.lookupRunByIdempotencyKeyHash(
     lookupTarget.run.idempotencyKeyHash
   );
+  const exactCreatorReplay = await lookupInventoryStore.createCreatorRun(
+    creatorRequest,
+    lookupTargetKey,
+    exactCreatorOwnership
+  );
+  const exactCreatorRead = await lookupInventoryStore.getCreatorRun(
+    lookupTarget.run.runId,
+    exactCreatorOwnership
+  );
+  const exactCreatorMapping = JSON.parse(
+    await fsp.readFile(
+      getIdempotencyFileAbsolutePath(
+        lookupInventoryLabel,
+        lookupTarget.run.idempotencyKeyHash
+      ),
+      "utf8"
+    )
+  );
   assert(
-    exactLookup &&
-      exactLookup.run?.runId === lookupTarget.run.runId &&
-      exactLookup.reservedRunId === lookupTarget.run.runId &&
-      JSON.stringify(exactLookup.ownership) === JSON.stringify(exactCreatorOwnership),
-    "Exact idempotency lookup must find the creator run after more than 50 newer runs."
+    exactLookup === null &&
+      exactCreatorReplay.created === false &&
+      exactCreatorReplay.run.runId === lookupTarget.run.runId &&
+      exactCreatorRead.runId === lookupTarget.run.runId &&
+      exactCreatorMapping.publicationPhase === "published" &&
+      exactCreatorMapping.runId === lookupTarget.run.runId &&
+      JSON.stringify(exactCreatorMapping.ownership) === JSON.stringify(exactCreatorOwnership),
+    "Exact creator replay finds its indexed run after more than 50 newer runs while generic lookup reveals no owned reservation."
   );
 
   const boundedInventorySuffix = "bounded-non-windows-inventory";

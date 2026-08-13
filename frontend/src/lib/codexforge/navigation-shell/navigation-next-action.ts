@@ -95,11 +95,11 @@ export function selectCodexForgeShellNextAction(
   }
 
   if (context.hasRegressionOrFixWork) {
-    const href = isRouteAvailable("/stabilization", availability) ? "/stabilization" : "/ai";
+    const href = isRouteAvailable("/stabilization", availability) ? "/stabilization" : "/jarvis";
     return routeAction(
       "open-regression-fix-review",
-      href === "/stabilization" ? "Review stabilization queue" : "Review in AI Workspace",
-      "Regression or fix work routes to stabilization when present, otherwise AI Workspace.",
+      href === "/stabilization" ? "Review stabilization queue" : "Review in Jarvis",
+      "Regression or fix work routes to stabilization when present, otherwise the canonical Jarvis workspace.",
       href,
       "regression-or-fix"
     );
@@ -146,4 +146,3 @@ export function summarizeCodexForgeShellNextAction(
 ): string {
   return action.href ? `${action.label} -> ${action.href}` : action.label;
 }
-

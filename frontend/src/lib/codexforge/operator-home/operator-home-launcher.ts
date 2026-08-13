@@ -18,14 +18,14 @@ const GROUP_ORDER: Array<{
   {
     id: "start-here",
     label: "Start here",
-    description: "Start in AI Workspace, Inspect Files, Review Stabilization, Review Product Readiness, Create Handoff, or choose the next functional workflow.",
-    routeHrefs: ["/ai", "/files", "/stabilization", "/readiness", "/handoff", "/consolidation"],
+    description: "Start in Jarvis, Inspect Files, Review Stabilization, Review Product Readiness, Create Handoff, or choose the next functional workflow.",
+    routeHrefs: ["/jarvis", "/files", "/stabilization", "/readiness", "/handoff", "/consolidation"],
   },
   {
     id: "core-cognition",
     label: "Core cognition",
-    description: "AI Workspace and Brain runtime inspection.",
-    routeHrefs: ["/ai", "/brain"],
+    description: "Jarvis workspace and Brain runtime inspection.",
+    routeHrefs: ["/jarvis", "/brain"],
   },
   {
     id: "engineering-workflow",
@@ -131,6 +131,6 @@ export function summarizeOperatorHomeLauncher(
   return [
     `${groups.length} launcher groups are visible.`,
     `${cardCount} ordered launch cards are link-only.`,
-    "Launcher includes Start here cards for Start in AI Workspace, Inspect Files, Review Stabilization, Review Product Readiness, Create Handoff, Next functional workflow, plus Core cognition, Engineering workflow, Stabilization and safety, Creative production, Memory and evidence, and Operator history when routes exist.",
+    "Launcher includes Start here cards for Start in Jarvis, Inspect Files, Review Stabilization, Review Product Readiness, Create Handoff, Next functional workflow, plus Core cognition, Engineering workflow, Stabilization and safety, Creative production, Memory and evidence, and Operator history when routes exist.",
   ];
 }

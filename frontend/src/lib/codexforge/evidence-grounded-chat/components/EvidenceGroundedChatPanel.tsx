@@ -33,10 +33,10 @@ const demoInput: EvidenceChatSelectionInput = {
   evidence: [
     {
       id: "phase-28-visible-evidence",
-      label: "Evidence-grounded chat requires visible selected evidence",
-      snippet: "Reviewed read-only evidence must be visible before it can be copied into chat.",
+      label: "Jarvis evidence-grounded chat requires visible selected evidence",
+      snippet: "Reviewed read-only evidence must be visible before it can be copied into the Jarvis composer.",
       toolName: "read-file",
-      filePath: "src/app/ai/page.tsx",
+      filePath: "src/app/jarvis/page.tsx",
       lineNumber: 1,
       confidence: 0.82,
       warnings: [],
@@ -98,6 +98,13 @@ export function EvidenceGroundedChatPanel({
         <span style={pill}>{model.summary.selectedCount} selected</span>
       </div>
 
+      {model.summary.selectedCount === 0 ? (
+        <p style={emptyEvidence} role="status">
+          No reviewed evidence is loaded in Jarvis. Open a dedicated evidence or file-review surface,
+          review the source, and bring only its visible prompt here; no demo evidence is used.
+        </p>
+      ) : null}
+
       <EvidenceGroundingSafetyNotice />
       <div style={grid}>
         <EvidenceSelectionPanel selection={model.selection} />
@@ -120,8 +127,8 @@ export function EvidenceGroundedChatPanel({
 
       <EvidencePromptPreviewPanel
         prompt={model.prompt}
-        onCopyPrompt={onCopyPrompt}
-        onUsePrompt={onUsePrompt}
+        onCopyPrompt={model.summary.promptReady ? onCopyPrompt : undefined}
+        onUsePrompt={model.summary.promptReady ? onUsePrompt : undefined}
       />
     </section>
   );
@@ -135,3 +142,4 @@ const body: CSSProperties = { margin: 0, fontSize: 12, lineHeight: 1.5, opacity:
 const pill: CSSProperties = { border: "1px solid rgba(34,197,94,0.28)", background: "rgba(34,197,94,0.12)", borderRadius: 8, padding: "6px 8px", fontSize: 11, fontWeight: 900, textTransform: "uppercase" };
 const grid: CSSProperties = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 10, minWidth: 0 };
 const cards: CSSProperties = { display: "grid", gap: 8, minWidth: 0 };
+const emptyEvidence: CSSProperties = { margin: 0, border: "1px solid rgba(251,191,36,0.28)", background: "rgba(251,191,36,0.08)", borderRadius: 8, padding: 10, fontSize: 12, lineHeight: 1.5, color: "#fef3c7", overflowWrap: "anywhere" };

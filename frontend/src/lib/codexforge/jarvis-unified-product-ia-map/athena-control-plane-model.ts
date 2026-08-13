@@ -980,10 +980,10 @@ export const ATHENA_PRODUCT_UX_HERO_COPY = {
 export const ATHENA_PRIMARY_OPERATOR_ACTIONS = [
   {
     id: "open-athena-command-center",
-    label: "Open Athena Command Center",
-    shortLabel: "Athena Command Center",
+    label: "Open Jarvis Chat",
+    shortLabel: "Jarvis Chat",
     summary:
-      "Open Athena as the upper Jarvis operator brain for preview-only planning, routing, review, and safe handoff preparation.",
+      "Open canonical Jarvis for bounded local conversation, explicit context, manual approval, and safe handoff preparation.",
     href: "/jarvis",
     badge: "/jarvis",
     tone: "ready",
@@ -1321,7 +1321,7 @@ export const ATHENA_PRODUCT_UX_POLISH_MODEL = {
   blockedDefaultExecutionSummary:
     "Frontend provider calls: blocked. Backend admission request creation: blocked. Backend admission response receipt: blocked. Backend dry-run request creation: blocked. Backend dry-run invocation: blocked. Backend dry-run response receipt: blocked. Provider execution: locked. Plugin execution: locked. Autonomous execution: locked. Prompt sending: not implemented. Model calls: not implemented. Queue dispatch: blocked. Worker dispatch: blocked. Job execution: blocked. Persistence: not implemented. Backend-only execution: required.",
   nextOperatorActions: [
-    "Open Athena Command Center and draft the operator request locally.",
+    "Open Jarvis Chat and draft the exact visible operator request locally.",
     "Review the conversational command composer preview before opening a specialist workspace.",
     "Review the approval draft preview and keep backend-only execution blocked by default.",
     "Review the AI model provider registry, capability matrix, provider selection preview, server-only model adapter contracts, manual gated dry-run harness, and model adapter dry-run result review before discussing execution.",
@@ -2342,9 +2342,9 @@ export const ATHENA_AUDIT_READINESS_MODEL = [
 export const ATHENA_NEXT_ACTIONS = [
   {
     id: "open-athena",
-    label: "Open Athena Command Center",
+    label: "Open Jarvis Chat",
     summary:
-      "Start from Athena to plan, route, review, and safely hand off AI work across CodexForge.",
+      "Start from Jarvis to hold a bounded local conversation, review, and safely hand off work across CodexForge.",
   },
   {
     id: "review-registry",

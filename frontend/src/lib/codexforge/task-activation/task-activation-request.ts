@@ -41,7 +41,7 @@ function routeStepForKind(kind: TaskSuggestionKind, title: string): string {
   if (kind === "plan-creative") {
     return "Keep creative execution preview-only until a separate explicit execution review exists.";
   }
-  return "Prepare a reviewed handoff prompt for the AI workspace.";
+  return "Prepare a reviewed handoff prompt for the visible Jarvis composer.";
 }
 
 function buildRequestSteps(input: TaskActivationRequestInput): string[] {

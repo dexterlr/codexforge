@@ -14,6 +14,10 @@ function Assert-PowerShellParses([string]$Path) {
 
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
+$expectedBaselineTag = "codexforge-rendered-product-accessibility-acceptance-clean"
+$expectedBaseline = "fe74ece00629cd6cdcbeba0a35e31d0a4ab54f58"
+$expectedCreatorCheckpointTag = "codexforge-approved-static-website-creator-foundation-clean"
+$expectedCreatorCheckpoint = "a8ea7b5a4b91937152d16279f876364187a2c318"
 Write-Host "=== CodexForge Slice R exact Qwen qualification and controlled acceptance smoke ==="
 
 $macroPhaseCPaths = @(
@@ -54,10 +58,14 @@ foreach ($path in $macroPhaseCPaths) {
   Assert-True (Test-Path -LiteralPath $path -PathType Leaf) "Historical Macro Phase C.1 source remains present: $path"
 }
 
+$baselinePeel = (& git rev-parse "$expectedBaselineTag^{}" 2>$null).Trim()
+$creatorPeel = (& git rev-parse "$expectedCreatorCheckpointTag^{}" 2>$null).Trim()
+Assert-True ($baselinePeel -eq $expectedBaseline) "Historical baseline tag peels to the exact accepted commit"
+Assert-True ($creatorPeel -eq $expectedCreatorCheckpoint) "Historical creator tag peels to the exact accepted commit"
+Assert-True ((& git rev-parse "$expectedCreatorCheckpoint^" 2>$null).Trim() -eq $expectedBaseline) "Historical creator checkpoint has the exact accepted parent"
 $changedPaths = @(
-  (& git status --short --untracked-files=all) |
-    Where-Object { $_.Length -ge 4 } |
-    ForEach-Object { $_.Substring(3).Trim() -replace "\\", "/" } |
+  (& git diff --relative --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag" 2>$null) |
+    ForEach-Object { $_.Trim() -replace "\\", "/" } |
     Sort-Object -Unique
 )
 Assert-True (@(& git diff --cached --name-only).Count -eq 0) "Nothing is staged during the current bounded implementation"
@@ -72,7 +80,7 @@ $protectedPaths = @(
   "src/lib/codexforge/groq-provider"
 )
 foreach ($path in $protectedPaths) {
-  $diff = ((& git -c core.safecrlf=false diff --name-only -- $path) | Out-String).Trim()
+  $diff = ((& git -c core.safecrlf=false diff --relative --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag" -- $path) | Out-String).Trim()
   Assert-True ([string]::IsNullOrWhiteSpace($diff)) "Protected path is unchanged: $path"
 }
 
@@ -115,7 +123,7 @@ foreach ($providerBoundary in @(
   "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts",
   "src/lib/codexforge/private-alpha/private-alpha-state-machine.ts"
 )) {
-  $diff = ((& git -c core.safecrlf=false diff --name-only -- $providerBoundary) | Out-String).Trim()
+  $diff = ((& git -c core.safecrlf=false diff --relative --name-only "$expectedBaselineTag..$expectedCreatorCheckpointTag" -- $providerBoundary) | Out-String).Trim()
   Assert-True ([string]::IsNullOrWhiteSpace($diff)) "Private Alpha provider/runtime boundary remains unchanged: $providerBoundary"
 }
 
@@ -135,8 +143,8 @@ foreach ($path in @($changedPaths | Where-Object { $_ -like "*.ps1" })) {
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 74) "Aggregate executable count is 74"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 71) "Aggregate required count is 71"
+Assert-True ($entries.Count -eq 75) "Aggregate executable count is 75"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 72) "Aggregate required count is 72"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True ($releaseBlock -match 'First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},\r?\n  @\{ Name = "Exact Qwen 2\.5 Coder 32B Qualification and Controlled Acceptance Contract"; File = "smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract\.ps1"; Required = \$true \},') "Slice R follows Slice Q and is required"
 Assert-True ($releaseBlock -notmatch 'qualify-codexforge-qwen2-5-coder-32b-installed-candidate|run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance') "Manual scripts are absent from the aggregate"

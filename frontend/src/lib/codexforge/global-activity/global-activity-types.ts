@@ -73,7 +73,7 @@ export type GlobalActivitySurface =
 export type GlobalActivityRoute =
   | "/"
   | "/activity"
-  | "/ai"
+  | "/jarvis"
   | "/brain"
   | "/files"
   | "/tasks"

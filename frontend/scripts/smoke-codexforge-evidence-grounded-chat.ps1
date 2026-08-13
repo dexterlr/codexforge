@@ -43,7 +43,10 @@ Write-Host "Base URL: $BaseUrl"
 
 $domainDir = "src\lib\codexforge\evidence-grounded-chat"
 $componentDir = Join-Path $domainDir "components"
-$aiPagePath = "src\app\ai\page.tsx"
+$legacyPagePath = "src\app\ai\page.tsx"
+$jarvisLivePath = "src\lib\codexforge\jarvis-unified-product-ia-map\components\AthenaLiveCommandCenterPanel.tsx"
+$jarvisAdvancedPath = "src\lib\codexforge\jarvis-unified-product-ia-map\components\JarvisAdvancedToolsPanel.tsx"
+$jarvisChatPath = "src\lib\codexforge\jarvis-chat\components\JarvisChatPanel.tsx"
 $memoryClientPath = "src\app\memory\page-client.tsx"
 $tasksClientPath = "src\app\tasks\page-client.tsx"
 $brainClientPath = "src\app\brain\page-client.tsx"
@@ -82,14 +85,17 @@ foreach ($component in @(
 
 $domainSource = (Get-ChildItem $domainDir -File | Sort-Object FullName | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
 $uiSource = (Get-ChildItem $componentDir -File | Sort-Object FullName | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
-$aiPageSource = Get-Content -Raw $aiPagePath
+$legacyPageSource = Get-Content -Raw $legacyPagePath
+$jarvisLiveSource = Get-Content -Raw $jarvisLivePath
+$jarvisAdvancedSource = Get-Content -Raw $jarvisAdvancedPath
+$jarvisChatSource = Get-Content -Raw $jarvisChatPath
 $memorySource = Get-Content -Raw $memoryClientPath
 $tasksSource = Get-Content -Raw $tasksClientPath
 $brainSource = Get-Content -Raw $brainClientPath
 $missionSource = (Get-ChildItem $missionDir -File | Sort-Object FullName | ForEach-Object { Get-Content -Raw $_.FullName }) -join "`n"
 $allSmoke = Get-Content -Raw $allSmokePath
 $groundingSource = $domainSource + "`n" + $uiSource
-$allSource = $groundingSource + "`n" + $aiPageSource + "`n" + $memorySource + "`n" + $tasksSource + "`n" + $brainSource + "`n" + $missionSource
+$allSource = $groundingSource + "`n" + $legacyPageSource + "`n" + $jarvisLiveSource + "`n" + $jarvisAdvancedSource + "`n" + $jarvisChatSource + "`n" + $memorySource + "`n" + $tasksSource + "`n" + $brainSource + "`n" + $missionSource
 
 foreach ($export in @(
   "buildEvidenceChatSelection",
@@ -114,7 +120,14 @@ foreach ($render in @(
   Assert-Contains $uiSource $render "$render"
 }
 
-Assert-Contains $aiPageSource "EvidenceGroundedChatPanel" "/ai imports/renders EvidenceGroundedChatPanel"
+Assert-Contains $legacyPageSource 'redirect("/jarvis")' "retired /ai redirects to canonical Jarvis"
+Assert-Contains $jarvisLiveSource "JarvisAdvancedToolsPanel" "canonical Jarvis mounts advanced tools"
+Assert-Contains $jarvisAdvancedSource "EvidenceGroundedChatPanel" "Jarvis advanced tools render EvidenceGroundedChatPanel"
+Assert-Contains $jarvisAdvancedSource 'input={{ evidence: [], candidates: [], defaultSelected: false }}' "canonical Jarvis starts evidence review empty instead of presenting fixture evidence as reviewed"
+Assert-Contains $jarvisAdvancedSource "onUsePrompt={usePrompt}" "evidence handoff uses the explicit visible composer boundary"
+Assert-Contains $uiSource "No reviewed evidence is loaded in Jarvis" "empty canonical evidence state is truthful"
+Assert-Contains $uiSource "No prompt action is available until reviewed evidence is selected" "empty evidence cannot create a canonical chat prompt"
+Assert-Contains $jarvisChatSource "nothing was sent automatically" "canonical composer reports that a handoff was not sent"
 Assert-Contains $memorySource "Evidence-Grounded Chat" "/memory references Evidence-Grounded Chat"
 Assert-Contains $tasksSource "Evidence-Grounded Chat" "/tasks references Evidence-Grounded Chat"
 Assert-Contains $brainSource "Evidence-grounded chat uses selected evidence only" "/brain references Evidence-Grounded Chat"

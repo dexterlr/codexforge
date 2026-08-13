@@ -109,7 +109,7 @@ foreach ($render in @(
   Assert-Contains $uiSource $render "$render renders"
 }
 
-Assert-Contains $tasksSource "TaskActivationPanel" "/tasks imports/renders TaskActivationPanel"
+Assert-Contains $tasksSource "<TaskActivationPanel embedded />" "/tasks embeds Task Activation beneath its single page heading"
 
 foreach ($text in @(
   "explicit review approval required",
@@ -127,7 +127,9 @@ Assert-Contains $domainSource "Patch/fix tasks must route through Safe Patch Pre
 Assert-Contains $domainSource "inspect first" "handoff says inspect first"
 Assert-Contains $domainSource "verify current files" "handoff says verify current files"
 Assert-Contains $domainSource "no command execution without approval" "handoff says no command execution without approval"
-Assert-Contains $aiPageSource "Reviewed Task Activation" "AI page references Reviewed Task Activation"
+Assert-Contains $aiPageSource 'redirect("/jarvis")' "retired AI route redirects to canonical Jarvis"
+Assert-Contains $domainSource 'targetHref: "/jarvis"' "task activation handoff targets canonical Jarvis"
+Assert-NotContains $domainSource 'targetHref: "/ai"' "task activation handoff does not target retired AI route"
 Assert-Contains $missionSource "Reviewed Task Activation" "Mission Control references Reviewed Task Activation"
 
 Assert-NotMatches $taskSource 'from\s+["''][^"'']*brain-graph["'']' "no import from brain-graph"
