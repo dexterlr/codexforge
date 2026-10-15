@@ -1,0 +1,76 @@
+{
+  "format": "animation-studio-publication-checkpoint-v1",
+  "publicationDate": "2026-10-15",
+  "scope": "Accumulated Animation Studio source, tests and documentation through the accepted STUDIO-BLENDER-02 native-revision round trip",
+  "baselineCommit": "2e7f3cd0b5eb0941aab4caa4913cb3e40647b126",
+  "branch": "animation-studio-phase0",
+  "acceptedImplementationPaths": 185,
+  "acceptedApplicationBuild": "NEZr23CDqLm6MpfM4tOMs",
+  "acceptance": {
+    "status": "ACCEPTED",
+    "completedAt": "2026-10-15T13:55:45.704Z",
+    "nativeRevisionRoundTrip": "ACCEPTED",
+    "existingABOutputPlayback": "VERIFIED",
+    "takeReplacementAndUndoRedo": "VERIFIED",
+    "gracefulRestartRecovery": "PASS",
+    "everydayPersonalRuntimeUpdated": true,
+    "duplicateStartGracefulStopAndReopen": "PASS",
+    "personalDataAndLibrary": "PRESERVED",
+    "finalCharacterQuality": "NOT APPROVED"
+  },
+  "localEvidenceReferences": {
+    "note": "These immutable records remain in the local studio-blender-02-20261014T121303Z validation directory. They are referenced, not uploaded. Their historical Git state was deliberately uncommitted; this publication does not rewrite that evidence.",
+    "completedCheckpoint": {
+      "file": "STUDIO-BLENDER-02-R4-CHECKPOINT-v001.json",
+      "sha256": "eadb3db7cae2588fd7b4910cfeba54728d04f58933ca7ceeb8f02b7d8ccbbe74"
+    },
+    "isolatedAcceptance": {
+      "file": "STUDIO-BLENDER-02-R4-ISOLATED-CHECKPOINT-v001.json",
+      "sha256": "fe0ef4aa828940f3339a07647ab7eb9ed747cb8a32503ce8b09dfbb2840cd3af"
+    },
+    "sourceFreeze": {
+      "file": "candidate-r3/control-evidence/source-freeze.json",
+      "sha256": "2eae653f07c67fe24b11b610e9103f3cfad62b6cef7862ebfaad282ae70258fd"
+    },
+    "buildVerification": {
+      "file": "candidate-r3/control-evidence/build-verification.json",
+      "sha256": "50986bcdad0b681d7805b2c1cda813449cc87011f2d63558987b36380279c383"
+    }
+  },
+  "runtimeBoundary": {
+    "everydayUrl": "http://127.0.0.1:3379/animation-studio",
+    "applicationWorkspaceSeparation": "Accepted compiled application reused in place; original personal workspace and normal D: library binding preserved",
+    "historicalLaunchDocumentation": "Earlier T05/T07 launch paths describe historical configurations. The accepted R4 promotion record is authoritative for the current local application/configuration.",
+    "deployment": "Git publication is not a deployment or fresh installation. Machine-specific configuration, installed Blender/FFmpeg/native binaries and existing media are not supplied by this checkpoint."
+  },
+  "publicationBoundary": {
+    "productSourceChangesDuringPublication": 0,
+    "newBuilds": 0,
+    "newRenders": 0,
+    "completedAcceptanceRerun": false,
+    "additionalFile": "This portable checkpoint only",
+    "stagedWhitespaceReview": {
+      "result": "Three existing extra-blank-line-at-EOF warnings retained to preserve the accepted source",
+      "files": [
+        "frontend/docs/animation-studio-phase2a1.md:115",
+        "frontend/docs/animation-studio-phase2b1d.md:36",
+        "frontend/src/lib/codexforge/animation-studio/footage-stream-response.server.ts:81"
+      ],
+      "note": "These previously untracked files were not covered by the earlier unstaged tracked-file diff check. No product source was altered for publication."
+    },
+    "excluded": [
+      "Personal projects and media",
+      "Native character assets and rendered outputs",
+      "Compiled application and dependency trees",
+      "Private runtime configuration, ownership tokens and logs",
+      "Machine-specific recovery copies and validation-control helpers"
+    ]
+  },
+  "limitations": [
+    "Final Emerald cat design and commercial-film quality remain unapproved.",
+    "The direct native preview does not reproduce the externally authored contact-shadow composite.",
+    "Earlier failed monitor sessions and interrupted render evidence remain preserved; they are not reclassified as passing.",
+    "Existing renderer-subset, import, preview and host-capability limitations still apply.",
+    "Retained T07/accepted01 fallback configurations must not restore stale data over newer work or downgrade incompatible records."
+  ]
+}

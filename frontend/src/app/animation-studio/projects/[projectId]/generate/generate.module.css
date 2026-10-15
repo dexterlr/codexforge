@@ -1,0 +1,43 @@
+.workspace { color: #eaf4f7; font-family: var(--font-geist-sans), sans-serif; display: grid; gap: 18px; min-width: 0; line-height: 1.65; overflow-wrap: anywhere; }
+.workspace h1, .workspace h2, .workspace h3, .workspace p { margin: 0; }
+.workspace h1 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.16; letter-spacing: -.045em; margin: 8px 0 14px; }
+.workspace h2 { font-size: 1.25rem; line-height: 1.4; }
+.workspace h3 { font-size: .92rem; }
+.workspace button, .workspace select { font: inherit; }
+.workspace button { border: 1px solid #287e80; border-radius: 10px; background: #105b60; color: #f0ffff; padding: 10px 16px; font-weight: 650; cursor: pointer; }
+.workspace button:hover:not(:disabled) { background: #177278; }
+.workspace button:disabled { opacity: .55; cursor: not-allowed; }
+.workspace button:focus-visible, .workspace select:focus-visible, .workspace summary:focus-visible, .workspace a:focus-visible { outline: 3px solid #77e4df; outline-offset: 3px; }
+.workspace select { border: 1px solid #365061; background: #07131f; color: #eef8ff; padding: 12px; border-radius: 8px; width: 100%; min-width: 0; }
+.workspace label { font-size: .9rem; font-weight: 600; }
+.workspace ul { padding-left: 22px; margin: 0; }
+.workspace li + li { margin-top: 7px; }
+.workspace summary { color: #bedee5; cursor: pointer; }
+.workspace pre { max-height: 460px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; background: #060f18; border-radius: 10px; padding: 16px; font-size: .8rem; line-height: 1.65; }
+.workspace code { font-size: .82rem; overflow-wrap: anywhere; }
+.back { color: #a2e0df; justify-self: start; font-size: .9rem; text-underline-offset: 4px; }
+.hero { display: flex; align-items: start; justify-content: space-between; gap: 20px; padding: 30px; border: 1px solid #254a55; background: linear-gradient(120deg, #103b3f, #0b1928 66%); border-radius: 20px; }
+.hero p { color: #bdd6e4; max-width: 650px; }
+.eyebrow { color: #89d9d4 !important; font-size: .7rem; letter-spacing: .13em; text-transform: uppercase; font-weight: 750; }
+.badge { border: 1px solid #397274; border-radius: 99px; color: #baf2ea; background: #123439; padding: 4px 12px; font-size: .76rem; flex-shrink: 0; }
+.boundary { border: 1px solid #827440; color: #ffe9b3; border-radius: 12px; background: #302915; padding: 18px; display: grid; gap: 6px; }
+.boundary strong { font-size: .92rem; letter-spacing: .02em; }
+.boundary p { font-size: .9rem; }
+.card { border: 1px solid #243c4c; background: #0a1724; border-radius: 16px; padding: 22px; display: grid; gap: 16px; min-width: 0; align-content: start; }
+.columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; gap: 14px; }
+.facts > div { display: grid; gap: 4px; min-width: 0; align-content: start; }
+.facts dt { color: #a4bdce; font-size: .78rem; }
+.facts dd { margin: 0; font-size: .88rem; color: #e0f1f7; }
+.identifier { font-size: .74rem; color: #9fb5c7; }
+.muted { color: #a4bdce; font-size: .86rem; }
+.warning { background: #362c16; border-left: 3px solid #c7a34d; color: #ffe5a6; padding: 12px; border-radius: 4px; font-size: .88rem; }
+.error { background: #422522; border: 1px solid #a55c51; color: #ffddd6; border-radius: 12px; padding: 16px; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.workspace .secondary { background: #142535; color: #cce7ec; border-color: #365364; font-size: .86rem; }
+.hash, .prompt { display: grid; gap: 8px; min-width: 0; padding: 15px; border-radius: 10px; background: #102332; }
+.prompt p { white-space: pre-wrap; }
+.providerDigest { border-left: 3px solid #79cbc5; }
+.localOnly { background: #162b38; border: 1px solid #3c6074; border-radius: 8px; padding: 12px; color: #d1e7f3; font-size: .88rem; }
+@media (max-width: 1000px) { .columns { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 600px) { .hero { flex-direction: column; padding: 22px; } .card { padding: 18px; } .facts { grid-template-columns: minmax(0, 1fr); } .badge { font-size: .72rem; } .workspace pre { padding: 12px; } }

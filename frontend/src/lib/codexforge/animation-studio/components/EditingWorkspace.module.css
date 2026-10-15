@@ -1,0 +1,93 @@
+.editor { display: flex; flex: 1 1 0; flex-direction: column; gap: 4px; min-height: 0; height: auto; padding: 8px; border-radius: 12px; line-height: 1.3; }
+.editor > * { flex-shrink: 0; }
+.editor [hidden] { display: none !important; }
+.editor h3, .editor h4, .editor p { margin-block: 0; }
+.editor summary { cursor: pointer; color: #b6dddf; font-size: .72rem; padding-block: 3px; }
+.editor summary:focus-visible { outline: 3px solid #8af0e7; outline-offset: 2px; }
+.toolbar { display: flex; gap: 5px 10px; flex-wrap: wrap; align-items: center; min-width: 0; }
+.identity { flex: 1 1 210px; min-width: 0; }
+.editor .identity h3 { font-size: .86rem; line-height: 1.2; margin: 0; overflow-wrap: anywhere; }
+.identity > span:last-child { color: #c1dadf; font-size: .69rem; }
+.saveBar { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.toolbar > div:not(.identity), .saveBar > div { gap: 5px; margin: 0; }
+.editor .toolbar button, .editor .selectionBar button { padding: 5px 8px; line-height: 1.25; min-height: 30px; }
+.technical { margin-left: auto; max-width: 100%; font-size: .72rem; }
+.technical[open] { flex-basis: 100%; }
+.feedback { display: grid; gap: 5px; max-height: 140px; overflow: auto; }
+.feedback:empty { display: none; }
+.feedback > p[role=status] { font-size: .69rem; line-height: 1.3; }
+.selectionBar { display: flex; align-items: center; gap: 5px 10px; flex-wrap: wrap; }
+.selectionBar > div { margin: 0; }
+.selectionBar > div:not(.modeBar) { flex: 1 1 350px; gap: 6px; }
+.editor .selectionBar label { display: flex; align-items: center; flex: 1 1 240px; max-width: 360px; font-size: .68rem; line-height: 1.25; gap: 6px; }
+.editor .selectionBar label select { flex: 1 1 160px; padding: 4px; }
+.selectionBar > details { flex: 0 0 auto; }
+.selectionBar details[open] { flex: 1 1 100%; }
+.modeBar { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.modeBar span { color: #b8cfd6; font-size: .72rem; }
+.editor button[aria-pressed=true] { border-color: #9bf1df; background: #1b4448; color: #f0fffd; }
+.grid { display: grid; flex: 1 1 0; grid-template-columns: 160px minmax(0, 1fr) 260px; grid-template-rows: auto minmax(0, 1fr) 220px; grid-template-areas: "feedback feedback feedback" "catalogue viewer inspector" "timeline timeline timeline"; gap: 6px; min-width: 0; min-height: 0; }
+.grid[data-catalogue-open=false] { grid-template-columns: minmax(0, 1fr) 260px; grid-template-areas: "feedback feedback" "viewer inspector" "timeline timeline"; }
+.renderFeedback { grid-area: feedback; min-width: 0; max-height: 140px; overflow: auto; }
+.renderFeedback:empty { display: none; }
+.renderFeedback > p[role=status] { font-size: .69rem; }
+.catalogue, .layerInspector, .exportPanel, .centre, .timeline { min-width: 0; min-height: 0; border: 1px solid #35515f; border-radius: 9px; background: #091824; padding: 7px; overflow: auto; overscroll-behavior: contain; }
+.catalogue, .layerInspector, .exportPanel { scrollbar-gutter: stable; }
+.catalogue { grid-area: catalogue; }
+.layerInspector, .exportPanel { grid-area: inspector; }
+.centre { grid-area: viewer; }
+.timeline { grid-area: timeline; padding: 0; }
+.layerInspector > *, .catalogue > *, .exportPanel > * { margin-bottom: 7px; }
+.editor fieldset { min-width: 0; padding: 8px; }
+.editor fieldset > p, .editor fieldset > legend, .fullRow { grid-column: 1 / -1; }
+.editor fieldset p { font-size: .74rem; line-height: 1.4; }
+.catalogue fieldset, .exportPanel fieldset { grid-template-columns: minmax(0, 1fr); }
+.exportPanel [aria-label="Completed local render outputs"] > div, .exportPanel [aria-label="Local render jobs"] > div { grid-template-columns: minmax(0, 1fr); }
+.exportPanel [aria-label="Completed local render outputs"], .exportPanel [aria-label="Local render jobs"], .exportPanel [aria-label="Saved-head render readiness"] { padding: 8px; }
+.editor input, .editor select { min-width: 0; max-width: 100%; }
+/* These route-local controls must outrank the parent Studio's font: inherit. */
+.editor :is(.toolbar, .feedback, .selectionBar, .grid) :is(input, select, button) { font-size: .78rem; line-height: 1.25; }
+.editor :is(.feedback, .selectionBar, .grid) :is(input, select) { padding: 5px 7px; }
+.catalogue ul { margin-bottom: 12px; }
+.catalogue li { gap: 4px; font-size: .76rem; }
+.centre video { max-height: 100%; }
+.centre > section { display: flex; flex-direction: column; min-height: 0; height: 100%; gap: 4px; }
+.centre > section > * { flex-shrink: 0; }
+.centre [data-preview-toolbar] { gap: 4px 8px; }
+.centre [data-preview-toolbar] h4 { font-size: .74rem; }
+.centre [data-preview-toolbar] > div { gap: 4px; }
+.editor [data-preview-toolbar] button { padding: 4px 7px; font-size: .7rem; line-height: 1.25; min-height: 28px; }
+.centre [data-preview-stage] { container-type: size; flex: 1 1 0; min-height: 0; display: grid; place-items: center; }
+.centre [data-preview-picture] { width: min(100cqw, calc(100cqh * var(--preview-ratio))); max-width: 100%; height: auto; }
+.centre > section > video { flex: 1 1 0; min-height: 0; height: 100%; object-fit: contain; }
+.centre > section > p[role=status] { max-height: 4em; overflow: auto; font-size: .66rem; line-height: 1.25; }
+.centre [data-preview-details] { max-height: 30%; overflow: auto; }
+.centre [data-preview-details] summary { font-size: .67rem; line-height: 1.25; }
+.timeline > section { display: flex; flex-direction: column; gap: 4px; height: 100%; min-height: 0; border: 0; border-radius: 0; padding: 4px; }
+.timeline [data-timeline-toolbar] { display: flex; align-items: center; flex-wrap: wrap; gap: 3px 10px; flex: 0 0 auto; }
+.timeline [data-timeline-toolbar] h4 { font-size: .76rem; }
+.timeline [data-timeline-toolbar] [aria-label="Timeline zoom"] { gap: 3px; font-size: .7rem; }
+.editor [data-timeline-toolbar] button { min-height: 28px; padding: 4px 7px; line-height: 1.25; font-size: .7rem; }
+.timeline [data-timeline-toolbar] details[open] { flex: 1 1 100%; max-height: 160px; overflow: auto; }
+.timeline [data-timeline-toolbar] summary { font-size: .68rem; }
+.timeline [data-timeline-tracks] { display: flex; flex: 1 1 0; flex-direction: column; min-height: 0; }
+.timeline [data-timeline-ruler-strip], .timeline [data-timeline-scroll] > div { grid-template-columns: 160px minmax(0, 1fr); border-radius: 0; }
+.timeline [data-timeline-ruler-strip] { flex: 0 0 auto; overflow-y: auto; scrollbar-gutter: stable; }
+.timeline [data-timeline-ruler-label], .timeline [aria-label^="Composition time ruler"] { height: 24px; }
+.timeline [aria-label^="Composition time ruler"] > span > span { top: 11px; }
+.timeline [data-timeline-ruler-window] { min-width: 0; overflow: hidden; }
+.timeline [data-timeline-scroll] { flex: 1 1 0; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
+.timeline [data-timeline-row] { height: 40px; }
+.timeline [data-timeline-row-kind="label"] { padding: 2px 6px; }
+.timeline [data-timeline-row-kind="label"] button { padding-block: 1px; }
+.timeline [data-timeline-row-kind="label"] button strong { font-size: .7rem; }
+.timeline [aria-label="Horizontally scrollable composition time"] { scrollbar-gutter: auto; }
+.timeline [data-timeline-row-kind="lane"] > button { top: 3px; height: 32px; }
+.timeline [data-timeline-trim-overlay] { top: 1px; height: 36px; }
+.timeline [data-timeline-ghost] { top: 1px; height: 36px; }
+.timeline > section > p[role=status] { flex: 0 0 auto; min-height: 0; max-height: 4em; overflow: auto; padding: 2px 6px; font-size: .66rem; line-height: 1.25; }
+@media (min-width: 901px) { .modeBar > span { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
+@media (max-width: 1100px) and (min-width: 901px) { .grid, .grid[data-catalogue-open=false] { grid-template-columns: minmax(0, 1fr) 260px; grid-template-areas: "feedback feedback" "viewer inspector" "timeline timeline"; } .grid[data-catalogue-open=true] .catalogue { grid-area: inspector; } .grid[data-catalogue-open=true] .layerInspector, .grid[data-catalogue-open=true] .exportPanel { display: none; } .identity { flex-basis: 170px; } }
+@media (max-width: 900px) { .editor { flex: none; height: auto; min-height: 0; } .grid, .grid[data-catalogue-open=false] { flex: none; height: auto; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; grid-template-areas: "feedback" "viewer" "timeline" "inspector" "catalogue"; } .centre { min-height: 0; } .centre > section { height: auto; } .centre [data-preview-stage] { container-type: inline-size; flex: none; } .centre [data-preview-picture] { width: 100%; } .centre > section > video { height: auto; flex: none; } .centre [data-preview-details] { max-height: none; } .layerInspector, .exportPanel, .catalogue { max-height: 430px; } .timeline { height: 300px; } .timeline [data-timeline-toolbar] details[open] { max-height: 180px; } .selectionBar > div:not(.modeBar), .editor .selectionBar label { flex-basis: 100%; max-width: none; } .editor .selectionBar label { display: grid; } .modeBar { flex: 1 1 100%; } .modeBar span { flex-basis: 100%; } .technical { margin-left: 0; } .feedback, .renderFeedback { max-height: none; } }
+@media (max-width: 600px) { .editor { padding: 6px; } .editor .toolbar button, .editor .selectionBar button, .editor [data-preview-toolbar] button { min-height: 40px; } .modeBar button { flex: 1; } .timeline { height: 340px; } .timeline [data-timeline-ruler-strip], .timeline [data-timeline-scroll] > div { grid-template-columns: 112px minmax(0, 1fr); } .timeline [data-timeline-toolbar] { gap: 4px 8px; } }
+@media (prefers-reduced-motion: reduce) { .editor *, .editor *::before, .editor *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }

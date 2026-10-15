@@ -89,6 +89,7 @@ export type CodexForgePhaseDiagnosticRouteId =
   | "controlled-profit-lockbox-reinvestment-release-candidate";
 export type CodexForgeNavigationRouteId =
   | CodexForgePhaseDiagnosticRouteId
+  | "animation-studio"
   | "home"
   | "start"
   | "onboarding"

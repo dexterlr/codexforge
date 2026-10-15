@@ -1210,6 +1210,7 @@ function buildJarvisVideoStudioReleaseCandidateRouteDefaults(): Partial<Record<C
  */
 const MULTI_PROVIDER_CAPABILITY_ROUTING_NAV_DESCRIPTION = "Review 2986-3017 - Multi-Provider Capability Routing as a review-only multi-provider capability routing surface with synthetic multi-provider routing data only. Multi-provider routing remains disabled until explicit operator approval. It defines provider capability request, provider capability response, disabled text image audio video transcription editing metadata and safety provider routing, provider scorecard remains synthetic, cost rate privacy region data retention approval audit redaction observability retry fallback timeout routing remains review-only, disabled provider route candidate, multi-provider runner handoff remains review-only, execution bridge handoff remains review-only, multi-provider operator review remains required, multi-provider readiness gate, and multi-provider capability routing completion does not call providers. Safety markers: no live provider calls, no model calls, no prompt sending, no streaming, no provider SDK imports, no text provider imports, no image provider imports, no audio provider imports, no video provider imports, no transcription provider imports, no editing/upscale provider imports, no metadata provider imports, no safety provider imports, no network egress, no frontend persistence, no credential storage, no token storage, no provider key storage, no runtime deploy. Static route only; next likely batch: 3018-3049 - First Real Provider Call Guard.";
 const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
+  "/animation-studio",
   "/",
   ...JARVIS_UNIFIED_PRODUCT_PRIMARY_NAVIGATION_ORDER.filter(
     (href) =>
@@ -3886,6 +3887,12 @@ const ROUTE_ORDER: readonly CodexForgeNavigationRouteHref[] = [
   "/asset-storage-backend-wiring-completion",
 ] as const;
 const ROUTE_DEFAULTS: Record<CodexForgeNavigationRouteHref, CodexForgeNavigationRoute> = {
+  "/animation-studio": {
+    id: "animation-studio", href: "/animation-studio", label: "Animation Studio", shortLabel: "Studio",
+    description: "Local project, shot and saved-composition editing with a qualified duration-aware 720p25 MP4 export subset through five minutes. External provider generation remains disabled.",
+    group: "Creative", readiness: "available", safetyPosture: "local-first", badge: "Local planning",
+    priority: 10.5, requiresReview: false, noMutation: false, commandDeckRole: "workspace",
+  },
   "/": {
     id: "home",
     href: "/",

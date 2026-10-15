@@ -3,6 +3,7 @@ import type { CodexForgeNavigationRouteHref } from "./navigation-shell-types";
 export type CodexForgePrimaryProductAreaLabel =
   | "CodexForge Home"
   | "Build with Jarvis"
+  | "Animation Studio"
   | "Generate"
   | "Projects"
   | "Assets"
@@ -37,6 +38,7 @@ export type CodexForgePrimaryProductArea = {
 export const CODEXFORGE_PRIMARY_PRODUCT_AREAS: readonly CodexForgePrimaryProductArea[] = [
   { label: "CodexForge Home", href: "/", summary: "Start with Jarvis, understand the current workspace, and reach the safe review journey.", badge: "Home", capabilityState: "working", primaryAction: { label: "Build with Jarvis", href: "/jarvis" } },
   { label: "Build with Jarvis", href: "/jarvis", summary: "Have a bounded local-first conversation, choose its visible context, approve the exact run, and request one local text response.", badge: "Workspace", capabilityState: "working", primaryAction: { label: "Start a chat", href: "/jarvis" } },
+  { label: "Animation Studio", href: "/animation-studio", summary: "Edit saved local compositions and export the qualified duration-aware 720p25 trailer subset, through five minutes, with the local renderer. Provider generation remains disabled.", badge: "Local edit + export", capabilityState: "partial", primaryAction: { label: "Open Animation Studio", href: "/animation-studio" } },
   { label: "Projects", href: "/video-projects", summary: "See the bounded local workspace, follow project setup guidance, and continue in Jarvis with that context.", badge: "Project", capabilityState: "partial", primaryAction: { label: "Continue in Jarvis", href: "/jarvis" } },
   { label: "Assets", href: "/video-assets", summary: "Review project asset availability and planning metadata without claiming generation or scanning that did not occur.", badge: "Review", capabilityState: "review-only", primaryAction: { label: "Open Projects", href: "/video-projects" } },
   { label: "Providers", href: "/provider-adapters", summary: "Understand admitted model readiness, local or cloud boundaries, approval requirements, and paid-disabled posture.", badge: "Readiness", capabilityState: "partial", primaryAction: { label: "Build with Jarvis", href: "/jarvis" } },

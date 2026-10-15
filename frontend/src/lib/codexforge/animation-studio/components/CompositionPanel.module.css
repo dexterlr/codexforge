@@ -1,0 +1,94 @@
+.panel { display: grid; gap: 16px; min-width: 0; padding: 22px; border: 1px solid #365565; border-radius: 16px; background: #091824; }
+.heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.eyebrow { color: #89d9d4; font-size: .7rem; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+.muted { color: #aac3d2; font-size: .82rem; }
+.badge { border: 1px solid #4d797d; border-radius: 99px; color: #bcf1e9; padding: 4px 10px; font-size: .73rem; background: #13343d; }
+.actions { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
+.panel .actions button, .panel .assetCard button { font-size: .78rem; padding: 8px 11px; }
+.field { display: grid; gap: 6px; min-width: 0; font-size: .82rem; }
+.field select { width: 100%; min-width: 0; color: #e8f5fb; border: 1px solid #365061; background: #07131f; border-radius: 8px; padding: 10px; font: inherit; }
+.field select:focus-visible { outline: 3px solid #77e4df; outline-offset: 3px; }
+.field input[type=range] { padding: 0; accent-color: #77d8ce; }
+.check { display: inline-flex; align-items: center; gap: 7px; font-size: .82rem; }
+.panel .check input { width: auto; accent-color: #73d9cc; }
+.warning, .error { display: grid; gap: 8px; border-radius: 10px; padding: 14px; overflow-wrap: anywhere; font-size: .86rem; }
+.warning { border: 1px solid #8a7134; background: #362c16; color: #ffe5a6; }
+.error { border: 1px solid #a55c51; background: #422522; color: #ffddd6; }
+.viewerSection { display: grid; gap: 12px; min-width: 0; }
+.viewer { position: relative; isolation: isolate; overflow: hidden; width: 100%; border: 1px solid #34515e; border-radius: 10px; background-color: #060d13; background-image: linear-gradient(45deg, #111f29 25%, transparent 25%), linear-gradient(-45deg, #111f29 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111f29 75%), linear-gradient(-45deg, transparent 75%, #111f29 75%); background-size: 24px 24px; background-position: 0 0, 0 12px, 12px -12px, -12px 0; }
+.visualLayer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.media { display: block; width: 100%; height: 100%; object-fit: contain; }
+.textPreview { display: block; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; text-align: center; color: #d4e6ef; background: #10212bef; border: 1px dashed #7297a5; font-size: clamp(.7rem, 1.6vw, .94rem); overflow-wrap: anywhere; }
+.unavailableLayer { background: #10212b35; color: #fff2c9; border-color: #d4b874; text-shadow: 0 1px 3px #000, 0 0 8px #000; }
+.workspace { display: grid; grid-template-columns: minmax(180px, .85fr) minmax(0, 1.5fr); gap: 16px; align-items: start; }
+.layers, .inspector, .browser { display: grid; gap: 12px; min-width: 0; border: 1px solid #2e4757; background: #0c1e2a; border-radius: 12px; padding: 15px; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+.inspector h4 { margin: 8px 0 0; font-size: .9rem; }
+.layerList, .takeList { display: grid; gap: 10px; list-style: none; padding: 0; margin: 0; }
+.layerList > li { min-width: 0; }
+.panel .layerButton { display: grid; gap: 3px; width: 100%; text-align: left; border-color: #355262; background: #112937; padding: 10px; overflow-wrap: anywhere; }
+.panel .layerButton[aria-pressed=true] { border-color: #91e3d9; background: #1b4448; }
+.layerButton strong { font-size: .85rem; }
+.layerButton span { color: #c1d6e0; font-size: .72rem; font-weight: 400; }
+.timeTrack { height: 8px; position: relative; margin: 5px 2px; overflow: hidden; background: #061018; border-radius: 4px; }
+.timeTrack > span { position: absolute; top: 0; bottom: 0; background: #66cbbb; border-radius: 4px; }
+.visualTimeline { display: grid; gap: 12px; min-width: 0; border: 1px solid #355260; border-radius: 12px; padding: 14px; background: #091923; }
+.timelineToolbar { display: grid; grid-template-columns: minmax(0, auto) minmax(280px, 1fr); align-items: end; gap: 12px; }
+.playheadControls { display: flex; align-items: end; justify-content: flex-end; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.playheadControls > span { align-self: center; color: #d9f2f3; font-size: .78rem; }
+.playheadControls label { display: grid; gap: 3px; min-width: 92px; color: #bdd2dc; font-size: .68rem; }
+.playheadControls input { width: 100%; min-width: 0; }
+.timelineMatrix { display: grid; grid-template-columns: minmax(132px, 190px) minmax(0, 1fr); min-width: 0; border: 1px solid #3b5968; border-radius: 10px; overflow: hidden; background: #07121b; }
+.timelineLabels { display: grid; align-content: start; min-width: 0; border-right: 1px solid #3b5968; background: #0d202c; }
+.timelineCorner { display: flex; align-items: center; height: 42px; padding: 0 10px; color: #9fc4ce; border-bottom: 1px solid #304b59; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.timelineLabel { display: grid; align-content: center; height: 58px; min-width: 0; padding: 6px 8px; border-bottom: 1px solid #203c4a; }
+.timelineLabel[data-selected=true] { background: #173b42; box-shadow: inset 3px 0 #8de9df; }
+.timelineLabel button { display: grid; gap: 2px; width: 100%; min-width: 0; padding: 3px 5px; border: 0; color: #e5f5f6; background: transparent; text-align: left; }
+.timelineLabel button strong, .timelineLabel button span, .timelineLabel > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.timelineLabel button strong { font-size: .76rem; }
+.timelineLabel button span, .timelineLabel > span { color: #9dbac6; font-size: .62rem; }
+.timelineLabel button:focus-visible, .timelineBar:focus-visible, .timelineScroller:focus-visible { position: relative; z-index: 6; outline: 3px solid #8af0e7; outline-offset: -3px; }
+.timelineScroller { min-width: 0; max-width: 100%; overflow-x: auto; overflow-y: hidden; overscroll-behavior-inline: contain; scrollbar-gutter: stable; background: #061018; }
+.timelineCanvas { position: relative; min-width: 100%; max-width: 32768px; }
+.timelineRuler { position: relative; height: 42px; overflow: hidden; border-bottom: 1px solid #405e6c; background: #102632; cursor: crosshair; touch-action: pan-x; }
+.timelineTick { position: absolute; inset-block: 0 auto; width: 1px; height: 13px; background: #84aab4; }
+.timelineTick > span { position: absolute; top: 15px; left: 4px; color: #bdd4da; font-size: .62rem; white-space: nowrap; }
+.timelineLane { position: relative; height: 58px; overflow: hidden; border-bottom: 1px solid #203c4a; background-image: linear-gradient(90deg, #17303c55 1px, transparent 1px); background-size: 80px 100%; }
+.timelineLane[data-selected=true] { background-color: #0f2934; }
+.timelineBar { position: absolute; z-index: 2; top: 12px; height: 34px; min-width: 1px; overflow: hidden; padding: 0 7px; border: 1px solid #70d8cc; border-radius: 6px; color: #062024; background: #78d6ca; box-shadow: 0 2px 8px #0007; text-align: left; touch-action: none; cursor: grab; }
+.timelineBar:active { cursor: grabbing; }
+.timelineBar[data-selected=true] { border-color: #fff0b7; background: #a1efe4; box-shadow: 0 0 0 2px #fff0b7, 0 3px 10px #0009; }
+.timelineBar span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .68rem; font-weight: 760; }
+.timelineTrimOverlay { position: absolute; z-index: 5; top: 10px; height: 38px; min-width: 0; pointer-events: none; }
+.panel .timelineTrimHandle { position: absolute; box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: min(24px, 50%); max-width: 50%; min-width: 0; height: 24px; overflow: hidden; padding: 0 2px; border: 1px solid #fff0b7; border-radius: 4px; color: #fff8d9; background: #704b18; box-shadow: 0 1px 4px #000b; pointer-events: auto; touch-action: none; cursor: ew-resize; font-size: .55rem; font-weight: 850; line-height: 1; letter-spacing: .02em; }
+.timelineTrimIn { top: 0; left: 0; }
+.timelineTrimOut { right: 0; bottom: 0; }
+.timelineTrimShort .timelineTrimHandle { width: 24px; max-width: none; min-width: 24px; }
+.panel .timelineTrimHandle[data-drag-disabled=true] { border-color: #7d929a; color: #d5e0e4; background: #3b4a50; cursor: pointer; }
+.panel .timelineTrimHandle:focus-visible { z-index: 6; outline: 3px solid #8af0e7; outline-offset: 1px; }
+.timelineGhost { position: absolute; z-index: 3; top: 8px; height: 42px; pointer-events: none; border: 2px dashed #ffe18f; border-radius: 7px; background: #ffe18f29; }
+.timelineRejected { border-color: #ff8f82; background: repeating-linear-gradient(135deg, #7f2d2d88 0 6px, #30151688 6px 12px); }
+.playhead { position: absolute; z-index: 4; top: 0; bottom: 0; width: 2px; pointer-events: none; background: #ffcb66; box-shadow: 0 0 0 1px #20140099; }
+.timelineStatus { min-height: 2.7em; margin: 0; padding: 8px 10px; border-left: 3px solid #5fabb0; color: #c7dce3; background: #0d202b; font-size: .78rem; overflow-wrap: anywhere; }
+.srOnly { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+.assetGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 11px; }
+.assetCard { display: grid; align-content: start; gap: 7px; min-width: 0; padding: 12px; background: #102635; border: 1px solid #33515f; border-radius: 10px; font-size: .83rem; overflow-wrap: anywhere; }
+.assetCard > span { font-size: .73rem; }
+.takeList > li { display: grid; gap: 9px; border-top: 1px solid #365261; padding-top: 15px; font-size: .85rem; overflow-wrap: anywhere; }
+.renderPanel { display: grid; gap: 14px; min-width: 0; margin-top: 4px; padding-top: 18px; border-top: 1px solid #365565; }
+.renderPanel h4, .renderPanel h5 { margin: 0; }
+.presetGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin: 0; }
+.presetGrid > div { display: grid; min-width: 0; gap: 3px; padding: 10px; border: 1px solid #2f4c5b; border-radius: 9px; background: #0c202c; }
+.presetGrid dt { color: #9ec6ce; font-size: .68rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
+.presetGrid dd { min-width: 0; margin: 0; color: #ebf8fb; font-size: .8rem; overflow-wrap: anywhere; }
+.renderJobs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.renderCard { display: grid; align-content: start; min-width: 0; gap: 8px; padding: 12px; border: 1px solid #365565; border-radius: 10px; background: #0a1924; font-size: .78rem; overflow-wrap: anywhere; }
+.renderCard progress { width: 100%; min-width: 0; accent-color: #77d8ce; }
+.hash { min-width: 0; overflow-wrap: anywhere; word-break: break-word; font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; font-size: .7rem; }
+.downloadAction { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 7px 11px; border: 1px solid #568392; border-radius: 8px; color: #e8f8fb; background: #12303d; font-size: .78rem; font-weight: 700; text-decoration: none; }
+.downloadAction:hover { border-color: #8fe6dc; background: #17414a; }
+.downloadAction:focus-visible { outline: 3px solid #8af0e7; outline-offset: 3px; }
+.outputVideo { display: block; width: 100%; max-height: min(70vh, 720px); border: 1px solid #476b77; border-radius: 8px; background: #000; }
+@media (max-width: 700px) { .workspace { grid-template-columns: minmax(0, 1fr); } .panel { padding: 16px; } .viewer { max-height: none; } .timelineToolbar { grid-template-columns: minmax(0, 1fr); } .playheadControls { justify-content: flex-start; } .presetGrid { grid-template-columns: minmax(0, 1fr); } .renderJobs { grid-template-columns: minmax(0, 1fr); } .renderPanel .actions > button, .renderPanel .actions > a { min-height: 44px; } }
+@media (max-width: 420px) { .fields { grid-template-columns: minmax(0, 1fr); } .visualTimeline { padding: 10px; } .timelineMatrix { grid-template-columns: minmax(112px, 132px) minmax(0, 1fr); } .timelineLabel { padding-inline: 5px; } .playheadControls label { min-width: 80px; flex: 1 1 80px; } .renderPanel .actions { align-items: stretch; } .renderPanel .actions > button, .renderPanel .actions > a { width: 100%; } }
