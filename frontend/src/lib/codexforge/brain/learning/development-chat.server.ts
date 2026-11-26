@@ -37,7 +37,8 @@ export async function readDevelopmentChatMemory(): Promise<ProjectMemoryFeed> {
     const threadId = boundThreadId();
     if (!threadId) return { result: [], developmentChatStatus: "unconfigured" };
     const home = process.env.CODEX_HOME || path.join(homedir(), ".codex");
-    const messages = await readCodexHistory(home, threadId, CODEXFORGE_PROJECT_ROOT);
+    const messages = readCodexHistory(home, threadId, CODEXFORGE_PROJECT_ROOT);
+    if (!messages) return { result: [], developmentChatStatus: "unavailable" };
     return { result: extractCodexChatMemory(threadId, messages), developmentChatStatus: "connected" };
   } catch {
     // A locked or incompatible Codex installation leaves the other Brain sources available.

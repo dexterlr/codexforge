@@ -30,15 +30,18 @@ src/lib/codexforge/brain/graph/types.ts
 
 ### Decisions and outcomes
 
-Open **Project memory** on `/brain` or `/local-project-decision-log` to see the local workspace's decisions and the evidence for what happened afterward. The Brain reads three sources.
+Open **Project memory** on `/brain` or `/local-project-decision-log` to see the local workspace's decisions and the evidence for what happened afterward.
 
 - Saved operator messages in Jarvis. For example, “We decided to use SQLite,” followed by “That worked,” records a decision and a reported outcome. A later “The SQLite migration failed” keeps the contrary evidence visible. Explicit labels such as “Decision:” and “What worked:” are also recognized.
 - Website Creator's recorded approvals, validated artifact revisions, and failed operations. Each outcome describes the particular operation and links to its project.
-- Dated, explicitly labeled entries in the repository's [development memory](docs/development/project-memory.md). This lets decisions recorded from development chats appear alongside app history.
+- The linked Codex development chat. The Brain recognizes clear directions and decisions in user messages and reported outcomes in user messages and final replies. Entries identify the speaker. While the page is visible, the chat feed refreshes every 15 seconds. Opening the Brain again picks up changes made while it was closed.
+- Dated, explicitly labeled entries in the repository's [development memory](docs/development/project-memory.md) can capture decisions made outside the connected software.
 
 Typing a related topic in Jarvis shows matching evidence locally. **Add to draft** includes the selected text and its source in the editable message. Submitting the draft and approving a provider run are separate actions.
 
 Each read uses the retained source records, including history from before this feature. Deleting a Jarvis conversation removes its derived entries on the next read. Operator reports and Creator checks have distinct provenance. Reviewed graph promotion continues through `/memory`.
+
+The Codex connection is local to this checkout. The ignored file `.codexforge/brain/development-chat.json` stores its version and linked thread ID. The server verifies the thread's workspace and reads its retained visible messages from Codex's local paginated history using Node's built-in SQLite reader. Reverting a turn or deleting the chat removes that evidence from subsequent reads. Removing the binding disconnects the chat. If Codex history is unavailable or its storage format changes, the Brain shows a connection notice and continues to display its other sources.
 
 ### Graph and runtime
 
@@ -63,5 +66,6 @@ npm run build
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-runtime.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-memory-ingestion.ps1
 node scripts/smoke-codexforge-brain-project-learning.cjs
+node scripts/smoke-codexforge-codex-chat-memory.cjs
 git diff --check
 ```

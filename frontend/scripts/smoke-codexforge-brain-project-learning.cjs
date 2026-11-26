@@ -92,6 +92,12 @@ async function test() {
     return body.result;
   }
   assert.notEqual((await GET(request("outside.example"))).status, 200);
+  const sourceUrl = request().url + "?source=codex-chat";
+  const sourceRequest = url => new Request(url, { headers: { Host: "127.0.0.1" } });
+  const isolatedChat = await GET(sourceRequest(sourceUrl));
+  assert.equal(isolatedChat.status, 200);
+  assert.deepEqual(await isolatedChat.json(), { ok: true, result: [], developmentChatStatus: "unconfigured" });
+  assert.equal((await GET(sourceRequest(sourceUrl + "&threadId=" + randomUUID()))).status, 400);
   assert.deepEqual(await read(), []);
   assert(testRoots.every(dir => !fs.existsSync(dir)), "Reading an empty catalogue created a store");
   const notes = parseProjectNoteMemory([

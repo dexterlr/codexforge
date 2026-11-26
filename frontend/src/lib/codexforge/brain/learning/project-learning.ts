@@ -157,7 +157,7 @@ function classifyMessageClause(text: string, codexRole?: CodexLearningMessage["r
   }
   // Assistant evidence is a report, never a substitute for an operator decision.
   // Require an observed outcome, so suggestions and example assertions stay out.
-  if (HEDGED.test(text) || /\b(?:for example|for instance|you can|you could|you will|you’ll|should|would|will|plan to|to verify|run this|try this)\b/iu.test(text)) return null;
+  if (HEDGED.test(text) || /\b(?:for example|for instance|you can|you could|you will|you’ll|should|would|will|recommend|suggest|recommendation is|plan to|to verify|run this|try this)\b/iu.test(text)) return null;
   const check = /\b(?:tests?|checks?|lint|eslint|typescript|tsc|typecheck|build|smokes?|suite|verification|validation|browser|migration|deployment|integration|fix|repair)\b/iu.test(text);
   if (/\b(?:no|none of the) (?:tests?|checks?) failed\b|\b(?:did not|didn't) fail\b/iu.test(text)) return null;
   if (check && /\b(?:checks?|tests?|lint) (?:still |continue to )?flags?\s|\b(?:still|remain(?:s)?) failing\b/iu.test(text)) return "did-not-work";
@@ -165,8 +165,19 @@ function classifyMessageClause(text: string, codexRole?: CodexLearningMessage["r
   if (outcome === "decision") return null;
   if (!outcome && check && /\b(?:verified|confirmed|demonstrated) that\b/iu.test(text) &&
       !/\b(?:not|never|no|\w+n't|didn’t|couldn’t)\b/iu.test(text)) return "worked";
-  if (check || POSITIVE_LABEL.test(text) || NEGATIVE_LABEL.test(text)) return outcome;
+  const concreteResult = /^(?:switching to|using|replacing|updating|adding|removing|enabling|disabling|reverting)\s+.+\s(?:fixed|resolved|prevented|solved|broke|regressed)\s+\S/iu.test(text);
+  if (check || concreteResult || POSITIVE_LABEL.test(text) || NEGATIVE_LABEL.test(text)) return outcome;
   return null;
+}
+
+const ACCEPT_RECOMMENDATION = /^(?:(?:yes|agreed|ok(?:ay)?|sounds good)[,!.]?\s+)?(?:(?:let's|let us|we'll|we will)\s+)?(?:go (?:with|ahead with)|use|do|implement) (?:that|your recommendation|that approach)[.!]?$/iu;
+
+function singleRecommendation(message: string): string | null {
+  const text = message.trim();
+  if (text.length > 400 || /[\r\n;?`"“”<>]|(?<=[.!])\s|^>|(?:^|\s)['‘]|\b(?:or|alternatively|instead|options?|alternatives?)\b/iu.test(text) ||
+      HEDGED.test(text) || /(?:https?:\/\/|[A-Za-z]:[\\/]|\/Users\/|\/home\/)/u.test(text)) return null;
+  const recommendation = /^(?:I (?:recommend|suggest)|my recommendation is)\s+(.+)$/iu.exec(text);
+  return recommendation?.[1] ?? null;
 }
 
 function relatedDecision(
@@ -242,15 +253,27 @@ export function extractConversationMemory(conversation: JarvisChatConversation):
 export function extractCodexChatMemory(threadId: string, messages: readonly CodexLearningMessage[]): ProjectMemoryEntry[] {
   const seen = new Set<string>();
   const safeMessages: MemoryMessage[] = [];
+  let recommendation: string | null = null;
   for (const message of messages) {
     if ((message.role !== "user" && message.role !== "assistant") || !message.id || !message.turnId ||
-        !Number.isFinite(Date.parse(message.at)) || containsPrivateAlphaSecretLikeContent(message.text) ||
-        /\b(?:password|passphrase|api[_ -]?key|access[_ -]?token|client[_ -]?secret)\s*(?:[:=]|\bis\b)\s*\S/iu.test(message.text) ||
-        /<(?:environment_context|user_instructions|system|developer|INSTRUCTIONS)>/iu.test(message.text)) continue;
+        !Number.isFinite(Date.parse(message.at))) {
+      recommendation = null;
+      continue;
+    }
     const id = `${message.role}:${message.id}`;
     if (seen.has(id)) continue;
     seen.add(id);
-    safeMessages.push({ ...message, id, label: message.role === "user" ? "User message" : "Assistant report" });
+    const sensitive = containsPrivateAlphaSecretLikeContent(message.text) ||
+      /\b(?:password|passphrase|api[_ -]?key|access[_ -]?token|client[_ -]?secret)\s*(?:[:=]|\bis\b)\s*\S/iu.test(message.text) ||
+      /<(?:environment_context|user_instructions|system|developer|INSTRUCTIONS)>/iu.test(message.text);
+    let text = sensitive ? "" : message.text;
+    let label = message.role === "user" ? "User message" : "Assistant report";
+    if (message.role === "user" && ACCEPT_RECOMMENDATION.test(text.trim().replaceAll("’", "'"))) {
+      text = recommendation ? `Decision: ${recommendation}` : "";
+      label = "User-confirmed recommendation";
+    }
+    safeMessages.push({ ...message, text, id, label });
+    recommendation = message.role === "assistant" ? singleRecommendation(text) : null;
   }
   return extractMessageMemory("codex-chat", threadId, safeMessages);
 }

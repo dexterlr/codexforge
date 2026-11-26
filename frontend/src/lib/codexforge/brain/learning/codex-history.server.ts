@@ -68,7 +68,7 @@ const VISIBLE_MESSAGES = `
 `;
 
 /** Read the retained visible history for one server-bound thread and workspace. */
-export function readCodexHistory(codexHome: string, threadId: string, workspace: string): CodexLearningMessage[] {
+export function readCodexHistory(codexHome: string, threadId: string, workspace: string): CodexLearningMessage[] | null {
   if (!THREAD_ID.test(threadId) || !path.isAbsolute(codexHome) || !path.isAbsolute(workspace)) {
     throw new Error("The Codex chat connection is invalid.");
   }
@@ -82,7 +82,7 @@ export function readCodexHistory(codexHome: string, threadId: string, workspace:
   try {
     catalogue.exec("PRAGMA query_only = ON; PRAGMA trusted_schema = OFF;");
     const thread = catalogue.prepare("SELECT cwd, history_mode FROM threads WHERE id = ?").get(threadId);
-    if (!thread) return [];
+    if (!thread) return null;
     if (typeof thread.cwd !== "string" || comparablePath(thread.cwd) !== comparablePath(realpathSync.native(workspace))) {
       throw new Error("The connected Codex chat belongs to a different workspace.");
     }

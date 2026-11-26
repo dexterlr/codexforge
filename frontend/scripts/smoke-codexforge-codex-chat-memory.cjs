@@ -85,7 +85,7 @@ function test(codexHome, state, history) {
     return id;
   }
   const getMessages = () => readCodexHistory(codexHome, thread, workspace);
-  const memories = () => extractCodexChatMemory(thread, getMessages());
+  const memories = () => extractCodexChatMemory(thread, getMessages() ?? []);
   const decision = "We decided to use SQLite.";
   const report = "The SQLite integration tests passed.";
   const failure = "The SQLite migration failed.";
@@ -148,7 +148,8 @@ function test(codexHome, state, history) {
   assert.throws(getMessages);
   state.prepare("DELETE FROM threads WHERE id=?").run(thread);
   assert.deepEqual(memories(), []);
-  assert.deepEqual(readCodexHistory(codexHome, randomUUID(), workspace), []);
+  assert.equal(getMessages(), null);
+  assert.equal(readCodexHistory(codexHome, randomUUID(), workspace), null);
   const emptyHome = path.join(codexHome, "empty-home");
   fs.mkdirSync(emptyHome);
   assert.throws(() => readCodexHistory(emptyHome, thread, workspace));

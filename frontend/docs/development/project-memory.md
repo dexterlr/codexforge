@@ -16,4 +16,4 @@ Decision: Show past decisions, successes, and failures on the existing Brain and
 
 Worked: The Brain integration test saved a SQLite decision, linked both a success report and a later failure to it, and recalled all three when asked about SQLite. The same test distinguished a validated Creator artifact from a rejected attempt.
 
-To carry a finding from this development chat into the software, add a dated heading and a line beginning with `Decision:`, `Worked:`, or `Did not work:`. Include the reasoning or verification in the line. Keep follow-up outcomes under the same heading as the decision they concern.
+The Brain now reads the linked Codex development chat automatically. This file remains available for decisions made elsewhere. To add one, use a dated heading and a line beginning with `Decision:`, `Worked:`, or `Did not work:`.
