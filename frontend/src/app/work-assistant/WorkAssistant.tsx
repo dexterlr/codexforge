@@ -5,13 +5,10 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from "react";
 import {
   createJarvisChatConversation,
-  fetchJarvisChatConversation,
   JarvisChatApiError,
 } from "@/lib/codexforge/jarvis-chat/jarvis-chat-api-client";
 import { JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS } from "@/lib/codexforge/jarvis-chat/jarvis-chat-policy";
-import { runJarvisWorkReply } from "@/lib/codexforge/jarvis-chat/jarvis-work-reply-client";
-import type { JarvisChatConversation } from "@/lib/codexforge/jarvis-chat/jarvis-chat-types";
-import type { JarvisWorkReplyActivity } from "@/lib/codexforge/jarvis-chat/components/JarvisChatPanel";
+import { useJarvisWorkReply } from "@/lib/codexforge/jarvis-chat/components/useJarvisWorkReply";
 import { RecentConversations } from "./RecentConversations";
 import styles from "./WorkAssistant.module.css";
 
@@ -69,8 +66,7 @@ export function WorkAssistant({ conversationId }: { conversationId: string | nul
     notes: "",
   });
   const [opening, setOpening] = useState(false);
-  const [activity, setActivity] = useState<JarvisWorkReplyActivity | null>(null);
-  const activeReply = useRef<string | null>(null);
+  const { activity, replyToSavedTurn } = useJarvisWorkReply();
   const [error, setError] = useState("");
   const submitting = useRef(false);
   const editor = useRef<HTMLTextAreaElement>(null);
@@ -93,28 +89,6 @@ export function WorkAssistant({ conversationId }: { conversationId: string | nul
     if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
       event.preventDefault();
       if (canSubmit) event.currentTarget.form?.requestSubmit();
-    }
-  }
-
-  async function replyToSavedTurn(initial: JarvisChatConversation) {
-    if (activeReply.current !== null) return;
-    activeReply.current = initial.currentTurnId;
-    let latest = initial;
-    const showProgress = (record: JarvisChatConversation) => {
-      latest = record;
-      setActivity({ record, pending: true, error: null });
-    };
-    showProgress(initial);
-    try {
-      const record = await runJarvisWorkReply(initial, showProgress);
-      setActivity({ record, pending: false, error: null });
-    } catch (caught) {
-      // Read back the durable state if a response was interrupted. Only Send starts a run.
-      try { latest = await fetchJarvisChatConversation(initial.conversationId); } catch { /* Retain the last confirmed revision. */ }
-      const error = caught instanceof JarvisChatApiError ? caught.message : "Jarvis couldn’t finish this reply. Your message is saved.";
-      setActivity({ record: latest, pending: false, error });
-    } finally {
-      activeReply.current = null;
     }
   }
 

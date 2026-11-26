@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState, useTransition } from "react";
 import { JarvisChatPanel } from "@/lib/codexforge/jarvis-chat/components/JarvisChatPanel";
+import { useJarvisWorkReply } from "@/lib/codexforge/jarvis-chat/components/useJarvisWorkReply";
 import styles from "@/lib/codexforge/jarvis-chat/components/JarvisChatPanel.module.css";
 import { createJarvisChatConversation, JarvisChatApiError } from "@/lib/codexforge/jarvis-chat/jarvis-chat-api-client";
 import { JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS } from "@/lib/codexforge/jarvis-chat/jarvis-chat-policy";
@@ -17,6 +18,7 @@ const starters = [
 
 export function TraderBuilderChat({ conversationId }: { conversationId: string | null }) {
   const router = useRouter();
+  const { activity, replyToSavedTurn } = useJarvisWorkReply();
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -24,7 +26,7 @@ export function TraderBuilderChat({ conversationId }: { conversationId: string |
   const sending = useRef(false);
   const mounted = useRef(false);
   const editor = useRef<HTMLTextAreaElement>(null);
-  const busy = submitting || navigating;
+  const busy = submitting || navigating || Boolean(activity?.pending);
 
   useEffect(() => {
     mounted.current = true;
@@ -38,9 +40,13 @@ export function TraderBuilderChat({ conversationId }: { conversationId: string |
     sending.current = true;
     setSubmitting(true);
     setError("");
+    const startUrl = window.location.href;
     try {
       const result = await createJarvisChatConversation({ message: message + contextSuffix });
       if (!mounted.current) return;
+      void replyToSavedTurn(result.conversation);
+      if (window.location.href !== startUrl) return;
+      setDraft("");
       startTransition(() => {
         router.push(`/jarvis-trading?conversation=${encodeURIComponent(result.conversation.conversationId)}#trader-builder`, { scroll: false });
       });
@@ -59,7 +65,10 @@ export function TraderBuilderChat({ conversationId }: { conversationId: string |
       <h2 id="trader-builder-title" className={styles.panelTitle}>Trader Builder chat</h2>
       {conversationId ? (
         <JarvisChatPanel
+          key={conversationId}
           workConversationId={conversationId}
+          workReply={activity}
+          onWorkReply={replyToSavedTurn}
           onNewWorkChat={() => router.push("/jarvis-trading#trader-builder", { scroll: false })}
         />
       ) : (

@@ -24,7 +24,7 @@ export default function JarvisTradingWorkspacePageClient({ conversationId }: { c
           { label: "Review Safety", href: "/jarvis-safety" },
         ]}
       >
-        <TraderBuilderChat key={conversationId ?? "new"} conversationId={conversationId} />
+        <TraderBuilderChat conversationId={conversationId} />
         <TradingResearchPanel />
       </NormalProductFrame>
       {/* Historical ownership marker: JarvisUnifiedProductPageClientShell surfaceId="jarvis-trading". */}
