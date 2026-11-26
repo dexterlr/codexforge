@@ -1,7 +1,7 @@
 import {
   JARVIS_CHAT_AUDIT_EVENT_TYPES,
   JARVIS_CHAT_CONVERSATION_STATES,
-  JARVIS_CHAT_ENVELOPE_VERSION,
+  isJarvisChatEnvelopeVersion,
   JARVIS_CHAT_MUTATION_ACTIONS,
   JARVIS_CHAT_TURN_STATES,
   type JarvisChatActionInput,
@@ -197,7 +197,7 @@ function readEnvelope(value: unknown): JarvisChatProviderEnvelope {
   if (
     !item ||
     !exact(item, ["envelopeVersion", "providerVisibleRequest", "requestDigest", "utf8Bytes", "contextMessages", "omittedEarlierMessageCount"]) ||
-    item.envelopeVersion !== JARVIS_CHAT_ENVELOPE_VERSION ||
+    !isJarvisChatEnvelopeVersion(item.envelopeVersion) ||
     typeof item.providerVisibleRequest !== "string" ||
     typeof item.requestDigest !== "string" ||
     !DIGEST.test(item.requestDigest) ||
@@ -210,7 +210,7 @@ function readEnvelope(value: unknown): JarvisChatProviderEnvelope {
   const ids = new Set(contextMessages.map((entry) => entry.messageId));
   if (ids.size !== contextMessages.length) malformed("Jarvis chat response contained duplicate context references.");
   return {
-    envelopeVersion: JARVIS_CHAT_ENVELOPE_VERSION,
+    envelopeVersion: item.envelopeVersion,
     providerVisibleRequest: item.providerVisibleRequest,
     requestDigest: item.requestDigest,
     utf8Bytes: item.utf8Bytes,

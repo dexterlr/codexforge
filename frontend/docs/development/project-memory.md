@@ -16,4 +16,4 @@ Decision: Show past decisions, successes, and failures on the existing Brain and
 
 Worked: The Brain integration test saved a SQLite decision, linked both a success report and a later failure to it, and recalled all three when asked about SQLite. The same test distinguished a validated Creator artifact from a rejected attempt.
 
-The Brain now reads the linked Codex development chat automatically. This file remains available for decisions made elsewhere. To add one, use a dated heading and a line beginning with `Decision:`, `Worked:`, or `Did not work:`.
+The Brain's Windows background worker saves recognized decisions and reported outcomes from the linked Codex chat while the local server is off. Saved entries remain available after the chat is deleted. This file remains available for decisions made elsewhere. To add one, use a dated heading and a line beginning with `Decision:`, `Worked:`, or `Did not work:`.

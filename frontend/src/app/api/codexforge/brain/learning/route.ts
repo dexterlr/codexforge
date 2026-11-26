@@ -1,5 +1,6 @@
-import { readProjectMemory } from "@/lib/codexforge/brain/learning/project-learning.server";
+import { readProjectMemoryFeed } from "@/lib/codexforge/brain/learning/project-learning.server";
 import { readDevelopmentChatMemory } from "@/lib/codexforge/brain/learning/development-chat.server";
+import { startChatCapture } from "@/lib/codexforge/brain/learning/chat-capture.server";
 import {
   assertJarvisChatRequest,
   jarvisChatErrorResponse,
@@ -12,6 +13,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
     assertJarvisChatRequest(request);
+    startChatCapture();
     const query = new URL(request.url).searchParams;
     if (query.size === 1 && query.get("source") === "codex-chat") {
       return jarvisChatJsonResponse({ ok: true, ...await readDevelopmentChatMemory() });
@@ -22,7 +24,7 @@ export async function GET(request: Request) {
         error: { code: "invalid_request", message: "Unknown Brain memory source." },
       }, 400);
     }
-    return jarvisChatJsonResponse({ ok: true, ...await readProjectMemory() });
+    return jarvisChatJsonResponse({ ok: true, ...await readProjectMemoryFeed() });
   } catch (error) {
     return jarvisChatErrorResponse(error);
   }

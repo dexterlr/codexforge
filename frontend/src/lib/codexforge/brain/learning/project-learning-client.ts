@@ -12,7 +12,7 @@ function isMemoryEntry(value: unknown): value is ProjectMemoryEntry {
     (entry.relatedDecisionId === null || typeof entry.relatedDecisionId === "string");
 }
 
-export async function fetchProjectMemoryFeed(signal: AbortSignal, chatOnly = false): Promise<ProjectMemoryFeed> {
+export async function fetchProjectMemoryFeed(signal?: AbortSignal, chatOnly = false): Promise<ProjectMemoryFeed> {
   const url = "/api/codexforge/brain/learning" + (chatOnly ? "?source=codex-chat" : "");
   const response = await fetch(url, {
     cache: "no-store",
@@ -25,8 +25,13 @@ export async function fetchProjectMemoryFeed(signal: AbortSignal, chatOnly = fal
   const status = body?.developmentChatStatus ?? "unconfigured";
   if (body?.ok !== true || !Array.isArray(body.result) || !body.result.every(isMemoryEntry) ||
       (chatOnly && body.result.some((entry: ProjectMemoryEntry) => entry.sourceType !== "codex-chat")) ||
-      (status !== "connected" && status !== "unavailable" && status !== "unconfigured")) {
+      (status !== "connected" && status !== "unavailable" && status !== "unconfigured" &&
+       status !== "retained" && status !== "storage-error")) {
     throw new Error("The local Brain returned an unreadable memory record.");
   }
   return { result: body.result, developmentChatStatus: status };
+}
+
+export async function fetchProjectMemory(signal?: AbortSignal): Promise<ProjectMemoryEntry[]> {
+  return (await fetchProjectMemoryFeed(signal)).result;
 }

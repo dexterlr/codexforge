@@ -1,5 +1,22 @@
 export const JARVIS_CHAT_RECORD_VERSION = 1 as const;
-export const JARVIS_CHAT_ENVELOPE_VERSION = "codexforge.jarvis-chat.envelope.v1" as const;
+export const JARVIS_CHAT_ENVELOPE_VERSION_V1 = "codexforge.jarvis-chat.envelope.v1" as const;
+export const JARVIS_CHAT_ENVELOPE_VERSION_V2 = "codexforge.jarvis-chat.envelope.v2" as const;
+export const JARVIS_CHAT_ENVELOPE_VERSION_V3 = "codexforge.jarvis-chat.envelope.v3" as const;
+export const JARVIS_CHAT_ENVELOPE_VERSION_V4 = "codexforge.jarvis-chat.envelope.v4" as const;
+export const JARVIS_CHAT_ENVELOPE_VERSION = "codexforge.jarvis-chat.envelope.v5" as const;
+export type JarvisChatEnvelopeVersion =
+  | typeof JARVIS_CHAT_ENVELOPE_VERSION_V1
+  | typeof JARVIS_CHAT_ENVELOPE_VERSION_V2
+  | typeof JARVIS_CHAT_ENVELOPE_VERSION_V3
+  | typeof JARVIS_CHAT_ENVELOPE_VERSION_V4
+  | typeof JARVIS_CHAT_ENVELOPE_VERSION;
+
+export function isJarvisChatEnvelopeVersion(value: unknown): value is JarvisChatEnvelopeVersion {
+  return value === JARVIS_CHAT_ENVELOPE_VERSION_V1 || value === JARVIS_CHAT_ENVELOPE_VERSION_V2 ||
+    value === JARVIS_CHAT_ENVELOPE_VERSION_V3 || value === JARVIS_CHAT_ENVELOPE_VERSION_V4 ||
+    value === JARVIS_CHAT_ENVELOPE_VERSION;
+}
+
 export const JARVIS_CHAT_DATA_ROOT_SUBDIRECTORY = "jarvis-chat" as const;
 
 export const JARVIS_CHAT_CONVERSATION_STATES = [
@@ -85,7 +102,7 @@ export type JarvisChatContextMessageReference = Readonly<{
 export type JarvisChatContextMode = "conversation" | "none";
 
 export type JarvisChatProviderEnvelope = Readonly<{
-  envelopeVersion: typeof JARVIS_CHAT_ENVELOPE_VERSION;
+  envelopeVersion: JarvisChatEnvelopeVersion;
   providerVisibleRequest: string;
   requestDigest: string;
   utf8Bytes: number;

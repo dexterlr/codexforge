@@ -12,6 +12,7 @@ import {
 import { WebsiteCreatorPanel } from "@/lib/codexforge/creator/components";
 import { JarvisMemorySuggestions } from "./JarvisMemorySuggestions";
 import { JarvisWorkConversation } from "./JarvisWorkConversation";
+import { normalizeJarvisChatUserMessage } from "../jarvis-chat-policy";
 import {
   fetchCreatorProject,
   listCreatorProjectSummaries,
@@ -742,19 +743,20 @@ export function JarvisChatPanel({ draftHandoff = null, workConversationId, onNew
       try {
         const result = await request();
         await applyMutationResult(result, operation.action, successMessage, options);
-        return true;
+        return result;
       } catch (caught) {
         if (operation.conversationId && selectedIdRef.current === operation.conversationId) {
           try {
             const refreshed = await fetchJarvisChatConversation(operation.conversationId);
             const reconciliation = await reconcileJarvisChatRetainedMutations(refreshed);
+            if (selectedIdRef.current !== operation.conversationId) return false;
             setConversation(refreshed);
             setSummaries((current) => mergeSummary(current, refreshed));
             if (reconciliation.retiredSignatures.includes(operation.signature)) {
               setError(null);
               setNotice(`${mutationNotice(operation.action, { conversation: refreshed, replayed: true, responseStatus: 200 }, successMessage)} The original response was recovered from exact durable local evidence.`);
               globalThis.requestAnimationFrame(() => lifecycleStatusRef.current?.focus());
-              return true;
+              return { conversation: refreshed, replayed: true, responseStatus: 200 } as const;
             }
           } catch {
             // Preserve the bounded API error; Refresh remains available.
@@ -1221,7 +1223,7 @@ export function JarvisChatPanel({ draftHandoff = null, workConversationId, onNew
   const submitMessage = async (selectedContext: JarvisChatContextMode = contextMode) => {
     const message = draft.trim();
     if (sendDisabled || !message) return;
-    let completed = false;
+    let completed: JarvisChatActionResult | false;
     if (!conversation) {
       const input = { message };
       completed = await performPrimary(
@@ -1249,18 +1251,24 @@ export function JarvisChatPanel({ draftHandoff = null, workConversationId, onNew
           conversationId,
           signature: buildJarvisChatMutationSignature(conversationId, input),
         },
-        async () => {
-          const result = await actOnJarvisChatConversation(conversationId, input);
-          if (onWorkReply && "conversation" in result) {
-            setDraft("");
-            onWorkReply(result.conversation);
-          }
-          return result;
-        },
+        () => actOnJarvisChatConversation(conversationId, input),
         selectedContext === "conversation"
           ? "Message submitted with the selected bounded conversation context."
           : "Message submitted without earlier conversation context."
       );
+      if (completed && "conversation" in completed && onWorkReply) {
+        const next = completed.conversation;
+        const turn = next.turns.at(-1);
+        const ordinal = conversation.turns.length + 1;
+        if (next.conversationId !== conversationId || next.revision <= expectedRevision ||
+            next.turns.length !== ordinal || next.turns.at(-2)?.turnId !== conversation.currentTurnId ||
+            !turn || turn.turnId !== next.currentTurnId || turn.ordinal !== ordinal ||
+            turn.contextMode !== selectedContext || turn.userMessage.text !== normalizeJarvisChatUserMessage(message)) {
+          setError("This conversation changed while your message was being saved. Refresh to see the latest turn.");
+        } else if (next.state === "awaiting_approval" || next.state === "approved") {
+          onWorkReply(next);
+        }
+      }
     }
     if (completed) {
       setDraft("");

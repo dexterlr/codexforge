@@ -39,9 +39,19 @@ Open **Project memory** on `/brain` or `/local-project-decision-log` to see the 
 
 Typing a related topic in Jarvis shows matching evidence locally. **Add to draft** includes the selected text and its source in the editable message. Submitting the draft and approving a provider run are separate actions.
 
-Each read uses the retained source records, including history from before this feature. Deleting a Jarvis conversation removes its derived entries on the next read. Operator reports and Creator checks have distinct provenance. Reviewed graph promotion continues through `/memory`.
+The Brain derives Jarvis entries from saved conversations, including earlier history. Deleting a Jarvis conversation removes its derived entries on the next read. Operator reports and Creator checks have distinct provenance. Reviewed graph promotion continues through `/memory`.
 
-The Codex connection is local to this checkout. The ignored file `.codexforge/brain/development-chat.json` stores its version and linked thread ID. The server verifies the thread's workspace and reads its retained visible messages from Codex's local paginated history using Node's built-in SQLite reader. Reverting a turn or deleting the chat removes that evidence from subsequent reads. Removing the binding disconnects the chat. If Codex history is unavailable or its storage format changes, the Brain shows a connection notice and continues to display its other sources.
+The Codex connection is local to this checkout. The ignored file `.codexforge/brain/development-chat.json` identifies the linked chat. A Windows background worker starts at sign-in and captures decisions and reported outcomes even with the local server off. On startup it also checks earlier messages still available in Codex history. The local server continues to capture independently when running.
+
+The Brain saves each recognized decision or outcome in `.codexforge/brain/retained-chats/`, with its source, timestamp and any link to the decision it concerns. Repeated reads reuse existing entries, and a correction can add another version. Saved entries remain available in the Brain, Decision Log and Jarvis after a chat is rolled back, deleted or disconnected. Removing the binding stops further capture from that chat.
+
+#### Windows background capture
+
+From this checkout, run `.\scripts\manage-codexforge-brain-worker.ps1 -Action Status` to see the Windows task state, worker process and last confirmed save. `Install` starts the worker immediately and registers it for sign-in under the current user's account. `Restart` reloads updated worker code. `Remove` stops automatic capture and preserves the archive.
+
+When status shows `DeletionGuard = True`, the worker holds a read-only handle to the linked chat's verified local history. If that chat is deleted before Windows delivers a change notification, the worker can still read the final completed messages, save recognized entries and release the handle. Only the extracted entries go into the workspace archive. Removing the project binding stops this capture as well.
+
+The checkout also provides a Codex `SessionEnd` hook for a final save when an open chat closes or is deleted. Review the checkout's hook in **Codex Settings → Hooks** and choose **Trust** to enable it. Codex gives this hook up to three seconds. The running Windows worker operates independently of hook approval. If every capture process is stopped before a message is created and deleted, it cannot be recovered from the Brain archive. [Codex hook lifecycle and trust](https://learn.chatgpt.com/docs/hooks)
 
 ### Graph and runtime
 
@@ -67,5 +77,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-runtim
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-memory-ingestion.ps1
 node scripts/smoke-codexforge-brain-project-learning.cjs
 node scripts/smoke-codexforge-codex-chat-memory.cjs
+node scripts/smoke-codexforge-retained-chat-memory.cjs
+node scripts/smoke-codexforge-background-chat-capture.cjs
+node scripts/smoke-codexforge-offline-brain-worker.cjs
+node scripts/smoke-codexforge-brain-immediate-delete.cjs
+node scripts/smoke-codexforge-brain-session-end.cjs
 git diff --check
 ```

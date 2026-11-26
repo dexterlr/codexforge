@@ -3,7 +3,7 @@ import JarvisTradingWorkspacePageClient from "./page-client";
 
 export const metadata: Metadata = {
   title: "Trading Research",
-  description: "Research-only planning with no advice, live data, broker connection, order placement, automation, or live-money action.",
+  description: "Scan market observations and financial news, then explore trading strategies with Jarvis.",
 };
 
 export default async function JarvisTradingWorkspacePage({

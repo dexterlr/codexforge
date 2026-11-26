@@ -275,6 +275,32 @@ function fixtureIdentity() {
   });
 }
 
+function assertGroundedTurn(turn, expectedMessages) {
+  const frame = JSON.parse(turn.envelope.providerVisibleRequest);
+  const instruction = frame.messages[0].content;
+  assert(turn.envelope.envelopeVersion === "codexforge.jarvis-chat.envelope.v5" &&
+    frame.envelopeVersion === turn.envelope.envelopeVersion && frame.temperature === 0 &&
+    frame.messages[0].role === "system", "new turn binds a system message and deterministic temperature");
+  assert(/deadline/i.test(instruction) && /user/i.test(instruction) && /confirm|suppl|provid/i.test(instruction),
+    "the system message instructs Jarvis to ground deadlines in user-supplied facts");
+  assert(turn.userMessage.text === expectedMessages.at(-1).content &&
+    frame.messages.length === expectedMessages.length + 1 &&
+    expectedMessages.every(({ role, content }, i) => role === frame.messages[i + 1].role && content === frame.messages[i + 1].content),
+    "the approved provider payload preserves the exact current message, prior roles and message order");
+}
+
+async function writeAsLegacy(envelopeModule, version, write) {
+  // Publish old-format data for this call only. Reads, approvals, replays and
+  // subsequent appends must all go through the current implementation.
+  const build = envelopeModule.buildJarvisChatProviderEnvelope;
+  try {
+    envelopeModule.buildJarvisChatProviderEnvelope = (input) => build({ envelopeVersion: version, ...input });
+    return await write();
+  } finally {
+    envelopeModule.buildJarvisChatProviderEnvelope = build;
+  }
+}
+
 async function main() {
   assert(!fs.existsSync(testRoot) && !fs.existsSync(httpRoot) && !fs.existsSync(corruptionRoot) && !fs.existsSync(deletionRecoveryRoot), "Jarvis chat deterministic roots begin absent");
   const productionPrivateAlpha = path.resolve(repoRoot, ".codexforge", "private-alpha");
@@ -282,12 +308,24 @@ async function main() {
   const productionPrivateAlphaBefore = await snapshotTree(productionPrivateAlpha);
   const productionCreatorBefore = await snapshotTree(productionCreator);
   const persistenceModule = require(path.join(repoRoot, "src/lib/codexforge/jarvis-chat/jarvis-chat-persistence.server.ts"));
+  const envelopeModule = require(path.join(repoRoot, "src/lib/codexforge/jarvis-chat/jarvis-chat-envelope.server.ts"));
   const serviceModule = require(path.join(repoRoot, "src/lib/codexforge/jarvis-chat/jarvis-chat-service.server.ts"));
   const policyModule = require(path.join(repoRoot, "src/lib/codexforge/jarvis-chat/jarvis-chat-policy.ts"));
   const adapterModule = require(path.join(repoRoot, "src/lib/codexforge/jarvis-chat/jarvis-chat-private-alpha-adapter.server.ts"));
   const storeModule = require(path.join(repoRoot, "src/lib/codexforge/private-alpha/private-alpha-store.server.ts"));
   const nativeFilesystemModule = require(path.join(repoRoot, "src/lib/codexforge/private-alpha/private-alpha-native-filesystem.server.ts"));
   const httpModule = require(path.join(repoRoot, "src/lib/codexforge/jarvis-chat/jarvis-chat-http.server.ts"));
+  const fridayReminder = "The design review is on Friday. Write a one-sentence reminder for our team.";
+  const earlierDraft = "The review is on Friday. Submit your updates by Wednesday night.";
+  const ollamaModule = require(path.join(repoRoot, "src/lib/codexforge/private-alpha/private-alpha-ollama.server.ts"));
+  const wireBodies = [];
+  const wireClient = ollamaModule.createPrivateAlphaOllamaClientForTesting({
+    async fetchFn(url, init) {
+      if (String(url) !== "http://127.0.0.1:11434/api/chat" || init.method !== "POST") throw new Error("Unexpected test transport request.");
+      wireBodies.push(JSON.parse(init.body));
+      return Response.json({ model: "gpt-oss:20b", done: true, message: { role: "assistant", content: "Received." } });
+    },
+  });
 
   let availabilityCalls = 0;
   let generationCalls = 0;
@@ -303,6 +341,7 @@ async function main() {
     async generateApprovedText(input) {
       generationCalls += 1;
       assert(input.model === "gpt-oss:20b" && input.maximumOutputTokens === 4096, "fixture receives only the exact approved local model envelope");
+      await wireClient.generateApprovedText(input);
       if (
         input.approvedRequestText.includes("Stop must win before provider admission") ||
         input.approvedRequestText.includes("Admission callback failure must remain recoverable") ||
@@ -311,7 +350,7 @@ async function main() {
         throw new Error("Provider boundary was reached for a deterministic admission-fence case.");
       }
       if (generationCalls === 1) {
-        return { outputText: "One bounded local assistant response.", doneReason: "stop", totalDurationNanoseconds: 1, loadDurationNanoseconds: 0, promptEvalCount: 1, evalCount: 6 };
+        return { outputText: earlierDraft, doneReason: "stop", totalDurationNanoseconds: 1, loadDurationNanoseconds: 0, promptEvalCount: 1, evalCount: 6 };
       }
       if (generationCalls === 2) {
         stoppedGenerationStarted();
@@ -338,11 +377,15 @@ async function main() {
     assert(availabilityCalls === 0 && generationCalls === 0, "status read performs no provider availability or generation call");
 
     const createKey = "jarvis-chat-create-primary-v1";
-    const createBody = { message: "Plan a safe local-first launch checklist." };
-    const created = await service.createConversation(createBody, createKey);
+    const createBody = { message: fridayReminder };
+    const created = await writeAsLegacy(envelopeModule, "codexforge.jarvis-chat.envelope.v1", () => service.createConversation(createBody, createKey));
     assert(created.responseStatus === 201 && !created.replayed && created.conversation.state === "awaiting_approval", "create publishes one durable conversation awaiting manual approval");
     assert(created.conversation.turns.length === 1 && created.conversation.turns[0].contextMode === "none", "initial turn records explicit no-prior-context selection");
     const firstTurn = created.conversation.turns[0];
+    // Golden digest recorded with the original v1 producer for createBody above.
+    assert(firstTurn.envelope.envelopeVersion === "codexforge.jarvis-chat.envelope.v1" &&
+      firstTurn.envelope.requestDigest === "81a69126bccd9f4aea6dc82c1eab0dd78ed068c25c7558d7bb2ce01adf703571" &&
+      firstTurn.envelope.utf8Bytes === 677, "saved legacy turn preserves the exact v1 request bytes");
     assert(firstTurn.runBinding && firstTurn.runBinding.providerKey === "ollama-local" && firstTurn.runBinding.maximumOutputTokens === 4096, "create binds one exact chat-owned local run without execution");
     assert(generationCalls === 0, "conversation creation does not execute a provider");
 
@@ -426,7 +469,7 @@ async function main() {
       acknowledgement: true,
     };
     const executed = await service.actOnConversation(created.conversation.conversationId, executeBody, "jarvis-chat-execute-primary-v1");
-    assert(executed.conversation.state === "ready" && executed.conversation.turns[0].assistantMessage?.text === "One bounded local assistant response.", "separate execute performs one bounded assistant response");
+    assert(executed.conversation.state === "ready" && executed.conversation.turns[0].assistantMessage?.text === earlierDraft, "separate execute performs one bounded assistant response");
     assert(executed.conversation.turns[0].ordinal === 1 && executed.conversation.turns[0].userMessage.role === "user" && executed.conversation.turns[0].assistantMessage?.role === "assistant", "first durable turn preserves exact user-then-assistant role ordering");
     assert(availabilityCalls === 1 && generationCalls === 1, "first explicit execution performs exactly one availability check and one provider call");
     const executeReplay = await service.actOnConversation(created.conversation.conversationId, executeBody, "jarvis-chat-execute-primary-v1");
@@ -696,7 +739,20 @@ async function main() {
     assert(staleExecutorResult.replayed && staleExecutorResult.conversation.recordDigest === staleExecutorRecovered.conversation.recordDigest && staleExecutorResult.conversation.turns[0].assistantMessage === null, "stale executor reloads exact chat evidence and returns the canonical completed execute replay");
     assert(availabilityCalls === staleExecutorAvailabilityBefore && generationCalls === staleExecutorGenerationBefore, "stale executor recovery race performs zero availability checks and zero provider generation calls");
 
-    const other = await service.createConversation({ message: "A separate conversation marker." }, "jarvis-chat-create-other-v1");
+    const reminder = "The check-in is on Tuesday. Write a short note for our team.";
+    const other = await service.createConversation({ message: reminder }, "jarvis-chat-create-other-v1");
+    assertGroundedTurn(other.conversation.turns[0], [{ role: "user", content: reminder }]);
+    const validFrame = JSON.parse(other.conversation.turns[0].envelope.providerVisibleRequest);
+    for (const [label, frame] of [
+      ["unknown version", { ...validFrame, envelopeVersion: "codexforge.jarvis-chat.envelope.v999" }],
+      ["extra system role", { ...validFrame, messages: [validFrame.messages[0], ...validFrame.messages] }],
+      ["replaced instructions", { ...validFrame, messages: [{ role: "system", content: reminder }, validFrame.messages[1]] }],
+      ["changed temperature", { ...validFrame, temperature: 1 }],
+      ["assistant last", { ...validFrame, messages: [validFrame.messages[0], { role: "assistant", content: reminder }] }],
+    ]) {
+      await expectFailure(() => envelopeModule.readJarvisChatModelRequest(JSON.stringify(frame)), "invalid_model_request",
+        "structured Jarvis parser rejects " + label, 422);
+    }
     assert(other.conversation.conversationId !== executed.conversation.conversationId, "server-generated conversation identities are distinct");
     const appended = await service.actOnConversation(executed.conversation.conversationId, {
       action: "append-turn",
@@ -705,6 +761,75 @@ async function main() {
       contextMode: "conversation",
     }, "jarvis-chat-append-context-v1");
     const appendedTurn = appended.conversation.turns.at(-1);
+    assertGroundedTurn(appendedTurn, [
+      { role: "user", content: createBody.message },
+      { role: "assistant", content: executed.conversation.turns[0].assistantMessage.text },
+      { role: "user", content: "Use only the visible messages from this conversation." },
+    ]);
+    const sourceQuestion = "What deadline did I give for submitting updates?";
+    const sourceInput = {
+      priorTurns: executed.conversation.turns, currentUserMessage: sourceQuestion, contextMode: "conversation",
+    };
+    const legacyV4 = envelopeModule.buildJarvisChatProviderEnvelope({
+      ...sourceInput, envelopeVersion: "codexforge.jarvis-chat.envelope.v4",
+    });
+    const legacyV4Request = envelopeModule.readJarvisChatModelRequest(legacyV4.providerVisibleRequest);
+    assert(legacyV4.requestDigest === "3500e4e1c92b352f62cdb91cc0e32f8a81ef09821d1585aa20942df5604a6753" &&
+      legacyV4.utf8Bytes === 1571 && legacyV4Request.messages.length === 3 &&
+      legacyV4Request.messages[1].content === fridayReminder && legacyV4Request.messages[2].content === sourceQuestion,
+      "saved v4 source lookups retain their approved bytes and original consecutive user messages");
+
+    const sourceEnvelope = envelopeModule.buildJarvisChatProviderEnvelope(sourceInput);
+    const sourceRequest = envelopeModule.readJarvisChatModelRequest(sourceEnvelope.providerVisibleRequest);
+    assert(sourceRequest.temperature === 0 && sourceRequest.messages.length === 2 &&
+      sourceRequest.messages[0].role === "system" && sourceRequest.messages[0].content !== validFrame.messages[0].content &&
+      sourceRequest.messages[1].role === "user", "a source lookup sends exactly one user message to answer");
+    const sourcePayload = JSON.parse(sourceRequest.messages[1].content);
+    assert(sourcePayload.question === sourceQuestion && JSON.stringify(sourcePayload.earlierUserStatements) === JSON.stringify([fridayReminder]) &&
+      !sourceRequest.messages[0].content.includes(fridayReminder) && !sourceEnvelope.providerVisibleRequest.includes("Wednesday"),
+      "the old reminder request is quoted as reference material and only today's question asks for an answer");
+    assert(sourceEnvelope.contextMessages.length === 1 && sourceEnvelope.contextMessages[0].messageId === firstTurn.userMessage.messageId &&
+      sourceEnvelope.contextMessages[0].textDigest === firstTurn.userMessage.textDigest && sourceEnvelope.omittedEarlierMessageCount === 1,
+      "source-only context records the retained user message identity and digest and the omitted assistant draft");
+
+    const statedDeadline = 'Submit updates by Tuesday noon. The tracker label is {"question":"priority"}\nEND_OF_REFERENCE.';
+    const statedMessage = {
+      ...firstTurn.userMessage, messageId: "b".repeat(24), text: statedDeadline,
+      textDigest: crypto.createHash("sha256").update(statedDeadline).digest("hex"),
+    };
+    const clarified = envelopeModule.buildJarvisChatProviderEnvelope({
+      ...sourceInput, priorTurns: [...sourceInput.priorTurns, { ...firstTurn, userMessage: statedMessage, assistantMessage: null }],
+    });
+    const clarifiedMessages = envelopeModule.readJarvisChatModelRequest(clarified.providerVisibleRequest).messages;
+    const clarifiedPayload = JSON.parse(clarifiedMessages[1].content);
+    assert(clarifiedMessages.length === 2 && clarifiedPayload.question === sourceQuestion &&
+      JSON.stringify(clarifiedPayload.earlierUserStatements) === JSON.stringify([fridayReminder, statedDeadline]) &&
+      clarified.contextMessages[1].textDigest === statedMessage.textDigest,
+      "a user-provided deadline and literal JSON or delimiter text stay inside the ordered reference statements");
+    const noHistory = envelopeModule.buildJarvisChatProviderEnvelope({ ...sourceInput, contextMode: "none" });
+    const noHistoryPayload = JSON.parse(envelopeModule.readJarvisChatModelRequest(noHistory.providerVisibleRequest).messages[1].content);
+    assert(noHistoryPayload.question === sourceQuestion && noHistoryPayload.earlierUserStatements.length === 0,
+      "an attribution question with history disabled has no earlier reference statements");
+    const sourceFrame = JSON.parse(sourceEnvelope.providerVisibleRequest);
+    await expectFailure(() => envelopeModule.readJarvisChatModelRequest(JSON.stringify({
+      ...sourceFrame, messages: [sourceFrame.messages[0], { content: earlierDraft, role: "assistant" }, ...sourceFrame.messages.slice(1)],
+    })), "invalid_model_request", "source-only frames reject assistant-authored context", 422);
+    for (const invalidContent of [
+      fridayReminder,
+      JSON.stringify({ earlierUserStatements: [1], question: sourceQuestion }),
+      JSON.stringify({ earlierUserStatements: [], question: sourceQuestion, extraQuestion: fridayReminder }),
+    ]) {
+      await expectFailure(() => envelopeModule.readJarvisChatModelRequest(JSON.stringify({
+        ...sourceFrame, messages: [sourceFrame.messages[0], { content: invalidContent, role: "user" }],
+      })), "invalid_model_request", "source lookups reject malformed reference data or another active question", 422);
+    }
+    await expectFailure(() => envelopeModule.readJarvisChatModelRequest(JSON.stringify({
+      ...sourceFrame, messages: [validFrame.messages[0], ...sourceFrame.messages.slice(1)],
+    })), "invalid_model_request", "an attribution question requires the corresponding system instruction", 422);
+    const mixedHistory = await persistence.getConversation(appended.conversation.conversationId);
+    assert(mixedHistory.recordDigest === appended.conversation.recordDigest &&
+      mixedHistory.turns[0].envelope.requestDigest === firstTurn.envelope.requestDigest,
+      "the saved mixed-version history reloads with the exact earlier request digest");
     const primaryMessageIds = new Set(executed.conversation.turns.flatMap((turn) => [turn.userMessage.messageId, ...(turn.assistantMessage ? [turn.assistantMessage.messageId] : [])]));
     assert(appended.conversation.turns.map((turn) => turn.ordinal).join(",") === "1,2" && appendedTurn.userMessage.role === "user", "append preserves contiguous durable turn ordering");
     assert(appendedTurn.contextMode === "conversation" && appendedTurn.envelope.contextMessages.length === 2, "append records the explicit bounded same-conversation context selection");
@@ -765,7 +890,9 @@ async function main() {
     const interruptedService = serviceModule.createJarvisChatService({ persistence: interruptedPersistence, lifecycle });
     let interrupted = false;
     try {
-      await interruptedService.createConversation({ message: "Recover this exact interrupted binding." }, "jarvis-chat-create-recovery-v1");
+      await writeAsLegacy(envelopeModule, "codexforge.jarvis-chat.envelope.v3", () =>
+        interruptedService.createConversation({ message: "Recover this exact interrupted binding." }, "jarvis-chat-create-recovery-v1")
+      );
     } catch (error) {
       interrupted = error?.message?.includes("Injected crash") === true;
     }
@@ -776,6 +903,10 @@ async function main() {
       action: "recover-turn",
       expectedRevision: recoverySummary.revision,
     }, "jarvis-chat-recover-binding-v1");
+    const legacyV3 = recovered.conversation.turns[0].envelope;
+    assert(legacyV3.envelopeVersion === "codexforge.jarvis-chat.envelope.v3" &&
+      legacyV3.requestDigest === "f45b9537a12405aa6062a920f0559ed47e843771b5572f6db8594fc21084e6c9" &&
+      legacyV3.utf8Bytes === 1212, "recovering a legacy v3 turn preserves its exact approved system and user messages");
     assert(recovered.conversation.state === "awaiting_approval" && recovered.conversation.pendingOperation === null, "explicit recovery reconciles the exact bound run after restart");
     assert(recovered.conversation.auditEvents.some((entry) => entry.eventType === "turn.recovery_requested") && recovered.conversation.auditEvents.some((entry) => entry.eventType === "turn.reconciled"), "recovery records bounded request and reconciliation audit evidence");
     assert(generationCalls === 2, "binding recovery creates no provider attempt");
@@ -842,7 +973,13 @@ async function main() {
       "secret-like user text is rejected before persistence",
       422
     );
-    const invalid = await service.createConversation({ message: "Return a bounded response that the fixture will make unsafe." }, "jarvis-chat-invalid-output-v1");
+    const invalid = await writeAsLegacy(envelopeModule, "codexforge.jarvis-chat.envelope.v2", () =>
+      service.createConversation({ message: "Return a bounded response that the fixture will make unsafe." }, "jarvis-chat-invalid-output-v1")
+    );
+    const legacyV2 = invalid.conversation.turns[0].envelope;
+    assert(legacyV2.envelopeVersion === "codexforge.jarvis-chat.envelope.v2" &&
+      legacyV2.requestDigest === "60edaf5100e59a349486cd41fba414e6c6761ccc1b49983e85cfa0541d8593c4" &&
+      legacyV2.utf8Bytes === 1152, "saved v2 requests preserve the grounded single-string representation");
     const invalidApproved = await service.actOnConversation(invalid.conversation.conversationId, {
       action: "approve-turn",
       expectedRevision: invalid.conversation.revision,
@@ -856,6 +993,20 @@ async function main() {
       acknowledgement: true,
     }, "jarvis-chat-invalid-output-execute-v1");
     assert(["failed", "rejected"].includes(invalidExecuted.conversation.state) && invalidExecuted.conversation.turns[0].assistantMessage === null, "unsafe provider output reaches a durable safe terminal state with no assistant message");
+    for (const [index, legacyEnvelope] of [[0, firstTurn.envelope], [3, legacyV2]]) {
+      const body = wireBodies[index];
+      assert(body.messages.length === 1 && body.messages[0].role === "user" &&
+        body.messages[0].content === legacyEnvelope.providerVisibleRequest && !("temperature" in body.options),
+        "legacy " + legacyEnvelope.envelopeVersion + " preserves its approved Ollama transport");
+    }
+    for (const [index, envelope] of [[1, appendedTurn.envelope], [2, legacyV3]]) {
+      const frame = JSON.parse(envelope.providerVisibleRequest);
+      const body = wireBodies[index];
+      assert(body.messages.length === frame.messages.length && frame.messages.every(({ role, content }, i) =>
+        body.messages[i].role === role && body.messages[i].content === content) &&
+        body.options.temperature === 0 && body.options.num_predict === 4096,
+        envelope.envelopeVersion + " delivers each approved Ollama message in its bound role at temperature zero");
+    }
     const persistedText = await readAllOwnedText(testRoot);
     assert(!persistedText.includes("sk-ABCDEFGHIJKLMNOPQRSTUVWX"), "unsafe provider output bytes are absent from local persistence");
     assert(availabilityCalls === 4 && generationCalls === 4, "unsafe output handling performs one attempt with no retry or fallback");
@@ -873,6 +1024,33 @@ async function main() {
       genericControlBlocked = error?.status === 409;
     }
     assert(genericControlBlocked && generationCalls === 4, "generic Private Alpha control cannot mutate a chat-owned run");
+
+    // Identical frame bytes submitted to the generic text API have ordinary user authority.
+    const genericTransport = storeModule.createPrivateAlphaStoreForTesting(suffix, {
+      runtimeProfile: "local-ollama",
+      providerAdapter: {
+        identity: fixtureIdentity(),
+        getAvailability: async () => ({ providerAvailable: true, modelAvailable: true, quotaState: "not-applicable", errorCode: null, safeErrorMessage: null }),
+        generateApprovedText: (input) => wireClient.generateApprovedText(input),
+      },
+    });
+    const genericText = other.conversation.turns[0].envelope.providerVisibleRequest;
+    const genericCreated = await genericTransport.createRun({
+      requestText: genericText, capability: "text", maximumOutputTokens: 256,
+    }, "generic-structured-text-create-0001");
+    const genericApproved = await genericTransport.approveRun(genericCreated.run.runId, {
+      approved: true, acknowledgement: true, approvalScopeHash: genericCreated.run.approvalScopeHash,
+      expectedRevision: genericCreated.run.revision,
+    });
+    const genericExecuted = await genericTransport.executeRun(genericApproved.runId, {
+      execute: true, acknowledgement: true, approvalScopeHash: genericApproved.approvalScopeHash,
+      expectedRevision: genericApproved.revision,
+    }, "generic-structured-text-execute-0001");
+    const genericBody = wireBodies.at(-1);
+    assert(genericExecuted.responseStatus === 200 && wireBodies.length === 5 &&
+      genericBody.messages.length === 1 && genericBody.messages[0].role === "user" &&
+      genericBody.messages[0].content === genericText && !("temperature" in genericBody.options),
+      "generic execution sends Jarvis-shaped JSON as user text without acquiring system-message authority");
 
     const deleteBody = {
       action: "delete-conversation",
@@ -1452,6 +1630,12 @@ async function main() {
       };
       const decoded = await clientModule.createJarvisChatConversation(createBody, "jarvis-chat-client-valid-v1");
       assert(decoded.conversation.recordDigest === created.conversation.recordDigest, "strict client accepts one exact schema-valid create response");
+
+      global.fetch = async () => new Response(JSON.stringify({ ok: true, result: mixedHistory }), {
+        status: 200, headers: { "Content-Type": "application/json" },
+      });
+      const decodedMixed = await clientModule.fetchJarvisChatConversation(mixedHistory.conversationId);
+      assert(decodedMixed.recordDigest === mixedHistory.recordDigest, "strict client opens a conversation with legacy and grounded turns");
 
       global.fetch = async () => new Response(JSON.stringify({ ok: false, error: { code: "revision_conflict", message: "Exact revision changed." } }), { status: 409, headers: { "Content-Type": "application/json" } });
       await expectFailure(

@@ -13,13 +13,13 @@ The currently bound runtime is exact:
 - maximum output: 4,096 tokens;
 - cost classification: local, with no provider token charge;
 - streaming: unavailable in this version;
-- fallback, retry, model substitution, paid routing, automatic approval, and automatic execution: unavailable.
+- Each local attempt requires a user action. The runtime has no fallback, retry, model substitution, or paid routing.
 
 Provider availability is not probed merely by opening or reading chat. The interface states `not-checked` until an explicitly approved execution reaches the provider lifecycle. A local runtime can still be unavailable at execution time.
 
 ## Architecture and ownership
 
-`/jarvis` is the canonical conversational workspace. Work Assistant uses the same chat controller and local history at `/work-assistant?conversation=<id>`. Users can review and run a turn there, read the reply, and send a follow-up with or without earlier messages from that conversation. The client uses strict typed API responses, while all identity creation, policy validation, lifecycle transitions, persistence, Private Alpha binding, and execution decisions remain on the server.
+`/jarvis` is the canonical conversational workspace. Work Assistant uses the same chat controller and local history at `/work-assistant?conversation=<id>`. Pressing **Send** there submits the message, authorizes one local response for that turn, and displays the reply inline. Follow-ups include recent messages from that conversation. Opening or refreshing the page reads the saved chat. On `/jarvis`, users review, approve, and run each turn separately. The server owns identity creation, policy validation, lifecycle transitions, persistence, Private Alpha binding, and execution decisions.
 
 ```mermaid
 flowchart LR
@@ -43,9 +43,9 @@ stateDiagram-v2
     binding --> awaiting_approval: exact run bound
     binding --> rejected: binding rejected
     binding --> failed: binding failed
-    awaiting_approval --> approved: separate manual approval
+    awaiting_approval --> approved: record approval for this turn
     awaiting_approval --> canceled: explicit cancel
-    approved --> executing: separate explicit execute
+    approved --> executing: execute approved turn
     approved --> canceled: explicit cancel
     executing --> ready: one bounded response accepted
     executing --> rejected: unsafe output rejected
@@ -65,18 +65,20 @@ stateDiagram-v2
     deleting --> [*]: history removed, tombstone published
 ```
 
-Illegal or stale transitions fail closed. Approval and execution are distinct user actions with distinct idempotency keys and exact revision preconditions. Execution has one attempt. A repeated matching request returns the exact recorded response revision; a reused key with a different canonical request digest conflicts. No retry, fallback, rerouting, model substitution, or hidden paid execution occurs.
+Illegal or stale transitions fail closed. Approval and execution are separate server operations with distinct idempotency keys and exact revision preconditions. Execution has one attempt. A repeated matching request returns the exact recorded response revision. A reused key with a different canonical request digest conflicts.
 
 Stop is honest: if provider work has already started and the established transport cannot terminate it, Jarvis records `stopping`, discards any later output, and completes `stopped`. It does not claim remote cancellation. Cancel is available before execution and cancels the exact owned run.
 
 ## Context and memory
 
-Every appended turn exposes a user-controlled choice:
+Work Assistant uses `conversation` for follow-ups. The composer on `/jarvis` lets the user choose between the two modes.
 
 - `conversation`: include only a bounded, ordered selection of prior messages from this same conversation;
 - `none`: send only the current user message and the fixed chat instruction envelope.
 
 The persisted provider envelope records the chosen mode, exact referenced message identities and digests, omitted-count evidence, byte count, and request digest. Context never crosses a conversation boundary. There is no hidden memory injection, implicit repository content, creator artifact content, screen content, credential content, or external account content.
+
+New turns send a system instruction and role-labeled messages to Ollama. The instruction tells Jarvis to ground work details in facts the user supplied or confirmed, omit unspecified deadlines and logistics from drafts, and ask when an essential detail is missing. For direct questions such as “What deadline did I give?”, Jarvis receives one request containing the current question and quotations from earlier user messages. The quotations supply evidence, and only the current question calls for an answer. Other follow-ups can refer to earlier drafts. The approved request records the message roles, contents and temperature. Each saved turn retains its original request format when a follow-up is added to an older chat.
 
 Three useful tools formerly reachable only from the retired `/ai` workspace are preserved behind Jarvis's initially collapsed **Advanced context and planning tools** disclosure:
 

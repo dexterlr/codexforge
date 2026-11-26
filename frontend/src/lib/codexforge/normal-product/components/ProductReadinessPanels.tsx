@@ -200,14 +200,14 @@ export function AuditRunsPanel() {
 
 export function TradingResearchPanel() {
   return (
-    <div style={stack} data-codexforge-trading-boundary="research-only no-broker no-orders no-advice no-automation no-live-money">
+    <div style={stack} data-codexforge-trading-boundary="research-and-practice no-live-money">
       <section aria-labelledby="trading-boundary-title" style={card}>
-        <h2 id="trading-boundary-title" style={cardTitle}>Research boundary</h2>
+        <h2 id="trading-boundary-title" style={cardTitle}>Research and practice limits</h2>
         <ul style={list}>
           <li>This is research and planning material, not financial advice or a recommendation to buy or sell.</li>
-          <li>There is no broker connection, order placement, portfolio mutation, live-money action, or automated trading.</li>
-          <li>Paper and live execution are unavailable. Nothing on this page represents current market data.</li>
-          <li>Any future consequential action must remain separately permissioned, approved, stoppable, and auditable.</li>
+          <li>Trading 212 practice uses simulated GBP. Each purchase is limited to the instrument, share quantity and maximum price you set.</li>
+          <li>Market observations carry source dates. Stock index and currency reference values can be delayed and cannot be used as execution prices.</li>
+          <li>Funding, withdrawals and live trading are disconnected.</li>
         </ul>
       </section>
     </div>

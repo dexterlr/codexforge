@@ -70,7 +70,9 @@ export function ProjectMemoryPanel() {
         <div>
           <h2 id="project-memory-heading">Project memory</h2>
           <p>Review decisions and outcomes from your workspace. Each entry shows where it came from.</p>
-          {developmentChatStatus === "connected" && <p>Decisions and reported outcomes from your linked Codex chat appear automatically.</p>}
+          {developmentChatStatus === "connected" && <p>The Brain saves decisions and outcomes in this workspace so you can recall them even after deleting the linked Codex chat.</p>}
+          {developmentChatStatus === "retained" && <p>The source chat is unavailable. Its saved decisions and outcomes are still available here.</p>}
+          {developmentChatStatus === "storage-error" && <p role="status">The Brain could not verify the local memory archive. New entries will be retried.</p>}
           {developmentChatStatus === "unavailable" && <p role="status">The linked Codex chat is currently unavailable. The Brain will check again.</p>}
         </div>
         <button type="button" className={styles.button} onClick={refresh} disabled={status === "loading"}>
@@ -79,7 +81,7 @@ export function ProjectMemoryPanel() {
       </header>
       {status === "loading" && <p role="status">Loading project memory…</p>}
       {status === "error" && <p role="alert">Project memory could not be loaded. Refresh to try again.</p>}
-      {status === "ready" && entries.length === 0 && (
+      {status === "ready" && entries.length === 0 && developmentChatStatus !== "storage-error" && (
         <p>No decisions or outcomes yet. State a decision in <Link href="/jarvis">Jarvis chat</Link>, then describe what worked or failed.</p>
       )}
       {status === "ready" && entries.length > 0 && (

@@ -9,6 +9,7 @@ import {
   PRIVATE_ALPHA_PRODUCTION_MODEL,
 } from "./private-alpha-validation";
 import type { PrivateAlphaExecutionErrorCode } from "./private-alpha-types";
+import type { PrivateAlphaProviderGenerationInput } from "./private-alpha-provider.server";
 
 export const PRIVATE_ALPHA_OLLAMA_ORIGIN = "http://127.0.0.1:11434";
 export const PRIVATE_ALPHA_OLLAMA_TAGS_PATH = "/api/tags";
@@ -45,13 +46,7 @@ export type PrivateAlphaOllamaAvailability = Readonly<{
   safeErrorMessage: string | null;
 }>;
 
-export type PrivateAlphaOllamaGenerationInput = Readonly<{
-  approvedRequestText: string;
-  model: string;
-  maximumOutputTokens: number;
-  maximumInputCharacters?: number;
-  contextWindowTokens?: number;
-}>;
+export type PrivateAlphaOllamaGenerationInput = PrivateAlphaProviderGenerationInput;
 
 export type PrivateAlphaOllamaGenerationResult = Readonly<{
   model: "gpt-oss:20b";
@@ -490,16 +485,12 @@ function createOllamaClient(
           },
           body: JSON.stringify({
             model: PRIVATE_ALPHA_PRODUCTION_MODEL,
-            messages: [
-              {
-                role: "user",
-                content: input.approvedRequestText,
-              },
-            ],
+            messages: input.jarvisChatRequest?.messages ?? [{ role: "user", content: input.approvedRequestText }],
             stream: false,
             think: PRIVATE_ALPHA_OLLAMA_THINK_LEVEL,
             options: {
               num_predict: input.maximumOutputTokens,
+              ...(input.jarvisChatRequest && { temperature: input.jarvisChatRequest.temperature }),
               ...(input.contextWindowTokens === undefined
                 ? {}
                 : { num_ctx: input.contextWindowTokens }),

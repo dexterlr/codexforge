@@ -1,0 +1,27 @@
+.refresh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  font-size: .88rem;
+  cursor: pointer;
+}
+
+.refresh input { accent-color: #5eead4; }
+.quotes, .headlines { display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; }
+.quotes { grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); }
+.quote {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #2a4051;
+  border-radius: 12px;
+  background: #091725;
+}
+.quote p, .headlines p, .issues li { margin: 3px 0; color: #bcd3dd; font-size: .83rem; }
+.quote .price { margin: 10px 0; font-variant-numeric: tabular-nums; }
+.price strong { font-size: 1.32rem; color: #f5fbff; }
+.stale { color: #ffd58b; }
+.source { color: #91e5dc; text-decoration: underline; overflow-wrap: anywhere; }
+.source:focus-visible, .refresh input:focus-visible { outline: 2px solid #86e8dc; outline-offset: 3px; }
+.headlines { margin-top: 10px; }
+.issues ul { padding-inline-start: 20px; margin: 6px 0 0; }

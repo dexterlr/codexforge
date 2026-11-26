@@ -3,12 +3,14 @@
 import { useEffect, useId, useRef, type RefObject } from "react";
 import {
   JARVIS_CHAT_MAX_TURNS,
+  JARVIS_CHAT_MAX_TITLE_CHARACTERS,
   JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS,
 } from "../jarvis-chat-policy";
 import type {
   JarvisChatConversation,
   JarvisChatTurnState,
 } from "../jarvis-chat-types";
+import { WorkReplyText } from "./WorkReplyText";
 import styles from "./JarvisWorkConversation.module.css";
 
 type Props = Readonly<{
@@ -34,7 +36,7 @@ type Props = Readonly<{
 }>;
 
 const turnUpdates: Record<JarvisChatTurnState, string> = {
-  binding: "Preparing this request for review…",
+  binding: "Preparing your message…",
   awaiting_approval: "Message saved.",
   approved: "Message saved.",
   executing: "Jarvis is writing a reply…",
@@ -45,6 +47,19 @@ const turnUpdates: Record<JarvisChatTurnState, string> = {
   failed: "Jarvis couldn’t complete this response.",
   rejected: "Jarvis couldn’t accept the result of this turn.",
 };
+
+function displayChatTitle(conversation: JarvisChatConversation) {
+  const { title } = conversation;
+  const firstLine = conversation.turns[0]?.userMessage.text.split("\n", 1)[0]?.replace(/\s+/gu, " ").trim();
+  if (!firstLine || firstLine.length <= JARVIS_CHAT_MAX_TITLE_CHARACTERS ||
+      !firstLine.startsWith(title) || conversation.auditEvents.some((event) => event.eventType === "conversation.renamed")) return title;
+  const nextCharacter = firstLine.codePointAt(title.length);
+  if (nextCharacter === undefined || title.length + String.fromCodePoint(nextCharacter).length <= JARVIS_CHAT_MAX_TITLE_CHARACTERS) return title;
+  const sentence = firstLine.match(/^.*?[.!?](?=\s|$)/u)?.[0];
+  if (sentence && sentence.length <= title.length) return sentence;
+  const wholeWords = /\s/u.test(firstLine[title.length]) ? title : title.replace(/\s+\S*$/u, "");
+  return wholeWords.trimEnd() + "…";
+}
 
 export function JarvisWorkConversation(props: Props) {
   const {
@@ -95,7 +110,7 @@ export function JarvisWorkConversation(props: Props) {
   return (
     <section className={styles.panel} aria-labelledby={id + "-title"}>
       <header className={styles.header}>
-        <h2 id={id + "-title"}>{conversation?.title ?? "Conversation"}</h2>
+        <h2 id={id + "-title"}>{conversation ? displayChatTitle(conversation) : "Conversation"}</h2>
         <button className={styles.secondary} type="button" disabled={locked} onClick={onNew}>New chat</button>
       </header>
 
@@ -129,7 +144,7 @@ export function JarvisWorkConversation(props: Props) {
                 {turn.assistantMessage ? (
                   <article ref={turn.turnId === current?.turnId ? latestReply : undefined} className={styles.reply} aria-label="Jarvis reply">
                     <h3><span className={styles.monogram} aria-hidden="true">J</span>Jarvis</h3>
-                    <p>{turn.assistantMessage.text}</p>
+                    <WorkReplyText text={turn.assistantMessage.text} />
                   </article>
                 ) : (
                   <p className={styles.turnUpdate}>
@@ -157,33 +172,37 @@ export function JarvisWorkConversation(props: Props) {
             event.preventDefault();
             if (canSend) onSend();
           }}>
-            {savedUnsent ? <p className={styles.help}>Send the saved message above to receive a local reply.</p> : <>
-            <label htmlFor={followupId}>Ask a follow-up</label>
-            <textarea
-              id={followupId}
-              ref={composerRef}
-              value={draft}
-              disabled={locked || Boolean(blockedReason)}
-              onChange={(event) => onDraft(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
-                  event.preventDefault();
-                  if (canSend) event.currentTarget.form?.requestSubmit();
-                }
-              }}
-              aria-invalid={excess > 0}
-              aria-describedby={[helpId, countId, !locked && !running && blockedReason && reasonId].filter(Boolean).join(" ")}
-              rows={3}
-              placeholder="Ask for more detail, a different approach, or a revision…"
-            />
-            <p id={countId} className={excess > 0 ? styles.lengthError : styles.count}>
-              {excess > 0
-                ? `Shorten your message by ${excess} ${excess === 1 ? "character" : "characters"}.`
-                : `${draft.length} / ${JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS} characters`}
-            </p>
-            <p id={helpId} className={styles.help}>Jarvis uses recent messages from this chat. Shift+Enter adds a new line.</p>
-            {!locked && !running && blockedReason && <p className={styles.hint} id={reasonId}>{blockedReason}</p>}
-            </>}
+            {savedUnsent ? (
+              <p className={styles.help}>Send the saved message above to receive a local reply.</p>
+            ) : (
+              <>
+                <label htmlFor={followupId}>Ask a follow-up</label>
+                <textarea
+                  id={followupId}
+                  ref={composerRef}
+                  value={draft}
+                  disabled={locked || Boolean(blockedReason)}
+                  onChange={(event) => onDraft(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+                      event.preventDefault();
+                      if (canSend) event.currentTarget.form?.requestSubmit();
+                    }
+                  }}
+                  aria-invalid={excess > 0}
+                  aria-describedby={[helpId, countId, !locked && !running && blockedReason && reasonId].filter(Boolean).join(" ")}
+                  rows={3}
+                  placeholder="Ask for more detail, a different approach, or a revision…"
+                />
+                <p id={countId} className={excess > 0 ? styles.lengthError : styles.count}>
+                  {excess > 0
+                    ? `Shorten your message by ${excess} ${excess === 1 ? "character" : "characters"}.`
+                    : `${draft.length} / ${JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS} characters`}
+                </p>
+                <p id={helpId} className={styles.help}>Jarvis uses recent messages from this chat. Shift+Enter adds a new line.</p>
+                {!locked && !running && blockedReason && <p className={styles.hint} id={reasonId}>{blockedReason}</p>}
+              </>
+            )}
             {!locked && !running && executionReason && <p className={styles.hint}>{executionReason}</p>}
             <div className={styles.buttons}>
               {savedUnsent && <button type="button" className={styles.secondary} onClick={onCancel}>Cancel saved message</button>}

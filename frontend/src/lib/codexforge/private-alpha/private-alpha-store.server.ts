@@ -19,6 +19,7 @@ import type { Dirent } from "node:fs";
 import path from "node:path";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { getExactWindowsProcessIdentity } from "@/lib/codexforge/creator/creator-native-filesystem.server";
+import { readJarvisChatModelRequest } from "../jarvis-chat/jarvis-chat-envelope.server";
 import {
   CODEXFORGE_PROJECT_ROOT,
   isAbsolutePathInsideBase,
@@ -7762,8 +7763,13 @@ export function createPrivateAlphaStore(
             );
           }
           await assertRunLockFence(paths, existingRun.runId, activeFence.owner);
+          const approvedRequestText = existingRun.request.normalizedRequestText;
+          const jarvisChatRequest = existingRun.ownership?.kind === "chat"
+            ? readJarvisChatModelRequest(approvedRequestText)
+            : null;
           const generated = await resolvedProviderAdapter.generateApprovedText({
-            approvedRequestText: existingRun.request.normalizedRequestText,
+            approvedRequestText,
+            ...(jarvisChatRequest && { jarvisChatRequest }),
             model: target.model,
             maximumOutputTokens: existingRun.request.maximumOutputTokens,
             ...(existingRun.ownership?.kind === "creator"

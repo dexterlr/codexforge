@@ -88,7 +88,7 @@ function extractCreatorMemory(project: CreatorProjectState): ProjectMemoryEntry[
   return entries;
 }
 
-export async function readProjectMemory(): Promise<ProjectMemoryFeed> {
+export async function readProjectMemoryFeed(): Promise<ProjectMemoryFeed> {
   const { testSuffix } = resolveJarvisCreatorRuntimeIdentity();
   const chat = testSuffix ? createJarvisChatPersistenceForTesting(testSuffix) : createJarvisChatPersistence();
   const creator = getCreatorRuntimePersistence();
@@ -101,4 +101,8 @@ export async function readProjectMemory(): Promise<ProjectMemoryFeed> {
   const result = [...fromChat, ...fromCreator, ...fromNotes, ...development.result]
     .sort((a, b) => b.at.localeCompare(a.at) || a.id.localeCompare(b.id));
   return { result, developmentChatStatus: development.developmentChatStatus };
+}
+
+export async function readProjectMemory(): Promise<ProjectMemoryEntry[]> {
+  return (await readProjectMemoryFeed()).result;
 }

@@ -39,7 +39,7 @@ import {
 } from "./jarvis-chat-policy";
 import {
   JARVIS_CHAT_DATA_ROOT_SUBDIRECTORY,
-  JARVIS_CHAT_ENVELOPE_VERSION,
+  isJarvisChatEnvelopeVersion,
   JARVIS_CHAT_RECORD_VERSION,
   type JarvisChatConversation,
   type JarvisChatConversationSummary,
@@ -288,7 +288,7 @@ function assertTurnShape(value: unknown, ordinal: number): JarvisChatTurn {
   if (
     !envelope ||
     !hasKeys(envelope, ["envelopeVersion", "providerVisibleRequest", "requestDigest", "utf8Bytes", "contextMessages", "omittedEarlierMessageCount"]) ||
-    envelope.envelopeVersion !== JARVIS_CHAT_ENVELOPE_VERSION ||
+    !isJarvisChatEnvelopeVersion(envelope.envelopeVersion) ||
     !boundedText(envelope.providerVisibleRequest, JARVIS_CHAT_MAX_PROVIDER_REQUEST_CHARACTERS, JARVIS_CHAT_MAX_PROVIDER_REQUEST_BYTES) ||
     !hex(envelope.requestDigest, 64) ||
     envelope.requestDigest !== hashJarvisChatSha256(envelope.providerVisibleRequest as string) ||
@@ -390,6 +390,7 @@ export function assertJarvisChatConversation(value: unknown): JarvisChatConversa
       priorTurns: turns.slice(0, index),
       currentUserMessage: turn.userMessage.text,
       contextMode: turn.contextMode,
+      envelopeVersion: turn.envelope.envelopeVersion,
     });
     if (!canonicalEqual(exactEnvelope, turn.envelope)) invalidPersistence();
   });

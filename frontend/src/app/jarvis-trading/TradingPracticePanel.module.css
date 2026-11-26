@@ -1,0 +1,8 @@
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 12px; }
+.fields label { display: grid; gap: 6px; color: #e8f8ff; font-size: .85rem; font-weight: 700; }
+.setup { display: grid; gap: 8px; min-width: 0; color: #c3d9e2; font-size: .88rem; overflow-wrap: anywhere; }
+.setup p, .orders { margin: 0; }
+.setup a { color: #91e5dc; text-decoration: underline; }
+.orders { padding-left: 20px; }
+.orders li { margin: 8px 0; }
+.orders small { display: block; color: #a8c0cc; }

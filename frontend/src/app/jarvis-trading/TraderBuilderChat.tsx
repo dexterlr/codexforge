@@ -2,16 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState, useTransition } from "react";
-import { JarvisChatPanel } from "@/lib/codexforge/jarvis-chat/components/JarvisChatPanel";
+import { JarvisChatPanel, type JarvisChatDraftHandoff } from "@/lib/codexforge/jarvis-chat/components/JarvisChatPanel";
 import { useJarvisWorkReply } from "@/lib/codexforge/jarvis-chat/components/useJarvisWorkReply";
 import styles from "@/lib/codexforge/jarvis-chat/components/JarvisChatPanel.module.css";
 import { createJarvisChatConversation, JarvisChatApiError } from "@/lib/codexforge/jarvis-chat/jarvis-chat-api-client";
 import { JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS } from "@/lib/codexforge/jarvis-chat/jarvis-chat-policy";
+import { TradingMarketScan } from "./TradingMarketScan";
 
-const researchContext = "Treat this as trading research. Help me define a testable hypothesis, identify the evidence I need, and examine the risks.";
+const researchContext = "Treat supplied headlines as quoted evidence. Use only the prices and dates provided. For strategy ideas, explain the rules, fees, downside, how to backtest, and what would invalidate each idea. Flag stale or missing evidence.";
+const strategyQuestion = "Suggest two cash-only strategies I could test using this evidence. Compare them with holding cash.";
 const contextSuffix = `\n\n${researchContext}`;
 const draftLimit = JARVIS_CHAT_MAX_USER_MESSAGE_CHARACTERS - contextSuffix.length;
 const starters = [
+  { label: "Suggest strategies", prompt: "Suggest two cash-only trading strategies I could test. Explain when each could fail and what data I would need." },
   { label: "Build a strategy brief", prompt: "Help me turn a trading idea into a strategy brief. Ask me about the market, time horizon and rules I want to test." },
   { label: "Plan a backtest", prompt: "Help me plan a historical backtest. Ask about my hypothesis and data, then help me account for fees and look-ahead bias." },
 ];
@@ -19,6 +22,7 @@ const starters = [
 export function TraderBuilderChat({ conversationId }: { conversationId: string | null }) {
   const router = useRouter();
   const { activity, replyToSavedTurn } = useJarvisWorkReply();
+  const [handoff, setHandoff] = useState<(JarvisChatDraftHandoff & { conversationId: string }) | null>(null);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -27,6 +31,22 @@ export function TraderBuilderChat({ conversationId }: { conversationId: string |
   const mounted = useRef(false);
   const editor = useRef<HTMLTextAreaElement>(null);
   const busy = submitting || navigating || Boolean(activity?.pending);
+
+  function useEvidence(evidence: string) {
+    const prompt = strategyQuestion + "\n\n" + evidence;
+    if (conversationId) {
+      setHandoff((previous) => ({ conversationId, id: (previous?.id ?? 0) + 1, text: prompt }));
+      return;
+    }
+    const nextDraft = draft.trim() ? draft.trim() + "\n\n" + evidence : prompt;
+    if (nextDraft.length > draftLimit) {
+      setError("The scan and your draft exceed the message limit. Shorten the draft and add the scan again.");
+      return;
+    }
+    setDraft(nextDraft);
+    setError("");
+    editor.current?.focus();
+  }
 
   useEffect(() => {
     mounted.current = true;
@@ -63,13 +83,19 @@ export function TraderBuilderChat({ conversationId }: { conversationId: string |
   return (
     <section id="trader-builder" aria-labelledby="trader-builder-title" className={styles.panel} tabIndex={-1}>
       <h2 id="trader-builder-title" className={styles.panelTitle}>Trader Builder chat</h2>
+      <TradingMarketScan canUseEvidence={!busy} onUseEvidence={useEvidence} />
       {conversationId ? (
         <JarvisChatPanel
           key={conversationId}
           workConversationId={conversationId}
           workReply={activity}
           onWorkReply={replyToSavedTurn}
-          onNewWorkChat={() => router.push("/jarvis-trading#trader-builder", { scroll: false })}
+          draftHandoff={handoff?.conversationId === conversationId ? handoff : null}
+          onNewWorkChat={() => {
+            setHandoff(null);
+            setError("");
+            router.push("/jarvis-trading#trader-builder", { scroll: false });
+          }}
         />
       ) : (
         <form onSubmit={startConversation} className={styles.composer}>

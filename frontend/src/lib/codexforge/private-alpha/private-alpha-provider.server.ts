@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { readJarvisChatModelRequest } from "../jarvis-chat/jarvis-chat-envelope.server";
 import type {
   CodexForgeModelCostClass,
   CodexForgeModelDataBoundary,
@@ -45,6 +46,7 @@ export type PrivateAlphaProviderAvailability = Readonly<{
 
 export type PrivateAlphaProviderGenerationInput = Readonly<{
   approvedRequestText: string;
+  jarvisChatRequest?: NonNullable<ReturnType<typeof readJarvisChatModelRequest>>;
   model: string;
   maximumOutputTokens: number;
   maximumInputCharacters?: number;

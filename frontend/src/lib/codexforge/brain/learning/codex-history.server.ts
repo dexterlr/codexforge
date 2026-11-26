@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
 import { lstatSync, realpathSync } from "node:fs";
 import path from "node:path";
 import type { CodexLearningMessage } from "./project-learning";
@@ -22,13 +23,13 @@ const MAX_ITEM_BYTES = 256 * 1024;
 const MAX_MESSAGE_BYTES = 64 * 1024;
 const DESKTOP_ENVELOPE = /^\s*(?:<\/?(?:environment_context|turn_aborted|subagent_notification|permissions\b|collaboration_mode|system[-_]reminder|developer_message|system_message|INSTRUCTIONS)(?:[\s>])|# AGENTS\.md instructions for\b)/imu;
 
-function comparablePath(value: string): string {
+export function comparablePath(value: string): string {
   if (process.platform !== "win32") return path.resolve(value);
   const normal = value.replace(/^\\\\\?\\UNC\\/iu, "\\\\").replace(/^\\\\\?\\/u, "");
   return path.resolve(normal).toLowerCase();
 }
 
-function databaseFile(home: string, fileName: string): string {
+export function databaseFile(home: string, fileName: "state_5.sqlite" | "thread_history_1.sqlite"): string {
   const absolute = path.join(home, fileName);
   for (const suffix of ["", "-wal", "-shm", "-journal"]) {
     const file = absolute + suffix;
@@ -67,8 +68,7 @@ const VISIBLE_MESSAGES = `
   ORDER BY i.rollout_ordinal
 `;
 
-/** Read the retained visible history for one server-bound thread and workspace. */
-export function readCodexHistory(codexHome: string, threadId: string, workspace: string): CodexLearningMessage[] | null {
+function withThreadHistory<T>(codexHome: string, threadId: string, workspace: string, read: (history: SqliteReader) => T): T | null {
   if (!THREAD_ID.test(threadId) || !path.isAbsolute(codexHome) || !path.isAbsolute(workspace)) {
     throw new Error("The Codex chat connection is invalid.");
   }
@@ -91,25 +91,52 @@ export function readCodexHistory(codexHome: string, threadId: string, workspace:
     const history = new sqlite.DatabaseSync(databaseFile(home, "thread_history_1.sqlite"), { readOnly: true });
     try {
       history.exec("PRAGMA query_only = ON; PRAGMA trusted_schema = OFF; BEGIN;");
-      const messages: CodexLearningMessage[] = [];
-      for (const row of history.prepare(VISIBLE_MESSAGES).iterate(threadId, MAX_ITEM_BYTES)) {
-        if (typeof row.message_text !== "string" || !row.message_text.trim() ||
-          Buffer.byteLength(row.message_text, "utf8") > MAX_MESSAGE_BYTES ||
-          (row.item_type === "userMessage" && DESKTOP_ENVELOPE.test(row.message_text))) continue;
-        if (typeof row.item_id !== "string" || typeof row.turn_id !== "string" ||
-          typeof row.created_at_ms !== "number" || !Number.isSafeInteger(row.created_at_ms)) continue;
-        const date = new Date(row.created_at_ms);
-        if (!Number.isFinite(date.getTime())) continue;
-        messages.push({
-          id: row.item_id, turnId: row.turn_id, role: row.item_type === "userMessage" ? "user" : "assistant",
-          at: date.toISOString(), text: row.message_text,
-        });
-      }
-      return messages;
+      return read(history);
     } finally {
       history.close();
     }
   } finally {
     catalogue.close();
   }
+}
+
+/** Identify changes to possible source messages without opening transcripts, commentary or tool outputs. */
+export function codexHistoryRevision(home: string, threadId: string, workspace: string): string | null {
+  return withThreadHistory(home, threadId, workspace, history => {
+    const digest = createHash("sha256").update(threadId);
+    const items = history.prepare(`
+      SELECT i.turn_id, i.item_id, i.rollout_ordinal, i.updated_at_ordinal
+      FROM thread_items AS i
+      JOIN thread_turns AS t ON t.thread_id = i.thread_id AND t.turn_id = i.turn_id
+      WHERE i.thread_id = ? AND (i.item_type = 'userMessage' OR
+        (i.item_type = 'agentMessage' AND i.item_id = t.final_agent_item_id))
+      ORDER BY i.rollout_ordinal, i.item_id
+    `);
+    for (const item of items.iterate(threadId)) digest.update(JSON.stringify(item));
+    return digest.digest("hex");
+  });
+}
+
+export function isVisibleCodexMessageText(text: unknown, userMessage: boolean): text is string {
+  return typeof text === "string" && !!text.trim() && Buffer.byteLength(text, "utf8") <= MAX_MESSAGE_BYTES &&
+    !(userMessage && DESKTOP_ENVELOPE.test(text));
+}
+
+/** Read the retained visible history for one server-bound thread and workspace. */
+export function readCodexHistory(codexHome: string, threadId: string, workspace: string): CodexLearningMessage[] | null {
+  return withThreadHistory(codexHome, threadId, workspace, history => {
+    const messages: CodexLearningMessage[] = [];
+    for (const row of history.prepare(VISIBLE_MESSAGES).iterate(threadId, MAX_ITEM_BYTES)) {
+      if (!isVisibleCodexMessageText(row.message_text, row.item_type === "userMessage")) continue;
+      if (typeof row.item_id !== "string" || typeof row.turn_id !== "string" ||
+        typeof row.created_at_ms !== "number" || !Number.isSafeInteger(row.created_at_ms)) continue;
+      const date = new Date(row.created_at_ms);
+      if (!Number.isFinite(date.getTime())) continue;
+      messages.push({
+        id: row.item_id, turnId: row.turn_id, role: row.item_type === "userMessage" ? "user" : "assistant",
+        at: date.toISOString(), text: row.message_text,
+      });
+    }
+    return messages;
+  });
 }

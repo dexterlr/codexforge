@@ -7,11 +7,12 @@ import { resolveJarvisCreatorRuntimeIdentity } from "../../jarvis-chat/jarvis-cr
 import { CODEXFORGE_PROJECT_ROOT } from "../../server-safe-paths";
 import { readCodexHistory } from "./codex-history.server";
 import { extractCodexChatMemory, type ProjectMemoryEntry } from "./project-learning";
+import { mergeRetainedChatMemory, readAllRetainedChatMemory } from "./retained-chat-memory.server";
 
-export type DevelopmentChatStatus = "unconfigured" | "connected" | "unavailable";
+export type DevelopmentChatStatus = "unconfigured" | "connected" | "unavailable" | "retained" | "storage-error";
 export type ProjectMemoryFeed = { result: ProjectMemoryEntry[]; developmentChatStatus: DevelopmentChatStatus };
 
-function boundThreadId(): string | null {
+export function boundThreadId(): string | null {
   try {
     const root = openCreatorNativeRoot([".codexforge", "brain"], "existing");
     try {
@@ -30,18 +31,39 @@ function boundThreadId(): string | null {
   }
 }
 
+function savedFeed(fallback: "unavailable" | "unconfigured" | "storage-error"): ProjectMemoryFeed {
+  try {
+    const result = readAllRetainedChatMemory();
+    return {
+      result,
+      developmentChatStatus: result.length && fallback !== "storage-error" ? "retained" : fallback,
+    };
+  } catch {
+    return { result: [], developmentChatStatus: "storage-error" };
+  }
+}
+
 export async function readDevelopmentChatMemory(): Promise<ProjectMemoryFeed> {
   // Test workspaces must never pick up a user's desktop history.
   if (resolveJarvisCreatorRuntimeIdentity().testSuffix) return { result: [], developmentChatStatus: "unconfigured" };
+  let threadId: string | null;
+  let entries: ProjectMemoryEntry[];
   try {
-    const threadId = boundThreadId();
-    if (!threadId) return { result: [], developmentChatStatus: "unconfigured" };
+    threadId = boundThreadId();
+    if (!threadId) return savedFeed("unconfigured");
     const home = process.env.CODEX_HOME || path.join(homedir(), ".codex");
     const messages = readCodexHistory(home, threadId, CODEXFORGE_PROJECT_ROOT);
-    if (!messages) return { result: [], developmentChatStatus: "unavailable" };
-    return { result: extractCodexChatMemory(threadId, messages), developmentChatStatus: "connected" };
+    if (!messages) return savedFeed("unavailable");
+    entries = extractCodexChatMemory(threadId, messages);
   } catch {
-    // A locked or incompatible Codex installation leaves the other Brain sources available.
-    return { result: [], developmentChatStatus: "unavailable" };
+    return savedFeed("unavailable");
+  }
+  try {
+    // Publish observations before reporting that they have been learned.
+    const current = mergeRetainedChatMemory(threadId, entries);
+    const previous = readAllRetainedChatMemory(undefined, threadId);
+    return { result: [...current, ...previous], developmentChatStatus: "connected" };
+  } catch {
+    return savedFeed("storage-error");
   }
 }

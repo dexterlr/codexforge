@@ -23,16 +23,20 @@ export function useProjectMemory() {
       try {
         const update = await fetchProjectMemoryFeed(signal, true);
         if (signal.aborted) return;
-        setFeed(previous => ({
-          developmentChatStatus: update.developmentChatStatus,
-          result: [...previous.result.filter(entry => entry.sourceType !== "codex-chat"), ...update.result]
-            .sort((a, b) => b.at.localeCompare(a.at) || a.id.localeCompare(b.id)),
-        }));
+        setFeed(previous => {
+          const keepPrior = update.developmentChatStatus === "storage-error";
+          const entries = new Map(previous.result
+            .filter(entry => keepPrior || entry.sourceType !== "codex-chat")
+            .map(entry => [entry.id, entry]));
+          for (const entry of update.result) entries.set(entry.id, entry);
+          return {
+            developmentChatStatus: update.developmentChatStatus,
+            result: [...entries.values()].sort((a, b) => b.at.localeCompare(a.at) || a.id.localeCompare(b.id)),
+          };
+        });
       } catch {
-        if (!signal.aborted) setFeed(previous => ({
-          developmentChatStatus: "unavailable",
-          result: previous.result.filter(entry => entry.sourceType !== "codex-chat"),
-        }));
+        // A transport failure supplies no evidence that a saved memory was removed.
+        if (!signal.aborted) setFeed(previous => ({ ...previous, developmentChatStatus: "unavailable" }));
       } finally {
         pending = false;
       }

@@ -3,29 +3,12 @@
 const assert = require("node:assert/strict");
 const { randomUUID } = require("node:crypto");
 const fs = require("node:fs");
-const Module = require("node:module");
 const os = require("node:os");
 const path = require("node:path");
 const { DatabaseSync } = require("node:sqlite");
-const ts = require("typescript");
 
 // Load the same server modules as Next. This process only opens disposable fixture databases.
-const root = path.resolve(__dirname, "..");
-const resolve = Module._resolveFilename;
-Module._resolveFilename = function(request, ...args) {
-  return resolve.call(this, request.startsWith("@/") ? path.join(root, "src", request.slice(2)) : request, ...args);
-};
-const load = Module._load;
-Module._load = function(request, ...args) {
-  return request === "server-only" ? {} : load.call(this, request, ...args);
-};
-require.extensions[".ts"] = function(module, filename) {
-  const source = fs.readFileSync(filename, "utf8");
-  module._compile(ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
-    fileName: filename,
-  }).outputText, filename);
-};
+require("./codexforge-brain-runtime.cjs");
 
 const { readCodexHistory } = require("@/lib/codexforge/brain/learning/codex-history.server.ts");
 const { extractCodexChatMemory } = require("@/lib/codexforge/brain/learning/project-learning.ts");
@@ -133,7 +116,7 @@ function test(codexHome, state, history) {
   console.log("PASS appended user outcome links to the decision, repeated reads are stable, and suggested, quoted or secret-bearing text stays out");
 
   assert.throws(() => readCodexHistory(codexHome, thread, path.dirname(workspace)));
-  // Dropping a turn from retained history must also drop its projected memories.
+  // The live source projection follows rollbacks. Retention is tested separately.
   history.prepare("DELETE FROM thread_turns WHERE thread_id=? AND turn_id=?").run(thread, two.turnId);
   assert.deepEqual(memories(), initial, "Orphaned items from a reverted turn were remembered");
   history.prepare("DELETE FROM thread_items WHERE thread_id=? AND turn_id=?").run(thread, two.turnId);
@@ -144,6 +127,16 @@ function test(codexHome, state, history) {
   const later = memories().slice(initial.length);
   assert.deepEqual(later.map(entry => entry.kind), ["decision", "worked", "did-not-work"]);
   assert(later.slice(1).every(entry => entry.relatedDecisionId === later[0].id));
+  const proposal = start(thread, 25);
+  final(proposal, 26, "I recommend using SQLite for the local cache.");
+  const beforeAccepting = memories();
+  const accepted = start(thread, 27);
+  user(accepted, 28, "Yes, go with that.");
+  final(accepted, 29, "Switching to SQLite fixed the timeout.");
+  const acceptedEntries = memories().slice(beforeAccepting.length);
+  assert.deepEqual(acceptedEntries.map(entry => entry.kind), ["decision", "worked"]);
+  assert.match(acceptedEntries[0].text, /using SQLite for the local cache/);
+  assert.equal(acceptedEntries[1].relatedDecisionId, acceptedEntries[0].id);
   state.prepare("UPDATE threads SET history_mode='legacy' WHERE id=?").run(thread);
   assert.throws(getMessages);
   state.prepare("DELETE FROM threads WHERE id=?").run(thread);
@@ -157,16 +150,20 @@ function test(codexHome, state, history) {
   console.log("PASS workspace binding, removed turns, deleted chat, and absent chat");
 }
 
-const temp = fs.mkdtempSync(path.join(os.tmpdir(), "codexforge-chat-memory-"));
-let state;
-let history;
-try {
-  state = new DatabaseSync(path.join(temp, "state_5.sqlite"));
-  history = new DatabaseSync(path.join(temp, "thread_history_1.sqlite"));
-  test(temp, state, history);
-} finally {
-  history?.close();
-  state?.close();
-  assert.equal(path.dirname(temp), path.resolve(os.tmpdir()));
-  fs.rmSync(temp, { recursive: true, force: true });
+module.exports = { createTables };
+
+if (require.main === module) {
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "codexforge-chat-memory-"));
+  let state;
+  let history;
+  try {
+    state = new DatabaseSync(path.join(temp, "state_5.sqlite"));
+    history = new DatabaseSync(path.join(temp, "thread_history_1.sqlite"));
+    test(temp, state, history);
+  } finally {
+    history?.close();
+    state?.close();
+    assert.equal(path.dirname(temp), path.resolve(os.tmpdir()));
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
 }

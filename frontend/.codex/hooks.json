@@ -1,0 +1,16 @@
+{
+  "description": "Save decisions and outcomes for this checkout when the linked Codex chat closes.",
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/codexforge-brain-session-end.cjs",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
+}
