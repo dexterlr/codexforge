@@ -83,6 +83,7 @@ export const PRIVATE_ALPHA_EXECUTION_ERROR_CODES = [
 const PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES = [
   "execution_interrupted",
   "chat_stop_prevented_execution",
+  "creator_stop_prevented_execution",
   "kill_switch_blocked",
   "ollama_unavailable",
   "ollama_model_missing",
@@ -130,7 +131,10 @@ export type PrivateAlphaPersistedExecutionErrorCode =
   (typeof PRIVATE_ALPHA_PERSISTED_EXECUTION_ERROR_CODES)[number];
 export type PrivateAlphaProviderErrorCode = Exclude<
   PrivateAlphaPersistedExecutionErrorCode,
-  "execution_interrupted" | "chat_stop_prevented_execution" | "kill_switch_blocked"
+  | "execution_interrupted"
+  | "chat_stop_prevented_execution"
+  | "creator_stop_prevented_execution"
+  | "kill_switch_blocked"
 >;
 export type PrivateAlphaAuditActor = "local-operator" | "system";
 export type PrivateAlphaStatusMode =
@@ -346,6 +350,7 @@ export type PrivateAlphaCancellationRecord = Readonly<{
 type PrivateAlphaLocalExecutionErrorCode =
   | "execution_interrupted"
   | "chat_stop_prevented_execution"
+  | "creator_stop_prevented_execution"
   | "kill_switch_blocked"
   | "ollama_unavailable"
   | "ollama_model_missing"
@@ -452,7 +457,7 @@ export type PrivateAlphaCreatorRunOwnership = Readonly<{
   kind: "creator";
   protocolVersion: typeof PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION;
   projectId: string;
-  purpose: "generation" | "repair";
+  purpose: "generation" | "repair" | "revision";
   bindingId: string;
 }>;
 

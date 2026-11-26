@@ -81,7 +81,10 @@
 .composer,
 .manageSection,
 .advancedDetails,
-.sidebar {
+.sidebar,
+.handoffReview,
+.handoffHistory,
+.embeddedCreator {
   min-width: 0;
   border: 1px solid rgba(148, 163, 184, 0.15);
   border-radius: 16px;
@@ -364,6 +367,25 @@
   overflow-wrap: anywhere;
 }
 
+.messageAction {
+  width: fit-content;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  border-radius: 9px;
+  background: rgba(7, 23, 39, 0.78);
+  color: #dff8ff;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.messageAction:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .userMessage {
   justify-self: end;
   background: rgba(10, 67, 69, 0.58);
@@ -397,13 +419,139 @@
 .stopCard,
 .recoveryCard,
 .manageForm,
-.deleteForm {
+.deleteForm,
+.handoffReview,
+.handoffHistory {
   display: grid;
   gap: 11px;
   padding: 13px;
   border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 13px;
   background: rgba(9, 20, 35, 0.78);
+}
+
+.handoffReview,
+.handoffHistory,
+.embeddedCreator {
+  display: grid;
+  gap: 13px;
+  padding: 15px;
+  grid-column: 1 / -1;
+  scroll-margin-top: 16px;
+}
+
+.handoffBoundaryCopy,
+.handoffSource p,
+.handoffSource small {
+  margin: 0;
+  color: #b8d4e1;
+  line-height: 1.55;
+}
+
+.handoffSource {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 3px solid rgba(45, 212, 191, 0.58);
+  background: rgba(9, 49, 54, 0.36);
+}
+
+.handoffSource p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.handoffEnvelope,
+.handoffProvenance {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.handoffEnvelope > div,
+.handoffProvenance > div {
+  min-width: 0;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: rgba(9, 23, 37, 0.82);
+}
+
+.handoffEnvelope dt,
+.handoffProvenance dt {
+  color: #7db4c7;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.handoffEnvelope dd,
+.handoffProvenance dd {
+  margin: 4px 0 0;
+  color: #effaff;
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+
+.handoffForm,
+.handoffField {
+  display: grid;
+  gap: 8px;
+}
+
+.handoffForm fieldset {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 11px;
+}
+
+.handoffForm legend,
+.handoffField > label {
+  color: #e8f8ff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.handoffForm fieldset label,
+.handoffAcknowledgement {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #c8dce7;
+  line-height: 1.45;
+}
+
+.handoffList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.handoffList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px;
+  border-radius: 11px;
+  background: rgba(10, 22, 38, 0.82);
+}
+
+.handoffList li > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.handoffList span,
+.handoffList small {
+  color: #8fb5c5;
+  overflow-wrap: anywhere;
 }
 
 .approvalCard {
@@ -662,6 +810,14 @@
   outline-offset: 3px;
 }
 
+.messageAction:focus-visible,
+.handoffForm input:focus-visible,
+.handoffForm select:focus-visible,
+.handoffForm textarea:focus-visible {
+  outline: 3px solid rgba(34, 211, 238, 0.72);
+  outline-offset: 3px;
+}
+
 .boundarySummary:focus-visible {
   outline: 3px solid rgba(34, 211, 238, 0.72);
   outline-offset: 3px;
@@ -710,7 +866,9 @@
   .boundaryGrid,
   .historyList,
   .lifecycleMeta,
-  .advancedGrid {
+  .advancedGrid,
+  .handoffEnvelope,
+  .handoffProvenance {
     grid-template-columns: 1fr;
   }
 
@@ -737,6 +895,16 @@
   .panelHeader > button {
     width: 100%;
   }
+
+  .handoffList li {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .handoffList button,
+  .messageAction {
+    width: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -747,4 +915,25 @@
   .historyButton {
     transition: none;
   }
+}
+.memorySuggestions {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(45, 212, 191, 0.28);
+  border-radius: 12px;
+}
+
+.memorySuggestion {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  overflow-wrap: anywhere;
+}
+
+.memorySuggestion small {
+  color: #a9c8d7;
+}
+
+.memorySuggestion p {
+  margin: 0.3rem 0;
 }

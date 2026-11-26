@@ -138,8 +138,8 @@ foreach ($providerBoundary in @(
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 75) "Aggregate executable entry count is 75"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 72) "Aggregate required count is 72"
+Assert-True ($entries.Count -eq 77) "Aggregate executable entry count is 77"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 74) "Aggregate required count is 74"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True ($releaseBlock -match 'Free/Local Provider Registry Foundation"; File = "smoke-codexforge-free-local-provider-registry-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},') "Slice P smoke follows Slice O in executable order"
 Assert-True ($releaseBlock -match 'Registry-Backed Free/Local Provider Onboarding and Admission Foundation"; File = "smoke-codexforge-registry-backed-free-local-provider-onboarding-admission-foundation\.ps1"; Required = \$true \},\r?\n  @\{ Name = "First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},') "Slice Q smoke follows Slice P in executable order"

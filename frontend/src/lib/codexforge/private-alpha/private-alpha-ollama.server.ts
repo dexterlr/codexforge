@@ -2,6 +2,8 @@ import "server-only";
 
 import {
   PRIVATE_ALPHA_MAX_DONE_REASON_LENGTH,
+  PRIVATE_ALPHA_CREATOR_CONTEXT_WINDOW_TOKENS,
+  PRIVATE_ALPHA_MAX_CREATOR_REQUEST_LENGTH,
   PRIVATE_ALPHA_MAX_OUTPUT_TEXT_LENGTH,
   PRIVATE_ALPHA_MAX_REQUEST_LENGTH,
   PRIVATE_ALPHA_PRODUCTION_MODEL,
@@ -47,6 +49,8 @@ export type PrivateAlphaOllamaGenerationInput = Readonly<{
   approvedRequestText: string;
   model: string;
   maximumOutputTokens: number;
+  maximumInputCharacters?: number;
+  contextWindowTokens?: number;
 }>;
 
 export type PrivateAlphaOllamaGenerationResult = Readonly<{
@@ -450,7 +454,25 @@ function createOllamaClient(
         );
       }
 
-      if (input.approvedRequestText.length > PRIVATE_ALPHA_MAX_REQUEST_LENGTH) {
+      const maximumInputCharacters =
+        input.maximumInputCharacters ?? PRIVATE_ALPHA_MAX_REQUEST_LENGTH;
+      if (
+        !Number.isSafeInteger(maximumInputCharacters) ||
+        maximumInputCharacters < 1 ||
+        maximumInputCharacters > PRIVATE_ALPHA_MAX_CREATOR_REQUEST_LENGTH ||
+        input.approvedRequestText.length > maximumInputCharacters
+      ) {
+        throw createOllamaError(
+          "ollama_malformed_response",
+          "Local Ollama request validation failed.",
+          503
+        );
+      }
+      if (
+        input.contextWindowTokens !== undefined &&
+        input.contextWindowTokens !==
+          PRIVATE_ALPHA_CREATOR_CONTEXT_WINDOW_TOKENS
+      ) {
         throw createOllamaError(
           "ollama_malformed_response",
           "Local Ollama request validation failed.",
@@ -478,6 +500,9 @@ function createOllamaClient(
             think: PRIVATE_ALPHA_OLLAMA_THINK_LEVEL,
             options: {
               num_predict: input.maximumOutputTokens,
+              ...(input.contextWindowTokens === undefined
+                ? {}
+                : { num_ctx: input.contextWindowTokens }),
             },
           }),
         },

@@ -340,8 +340,8 @@ Assert-NotMatches $productionSource '(?i)(/api/chat|/api/generate|/api/pull|crea
 $allSmoke = Get-Text "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($allSmoke, '(?s)\$currentReleaseGateScripts\s*=\s*@\((.*?)\)\s*# Current release gate wording:').Groups[1].Value
 $releaseEntries = [regex]::Matches($releaseBlock, '@\{\s*Name\s*=.*?Required\s*=\s*\$(?:true|false)\s*\}')
-Assert-True ($releaseEntries.Count -eq 75) "Aggregate executable count is 75"
-Assert-True (@($releaseEntries | Where-Object { $_.Value -match 'Required\s*=\s*\$true' }).Count -eq 72) "Aggregate required count is 72"
+Assert-True ($releaseEntries.Count -eq 77) "Aggregate executable count is 77"
+Assert-True (@($releaseEntries | Where-Object { $_.Value -match 'Required\s*=\s*\$true' }).Count -eq 74) "Aggregate required count is 74"
 Assert-True (@($releaseEntries | Where-Object { $_.Value -match 'Required\s*=\s*\$false' }).Count -eq 3) "Aggregate optional count remains 3"
 $phaseANeedle = 'File = "smoke-codexforge-local-first-jarvis-working-product-loop.ps1"; Required = $true'
 $phaseBNeedle = 'File = "smoke-codexforge-unified-jarvis-product-experience.ps1"; Required = $true'

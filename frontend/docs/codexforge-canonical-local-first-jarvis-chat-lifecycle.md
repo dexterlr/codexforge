@@ -19,7 +19,7 @@ Provider availability is not probed merely by opening or reading chat. The inter
 
 ## Architecture and ownership
 
-`/jarvis` is the single canonical conversational workspace. The client uses strict typed API responses, while all identity creation, policy validation, lifecycle transitions, persistence, Private Alpha binding, and execution decisions remain on the server.
+`/jarvis` is the canonical conversational workspace. Work Assistant uses the same chat controller and local history at `/work-assistant?conversation=<id>`. Users can review and run a turn there, read the reply, and send a follow-up with or without earlier messages from that conversation. The client uses strict typed API responses, while all identity creation, policy validation, lifecycle transitions, persistence, Private Alpha binding, and execution decisions remain on the server.
 
 ```mermaid
 flowchart LR
@@ -140,7 +140,7 @@ The user-facing product is CodexForge; the repository's historical `health-track
 | `/athena` | Redirect | Redirects to `/jarvis`; the duplicate primary workspace is retired. |
 | `/ai` | Intentionally retired | Redirects to `/jarvis`; its legacy unsafe POST endpoint returns a bounded retirement response. Dedicated routes retain specialist workflows, while recall, evidence-grounding, and self-upgrade planning are explicitly available in Jarvis's collapsed advanced tools. |
 | `/jarvis-websites` | Working | Bounded static Website/Browser App v0 creator; no backend, packages, deployment, or full-stack claim. |
-| `/jarvis-chatbot` | Legacy but unique functionality pending migration | Chatbot-brain planning/foundation surface, not the canonical chat. |
+| `/jarvis-chatbot` | Redirect | Its non-operational planning intent is now implemented as the explicit Jarvis-to-Creator review flow; the route redirects to `/jarvis`. |
 | Home | Working | `/`. |
 | Jarvis | Working | `/jarvis`. |
 | Projects | Partial | `/video-projects`; project-oriented work is present but not every creator type is operational. |
@@ -197,4 +197,4 @@ For a user conversation interrupted during a mutation, reload it and choose the 
 - No cloud or paid provider execution, model fallback, model download, automatic retry, or provider cancellation guarantee.
 - No automatic code application, shell execution, package installation, deployment, email send, voice, screen control, image, audio, or video generation from chat.
 - Deletion removes conversation history; it neither creates nor changes any separately retained bounded Private Alpha run/audit provenance.
-- `/jarvis-chatbot` remains a separate legacy planning/foundation surface until its unique value is deliberately migrated.
+- `/jarvis-chatbot` was a review-only planning shell with no mutation API. Its useful explicit-planning intent is now implemented by the bounded Jarvis-to-Creator handoff, so the route redirects to `/jarvis`.

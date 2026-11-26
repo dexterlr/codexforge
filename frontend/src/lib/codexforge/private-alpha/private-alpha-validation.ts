@@ -30,6 +30,8 @@ export const PRIVATE_ALPHA_TEST_DATA_ROOT_PREFIX =
 export const PRIVATE_ALPHA_DEFAULT_LIST_LIMIT = 20;
 export const PRIVATE_ALPHA_MAX_LIST_LIMIT = 50;
 export const PRIVATE_ALPHA_MAX_REQUEST_LENGTH = 8_000;
+export const PRIVATE_ALPHA_MAX_CREATOR_REQUEST_LENGTH = 131_072;
+export const PRIVATE_ALPHA_CREATOR_CONTEXT_WINDOW_TOKENS = 131_072;
 export const PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH = 120;
 export const PRIVATE_ALPHA_MIN_OUTPUT_TOKENS = 1;
 export const PRIVATE_ALPHA_MAX_OUTPUT_TOKENS = 4_096;
@@ -468,7 +470,8 @@ export function validatePrivateAlphaRunId(
 
 export function validatePrivateAlphaCreateRunInput(
   body: unknown,
-  profile: PrivateAlphaRuntimeProfile = PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE
+  profile: PrivateAlphaRuntimeProfile = PRIVATE_ALPHA_LOCAL_RUNTIME_PROFILE,
+  maximumRequestLength: number = PRIVATE_ALPHA_MAX_REQUEST_LENGTH
 ): PrivateAlphaValidationResult<PrivateAlphaCreateRunInput> {
   if (!isRecord(body)) {
     return failure(400, "Run creation requires a JSON object payload.");
@@ -494,10 +497,17 @@ export function validatePrivateAlphaCreateRunInput(
     return failure(400, "requestText is required.");
   }
 
-  if (normalizedRequestText.length > PRIVATE_ALPHA_MAX_REQUEST_LENGTH) {
+  if (
+    !Number.isSafeInteger(maximumRequestLength) ||
+    maximumRequestLength < 1 ||
+    maximumRequestLength > PRIVATE_ALPHA_MAX_CREATOR_REQUEST_LENGTH
+  ) {
+    throw new RangeError("Run request ceiling is invalid.");
+  }
+  if (normalizedRequestText.length > maximumRequestLength) {
     return failure(
       400,
-      `requestText exceeds ${PRIVATE_ALPHA_MAX_REQUEST_LENGTH} characters.`
+      `requestText exceeds ${maximumRequestLength} characters.`
     );
   }
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { CodexForgeAppShell } from "@/lib/codexforge/navigation-shell";
 import { loadBrainGraph, type CodexForgeBrainGraph } from "@/lib/codexforge/brain/graph";
+import { ProjectMemoryPanel } from "@/lib/codexforge/brain/learning/components/ProjectMemoryPanel";
 
 type BrainLoadState =
   | { phase: "loading"; graph: null; error: null }
@@ -65,16 +66,17 @@ export default function BrainPageClient() {
         {/* setLoadPhase("error") */}
         <div style={hero}>
           <div style={heroCopy}>
-            <span style={eyebrow}>Read-only graph context</span>
             <h2 style={title}>Brain workspace</h2>
             <p style={subtitle}>
-              Inspect local graph posture and route to reviewed memory/governance surfaces. This page does not mutate graph data.
+              Revisit a project decision and see what happened when it was tried.
             </p>
           </div>
           <Link href="/memory" style={primaryAction}>
-            Review memory
+            Review graph memory
           </Link>
         </div>
+
+        <ProjectMemoryPanel />
 
         {state.phase === "loading" ? (
           <div style={panel}>Loading local brain graph...</div>
@@ -156,14 +158,6 @@ const heroCopy: CSSProperties = {
   display: "grid",
   gap: 7,
   minWidth: 0,
-};
-
-const eyebrow: CSSProperties = {
-  color: "#7dd3fc",
-  fontSize: 11,
-  fontWeight: 900,
-  lineHeight: 1.2,
-  textTransform: "uppercase",
 };
 
 const title: CSSProperties = {

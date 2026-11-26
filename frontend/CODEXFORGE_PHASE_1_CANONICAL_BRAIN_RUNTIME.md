@@ -28,6 +28,20 @@ src/lib/codexforge/brain/graph/types.ts
 
 ## Related Brain Surfaces
 
+### Decisions and outcomes
+
+Open **Project memory** on `/brain` or `/local-project-decision-log` to see the local workspace's decisions and the evidence for what happened afterward. The Brain reads three sources.
+
+- Saved operator messages in Jarvis. For example, “We decided to use SQLite,” followed by “That worked,” records a decision and a reported outcome. A later “The SQLite migration failed” keeps the contrary evidence visible. Explicit labels such as “Decision:” and “What worked:” are also recognized.
+- Website Creator's recorded approvals, validated artifact revisions, and failed operations. Each outcome describes the particular operation and links to its project.
+- Dated, explicitly labeled entries in the repository's [development memory](docs/development/project-memory.md). This lets decisions recorded from development chats appear alongside app history.
+
+Typing a related topic in Jarvis shows matching evidence locally. **Add to draft** includes the selected text and its source in the editable message. Submitting the draft and approving a provider run are separate actions.
+
+Each read uses the retained source records, including history from before this feature. Deleting a Jarvis conversation removes its derived entries on the next read. Operator reports and Creator checks have distinct provenance. Reviewed graph promotion continues through `/memory`.
+
+### Graph and runtime
+
 - `/brain` command center.
 - Real 3D Brain graph with WebGL/Three/Fiber/Drei.
 - 2D Brain graph fallback.
@@ -48,5 +62,6 @@ The Brain runtime informs planning and memory. The graph visual layer does not m
 npm run build
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-runtime.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\smoke-codexforge-brain-memory-ingestion.ps1
+node scripts/smoke-codexforge-brain-project-learning.cjs
 git diff --check
 ```

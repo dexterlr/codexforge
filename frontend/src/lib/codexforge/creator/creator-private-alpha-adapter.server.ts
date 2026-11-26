@@ -23,7 +23,10 @@ import {
 } from "@/lib/codexforge/private-alpha/private-alpha-kill-switch.server";
 import type { PrivateAlphaProviderAdapter } from "@/lib/codexforge/private-alpha/private-alpha-provider.server";
 import { hashCreatorSha256, makeCreatorHexId } from "./creator-crypto";
-import type { CreatorRunPurpose } from "./creator-types";
+import type {
+  CreatorRunOperationSlot,
+  CreatorRunPurpose,
+} from "./creator-types";
 
 export type CreatorLifecycleRunResult = Readonly<{
   run: PrivateAlphaRunRecord;
@@ -38,22 +41,26 @@ export type CreatorGenerationLifecycleAdapter = Readonly<{
   bindRun: (input: {
     projectId: string;
     purpose: CreatorRunPurpose;
+    operationSlot: CreatorRunOperationSlot;
     instruction: string;
   }) => Promise<PrivateAlphaRunRecord>;
   recoverBoundRun: (input: {
     projectId: string;
     purpose: CreatorRunPurpose;
+    operationSlot: CreatorRunOperationSlot;
     instruction: string;
   }) => Promise<PrivateAlphaRunRecord | null>;
   getRun: (input: {
     projectId: string;
     purpose: CreatorRunPurpose;
+    operationSlot: CreatorRunOperationSlot;
     runId: string;
     ownershipBindingId: string;
   }) => Promise<PrivateAlphaRunRecord>;
   approveRun: (input: {
     projectId: string;
     purpose: CreatorRunPurpose;
+    operationSlot: CreatorRunOperationSlot;
     runId: string;
     ownershipBindingId: string;
     expectedRunRevision: number;
@@ -63,16 +70,19 @@ export type CreatorGenerationLifecycleAdapter = Readonly<{
   executeRun: (input: {
     projectId: string;
     purpose: CreatorRunPurpose;
+    operationSlot: CreatorRunOperationSlot;
     runId: string;
     ownershipBindingId: string;
     expectedRunRevision: number;
     expectedApprovalScopeHash: string;
     expectedRequestEnvelopeDigest: string;
     executionIntentIdempotencyKeyHash: string;
+    admitProviderStart: () => Promise<boolean>;
   }) => Promise<CreatorLifecycleRunResult>;
   cancelRun: (input: {
     projectId: string;
     purpose: CreatorRunPurpose;
+    operationSlot: CreatorRunOperationSlot;
     runId: string;
     ownershipBindingId: string;
     reason: string;
@@ -96,17 +106,26 @@ function buildCreatorOwnership(input: {
 
 function buildCreatorRunIdempotencyKey(
   projectId: string,
-  purpose: CreatorRunPurpose
+  purpose: CreatorRunPurpose,
+  operationSlot: CreatorRunOperationSlot =
+    purpose === "generation" ? "generation-initial" : "repair-1"
 ): string {
+  if (purpose === "revision") {
+    if (operationSlot !== "revision-1" && operationSlot !== "revision-2") {
+      throw new Error("Creator revision run operation slot is invalid.");
+    }
+    return `creator-${projectId}-${operationSlot}-v1`;
+  }
   return `creator-${projectId}-${purpose}-v1`;
 }
 
 export function buildCreatorRunIdempotencyKeyHash(
   projectId: string,
-  purpose: CreatorRunPurpose
+  purpose: CreatorRunPurpose,
+  operationSlot?: CreatorRunOperationSlot
 ): string {
   return buildPrivateAlphaCreatorIdempotencyKeyHash(
-    buildCreatorRunIdempotencyKey(projectId, purpose),
+    buildCreatorRunIdempotencyKey(projectId, purpose, operationSlot),
     projectId,
     purpose
   );
@@ -114,9 +133,12 @@ export function buildCreatorRunIdempotencyKeyHash(
 
 export function buildLegacyCreatorRunIdempotencyKeyHash(
   projectId: string,
-  purpose: CreatorRunPurpose
+  purpose: CreatorRunPurpose,
+  operationSlot?: CreatorRunOperationSlot
 ): string {
-  return hashCreatorSha256(buildCreatorRunIdempotencyKey(projectId, purpose));
+  return hashCreatorSha256(
+    buildCreatorRunIdempotencyKey(projectId, purpose, operationSlot)
+  );
 }
 
 function buildHistoricalCreatorExecutionIdempotencyKey(
@@ -129,12 +151,14 @@ function buildHistoricalCreatorExecutionIdempotencyKey(
 export function buildCreatorExecutionIdempotencyKeyHash(
   projectId: string,
   purpose: CreatorRunPurpose,
-  executionIntentIdempotencyKeyHash: string
+  executionIntentIdempotencyKeyHash: string,
+  operationSlot?: CreatorRunOperationSlot
 ): string {
   const idempotencyKey = buildCreatorExecutionIdempotencyKey(
     projectId,
     purpose,
-    executionIntentIdempotencyKeyHash
+    executionIntentIdempotencyKeyHash,
+    operationSlot
   );
   return buildPrivateAlphaCreatorIdempotencyKeyHash(
     idempotencyKey,
@@ -166,12 +190,28 @@ export function buildLegacyCreatorExecutionIdempotencyKeyHash(
 function buildCreatorExecutionIdempotencyKey(
   projectId: string,
   purpose: CreatorRunPurpose,
-  executionIntentIdempotencyKeyHash: string
+  executionIntentIdempotencyKeyHash: string,
+  operationSlot: CreatorRunOperationSlot =
+    purpose === "generation" ? "generation-initial" : "repair-1"
 ): string {
   if (!/^[a-f0-9]{64}$/u.test(executionIntentIdempotencyKeyHash)) {
     throw new Error("Creator execution intent identity is invalid.");
   }
-  return `creator-${projectId}-${purpose}-execute-v2-${executionIntentIdempotencyKeyHash}`;
+  const purposeKey = purpose === "revision" ? operationSlot : purpose;
+  return `creator-${projectId}-${purposeKey}-execute-v2-${executionIntentIdempotencyKeyHash}`;
+}
+
+function buildCreatorOwnershipBindingId(input: {
+  projectId: string;
+  purpose: CreatorRunPurpose;
+  operationSlot: CreatorRunOperationSlot;
+  instruction: string;
+}): string {
+  return input.purpose === "revision"
+    ? hashCreatorSha256(
+        `creator-revision-ownership:v1:${input.projectId}:${input.operationSlot}:${hashCreatorSha256(input.instruction)}`
+      ).slice(0, 32)
+    : makeCreatorHexId(16);
 }
 
 function assertExactCreatorRun(
@@ -230,11 +270,13 @@ function buildAdapter(
   async function recoverBoundRun(input: {
     projectId: string;
     purpose: CreatorRunPurpose;
+    operationSlot: CreatorRunOperationSlot;
     instruction: string;
   }): Promise<PrivateAlphaRunRecord | null> {
     const idempotencyKey = buildCreatorRunIdempotencyKey(
       input.projectId,
-      input.purpose
+      input.purpose,
+      input.operationSlot
     );
     const expectedRequestText = normalizePrivateAlphaRequestText(input.instruction);
     const result = await store.bindCreatorRun(
@@ -249,7 +291,7 @@ function buildAdapter(
       buildCreatorOwnership({
         projectId: input.projectId,
         purpose: input.purpose,
-        bindingId: makeCreatorHexId(16),
+        bindingId: buildCreatorOwnershipBindingId(input),
       }),
       false
     );
@@ -289,11 +331,16 @@ function buildAdapter(
     return exact;
   }
   return {
-    async bindRun({ projectId, purpose, instruction }) {
+    async bindRun({ projectId, purpose, operationSlot, instruction }) {
       const ownership = buildCreatorOwnership({
         projectId,
         purpose,
-        bindingId: makeCreatorHexId(16),
+        bindingId: buildCreatorOwnershipBindingId({
+          projectId,
+          purpose,
+          operationSlot,
+          instruction,
+        }),
       });
       const result = await store.bindCreatorRun(
         {
@@ -303,7 +350,7 @@ function buildAdapter(
           maximumOutputTokens: 4096,
           modelKey: PRIVATE_ALPHA_OLLAMA_RUNTIME_MODEL_KEY,
         },
-        buildCreatorRunIdempotencyKey(projectId, purpose),
+        buildCreatorRunIdempotencyKey(projectId, purpose, operationSlot),
         ownership,
         true
       );
@@ -376,7 +423,8 @@ function buildAdapter(
       const currentExecutionIdempotencyKey = buildCreatorExecutionIdempotencyKey(
         projectId,
         purpose,
-        input.executionIntentIdempotencyKeyHash
+        input.executionIntentIdempotencyKeyHash,
+        input.operationSlot
       );
       if (current.state === "executing") {
         if (
@@ -397,7 +445,8 @@ function buildAdapter(
         const expectedCurrentExecutionHash = buildCreatorExecutionIdempotencyKeyHash(
           projectId,
           purpose,
-          input.executionIntentIdempotencyKeyHash
+          input.executionIntentIdempotencyKeyHash,
+          input.operationSlot
         );
         const replayIdempotencyKey =
           current.execution.idempotencyKeyHash === expectedCurrentExecutionHash
@@ -415,7 +464,8 @@ function buildAdapter(
             expectedRevision: current.execution.previousRevision,
           },
           replayIdempotencyKey,
-          ownership
+          ownership,
+          input.admitProviderStart
         );
         return {
           run: replay.run,
@@ -448,7 +498,8 @@ function buildAdapter(
           expectedRevision: input.expectedRunRevision,
         },
         currentExecutionIdempotencyKey,
-        ownership
+        ownership,
+        input.admitProviderStart
       );
       const run = assertExpectedBinding(result.run, input);
       if (

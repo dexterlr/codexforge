@@ -1,6 +1,10 @@
 import type { CreatorFilePolicy, CreatorModelEnvelope } from "./creator-types";
 
 export const CREATOR_MAX_DESCRIPTION_LENGTH = 2_000;
+export const CREATOR_MAX_REVISION_BRIEF_LENGTH = 2_000;
+export const CREATOR_MAX_EXPLICIT_REVISIONS = 2;
+export const CREATOR_MAX_MATERIALIZATIONS = 4;
+export const CREATOR_MAX_RUN_BINDINGS = 4;
 export const CREATOR_MAX_PROJECT_TITLE_LENGTH = 80;
 export const CREATOR_MAX_PROJECT_SLUG_LENGTH = 48;
 export const CREATOR_MAX_MUTATION_BODY_BYTES = 16_384;
@@ -40,6 +44,8 @@ export const CREATOR_FILE_POLICY = Object.freeze({
 
 export const CREATOR_MODEL_ENVELOPE = Object.freeze({
   providerKey: "ollama-local",
+  providerLabel: "Local Ollama",
+  providerLocality: "local-machine",
   modelKey: "ollama-local::gpt-oss:20b",
   runtimeModel: "gpt-oss:20b",
   dataBoundary: "local-machine",
@@ -48,6 +54,8 @@ export const CREATOR_MODEL_ENVELOPE = Object.freeze({
   retry: "disabled",
   substitution: "disabled",
   paidExecution: "disabled",
+  estimatedProviderTokenChargeUsd: 0,
+  localResourceCost: "unmetered",
 }) satisfies CreatorModelEnvelope;
 
 export const CREATOR_PRODUCTION_DATA_ROOT_LABEL = ".codexforge/creator";
@@ -56,7 +64,7 @@ export const CREATOR_DESTINATION_BOUNDARY_LABEL =
   ".codexforge/creator/projects/<project-id>/revisions/<revision>/files";
 
 export function buildCreatorDestinationBoundary(projectId: string, artifactRevision: number): string {
-  if (!CREATOR_PROJECT_ID_PATTERN.test(projectId) || !Number.isSafeInteger(artifactRevision) || artifactRevision < 1 || artifactRevision > 2) {
+  if (!CREATOR_PROJECT_ID_PATTERN.test(projectId) || !Number.isSafeInteger(artifactRevision) || artifactRevision < 1 || artifactRevision > CREATOR_MAX_MATERIALIZATIONS) {
     throw new Error("Creator destination identity is invalid.");
   }
   return CREATOR_DESTINATION_BOUNDARY_LABEL

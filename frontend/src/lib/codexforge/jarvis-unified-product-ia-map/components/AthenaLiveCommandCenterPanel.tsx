@@ -133,6 +133,11 @@ export function AthenaLiveCommandCenterPanel() {
               Start or reopen a local conversation, then send one bounded message
               for separate review, approval, and execution.
             </p>
+            <div className={styles.jarvisReviewShortcuts}>
+              <Link className={styles.jarvisReviewShortcut} href="/work-assistant">
+                Work Assistant
+              </Link>
+            </div>
           </div>
 
           <details className={styles.privateAlphaTechnicalDetails}>

@@ -299,6 +299,185 @@ function scanRestrictedMarkup(source: string, mode: "html" | "svg"): MarkupScanR
   return { ok: true, elements };
 }
 
+export const CREATOR_FRAGMENT_MAXIMUM_NODES = 256;
+export const CREATOR_FRAGMENT_MAXIMUM_DEPTH = 16;
+export const CREATOR_FRAGMENT_MAXIMUM_CHARACTERS = 24_576;
+
+export const CREATOR_FRAGMENT_RESERVED_ELEMENTS = Object.freeze([
+  "html",
+  "head",
+  "body",
+  "main",
+  "h1",
+  "header",
+  "nav",
+  "footer",
+  "title",
+  "meta",
+  "link",
+  "script",
+] as const);
+
+export type CreatorHtmlFragmentSlot =
+  | "headerContent"
+  | "navigationContent"
+  | "mainContent"
+  | "footerContent";
+
+export type CreatorHtmlFragmentValidationResult = Readonly<{
+  valid: boolean;
+  nodeCount: number;
+  maximumDepth: number;
+  issues: readonly CreatorValidationIssue[];
+}>;
+
+const CREATOR_FRAGMENT_RESERVED_ELEMENT_SET = new Set<string>(
+  CREATOR_FRAGMENT_RESERVED_ELEMENTS
+);
+const CREATOR_FRAGMENT_FIXED_WRAPPER_ELEMENT_COUNT = 9;
+
+/**
+ * Validates an untrusted content fragment before the server places it in the
+ * canonical document shell. The existing restricted scanner proves explicit
+ * tag balance and conservative grammar; the pinned structural parser then
+ * independently bounds the parsed tree and proves that it did not reinterpret
+ * the fragment into a different element sequence.
+ */
+export function validateCreatorHtmlFragment(
+  slot: CreatorHtmlFragmentSlot,
+  content: string
+): CreatorHtmlFragmentValidationResult {
+  const issues: CreatorValidationIssue[] = [];
+  if (
+    typeof content !== "string" ||
+    content.length > CREATOR_FRAGMENT_MAXIMUM_CHARACTERS
+  ) {
+    issues.push(
+      markupIssue(
+        "topology.fragment_size",
+        4,
+        "index.html",
+        `${slot} exceeds the bounded server-owned fragment contract.`,
+        `Return at most ${CREATOR_FRAGMENT_MAXIMUM_CHARACTERS} characters in this fragment.`
+      )
+    );
+    return { valid: false, nodeCount: 0, maximumDepth: 0, issues };
+  }
+
+  const wrapped = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Fragment</title></head><body><main><h1>Fragment</h1><div id="codexforge-fragment-root">${content}</div></main></body></html>`;
+  const scan = scanRestrictedMarkup(wrapped, "html");
+  if (!scan.ok) {
+    issues.push(
+      markupIssue(
+        "topology.fragment_syntax",
+        4,
+        "index.html",
+        `${slot} is not one explicit balanced fragment: ${scan.message}`,
+        "Return one balanced fragment using the conservative HTML subset without document-shell elements."
+      )
+    );
+    return { valid: false, nodeCount: 0, maximumDepth: 0, issues };
+  }
+
+  const fragmentElements = scan.elements.slice(
+    CREATOR_FRAGMENT_FIXED_WRAPPER_ELEMENT_COUNT
+  );
+  const reservedElement = fragmentElements.find((element) =>
+    CREATOR_FRAGMENT_RESERVED_ELEMENT_SET.has(element.name)
+  );
+  if (reservedElement) {
+    issues.push(
+      markupIssue(
+        "topology.reserved_element",
+        4,
+        "index.html",
+        `${slot} cannot supply the server-owned <${reservedElement.name}> element.`,
+        "Return content-only semantic markup and let CodexForge construct document, landmark, heading, and resource elements."
+      )
+    );
+  }
+
+  let nodeCount = 0;
+  let maximumDepth = 0;
+  try {
+    const root = htmlParser.parse(wrapped, {
+      comment: false,
+      lowerCaseTagName: true,
+    });
+    const fragmentRoot = root.querySelector("#codexforge-fragment-root");
+    if (!fragmentRoot) {
+      throw new Error("The structural fragment boundary was not retained.");
+    }
+    const parsedElementNames: string[] = [];
+    const visit = (node: ParsedHtmlNode, depth: number): void => {
+      nodeCount += 1;
+      maximumDepth = Math.max(maximumDepth, depth);
+      const tagName = parsedTagName(node);
+      if (tagName) parsedElementNames.push(tagName);
+      for (const child of node.childNodes ?? []) visit(child, depth + 1);
+    };
+    for (const child of fragmentRoot.childNodes ?? []) visit(child, 1);
+
+    const scannedElementNames = fragmentElements.map((element) => element.name);
+    if (
+      parsedElementNames.length !== scannedElementNames.length ||
+      parsedElementNames.some(
+        (elementName, index) => elementName !== scannedElementNames[index]
+      )
+    ) {
+      issues.push(
+        markupIssue(
+          "topology.fragment_syntax",
+          4,
+          "index.html",
+          `${slot} is structurally ambiguous after bounded parsing.`,
+          "Return explicit semantic markup whose parsed element order exactly matches its source order."
+        )
+      );
+    }
+  } catch {
+    issues.push(
+      markupIssue(
+        "topology.fragment_syntax",
+        4,
+        "index.html",
+        `${slot} could not be parsed within the server-owned fragment boundary.`,
+        "Return one explicit balanced fragment using the conservative HTML subset."
+      )
+    );
+  }
+
+  if (nodeCount > CREATOR_FRAGMENT_MAXIMUM_NODES) {
+    issues.push(
+      markupIssue(
+        "topology.fragment_node_limit",
+        4,
+        "index.html",
+        `${slot} contains ${nodeCount} parsed nodes, exceeding the bounded maximum.`,
+        `Return no more than ${CREATOR_FRAGMENT_MAXIMUM_NODES} parsed nodes in this fragment.`
+      )
+    );
+  }
+  if (maximumDepth > CREATOR_FRAGMENT_MAXIMUM_DEPTH) {
+    issues.push(
+      markupIssue(
+        "topology.fragment_depth_limit",
+        4,
+        "index.html",
+        `${slot} has parsed depth ${maximumDepth}, exceeding the bounded maximum.`,
+        `Return fragment nesting no deeper than ${CREATOR_FRAGMENT_MAXIMUM_DEPTH}.`
+      )
+    );
+  }
+
+  return {
+    valid: issues.length === 0,
+    nodeCount,
+    maximumDepth,
+    issues,
+  };
+}
+
 const HTML_ALLOWED_TAGS = new Set([
   "a", "article", "aside", "body", "br", "button", "caption", "details", "div",
   "dl", "dt", "dd", "em", "fieldset", "footer", "form", "h1", "h2", "h3", "h4",

@@ -91,7 +91,9 @@ import {
   PRIVATE_ALPHA_GROQ_MAX_OUTPUT_TOKENS,
   PRIVATE_ALPHA_LEGACY_RUNTIME_PROFILE,
   PRIVATE_ALPHA_MAX_ACKNOWLEDGEMENT_LENGTH,
+  PRIVATE_ALPHA_CREATOR_CONTEXT_WINDOW_TOKENS,
   PRIVATE_ALPHA_MAX_CANCELLATION_REASON_LENGTH,
+  PRIVATE_ALPHA_MAX_CREATOR_REQUEST_LENGTH,
   PRIVATE_ALPHA_MAX_DONE_REASON_LENGTH,
   PRIVATE_ALPHA_MAX_MODEL_PREFERENCE_LENGTH,
   PRIVATE_ALPHA_MAX_OUTPUT_TEXT_LENGTH,
@@ -214,7 +216,7 @@ export type PrivateAlphaCreatorRecoveryInput = Readonly<{
   idempotencyKey: string;
   namespace: "current" | "legacy";
   projectId: string;
-  purpose: "generation" | "repair";
+  purpose: "generation" | "repair" | "revision";
 }>;
 
 type PrivateAlphaStoredApprovalBinding = Readonly<{
@@ -233,6 +235,7 @@ type PrivateAlphaFailureResponse = Readonly<{
 type PrivateAlphaLocalPersistedExecutionErrorCode =
   | "execution_interrupted"
   | "chat_stop_prevented_execution"
+  | "creator_stop_prevented_execution"
   | "kill_switch_blocked"
   | "ollama_unavailable"
   | "ollama_model_missing"
@@ -390,7 +393,8 @@ export type PrivateAlphaStore = Readonly<{
     runId: string,
     body: unknown,
     idempotencyKey: string | null | undefined,
-    ownership: PrivateAlphaCreatorRunOwnership
+    ownership: PrivateAlphaCreatorRunOwnership,
+    admitProviderStart: () => Promise<boolean>
   ) => Promise<PrivateAlphaExecuteRunResult>;
   executeChatRun: (
     runId: string,
@@ -507,7 +511,7 @@ function buildIdempotencyMutationLockRunId(
 
 function buildCreatorBindingMutationLockRunId(
   projectId: string,
-  purpose: "generation" | "repair"
+  purpose: "generation" | "repair" | "revision"
 ): string {
   return hashSha256(
     `private-alpha:creator-binding-mutation:v1:${projectId}:${purpose}`
@@ -530,7 +534,7 @@ function hashSha256(value: string): string {
 export function buildPrivateAlphaCreatorIdempotencyKeyHash(
   idempotencyKey: string,
   projectId: string,
-  purpose: "generation" | "repair"
+  purpose: "generation" | "repair" | "revision"
 ): string {
   return hashSha256(
     `codexforge.private-alpha.creator-idempotency.v1\u0000${projectId}\u0000${purpose}\u0000${idempotencyKey}`
@@ -780,7 +784,9 @@ function validateStoredRunOwnership(
     value.protocolVersion === PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION &&
     typeof value.projectId === "string" &&
     /^[a-f0-9]{24}$/.test(value.projectId) &&
-    (value.purpose === "generation" || value.purpose === "repair") &&
+    (value.purpose === "generation" ||
+      value.purpose === "repair" ||
+      value.purpose === "revision") &&
     typeof value.bindingId === "string" &&
     /^[a-f0-9]{32}$/.test(value.bindingId) &&
     hasExactKeys(value, [
@@ -1008,6 +1014,7 @@ function isExecutionErrorCode(
   return (
     value === "execution_interrupted" ||
     value === "chat_stop_prevented_execution" ||
+    value === "creator_stop_prevented_execution" ||
     value === "kill_switch_blocked" ||
     value === "ollama_unavailable" ||
     value === "ollama_model_missing" ||
@@ -1036,6 +1043,7 @@ function isLocalPersistedExecutionErrorCode(
   return (
     value === "execution_interrupted" ||
     value === "chat_stop_prevented_execution" ||
+    value === "creator_stop_prevented_execution" ||
     value === "kill_switch_blocked" ||
     value === "ollama_unavailable" ||
     value === "ollama_model_missing" ||
@@ -1071,7 +1079,7 @@ function isLocalProviderExecutionErrorCode(
   value: unknown
 ): value is Exclude<
   PrivateAlphaLocalPersistedExecutionErrorCode,
-  "execution_interrupted" | "chat_stop_prevented_execution" | "kill_switch_blocked"
+  "execution_interrupted" | "chat_stop_prevented_execution" | "creator_stop_prevented_execution" | "kill_switch_blocked"
 > {
   return (
     value === "ollama_unavailable" ||
@@ -1109,7 +1117,7 @@ function isLocalProviderAvailabilityErrorCode(
   value: unknown
 ): value is Exclude<
   PrivateAlphaLocalPersistedExecutionErrorCode,
-  "execution_interrupted" | "chat_stop_prevented_execution" | "kill_switch_blocked" | "ollama_empty_response"
+  "execution_interrupted" | "chat_stop_prevented_execution" | "creator_stop_prevented_execution" | "kill_switch_blocked" | "ollama_empty_response"
 > {
   return isLocalProviderExecutionErrorCode(value) && value !== "ollama_empty_response";
 }
@@ -1360,7 +1368,10 @@ function resolveExecutionTargetModelKey(
     : target.modelKey;
 }
 
-function validateStoredRunRequest(value: unknown): PrivateAlphaRunRequest | null {
+function validateStoredRunRequest(
+  value: unknown,
+  maximumRequestLength = PRIVATE_ALPHA_MAX_REQUEST_LENGTH
+): PrivateAlphaRunRequest | null {
   if (!isRecord(value)) {
     return null;
   }
@@ -1368,7 +1379,7 @@ function validateStoredRunRequest(value: unknown): PrivateAlphaRunRequest | null
   if (
     typeof value.normalizedRequestText !== "string" ||
     !value.normalizedRequestText ||
-    value.normalizedRequestText.length > PRIVATE_ALPHA_MAX_REQUEST_LENGTH ||
+    value.normalizedRequestText.length > maximumRequestLength ||
     typeof value.redactedPreview !== "string" ||
     value.redactedPreview !==
       buildPrivateAlphaRedactedPreview(value.normalizedRequestText) ||
@@ -2252,12 +2263,15 @@ function validateStoredExecutionRecord(
       responseStatus !==
         (errorCode === "ollama_output_too_large" ||
         errorCode === "groq_output_too_large" ||
-        errorCode === "chat_stop_prevented_execution"
+        errorCode === "chat_stop_prevented_execution" ||
+        errorCode === "creator_stop_prevented_execution"
           ? 409
           : resolveAvailabilityBlockedResponseStatus(errorCode)) ||
       (runningRevision !== null &&
         (errorCode !== "kill_switch_blocked" || responseStatus !== 409)) ||
-      (errorCode === "chat_stop_prevented_execution" && runningRevision !== null)
+      ((errorCode === "chat_stop_prevented_execution" ||
+        errorCode === "creator_stop_prevented_execution") &&
+        runningRevision !== null)
     ) {
       return null;
     }
@@ -2509,9 +2523,14 @@ function validateStoredRunRecord(
     return null;
   }
 
-  const runRequest = validateStoredRunRequest(value.request);
-  const approvalScope = validateStoredApprovalScope(value.approvalScope);
   const ownership = validateStoredRunOwnership(value.ownership);
+  const runRequest = validateStoredRunRequest(
+    value.request,
+    ownership?.kind === "creator"
+      ? PRIVATE_ALPHA_MAX_CREATOR_REQUEST_LENGTH
+      : PRIVATE_ALPHA_MAX_REQUEST_LENGTH
+  );
+  const approvalScope = validateStoredApprovalScope(value.approvalScope);
 
   if (
     !hasExactKeys(value, [
@@ -2618,6 +2637,16 @@ function validateStoredRunRecord(
     execution?.errorCode === "chat_stop_prevented_execution" &&
     (
       ownership?.kind !== "chat" ||
+      execution.status !== "blocked" ||
+      execution.runningRevision !== null
+    )
+  ) {
+    return null;
+  }
+  if (
+    execution?.errorCode === "creator_stop_prevented_execution" &&
+    (
+      ownership?.kind !== "creator" ||
       execution.status !== "blocked" ||
       execution.runningRevision !== null
     )
@@ -4525,7 +4554,7 @@ async function withRunMutationLock<T>(
 async function withCreatorBindingMutationLock<T>(
   paths: PrivateAlphaResolvedPaths,
   projectId: string,
-  purpose: "generation" | "repair",
+  purpose: "generation" | "repair" | "revision",
   work: () => Promise<T>
 ): Promise<T> {
   const bindingKey = `${paths.dataRootLabel}:${projectId}:${purpose}`;
@@ -4636,6 +4665,7 @@ function buildExecutionFailureResponse(
 ): PrivateAlphaFailureResponse {
   if (
     errorCode === "chat_stop_prevented_execution" ||
+    errorCode === "creator_stop_prevented_execution" ||
     errorCode === "kill_switch_blocked"
   ) {
     return {
@@ -4710,6 +4740,7 @@ function resolveAvailabilityBlockedResponseStatus(
 ): 409 | 503 | 504 {
   if (
     errorCode === "chat_stop_prevented_execution" ||
+    errorCode === "creator_stop_prevented_execution" ||
     errorCode === "kill_switch_blocked"
   ) {
     return 409;
@@ -4811,17 +4842,21 @@ function buildExecutionStartedSummary(target: PrivateAlphaExecutionTarget): stri
 
 function buildExecutionBlockedSummary(
   target: PrivateAlphaExecutionTarget,
-  reason: "chat-stop" | "kill-switch" | "availability"
+  reason: "chat-stop" | "creator-stop" | "kill-switch" | "availability"
 ): string {
   if (target.kind === "local") {
-    return reason === "chat-stop"
+    return reason === "creator-stop"
+      ? "Creator Stop prevented local Ollama execution before provider access."
+      : reason === "chat-stop"
       ? "Jarvis chat Stop prevented local Ollama execution before provider access."
       : reason === "kill-switch"
       ? "Local Ollama execution blocked by the kill switch."
       : "Local Ollama execution blocked before provider generation.";
   }
 
-  return reason === "chat-stop"
+  return reason === "creator-stop"
+    ? `Creator Stop prevented Groq Cloud execution for ${target.model} before provider access.`
+    : reason === "chat-stop"
     ? `Jarvis chat Stop prevented Groq Cloud execution for ${target.model} before provider access.`
     : reason === "kill-switch"
     ? `Groq Cloud execution blocked by the kill switch for ${target.model}.`
@@ -5658,9 +5693,18 @@ export function createPrivateAlphaStore(
         );
       }
 
+      const ownership: PrivateAlphaRunOwnership = expectedOwnership
+        ? validateOwnedOwnershipInput(expectedOwnership)
+        : {
+            kind: "general",
+            protocolVersion: PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION,
+          };
       const createValidation = validatePrivateAlphaCreateRunInput(
         body,
-        runtimeProfile
+        runtimeProfile,
+        ownership.kind === "creator"
+          ? PRIVATE_ALPHA_MAX_CREATOR_REQUEST_LENGTH
+          : PRIVATE_ALPHA_MAX_REQUEST_LENGTH
       );
       if (!createValidation.ok) {
         throw new PrivateAlphaStoreError(
@@ -5675,12 +5719,6 @@ export function createPrivateAlphaStore(
       );
       const normalizedRequestHash = buildPrivateAlphaNormalizedRequestHash(request);
       const canonicalRequestHash = buildPrivateAlphaCanonicalRequestHash(request);
-      const ownership: PrivateAlphaRunOwnership = expectedOwnership
-        ? validateOwnedOwnershipInput(expectedOwnership)
-        : {
-            kind: "general",
-            protocolVersion: PRIVATE_ALPHA_RUN_OWNERSHIP_PROTOCOL_VERSION,
-          };
       const idempotencyKeyHash =
         ownership.kind !== "general"
           ? buildPrivateAlphaOwnedIdempotencyKeyHash(
@@ -5972,7 +6010,8 @@ export function createPrivateAlphaStore(
       }
       const createValidation = validatePrivateAlphaCreateRunInput(
         body,
-        runtimeProfile
+        runtimeProfile,
+        PRIVATE_ALPHA_MAX_CREATOR_REQUEST_LENGTH
       );
       if (!createValidation.ok) {
         throw new PrivateAlphaStoreError(
@@ -6375,7 +6414,9 @@ export function createPrivateAlphaStore(
       }
       if (
         !/^[a-f0-9]{24}$/u.test(input.projectId) ||
-        (input.purpose !== "generation" && input.purpose !== "repair") ||
+        (input.purpose !== "generation" &&
+          input.purpose !== "repair" &&
+          input.purpose !== "revision") ||
         (input.namespace !== "current" && input.namespace !== "legacy")
       ) {
         throw new PrivateAlphaStoreError(
@@ -6385,7 +6426,8 @@ export function createPrivateAlphaStore(
       }
       const createValidation = validatePrivateAlphaCreateRunInput(
         input.body,
-        runtimeProfile
+        runtimeProfile,
+        PRIVATE_ALPHA_MAX_CREATOR_REQUEST_LENGTH
       );
       if (!createValidation.ok) {
         throw new PrivateAlphaStoreError(
@@ -6736,7 +6778,10 @@ export function createPrivateAlphaStore(
           );
         }
             return runs
-          .filter((run) => run.ownership?.kind !== "chat")
+          .filter(
+            (run) =>
+              run.ownership === null || run.ownership.kind === "general"
+          )
           .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
           .slice(0, limitValidation.value)
           .map(buildPrivateAlphaRunSummary);
@@ -6786,7 +6831,10 @@ export function createPrivateAlphaStore(
       }
 
           return runs
-        .filter((run) => run.ownership?.kind !== "chat")
+        .filter(
+          (run) =>
+            run.ownership === null || run.ownership.kind === "general"
+        )
         .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
         .slice(0, limitValidation.value)
         .map(buildPrivateAlphaRunSummary);
@@ -6812,7 +6860,7 @@ export function createPrivateAlphaStore(
             buildRunFileAbsolutePath(paths, runIdValidation.value),
             runIdValidation.value
           );
-          if (run.ownership?.kind === "chat") {
+          if (run.ownership !== null && run.ownership.kind !== "general") {
             throw new PrivateAlphaStoreError(404, "Run not found.");
           }
           return run;
@@ -7131,13 +7179,13 @@ export function createPrivateAlphaStore(
         const validatedOwnership = expectedOwnership
           ? validateOwnedOwnershipInput(expectedOwnership)
           : null;
-        if (
-          (validatedOwnership?.kind === "chat") !==
-          (typeof admitProviderStart === "function")
-        ) {
+        const admissionFencedOwnership =
+          validatedOwnership?.kind === "chat" ||
+          validatedOwnership?.kind === "creator";
+        if (admissionFencedOwnership !== (typeof admitProviderStart === "function")) {
           throw new PrivateAlphaStoreError(
             500,
-            "Chat-owned execution requires its exact server admission fence."
+            "Owned execution requires its exact server admission fence."
           );
         }
         const idempotencyKeyHash = validatedOwnership
@@ -7227,21 +7275,28 @@ export function createPrivateAlphaStore(
         const target = resolveExecutableTargetOrThrow(existingRun);
         validateExecutionAcknowledgementOrThrow(existingRun, target, executeInput);
 
-        if (validatedOwnership?.kind === "chat") {
+        if (admissionFencedOwnership) {
           let admitted: boolean;
           try {
             admitted = await admitProviderStart!();
           } catch {
             throw new PrivateAlphaStoreError(
               503,
-              "Chat execution admission could not be verified safely."
+              validatedOwnership?.kind === "creator"
+                ? "Creator execution admission could not be verified safely."
+                : "Chat execution admission could not be verified safely."
             );
           }
           if (admitted !== true) {
             const blockedAt = nextPersistedIsoTimestamp(existingRun.updatedAt);
             const resultingRevision = existingRun.revision + 1;
-            const safeErrorMessage =
-              "Jarvis chat Stop prevented the exact local response attempt before provider access.";
+            const creatorOwned = validatedOwnership?.kind === "creator";
+            const errorCode = creatorOwned
+              ? "creator_stop_prevented_execution"
+              : "chat_stop_prevented_execution";
+            const safeErrorMessage = creatorOwned
+              ? "Creator Stop prevented the exact local generation attempt before provider access."
+              : "Jarvis chat Stop prevented the exact local response attempt before provider access.";
             const blockedRun: PrivateAlphaRunRecord = {
               ...existingRun,
               updatedAt: blockedAt,
@@ -7255,7 +7310,7 @@ export function createPrivateAlphaStore(
                 previousRevision: existingRun.revision,
                 runningRevision: null,
                 resultingRevision,
-                errorCode: "chat_stop_prevented_execution",
+                errorCode,
                 safeErrorMessage,
                 responseStatus: 409,
               }),
@@ -7268,7 +7323,10 @@ export function createPrivateAlphaStore(
                   previousState: existingRun.state,
                   resultingState: "blocked",
                   revision: resultingRevision,
-                  summary: buildExecutionBlockedSummary(target, "chat-stop"),
+                  summary: buildExecutionBlockedSummary(
+                    target,
+                    creatorOwned ? "creator-stop" : "chat-stop"
+                  ),
                   occurredAt: blockedAt,
                 }),
               ],
@@ -7278,7 +7336,7 @@ export function createPrivateAlphaStore(
               replayed: false,
               run: blockedRun,
               responseStatus: 409,
-              errorCode: "chat_stop_prevented_execution",
+              errorCode,
               safeErrorMessage,
             };
           }
@@ -7708,6 +7766,18 @@ export function createPrivateAlphaStore(
             approvedRequestText: existingRun.request.normalizedRequestText,
             model: target.model,
             maximumOutputTokens: existingRun.request.maximumOutputTokens,
+            ...(existingRun.ownership?.kind === "creator"
+              ? {
+                  maximumInputCharacters:
+                    PRIVATE_ALPHA_MAX_CREATOR_REQUEST_LENGTH,
+                  ...(existingRun.ownership.purpose === "generation"
+                    ? {}
+                    : {
+                        contextWindowTokens:
+                          PRIVATE_ALPHA_CREATOR_CONTEXT_WINDOW_TOKENS,
+                      }),
+                }
+              : {}),
           });
           const outputText = existingRun.ownership?.kind === "chat"
             ? generated.outputText.replace(/\r\n?/gu, "\n").normalize("NFC").trim()
@@ -7934,8 +8004,14 @@ export function createPrivateAlphaStore(
       });
     },
 
-    async executeCreatorRun(runId, body, idempotencyKey, ownership) {
-      return storeInternal.executeRun(runId, body, idempotencyKey, ownership);
+    async executeCreatorRun(runId, body, idempotencyKey, ownership, admitProviderStart) {
+      return storeInternal.executeRun(
+        runId,
+        body,
+        idempotencyKey,
+        ownership,
+        admitProviderStart
+      );
     },
 
     async executeChatRun(runId, body, idempotencyKey, ownership, admitProviderStart) {

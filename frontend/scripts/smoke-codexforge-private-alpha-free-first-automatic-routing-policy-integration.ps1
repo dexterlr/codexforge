@@ -216,7 +216,7 @@ Assert-NotMatches ($groqClientSource + "`n" + $groqQualificationSource + "`n" + 
 Assert-Contains $groqQualificationSource 'request-scoped-operator-confirmation' "Groq qualification records request-scoped operator confirmation"
 Assert-Contains $providerRegistrySource 'Automatic routing remains disabled for ${CODEXFORGE_GROQ_AUTOMATIC_ROUTING_ADMISSION.manualOnlyModelKey}.' "Production registry keeps the exact Groq 120B manual-only"
 Assert-Contains $aggregateSource 'smoke-codexforge-private-alpha-free-first-automatic-routing-policy-integration.ps1' "Aggregate smoke suite registers the Slice M smoke"
-Assert-True ($aggregateExecutableCount -eq 75) "Aggregate executable count is 75 after the canonical Jarvis chat smoke registration"
+Assert-True ($aggregateExecutableCount -eq 77) "Aggregate executable count is 77 after the E1.1 server-owned topology smoke registration"
 
 $nodeScript = @'
 const fs = require("fs");

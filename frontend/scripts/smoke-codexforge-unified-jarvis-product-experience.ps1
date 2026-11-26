@@ -528,7 +528,7 @@ Assert-Contains $media380Block 'grid-template-columns: 1fr;' "Very narrow screen
 Assert-Contains $chatCss '.workspace {' "Canonical chat owns a responsive conversation workspace"
 Assert-Contains $chatCss 'grid-template-columns: minmax(220px, 0.7fr) minmax(0, 2.3fr);' "Canonical chat gives desktop history and transcript bounded columns"
 Assert-True ([regex]::IsMatch($chatCss, '(?s)@media \(max-width: 820px\).*?\.workspace\s*\{\s*grid-template-columns:\s*1fr;')) "Canonical chat collapses history and transcript to one column on mobile"
-Assert-True ([regex]::IsMatch($chatCss, '(?s)@media \(max-width: 560px\).*?\.boundaryGrid,.*?\.lifecycleMeta,.*?\.advancedGrid\s*\{\s*grid-template-columns:\s*1fr;')) "Canonical chat facts collapse to one column on narrow mobile"
+Assert-True ([regex]::IsMatch($chatCss, '(?s)@media \(max-width: 560px\).*?\.boundaryGrid,.*?\.lifecycleMeta,.*?\.advancedGrid,.*?\.handoffEnvelope,.*?\.handoffProvenance\s*\{\s*grid-template-columns:\s*1fr;')) "Canonical chat facts and reviewed Creator handoff evidence collapse to one column on narrow mobile"
 Assert-NotMatches $chatCss '(?m)^\s*order\s*:' "Canonical chat CSS does not reorder content away from DOM order"
 Assert-Contains $appShell '@media (max-width: 859px)' "Unified shell defines its narrow-screen breakpoint"
 Assert-Contains $appShell 'grid-template-columns: minmax(0, 1fr) !important;' "Unified shell becomes one column on narrow screens"
@@ -646,8 +646,8 @@ $releaseEntries = @(
   $releaseBlock -split "\r?\n" |
     Where-Object { $_ -match '^\s*@\{ Name = ".*"; File = .*; Required = \$(?:true|false) \},?$' }
 )
-Assert-True ($releaseEntries.Count -eq 75) "Aggregate executable count is 75"
-Assert-True (@($releaseEntries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 72) "Aggregate required count is 72"
+Assert-True ($releaseEntries.Count -eq 77) "Aggregate executable count is 77"
+Assert-True (@($releaseEntries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 74) "Aggregate required count is 74"
 Assert-True (@($releaseEntries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count remains 3"
 $phaseANeedle = 'File = "smoke-codexforge-local-first-jarvis-working-product-loop.ps1"; Required = $true'
 $phaseBNeedle = 'File = "smoke-codexforge-unified-jarvis-product-experience.ps1"; Required = $true'

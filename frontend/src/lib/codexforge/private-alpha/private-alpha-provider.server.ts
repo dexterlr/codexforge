@@ -47,6 +47,8 @@ export type PrivateAlphaProviderGenerationInput = Readonly<{
   approvedRequestText: string;
   model: string;
   maximumOutputTokens: number;
+  maximumInputCharacters?: number;
+  contextWindowTokens?: number;
 }>;
 
 export type PrivateAlphaProviderGenerationResult = Readonly<{

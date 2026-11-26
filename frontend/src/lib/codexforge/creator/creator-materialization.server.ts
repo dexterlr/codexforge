@@ -3,7 +3,7 @@ import "server-only";
 import { Buffer } from "node:buffer";
 import {
   buildCreatorValidationDigest,
-  validateCreatorProviderOutput,
+  validateCreatorArtifactBundle,
 } from "./creator-validation.server";
 import {
   hashCreatorCanonicalJson,
@@ -72,10 +72,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function hasExactKeys(value: Record<string, unknown>, expectedKeys: readonly string[]): boolean {
+function hasExactKeys(
+  value: Record<string, unknown>,
+  expectedKeys: readonly string[],
+  optionalKeys: readonly string[] = []
+): boolean {
   const actual = Object.keys(value).sort();
   const expected = [...expectedKeys].sort();
-  return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
+  const allowed = new Set([...expectedKeys, ...optionalKeys]);
+  return expected.every((key) => Object.prototype.hasOwnProperty.call(value, key)) &&
+    actual.every((key) => allowed.has(key));
 }
 
 function isHex(value: unknown, length: number): value is string {
@@ -101,7 +107,7 @@ function isStrictCreatorMaterialization(
     !hasExactKeys(value, [
       "artifactRevision", "destinationLabel", "entrypoint", "files", "aggregateBytes",
       "aggregateDigest", "validationDigest", "materializedAt",
-    ]) ||
+    ], ["topologyRepairDigest", "topologyTransformationDigest"]) ||
     value.artifactRevision !== artifactRevision ||
     value.destinationLabel !== `.codexforge/creator/projects/${projectId}/revisions/${revisionName(artifactRevision)}/files` ||
     value.entrypoint !== "index.html" ||
@@ -113,6 +119,11 @@ function isStrictCreatorMaterialization(
     Number(value.aggregateBytes) > CREATOR_FILE_POLICY.maximumAggregateBytes ||
     !isHex(value.aggregateDigest, 64) ||
     !isHex(value.validationDigest, 64) ||
+    (value.topologyRepairDigest !== undefined && !isHex(value.topologyRepairDigest, 64)) ||
+    (value.topologyTransformationDigest !== undefined &&
+      !isHex(value.topologyTransformationDigest, 64)) ||
+    (value.topologyRepairDigest !== undefined &&
+      value.topologyTransformationDigest !== undefined) ||
     !isIsoTimestamp(value.materializedAt)
   ) {
     return false;
@@ -156,7 +167,7 @@ function isStrictCreatorExportManifest(value: unknown): value is CreatorExportMa
       "entrypoint", "files", "aggregateBytes", "aggregateDigest", "validationDigest",
       "sourceRequestDigest", "sourceRunId", "providerKey", "modelKey", "runtimeModel",
       "dataBoundary", "createdAt", "auditReferenceIds", "manifestDigest",
-    ]) ||
+    ], ["topologyRepairDigest", "topologyTransformationDigest"]) ||
     value.manifestVersion !== CREATOR_MANIFEST_VERSION ||
     !isHex(value.creatorProjectId, 24) ||
     typeof value.projectTitle !== "string" ||
@@ -176,6 +187,11 @@ function isStrictCreatorExportManifest(value: unknown): value is CreatorExportMa
     value.aggregateBytes > CREATOR_FILE_POLICY.maximumAggregateBytes ||
     !isHex(value.aggregateDigest, 64) ||
     !isHex(value.validationDigest, 64) ||
+    (value.topologyRepairDigest !== undefined && !isHex(value.topologyRepairDigest, 64)) ||
+    (value.topologyTransformationDigest !== undefined &&
+      !isHex(value.topologyTransformationDigest, 64)) ||
+    (value.topologyRepairDigest !== undefined &&
+      value.topologyTransformationDigest !== undefined) ||
     !isHex(value.sourceRequestDigest, 64) ||
     typeof value.sourceRunId !== "string" ||
     value.sourceRunId.length < 1 ||
@@ -387,10 +403,12 @@ export async function materializeCreatorArtifact(input: {
   validation: CreatorValidationResult;
   runBinding: CreatorGenerationRunBinding;
   auditReferenceIds: readonly string[];
+  topologyRepairDigest?: string;
+  topologyTransformationDigest?: string;
   materializedAt: string;
 }): Promise<CreatorMaterializationPublication> {
-  const deterministicRevalidation = validateCreatorProviderOutput({
-    rawOutput: serializeCreatorCanonicalJson(input.bundle),
+  const deterministicRevalidation = validateCreatorArtifactBundle({
+    bundle: input.bundle,
     expectedProjectTitle: input.projectTitle,
     completedAt: input.validation.completedAt,
   });
@@ -402,6 +420,16 @@ export async function materializeCreatorArtifact(input: {
       hashCreatorCanonicalJson(input.bundle) ||
     hashCreatorCanonicalJson(deterministicRevalidation.validation) !==
       hashCreatorCanonicalJson(input.validation) ||
+    (input.topologyRepairDigest !== undefined &&
+      !isHex(input.topologyRepairDigest, 64)) ||
+    (input.topologyTransformationDigest !== undefined &&
+      !isHex(input.topologyTransformationDigest, 64)) ||
+    input.topologyTransformationDigest !==
+      (input.runBinding.documentTopology?.transformationDigest ?? undefined) ||
+    (input.topologyRepairDigest !== undefined &&
+      input.topologyTransformationDigest !== undefined) ||
+    (input.runBinding.responseContractVersion === "server-owned-page-v1") !==
+      (input.runBinding.documentTopology !== null) ||
     input.validation.bundleDigest !== hashCreatorCanonicalJson({
       contractVersion: input.bundle.contractVersion,
       projectTitle: input.bundle.projectTitle,
@@ -497,6 +525,15 @@ export async function materializeCreatorArtifact(input: {
     aggregateBytes,
     aggregateDigest,
     validationDigest,
+    ...(input.topologyRepairDigest === undefined
+      ? {}
+      : { topologyRepairDigest: input.topologyRepairDigest }),
+    ...(input.topologyTransformationDigest === undefined
+      ? {}
+      : {
+          topologyTransformationDigest:
+            input.topologyTransformationDigest,
+        }),
     materializedAt: input.materializedAt,
   };
   const manifestBase: Omit<CreatorExportManifest, "manifestDigest"> = {
@@ -510,6 +547,15 @@ export async function materializeCreatorArtifact(input: {
     aggregateBytes,
     aggregateDigest,
     validationDigest,
+    ...(input.topologyRepairDigest === undefined
+      ? {}
+      : { topologyRepairDigest: input.topologyRepairDigest }),
+    ...(input.topologyTransformationDigest === undefined
+      ? {}
+      : {
+          topologyTransformationDigest:
+            input.topologyTransformationDigest,
+        }),
     sourceRequestDigest: input.sourceRequestDigest,
     sourceRunId: input.runBinding.sourceRunId,
     providerKey: "ollama-local",
@@ -755,6 +801,9 @@ export async function readCreatorMaterializationPublication(input: {
     materialization.aggregateBytes !== manifest.aggregateBytes ||
     materialization.aggregateDigest !== manifest.aggregateDigest ||
     materialization.validationDigest !== manifest.validationDigest ||
+    materialization.topologyRepairDigest !== manifest.topologyRepairDigest ||
+    materialization.topologyTransformationDigest !==
+      manifest.topologyTransformationDigest ||
     materialization.materializedAt !== manifest.createdAt ||
     hashCreatorCanonicalJson(materialization.files) !==
       hashCreatorCanonicalJson(manifest.files) ||

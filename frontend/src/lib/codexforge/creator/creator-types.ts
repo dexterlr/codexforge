@@ -1,12 +1,36 @@
 export const CREATOR_RECORD_VERSION = 1 as const;
 export const CREATOR_CONTRACT_VERSION = "codexforge.creator.bundle.v1" as const;
 export const CREATOR_MANIFEST_VERSION = "codexforge.creator.export.v1" as const;
+export const CREATOR_RESPONSE_CONTRACT_VERSIONS = [
+  "legacy-bundle-v1",
+  "server-owned-page-v1",
+] as const;
+export type CreatorResponseContractVersion =
+  (typeof CREATOR_RESPONSE_CONTRACT_VERSIONS)[number];
+export const CREATOR_TOPOLOGY_CANONICALIZER_VERSION =
+  "codexforge.creator.document-topology.v1" as const;
+export const CREATOR_TOPOLOGY_REPAIR_OPERATIONS = Object.freeze([
+  "parse-legacy-bundle-v1",
+  "extract-unambiguous-legacy-regions",
+  "validate-untrusted-fragments",
+  "derive-resource-tags-from-inventory",
+  "construct-canonical-document-shell",
+  "validate-canonical-bundle-v1",
+] as const);
+export const CREATOR_SERVER_OWNED_PAGE_TOPOLOGY_OPERATIONS = Object.freeze([
+  "parse-server-owned-page-v1",
+  "validate-untrusted-fragments",
+  "derive-resource-tags-from-inventory",
+  "construct-canonical-document-shell",
+  "validate-canonical-bundle-v1",
+] as const);
 
 export const CREATOR_KINDS = ["website-browser-app"] as const;
 export type CreatorKind = (typeof CREATOR_KINDS)[number];
 
 export const CREATOR_PROJECT_STATES = [
   "draft",
+  "awaiting_plan_approval",
   "awaiting_generation_approval",
   "approved",
   "generating",
@@ -14,6 +38,12 @@ export const CREATOR_PROJECT_STATES = [
   "rejected_output",
   "ready",
   "preview_available",
+  "awaiting_revision_plan_approval",
+  "awaiting_revision_generation_approval",
+  "revision_generation_approved",
+  "revising",
+  "stopping",
+  "stopped",
   "repair_requested",
   "awaiting_repair_approval",
   "repair_approved",
@@ -46,6 +76,7 @@ export const CREATOR_FAILURE_CODES = [
   "preview_not_active",
   "repair_unavailable",
   "repair_limit_reached",
+  "topology_repair_failed",
   "export_unavailable",
   "export_digest_mismatch",
   "unsafe_creator_root",
@@ -63,6 +94,8 @@ export type CreatorFailureCode = (typeof CREATOR_FAILURE_CODES)[number];
 export const CREATOR_AUDIT_EVENT_TYPES = [
   "request.created",
   "plan.prepared",
+  "plan.approval_requested",
+  "plan.approved",
   "run.bound",
   "approval.requested",
   "approval.recorded",
@@ -74,12 +107,23 @@ export const CREATOR_AUDIT_EVENT_TYPES = [
   "output.rejected",
   "validation.completed",
   "revision.materialized",
+  "revision.requested",
+  "revision.plan_approval_requested",
+  "revision.plan_approved",
+  "generation.stop_requested",
+  "generation.stopped",
+  "output.discarded",
   "preview.started",
   "preview.stopped",
   "repair.requested",
   "repair.run_bound",
   "repair.result_accepted",
   "repair.result_rejected",
+  "topology.repair_requested",
+  "topology.document_constructed",
+  "topology.repair_completed",
+  "topology.repair_rejected",
+  "prior_publication.restored",
   "export.manifest_created",
   "export.requested",
   "creator.canceled",
@@ -89,8 +133,29 @@ export type CreatorAuditEventType =
   (typeof CREATOR_AUDIT_EVENT_TYPES)[number];
 
 export type CreatorActor = "local-operator" | "system";
-export type CreatorRunPurpose = "generation" | "repair";
+export type CreatorRunPurpose = "generation" | "repair" | "revision";
+export type CreatorRunOperationSlot =
+  | "generation-initial"
+  | "repair-1"
+  | "revision-1"
+  | "revision-2";
 export type CreatorApprovalStatus = "awaiting" | "approved" | "canceled";
+
+export type CreatorDocumentTopologyOperation =
+  | (typeof CREATOR_SERVER_OWNED_PAGE_TOPOLOGY_OPERATIONS)[number]
+  | (typeof CREATOR_TOPOLOGY_REPAIR_OPERATIONS)[number];
+
+export type CreatorDocumentTopologyProvenance = Readonly<{
+  canonicalizerVersion: typeof CREATOR_TOPOLOGY_CANONICALIZER_VERSION;
+  sourceResponseContractVersion: CreatorResponseContractVersion;
+  responseContractVersion: "server-owned-page-v1";
+  orderedOperations: readonly CreatorDocumentTopologyOperation[];
+  inputDigest: string;
+  inputHtmlSha256: string | null;
+  outputHtmlSha256: string;
+  outputBundleDigest: string;
+  transformationDigest: string;
+}>;
 
 export type CreatorRequest = Readonly<{
   requestId: string;
@@ -123,6 +188,8 @@ export type CreatorFilePolicy = Readonly<{
 
 export type CreatorModelEnvelope = Readonly<{
   providerKey: "ollama-local";
+  providerLabel: "Local Ollama";
+  providerLocality: "local-machine";
   modelKey: "ollama-local::gpt-oss:20b";
   runtimeModel: "gpt-oss:20b";
   dataBoundary: "local-machine";
@@ -131,6 +198,8 @@ export type CreatorModelEnvelope = Readonly<{
   retry: "disabled";
   substitution: "disabled";
   paidExecution: "disabled";
+  estimatedProviderTokenChargeUsd: 0;
+  localResourceCost: "unmetered";
 }>;
 
 export type CreatorCreationPlan = Readonly<{
@@ -167,6 +236,7 @@ export type CreatorApprovalPacket = Readonly<{
 
 export type CreatorGenerationRunBinding = Readonly<{
   purpose: CreatorRunPurpose;
+  operationSlot: CreatorRunOperationSlot;
   sourceRunId: string;
   ownershipBindingId: string;
   sourceRunRevision: number;
@@ -176,6 +246,8 @@ export type CreatorGenerationRunBinding = Readonly<{
   runtimeModel: "gpt-oss:20b";
   dataBoundary: "local-machine";
   maximumOutputTokens: 4096;
+  responseContractVersion: CreatorResponseContractVersion;
+  documentTopology: CreatorDocumentTopologyProvenance | null;
   requestEnvelopeDigest: string;
   sourceArtifactRevision: number | null;
   boundAt: string;
@@ -246,6 +318,8 @@ export type CreatorMaterializationResult = Readonly<{
   aggregateBytes: number;
   aggregateDigest: string;
   validationDigest: string;
+  topologyRepairDigest?: string;
+  topologyTransformationDigest?: string;
   materializedAt: string;
 }>;
 
@@ -258,12 +332,51 @@ export type CreatorPreviewState = Readonly<{
 }>;
 
 export type CreatorRepairRequest = Readonly<{
+  instructionVersion: "legacy-v1" | "source-snapshot-v2";
+  responseContractVersion: CreatorResponseContractVersion;
   attempt: 1;
   requestedAt: string;
   sourceArtifactRevision: number | null;
+  targetArtifactRevision: number;
+  sourceManifestDigest: string | null;
+  sourceAggregateDigest: string | null;
+  sourceValidationDigest: string | null;
+  sourceSnapshotDigest: string | null;
+  sourceSnapshotBytes: number | null;
+  linkedRevisionRequestId: string | null;
   validationIssueDigest: string;
   issueCodes: readonly string[];
   repairContextDigest: string;
+}>;
+
+export type CreatorRevisionOrdinal = 1 | 2;
+
+export type CreatorRevisionRequest = Readonly<{
+  instructionVersion: "source-snapshot-v1";
+  responseContractVersion: CreatorResponseContractVersion;
+  requestId: string;
+  revisionNumber: CreatorRevisionOrdinal;
+  sourceArtifactRevision: number;
+  targetArtifactRevision: number;
+  sourceManifestDigest: string;
+  sourceAggregateDigest: string;
+  sourceValidationDigest: string;
+  sourceSnapshotDigest: string;
+  sourceSnapshotBytes: number;
+  instructionDigest: string;
+  revisionBrief: string;
+  revisionBriefDigest: string;
+  destinationBoundary: string;
+  planDigest: string;
+  requestedAt: string;
+  planApprovedAt: string | null;
+  runBoundAt: string | null;
+  generationApprovedAt: string | null;
+  executionRequestedAt: string | null;
+  rejectedAt: string | null;
+  completionPurpose: "revision" | "repair" | null;
+  completionSourceRunId: string | null;
+  completedAt: string | null;
 }>;
 
 export type CreatorExportManifest = Readonly<{
@@ -277,6 +390,8 @@ export type CreatorExportManifest = Readonly<{
   aggregateBytes: number;
   aggregateDigest: string;
   validationDigest: string;
+  topologyRepairDigest?: string;
+  topologyTransformationDigest?: string;
   sourceRequestDigest: string;
   sourceRunId: string;
   providerKey: "ollama-local";
@@ -287,6 +402,61 @@ export type CreatorExportManifest = Readonly<{
   auditReferenceIds: readonly string[];
   manifestDigest: string;
 }>;
+
+type CreatorTopologyRepairProvenance = Readonly<{
+  sourceStateRevision: number;
+  sourceRunId: string;
+  sourceRunRevision: number;
+  sourceOutputSha256: string;
+  sourceValidationIssueDigest: string;
+  providerRequests: 0;
+  repairKind: "server-owned-document-topology";
+  originalValidationState: "rejected_output";
+  automaticRepair: false;
+  operatorAuthorized: true;
+  sourceResponseContractVersion: "legacy-bundle-v1";
+  responseContractVersion: "server-owned-page-v1";
+  canonicalizerVersion: typeof CREATOR_TOPOLOGY_CANONICALIZER_VERSION;
+  orderedOperations: typeof CREATOR_TOPOLOGY_REPAIR_OPERATIONS;
+  inputHtmlSha256: string;
+  outputHtmlSha256: string;
+  inputBundleDigest: string;
+  outputBundleDigest: string;
+  validationDigest: string;
+  transformationDigest: string;
+  targetArtifactRevision: number;
+  requestedAt: string;
+  constructedAt: string;
+}>;
+
+export type CreatorTopologyRepair =
+  | (CreatorTopologyRepairProvenance &
+      Readonly<{
+        status: "pending";
+        completedAt: null;
+      }>)
+  | (CreatorTopologyRepairProvenance &
+      Readonly<{
+        status: "completed";
+        completedAt: string;
+      }>);
+
+export type CreatorTopologyRepairEligibility =
+  | Readonly<{
+      eligible: true;
+      sourceRevision: number;
+      sourceRunId: string;
+      sourceOutputSha256: string;
+      sourceValidationIssueDigest: string;
+      providerRequests: 0;
+      repairKind: "server-owned-document-topology";
+      originalValidationState: "rejected_output";
+      automaticRepair: false;
+      operatorAuthorized: true;
+    }>
+  | Readonly<{
+      eligible: false;
+    }>;
 
 export type CreatorAuditEvent = Readonly<{
   eventId: string;
@@ -319,6 +489,7 @@ export type CreatorProjectState = Readonly<{
   updatedAt: string;
   identity: CreatorProjectIdentity;
   request: CreatorRequest;
+  initialProviderResponseContractVersion: CreatorResponseContractVersion;
   plan: CreatorCreationPlan | null;
   approvalPacket: CreatorApprovalPacket | null;
   runBindings: readonly CreatorGenerationRunBinding[];
@@ -328,6 +499,8 @@ export type CreatorProjectState = Readonly<{
   materializations: readonly CreatorMaterializationResult[];
   preview: CreatorPreviewState;
   repair: CreatorRepairRequest | null;
+  revisionRequests: readonly CreatorRevisionRequest[];
+  topologyRepair: CreatorTopologyRepair | null;
   exportManifest: CreatorExportManifest | null;
   failureCode: CreatorFailureCode | null;
   failureMessage: string | null;
@@ -342,26 +515,79 @@ export type CreatorCreateProjectInput = Readonly<{
 }>;
 
 export const CREATOR_MUTATION_KINDS = [
+  "approve-plan",
   "approve-generation",
   "execute-generation",
+  "request-revision",
+  "approve-revision-plan",
+  "approve-revision-generation",
+  "execute-revision-generation",
+  "stop-generation",
   "cancel",
   "request-repair",
   "approve-repair",
   "execute-repair",
+  "repair-document-topology",
   "recover",
   "start-preview",
   "stop-preview",
+  "restore-prior-publication",
   "export",
 ] as const;
 export type CreatorMutationKind = (typeof CREATOR_MUTATION_KINDS)[number];
 
-export type CreatorProjectActionInput = Readonly<{
-  action: CreatorMutationKind;
+export type CreatorSimpleProjectActionInput = Readonly<{
+  action: Exclude<
+    CreatorMutationKind,
+    "request-revision" | "repair-document-topology"
+  >;
   expectedRevision: number;
+}>;
+
+export type CreatorRequestRevisionActionInput = Readonly<{
+  action: "request-revision";
+  expectedRevision: number;
+  sourceArtifactRevision: number;
+  revisionBrief: string;
+}>;
+
+export type CreatorRepairDocumentTopologyActionInput = Readonly<{
+  action: "repair-document-topology";
+  expectedRevision: number;
+  sourceRevision: number;
+  sourceRunId: string;
+  sourceOutputSha256: string;
+}>;
+
+export type CreatorProjectActionInput =
+  | CreatorSimpleProjectActionInput
+  | CreatorRequestRevisionActionInput
+  | CreatorRepairDocumentTopologyActionInput;
+
+export type CreatorProjectSummary = Readonly<{
+  projectId: string;
+  projectTitle: string;
+  creatorKind: CreatorKind;
+  status: CreatorProjectStatus;
+  stateRevision: number;
+  latestArtifactRevision: number | null;
+  latestManifestDigest: string | null;
+  latestAggregateDigest: string | null;
+  latestValidationDigest: string | null;
+  sourceRunBindingsDigest: string;
+  sourceRunBindingCount: number;
+  explicitRevisionCount: number;
+  createdAt: string;
+  updatedAt: string;
 }>;
 
 export type CreatorCreateProjectResult = Readonly<{
   created: boolean;
+  project: CreatorProjectState;
+}>;
+
+export type CreatorPrepareProjectPlanResult = Readonly<{
+  replayed: boolean;
   project: CreatorProjectState;
 }>;
 

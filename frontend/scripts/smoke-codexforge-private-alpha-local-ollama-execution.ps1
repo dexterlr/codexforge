@@ -1541,7 +1541,8 @@ async function main() {
       creatorNamespaceApproved.runId,
       creatorExecuteInput,
       exactCreatorExecutionKey,
-      exactCreatorOwnership
+      exactCreatorOwnership,
+      async () => true
     );
   } finally {
     delete process.env.CODEXFORGE_PRIVATE_ALPHA_KILL_SWITCH;
@@ -1561,7 +1562,8 @@ async function main() {
       creatorNamespaceApproved.runId,
       creatorExecuteInput,
       exactCreatorExecutionKey,
-      exactCreatorOwnership
+      exactCreatorOwnership,
+      async () => true
     );
   assert(
     creatorNamespaceExecution.run.state === "blocked" &&
@@ -2333,8 +2335,10 @@ async function main() {
   try {
     const unsupportedExistingStatus = await reservationRecoveryStore.getStatus();
     const unsupportedExistingList = await reservationRecoveryStore.listRuns("10");
-    const unsupportedExistingRun = await reservationRecoveryStore.getRun(
-      reservationPublished.run.runId
+    await expectStoreError(
+      () => reservationRecoveryStore.getRun(reservationPublished.run.runId),
+      404,
+      "Run not found"
     );
     const unsupportedExistingCreatorRun =
       await reservationRecoveryStore.getCreatorRun(
@@ -2344,12 +2348,11 @@ async function main() {
     assert(
       unsupportedExistingStatus.approvalRecording === "unavailable" &&
         unsupportedExistingStatus.executionAllowed === false &&
-        unsupportedExistingList.some(
+        !unsupportedExistingList.some(
           (run) => run.runId === reservationPublished.run.runId
         ) &&
-        unsupportedExistingRun.runId === reservationPublished.run.runId &&
         unsupportedExistingCreatorRun.runId === reservationPublished.run.runId,
-      "Unsupported-platform status/list/get operations remain genuinely read-only for an existing store."
+      "Unsupported-platform reads remain read-only while generic history hides the exact creator-owned run."
     );
     await expectStoreError(
       () =>
@@ -3558,7 +3561,7 @@ async function main() {
     };
     const executionKey = `private-alpha-${testSuffix}-execute-0001`;
     const result = creatorOwned
-      ? await store.executeCreatorRun(approved.runId, executeInput, executionKey, ownership)
+      ? await store.executeCreatorRun(approved.runId, executeInput, executionKey, ownership, async () => true)
       : await store.executeRun(approved.runId, executeInput, executionKey);
     assert(
       result.run.state === "blocked" &&
@@ -3576,7 +3579,7 @@ async function main() {
       `${testSuffix} remains durably readable after provider-code canonicalization.`
     );
     const replay = creatorOwned
-      ? await store.executeCreatorRun(approved.runId, executeInput, executionKey, ownership)
+      ? await store.executeCreatorRun(approved.runId, executeInput, executionKey, ownership, async () => true)
       : await store.executeRun(approved.runId, executeInput, executionKey);
     assert(
       replay.replayed === true &&

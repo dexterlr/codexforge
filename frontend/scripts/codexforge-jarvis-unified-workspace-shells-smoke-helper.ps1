@@ -325,7 +325,12 @@ function Invoke-CodexForgeJarvisUnifiedWorkspaceShellsSmoke {
   Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $routeSource $Phase "route source phase marker"
   Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $routeSource $Title "route source title"
   Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $routeSource $RouteHref "route source href"
-  Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $pageSource './page-client' "route page re-export"
+  if ($Route -eq "jarvis-chatbot") {
+    Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $pageSource 'redirect("/jarvis")' "retired chatbot route redirects to canonical Jarvis"
+    Assert-CodexForgeJarvisUnifiedWorkspaceShellsCountExactly $pageSource './page-client' 0 "retired chatbot route does not mount its historical page client"
+  } else {
+    Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $pageSource './page-client' "route page re-export"
+  }
   Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $pageClientSource $Route "page-client route slug"
   Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $panelSource "JarvisUnifiedWorkspaceShellPanel" "route panel wiring"
 
@@ -365,6 +370,11 @@ function Invoke-CodexForgeJarvisUnifiedWorkspaceShellsSmoke {
     Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $sharedSource $primaryRoute.Label "primary workspace label $($primaryRoute.Label)"
     Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $navTypes $primaryRoute.Route "primary route nav type id $($primaryRoute.Route)"
     Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $navTypes $primaryRoute.Href "primary route nav type href $($primaryRoute.Href)"
+    if ($primaryRoute.Route -eq "jarvis-chatbot") {
+      $retiredChatbotPageSource = Get-Content -Raw (Join-Path $root "src\app\jarvis-chatbot\page.tsx")
+      Assert-CodexForgeJarvisUnifiedWorkspaceShellsContains $retiredChatbotPageSource 'redirect("/jarvis")' "retired chatbot primary route redirects to canonical Jarvis"
+      Assert-CodexForgeJarvisUnifiedWorkspaceShellsCountExactly $retiredChatbotPageSource './page-client' 0 "retired chatbot primary route does not mount its historical page client"
+    }
   }
 
   $relevantSourceFiles = @(

@@ -25,6 +25,7 @@
 }
 
 .hero h1,
+.hero h2,
 .section h2,
 .boundaryCard h2,
 .capabilityGrid h3 {
@@ -33,7 +34,10 @@
   letter-spacing: -0.025em;
 }
 
-.hero h1 { font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1.02; }
+.hero h1,
+.hero h2 { font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1.02; }
+.workspace[data-embedded="true"] .hero { padding: 20px; border-radius: 18px; }
+.workspace[data-embedded="true"] .hero h2 { font-size: clamp(1.35rem, 3vw, 2rem); }
 .heroSummary { max-width: 760px; margin: 14px 0 0; color: #c8d8ed; font-size: 1.05rem; line-height: 1.7; }
 .eyebrow { margin: 0 0 7px; color: #5eead4; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
 .heroActions { flex-wrap: wrap; justify-content: flex-end; }

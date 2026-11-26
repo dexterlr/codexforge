@@ -143,8 +143,8 @@ foreach ($path in @($changedPaths | Where-Object { $_ -like "*.ps1" })) {
 $aggregate = Get-Content -Raw -LiteralPath "scripts/smoke-codexforge-all.ps1"
 $releaseBlock = [regex]::Match($aggregate, '(?s)\$currentReleaseGateScripts = @\((.*?)\r?\n\)').Groups[1].Value
 $entries = @($releaseBlock -split "`n" | Where-Object { $_ -match '^  @\{' })
-Assert-True ($entries.Count -eq 75) "Aggregate executable count is 75"
-Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 72) "Aggregate required count is 72"
+Assert-True ($entries.Count -eq 77) "Aggregate executable count is 77"
+Assert-True (@($entries | Where-Object { $_ -match 'Required = \$true' }).Count -eq 74) "Aggregate required count is 74"
 Assert-True (@($entries | Where-Object { $_ -match 'Required = \$false' }).Count -eq 3) "Aggregate optional count is 3"
 Assert-True ($releaseBlock -match 'First Exact Installed Local Model Candidate Declaration"; File = "smoke-codexforge-first-exact-installed-local-model-candidate-declaration\.ps1"; Required = \$true \},\r?\n  @\{ Name = "Exact Qwen 2\.5 Coder 32B Qualification and Controlled Acceptance Contract"; File = "smoke-codexforge-qwen2-5-coder-32b-qualification-controlled-live-acceptance-contract\.ps1"; Required = \$true \},') "Slice R follows Slice Q and is required"
 Assert-True ($releaseBlock -notmatch 'qualify-codexforge-qwen2-5-coder-32b-installed-candidate|run-codexforge-qwen2-5-coder-32b-controlled-live-acceptance') "Manual scripts are absent from the aggregate"

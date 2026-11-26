@@ -5,9 +5,32 @@ import {
   type KeyboardEvent,
   useCallback,
   useEffect,
+  useId,
   useRef,
   useState,
 } from "react";
+import { WebsiteCreatorPanel } from "@/lib/codexforge/creator/components";
+import { JarvisMemorySuggestions } from "./JarvisMemorySuggestions";
+import { JarvisWorkConversation } from "./JarvisWorkConversation";
+import {
+  fetchCreatorProject,
+  listCreatorProjectSummaries,
+} from "@/lib/codexforge/creator/creator-api-client";
+import type { CreatorProjectSummary } from "@/lib/codexforge/creator/creator-types";
+import { CREATOR_MODEL_ENVELOPE } from "@/lib/codexforge/creator/creator-policy";
+import {
+  listJarvisCreatorHandoffs,
+  prepareJarvisCreatorHandoff,
+  reviewJarvisCreatorHandoff,
+  resumeJarvisCreatorHandoff,
+} from "@/lib/codexforge/jarvis-creator-handoff/jarvis-creator-handoff-api-client";
+import type {
+  JarvisCreatorHandoffOperation,
+  JarvisCreatorHandoffPrepareInput,
+  JarvisCreatorHandoffProjectProjection,
+  JarvisCreatorHandoffResumeReview,
+  JarvisCreatorHandoffSummary,
+} from "@/lib/codexforge/jarvis-creator-handoff/jarvis-creator-handoff-types";
 import {
   actOnJarvisChatConversation,
   buildJarvisChatMutationSignature,
@@ -44,6 +67,7 @@ const RECOVERY_REASON_ID = "jarvis-chat-recovery-disabled-reason";
 const STOP_REASON_ID = "jarvis-chat-stop-disabled-reason";
 const RENAME_REASON_ID = "jarvis-chat-rename-disabled-reason";
 const DELETE_REASON_ID = "jarvis-chat-delete-disabled-reason";
+const CREATOR_HANDOFF_BUSY_REASON_ID = "jarvis-creator-handoff-busy-reason";
 
 const TERMINAL_STATES = new Set<JarvisChatConversationState>([
   "ready",
@@ -101,11 +125,34 @@ export type JarvisChatDraftHandoff = Readonly<{
   text: string;
 }>;
 
-type JarvisChatPanelProps = Readonly<{
-  draftHandoff?: JarvisChatDraftHandoff | null;
+export type JarvisWorkReplyActivity = Readonly<{
+  record: JarvisChatConversation;
+  pending: boolean;
+  error: string | null;
 }>;
 
+type JarvisChatPanelProps = Readonly<{
+  draftHandoff?: JarvisChatDraftHandoff | null;
+}> & (
+  | { workConversationId?: undefined; onNewWorkChat?: never; workReply?: never; onWorkReply?: never }
+  | {
+      workConversationId: string;
+      onNewWorkChat: () => void;
+      workReply: JarvisWorkReplyActivity | null;
+      onWorkReply: (conversation: JarvisChatConversation) => void;
+    }
+);
+
 type ResultAction = PrimaryAction | "stop-turn";
+
+type CreatorReviewSource = Readonly<{
+  conversationId: string;
+  conversationRevision: number;
+  turnId: string;
+  messageId: string;
+  messageDigest: string;
+  messageText: string;
+}>;
 
 const MUTATION_ACTION_BY_PRIMARY: Readonly<Record<PrimaryAction, JarvisChatMutationAction>> = {
   create: "create_conversation",
@@ -155,6 +202,36 @@ function readableAction(action: PrimaryAction): string {
 function safeErrorMessage(error: unknown): string {
   if (error instanceof JarvisChatApiError) return error.message;
   return "Jarvis could not complete that local chat action. Refresh the chat and try the available recovery action.";
+}
+
+function sortCreatorCanonicalJson(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sortCreatorCanonicalJson);
+  if (typeof value === "object" && value !== null) {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .sort(([left], [right]) => left.localeCompare(right, "en"))
+        .map(([key, child]) => [key, sortCreatorCanonicalJson(child)])
+    );
+  }
+  return value;
+}
+
+async function hashCreatorCanonicalJsonInBrowser(value: unknown): Promise<string> {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) {
+    throw new Error(
+      "This browser cannot verify the selected Website Creator run-binding evidence. The revision handoff was not prepared."
+    );
+  }
+  const serialized = JSON.stringify(sortCreatorCanonicalJson(value));
+  if (typeof serialized !== "string") {
+    throw new Error("The selected Website Creator evidence could not be serialized safely.");
+  }
+  const digest = await subtle.digest("SHA-256", new TextEncoder().encode(serialized));
+  return Array.from(
+    new Uint8Array(digest),
+    (entry) => entry.toString(16).padStart(2, "0")
+  ).join("");
 }
 
 function stateExplanation(conversation: JarvisChatConversation): string {
@@ -280,9 +357,19 @@ function mutationNotice(
   return fallback;
 }
 
-export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = {}) {
+export function JarvisChatPanel({ draftHandoff = null, workConversationId, onNewWorkChat, workReply, onWorkReply }: JarvisChatPanelProps = {}) {
+  const creatorReviewTitleId = useId();
+  const creatorReviewDescriptionId = useId();
+  const creatorReviewReasonId = useId();
+  const creatorReviewSectionId = useId();
+  const creatorRevisionTargetId = useId();
+  const creatorRecoverySectionId = useId();
+  const creatorRecoveryReasonId = useId();
   const [summaries, setSummaries] = useState<readonly JarvisChatConversationSummary[]>([]);
-  const [conversation, setConversation] = useState<JarvisChatConversation | null>(null);
+  const [loadedConversation, setConversation] = useState<JarvisChatConversation | null>(null);
+  const currentWorkReply = workReply && workReply.record.conversationId === workConversationId ? workReply : null;
+  const conversation = loadedConversation && currentWorkReply && currentWorkReply.record.revision > loadedConversation.revision
+    ? currentWorkReply.record : loadedConversation;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [runtime, setRuntime] = useState<JarvisChatRuntimeStatus | null>(null);
   const [draft, setDraft] = useState("");
@@ -299,6 +386,23 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [composerFocusRequest, setComposerFocusRequest] = useState(0);
+  const [creatorReviewSource, setCreatorReviewSource] = useState<CreatorReviewSource | null>(null);
+  const [creatorOperation, setCreatorOperation] = useState<JarvisCreatorHandoffOperation>("create");
+  const [creatorProjectTitle, setCreatorProjectTitle] = useState("");
+  const [creatorDescription, setCreatorDescription] = useState("");
+  const [creatorProjectSummaries, setCreatorProjectSummaries] = useState<readonly CreatorProjectSummary[]>([]);
+  const [creatorRevisionProjectId, setCreatorRevisionProjectId] = useState("");
+  const [creatorAcknowledged, setCreatorAcknowledged] = useState(false);
+  const [creatorHandoffBusy, setCreatorHandoffBusy] = useState(false);
+  const [creatorHandoffHistoryBusy, setCreatorHandoffHistoryBusy] = useState(false);
+  const [creatorHandoffError, setCreatorHandoffError] = useState<string | null>(null);
+  const [creatorHandoffNotice, setCreatorHandoffNotice] = useState<string | null>(null);
+  const [creatorHandoffs, setCreatorHandoffs] = useState<readonly JarvisCreatorHandoffSummary[]>([]);
+  const [activeCreatorProjection, setActiveCreatorProjection] = useState<JarvisCreatorHandoffProjectProjection | null>(null);
+  const [activeCreatorProjectId, setActiveCreatorProjectId] = useState<string | null>(null);
+  const [creatorRecoveryReview, setCreatorRecoveryReview] = useState<JarvisCreatorHandoffResumeReview | null>(null);
+  const [creatorResumeAcknowledged, setCreatorResumeAcknowledged] = useState(false);
+  const [creatorRecoveryAction, setCreatorRecoveryAction] = useState<"review" | "resume" | null>(null);
 
   const selectedIdRef = useRef<string | null>(null);
   const loadSequenceRef = useRef(0);
@@ -308,16 +412,27 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
   const lifecycleStatusRef = useRef<HTMLParagraphElement | null>(null);
   const appliedDraftHandoffRef = useRef<number | null>(null);
+  const creatorReviewTitleRef = useRef<HTMLInputElement | null>(null);
+  const creatorHandoffStatusRef = useRef<HTMLParagraphElement | null>(null);
+  const creatorHandoffOpenerRef = useRef<HTMLButtonElement | null>(null);
+  const creatorRecoveryHeadingRef = useRef<HTMLHeadingElement | null>(null);
 
   const selectId = useCallback((id: string | null) => {
     selectedIdRef.current = id;
     setSelectedId(id);
-  }, []);
+    if (workConversationId !== undefined) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("conversation") && url.searchParams.get("conversation") !== id) {
+      if (id === null) url.searchParams.delete("conversation");
+      else url.searchParams.set("conversation", id);
+      window.history.replaceState(null, "", url);
+    }
+  }, [workConversationId]);
 
   const refreshSummaries = useCallback(async () => {
     const sequence = loadSequenceRef.current;
     const activeId = selectedIdRef.current;
-    const next = await listJarvisChatConversations();
+    const next = workConversationId === undefined ? await listJarvisChatConversations() : [];
     if (sequence !== loadSequenceRef.current || activeId !== selectedIdRef.current) {
       return { reconciliationCount: 0 };
     }
@@ -326,7 +441,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
       return { reconciliationCount: 0 };
     }
     const activeSummary = next.find((entry) => entry.conversationId === activeId);
-    if (!activeSummary || activeSummary.state === "deleting") {
+    if (workConversationId === undefined && (!activeSummary || activeSummary.state === "deleting")) {
       loadSequenceRef.current += 1;
       selectId(null);
       setConversation(null);
@@ -346,7 +461,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
     setConversation(refreshed);
     setRenameValue(refreshed.title);
     return { reconciliationCount: reconciliation.retiredCount };
-  }, [selectId]);
+  }, [selectId, workConversationId]);
 
   const loadConversation = useCallback(async (id: string) => {
     if (primaryBusyRef.current || stopBusyRef.current || refreshingRef.current) return;
@@ -384,7 +499,9 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
 
   const initialize = useCallback(async () => {
     const sequence = loadSequenceRef.current + 1;
+    const linkedId = workConversationId ?? new URLSearchParams(window.location.search).get("conversation");
     loadSequenceRef.current = sequence;
+    if (linkedId !== null) selectId(linkedId);
     setInitialLoading(true);
     setConversation(null);
     setDraft("");
@@ -392,19 +509,31 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
     setError(null);
     try {
       const [nextSummaries, nextRuntime] = await Promise.all([
-        listJarvisChatConversations(),
+        workConversationId === undefined ? listJarvisChatConversations() : [],
         fetchJarvisChatRuntimeStatus(),
       ]);
       if (loadSequenceRef.current !== sequence) return;
-      const first = nextSummaries.find((entry) => entry.state !== "deleting");
-      if (first) {
-        selectId(first.conversationId);
-        setLoadingConversationId(first.conversationId);
-        const nextConversation = await fetchJarvisChatConversation(first.conversationId);
+      setSummaries(nextSummaries);
+      setRuntime(nextRuntime);
+      const conversationId = workConversationId ?? nextSummaries.find((entry) =>
+        entry.state !== "deleting" && (linkedId === null || entry.conversationId === linkedId)
+      )?.conversationId;
+      if (linkedId !== null && !conversationId) {
+        setError("This conversation is unavailable. Choose another conversation from local history or start a new chat.");
+        return;
+      }
+      if (conversationId) {
+        selectId(conversationId);
+        setLoadingConversationId(conversationId);
+        const nextConversation = await fetchJarvisChatConversation(conversationId);
+        if (loadSequenceRef.current !== sequence) return;
+        if (nextConversation.state === "deleting") {
+          setError("This conversation is being deleted. Choose another conversation from local history or start a new chat.");
+          return;
+        }
         const reconciliation = await reconcileJarvisChatRetainedMutations(nextConversation);
-        if (loadSequenceRef.current === sequence && selectedIdRef.current === first.conversationId) {
+        if (loadSequenceRef.current === sequence && selectedIdRef.current === conversationId) {
           setSummaries(mergeSummary(nextSummaries, nextConversation));
-          setRuntime(nextRuntime);
           setConversation(nextConversation);
           setRenameValue(nextConversation.title);
           if (reconciliation.retiredCount > 0) {
@@ -412,8 +541,6 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
           }
         }
       } else {
-        setSummaries(nextSummaries);
-        setRuntime(nextRuntime);
         selectId(null);
         setConversation(null);
       }
@@ -425,7 +552,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
         setInitialLoading(false);
       }
     }
-  }, [selectId]);
+  }, [selectId, workConversationId]);
 
   useEffect(() => {
     void initialize();
@@ -458,6 +585,81 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
     globalThis.requestAnimationFrame(() => composerRef.current?.focus());
   }, [draft, draftHandoff]);
 
+  useEffect(() => {
+    if (workConversationId !== undefined) return;
+    const conversationId = conversation?.conversationId ?? null;
+    setCreatorReviewSource(null);
+    setCreatorHandoffError(null);
+    setCreatorHandoffNotice(null);
+    setActiveCreatorProjection(null);
+    setCreatorRecoveryReview(null);
+    setCreatorResumeAcknowledged(false);
+    setCreatorRecoveryAction(null);
+    setCreatorProjectSummaries([]);
+    setCreatorRevisionProjectId("");
+    if (!conversationId) {
+      setCreatorHandoffs([]);
+      setActiveCreatorProjectId(null);
+      setCreatorHandoffHistoryBusy(false);
+      return;
+    }
+    let active = true;
+    setCreatorHandoffHistoryBusy(true);
+    listJarvisCreatorHandoffs(conversationId)
+      .then((next) => {
+        if (!active) return;
+        setCreatorHandoffs(next);
+        const latestPrepared = next.find(
+          (handoff) => handoff.status === "prepared" && handoff.resultingProjectStatus !== null
+        );
+        setActiveCreatorProjectId((current) =>
+          current && next.some(
+            (handoff) => handoff.projectId === current && handoff.status === "prepared"
+          )
+            ? current
+            : latestPrepared?.projectId ?? null
+        );
+      })
+      .catch((caught: unknown) => {
+        if (!active) return;
+        setCreatorHandoffs([]);
+        setActiveCreatorProjectId(null);
+        setCreatorHandoffError(
+          caught instanceof Error
+            ? caught.message
+            : "Creator handoff history could not be restored. The selected chat remains unchanged."
+        );
+      })
+      .finally(() => {
+        if (active) setCreatorHandoffHistoryBusy(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [conversation?.conversationId, workConversationId]);
+
+  useEffect(() => {
+    if (!creatorReviewSource || creatorOperation !== "revise") return;
+    let active = true;
+    listCreatorProjectSummaries(256)
+      .then((next) => {
+        if (active) setCreatorProjectSummaries(next);
+      })
+      .catch((caught: unknown) => {
+        if (active) {
+          setCreatorProjectSummaries([]);
+          setCreatorHandoffError(
+            caught instanceof Error
+              ? caught.message
+              : "Eligible Website Creator projects could not be loaded. No revision target was selected."
+          );
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [creatorOperation, creatorReviewSource]);
+
   const refreshWorkspace = useCallback(async () => {
     if (primaryBusyRef.current || stopBusyRef.current || refreshingRef.current || initialLoading) return;
     refreshingRef.current = true;
@@ -485,7 +687,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
       options: Readonly<{ forceSelect?: boolean }> = {}
     ) => {
       const evidenceMessage = "deleted" in result
-        ? ` Deletion audit ${result.deletionAuditId}; tombstone digest ${result.tombstoneDigest.slice(0, 12)}...; completed ${formatTimestamp(result.deletedAt)}. Any separately retained bounded Private Alpha run or audit provenance is unchanged by conversation deletion.`
+        ? ` Deletion audit ${result.deletionAuditId}; tombstone digest ${result.tombstoneDigest.slice(0, 12)}...; completed ${formatTimestamp(result.deletedAt)}. Any separately retained bounded Private Alpha run/audit and committed Website Creator handoff/project evidence remains unchanged.`
         : "";
       if ("deleted" in result) {
         setSummaries((current) =>
@@ -588,13 +790,17 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
     [performPrimary]
   );
 
+  const activeExecutionId = primaryBusy?.action === "execute-turn" ? primaryBusy.conversationId :
+    workConversationId !== undefined && (currentWorkReply?.pending || conversation?.state === "executing" || conversation?.state === "stopping")
+      ? workConversationId : null;
+
   useEffect(() => {
-    if (primaryBusy?.action !== "execute-turn" || !primaryBusy.conversationId) return;
+    if (!activeExecutionId) return;
     let disposed = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
     const poll = async () => {
       try {
-        const next = await fetchJarvisChatConversation(primaryBusy.conversationId!);
+        const next = await fetchJarvisChatConversation(activeExecutionId);
         if (disposed) return;
         setSummaries((current) => mergeSummary(current, next));
         if (selectedIdRef.current === next.conversationId) {
@@ -614,14 +820,21 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
       disposed = true;
       if (timer) clearTimeout(timer);
     };
-  }, [primaryBusy]);
+  }, [activeExecutionId]);
 
   const currentTurn = latestTurn(conversation);
-  const globalBusy = primaryBusy !== null || stopBusy;
+  const globalBusy = primaryBusy !== null || stopBusy || Boolean(workReply?.pending);
   const synchronizing = loadingConversationId !== null || refreshing;
-  const mutationLocked = initialLoading || globalBusy || synchronizing;
+  const mutationLocked = initialLoading || globalBusy || synchronizing || creatorHandoffBusy;
+  const creatorReviewControlsLockReasonId = creatorHandoffBusy
+    ? CREATOR_HANDOFF_BUSY_REASON_ID
+    : mutationLocked
+      ? GLOBAL_BUSY_REASON_ID
+      : null;
   const lockedActivity = primaryBusy
     ? readableAction(primaryBusy.action).toLowerCase()
+    : creatorHandoffBusy
+      ? "the exact Website Creator handoff finishes"
     : stopBusy
       ? "the stop request finishes"
       : synchronizing
@@ -658,6 +871,337 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
         : mutationLocked
           ? `Execution is unavailable while ${lockedActivity}.`
           : null;
+  const eligibleRevisionProjects = creatorProjectSummaries.filter(
+    (item) =>
+      item.status === "ready" &&
+      item.latestArtifactRevision !== null &&
+      item.latestManifestDigest !== null &&
+      item.latestAggregateDigest !== null &&
+      item.latestValidationDigest !== null &&
+      item.explicitRevisionCount < 2
+  );
+  const selectedRevisionProject = creatorRevisionProjectId
+    ? eligibleRevisionProjects.find((item) => item.projectId === creatorRevisionProjectId) ?? null
+    : null;
+  const creatorSourceStillExact = Boolean(
+    creatorReviewSource &&
+    conversation &&
+    creatorReviewSource.conversationId === conversation.conversationId &&
+    creatorReviewSource.conversationRevision === conversation.revision &&
+    conversation.turns.some(
+      (turn) =>
+        turn.turnId === creatorReviewSource.turnId &&
+        turn.userMessage.messageId === creatorReviewSource.messageId &&
+        turn.userMessage.textDigest === creatorReviewSource.messageDigest &&
+        turn.userMessage.text === creatorReviewSource.messageText
+    )
+  );
+  const creatorReviewDisabledReason = creatorHandoffBusy
+    ? "The reviewed creator handoff is frozen while the exact server request finishes."
+    : mutationLocked
+      ? `Creator handoff is unavailable while ${lockedActivity}.`
+      : !creatorSourceStillExact
+        ? "The source chat changed after this review opened. Close it and select the exact user message again."
+        : creatorOperation === "revise" && !selectedRevisionProject
+          ? "Choose one eligible Website Creator project and review its exact current validated artifact revision."
+          : !creatorProjectTitle.trim()
+            ? "Enter a project title before preparing the creator plan."
+            : creatorProjectTitle.trim().length > MAX_TITLE_CHARACTERS
+              ? `Project titles are limited to ${MAX_TITLE_CHARACTERS} characters.`
+              : !creatorDescription.trim()
+                ? "Enter a visible creator brief before preparing the plan."
+                : creatorDescription.trim().length > MAX_MESSAGE_CHARACTERS
+                  ? `Creator briefs are limited to ${MAX_MESSAGE_CHARACTERS} characters.`
+                  : !creatorAcknowledged
+                    ? "Confirm that you reviewed this exact visible brief and understand that approval and execution remain separate."
+                    : null;
+  const creatorRecoveryDisabledReason = creatorHandoffBusy
+    ? creatorRecoveryAction === "review"
+      ? "The exact persisted Website Creator request is being revealed for review."
+      : "The exact acknowledged Website Creator handoff is being resumed."
+    : !creatorRecoveryReview
+      ? "Review the exact persisted Website Creator request before resuming it."
+      : !creatorRecoveryReview.resumable
+        ? creatorRecoveryReview.status === "prepared"
+          ? "This handoff is already prepared; open its Creator controls instead."
+          : "This handoff failed safely and cannot be resumed."
+        : !creatorResumeAcknowledged
+          ? "Confirm that you reviewed the exact persisted request before resuming its plan preparation."
+          : null;
+
+  const openCreatorReview = (
+    turn: JarvisChatTurn,
+    opener: HTMLButtonElement
+  ) => {
+    if (!conversation || mutationLocked || creatorHandoffBusy) return;
+    creatorHandoffOpenerRef.current = opener;
+    setCreatorReviewSource({
+      conversationId: conversation.conversationId,
+      conversationRevision: conversation.revision,
+      turnId: turn.turnId,
+      messageId: turn.userMessage.messageId,
+      messageDigest: turn.userMessage.textDigest,
+      messageText: turn.userMessage.text,
+    });
+    setCreatorOperation("create");
+    setCreatorProjectTitle(conversation.title.slice(0, MAX_TITLE_CHARACTERS));
+    setCreatorDescription(turn.userMessage.text);
+    setCreatorRevisionProjectId("");
+    setCreatorAcknowledged(false);
+    setCreatorHandoffError(null);
+    setCreatorHandoffNotice(null);
+    globalThis.requestAnimationFrame(() => creatorReviewTitleRef.current?.focus());
+  };
+
+  const closeCreatorReview = () => {
+    if (creatorHandoffBusy) return;
+    setCreatorReviewSource(null);
+    setCreatorRevisionProjectId("");
+    setCreatorAcknowledged(false);
+    globalThis.requestAnimationFrame(() => creatorHandoffOpenerRef.current?.focus());
+  };
+
+  const changeCreatorOperation = (operation: JarvisCreatorHandoffOperation) => {
+    if (creatorHandoffBusy) return;
+    setCreatorOperation(operation);
+    setCreatorRevisionProjectId("");
+    setCreatorAcknowledged(false);
+    if (operation === "create") {
+      setCreatorProjectTitle(conversation?.title.slice(0, MAX_TITLE_CHARACTERS) ?? "");
+    } else {
+      setCreatorProjectTitle("");
+    }
+  };
+
+  const selectRevisionProject = (projectId: string) => {
+    setCreatorRevisionProjectId(projectId);
+    const selected = eligibleRevisionProjects.find((item) => item.projectId === projectId);
+    setCreatorProjectTitle(selected?.projectTitle ?? "");
+    setCreatorAcknowledged(false);
+  };
+
+  const submitCreatorHandoff = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const source = creatorReviewSource;
+    const activeConversation = conversation;
+    const target = selectedRevisionProject;
+    if (
+      !source ||
+      !activeConversation ||
+      creatorReviewDisabledReason !== null ||
+      creatorHandoffBusy
+    ) return;
+    const projectTitle = creatorProjectTitle.trim();
+    const description = creatorDescription.trim();
+    setCreatorHandoffBusy(true);
+    setCreatorHandoffError(null);
+    setCreatorHandoffNotice(null);
+    try {
+      const common = {
+        conversationId: source.conversationId,
+        expectedConversationRevision: source.conversationRevision,
+        sourceTurnId: source.turnId,
+        sourceMessageId: source.messageId,
+        sourceMessageDigest: source.messageDigest,
+        creatorKind: "website-browser-app" as const,
+        projectTitle,
+        description,
+        acknowledgement: true as const,
+      };
+      let input: JarvisCreatorHandoffPrepareInput;
+      if (creatorOperation === "create") {
+        input = { ...common, operation: "create" };
+      } else {
+        if (!target) {
+          throw new Error("Choose the exact validated Website Creator project again.");
+        }
+        const exactProject = await fetchCreatorProject(target.projectId);
+        const exactManifest = exactProject.exportManifest;
+        const exactMaterialization = exactProject.materializations.find(
+          (item) => item.artifactRevision === target.latestArtifactRevision
+        );
+        const exactRunBindingsDigest = await hashCreatorCanonicalJsonInBrowser(
+          exactProject.runBindings
+        );
+        if (
+          exactProject.identity.projectId !== target.projectId ||
+          exactProject.identity.projectTitle !== projectTitle ||
+          exactProject.identity.creatorKind !== "website-browser-app" ||
+          exactProject.status !== "ready" ||
+          exactProject.stateRevision !== target.stateRevision ||
+          exactProject.validation?.valid !== true ||
+          !exactManifest ||
+          exactManifest.artifactRevision !== target.latestArtifactRevision ||
+          exactManifest.manifestDigest !== target.latestManifestDigest ||
+          exactManifest.aggregateDigest !== target.latestAggregateDigest ||
+          exactManifest.validationDigest !== target.latestValidationDigest ||
+          !exactMaterialization ||
+          exactMaterialization.aggregateDigest !== target.latestAggregateDigest ||
+          exactMaterialization.validationDigest !== target.latestValidationDigest ||
+          exactRunBindingsDigest !== target.sourceRunBindingsDigest ||
+          exactProject.runBindings.length !== target.sourceRunBindingCount ||
+          exactProject.revisionRequests.length !== target.explicitRevisionCount ||
+          exactProject.revisionRequests.length >= 2
+        ) {
+          throw new Error(
+            "The selected Website Creator project changed after review. No revision handoff was prepared; choose its exact current validated artifact again."
+          );
+        }
+        input = {
+          ...common,
+          operation: "revise",
+          sourceProjectId: exactProject.identity.projectId,
+          sourceProjectStatus: "ready",
+          sourceProjectStateRevision: exactProject.stateRevision,
+          sourceArtifactRevision: exactManifest.artifactRevision,
+          sourceManifestDigest: exactManifest.manifestDigest,
+          sourceAggregateDigest: exactMaterialization.aggregateDigest,
+          sourceValidationDigest: exactMaterialization.validationDigest,
+          sourceRunBindingsDigest: exactRunBindingsDigest,
+          sourceRunBindingCount: exactProject.runBindings.length,
+          sourceExplicitRevisionCount: exactProject.revisionRequests.length,
+        };
+      }
+      const result = await prepareJarvisCreatorHandoff(input);
+      setActiveCreatorProjection(result.project);
+      setActiveCreatorProjectId(result.project.projectId);
+      setCreatorReviewSource(null);
+      setCreatorAcknowledged(false);
+      setCreatorHandoffNotice(
+        result.replayed
+          ? "The exact reviewed Website Creator handoff was safely replayed. No project, approval, or provider run was duplicated."
+          : creatorOperation === "create"
+            ? "The exact reviewed brief prepared a server-owned creator plan. No provider run exists; review and approve the plan separately below."
+            : "The exact reviewed brief prepared a revision plan for the selected validated artifact. No provider run exists; review and approve the revision plan separately below."
+      );
+      try {
+        setCreatorHandoffs(await listJarvisCreatorHandoffs(source.conversationId));
+      } catch (caught) {
+        setCreatorHandoffError(
+          caught instanceof Error
+            ? `The Creator plan was prepared, but its conversation history could not be refreshed: ${caught.message}`
+            : "The Creator plan was prepared, but its conversation history could not be refreshed."
+        );
+      }
+      globalThis.requestAnimationFrame(() => creatorHandoffStatusRef.current?.focus());
+    } catch (caught) {
+      setCreatorHandoffError(
+        caught instanceof Error
+          ? caught.message
+          : "The Website Creator handoff failed safely. No approval or execution occurred."
+      );
+    } finally {
+      setCreatorHandoffBusy(false);
+    }
+  };
+
+  const reviewPreparingCreatorHandoff = async (
+    handoff: JarvisCreatorHandoffSummary
+  ) => {
+    const conversationId = conversation?.conversationId;
+    if (
+      !conversationId ||
+      handoff.conversationId !== conversationId ||
+      handoff.status !== "preparing" ||
+      mutationLocked
+    ) return;
+    setCreatorHandoffBusy(true);
+    setCreatorRecoveryAction("review");
+    setCreatorRecoveryReview(null);
+    setCreatorResumeAcknowledged(false);
+    setCreatorHandoffError(null);
+    setCreatorHandoffNotice(null);
+    try {
+      const review = await reviewJarvisCreatorHandoff({
+        conversationId,
+        handoffId: handoff.handoffId,
+        expectedHandoffRecordDigest: handoff.recordDigest,
+      });
+      setActiveCreatorProjection(null);
+      setActiveCreatorProjectId(null);
+      setCreatorRecoveryReview(review);
+      setCreatorHandoffNotice(
+        review.resumable
+          ? "The exact persisted request is visible below. Review it and separately acknowledge Resume; no project, provider run, approval, or execution occurred."
+          : review.status === "prepared"
+            ? "This handoff completed before review. Refresh its history and open the prepared Creator controls."
+            : "This handoff failed safely and cannot be resumed. No approval or execution occurred."
+      );
+      if (!review.resumable) {
+        try {
+          setCreatorHandoffs(await listJarvisCreatorHandoffs(conversationId));
+        } catch (caught) {
+          setCreatorHandoffError(
+            caught instanceof Error
+              ? `The exact request was reviewed, but its history could not be refreshed: ${caught.message}`
+              : "The exact request was reviewed, but its history could not be refreshed."
+          );
+        }
+      }
+      globalThis.requestAnimationFrame(() => creatorRecoveryHeadingRef.current?.focus());
+    } catch (caught) {
+      setCreatorHandoffError(
+        caught instanceof Error
+          ? caught.message
+          : "The exact persisted Website Creator request could not be reviewed safely."
+      );
+    } finally {
+      setCreatorRecoveryAction(null);
+      setCreatorHandoffBusy(false);
+    }
+  };
+
+  const resumePreparingCreatorHandoff = async () => {
+    const conversationId = conversation?.conversationId;
+    const review = creatorRecoveryReview;
+    if (
+      !conversationId ||
+      !review ||
+      !review.resumable ||
+      !creatorResumeAcknowledged ||
+      creatorHandoffBusy
+    ) return;
+    setCreatorHandoffBusy(true);
+    setCreatorRecoveryAction("resume");
+    setCreatorHandoffError(null);
+    setCreatorHandoffNotice(null);
+    try {
+      const result = await resumeJarvisCreatorHandoff({
+        conversationId,
+        handoffId: review.handoffId,
+        expectedHandoffRecordDigest: review.recordDigest,
+        reviewedRequestDigest: review.reviewedRequest.handoffRequestDigest,
+      });
+      setActiveCreatorProjection(result.project);
+      setActiveCreatorProjectId(result.project.projectId);
+      setCreatorRecoveryReview(null);
+      setCreatorResumeAcknowledged(false);
+      setCreatorHandoffNotice(
+        result.replayed
+          ? "The exact acknowledged Website Creator resume was safely replayed. No project, approval, or provider run was duplicated."
+          : "The exact acknowledged handoff resumed and prepared its Creator plan. Review and approval remain separate; no provider ran."
+      );
+      try {
+        setCreatorHandoffs(await listJarvisCreatorHandoffs(conversationId));
+      } catch (caught) {
+        setCreatorHandoffError(
+          caught instanceof Error
+            ? `The Creator plan was prepared, but its history could not be refreshed: ${caught.message}`
+            : "The Creator plan was prepared, but its history could not be refreshed."
+        );
+      }
+      globalThis.requestAnimationFrame(() => creatorHandoffStatusRef.current?.focus());
+    } catch (caught) {
+      setCreatorHandoffError(
+        caught instanceof Error
+          ? caught.message
+          : "The Website Creator resume was not confirmed. The exact reviewed evidence remains available for a safe explicit retry."
+      );
+    } finally {
+      setCreatorRecoveryAction(null);
+      setCreatorHandoffBusy(false);
+    }
+  };
 
   const startNewChat = () => {
     if (primaryBusyRef.current || stopBusyRef.current || refreshingRef.current || initialLoading) return;
@@ -674,7 +1218,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
     setComposerFocusRequest((current) => current + 1);
   };
 
-  const submitMessage = async () => {
+  const submitMessage = async (selectedContext: JarvisChatContextMode = contextMode) => {
     const message = draft.trim();
     if (sendDisabled || !message) return;
     let completed = false;
@@ -697,7 +1241,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
         action: "append-turn",
         expectedRevision,
         message,
-        contextMode,
+        contextMode: selectedContext,
       } as const;
       completed = await performPrimary(
         {
@@ -705,8 +1249,15 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
           conversationId,
           signature: buildJarvisChatMutationSignature(conversationId, input),
         },
-        () => actOnJarvisChatConversation(conversationId, input),
-        contextMode === "conversation"
+        async () => {
+          const result = await actOnJarvisChatConversation(conversationId, input);
+          if (onWorkReply && "conversation" in result) {
+            setDraft("");
+            onWorkReply(result.conversation);
+          }
+          return result;
+        },
+        selectedContext === "conversation"
           ? "Message submitted with the selected bounded conversation context."
           : "Message submitted without earlier conversation context."
       );
@@ -767,6 +1318,37 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
     }
   };
 
+  const runBoundAction = (action: "approve-turn" | "execute-turn") => {
+    if (!exactRunBinding || mutationLocked || (action === "execute-turn" && executionReason)) return;
+    void performConversationAction(action, (active) => ({
+      action,
+      expectedRevision: active.revision,
+      approvalScopeHash: exactRunBinding.approvalScopeHash,
+      acknowledgement: true,
+    }), action === "approve-turn"
+      ? "Exact local run approved. Execution still requires a separate action."
+      : "One bounded local response attempt completed.");
+  };
+
+  const cancelTurn = () => {
+    if (mutationLocked) return;
+    void performConversationAction("cancel-turn", (active) => ({
+      action: "cancel-turn",
+      expectedRevision: active.revision,
+      reason: "Canceled by the local operator before execution.",
+    }), conversation?.state === "approved"
+      ? "Approved turn canceled before provider execution."
+      : "Turn canceled before provider execution.");
+  };
+
+  const recoverTurn = () => {
+    if (mutationLocked || !conversation?.pendingOperation) return;
+    void performConversationAction("recover-turn", (active) => ({
+      action: "recover-turn",
+      expectedRevision: active.revision,
+    }), "Interrupted local action reconciled from durable evidence.");
+  };
+
   const saveRename = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!conversation) return;
@@ -797,7 +1379,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
         expectedRevision: active.revision,
         confirmationConversationId: active.conversationId,
       }),
-      "Local chat history deleted."
+      "Local conversation display and history deleted. Separately retained run, audit, and committed Website Creator handoff/project evidence was not deleted."
     ).then((completed) => {
       if (completed) {
         setDeleteOpen(false);
@@ -824,6 +1406,48 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
   const selectedSummary = selectedId
     ? summaries.find((entry) => entry.conversationId === selectedId) ?? null
     : null;
+  const activeCreatorHandoff = activeCreatorProjectId
+    ? creatorHandoffs.find(
+      (item) => item.projectId === activeCreatorProjectId && item.status === "prepared"
+    ) ?? null
+    : null;
+  const activeCreatorProjectConfirmed = Boolean(
+    activeCreatorHandoff ||
+    (activeCreatorProjectId && activeCreatorProjection?.projectId === activeCreatorProjectId)
+  );
+
+  if (workConversationId !== undefined) {
+    return (
+      <JarvisWorkConversation
+        conversation={conversation}
+        draft={draft}
+        onDraft={setDraft}
+        onSend={() => {
+          if (!conversation || mutationLocked) return;
+          if (conversation.state === "awaiting_approval" || conversation.state === "approved") {
+            onWorkReply(conversation);
+          } else {
+            void submitMessage("conversation");
+          }
+        }}
+        composerRef={composerRef}
+        loading={initialLoading || loadingConversationId !== null}
+        busy={mutationLocked}
+        generating={Boolean(activeExecutionId)}
+        canStop={conversation?.state === "executing" && !stopBusy && !synchronizing && !initialLoading}
+        canRecover={Boolean(conversation?.pendingOperation) && !mutationLocked}
+        composerBlockedReason={composerBlockedReason}
+        executionReason={executionReason}
+        status={workReply?.pending && !currentWorkReply ? "Jarvis is replying in another chat." : null}
+        error={error ?? (currentWorkReply?.record.currentTurnId === conversation?.currentTurnId ? currentWorkReply?.error ?? null : null)}
+        onRefresh={() => void (conversation ? refreshWorkspace() : initialize())}
+        onCancel={cancelTurn}
+        onStop={() => void stopExecution()}
+        onRecover={recoverTurn}
+        onNew={onNewWorkChat}
+      />
+    );
+  }
 
   return (
     <section
@@ -882,8 +1506,15 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
           {initialLoading
             ? "Conversation switching and mutation controls are temporarily unavailable while local chat history loads."
             : synchronizing
-              ? "Conversation switching and mutation controls are temporarily unavailable while the selected local conversation is synchronized."
+            ? "Conversation switching and mutation controls are temporarily unavailable while the selected local conversation is synchronized."
+            : creatorHandoffBusy
+              ? "Conversation switching and chat mutations are temporarily unavailable while the exact Website Creator handoff finishes."
             : `Conversation switching and other mutations are temporarily unavailable while ${primaryBusy ? readableAction(primaryBusy.action).toLowerCase() : "the stop request finishes"}.`}
+        </p>
+      ) : null}
+      {creatorHandoffBusy ? (
+        <p id={CREATOR_HANDOFF_BUSY_REASON_ID} className={styles.disabledReason}>
+          The selected user message and reviewed creator request are frozen while the exact handoff finishes. Chat, source, and creator review controls are temporarily unavailable.
         </p>
       ) : null}
 
@@ -980,6 +1611,27 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
                     <article className={`${styles.message} ${styles.userMessage}`}>
                       <header><strong>You</strong><time dateTime={turn.userMessage.createdAt}>{formatTimestamp(turn.userMessage.createdAt)}</time></header>
                       <p>{turn.userMessage.text}</p>
+                      <button
+                        type="button"
+                        className={styles.messageAction}
+                        disabled={mutationLocked || creatorHandoffBusy}
+                        aria-expanded={creatorReviewSource?.messageId === turn.userMessage.messageId}
+                        aria-controls={
+                          creatorReviewSource?.messageId === turn.userMessage.messageId
+                            ? creatorReviewSectionId
+                            : undefined
+                        }
+                        aria-describedby={
+                          mutationLocked
+                            ? GLOBAL_BUSY_REASON_ID
+                            : creatorHandoffBusy
+                              ? CREATOR_HANDOFF_BUSY_REASON_ID
+                              : undefined
+                        }
+                        onClick={(event) => openCreatorReview(turn, event.currentTarget)}
+                      >
+                        Continue this user message in Website Creator
+                      </button>
                     </article>
                     {turn.assistantMessage ? (
                       <article className={`${styles.message} ${styles.assistantMessage}`}>
@@ -997,6 +1649,381 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
               )}
             </div>
           </section>
+
+          {creatorReviewSource ? (
+            <section
+              id={creatorReviewSectionId}
+              className={styles.handoffReview}
+              aria-labelledby={`${creatorReviewSectionId}-title`}
+            >
+              <div className={styles.sectionHeader}>
+                <div>
+                  <p className={styles.eyebrow}>Exact visible handoff</p>
+                  <h3 id={`${creatorReviewSectionId}-title`} className={styles.sectionTitle}>
+                    Review before Website Creator receives anything
+                  </h3>
+                </div>
+                <span className={styles.stateBadge}>No provider run</span>
+              </div>
+              <p className={styles.handoffBoundaryCopy}>
+                Only the exact user message shown below is the source. Earlier chat context, assistant output, memory, and unsent drafts are excluded. Submitting prepares a server-owned plan; approval and execution remain separate.
+              </p>
+              <dl className={styles.handoffEnvelope} aria-label="Website Creator execution boundary">
+                <div><dt>Provider</dt><dd>{CREATOR_MODEL_ENVELOPE.providerKey} ({CREATOR_MODEL_ENVELOPE.providerLabel})</dd></div>
+                <div><dt>Model</dt><dd>{CREATOR_MODEL_ENVELOPE.modelKey} / {CREATOR_MODEL_ENVELOPE.runtimeModel}</dd></div>
+                <div><dt>Data</dt><dd>{CREATOR_MODEL_ENVELOPE.providerLocality}</dd></div>
+                <div><dt>Output limit</dt><dd>{CREATOR_MODEL_ENVELOPE.maximumOutputTokens} tokens</dd></div>
+                <div><dt>Provider charge</dt><dd>USD {CREATOR_MODEL_ENVELOPE.estimatedProviderTokenChargeUsd}; local resources {CREATOR_MODEL_ENVELOPE.localResourceCost}</dd></div>
+                <div><dt>Retry / fallback / substitution</dt><dd>{CREATOR_MODEL_ENVELOPE.retry} / {CREATOR_MODEL_ENVELOPE.fallback} / {CREATOR_MODEL_ENVELOPE.substitution}</dd></div>
+              </dl>
+              <blockquote className={styles.handoffSource}>
+                <strong>Selected user message</strong>
+                <p>{creatorReviewSource.messageText}</p>
+                <small>
+                  Message {creatorReviewSource.messageId} · digest {creatorReviewSource.messageDigest.slice(0, 16)}...
+                </small>
+              </blockquote>
+              <form className={styles.handoffForm} onSubmit={submitCreatorHandoff}>
+                <fieldset
+                  disabled={mutationLocked}
+                  aria-describedby={creatorReviewControlsLockReasonId ?? undefined}
+                >
+                  <legend>Website Creator workflow</legend>
+                  <label>
+                    <input
+                      type="radio"
+                      name="jarvis-creator-operation"
+                      value="create"
+                      checked={creatorOperation === "create"}
+                      disabled={mutationLocked}
+                      aria-describedby={creatorReviewControlsLockReasonId ?? undefined}
+                      onChange={() => changeCreatorOperation("create")}
+                    />
+                    Create a new Website Creator project
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="jarvis-creator-operation"
+                      value="revise"
+                      checked={creatorOperation === "revise"}
+                      disabled={mutationLocked}
+                      aria-describedby={creatorReviewControlsLockReasonId ?? undefined}
+                      onChange={() => changeCreatorOperation("revise")}
+                    />
+                    Revise an existing validated Website Creator project
+                  </label>
+                </fieldset>
+
+                {creatorOperation === "revise" ? (
+                  <div className={styles.handoffField}>
+                    <label htmlFor={creatorRevisionTargetId}>Exact Website Creator project</label>
+                    <select
+                      id={creatorRevisionTargetId}
+                      className={styles.select}
+                      value={creatorRevisionProjectId}
+                      disabled={mutationLocked}
+                      aria-describedby={`${creatorRevisionTargetId}-help${creatorReviewControlsLockReasonId ? ` ${creatorReviewControlsLockReasonId}` : ""}`}
+                      onChange={(event) => selectRevisionProject(event.target.value)}
+                      required
+                    >
+                      <option value="">Choose one validated project</option>
+                      {eligibleRevisionProjects.map((item) => (
+                        <option key={item.projectId} value={item.projectId}>
+                          {item.projectTitle} · artifact r{item.latestArtifactRevision} · revisions {item.explicitRevisionCount}/2
+                        </option>
+                      ))}
+                    </select>
+                    <p id={`${creatorRevisionTargetId}-help`} className={styles.fieldHelp}>
+                      {creatorReviewControlsLockReasonId
+                        ? "The exact revision target is frozen while the current Jarvis or Website Creator operation finishes."
+                        : selectedRevisionProject
+                        ? `Selected exact current validated artifact revision ${selectedRevisionProject.latestArtifactRevision}; project state revision ${selectedRevisionProject.stateRevision}; explicit revisions used ${selectedRevisionProject.explicitRevisionCount}/2. No target was inferred.`
+                        : eligibleRevisionProjects.length
+                          ? "Select the exact project whose current validated artifact should be revised."
+                          : "No eligible project with a current validated artifact is available."}
+                    </p>
+                  </div>
+                ) : null}
+
+                <div className={styles.handoffField}>
+                  <label htmlFor={creatorReviewTitleId}>Project title</label>
+                  <input
+                    ref={creatorReviewTitleRef}
+                    id={creatorReviewTitleId}
+                    className={styles.input}
+                    value={creatorProjectTitle}
+                    maxLength={MAX_TITLE_CHARACTERS}
+                    disabled={mutationLocked || creatorOperation === "revise"}
+                    aria-describedby={`${creatorReviewTitleId}-help${creatorReviewControlsLockReasonId ? ` ${creatorReviewControlsLockReasonId}` : ""}`}
+                    onChange={(event) => {
+                      setCreatorProjectTitle(event.target.value);
+                      setCreatorAcknowledged(false);
+                    }}
+                    required
+                  />
+                  <p id={`${creatorReviewTitleId}-help`} className={styles.fieldHelp}>
+                    {creatorReviewControlsLockReasonId
+                      ? "The reviewed project title is frozen while the current Jarvis or Website Creator operation finishes."
+                      : creatorOperation === "revise"
+                      ? "The title is locked to the explicitly selected existing project."
+                      : `${creatorProjectTitle.length}/${MAX_TITLE_CHARACTERS} characters. This remains editable until submission.`}
+                  </p>
+                </div>
+
+                <div className={styles.handoffField}>
+                  <label htmlFor={creatorReviewDescriptionId}>Reviewed creator brief</label>
+                  <textarea
+                    id={creatorReviewDescriptionId}
+                    className={styles.textarea}
+                    value={creatorDescription}
+                    maxLength={MAX_MESSAGE_CHARACTERS}
+                    rows={6}
+                    disabled={mutationLocked}
+                    aria-describedby={`${creatorReviewDescriptionId}-help${creatorReviewControlsLockReasonId ? ` ${creatorReviewControlsLockReasonId}` : ""}`}
+                    onChange={(event) => {
+                      setCreatorDescription(event.target.value);
+                      setCreatorAcknowledged(false);
+                    }}
+                    required
+                  />
+                  <p id={`${creatorReviewDescriptionId}-help`} className={styles.fieldHelp}>
+                    {creatorReviewControlsLockReasonId
+                      ? "The reviewed creator brief is frozen while the current Jarvis or Website Creator operation finishes."
+                      : `${creatorDescription.length}/${MAX_MESSAGE_CHARACTERS} characters. Initialized from the exact selected user message and visibly editable; hidden chat context is never appended.`}
+                  </p>
+                </div>
+
+                <label className={styles.handoffAcknowledgement}>
+                  <input
+                    type="checkbox"
+                    checked={creatorAcknowledged}
+                    disabled={mutationLocked}
+                    aria-describedby={creatorReviewControlsLockReasonId ?? undefined}
+                    onChange={(event) => setCreatorAcknowledged(event.target.checked)}
+                  />
+                  I reviewed this exact visible brief. Prepare only the plan; do not approve it, call a provider, or execute generation.
+                </label>
+
+                <div className={styles.buttonRow}>
+                  <button
+                    type="submit"
+                    className={styles.primaryButton}
+                    disabled={creatorReviewDisabledReason !== null}
+                    aria-describedby={creatorReviewDisabledReason ? creatorReviewReasonId : undefined}
+                  >
+                    {creatorOperation === "create"
+                      ? "Prepare exact creator plan"
+                      : "Prepare exact revision plan"}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    disabled={creatorHandoffBusy}
+                    aria-describedby={creatorHandoffBusy ? creatorReviewReasonId : undefined}
+                    onClick={closeCreatorReview}
+                  >
+                    Cancel handoff review
+                  </button>
+                </div>
+                <p id={creatorReviewReasonId} className={styles.disabledReason}>
+                  {creatorReviewDisabledReason ?? "Ready to prepare this exact reviewed plan. Approval and execution remain separate."}
+                </p>
+              </form>
+            </section>
+          ) : null}
+
+          <section className={styles.handoffHistory} aria-labelledby="jarvis-creator-handoff-history-title">
+            <div className={styles.sectionHeader}>
+              <div>
+                <p className={styles.eyebrow}>Conversation → Website Creator</p>
+                <h3 id="jarvis-creator-handoff-history-title" className={styles.sectionTitle}>
+                  Prepared creator plans from this chat
+                </h3>
+              </div>
+            </div>
+            {creatorHandoffError ? <p className={styles.errorNotice} role="alert">{creatorHandoffError}</p> : null}
+            {creatorHandoffNotice ? (
+              <p
+                ref={creatorHandoffStatusRef}
+                className={styles.successNotice}
+                role="status"
+                tabIndex={-1}
+              >
+                {creatorHandoffNotice}
+              </p>
+            ) : null}
+            {creatorHandoffHistoryBusy ? (
+              <p className={styles.emptyText} role="status">Restoring exact creator handoff evidence...</p>
+            ) : creatorHandoffs.length ? (
+              <ol className={styles.handoffList}>
+                {creatorHandoffs.map((handoff) => {
+                  const controlsShown =
+                    handoff.status === "prepared" &&
+                    activeCreatorProjectId === handoff.projectId;
+                  const exactRecoveryShown =
+                    creatorRecoveryReview?.handoffId === handoff.handoffId;
+                  return (
+                    <li key={handoff.handoffId} data-handoff-state={handoff.status}>
+                      <div>
+                        <strong>{handoff.projectTitle}</strong>
+                        <span>
+                          {handoff.operation === "create"
+                            ? "New project plan"
+                            : `Revision plan for artifact r${handoff.revisionTarget?.sourceArtifactRevision ?? "unknown"}`} {" · "}
+                          {handoff.resultingProjectStatus?.replaceAll("_", " ") ?? handoff.status}
+                        </span>
+                        <small>
+                          Exact user message {handoff.sourceMessageId} · handoff {handoff.handoffId}
+                        </small>
+                        {handoff.status === "preparing" ? (
+                          <small>
+                            Preparation was interrupted or its result is uncertain. Creator controls remain unavailable until you review and explicitly resume this exact persisted request.
+                          </small>
+                        ) : null}
+                        {handoff.status === "failed" ? (
+                          <p className={styles.disabledReason}>
+                            Failed safely{handoff.failureCode ? ` (${handoff.failureCode})` : ""}: {handoff.failureMessage ?? "No project, approval, execution, or provider run was admitted."}
+                          </p>
+                        ) : null}
+                      </div>
+                      {handoff.status === "prepared" ? (
+                        <button
+                          type="button"
+                          className={styles.secondaryButton}
+                          disabled={mutationLocked}
+                          aria-describedby={mutationLocked ? GLOBAL_BUSY_REASON_ID : undefined}
+                          aria-pressed={controlsShown}
+                          onClick={() => {
+                            setCreatorRecoveryReview(null);
+                            setCreatorResumeAcknowledged(false);
+                            setActiveCreatorProjection(null);
+                            setActiveCreatorProjectId(handoff.projectId);
+                          }}
+                        >
+                          {controlsShown ? "Creator controls shown" : "Show creator controls"}
+                        </button>
+                      ) : handoff.status === "preparing" ? (
+                        <button
+                          type="button"
+                          className={styles.secondaryButton}
+                          disabled={mutationLocked}
+                          aria-describedby={mutationLocked ? GLOBAL_BUSY_REASON_ID : undefined}
+                          aria-expanded={exactRecoveryShown}
+                          aria-controls={exactRecoveryShown ? creatorRecoverySectionId : undefined}
+                          onClick={() => void reviewPreparingCreatorHandoff(handoff)}
+                        >
+                          {exactRecoveryShown
+                            ? "Exact persisted request shown"
+                            : "Review exact persisted request"}
+                        </button>
+                      ) : (
+                        <span className={styles.stateBadge}>No Creator controls</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            ) : (
+              <p className={styles.emptyText}>No Website Creator plan has been prepared from this chat.</p>
+            )}
+            {creatorRecoveryReview ? (
+              <section
+                id={creatorRecoverySectionId}
+                className={styles.handoffReview}
+                aria-labelledby={`${creatorRecoverySectionId}-title`}
+              >
+                <div className={styles.sectionHeader}>
+                  <div>
+                    <p className={styles.eyebrow}>Explicit crash recovery</p>
+                    <h4
+                      ref={creatorRecoveryHeadingRef}
+                      id={`${creatorRecoverySectionId}-title`}
+                      className={styles.sectionTitle}
+                      tabIndex={-1}
+                    >
+                      Review the exact persisted request before Resume
+                    </h4>
+                  </div>
+                  <span className={styles.stateBadge}>{creatorRecoveryReview.status}</span>
+                </div>
+                <p className={styles.handoffBoundaryCopy}>
+                  Review reveals this bounded persisted request only. Resume is a separate acknowledged action that reconciles plan preparation; it does not approve a plan, call a provider, or execute generation.
+                </p>
+                <dl className={styles.handoffProvenance}>
+                  <div><dt>Operation</dt><dd>{creatorRecoveryReview.operation}</dd></div>
+                  <div><dt>Project ID</dt><dd>{creatorRecoveryReview.projectId}</dd></div>
+                  <div><dt>Project title</dt><dd>{creatorRecoveryReview.reviewedRequest.projectTitle}</dd></div>
+                  <div><dt>Reviewed brief</dt><dd>{creatorRecoveryReview.reviewedRequest.description}</dd></div>
+                  <div><dt>Source text edited</dt><dd>{creatorRecoveryReview.reviewedRequest.sourceTextEdited ? "Yes — the visible brief differs from the selected user message" : "No — the visible brief matches the selected user message"}</dd></div>
+                  <div><dt>Request digest</dt><dd>{creatorRecoveryReview.reviewedRequest.handoffRequestDigest}</dd></div>
+                  <div><dt>Record digest</dt><dd>{creatorRecoveryReview.recordDigest}</dd></div>
+                  {creatorRecoveryReview.revisionTarget ? (
+                    <div>
+                      <dt>Exact revision target</dt>
+                      <dd>{creatorRecoveryReview.revisionTarget.projectId} · artifact r{creatorRecoveryReview.revisionTarget.sourceArtifactRevision}</dd>
+                    </div>
+                  ) : null}
+                </dl>
+                <dl className={styles.handoffEnvelope} aria-label="Website Creator resume boundary">
+                  <div><dt>Provider</dt><dd>{CREATOR_MODEL_ENVELOPE.providerKey} ({CREATOR_MODEL_ENVELOPE.providerLabel})</dd></div>
+                  <div><dt>Model</dt><dd>{CREATOR_MODEL_ENVELOPE.modelKey} / {CREATOR_MODEL_ENVELOPE.runtimeModel}</dd></div>
+                  <div><dt>Data</dt><dd>{CREATOR_MODEL_ENVELOPE.providerLocality}</dd></div>
+                  <div><dt>Output limit</dt><dd>{CREATOR_MODEL_ENVELOPE.maximumOutputTokens} tokens</dd></div>
+                  <div><dt>Provider charge</dt><dd>USD {CREATOR_MODEL_ENVELOPE.estimatedProviderTokenChargeUsd}; local resources {CREATOR_MODEL_ENVELOPE.localResourceCost}</dd></div>
+                  <div><dt>Retry / fallback / substitution</dt><dd>{CREATOR_MODEL_ENVELOPE.retry} / {CREATOR_MODEL_ENVELOPE.fallback} / {CREATOR_MODEL_ENVELOPE.substitution}</dd></div>
+                </dl>
+                {creatorRecoveryReview.resumable ? (
+                  <>
+                    <label className={styles.handoffAcknowledgement}>
+                      <input
+                        type="checkbox"
+                        checked={creatorResumeAcknowledged}
+                        disabled={creatorHandoffBusy}
+                        aria-describedby={creatorHandoffBusy ? creatorRecoveryReasonId : undefined}
+                        onChange={(event) => setCreatorResumeAcknowledged(event.target.checked)}
+                      />
+                      I reviewed this exact persisted request. Resume only its plan preparation; do not approve or execute anything.
+                    </label>
+                    <div className={styles.buttonRow}>
+                      <button
+                        type="button"
+                        className={styles.primaryButton}
+                        disabled={creatorRecoveryDisabledReason !== null}
+                        aria-describedby={creatorRecoveryDisabledReason ? creatorRecoveryReasonId : undefined}
+                        onClick={() => void resumePreparingCreatorHandoff()}
+                      >
+                        Resume exact reviewed plan
+                      </button>
+                    </div>
+                  </>
+                ) : null}
+                <p id={creatorRecoveryReasonId} className={styles.disabledReason}>
+                  {creatorRecoveryDisabledReason ?? "Ready to resume this exact reviewed plan preparation. Approval and execution remain separate."}
+                </p>
+              </section>
+            ) : null}
+            {activeCreatorHandoff ? (
+              <dl className={styles.handoffProvenance}>
+                <div><dt>Operation</dt><dd>{activeCreatorHandoff.operation}</dd></div>
+                <div><dt>Project</dt><dd>{activeCreatorHandoff.projectId}</dd></div>
+                <div><dt>Source message</dt><dd>{activeCreatorHandoff.sourceMessageId}</dd></div>
+                <div><dt>Source digest</dt><dd>{activeCreatorHandoff.sourceMessageDigest}</dd></div>
+                <div><dt>Plan digest</dt><dd>{activeCreatorProjection?.planDigest ?? activeCreatorHandoff.resultingCreatorPlanDigest ?? "Loading exact project"}</dd></div>
+                <div><dt>Provider runs prepared</dt><dd>{activeCreatorProjection?.runBindingCount ?? 0}</dd></div>
+              </dl>
+            ) : null}
+          </section>
+
+          {activeCreatorProjectConfirmed && activeCreatorProjectId ? (
+            <div className={styles.embeddedCreator}>
+              <WebsiteCreatorPanel
+                key={activeCreatorProjectId}
+                initialProjectId={activeCreatorProjectId}
+                embedded
+              />
+            </div>
+          ) : null}
 
           <form className={styles.composer} onSubmit={(event) => { event.preventDefault(); void submitMessage(); }}>
             <label htmlFor="jarvis-chat-composer" className={styles.composerLabel}>
@@ -1036,6 +2063,16 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={handleComposerKeyDown}
             />
+            {!composerBlockedReason && draft.trim().length >= 3 ? (
+              <JarvisMemorySuggestions
+                key={conversation?.conversationId ?? "new-chat"}
+                draft={draft}
+                onUse={(nextDraft) => {
+                  setDraft(nextDraft);
+                  composerRef.current?.focus();
+                }}
+              />
+            ) : null}
             <div className={styles.composerFooter}>
               <p id="jarvis-chat-composer-help" className={styles.fieldHelp}>
                 Enter sends. Shift+Enter adds a line. {draft.length}/{MAX_MESSAGE_CHARACTERS} characters.
@@ -1131,16 +2168,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
                     className={styles.primaryButton}
                     disabled={mutationLocked}
                     aria-describedby={mutationLocked ? GLOBAL_BUSY_REASON_ID : undefined}
-                    onClick={() => void performConversationAction(
-                      "approve-turn",
-                      (active) => ({
-                        action: "approve-turn",
-                        expectedRevision: active.revision,
-                        approvalScopeHash: exactRunBinding.approvalScopeHash,
-                        acknowledgement: true,
-                      }),
-                      "Exact local run approved. Execution still requires a separate action."
-                    )}
+                    onClick={() => runBoundAction("approve-turn")}
                   >
                     Approve this run
                   </button>
@@ -1149,15 +2177,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
                     className={styles.dangerButton}
                     disabled={mutationLocked}
                     aria-describedby={mutationLocked ? GLOBAL_BUSY_REASON_ID : undefined}
-                    onClick={() => void performConversationAction(
-                      "cancel-turn",
-                      (active) => ({
-                        action: "cancel-turn",
-                        expectedRevision: active.revision,
-                        reason: "Canceled by the local operator before execution.",
-                      }),
-                      "Turn canceled before provider execution."
-                    )}
+                    onClick={cancelTurn}
                   >
                     Cancel turn
                   </button>
@@ -1176,16 +2196,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
                     className={styles.primaryButton}
                     disabled={executionReason !== null}
                     aria-describedby={executionReason ? EXECUTE_REASON_ID : undefined}
-                    onClick={() => void performConversationAction(
-                      "execute-turn",
-                      (active) => ({
-                        action: "execute-turn",
-                        expectedRevision: active.revision,
-                        approvalScopeHash: exactRunBinding.approvalScopeHash,
-                        acknowledgement: true,
-                      }),
-                      "One bounded local response attempt completed."
-                    )}
+                    onClick={() => runBoundAction("execute-turn")}
                   >
                     Execute one response
                   </button>
@@ -1194,15 +2205,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
                     className={styles.dangerButton}
                     disabled={mutationLocked}
                     aria-describedby={mutationLocked ? GLOBAL_BUSY_REASON_ID : undefined}
-                    onClick={() => void performConversationAction(
-                      "cancel-turn",
-                      (active) => ({
-                        action: "cancel-turn",
-                        expectedRevision: active.revision,
-                        reason: "Canceled by the local operator before execution.",
-                      }),
-                      "Approved turn canceled before provider execution."
-                    )}
+                    onClick={cancelTurn}
                   >
                     Cancel without executing
                   </button>
@@ -1237,14 +2240,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
                   className={styles.secondaryButton}
                   disabled={mutationLocked}
                   aria-describedby={globalBusy ? RECOVERY_REASON_ID : mutationLocked ? GLOBAL_BUSY_REASON_ID : undefined}
-                  onClick={() => void performConversationAction(
-                    "recover-turn",
-                    (active) => ({
-                      action: "recover-turn",
-                      expectedRevision: active.revision,
-                    }),
-                    "Interrupted local action reconciled from durable evidence."
-                  )}
+                  onClick={recoverTurn}
                 >
                   Recover interrupted action
                 </button>
@@ -1317,7 +2313,7 @@ export function JarvisChatPanel({ draftHandoff = null }: JarvisChatPanelProps = 
               {deleteOpen ? (
                 <form className={styles.deleteForm} onSubmit={confirmDelete}>
                   <p>
-                    This removes the local chat history. Any separately retained bounded Private Alpha run or audit provenance is unchanged under its existing safety lifecycle.
+                    This removes the local conversation display and history. Any separately retained bounded Private Alpha run/audit and committed Website Creator handoff/project evidence remains unchanged under its own safety lifecycle.
                   </p>
                   <label htmlFor="jarvis-chat-delete-confirmation">Type {DELETE_CONFIRMATION} to confirm</label>
                   <input

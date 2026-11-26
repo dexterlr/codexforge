@@ -178,9 +178,10 @@ $validation = Get-Text "src/lib/codexforge/creator/creator-validation.server.ts"
 $nativeFilesystemSource = Get-Text "src/lib/codexforge/creator/creator-native-filesystem.server.ts"
 $filesystemSource = Get-Text "src/lib/codexforge/creator/creator-filesystem.server.ts"
 $materialization = Get-Text "src/lib/codexforge/creator/creator-materialization.server.ts"
+$creatorPolicy = Get-Text "src/lib/codexforge/creator/creator-policy.ts"
 $previewRoute = Get-Text "src/app/api/codexforge/creator/preview/[projectId]/[previewId]/[revision]/[...filePath]/route.ts"
 $panel = Get-Text "src/lib/codexforge/creator/components/WebsiteCreatorPanel.tsx"
-Assert-Contains $panel '["Approval", ["approved", "awaiting_repair_approval", "repair_approved"]]' "D2 creator journey declares the exact repair-approved state without malformed syntax"
+Assert-Contains $panel '["Generation approval", ["awaiting_generation_approval", "approved", "awaiting_revision_generation_approval", "revision_generation_approved", "awaiting_repair_approval", "repair_approved"]]' "D2 creator journey declares the exact initial, revision, and repair approval states without malformed syntax"
 $panelCss = Get-Text "src/lib/codexforge/creator/components/WebsiteCreatorPanel.module.css"
 $jarvisPage = Get-Text "src/app/jarvis-websites/page-client.tsx"
 $athenaPage = Get-Text "src/app/athena/page.tsx"
@@ -239,26 +240,29 @@ Assert-Contains $previewRoute 'sandbox allow-scripts' "D2 preview response reinf
 Assert-Contains $previewRoute "connect-src 'none'" "D2 preview CSP blocks network connections"
 Assert-Contains $previewRoute 'X-Content-Type-Options' "D2 preview sends nosniff"
 Assert-Contains $previewRoute 'Cache-Control' "D2 preview disables caching"
-Assert-Contains $panel '<h1>Static Website/Browser App v0</h1>' "D2 creator route owns one exact H1"
+Assert-Contains $panel '<h1 id={surfaceTitleId}>Static Website/Browser App v0</h1>' "D2 standalone creator route owns one exact labelled H1"
 Assert-True ([regex]::Matches($panel, '<h1(?:\s|>)').Count -eq 1) "D2 creator panel contains exactly one H1"
+Assert-Contains $panel '<h2 id={surfaceTitleId}>Continue this Website Creator project</h2>' "D2 embedded creator uses an H2 and cannot add a second page H1"
 Assert-Contains $panel 'sandbox="allow-scripts"' "D2 iframe uses allow-scripts only"
 Assert-NotContains $panel "allow-same-origin" "D2 iframe never grants same-origin"
 Assert-Contains $panel "Back to Jarvis" "D2 focused surface returns to Jarvis"
-Assert-Contains $panel "4096 tokens" "D2 UI shows exact token limit"
-Assert-Contains $panel "Local machine" "D2 UI shows local data boundary"
+Assert-Contains $creatorPolicy "maximumOutputTokens: 4096" "D2 policy fixes the exact creator output token limit"
+Assert-Contains $panel '{CREATOR_MODEL_ENVELOPE.maximumOutputTokens} tokens' "D2 UI renders the exact policy-owned token limit"
+Assert-Contains $creatorPolicy 'providerLocality: "local-machine"' "D2 policy fixes the exact local-machine data boundary"
+Assert-Contains $panel '{CREATOR_MODEL_ENVELOPE.providerLocality}' "D2 UI renders the exact policy-owned local-machine boundary"
 Assert-Contains $panel "aria-describedby" "D2 disabled controls have associated explanations"
 $panelCompact = $panel -replace '\s+', ' '
-Assert-Contains $panelCompact 'aria-describedby={busy ? recoveryReasonId : undefined} disabled={busy}' "D2 recovery button retains its busy lock and conditionally references its exact disabled reason"
-Assert-Contains $panelCompact 'const recoveryReason = busy ? "This recovery action is unavailable while the current creator operation finishes." : "This recovery action resumes the exact persisted intent; it cannot create an additional provider attempt.";' "D2 recovery reason distinguishes the disabled busy state from the enabled recoverable state"
+Assert-Contains $panelCompact 'aria-describedby={operationBusy ? recoveryReasonId : undefined} disabled={operationBusy}' "D2 recovery button retains its aggregate operation lock and conditionally references its exact disabled reason"
+Assert-Contains $panelCompact 'const recoveryReason = operationBusy ? "This recovery action is unavailable while the current creator operation finishes." : "This recovery action resumes the exact persisted intent; it cannot create an additional provider attempt.";' "D2 recovery reason distinguishes the disabled aggregate-operation state from the enabled recoverable state"
 Assert-Contains $panelCompact 'const recoveryOwnsOrdinaryActions = recoveryAction !== null;' "D2 persisted recovery ownership gates ordinary creator actions"
 Assert-Contains $panelCompact 'pendingRecoveryIntent === null &&' "D2 cancellation supersession is unavailable after explicit recovery takes ownership"
-Assert-Contains $panelCompact 'disabled={busy || recoveryOwnsOrdinaryActions || project?.status !== "awaiting_generation_approval"}' "D2 generation approval cannot compete with an explicit recovery action"
+Assert-Contains $panelCompact 'disabled={operationBusy || recoveryOwnsOrdinaryActions || project?.status !== "awaiting_generation_approval"}' "D2 generation approval cannot compete with an explicit recovery or Stop action"
 Assert-Contains $panelCompact 'This action is unavailable while the explicit recovery action' "D2 recovery-owned ordinary controls expose an exact visible reason"
 Assert-True ([regex]::Matches($panel, 'id=\{recoveryReasonId\}').Count -eq 1) "D2 recovery explanation ID target exists exactly once"
 Assert-Contains $panelCompact '<p id={recoveryReasonId} className={styles.actionReason}>{recoveryReason}</p>' "D2 recovery explanation is visible and is not hidden from assistive technology"
-Assert-Contains $panelCompact 'aria-describedby={busy ? newRequestReasonId : undefined} disabled={busy}' "D2 new-request busy lock has an exact conditional disabled reason"
-Assert-Contains $panelCompact 'aria-describedby={busy || Boolean(project) ? titleDisabledReasonId : undefined} disabled={busy || Boolean(project)}' "D2 title lock has an exact busy-or-existing-project reason"
-Assert-Contains $panelCompact 'aria-describedby={busy || Boolean(project) ? descriptionDisabledReasonId : undefined} disabled={busy || Boolean(project)}' "D2 description lock has an exact busy-or-existing-project reason"
+Assert-Contains $panelCompact 'aria-describedby={operationBusy ? newRequestReasonId : undefined} disabled={operationBusy}' "D2 new-request operation lock has an exact conditional disabled reason"
+Assert-Contains $panelCompact 'aria-describedby={operationBusy || Boolean(project) ? titleDisabledReasonId : undefined} disabled={operationBusy || Boolean(project)}' "D2 title lock has an exact operation-or-existing-project reason"
+Assert-Contains $panelCompact 'aria-describedby={operationBusy || Boolean(project) ? descriptionDisabledReasonId : undefined} disabled={operationBusy || Boolean(project)}' "D2 description lock has an exact operation-or-existing-project reason"
 Assert-Contains $panelCompact '? "The single repair attempt has already been used; another repair cannot be requested in v0."' "D2 repair reason explains the one-attempt cap"
 Assert-Contains $panelCompact '? `Repair is unavailable while the project is ${STATUS_LABELS[project.status].toLowerCase()}.`' "D2 repair reason explains an incompatible lifecycle state"
 Assert-Contains $panelCompact '? "Repair requires at least one validation finding and never runs automatically."' "D2 repair reason explains the validation-finding gate"
@@ -267,10 +271,10 @@ Assert-Contains $panelCompact '? "This creator project is already canceled."' "D
 Assert-Contains $panelCompact '? "This creator project is already exported; start a new creator request to continue."' "D2 cancel reason explains the exported state"
 Assert-Contains $panelCompact '? "Cancellation is unavailable while validation or publication recovery is in progress."' "D2 cancel reason distinguishes validation from provider execution"
 Assert-Contains $panel 'const REVIEW_PLAN_EXPLANATION_ID = "codexforge-creator-review-plan-explanation";' "D2 review-plan explanation uses one stable ID constant"
-Assert-Contains $panelCompact '<button className={styles.primaryButton} type="submit" aria-describedby={busy || Boolean(project) ? REVIEW_PLAN_EXPLANATION_ID : undefined} disabled={busy || Boolean(project)} >' "D2 review-plan disabled behavior has an exact conditional description association"
+Assert-Contains $panelCompact '<button className={styles.primaryButton} type="submit" aria-describedby={operationBusy || Boolean(project) ? REVIEW_PLAN_EXPLANATION_ID : undefined} disabled={operationBusy || Boolean(project)} >' "D2 review-plan disabled behavior has an exact conditional description association"
 Assert-True ([regex]::Matches($panel, 'id=\{REVIEW_PLAN_EXPLANATION_ID\}').Count -eq 1) "D2 review-plan explanation ID target exists exactly once"
 Assert-Contains $panelCompact '<p id={REVIEW_PLAN_EXPLANATION_ID} className={styles.actionReason}>{reviewPlanExplanation}</p>' "D2 review-plan explanation is a visible paragraph without hidden attributes"
-Assert-Contains $panelCompact 'const reviewPlanExplanation = busy ? "An exact creator operation is currently in progress."' "D2 review-plan explanation distinguishes an operation currently being busy"
+Assert-Contains $panelCompact 'const reviewPlanExplanation = operationBusy ? "An exact creator operation is currently in progress."' "D2 review-plan explanation distinguishes an exact creator or Stop operation currently being busy"
 Assert-Contains $panelCompact ': project ? "An exact creation plan already exists for this project. Continue with its approval and execution controls below."' "D2 review-plan explanation distinguishes an existing project and plan"
 Assert-Contains $panelCompact ': "Submitting prepares the exact bounded plan; it does not approve or execute generation.";' "D2 review-plan explanation truthfully describes the enabled boundary"
 Assert-Contains $panelCompact 'candidate.stateRevision < latest.stateRevision' "D2 client rejects an older same-project replay snapshot"
@@ -495,12 +499,12 @@ function auditPanelDisabledDescriptions() {
     ts.forEachChild(node, visit);
   }
   visit(panelTree);
-  assert(disabledControls.length === 14, "D2 panel exposes the exact 14 disable-capable controls");
+  assert(disabledControls.length === 23, "D2 panel exposes the exact 23 disable-capable controls");
   assert(
-    disabledControls.filter((control) => control.tag === "button").length === 12 &&
+    disabledControls.filter((control) => control.tag === "button").length === 20 &&
       disabledControls.filter((control) => control.tag === "input").length === 1 &&
-      disabledControls.filter((control) => control.tag === "textarea").length === 1,
-    "D2 disabled-control inventory is 12 buttons, one input, and one textarea"
+      disabledControls.filter((control) => control.tag === "textarea").length === 2,
+    "D2 disabled-control inventory is 20 buttons, one input, and two textareas"
   );
   const reasonSymbols = disabledControls.map((control) => control.reasonSymbol);
   assert(
@@ -669,6 +673,7 @@ function creatorPanelProject(status, overrides = {}) {
     materializations: overrides.materializations || [],
     preview,
     repair: overrides.repair || null,
+    revisionRequests: overrides.revisionRequests || [],
     exportManifest: overrides.exportManifest || null,
     auditEvents: intent ? [intent] : [],
     idempotencyRecords: [],
@@ -744,7 +749,16 @@ async function runWebsiteCreatorPanelBehaviorTests() {
   const apiMock = {
     buildCreatorClientIdempotencyKey() { keySequence += 1; return `component-idempotency-key-${keySequence}`; },
     async createCreatorProject(input, key) { createCalls.push({ input, key }); return createImplementation(input, key); },
-    async actOnCreatorProject(projectId, action, revision, key) { actionCalls.push({ projectId, action, revision, key }); return actionImplementation(projectId, action, revision, key); },
+    async actOnCreatorProject(projectId, input, key) {
+      actionCalls.push({
+        projectId,
+        input,
+        action: input.action,
+        revision: input.expectedRevision,
+        key,
+      });
+      return actionImplementation(projectId, input, key);
+    },
     async fetchCreatorProject(projectId) { return fetchImplementation(projectId); },
   };
   const priorLoad = Module._load;
@@ -761,17 +775,20 @@ async function runWebsiteCreatorPanelBehaviorTests() {
     delete require.cache[panelResolved];
     const { WebsiteCreatorPanel } = require(panelPath);
     const statuses = [
-      "draft", "awaiting_generation_approval", "approved", "generating", "validating",
-      "rejected_output", "ready", "preview_available", "repair_requested",
-      "awaiting_repair_approval", "repair_approved", "repairing", "failed", "canceled", "exported",
+      "draft", "awaiting_plan_approval", "awaiting_generation_approval", "approved",
+      "generating", "validating", "rejected_output", "ready", "preview_available",
+      "awaiting_revision_plan_approval", "awaiting_revision_generation_approval",
+      "revision_generation_approved", "revising", "stopping", "stopped",
+      "repair_requested", "awaiting_repair_approval", "repair_approved", "repairing",
+      "failed", "canceled", "exported",
     ];
     for (const status of statuses) {
       for (const busy of [false, true]) {
         activeRunner = createHookRunner();
         activeRunner.render(WebsiteCreatorPanel);
-        activeRunner.states[2] = creatorPanelProject(status);
-        activeRunner.states[3] = busy;
-        activeRunner.states[4] = busy ? "Completing one exact creator operation" : "";
+        activeRunner.states[3] = creatorPanelProject(status);
+        activeRunner.states[4] = busy;
+        activeRunner.states[5] = busy ? "Completing one exact creator operation" : "";
         const tree = activeRunner.render(WebsiteCreatorPanel);
         const audit = assertDisabledControlDescriptions(tree, `${status}/${busy ? "busy" : "idle"}`);
         assert(audit.disabledControls.length > 0, `${status}/${busy ? "busy" : "idle"}: disabled-control matrix exercises a real disabled state`);
@@ -781,8 +798,8 @@ async function runWebsiteCreatorPanelBehaviorTests() {
     for (const status of ["generating", "repairing", "validating", "repair_requested"]) {
       activeRunner = createHookRunner();
       activeRunner.render(WebsiteCreatorPanel);
-      activeRunner.states[2] = creatorPanelProject(status);
-      activeRunner.states[3] = true;
+      activeRunner.states[3] = creatorPanelProject(status);
+      activeRunner.states[4] = true;
       let tree = activeRunner.render(WebsiteCreatorPanel);
       const recoveryButton = collectElements(tree, (element) => element.type === "button" && elementText(element).includes("Resume"))[0];
       assert(recoveryButton?.props.disabled === true, `${status}: rendered recovery action retains its busy lock`);
@@ -790,7 +807,7 @@ async function runWebsiteCreatorPanelBehaviorTests() {
       const recoveryTargets = collectElements(tree, (element) => element.props.id === recoveryId);
       assert(recoveryTargets.length === 1, `${status}: busy recovery action references one exact rendered explanation`);
       assert(elementText(recoveryTargets[0]).trim() === "This recovery action is unavailable while the current creator operation finishes.", `${status}: busy recovery explanation is exact and recovery-specific`);
-      activeRunner.states[3] = false;
+      activeRunner.states[4] = false;
       tree = activeRunner.render(WebsiteCreatorPanel);
       const idleRecoveryButton = collectElements(tree, (element) => element.type === "button" && elementText(element).includes("Resume"))[0];
       assert(idleRecoveryButton?.props.disabled === false, `${status}: recovery action is enabled when no creator operation is busy`);
@@ -821,7 +838,7 @@ async function runWebsiteCreatorPanelBehaviorTests() {
     };
     activeRunner = createHookRunner();
     activeRunner.render(WebsiteCreatorPanel);
-    activeRunner.states[2] = creatorPanelProject("awaiting_generation_approval", {
+    activeRunner.states[3] = creatorPanelProject("awaiting_generation_approval", {
       stateRevision: 8,
       runBindings: [{ purpose: "generation", sourceRunId: interruptedApprovalEvent.sourceRunId }],
       auditEvents: [interruptedApprovalEvent, explicitRecoveryEvent],
@@ -829,7 +846,7 @@ async function runWebsiteCreatorPanelBehaviorTests() {
     let recoveryOwnershipTree = activeRunner.render(WebsiteCreatorPanel);
     const ownedRecoveryButton = collectElements(
       recoveryOwnershipTree,
-      (element) => element.type === "button" && elementText(element).includes("Resume recorded manual approval")
+      (element) => element.type === "button" && elementText(element).includes("Resume recorded generation approval")
     )[0];
     const ownedApprovalButton = collectElements(
       recoveryOwnershipTree,
@@ -852,7 +869,7 @@ async function runWebsiteCreatorPanelBehaviorTests() {
         ownedApprovalButton?.props.disabled === true &&
         ownedCancelButton?.props.disabled === true &&
         elementText(ownedApprovalReason).includes("explicit recovery action") &&
-        elementText(ownedApprovalReason).includes("Resume recorded manual approval") &&
+        elementText(ownedApprovalReason).includes("Resume recorded generation approval") &&
         elementText(ownedCancelReason).includes("explicit recovery action"),
       "explicit recovery ownership enables only recovery and gives competing approval/cancellation exact visible reasons"
     );
@@ -863,7 +880,7 @@ async function runWebsiteCreatorPanelBehaviorTests() {
 
     activeRunner = createHookRunner();
     activeRunner.render(WebsiteCreatorPanel);
-    activeRunner.states[2] = creatorPanelProject("awaiting_generation_approval", {
+    activeRunner.states[3] = creatorPanelProject("awaiting_generation_approval", {
       runBindings: [{ purpose: "generation", sourceRunId: interruptedApprovalEvent.sourceRunId }],
       auditEvents: [interruptedApprovalEvent],
     });
@@ -894,7 +911,7 @@ async function runWebsiteCreatorPanelBehaviorTests() {
     });
     activeRunner = createHookRunner();
     activeRunner.render(WebsiteCreatorPanel);
-    activeRunner.states[2] = creatorPanelProject("generating");
+    activeRunner.states[3] = creatorPanelProject("generating");
     const explicitRecoveryTree = activeRunner.render(WebsiteCreatorPanel);
     const explicitRecoveryButton = collectElements(explicitRecoveryTree, (element) => element.type === "button" && elementText(element).includes("Resume recorded generation"))[0];
     await explicitRecoveryButton.props.onClick();
@@ -908,13 +925,13 @@ async function runWebsiteCreatorPanelBehaviorTests() {
 
     activeRunner = createHookRunner();
     let tree = activeRunner.render(WebsiteCreatorPanel);
-    activeRunner.states[3] = true;
+    activeRunner.states[4] = true;
     tree = activeRunner.render(WebsiteCreatorPanel);
     let reviewButton = collectElements(tree, (element) => element.type === "button" && elementText(element).trim() === "Review exact creation plan")[0];
     let reviewReason = collectElements(tree, (element) => element.props.id === reviewButton.props["aria-describedby"])[0];
     assert(reviewButton.props.disabled === true && elementText(reviewReason).trim() === "An exact creator operation is currently in progress.", "busy review-plan button has its exact visible operation-in-progress reason");
-    activeRunner.states[3] = false;
-    activeRunner.states[2] = creatorPanelProject("awaiting_generation_approval");
+    activeRunner.states[4] = false;
+    activeRunner.states[3] = creatorPanelProject("awaiting_generation_approval");
     tree = activeRunner.render(WebsiteCreatorPanel);
     reviewButton = collectElements(tree, (element) => element.type === "button" && elementText(element).trim() === "Review exact creation plan")[0];
     reviewReason = collectElements(tree, (element) => element.props.id === reviewButton.props["aria-describedby"])[0];
@@ -968,7 +985,7 @@ async function runWebsiteCreatorPanelBehaviorTests() {
     const suppressionKey = `codexforge.creator.preview-suppressed.v1:${activePreview.identity.projectId}:${activePreview.preview.previewId}`;
     activeRunner = createHookRunner();
     activeRunner.render(WebsiteCreatorPanel);
-    activeRunner.states[2] = activePreview;
+    activeRunner.states[3] = activePreview;
     tree = activeRunner.render(WebsiteCreatorPanel);
     assert(collectElements(tree, (element) => element.type === "iframe").length === 1, "active preview initially renders one sandbox iframe");
     const stopDeferred = createDeferred();
@@ -994,7 +1011,7 @@ async function runWebsiteCreatorPanelBehaviorTests() {
     const cancelPreview = creatorPanelProject("ready", { preview: activePreview.preview });
     activeRunner = createHookRunner();
     activeRunner.render(WebsiteCreatorPanel);
-    activeRunner.states[2] = cancelPreview;
+    activeRunner.states[3] = cancelPreview;
     tree = activeRunner.render(WebsiteCreatorPanel);
     const cancelDeferred = createDeferred();
     actionImplementation = async () => cancelDeferred.promise;
@@ -1007,8 +1024,8 @@ async function runWebsiteCreatorPanelBehaviorTests() {
 
     const inactiveOldPreview = creatorPanelProject("ready", { preview: { ...activePreview.preview, status: "inactive" } });
     const newlyStarted = creatorPanelProject("preview_available", { preview: { ...activePreview.preview, previewId: "preview-000000000002" } });
-    activeRunner.states[2] = inactiveOldPreview;
-    activeRunner.states[3] = false;
+    activeRunner.states[3] = inactiveOldPreview;
+    activeRunner.states[4] = false;
     tree = activeRunner.render(WebsiteCreatorPanel);
     actionImplementation = async () => ({ project: newlyStarted });
     const startButton = collectElements(tree, (element) => element.type === "button" && elementText(element).trim() === "Start preview")[0];
@@ -1030,7 +1047,7 @@ async function runWebsiteCreatorPanelBehaviorTests() {
     });
     activeRunner = createHookRunner();
     activeRunner.render(WebsiteCreatorPanel);
-    activeRunner.states[2] = stoppedCurrentPreview;
+    activeRunner.states[3] = stoppedCurrentPreview;
     tree = activeRunner.render(WebsiteCreatorPanel);
     actionImplementation = async () => ({ project: staleHistoricalPreview, replayed: true });
     actionCalls = [];
@@ -1038,9 +1055,9 @@ async function runWebsiteCreatorPanelBehaviorTests() {
     await staleStartButton.props.onClick();
     tree = activeRunner.render(WebsiteCreatorPanel);
     assert(
-      activeRunner.states[2].stateRevision === 10 &&
-        activeRunner.states[2].status === "ready" &&
-        activeRunner.states[2].preview.status === "stopped" &&
+      activeRunner.states[3].stateRevision === 10 &&
+        activeRunner.states[3].status === "ready" &&
+        activeRunner.states[3].preview.status === "stopped" &&
         collectElements(tree, (element) => element.type === "iframe").length === 0,
       "older idempotent replay cannot regress a newer stopped-preview snapshot or resurrect generated content"
     );
@@ -1056,7 +1073,7 @@ async function runWebsiteCreatorPanelBehaviorTests() {
     };
     activeRunner = createHookRunner();
     activeRunner.render(WebsiteCreatorPanel);
-    activeRunner.states[2] = creatorPanelProject("exported", { exportManifest: longManifest });
+    activeRunner.states[3] = creatorPanelProject("exported", { exportManifest: longManifest });
     tree = activeRunner.render(WebsiteCreatorPanel);
     const longDownload = collectElements(tree, (element) => element.type === "a" && elementText(element).includes(longPath))[0];
     assert(longDownload && longDownload.props.href.endsWith(longPath.split("/").map(encodeURIComponent).join("/")), "maximum-style nested export paths render as exact safe per-segment download links");
@@ -1364,31 +1381,58 @@ async function main() {
     delete require.cache[require.resolve(runtimeModulePath)];
     const firstRuntimeModule = require(runtimeModulePath);
     const firstRuntimeService = firstRuntimeModule.getCreatorRuntimeService();
-    const runtimeRegistryDescriptor = Object.getOwnPropertyDescriptor(
+    const firstRuntimePersistence = firstRuntimeModule.getCreatorRuntimePersistence();
+    const runtimeServiceRegistryDescriptor = Object.getOwnPropertyDescriptor(
       process,
-      Symbol.for("codexforge.creator.runtime-service-registry.v1")
+      Symbol.for("codexforge.creator.runtime-service-registry.v7")
+    );
+    const runtimePersistenceRegistryDescriptor = Object.getOwnPropertyDescriptor(
+      process,
+      Symbol.for("codexforge.creator.runtime-persistence-registry.v3")
     );
     assert(
-      runtimeRegistryDescriptor &&
-        runtimeRegistryDescriptor.configurable === false &&
-        runtimeRegistryDescriptor.enumerable === false &&
-        runtimeRegistryDescriptor.writable === false &&
-        Object.isFrozen(runtimeRegistryDescriptor.value),
-      "creator runtime registry is one nonenumerable nonconfigurable nonwritable frozen process property"
+      runtimeServiceRegistryDescriptor &&
+        runtimeServiceRegistryDescriptor.configurable === false &&
+        runtimeServiceRegistryDescriptor.enumerable === false &&
+        runtimeServiceRegistryDescriptor.writable === false &&
+        Object.isFrozen(runtimeServiceRegistryDescriptor.value) &&
+        runtimeServiceRegistryDescriptor.value.version === 7,
+      "creator runtime service registry is one nonenumerable nonconfigurable nonwritable frozen v7 process property"
+    );
+    assert(
+      runtimePersistenceRegistryDescriptor &&
+        runtimePersistenceRegistryDescriptor.configurable === false &&
+        runtimePersistenceRegistryDescriptor.enumerable === false &&
+        runtimePersistenceRegistryDescriptor.writable === false &&
+        Object.isFrozen(runtimePersistenceRegistryDescriptor.value) &&
+        runtimePersistenceRegistryDescriptor.value.version === 3 &&
+        firstRuntimePersistence.schemaVersion === 3,
+      "creator runtime persistence registry is one nonenumerable nonconfigurable nonwritable frozen v3 process property with one schema-v3 decoder facade"
     );
     delete require.cache[require.resolve(runtimeModulePath)];
     const reloadedRuntimeModule = require(runtimeModulePath);
     const reloadedRuntimeService = reloadedRuntimeModule.getCreatorRuntimeService();
+    const reloadedRuntimePersistence = reloadedRuntimeModule.getCreatorRuntimePersistence();
     assert(
       reloadedRuntimeService === firstRuntimeService,
       "Next-style server-module reload reuses one exact creator service and its trusted native-root handles"
     );
+    assert(
+      reloadedRuntimePersistence === firstRuntimePersistence,
+      "Next-style server-module reload reuses the exact authoritative creator persistence and trusted root identity"
+    );
     setRuntimeEnvironment("CODEXFORGE_CREATOR_DETERMINISTIC_TEST_SUFFIX", "macro-d2-runtime-reload-other");
     delete require.cache[require.resolve(runtimeModulePath)];
-    const separateRuntimeService = require(runtimeModulePath).getCreatorRuntimeService();
+    const separateRuntimeModule = require(runtimeModulePath);
+    const separateRuntimeService = separateRuntimeModule.getCreatorRuntimeService();
+    const separateRuntimePersistence = separateRuntimeModule.getCreatorRuntimePersistence();
     assert(
       separateRuntimeService !== firstRuntimeService,
       "different deterministic runtime suffixes never alias one creator service"
+    );
+    assert(
+      separateRuntimePersistence !== firstRuntimePersistence,
+      "different deterministic runtime suffixes never alias one creator persistence"
     );
   } finally {
     if (priorDeterministicMode === undefined) delete process.env.CODEXFORGE_CREATOR_DETERMINISTIC_TEST_MODE;
@@ -1499,6 +1543,87 @@ async function main() {
       { path: "styles.css", mediaType: "text/css", content: css },
     ], title);
   }
+  function providerPage(title, includeFooter, overrides = {}) {
+    return {
+      contractVersion: "codexforge.creator.page.v1",
+      projectTitle: title,
+      creatorKind: "website-browser-app",
+      page: {
+        language: "en",
+        primaryHeading: title,
+        headerContent: "<p>Local static creator</p>",
+        navigationContent: null,
+        mainContent: '<button id="hello" type="button">Say hello</button>',
+        footerContent: includeFooter ? "<p>Built locally</p>" : null,
+        ...(overrides.page || {}),
+      },
+      files: overrides.files || [
+        { path: "app.js", mediaType: "text/javascript", content: appJs },
+        { path: "styles.css", mediaType: "text/css", content: css },
+      ],
+    };
+  }
+  function escapeFixtureHtmlText(value) {
+    return value
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+  function composedProviderBundle(pageResponse) {
+    const cssPaths = pageResponse.files
+      .filter((file) => file.path.endsWith(".css"))
+      .map((file) => file.path)
+      .sort();
+    const scriptPaths = pageResponse.files
+      .filter((file) => file.path.endsWith(".js"))
+      .map((file) => file.path)
+      .sort();
+    const headerLines = [
+      "<header>",
+      `<h1>${escapeFixtureHtmlText(pageResponse.page.primaryHeading)}</h1>`,
+    ];
+    if (pageResponse.page.headerContent !== null) {
+      headerLines.push(pageResponse.page.headerContent);
+    }
+    if (pageResponse.page.navigationContent !== null) {
+      headerLines.push("<nav>", pageResponse.page.navigationContent, "</nav>");
+    }
+    headerLines.push("</header>");
+    const footerLines = pageResponse.page.footerContent === null
+      ? []
+      : ["<footer>", pageResponse.page.footerContent, "</footer>"];
+    const canonicalHtml = [
+      "<!doctype html>",
+      `<html lang="${pageResponse.page.language}">`,
+      "<head>",
+      '<meta charset="utf-8">',
+      '<meta name="viewport" content="width=device-width, initial-scale=1">',
+      `<title>${escapeFixtureHtmlText(pageResponse.projectTitle)}</title>`,
+      ...cssPaths.map((filePath) => `<link rel="stylesheet" href="${filePath}">`),
+      "</head>",
+      "<body>",
+      "<main>",
+      ...headerLines,
+      pageResponse.page.mainContent,
+      "</main>",
+      ...footerLines,
+      ...scriptPaths.map((filePath) => `<script src="${filePath}" defer></script>`),
+      "</body>",
+      "</html>",
+    ].join("\n");
+    return bundle([
+      htmlFile(canonicalHtml),
+      ...[...pageResponse.files].sort((left, right) =>
+        left.path < right.path ? -1 : left.path > right.path ? 1 : 0
+      ),
+    ], pageResponse.projectTitle);
+  }
+  const warningProviderPage = providerPage("D2 Builder Site", false);
+  const replacementProviderPage = providerPage("D2 Builder Site", true);
+  const warningProviderBundle = composedProviderBundle(warningProviderPage);
+  const replacementProviderBundle = composedProviderBundle(replacementProviderPage);
   const viewportMarkup = '<meta name="viewport" content="width=device-width, initial-scale=1">';
   const voidElementCases = [
     { name: "br", kind: "unterminated-void-br", placement: "body", validOpening: "<br", extraFiles: [] },
@@ -1617,6 +1742,80 @@ async function main() {
       ], title);
     }
     throw new Error(`Unknown invalid policy fixture: ${kind}`);
+  }
+  function invalidProviderPage(title, kind) {
+    if (kind === "unknown-root-key") {
+      return {
+        ...providerPage(title, true),
+        [`forbidden-${"x".repeat(60000)}\u202e`]: true,
+      };
+    }
+    if (kind === "unknown-file-key") {
+      const page = providerPage(title, true);
+      return {
+        ...page,
+        files: [{
+          ...page.files[0],
+          [`forbidden-${"y".repeat(60000)}\u2066`]: true,
+        }, ...page.files.slice(1)],
+      };
+    }
+    if (kind === "file-count") {
+      return providerPage(title, true, {
+        files: Array.from({ length: 12 }, (_, index) => ({
+          path: `file-${String(index).padStart(2, "0")}.txt`,
+          mediaType: "text/plain",
+          content: "x",
+        })),
+      });
+    }
+    if (kind === "individual-size") {
+      return providerPage(title, true, {
+        files: [{ path: "large.txt", mediaType: "text/plain", content: "x".repeat(24577) }],
+      });
+    }
+    if (kind === "aggregate-size") {
+      return providerPage(title, true, {
+        files: [
+          { path: "a.txt", mediaType: "text/plain", content: "a".repeat(24450) },
+          { path: "b.txt", mediaType: "text/plain", content: "b".repeat(24450) },
+        ],
+      });
+    }
+    if (kind === "invalid-path") {
+      return providerPage(title, true, {
+        files: [{ path: "", mediaType: "text/plain", content: "x" }],
+      });
+    }
+    if (kind === "js-alias-recursion") {
+      return providerPage(title, true, {
+        files: [{ path: "app.js", mediaType: "text/javascript", content: "function update() { const again = update; again(); } update();" }],
+      });
+    }
+    if (kind === "svg-escaped-url") {
+      return providerPage(title, true, {
+        page: { mainContent: '<img src="icon.svg" alt="Local icon">' },
+        files: [{ path: "icon.svg", mediaType: "image/svg+xml", content: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><path d="M0 0h10v10z" fill="u\\72l(h\\74tps:\\2f\\2fevil.example/a.svg)"/></svg>' }],
+      });
+    }
+    if (kind === "css-hidden-required") {
+      return providerPage(title, true, {
+        files: [{ path: "styles.css", mediaType: "text/css", content: ".gone, h1 { display: none; }" }],
+      });
+    }
+    const unterminatedVoid = voidElementCases.find((fixture) => fixture.kind === kind);
+    if (unterminatedVoid) {
+      return providerPage(title, true, {
+        page: { mainContent: `<${unterminatedVoid.name}` },
+        files: [],
+      });
+    }
+    throw new Error(`Unknown invalid provider-page fixture: ${kind}`);
+  }
+  function providerJourneyIssueCode(fixture) {
+    if (fixture.kind === "file-count") return "contract.files_count";
+    if (fixture.kind.startsWith("unterminated-void-")) return "topology.fragment_syntax";
+    return fixture.issueCode;
   }
   const invalidPolicyCases = [
     {
@@ -2893,51 +3092,51 @@ async function main() {
   assertIssue(output(bundle([htmlFile(baseHtml({ body: '<img src="missing.svg" alt="Missing">' }))])), "reference.missing_or_unsafe", "broken local references are rejected");
 
   const fixtureOutputs = [
-    output(warningBundle),
-    output(replacementBundle),
-    output(titledBundle("D2 Generation Crash Recovery Site", true)),
-    output(titledBundle("D2 Repair Crash Recovery Site", false)),
-    output(titledBundle("D2 Repair Crash Recovery Site", true)),
-    output(titledBundle("D2 Failed Repair Recovery Site", false)),
+    output(warningProviderPage),
+    output(replacementProviderPage),
+    output(providerPage("D2 Generation Crash Recovery Site", true)),
+    output(providerPage("D2 Repair Crash Recovery Site", false)),
+    output(providerPage("D2 Repair Crash Recovery Site", true)),
+    output(providerPage("D2 Failed Repair Recovery Site", false)),
     "{",
-    output(titledBundle("D2 Repair Capacity Site", false)),
-    output(titledBundle("D2 Corrupt Orphan Recovery Site", true)),
+    output(providerPage("D2 Repair Capacity Site", false)),
+    output(providerPage("D2 Corrupt Orphan Recovery Site", true)),
     ...invalidPolicyCases.map((fixture) =>
-      output(invalidPolicyBundle(fixture.generationTitle, fixture.kind))
+      output(invalidProviderPage(fixture.generationTitle, fixture.kind))
     ),
     ...invalidPolicyCases.flatMap((fixture) => [
-      output(titledBundle(fixture.repairTitle, false)),
-      output(invalidPolicyBundle(fixture.repairTitle, fixture.kind)),
+      output(providerPage(fixture.repairTitle, false)),
+      output(invalidProviderPage(fixture.repairTitle, fixture.kind)),
     ]),
-    output(invalidPolicyBundle("D2 Invalid Generation Persistence Site", "file-count")),
-    output(titledBundle("D2 Invalid Repair Persistence Site", false)),
-    output(invalidPolicyBundle("D2 Invalid Repair Persistence Site", "invalid-path")),
-    output(invalidPolicyBundle("D2 Invalid Terminal Mismatch Site", "aggregate-size")),
-    output(titledBundle("D2 Post Validation Kill Generation Site", true)),
-    output(titledBundle("D2 Post Validation Kill Repair Site", false)),
-    output(titledBundle("D2 Post Validation Kill Repair Site", true)),
-    output(titledBundle("D2 Orphan Missing Audit Reference Site", true)),
-    output(titledBundle("D2 Orphan Extra Audit Reference Site", true)),
-    output(titledBundle("D2 Orphan Reordered Audit Reference Site", true)),
-    output(titledBundle("D2 Orphan Timestamp Mismatch Site", true)),
-    output(titledBundle("D2 Ready Cancellation Provenance Site", true)),
-    output(titledBundle("D2 Preview Cancellation Provenance Site", true)),
-    output(titledBundle("D2 Post Rename Reconciliation Site", true)),
-    output(titledBundle("D2 Run Output Binding Site", true)),
-    output(titledBundle("D2 Run Output Hash Binding Site", true)),
-    output(titledBundle("D2 Contradictory Lifecycle Result Site", true)),
-    output(titledBundle("D2 framed-v1 Execution Downgrade Site", true)),
-    output(titledBundle("D2 raw-v1 Execution Downgrade Site", true)),
-    output(titledBundle("D2 Lost Generation Response Site", true)),
-    output(titledBundle("D2 Independent Clock Rollback Site", true)),
-    output(titledBundle("D2 Lost Repair Response Site", false)),
-    output(titledBundle("D2 Lost Repair Response Site", true)),
-    output(titledBundle("D2 Unconfirmed Execution Recovery Site", true)),
-    output(titledBundle("D2 Preview Capacity Journey Site", true)),
-    output(titledBundle("D2 Repair Capacity Journey Site", false)),
-    output(titledBundle("D2 Repair Capacity Journey Site", true)),
-    output(titledBundle("D2 Ambiguous Repair Binding Site", false)),
-    output(titledBundle("D2 Lost Repair Approval Site", false)),
+    output(invalidProviderPage("D2 Invalid Generation Persistence Site", "file-count")),
+    output(providerPage("D2 Invalid Repair Persistence Site", false)),
+    output(invalidProviderPage("D2 Invalid Repair Persistence Site", "invalid-path")),
+    output(invalidProviderPage("D2 Invalid Terminal Mismatch Site", "aggregate-size")),
+    output(providerPage("D2 Post Validation Kill Generation Site", true)),
+    output(providerPage("D2 Post Validation Kill Repair Site", false)),
+    output(providerPage("D2 Post Validation Kill Repair Site", true)),
+    output(providerPage("D2 Orphan Missing Audit Reference Site", true)),
+    output(providerPage("D2 Orphan Extra Audit Reference Site", true)),
+    output(providerPage("D2 Orphan Reordered Audit Reference Site", true)),
+    output(providerPage("D2 Orphan Timestamp Mismatch Site", true)),
+    output(providerPage("D2 Ready Cancellation Provenance Site", true)),
+    output(providerPage("D2 Preview Cancellation Provenance Site", true)),
+    output(providerPage("D2 Post Rename Reconciliation Site", true)),
+    output(providerPage("D2 Run Output Binding Site", true)),
+    output(providerPage("D2 Run Output Hash Binding Site", true)),
+    output(providerPage("D2 Contradictory Lifecycle Result Site", true)),
+    output(providerPage("D2 framed-v1 Execution Downgrade Site", true)),
+    output(providerPage("D2 raw-v1 Execution Downgrade Site", true)),
+    output(providerPage("D2 Lost Generation Response Site", true)),
+    output(providerPage("D2 Independent Clock Rollback Site", true)),
+    output(providerPage("D2 Lost Repair Response Site", false)),
+    output(providerPage("D2 Lost Repair Response Site", true)),
+    output(providerPage("D2 Unconfirmed Execution Recovery Site", true)),
+    output(providerPage("D2 Preview Capacity Journey Site", true)),
+    output(providerPage("D2 Repair Capacity Journey Site", false)),
+    output(providerPage("D2 Repair Capacity Journey Site", true)),
+    output(providerPage("D2 Ambiguous Repair Binding Site", false)),
+    output(providerPage("D2 Lost Repair Approval Site", false)),
   ];
   const fixtureAdapter = {
     identity: {
@@ -2958,7 +3157,11 @@ async function main() {
     async generateApprovedText(input) {
       const current = fixtureOutputs[fixtureDeliveries];
       assert(input.model === "gpt-oss:20b" && input.maximumOutputTokens === 4096, "fixture boundary receives the exact approved runtime model envelope");
-      assert(input.approvedRequestText.includes("codexforge.creator.bundle.v1"), "fixture boundary receives the exact creator contract instruction");
+      assert(
+        input.approvedRequestText.includes("codexforge.creator.page.v1") &&
+          input.approvedRequestText.includes("Do not return index.html or any .html file."),
+        "fixture boundary receives the exact server-owned page-content contract instruction"
+      );
       if (!current) throw new Error("No additional fixture output is authorized");
       fixtureDeliveries += 1;
       return { outputText: current, doneReason: "stop", totalDurationNanoseconds: 1, loadDurationNanoseconds: 0, promptEvalCount: 1, evalCount: 1 };
@@ -3128,7 +3331,7 @@ async function main() {
       wholeTreePublicationCalls[0],
       mainProject.identity.projectId,
       1,
-      warningBundle,
+      warningProviderBundle,
       "generation whole-tree publication"
     );
     assert(
@@ -3249,7 +3452,7 @@ async function main() {
       wholeTreePublicationCalls[1],
       mainProject.identity.projectId,
       2,
-      replacementBundle,
+      replacementProviderBundle,
       "repair whole-tree publication"
     );
     assert(
@@ -3276,6 +3479,109 @@ async function main() {
     );
 
     const currentBinding = mainProject.runBindings.at(-1);
+    const exactTopologyTransformationDigest = currentBinding?.documentTopology?.transformationDigest;
+    assert(
+      typeof exactTopologyTransformationDigest === "string" &&
+        /^[a-f0-9]{64}$/.test(exactTopologyTransformationDigest) &&
+        mainProject.artifactProposal &&
+        mainProject.validation?.valid,
+      "server-owned repair fixture exposes one exact validated document-topology transformation binding"
+    );
+    const substitutedTopologyTransformationDigest =
+      `${exactTopologyTransformationDigest[0] === "0" ? "1" : "0"}${exactTopologyTransformationDigest.slice(1)}`;
+    const topologyMaterializationBase = {
+      persistence,
+      projectId: mainProject.identity.projectId,
+      projectTitle: mainProject.identity.projectTitle,
+      sourceRequestDigest: mainProject.request.requestDigest,
+      artifactRevision: 2,
+      bundle: mainProject.artifactProposal,
+      validation: mainProject.validation,
+      runBinding: currentBinding,
+      auditReferenceIds: [],
+      materializedAt: new Date().toISOString(),
+    };
+    await expectFailure(
+      () => materializationModule.materializeCreatorArtifact(topologyMaterializationBase),
+      "materialization_blocked",
+      "server-owned page materialization rejects an omitted topology transformation digest"
+    );
+    await expectFailure(
+      () => materializationModule.materializeCreatorArtifact({
+        ...topologyMaterializationBase,
+        topologyTransformationDigest: substitutedTopologyTransformationDigest,
+      }),
+      "materialization_blocked",
+      "server-owned page materialization rejects a substituted topology transformation digest"
+    );
+    await expectFailure(
+      () => materializationModule.materializeCreatorArtifact({
+        ...topologyMaterializationBase,
+        topologyRepairDigest: "f".repeat(64),
+        topologyTransformationDigest: exactTopologyTransformationDigest,
+      }),
+      "materialization_blocked",
+      "materialization rejects simultaneous historical-repair and ordinary transformation digests"
+    );
+    assert(
+      (await materializationModule.readCreatorMaterializationPublication({
+        persistence,
+        projectId: mainProject.identity.projectId,
+        artifactRevision: 2,
+      })).manifest.manifestDigest === mainProject.exportManifest?.manifestDigest,
+      "topology digest negative probes leave the exact published revision unchanged"
+    );
+    const topologyManifestPath = await persistence.filesystem.resolve([
+      "projects", mainProject.identity.projectId, "revisions", "000002", "manifest.json",
+    ]);
+    const topologyRevisionPath = await persistence.filesystem.resolve([
+      "projects", mainProject.identity.projectId, "revisions", "000002", "revision.json",
+    ]);
+    const topologyManifestBytes = await fsp.readFile(topologyManifestPath);
+    const topologyRevisionBytes = await fsp.readFile(topologyRevisionPath);
+    const topologyManifest = JSON.parse(topologyManifestBytes.toString("utf8"));
+    const topologyRevision = JSON.parse(topologyRevisionBytes.toString("utf8"));
+    const { manifestDigest: _topologyManifestDigest, ...topologyManifestBase } = topologyManifest;
+    const dualDigestManifestBase = {
+      ...topologyManifestBase,
+      topologyRepairDigest: "f".repeat(64),
+    };
+    const dualDigestManifest = {
+      ...dualDigestManifestBase,
+      manifestDigest: cryptoModule.hashCreatorCanonicalJson(dualDigestManifestBase),
+    };
+    await fsp.writeFile(
+      topologyManifestPath,
+      `${cryptoModule.serializeCreatorCanonicalJson(dualDigestManifest)}\n`,
+      { flag: "w" }
+    );
+    await fsp.writeFile(
+      topologyRevisionPath,
+      `${cryptoModule.serializeCreatorCanonicalJson({ ...topologyRevision, topologyRepairDigest: "f".repeat(64) })}\n`,
+      { flag: "w" }
+    );
+    try {
+      await expectFailure(
+        () => materializationModule.readCreatorMaterializationPublication({
+          persistence,
+          projectId: mainProject.identity.projectId,
+          artifactRevision: 2,
+        }),
+        "export_digest_mismatch",
+        "strict publication read rejects simultaneous historical-repair and ordinary transformation digests"
+      );
+    } finally {
+      await fsp.writeFile(topologyManifestPath, topologyManifestBytes, { flag: "w" });
+      await fsp.writeFile(topologyRevisionPath, topologyRevisionBytes, { flag: "w" });
+    }
+    assert(
+      (await materializationModule.readCreatorMaterializationPublication({
+        persistence,
+        projectId: mainProject.identity.projectId,
+        artifactRevision: 2,
+      })).manifest.manifestDigest === mainProject.exportManifest?.manifestDigest,
+      "dual topology digest read probe restores the exact immutable publication"
+    );
     for (const { fixture, result } of malformedVoidProviderResults) {
       await expectFailure(
         () => materializationModule.materializeCreatorArtifact({
@@ -3288,6 +3594,7 @@ async function main() {
           validation: result.validation,
           runBinding: currentBinding,
           auditReferenceIds: [],
+          topologyTransformationDigest: exactTopologyTransformationDigest,
           materializedAt: new Date().toISOString(),
         }),
         "materialization_blocked",
@@ -3364,6 +3671,7 @@ async function main() {
         validation: forgedAncestorValidation,
         runBinding: currentBinding,
         auditReferenceIds: [],
+        topologyTransformationDigest: exactTopologyTransformationDigest,
         materializedAt: new Date().toISOString(),
       }),
       "materialization_blocked",
@@ -3394,6 +3702,7 @@ async function main() {
         validation: mainProject.validation,
         runBinding: { ...currentBinding, providerKey: "groq-cloud" },
         auditReferenceIds: [],
+        topologyTransformationDigest: exactTopologyTransformationDigest,
         materializedAt: new Date().toISOString(),
       }),
       "materialization_blocked",
@@ -3410,6 +3719,7 @@ async function main() {
         validation: { ...mainProject.validation, manifestDigest: "a".repeat(64) },
         runBinding: currentBinding,
         auditReferenceIds: [],
+        topologyTransformationDigest: exactTopologyTransformationDigest,
         materializedAt: new Date().toISOString(),
       }),
       "materialization_blocked",
@@ -3428,6 +3738,7 @@ async function main() {
         validation: mainProject.validation,
         runBinding: currentBinding,
         auditReferenceIds: [],
+        topologyTransformationDigest: exactTopologyTransformationDigest,
         materializedAt: new Date().toISOString(),
       }),
       "materialization_failed",
@@ -3730,6 +4041,7 @@ async function main() {
 
     const invalidGenerationDeliveryStart = fixtureDeliveries;
     for (const fixture of invalidPolicyCases) {
+      const expectedIssueCode = providerJourneyIssueCode(fixture);
       const prefix = `macro-d2-invalid-generation-${fixture.kind}`;
       let project = (await service.createProject(
         { ...input, projectTitle: fixture.generationTitle },
@@ -3752,7 +4064,7 @@ async function main() {
         fixtureDeliveries === deliveriesBefore + 1 &&
           project.status === "rejected_output" &&
           project.failureCode ===
-            (fixture.issueCode.startsWith("contract.")
+            (expectedIssueCode.startsWith("contract.")
               ? "output_contract_invalid"
               : "output_validation_failed") &&
           project.artifactProposal === null &&
@@ -3760,8 +4072,8 @@ async function main() {
           project.validation?.valid === false &&
           project.validation.bundleDigest === null &&
           project.validation.manifestDigest === null &&
-          project.validation.issues.some((issue) => issue.code === fixture.issueCode) &&
-          (fixture.issueCode.startsWith("contract.")
+          project.validation.issues.some((issue) => issue.code === expectedIssueCode) &&
+          (expectedIssueCode.startsWith("contract.")
             ? JSON.stringify(project.validation.stagesCompleted) === "[1]" &&
               project.validation.issues.every((issue) => issue.code !== "preview.not_ready")
             : project.validation.issues.some((issue) => issue.code === "preview.not_ready")) &&
@@ -3829,7 +4141,7 @@ async function main() {
         `${fixture.kind} generation rejection replays idempotently without another provider-bound delivery`
       );
       const rejectedApprovalBeforeCancel = JSON.stringify(project.approvalPacket);
-      const rejectedBindingsBeforeCancel = JSON.stringify(project.runBindings);
+      const rejectedBindingsBeforeCancel = cryptoModule.hashCreatorCanonicalJson(project.runBindings);
       project = (await service.actOnProject(
         project.identity.projectId,
         { action: "cancel", expectedRevision: project.stateRevision },
@@ -3838,7 +4150,7 @@ async function main() {
       assert(
         project.status === "canceled" &&
           JSON.stringify(project.approvalPacket) === rejectedApprovalBeforeCancel &&
-          JSON.stringify(project.runBindings) === rejectedBindingsBeforeCancel &&
+          cryptoModule.hashCreatorCanonicalJson(project.runBindings) === rejectedBindingsBeforeCancel &&
           project.auditEvents.at(-1)?.eventType === "creator.canceled" &&
           fixtureDeliveries === deliveriesBefore + 1,
         `${fixture.kind} post-execution rejection cancellation preserves exact approval and run provenance without another delivery`
@@ -3851,6 +4163,7 @@ async function main() {
 
     const invalidRepairDeliveryStart = fixtureDeliveries;
     for (const fixture of invalidPolicyCases) {
+      const expectedIssueCode = providerJourneyIssueCode(fixture);
       const prefix = `macro-d2-invalid-repair-${fixture.kind}`;
       let project = (await service.createProject(
         { ...input, projectTitle: fixture.repairTitle },
@@ -3893,14 +4206,14 @@ async function main() {
         fixtureDeliveries === deliveriesBeforeRepair + 1 &&
           project.status === "failed" &&
           project.failureCode ===
-            (fixture.issueCode.startsWith("contract.")
+            (expectedIssueCode.startsWith("contract.")
               ? "output_contract_invalid"
               : "output_validation_failed") &&
           project.repair?.attempt === 1 &&
           project.artifactProposal === null &&
           project.artifactProposalBinding?.purpose === "repair" &&
-          project.validation?.issues.some((issue) => issue.code === fixture.issueCode) &&
-          (fixture.issueCode.startsWith("contract.")
+          project.validation?.issues.some((issue) => issue.code === expectedIssueCode) &&
+          (expectedIssueCode.startsWith("contract.")
             ? JSON.stringify(project.validation?.stagesCompleted) === "[1]" &&
               project.validation?.issues.every((issue) => issue.code !== "preview.not_ready")
             : project.validation?.issues.some((issue) => issue.code === "preview.not_ready")) &&
@@ -4555,7 +4868,7 @@ async function main() {
       "macro-d2-ready-cancel-provenance"
     );
     const readyApprovalBeforeCancel = JSON.stringify(readyCancellationProject.approvalPacket);
-    const readyBindingsBeforeCancel = JSON.stringify(readyCancellationProject.runBindings);
+    const readyBindingsBeforeCancel = cryptoModule.hashCreatorCanonicalJson(readyCancellationProject.runBindings);
     const readyAuditCountBeforeCancel = readyCancellationProject.auditEvents.length;
     readyCancellationProject = (await service.actOnProject(
       readyCancellationProject.identity.projectId,
@@ -4565,7 +4878,7 @@ async function main() {
     assert(
       readyCancellationProject.status === "canceled" &&
         JSON.stringify(readyCancellationProject.approvalPacket) === readyApprovalBeforeCancel &&
-        JSON.stringify(readyCancellationProject.runBindings) === readyBindingsBeforeCancel &&
+        cryptoModule.hashCreatorCanonicalJson(readyCancellationProject.runBindings) === readyBindingsBeforeCancel &&
         readyCancellationProject.auditEvents.length === readyAuditCountBeforeCancel + 1 &&
         readyCancellationProject.auditEvents.at(-1)?.eventType === "creator.canceled",
       "ready cancellation preserves executed approval provenance and records only creator cancellation"
@@ -4581,7 +4894,7 @@ async function main() {
       "macro-d2-preview-cancel-provenance-start"
     )).project;
     const previewApprovalBeforeCancel = JSON.stringify(previewCancellationProject.approvalPacket);
-    const previewBindingsBeforeCancel = JSON.stringify(previewCancellationProject.runBindings);
+    const previewBindingsBeforeCancel = cryptoModule.hashCreatorCanonicalJson(previewCancellationProject.runBindings);
     const previewAuditCountBeforeCancel = previewCancellationProject.auditEvents.length;
     previewCancellationProject = (await service.actOnProject(
       previewCancellationProject.identity.projectId,
@@ -4590,9 +4903,9 @@ async function main() {
     )).project;
     assert(
       previewCancellationProject.status === "canceled" &&
-        previewCancellationProject.preview.status === "stopped" &&
+      previewCancellationProject.preview.status === "stopped" &&
         JSON.stringify(previewCancellationProject.approvalPacket) === previewApprovalBeforeCancel &&
-        JSON.stringify(previewCancellationProject.runBindings) === previewBindingsBeforeCancel &&
+        cryptoModule.hashCreatorCanonicalJson(previewCancellationProject.runBindings) === previewBindingsBeforeCancel &&
         previewCancellationProject.auditEvents.length === previewAuditCountBeforeCancel + 2 &&
         JSON.stringify(previewCancellationProject.auditEvents.slice(-2).map((event) => event.eventType)) === JSON.stringify(["preview.stopped", "creator.canceled"]),
       "preview cancellation preserves executed provenance and records exact preview-stop and creator-cancel audit events"
@@ -5024,6 +5337,7 @@ async function main() {
         validation: mainProject.validation,
         runBinding: currentBinding,
         auditReferenceIds: [],
+        topologyTransformationDigest: exactTopologyTransformationDigest,
         materializedAt: new Date().toISOString(),
       }),
       "materialization_blocked",
@@ -5055,6 +5369,7 @@ async function main() {
         validation: forgedWarningValidation,
         runBinding: currentBinding,
         auditReferenceIds: [],
+        topologyTransformationDigest: exactTopologyTransformationDigest,
         materializedAt: new Date().toISOString(),
       }),
       "materialization_blocked",
@@ -5269,6 +5584,7 @@ async function main() {
         validation: postRenameProject.validation,
         runBinding: postRenameProject.runBindings[0],
         auditReferenceIds: [],
+        topologyTransformationDigest: postRenameProject.runBindings[0].documentTopology.transformationDigest,
         materializedAt: new Date().toISOString(),
       }),
       "materialization_failed",
@@ -5830,16 +6146,16 @@ async function main() {
     )).project;
     previewCapacityJourney = (await service.actOnProject(previewCapacityJourney.identity.projectId, { action: "approve-generation", expectedRevision: previewCapacityJourney.stateRevision }, "macro-d2-preview-capacity-journey-approve")).project;
     previewCapacityJourney = (await service.actOnProject(previewCapacityJourney.identity.projectId, { action: "execute-generation", expectedRevision: previewCapacityJourney.stateRevision }, "macro-d2-preview-capacity-journey-execute")).project;
-    previewCapacityJourney = await cyclePreviewToAuditTarget(previewCapacityJourney, 124, "macro-d2-preview-capacity-journey-cycle");
+    previewCapacityJourney = await cyclePreviewToAuditTarget(previewCapacityJourney, 125, "macro-d2-preview-capacity-journey-cycle");
     previewCapacityJourney = (await service.actOnProject(previewCapacityJourney.identity.projectId, { action: "start-preview", expectedRevision: previewCapacityJourney.stateRevision }, "macro-d2-preview-capacity-journey-final-start")).project;
     previewCapacityJourney = (await service.actOnProject(previewCapacityJourney.identity.projectId, { action: "stop-preview", expectedRevision: previewCapacityJourney.stateRevision }, "macro-d2-preview-capacity-journey-final-stop")).project;
     previewCapacityJourney = (await service.actOnProject(previewCapacityJourney.identity.projectId, { action: "export", expectedRevision: previewCapacityJourney.stateRevision }, "macro-d2-preview-capacity-journey-export")).project;
     assert(
-      previewCapacityJourney.status === "exported" &&
+        previewCapacityJourney.status === "exported" &&
         previewCapacityJourney.exportManifest?.artifactRevision === 1 &&
-        previewCapacityJourney.auditEvents.length === 127 &&
+        previewCapacityJourney.auditEvents.length === 128 &&
         previewCapacityJourney.idempotencyRecords.length <= 128,
-      "preview admission near exact capacity preserves the complete stop-and-export recovery journey"
+      "preview admission at exact capacity preserves the complete stop-and-export recovery journey including document construction provenance"
     );
 
     let repairCapacityJourney = (await service.createProject(
@@ -5848,7 +6164,7 @@ async function main() {
     )).project;
     repairCapacityJourney = (await service.actOnProject(repairCapacityJourney.identity.projectId, { action: "approve-generation", expectedRevision: repairCapacityJourney.stateRevision }, "macro-d2-repair-capacity-journey-generation-approve")).project;
     repairCapacityJourney = (await service.actOnProject(repairCapacityJourney.identity.projectId, { action: "execute-generation", expectedRevision: repairCapacityJourney.stateRevision }, "macro-d2-repair-capacity-journey-generation-execute")).project;
-    repairCapacityJourney = await cyclePreviewToAuditTarget(repairCapacityJourney, 112, "macro-d2-repair-capacity-journey-cycle");
+    repairCapacityJourney = await cyclePreviewToAuditTarget(repairCapacityJourney, 111, "macro-d2-repair-capacity-journey-cycle");
     repairCapacityJourney = (await service.actOnProject(repairCapacityJourney.identity.projectId, { action: "request-repair", expectedRevision: repairCapacityJourney.stateRevision }, "macro-d2-repair-capacity-journey-request")).project;
     repairCapacityJourney = (await service.actOnProject(repairCapacityJourney.identity.projectId, { action: "approve-repair", expectedRevision: repairCapacityJourney.stateRevision }, "macro-d2-repair-capacity-journey-approve")).project;
     repairCapacityJourney = (await service.actOnProject(repairCapacityJourney.identity.projectId, { action: "execute-repair", expectedRevision: repairCapacityJourney.stateRevision }, "macro-d2-repair-capacity-journey-execute")).project;
@@ -6485,7 +6801,9 @@ require.extensions[".ts"] = function (module, filename) {
   module._compile(output.outputText, filename);
 };
 async function main() {
-  const registryKey = Symbol.for("codexforge.creator.runtime-service-registry.v1");
+  const serviceRegistryKey = Symbol.for("codexforge.creator.runtime-service-registry.v7");
+  const persistenceRegistryKey = Symbol.for("codexforge.creator.runtime-persistence-registry.v3");
+  const legacyPersistenceRegistryKey = Symbol.for("codexforge.creator.runtime-persistence-registry.v1");
   const runtimePath = path.join(repoRoot, "src", "lib", "codexforge", "creator", "creator-runtime.server.ts");
   if (mode === "cleanup") {
     const persistencePath = path.join(repoRoot, "src", "lib", "codexforge", "creator", "creator-persistence.server.ts");
@@ -6508,8 +6826,8 @@ async function main() {
     return;
   }
   if (mode === "invalid-cache") {
-    Object.defineProperty(process, registryKey, {
-      value: Object.freeze({ version: 1, has: null, get: null, register: null, size: null }),
+    Object.defineProperty(process, serviceRegistryKey, {
+      value: Object.freeze({ version: 7, has: null, get: null, register: null, size: null }),
       configurable: false,
       enumerable: false,
       writable: false,
@@ -6524,6 +6842,57 @@ async function main() {
     trap.assertZeroActivity();
     return;
   }
+  if (mode === "legacy-persistence-reload") {
+    Object.defineProperty(process.env, "CODEXFORGE_CREATOR_DETERMINISTIC_TEST_MODE", {
+      value: "1", configurable: true, enumerable: true, writable: true,
+    });
+    Object.defineProperty(process.env, "CODEXFORGE_CREATOR_DETERMINISTIC_TEST_SUFFIX", {
+      value: suffix, configurable: true, enumerable: true, writable: true,
+    });
+    const persistencePath = path.join(repoRoot, "src", "lib", "codexforge", "creator", "creator-persistence.server.ts");
+    const legacyPersistence = require(persistencePath).createCreatorPersistenceForTesting(suffix);
+    const legacyRegistry = Object.freeze({
+      version: 1,
+      get(key) {
+        return key === `test:${suffix}` ? legacyPersistence : undefined;
+      },
+    });
+    Object.defineProperty(process, legacyPersistenceRegistryKey, {
+      value: legacyRegistry,
+      configurable: false,
+      enumerable: false,
+      writable: false,
+    });
+    const firstModule = require(runtimePath);
+    const decodedPersistence = firstModule.getCreatorRuntimePersistence();
+    const firstService = firstModule.getCreatorRuntimeService();
+    assert(
+      decodedPersistence !== legacyPersistence &&
+        decodedPersistence.filesystem === legacyPersistence.filesystem &&
+        decodedPersistence.schemaVersion === 3,
+      "runtime persistence v3 wraps an HMR-cached v1 filesystem in one fresh schema-v3 decoder facade without reopening the trusted root"
+    );
+    delete require.cache[require.resolve(runtimePath)];
+    const reloadedModule = require(runtimePath);
+    assert(
+      reloadedModule.getCreatorRuntimePersistence() === decodedPersistence &&
+        reloadedModule.getCreatorRuntimeService() === firstService,
+      "runtime reload reuses the schema-v3 persistence facade and service created from the HMR-cached v1 filesystem"
+    );
+    const persistenceDescriptor = Object.getOwnPropertyDescriptor(process, persistenceRegistryKey);
+    assert(
+      persistenceDescriptor &&
+        persistenceDescriptor.configurable === false &&
+        persistenceDescriptor.enumerable === false &&
+        persistenceDescriptor.writable === false &&
+        Object.isFrozen(persistenceDescriptor.value) &&
+        persistenceDescriptor.value.version === 3 &&
+        persistenceDescriptor.value.size() === 1,
+      "legacy HMR recovery publishes one immutable hidden bounded v3 persistence registry"
+    );
+    trap.assertZeroActivity();
+    return;
+  }
   if (mode !== "open-root-reload") throw new Error("Unknown runtime reload mode.");
   Object.defineProperty(process.env, "CODEXFORGE_CREATOR_DETERMINISTIC_TEST_MODE", {
     value: "1", configurable: true, enumerable: true, writable: true,
@@ -6533,6 +6902,7 @@ async function main() {
   });
   const firstModule = require(runtimePath);
   const firstService = firstModule.getCreatorRuntimeService();
+  const firstPersistence = firstModule.getCreatorRuntimePersistence();
   const created = await firstService.createProject(
     {
       creatorKind: "website-browser-app",
@@ -6555,7 +6925,9 @@ async function main() {
   delete require.cache[require.resolve(runtimePath)];
   const secondModule = require(runtimePath);
   const secondService = secondModule.getCreatorRuntimeService();
+  const secondPersistence = secondModule.getCreatorRuntimePersistence();
   assert(secondService === firstService, "recompiled runtime module reuses the exact service while its removable native-root handle remains open");
+  assert(secondPersistence === firstPersistence, "recompiled runtime module reuses the exact authoritative persistence while its removable native-root handle remains open");
   const reread = await secondService.getProject(created.project.identity.projectId);
   assert(
     reread.identity.projectId === created.project.identity.projectId &&
@@ -6563,15 +6935,28 @@ async function main() {
       reread.stateRevision === created.project.stateRevision,
     "recompiled runtime reads the exact persisted project without a second conflicting root handle"
   );
-  const descriptor = Object.getOwnPropertyDescriptor(process, registryKey);
+  const serviceDescriptor = Object.getOwnPropertyDescriptor(process, serviceRegistryKey);
+  const persistenceDescriptor = Object.getOwnPropertyDescriptor(process, persistenceRegistryKey);
   assert(
-    descriptor &&
-      descriptor.configurable === false &&
-      descriptor.enumerable === false &&
-      descriptor.writable === false &&
-      Object.isFrozen(descriptor.value) &&
-      descriptor.value.size() === 1,
-    "opened-root runtime registry remains immutable, hidden, exact, and bounded to one active suffix"
+    serviceDescriptor &&
+      serviceDescriptor.configurable === false &&
+      serviceDescriptor.enumerable === false &&
+      serviceDescriptor.writable === false &&
+      Object.isFrozen(serviceDescriptor.value) &&
+      serviceDescriptor.value.version === 7 &&
+      serviceDescriptor.value.size() === 1,
+    "opened-root runtime service registry remains immutable, hidden, exact, and bounded to one active suffix"
+  );
+  assert(
+    persistenceDescriptor &&
+      persistenceDescriptor.configurable === false &&
+      persistenceDescriptor.enumerable === false &&
+      persistenceDescriptor.writable === false &&
+      Object.isFrozen(persistenceDescriptor.value) &&
+      persistenceDescriptor.value.version === 3 &&
+      firstPersistence.schemaVersion === 3 &&
+      persistenceDescriptor.value.size() === 1,
+    "opened-root runtime persistence registry remains immutable, hidden, schema-v3, exact, and bounded to one active suffix"
   );
   trap.assertZeroActivity();
   console.log(`[COUNTERS] ${trap.formatCounters({})}`);
@@ -6670,6 +7055,10 @@ try {
   if ($LASTEXITCODE -ne 0) { throw "[FAIL] D2 pre-reload deterministic cleanup exited with code $LASTEXITCODE" }
   & node $runtimeReloadPath $root "invalid-cache"
   if ($LASTEXITCODE -ne 0) { throw "[FAIL] D2 invalid runtime-cache probe exited with code $LASTEXITCODE" }
+  & node $runtimeReloadPath $root "legacy-persistence-reload"
+  if ($LASTEXITCODE -ne 0) { throw "[FAIL] D2 legacy-persistence decoder-facade probe exited with code $LASTEXITCODE" }
+  & node $runtimeReloadPath $root "cleanup"
+  if ($LASTEXITCODE -ne 0) { throw "[FAIL] D2 legacy-persistence post-probe cleanup exited with code $LASTEXITCODE" }
   & node $runtimeReloadPath $root "open-root-reload"
   $runtimeReloadExitCode = $LASTEXITCODE
   & node $runtimeReloadPath $root "cleanup"

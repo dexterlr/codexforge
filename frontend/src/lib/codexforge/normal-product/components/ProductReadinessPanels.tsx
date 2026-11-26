@@ -201,9 +201,6 @@ export function AuditRunsPanel() {
 export function TradingResearchPanel() {
   return (
     <div style={stack} data-codexforge-trading-boundary="research-only no-broker no-orders no-advice no-automation no-live-money">
-      <ProductStatePanel title="No research brief is active" tone="neutral" role="status">
-        <p style={copy}>Ask Jarvis to organize a research question, assumptions, evidence, and risks. No market data is fetched automatically.</p>
-      </ProductStatePanel>
       <section aria-labelledby="trading-boundary-title" style={card}>
         <h2 id="trading-boundary-title" style={cardTitle}>Research boundary</h2>
         <ul style={list}>

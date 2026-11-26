@@ -4,6 +4,7 @@ import { assertCreatorJsonHasUniqueObjectKeys } from "@/lib/codexforge/creator/c
 import {
   PrivateAlphaNativeFilesystemError,
   privateAlphaNativeRootExists,
+  withPrivateAlphaExistingNativeRoot,
   withPrivateAlphaNativeRoot,
   type CreatorNativeRoot,
 } from "@/lib/codexforge/private-alpha/private-alpha-native-filesystem.server";
@@ -100,6 +101,7 @@ export type JarvisChatPersistence = Readonly<{
   getConversation: (conversationId: string) => Promise<JarvisChatConversation>;
   getConversationRevision: (conversationId: string, revision: number) => Promise<JarvisChatConversation>;
   listConversations: (limit: number) => Promise<readonly JarvisChatConversationSummary[]>;
+  projectLiveConversations: <T>(project: (conversation: JarvisChatConversation) => readonly T[]) => Promise<T[]>;
   commitConversation: (input: {
     expected: JarvisChatConversation;
     next: JarvisChatConversation;
@@ -958,14 +960,15 @@ function readRevisionInventory(
   return revisions;
 }
 
-function readAndReconcileHead(root: CreatorNativeRoot, conversationId: string): { bytes: Buffer; conversation: JarvisChatConversation } {
-  return readAndReconcileHeadAttempt(root, conversationId, 0);
+function readAndReconcileHead(root: CreatorNativeRoot, conversationId: string, inspectOnly = false): { bytes: Buffer; conversation: JarvisChatConversation } {
+  return readAndReconcileHeadAttempt(root, conversationId, 0, inspectOnly);
 }
 
 function readAndReconcileHeadAttempt(
   root: CreatorNativeRoot,
   conversationId: string,
-  attempt: number
+  attempt: number,
+  inspectOnly: boolean
 ): { bytes: Buffer; conversation: JarvisChatConversation } {
   const segments = conversationSegments(conversationId);
   let headBytes = readOptional(root, [...segments, "head.json"], JARVIS_CHAT_MAX_RECORD_BYTES);
@@ -982,16 +985,20 @@ function readAndReconcileHeadAttempt(
   const next = readRevision(root, conversationId, head.revision + 1);
   if (next) {
     assertJarvisChatConversationContinuity(head, next.conversation);
-    replaceWithExactReadback(
-      root,
-      [...segments, "head.json"],
-      `.head-${next.conversation.revision}-${next.conversation.recordDigest.slice(0, 12)}.tmp`,
-      next.bytes,
-      headBytes,
-      JARVIS_CHAT_MAX_RECORD_BYTES,
-      "revision_conflict",
-      "A concurrent Jarvis chat recovery published a different revision."
-    );
+    // The immutable revision is durable. A read-only projection can validate it
+    // without taking ownership of a writer's interrupted head publication.
+    if (!inspectOnly) {
+      replaceWithExactReadback(
+        root,
+        [...segments, "head.json"],
+        `.head-${next.conversation.revision}-${next.conversation.recordDigest.slice(0, 12)}.tmp`,
+        next.bytes,
+        headBytes,
+        JARVIS_CHAT_MAX_RECORD_BYTES,
+        "revision_conflict",
+        "A concurrent Jarvis chat recovery published a different revision."
+      );
+    }
     headBytes = next.bytes;
     head = next.conversation;
   }
@@ -1005,7 +1012,7 @@ function readAndReconcileHeadAttempt(
       inventoryAfter.some((revision, index) => revision !== index + 1) === false &&
       inventoryAfter.length === head.revision + 1
     ) {
-      return readAndReconcileHeadAttempt(root, conversationId, attempt + 1);
+      return readAndReconcileHeadAttempt(root, conversationId, attempt + 1, inspectOnly);
     }
     invalidPersistence();
   }
@@ -1109,6 +1116,61 @@ function buildPersistence(
   testing: boolean,
   testingHooks: JarvisChatPersistenceTestingHooks | null = null
 ): JarvisChatPersistence {
+  async function readCatalogue<T>(
+    mode: "inspect" | "reconcile",
+    project: (conversation: JarvisChatConversation) => readonly T[],
+    deleting?: (slot: SlotRecord) => readonly T[]
+  ): Promise<T[]> {
+    const inspectOnly = mode === "inspect";
+    const read = (root: CreatorNativeRoot) =>
+      withNativeContentionRetry(() => {
+        if (!rootHasChat(root)) return [];
+        for (let attempt = 0; attempt < NATIVE_CONTENTION_ATTEMPTS; attempt += 1) {
+          const before = readSlots(root);
+          let result: T[] | null = null;
+          let readError: unknown = null;
+          try {
+            result = before.flatMap(({ slot }) => {
+              if (slot.state === "deleted") return [];
+              if (slot.state === "deleting") return deleting?.(slot) ?? [];
+              const conversation = slot.state === "reserved"
+                ? slot.initialConversation ?? invalidPersistence()
+                : readAndReconcileHead(root, slot.conversationId, inspectOnly).conversation;
+              return project(conversation);
+            });
+          } catch (error) {
+            if (
+              !(error instanceof JarvisChatPolicyError &&
+                ["conversation_not_found", "revision_conflict", "chat_persistence_invalid"].includes(error.code)) &&
+              !isNative(error, "not_found") &&
+              !isNativeContention(error)
+            ) throw error;
+            readError = error;
+          }
+          const after = readSlots(root);
+          const catalogueStable = canonicalEqual(
+            before.map(({ slot }) => slot.recordDigest),
+            after.map(({ slot }) => slot.recordDigest)
+          );
+          if (result && catalogueStable) return result;
+          if (
+            catalogueStable &&
+            ((readError instanceof JarvisChatPolicyError &&
+              ["conversation_not_found", "chat_persistence_invalid"].includes(readError.code)) ||
+              isNative(readError, "not_found"))
+          ) invalidPersistence();
+        }
+        throw new JarvisChatPolicyError(
+          409,
+          "revision_conflict",
+          "Jarvis chat history changed repeatedly while the bounded list was read."
+        );
+      }, "revision_conflict", "Jarvis chat history remained concurrently unavailable while it was listed.");
+    if (inspectOnly) return withPrivateAlphaExistingNativeRoot(dataRootLabel, read) ?? [];
+    if (!privateAlphaNativeRootExists(dataRootLabel)) return [];
+    return withPrivateAlphaNativeRoot(dataRootLabel, read);
+  }
+
   return {
     async createConversation(input) {
       if (!hex(input.createKeyHash, 64) || !hex(input.requestDigest, 64)) invalidPersistence();
@@ -1276,66 +1338,12 @@ function buildPersistence(
 
     async listConversations(limit) {
       const bounded = Number.isSafeInteger(limit) && limit > 0 && limit <= JARVIS_CHAT_MAX_CONVERSATIONS ? limit : 20;
-      if (!privateAlphaNativeRootExists(dataRootLabel)) return [];
-      return withPrivateAlphaNativeRoot(dataRootLabel, (root) =>
-        withNativeContentionRetry(() => {
-        if (!rootHasChat(root)) return [];
-        for (let attempt = 0; attempt < NATIVE_CONTENTION_ATTEMPTS; attempt += 1) {
-          const before = readSlots(root);
-          let result: readonly JarvisChatConversationSummary[] | null = null;
-          let readError: unknown = null;
-          try {
-            result = before
-              .filter(({ slot }) =>
-                slot.state === "published" ||
-                slot.state === "reserved" ||
-                slot.state === "deleting"
-              )
-              .map(({ slot }) =>
-                slot.state === "deleting"
-                  ? deletionRecoverySummary(slot)
-                  : summary(
-                      slot.state === "reserved"
-                        ? slot.initialConversation ?? invalidPersistence()
-                        : readAndReconcileHead(root, slot.conversationId).conversation
-                    )
-              )
-              .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
-              .slice(0, bounded);
-          } catch (error) {
-            if (
-              !(
-                error instanceof JarvisChatPolicyError &&
-                ["conversation_not_found", "revision_conflict", "chat_persistence_invalid"].includes(error.code)
-              ) &&
-              !isNative(error, "not_found") &&
-              !isNativeContention(error)
-            ) throw error;
-            readError = error;
-          }
-          const after = readSlots(root);
-          const catalogueStable = canonicalEqual(
-            before.map(({ slot }) => slot.recordDigest),
-            after.map(({ slot }) => slot.recordDigest)
-          );
-          if (
-            result &&
-            catalogueStable
-          ) return result;
-          if (
-            catalogueStable &&
-            ((readError instanceof JarvisChatPolicyError &&
-              ["conversation_not_found", "chat_persistence_invalid"].includes(readError.code)) ||
-              isNative(readError, "not_found"))
-          ) invalidPersistence();
-        }
-        throw new JarvisChatPolicyError(
-          409,
-          "revision_conflict",
-          "Jarvis chat history changed repeatedly while the bounded list was read."
-        );
-        }, "revision_conflict", "Jarvis chat history remained concurrently unavailable while it was listed.")
-      );
+      const results = await readCatalogue("reconcile", (conversation) => [summary(conversation)], (slot) => [deletionRecoverySummary(slot)]);
+      return results.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)).slice(0, bounded);
+    },
+
+    projectLiveConversations(project) {
+      return readCatalogue("inspect", (conversation) => conversation.state === "deleting" ? [] : project(conversation));
     },
 
     async commitConversation(input) {

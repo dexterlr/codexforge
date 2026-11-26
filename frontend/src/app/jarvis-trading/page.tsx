@@ -6,6 +6,12 @@ export const metadata: Metadata = {
   description: "Research-only planning with no advice, live data, broker connection, order placement, automation, or live-money action.",
 };
 
-export default function JarvisTradingWorkspacePage() {
-  return <JarvisTradingWorkspacePageClient />;
+export default async function JarvisTradingWorkspacePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ conversation?: string | string[] }>;
+}) {
+  const { conversation } = await searchParams;
+  const conversationId = typeof conversation === "string" && conversation ? conversation : null;
+  return <JarvisTradingWorkspacePageClient conversationId={conversationId} />;
 }

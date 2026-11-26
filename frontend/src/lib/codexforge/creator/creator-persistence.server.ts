@@ -9,8 +9,8 @@ import {
 import { validateCreatorArtifactPaths } from "./creator-path-policy";
 import {
   assertCreatorJsonHasUniqueObjectKeys,
-  buildCreatorGenerationInstruction,
-  buildCreatorRepairInstruction,
+  buildCreatorGenerationInstructionForResponseContract,
+  buildLegacyCreatorRepairInstruction,
   isValidCreatorProjectTitle,
   isSafeCreatorVisibleUnicode,
 } from "./creator-contract.server";
@@ -20,7 +20,11 @@ import {
   CREATOR_MAX_AUDIT_EVENTS,
   CREATOR_MAX_AUDIT_SUMMARY_LENGTH,
   CREATOR_MAX_IDEMPOTENCY_RECORDS,
+  CREATOR_MAX_EXPLICIT_REVISIONS,
+  CREATOR_MAX_MATERIALIZATIONS,
   CREATOR_MAX_PROJECT_RECORDS,
+  CREATOR_MAX_REVISION_BRIEF_LENGTH,
+  CREATOR_MAX_RUN_BINDINGS,
   CREATOR_MAX_PROJECT_SLUG_LENGTH,
   CREATOR_PRODUCTION_DATA_ROOT_LABEL,
   CREATOR_FILE_POLICY,
@@ -39,9 +43,16 @@ import {
   CREATOR_MUTATION_KINDS,
   CREATOR_PROJECT_STATES,
   CREATOR_RECORD_VERSION,
+  CREATOR_RESPONSE_CONTRACT_VERSIONS,
+  CREATOR_SERVER_OWNED_PAGE_TOPOLOGY_OPERATIONS,
+  CREATOR_TOPOLOGY_CANONICALIZER_VERSION,
+  CREATOR_TOPOLOGY_REPAIR_OPERATIONS,
   type CreatorAuditEventType,
+  type CreatorDocumentTopologyProvenance,
   type CreatorFailureCode,
   type CreatorProjectState,
+  type CreatorRunOperationSlot,
+  type CreatorTopologyRepair,
 } from "./creator-types";
 
 type StoredCreatorStateEnvelope = Readonly<{
@@ -63,6 +74,7 @@ const CREATOR_TRANSITION_EVENT_SEQUENCES: Readonly<
   Record<string, readonly (readonly CreatorAuditEventType[])[]>
 > = Object.freeze({
   "draft>draft": [["plan.prepared"], ["cancellation.requested"], ["recovery.requested"], ["recovery.completed"]],
+  "draft>awaiting_plan_approval": [["plan.prepared"]],
   "draft>awaiting_generation_approval": [["run.bound"]],
   "draft>failed": [["failure.recorded"]],
   "draft>canceled": [
@@ -70,6 +82,15 @@ const CREATOR_TRANSITION_EVENT_SEQUENCES: Readonly<
     ["run.bound", "creator.canceled"],
     ["run.bound", "approval.recorded", "creator.canceled"],
   ],
+  "awaiting_plan_approval>awaiting_plan_approval": [
+    ["plan.approval_requested"],
+    ["recovery.requested"],
+    ["recovery.completed"],
+  ],
+  "awaiting_plan_approval>awaiting_generation_approval": [
+    ["run.bound", "plan.approved"],
+  ],
+  "awaiting_plan_approval>canceled": [["creator.canceled"]],
   "awaiting_generation_approval>awaiting_generation_approval": [
     ["approval.requested"],
     ["cancellation.requested"],
@@ -86,31 +107,112 @@ const CREATOR_TRANSITION_EVENT_SEQUENCES: Readonly<
   "approved>approved": [["cancellation.requested"], ["recovery.requested"], ["recovery.completed"]],
   "approved>failed": [["failure.recorded"]],
   "approved>canceled": [["creator.canceled"]],
-  "generating>validating": [["output.received", "validation.completed"]],
+  "generating>validating": [
+    ["output.received", "validation.completed"],
+    ["output.received", "topology.document_constructed", "validation.completed"],
+  ],
   "generating>generating": [["recovery.requested"], ["recovery.completed"]],
-  "generating>rejected_output": [["output.received", "validation.completed", "output.rejected"]],
+  "generating>rejected_output": [
+    ["output.received", "validation.completed", "output.rejected"],
+    [
+      "output.received",
+      "topology.document_constructed",
+      "validation.completed",
+      "output.rejected",
+    ],
+  ],
   "generating>failed": [["failure.recorded"]],
+  "generating>stopping": [["generation.stop_requested"]],
   "validating>rejected_output": [["output.rejected"]],
   "validating>validating": [["recovery.requested"], ["recovery.completed"]],
   "validating>ready": [
     ["revision.materialized", "export.manifest_created"],
     ["repair.result_accepted", "revision.materialized", "export.manifest_created"],
+    ["revision.materialized", "export.manifest_created", "topology.repair_completed"],
   ],
   "validating>failed": [
     ["failure.recorded"],
     ["repair.result_rejected", "failure.recorded"],
+    ["topology.repair_rejected", "failure.recorded"],
   ],
+  "rejected_output>validating": [[
+    "topology.repair_requested",
+    "topology.document_constructed",
+    "validation.completed",
+  ]],
   "rejected_output>repair_requested": [["repair.requested"]],
-  "rejected_output>rejected_output": [["recovery.requested"], ["recovery.completed"]],
+  "rejected_output>rejected_output": [
+    ["recovery.requested"],
+    ["recovery.completed"],
+    ["topology.repair_requested", "topology.repair_rejected"],
+    [
+      "topology.repair_requested",
+      "topology.document_constructed",
+      "validation.completed",
+      "topology.repair_rejected",
+    ],
+  ],
+  "rejected_output>ready": [["prior_publication.restored"]],
   "rejected_output>canceled": [["creator.canceled"]],
   "ready>preview_available": [["preview.started"]],
   "ready>ready": [["recovery.requested"], ["recovery.completed"]],
   "ready>repair_requested": [["repair.requested"]],
+  "ready>awaiting_revision_plan_approval": [["revision.requested"]],
   "ready>exported": [["export.requested"]],
   "ready>canceled": [["creator.canceled"]],
   "preview_available>ready": [["preview.stopped"]],
   "preview_available>preview_available": [["recovery.requested"], ["recovery.completed"]],
   "preview_available>canceled": [["preview.stopped", "creator.canceled"]],
+  "awaiting_revision_plan_approval>awaiting_revision_plan_approval": [
+    ["revision.plan_approval_requested"],
+    ["recovery.requested"],
+    ["recovery.completed"],
+  ],
+  "awaiting_revision_plan_approval>awaiting_revision_generation_approval": [
+    ["run.bound", "revision.plan_approved"],
+  ],
+  "awaiting_revision_plan_approval>canceled": [["creator.canceled"]],
+  "awaiting_revision_generation_approval>awaiting_revision_generation_approval": [
+    ["approval.requested"],
+    ["cancellation.requested"],
+    ["recovery.requested"],
+    ["recovery.completed"],
+  ],
+  "awaiting_revision_generation_approval>revision_generation_approved": [["approval.recorded"]],
+  "awaiting_revision_generation_approval>canceled": [
+    ["creator.canceled"],
+    ["approval.recorded", "creator.canceled"],
+  ],
+  "revision_generation_approved>revision_generation_approved": [
+    ["cancellation.requested"],
+    ["recovery.requested"],
+    ["recovery.completed"],
+  ],
+  "revision_generation_approved>revising": [["execution.requested"]],
+  "revision_generation_approved>canceled": [["creator.canceled"]],
+  "revising>revising": [["recovery.requested"], ["recovery.completed"]],
+  "revising>validating": [
+    ["output.received", "validation.completed"],
+    ["output.received", "topology.document_constructed", "validation.completed"],
+  ],
+  "revising>rejected_output": [
+    ["output.received", "validation.completed", "output.rejected"],
+    [
+      "output.received",
+      "topology.document_constructed",
+      "validation.completed",
+      "output.rejected",
+    ],
+  ],
+  "revising>failed": [["failure.recorded"]],
+  "revising>stopping": [["generation.stop_requested"]],
+  "stopping>stopped": [
+    ["generation.stopped"],
+    ["output.discarded", "generation.stopped"],
+  ],
+  "stopping>stopping": [["recovery.requested"], ["recovery.completed"]],
+  "stopped>stopped": [["recovery.requested"], ["recovery.completed"]],
+  "stopped>ready": [["prior_publication.restored"]],
   "repair_requested>awaiting_repair_approval": [["repair.run_bound"]],
   "repair_requested>repair_requested": [["cancellation.requested"], ["recovery.requested"], ["recovery.completed"]],
   "repair_requested>failed": [["failure.recorded"]],
@@ -138,13 +240,25 @@ const CREATOR_TRANSITION_EVENT_SEQUENCES: Readonly<
   "repair_approved>repair_approved": [["cancellation.requested"], ["recovery.requested"], ["recovery.completed"]],
   "repair_approved>failed": [["repair.result_rejected", "failure.recorded"]],
   "repair_approved>canceled": [["creator.canceled"]],
-  "repairing>validating": [["output.received", "validation.completed"]],
+  "repairing>validating": [
+    ["output.received", "validation.completed"],
+    ["output.received", "topology.document_constructed", "validation.completed"],
+  ],
   "repairing>repairing": [["recovery.requested"], ["recovery.completed"]],
   "repairing>failed": [
     ["repair.result_rejected", "failure.recorded"],
     ["output.received", "validation.completed", "repair.result_rejected", "failure.recorded"],
+    [
+      "output.received",
+      "topology.document_constructed",
+      "validation.completed",
+      "repair.result_rejected",
+      "failure.recorded",
+    ],
   ],
+  "repairing>stopping": [["generation.stop_requested"]],
   "failed>failed": [["recovery.requested"], ["recovery.completed"]],
+  "failed>ready": [["prior_publication.restored"]],
   "failed>canceled": [["creator.canceled"]],
   "failed>exported": [["export.requested"]],
   "canceled>canceled": [["recovery.requested"], ["recovery.completed"]],
@@ -152,6 +266,7 @@ const CREATOR_TRANSITION_EVENT_SEQUENCES: Readonly<
 });
 const CREATOR_SOURCE_RUN_AUDIT_EVENTS = new Set([
   "run.bound",
+  "plan.approved",
   "approval.requested",
   "approval.recorded",
   "execution.requested",
@@ -159,16 +274,26 @@ const CREATOR_SOURCE_RUN_AUDIT_EVENTS = new Set([
   "output.rejected",
   "validation.completed",
   "revision.materialized",
+  "generation.stop_requested",
+  "generation.stopped",
+  "output.discarded",
   "repair.run_bound",
   "repair.result_accepted",
   "repair.result_rejected",
+  "topology.repair_requested",
+  "topology.document_constructed",
+  "topology.repair_completed",
+  "topology.repair_rejected",
+  "prior_publication.restored",
   "export.manifest_created",
   "export.requested",
 ]);
 const CREATOR_ARTIFACT_AUDIT_EVENTS = new Set([
   "revision.materialized",
   "repair.result_accepted",
+  "topology.repair_completed",
   "export.manifest_created",
+  "prior_publication.restored",
   "preview.started",
   "preview.stopped",
   "export.requested",
@@ -178,6 +303,8 @@ const CREATOR_AUDIT_EVENT_ACTORS: Readonly<
 > = Object.freeze({
   "request.created": "local-operator",
   "plan.prepared": "system",
+  "plan.approval_requested": "local-operator",
+  "plan.approved": "local-operator",
   "run.bound": "system",
   "approval.requested": "local-operator",
   "approval.recorded": "local-operator",
@@ -189,12 +316,23 @@ const CREATOR_AUDIT_EVENT_ACTORS: Readonly<
   "output.rejected": "system",
   "validation.completed": "system",
   "revision.materialized": "system",
+  "revision.requested": "local-operator",
+  "revision.plan_approval_requested": "local-operator",
+  "revision.plan_approved": "local-operator",
+  "generation.stop_requested": "local-operator",
+  "generation.stopped": "system",
+  "output.discarded": "system",
   "preview.started": "local-operator",
   "preview.stopped": "local-operator",
   "repair.requested": "local-operator",
   "repair.run_bound": "system",
   "repair.result_accepted": "system",
   "repair.result_rejected": "system",
+  "topology.repair_requested": "local-operator",
+  "topology.document_constructed": "system",
+  "topology.repair_completed": "system",
+  "topology.repair_rejected": "system",
+  "prior_publication.restored": "local-operator",
   "export.manifest_created": "system",
   "export.requested": "local-operator",
   "creator.canceled": "local-operator",
@@ -334,13 +472,85 @@ function isPrivateAlphaRunId(value: unknown): value is string {
   return typeof value === "string" && /^[a-f0-9]{24}$/.test(value);
 }
 
+function buildCreatorTopologyTransformationDigest(
+  repair: CreatorTopologyRepair
+): string {
+  return hashCreatorCanonicalJson({
+    canonicalizerVersion: repair.canonicalizerVersion,
+    sourceResponseContractVersion: repair.sourceResponseContractVersion,
+    responseContractVersion: repair.responseContractVersion,
+    orderedOperations: repair.orderedOperations,
+    inputDigest: repair.inputBundleDigest,
+    inputHtmlSha256: repair.inputHtmlSha256,
+    outputHtmlSha256: repair.outputHtmlSha256,
+    outputBundleDigest: repair.outputBundleDigest,
+  });
+}
+
+function buildCreatorDocumentTopologyTransformationDigest(
+  topology: CreatorDocumentTopologyProvenance
+): string {
+  return hashCreatorCanonicalJson({
+    canonicalizerVersion: topology.canonicalizerVersion,
+    sourceResponseContractVersion: topology.sourceResponseContractVersion,
+    responseContractVersion: topology.responseContractVersion,
+    orderedOperations: topology.orderedOperations,
+    inputDigest: topology.inputDigest,
+    inputHtmlSha256: topology.inputHtmlSha256,
+    outputHtmlSha256: topology.outputHtmlSha256,
+    outputBundleDigest: topology.outputBundleDigest,
+  });
+}
+
+function isExactCreatorDocumentTopologyProvenance(
+  value: unknown
+): value is CreatorDocumentTopologyProvenance {
+  if (
+    !isRecord(value) ||
+    !hasExactKeys(value, [
+      "canonicalizerVersion",
+      "sourceResponseContractVersion",
+      "responseContractVersion",
+      "orderedOperations",
+      "inputDigest",
+      "inputHtmlSha256",
+      "outputHtmlSha256",
+      "outputBundleDigest",
+      "transformationDigest",
+    ])
+  ) {
+    return false;
+  }
+  const topology = value as unknown as CreatorDocumentTopologyProvenance;
+  return (
+    topology.canonicalizerVersion === CREATOR_TOPOLOGY_CANONICALIZER_VERSION &&
+    topology.sourceResponseContractVersion === "server-owned-page-v1" &&
+    topology.responseContractVersion === "server-owned-page-v1" &&
+    Array.isArray(topology.orderedOperations) &&
+    hashCreatorCanonicalJson(topology.orderedOperations) ===
+      hashCreatorCanonicalJson(
+        CREATOR_SERVER_OWNED_PAGE_TOPOLOGY_OPERATIONS
+      ) &&
+    isHex(topology.inputDigest, 64) &&
+    topology.inputHtmlSha256 === null &&
+    isHex(topology.outputHtmlSha256, 64) &&
+    isHex(topology.outputBundleDigest, 64) &&
+    isHex(topology.transformationDigest, 64) &&
+    topology.transformationDigest ===
+      buildCreatorDocumentTopologyTransformationDigest(topology)
+  );
+}
+
 function isExactModelEnvelope(value: unknown): boolean {
   return isRecord(value) &&
     hasExactKeys(value, [
-      "providerKey", "modelKey", "runtimeModel", "dataBoundary", "maximumOutputTokens",
-      "fallback", "retry", "substitution", "paidExecution",
+      "providerKey", "providerLabel", "providerLocality", "modelKey", "runtimeModel",
+      "dataBoundary", "maximumOutputTokens", "fallback", "retry", "substitution",
+      "paidExecution", "estimatedProviderTokenChargeUsd", "localResourceCost",
     ]) &&
     value.providerKey === "ollama-local" &&
+    value.providerLabel === "Local Ollama" &&
+    value.providerLocality === "local-machine" &&
     value.modelKey === "ollama-local::gpt-oss:20b" &&
     value.runtimeModel === "gpt-oss:20b" &&
     value.dataBoundary === "local-machine" &&
@@ -348,7 +558,199 @@ function isExactModelEnvelope(value: unknown): boolean {
     value.fallback === "disabled" &&
     value.retry === "disabled" &&
     value.substitution === "disabled" &&
-    value.paidExecution === "disabled";
+    value.paidExecution === "disabled" &&
+    value.estimatedProviderTokenChargeUsd === 0 &&
+    value.localResourceCost === "unmetered";
+}
+
+function upgradeLegacyModelEnvelope(value: unknown): unknown {
+  if (
+    !isRecord(value) ||
+    !hasExactKeys(value, [
+      "providerKey", "modelKey", "runtimeModel", "dataBoundary",
+      "maximumOutputTokens", "fallback", "retry", "substitution",
+      "paidExecution",
+    ]) ||
+    value.providerKey !== "ollama-local" ||
+    value.modelKey !== "ollama-local::gpt-oss:20b" ||
+    value.runtimeModel !== "gpt-oss:20b" ||
+    value.dataBoundary !== "local-machine" ||
+    value.maximumOutputTokens !== 4096 ||
+    value.fallback !== "disabled" ||
+    value.retry !== "disabled" ||
+    value.substitution !== "disabled" ||
+    value.paidExecution !== "disabled"
+  ) {
+    return value;
+  }
+  return {
+    providerKey: "ollama-local",
+    providerLabel: "Local Ollama",
+    providerLocality: "local-machine",
+    modelKey: "ollama-local::gpt-oss:20b",
+    runtimeModel: "gpt-oss:20b",
+    dataBoundary: "local-machine",
+    maximumOutputTokens: 4096,
+    fallback: "disabled",
+    retry: "disabled",
+    substitution: "disabled",
+    paidExecution: "disabled",
+    estimatedProviderTokenChargeUsd: 0,
+    localResourceCost: "unmetered",
+  };
+}
+
+function upgradeLegacyPersistedState(project: unknown): unknown {
+  if (!isRecord(project) || project.recordVersion !== CREATOR_RECORD_VERSION) {
+    return project;
+  }
+  let changed = false;
+  let plan = project.plan;
+  if (isRecord(plan)) {
+    const upgradedEnvelope = upgradeLegacyModelEnvelope(plan.modelEnvelope);
+    if (upgradedEnvelope !== plan.modelEnvelope) {
+      const { planDigest, ...legacyPlanWithoutDigest } = plan;
+      if (
+        typeof planDigest !== "string" ||
+        hashCreatorCanonicalJson(legacyPlanWithoutDigest) !== planDigest
+      ) {
+        return project;
+      }
+      const upgradedPlanWithoutDigest = {
+        ...legacyPlanWithoutDigest,
+        modelEnvelope: upgradedEnvelope,
+      };
+      plan = {
+        ...upgradedPlanWithoutDigest,
+        planDigest: hashCreatorCanonicalJson(upgradedPlanWithoutDigest),
+      };
+      changed = true;
+    }
+  }
+  let approvalPacket = project.approvalPacket;
+  if (isRecord(approvalPacket)) {
+    const upgradedEnvelope = upgradeLegacyModelEnvelope(
+      approvalPacket.modelEnvelope
+    );
+    if (upgradedEnvelope !== approvalPacket.modelEnvelope || plan !== project.plan) {
+      approvalPacket = {
+        ...approvalPacket,
+        modelEnvelope: upgradedEnvelope,
+        planDigest: isRecord(plan) ? plan.planDigest : approvalPacket.planDigest,
+      };
+      changed = true;
+    }
+  }
+  let runBindings = project.runBindings;
+  if (
+    Array.isArray(runBindings) &&
+    runBindings.every(
+      (binding) =>
+        isRecord(binding) &&
+        binding.operationSlot === undefined &&
+        (binding.purpose === "generation" || binding.purpose === "repair")
+    )
+  ) {
+    runBindings = runBindings.map((binding) => ({
+      ...binding,
+      operationSlot:
+        binding.purpose === "generation" ? "generation-initial" : "repair-1",
+    }));
+    changed = true;
+  }
+  if (
+    Array.isArray(runBindings) &&
+    runBindings.every(
+      (binding) => isRecord(binding) && binding.documentTopology === undefined
+    )
+  ) {
+    runBindings = runBindings.map((binding) => ({
+      ...binding,
+      documentTopology: null,
+    }));
+    changed = true;
+  }
+  if (
+    Array.isArray(runBindings) &&
+    runBindings.every(
+      (binding) =>
+        isRecord(binding) && binding.responseContractVersion === undefined
+    )
+  ) {
+    runBindings = runBindings.map((binding) => ({
+      ...binding,
+      responseContractVersion: "legacy-bundle-v1",
+    }));
+    changed = true;
+  }
+  let revisionRequests = project.revisionRequests;
+  if (revisionRequests === undefined) {
+    revisionRequests = [];
+    changed = true;
+  }
+  if (
+    Array.isArray(revisionRequests) &&
+    revisionRequests.every(
+      (request) =>
+        isRecord(request) && request.responseContractVersion === undefined
+    )
+  ) {
+    revisionRequests = revisionRequests.map((request) => ({
+      ...request,
+      responseContractVersion: "legacy-bundle-v1",
+    }));
+    changed = true;
+  }
+  let repair = project.repair;
+  if (isRecord(repair) && repair.instructionVersion === undefined) {
+    const sourceArtifactRevision =
+      typeof repair.sourceArtifactRevision === "number"
+        ? repair.sourceArtifactRevision
+        : null;
+    repair = {
+      ...repair,
+      instructionVersion: "legacy-v1",
+      targetArtifactRevision: (sourceArtifactRevision ?? 0) + 1,
+      sourceManifestDigest: null,
+      sourceAggregateDigest: null,
+      sourceValidationDigest: null,
+      sourceSnapshotDigest: null,
+      sourceSnapshotBytes: null,
+      linkedRevisionRequestId: null,
+    };
+    changed = true;
+  }
+  if (isRecord(repair) && repair.responseContractVersion === undefined) {
+    repair = {
+      ...repair,
+      responseContractVersion: "legacy-bundle-v1",
+    };
+    changed = true;
+  }
+  const initialProviderResponseContractVersion =
+    project.initialProviderResponseContractVersion === undefined
+      ? "legacy-bundle-v1"
+      : project.initialProviderResponseContractVersion;
+  if (project.initialProviderResponseContractVersion === undefined) {
+    changed = true;
+  }
+  const topologyRepair =
+    project.topologyRepair === undefined ? null : project.topologyRepair;
+  if (project.topologyRepair === undefined) {
+    changed = true;
+  }
+  return changed
+    ? {
+        ...project,
+        plan,
+        approvalPacket,
+        runBindings,
+        revisionRequests,
+        repair,
+        initialProviderResponseContractVersion,
+        topologyRepair,
+      }
+    : project;
 }
 
 function validatePersistedState(project: unknown, expectedProjectId: string): CreatorProjectState {
@@ -357,9 +759,10 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
   }
   if (!hasExactKeys(project, [
     "recordVersion", "stateRevision", "status", "createdAt", "updatedAt", "identity",
-    "request", "plan", "approvalPacket", "runBindings", "artifactProposal",
+    "request", "initialProviderResponseContractVersion", "plan", "approvalPacket", "runBindings", "artifactProposal",
     "artifactProposalBinding", "validation", "materializations", "preview", "repair",
-    "exportManifest", "failureCode", "failureMessage", "auditEvents", "idempotencyRecords",
+    "revisionRequests", "topologyRepair", "exportManifest", "failureCode", "failureMessage", "auditEvents",
+    "idempotencyRecords",
   ])) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator record fields are not exact.");
   }
@@ -370,6 +773,9 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
     !CREATOR_PROJECT_STATES.includes(value.status as never) ||
     !isIsoTimestamp(value.createdAt) ||
     !isIsoTimestamp(value.updatedAt) ||
+    !CREATOR_RESPONSE_CONTRACT_VERSIONS.includes(
+      value.initialProviderResponseContractVersion as never
+    ) ||
     !isRecord(value.identity) ||
     !hasExactKeys(value.identity, ["projectId", "projectSlug", "projectTitle", "creatorKind"]) ||
     value.identity.projectId !== expectedProjectId ||
@@ -392,9 +798,11 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
     !Array.isArray(value.idempotencyRecords) ||
     value.idempotencyRecords.length > CREATOR_MAX_IDEMPOTENCY_RECORDS ||
     !Array.isArray(value.runBindings) ||
-    value.runBindings.length > 2 ||
+    value.runBindings.length > CREATOR_MAX_RUN_BINDINGS ||
     !Array.isArray(value.materializations) ||
-    value.materializations.length > 2
+    value.materializations.length > CREATOR_MAX_MATERIALIZATIONS ||
+    !Array.isArray(value.revisionRequests) ||
+    value.revisionRequests.length > CREATOR_MAX_EXPLICIT_REVISIONS
   ) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator record failed bounded validation.");
   }
@@ -449,6 +857,22 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
   }
 
   if (value.approvalPacket !== null) {
+    const approvalPlanDigest =
+      value.approvalPacket.purpose === "revision"
+        ? value.revisionRequests.find(
+            (request) =>
+              request.sourceArtifactRevision ===
+                value.approvalPacket?.sourceArtifactRevision &&
+              value.runBindings.some(
+                (binding) =>
+                  binding.sourceRunId ===
+                    value.approvalPacket?.privateAlphaRunId &&
+                  binding.purpose === "revision" &&
+                  binding.operationSlot ===
+                    `revision-${request.revisionNumber}`
+              )
+          )?.planDigest
+        : value.plan?.planDigest;
     if (
       !isRecord(value.approvalPacket) ||
       !hasExactKeys(value.approvalPacket, [
@@ -456,11 +880,11 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
         "planDigest", "sourceArtifactRevision", "targetArtifactRevision", "destinationBoundary",
         "status", "modelEnvelope", "preparedAt", "approvedAt",
       ]) ||
-      !["generation", "repair"].includes(value.approvalPacket.purpose) ||
+      !["generation", "repair", "revision"].includes(value.approvalPacket.purpose) ||
       !isPrivateAlphaRunId(value.approvalPacket.privateAlphaRunId) ||
       !isRevision(value.approvalPacket.privateAlphaRunRevision) ||
       !isHex(value.approvalPacket.approvalScopeHash, 64) ||
-      value.approvalPacket.planDigest !== value.plan?.planDigest ||
+      value.approvalPacket.planDigest !== approvalPlanDigest ||
       (value.approvalPacket.sourceArtifactRevision !== null && !isRevision(value.approvalPacket.sourceArtifactRevision)) ||
       !isRevision(value.approvalPacket.targetArtifactRevision) ||
       !isBoundedString(value.approvalPacket.destinationBoundary, 180) ||
@@ -475,7 +899,7 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
     if (
       (value.approvalPacket.purpose === "generation" && value.approvalPacket.sourceArtifactRevision !== null) ||
       value.approvalPacket.targetArtifactRevision !== expectedTargetArtifactRevision ||
-      expectedTargetArtifactRevision > 2 ||
+      expectedTargetArtifactRevision > CREATOR_MAX_MATERIALIZATIONS ||
       value.approvalPacket.destinationBoundary !== buildCreatorDestinationBoundary(value.identity.projectId, expectedTargetArtifactRevision)
     ) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator approval destination is inconsistent with its exact source and target revisions.");
@@ -483,18 +907,26 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
   }
 
   const boundRunIds = new Set<string>();
-  const boundPurposes = new Set<string>();
+  const boundOperationSlots = new Set<string>();
   for (const binding of value.runBindings) {
+    const operationSlot = String(binding.operationSlot);
     if (
       !isRecord(binding) ||
       !hasExactKeys(binding, [
-        "purpose", "sourceRunId", "ownershipBindingId", "sourceRunRevision", "approvalScopeHash", "providerKey",
+        "purpose", "operationSlot", "sourceRunId", "ownershipBindingId", "sourceRunRevision", "approvalScopeHash", "providerKey",
         "modelKey", "runtimeModel", "dataBoundary", "maximumOutputTokens",
-        "requestEnvelopeDigest", "sourceArtifactRevision", "boundAt", "approvalRecordedAt",
+        "responseContractVersion", "documentTopology", "requestEnvelopeDigest", "sourceArtifactRevision", "boundAt", "approvalRecordedAt",
         "executionRequestedAt", "executionIdempotencyKeyHash", "outputReceivedAt", "executionAttempted",
       ]) ||
       typeof binding.purpose !== "string" ||
-      !["generation", "repair"].includes(binding.purpose) ||
+      !["generation", "repair", "revision"].includes(binding.purpose) ||
+      !["generation-initial", "repair-1", "revision-1", "revision-2"].includes(operationSlot) ||
+      (binding.purpose === "generation") !==
+        (binding.operationSlot === "generation-initial") ||
+      (binding.purpose === "repair") !== (binding.operationSlot === "repair-1") ||
+      (binding.purpose === "revision") !==
+        (binding.operationSlot === "revision-1" ||
+          binding.operationSlot === "revision-2") ||
       !isPrivateAlphaRunId(binding.sourceRunId) ||
       !isHex(binding.ownershipBindingId, 32) ||
       !isRevision(binding.sourceRunRevision) ||
@@ -504,6 +936,18 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
       binding.runtimeModel !== "gpt-oss:20b" ||
       binding.dataBoundary !== "local-machine" ||
       binding.maximumOutputTokens !== 4096 ||
+      !CREATOR_RESPONSE_CONTRACT_VERSIONS.includes(
+        binding.responseContractVersion as never
+      ) ||
+      (binding.documentTopology !== null &&
+        !isExactCreatorDocumentTopologyProvenance(
+          binding.documentTopology
+        )) ||
+      (binding.documentTopology !== null &&
+        (binding.responseContractVersion !== "server-owned-page-v1" ||
+          binding.outputReceivedAt === null)) ||
+      (binding.responseContractVersion === "legacy-bundle-v1" &&
+        binding.documentTopology !== null) ||
       !isHex(binding.requestEnvelopeDigest, 64) ||
       (binding.sourceArtifactRevision !== null && !isRevision(binding.sourceArtifactRevision)) ||
       !isIsoTimestamp(binding.boundAt) ||
@@ -525,16 +969,21 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
     ) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator run binding failed exact model validation.");
     }
-    if (boundRunIds.has(binding.sourceRunId) || boundPurposes.has(binding.purpose)) {
+    if (
+      boundRunIds.has(binding.sourceRunId) ||
+      boundOperationSlots.has(operationSlot)
+    ) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator run provenance contains duplicate bindings.");
     }
     boundRunIds.add(binding.sourceRunId);
-    boundPurposes.add(binding.purpose);
+    boundOperationSlots.add(operationSlot);
   }
   const generationBinding = value.runBindings.find((binding) => binding.purpose === "generation") ?? null;
   const repairBinding = value.runBindings.find((binding) => binding.purpose === "repair") ?? null;
   const expectedGenerationRequestEnvelopeDigest = hashCreatorSha256(
-    buildCreatorGenerationInstruction({
+    buildCreatorGenerationInstructionForResponseContract({
+      responseContractVersion:
+        value.initialProviderResponseContractVersion,
       projectTitle: value.identity.projectTitle,
       description: value.request.description,
     })
@@ -542,6 +991,8 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
   if (
     generationBinding !== null &&
     (generationBinding.sourceArtifactRevision !== null ||
+      generationBinding.responseContractVersion !==
+        value.initialProviderResponseContractVersion ||
       generationBinding.requestEnvelopeDigest !== expectedGenerationRequestEnvelopeDigest)
   ) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator generation provenance is not bound to its exact request envelope.");
@@ -606,6 +1057,22 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
           !value.materializations.some(
             (materialization) =>
               materialization.artifactRevision === event.artifactRevision
+          ))) ||
+      ((event.eventType === "revision.requested" ||
+        event.eventType === "revision.plan_approval_requested") &&
+        (event.sourceRunId !== null ||
+          event.artifactRevision === null ||
+          !value.revisionRequests.some(
+            (request) =>
+              request.sourceArtifactRevision === event.artifactRevision
+          ))) ||
+      (event.eventType === "revision.plan_approved" &&
+        (event.sourceRunId === null ||
+          !boundRunIds.has(event.sourceRunId) ||
+          event.artifactRevision === null ||
+          !value.revisionRequests.some(
+            (request) =>
+              request.sourceArtifactRevision === event.artifactRevision
           )))
     ) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator audit event is not bound to its exact run and artifact evidence.");
@@ -619,6 +1086,39 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
     }
     auditIds.add(event.eventId);
   }
+  for (const binding of value.runBindings) {
+    const constructedEvents = value.auditEvents.filter(
+      (event) =>
+        event.eventType === "topology.document_constructed" &&
+        event.sourceRunId === binding.sourceRunId
+    );
+    const isHistoricalTopologyRepairSource =
+      value.topologyRepair !== null &&
+      value.topologyRepair.sourceRunId === binding.sourceRunId;
+    const expectedConstructedEventCount =
+      binding.documentTopology !== null || isHistoricalTopologyRepairSource
+        ? 1
+        : 0;
+    if (
+      constructedEvents.length !== expectedConstructedEventCount ||
+      (binding.documentTopology !== null &&
+        (binding.outputReceivedAt === null ||
+          (constructedEvents[0]?.occurredAt ?? "") <
+            binding.outputReceivedAt ||
+          !constructedEvents[0]?.summary.includes(
+            binding.documentTopology.transformationDigest.slice(0, 12)
+          ))) ||
+      (isHistoricalTopologyRepairSource &&
+        constructedEvents[0]?.occurredAt !==
+          value.topologyRepair?.constructedAt)
+    ) {
+      throw new CreatorPersistenceError(
+        500,
+        "record_corrupt",
+        "Creator document topology provenance is not bound to one exact construction audit event."
+      );
+    }
+  }
 
   const idempotencyHashes = new Set<string>();
   for (const record of value.idempotencyRecords) {
@@ -627,7 +1127,9 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
       !hasExactKeys(record, ["idempotencyKeyHash", "mutationKind", "mutationDigest", "resultingStateRevision", "recordedAt"]) ||
       !isHex(record.idempotencyKeyHash, 64) ||
       idempotencyHashes.has(record.idempotencyKeyHash) ||
-      (record.mutationKind !== "create" && !CREATOR_MUTATION_KINDS.includes(record.mutationKind as never)) ||
+      (record.mutationKind !== "create" &&
+        record.mutationKind !== "prepare-plan" &&
+        !CREATOR_MUTATION_KINDS.includes(record.mutationKind as never)) ||
       !isHex(record.mutationDigest, 64) ||
       !isRevision(record.resultingStateRevision) ||
       record.resultingStateRevision > value.stateRevision ||
@@ -697,10 +1199,15 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
     const materialization = value.materializations[index];
     if (
       !isRecord(materialization) ||
-      !hasExactKeys(materialization, [
+      !hasOnlyKeys(materialization, [
         "artifactRevision", "destinationLabel", "entrypoint", "files", "aggregateBytes",
-        "aggregateDigest", "validationDigest", "materializedAt",
+        "aggregateDigest", "validationDigest", "topologyRepairDigest",
+        "topologyTransformationDigest", "materializedAt",
       ]) ||
+      ![
+        "artifactRevision", "destinationLabel", "entrypoint", "files",
+        "aggregateBytes", "aggregateDigest", "validationDigest", "materializedAt",
+      ].every((key) => Object.hasOwn(materialization, key)) ||
       materialization.artifactRevision !== index + 1 ||
       materialization.destinationLabel !== `.codexforge/creator/projects/${expectedProjectId}/revisions/${String(index + 1).padStart(6, "0")}/files` ||
       materialization.entrypoint !== "index.html" ||
@@ -713,6 +1220,12 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
       materialization.aggregateBytes > 49_152 ||
       !isHex(materialization.aggregateDigest, 64) ||
       !isHex(materialization.validationDigest, 64) ||
+      (materialization.topologyRepairDigest !== undefined &&
+        !isHex(materialization.topologyRepairDigest, 64)) ||
+      (materialization.topologyTransformationDigest !== undefined &&
+        !isHex(materialization.topologyTransformationDigest, 64)) ||
+      (materialization.topologyRepairDigest !== undefined &&
+        materialization.topologyTransformationDigest !== undefined) ||
       !isIsoTimestamp(materialization.materializedAt)
     ) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator materialization record is malformed.");
@@ -749,6 +1262,35 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
       materializedPathValidation.issues.length > 0
     ) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator materialization inventory is inconsistent.");
+    }
+  }
+  for (const materialization of value.materializations) {
+    const materializedEvents = value.auditEvents.filter(
+      (event) =>
+        event.eventType === "revision.materialized" &&
+        event.artifactRevision === materialization.artifactRevision
+    );
+    const materializedEvent = materializedEvents[0] ?? null;
+    const publicationBinding =
+      materializedEvent === null
+        ? null
+        : value.runBindings.find(
+            (binding) =>
+              binding.sourceRunId === materializedEvent.sourceRunId
+          ) ?? null;
+    const expectedTopologyTransformationDigest =
+      publicationBinding?.documentTopology?.transformationDigest;
+    if (
+      materializedEvents.length !== 1 ||
+      publicationBinding === null ||
+      materialization.topologyTransformationDigest !==
+        expectedTopologyTransformationDigest
+    ) {
+      throw new CreatorPersistenceError(
+        500,
+        "record_corrupt",
+        "Creator materialization is not bound to its exact document topology transformation."
+      );
     }
   }
 
@@ -789,7 +1331,7 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
   if (value.artifactProposalBinding !== null && (
     !isRecord(value.artifactProposalBinding) ||
     !hasExactKeys(value.artifactProposalBinding, ["purpose", "sourceRunId"]) ||
-    !["generation", "repair"].includes(String(value.artifactProposalBinding.purpose)) ||
+      !["generation", "repair", "revision"].includes(String(value.artifactProposalBinding.purpose)) ||
     !isPrivateAlphaRunId(value.artifactProposalBinding.sourceRunId)
   )) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator artifact proposal binding is malformed.");
@@ -815,12 +1357,36 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
   if (value.repair !== null && (
     !isRecord(value.repair) ||
     !hasExactKeys(value.repair, [
-      "attempt", "requestedAt", "sourceArtifactRevision", "validationIssueDigest",
-      "issueCodes", "repairContextDigest",
+      "instructionVersion", "responseContractVersion", "attempt", "requestedAt", "sourceArtifactRevision",
+      "targetArtifactRevision", "sourceManifestDigest", "sourceAggregateDigest",
+      "sourceValidationDigest", "sourceSnapshotDigest", "sourceSnapshotBytes",
+      "linkedRevisionRequestId", "validationIssueDigest", "issueCodes",
+      "repairContextDigest",
     ]) ||
+    !["legacy-v1", "source-snapshot-v2"].includes(value.repair.instructionVersion) ||
+    !CREATOR_RESPONSE_CONTRACT_VERSIONS.includes(
+      value.repair.responseContractVersion as never
+    ) ||
     value.repair.attempt !== 1 ||
     !isIsoTimestamp(value.repair.requestedAt) ||
     (value.repair.sourceArtifactRevision !== null && !isRevision(value.repair.sourceArtifactRevision)) ||
+    value.repair.targetArtifactRevision !==
+      (value.repair.sourceArtifactRevision ?? 0) + 1 ||
+    value.repair.targetArtifactRevision > CREATOR_MAX_MATERIALIZATIONS ||
+    (value.repair.sourceManifestDigest !== null &&
+      !isHex(value.repair.sourceManifestDigest, 64)) ||
+    (value.repair.sourceAggregateDigest !== null &&
+      !isHex(value.repair.sourceAggregateDigest, 64)) ||
+    (value.repair.sourceValidationDigest !== null &&
+      !isHex(value.repair.sourceValidationDigest, 64)) ||
+    (value.repair.sourceSnapshotDigest !== null &&
+      !isHex(value.repair.sourceSnapshotDigest, 64)) ||
+    (value.repair.sourceSnapshotBytes !== null &&
+      (!Number.isSafeInteger(value.repair.sourceSnapshotBytes) ||
+        value.repair.sourceSnapshotBytes < 1 ||
+        value.repair.sourceSnapshotBytes > CREATOR_FILE_POLICY.maximumAggregateBytes * 4)) ||
+    (value.repair.linkedRevisionRequestId !== null &&
+      !isHex(value.repair.linkedRevisionRequestId, 24)) ||
     !isHex(value.repair.validationIssueDigest, 64) ||
     !Array.isArray(value.repair.issueCodes) ||
     value.repair.issueCodes.length < 1 ||
@@ -831,17 +1397,360 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator repair record is malformed.");
   }
   if (
+    value.repair !== null &&
+    ((value.repair.instructionVersion === "legacy-v1" &&
+      (value.repair.sourceManifestDigest !== null ||
+        value.repair.sourceAggregateDigest !== null ||
+        value.repair.sourceValidationDigest !== null ||
+        value.repair.sourceSnapshotDigest !== null ||
+        value.repair.sourceSnapshotBytes !== null ||
+        value.repair.linkedRevisionRequestId !== null)) ||
+      (value.repair.instructionVersion === "source-snapshot-v2" &&
+        ((value.repair.sourceArtifactRevision !== null &&
+          (value.repair.sourceManifestDigest === null ||
+            value.repair.sourceAggregateDigest === null ||
+            value.repair.sourceValidationDigest === null ||
+            value.repair.sourceSnapshotDigest === null ||
+            value.repair.sourceSnapshotBytes === null)) ||
+          (value.repair.sourceArtifactRevision === null &&
+            (value.repair.sourceManifestDigest !== null ||
+              value.repair.sourceAggregateDigest !== null ||
+              value.repair.sourceValidationDigest !== null ||
+              value.repair.sourceSnapshotDigest !== null ||
+              value.repair.sourceSnapshotBytes !== null ||
+              value.repair.linkedRevisionRequestId !== null)))))
+  ) {
+    throw new CreatorPersistenceError(500, "record_corrupt", "Creator repair source snapshot evidence is inconsistent.");
+  }
+  if (value.repair?.instructionVersion === "source-snapshot-v2" && value.repair.sourceArtifactRevision !== null) {
+    const repairSource = value.materializations.find(
+      (candidate) => candidate.artifactRevision === value.repair?.sourceArtifactRevision
+    );
+    const repairSourceMaterializedEvents = value.auditEvents.filter(
+      (event) =>
+        event.eventType === "revision.materialized" &&
+        event.artifactRevision === value.repair?.sourceArtifactRevision
+    );
+    const repairSourceMaterializedEvent = repairSourceMaterializedEvents[0] ?? null;
+    const repairSourceManifestEvents = repairSourceMaterializedEvent === null
+      ? []
+      : value.auditEvents.filter(
+          (event) =>
+            event.eventType === "export.manifest_created" &&
+            event.artifactRevision === value.repair?.sourceArtifactRevision &&
+            event.sourceRunId === repairSourceMaterializedEvent.sourceRunId
+        );
+    const repairSourceManifestEvent = repairSourceManifestEvents[0] ?? null;
+    const repairSourceTopologyCompletedEvent =
+      value.topologyRepair?.status === "completed" &&
+      value.topologyRepair.targetArtifactRevision ===
+        value.repair.sourceArtifactRevision
+        ? value.auditEvents.find(
+            (event) =>
+              event.eventType === "topology.repair_completed" &&
+              event.artifactRevision === value.repair?.sourceArtifactRevision &&
+              event.sourceRunId === repairSourceMaterializedEvent?.sourceRunId
+          ) ?? null
+        : null;
+    const repairSourceBinding = repairSourceMaterializedEvent === null
+      ? null
+      : value.runBindings.find(
+          (binding) => binding.sourceRunId === repairSourceMaterializedEvent.sourceRunId
+        ) ?? null;
+    const repairSourceAuditReferenceIds =
+      repairSourceMaterializedEvent !== null && repairSourceManifestEvent !== null
+        ? [
+            ...value.auditEvents
+              .filter(
+                (event) =>
+                  event.stateRevision < repairSourceMaterializedEvent.stateRevision &&
+                  event.eventType !== "recovery.requested" &&
+                  event.eventType !== "recovery.completed"
+              )
+              .map((event) => event.eventId),
+            repairSourceMaterializedEvent.eventId,
+            repairSourceManifestEvent.eventId,
+            ...(repairSourceTopologyCompletedEvent === null
+              ? []
+              : [repairSourceTopologyCompletedEvent.eventId]),
+          ]
+        : [];
+    const expectedRepairSourceManifestDigest =
+      repairSource !== undefined &&
+      repairSourceMaterializedEvent !== null &&
+      repairSourceManifestEvent !== null &&
+      repairSourceBinding !== null
+        ? hashCreatorCanonicalJson({
+            manifestVersion: CREATOR_MANIFEST_VERSION,
+            creatorProjectId: value.identity.projectId,
+            projectTitle: value.identity.projectTitle,
+            creatorKind: value.identity.creatorKind,
+            artifactRevision: repairSource.artifactRevision,
+            entrypoint: repairSource.entrypoint,
+            files: repairSource.files,
+            aggregateBytes: repairSource.aggregateBytes,
+            aggregateDigest: repairSource.aggregateDigest,
+            validationDigest: repairSource.validationDigest,
+            ...(repairSource.topologyRepairDigest === undefined
+              ? {}
+              : {
+                  topologyRepairDigest:
+                    repairSource.topologyRepairDigest,
+                }),
+            ...(repairSource.topologyTransformationDigest === undefined
+              ? {}
+              : {
+                  topologyTransformationDigest:
+                    repairSource.topologyTransformationDigest,
+                }),
+            sourceRequestDigest: value.request.requestDigest,
+            sourceRunId: repairSourceBinding.sourceRunId,
+            providerKey: repairSourceBinding.providerKey,
+            modelKey: repairSourceBinding.modelKey,
+            runtimeModel: repairSourceBinding.runtimeModel,
+            dataBoundary: repairSourceBinding.dataBoundary,
+            createdAt: repairSource.materializedAt,
+            auditReferenceIds: repairSourceAuditReferenceIds,
+          })
+        : null;
+    const linkedRevision = value.repair.linkedRevisionRequestId === null
+      ? null
+      : value.revisionRequests.find(
+          (request) => request.requestId === value.repair?.linkedRevisionRequestId
+        ) ?? null;
+    const latestRevisionAtRepair = value.revisionRequests
+      .filter((request) => request.requestedAt <= value.repair!.requestedAt)
+      .at(-1) ?? null;
+    const linkedRevisionBinding = linkedRevision === null
+      ? null
+      : value.runBindings.find(
+          (binding) =>
+            binding.purpose === "revision" &&
+            binding.operationSlot === `revision-${linkedRevision.revisionNumber}`
+        ) ?? null;
+    if (
+      !repairSource ||
+      repairSourceMaterializedEvents.length !== 1 ||
+      repairSourceManifestEvents.length !== 1 ||
+      expectedRepairSourceManifestDigest !== value.repair.sourceManifestDigest ||
+      repairSource.aggregateDigest !== value.repair.sourceAggregateDigest ||
+      repairSource.validationDigest !== value.repair.sourceValidationDigest ||
+      (value.repair.linkedRevisionRequestId !== null &&
+        (linkedRevision === null ||
+          latestRevisionAtRepair?.requestId !== linkedRevision.requestId ||
+          linkedRevision.sourceArtifactRevision !== value.repair.sourceArtifactRevision ||
+          linkedRevision.targetArtifactRevision !== value.repair.targetArtifactRevision ||
+          linkedRevision.rejectedAt === null ||
+          linkedRevision.rejectedAt > value.repair.requestedAt ||
+          linkedRevisionBinding === null ||
+          !value.auditEvents.some(
+            (event) =>
+              event.eventType === "output.rejected" &&
+              event.sourceRunId === linkedRevisionBinding.sourceRunId &&
+              event.occurredAt >= linkedRevision.rejectedAt
+          ) ||
+          (linkedRevision.completedAt !== null &&
+            (linkedRevision.completionPurpose !== "repair" ||
+              linkedRevision.completionSourceRunId !== repairBinding?.sourceRunId))))
+    ) {
+      throw new CreatorPersistenceError(500, "record_corrupt", "Creator repair source snapshot is not bound to its immutable publication.");
+    }
+  }
+  if (
     (value.repair === null && repairBinding !== null) ||
     (repairBinding !== null && value.repair !== null &&
       (repairBinding.sourceArtifactRevision !== value.repair.sourceArtifactRevision ||
+        repairBinding.responseContractVersion !==
+          value.repair.responseContractVersion ||
         repairBinding.requestEnvelopeDigest !== value.repair.repairContextDigest)) ||
-    (repairBinding !== null && value.approvalPacket?.purpose !== "repair") ||
     (value.approvalPacket?.purpose === "repair" && (
       value.repair === null ||
       value.approvalPacket.sourceArtifactRevision !== value.repair.sourceArtifactRevision
     ))
   ) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator repair provenance is not bound to its exact source artifact revision.");
+  }
+
+  let priorRevisionRequestedAt: string | null = null;
+  for (let index = 0; index < value.revisionRequests.length; index += 1) {
+    const request = value.revisionRequests[index];
+    const requestRecord: unknown = request;
+    if (!isRecord(requestRecord)) {
+      throw new CreatorPersistenceError(
+        500,
+        "record_corrupt",
+        "Creator explicit revision request is malformed or rewrites its immutable plan."
+      );
+    }
+    const expectedRevisionNumber = index + 1;
+    const sourceMaterialization = value.materializations.find(
+      (candidate) => candidate.artifactRevision === request.sourceArtifactRevision
+    );
+    const expectedOperationSlot = `revision-${expectedRevisionNumber}` as CreatorRunOperationSlot;
+    const boundRevisionRun = value.runBindings.find(
+      (binding) => binding.operationSlot === expectedOperationSlot
+    );
+    const expectedRevisionInstructionDigest = request.instructionDigest;
+    const targetMaterialization = value.materializations.find(
+      (candidate) => candidate.artifactRevision === request.targetArtifactRevision
+    );
+    const immutablePlanBase = {
+      instructionVersion: request.instructionVersion,
+      ...(request.responseContractVersion === "server-owned-page-v1"
+        ? { responseContractVersion: request.responseContractVersion }
+        : {}),
+      requestId: request.requestId,
+      revisionNumber: request.revisionNumber,
+      sourceArtifactRevision: request.sourceArtifactRevision,
+      targetArtifactRevision: request.targetArtifactRevision,
+      sourceManifestDigest: request.sourceManifestDigest,
+      sourceAggregateDigest: request.sourceAggregateDigest,
+      sourceValidationDigest: request.sourceValidationDigest,
+      sourceSnapshotDigest: request.sourceSnapshotDigest,
+      sourceSnapshotBytes: request.sourceSnapshotBytes,
+      instructionDigest: request.instructionDigest,
+      revisionBrief: request.revisionBrief,
+      revisionBriefDigest: request.revisionBriefDigest,
+      destinationBoundary: request.destinationBoundary,
+      contractVersion: CREATOR_CONTRACT_VERSION,
+      entrypoint: "index.html" as const,
+      modelEnvelope: value.plan?.modelEnvelope,
+      filePolicy: CREATOR_FILE_POLICY,
+      orderedSteps: CREATOR_ORDERED_PLAN_STEPS,
+      capabilityStatement: CREATOR_CAPABILITY_STATEMENT,
+      limitationStatement: CREATOR_LIMITATION_STATEMENT,
+      requestedAt: request.requestedAt,
+    };
+    const milestones = [
+      request.planApprovedAt,
+      request.runBoundAt,
+      request.generationApprovedAt,
+      request.executionRequestedAt,
+      request.completedAt,
+    ];
+    const presentMilestones = milestones.filter(
+      (timestamp): timestamp is string => timestamp !== null
+    );
+    if (
+      !hasExactKeys(requestRecord, [
+        "instructionVersion", "responseContractVersion", "requestId", "revisionNumber", "sourceArtifactRevision", "targetArtifactRevision",
+        "sourceManifestDigest", "sourceAggregateDigest", "sourceValidationDigest",
+        "sourceSnapshotDigest", "sourceSnapshotBytes", "instructionDigest",
+        "revisionBrief", "revisionBriefDigest", "destinationBoundary", "planDigest",
+        "requestedAt", "planApprovedAt", "runBoundAt", "generationApprovedAt",
+        "executionRequestedAt", "rejectedAt", "completionPurpose",
+        "completionSourceRunId", "completedAt",
+      ]) ||
+      request.instructionVersion !== "source-snapshot-v1" ||
+      !CREATOR_RESPONSE_CONTRACT_VERSIONS.includes(
+        request.responseContractVersion as never
+      ) ||
+      !isHex(request.requestId, 24) ||
+      request.revisionNumber !== expectedRevisionNumber ||
+      !isRevision(request.sourceArtifactRevision) ||
+      request.targetArtifactRevision !== request.sourceArtifactRevision + 1 ||
+      request.targetArtifactRevision > CREATOR_MAX_MATERIALIZATIONS ||
+      !isHex(request.sourceManifestDigest, 64) ||
+      !isHex(request.sourceAggregateDigest, 64) ||
+      !isHex(request.sourceValidationDigest, 64) ||
+      !isHex(request.sourceSnapshotDigest, 64) ||
+      !Number.isSafeInteger(request.sourceSnapshotBytes) ||
+      request.sourceSnapshotBytes < 1 ||
+      request.sourceSnapshotBytes > CREATOR_FILE_POLICY.maximumAggregateBytes * 4 ||
+      !isHex(request.instructionDigest, 64) ||
+      !isBoundedString(request.revisionBrief, CREATOR_MAX_REVISION_BRIEF_LENGTH) ||
+      !isSafeCreatorVisibleUnicode(request.revisionBrief) ||
+      request.revisionBriefDigest !== hashCreatorSha256(request.revisionBrief) ||
+      request.destinationBoundary !==
+        buildCreatorDestinationBoundary(value.identity.projectId, request.targetArtifactRevision) ||
+      request.planDigest !== hashCreatorCanonicalJson(immutablePlanBase) ||
+      !isIsoTimestamp(request.requestedAt) ||
+      (priorRevisionRequestedAt !== null && request.requestedAt <= priorRevisionRequestedAt) ||
+      !milestones.every((timestamp) => timestamp === null || isIsoTimestamp(timestamp)) ||
+      (request.rejectedAt !== null && !isIsoTimestamp(request.rejectedAt)) ||
+      (request.completionPurpose !== null &&
+        request.completionPurpose !== "revision" &&
+        request.completionPurpose !== "repair") ||
+      (request.completionSourceRunId !== null &&
+        !isPrivateAlphaRunId(request.completionSourceRunId)) ||
+      (request.completedAt === null) !==
+        (request.completionPurpose === null) ||
+      (request.completedAt === null) !==
+        (request.completionSourceRunId === null) ||
+      (request.rejectedAt !== null &&
+        (request.executionRequestedAt === null ||
+          request.rejectedAt < request.executionRequestedAt ||
+          !value.auditEvents.some(
+            (event) =>
+              event.eventType === "output.rejected" &&
+              event.occurredAt >= request.rejectedAt &&
+              event.sourceRunId === boundRevisionRun?.sourceRunId
+          ))) ||
+      presentMilestones.some(
+        (timestamp, milestoneIndex) =>
+          timestamp <= (presentMilestones[milestoneIndex - 1] ?? request.requestedAt)
+      ) ||
+      presentMilestones.some((timestamp) => timestamp > value.updatedAt) ||
+      milestones.some(
+        (timestamp, milestoneIndex) =>
+          timestamp === null && milestones.slice(milestoneIndex + 1).some(Boolean)
+      ) ||
+      !sourceMaterialization ||
+      (value.exportManifest !== null &&
+        request.sourceArtifactRevision === value.exportManifest.artifactRevision &&
+        request.sourceManifestDigest !== value.exportManifest.manifestDigest) ||
+      request.sourceAggregateDigest !== sourceMaterialization.aggregateDigest ||
+      request.sourceValidationDigest !== sourceMaterialization.validationDigest ||
+      (request.runBoundAt === null) !== (boundRevisionRun === undefined) ||
+      (boundRevisionRun !== undefined &&
+        (boundRevisionRun.purpose !== "revision" ||
+          boundRevisionRun.responseContractVersion !==
+            request.responseContractVersion ||
+          boundRevisionRun.sourceArtifactRevision !== request.sourceArtifactRevision ||
+          boundRevisionRun.boundAt !== request.runBoundAt ||
+          boundRevisionRun.requestEnvelopeDigest !==
+            expectedRevisionInstructionDigest ||
+          (boundRevisionRun.approvalRecordedAt === null) !==
+            (request.generationApprovedAt === null) ||
+          (boundRevisionRun.approvalRecordedAt !== null &&
+            request.generationApprovedAt !== null &&
+            request.generationApprovedAt <
+              boundRevisionRun.approvalRecordedAt) ||
+          boundRevisionRun.executionRequestedAt !==
+            request.executionRequestedAt)) ||
+      (request.completedAt !== null &&
+        (!targetMaterialization ||
+          request.completedAt !== targetMaterialization.materializedAt ||
+          !value.auditEvents.some(
+            (event) =>
+              isRecord(event) &&
+              event.eventType === "revision.materialized" &&
+              event.artifactRevision === request.targetArtifactRevision &&
+              event.sourceRunId === request.completionSourceRunId
+          ) ||
+          (request.completionPurpose === "revision" &&
+            (request.rejectedAt !== null ||
+              request.completionSourceRunId !== boundRevisionRun?.sourceRunId)) ||
+          (request.completionPurpose === "repair" &&
+            (request.rejectedAt === null ||
+              value.repair === null ||
+              value.repair.linkedRevisionRequestId !== request.requestId ||
+              value.repair.targetArtifactRevision !== request.targetArtifactRevision ||
+              request.completionSourceRunId !== repairBinding?.sourceRunId ||
+              !value.auditEvents.some(
+                (event) =>
+                  event.eventType === "repair.result_accepted" &&
+                  event.artifactRevision === request.targetArtifactRevision &&
+                  event.sourceRunId === request.completionSourceRunId
+              )))))
+    ) {
+      throw new CreatorPersistenceError(
+        500,
+        "record_corrupt",
+        "Creator explicit revision request is malformed or rewrites its immutable plan."
+      );
+    }
+    priorRevisionRequestedAt = request.requestedAt;
   }
   if (value.repair !== null) {
     const sourceArtifactRevision = value.repair.sourceArtifactRevision;
@@ -862,7 +1771,7 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
         );
     if (
       !sourceExists ||
-      targetArtifactRevision > 2 ||
+      targetArtifactRevision > CREATOR_MAX_MATERIALIZATIONS ||
       value.materializations.length > targetArtifactRevision ||
       (sourceArtifactRevision === null && value.materializations.length > 1) ||
       (targetPublished && (repairBinding === null || targetMaterializedEvents.length !== 1))
@@ -951,7 +1860,14 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
         (issue) => !value.validation?.stagesCompleted.includes(issue.stage)
       ) ||
       validationRunBinding === null ||
-      validationRunBinding.outputReceivedAt !== value.validation.completedAt ||
+      (validationRunBinding.outputReceivedAt !== value.validation.completedAt &&
+        !(
+          value.topologyRepair !== null &&
+          validationRunBinding.sourceRunId ===
+            value.topologyRepair.sourceRunId &&
+          value.validation.completedAt ===
+            value.topologyRepair.constructedAt
+        )) ||
       value.validation.stagesCompleted.some((stage, index, stages) =>
         index > 0 && stage <= stages[index - 1]
       )
@@ -990,27 +1906,184 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
     }
   }
 
+  if (value.artifactProposalBinding !== null) {
+    const proposalRunBinding = value.runBindings.find(
+      (binding) =>
+        binding.sourceRunId === value.artifactProposalBinding?.sourceRunId &&
+        binding.purpose === value.artifactProposalBinding?.purpose
+    );
+    const documentTopology = proposalRunBinding?.documentTopology ?? null;
+    if (documentTopology !== null && value.artifactProposal !== null) {
+      const indexHtml = value.artifactProposal.files.find(
+        (file) => file.path === "index.html"
+      );
+      const proposalBundleDigest = hashCreatorCanonicalJson({
+        contractVersion: value.artifactProposal.contractVersion,
+        projectTitle: value.artifactProposal.projectTitle,
+        creatorKind: value.artifactProposal.creatorKind,
+        entrypoint: value.artifactProposal.entrypoint,
+        files: value.artifactProposal.files,
+        explanation: value.artifactProposal.explanation ?? null,
+      });
+      if (
+        indexHtml === undefined ||
+        hashCreatorSha256(indexHtml.content) !==
+          documentTopology.outputHtmlSha256 ||
+        proposalBundleDigest !== documentTopology.outputBundleDigest
+      ) {
+        throw new CreatorPersistenceError(
+          500,
+          "record_corrupt",
+          "Creator proposal does not match its exact server-owned document topology output."
+        );
+      }
+    }
+  }
+
+  if (value.topologyRepair !== null) {
+    const repair = value.topologyRepair;
+    const repairRecord: unknown = repair;
+    const sourceBinding = value.runBindings.find(
+      (binding) => binding.sourceRunId === repair.sourceRunId
+    );
+    const targetMaterialization = value.materializations.find(
+      (materialization) =>
+        materialization.artifactRevision === repair.targetArtifactRevision
+    );
+    const indexHtml = value.artifactProposal?.files.find(
+      (file) => file.path === "index.html"
+    );
+    const expectedTopologyRepairDigest = hashCreatorCanonicalJson(repair);
+    const hasExactOperations =
+      hashCreatorCanonicalJson(repair.orderedOperations) ===
+      hashCreatorCanonicalJson(CREATOR_TOPOLOGY_REPAIR_OPERATIONS);
+    if (
+      !isRecord(repairRecord) ||
+      !hasExactKeys(repairRecord, [
+        "status", "sourceStateRevision", "sourceRunId", "sourceRunRevision",
+        "sourceOutputSha256", "sourceValidationIssueDigest", "providerRequests",
+        "repairKind", "originalValidationState", "automaticRepair",
+        "operatorAuthorized", "sourceResponseContractVersion",
+        "responseContractVersion", "canonicalizerVersion", "orderedOperations",
+        "inputHtmlSha256", "outputHtmlSha256", "inputBundleDigest",
+        "outputBundleDigest", "validationDigest", "transformationDigest",
+        "targetArtifactRevision", "requestedAt", "constructedAt", "completedAt",
+      ]) ||
+      !["pending", "completed"].includes(repair.status) ||
+      !isRevision(repair.sourceStateRevision) ||
+      repair.sourceStateRevision >= value.stateRevision ||
+      !isPrivateAlphaRunId(repair.sourceRunId) ||
+      !isRevision(repair.sourceRunRevision) ||
+      !isHex(repair.sourceOutputSha256, 64) ||
+      !isHex(repair.sourceValidationIssueDigest, 64) ||
+      repair.providerRequests !== 0 ||
+      repair.repairKind !== "server-owned-document-topology" ||
+      repair.originalValidationState !== "rejected_output" ||
+      repair.automaticRepair !== false ||
+      repair.operatorAuthorized !== true ||
+      repair.sourceResponseContractVersion !== "legacy-bundle-v1" ||
+      repair.responseContractVersion !== "server-owned-page-v1" ||
+      repair.canonicalizerVersion !== CREATOR_TOPOLOGY_CANONICALIZER_VERSION ||
+      !Array.isArray(repair.orderedOperations) ||
+      !hasExactOperations ||
+      !isHex(repair.inputHtmlSha256, 64) ||
+      !isHex(repair.outputHtmlSha256, 64) ||
+      !isHex(repair.inputBundleDigest, 64) ||
+      !isHex(repair.outputBundleDigest, 64) ||
+      !isHex(repair.validationDigest, 64) ||
+      !isHex(repair.transformationDigest, 64) ||
+      repair.transformationDigest !==
+        buildCreatorTopologyTransformationDigest(repair) ||
+      !isRevision(repair.targetArtifactRevision) ||
+      !isIsoTimestamp(repair.requestedAt) ||
+      !isIsoTimestamp(repair.constructedAt) ||
+      repair.requestedAt > repair.constructedAt ||
+      repair.constructedAt > value.updatedAt ||
+      (repair.status === "pending"
+        ? repair.completedAt !== null ||
+          !["validating", "failed", "rejected_output"].includes(value.status) ||
+          targetMaterialization !== undefined
+        : !isIsoTimestamp(repair.completedAt) ||
+          repair.completedAt !==
+            new Date(Date.parse(repair.constructedAt) + 1).toISOString() ||
+          repair.completedAt > value.updatedAt ||
+          targetMaterialization === undefined ||
+          targetMaterialization.materializedAt !== repair.completedAt ||
+          targetMaterialization.topologyRepairDigest !==
+            expectedTopologyRepairDigest) ||
+      sourceBinding === undefined ||
+      sourceBinding.purpose !== "generation" ||
+      sourceBinding.responseContractVersion !==
+        repair.sourceResponseContractVersion ||
+      sourceBinding.sourceRunRevision !== repair.sourceRunRevision ||
+      sourceBinding.outputReceivedAt === null ||
+      value.initialProviderResponseContractVersion !==
+        repair.sourceResponseContractVersion ||
+      value.artifactProposalBinding?.purpose !== "generation" ||
+      value.artifactProposalBinding.sourceRunId !== repair.sourceRunId ||
+      value.artifactProposal === null ||
+      value.validation === null ||
+      !value.validation.valid ||
+      value.validation.completedAt !== repair.constructedAt ||
+      value.validation.bundleDigest !== repair.outputBundleDigest ||
+      buildCreatorValidationDigest(value.validation) !== repair.validationDigest ||
+      indexHtml === undefined ||
+      hashCreatorSha256(indexHtml.content) !== repair.outputHtmlSha256
+    ) {
+      throw new CreatorPersistenceError(
+        500,
+        "record_corrupt",
+        "Creator topology repair provenance is malformed or not bound to its exact source and deterministic output."
+      );
+    }
+  }
+  const completedTopologyRepairDigest =
+    value.topologyRepair?.status === "completed"
+      ? hashCreatorCanonicalJson(value.topologyRepair)
+      : undefined;
+  if (
+    value.materializations.some(
+      (materialization) =>
+        materialization.topologyRepairDigest !==
+        (value.topologyRepair?.status === "completed" &&
+        materialization.artifactRevision ===
+          value.topologyRepair.targetArtifactRevision
+          ? completedTopologyRepairDigest
+          : undefined)
+    )
+  ) {
+    throw new CreatorPersistenceError(
+      500,
+      "record_corrupt",
+      "Creator materialization topology provenance is inconsistent."
+    );
+  }
+
   if (
     value.repair !== null &&
-    value.artifactProposalBinding?.purpose !== "repair"
+    repairBinding === null
   ) {
     const validation = value.validation;
     if (!validation) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator repair context is missing its source validation result.");
     }
     const expectedIssueCodes = validation.issues.map((issue) => issue.code).slice(0, 64);
-    const expectedRepairInstruction = buildCreatorRepairInstruction({
-      projectTitle: value.identity.projectTitle,
-      description: value.request.description,
-      sourceArtifactRevision: value.repair.sourceArtifactRevision,
-      issueDigest: validation.issueDigest,
-      issues: validation.issues,
-    });
+    const expectedLegacyRepairInstruction = value.repair.instructionVersion === "legacy-v1"
+      ? buildLegacyCreatorRepairInstruction({
+          projectTitle: value.identity.projectTitle,
+          description: value.request.description,
+          sourceArtifactRevision: value.repair.sourceArtifactRevision,
+          issueDigest: validation.issueDigest,
+          issues: validation.issues,
+        })
+      : null;
     if (
       value.repair.validationIssueDigest !== validation.issueDigest ||
       hashCreatorCanonicalJson(value.repair.issueCodes) !==
         hashCreatorCanonicalJson(expectedIssueCodes) ||
-      value.repair.repairContextDigest !== hashCreatorSha256(expectedRepairInstruction)
+      (expectedLegacyRepairInstruction !== null &&
+        value.repair.repairContextDigest !==
+          hashCreatorSha256(expectedLegacyRepairInstruction))
     ) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator repair context does not match the exact bounded validation findings.");
     }
@@ -1039,12 +2112,20 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
     const exportManifest = value.exportManifest;
     if (
       !isRecord(value.exportManifest) ||
-      !hasExactKeys(value.exportManifest, [
+      !hasOnlyKeys(value.exportManifest, [
         "manifestVersion", "creatorProjectId", "projectTitle", "creatorKind", "artifactRevision",
         "entrypoint", "files", "aggregateBytes", "aggregateDigest", "validationDigest",
+        "topologyRepairDigest", "topologyTransformationDigest",
         "sourceRequestDigest", "sourceRunId", "providerKey", "modelKey", "runtimeModel",
         "dataBoundary", "createdAt", "auditReferenceIds", "manifestDigest",
       ]) ||
+      ![
+        "manifestVersion", "creatorProjectId", "projectTitle", "creatorKind",
+        "artifactRevision", "entrypoint", "files", "aggregateBytes",
+        "aggregateDigest", "validationDigest", "sourceRequestDigest", "sourceRunId",
+        "providerKey", "modelKey", "runtimeModel", "dataBoundary", "createdAt",
+        "auditReferenceIds", "manifestDigest",
+      ].every((key) => Object.hasOwn(value.exportManifest!, key)) ||
       value.exportManifest.manifestVersion !== CREATOR_MANIFEST_VERSION ||
       value.exportManifest.creatorProjectId !== value.identity.projectId ||
       value.exportManifest.projectTitle !== value.identity.projectTitle ||
@@ -1059,6 +2140,12 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
       value.exportManifest.aggregateBytes > CREATOR_FILE_POLICY.maximumAggregateBytes ||
       !isHex(value.exportManifest.aggregateDigest, 64) ||
       !isHex(value.exportManifest.validationDigest, 64) ||
+      (value.exportManifest.topologyRepairDigest !== undefined &&
+        !isHex(value.exportManifest.topologyRepairDigest, 64)) ||
+      (value.exportManifest.topologyTransformationDigest !== undefined &&
+        !isHex(value.exportManifest.topologyTransformationDigest, 64)) ||
+      (value.exportManifest.topologyRepairDigest !== undefined &&
+        value.exportManifest.topologyTransformationDigest !== undefined) ||
       value.exportManifest.sourceRequestDigest !== value.request.requestDigest ||
       !isPrivateAlphaRunId(value.exportManifest.sourceRunId) ||
       value.exportManifest.providerKey !== "ollama-local" ||
@@ -1115,6 +2202,17 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
     );
     const materializedEvent = materializedEvents[0];
     const manifestEvent = manifestEvents[0];
+    const topologyRepairCompletedEvent =
+      value.topologyRepair?.status === "completed" &&
+      value.topologyRepair.targetArtifactRevision ===
+        exportManifest.artifactRevision
+        ? value.auditEvents.find(
+            (event) =>
+              event.eventType === "topology.repair_completed" &&
+              event.artifactRevision === exportManifest.artifactRevision &&
+              event.sourceRunId === exportManifest.sourceRunId
+          ) ?? null
+        : null;
     const expectedAuditReferenceIds = materializedEvent && manifestEvent
       ? [
           ...value.auditEvents
@@ -1127,6 +2225,9 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
             .map((event) => event.eventId),
           materializedEvent.eventId,
           manifestEvent.eventId,
+          ...(topologyRepairCompletedEvent === null
+            ? []
+            : [topologyRepairCompletedEvent.eventId]),
         ]
       : [];
     const manifestMatchesCurrentValidation =
@@ -1153,6 +2254,10 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
       value.exportManifest.aggregateBytes !== matchingMaterialization.aggregateBytes ||
       value.exportManifest.aggregateDigest !== matchingMaterialization.aggregateDigest ||
       value.exportManifest.validationDigest !== matchingMaterialization.validationDigest ||
+      value.exportManifest.topologyRepairDigest !==
+        matchingMaterialization.topologyRepairDigest ||
+      value.exportManifest.topologyTransformationDigest !==
+        matchingMaterialization.topologyTransformationDigest ||
       value.exportManifest.createdAt !== matchingMaterialization.materializedAt ||
       !manifestMatchesCurrentValidation ||
       hashCreatorCanonicalJson(value.exportManifest.auditReferenceIds) !==
@@ -1170,9 +2275,33 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
   ) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator ready/exported state is missing its exact immutable publication.");
   }
-  const packetMatches = (purpose: "generation" | "repair", status: "awaiting" | "approved") =>
+  const packetMatches = (
+    purpose: "generation" | "repair" | "revision",
+    status: "awaiting" | "approved"
+  ) =>
     value.approvalPacket?.purpose === purpose && value.approvalPacket.status === status;
   const latestProposalPurpose = value.artifactProposalBinding?.purpose ?? null;
+  const latestRevisionRequest = value.revisionRequests.at(-1) ?? null;
+  const restoredPriorPublication =
+    ["ready", "preview_available", "repair_requested"].includes(value.status) &&
+    value.exportManifest !== null &&
+    value.materializations.at(-1)?.artifactRevision ===
+      value.exportManifest.artifactRevision &&
+    value.auditEvents.some(
+      (event) =>
+        event.eventType === "prior_publication.restored" &&
+        event.artifactRevision === value.exportManifest?.artifactRevision &&
+        event.sourceRunId === value.exportManifest?.sourceRunId
+    );
+  const planOnlyPhaseMismatch =
+    (value.status === "awaiting_plan_approval" &&
+      (value.plan === null ||
+        value.approvalPacket !== null ||
+        value.runBindings.length !== 0)) ||
+    (value.status === "awaiting_revision_plan_approval" &&
+      (latestRevisionRequest === null ||
+        latestRevisionRequest.runBoundAt !== null ||
+        value.approvalPacket !== null));
   const phaseApprovalMismatch =
     (value.status === "draft" &&
       (value.approvalPacket !== null || value.runBindings.length !== 0)) ||
@@ -1184,7 +2313,16 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
       !packetMatches("repair", "awaiting")) ||
     (["repair_approved", "repairing"].includes(value.status) &&
       !packetMatches("repair", "approved")) ||
+    (value.status === "awaiting_revision_generation_approval" &&
+      !packetMatches("revision", "awaiting")) ||
+    (["revision_generation_approved", "revising"].includes(value.status) &&
+      !packetMatches("revision", "approved")) ||
+    (value.status === "stopping" &&
+      !["generation", "repair", "revision"].includes(value.approvalPacket?.purpose ?? "")) ||
+    (value.status === "stopped" &&
+      (!latestRevisionRequest && value.runBindings.length === 0)) ||
     (["validating", "rejected_output", "ready", "preview_available", "repair_requested"].includes(value.status) &&
+      !restoredPriorPublication &&
       (latestProposalPurpose === null ||
         !packetMatches(latestProposalPurpose, "approved")));
   const repairPhaseMissingRequest =
@@ -1194,7 +2332,7 @@ function validatePersistedState(project: unknown, expectedProjectId: string): Cr
       "repair_approved",
       "repairing",
     ].includes(value.status) && value.repair === null;
-  if (phaseApprovalMismatch || repairPhaseMissingRequest) {
+  if (planOnlyPhaseMismatch || phaseApprovalMismatch || repairPhaseMissingRequest) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator project phase is inconsistent with its exact approval packet.");
   }
   return project as CreatorProjectState;
@@ -1221,6 +2359,8 @@ function assertCreatorRevisionContinuity(
       !canTransitionCreatorProject(current.status, next.status)) ||
     current.recordVersion !== next.recordVersion ||
     current.createdAt !== next.createdAt ||
+    current.initialProviderResponseContractVersion !==
+      next.initialProviderResponseContractVersion ||
     next.updatedAt < current.updatedAt ||
     !exact(current.identity, next.identity) ||
     !exact(current.request, next.request) ||
@@ -1229,9 +2369,80 @@ function assertCreatorRevisionContinuity(
     !exactPrefix(current.auditEvents, next.auditEvents) ||
     !exactPrefix(current.idempotencyRecords, next.idempotencyRecords) ||
     !exactPrefix(current.materializations, next.materializations) ||
+    current.revisionRequests.length > next.revisionRequests.length ||
+    next.revisionRequests.length > current.revisionRequests.length + 1 ||
     next.auditEvents.length <= current.auditEvents.length
   ) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator revision rewrites immutable or append-only history.");
+  }
+  const immutableRevisionRequest = (
+    request: CreatorProjectState["revisionRequests"][number]
+  ) => ({
+      instructionVersion: request.instructionVersion,
+      responseContractVersion: request.responseContractVersion,
+      requestId: request.requestId,
+    revisionNumber: request.revisionNumber,
+    sourceArtifactRevision: request.sourceArtifactRevision,
+    targetArtifactRevision: request.targetArtifactRevision,
+    sourceManifestDigest: request.sourceManifestDigest,
+    sourceAggregateDigest: request.sourceAggregateDigest,
+    sourceValidationDigest: request.sourceValidationDigest,
+    sourceSnapshotDigest: request.sourceSnapshotDigest,
+    sourceSnapshotBytes: request.sourceSnapshotBytes,
+    instructionDigest: request.instructionDigest,
+    revisionBrief: request.revisionBrief,
+    revisionBriefDigest: request.revisionBriefDigest,
+    destinationBoundary: request.destinationBoundary,
+    planDigest: request.planDigest,
+    requestedAt: request.requestedAt,
+  });
+  const revisionMilestones = (
+    request: CreatorProjectState["revisionRequests"][number]
+  ) => [
+    request.planApprovedAt,
+    request.runBoundAt,
+    request.generationApprovedAt,
+    request.executionRequestedAt,
+    request.completedAt,
+  ] as const;
+  const milestoneAdvances: number[][] = [];
+  for (let index = 0; index < current.revisionRequests.length; index += 1) {
+    const prior = current.revisionRequests[index];
+    const candidate = next.revisionRequests[index];
+    const priorMilestones = revisionMilestones(prior);
+    const candidateMilestones = revisionMilestones(candidate);
+    milestoneAdvances[index] = candidateMilestones.flatMap(
+      (timestamp, milestoneIndex) =>
+        priorMilestones[milestoneIndex] === null && timestamp !== null
+          ? [milestoneIndex]
+          : []
+    );
+    if (
+      !candidate ||
+      !exact(immutableRevisionRequest(prior), immutableRevisionRequest(candidate)) ||
+      priorMilestones.some(
+        (timestamp, milestoneIndex) =>
+          timestamp !== null && candidateMilestones[milestoneIndex] !== timestamp
+      ) ||
+      (prior.rejectedAt !== null && candidate.rejectedAt !== prior.rejectedAt) ||
+      (prior.rejectedAt === null && candidate.rejectedAt !== null &&
+        !(next.status === "rejected_output" &&
+          next.artifactProposalBinding?.purpose === "revision")) ||
+      (prior.completionPurpose !== null &&
+        candidate.completionPurpose !== prior.completionPurpose) ||
+      (prior.completionSourceRunId !== null &&
+        candidate.completionSourceRunId !== prior.completionSourceRunId) ||
+      ((candidate.completedAt === null) !==
+        (candidate.completionPurpose === null)) ||
+      ((candidate.completedAt === null) !==
+        (candidate.completionSourceRunId === null))
+    ) {
+      throw new CreatorPersistenceError(
+        500,
+        "record_corrupt",
+        "Creator revision rewrites immutable explicit-revision provenance."
+      );
+    }
   }
   const appendedEvents = next.auditEvents.slice(current.auditEvents.length);
   if (
@@ -1261,11 +2472,156 @@ function assertCreatorRevisionContinuity(
   ) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator transition does not have its exact audit event sequence.");
   }
+  const immutableTopologyRepair = (
+    repair: NonNullable<CreatorProjectState["topologyRepair"]>
+  ) => ({
+    sourceStateRevision: repair.sourceStateRevision,
+    sourceRunId: repair.sourceRunId,
+    sourceRunRevision: repair.sourceRunRevision,
+    sourceOutputSha256: repair.sourceOutputSha256,
+    sourceValidationIssueDigest: repair.sourceValidationIssueDigest,
+    providerRequests: repair.providerRequests,
+    repairKind: repair.repairKind,
+    originalValidationState: repair.originalValidationState,
+    automaticRepair: repair.automaticRepair,
+    operatorAuthorized: repair.operatorAuthorized,
+    sourceResponseContractVersion: repair.sourceResponseContractVersion,
+    responseContractVersion: repair.responseContractVersion,
+    canonicalizerVersion: repair.canonicalizerVersion,
+    orderedOperations: repair.orderedOperations,
+    inputHtmlSha256: repair.inputHtmlSha256,
+    outputHtmlSha256: repair.outputHtmlSha256,
+    inputBundleDigest: repair.inputBundleDigest,
+    outputBundleDigest: repair.outputBundleDigest,
+    validationDigest: repair.validationDigest,
+    transformationDigest: repair.transformationDigest,
+    targetArtifactRevision: repair.targetArtifactRevision,
+    requestedAt: repair.requestedAt,
+    constructedAt: repair.constructedAt,
+  });
+  const startsTopologyRepair =
+    current.topologyRepair === null &&
+    next.topologyRepair?.status === "pending" &&
+    current.status === "rejected_output" &&
+    appendedEventTypes.includes("topology.repair_requested") &&
+    appendedEventTypes.includes("topology.document_constructed");
+  const completesTopologyRepair =
+    current.topologyRepair?.status === "pending" &&
+    next.topologyRepair?.status === "completed" &&
+    transitionKey === "validating>ready";
+  if (
+    (startsTopologyRepair &&
+      (next.topologyRepair.sourceStateRevision !== current.stateRevision ||
+        next.topologyRepair.sourceValidationIssueDigest !==
+          current.validation?.issueDigest ||
+        current.validation?.valid !== false ||
+        next.topologyRepair.sourceRunId !==
+          current.artifactProposalBinding?.sourceRunId ||
+        next.topologyRepair.targetArtifactRevision !==
+          current.materializations.length + 1 ||
+        next.topologyRepair.requestedAt !== next.updatedAt ||
+        next.topologyRepair.constructedAt !== next.updatedAt)) ||
+    (completesTopologyRepair &&
+      (!exact(
+        immutableTopologyRepair(current.topologyRepair),
+        immutableTopologyRepair(next.topologyRepair)
+      ) ||
+        next.topologyRepair.completedAt !== next.updatedAt)) ||
+    (!startsTopologyRepair &&
+      !completesTopologyRepair &&
+      !exact(current.topologyRepair, next.topologyRepair)) ||
+    (current.topologyRepair?.status === "completed" &&
+      !exact(current.topologyRepair, next.topologyRepair))
+  ) {
+    throw new CreatorPersistenceError(
+      500,
+      "record_corrupt",
+      "Creator topology repair rewrites immutable provenance or advances outside its exact deterministic lifecycle."
+    );
+  }
+  const latestExistingRevisionIndex = current.revisionRequests.length - 1;
+  const expectedRevisionMilestoneAdvance = (() => {
+    if (
+      transitionKey ===
+        "awaiting_revision_plan_approval>awaiting_revision_plan_approval" &&
+      appendedEventTypes[0] === "revision.plan_approval_requested"
+    ) return 0;
+    if (
+      transitionKey ===
+      "awaiting_revision_plan_approval>awaiting_revision_generation_approval"
+    ) return 1;
+    if (
+      transitionKey ===
+        "awaiting_revision_generation_approval>revision_generation_approved"
+    ) return 2;
+    if (
+      transitionKey === "awaiting_revision_generation_approval>canceled" &&
+      appendedEventTypes.includes("approval.recorded")
+    ) return 2;
+    if (transitionKey === "revision_generation_approved>revising") return 3;
+    if (
+      transitionKey === "validating>ready" &&
+      current.artifactProposalBinding?.purpose === "revision"
+    ) return 4;
+    if (
+      transitionKey === "validating>ready" &&
+      current.artifactProposalBinding?.purpose === "repair" &&
+      current.repair?.linkedRevisionRequestId ===
+        current.revisionRequests.at(-1)?.requestId &&
+      next.revisionRequests.at(-1)?.completionPurpose === "repair" &&
+      next.revisionRequests.at(-1)?.completionSourceRunId ===
+        current.approvalPacket?.privateAlphaRunId
+    ) return 4;
+    return null;
+  })();
+  if (
+    milestoneAdvances.some((advances, index) =>
+      expectedRevisionMilestoneAdvance === null
+        ? advances.length !== 0
+        : index === latestExistingRevisionIndex
+          ? advances.length !== 1 ||
+            advances[0] !== expectedRevisionMilestoneAdvance
+          : advances.length !== 0
+    )
+  ) {
+    throw new CreatorPersistenceError(
+      500,
+      "record_corrupt",
+      "Creator explicit-revision milestones did not advance one exact ordered lifecycle gate."
+    );
+  }
+  if (transitionKey === "ready>awaiting_revision_plan_approval") {
+    const request = next.revisionRequests.at(-1);
+    const source = current.materializations.at(-1);
+    const manifest = current.exportManifest;
+    if (
+      !request ||
+      !source ||
+      !manifest ||
+      request.revisionNumber !== current.revisionRequests.length + 1 ||
+      request.sourceArtifactRevision !== source.artifactRevision ||
+      request.sourceArtifactRevision !== manifest.artifactRevision ||
+      request.targetArtifactRevision !== source.artifactRevision + 1 ||
+      request.sourceManifestDigest !== manifest.manifestDigest ||
+      request.sourceAggregateDigest !== source.aggregateDigest ||
+      request.sourceValidationDigest !== source.validationDigest ||
+      request.requestedAt <= current.updatedAt ||
+      request.requestedAt > next.updatedAt
+    ) {
+      throw new CreatorPersistenceError(
+        500,
+        "record_corrupt",
+        "Creator explicit revision was not appended from the exact latest immutable publication."
+      );
+    }
+  }
   const capturesProviderOutput =
-    ["generating", "repairing"].includes(current.status) &&
+    ["generating", "repairing", "revising"].includes(current.status) &&
     appendedEventTypes.includes("output.received");
+  const capturesTopologyRepairOutput = startsTopologyRepair;
   if (
     !capturesProviderOutput &&
+    !capturesTopologyRepairOutput &&
     (!exact(current.artifactProposal, next.artifactProposal) ||
       !exact(current.artifactProposalBinding, next.artifactProposalBinding) ||
       !exact(current.validation, next.validation))
@@ -1286,7 +2642,9 @@ function assertCreatorRevisionContinuity(
   const publishesRevision = transitionKey === "validating>ready";
   if (
     materializationDelta !== (publishesRevision ? 1 : 0) ||
-    (next.repair === null && next.materializations.length > 1)
+    (next.repair === null &&
+      next.revisionRequests.length === 0 &&
+      next.materializations.length > 1)
   ) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator materialization history changed outside one exact publication transition.");
   }
@@ -1318,12 +2676,23 @@ function assertCreatorRevisionContinuity(
     appendedEventTypes[0] === "recovery.completed";
   const idempotentCompletionTransitions = new Set([
     "draft>awaiting_generation_approval",
+    "draft>awaiting_plan_approval",
+    "awaiting_plan_approval>awaiting_generation_approval",
     "awaiting_generation_approval>approved",
     "generating>rejected_output",
     "generating>failed",
     "validating>rejected_output",
     "validating>ready",
     "validating>failed",
+    "ready>awaiting_revision_plan_approval",
+    "awaiting_revision_plan_approval>awaiting_revision_generation_approval",
+    "awaiting_revision_generation_approval>revision_generation_approved",
+    "generating>stopping",
+    "revising>stopping",
+    "repairing>stopping",
+    "revising>rejected_output",
+    "revising>failed",
+    "stopping>stopped",
     "ready>preview_available",
     "preview_available>ready",
     "repair_requested>awaiting_repair_approval",
@@ -1332,9 +2701,16 @@ function assertCreatorRevisionContinuity(
     "repairing>failed",
     "ready>exported",
     "failed>exported",
+    "rejected_output>ready",
+    "failed>ready",
+    "stopped>ready",
     "draft>canceled",
     "awaiting_generation_approval>canceled",
     "approved>canceled",
+    "awaiting_plan_approval>canceled",
+    "awaiting_revision_plan_approval>canceled",
+    "awaiting_revision_generation_approval>canceled",
+    "revision_generation_approved>canceled",
     "rejected_output>canceled",
     "ready>canceled",
     "preview_available>canceled",
@@ -1344,7 +2720,9 @@ function assertCreatorRevisionContinuity(
     "failed>canceled",
   ]);
   const expectedIdempotencyDelta =
-    idempotentCompletionTransitions.has(transitionKey) || completesRecovery
+    idempotentCompletionTransitions.has(transitionKey) ||
+    completesRecovery ||
+    appendedEventTypes.includes("topology.repair_rejected")
       ? 1
       : 0;
   if (idempotencyDelta !== expectedIdempotencyDelta) {
@@ -1354,23 +2732,49 @@ function assertCreatorRevisionContinuity(
     const record = next.idempotencyRecords.at(-1);
     const expectedMutationKinds: Readonly<Record<string, readonly string[]>> = {
       "draft>awaiting_generation_approval": ["create"],
+      "draft>awaiting_plan_approval": ["prepare-plan"],
+      "awaiting_plan_approval>awaiting_generation_approval": ["approve-plan"],
       "awaiting_generation_approval>approved": ["approve-generation"],
       "generating>rejected_output": ["execute-generation"],
       "generating>failed": ["execute-generation"],
       "validating>rejected_output": ["execute-generation"],
       "validating>ready": [
-        next.artifactProposalBinding?.purpose === "repair"
+        next.topologyRepair?.status === "completed"
+          ? "repair-document-topology"
+          : next.artifactProposalBinding?.purpose === "repair"
           ? "execute-repair"
+          : next.artifactProposalBinding?.purpose === "revision"
+            ? "execute-revision-generation"
           : "execute-generation",
       ],
       "validating>failed": [
-        next.artifactProposalBinding?.purpose === "repair"
+        next.topologyRepair !== null
+          ? "repair-document-topology"
+          : next.artifactProposalBinding?.purpose === "repair"
           ? "execute-repair"
+          : next.artifactProposalBinding?.purpose === "revision"
+            ? "execute-revision-generation"
           : "execute-generation",
+      ],
+      "ready>awaiting_revision_plan_approval": ["request-revision"],
+      "awaiting_revision_plan_approval>awaiting_revision_generation_approval": ["approve-revision-plan"],
+      "awaiting_revision_generation_approval>revision_generation_approved": ["approve-revision-generation"],
+      "revising>rejected_output": ["execute-revision-generation"],
+      "revising>failed": ["execute-revision-generation"],
+      "generating>stopping": ["stop-generation"],
+      "revising>stopping": ["stop-generation"],
+      "repairing>stopping": ["stop-generation"],
+      "stopping>stopped": [
+        next.approvalPacket?.purpose === "revision"
+          ? "execute-revision-generation"
+          : next.approvalPacket?.purpose === "repair"
+            ? "execute-repair"
+            : "execute-generation",
       ],
       "ready>preview_available": ["start-preview"],
       "preview_available>ready": ["stop-preview"],
       "rejected_output>repair_requested": [],
+      "rejected_output>rejected_output": ["repair-document-topology"],
       "ready>repair_requested": [],
       "repair_requested>awaiting_repair_approval": ["request-repair"],
       "repair_requested>failed": ["request-repair"],
@@ -1378,9 +2782,16 @@ function assertCreatorRevisionContinuity(
       "repairing>failed": ["execute-repair"],
       "ready>exported": ["export"],
       "failed>exported": ["export"],
+      "rejected_output>ready": ["restore-prior-publication"],
+      "failed>ready": ["restore-prior-publication"],
+      "stopped>ready": ["restore-prior-publication"],
       "draft>canceled": ["cancel"],
       "awaiting_generation_approval>canceled": ["cancel"],
       "approved>canceled": ["cancel"],
+      "awaiting_plan_approval>canceled": ["cancel"],
+      "awaiting_revision_plan_approval>canceled": ["cancel"],
+      "awaiting_revision_generation_approval>canceled": ["cancel"],
+      "revision_generation_approved>canceled": ["cancel"],
       "rejected_output>canceled": ["cancel"],
       "ready>canceled": ["cancel"],
       "preview_available>canceled": ["cancel"],
@@ -1399,7 +2810,10 @@ function assertCreatorRevisionContinuity(
   const runBindingDelta = next.runBindings.length - current.runBindings.length;
   const bindsRun =
     transitionKey === "draft>awaiting_generation_approval" ||
-    transitionKey === "repair_requested>awaiting_repair_approval";
+    transitionKey === "repair_requested>awaiting_repair_approval" ||
+    transitionKey === "awaiting_plan_approval>awaiting_generation_approval" ||
+    transitionKey ===
+      "awaiting_revision_plan_approval>awaiting_revision_generation_approval";
   const bindsRunDuringCancellation =
     runBindingDelta === 1 &&
     (transitionKey === "draft>canceled" || transitionKey === "repair_requested>canceled");
@@ -1410,7 +2824,13 @@ function assertCreatorRevisionContinuity(
     const binding = next.runBindings.at(-1);
     const packet = next.approvalPacket;
     const runEvent = appendedEvents[0];
-    const expectedPurpose = transitionKey.startsWith("draft>") ? "generation" : "repair";
+    const expectedPurpose =
+      transitionKey.startsWith("draft>") ||
+      transitionKey.startsWith("awaiting_plan_approval>")
+        ? "generation"
+        : transitionKey.startsWith("awaiting_revision_plan_approval>")
+          ? "revision"
+          : "repair";
     if (
       !binding ||
       !packet ||
@@ -1432,7 +2852,12 @@ function assertCreatorRevisionContinuity(
       (expectedPurpose === "repair" &&
         (next.repair === null ||
           binding.sourceArtifactRevision !== next.repair.sourceArtifactRevision ||
-          runEvent.artifactRevision !== next.repair.sourceArtifactRevision))
+          runEvent.artifactRevision !== next.repair.sourceArtifactRevision)) ||
+      (expectedPurpose === "revision" &&
+        (next.revisionRequests.at(-1)?.runBoundAt !== binding.boundAt ||
+          binding.sourceArtifactRevision !==
+            next.revisionRequests.at(-1)?.sourceArtifactRevision ||
+          runEvent.artifactRevision !== binding.sourceArtifactRevision))
     ) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator run binding was not appended with its exact initial lifecycle evidence.");
     }
@@ -1474,12 +2899,18 @@ function assertCreatorRevisionContinuity(
   }
   const approvalTransition =
     transitionKey === "awaiting_generation_approval>approved" ||
-    transitionKey === "awaiting_repair_approval>repair_approved";
+    transitionKey === "awaiting_repair_approval>repair_approved" ||
+    transitionKey ===
+      "awaiting_revision_generation_approval>revision_generation_approved";
+  const startsExplicitRevision =
+    transitionKey === "ready>awaiting_revision_plan_approval";
   const activeRunCancellation =
     next.status === "canceled" &&
     [
       "awaiting_generation_approval",
       "approved",
+      "awaiting_revision_generation_approval",
+      "revision_generation_approved",
       "awaiting_repair_approval",
       "repair_approved",
     ].includes(current.status);
@@ -1502,9 +2933,17 @@ function assertCreatorRevisionContinuity(
     !bindsRunDuringCancellation &&
     !approvalTransition &&
     !activeRunCancellation &&
+    !startsExplicitRevision &&
     !exact(current.approvalPacket, next.approvalPacket)
   ) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator approval packet changed outside its exact bind, approval, or pre-execution cancellation transition.");
+  }
+  if (startsExplicitRevision && next.approvalPacket !== null) {
+    throw new CreatorPersistenceError(
+      500,
+      "record_corrupt",
+      "Creator explicit revision did not clear the prior approval packet before its plan-only gate."
+    );
   }
   if (
     (approvalTransition || activeRunCancellation) &&
@@ -1522,12 +2961,16 @@ function assertCreatorRevisionContinuity(
   const failureEvidenceMayChange =
     next.status === "failed" ||
     next.status === "rejected_output" ||
-    transitionKey === "validating>ready";
+    transitionKey === "rejected_output>validating" ||
+    transitionKey === "validating>ready" ||
+    appendedEventTypes[0] === "prior_publication.restored";
   if (
     (!failureEvidenceMayChange &&
       (current.failureCode !== next.failureCode ||
         current.failureMessage !== next.failureMessage)) ||
-    (transitionKey === "validating>ready" &&
+    ((transitionKey === "rejected_output>validating" ||
+      transitionKey === "validating>ready" ||
+      appendedEventTypes[0] === "prior_publication.restored") &&
       (next.failureCode !== null || next.failureMessage !== null))
   ) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator failure evidence changed outside its exact rejection, failure, or successful recovery transition.");
@@ -1543,21 +2986,43 @@ function assertCreatorRevisionContinuity(
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator repair request is missing its exact validation evidence.");
     }
     const expectedIssueCodes = validation.issues.map((issue) => issue.code).slice(0, 64);
-    const expectedRepairInstruction = buildCreatorRepairInstruction({
-      projectTitle: current.identity.projectTitle,
-      description: current.request.description,
-      sourceArtifactRevision: repair.sourceArtifactRevision,
-      issueDigest: validation.issueDigest,
-      issues: validation.issues,
-    });
+    const latestRevision = current.revisionRequests.at(-1) ?? null;
+    const expectedLinkedRevision =
+      current.artifactProposalBinding?.purpose === "revision" &&
+      latestRevision?.targetArtifactRevision === repair.targetArtifactRevision
+        ? latestRevision
+        : null;
+    const expectedLinkedRevisionBinding = expectedLinkedRevision === null
+      ? null
+      : current.runBindings.find(
+          (binding) =>
+            binding.purpose === "revision" &&
+            binding.operationSlot === `revision-${expectedLinkedRevision.revisionNumber}`
+        ) ?? null;
     if (
+      repair.instructionVersion !== "source-snapshot-v2" ||
       repair.requestedAt < current.updatedAt ||
       repair.requestedAt > next.updatedAt ||
       repair.validationIssueDigest !== validation.issueDigest ||
       !exact(repair.issueCodes, expectedIssueCodes) ||
-      repair.repairContextDigest !== hashCreatorSha256(expectedRepairInstruction) ||
       repair.sourceArtifactRevision !==
         (current.materializations.at(-1)?.artifactRevision ?? null) ||
+      repair.targetArtifactRevision !== (repair.sourceArtifactRevision ?? 0) + 1 ||
+      (repair.sourceArtifactRevision !== null &&
+        (repair.sourceManifestDigest !== current.exportManifest?.manifestDigest ||
+          repair.sourceAggregateDigest !== current.materializations.at(-1)?.aggregateDigest ||
+          repair.sourceValidationDigest !== current.materializations.at(-1)?.validationDigest ||
+          repair.sourceSnapshotDigest === null ||
+          repair.sourceSnapshotBytes === null)) ||
+      (expectedLinkedRevision === null
+        ? repair.linkedRevisionRequestId !== null
+        : repair.linkedRevisionRequestId !== expectedLinkedRevision.requestId) ||
+      (expectedLinkedRevision !== null &&
+        (expectedLinkedRevision.rejectedAt === null ||
+          expectedLinkedRevision.completedAt !== null ||
+          expectedLinkedRevisionBinding === null ||
+          current.artifactProposalBinding?.sourceRunId !==
+            expectedLinkedRevisionBinding.sourceRunId)) ||
       repairEvent.artifactRevision !== repair.sourceArtifactRevision
     ) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator repair request does not match its exact bounded validation context.");
@@ -1571,6 +3036,10 @@ function assertCreatorRevisionContinuity(
       "awaiting_generation_approval",
       "approved",
       "generating",
+      "awaiting_revision_generation_approval",
+      "revision_generation_approved",
+      "revising",
+      "stopping",
       "awaiting_repair_approval",
       "repair_approved",
       "repairing",
@@ -1579,6 +3048,16 @@ function assertCreatorRevisionContinuity(
     }
     if (current.status === "validating") {
       return current.artifactProposalBinding?.sourceRunId ?? null;
+    }
+    if (
+      current.status === "rejected_output" &&
+      appendedEventTypes.includes("topology.repair_requested")
+    ) {
+      return (
+        next.topologyRepair?.sourceRunId ??
+        current.artifactProposalBinding?.sourceRunId ??
+        null
+      );
     }
     return null;
   })();
@@ -1597,26 +3076,55 @@ function assertCreatorRevisionContinuity(
         record.mutationDigest === event.mutationDigest
     );
   const originalIntentTypes = new Set<CreatorAuditEventType>([
+    "plan.approval_requested",
     "approval.requested",
     "execution.requested",
     "repair.requested",
+    "topology.repair_requested",
+    "revision.plan_approval_requested",
     "cancellation.requested",
   ]);
   const originalIntentAppliesToCurrentState = (
     event: CreatorProjectState["auditEvents"][number]
   ): boolean => {
+    if (event.eventType === "plan.approval_requested") {
+      return current.status === "awaiting_plan_approval";
+    }
+    if (event.eventType === "revision.plan_approval_requested") {
+      return current.status === "awaiting_revision_plan_approval";
+    }
     if (event.eventType === "approval.requested") {
-      return ["awaiting_generation_approval", "awaiting_repair_approval"].includes(current.status);
+      return [
+        "awaiting_generation_approval",
+        "awaiting_repair_approval",
+        "awaiting_revision_generation_approval",
+      ].includes(current.status);
     }
     if (event.eventType === "execution.requested") {
-      return ["generating", "repairing", "validating"].includes(current.status);
+      return [
+        "generating",
+        "repairing",
+        "revising",
+        "validating",
+        "stopping",
+      ].includes(current.status);
     }
     if (event.eventType === "repair.requested") return current.status === "repair_requested";
+    if (event.eventType === "topology.repair_requested") {
+      return (
+        current.status === "validating" &&
+        current.topologyRepair?.status === "pending"
+      );
+    }
     if (event.eventType === "cancellation.requested") {
       return [
         "draft",
+        "awaiting_plan_approval",
         "awaiting_generation_approval",
         "approved",
+        "awaiting_revision_plan_approval",
+        "awaiting_revision_generation_approval",
+        "revision_generation_approved",
         "repair_requested",
         "awaiting_repair_approval",
         "repair_approved",
@@ -1668,9 +3176,38 @@ function assertCreatorRevisionContinuity(
     const eventIsSemanticallyBound =
       exactActor && (
       (event.eventType === "plan.prepared" && noSource && noArtifact && next.plan !== null) ||
-      (event.eventType === "run.bound" &&
+      (event.eventType === "plan.approval_requested" &&
+        noSource &&
+        noArtifact &&
+        current.status === "awaiting_plan_approval" &&
+        next.plan !== null) ||
+      (event.eventType === "plan.approved" &&
         noArtifact &&
         sourceBinding?.purpose === "generation" &&
+        next.status === "awaiting_generation_approval" &&
+        next.approvalPacket?.privateAlphaRunId === event.sourceRunId) ||
+      (event.eventType === "revision.requested" &&
+        noSource &&
+        event.artifactRevision ===
+          next.revisionRequests.at(-1)?.sourceArtifactRevision &&
+        (next.revisionRequests.at(-1)?.requestedAt ?? event.occurredAt) <=
+          event.occurredAt) ||
+      (event.eventType === "revision.plan_approval_requested" &&
+        noSource &&
+        event.artifactRevision ===
+          next.revisionRequests.at(-1)?.sourceArtifactRevision &&
+        next.revisionRequests.at(-1)?.planApprovedAt !== null &&
+        (next.revisionRequests.at(-1)?.planApprovedAt ?? event.occurredAt) <=
+          event.occurredAt) ||
+      (event.eventType === "revision.plan_approved" &&
+        sourceBinding?.purpose === "revision" &&
+        event.sourceRunId === next.runBindings.at(-1)?.sourceRunId &&
+        event.artifactRevision === sourceBinding.sourceArtifactRevision &&
+        next.revisionRequests.at(-1)?.runBoundAt === sourceBinding.boundAt) ||
+      (event.eventType === "run.bound" &&
+        ((sourceBinding?.purpose === "generation" && noArtifact) ||
+          (sourceBinding?.purpose === "revision" &&
+            event.artifactRevision === sourceBinding.sourceArtifactRevision)) &&
         event.sourceRunId === next.runBindings.at(-1)?.sourceRunId) ||
       (event.eventType === "repair.run_bound" &&
         sourceBinding?.purpose === "repair" &&
@@ -1687,8 +3224,12 @@ function assertCreatorRevisionContinuity(
         next.status === current.status &&
         [
           "draft",
+          "awaiting_plan_approval",
           "awaiting_generation_approval",
           "approved",
+          "awaiting_revision_plan_approval",
+          "awaiting_revision_generation_approval",
+          "revision_generation_approved",
           "repair_requested",
           "awaiting_repair_approval",
           "repair_approved",
@@ -1735,12 +3276,53 @@ function assertCreatorRevisionContinuity(
       (event.eventType === "validation.completed" &&
         noArtifact &&
         event.sourceRunId === activeMutationSourceRunId &&
-        sourceBinding?.outputReceivedAt === next.validation?.completedAt &&
+        (sourceBinding?.outputReceivedAt === next.validation?.completedAt ||
+          (next.topologyRepair !== null &&
+            event.sourceRunId === next.topologyRepair.sourceRunId &&
+            next.topologyRepair.constructedAt ===
+              next.validation?.completedAt)) &&
         next.artifactProposalBinding?.sourceRunId === event.sourceRunId) ||
+      (event.eventType === "topology.repair_requested" &&
+        noArtifact &&
+        current.status === "rejected_output" &&
+        sourceBinding?.purpose === "generation" &&
+        event.sourceRunId === activeMutationSourceRunId &&
+        (next.topologyRepair === null ||
+          (next.topologyRepair.sourceStateRevision === current.stateRevision &&
+            next.topologyRepair.requestedAt === event.occurredAt))) ||
+      (event.eventType === "topology.document_constructed" &&
+        noArtifact &&
+        ((sourceBinding?.purpose === "generation" &&
+          next.topologyRepair?.status === "pending" &&
+          next.topologyRepair.sourceRunId === event.sourceRunId &&
+          next.topologyRepair.constructedAt === event.occurredAt &&
+          next.validation?.valid === true) ||
+          (sourceBinding?.responseContractVersion ===
+            "server-owned-page-v1" &&
+            sourceBinding.documentTopology !== null &&
+            ["generating", "repairing", "revising"].includes(
+              current.status
+            ) &&
+            next.artifactProposalBinding?.sourceRunId ===
+              event.sourceRunId &&
+            next.validation !== null))) ||
+      (event.eventType === "topology.repair_completed" &&
+        sourceBinding?.purpose === "generation" &&
+        next.topologyRepair?.status === "completed" &&
+        next.topologyRepair.sourceRunId === event.sourceRunId &&
+        next.topologyRepair.targetArtifactRevision === event.artifactRevision &&
+        next.topologyRepair.completedAt === event.occurredAt &&
+        expectedPublishedRevision === event.artifactRevision) ||
+      (event.eventType === "topology.repair_rejected" &&
+        noArtifact &&
+        sourceBinding?.purpose === "generation" &&
+        event.sourceRunId === activeMutationSourceRunId &&
+        next.failureCode === "topology_repair_failed") ||
       (event.eventType === "output.rejected" &&
         noArtifact &&
         event.sourceRunId === activeMutationSourceRunId &&
-        sourceBinding?.purpose === "generation" &&
+        (sourceBinding?.purpose === "generation" ||
+          sourceBinding?.purpose === "revision") &&
         next.validation?.valid === false &&
         next.failureCode !== null) ||
       (event.eventType === "repair.requested" &&
@@ -1765,6 +3347,28 @@ function assertCreatorRevisionContinuity(
       (event.eventType === "export.manifest_created" &&
         next.exportManifest?.artifactRevision === event.artifactRevision &&
         next.exportManifest.sourceRunId === event.sourceRunId) ||
+      (event.eventType === "generation.stop_requested" &&
+        noArtifact &&
+        next.status === "stopping" &&
+        sourceBinding !== null &&
+        (sourceBinding.purpose === "generation" ||
+          sourceBinding.purpose === "repair" ||
+          sourceBinding.purpose === "revision") &&
+        sourceBinding.executionRequestedAt !== null) ||
+      (event.eventType === "output.discarded" &&
+        noArtifact &&
+        next.status === "stopped" &&
+        sourceBinding !== null &&
+        (sourceBinding.purpose === "generation" ||
+          sourceBinding.purpose === "repair" ||
+          sourceBinding.purpose === "revision")) ||
+      (event.eventType === "generation.stopped" &&
+        noArtifact &&
+        next.status === "stopped" &&
+        sourceBinding !== null &&
+        (sourceBinding.purpose === "generation" ||
+          sourceBinding.purpose === "repair" ||
+          sourceBinding.purpose === "revision")) ||
       (event.eventType === "preview.started" &&
         noSource &&
         next.preview.status === "active" &&
@@ -1773,6 +3377,23 @@ function assertCreatorRevisionContinuity(
         noSource &&
         next.preview.status === "stopped" &&
         next.preview.artifactRevision === event.artifactRevision) ||
+      (event.eventType === "prior_publication.restored" &&
+        ["rejected_output", "failed", "stopped"].includes(current.status) &&
+        next.status === "ready" &&
+        current.exportManifest !== null &&
+        next.exportManifest?.manifestDigest ===
+          current.exportManifest.manifestDigest &&
+        event.artifactRevision === current.exportManifest.artifactRevision &&
+        event.sourceRunId === current.exportManifest.sourceRunId &&
+        current.materializations.at(-1)?.artifactRevision ===
+          event.artifactRevision &&
+        current.runBindings.some(
+          (binding) =>
+            (binding.purpose === "revision" || binding.purpose === "repair") &&
+            binding.sourceArtifactRevision === event.artifactRevision &&
+            binding.sourceRunId !== event.sourceRunId &&
+            binding.executionAttempted
+        )) ||
       (event.eventType === "export.requested" &&
         next.status === "exported" &&
         next.exportManifest?.artifactRevision === event.artifactRevision &&
@@ -1797,6 +3418,7 @@ function assertCreatorRevisionContinuity(
     const candidate = next.runBindings[index];
     const immutablePrior = {
       purpose: prior.purpose,
+      operationSlot: prior.operationSlot,
       sourceRunId: prior.sourceRunId,
       ownershipBindingId: prior.ownershipBindingId,
       approvalScopeHash: prior.approvalScopeHash,
@@ -1805,12 +3427,14 @@ function assertCreatorRevisionContinuity(
       runtimeModel: prior.runtimeModel,
       dataBoundary: prior.dataBoundary,
       maximumOutputTokens: prior.maximumOutputTokens,
+      responseContractVersion: prior.responseContractVersion,
       requestEnvelopeDigest: prior.requestEnvelopeDigest,
       sourceArtifactRevision: prior.sourceArtifactRevision,
       boundAt: prior.boundAt,
     };
     const immutableCandidate = {
       purpose: candidate?.purpose,
+      operationSlot: candidate?.operationSlot,
       sourceRunId: candidate?.sourceRunId,
       ownershipBindingId: candidate?.ownershipBindingId,
       approvalScopeHash: candidate?.approvalScopeHash,
@@ -1819,6 +3443,7 @@ function assertCreatorRevisionContinuity(
       runtimeModel: candidate?.runtimeModel,
       dataBoundary: candidate?.dataBoundary,
       maximumOutputTokens: candidate?.maximumOutputTokens,
+      responseContractVersion: candidate?.responseContractVersion,
       requestEnvelopeDigest: candidate?.requestEnvelopeDigest,
       sourceArtifactRevision: candidate?.sourceArtifactRevision,
       boundAt: candidate?.boundAt,
@@ -1829,6 +3454,22 @@ function assertCreatorRevisionContinuity(
       recoveredOriginalIntent.sourceRunId === prior.sourceRunId
         ? recoveredOriginalIntent.occurredAt
         : current.updatedAt;
+    const capturesDocumentTopology =
+      prior.documentTopology === null &&
+      candidate?.documentTopology !== null;
+    const expectsDocumentTopologyCapture =
+      prior.responseContractVersion === "server-owned-page-v1" &&
+      ["generating", "repairing", "revising"].includes(current.status) &&
+      appendedEvents.some(
+        (event) =>
+          event.eventType === "output.received" &&
+          event.sourceRunId === prior.sourceRunId
+      ) &&
+      appendedEvents.some(
+        (event) =>
+          event.eventType === "topology.document_constructed" &&
+          event.sourceRunId === prior.sourceRunId
+      );
     if (
       !candidate ||
       !exact(immutablePrior, immutableCandidate) ||
@@ -1839,6 +3480,9 @@ function assertCreatorRevisionContinuity(
       (prior.executionIdempotencyKeyHash !== null &&
         candidate.executionIdempotencyKeyHash !== prior.executionIdempotencyKeyHash) ||
       (prior.outputReceivedAt !== null && candidate.outputReceivedAt !== prior.outputReceivedAt) ||
+      (prior.documentTopology !== null &&
+        !exact(prior.documentTopology, candidate.documentTopology)) ||
+      capturesDocumentTopology !== expectsDocumentTopologyCapture ||
       (prior.executionAttempted && !candidate.executionAttempted)
     ) {
       throw new CreatorPersistenceError(500, "record_corrupt", "Creator revision rewrites bound source-run provenance.");
@@ -1847,15 +3491,19 @@ function assertCreatorRevisionContinuity(
       (prior.approvalRecordedAt === null && candidate.approvalRecordedAt !== null &&
         (candidate.sourceRunRevision !==
             prior.sourceRunRevision + (next.status === "canceled" ? 2 : 1) ||
-          (!["approved", "repair_approved"].includes(next.status) &&
+          (!["approved", "repair_approved", "revision_generation_approved"].includes(next.status) &&
             !(next.status === "canceled" &&
-              ["awaiting_generation_approval", "awaiting_repair_approval"].includes(current.status))))) ||
+              [
+                "awaiting_generation_approval",
+                "awaiting_repair_approval",
+                "awaiting_revision_generation_approval",
+              ].includes(current.status))))) ||
       (prior.executionRequestedAt === null && candidate.executionRequestedAt !== null &&
         (candidate.sourceRunRevision !== prior.sourceRunRevision ||
           candidate.executionIdempotencyKeyHash === null ||
           candidate.executionRequestedAt < lifecycleMilestoneLowerBound ||
           candidate.executionRequestedAt > next.updatedAt ||
-          !["generating", "repairing"].includes(next.status))) ||
+          !["generating", "repairing", "revising"].includes(next.status))) ||
       (prior.outputReceivedAt === null && candidate.outputReceivedAt !== null &&
         (candidate.sourceRunRevision !== prior.sourceRunRevision + 2 ||
           candidate.outputReceivedAt < lifecycleMilestoneLowerBound ||
@@ -1878,6 +3526,8 @@ function assertCreatorRevisionContinuity(
       [
         "awaiting_generation_approval",
         "approved",
+        "awaiting_revision_generation_approval",
+        "revision_generation_approved",
         "awaiting_repair_approval",
         "repair_approved",
       ].includes(current.status);
@@ -1887,7 +3537,7 @@ function assertCreatorRevisionContinuity(
       candidate.approvalRecordedAt !== null;
     const recordsTerminalRunFailure =
       next.status === "failed" &&
-      ["generating", "repairing"].includes(current.status) &&
+      ["generating", "repairing", "revising"].includes(current.status) &&
       sourceRevisionDelta >= 1 &&
       sourceRevisionDelta <= 2 &&
       appendedEvents.some(
@@ -1895,10 +3545,21 @@ function assertCreatorRevisionContinuity(
           event.eventType === "failure.recorded" &&
           event.sourceRunId === prior.sourceRunId
       );
+    const recordsStoppedRun =
+      next.status === "stopped" &&
+      current.status === "stopping" &&
+      sourceRevisionDelta >= 1 &&
+      sourceRevisionDelta <= 2 &&
+      appendedEvents.some(
+        (event) =>
+          event.eventType === "generation.stopped" &&
+          event.sourceRunId === prior.sourceRunId
+      );
     if (
       !addedApproval &&
       !addedOutput &&
       !recordsTerminalRunFailure &&
+      !recordsStoppedRun &&
       !cancelsBoundRun &&
       sourceRevisionDelta !== 0
     ) {
@@ -1914,7 +3575,9 @@ function assertCreatorRevisionContinuity(
   }
   if (
     (transitionKey === "awaiting_generation_approval>approved" ||
-      transitionKey === "awaiting_repair_approval>repair_approved") &&
+      transitionKey === "awaiting_repair_approval>repair_approved" ||
+      transitionKey ===
+        "awaiting_revision_generation_approval>revision_generation_approved") &&
     (next.approvalPacket === null ||
       next.approvalPacket.privateAlphaRunRevision !==
         next.runBindings.find(
@@ -1929,6 +3592,8 @@ function assertCreatorRevisionContinuity(
       [
         "awaiting_generation_approval",
         "approved",
+        "awaiting_revision_generation_approval",
+        "revision_generation_approved",
         "awaiting_repair_approval",
         "repair_approved",
       ].includes(current.status)) &&
@@ -1951,6 +3616,8 @@ function assertCreatorInitialRevision(project: CreatorProjectState): void {
     project.approvalPacket !== null ||
     project.runBindings.length !== 0 ||
     project.materializations.length !== 0 ||
+    project.revisionRequests.length !== 0 ||
+    project.topologyRepair !== null ||
     project.auditEvents.length !== 1 ||
     project.idempotencyRecords.length !== 0 ||
     project.request.createdAt !== project.createdAt ||
@@ -1990,13 +3657,18 @@ function decodeStateEnvelope(source: Buffer, projectId: string): CreatorProjectS
   ) {
     throw new CreatorPersistenceError(500, "record_corrupt", "Creator record checksum mismatch.");
   }
-  return validatePersistedState(envelope.project, projectId);
+  return validatePersistedState(
+    upgradeLegacyPersistedState(envelope.project),
+    projectId
+  );
 }
 
 export type CreatorPersistence = Readonly<{
+  schemaVersion: 3;
   dataRootLabel: string;
   filesystem: CreatorOwnedFilesystem;
   initialize: () => Promise<void>;
+  withInventoryLock: <T>(operation: () => Promise<T>) => Promise<T>;
   withProjectLock: <T>(projectId: string, operation: () => Promise<T>) => Promise<T>;
   readProject: (projectId: string) => Promise<CreatorProjectState>;
   readProjectRevision: (projectId: string, revision: number) => Promise<CreatorProjectState>;
@@ -2007,8 +3679,51 @@ export type CreatorPersistence = Readonly<{
   cleanupTestRoot: () => Promise<void>;
 }>;
 
-function createPersistence(dataRootLabel: string): CreatorPersistence {
-  const filesystem = new CreatorOwnedFilesystem(dataRootLabel);
+export async function projectCreatorCatalogue<T>(
+  source: Pick<CreatorPersistence, "filesystem" | "readProject">,
+  project: (state: CreatorProjectState) => readonly T[]
+): Promise<T[]> {
+  if (!(await source.filesystem.rootExists())) return [];
+  let entries: readonly string[];
+  try {
+    entries = await source.filesystem.listDirectory(["projects"]);
+  } catch (error) {
+    if (error instanceof CreatorFilesystemError && error.code === "not_found") return [];
+    throw mapFilesystemError(error);
+  }
+  const projectIds = entries.filter((entry) => /^[a-f0-9]{24}$/.test(entry));
+  if (projectIds.length > CREATOR_MAX_PROJECT_RECORDS) {
+    throw new CreatorPersistenceError(
+      409, "project_capacity_reached",
+      `Creator project inventory exceeds the bounded ${CREATOR_MAX_PROJECT_RECORDS}-record scan ceiling.`
+    );
+  }
+  const projected: T[] = [];
+  for (const projectId of projectIds) {
+    let state: CreatorProjectState;
+    try {
+      state = await source.readProject(projectId);
+    } catch (error) {
+      if (error instanceof CreatorPersistenceError && error.status === 404) continue;
+      throw error;
+    }
+    projected.push(...project(state));
+  }
+  return projected;
+}
+
+function createPersistence(
+  dataRootLabel: string,
+  suppliedFilesystem?: CreatorOwnedFilesystem
+): CreatorPersistence {
+  const filesystem = suppliedFilesystem ?? new CreatorOwnedFilesystem(dataRootLabel);
+  if (filesystem.dataRootLabel !== dataRootLabel) {
+    throw new CreatorPersistenceError(
+      500,
+      "unsafe_creator_root",
+      "Creator persistence filesystem identity does not match its exact data root."
+    );
+  }
 
   const initialize = async () => {
     await filesystem.ensureRoot();
@@ -2162,9 +3877,15 @@ function createPersistence(dataRootLabel: string): CreatorPersistence {
   };
 
   return {
+    schemaVersion: 3,
     dataRootLabel,
     filesystem,
     initialize,
+    async withInventoryLock<T>(operation: () => Promise<T>): Promise<T> {
+      return withLocalInventoryAdmission(() =>
+        withNamedLock("inventory", operation)
+      );
+    },
     async withProjectLock<T>(projectId: string, operation: () => Promise<T>): Promise<T> {
       assertProjectId(projectId);
       return withNamedLock(projectId, operation);
@@ -2196,32 +3917,10 @@ function createPersistence(dataRootLabel: string): CreatorPersistence {
       }
     },
     async listProjects(limit = 20): Promise<readonly CreatorProjectState[]> {
-      if (!(await filesystem.rootExists())) return [];
-      const boundedLimit = Number.isSafeInteger(limit) ? Math.max(1, Math.min(50, limit)) : 20;
-      let entries: readonly string[];
-      try {
-        entries = await filesystem.listDirectory(["projects"]);
-      } catch (error) {
-        if (error instanceof CreatorFilesystemError && error.code === "not_found") return [];
-        throw mapFilesystemError(error);
-      }
-      const projectIds = entries.filter((entry) => /^[a-f0-9]{24}$/.test(entry));
-      if (projectIds.length > CREATOR_MAX_PROJECT_RECORDS) {
-        throw new CreatorPersistenceError(
-          409,
-          "project_capacity_reached",
-          `Creator project inventory exceeds the bounded ${CREATOR_MAX_PROJECT_RECORDS}-record scan ceiling.`
-        );
-      }
-      const projects: CreatorProjectState[] = [];
-      for (const projectId of projectIds) {
-        try {
-          projects.push(await readProject(projectId));
-        } catch (error) {
-          if (error instanceof CreatorPersistenceError && error.status === 404) continue;
-          throw error;
-        }
-      }
+      const boundedLimit = Number.isSafeInteger(limit)
+        ? Math.max(1, Math.min(CREATOR_MAX_PROJECT_RECORDS, limit))
+        : 20;
+      const projects = await projectCreatorCatalogue({ filesystem, readProject }, (state) => [state]);
       return projects
         .sort(
           (left, right) =>
@@ -2343,4 +4042,10 @@ export function createCreatorPersistence(): CreatorPersistence {
 
 export function createCreatorPersistenceForTesting(testSuffix: string): CreatorPersistence {
   return createPersistence(buildCreatorTestDataRootLabel(testSuffix));
+}
+
+export function createCreatorPersistenceFromFilesystem(
+  filesystem: CreatorOwnedFilesystem
+): CreatorPersistence {
+  return createPersistence(filesystem.dataRootLabel, filesystem);
 }

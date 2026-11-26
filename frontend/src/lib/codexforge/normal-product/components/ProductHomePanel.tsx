@@ -32,7 +32,10 @@ export function ProductHomePanel({ workspace }: { workspace: NormalProductWorksp
     <NormalProductFrame
       activePath="/"
       workspace={workspace}
-      secondaryActions={[{ label: "Open Projects", href: "/video-projects" }]}
+      secondaryActions={[
+        { label: "Open Projects", href: "/video-projects" },
+        { label: "Work Assistant", href: "/work-assistant" },
+      ]}
     >
       <section aria-labelledby="home-trust-title" style={trustPanel}>
         <div>

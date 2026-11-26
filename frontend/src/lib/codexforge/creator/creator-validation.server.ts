@@ -2,9 +2,16 @@ import "server-only";
 
 import path from "node:path";
 import {
+  parseCreatorArtifactBundleValue,
   parseCreatorArtifactOutput,
+  parseCreatorServerOwnedPageOutput,
   type CreatorContractParseResult,
+  type CreatorServerOwnedPageParseResult,
 } from "./creator-contract.server";
+import {
+  composeCreatorServerOwnedDocument,
+  type CreatorDocumentTopologyTransformation,
+} from "./creator-document-topology.server";
 import { hashCreatorCanonicalJson, hashCreatorSha256 } from "./creator-crypto";
 import {
   validateCreatorCss,
@@ -212,18 +219,22 @@ export type CreatorOutputValidation = Readonly<{
   validation: CreatorValidationResult;
 }>;
 
-export function validateCreatorProviderOutput(input: {
-  rawOutput: string;
+export type CreatorArtifactBundleValidation = Readonly<{
+  bundle: CreatorArtifactBundle | null;
+  validation: CreatorValidationResult;
+}>;
+
+export function validateCreatorArtifactBundle(input: {
+  bundle: CreatorArtifactBundle;
   expectedProjectTitle: string;
   completedAt?: string;
-}): CreatorOutputValidation {
+}): CreatorArtifactBundleValidation {
   const completedAt = input.completedAt ?? new Date().toISOString();
-  const parse = parseCreatorArtifactOutput(input.rawOutput);
-  if (!parse.ok) {
+  const contract = parseCreatorArtifactBundleValue(input.bundle);
+  if (!contract.ok) {
     const collector = new IssueCollector();
-    collector.add(...parse.issues);
+    collector.add(...contract.issues);
     return {
-      parse,
       bundle: null,
       validation: buildValidationResult({
         completedAt,
@@ -233,8 +244,7 @@ export function validateCreatorProviderOutput(input: {
       }),
     };
   }
-
-  const bundle = parse.bundle;
+  const bundle = contract.bundle;
   const collector = new IssueCollector();
   const stagesCompleted = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 
@@ -433,7 +443,6 @@ export function validateCreatorProviderOutput(input: {
   );
   const acceptedBundle = hasBlockingIssue ? null : bundle;
   return {
-    parse,
     bundle: acceptedBundle,
     validation: buildValidationResult({
       completedAt,
@@ -441,6 +450,106 @@ export function validateCreatorProviderOutput(input: {
       issues: finalIssues,
       bundle: acceptedBundle,
     }),
+  };
+}
+
+export function validateCreatorProviderOutput(input: {
+  rawOutput: string;
+  expectedProjectTitle: string;
+  completedAt?: string;
+}): CreatorOutputValidation {
+  const completedAt = input.completedAt ?? new Date().toISOString();
+  const parse = parseCreatorArtifactOutput(input.rawOutput);
+  if (!parse.ok) {
+    const collector = new IssueCollector();
+    collector.add(...parse.issues);
+    return {
+      parse,
+      bundle: null,
+      validation: buildValidationResult({
+        completedAt,
+        stagesCompleted: [1],
+        issues: collector.list(),
+        bundle: null,
+      }),
+    };
+  }
+  const validated = validateCreatorArtifactBundle({
+    bundle: parse.bundle,
+    expectedProjectTitle: input.expectedProjectTitle,
+    completedAt,
+  });
+  return { parse, ...validated };
+}
+
+export type CreatorServerOwnedOutputValidation = Readonly<{
+  parse: CreatorServerOwnedPageParseResult;
+  bundle: CreatorArtifactBundle | null;
+  validation: CreatorValidationResult;
+  topology: CreatorDocumentTopologyTransformation | null;
+}>;
+
+export function validateCreatorServerOwnedProviderOutput(input: {
+  rawOutput: string;
+  expectedProjectTitle: string;
+  completedAt?: string;
+}): CreatorServerOwnedOutputValidation {
+  const completedAt = input.completedAt ?? new Date().toISOString();
+  const parse = parseCreatorServerOwnedPageOutput(input.rawOutput);
+  if (!parse.ok) {
+    const collector = new IssueCollector();
+    collector.add(...parse.issues);
+    return {
+      parse,
+      bundle: null,
+      topology: null,
+      validation: buildValidationResult({
+        completedAt,
+        stagesCompleted: [1],
+        issues: collector.list(),
+        bundle: null,
+      }),
+    };
+  }
+
+  const composition = composeCreatorServerOwnedDocument({
+    page: parse.page,
+    approvedProjectTitle: input.expectedProjectTitle,
+  });
+  if (!composition.ok) {
+    const collector = new IssueCollector();
+    collector.add(...composition.issues);
+    collector.add(
+      validationIssue(
+        "preview.not_ready",
+        9,
+        null,
+        "Preview is unavailable while the server-owned page topology cannot be constructed safely.",
+        "Resolve every fragment, inventory, and topology error in a separately approved response."
+      )
+    );
+    return {
+      parse,
+      bundle: null,
+      topology: null,
+      validation: buildValidationResult({
+        completedAt,
+        stagesCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        issues: collector.list(),
+        bundle: null,
+      }),
+    };
+  }
+
+  const validated = validateCreatorArtifactBundle({
+    bundle: composition.bundle,
+    expectedProjectTitle: input.expectedProjectTitle,
+    completedAt,
+  });
+  return {
+    parse,
+    ...validated,
+    topology: composition.topology,
   };
 }
 
